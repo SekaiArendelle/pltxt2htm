@@ -1,0 +1,22 @@
+#include <pltxt2htm/astnode/enum.hh>
+#include <pltxt2htm/astnode/astnode.hh>
+#include <fast_io/fast_io_dsal/vector.h>
+#include <exception/exception.hh>
+
+int main() noexcept {
+    ::fast_io::vector<::pltxt2htm::PlTxtNode> arr{
+        ::pltxt2htm::Text{u8"test"},
+        ::pltxt2htm::Color{::pltxt2htm::Text{u8"test"}},
+        ::pltxt2htm::A{::pltxt2htm::Text{u8"test"}},
+        ::pltxt2htm::Experiment{::pltxt2htm::Text{u8"test"}},
+        ::pltxt2htm::Discussion{::pltxt2htm::Text{u8"test"}},
+    };
+
+    ::exception::assert_true(arr[0].node_type() == ::pltxt2htm::NodeType::text);
+    ::exception::assert_true(arr[1].node_type() == ::pltxt2htm::NodeType::color);
+    ::exception::assert_true(arr[2].node_type() == ::pltxt2htm::NodeType::a);
+    ::exception::assert_true(arr[3].node_type() == ::pltxt2htm::NodeType::experiment);
+    ::exception::assert_true(arr[4].node_type() == ::pltxt2htm::NodeType::discussion);
+
+    return 0;
+}
