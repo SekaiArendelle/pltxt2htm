@@ -1,4 +1,5 @@
 add_rules("mode.debug")
+set_allowedmodes("debug")
 
 set_languages("c++23")
 set_encodings("utf-8")
