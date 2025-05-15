@@ -10,24 +10,35 @@ namespace pltxt2htm {
  */
 enum class NodeType : ::std::uint_least32_t {
     base = 0,
-    text,
+    // // a utf-8 char/string
+    u8char,
 
-    // pl tags
-    color,
-    a,
-    experiment,
-    discussion,
-    user,
-    size,
-    b,
-    i,
+    // set color of text
+    color, // be used by Quantum-Physics
+    // bule color of text
+    a, // be used by Quantum-Physics
+    // link of experiment
+    experiment, // be used by Quantum-Physics
+    // link of discussion
+    discussion, // be used by Quantum-Physics
+    // link of user
+    user, // be used by Quantum-Physics
+    // size of text
+    size, // be used by Quantum-Physics
+    // bold
+    b, // be used by Quantum-Physics, html, markdown(**)
+    // italic
+    i, // be used by Quantum-Physics, html, markdown(*)
 
-    // html tags
-    br,
-    h,
-    p,
+    // paragraph
+    p, // be used by html, markdown(\n\n)
+    // line break
+    br, // be used by Quantum-Physics(\n), html, markdown(\n)
+    // header
+    h, // be used by html, markdown(#)
+    // image
+    img,
 
-    // md syntaxs
     // latex
     latex,
 };

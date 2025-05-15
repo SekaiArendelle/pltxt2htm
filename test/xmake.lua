@@ -19,6 +19,8 @@ for _, file in ipairs(os.files("*.cc")) do
         add_cxxflags("-fno-rtti")
         add_cxxflags("-fno-unwind-tables")
         add_cxxflags("-fno-asynchronous-unwind-tables")
+        add_cxxflags("-fsanitize=address")
         add_syslinks("ntdll")
+        add_syslinks("clang_rt.asan_dynamic-x86_64")
     end
 end

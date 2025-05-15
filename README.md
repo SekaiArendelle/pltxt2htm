@@ -5,7 +5,7 @@
 
 This repository is a sub-project of [Physics-Lab-Web](https://github.com/wsxiaolin/physics-lab-web)
 
-This project aimed to provide a translater that compiles the Quantam-PhysicsLab's text to html (with markdown, minor html tags and latex support).
+This project aimed to provide a translater that compiles the Quantam-PhysicsLab's text to html (with markdown, minor html tags and latex support as much as possible).
 
 This project requires at least C++23, and I strongly recommend you to use clang.
 
@@ -60,3 +60,6 @@ There are some differents between the *origin markdown* and the *markdown extens
 
 ### Q: Is this the time to use C++20 module?
 A: Not exactly. Despite clang, gcc and msvc all support C++20 modules, but the compiler crashes more frequently than hearder-only. At the same time, Header unit is not fullly supported.
+
+### Q: Why not use NDEBUG macro in include/pltxt2htm
+A: Conditional compilation in function body will cause [ODR against](https://en.cppreference.com/w/cpp/language/definition) and [C++26 Contracts](https://en.cppreference.com/w/cpp/language/contracts) has the same prolem. therefore, to make debug / release mode has different symbols, I use `template<bool ndebug>` to achieve it.

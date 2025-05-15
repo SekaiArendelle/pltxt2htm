@@ -2,6 +2,8 @@
 
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
+#include <cstddef>
+#include <cstring>
 #include "enum.hh"
 
 /**
@@ -14,10 +16,10 @@ namespace pltxt2htm {
  * @brief Base node of other nodes
  */
 class PlTxtNode
-#if __cpp_trivial_relocatability >= 202502L
-    // https://en.cppreference.com/w/cpp/language/class_property_specifiers#Trivial_relocatability
-    replaceable_if_eligible trivially_relocatable_if_eligible
-#endif
+// #if __cpp_trivial_relocatability >= 202502L
+//     // https://en.cppreference.com/w/cpp/language/class_property_specifiers#Trivial_relocatability
+//     replaceable_if_eligible trivially_relocatable_if_eligible
+// #endif
 {
 protected:
     ::pltxt2htm::NodeType runtime_node_type_info = ::pltxt2htm::NodeType::base;
@@ -41,17 +43,26 @@ public:
 };
 
 /**
- * @brief Text node
+ * @brief UTF-8 char/string node
  */
-class Text : public ::pltxt2htm::PlTxtNode {
-    ::fast_io::u8string text;
+class U8Char : public ::pltxt2htm::PlTxtNode {
+    char8_t data_;
 
 public:
-    constexpr Text() noexcept = delete;
+    constexpr U8Char() noexcept = delete;
 
-    constexpr Text(::fast_io::u8string_view str) noexcept
-        : PlTxtNode{NodeType::text},
-          text{str} {
+    constexpr U8Char(char8_t const& chr) noexcept
+        : PlTxtNode{NodeType::u8char},
+          data_{chr} {
+    }
+
+    constexpr U8Char(U8Char const& other) noexcept = default;
+    constexpr U8Char(U8Char&& other) noexcept = default;
+    constexpr auto operator=(U8Char const& other) noexcept -> U8Char& = default;
+    constexpr auto operator=(U8Char&& other) noexcept -> U8Char& = default;
+
+    constexpr auto get_u8char(this U8Char const& self) noexcept {
+        return self.data_;
     }
 };
 
