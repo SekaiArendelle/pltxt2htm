@@ -1,11 +1,11 @@
 #pragma once
 
-#include <memory>
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
 #include <exception/exception.hh>
 #include "astnode/basic.hh"
+#include "heap_guard.hh"
 #include "parser.hh"
 
 namespace pltxt2htm {
@@ -18,7 +18,7 @@ namespace details {
  * @param tokens The tokens parsed from pl-text.
  */
 template<bool ndebug, typename T>
-    requires (::std::same_as<::std::remove_reference_t<T>, ::fast_io::vector<::std::unique_ptr<::pltxt2htm::PlTxtNode>>>)
+    requires (::std::same_as<::std::remove_reference_t<T>, ::fast_io::vector<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>>)
 constexpr auto integrate_ast(T&& ast, bool const is_inline) noexcept {
     ::fast_io::u8string result{};
 
