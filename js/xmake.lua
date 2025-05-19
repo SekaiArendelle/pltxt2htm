@@ -2,8 +2,8 @@ add_rules("mode.debug", "mode.release")
 
 set_languages("c++23")
 set_encodings("utf-8")
-set_policy("build.optimization.lto", true)
 
+-- only uses emcc to build wasm
 target("pltxt2htm") do
     set_plat("wasm")
     set_kind("binary")
@@ -17,6 +17,7 @@ target("pltxt2htm") do
     end
     add_includedirs("../include")
     add_ldflags("-fuse-ld=lld", {force = true})
+    add_ldflags("-flto=thin", {force = true})
     add_ldflags("-s EXPORTED_FUNCTIONS=['_pltxt2html']", {force = true})
     add_ldflags("-s EXPORTED_RUNTIME_METHODS=['ccall']", {force = true})
     set_toolchains("emcc@emscripten")
