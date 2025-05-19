@@ -4,8 +4,6 @@ includes("../xmake/*.lua")
 set_languages("c++23")
 set_encodings("utf-8")
 
-option("sysroot")
-
 target("pltxt2htm", function()
     set_kind("binary")
     add_files("main.cc")
