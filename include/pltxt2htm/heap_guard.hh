@@ -32,13 +32,13 @@ public:
         ptr_ = other.release();
     }
 
-    constexpr HeapGuard& operator=(HeapGuard const& other) = delete;
+    constexpr HeapGuard& operator=(this HeapGuard<T>& self, HeapGuard const& other) = delete;
 
-    constexpr HeapGuard& operator=(HeapGuard<T>&& other) noexcept {
-        ::std::destroy_at(ptr_);
-        ::std::free(ptr_);
-        ptr_ = other.release();
-        return *this;
+    constexpr HeapGuard& operator=(this HeapGuard<T>& self, HeapGuard<T>&& other) noexcept {
+        ::std::destroy_at(self.ptr_);
+        ::std::free(self.ptr_);
+        self.ptr_ = other.release();
+        return self;
     }
 
     constexpr ~HeapGuard() noexcept {
@@ -50,9 +50,10 @@ public:
         return self.ptr_;
     }
 
-    constexpr T* release() noexcept {
-        T* ptr = ptr_;
-        ptr_ = nullptr;
+    [[nodiscard]]
+    constexpr T* release(this auto&& self) noexcept {
+        T* ptr = self.ptr_;
+        self.ptr_ = nullptr;
         return ptr;
     }
 };

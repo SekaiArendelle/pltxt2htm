@@ -19,7 +19,8 @@ namespace details {
  */
 template<bool ndebug, typename T>
     requires (::std::same_as<::std::remove_reference_t<T>, ::fast_io::vector<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>>)
-constexpr auto integrate_ast(T&& ast, bool const is_inline) noexcept {
+[[nodiscard]]
+    constexpr auto integrate_ast(T&& ast, bool const is_inline) noexcept {
     ::fast_io::u8string result{};
 
     for (auto&& node : ast) {
@@ -107,6 +108,7 @@ constexpr auto integrate_ast(T&& ast, bool const is_inline) noexcept {
  * @param is_inline Whether ignore <size> and line break.
  */
 template<bool ndebug = false>
+[[nodiscard]]
 constexpr auto pltxt2html(::fast_io::u8string_view pltext, bool is_inline = false) noexcept {
     return ::pltxt2htm::details::integrate_ast<ndebug>(::pltxt2htm::details::parse_pltxt<ndebug>(pltext), is_inline);
 }

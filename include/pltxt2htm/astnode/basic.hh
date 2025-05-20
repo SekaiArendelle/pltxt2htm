@@ -37,6 +37,7 @@ public:
     constexpr auto operator=(PlTxtNode&&) noexcept -> PlTxtNode& = default;
     constexpr ~PlTxtNode() noexcept = default;
 
+    [[nodiscard]]
     constexpr auto node_type(this PlTxtNode const& self) noexcept {
         return self.runtime_node_type_info;
     }
@@ -61,6 +62,7 @@ public:
     constexpr auto operator=(U8Char const& other) noexcept -> U8Char& = default;
     constexpr auto operator=(U8Char&& other) noexcept -> U8Char& = default;
 
+    [[nodiscard]]
     constexpr auto get_u8char(this U8Char const& self) noexcept {
         return self.data_;
     }

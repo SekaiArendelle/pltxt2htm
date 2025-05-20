@@ -15,5 +15,5 @@ if os.path.exists(os.path.join(TEST_DIR, "build")):
     shutil.rmtree(os.path.join(TEST_DIR, "build"))
     print(f"removing dir \"{os.path.join(TEST_DIR, 'build')}\"")
 
-os.system("xmake config --mode=debug")
+os.system("xmake config --arch=x64 --plat=mingw --mode=debug --toolchain=x86_64-windows-gnu-clang")
 os.system("xmake test")
