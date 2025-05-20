@@ -23,6 +23,7 @@ target("pltxt2htm", function()
         add_cxxflags("-fno-ident", {tools = {"clang", "gcc"}})
     elseif is_mode("debug") then
         set_warnings("all")
+        set_warnings("extra")
     end
 
     -- get compiler name
