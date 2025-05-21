@@ -5,7 +5,7 @@
 
 This repository is a sub-project of [Physics-Lab-Web](https://github.com/wsxiaolin/physics-lab-web)
 
-This project aimed to provide a translater that compiles the Quantam-PhysicsLab's text to html (with markdown, minor html tags and latex support [as much as possible](#markdown-extensions-for-quantum-physicss-text)).
+This project aimed to provide a translater that compiles the Quantam-PhysicsLab's text to html (with markdown, minor html tags and latex support [as much as possible](#features)).
 
 This project requires at least C++23, disables rtti and exceptions, use header-only style to supply api, has great cross platform ability and I strongly recommend you to use clang.
 
@@ -15,8 +15,8 @@ You can use `pltxt2htm` in [cmd line](cmd/README.md), [js](js/README.md) and [py
 C++ APIs is in [include/pltxt2htm](include/pltxt2htm/), here is a simple example:
 ```cpp
 // example.cc
-#include <fast_io/fast_io.h>
-#include <pltxt2htm/pltxt2htm.hh>
+#include <fast_io/fast_io.h> // in include/fast_io
+#include <pltxt2htm/pltxt2htm.hh> // in include/pltxt2htm
 
 int main() noexcept {
     auto html = pltxt2htm::pltxt2html(u8R"(
@@ -31,15 +31,15 @@ With Markdown supports
 
 Compile it: (Windows)
 ```sh
-clang++ example.cc -o example -std=c++23 -fno-exceptions -fno-rtti -fno-unwind-tables -fno-asynchronous-unwind-tables -I include -lntdll
+clang++ example.cc -o example -std=c++23 -I include -lntdll
 ```
 
 Other platforms:
 ```sh
-clang++ example.cc -o example -std=c++23 -fno-exceptions -fno-rtti -fno-unwind-tables -fno-asynchronous-unwind-tables -I include
+clang++ example.cc -o example -std=c++23 -I include
 ```
 
-And I strongly suggest you to add `-O2`, `-fno-ident`, `-DNDEBUG`, `-fuse-ld=lld`, `-flto=thin`, `-stdlib=libc++`, `-rtlib=compiler-rt`, `--unwindlib=libunwind` and cross compiling flags(`--target=$TRIPLET` and `--sysroot=$YOUR_SYSROOT_PATH`) to your clang.
+And I strongly suggest you to add `-O2`, `-fno-ident`, `-fno-exceptions`, `-fno-rtti`, `-fno-unwind-tables`, `-fno-asynchronous-unwind-tables`, `-DNDEBUG`, `-fuse-ld=lld`, `-flto=thin`, `-stdlib=libc++`, `-rtlib=compiler-rt`, `--unwindlib=libunwind` and cross compiling flags(`--target=$TRIPLET` and `--sysroot=$YOUR_SYSROOT_PATH`) to your clang.
 
 ## run tests
 ```sh
@@ -47,13 +47,11 @@ cd test
 python ./run_tests.py
 ```
 
-## markdown extensions for Quantum Physics's text
-I was ensure any new extensions will break old Quantum Physics's text. However, compatibility is not the reason that we should stop our steps. Here are some extensions why I (not) support:
+## features
+I am ensure any new features (like markdown extension) will break old Quantum Physics's text. However, compatibility is not the reason that we should stop our steps. Here are some features why I (or why I not) support:
 
-<!-- 1. Atx style headers must be at the beginning of a line
-2. Setext style headers are not supported
-3. It is not necessary to add 2 spaces before entering the carriage to be considered a line break
-4. Indented code blocks are not supported -->
+* carriage return will be regarded as line break (unlike markdown, which requires 2 spaces before a carriage return to be considered a line break)
+* &lt;br&gt;, &lt;BR&gt;, &lt;br/&gt;, &lt;br&nbsp;&nbsp;&nbsp;&gt;, &lt;br&nbsp;&nbsp;&nbsp;/&gt; will be regarded as line break
 
 ## others
 

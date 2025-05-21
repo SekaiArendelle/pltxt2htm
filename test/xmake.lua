@@ -18,6 +18,8 @@ for _, file in ipairs(os.files("*.cc")) do
         add_cxxflags("-fno-rtti", {tool = {"gcc", "clang"}})
         add_cxxflags("-fno-unwind-tables", {tool = {"gcc", "clang"}})
         add_cxxflags("-fno-asynchronous-unwind-tables", {tool = {"gcc", "clang"}})
+        add_cxxflags("-Werror=return-type", {tool = {"gcc", "clang"}})
+        add_cxxflags("-Werror=switch", {tool = {"gcc", "clang"}})
         -- add_cxxflags("-fsanitize=address", {tool = "clang"})
         add_ldflags("-fuse-ld=lld", {force = true, tool = "clang"})
         if is_plat("windows") or is_plat("mingw") then

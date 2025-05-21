@@ -5,6 +5,7 @@
 #include <fast_io/fast_io_dsal/string_view.h>
 #include <exception/exception.hh>
 #include "astnode/basic.hh"
+#include "astnode/enum.hh"
 #include "heap_guard.hh"
 #include "parser.hh"
 
@@ -24,11 +25,21 @@ template<bool ndebug, typename T>
     ::fast_io::u8string result{};
 
     for (auto&& node : ast) {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic error "-Wswitch"
         switch (node->node_type()) {
         case ::pltxt2htm::NodeType::u8char: {
             result.push_back(reinterpret_cast<::pltxt2htm::U8Char*>(node.release())->get_u8char());
+            break;
+        }
+        case ::pltxt2htm::NodeType::space: {
+            result.append(u8"&nbsp;");
+            break;
+        }
+        case ::pltxt2htm::NodeType::less_than: {
+            result.append(u8"&lt;");
+            break;
+        }
+        case ::pltxt2htm::NodeType::greater_than: {
+            result.append(u8"&gt;");
             break;
         }
         case ::pltxt2htm::NodeType::color: {
@@ -68,7 +79,7 @@ template<bool ndebug, typename T>
             break;
         }
         case ::pltxt2htm::NodeType::br: {
-            result.append(u8"<br>\n");
+            result.append(u8"<br>");
             break;
         }
         case ::pltxt2htm::NodeType::h: {
@@ -92,7 +103,6 @@ template<bool ndebug, typename T>
                 ::exception::unreachable<ndebug>();
             }
         }
-#pragma GCC diagnostic pop
     }
 
     return result;

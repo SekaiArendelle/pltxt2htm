@@ -10,8 +10,15 @@ namespace pltxt2htm {
  */
 enum class NodeType : ::std::uint_least32_t {
     base = 0,
-    // // a utf-8 char/string
+    // a utf-8 char/string
     u8char,
+
+    // space will be squashed by html render
+    space,
+    // left angle bracket
+    less_than,
+    // right angle bracket
+    greater_than,
 
     // set color of text
     color, // be used by Quantum-Physics

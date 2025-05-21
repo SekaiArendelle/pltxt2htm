@@ -40,18 +40,26 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept {
 
         if (chr == u8'\n') {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Br>{});
+            continue;
+        } else if (chr == u8' ') {
+            // TODO should we delete tail space?
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Space>{});
+            continue;
+        } else if (chr == u8'>') {
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::GreaterThan>{});
+            continue;
         } else if (chr == u8'<') {
             // parsing: <br>, <bR  >, <BR/>, <br  />
             if (i + 3 >= pltxt_size) {
-                goto not_valid_br_tag;
+                goto not_valid_tag;
             }
             if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i + 1) != u8'b' &&
                 ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i + 1) != u8'B') {
-                goto not_valid_br_tag;
+                goto not_valid_tag;
             }
             if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i + 2) != u8'r' &&
                 ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i + 2) != u8'R') {
-                goto not_valid_br_tag;
+                goto not_valid_tag;
             }
             {
                 ::std::size_t forward_index{i + 3};
@@ -65,17 +73,17 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept {
                         i = forward_index + 1;
                         goto complete_parsing_br_tag;
                     } else if (forward_chr != u8' ') {
-                        goto not_valid_br_tag;
+                        goto not_valid_tag;
                     }
                     if (forward_index + 1 < pltxt_size) {
                         ++forward_index;
                     } else {
-                        goto not_valid_br_tag;
+                        goto not_valid_tag;
                     }
                 }
             }
-        not_valid_br_tag:
-            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{chr});
+        not_valid_tag:
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
             continue;
         complete_parsing_br_tag:
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Br>{});

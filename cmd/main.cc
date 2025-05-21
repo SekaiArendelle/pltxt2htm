@@ -1,5 +1,6 @@
 #include <cstddef>
 #include <cstring>
+#include <cassert>
 #include <exception/exception.hh>
 #include <pltxt2htm/pltxt2htm.hh>
 #include <fast_io/fast_io.h>
@@ -83,13 +84,7 @@ int main(int argc, char const* const* const argv)
         }
     }
 
-    ::exception::assert_true<
-#ifdef NDEBUG
-        true
-#else
-        false
-#endif
-        >(input_file != nullptr);
+    assert(input_file != nullptr);
 
 #if __cpp_exceptions >= 199711L
     try
