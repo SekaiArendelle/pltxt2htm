@@ -9,11 +9,15 @@
  * @details https://github.com/GoodenoughPhysicsLab/exception.git
  */
 
-#include <new>
+#include <memory>
 #include <utility>
 #include <type_traits>
 #include <concepts>
-#include <cstdlib>
+
+#if !defined(__GNUC__) && !defined(__clang__)
+    #include <cstdlib>
+    #include <exception>
+#endif
 
 namespace exception {
 
@@ -26,7 +30,7 @@ namespace exception {
 [[msvc::forceinline]]
 #endif
 [[noreturn]]
-inline void terminate() noexcept {
+constexpr void terminate() noexcept {
     // https://llvm.org/doxygen/Compiler_8h_source.html
 #if defined(__has_builtin) && __has_builtin(__builtin_trap)
     __builtin_trap();
@@ -45,12 +49,12 @@ template<bool ndebug = false>
 [[msvc::forceinline]]
 #endif
 [[noreturn]]
-inline void unreachable() noexcept {
+constexpr void unreachable() noexcept {
     if constexpr (ndebug) {
-#if defined(_MSC_VER) && !defined(__clang__) // MSVC
-        __assume(false);
-#else // GCC, Clang
+#if defined(__GNUC__) || defined(__clang__)
         __builtin_unreachable();
+#else
+        ::std::unreachable();
 #endif
     } else {
         ::exception::terminate();
@@ -120,53 +124,53 @@ private:
 public:
     constexpr expected() noexcept = delete;
 
-    constexpr expected(Ok const& ok) noexcept
+    constexpr expected(Ok const& ok) noexcept(::std::is_nothrow_copy_constructible_v<Ok>)
         requires (::std::is_copy_constructible_v<Ok>)
-        : ok_{ok},
-          has_value_{true} {
+        : has_value_{true} {
+            ::std::construct_at(&this->ok_, ok);
     }
 
-    constexpr expected(Ok&& ok) noexcept
+    constexpr expected(Ok&& ok) noexcept(::std::is_nothrow_move_constructible_v<Ok>)
         requires (::std::is_move_constructible_v<Ok>)
-        : ok_{::std::move(ok)},
-          has_value_{true} {
+        : has_value_{true} {
+        ::std::construct_at(&this->ok_, ::std::move(ok));
     }
 
-    constexpr expected(unexpected<Fail> const& fail) noexcept
+    constexpr expected(unexpected<Fail> const& fail) noexcept(::std::is_nothrow_copy_constructible_v<Fail>)
         requires (::std::is_copy_constructible_v<Fail>)
-        : fail_{fail.val_},
-          has_value_{false} {
+        : has_value_{false} {
+            ::std::construct_at(&this->fail_, fail.val_);
     }
 
-    constexpr expected(unexpected<Fail>&& fail) noexcept
+    constexpr expected(unexpected<Fail>&& fail) noexcept(::std::is_nothrow_move_constructible_v<Fail>)
         requires (::std::is_move_constructible_v<Fail>)
-        : fail_{::std::move(fail.val_)},
-          has_value_{false} {
+        : has_value_{false} {
+            ::std::construct_at(&this->fail_, ::std::move(fail.val_));
     }
 
-    constexpr expected(expected<Ok, Fail> const& other) noexcept
+    constexpr expected(expected<Ok, Fail> const& other) noexcept(::std::is_nothrow_copy_constructible_v<Ok> && ::std::is_nothrow_copy_constructible_v<Fail>)
         : has_value_{other.has_value_} {
         if (this->has_value()) {
-            new (&this->ok_) value_type(other.ok_);
+            ::std::construct_at(&this->ok_, other.ok_);
         } else {
-            new (&this->fail_) error_type(other.fail_);
+            ::std::construct_at(&this->fail_, other.fail_);
         }
     }
 
-    constexpr expected(expected<Ok, Fail>&& other) noexcept
+    constexpr expected(expected<Ok, Fail>&& other) noexcept(::std::is_nothrow_move_constructible_v<Ok> && ::std::is_nothrow_move_constructible_v<Fail>)
         : has_value_{::std::move(other.has_value_)} {
         if (this->has_value()) {
-            new (&this->ok_) value_type(::std::move(other.ok_));
+            ::std::construct_at(&this->ok_, ::std::move(other.ok_));
         } else {
-            new (&this->fail_) error_type(::std::move(other.fail_));
+            ::std::construct_at(&this->fail_, ::std::move(other.fail_));
         }
     }
 
     constexpr ~expected() noexcept {
         if (this->has_value()) {
-            this->ok_.~value_type();
+            ::std::destroy_at(&this->ok_);
         } else {
-            this->fail_.~error_type();
+            ::std::destroy_at(&this->fail_);
         }
     }
 
@@ -177,8 +181,8 @@ public:
         if (self.has_value()) {
             self.ok_ = ::std::forward<T>(ok);
         } else {
-            self.fail_.~error_type();
-            new (&self.ok_) value_type(::std::forward<T>(ok));
+            ::std::destroy_at(&self.fail_);
+            ::std::construct_at(&self.ok_, ::std::forward<T>(ok));
             self.has_value_ = true;
         }
         return self;
@@ -229,15 +233,15 @@ public:
                 other.ok_ = ::std::move(tmp);
             } else {
                 Ok tmp{::std::move(self.ok_)};
-                self.ok_ = ::std::move(other.fail_);
-                other.fail_ = ::std::move(tmp);
+                self.fail_ = ::std::move(other.fail_);
+                other.ok_ = ::std::move(tmp);
                 self.has_value_ = false;
                 other.has_value_ = true;
             }
         } else {
             if (other.has_value()) {
                 Fail tmp{::std::move(self.fail_)};
-                self.fail_ = ::std::move(other.ok_);
+                self.ok_ = ::std::move(other.ok_);
                 other.fail_ = ::std::move(tmp);
                 self.has_value_ = true;
                 other.has_value_ = false;

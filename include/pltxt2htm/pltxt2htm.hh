@@ -19,7 +19,7 @@ namespace details {
  * @param tokens The tokens parsed from pl-text.
  */
 template<bool ndebug, typename T>
-    requires (::std::same_as<::std::remove_reference_t<T>, ::fast_io::vector<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>>)
+    requires (::std::same_as<::std::remove_reference_t<T>, ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>>)
 [[nodiscard]]
     constexpr auto integrate_ast(T&& ast, bool const is_inline) noexcept {
     ::fast_io::u8string result{};
@@ -79,7 +79,9 @@ template<bool ndebug, typename T>
             break;
         }
         case ::pltxt2htm::NodeType::br: {
-            result.append(u8"<br>");
+            if (!is_inline) {
+                result.append(u8"<br>");
+            }
             break;
         }
         case ::pltxt2htm::NodeType::h: {
@@ -120,7 +122,7 @@ template<bool ndebug, typename T>
 template<bool ndebug = false>
 [[nodiscard]]
 constexpr auto pltxt2html(::fast_io::u8string_view pltext, bool is_inline = false) noexcept {
-    return ::pltxt2htm::details::integrate_ast<ndebug>(::pltxt2htm::details::parse_pltxt<ndebug>(pltext), is_inline);
+    return ::pltxt2htm::details::integrate_ast<ndebug>(::pltxt2htm::parse_pltxt<ndebug>(pltext), is_inline);
 }
 
 } // namespace pltxt2htm

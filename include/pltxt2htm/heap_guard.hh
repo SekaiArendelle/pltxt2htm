@@ -6,7 +6,7 @@
 #include <concepts>
 #include <exception/exception.hh>
 
-namespace pltxt2htm {
+namespace pltxt2htm::details {
 
 template<typename T>
 class HeapGuard {
@@ -19,6 +19,7 @@ public:
     constexpr HeapGuard(Args&&... args) noexcept {
         T* ptr = reinterpret_cast<T*>(::std::malloc(sizeof(T)));
         if (ptr == nullptr) [[unlikely]] {
+            // bad alloc should never be an exception or err_code
             ::exception::terminate();
         }
         ptr_ = ::std::construct_at(ptr, ::std::forward<Args>(args)...);
@@ -58,4 +59,4 @@ public:
     }
 };
 
-} // namespace pltxt2htm
+} // namespace pltxt2htm::details
