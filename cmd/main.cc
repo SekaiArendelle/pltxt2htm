@@ -32,29 +32,29 @@ int main(int argc, char const* const* const argv)
 #ifdef NDEBUG
     // store input file path
     #if __has_cpp_attribute(indeterminate)
-    char const* input_file [[indeterminate]];
+    char const* input_file_path [[indeterminate]];
     #else
-    char const* input_file;
+    char const* input_file_path;
     #endif
 #else
-    char const* input_file = nullptr;
+    char const* input_file_path = nullptr;
 #endif
     // store output file path, can be optional
-    char const* output_file = nullptr;
+    char const* output_file_path = nullptr;
     for (::std::size_t i{1}; i < static_cast<::std::size_t>(argc); ++i) {
         if (::std::strcmp(argv[i], "-i") == 0) {
             if (i == static_cast<::std::size_t>(argc) - 1) [[unlikely]] {
                 ::fast_io::perrln("You must specify input file after `-i`");
                 return 1;
             }
-            input_file = argv[++i];
+            input_file_path = argv[++i];
             continue;
         } else if (::std::strcmp(argv[i], "-o") == 0) {
             if (i == static_cast<::std::size_t>(argc) - 1) [[unlikely]] {
                 ::fast_io::perrln("You must specify output file after `-o`");
                 return 1;
             }
-            output_file = argv[++i];
+            output_file_path = argv[++i];
             continue;
         } else if (::std::strcmp(argv[i], "-h") == 0 || ::std::strcmp(argv[i], "--help") == 0) {
             if (i != 1) [[unlikely]] {
@@ -84,15 +84,21 @@ int main(int argc, char const* const* const argv)
         }
     }
 
-    assert(input_file != nullptr);
+    assert(input_file_path != nullptr);
 
 #if __cpp_exceptions >= 199711L
     try
 #endif
     {
-        ::fast_io::native_file_loader loader(::fast_io::mnp::os_c_str(input_file));
-        ::fast_io::println(::fast_io::mnp::code_cvt(
-            ::pltxt2htm::pltxt2html(::fast_io::mnp::os_c_str(reinterpret_cast<char8_t const*>(loader.data())))));
+        ::fast_io::native_file_loader loader(::fast_io::mnp::os_c_str(input_file_path));
+        if (output_file_path == nullptr) {
+            ::fast_io::println(::fast_io::mnp::code_cvt(
+                ::pltxt2htm::pltxt2html(::fast_io::mnp::os_c_str(reinterpret_cast<char8_t const*>(loader.data())))));
+        } else {
+            ::fast_io::native_file output_file{::fast_io::mnp::os_c_str(output_file_path), ::fast_io::open_mode::out};
+            ::fast_io::println(output_file, ::fast_io::mnp::code_cvt(::pltxt2htm::pltxt2html(::fast_io::mnp::os_c_str(
+                                                reinterpret_cast<char8_t const*>(loader.data())))));
+        }
     }
 #if __cpp_exceptions >= 199711L
     catch (::fast_io::error const& e) {
