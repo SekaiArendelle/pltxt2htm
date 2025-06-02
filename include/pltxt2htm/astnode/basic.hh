@@ -1,9 +1,5 @@
 #pragma once
 
-#include <fast_io/fast_io_dsal/string.h>
-#include <fast_io/fast_io_dsal/string_view.h>
-#include <cstddef>
-#include <cstring>
 #include "enum.hh"
 
 /**
@@ -22,7 +18,7 @@ class PlTxtNode
 // #endif
 {
 protected:
-    ::pltxt2htm::NodeType runtime_node_type_info = ::pltxt2htm::NodeType::base;
+    ::pltxt2htm::NodeType runtime_node_type_info{::pltxt2htm::NodeType::base};
 
 public:
     constexpr PlTxtNode() noexcept = default;

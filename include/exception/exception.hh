@@ -127,7 +127,7 @@ public:
     constexpr expected(Ok const& ok) noexcept(::std::is_nothrow_copy_constructible_v<Ok>)
         requires (::std::is_copy_constructible_v<Ok>)
         : has_value_{true} {
-            ::std::construct_at(&this->ok_, ok);
+        ::std::construct_at(&this->ok_, ok);
     }
 
     constexpr expected(Ok&& ok) noexcept(::std::is_nothrow_move_constructible_v<Ok>)
@@ -139,16 +139,17 @@ public:
     constexpr expected(unexpected<Fail> const& fail) noexcept(::std::is_nothrow_copy_constructible_v<Fail>)
         requires (::std::is_copy_constructible_v<Fail>)
         : has_value_{false} {
-            ::std::construct_at(&this->fail_, fail.val_);
+        ::std::construct_at(&this->fail_, fail.val_);
     }
 
     constexpr expected(unexpected<Fail>&& fail) noexcept(::std::is_nothrow_move_constructible_v<Fail>)
         requires (::std::is_move_constructible_v<Fail>)
         : has_value_{false} {
-            ::std::construct_at(&this->fail_, ::std::move(fail.val_));
+        ::std::construct_at(&this->fail_, ::std::move(fail.val_));
     }
 
-    constexpr expected(expected<Ok, Fail> const& other) noexcept(::std::is_nothrow_copy_constructible_v<Ok> && ::std::is_nothrow_copy_constructible_v<Fail>)
+    constexpr expected(expected<Ok, Fail> const& other) noexcept(::std::is_nothrow_copy_constructible_v<Ok> &&
+                                                                 ::std::is_nothrow_copy_constructible_v<Fail>)
         : has_value_{other.has_value_} {
         if (this->has_value()) {
             ::std::construct_at(&this->ok_, other.ok_);
@@ -157,7 +158,8 @@ public:
         }
     }
 
-    constexpr expected(expected<Ok, Fail>&& other) noexcept(::std::is_nothrow_move_constructible_v<Ok> && ::std::is_nothrow_move_constructible_v<Fail>)
+    constexpr expected(expected<Ok, Fail>&& other) noexcept(::std::is_nothrow_move_constructible_v<Ok> &&
+                                                            ::std::is_nothrow_move_constructible_v<Fail>)
         : has_value_{::std::move(other.has_value_)} {
         if (this->has_value()) {
             ::std::construct_at(&this->ok_, ::std::move(other.ok_));
