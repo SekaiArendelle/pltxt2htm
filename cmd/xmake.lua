@@ -6,7 +6,7 @@ set_encodings("utf-8")
 
 target("pltxt2htm", function()
     set_kind("binary")
-    add_files("main.cc")
+    add_files("pltxt2htm.cc")
     add_includedirs("../include")
 
     add_ldflags("clangxx::-fuse-ld=lld", {force = true})
@@ -17,10 +17,10 @@ target("pltxt2htm", function()
 
     if is_mode("release") then
         set_exceptions("no-cxx")
-        add_cxxflags("-fno-rtti", {tools = {"clang", "gcc"}})
-        add_cxxflags("-fno-unwind-tables", {tools = {"clang", "gcc"}})
-        add_cxxflags("-fno-asynchronous-unwind-tables", {tools = {"clang", "gcc"}})
-        add_cxxflags("-fno-ident", {tools = {"clang", "gcc"}})
+        add_cxxflags("-fno-rtti", {tools = {"clangxx", "gcc"}})
+        add_cxxflags("-fno-unwind-tables", {tools = {"clangxx", "gcc"}})
+        add_cxxflags("-fno-asynchronous-unwind-tables", {tools = {"clangxx", "gcc"}})
+        add_cxxflags("-fno-ident", {tools = {"clangxx", "gcc"}})
     elseif is_mode("debug") then
         set_warnings("all")
         set_warnings("extra")

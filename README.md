@@ -23,7 +23,7 @@ int main() noexcept {
 # Hello Quantum PhysicsLab
 With Markdown supports
 )");
-    ::fast_io::io::println(html);
+    ::fast_io::io::println(::fast_io::u8c_stdout, html);
 
     return 0;
 }
@@ -54,6 +54,7 @@ markdown extension based on https://spec.commonmark.org/0.31.2/
 
 * carriage return will be regarded as line break (unlike markdown, which requires 2 spaces before a carriage return to be considered a line break)
 * &lt;br&gt;, &lt;BR&gt;, &lt;br/&gt;, &lt;br&nbsp;&nbsp;&nbsp;&gt;, &lt;br&nbsp;&nbsp;&nbsp;/&gt; will be regarded as line break
+* Quantum-Physics's color tag is supported
 
 ## others
 

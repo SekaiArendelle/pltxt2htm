@@ -41,23 +41,22 @@ public:
     template<typename... Args>
         requires ((!::pltxt2htm::details::is_heap_guard<Args>) && ...)
     constexpr HeapGuard(Args&&... args) noexcept {
-        T* ptr = reinterpret_cast<T*>(::std::malloc(sizeof(T)));
-        if (ptr == nullptr) [[unlikely]] {
+        this->ptr_ = reinterpret_cast<T*>(::std::malloc(sizeof(T)));
+        if (this->ptr_ == nullptr) [[unlikely]] {
             // bad alloc should never be an exception or err_code
             ::exception::terminate();
         }
-        ptr_ = ::std::construct_at(ptr, ::std::forward<Args>(args)...);
+        ::std::construct_at(this->ptr_, ::std::forward<Args>(args)...);
     }
 
 #if 1
     constexpr HeapGuard(HeapGuard<T> const& other) noexcept {
-        T* ptr = reinterpret_cast<T*>(::std::malloc(sizeof(T)));
-        if (ptr == nullptr) [[unlikely]] {
+        this->ptr_ = reinterpret_cast<T*>(::std::malloc(sizeof(T)));
+        if (this->ptr_ == nullptr) [[unlikely]] {
             // bad alloc should never be an exception or err_code
             ::exception::terminate();
         }
-        ::std::memcpy(ptr, other.ptr_, sizeof(T));
-        ptr_ = ptr;
+        ::std::memcpy(this->ptr_, other.ptr_, sizeof(T));
         // Cause libc++, libstdc++ and STL do not support ::std::start_lifetime_as
         // and ::std::malloc will implicitly start lifetime of ptr, I temporarily
         // comment out the next line of code.
@@ -74,7 +73,7 @@ public:
     template<typename U>
         requires (::std::derived_from<U, T>)
     constexpr HeapGuard(HeapGuard<U>&& other) noexcept {
-        ptr_ = other.release();
+        this->ptr_ = other.release();
     }
 
 #if 1
@@ -100,8 +99,14 @@ public:
     }
 
     constexpr ~HeapGuard() noexcept {
-        ::std::destroy_at(ptr_);
-        ::std::free(ptr_);
+        // The Fucking move constructor in C++ rather annoyingly does not
+        // immediately destroy the object being moved, which
+        // leads to the need to set pointers to null.
+        // TODO Use C++26 relocate to avoid determing whether the ptr is null
+        if (ptr_ != nullptr) {
+            ::std::destroy_at(ptr_);
+            ::std::free(ptr_);
+        }
     }
 
     constexpr T* operator->(this HeapGuard<T> const& self) noexcept {

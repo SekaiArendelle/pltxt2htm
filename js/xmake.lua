@@ -21,4 +21,4 @@ target("pltxt2htm", function()
     add_ldflags("-s EXPORTED_FUNCTIONS=['_pltxt2html']", {force = true})
     add_ldflags("-s EXPORTED_RUNTIME_METHODS=['ccall']", {force = true})
     set_toolchains("emcc@emscripten")
-end
+end)

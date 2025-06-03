@@ -8,5 +8,5 @@ char8_t const* pltxt2html(char8_t const* text, bool is_inline = false) noexcept 
 #else
         false
 #endif
-    >(text, is_inline);
+    , true>(text, is_inline);
 }

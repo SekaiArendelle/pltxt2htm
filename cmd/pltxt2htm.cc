@@ -8,7 +8,7 @@
 int main(int argc, char const* const* const argv)
 #if __cpp_exceptions < 199711L
     noexcept
-#endif
+#endif // __cpp_exceptions < 199711L
 {
     if (argc == 1) {
         ::fast_io::print(
@@ -25,12 +25,19 @@ int main(int argc, char const* const* const argv)
 #else
             "disable\n"
 #endif
+            "build mode: "
+#ifdef NDEBUG
+            "release\n"
+#else
+            "debug\n"
+#endif
             // TODO get install path
         );
         return 0;
     }
-#ifdef NDEBUG
+
     // store input file path
+#ifdef NDEBUG
     #if __has_cpp_attribute(indeterminate)
     char const* input_file_path [[indeterminate]];
     #else
@@ -88,16 +95,22 @@ int main(int argc, char const* const* const argv)
 
 #if __cpp_exceptions >= 199711L
     try
-#endif
+#endif // __cpp_exceptions >= 199711L
     {
         ::fast_io::native_file_loader loader(::fast_io::mnp::os_c_str(input_file_path));
+        auto html = ::pltxt2htm::pltxt2html<
+#ifdef NDEBUG
+            true, true
+#else
+            false, false
+#endif
+            >(::fast_io::mnp::os_c_str(reinterpret_cast<char8_t const*>(loader.data())));
         if (output_file_path == nullptr) {
-            ::fast_io::println(::fast_io::mnp::code_cvt(
-                ::pltxt2htm::pltxt2html(::fast_io::mnp::os_c_str(reinterpret_cast<char8_t const*>(loader.data())))));
+            ::fast_io::println(::fast_io::u8c_stdout(), html);
         } else {
-            ::fast_io::native_file output_file{::fast_io::mnp::os_c_str(output_file_path), ::fast_io::open_mode::out};
-            ::fast_io::println(output_file, ::fast_io::mnp::code_cvt(::pltxt2htm::pltxt2html(::fast_io::mnp::os_c_str(
-                                                reinterpret_cast<char8_t const*>(loader.data())))));
+            auto output_file = ::fast_io::native_file{::fast_io::mnp::os_c_str(output_file_path), ::fast_io::open_mode::out};
+            auto output_file_handle = ::fast_io::u8native_io_observer{output_file.native_handle()};
+            ::fast_io::println(output_file_handle, html);
         }
     }
 #if __cpp_exceptions >= 199711L
@@ -105,7 +118,7 @@ int main(int argc, char const* const* const argv)
         ::fast_io::perrln(e);
         return 1;
     }
-#endif
+#endif // __cpp_exceptions >= 199711L
 
     return 0;
 }
