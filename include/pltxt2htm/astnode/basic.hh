@@ -1,6 +1,9 @@
 #pragma once
 
+#include <utility>
+#include <fast_io/fast_io_dsal/vector.h>
 #include "node_type.hh"
+#include "../heap_guard.hh"
 
 /**
  * @note Quantum-Physics's tag do not case upper / lower
@@ -63,5 +66,30 @@ public:
         return self.data_;
     }
 };
+
+namespace details {
+
+class PairedTagBase : public ::pltxt2htm::PlTxtNode {
+protected:
+    ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast_;
+
+public:
+    constexpr PairedTagBase() noexcept = delete;
+
+    constexpr PairedTagBase(
+        ::pltxt2htm::NodeType node_type,
+        ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+        : ::pltxt2htm::PlTxtNode{node_type},
+          subast_(::std::move(subast)) {
+    }
+
+    template<bool ndebug>
+    [[nodiscard]]
+     constexpr auto&& get_subast(this auto&& self) noexcept {
+        return ::std::forward_like<decltype(self)>(self.subast_);
+    }
+};
+
+} // namespace details
 
 } // namespace pltxt2htm
