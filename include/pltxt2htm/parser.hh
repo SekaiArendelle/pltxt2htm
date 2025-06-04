@@ -91,6 +91,15 @@ constexpr auto parse_pltxt(
             // TODO should we delete tail space?
             result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Space>{});
             continue;
+        } else if (chr == u8'&') {
+            result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Ampersand>{});
+            continue;
+        } else if (chr == u8'\'') {
+            result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::SingleQuotationMark>{});
+            continue;
+        } else if (chr == u8'\"') {
+            result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::DoubleQuotationMark>{});
+            continue;
         } else if (chr == u8'>') {
             result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::GreaterThan>{});
             continue;

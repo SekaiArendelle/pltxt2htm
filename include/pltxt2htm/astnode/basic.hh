@@ -1,6 +1,6 @@
 #pragma once
 
-#include "enum.hh"
+#include "node_type.hh"
 
 /**
  * @note Quantum-Physics's tag do not case upper / lower

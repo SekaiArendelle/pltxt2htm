@@ -15,6 +15,12 @@ enum class NodeType : ::std::uint_least32_t {
 
     // space will be squashed by html render
     space,
+    // &
+    ampersand,
+    // "
+    double_quote,
+    // '
+    single_quote,
     // left angle bracket
     less_than,
     // right angle bracket

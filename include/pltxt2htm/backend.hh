@@ -5,7 +5,7 @@
 #include <exception/exception.hh>
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
-#include "astnode/enum.hh"
+#include "astnode/node_type.hh"
 #include "astnode/basic.hh"
 #include "astnode/plext.hh"
 #include "heap_guard.hh"
@@ -61,6 +61,18 @@ constexpr auto ast2html(T&& ast, bool const is_inline,
         }
         case ::pltxt2htm::NodeType::space: {
             result.append(u8"&nbsp;");
+            break;
+        }
+        case ::pltxt2htm::NodeType::ampersand: {
+            result.append(u8"&amp;");
+            break;
+        }
+        case ::pltxt2htm::NodeType::single_quote: {
+            result.append(u8"&apos;");
+            break;
+        }
+        case ::pltxt2htm::NodeType::double_quote: {
+            result.append(u8"&quot;");
             break;
         }
         case ::pltxt2htm::NodeType::less_than: {

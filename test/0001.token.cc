@@ -1,5 +1,5 @@
 #include <concepts>
-#include <pltxt2htm/astnode/enum.hh>
+#include <pltxt2htm/astnode/node_type.hh>
 #include <pltxt2htm/astnode/plext.hh>
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
