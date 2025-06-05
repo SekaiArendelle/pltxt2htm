@@ -113,6 +113,10 @@ public:
         return self.ptr_;
     }
 
+    constexpr T const* release_imul(this HeapGuard<T> const& self) noexcept {
+        return self.ptr_;
+    }
+
     [[nodiscard]]
     constexpr T* release(this auto&& self) noexcept {
         T* ptr = self.ptr_;

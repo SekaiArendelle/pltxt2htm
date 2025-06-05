@@ -1,7 +1,5 @@
 #pragma once
 
-#include <utility>
-#include <concepts>
 #include <exception/exception.hh>
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
@@ -28,11 +26,10 @@ namespace details {
                                  the current node is the root node (no parent node).
  * @param [in] extern_node: The pointer of parent node
  */
-template<bool ndebug, bool disable_log, typename T>
-    requires (::std::same_as<::std::remove_reference_t<T>,
-                             ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>>)
+template<bool ndebug, bool disable_log>
 [[nodiscard]]
-constexpr auto ast2html(T&& ast, bool const is_inline,
+constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> const& ast,
+                        bool const is_inline,
                         ::pltxt2htm::NodeType const extern_node_type = ::pltxt2htm::NodeType::base,
                         ::pltxt2htm::PlTxtNode const* const extern_node = nullptr) noexcept(disable_log == true)
     -> ::fast_io::u8string {
@@ -56,7 +53,7 @@ constexpr auto ast2html(T&& ast, bool const is_inline,
     for (auto&& node : ast) {
         switch (node->node_type()) {
         case ::pltxt2htm::NodeType::u8char: {
-            result.push_back(reinterpret_cast<::pltxt2htm::U8Char*>(node.release())->get_u8char());
+            result.push_back(reinterpret_cast<::pltxt2htm::U8Char const*>(node.release_imul())->get_u8char());
             break;
         }
         case ::pltxt2htm::NodeType::space: {
@@ -84,7 +81,7 @@ constexpr auto ast2html(T&& ast, bool const is_inline,
             break;
         }
         case ::pltxt2htm::NodeType::color: {
-            ::pltxt2htm::Color* color = reinterpret_cast<::pltxt2htm::Color*>(node.release());
+            auto color = reinterpret_cast<::pltxt2htm::Color const*>(node.release_imul());
             // TODO: <color=red><color=blue>text</color></color> can be optimized
             // Optimization: If the color is the same as the parent node, then we don't need to add the color tag.
             bool const is_not_same_color =
@@ -179,15 +176,14 @@ constexpr auto ast2html(T&& ast, bool const is_inline,
  * @param [in] ast: Ast of Quantum-Physics's text
  * @param [in] is_inline: Whether ignore line breaks
  */
-template<bool ndebug, bool disable_log, typename T>
-    requires (::std::same_as<::std::remove_reference_t<T>,
-                             ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>>)
+template<bool ndebug, bool disable_log>
 [[nodiscard]]
-constexpr auto ast2html(T&& ast, bool const is_inline) noexcept(disable_log == true) -> ::fast_io::u8string {
+constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> const& ast,
+                        bool const is_inline) noexcept(disable_log == true) -> ::fast_io::u8string {
 #if defined(__wasm__)
     static_assert(disable_log == true, "disable_log must be true when compiling for wasm");
 #endif
-    return ::pltxt2htm::details::ast2html<ndebug, disable_log, T>(::std::forward<T>(ast), is_inline);
+    return ::pltxt2htm::details::ast2html<ndebug, disable_log>(ast, is_inline);
 }
 
 } // namespace pltxt2htm
