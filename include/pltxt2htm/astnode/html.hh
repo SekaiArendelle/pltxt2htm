@@ -32,7 +32,7 @@ public:
     constexpr Space(Space const& other) noexcept = default;
     constexpr Space(Space&& other) noexcept = default;
     constexpr Space& operator=(Space const& other) noexcept = default;
-    constexpr Space& operator=(Space&& other)noexcept = default;
+    constexpr Space& operator=(Space&& other) noexcept = default;
 };
 
 /**
@@ -106,8 +106,8 @@ public:
 
     constexpr DoubleQuotationMark(DoubleQuotationMark const&) noexcept = default;
     constexpr DoubleQuotationMark(DoubleQuotationMark&&) noexcept = default;
-   constexpr DoubleQuotationMark& operator=(DoubleQuotationMark const&) noexcept = default;
-   constexpr DoubleQuotationMark& operator=(DoubleQuotationMark&&) noexcept = default;
+    constexpr DoubleQuotationMark& operator=(DoubleQuotationMark const&) noexcept = default;
+    constexpr DoubleQuotationMark& operator=(DoubleQuotationMark&&) noexcept = default;
 };
 
 } // namespace pltxt2htm

@@ -85,7 +85,7 @@ public:
 
     template<bool ndebug>
     [[nodiscard]]
-     constexpr auto&& get_subast(this auto&& self) noexcept {
+    constexpr auto&& get_subast(this auto&& self) noexcept {
         return ::std::forward_like<decltype(self)>(self.subast_);
     }
 };

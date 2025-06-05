@@ -4,7 +4,8 @@
 #include <fast_io/fast_io_dsal/string_view.h>
 
 int main() noexcept {
-    ::fast_io::u8string_view text{u8R"(
+    ::fast_io::u8string_view text{
+        u8R"(
 文本1<br   />文本2<bR/>文本3<br   >文本4<br    /
 文本5<Br<br>
 )"};

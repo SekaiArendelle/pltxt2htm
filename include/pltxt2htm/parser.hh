@@ -10,7 +10,7 @@
 #include "exception/exception.hh"
 #include "pltxt2htm/astnode/plext.hh"
 #if !defined(__wasm__)
-#include "panic.hh"
+    #include "panic.hh"
 #endif
 
 namespace pltxt2htm {

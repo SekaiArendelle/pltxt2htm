@@ -9,6 +9,7 @@
 
 namespace pltxt2htm::details {
 
-constexpr void panic_print() {}
-
+constexpr void panic_print() {
 }
+
+} // namespace pltxt2htm::details

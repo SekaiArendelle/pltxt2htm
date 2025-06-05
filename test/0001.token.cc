@@ -20,8 +20,10 @@ int main() noexcept {
         ::pltxt2htm::Color{::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(text),
                            ::fast_io::u8string{u8"red"}},
         ::pltxt2htm::A{::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(text)},
-        ::pltxt2htm::Experiment{::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(text), ::fast_io::u8string{u8"123"}},
-        ::pltxt2htm::Discussion{::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(text), ::fast_io::u8string{u8"123"}},
+        ::pltxt2htm::Experiment{::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(text),
+                                ::fast_io::u8string{u8"123"}},
+        ::pltxt2htm::Discussion{::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(text),
+                                ::fast_io::u8string{u8"123"}},
     };
 
     ::exception::assert_true(arr[0].node_type() == ::pltxt2htm::NodeType::u8char);

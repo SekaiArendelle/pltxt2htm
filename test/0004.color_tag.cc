@@ -12,10 +12,12 @@ int main() noexcept {
     auto answer2 = u8"<span style=\"color:#66CcFf;\">text</span>";
     ::exception::assert_true(::std::memcmp(html2.data(), answer2, html2.size()) == 0);
 
-    auto html3 = ::pltxt2htm::pltxt2html(u8R"(
-<color=#66CcFf>te xt</color>
+    auto html3 = ::pltxt2htm::pltxt2html(
+        u8R"(
+<color=#66CcFf>te
+ xt</color>
 )");
-    auto answer3 = u8"<br><span style=\"color:#66CcFf;\">te&nbsp;xt</span><br>";
+    auto answer3 = u8"<br><span style=\"color:#66CcFf;\">te<br>&nbsp;xt</span><br>";
     ::exception::assert_true(::std::memcmp(html3.data(), answer3, html3.size()) == 0);
 
     auto html4 = ::pltxt2htm::pltxt2html(u8"<color=red><Color=red>text</color></color>");

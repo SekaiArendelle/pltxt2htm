@@ -10,11 +10,18 @@ import platform
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--rebuild-all", action=argparse.BooleanOptionalAction, help="deleting all cached test files")
-parser.add_argument("--compiler", required=True, choices=("clang", "gcc"), help="compiler to use")
+parser.add_argument("--compiler", choices=("clang", "gcc"), help="compiler to use")
 parser.add_argument("--target", help="target triplet")
 parser.add_argument("--sysroot", help="sysroot to use")
 args = parser.parse_args()
+
+if args.compiler is None:
+    if shutil.which("clang") is not None:
+        args.compiler = "clang"
+    elif shutil.which("gcc") is not None:
+        args.compiler = "gcc"
+    else:
+        raise Exception("no compiler found")
 
 if args.target is not None:
     toolchain = f"{args.target}-{args.compiler}"
@@ -33,13 +40,12 @@ print(f"-- using toolchain \"{toolchain}\"")
 os.chdir(TEST_DIR)
 print(f"entering dir \"{TEST_DIR}\"")
 
-if args.rebuild_all:
-    if os.path.exists(os.path.join(TEST_DIR, ".xmake")):
-        shutil.rmtree(os.path.join(TEST_DIR, ".xmake"))
-        print(f"removing dir \"{os.path.join(TEST_DIR, '.xmake')}\"")
-    if os.path.exists(os.path.join(TEST_DIR, "build")):
-        shutil.rmtree(os.path.join(TEST_DIR, "build"))
-        print(f"removing dir \"{os.path.join(TEST_DIR, 'build')}\"")
+if os.path.exists(os.path.join(TEST_DIR, ".xmake")):
+    shutil.rmtree(os.path.join(TEST_DIR, ".xmake"))
+    print(f"removing dir \"{os.path.join(TEST_DIR, '.xmake')}\"")
+if os.path.exists(os.path.join(TEST_DIR, "build")):
+    shutil.rmtree(os.path.join(TEST_DIR, "build"))
+    print(f"removing dir \"{os.path.join(TEST_DIR, 'build')}\"")
 
 # if args.compiler == "clang" and toolchain != "x86_64-windows-msvc-clang":
 #     clang_runtime = "--runtimes=libc++_shared --rtlib=compiler-rt --unwindlib=libunwind"

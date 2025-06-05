@@ -1,5 +1,6 @@
 build/
 .xmake/
 .vscode/
+__pycache__/
 *.ignore.*
 *.lnk
