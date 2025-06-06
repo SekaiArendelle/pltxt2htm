@@ -4,7 +4,10 @@
     #error "pltxt2htm can't print any info when target triplet is wasm"
 #endif
 
-#include <stacktrace>
+// libc++ do not support <stacktrace>
+#if __has_include(<stacktrace>)
+    #include <stacktrace>
+#endif
 #include <fast_io/fast_io.h>
 
 namespace pltxt2htm::details {
