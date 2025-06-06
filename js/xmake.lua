@@ -5,10 +5,9 @@ set_encodings("utf-8")
 
 -- only uses emcc to build wasm
 target("pltxt2htm", function()
-    set_plat("wasm")
     set_kind("binary")
     add_files("pltxt2htm.cc")
-    add_cxxflags("-fno-exceptions")
+    set_exceptions("no-cxx")
     add_cxxflags("-fno-rtti")
     add_cxxflags("-fno-unwind-tables")
     add_cxxflags("-fno-asynchronous-unwind-tables")

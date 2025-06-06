@@ -1,4 +1,4 @@
-# For js extension (wasm)
+# Use `pltxt2htm` in js (By wasm)
 
 Build pltxt2htm to wasm that people can use it in javascript, requires `emcc`.
 
