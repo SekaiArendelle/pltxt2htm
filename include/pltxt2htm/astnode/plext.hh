@@ -62,34 +62,6 @@ public:
 };
 
 /**
- * @brief tag <a></a> of Quantum-Physics
- */
-class A : public ::pltxt2htm::details::PairedTagBase {
-public:
-    constexpr A() noexcept = delete;
-
-    constexpr A(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
-        : ::pltxt2htm::details::PairedTagBase{NodeType::a, ::std::move(subast)} {
-    }
-
-    constexpr A(::pltxt2htm::A const&) noexcept = delete;
-
-    constexpr A(::pltxt2htm::A&& other) noexcept
-        : ::pltxt2htm::details::PairedTagBase{NodeType::a, ::std::move(other.subast_)} {
-    }
-
-    constexpr ~A() noexcept = default;
-
-    constexpr A& operator=(this A& self, A const&) noexcept = delete;
-
-    /**
-     * @brief move assignment operator
-     * @note assign to a rvalue is not allowed
-     */
-    constexpr A& operator=(this A& self, ::pltxt2htm::A&&) noexcept = default;
-};
-
-/**
  * @brief Experiment node
  * @example - <Experiment=xxx>...</Experiment>
  *          - <experiment=xxx>...</experiment>

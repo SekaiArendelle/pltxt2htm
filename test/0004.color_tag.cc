@@ -1,7 +1,6 @@
 #include <cstring>
 #include <pltxt2htm/pltxt2htm.hh>
 #include <exception/exception.hh>
-#include <fast_io/fast_io.h>
 
 int main() noexcept {
     auto html1 = ::pltxt2htm::pltxt2html(u8"<cOLOr=red>text</color>");

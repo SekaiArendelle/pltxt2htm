@@ -19,7 +19,6 @@ int main() noexcept {
         ::pltxt2htm::U8Char{u8'a'},
         ::pltxt2htm::Color{::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(text),
                            ::fast_io::u8string{u8"red"}},
-        ::pltxt2htm::A{::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(text)},
         ::pltxt2htm::Experiment{::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(text),
                                 ::fast_io::u8string{u8"123"}},
         ::pltxt2htm::Discussion{::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(text),
@@ -28,9 +27,8 @@ int main() noexcept {
 
     ::exception::assert_true(arr[0].node_type() == ::pltxt2htm::NodeType::u8char);
     ::exception::assert_true(arr[1].node_type() == ::pltxt2htm::NodeType::color);
-    ::exception::assert_true(arr[2].node_type() == ::pltxt2htm::NodeType::a);
-    ::exception::assert_true(arr[3].node_type() == ::pltxt2htm::NodeType::experiment);
-    ::exception::assert_true(arr[4].node_type() == ::pltxt2htm::NodeType::discussion);
+    ::exception::assert_true(arr[2].node_type() == ::pltxt2htm::NodeType::experiment);
+    ::exception::assert_true(arr[3].node_type() == ::pltxt2htm::NodeType::discussion);
 
     return 0;
 }

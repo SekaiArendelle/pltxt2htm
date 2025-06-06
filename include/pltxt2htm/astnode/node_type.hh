@@ -28,8 +28,6 @@ enum class NodeType : ::std::uint_least32_t {
 
     // set color of text
     color, // be used by Quantum-Physics
-    // bule color of text
-    a, // be used by Quantum-Physics
     // link of experiment
     experiment, // be used by Quantum-Physics
     // link of discussion

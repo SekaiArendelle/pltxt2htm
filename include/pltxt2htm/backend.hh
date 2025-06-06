@@ -7,6 +7,7 @@
 #include "astnode/basic.hh"
 #include "astnode/plext.hh"
 #include "heap_guard.hh"
+#include "pltxt2htm/astnode/node_type.hh"
 
 namespace pltxt2htm {
 
@@ -84,24 +85,20 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             auto color = reinterpret_cast<::pltxt2htm::Color const*>(node.release_imul());
             // TODO: <color=red><color=blue>text</color></color> can be optimized
             // Optimization: If the color is the same as the parent node, then we don't need to add the color tag.
-            bool const is_not_same_color =
+            bool const is_not_same_tag =
                 extern_node_type != ::pltxt2htm::NodeType::color ||
                 color->get_color<ndebug>() !=
                     reinterpret_cast<::pltxt2htm::Color const*>(extern_node)->get_color<ndebug>();
-            if (is_not_same_color) {
+            if (is_not_same_tag) {
                 result.append(u8"<span style=\"color:");
                 result.append(color->get_color<ndebug>());
                 result.append(u8";\">");
             }
             result.append(::pltxt2htm::details::ast2html<ndebug, disable_log>(color->get_subast<ndebug>(), is_inline,
                                                                               ::pltxt2htm::NodeType::color, color));
-            if (is_not_same_color) {
+            if (is_not_same_tag) {
                 result.append(u8"</span>");
             }
-            break;
-        }
-        case ::pltxt2htm::NodeType::a: {
-            //
             break;
         }
         case ::pltxt2htm::NodeType::experiment: {
