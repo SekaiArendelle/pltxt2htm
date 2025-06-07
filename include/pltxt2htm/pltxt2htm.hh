@@ -19,9 +19,6 @@ namespace pltxt2htm {
 template<bool ndebug = false, bool disable_log = true>
 [[nodiscard]]
 constexpr auto pltxt2html(::fast_io::u8string_view pltext, bool is_inline = false) noexcept(disable_log == true) {
-#if defined(__wasm__)
-    static_assert(disable_log == true, "disable_log must be true when compiling for wasm");
-#endif
     return ::pltxt2htm::ast2html<ndebug, disable_log>(::pltxt2htm::parse_pltxt<ndebug, disable_log>(pltext), is_inline);
 }
 

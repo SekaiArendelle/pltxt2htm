@@ -4,6 +4,8 @@
  *       therefore, do not `#pragma once`
  */
 
+#include "panic.hh"
+
 #pragma push_macro("pltxt2htm_assert")
 #undef pltxt2htm_assert
 /**

@@ -9,9 +9,6 @@
 #include "astnode/html.hh"
 #include "exception/exception.hh"
 #include "pltxt2htm/astnode/plext.hh"
-#if !defined(__wasm__)
-    #include "panic.hh"
-#endif
 #include "push_macro.hh"
 
 namespace pltxt2htm {
@@ -64,9 +61,6 @@ constexpr auto parse_pltxt(
     ::pltxt2htm::details::ExternSyntaxType extern_syntax_type = ::pltxt2htm::details::ExternSyntaxType::none,
     ::std::size_t* extern_index = nullptr) noexcept(disable_log == true)
     -> ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> {
-#if defined(__wasm__)
-    static_assert(disable_log == true, "disable_log must be true when compiling for wasm");
-#endif
     pltxt2htm_assert(
         (extern_syntax_type == ::pltxt2htm::details::ExternSyntaxType::none && extern_index == nullptr) ||
             (extern_syntax_type != ::pltxt2htm::details::ExternSyntaxType::none && extern_index != nullptr),
@@ -461,9 +455,6 @@ constexpr auto parse_pltxt(
 template<bool ndebug, bool disable_log>
 [[nodiscard]]
 constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept(disable_log == true) {
-#if defined(__wasm__)
-    static_assert(disable_log == true, "disable_log must be true when compiling for wasm");
-#endif
     return ::pltxt2htm::details::parse_pltxt<ndebug, disable_log>(pltext);
 }
 

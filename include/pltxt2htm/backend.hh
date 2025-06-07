@@ -34,9 +34,6 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
                         ::pltxt2htm::NodeType const extern_node_type = ::pltxt2htm::NodeType::base,
                         ::pltxt2htm::PlTxtNode const* const extern_node = nullptr) noexcept(disable_log == true)
     -> ::fast_io::u8string {
-#if defined(__wasm__)
-    static_assert(disable_log == true, "disable_log must be true when compiling for wasm");
-#endif
     if constexpr (ndebug == false || disable_log == false) {
         // Checkout whether extern_node_type is a valid type info for ptr extern_node
         if ((extern_node_type != ::pltxt2htm::NodeType::base && extern_node == nullptr) ||
@@ -177,9 +174,6 @@ template<bool ndebug, bool disable_log>
 [[nodiscard]]
 constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> const& ast,
                         bool const is_inline) noexcept(disable_log == true) -> ::fast_io::u8string {
-#if defined(__wasm__)
-    static_assert(disable_log == true, "disable_log must be true when compiling for wasm");
-#endif
     return ::pltxt2htm::details::ast2html<ndebug, disable_log>(ast, is_inline);
 }
 

@@ -41,12 +41,6 @@ clang++ example.cc -o example -std=c++23 -I include
 
 And I strongly suggest you to add `-O2`, `-fno-ident`, `-fno-exceptions`, `-fno-rtti`, `-fno-unwind-tables`, `-fno-asynchronous-unwind-tables`, `-DNDEBUG`, `-fuse-ld=lld`, `-flto=thin`, `-stdlib=libc++`, `-rtlib=compiler-rt`, `--unwindlib=libunwind` and cross compiling flags(`--target=$TRIPLET` and `--sysroot=$YOUR_SYSROOT_PATH`) to your clang.
 
-## run tests
-```sh
-cd test
-python ./run_tests.py
-```
-
 ## features
 I am ensure any new features (like markdown extension) will break old Quantum Physics's text. However, compatibility is not the reason that we should stop our steps. Here are some features why I (or why I not) support:
 
@@ -55,11 +49,14 @@ markdown extension based on https://spec.commonmark.org/0.31.2/
 * carriage return will be regarded as line break (unlike markdown, which requires 2 spaces before a carriage return to be considered a line break)
 * &lt;br&gt;, &lt;BR&gt;, &lt;br/&gt;, &lt;br&nbsp;&nbsp;&nbsp;&gt;, &lt;br&nbsp;&nbsp;&nbsp;/&gt; will be regarded as line break
 * Quantum-Physics's color tag is supported
+* Quantum-Physics's a tag is supported
 
 ## others
 
-### Q: Is this the time to use C++20 module?
+> Q: Is this the time to use C++20 module?
+
 A: Not exactly. Despite clang, gcc and msvc all support C++20 modules, but the compiler crashes more frequently than hearder-only. At the same time, Header unit is not fullly supported.
 
-### Q: Why not use NDEBUG macro in include/pltxt2htm
+> Q: Why not use NDEBUG macro in include/pltxt2htm
+
 A: Conditional compilation in function body will cause [ODR violation](https://en.cppreference.com/w/cpp/language/definition) and [C++26 Contracts](https://en.cppreference.com/w/cpp/language/contracts) has the same prolem. therefore, to make function has different symbols in debug / release mode, I use `template<bool ndebug>` to achieve it.

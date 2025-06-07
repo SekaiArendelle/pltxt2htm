@@ -1,4 +1,4 @@
-# Use `pltxt2htm` on command line
+# Use `pltxt2htm` in command line
 
 ## Usage:
 ```sh
@@ -137,7 +137,7 @@ xmake install --output=$YOUR_INSTALL_PATH
 
 Download aarch64-apple-darwin24-sysroot at [their](https://github.com/trcrsired/apple-darwin-sysroot/releases/download/20250207/aarch64-apple-darwin24.tar.xz)
 
-### wasm
+### wasm32-wasip1
 ```sh
 xmake config --plat=wasm --arch=wasm32 --toolchain=wasm32-wasip1-clang --sysroot=$YOUR_SYSROOT_PATH
 xmake build
