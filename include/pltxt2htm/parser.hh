@@ -15,6 +15,9 @@ namespace pltxt2htm {
 
 namespace details {
 
+/**
+ * @return pltext[i]
+ */
 template<bool ndebug, bool disable_log>
 #if __has_cpp_attribute(__gnu__::always_inline)
 [[__gnu__::always_inline]]
@@ -26,6 +29,89 @@ constexpr auto u8string_view_index(::fast_io::u8string_view pltext, ::std::size_
     pltxt2htm_assert(i < pltext.size(), "Index of parser out of bound");
 
     return pltext.index_unchecked(i);
+}
+
+template<bool ndebug>
+#if __has_cpp_attribute(__gnu__::always_inline)
+[[__gnu__::always_inline]]
+#elif __has_cpp_attribute(msvc::forceinline)
+[[msvc::forceinline]]
+#endif
+[[nodiscard]]
+constexpr auto u8string_view_subview(::fast_io::u8string_view pltext, ::std::size_t i) noexcept {
+    if constexpr (ndebug) {
+        return pltext.subview_unchecked(i);
+    } else {
+        return pltext.subview(i);
+    }
+}
+
+/**
+ * @brief Get the index-th char8_t from the string.
+ * @return The char8_t at index I.
+ */
+template<::std::size_t I, char8_t first_char, char8_t... str>
+    requires (sizeof...(str) >= I)
+[[nodiscard]]
+consteval char8_t pack_indexing_char8_t() noexcept {
+    // https://en.cppreference.com/w/cpp/language/pack_indexing.html
+    if constexpr (I == 0) {
+        return first_char;
+    } else {
+#if __cpp_pack_indexing >= 202311L
+    #if defined(__clang__)
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wc++26-extensions"
+    #endif
+        return str...[I - 1];
+    #if defined(__clang__)
+        #pragma clang diagnostic pop
+    #endif
+#else
+        return pack_indexing_char8_t<I - 1, str...>();
+#endif
+    }
+}
+
+/**
+ * @brief Check whether the string is a prefix (without distinguishing
+ *        between uppercase and lowercase) of the pl-text.
+ * @tparam prefix_str: The prefix string.
+ * @param str: The string to be checked.
+ * @return Whether the string is a prefix of the pl-text.
+ */
+template<bool ndebug, bool disable_log, char8_t... prefix_str>
+    requires ((prefix_str < 'A' || prefix_str > 'Z') && ...)
+#if __has_cpp_attribute(__gnu__::always_inline)
+[[__gnu__::always_inline]]
+#elif __has_cpp_attribute(msvc::forceinline)
+[[msvc::forceinline]]
+#endif
+[[nodiscard]]
+constexpr bool is_prefix_match(::fast_io::u8string_view str) noexcept {
+    // TODO use template-for to refactor this function
+    return [str]<::std::size_t... Is>(::std::index_sequence<Is...>) {
+        return ([str]<::std::size_t I>() {
+            constexpr auto expect = pack_indexing_char8_t<I, prefix_str...>();
+            if constexpr ('a' <= expect && expect <= 'z') {
+                // ASCII between lowercase and uppercase is 32 (e.g. 'a' - 'A' == 32)
+                constexpr char8_t diff{32};
+                // (expect != str[I] && expect != str[I] + diff) <=> (expect != (str[I] | diff))
+                if (expect != (::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(str, I) | diff)) {
+                    return false;
+                } else {
+                    return true;
+                }
+            } else {
+                if (expect != ::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(str, I)) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        }.template operator()<Is>() &&
+                ...);
+    }(::std::make_index_sequence<sizeof...(prefix_str)>{});
 }
 
 /**
@@ -111,7 +197,8 @@ constexpr auto parse_pltxt(
                 {
                     ::std::size_t forward_index{i + 2};
                     while (true) {
-                        auto forward_chr = ::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(pltext, forward_index);
+                        auto forward_chr =
+                            ::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(pltext, forward_index);
                         if (forward_chr == u8'>') {
                             break;
                         } else if (forward_chr != ' ') {
@@ -129,7 +216,8 @@ constexpr auto parse_pltxt(
                         // if forward_index + 1 >= pltxt_size, it means that a not closed tag in the end of the text
                         // which does not make sense, can be opetimized(ignored) during parsing ast
                         auto subast = ::pltxt2htm::details::parse_pltxt<ndebug, disable_log>(
-                            pltext.subview(i + 1), ::pltxt2htm::details::ExternSyntaxType::pl_a, ::std::addressof(i));
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
+                            ::pltxt2htm::details::ExternSyntaxType::pl_a, ::std::addressof(i));
                         result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Color>(
                             ::std::move(subast), ::fast_io::u8string{u8"#0000AA"}));
                     }
@@ -145,8 +233,8 @@ constexpr auto parse_pltxt(
                 if (i + 3 >= pltxt_size) {
                     goto not_valid_tag;
                 }
-                if (::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(pltext, i + 2) != u8'r' &&
-                    ::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(pltext, i + 2) != u8'R') {
+                if (::pltxt2htm::details::is_prefix_match<ndebug, disable_log, u8'r'>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2)) == false) {
                     goto not_valid_tag;
                 }
                 {
@@ -159,8 +247,8 @@ constexpr auto parse_pltxt(
                             result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Br>{});
                             goto complete_parsing_tag;
                         } else if (forward_chr == u8'/' && forward_index + 1 < pltxt_size &&
-                                   ::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(pltext, forward_index + 1) ==
-                                       u8'>') {
+                                   ::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(
+                                       pltext, forward_index + 1) == u8'>') {
                             i = forward_index + 1;
                             result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Br>{});
                             goto complete_parsing_tag;
@@ -185,23 +273,9 @@ constexpr auto parse_pltxt(
                 if (i + 7 >= pltxt_size) {
                     goto not_valid_tag;
                 }
-                if (::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(pltext, i + 2) != u8'o' &&
-                    ::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(pltext, i + 2) != u8'O') {
-                    goto not_valid_tag;
-                }
-                if (::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(pltext, i + 3) != u8'l' &&
-                    ::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(pltext, i + 3) != u8'L') {
-                    goto not_valid_tag;
-                }
-                if (::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(pltext, i + 4) != u8'o' &&
-                    ::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(pltext, i + 4) != u8'O') {
-                    goto not_valid_tag;
-                }
-                if (::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(pltext, i + 5) != u8'r' &&
-                    ::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(pltext, i + 5) != u8'R') {
-                    goto not_valid_tag;
-                }
-                if (::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(pltext, i + 6) != u8'=') {
+                // TODO subview_unchecked
+                if (::pltxt2htm::details::is_prefix_match<ndebug, disable_log, u8'o', u8'l', u8'o', u8'r', u8'='>(
+                        u8string_view_subview<ndebug>(pltext, i + 2)) == false) {
                     goto not_valid_tag;
                 }
                 {
@@ -218,8 +292,8 @@ constexpr auto parse_pltxt(
                                     goto not_valid_tag;
                                 }
 
-                                if (::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(pltext, forward_index + 1) ==
-                                    u8' ') {
+                                if (::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(
+                                        pltext, forward_index + 1) == u8' ') {
                                     ++forward_index;
                                 } else if (::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(
                                                pltext, forward_index + 1) == u8'>') {
@@ -245,11 +319,10 @@ constexpr auto parse_pltxt(
                         // if forward_index + 1 >= pltxt_size, it means that a not closed tag in the end of the text
                         // which does not make sense, can be opetimized(ignored) during parsing ast
                         auto subast = ::pltxt2htm::details::parse_pltxt<ndebug, disable_log>(
-                            pltext.subview(i + 1), ::pltxt2htm::details::ExternSyntaxType::pl_color,
-                            ::std::addressof(i));
-                        result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Color>(
-                            // TODO .subview_unchecked
-                            ::std::move(subast), ::std::move(color)));
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
+                            ::pltxt2htm::details::ExternSyntaxType::pl_color, ::std::addressof(i));
+                        result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Color>(::std::move(subast),
+                                                                                             ::std::move(color)));
                     }
                     goto complete_parsing_tag;
                 }
@@ -262,24 +335,8 @@ constexpr auto parse_pltxt(
                     if (i + 7 >= pltxt_size) {
                         goto not_valid_tag;
                     }
-                    if (::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(pltext, i + 2) != u8'c' &&
-                        ::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(pltext, i + 2) != u8'C') {
-                        goto not_valid_tag;
-                    }
-                    if (::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(pltext, i + 3) != u8'o' &&
-                        ::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(pltext, i + 3) != u8'O') {
-                        goto not_valid_tag;
-                    }
-                    if (::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(pltext, i + 4) != u8'l' &&
-                        ::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(pltext, i + 4) != u8'L') {
-                        goto not_valid_tag;
-                    }
-                    if (::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(pltext, i + 5) != u8'o' &&
-                        ::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(pltext, i + 5) != u8'O') {
-                        goto not_valid_tag;
-                    }
-                    if (::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(pltext, i + 6) != u8'r' &&
-                        ::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(pltext, i + 6) != u8'R') {
+                    if (::pltxt2htm::details::is_prefix_match<ndebug, disable_log, u8'c', u8'o', u8'l', u8'o', u8'r'>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2)) == false) {
                         goto not_valid_tag;
                     }
                     {
@@ -295,8 +352,8 @@ constexpr auto parse_pltxt(
                                         goto not_valid_tag;
                                     }
 
-                                    if (::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(pltext, forward_index + 1) ==
-                                        u8' ') {
+                                    if (::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(
+                                            pltext, forward_index + 1) == u8' ') {
                                         ++forward_index;
                                     } else if (::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(
                                                    pltext, forward_index + 1) == u8'>') {
@@ -329,8 +386,7 @@ constexpr auto parse_pltxt(
                     if (i + 3 >= pltxt_size) {
                         goto not_valid_tag;
                     }
-                    if (::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(pltext, i + 2) != u8'a' &&
-                        ::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(pltext, i + 2) != u8'A') {
+                    if (::pltxt2htm::details::is_prefix_match<ndebug, disable_log, u8'a'>(::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2)) == false) {
                         goto not_valid_tag;
                     }
                     {
@@ -346,8 +402,8 @@ constexpr auto parse_pltxt(
                                         goto not_valid_tag;
                                     }
 
-                                    if (::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(pltext, forward_index + 1) ==
-                                        u8' ') {
+                                    if (::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(
+                                            pltext, forward_index + 1) == u8' ') {
                                         ++forward_index;
                                     } else if (::pltxt2htm::details::u8string_view_index<ndebug, disable_log>(
                                                    pltext, forward_index + 1) == u8'>') {
