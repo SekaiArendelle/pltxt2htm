@@ -1,6 +1,7 @@
 #include <cstring>
 #include <exception/exception.hh>
 #include <pltxt2htm/pltxt2htm.hh>
+#include "pltxt2htm/backend.hh"
 #include <fast_io/fast_io_dsal/string_view.h>
 
 int main() noexcept {
@@ -14,7 +15,7 @@ int main() noexcept {
     auto answer = u8R"(<br>文本1<br>文本2<br>文本3<br>文本4&lt;br&nbsp;&nbsp;&nbsp;&nbsp;/<br>文本5&lt;Br<br><br>)";
     ::exception::assert_true(::std::memcmp(html.data(), answer, html.size()) == 0);
 
-    auto inlined_html = ::pltxt2htm::pltxt2html(text, true);
+    auto inlined_html = ::pltxt2htm::pltxt2html<::pltxt2htm::BackendText::common_html>(text);
     auto answer2 = u8R"(文本1文本2文本3文本4&lt;br&nbsp;&nbsp;&nbsp;&nbsp;/文本5&lt;Br)";
     ::exception::assert_true(::std::memcmp(inlined_html.data(), answer2, inlined_html.size()) == 0);
 

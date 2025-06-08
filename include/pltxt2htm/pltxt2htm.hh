@@ -14,12 +14,13 @@ namespace pltxt2htm {
  *        Supported syntax are listed in pltxt2htm/astnode.hh: `enum class NodeType`
  * @tparam ndebug: show explanation in README.md Q/A
  * @param pltext The text of Quantum Physics.
- * @param is_inline Whether ignore <size> and line break.
  */
-template<bool ndebug = false, bool disable_log = true>
+template<::pltxt2htm::BackendText backend_text = ::pltxt2htm::BackendText::advanced_html, bool ndebug = false,
+         bool disable_log = true>
 [[nodiscard]]
-constexpr auto pltxt2html(::fast_io::u8string_view pltext, bool is_inline = false) noexcept(disable_log == true) {
-    return ::pltxt2htm::ast2html<ndebug, disable_log>(::pltxt2htm::parse_pltxt<ndebug, disable_log>(pltext), is_inline);
+constexpr auto pltxt2html(::fast_io::u8string_view pltext) noexcept(disable_log == true) {
+    return ::pltxt2htm::ast2html<backend_text, ndebug, disable_log>(
+        ::pltxt2htm::parse_pltxt<ndebug, disable_log>(pltext));
 }
 
 } // namespace pltxt2htm

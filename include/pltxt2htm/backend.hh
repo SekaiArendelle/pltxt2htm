@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <exception/exception.hh>
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
@@ -11,6 +12,11 @@
 
 namespace pltxt2htm {
 
+enum class BackendText : ::std::uint_least32_t {
+    advanced_html = 0,
+    common_html,
+};
+
 namespace details {
 
 /**
@@ -21,16 +27,14 @@ namespace details {
  * @tparam T: you should not pass this param because the compiler can infer it automatically.
  * @note tparam T should not be marked const, that's the reason why I use `remove_reference_t`
  * @param [in] ast: Ast of Quantum-Physics's text
- * @param [in] is_inline: Whether ignore line breaks within outputs
  * @param [in] extern_node_type: The type of the parent node (extern_node).
                                  If extern_node_type is ::pltxt2htm::NodeType::base,
                                  the current node is the root node (no parent node).
  * @param [in] extern_node: The pointer of parent node
  */
-template<bool ndebug, bool disable_log>
+template<BackendText backend_text, bool ndebug, bool disable_log>
 [[nodiscard]]
 constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> const& ast,
-                        bool const is_inline,
                         ::pltxt2htm::NodeType const extern_node_type = ::pltxt2htm::NodeType::base,
                         ::pltxt2htm::PlTxtNode const* const extern_node = nullptr) noexcept(disable_log == true)
     -> ::fast_io::u8string {
@@ -91,8 +95,8 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
                 result.append(color->get_color<ndebug>());
                 result.append(u8";\">");
             }
-            result.append(::pltxt2htm::details::ast2html<ndebug, disable_log>(color->get_subast<ndebug>(), is_inline,
-                                                                              ::pltxt2htm::NodeType::color, color));
+            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug, disable_log>(
+                color->get_subast<ndebug>(), ::pltxt2htm::NodeType::color, color));
             if (is_not_same_tag) {
                 result.append(u8"</span>");
             }
@@ -127,7 +131,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             break;
         }
         case ::pltxt2htm::NodeType::br: {
-            if (!is_inline) {
+            if constexpr (backend_text == ::pltxt2htm::BackendText::advanced_html) {
                 result.append(u8"<br>");
             }
             break;
@@ -167,14 +171,14 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
  * @tparam disable_log: true -> no any info printed before crashing
  * @tparam T: you should not pass this param because the compiler can infer it automatically.
  * @note tparam T should not be marked const, that's the reason why I use `remove_reference_t`
+ * @tparam backend_text:
  * @param [in] ast: Ast of Quantum-Physics's text
- * @param [in] is_inline: Whether ignore line breaks
  */
-template<bool ndebug, bool disable_log>
+template<BackendText backend_text, bool ndebug, bool disable_log>
 [[nodiscard]]
-constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> const& ast,
-                        bool const is_inline) noexcept(disable_log == true) -> ::fast_io::u8string {
-    return ::pltxt2htm::details::ast2html<ndebug, disable_log>(ast, is_inline);
+constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> const& ast) noexcept(
+    disable_log == true) -> ::fast_io::u8string {
+    return ::pltxt2htm::details::ast2html<backend_text, ndebug, disable_log>(ast);
 }
 
 } // namespace pltxt2htm
