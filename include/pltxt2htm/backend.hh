@@ -4,6 +4,7 @@
 #include <exception/exception.hh>
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
+#include <fast_io/fast_io_dsal/string_view.h>
 #include "astnode/node_type.hh"
 #include "astnode/basic.hh"
 #include "astnode/plext.hh"
@@ -35,6 +36,7 @@ namespace details {
 template<BackendText backend_text, bool ndebug, bool disable_log>
 [[nodiscard]]
 constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> const& ast,
+                        ::fast_io::u8string_view host,
                         ::pltxt2htm::NodeType const extern_node_type = ::pltxt2htm::NodeType::base,
                         ::pltxt2htm::PlTxtNode const* const extern_node = nullptr) noexcept(disable_log == true)
     -> ::fast_io::u8string {
@@ -85,7 +87,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
         case ::pltxt2htm::NodeType::color: {
             auto color = reinterpret_cast<::pltxt2htm::Color const*>(node.release_imul());
             // TODO: <color=red><color=blue>text</color></color> can be optimized
-            // Optimization: If the color is the same as the parent node, then we don't need to add the color tag.
+            // Optimization: If the color is the same as the parent node, then ignore the nested tag.
             bool const is_not_same_tag =
                 extern_node_type != ::pltxt2htm::NodeType::color ||
                 color->get_color<ndebug>() !=
@@ -96,7 +98,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
                 result.append(u8";\">");
             }
             result.append(::pltxt2htm::details::ast2html<backend_text, ndebug, disable_log>(
-                color->get_subast<ndebug>(), ::pltxt2htm::NodeType::color, color));
+                color->get_subast<ndebug>(), host, ::pltxt2htm::NodeType::color, color));
             if (is_not_same_tag) {
                 result.append(u8"</span>");
             }
@@ -107,7 +109,27 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             break;
         }
         case ::pltxt2htm::NodeType::discussion: {
-            //
+            auto discussion = reinterpret_cast<::pltxt2htm::Discussion const*>(node.release_imul());
+            // Optimization: If the discussion is the same as the parent node, then ignore the nested tag.
+            bool const is_not_same_tag =
+                extern_node_type != ::pltxt2htm::NodeType::discussion ||
+                discussion->get_id<ndebug>() !=
+                    reinterpret_cast<::pltxt2htm::Discussion const*>(extern_node)->get_id<ndebug>();
+            // TODO <Discussion=123><discussion=642cf37a494746375aae306a>physicsLab</discussion></Discussion> can be
+            // optimized as <a href=\"localhost:5173/ExperimentSummary/Discussion/642cf37a494746375aae306a\"
+            // internal>physicsLab</a>
+            if (is_not_same_tag) {
+                result.append(u8"<a href=\"");
+                result.append(host);
+                result.append(u8"/ExperimentSummary/Discussion/");
+                result.append(discussion->get_id<ndebug>());
+                result.append(u8"\" internal>");
+            }
+            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug, disable_log>(
+                discussion->get_subast<ndebug>(), host, ::pltxt2htm::NodeType::discussion, discussion));
+            if (is_not_same_tag) {
+                result.append(u8"</a>");
+            }
             break;
         }
         case ::pltxt2htm::NodeType::user: {
@@ -173,12 +195,14 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
  * @note tparam T should not be marked const, that's the reason why I use `remove_reference_t`
  * @tparam backend_text:
  * @param [in] ast: Ast of Quantum-Physics's text
+ * @param [in] host:
+ * @return
  */
 template<BackendText backend_text, bool ndebug, bool disable_log>
 [[nodiscard]]
-constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> const& ast) noexcept(
-    disable_log == true) -> ::fast_io::u8string {
-    return ::pltxt2htm::details::ast2html<backend_text, ndebug, disable_log>(ast);
+constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> const& ast,
+                        ::fast_io::u8string_view host) noexcept(disable_log == true) -> ::fast_io::u8string {
+    return ::pltxt2htm::details::ast2html<backend_text, ndebug, disable_log>(ast, host);
 }
 
 } // namespace pltxt2htm

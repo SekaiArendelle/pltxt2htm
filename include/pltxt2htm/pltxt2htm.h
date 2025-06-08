@@ -18,8 +18,8 @@ namespace details {
 
 template<auto Func>
 [[nodiscard]]
-constexpr char8_t const* c_ptr_style_wrapper(char8_t const* const text) noexcept(noexcept((Func(::fast_io::mnp::os_c_str(text))))) {
-    auto html = Func(::fast_io::mnp::os_c_str(text));
+constexpr char8_t const* c_ptr_style_wrapper(char8_t const* const text, char8_t const* const host) noexcept(noexcept((Func(::fast_io::mnp::os_c_str(text), ::fast_io::mnp::os_c_str(host))))) {
+    auto html = Func(::fast_io::mnp::os_c_str(text), ::fast_io::mnp::os_c_str(host));
     char8_t* result = reinterpret_cast<char8_t*>(::std::malloc(html.size() + 1));
     if (result == nullptr) [[unlikely]] {
         // bad alloc error should never be an exception or err-code
@@ -38,8 +38,8 @@ constexpr char8_t const* c_ptr_style_wrapper(char8_t const* const text) noexcept
  */
 template<bool ndebug = false, bool disable_log = true>
 [[nodiscard]]
-constexpr char8_t const* advanced_parser(char8_t const* const text) noexcept(disable_log == true) {
-    return ::pltxt2htm::details::c_ptr_style_wrapper<::pltxt2htm::pltxt2html<::pltxt2htm::BackendText::advanced_html, ndebug, disable_log>>(text);
+constexpr char8_t const* advanced_parser(char8_t const* const text, char8_t const* const host) noexcept(disable_log == true) {
+    return ::pltxt2htm::details::c_ptr_style_wrapper<::pltxt2htm::pltxt2html<::pltxt2htm::BackendText::advanced_html, ndebug, disable_log>>(text, host);
 }
 
 /**
@@ -48,8 +48,8 @@ constexpr char8_t const* advanced_parser(char8_t const* const text) noexcept(dis
  */
  template<bool ndebug = false, bool disable_log = true>
  [[nodiscard]]
- constexpr char8_t const* common_parser(char8_t const* const text) noexcept(disable_log == true) {
-     return ::pltxt2htm::details::c_ptr_style_wrapper<::pltxt2htm::pltxt2html<::pltxt2htm::BackendText::common_html, ndebug, disable_log>>(text);
+ constexpr char8_t const* common_parser(char8_t const* const text, char8_t const* const host) noexcept(disable_log == true) {
+     return ::pltxt2htm::details::c_ptr_style_wrapper<::pltxt2htm::pltxt2html<::pltxt2htm::BackendText::common_html, ndebug, disable_log>>(text, host);
  }
 
 }

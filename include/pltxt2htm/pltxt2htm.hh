@@ -18,9 +18,10 @@ namespace pltxt2htm {
 template<::pltxt2htm::BackendText backend_text = ::pltxt2htm::BackendText::advanced_html, bool ndebug = false,
          bool disable_log = true>
 [[nodiscard]]
-constexpr auto pltxt2html(::fast_io::u8string_view pltext) noexcept(disable_log == true) {
+constexpr auto pltxt2html(::fast_io::u8string_view pltext,
+                          ::fast_io::u8string_view host) noexcept(disable_log == true) {
     return ::pltxt2htm::ast2html<backend_text, ndebug, disable_log>(
-        ::pltxt2htm::parse_pltxt<ndebug, disable_log>(pltext));
+        ::pltxt2htm::parse_pltxt<ndebug, disable_log>(pltext), host);
 }
 
 } // namespace pltxt2htm
