@@ -47,15 +47,7 @@ int main(int argc, char const* const* const argv)
     }
 
     // store input file path
-#ifdef NDEBUG
-    #if __has_cpp_attribute(indeterminate)
-    char const* input_file_path [[indeterminate]];
-    #else
-    char const* input_file_path;
-    #endif
-#else
-    char const* input_file_path = nullptr;
-#endif
+    char8_t const* input_file_path = nullptr;
     // host prefix of physics-lab-web
     char8_t const* host = nullptr;
     // store output file path, can be optional
@@ -66,7 +58,7 @@ int main(int argc, char const* const* const argv)
                 ::fast_io::perrln("You must specify input file after `-i`");
                 return 1;
             }
-            input_file_path = argv[++i];
+            input_file_path = reinterpret_cast<char8_t const*>(argv[++i]);
             continue;
         } else if (::std::strcmp(argv[i], "--host") == 0) {
             if (i == static_cast<::std::size_t>(argc) - 1) [[unlikely]] {
@@ -106,7 +98,11 @@ int main(int argc, char const* const* const argv)
         }
     }
 
-    assert(input_file_path != nullptr);
+    if (input_file_path == nullptr) [[unlikely]] {
+        ::fast_io::perrln("** You must specify input file with `-i`");
+        ::fast_io::println(::fast_io::u8c_stderr(), usage);
+        return 1;
+    }
     if (host == nullptr) [[unlikely]] {
         ::fast_io::perrln("** You must specify host name with `--host`");
         ::fast_io::println(::fast_io::u8c_stderr(), usage);

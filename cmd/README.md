@@ -33,6 +33,12 @@ xmake config --help
 ```
 to show all config options.
 
+> Cause I use header-only to supply api, therefore, it's easy to build `pltxt2htm` without build tools:
+> ```sh
+> clang++ ./pltxt2htm.cc -o pltxt2htm -std=c++23 -I ../include
+> ```
+> If you are building `pltxt2htm` to windows, don't forget to add `-lntdll`
+
 ### x86_64-windows-gnu (aka. x86_64-w64-mingw32)
 
 #### clang

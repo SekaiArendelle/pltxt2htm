@@ -104,7 +104,26 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             break;
         }
         case ::pltxt2htm::NodeType::experiment: {
-            //
+            auto experiment = reinterpret_cast<::pltxt2htm::Experiment const*>(node.release_imul());
+            // Optimization: If the experiment is the same as the parent node, then ignore the nested tag.
+            bool const is_not_same_tag =
+                extern_node_type != ::pltxt2htm::NodeType::experiment ||
+                experiment->get_id() != reinterpret_cast<::pltxt2htm::Experiment const*>(extern_node)->get_id();
+            // TODO <Experiment=123><experiment=642cf37a494746375aae306a>physicsLab</experiment></Experiment> can be
+            // optimized as <a href=\"localhost:5173/ExperimentSummary/Experiment/642cf37a494746375aae306a\"
+            // internal>physicsLab</a>
+            if (is_not_same_tag) {
+                result.append(u8"<a href=\"");
+                result.append(host);
+                result.append(u8"/ExperimentSummary/Experiment/");
+                result.append(experiment->get_id());
+                result.append(u8"\" internal>");
+            }
+            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug, disable_log>(
+                experiment->get_subast(), host, ::pltxt2htm::NodeType::experiment, experiment));
+            if (is_not_same_tag) {
+                result.append(u8"</a>");
+            }
             break;
         }
         case ::pltxt2htm::NodeType::discussion: {

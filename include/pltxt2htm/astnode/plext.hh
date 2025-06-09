@@ -84,6 +84,11 @@ public:
     constexpr Experiment& operator=(this Experiment& self, Experiment const&) noexcept = delete;
 
     constexpr Experiment& operator=(this Experiment& self, ::pltxt2htm::Experiment&&) noexcept = default;
+
+    [[nodiscard]]
+    constexpr auto&& get_id(this auto&& self) noexcept {
+        return ::std::forward_like<decltype(self)>(self.id_);
+    }
 };
 
 /**
