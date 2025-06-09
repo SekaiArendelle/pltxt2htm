@@ -48,16 +48,9 @@ public:
      */
     constexpr Color& operator=(this Color& self, ::pltxt2htm::Color&&) noexcept = default;
 
-    template<bool ndebug>
     [[nodiscard]]
     constexpr auto&& get_color(this auto&& self) noexcept {
-        if constexpr (::std::is_rvalue_reference_v<decltype(self)>) {
-            return ::std::move(::std::as_const(self.color_));
-        } else if constexpr (::std::is_lvalue_reference_v<decltype(self)>) {
-            return ::std::as_const(self.color_);
-        } else {
-            ::exception::unreachable<ndebug>();
-        }
+            return ::std::forward_like<decltype(self)>(self.color_);
     }
 };
 
@@ -124,16 +117,9 @@ public:
 
     constexpr Discussion& operator=(this Discussion& self, ::pltxt2htm::Discussion&&) noexcept = default;
 
-    template<bool ndebug>
     [[nodiscard]]
     constexpr auto&& get_id(this auto&& self) noexcept {
-        if constexpr (::std::is_rvalue_reference_v<decltype(self)>) {
-            return ::std::move(::std::as_const(self.id_));
-        } else if constexpr (::std::is_lvalue_reference_v<decltype(self)>) {
-            return ::std::as_const(self.id_);
-        } else {
-            ::exception::unreachable<ndebug>();
-        }
+            return ::std::forward_like<decltype(self)>(self.id_);
     }
 };
 

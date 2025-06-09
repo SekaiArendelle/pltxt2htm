@@ -90,15 +90,15 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             // Optimization: If the color is the same as the parent node, then ignore the nested tag.
             bool const is_not_same_tag =
                 extern_node_type != ::pltxt2htm::NodeType::color ||
-                color->get_color<ndebug>() !=
-                    reinterpret_cast<::pltxt2htm::Color const*>(extern_node)->get_color<ndebug>();
+                color->get_color() !=
+                    reinterpret_cast<::pltxt2htm::Color const*>(extern_node)->get_color();
             if (is_not_same_tag) {
                 result.append(u8"<span style=\"color:");
-                result.append(color->get_color<ndebug>());
+                result.append(color->get_color());
                 result.append(u8";\">");
             }
             result.append(::pltxt2htm::details::ast2html<backend_text, ndebug, disable_log>(
-                color->get_subast<ndebug>(), host, ::pltxt2htm::NodeType::color, color));
+                color->get_subast(), host, ::pltxt2htm::NodeType::color, color));
             if (is_not_same_tag) {
                 result.append(u8"</span>");
             }
@@ -113,8 +113,8 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             // Optimization: If the discussion is the same as the parent node, then ignore the nested tag.
             bool const is_not_same_tag =
                 extern_node_type != ::pltxt2htm::NodeType::discussion ||
-                discussion->get_id<ndebug>() !=
-                    reinterpret_cast<::pltxt2htm::Discussion const*>(extern_node)->get_id<ndebug>();
+                discussion->get_id() !=
+                    reinterpret_cast<::pltxt2htm::Discussion const*>(extern_node)->get_id();
             // TODO <Discussion=123><discussion=642cf37a494746375aae306a>physicsLab</discussion></Discussion> can be
             // optimized as <a href=\"localhost:5173/ExperimentSummary/Discussion/642cf37a494746375aae306a\"
             // internal>physicsLab</a>
@@ -122,11 +122,11 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
                 result.append(u8"<a href=\"");
                 result.append(host);
                 result.append(u8"/ExperimentSummary/Discussion/");
-                result.append(discussion->get_id<ndebug>());
+                result.append(discussion->get_id());
                 result.append(u8"\" internal>");
             }
             result.append(::pltxt2htm::details::ast2html<backend_text, ndebug, disable_log>(
-                discussion->get_subast<ndebug>(), host, ::pltxt2htm::NodeType::discussion, discussion));
+                discussion->get_subast(), host, ::pltxt2htm::NodeType::discussion, discussion));
             if (is_not_same_tag) {
                 result.append(u8"</a>");
             }
