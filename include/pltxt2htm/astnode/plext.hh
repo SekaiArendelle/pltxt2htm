@@ -50,7 +50,7 @@ public:
 
     [[nodiscard]]
     constexpr auto&& get_color(this auto&& self) noexcept {
-            return ::std::forward_like<decltype(self)>(self.color_);
+        return ::std::forward_like<decltype(self)>(self.color_);
     }
 };
 
@@ -119,7 +119,7 @@ public:
 
     [[nodiscard]]
     constexpr auto&& get_id(this auto&& self) noexcept {
-            return ::std::forward_like<decltype(self)>(self.id_);
+        return ::std::forward_like<decltype(self)>(self.id_);
     }
 };
 

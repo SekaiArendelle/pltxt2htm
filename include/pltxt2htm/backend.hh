@@ -90,8 +90,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             // Optimization: If the color is the same as the parent node, then ignore the nested tag.
             bool const is_not_same_tag =
                 extern_node_type != ::pltxt2htm::NodeType::color ||
-                color->get_color() !=
-                    reinterpret_cast<::pltxt2htm::Color const*>(extern_node)->get_color();
+                color->get_color() != reinterpret_cast<::pltxt2htm::Color const*>(extern_node)->get_color();
             if (is_not_same_tag) {
                 result.append(u8"<span style=\"color:");
                 result.append(color->get_color());
@@ -113,8 +112,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             // Optimization: If the discussion is the same as the parent node, then ignore the nested tag.
             bool const is_not_same_tag =
                 extern_node_type != ::pltxt2htm::NodeType::discussion ||
-                discussion->get_id() !=
-                    reinterpret_cast<::pltxt2htm::Discussion const*>(extern_node)->get_id();
+                discussion->get_id() != reinterpret_cast<::pltxt2htm::Discussion const*>(extern_node)->get_id();
             // TODO <Discussion=123><discussion=642cf37a494746375aae306a>physicsLab</discussion></Discussion> can be
             // optimized as <a href=\"localhost:5173/ExperimentSummary/Discussion/642cf37a494746375aae306a\"
             // internal>physicsLab</a>
