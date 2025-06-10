@@ -1,6 +1,7 @@
 #include <cstring>
-#include <pltxt2htm/pltxt2htm.hh>
+#include <fast_io/fast_io_dsal/string_view.h>
 #include <exception/exception.hh>
+#include <pltxt2htm/pltxt2htm.hh>
 
 int main() noexcept {
     auto html1 = ::pltxt2htm::pltxt2html(u8"<cOLOr=red>text</color>", u8"localhost:5173");
@@ -47,8 +48,12 @@ int main() noexcept {
     ::exception::assert_true(::std::memcmp(html9.data(), answer9, html4.size()) == 0);
 
     auto html10 = ::pltxt2htm::pltxt2html(u8"<color=red>text<Color=#66ccff>text</color></color>", u8"localhost:5173");
-    auto answer10 = u8"<span style=\"color:red;\">text<span style=\"color:#66ccff;\">text</span></span>";
-    ::exception::assert_true(::std::memcmp(html10.data(), answer10, html4.size()) == 0);
+    auto answer10 = ::fast_io::u8string_view{u8"<span style=\"color:red;\">text<span style=\"color:#66ccff;\">text</span></span>"};
+    ::exception::assert_true(html10 == answer10);
+
+    auto html11 = ::pltxt2htm::pltxt2html(u8"<color=", u8"localhost:5173");
+    auto answer11 = ::fast_io::u8string_view{u8"&lt;color="};
+    ::exception::assert_true(html11 == answer11);
 
     return 0;
 }

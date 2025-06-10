@@ -31,6 +31,10 @@ constexpr bool is_heap_guard_<HeapGuard<T>> = true;
 template<typename T>
 concept is_heap_guard = is_heap_guard_<::std::remove_cvref_t<T>>;
 
+/**
+ * @brief RAII a heap allocated pointer
+ * @tparam type to allocate
+ */
 template<typename T>
 class HeapGuard {
     T* ptr_;
@@ -92,9 +96,7 @@ public:
 #endif
 
     constexpr HeapGuard& operator=(this HeapGuard<T>& self, HeapGuard<T>&& other) noexcept {
-        ::std::destroy_at(self.ptr_);
-        ::std::free(self.ptr_);
-        self.ptr_ = other.release();
+        self.swap(self, other);
         return self;
     }
 
@@ -122,6 +124,12 @@ public:
         T* ptr = self.ptr_;
         self.ptr_ = nullptr;
         return ptr;
+    }
+
+    constexpr void swap(this HeapGuard<T>& self, HeapGuard<T>& other) noexcept {
+        T* tmp = self.ptr_;
+        self.ptr_ = other.ptr_;
+        other.ptr_ = tmp;
     }
 };
 

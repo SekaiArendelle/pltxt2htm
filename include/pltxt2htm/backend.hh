@@ -210,10 +210,10 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
  * @tparam disable_log: true -> no any info printed before crashing
  * @tparam T: you should not pass this param because the compiler can infer it automatically.
  * @note tparam T should not be marked const, that's the reason why I use `remove_reference_t`
- * @tparam backend_text:
+ * @tparam backend_text: text type that backend generates
  * @param [in] ast: Ast of Quantum-Physics's text
- * @param [in] host:
- * @return
+ * @param [in] host: host of plweb
+ * @return generated backend text
  */
 template<BackendText backend_text, bool ndebug, bool disable_log>
 [[nodiscard]]

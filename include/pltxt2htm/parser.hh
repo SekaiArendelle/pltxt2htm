@@ -48,10 +48,10 @@ constexpr auto u8string_view_subview(::fast_io::u8string_view pltext, ::std::siz
 
 /**
  * @brief Get the index-th char8_t from the string.
- * @return The char8_t at index I.
+ * @return The char8_t at index I of str.
  */
 template<::std::size_t I, char8_t first_char, char8_t... str>
-    requires (sizeof...(str) >= I)
+    requires (I <= sizeof...(str))
 [[nodiscard]]
 consteval char8_t pack_indexing_char8_t() noexcept {
     // https://en.cppreference.com/w/cpp/language/pack_indexing.html
@@ -76,6 +76,7 @@ consteval char8_t pack_indexing_char8_t() noexcept {
 /**
  * @brief Check whether the string is a prefix (without distinguishing
  *        between uppercase and lowercase) of the pl-text.
+ *        This is a magic funciton that will generate if-expression in compile time.
  * @tparam prefix_str: The prefix string.
  * @param str: The string to be checked.
  * @return Whether the string is a prefix of the pl-text.
@@ -91,6 +92,11 @@ template<bool ndebug, bool disable_log, char8_t... prefix_str>
 constexpr bool is_prefix_match(::fast_io::u8string_view str) noexcept {
     // TODO use template-for to refactor this function
     return [str]<::std::size_t... Is>(::std::index_sequence<Is...>) {
+        // Check whether the index is out of bound.
+        if (sizeof...(prefix_str) + 1 > str.size()) [[unlikely]] {
+            return false;
+        }
+        // Check whether the string is a prefix of the pl-text.
         return ([str]<::std::size_t I>() {
             constexpr auto expect = pack_indexing_char8_t<I, prefix_str...>();
             if constexpr ('a' <= expect && expect <= 'z') {
@@ -234,9 +240,6 @@ constexpr auto parse_pltxt(
                 [[fallthrough]];
             case u8'B': {
                 // parsing: <br>, <bR  >, <BR/>, <br  />
-                if (i + 3 >= pltxt_size) {
-                    goto not_valid_tag;
-                }
                 if (::pltxt2htm::details::is_prefix_match<ndebug, disable_log, u8'r'>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2)) == false) {
                     goto not_valid_tag;
@@ -274,9 +277,6 @@ constexpr auto parse_pltxt(
                 [[fallthrough]];
             case u8'C': {
                 // parsing: <color=$1>$2</color>
-                if (i + 7 >= pltxt_size) {
-                    goto not_valid_tag;
-                }
                 if (::pltxt2htm::details::is_prefix_match<ndebug, disable_log, u8'o', u8'l', u8'o', u8'r', u8'='>(
                         u8string_view_subview<ndebug>(pltext, i + 2)) == false) {
                     goto not_valid_tag;
@@ -336,9 +336,6 @@ constexpr auto parse_pltxt(
                 [[fallthrough]];
             case u8'D': {
                 // parsing: <discussion=$1>$2</discussion>
-                if (i + 12 >= pltxt_size) {
-                    goto not_valid_tag;
-                }
                 if (::pltxt2htm::details::is_prefix_match<ndebug, disable_log, u8'i', u8's', u8'c', u8'u', u8's', u8's',
                                                           u8'i', u8'o', u8'n', u8'='>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2)) == false) {
@@ -399,9 +396,6 @@ constexpr auto parse_pltxt(
                 [[fallthrough]];
             case u8'E': {
                 // parsing: <experiment=$1>$2</experiment>
-                if (i + 12 >= pltxt_size) {
-                    goto not_valid_tag;
-                }
                 if (::pltxt2htm::details::is_prefix_match<ndebug, disable_log, u8'x', u8'p', u8'e', u8'r', u8'i', u8'm',
                                                           u8'e', u8'n', u8't', u8'='>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2)) == false) {
@@ -462,9 +456,6 @@ constexpr auto parse_pltxt(
                 switch (extern_syntax_type) {
                 case ::pltxt2htm::details::ExternSyntaxType::pl_color: {
                     // parsing </color>
-                    if (i + 7 >= pltxt_size) {
-                        goto not_valid_tag;
-                    }
                     if (::pltxt2htm::details::is_prefix_match<ndebug, disable_log, u8'c', u8'o', u8'l', u8'o', u8'r'>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2)) == false) {
                         goto not_valid_tag;
@@ -513,9 +504,6 @@ constexpr auto parse_pltxt(
                     ::exception::unreachable<ndebug>();
                 }
                 case ::pltxt2htm::details::ExternSyntaxType::pl_a: {
-                    if (i + 3 >= pltxt_size) {
-                        goto not_valid_tag;
-                    }
                     if (::pltxt2htm::details::is_prefix_match<ndebug, disable_log, u8'a'>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2)) == false) {
                         goto not_valid_tag;
@@ -562,9 +550,6 @@ constexpr auto parse_pltxt(
                 }
                 case ::pltxt2htm::details::ExternSyntaxType::pl_discussion: {
                     // parsing </discussion>
-                    if (i + 12 >= pltxt_size) {
-                        goto not_valid_tag;
-                    }
                     if (::pltxt2htm::details::is_prefix_match<ndebug, disable_log, u8'd', u8'i', u8's', u8'c', u8'u',
                                                               u8's', u8's', u8'i', u8'o', u8'n'>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2)) == false) {
@@ -615,9 +600,6 @@ constexpr auto parse_pltxt(
                 }
                 case ::pltxt2htm::details::ExternSyntaxType::pl_experiment: {
                     // parsing </experiment>
-                    if (i + 12 >= pltxt_size) {
-                        goto not_valid_tag;
-                    }
                     if (::pltxt2htm::details::is_prefix_match<ndebug, disable_log, u8'e', u8'x', u8'p', u8'e', u8'r',
                                                               u8'i', u8'm', u8'e', u8'n', u8't'>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2)) == false) {
@@ -743,6 +725,8 @@ constexpr auto parse_pltxt(
 
 /**
  * @brief Impl of parse pl-text to nodes.
+ * @tparam ndebug: Whether or not to disable debugging checks (like NDEBUG macro).
+ * @tparam disable_log: Whether or not to disable print info before crashing.
  * @param pltext: The text readed from Quantum-Physics.
  */
 template<bool ndebug, bool disable_log>
