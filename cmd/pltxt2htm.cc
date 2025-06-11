@@ -58,6 +58,10 @@ int main(int argc, char const* const* const argv)
                 ::fast_io::perrln("You must specify input file after `-i`");
                 return 1;
             }
+            if (input_file_path != nullptr) [[unlikely]] {
+                ::fast_io::perrln("You can only specify one input file");
+                return 1;
+            }
             input_file_path = reinterpret_cast<char8_t const*>(argv[++i]);
             continue;
         } else if (::std::strcmp(argv[i], "--host") == 0) {
@@ -65,11 +69,19 @@ int main(int argc, char const* const* const argv)
                 ::fast_io::perrln("You must specify host name after `--host`");
                 return 1;
             }
+            if (host != nullptr) [[unlikely]] {
+                ::fast_io::perrln("You can only specify one host name");
+                return 1;
+            }
             host = reinterpret_cast<char8_t const*>(argv[++i]);
             continue;
         } else if (::std::strcmp(argv[i], "-o") == 0) {
             if (i == static_cast<::std::size_t>(argc) - 1) [[unlikely]] {
                 ::fast_io::perrln("You must specify output file after `-o`");
+                return 1;
+            }
+            if (output_file_path != nullptr) [[unlikely]] {
+                ::fast_io::perrln("You can only specify one output file");
                 return 1;
             }
             output_file_path = argv[++i];
