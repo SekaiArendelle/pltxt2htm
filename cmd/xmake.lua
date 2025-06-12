@@ -1,6 +1,6 @@
-add_rules("mode.debug", "mode.release")
-
 includes("../xmake/*.lua")
+
+add_rules("mode.debug", "mode.release")
 set_languages("c++23")
 set_encodings("utf-8")
 

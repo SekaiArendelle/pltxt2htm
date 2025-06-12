@@ -1,4 +1,7 @@
+venv/
+dist/
 build/
+*.egg-info/
 .xmake/
 .vscode/
 __pycache__/

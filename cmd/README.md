@@ -152,5 +152,5 @@ xmake install --output=$YOUR_INSTALL_PATH
 
 Download wasm-sysroot at [their](https://github.com/trcrsired/llvm-releases/releases/download/llvm21-20250518/wasm-sysroots.tar.xz)
 
-Q: why I still use emcc in js/xmake.lua?
+Q: why I still use emcc in wasm/xmake.lua?
 A: emcc is a wrapper of clang, but it will generate a glue js file for wasm
