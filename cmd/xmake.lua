@@ -25,11 +25,4 @@ target("pltxt2htm", function()
         set_warnings("all")
         set_warnings("extra")
     end
-
-    -- get compiler name
-    -- on_config(function (target)
-    --     print(target)
-    --     local toolchains = target:tool("cxx")
-    --     compiler_name = path.basename(toolchains)
-    -- end)
 end)
