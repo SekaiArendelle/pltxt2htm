@@ -21,3 +21,17 @@ xmake install -o $PREFIX
 ```
 
 <del>If you want to fuck yourself, then use `python -m build`</del>
+
+## Usage
+```py
+import pltxt2htm
+
+html = pltxt2htm.advanced_parser('''
+# Hello Quantum PhysicsLab
+With markdown supports
+''',
+    host="localhost"
+)
+
+print(html)
+```

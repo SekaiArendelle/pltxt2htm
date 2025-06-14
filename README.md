@@ -10,7 +10,7 @@ This project aimed to provide a translater that compiles the Quantam-PhysicsLab'
 This project requires at least C++23, disables rtti and exceptions, use header-only style to supply api, has great cross platform ability and I strongly recommend you to use clang.
 
 # How to use?
-You can use `pltxt2htm` in [cmd line](cmd/README.md), [js](wasm/README.md) and [python](py/README.md).
+You can use `pltxt2htm` in [console](cmd/README.md), [browser](wasm/README.md) and [python](py/README.md).
 
 C++ APIs is in [include/pltxt2htm](include/pltxt2htm/), here is a simple example:
 ```cpp
@@ -19,7 +19,7 @@ C++ APIs is in [include/pltxt2htm](include/pltxt2htm/), here is a simple example
 #include <pltxt2htm/pltxt2htm.hh> // in include/pltxt2htm
 
 int main() noexcept {
-    auto html = pltxt2htm::pltxt2html(u8R"(
+    auto html = ::pltxt2htm::pltxt2html(u8R"(
 # Hello Quantum PhysicsLab
 With Markdown supports
 )");
@@ -47,9 +47,11 @@ I am ensure any new features (like markdown extension) will break old Quantum Ph
 markdown extension based on https://spec.commonmark.org/0.31.2/
 
 * carriage return will be regarded as line break (unlike markdown, which requires 2 spaces before a carriage return to be considered a line break)
-* &lt;br&gt;, &lt;BR&gt;, &lt;br/&gt;, &lt;br&nbsp;&nbsp;&nbsp;&gt;, &lt;br&nbsp;&nbsp;&nbsp;/&gt; will be regarded as line break
+* HTML's br tag is supported (&lt;br&gt;, &lt;BR&gt;, &lt;br/&gt;, &lt;br&nbsp;&nbsp;&nbsp;&gt;, &lt;br&nbsp;&nbsp;&nbsp;/&gt; will be regarded as line break)
 * Quantum-Physics's color tag is supported
 * Quantum-Physics's a tag is supported
+* Quantum-Physics's Discussion tag is supported
+* Quantum-Physics's Experiment tag is supported
 
 ## others
 
