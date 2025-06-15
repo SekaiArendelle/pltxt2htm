@@ -87,7 +87,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
                 // <color=red><color=blue>text</color></color> can be optimized
                 auto subnode = subast.index_unchecked(0).release_imul();
                 if (subnode->node_type() == ::pltxt2htm::NodeType::color) {
-                        color = reinterpret_cast<::pltxt2htm::Color const*>(subnode);
+                    color = reinterpret_cast<::pltxt2htm::Color const*>(subnode);
                 }
             }
             // Optimization: If the color is the same as the parent node, then ignore the nested tag.
@@ -114,7 +114,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
                 // optimized as <a href=\"localhost:5173/ExperimentSummary/Experiment/642cf37a494746375aae306a\"
                 auto subnode = subast.index_unchecked(0).release_imul();
                 if (subnode->node_type() == ::pltxt2htm::NodeType::experiment) {
-                        experiment = reinterpret_cast<::pltxt2htm::Experiment const*>(subnode);
+                    experiment = reinterpret_cast<::pltxt2htm::Experiment const*>(subnode);
                 }
             }
             // Optimization: If the experiment is the same as the parent node, then ignore the nested tag.
@@ -145,7 +145,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
                 // internal>physicsLab</a>
                 auto subnode = subast.index_unchecked(0).release_imul();
                 if (subnode->node_type() == ::pltxt2htm::NodeType::discussion) {
-                        discussion = reinterpret_cast<::pltxt2htm::Discussion const*>(subnode);
+                    discussion = reinterpret_cast<::pltxt2htm::Discussion const*>(subnode);
                 }
             }
             // Optimization: If the discussion is the same as the parent node, then ignore the nested tag.
@@ -180,8 +180,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
         }
         case ::pltxt2htm::NodeType::i: {
             auto i = reinterpret_cast<::pltxt2htm::I const*>(node.release_imul());
-            bool const is_not_same_tag =
-                extern_node_type != ::pltxt2htm::NodeType::i;
+            bool const is_not_same_tag = extern_node_type != ::pltxt2htm::NodeType::i;
             if (is_not_same_tag) {
                 result.append(u8"<i>");
             }

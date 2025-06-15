@@ -5,7 +5,7 @@ build/
 .xmake/
 .vscode/
 __pycache__/
-*-pltxt2htm/
+*-pltxt2htm*/
 *.tar.xz
 *.ignore.*
 *.lnk

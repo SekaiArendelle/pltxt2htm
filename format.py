@@ -6,7 +6,7 @@ import os
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 TEST_DIR = os.path.join(SCRIPT_DIR, "test")
 SRC_DIR = os.path.join(SCRIPT_DIR, "include", "pltxt2htm")
-JS_DIR = os.path.join(SCRIPT_DIR, "js")
+WASM_DIR = os.path.join(SCRIPT_DIR, "wasm")
 CMD_DIR = os.path.join(SCRIPT_DIR, "cmd")
 PY_DIR = os.path.join(SCRIPT_DIR, "py")
 
@@ -20,6 +20,6 @@ def format_files_in_a_dir(dir: str) -> None:
 
 format_files_in_a_dir(TEST_DIR)
 format_files_in_a_dir(SRC_DIR)
-format_files_in_a_dir(JS_DIR)
+format_files_in_a_dir(WASM_DIR)
 format_files_in_a_dir(CMD_DIR)
 format_files_in_a_dir(PY_DIR)

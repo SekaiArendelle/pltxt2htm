@@ -13,3 +13,13 @@ extern "C" char8_t const* advanced_parser(char8_t const* const text, char8_t con
 #endif
         >(text, host);
 }
+
+extern "C" char8_t const* common_parser(char8_t const* text, char8_t const* const host) noexcept {
+    return ::pltxt2htm::common_parser<
+#ifdef NDEBUG
+        true
+#else
+        false
+#endif
+        >(text, host);
+}
