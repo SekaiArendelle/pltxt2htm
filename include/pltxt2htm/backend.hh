@@ -82,7 +82,14 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
         }
         case ::pltxt2htm::NodeType::color: {
             auto color = reinterpret_cast<::pltxt2htm::Color const*>(node.release_imul());
-            // TODO: <color=red><color=blue>text</color></color> can be optimized
+            auto&& subast = color->get_subast();
+            if (subast.size() == 1) {
+                // <color=red><color=blue>text</color></color> can be optimized
+                auto subnode = subast.index_unchecked(0).release_imul();
+                if (subnode->node_type() == ::pltxt2htm::NodeType::color) {
+                        color = reinterpret_cast<::pltxt2htm::Color const*>(subnode);
+                }
+            }
             // Optimization: If the color is the same as the parent node, then ignore the nested tag.
             bool const is_not_same_tag =
                 extern_node_type != ::pltxt2htm::NodeType::color ||
@@ -92,7 +99,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
                 result.append(color->get_color());
                 result.append(u8";\">");
             }
-            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(color->get_subast(), host,
+            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(subast, host,
                                                                                ::pltxt2htm::NodeType::color, color));
             if (is_not_same_tag) {
                 result.append(u8"</span>");

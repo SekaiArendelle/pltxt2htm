@@ -43,7 +43,7 @@ public:
     using value_type = T;
 
     template<typename... Args>
-        requires ((!::pltxt2htm::details::is_heap_guard<Args>) && ...)
+        requires (((!::pltxt2htm::details::is_heap_guard<Args>) && ...) && ::std::constructible_from<T, Args...>)
     constexpr HeapGuard(Args&&... args) noexcept {
         this->ptr_ = reinterpret_cast<T*>(::std::malloc(sizeof(T)));
         if (this->ptr_ == nullptr) [[unlikely]] {

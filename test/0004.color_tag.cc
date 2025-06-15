@@ -26,7 +26,7 @@ int main() noexcept {
     ::exception::assert_true(::std::memcmp(html4.data(), answer4, html4.size()) == 0);
 
     auto html5 = ::pltxt2htm::pltxt2html(u8"<color=red><Color=#66CcFf>text</color></color>", u8"localhost:5173");
-    auto answer5 = u8"<span style=\"color:red;\"><span style=\"color:#66CcFf;\">text</span></span>";
+    auto answer5 = u8"<span style=\"color:#66CcFf;\">text</span>";
     ::exception::assert_true(::std::memcmp(html5.data(), answer5, html5.size()) == 0);
 
     auto html6 = ::pltxt2htm::pltxt2html(u8"test<Color=#66CcFf>", u8"localhost:5173");
