@@ -35,14 +35,11 @@ int main() noexcept {
     ;
     ::exception::assert_true(::std::memcmp(html4.data(), answer4, html4.size()) == 0);
 
-    // TODO can be further optimized
     auto html5 = ::pltxt2htm::pltxt2html(
         u8"<Experiment=123><experiment=642cf37a494746375aae306a>physicsLab</experiment></Experiment>",
         u8"localhost:5173");
     auto answer5 =
-        u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/123\" internal><a "
-        u8"href=\"localhost:5173/ExperimentSummary/Experiment/642cf37a494746375aae306a\" internal>physicsLab</a></a>";
-    ;
+        u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/642cf37a494746375aae306a\" internal>physicsLab</a>";
     ::exception::assert_true(::std::memcmp(html5.data(), answer5, html5.size()) == 0);
 
     auto html6 = ::pltxt2htm::pltxt2html(u8"test<eXperiment=>", u8"localhost:5173");

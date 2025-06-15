@@ -52,6 +52,7 @@ markdown extension based on https://spec.commonmark.org/0.31.2/
 * Quantum-Physics's a tag is supported
 * Quantum-Physics's Discussion tag is supported
 * Quantum-Physics's Experiment tag is supported
+* Quantum-Physics's i tag is supported
 
 ## others
 

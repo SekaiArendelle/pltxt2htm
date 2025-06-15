@@ -45,12 +45,16 @@ public:
     template<typename... Args>
         requires (((!::pltxt2htm::details::is_heap_guard<Args>) && ...) && ::std::constructible_from<T, Args...>)
     constexpr HeapGuard(Args&&... args) noexcept {
-        this->ptr_ = reinterpret_cast<T*>(::std::malloc(sizeof(T)));
-        if (this->ptr_ == nullptr) [[unlikely]] {
-            // bad alloc should never be an exception or err_code
-            ::exception::terminate();
+        if consteval {
+            this->ptr_ = new T(::std::forward<Args>(args)...);
+        } else {
+            this->ptr_ = reinterpret_cast<T*>(::std::malloc(sizeof(T)));
+            if (this->ptr_ == nullptr) [[unlikely]] {
+                // bad alloc should never be an exception or err_code
+                ::exception::terminate();
+            }
+            ::std::construct_at(this->ptr_, ::std::forward<Args>(args)...);
         }
-        ::std::construct_at(this->ptr_, ::std::forward<Args>(args)...);
     }
 
 #if 1

@@ -108,12 +108,19 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
         }
         case ::pltxt2htm::NodeType::experiment: {
             auto experiment = reinterpret_cast<::pltxt2htm::Experiment const*>(node.release_imul());
+            auto&& subast = experiment->get_subast();
+            if (subast.size() == 1) {
+                // <Experiment=123><experiment=642cf37a494746375aae306a>physicsLab</experiment></Experiment> can be
+                // optimized as <a href=\"localhost:5173/ExperimentSummary/Experiment/642cf37a494746375aae306a\"
+                auto subnode = subast.index_unchecked(0).release_imul();
+                if (subnode->node_type() == ::pltxt2htm::NodeType::experiment) {
+                        experiment = reinterpret_cast<::pltxt2htm::Experiment const*>(subnode);
+                }
+            }
             // Optimization: If the experiment is the same as the parent node, then ignore the nested tag.
             bool const is_not_same_tag =
                 extern_node_type != ::pltxt2htm::NodeType::experiment ||
                 experiment->get_id() != reinterpret_cast<::pltxt2htm::Experiment const*>(extern_node)->get_id();
-            // TODO <Experiment=123><experiment=642cf37a494746375aae306a>physicsLab</experiment></Experiment> can be
-            // optimized as <a href=\"localhost:5173/ExperimentSummary/Experiment/642cf37a494746375aae306a\"
             // internal>physicsLab</a>
             if (is_not_same_tag) {
                 result.append(u8"<a href=\"");
@@ -123,7 +130,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
                 result.append(u8"\" internal>");
             }
             result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(
-                experiment->get_subast(), host, ::pltxt2htm::NodeType::experiment, experiment));
+                subast, host, ::pltxt2htm::NodeType::experiment, experiment));
             if (is_not_same_tag) {
                 result.append(u8"</a>");
             }
@@ -131,13 +138,20 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
         }
         case ::pltxt2htm::NodeType::discussion: {
             auto discussion = reinterpret_cast<::pltxt2htm::Discussion const*>(node.release_imul());
+            auto&& subast = discussion->get_subast();
+            if (subast.size() == 1) {
+                // <Discussion=123><discussion=642cf37a494746375aae306a>physicsLab</discussion></Discussion> can be
+                // optimized as <a href=\"localhost:5173/ExperimentSummary/Discussion/642cf37a494746375aae306a\"
+                // internal>physicsLab</a>
+                auto subnode = subast.index_unchecked(0).release_imul();
+                if (subnode->node_type() == ::pltxt2htm::NodeType::discussion) {
+                        discussion = reinterpret_cast<::pltxt2htm::Discussion const*>(subnode);
+                }
+            }
             // Optimization: If the discussion is the same as the parent node, then ignore the nested tag.
             bool const is_not_same_tag =
                 extern_node_type != ::pltxt2htm::NodeType::discussion ||
                 discussion->get_id() != reinterpret_cast<::pltxt2htm::Discussion const*>(extern_node)->get_id();
-            // TODO <Discussion=123><discussion=642cf37a494746375aae306a>physicsLab</discussion></Discussion> can be
-            // optimized as <a href=\"localhost:5173/ExperimentSummary/Discussion/642cf37a494746375aae306a\"
-            // internal>physicsLab</a>
             if (is_not_same_tag) {
                 result.append(u8"<a href=\"");
                 result.append(host);
@@ -165,7 +179,17 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             break;
         }
         case ::pltxt2htm::NodeType::i: {
-            //
+            auto i = reinterpret_cast<::pltxt2htm::I const*>(node.release_imul());
+            bool const is_not_same_tag =
+                extern_node_type != ::pltxt2htm::NodeType::i;
+            if (is_not_same_tag) {
+                result.append(u8"<i>");
+            }
+            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(i->get_subast(), host,
+                                                                               ::pltxt2htm::NodeType::i, i));
+            if (is_not_same_tag) {
+                result.append(u8"</i>");
+            }
             break;
         }
         case ::pltxt2htm::NodeType::p: {
