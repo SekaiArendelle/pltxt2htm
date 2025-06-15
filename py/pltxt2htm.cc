@@ -3,7 +3,11 @@
 #include <Python.h>
 #include <pltxt2htm/pltxt2htm.h>
 
-static PyObject* common_parser(PyObject* self, PyObject* args, PyObject* kwargs) noexcept {
+static PyObject* common_parser(PyObject* self, PyObject* args, PyObject* kwargs)
+#if __cpp_exceptions < 199711L
+    noexcept
+#endif // __cpp_exceptions < 199711L
+{
     static char const* kwlist[] = {"text", "host", nullptr};
 #ifndef NDEBUG
     char8_t const* text = nullptr;
@@ -34,7 +38,11 @@ static PyObject* common_parser(PyObject* self, PyObject* args, PyObject* kwargs)
     return result;
 }
 
-static PyObject* advanced_parser(PyObject* self, PyObject* args, PyObject* kwargs) noexcept {
+static PyObject* advanced_parser(PyObject* self, PyObject* args, PyObject* kwargs)
+#if __cpp_exceptions < 199711L
+    noexcept
+#endif // __cpp_exceptions < 199711L
+{
     static char const* kwlist[] = {"text", "host", nullptr};
 #ifndef NDEBUG
     char8_t const* text = nullptr;

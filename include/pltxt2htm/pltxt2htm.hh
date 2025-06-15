@@ -15,13 +15,14 @@ namespace pltxt2htm {
  * @tparam ndebug: show explanation in README.md Q/A
  * @param pltext The text of Quantum Physics.
  */
-template<::pltxt2htm::BackendText backend_text = ::pltxt2htm::BackendText::advanced_html, bool ndebug = false,
-         bool disable_log = true>
+template<::pltxt2htm::BackendText backend_text = ::pltxt2htm::BackendText::advanced_html, bool ndebug = false>
 [[nodiscard]]
-constexpr auto pltxt2html(::fast_io::u8string_view pltext,
-                          ::fast_io::u8string_view host) noexcept(disable_log == true) {
-    return ::pltxt2htm::ast2html<backend_text, ndebug, disable_log>(
-        ::pltxt2htm::parse_pltxt<ndebug, disable_log>(pltext), host);
+constexpr auto pltxt2html(::fast_io::u8string_view pltext, ::fast_io::u8string_view host)
+#if __cpp_exceptions < 199711L
+    noexcept
+#endif
+{
+    return ::pltxt2htm::ast2html<backend_text, ndebug>(::pltxt2htm::parse_pltxt<ndebug>(pltext), host);
 }
 
 } // namespace pltxt2htm
