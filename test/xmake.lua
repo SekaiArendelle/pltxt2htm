@@ -13,7 +13,7 @@ for _, file in ipairs(os.files("*.cc")) do
         set_kind("binary")
         set_default(false)
         add_files(name .. ".cc")
-        set_warnings("all")
+        set_warnings("all", "extra")
         add_tests("default")
         add_includedirs("../include")
         add_cxxflags("-Werror=return-type", {tool = {"gcc", "clang"}})

@@ -24,5 +24,9 @@ int main() noexcept {
     auto answer5 = ::fast_io::u8string_view{u8"<i>texttext</i>"};
     ::exception::assert_true(html5 == answer5);
 
+    auto html6 = ::pltxt2htm::pltxt2html(u8"<i>", u8"localhost");
+    auto answer6 = ::fast_io::u8string_view{u8""};
+    ::exception::assert_true(html6 == answer6);
+
     return 0;
 }
