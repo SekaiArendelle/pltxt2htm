@@ -36,7 +36,7 @@ target("pltxt2htm", function()
         if not os.exists(install_dir) or not os.isdir(install_dir) then
             os.mkdir(install_dir)
         end
-        for _, a_file in ipairs(path.directory(target:targetfile()) .. "/pltxt2htm*") do
+        for _, a_file in ipairs(target:targetdir() .. "/pltxt2htm*") do
             os.cp(a_file, install_dir)
         end
     end)

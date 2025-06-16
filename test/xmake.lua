@@ -1,5 +1,6 @@
 add_rules("mode.debug")
 set_allowedmodes("debug")
+set_defaultmode("debug")
 
 includes("../xmake/*.lua")
 set_languages("c++23")
