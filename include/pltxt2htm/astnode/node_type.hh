@@ -46,7 +46,12 @@ enum class NodeType : ::std::uint_least32_t {
     // line break
     br, // be used by Quantum-Physics(\n), html, markdown(\n)
     // header
-    h, // be used by html, markdown(#)
+    h1, // be used by html, markdown
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
     // image
     img,
 

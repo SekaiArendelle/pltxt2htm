@@ -200,8 +200,82 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             }
             break;
         }
-        case ::pltxt2htm::NodeType::h: {
-            //
+        case ::pltxt2htm::NodeType::h1: {
+            auto h1 = reinterpret_cast<::pltxt2htm::I const*>(node.release_imul());
+            bool const is_not_same_tag =
+                extern_node == nullptr || extern_node->node_type() != ::pltxt2htm::NodeType::h1;
+            if (is_not_same_tag) {
+                result.append(u8"<h1>");
+            }
+            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(h1->get_subast(), host, h1));
+            if (is_not_same_tag) {
+                result.append(u8"</h1>");
+            }
+            break;
+        }
+        case ::pltxt2htm::NodeType::h2: {
+            auto h2 = reinterpret_cast<::pltxt2htm::I const*>(node.release_imul());
+            bool const is_not_same_tag =
+                extern_node == nullptr || extern_node->node_type() != ::pltxt2htm::NodeType::h2;
+            if (is_not_same_tag) {
+                result.append(u8"<h2>");
+            }
+            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(h2->get_subast(), host, h2));
+            if (is_not_same_tag) {
+                result.append(u8"</h2>");
+            }
+            break;
+        }
+        case ::pltxt2htm::NodeType::h3: {
+            auto h3 = reinterpret_cast<::pltxt2htm::I const*>(node.release_imul());
+            bool const is_not_same_tag =
+                extern_node == nullptr || extern_node->node_type() != ::pltxt2htm::NodeType::h3;
+            if (is_not_same_tag) {
+                result.append(u8"<h3>");
+            }
+            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(h3->get_subast(), host, h3));
+            if (is_not_same_tag) {
+                result.append(u8"</h3>");
+            }
+            break;
+        }
+        case ::pltxt2htm::NodeType::h4: {
+            auto h4 = reinterpret_cast<::pltxt2htm::I const*>(node.release_imul());
+            bool const is_not_same_tag =
+                extern_node == nullptr || extern_node->node_type() != ::pltxt2htm::NodeType::h4;
+            if (is_not_same_tag) {
+                result.append(u8"<h4>");
+            }
+            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(h4->get_subast(), host, h4));
+            if (is_not_same_tag) {
+                result.append(u8"</h4>");
+            }
+            break;
+        }
+        case ::pltxt2htm::NodeType::h5: {
+            auto h5 = reinterpret_cast<::pltxt2htm::I const*>(node.release_imul());
+            bool const is_not_same_tag =
+                extern_node == nullptr || extern_node->node_type() != ::pltxt2htm::NodeType::h5;
+            if (is_not_same_tag) {
+                result.append(u8"<h5>");
+            }
+            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(h5->get_subast(), host, h5));
+            if (is_not_same_tag) {
+                result.append(u8"</h5>");
+            }
+            break;
+        }
+        case ::pltxt2htm::NodeType::h6: {
+            auto h6 = reinterpret_cast<::pltxt2htm::I const*>(node.release_imul());
+            bool const is_not_same_tag =
+                extern_node == nullptr || extern_node->node_type() != ::pltxt2htm::NodeType::h6;
+            if (is_not_same_tag) {
+                result.append(u8"<h6>");
+            }
+            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(h6->get_subast(), host, h6));
+            if (is_not_same_tag) {
+                result.append(u8"</h6>");
+            }
             break;
         }
         case ::pltxt2htm::NodeType::img: {

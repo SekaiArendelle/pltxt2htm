@@ -84,9 +84,11 @@ public:
         this->ptr_ = other.release();
     }
 
-    constexpr HeapGuard& operator=([[maybe_unused]] this HeapGuard<T>& self, [[maybe_unused]] HeapGuard<T> const& other) noexcept {
+    constexpr HeapGuard& operator=([[maybe_unused]] this HeapGuard<T>& self,
+                                   [[maybe_unused]] HeapGuard<T> const& other) noexcept {
 #if 1
-        static_assert(false, "Despite copy a HeapGuard is safe, but the HeapGuard's behavior is more similar to std::unique_ptr");
+        static_assert(
+            false, "Despite copy a HeapGuard is safe, but the HeapGuard's behavior is more similar to std::unique_ptr");
 #else
         ::std::destroy_at(self.ptr_);
         ::std::free(self.ptr_);

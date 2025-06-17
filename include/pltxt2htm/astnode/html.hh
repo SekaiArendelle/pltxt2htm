@@ -110,4 +110,148 @@ public:
     constexpr DoubleQuotationMark& operator=(DoubleQuotationMark&&) noexcept = default;
 };
 
+/**
+ * @brief Represents HTML `<h1>`.
+ */
+class H1 : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr H1() noexcept = delete;
+
+    constexpr H1(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{NodeType::h1, ::std::move(subast)} {
+    }
+
+    constexpr H1(::pltxt2htm::H1 const&) noexcept = delete;
+
+    constexpr H1(::pltxt2htm::H1&& other) noexcept
+        : ::pltxt2htm::details::PairedTagBase{NodeType::h1, ::std::move(other.subast_)} {
+    }
+
+    constexpr ~H1() noexcept = default;
+
+    constexpr H1& operator=(this ::pltxt2htm::H1& self, ::pltxt2htm::H1 const&) noexcept = delete;
+
+    constexpr H1& operator=(this ::pltxt2htm::H1& self, ::pltxt2htm::H1&&) noexcept = delete;
+};
+
+/**
+ * @brief Represents HTML `<h2>`.
+ */
+class H2 : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr H2() noexcept = delete;
+
+    constexpr H2(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{NodeType::h2, ::std::move(subast)} {
+    }
+
+    constexpr H2(::pltxt2htm::H2 const&) noexcept = delete;
+
+    constexpr H2(::pltxt2htm::H2&& other) noexcept
+        : ::pltxt2htm::details::PairedTagBase{NodeType::h2, ::std::move(other.subast_)} {
+    }
+
+    constexpr ~H2() noexcept = default;
+
+    constexpr H2& operator=(this ::pltxt2htm::H2& self, ::pltxt2htm::H2 const&) noexcept = delete;
+
+    constexpr H2& operator=(this ::pltxt2htm::H2& self, ::pltxt2htm::H2&&) noexcept = delete;
+};
+
+/**
+ * @brief Represents HTML `<h3>`.
+ */
+class H3 : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr H3() noexcept = delete;
+
+    constexpr H3(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{NodeType::h3, ::std::move(subast)} {
+    }
+
+    constexpr H3(::pltxt2htm::H3 const&) noexcept = delete;
+
+    constexpr H3(::pltxt2htm::H3&& other) noexcept
+        : ::pltxt2htm::details::PairedTagBase{NodeType::h3, ::std::move(other.subast_)} {
+    }
+
+    constexpr ~H3() noexcept = default;
+
+    constexpr H3& operator=(this ::pltxt2htm::H3& self, ::pltxt2htm::H3 const&) noexcept = delete;
+
+    constexpr H3& operator=(this ::pltxt2htm::H3& self, ::pltxt2htm::H3&&) noexcept = delete;
+};
+
+/**
+ * @brief Represents HTML `<h4>`.
+ */
+class H4 : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr H4() noexcept = delete;
+
+    constexpr H4(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{NodeType::h4, ::std::move(subast)} {
+    }
+
+    constexpr H4(::pltxt2htm::H4 const&) noexcept = delete;
+
+    constexpr H4(::pltxt2htm::H4&& other) noexcept
+        : ::pltxt2htm::details::PairedTagBase{NodeType::h4, ::std::move(other.subast_)} {
+    }
+
+    constexpr ~H4() noexcept = default;
+
+    constexpr H4& operator=(this ::pltxt2htm::H4& self, ::pltxt2htm::H4 const&) noexcept = delete;
+
+    constexpr H4& operator=(this ::pltxt2htm::H4& self, ::pltxt2htm::H4&&) noexcept = delete;
+};
+
+/**
+ * @brief Represents HTML `<h5>`.
+ */
+class H5 : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr H5() noexcept = delete;
+
+    constexpr H5(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{NodeType::h5, ::std::move(subast)} {
+    }
+
+    constexpr H5(::pltxt2htm::H5 const&) noexcept = delete;
+
+    constexpr H5(::pltxt2htm::H5&& other) noexcept
+        : ::pltxt2htm::details::PairedTagBase{NodeType::h5, ::std::move(other.subast_)} {
+    }
+
+    constexpr ~H5() noexcept = default;
+
+    constexpr H5& operator=(this ::pltxt2htm::H5& self, ::pltxt2htm::H5 const&) noexcept = delete;
+
+    constexpr H5& operator=(this ::pltxt2htm::H5& self, ::pltxt2htm::H5&&) noexcept = delete;
+};
+
+/**
+ * @brief Represents HTML `<h6>`.
+ */
+class H6 : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr H6() noexcept = delete;
+
+    constexpr H6(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{NodeType::h6, ::std::move(subast)} {
+    }
+
+    constexpr H6(::pltxt2htm::H6 const&) noexcept = delete;
+
+    constexpr H6(::pltxt2htm::H6&& other) noexcept
+        : ::pltxt2htm::details::PairedTagBase{NodeType::h6, ::std::move(other.subast_)} {
+    }
+
+    constexpr ~H6() noexcept = default;
+
+    constexpr H6& operator=(this ::pltxt2htm::H6& self, ::pltxt2htm::H6 const&) noexcept = delete;
+
+    constexpr H6& operator=(this ::pltxt2htm::H6& self, ::pltxt2htm::H6&&) noexcept = delete;
+};
+
 } // namespace pltxt2htm

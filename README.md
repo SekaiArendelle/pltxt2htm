@@ -52,7 +52,14 @@ markdown extension based on https://spec.commonmark.org/0.31.2/
 * Quantum-Physics's a tag is supported
 * Quantum-Physics's Discussion tag is supported
 * Quantum-Physics's Experiment tag is supported
-* Quantum-Physics's i tag is supported
+* Quantum-Physics&HTML's i tag is supported
+* Quantum-Physics&HTML's b tag is supported
+* HTML's <h1> tag is supported
+* HTML's <h2> tag is supported
+* HTML's <h3> tag is supported
+* HTML's <h4> tag is supported
+* HTML's <h5> tag is supported
+* HTML's <h6> tag is supported
 
 ## others
 

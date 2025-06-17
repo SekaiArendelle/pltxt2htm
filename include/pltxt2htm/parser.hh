@@ -149,6 +149,19 @@ enum class ExternSyntaxType : ::std::uint_least32_t {
     // Quantum-Physics <b> tag
     pl_b,
 
+    // HTML <h1>
+    html_h1,
+    // HTML <h2>
+    html_h2,
+    // HTML <h3>
+    html_h3,
+    // HTML <h4>
+    html_h4,
+    // HTML <h5>
+    html_h5,
+    // HTML <h6>
+    html_h6,
+
     // markdown header
     // md_header,
 };
@@ -487,6 +500,86 @@ constexpr auto parse_pltxt(
                 goto complete_parsing_tag;
             }
 
+            case u8'h':
+                [[fallthrough]];
+            case u8'H': {
+                if (::pltxt2htm::details::is_valid_bare_tag<ndebug, u8'1'>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), i)) {
+                    // parsing html <h1> tag
+                    if (i + 1 < pltxt_size) {
+                        // if forward_index + 1 >= pltxt_size, it means that a not closed tag in the end of the text
+                        // which does not make sense, can be opetimized(ignored) during parsing ast
+                        auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
+                            ::pltxt2htm::details::ExternSyntaxType::html_h1, ::std::addressof(i));
+                        result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H1>(::std::move(subast)));
+                    }
+                    goto complete_parsing_tag;
+                } else if (::pltxt2htm::details::is_valid_bare_tag<ndebug, u8'2'>(
+                               ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), i)) {
+                    // parsing html <h2> tag
+                    if (i + 1 < pltxt_size) {
+                        // if forward_index + 1 >= pltxt_size, it means that a not closed tag in the end of the text
+                        // which does not make sense, can be opetimized(ignored) during parsing ast
+                        auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
+                            ::pltxt2htm::details::ExternSyntaxType::html_h2, ::std::addressof(i));
+                        result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H2>(::std::move(subast)));
+                    }
+                    goto complete_parsing_tag;
+                } else if (::pltxt2htm::details::is_valid_bare_tag<ndebug, u8'3'>(
+                               ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), i)) {
+                    // parsing html <h3> tag
+                    if (i + 1 < pltxt_size) {
+                        // if forward_index + 1 >= pltxt_size, it means that a not closed tag in the end of the text
+                        // which does not make sense, can be opetimized(ignored) during parsing ast
+                        auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
+                            ::pltxt2htm::details::ExternSyntaxType::html_h3, ::std::addressof(i));
+                        result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H3>(::std::move(subast)));
+                    }
+                    goto complete_parsing_tag;
+                } else if (::pltxt2htm::details::is_valid_bare_tag<ndebug, u8'4'>(
+                               ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), i)) {
+                    // parsing html <h4> tag
+                    if (i + 1 < pltxt_size) {
+                        // if forward_index + 1 >= pltxt_size, it means that a not closed tag in the end of the text
+                        // which does not make sense, can be opetimized(ignored) during parsing ast
+                        auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
+                            ::pltxt2htm::details::ExternSyntaxType::html_h4, ::std::addressof(i));
+                        result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H4>(::std::move(subast)));
+                    }
+                    goto complete_parsing_tag;
+                } else if (::pltxt2htm::details::is_valid_bare_tag<ndebug, u8'5'>(
+                               ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), i)) {
+                    // parsing html <h5> tag
+                    if (i + 1 < pltxt_size) {
+                        // if forward_index + 1 >= pltxt_size, it means that a not closed tag in the end of the text
+                        // which does not make sense, can be opetimized(ignored) during parsing ast
+                        auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
+                            ::pltxt2htm::details::ExternSyntaxType::html_h5, ::std::addressof(i));
+                        result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H5>(::std::move(subast)));
+                    }
+                    goto complete_parsing_tag;
+                } else if (::pltxt2htm::details::is_valid_bare_tag<ndebug, u8'6'>(
+                               ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), i)) {
+                    // parsing html <h6> tag
+                    if (i + 1 < pltxt_size) {
+                        // if forward_index + 1 >= pltxt_size, it means that a not closed tag in the end of the text
+                        // which does not make sense, can be opetimized(ignored) during parsing ast
+                        auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
+                            ::pltxt2htm::details::ExternSyntaxType::html_h6, ::std::addressof(i));
+                        result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H6>(::std::move(subast)));
+                    }
+                    goto complete_parsing_tag;
+                } else {
+                    goto not_valid_tag;
+                }
+            }
+
             case u8'i':
                 [[fallthrough]];
             case u8'I': {
@@ -681,6 +774,72 @@ constexpr auto parse_pltxt(
                         goto not_valid_tag;
                     }
                     // parsing end tag </b> successed
+                    if (extern_index != nullptr) {
+                        *extern_index += i + 1;
+                    }
+                    return result;
+                }
+                case ::pltxt2htm::details::ExternSyntaxType::html_h1: {
+                    if (::pltxt2htm::details::is_valid_bare_tag<ndebug, u8'h', u8'1'>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), i) == false) {
+                        goto not_valid_tag;
+                    }
+                    // parsing end tag </h1> successed
+                    if (extern_index != nullptr) {
+                        *extern_index += i + 1;
+                    }
+                    return result;
+                }
+                case ::pltxt2htm::details::ExternSyntaxType::html_h2: {
+                    if (::pltxt2htm::details::is_valid_bare_tag<ndebug, u8'h', u8'2'>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), i) == false) {
+                        goto not_valid_tag;
+                    }
+                    // parsing end tag </h2> successed
+                    if (extern_index != nullptr) {
+                        *extern_index += i + 1;
+                    }
+                    return result;
+                }
+                case ::pltxt2htm::details::ExternSyntaxType::html_h3: {
+                    if (::pltxt2htm::details::is_valid_bare_tag<ndebug, u8'h', u8'3'>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), i) == false) {
+                        goto not_valid_tag;
+                    }
+                    // parsing end tag </h3> successed
+                    if (extern_index != nullptr) {
+                        *extern_index += i + 1;
+                    }
+                    return result;
+                }
+                case ::pltxt2htm::details::ExternSyntaxType::html_h4: {
+                    if (::pltxt2htm::details::is_valid_bare_tag<ndebug, u8'h', u8'4'>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), i) == false) {
+                        goto not_valid_tag;
+                    }
+                    // parsing end tag </h4> successed
+                    if (extern_index != nullptr) {
+                        *extern_index += i + 1;
+                    }
+                    return result;
+                }
+                case ::pltxt2htm::details::ExternSyntaxType::html_h5: {
+                    if (::pltxt2htm::details::is_valid_bare_tag<ndebug, u8'h', u8'5'>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), i) == false) {
+                        goto not_valid_tag;
+                    }
+                    // parsing end tag </h5> successed
+                    if (extern_index != nullptr) {
+                        *extern_index += i + 1;
+                    }
+                    return result;
+                }
+                case ::pltxt2htm::details::ExternSyntaxType::html_h6: {
+                    if (::pltxt2htm::details::is_valid_bare_tag<ndebug, u8'h', u8'6'>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), i) == false) {
+                        goto not_valid_tag;
+                    }
+                    // parsing end tag </h6> successed
                     if (extern_index != nullptr) {
                         *extern_index += i + 1;
                     }
