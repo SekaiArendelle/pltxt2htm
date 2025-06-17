@@ -37,17 +37,11 @@ namespace details {
 template<BackendText backend_text, bool ndebug>
 [[nodiscard]]
 constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> const& ast,
-                        ::fast_io::u8string_view host,
-                        ::pltxt2htm::NodeType const extern_node_type = ::pltxt2htm::NodeType::base,
-                        ::pltxt2htm::PlTxtNode const* const extern_node = nullptr)
+                        ::fast_io::u8string_view host, ::pltxt2htm::PlTxtNode const* const extern_node = nullptr)
 #if __cpp_exceptions < 199711L
     noexcept
 #endif
     -> ::fast_io::u8string {
-    // Checkout whether extern_node_type is a valid type info for ptr extern_node
-    pltxt2htm_assert((extern_node_type == ::pltxt2htm::NodeType::base && extern_node == nullptr) ||
-                         (extern_node_type != ::pltxt2htm::NodeType::base && extern_node != nullptr),
-                     "extern_node_type is not a valid type info for ptr extern_node");
     ::fast_io::u8string result{};
 
     for (auto&& node : ast) {
@@ -92,15 +86,14 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             }
             // Optimization: If the color is the same as the parent node, then ignore the nested tag.
             bool const is_not_same_tag =
-                extern_node_type != ::pltxt2htm::NodeType::color ||
+                extern_node == nullptr || extern_node->node_type() != ::pltxt2htm::NodeType::color ||
                 color->get_color() != reinterpret_cast<::pltxt2htm::Color const*>(extern_node)->get_color();
             if (is_not_same_tag) {
                 result.append(u8"<span style=\"color:");
                 result.append(color->get_color());
                 result.append(u8";\">");
             }
-            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(subast, host,
-                                                                               ::pltxt2htm::NodeType::color, color));
+            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(subast, host, color));
             if (is_not_same_tag) {
                 result.append(u8"</span>");
             }
@@ -119,7 +112,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             }
             // Optimization: If the experiment is the same as the parent node, then ignore the nested tag.
             bool const is_not_same_tag =
-                extern_node_type != ::pltxt2htm::NodeType::experiment ||
+                extern_node == nullptr || extern_node->node_type() != ::pltxt2htm::NodeType::experiment ||
                 experiment->get_id() != reinterpret_cast<::pltxt2htm::Experiment const*>(extern_node)->get_id();
             // internal>physicsLab</a>
             if (is_not_same_tag) {
@@ -129,8 +122,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
                 result.append(experiment->get_id());
                 result.append(u8"\" internal>");
             }
-            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(
-                subast, host, ::pltxt2htm::NodeType::experiment, experiment));
+            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(subast, host, experiment));
             if (is_not_same_tag) {
                 result.append(u8"</a>");
             }
@@ -150,7 +142,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             }
             // Optimization: If the discussion is the same as the parent node, then ignore the nested tag.
             bool const is_not_same_tag =
-                extern_node_type != ::pltxt2htm::NodeType::discussion ||
+                extern_node == nullptr || extern_node->node_type() != ::pltxt2htm::NodeType::discussion ||
                 discussion->get_id() != reinterpret_cast<::pltxt2htm::Discussion const*>(extern_node)->get_id();
             if (is_not_same_tag) {
                 result.append(u8"<a href=\"");
@@ -159,8 +151,8 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
                 result.append(discussion->get_id());
                 result.append(u8"\" internal>");
             }
-            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(
-                discussion->get_subast(), host, ::pltxt2htm::NodeType::discussion, discussion));
+            result.append(
+                ::pltxt2htm::details::ast2html<backend_text, ndebug>(discussion->get_subast(), host, discussion));
             if (is_not_same_tag) {
                 result.append(u8"</a>");
             }
@@ -175,17 +167,24 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             break;
         }
         case ::pltxt2htm::NodeType::b: {
-            //
+            auto b = reinterpret_cast<::pltxt2htm::I const*>(node.release_imul());
+            bool const is_not_same_tag = extern_node == nullptr || extern_node->node_type() != ::pltxt2htm::NodeType::b;
+            if (is_not_same_tag) {
+                result.append(u8"<b>");
+            }
+            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(b->get_subast(), host, b));
+            if (is_not_same_tag) {
+                result.append(u8"</b>");
+            }
             break;
         }
         case ::pltxt2htm::NodeType::i: {
             auto i = reinterpret_cast<::pltxt2htm::I const*>(node.release_imul());
-            bool const is_not_same_tag = extern_node_type != ::pltxt2htm::NodeType::i;
+            bool const is_not_same_tag = extern_node == nullptr || extern_node->node_type() != ::pltxt2htm::NodeType::i;
             if (is_not_same_tag) {
                 result.append(u8"<i>");
             }
-            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(i->get_subast(), host,
-                                                                               ::pltxt2htm::NodeType::i, i));
+            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(i->get_subast(), host, i));
             if (is_not_same_tag) {
                 result.append(u8"</i>");
             }

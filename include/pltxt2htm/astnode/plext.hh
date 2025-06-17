@@ -149,4 +149,25 @@ public:
     constexpr I& operator=(this ::pltxt2htm::I& self, ::pltxt2htm::I&&) noexcept = delete;
 };
 
+class B : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr B() noexcept = delete;
+
+    constexpr B(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{NodeType::b, ::std::move(subast)} {
+    }
+
+    constexpr B(::pltxt2htm::B const&) noexcept = delete;
+
+    constexpr B(::pltxt2htm::B&& other) noexcept
+        : ::pltxt2htm::details::PairedTagBase{NodeType::b, ::std::move(other.subast_)} {
+    }
+
+    constexpr ~B() noexcept = default;
+
+    constexpr B& operator=(this ::pltxt2htm::B& self, ::pltxt2htm::B const&) noexcept = delete;
+
+    constexpr B& operator=(this ::pltxt2htm::B& self, ::pltxt2htm::B&&) noexcept = delete;
+};
+
 } // namespace pltxt2htm
