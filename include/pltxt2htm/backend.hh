@@ -191,7 +191,16 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             break;
         }
         case ::pltxt2htm::NodeType::p: {
-            //
+            auto p = reinterpret_cast<::pltxt2htm::I const*>(node.release_imul());
+            bool const is_not_same_tag =
+                extern_node == nullptr || extern_node->node_type() != ::pltxt2htm::NodeType::p;
+            if (is_not_same_tag) {
+                result.append(u8"<p>");
+            }
+            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(p->get_subast(), host, p));
+            if (is_not_same_tag) {
+                result.append(u8"</p>");
+            }
             break;
         }
         case ::pltxt2htm::NodeType::br: {

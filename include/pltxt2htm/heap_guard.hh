@@ -59,16 +59,14 @@ public:
 
 #if 1
     constexpr HeapGuard(HeapGuard<T> const& other) noexcept {
+        // ::std::malloc will implicitly start lifetime of ptr
+        // Therefore, should not call ::std::start_lifetime_as
         this->ptr_ = reinterpret_cast<T*>(::std::malloc(sizeof(T)));
         if (this->ptr_ == nullptr) [[unlikely]] {
             // bad alloc should never be an exception or err_code
             ::exception::terminate();
         }
         ::std::memcpy(this->ptr_, other.ptr_, sizeof(T));
-        // Cause libc++, libstdc++ and STL do not support ::std::start_lifetime_as
-        // and ::std::malloc will implicitly start lifetime of ptr, I temporarily
-        // comment out the next line of code.
-        // ::std::start_lifetime_as<T>(ptr);
     }
 #else
     constexpr HeapGuard(HeapGuard<T> const&) noexcept = delete
@@ -103,10 +101,6 @@ public:
     }
 
     constexpr ~HeapGuard() noexcept {
-        // The Fucking move constructor in C++ rather annoyingly does not
-        // immediately destroy the object being moved, which
-        // leads to the need to set pointers to null.
-        // TODO Use C++26 relocate to avoid determing whether the ptr is null
         if (ptr_ != nullptr) {
             ::std::destroy_at(ptr_);
             ::std::free(ptr_);

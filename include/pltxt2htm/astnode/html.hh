@@ -254,4 +254,28 @@ public:
     constexpr H6& operator=(this ::pltxt2htm::H6& self, ::pltxt2htm::H6&&) noexcept = delete;
 };
 
+/**
+ * @brief Represents HTML `<h6>`.
+ */
+class P : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr P() noexcept = delete;
+
+    constexpr P(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{NodeType::p, ::std::move(subast)} {
+    }
+
+    constexpr P(::pltxt2htm::P const&) noexcept = delete;
+
+    constexpr P(::pltxt2htm::P&& other) noexcept
+        : ::pltxt2htm::details::PairedTagBase{NodeType::p, ::std::move(other.subast_)} {
+    }
+
+    constexpr ~P() noexcept = default;
+
+    constexpr P& operator=(this ::pltxt2htm::P& self, ::pltxt2htm::P const&) noexcept = delete;
+
+    constexpr P& operator=(this ::pltxt2htm::P& self, ::pltxt2htm::P&&) noexcept = delete;
+};
+
 } // namespace pltxt2htm

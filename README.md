@@ -60,6 +60,7 @@ markdown extension based on https://spec.commonmark.org/0.31.2/
 * HTML's <h4> tag is supported
 * HTML's <h5> tag is supported
 * HTML's <h6> tag is supported
+* HTML's <p> tag is supported
 
 ## others
 

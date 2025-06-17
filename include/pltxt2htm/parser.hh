@@ -161,6 +161,8 @@ enum class ExternSyntaxType : ::std::uint_least32_t {
     html_h5,
     // HTML <h6>
     html_h6,
+    // HTML <p>
+    html_p,
 
     // markdown header
     // md_header,
@@ -599,6 +601,26 @@ constexpr auto parse_pltxt(
                 goto complete_parsing_tag;
             }
 
+            case u8'p':
+                [[fallthrough]];
+            case u8'P': {
+                // parsing html <p></p> tag
+                if (::pltxt2htm::details::is_valid_bare_tag<ndebug>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), i) == false) {
+                    goto not_valid_tag;
+                }
+                if (i + 1 < pltxt_size) {
+                    // if forward_index + 1 >= pltxt_size, it means that a not closed tag in the end of the text
+                    // which does not make sense, can be opetimized(ignored) during parsing ast
+                    auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
+                        ::pltxt2htm::details::ExternSyntaxType::html_p, ::std::addressof(i));
+                    result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::P>(
+                        ::std::move(subast)));
+                }
+                goto complete_parsing_tag;
+            }
+
             case u8'/': {
                 switch (extern_syntax_type) {
                 case ::pltxt2htm::details::ExternSyntaxType::pl_color: {
@@ -840,6 +862,17 @@ constexpr auto parse_pltxt(
                         goto not_valid_tag;
                     }
                     // parsing end tag </h6> successed
+                    if (extern_index != nullptr) {
+                        *extern_index += i + 1;
+                    }
+                    return result;
+                }
+                case ::pltxt2htm::details::ExternSyntaxType::html_p: {
+                    if (::pltxt2htm::details::is_valid_bare_tag<ndebug, u8'p'>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), i) == false) {
+                        goto not_valid_tag;
+                    }
+                    // parsing end tag </p> successed
                     if (extern_index != nullptr) {
                         *extern_index += i + 1;
                     }
