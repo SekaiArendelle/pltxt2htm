@@ -1,6 +1,6 @@
 #include <concepts>
 #include <pltxt2htm/astnode/node_type.hh>
-#include <pltxt2htm/astnode/plext.hh>
+#include <pltxt2htm/astnode/physics_lab_node.hh>
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
 #include <exception/exception.hh>
@@ -26,9 +26,9 @@ int main() noexcept {
     };
 
     ::exception::assert_true(arr[0].node_type() == ::pltxt2htm::NodeType::u8char);
-    ::exception::assert_true(arr[1].node_type() == ::pltxt2htm::NodeType::color);
-    ::exception::assert_true(arr[2].node_type() == ::pltxt2htm::NodeType::experiment);
-    ::exception::assert_true(arr[3].node_type() == ::pltxt2htm::NodeType::discussion);
+    ::exception::assert_true(arr[1].node_type() == ::pltxt2htm::NodeType::pl_color);
+    ::exception::assert_true(arr[2].node_type() == ::pltxt2htm::NodeType::pl_experiment);
+    ::exception::assert_true(arr[3].node_type() == ::pltxt2htm::NodeType::pl_discussion);
 
     return 0;
 }

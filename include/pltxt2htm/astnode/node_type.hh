@@ -13,6 +13,8 @@ enum class NodeType : ::std::uint_least32_t {
     // a utf-8 char/string
     u8char,
 
+    // \n
+    line_break,
     // space will be squashed by html render
     space,
     // &
@@ -27,36 +29,37 @@ enum class NodeType : ::std::uint_least32_t {
     greater_than,
 
     // set color of text
-    color, // be used by Quantum-Physics
+    pl_color, // be used by Quantum-Physics
+    // Quantum-Physics's <a> tag
+    pl_a,
     // link of experiment
-    experiment, // be used by Quantum-Physics
+    pl_experiment, // be used by Quantum-Physics
     // link of discussion
-    discussion, // be used by Quantum-Physics
+    pl_discussion, // be used by Quantum-Physics
     // link of user
-    user, // be used by Quantum-Physics
+    pl_user, // be used by Quantum-Physics
     // size of text
-    size, // be used by Quantum-Physics
+    pl_size, // be used by Quantum-Physics
+
     // bold
-    b, // be used by Quantum-Physics, html, markdown(**)
+    pl_b, // be used by Quantum-Physics, html, markdown(**)
     // italic
-    i, // be used by Quantum-Physics, html, markdown(*)
+    pl_i, // be used by Quantum-Physics, html, markdown(*)
 
     // paragraph
-    p, // be used by html, markdown(\n\n)
+    html_p, // be used by html, markdown(\n\n)
     // line break
-    br, // be used by Quantum-Physics(\n), html, markdown(\n)
+    html_br, // be used by Quantum-Physics(\n), html, markdown(\n)
     // header
-    h1, // be used by html, markdown
-    h2,
-    h3,
-    h4,
-    h5,
-    h6,
-    // image
-    img,
+    html_h1, // be used by html, markdown
+    html_h2,
+    html_h3,
+    html_h4,
+    html_h5,
+    html_h6,
 
     // latex
-    latex,
+    // latex,
 };
 
 } // namespace pltxt2htm

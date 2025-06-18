@@ -27,26 +27,60 @@ public:
 
     constexpr Color(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& text,
                     ::fast_io::u8string&& color) noexcept
-        : ::pltxt2htm::details::PairedTagBase{NodeType::color, ::std::move(text)},
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_color, ::std::move(text)},
           color_(::std::move(color)) {
     }
 
     constexpr Color(::pltxt2htm::Color const&) noexcept = delete;
 
     constexpr Color(::pltxt2htm::Color&& other) noexcept
-        : ::pltxt2htm::details::PairedTagBase{NodeType::color, ::std::move(other.subast_)},
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_color, ::std::move(other.subast_)},
           color_(::std::move(other.color_)) {
     }
 
     constexpr ~Color() noexcept = default;
 
-    constexpr Color& operator=(this Color& self, ::pltxt2htm::Color const&) noexcept = delete;
+    constexpr ::pltxt2htm::Color& operator=(this Color& self, ::pltxt2htm::Color const&) noexcept = delete;
 
     /**
      * @brief move assignment operator
      * @note assign to a rvalue is not allowed
      */
-    constexpr Color& operator=(this Color& self, ::pltxt2htm::Color&&) noexcept = delete;
+    constexpr ::pltxt2htm::Color& operator=(this Color& self, ::pltxt2htm::Color&&) noexcept = delete;
+
+    [[nodiscard]]
+    constexpr auto&& get_color(this auto&& self) noexcept {
+        return ::std::forward_like<decltype(self)>(self.color_);
+    }
+};
+
+class A : public ::pltxt2htm::details::PairedTagBase {
+    ::fast_io::u8string color_;
+
+public:
+    constexpr A() noexcept = delete;
+
+    constexpr A(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& text) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_a, ::std::move(text)},
+          color_{u8"#0000AA"} {
+    }
+
+    constexpr A(::pltxt2htm::A const&) noexcept = delete;
+
+    constexpr A(::pltxt2htm::A&& other) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_a, ::std::move(other.subast_)},
+          color_{u8"#0000AA"} {
+    }
+
+    constexpr ~A() noexcept = default;
+
+    constexpr ::pltxt2htm::A& operator=(this A& self, ::pltxt2htm::A const&) noexcept = delete;
+
+    /**
+     * @brief move assignment operator
+     * @note assign to a rvalue is not allowed
+     */
+    constexpr ::pltxt2htm::A& operator=(this A& self, ::pltxt2htm::A&&) noexcept = delete;
 
     [[nodiscard]]
     constexpr auto&& get_color(this auto&& self) noexcept {
@@ -68,22 +102,24 @@ public:
 
     constexpr Experiment(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast,
                          ::fast_io::u8string&& id) noexcept
-        : ::pltxt2htm::details::PairedTagBase{NodeType::experiment, ::std::move(subast)},
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_experiment, ::std::move(subast)},
           id_(::std::move(id)) {
     }
 
     constexpr Experiment(::pltxt2htm::Experiment const&) noexcept = delete;
 
     constexpr Experiment(::pltxt2htm::Experiment&& other) noexcept
-        : ::pltxt2htm::details::PairedTagBase{NodeType::experiment, ::std::move(other.subast_)},
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_experiment, ::std::move(other.subast_)},
           id_(::std::move(other.id_)) {
     }
 
     constexpr ~Experiment() noexcept = default;
 
-    constexpr Experiment& operator=(this Experiment& self, Experiment const&) noexcept = delete;
+    constexpr ::pltxt2htm::Experiment& operator=(this ::pltxt2htm::Experiment& self,
+                                                 ::pltxt2htm::Experiment const&) noexcept = delete;
 
-    constexpr Experiment& operator=(this Experiment& self, ::pltxt2htm::Experiment&&) noexcept = delete;
+    constexpr ::pltxt2htm::Experiment& operator=(this ::pltxt2htm::Experiment& self,
+                                                 ::pltxt2htm::Experiment&&) noexcept = delete;
 
     [[nodiscard]]
     constexpr auto&& get_id(this auto&& self) noexcept {
@@ -105,22 +141,24 @@ public:
 
     constexpr Discussion(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast,
                          ::fast_io::u8string&& id) noexcept
-        : ::pltxt2htm::details::PairedTagBase{NodeType::discussion, ::std::move(subast)},
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_discussion, ::std::move(subast)},
           id_(::std::move(id)) {
     }
 
     constexpr Discussion(::pltxt2htm::Discussion const&) noexcept = delete;
 
     constexpr Discussion(::pltxt2htm::Discussion&& other) noexcept
-        : ::pltxt2htm::details::PairedTagBase{NodeType::discussion, ::std::move(other.subast_)},
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_discussion, ::std::move(other.subast_)},
           id_(::std::move(other.id_)) {
     }
 
     constexpr ~Discussion() noexcept = default;
 
-    constexpr Discussion& operator=(this Discussion& self, Discussion const&) noexcept = delete;
+    constexpr ::pltxt2htm::Discussion& operator=(this ::pltxt2htm::Discussion& self,
+                                                 ::pltxt2htm::Discussion const&) noexcept = delete;
 
-    constexpr Discussion& operator=(this Discussion& self, ::pltxt2htm::Discussion&&) noexcept = delete;
+    constexpr ::pltxt2htm::Discussion& operator=(this ::pltxt2htm::Discussion& self,
+                                                 ::pltxt2htm::Discussion&&) noexcept = delete;
 
     [[nodiscard]]
     constexpr auto&& get_id(this auto&& self) noexcept {
@@ -133,20 +171,20 @@ public:
     constexpr I() noexcept = delete;
 
     constexpr I(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
-        : ::pltxt2htm::details::PairedTagBase{NodeType::i, ::std::move(subast)} {
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_i, ::std::move(subast)} {
     }
 
     constexpr I(::pltxt2htm::I const&) noexcept = delete;
 
     constexpr I(::pltxt2htm::I&& other) noexcept
-        : ::pltxt2htm::details::PairedTagBase{NodeType::i, ::std::move(other.subast_)} {
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_i, ::std::move(other.subast_)} {
     }
 
     constexpr ~I() noexcept = default;
 
-    constexpr I& operator=(this ::pltxt2htm::I& self, ::pltxt2htm::I const&) noexcept = delete;
+    constexpr ::pltxt2htm::I& operator=(this ::pltxt2htm::I& self, ::pltxt2htm::I const&) noexcept = delete;
 
-    constexpr I& operator=(this ::pltxt2htm::I& self, ::pltxt2htm::I&&) noexcept = delete;
+    constexpr ::pltxt2htm::I& operator=(this ::pltxt2htm::I& self, ::pltxt2htm::I&&) noexcept = delete;
 };
 
 class B : public ::pltxt2htm::details::PairedTagBase {
@@ -154,20 +192,20 @@ public:
     constexpr B() noexcept = delete;
 
     constexpr B(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
-        : ::pltxt2htm::details::PairedTagBase{NodeType::b, ::std::move(subast)} {
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_b, ::std::move(subast)} {
     }
 
     constexpr B(::pltxt2htm::B const&) noexcept = delete;
 
     constexpr B(::pltxt2htm::B&& other) noexcept
-        : ::pltxt2htm::details::PairedTagBase{NodeType::b, ::std::move(other.subast_)} {
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_b, ::std::move(other.subast_)} {
     }
 
     constexpr ~B() noexcept = default;
 
-    constexpr B& operator=(this ::pltxt2htm::B& self, ::pltxt2htm::B const&) noexcept = delete;
+    constexpr ::pltxt2htm::B& operator=(this ::pltxt2htm::B& self, ::pltxt2htm::B const&) noexcept = delete;
 
-    constexpr B& operator=(this ::pltxt2htm::B& self, ::pltxt2htm::B&&) noexcept = delete;
+    constexpr ::pltxt2htm::B& operator=(this ::pltxt2htm::B& self, ::pltxt2htm::B&&) noexcept = delete;
 };
 
 } // namespace pltxt2htm

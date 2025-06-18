@@ -5,10 +5,11 @@
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
 #include <exception/exception.hh>
+#include "astnode/node_type.hh"
 #include "heap_guard.hh"
 #include "astnode/basic.hh"
-#include "astnode/html.hh"
-#include "pltxt2htm/astnode/plext.hh"
+#include "astnode/html_node.hh"
+#include "pltxt2htm/astnode/physics_lab_node.hh"
 #include "push_macro.hh"
 
 namespace pltxt2htm {
@@ -16,7 +17,7 @@ namespace pltxt2htm {
 namespace details {
 
 /**
- * @return pltext[i]
+ * @return index of ::fast_io::u8string_view
  */
 template<bool ndebug>
 #if __has_cpp_attribute(__gnu__::always_inline)
@@ -35,6 +36,9 @@ constexpr auto u8string_view_index(::fast_io::u8string_view pltext, ::std::size_
     return pltext.index_unchecked(i);
 }
 
+/**
+ * @brief Get the slice of u8string_view
+ */
 template<bool ndebug>
 #if __has_cpp_attribute(__gnu__::always_inline)
 [[__gnu__::always_inline]]
@@ -129,46 +133,6 @@ constexpr bool is_prefix_match(::fast_io::u8string_view str)
 }
 
 /**
- * @brief Cause `parse_pltxt` call itself recursively, I use `ExternSyntaxType`
- *        to mark whether the current call has extern surrounding html, markdown e.t.c syntax or not.
- */
-enum class ExternSyntaxType : ::std::uint_least32_t {
-    // No embrassing syntax outside
-    none = 0,
-
-    // Quantum-Physics <color> tag
-    pl_color,
-    // Quantum-Physics <a> tag
-    pl_a,
-    // Quantum-Physics <discussion> tag
-    pl_discussion,
-    // Quantum-Physics <experiment> tag
-    pl_experiment,
-    // Quantum-Physics&HTML <i> tag
-    pl_i,
-    // Quantum-Physics <b> tag
-    pl_b,
-
-    // HTML <h1>
-    html_h1,
-    // HTML <h2>
-    html_h2,
-    // HTML <h3>
-    html_h3,
-    // HTML <h4>
-    html_h4,
-    // HTML <h5>
-    html_h5,
-    // HTML <h6>
-    html_h6,
-    // HTML <p>
-    html_p,
-
-    // markdown header
-    // md_header,
-};
-
-/**
  * @brief Whether the string is a bare tag (only contains tag name, without any attribute) of the pl-text.
  * @example parsing <i>, <b>, <h3> e.t.c
  * @tparam prefix_str: The prefix string.
@@ -214,24 +178,23 @@ constexpr bool is_valid_equal_sign_tag(::fast_io::u8string_view pltext)
  * @brief Parse pl-text to nodes.
  * @tparam ndebug: Whether disables all debug checks.
  * @param pltext: The text readed from Quantum-Physics.
- * @param extern_syntax_type: show `enum class ExternSyntaxType`
+ * @param extern_syntax_type: if extern_syntax_type is ::pltxt2htm::NodeType::base, means
+ *                            no nested nodes.
  * @param extern_index: after parsing the current tag, extern index should be corrected.
  * @return Quantum-Physics text's ast.
  */
 template<bool ndebug>
 [[nodiscard]]
-constexpr auto parse_pltxt(
-    ::fast_io::u8string_view pltext,
-    ::pltxt2htm::details::ExternSyntaxType extern_syntax_type = ::pltxt2htm::details::ExternSyntaxType::none,
-    ::std::size_t* extern_index = nullptr)
+constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
+                           ::pltxt2htm::NodeType extern_syntax_type = ::pltxt2htm::NodeType::base,
+                           ::std::size_t* extern_index = nullptr)
 #if __cpp_exceptions < 199711L
     noexcept
 #endif
     -> ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> {
-    pltxt2htm_assert(
-        (extern_syntax_type == ::pltxt2htm::details::ExternSyntaxType::none && extern_index == nullptr) ||
-            (extern_syntax_type != ::pltxt2htm::details::ExternSyntaxType::none && extern_index != nullptr),
-        "Invalid extern_syntax_type with extern_index");
+    pltxt2htm_assert((extern_syntax_type == ::pltxt2htm::NodeType::base && extern_index == nullptr) ||
+                         (extern_syntax_type != ::pltxt2htm::NodeType::base && extern_index != nullptr),
+                     "Invalid extern_syntax_type with extern_index");
 
     auto result = ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>{};
 
@@ -240,7 +203,7 @@ constexpr auto parse_pltxt(
         char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i)};
 
         if (chr == u8'\n') {
-            result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Br>{});
+            result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::LineBreak>{});
             continue;
         } else if (chr == u8' ') {
             // TODO should we delete tail space?
@@ -280,10 +243,9 @@ constexpr auto parse_pltxt(
                     // if forward_index + 1 >= pltxt_size, it means that a not closed tag in the end of the text
                     // which does not make sense, can be opetimized(ignored) during parsing ast
                     auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
-                        ::pltxt2htm::details::ExternSyntaxType::pl_a, ::std::addressof(i));
-                    result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Color>(
-                        ::std::move(subast), ::fast_io::u8string{u8"#0000AA"}));
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1), ::pltxt2htm::NodeType::pl_a,
+                        ::std::addressof(i));
+                    result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::A>(::std::move(subast)));
                 }
                 goto complete_parsing_tag;
             }
@@ -299,7 +261,7 @@ constexpr auto parse_pltxt(
                         // which does not make sense, can be opetimized(ignored) during parsing ast
                         auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
-                            ::pltxt2htm::details::ExternSyntaxType::pl_b, ::std::addressof(i));
+                            ::pltxt2htm::NodeType::pl_b, ::std::addressof(i));
                         result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::B>(::std::move(subast)));
                     }
                     goto complete_parsing_tag;
@@ -383,7 +345,7 @@ constexpr auto parse_pltxt(
                     // which does not make sense, can be opetimized(ignored) during parsing ast
                     auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
-                        ::pltxt2htm::details::ExternSyntaxType::pl_color, ::std::addressof(i));
+                        ::pltxt2htm::NodeType::pl_color, ::std::addressof(i));
                     result.push_back(
                         ::pltxt2htm::details::HeapGuard<::pltxt2htm::Color>(::std::move(subast), ::std::move(color)));
                 }
@@ -439,7 +401,7 @@ constexpr auto parse_pltxt(
                     // which does not make sense, can be opetimized(ignored) during parsing ast
                     auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
-                        ::pltxt2htm::details::ExternSyntaxType::pl_discussion, ::std::addressof(i));
+                        ::pltxt2htm::NodeType::pl_discussion, ::std::addressof(i));
                     result.push_back(
                         ::pltxt2htm::details::HeapGuard<::pltxt2htm::Discussion>(::std::move(subast), ::std::move(id)));
                 }
@@ -495,7 +457,7 @@ constexpr auto parse_pltxt(
                     // which does not make sense, can be opetimized(ignored) during parsing ast
                     auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
-                        ::pltxt2htm::details::ExternSyntaxType::pl_experiment, ::std::addressof(i));
+                        ::pltxt2htm::NodeType::pl_experiment, ::std::addressof(i));
                     result.push_back(
                         ::pltxt2htm::details::HeapGuard<::pltxt2htm::Experiment>(::std::move(subast), ::std::move(id)));
                 }
@@ -513,7 +475,7 @@ constexpr auto parse_pltxt(
                         // which does not make sense, can be opetimized(ignored) during parsing ast
                         auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
-                            ::pltxt2htm::details::ExternSyntaxType::html_h1, ::std::addressof(i));
+                            ::pltxt2htm::NodeType::html_h1, ::std::addressof(i));
                         result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H1>(::std::move(subast)));
                     }
                     goto complete_parsing_tag;
@@ -525,7 +487,7 @@ constexpr auto parse_pltxt(
                         // which does not make sense, can be opetimized(ignored) during parsing ast
                         auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
-                            ::pltxt2htm::details::ExternSyntaxType::html_h2, ::std::addressof(i));
+                            ::pltxt2htm::NodeType::html_h2, ::std::addressof(i));
                         result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H2>(::std::move(subast)));
                     }
                     goto complete_parsing_tag;
@@ -537,7 +499,7 @@ constexpr auto parse_pltxt(
                         // which does not make sense, can be opetimized(ignored) during parsing ast
                         auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
-                            ::pltxt2htm::details::ExternSyntaxType::html_h3, ::std::addressof(i));
+                            ::pltxt2htm::NodeType::html_h3, ::std::addressof(i));
                         result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H3>(::std::move(subast)));
                     }
                     goto complete_parsing_tag;
@@ -549,7 +511,7 @@ constexpr auto parse_pltxt(
                         // which does not make sense, can be opetimized(ignored) during parsing ast
                         auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
-                            ::pltxt2htm::details::ExternSyntaxType::html_h4, ::std::addressof(i));
+                            ::pltxt2htm::NodeType::html_h4, ::std::addressof(i));
                         result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H4>(::std::move(subast)));
                     }
                     goto complete_parsing_tag;
@@ -561,7 +523,7 @@ constexpr auto parse_pltxt(
                         // which does not make sense, can be opetimized(ignored) during parsing ast
                         auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
-                            ::pltxt2htm::details::ExternSyntaxType::html_h5, ::std::addressof(i));
+                            ::pltxt2htm::NodeType::html_h5, ::std::addressof(i));
                         result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H5>(::std::move(subast)));
                     }
                     goto complete_parsing_tag;
@@ -573,7 +535,7 @@ constexpr auto parse_pltxt(
                         // which does not make sense, can be opetimized(ignored) during parsing ast
                         auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
-                            ::pltxt2htm::details::ExternSyntaxType::html_h6, ::std::addressof(i));
+                            ::pltxt2htm::NodeType::html_h6, ::std::addressof(i));
                         result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H6>(::std::move(subast)));
                     }
                     goto complete_parsing_tag;
@@ -594,8 +556,8 @@ constexpr auto parse_pltxt(
                     // if forward_index + 1 >= pltxt_size, it means that a not closed tag in the end of the text
                     // which does not make sense, can be opetimized(ignored) during parsing ast
                     auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
-                        ::pltxt2htm::details::ExternSyntaxType::pl_i, ::std::addressof(i));
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1), ::pltxt2htm::NodeType::pl_i,
+                        ::std::addressof(i));
                     result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::I>(::std::move(subast)));
                 }
                 goto complete_parsing_tag;
@@ -614,16 +576,15 @@ constexpr auto parse_pltxt(
                     // which does not make sense, can be opetimized(ignored) during parsing ast
                     auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
-                        ::pltxt2htm::details::ExternSyntaxType::html_p, ::std::addressof(i));
-                    result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::P>(
-                        ::std::move(subast)));
+                        ::pltxt2htm::NodeType::html_p, ::std::addressof(i));
+                    result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::P>(::std::move(subast)));
                 }
                 goto complete_parsing_tag;
             }
 
             case u8'/': {
                 switch (extern_syntax_type) {
-                case ::pltxt2htm::details::ExternSyntaxType::pl_color: {
+                case ::pltxt2htm::NodeType::pl_color: {
                     // parsing </color>
                     if (::pltxt2htm::details::is_prefix_match<ndebug, u8'c', u8'o', u8'l', u8'o', u8'r'>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2)) == false) {
@@ -670,7 +631,7 @@ constexpr auto parse_pltxt(
                     }
                     return result;
                 }
-                case ::pltxt2htm::details::ExternSyntaxType::pl_a: {
+                case ::pltxt2htm::NodeType::pl_a: {
                     if (::pltxt2htm::details::is_valid_bare_tag<ndebug, u8'a'>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), i) == false) {
                         goto not_valid_tag;
@@ -681,10 +642,7 @@ constexpr auto parse_pltxt(
                     }
                     return result;
                 }
-                case ::pltxt2htm::details::ExternSyntaxType::none: {
-                    goto not_valid_tag;
-                }
-                case ::pltxt2htm::details::ExternSyntaxType::pl_discussion: {
+                case ::pltxt2htm::NodeType::pl_discussion: {
                     // parsing </discussion>
                     if (::pltxt2htm::details::is_prefix_match<ndebug, u8'd', u8'i', u8's', u8'c', u8'u', u8's', u8's',
                                                               u8'i', u8'o', u8'n'>(
@@ -731,7 +689,7 @@ constexpr auto parse_pltxt(
                     }
                     return result;
                 }
-                case ::pltxt2htm::details::ExternSyntaxType::pl_experiment: {
+                case ::pltxt2htm::NodeType::pl_experiment: {
                     // parsing </experiment>
                     if (::pltxt2htm::details::is_prefix_match<ndebug, u8'e', u8'x', u8'p', u8'e', u8'r', u8'i', u8'm',
                                                               u8'e', u8'n', u8't'>(
@@ -779,7 +737,7 @@ constexpr auto parse_pltxt(
                     }
                     return result;
                 }
-                case ::pltxt2htm::details::ExternSyntaxType::pl_i: {
+                case ::pltxt2htm::NodeType::pl_i: {
                     if (::pltxt2htm::details::is_valid_bare_tag<ndebug, u8'i'>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), i) == false) {
                         goto not_valid_tag;
@@ -790,7 +748,7 @@ constexpr auto parse_pltxt(
                     }
                     return result;
                 }
-                case ::pltxt2htm::details::ExternSyntaxType::pl_b: {
+                case ::pltxt2htm::NodeType::pl_b: {
                     if (::pltxt2htm::details::is_valid_bare_tag<ndebug, u8'b'>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), i) == false) {
                         goto not_valid_tag;
@@ -801,7 +759,7 @@ constexpr auto parse_pltxt(
                     }
                     return result;
                 }
-                case ::pltxt2htm::details::ExternSyntaxType::html_h1: {
+                case ::pltxt2htm::NodeType::html_h1: {
                     if (::pltxt2htm::details::is_valid_bare_tag<ndebug, u8'h', u8'1'>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), i) == false) {
                         goto not_valid_tag;
@@ -812,7 +770,7 @@ constexpr auto parse_pltxt(
                     }
                     return result;
                 }
-                case ::pltxt2htm::details::ExternSyntaxType::html_h2: {
+                case ::pltxt2htm::NodeType::html_h2: {
                     if (::pltxt2htm::details::is_valid_bare_tag<ndebug, u8'h', u8'2'>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), i) == false) {
                         goto not_valid_tag;
@@ -823,7 +781,7 @@ constexpr auto parse_pltxt(
                     }
                     return result;
                 }
-                case ::pltxt2htm::details::ExternSyntaxType::html_h3: {
+                case ::pltxt2htm::NodeType::html_h3: {
                     if (::pltxt2htm::details::is_valid_bare_tag<ndebug, u8'h', u8'3'>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), i) == false) {
                         goto not_valid_tag;
@@ -834,7 +792,7 @@ constexpr auto parse_pltxt(
                     }
                     return result;
                 }
-                case ::pltxt2htm::details::ExternSyntaxType::html_h4: {
+                case ::pltxt2htm::NodeType::html_h4: {
                     if (::pltxt2htm::details::is_valid_bare_tag<ndebug, u8'h', u8'4'>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), i) == false) {
                         goto not_valid_tag;
@@ -845,7 +803,7 @@ constexpr auto parse_pltxt(
                     }
                     return result;
                 }
-                case ::pltxt2htm::details::ExternSyntaxType::html_h5: {
+                case ::pltxt2htm::NodeType::html_h5: {
                     if (::pltxt2htm::details::is_valid_bare_tag<ndebug, u8'h', u8'5'>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), i) == false) {
                         goto not_valid_tag;
@@ -856,7 +814,7 @@ constexpr auto parse_pltxt(
                     }
                     return result;
                 }
-                case ::pltxt2htm::details::ExternSyntaxType::html_h6: {
+                case ::pltxt2htm::NodeType::html_h6: {
                     if (::pltxt2htm::details::is_valid_bare_tag<ndebug, u8'h', u8'6'>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), i) == false) {
                         goto not_valid_tag;
@@ -867,7 +825,7 @@ constexpr auto parse_pltxt(
                     }
                     return result;
                 }
-                case ::pltxt2htm::details::ExternSyntaxType::html_p: {
+                case ::pltxt2htm::NodeType::html_p: {
                     if (::pltxt2htm::details::is_valid_bare_tag<ndebug, u8'p'>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), i) == false) {
                         goto not_valid_tag;
@@ -878,10 +836,8 @@ constexpr auto parse_pltxt(
                     }
                     return result;
                 }
-#if 0
                 default:
-                    ::exception::unreachable<ndebug>();
-#endif
+                    goto not_valid_tag;
                 }
             }
 
