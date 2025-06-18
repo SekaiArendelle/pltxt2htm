@@ -22,6 +22,8 @@ enum class BackendText : ::std::uint_least32_t {
 
 namespace details {
 
+namespace {
+
 /**
  * @brief Integrate ast nodes to HTML.
  * @tparam ndebug: true  -> release mode, disables most of the checks which is unsafe but fast
@@ -309,6 +311,8 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
 
     return result;
 }
+
+} // namespace
 
 } // namespace details
 

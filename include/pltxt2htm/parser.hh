@@ -16,6 +16,8 @@ namespace pltxt2htm {
 
 namespace details {
 
+namespace {
+
 /**
  * @return index of ::fast_io::u8string_view
  */
@@ -896,7 +898,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
     }
     return result;
 }
-
+} // namespace
 } // namespace details
 
 /**

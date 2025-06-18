@@ -12,7 +12,11 @@
 
 namespace pltxt2htm::details {
 
+namespace {
+
 constexpr void panic_print() {
 }
+
+} // namespace
 
 } // namespace pltxt2htm::details

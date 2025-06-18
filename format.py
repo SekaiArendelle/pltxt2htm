@@ -13,9 +13,7 @@ PY_DIR = os.path.join(SCRIPT_DIR, "py")
 def format_files_in_a_dir(dir: str) -> None:
     for root, dirs, files in os.walk(dir):
         for file in files:
-            if file.endswith(".cc"):
-                os.system(f"clang-format -i \"{os.path.join(root, file)}\"")
-            elif file.endswith(".hh"):
+            if file.endswith(".cc") or file.endswith(".hh") or file.endswith(".h"):
                 os.system(f"clang-format -i \"{os.path.join(root, file)}\"")
 
 format_files_in_a_dir(TEST_DIR)

@@ -16,6 +16,8 @@ namespace pltxt2htm {
 
 namespace details {
 
+namespace {
+
 template<auto Func>
 [[nodiscard]]
 constexpr char8_t const* c_ptr_style_wrapper(char8_t const* const text, char8_t const* const host) noexcept(
@@ -31,6 +33,8 @@ constexpr char8_t const* c_ptr_style_wrapper(char8_t const* const text, char8_t 
     return result;
 }
 
+} // namespace
+
 } // namespace details
 
 /**
@@ -39,8 +43,7 @@ constexpr char8_t const* c_ptr_style_wrapper(char8_t const* const text, char8_t 
  */
 template<bool ndebug = false>
 [[nodiscard]]
-constexpr char8_t const* advanced_parser(char8_t const* const text,
-                                         char8_t const* const host)
+constexpr char8_t const* advanced_parser(char8_t const* const text, char8_t const* const host)
 #if __cpp_exceptions < 199711L
     noexcept
 #endif
@@ -55,8 +58,7 @@ constexpr char8_t const* advanced_parser(char8_t const* const text,
  */
 template<bool ndebug = false>
 [[nodiscard]]
-constexpr char8_t const* common_parser(char8_t const* const text,
-                                       char8_t const* const host)
+constexpr char8_t const* common_parser(char8_t const* const text, char8_t const* const host)
 #if __cpp_exceptions < 199711L
     noexcept
 #endif
