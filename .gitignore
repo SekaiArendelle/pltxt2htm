@@ -1,11 +1,22 @@
 venv*/
+
 dist/
 build/
 *.egg-info/
+
 .xmake/
+
 .vscode/
+
 __pycache__/
+
+# release dir, $target-pltxt2htm-[debug|release]
 *-pltxt2htm*/
-*.tar.xz
+
+*.xz
+*.tar
+*.zip
+
 *.ignore.*
+
 *.lnk
