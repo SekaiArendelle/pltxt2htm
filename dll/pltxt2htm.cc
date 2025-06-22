@@ -1,11 +1,10 @@
-#if __cpp_exceptions >= 199711L
-    #error "Enable exception in wasm is not recommended"
-#endif
-
-#include <emscripten.h>
 #include <pltxt2htm/pltxt2htm.h>
 
-EMSCRIPTEN_KEEPALIVE
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((visibility("default")))
+#elif defined(_MSC_VER) && !defined(__clang__)
+__declspec(dllexport)
+#endif
 extern "C" char8_t const* advanced_parser(char8_t const* const text, char8_t const* const host) noexcept {
     return ::pltxt2htm::advanced_parser<
 #ifdef NDEBUG
@@ -16,7 +15,11 @@ extern "C" char8_t const* advanced_parser(char8_t const* const text, char8_t con
         >(text, host);
 }
 
-EMSCRIPTEN_KEEPALIVE
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((visibility("default")))
+#elif defined(_MSC_VER) && !defined(__clang__)
+__declspec(dllexport)
+#endif
 extern "C" char8_t const* common_parser(char8_t const* text, char8_t const* const host) noexcept {
     return ::pltxt2htm::common_parser<
 #ifdef NDEBUG

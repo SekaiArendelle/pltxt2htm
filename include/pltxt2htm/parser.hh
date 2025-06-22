@@ -9,14 +9,12 @@
 #include "heap_guard.hh"
 #include "astnode/basic.hh"
 #include "astnode/html_node.hh"
-#include "pltxt2htm/astnode/physics_lab_node.hh"
+#include "astnode/physics_lab_node.hh"
 #include "push_macro.hh"
 
 namespace pltxt2htm {
 
 namespace details {
-
-namespace {
 
 /**
  * @return index of ::fast_io::u8string_view
@@ -28,7 +26,7 @@ template<bool ndebug>
 [[msvc::forceinline]]
 #endif
 [[nodiscard]]
-constexpr auto u8string_view_index(::fast_io::u8string_view pltext, ::std::size_t i)
+static constexpr auto u8string_view_index(::fast_io::u8string_view pltext, ::std::size_t i)
 #if __cpp_exceptions < 199711L
     noexcept
 #endif
@@ -48,7 +46,7 @@ template<bool ndebug>
 [[msvc::forceinline]]
 #endif
 [[nodiscard]]
-constexpr auto u8string_view_subview(::fast_io::u8string_view pltext, ::std::size_t i) noexcept {
+static constexpr auto u8string_view_subview(::fast_io::u8string_view pltext, ::std::size_t i) noexcept {
     if constexpr (ndebug) {
         return pltext.subview_unchecked(i);
     } else {
@@ -63,7 +61,7 @@ constexpr auto u8string_view_subview(::fast_io::u8string_view pltext, ::std::siz
 template<::std::size_t I, char8_t first_char, char8_t... str>
     requires (I <= sizeof...(str))
 [[nodiscard]]
-consteval char8_t pack_indexing_char8_t() noexcept {
+static consteval char8_t pack_indexing_char8_t() noexcept {
     // https://en.cppreference.com/w/cpp/language/pack_indexing.html
     if constexpr (I == 0) {
         return first_char;
@@ -99,7 +97,7 @@ template<bool ndebug, char8_t... prefix_str>
 [[msvc::forceinline]]
 #endif
 [[nodiscard]]
-constexpr bool is_prefix_match(::fast_io::u8string_view str)
+static constexpr bool is_prefix_match(::fast_io::u8string_view str)
 #if __cpp_exceptions < 199711L
     noexcept
 #endif
@@ -143,7 +141,7 @@ constexpr bool is_prefix_match(::fast_io::u8string_view str)
  */
 template<bool ndebug, char8_t... prefix_str>
 [[nodiscard]]
-constexpr bool is_valid_bare_tag(::fast_io::u8string_view pltext, ::std::size_t& extern_index)
+static constexpr bool is_valid_bare_tag(::fast_io::u8string_view pltext, ::std::size_t& extern_index)
 #if __cpp_exceptions < 199711L
     noexcept
 #endif
@@ -167,7 +165,7 @@ constexpr bool is_valid_bare_tag(::fast_io::u8string_view pltext, ::std::size_t&
 
 template<bool ndebug>
 [[nodiscard]]
-constexpr bool is_valid_equal_sign_tag(::fast_io::u8string_view pltext)
+static constexpr bool is_valid_equal_sign_tag(::fast_io::u8string_view pltext)
 #if __cpp_exceptions < 199711L
     noexcept
 #endif
@@ -187,7 +185,7 @@ constexpr bool is_valid_equal_sign_tag(::fast_io::u8string_view pltext)
  */
 template<bool ndebug>
 [[nodiscard]]
-constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
+static constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                            ::pltxt2htm::NodeType extern_syntax_type = ::pltxt2htm::NodeType::base,
                            ::std::size_t* extern_index = nullptr)
 #if __cpp_exceptions < 199711L
@@ -898,7 +896,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
     }
     return result;
 }
-} // namespace
+
 } // namespace details
 
 /**

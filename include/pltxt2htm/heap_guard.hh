@@ -9,8 +9,6 @@
 
 namespace pltxt2htm::details {
 
-namespace {
-
 template<typename T>
 class HeapGuard;
 
@@ -130,7 +128,5 @@ public:
         other.ptr_ = tmp;
     }
 };
-
-} // namespace
 
 } // namespace pltxt2htm::details
