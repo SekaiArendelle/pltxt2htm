@@ -40,13 +40,13 @@ public:
 
     constexpr ~Color() noexcept = default;
 
-    constexpr ::pltxt2htm::Color& operator=(this Color& self, ::pltxt2htm::Color const&) noexcept = delete;
+    constexpr ::pltxt2htm::Color& operator=(this ::pltxt2htm::Color& self, ::pltxt2htm::Color const&) noexcept = delete;
 
     /**
      * @brief move assignment operator
      * @note assign to a rvalue is not allowed
      */
-    constexpr ::pltxt2htm::Color& operator=(this Color& self, ::pltxt2htm::Color&&) noexcept = delete;
+    constexpr ::pltxt2htm::Color& operator=(this ::pltxt2htm::Color& self, ::pltxt2htm::Color&&) noexcept = delete;
 
     [[nodiscard]]
     constexpr auto&& get_color(this auto&& self) noexcept {
@@ -74,13 +74,13 @@ public:
 
     constexpr ~A() noexcept = default;
 
-    constexpr ::pltxt2htm::A& operator=(this A& self, ::pltxt2htm::A const&) noexcept = delete;
+    constexpr ::pltxt2htm::A& operator=(this ::pltxt2htm::A& self, ::pltxt2htm::A const&) noexcept = delete;
 
     /**
      * @brief move assignment operator
      * @note assign to a rvalue is not allowed
      */
-    constexpr ::pltxt2htm::A& operator=(this A& self, ::pltxt2htm::A&&) noexcept = delete;
+    constexpr ::pltxt2htm::A& operator=(this ::pltxt2htm::A& self, ::pltxt2htm::A&&) noexcept = delete;
 
     [[nodiscard]]
     constexpr auto&& get_color(this auto&& self) noexcept {

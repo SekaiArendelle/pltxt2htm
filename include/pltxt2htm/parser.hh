@@ -26,7 +26,7 @@ template<bool ndebug>
 [[msvc::forceinline]]
 #endif
 [[nodiscard]]
-static constexpr auto u8string_view_index(::fast_io::u8string_view pltext, ::std::size_t i)
+constexpr auto u8string_view_index(::fast_io::u8string_view pltext, ::std::size_t i)
 #if __cpp_exceptions < 199711L
     noexcept
 #endif
@@ -46,7 +46,7 @@ template<bool ndebug>
 [[msvc::forceinline]]
 #endif
 [[nodiscard]]
-static constexpr auto u8string_view_subview(::fast_io::u8string_view pltext, ::std::size_t i) noexcept {
+constexpr auto u8string_view_subview(::fast_io::u8string_view pltext, ::std::size_t i) noexcept {
     if constexpr (ndebug) {
         return pltext.subview_unchecked(i);
     } else {
@@ -97,7 +97,7 @@ template<bool ndebug, char8_t... prefix_str>
 [[msvc::forceinline]]
 #endif
 [[nodiscard]]
-static constexpr bool is_prefix_match(::fast_io::u8string_view str)
+constexpr bool is_prefix_match(::fast_io::u8string_view str)
 #if __cpp_exceptions < 199711L
     noexcept
 #endif
@@ -141,7 +141,7 @@ static constexpr bool is_prefix_match(::fast_io::u8string_view str)
  */
 template<bool ndebug, char8_t... prefix_str>
 [[nodiscard]]
-static constexpr bool is_valid_bare_tag(::fast_io::u8string_view pltext, ::std::size_t& extern_index)
+constexpr bool is_valid_bare_tag(::fast_io::u8string_view pltext, ::std::size_t& extern_index)
 #if __cpp_exceptions < 199711L
     noexcept
 #endif
@@ -165,7 +165,7 @@ static constexpr bool is_valid_bare_tag(::fast_io::u8string_view pltext, ::std::
 
 template<bool ndebug>
 [[nodiscard]]
-static constexpr bool is_valid_equal_sign_tag(::fast_io::u8string_view pltext)
+constexpr bool is_valid_equal_sign_tag(::fast_io::u8string_view pltext)
 #if __cpp_exceptions < 199711L
     noexcept
 #endif
@@ -185,7 +185,7 @@ static constexpr bool is_valid_equal_sign_tag(::fast_io::u8string_view pltext)
  */
 template<bool ndebug>
 [[nodiscard]]
-static constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
+constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                            ::pltxt2htm::NodeType extern_syntax_type = ::pltxt2htm::NodeType::base,
                            ::std::size_t* extern_index = nullptr)
 #if __cpp_exceptions < 199711L
