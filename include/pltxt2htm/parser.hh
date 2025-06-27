@@ -31,7 +31,7 @@ constexpr auto u8string_view_index(::fast_io::u8string_view pltext, ::std::size_
     noexcept
 #endif
 {
-    pltxt2htm_assert(i < pltext.size(), "Index of parser out of bound");
+    pltxt2htm_assert(i < pltext.size(), u8"Index of parser out of bound");
 
     return pltext.index_unchecked(i);
 }
@@ -61,7 +61,7 @@ constexpr auto u8string_view_subview(::fast_io::u8string_view pltext, ::std::siz
 template<::std::size_t I, char8_t first_char, char8_t... str>
     requires (I <= sizeof...(str))
 [[nodiscard]]
-static consteval char8_t pack_indexing_char8_t() noexcept {
+consteval char8_t pack_indexing_char8_t() noexcept {
     // https://en.cppreference.com/w/cpp/language/pack_indexing.html
     if constexpr (I == 0) {
         return first_char;
@@ -194,7 +194,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
     -> ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> {
     pltxt2htm_assert((extern_syntax_type == ::pltxt2htm::NodeType::base && extern_index == nullptr) ||
                          (extern_syntax_type != ::pltxt2htm::NodeType::base && extern_index != nullptr),
-                     "Invalid extern_syntax_type with extern_index");
+                     u8"Invalid extern_syntax_type with extern_index");
 
     auto result = ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>{};
 
@@ -223,7 +223,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
             continue;
         } else if (chr == u8'<') {
             // if i is a valid value, i always less than pltxt_size
-            pltxt2htm_assert(i < pltxt_size, "Index of parser out of bound");
+            pltxt2htm_assert(i < pltxt_size, u8"Index of parser out of bound");
 
             if (i + 1 == pltxt_size) {
                 goto not_valid_tag;
@@ -857,14 +857,14 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
             if ((chr & 0b1000'0000) == 0) {
                 result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{chr});
             } else if ((chr & 0b1100'0000) == 0b1100'0000 && (chr & 0b0010'0000) == 0) {
-                pltxt2htm_assert(i + 1 < pltxt_size, "Invalid utf-8 encoding");
+                pltxt2htm_assert(i + 1 < pltxt_size, u8"Invalid utf-8 encoding");
 
                 result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{chr});
                 result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{
                     ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i + 1)});
                 i += 1;
             } else if ((chr & 0b1110'0000) == 0b1110'0000 && (chr & 0b0001'0000) == 0) {
-                pltxt2htm_assert(i + 2 < pltxt_size, "Invalid utf-8 encoding");
+                pltxt2htm_assert(i + 2 < pltxt_size, u8"Invalid utf-8 encoding");
                 ;
 
                 result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{chr});
@@ -874,7 +874,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                     ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i + 2)});
                 i += 2;
             } else if ((chr & 0b1111'0000) == 0b1111'0000 && (chr & 0b0000'1000) == 0) {
-                pltxt2htm_assert(i + 3 < pltxt_size, "Invalid utf-8 encoding");
+                pltxt2htm_assert(i + 3 < pltxt_size, u8"Invalid utf-8 encoding");
 
                 result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{chr});
                 result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{

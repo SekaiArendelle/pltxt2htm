@@ -17,9 +17,9 @@
 #if __cpp_exceptions >= 199711L
     #define pltxt2htm_assert(condition, message) \
         do { \
-            if ((condition) == false) [[unlikely]] { \
-                panic_print(); \
-                if constexpr (ndebug == false) { \
+            if constexpr (ndebug == false) { \
+                if ((condition) == false) [[unlikely]] { \
+                    ::pltxt2htm::details::panic_print(::std::source_location::current(), #condition, message); \
                     ::exception::terminate(); \
                 } \
             } \

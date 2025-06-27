@@ -16,8 +16,8 @@ namespace pltxt2htm {
  */
 class PlTxtNode
 // #if __cpp_trivial_relocatability >= 202502L
+//     // TODO relocate?
 //     // https://en.cppreference.com/w/cpp/language/class_property_specifiers#Trivial_relocatability
-//     replaceable_if_eligible trivially_relocatable_if_eligible
 // #endif
 {
 protected:
