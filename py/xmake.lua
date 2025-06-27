@@ -22,6 +22,12 @@ target("pltxt2htm", function ()
     add_includedirs("../include")
     set_exceptions("no-cxx")
     add_cxxflags("-fno-rtti", {tools = {"clangxx", "gcc"}})
+    add_cxxflags("-fno-unwind-tables")
+    add_cxxflags("-fno-asynchronous-unwind-tables")
+    if is_mode("release") then
+        add_cxflags("-fno-ident")
+    end
+    add_cxxflags("-fvisibility=hidden", {tools = {"clangxx", "gcc"}})
     if is_plat("windows", "mingw") then
         add_links("ntdll")
     end
