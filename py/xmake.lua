@@ -201,15 +201,16 @@ target("pltxt2htm", function ()
     end) -- on_config
 
     after_build(function (target)
+        local lib_plat_cpy_dir = nil
         if is_plat("windows", "mingw") then
-            os.iorunv(py_bin_dir .. "\\python.exe", {"after_build.py"})
+            lib_plat_cpy_dir = os.iorunv(py_bin_dir .. "\\python.exe", {"after_build.py"})
         elseif is_plat("linux") then
-            os.iorunv(py_bin_dir .. "/python3", {"after_build.py"})
+            lib_plat_cpy_dir = os.iorunv(py_bin_dir .. "/python3", {"after_build.py"})
         else
             print("unreachable code touched, please bug report")
             os.exit(1)
         end
-        os.cp(target:targetfile(), target:scriptdir() .. "/build/")
-        print("copying " .. target:targetfile() .. " to " .. target:scriptdir() .. "/build/")
+        os.cp(target:targetfile(), lib_plat_cpy_dir)
+        print("copying " .. target:targetfile() .. " to " .. lib_plat_cpy_dir)
     end) -- after_build
 end) -- target

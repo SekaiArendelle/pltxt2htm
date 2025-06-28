@@ -11,3 +11,4 @@ py_version_nodot = f"{sys.version_info.major}{sys.version_info.minor}"
 lib_plat_cpy_dir = os.path.join(SCRIPT_DIR, "build", f"lib.{sysconfig.get_platform()}-cpython-{py_version_nodot}")
 if not os.path.exists(lib_plat_cpy_dir) and not os.path.isdir(lib_plat_cpy_dir):
     os.mkdir(lib_plat_cpy_dir)
+print(lib_plat_cpy_dir, end='')

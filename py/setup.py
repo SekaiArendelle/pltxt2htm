@@ -30,23 +30,6 @@ class XMakeBuild(build_ext):
         if build_result != 0:
             raise Exception("xmake build failed")
 
-        lib_plat_cpy_dir = None
-        for root, dirs, files in os.walk(os.path.join(SCRIPT_DIR, "build")):
-            for a_dir in dirs:
-                if a_dir.startswith("lib."):
-                    lib_plat_cpy_dir = os.path.join(root, a_dir)
-
-            assert lib_plat_cpy_dir is not None, "please bug report"
-
-            for file in files:
-                if platform.system() == "Windows" and file.endswith(".pyd"):
-                    shutil.move(os.path.join(root, file), os.path.join(lib_plat_cpy_dir, file))
-                    print(f"moving \"{os.path.join(root, file)}\" to \"{lib_plat_cpy_dir}\"")
-                elif platform.system() != "Windows" and file.endswith(".so"):
-                    shutil.copyfile(os.path.join(root, file), os.path.join(lib_plat_cpy_dir, file))
-                    print(f"moving \"{os.path.join(root, file)}\" to \"{lib_plat_cpy_dir}\"")
-            break
-
 setuptools.setup(
     name="pltxt2htm",
     version="0.0.0",
