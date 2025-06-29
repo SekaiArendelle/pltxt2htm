@@ -23,7 +23,7 @@ int main() noexcept {
 # Hello Quantum PhysicsLab
 With Markdown supports
 )");
-    ::fast_io::io::println(::fast_io::u8c_stdout, html);
+    ::fast_io::io::println(::fast_io::u8c_stdout(), html);
 
     return 0;
 }
@@ -54,13 +54,13 @@ markdown extension based on https://spec.commonmark.org/0.31.2/
 * Quantum-Physics's Experiment tag is supported
 * Quantum-Physics&HTML's i tag is supported
 * Quantum-Physics&HTML's b tag is supported
-* HTML's <h1> tag is supported
-* HTML's <h2> tag is supported
-* HTML's <h3> tag is supported
-* HTML's <h4> tag is supported
-* HTML's <h5> tag is supported
-* HTML's <h6> tag is supported
-* HTML's <p> tag is supported
+* HTML's &lt;h1&gt; tag is supported
+* HTML's &lt;h2&gt; tag is supported
+* HTML's &lt;h3&gt; tag is supported
+* HTML's &lt;h4&gt; tag is supported
+* HTML's &lt;h5&gt; tag is supported
+* HTML's &lt;h6&gt; tag is supported
+* HTML's &lt;p&gt; tag is supported
 
 ## others
 
