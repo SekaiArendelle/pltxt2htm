@@ -56,5 +56,9 @@ int main() noexcept {
     auto answer11 = ::fast_io::u8string_view{u8"&lt;color="};
     ::exception::assert_true(html11 == answer11);
 
+    auto html12 = ::pltxt2htm::pltxt2html(u8"<color=red>test</color", u8"localhost:5173");
+    auto answer12 = ::fast_io::u8string_view{u8"<span style=\"color:red;\">test&lt;/color</span>"};
+    ::exception::assert_true(html12 == answer12);
+
     return 0;
 }
