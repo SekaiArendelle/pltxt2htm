@@ -16,6 +16,7 @@ public:
 
     constexpr LineBreak(::pltxt2htm::LineBreak const& other) noexcept = default;
     constexpr LineBreak(::pltxt2htm::LineBreak&& other) noexcept = default;
+    constexpr ~LineBreak() noexcept = default;
     constexpr ::pltxt2htm::LineBreak& operator=(this ::pltxt2htm::LineBreak& self,
                                                 ::pltxt2htm::LineBreak const& other) noexcept = delete;
     constexpr ::pltxt2htm::LineBreak& operator=(this ::pltxt2htm::LineBreak& self,
@@ -33,6 +34,7 @@ public:
 
     constexpr Br(::pltxt2htm::Br const& other) noexcept = default;
     constexpr Br(::pltxt2htm::Br&& other) noexcept = default;
+    constexpr ~Br() noexcept = default;
     constexpr ::pltxt2htm::Br& operator=(this ::pltxt2htm::Br& self, ::pltxt2htm::Br const& other) noexcept = delete;
     constexpr ::pltxt2htm::Br& operator=(this ::pltxt2htm::Br& self, ::pltxt2htm::Br&& other) noexcept = delete;
 };
@@ -48,6 +50,7 @@ public:
 
     constexpr Space(::pltxt2htm::Space const& other) noexcept = default;
     constexpr Space(::pltxt2htm::Space&& other) noexcept = default;
+    constexpr ~Space() noexcept = default;
     constexpr ::pltxt2htm::Space& operator=(this ::pltxt2htm::Space& self,
                                             ::pltxt2htm::Space const& other) noexcept = delete;
     constexpr ::pltxt2htm::Space& operator=(this ::pltxt2htm::Space& self,
@@ -65,6 +68,7 @@ public:
 
     constexpr LessThan(::pltxt2htm::LessThan const& other) noexcept = default;
     constexpr LessThan(::pltxt2htm::LessThan&& other) noexcept = default;
+    constexpr ~LessThan() noexcept = default;
     constexpr ::pltxt2htm::LessThan& operator=(this ::pltxt2htm::LessThan& self,
                                                ::pltxt2htm::LessThan const& other) noexcept = delete;
     constexpr ::pltxt2htm::LessThan& operator=(this ::pltxt2htm::LessThan& self,
@@ -82,6 +86,7 @@ public:
 
     constexpr GreaterThan(::pltxt2htm::GreaterThan const& other) noexcept = default;
     constexpr GreaterThan(::pltxt2htm::GreaterThan&& other) noexcept = default;
+    constexpr ~GreaterThan() noexcept = default;
     constexpr ::pltxt2htm::GreaterThan& operator=(this ::pltxt2htm::GreaterThan& self,
                                                   ::pltxt2htm::GreaterThan const& other) noexcept = delete;
     constexpr ::pltxt2htm::GreaterThan& operator=(this ::pltxt2htm::GreaterThan& self,
@@ -99,6 +104,7 @@ public:
 
     constexpr Ampersand(::pltxt2htm::Ampersand const& other) noexcept = default;
     constexpr Ampersand(::pltxt2htm::Ampersand&& other) noexcept = default;
+    constexpr ~Ampersand() noexcept = default;
     constexpr ::pltxt2htm::Ampersand& operator=(this ::pltxt2htm::Ampersand& self,
                                                 ::pltxt2htm::Ampersand const& other) noexcept = delete;
     constexpr ::pltxt2htm::Ampersand& operator=(this ::pltxt2htm::Ampersand& self,
@@ -116,6 +122,7 @@ public:
 
     constexpr SingleQuotationMark(::pltxt2htm::SingleQuotationMark const& other) noexcept = default;
     constexpr SingleQuotationMark(::pltxt2htm::SingleQuotationMark&& other) noexcept = default;
+    constexpr ~SingleQuotationMark() noexcept = default;
     constexpr ::pltxt2htm::SingleQuotationMark& operator=(
         this ::pltxt2htm::SingleQuotationMark& self, ::pltxt2htm::SingleQuotationMark const& other) noexcept = delete;
     constexpr ::pltxt2htm::SingleQuotationMark& operator=(this ::pltxt2htm::SingleQuotationMark& self,
@@ -133,6 +140,7 @@ public:
 
     constexpr DoubleQuotationMark(::pltxt2htm::DoubleQuotationMark const&) noexcept = default;
     constexpr DoubleQuotationMark(::pltxt2htm::DoubleQuotationMark&&) noexcept = default;
+    constexpr ~DoubleQuotationMark() noexcept = default;
     constexpr ::pltxt2htm::DoubleQuotationMark& operator=(this ::pltxt2htm::DoubleQuotationMark& self,
                                                           ::pltxt2htm::DoubleQuotationMark const&) noexcept = delete;
     constexpr ::pltxt2htm::DoubleQuotationMark& operator=(this ::pltxt2htm::DoubleQuotationMark& self,

@@ -13,6 +13,8 @@ __pycache__/
 # release dir, $target-pltxt2htm-[debug|release]
 *-pltxt2htm*/
 
+lcov-report/
+
 *.xz
 *.tar
 *.zip
