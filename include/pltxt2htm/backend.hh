@@ -164,7 +164,28 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             break;
         }
         case ::pltxt2htm::NodeType::pl_user: {
-            //
+            auto user = reinterpret_cast<::pltxt2htm::User const*>(node.release_imul());
+            auto&& subast = user->get_subast();
+            if (subast.size() == 1) {
+                // <User=123><user=642cf37a494746375aae306a>physicsLab</user></User> can be
+                auto subnode = subast.index_unchecked(0).release_imul();
+                if (subnode->node_type() == ::pltxt2htm::NodeType::pl_user) {
+                    user = reinterpret_cast<::pltxt2htm::User const*>(subnode);
+                }
+            }
+            // Optimization: If the user is the same as the parent node, then ignore the nested tag.
+            bool const is_not_same_tag =
+                extern_node == nullptr || extern_node->node_type() != ::pltxt2htm::NodeType::pl_user ||
+                user->get_id() != reinterpret_cast<::pltxt2htm::User const*>(extern_node)->get_id();
+            if (is_not_same_tag) {
+                result.append(u8"<span class=\'RUser\' data-user=\'");
+                result.append(user->get_id());
+                result.append(u8"\'>");
+            }
+            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(user->get_subast(), host, user));
+            if (is_not_same_tag) {
+                result.append(u8"</span>");
+            }
             break;
         }
         case ::pltxt2htm::NodeType::pl_size: {

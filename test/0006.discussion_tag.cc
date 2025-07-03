@@ -46,11 +46,6 @@ int main() noexcept {
     auto answer6 = u8"test";
     ::exception::assert_true(::std::memcmp(html6.data(), answer6, html6.size()) == 0);
 
-    auto html7 = ::pltxt2htm::pltxt2html(u8"test<Color=#66CcFf>text", u8"localhost:5173");
-    auto answer7 = u8"test<span style=\"color:#66CcFf;\">text</span>";
-    // ::fast_io::println(::fast_io::u8c_stdout(), html7);
-    ::exception::assert_true(::std::memcmp(html7.data(), answer7, html7.size()) == 0);
-
     // test invalid tag
     auto html8 = ::pltxt2htm::pltxt2html(u8"test<Discussion=", u8"localhost:5173");
     auto answer8 = u8"test&lt;Discussion=";

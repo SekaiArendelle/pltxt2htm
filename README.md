@@ -44,7 +44,7 @@ And I strongly suggest you to add `-O2`, `-fno-ident`, `-fno-exceptions`, `-fno-
 ## features
 I am ensure any new features (like markdown extension) will break old Quantum Physics's text. However, compatibility is not the reason that we should stop our steps. Here are some features why I (or why I not) support:
 
-markdown extension based on https://spec.commonmark.org/0.31.2/
+markdown extension based on [commonmark](https://spec.commonmark.org/0.31.2/)
 
 * carriage return will be regarded as line break (unlike markdown, which requires 2 spaces before a carriage return to be considered a line break)
 * HTML's br tag is supported (&lt;br&gt;, &lt;BR&gt;, &lt;br/&gt;, &lt;br&nbsp;&nbsp;&nbsp;&gt;, &lt;br&nbsp;&nbsp;&nbsp;/&gt; will be regarded as line break)
@@ -52,6 +52,7 @@ markdown extension based on https://spec.commonmark.org/0.31.2/
 * Quantum-Physics's a tag is supported
 * Quantum-Physics's Discussion tag is supported
 * Quantum-Physics's Experiment tag is supported
+* Quantum-Physics's user tag is supported
 * Quantum-Physics&HTML's i tag is supported
 * Quantum-Physics&HTML's b tag is supported
 * HTML's &lt;h1&gt; tag is supported

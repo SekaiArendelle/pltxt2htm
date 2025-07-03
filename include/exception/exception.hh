@@ -91,6 +91,11 @@ constexpr void assert_false(bool cond) noexcept {
 
 template<typename T>
 struct unexpected {
+#if __has_cpp_attribute(no_unique_address)
+    [[no_unique_address]]
+#elif __has_cpp_attribute(msvc::no_unique_address)
+    [[msvc::no_unique_address]]
+#endif
     T val_{};
 };
 
@@ -382,12 +387,12 @@ public:
     }
 };
 
-struct nullopt_t {};
+struct nullopt_t_ {};
 
 template<typename T>
-using optional = ::exception::expected<T, ::exception::nullopt_t>;
+using optional = ::exception::expected<T, ::exception::nullopt_t_>;
 
-inline constexpr ::exception::unexpected<::exception::nullopt_t> nullopt{};
+using nullopt_t = ::exception::unexpected<::exception::nullopt_t_>;
 
 namespace details {
 

@@ -166,6 +166,41 @@ public:
     }
 };
 
+/**
+ * @brief User node
+ * @example - <user=xxx>...</user>
+ */
+class User : public ::pltxt2htm::details::PairedTagBase {
+    ::fast_io::u8string id_{};
+
+public:
+    constexpr User() noexcept = delete;
+
+    constexpr User(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast,
+                   ::fast_io::u8string&& id) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_user, ::std::move(subast)},
+          id_(::std::move(id)) {
+    }
+
+    constexpr User(::pltxt2htm::User const&) noexcept = delete;
+
+    constexpr User(::pltxt2htm::User&& other) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_user, ::std::move(other.subast_)},
+          id_(::std::move(other.id_)) {
+    }
+
+    constexpr ~User() noexcept = default;
+
+    constexpr ::pltxt2htm::User& operator=(this ::pltxt2htm::User& self, ::pltxt2htm::User const&) noexcept = delete;
+
+    constexpr ::pltxt2htm::User& operator=(this ::pltxt2htm::User& self, ::pltxt2htm::User&&) noexcept = delete;
+
+    [[nodiscard]]
+    constexpr auto&& get_id(this auto&& self) noexcept {
+        return ::std::forward_like<decltype(self)>(self.id_);
+    }
+};
+
 class I : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr I() noexcept = delete;
