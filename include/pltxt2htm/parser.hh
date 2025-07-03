@@ -214,6 +214,39 @@ constexpr bool is_valid_equal_sign_tag(::fast_io::u8string_view pltext, ::std::s
 }
 
 /**
+ * @brief try to parsing <br> tag from pltext
+ */
+template<bool ndebug>
+[[nodiscard]]
+constexpr bool try_parse_br_tag(::fast_io::u8string_view pltext, ::std::size_t& i) noexcept {
+    ::std::size_t const pltxt_size{pltext.size()};
+    if (::pltxt2htm::details::is_prefix_match<ndebug, u8'r'>(
+            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2)) == false) {
+        return false;
+    }
+    // parsing html <br> tag
+    ::std::size_t forward_index{i + 3};
+    while (true) {
+        char8_t const forward_chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index)};
+        if (forward_chr == u8'>') {
+            i = forward_index;
+            return true;
+        } else if (forward_chr == u8'/' && forward_index + 1 < pltxt_size &&
+                   ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index + 1) == u8'>') {
+            i = forward_index + 1;
+            return true;
+        } else if (forward_chr != u8' ') {
+            return false;
+        }
+        if (forward_index + 1 < pltxt_size) {
+            ++forward_index;
+        } else {
+            return false;
+        }
+    }
+}
+
+/**
  * @brief Parse pl-text to nodes.
  * @tparam ndebug: Whether disables all debug checks.
  * @param pltext: The text readed from Quantum-Physics.
@@ -304,33 +337,9 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                         result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::B>(::std::move(subast)));
                     }
                     goto complete_parsing_tag;
-                } else if (::pltxt2htm::details::is_prefix_match<ndebug, u8'r'>(
-                               ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2))) {
-                    // parsing html <br> tag
-                    ::std::size_t forward_index{i + 3};
-                    while (true) {
-                        char8_t const forward_chr{
-                            ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index)};
-                        if (forward_chr == u8'>') {
-                            i = forward_index;
-                            result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Br>{});
-                            goto complete_parsing_tag;
-                        } else if (forward_chr == u8'/' && forward_index + 1 < pltxt_size &&
-                                   ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index + 1) ==
-                                       u8'>') {
-                            i = forward_index + 1;
-                            result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Br>{});
-                            goto complete_parsing_tag;
-                        } else if (forward_chr != u8' ') {
-                            goto not_valid_tag;
-                        }
-                        if (forward_index + 1 < pltxt_size) {
-                            ++forward_index;
-                        } else {
-                            goto not_valid_tag;
-                        }
-                    }
-                    ::exception::unreachable<ndebug>();
+                } else if (::pltxt2htm::details::try_parse_br_tag<ndebug>(pltext, i)) {
+                    result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Br>(::pltxt2htm::Br()));
+                    goto complete_parsing_tag;
                 } else {
                     goto not_valid_tag;
                 }
