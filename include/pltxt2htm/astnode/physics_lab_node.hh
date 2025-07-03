@@ -201,6 +201,41 @@ public:
     }
 };
 
+/**
+ * @brief Size node
+ * @example - <size=xxx>...</size>
+ */
+class Size : public ::pltxt2htm::details::PairedTagBase {
+    ::std::size_t id_{};
+
+public:
+    constexpr Size() noexcept = delete;
+
+    constexpr Size(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast,
+                   ::std::size_t id) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_size, ::std::move(subast)},
+          id_(::std::move(id)) {
+    }
+
+    constexpr Size(::pltxt2htm::Size const&) noexcept = delete;
+
+    constexpr Size(::pltxt2htm::Size&& other) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_size, ::std::move(other.subast_)},
+          id_(::std::move(other.id_)) {
+    }
+
+    constexpr ~Size() noexcept = default;
+
+    constexpr ::pltxt2htm::Size& operator=(this ::pltxt2htm::Size& self, ::pltxt2htm::Size const&) noexcept = delete;
+
+    constexpr ::pltxt2htm::Size& operator=(this ::pltxt2htm::Size& self, ::pltxt2htm::Size&&) noexcept = delete;
+
+    [[nodiscard]]
+    constexpr auto&& get_id(this auto&& self) noexcept {
+        return ::std::forward_like<decltype(self)>(self.id_);
+    }
+};
+
 class I : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr I() noexcept = delete;

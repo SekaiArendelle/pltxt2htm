@@ -53,6 +53,7 @@ markdown extension based on [commonmark](https://spec.commonmark.org/0.31.2/)
 * Quantum-Physics's Discussion tag is supported
 * Quantum-Physics's Experiment tag is supported
 * Quantum-Physics's user tag is supported
+* Quantum-Physics's size tag is supported
 * Quantum-Physics&HTML's i tag is supported
 * Quantum-Physics&HTML's b tag is supported
 * HTML's &lt;h1&gt; tag is supported

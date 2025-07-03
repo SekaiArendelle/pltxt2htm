@@ -1,6 +1,6 @@
 #include <cstring>
-#include <pltxt2htm/pltxt2htm.hh>
 #include <exception/exception.hh>
+#include <pltxt2htm/pltxt2htm.hh>
 
 int main() noexcept {
     auto html = pltxt2htm::pltxt2html(u8"< >&\'\"", u8"localhost:5173");

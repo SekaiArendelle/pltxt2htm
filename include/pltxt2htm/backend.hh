@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cstdint>
 #include <exception/exception.hh>
 #include <fast_io/fast_io_dsal/vector.h>
@@ -21,6 +22,24 @@ enum class BackendText : ::std::uint_least32_t {
 };
 
 namespace details {
+
+constexpr ::fast_io::u8string size_t2str(::std::size_t num) noexcept {
+    if (num == 0) {
+        return ::fast_io::u8string{u8"0"};
+    }
+
+    ::fast_io::u8string result;
+
+    while (num > 0) {
+        char8_t digit = (num % 10) + u8'0';
+        result.push_back(digit);
+        num /= 10;
+    }
+
+    ::std::reverse(result.begin(), result.end());
+
+    return result;
+}
 
 /**
  * @brief Integrate ast nodes to HTML.
@@ -189,7 +208,28 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             break;
         }
         case ::pltxt2htm::NodeType::pl_size: {
-            //
+            auto size = reinterpret_cast<::pltxt2htm::Size const*>(node.release_imul());
+            auto&& subast = size->get_subast();
+            if (subast.size() == 1) {
+                // <size=123><size=642cf37a494746375aae306a>physicsLab</size></size> can be
+                auto subnode = subast.index_unchecked(0).release_imul();
+                if (subnode->node_type() == ::pltxt2htm::NodeType::pl_size) {
+                    size = reinterpret_cast<::pltxt2htm::Size const*>(subnode);
+                }
+            }
+            // Optimization: If the size is the same as the parent node, then ignore the nested tag.
+            bool const is_not_same_tag =
+                extern_node == nullptr || extern_node->node_type() != ::pltxt2htm::NodeType::pl_size ||
+                size->get_id() != reinterpret_cast<::pltxt2htm::Size const*>(extern_node)->get_id();
+            if (is_not_same_tag) {
+                result.append(u8"<span style=\"font-size:");
+                result.append(::pltxt2htm::details::size_t2str(size->get_id() / 2));
+                result.append(u8"px\">");
+            }
+            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(size->get_subast(), host, size));
+            if (is_not_same_tag) {
+                result.append(u8"</span>");
+            }
             break;
         }
         case ::pltxt2htm::NodeType::pl_b: {

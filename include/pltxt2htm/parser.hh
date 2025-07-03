@@ -247,6 +247,27 @@ constexpr bool try_parse_br_tag(::fast_io::u8string_view pltext, ::std::size_t& 
 }
 
 /**
+ * @brief Convert a string to a ::std::size_t.
+ */
+[[nodiscard]]
+constexpr ::exception::optional<std::size_t> u8str2size_t(::fast_io::u8string_view str) noexcept {
+    if (str.empty()) {
+        return ::exception::nullopt_t{};
+    }
+
+    ::std::size_t result{};
+    for (auto&& c : str) {
+        if (c < u8'0' || c > u8'9') {
+            return ::exception::nullopt_t{};
+        }
+
+        result = result * 10 + (c - '0');
+    }
+
+    return result;
+}
+
+/**
  * @brief Parse pl-text to nodes.
  * @tparam ndebug: Whether disables all debug checks.
  * @param pltext: The text readed from Quantum-Physics.
@@ -531,6 +552,33 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                 goto complete_parsing_tag;
             }
 
+            case u8's':
+                [[fallthrough]];
+            case u8'S': {
+                // parsing pl <size=$1>$2</size> tag
+                ::fast_io::u8string id_{};
+                if (::pltxt2htm::details::is_valid_equal_sign_tag<ndebug, u8'i', u8'z', u8'e'>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), i, id_) == false) {
+                    goto not_valid_tag;
+                }
+
+                auto id{::pltxt2htm::details::u8str2size_t(::fast_io::mnp::os_c_str(id_))};
+                if (!id.has_value()) {
+                    goto not_valid_tag;
+                }
+
+                if (i + 1 < pltxt_size) {
+                    // if forward_index + 1 >= pltxt_size, it means that a not closed tag in the end of the text
+                    // which does not make sense, can be opetimized(ignored) during parsing ast
+                    auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
+                        ::pltxt2htm::NodeType::pl_size, ::std::addressof(i));
+                    result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Size>(
+                        ::std::move(subast), ::std::move(id.template value<ndebug>())));
+                }
+                goto complete_parsing_tag;
+            }
+
             case u8'u':
                 [[fallthrough]];
             case u8'U': {
@@ -609,6 +657,17 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                 case ::pltxt2htm::NodeType::pl_user: {
                     // parsing </user>
                     if (::pltxt2htm::details::is_valid_bare_tag<ndebug, u8'u', u8's', u8'e', u8'r'>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), i) == false) {
+                        goto not_valid_tag;
+                    }
+                    if (extern_index != nullptr) {
+                        *extern_index += i + 1;
+                    }
+                    return result;
+                }
+                case ::pltxt2htm::NodeType::pl_size: {
+                    // parsing </size>
+                    if (::pltxt2htm::details::is_valid_bare_tag<ndebug, u8's', u8'i', u8'z', u8'e'>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), i) == false) {
                         goto not_valid_tag;
                     }
