@@ -214,37 +214,33 @@ constexpr bool is_valid_equal_sign_tag(::fast_io::u8string_view pltext, ::std::s
 }
 
 /**
- * @brief try to parsing <br> tag from pltext
+ * @brief try to parsing `<tag_name>` or `<tag_name/>`
+ * @param[in] pltext: source text
+ * @param[out] i: length of tag
+ * @return 0: fail; Otherwise: success
  */
-template<bool ndebug>
+template<bool ndebug, char8_t... tag_name>
 [[nodiscard]]
-constexpr bool try_parse_br_tag(::fast_io::u8string_view pltext, ::std::size_t& i) noexcept {
+constexpr ::std::size_t try_parse_self_closing_tag(::fast_io::u8string_view pltext) noexcept {
     ::std::size_t const pltxt_size{pltext.size()};
-    if (::pltxt2htm::details::is_prefix_match<ndebug, u8'r'>(
-            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2)) == false) {
-        return false;
+    if (::pltxt2htm::details::is_prefix_match<ndebug, tag_name...>(pltext) == false) {
+        return 0;
     }
-    // parsing html <br> tag
-    ::std::size_t forward_index{i + 3};
-    while (true) {
+
+    for (::std::size_t forward_index{sizeof...(tag_name)}; forward_index < pltxt_size; ++forward_index) {
         char8_t const forward_chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index)};
         if (forward_chr == u8'>') {
-            i = forward_index;
-            return true;
+            return forward_index;
         } else if (forward_chr == u8'/' && forward_index + 1 < pltxt_size &&
                    ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index + 1) == u8'>') {
-            i = forward_index + 1;
-            return true;
+            return forward_index + 1;
         } else if (forward_chr != u8' ') {
-            return false;
-        }
-        if (forward_index + 1 < pltxt_size) {
-            ++forward_index;
-        } else {
-            return false;
+            return 0;
         }
     }
+    return 0;
 }
+
 
 /**
  * @brief Convert a string to a ::std::size_t.
@@ -358,7 +354,9 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                         result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::B>(::std::move(subast)));
                     }
                     goto complete_parsing_tag;
-                } else if (::pltxt2htm::details::try_parse_br_tag<ndebug>(pltext, i)) {
+                } else if (::std::size_t tag_len = ::pltxt2htm::details::try_parse_self_closing_tag<ndebug, u8'r'>(
+                               ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2))) {
+                    i += tag_len + 2;
                     result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Br>(::pltxt2htm::Br()));
                     goto complete_parsing_tag;
                 } else {
@@ -391,7 +389,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
             case u8'd':
                 [[fallthrough]];
             case u8'D': {
-                if (::pltxt2htm::details::is_valid_bare_tag<ndebug, u8'e', u8'l'>(::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), i)) {
+                if (::pltxt2htm::details::is_valid_bare_tag<ndebug, u8'e', u8'l'>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), i)) {
                     // parsing <del>$1</del>
                     if (i + 1 < pltxt_size) {
                         // if forward_index + 1 >= pltxt_size, it means that a not closed tag in the end of the text
