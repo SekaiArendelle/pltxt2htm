@@ -292,7 +292,7 @@ public:
 };
 
 /**
- * @brief Represents HTML `<h6>`.
+ * @brief Represents HTML `<p>`.
  */
 class P : public ::pltxt2htm::details::PairedTagBase {
 public:
@@ -313,6 +313,30 @@ public:
     constexpr ::pltxt2htm::P& operator=(this ::pltxt2htm::P& self, ::pltxt2htm::P const&) noexcept = delete;
 
     constexpr ::pltxt2htm::P& operator=(this ::pltxt2htm::P& self, ::pltxt2htm::P&&) noexcept = delete;
+};
+
+/**
+ * @brief Represents HTML `<del>`.
+ */
+class Del : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr Del() noexcept = delete;
+
+    constexpr Del(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_del, ::std::move(subast)} {
+    }
+
+    constexpr Del(::pltxt2htm::Del const&) noexcept = delete;
+
+    constexpr Del(::pltxt2htm::Del&& other) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_del, ::std::move(other.subast_)} {
+    }
+
+    constexpr ~Del() noexcept = default;
+
+    constexpr ::pltxt2htm::Del& operator=(this ::pltxt2htm::Del& self, ::pltxt2htm::Del const&) noexcept = delete;
+
+    constexpr ::pltxt2htm::Del& operator=(this ::pltxt2htm::Del& self, ::pltxt2htm::Del&&) noexcept = delete;
 };
 
 } // namespace pltxt2htm

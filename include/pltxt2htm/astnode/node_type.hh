@@ -57,6 +57,8 @@ enum class NodeType : ::std::uint_least32_t {
     html_h4,
     html_h5,
     html_h6,
+    // strikethrough
+    html_del,
 
     // latex
     // latex,

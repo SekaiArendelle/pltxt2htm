@@ -8,6 +8,7 @@
 #include <fast_io/fast_io_dsal/string_view.h>
 #include "astnode/node_type.hh"
 #include "astnode/basic.hh"
+#include "astnode/html_node.hh"
 #include "astnode/physics_lab_node.hh"
 #include "heap_guard.hh"
 #include "pltxt2htm/astnode/node_type.hh"
@@ -233,7 +234,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             break;
         }
         case ::pltxt2htm::NodeType::pl_b: {
-            auto b = reinterpret_cast<::pltxt2htm::I const*>(node.release_imul());
+            auto b = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             bool const is_not_same_tag =
                 extern_node == nullptr || extern_node->node_type() != ::pltxt2htm::NodeType::pl_b;
             if (is_not_same_tag) {
@@ -246,7 +247,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             break;
         }
         case ::pltxt2htm::NodeType::pl_i: {
-            auto i = reinterpret_cast<::pltxt2htm::I const*>(node.release_imul());
+            auto i = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             bool const is_not_same_tag =
                 extern_node == nullptr || extern_node->node_type() != ::pltxt2htm::NodeType::pl_i;
             if (is_not_same_tag) {
@@ -259,7 +260,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             break;
         }
         case ::pltxt2htm::NodeType::html_p: {
-            auto p = reinterpret_cast<::pltxt2htm::I const*>(node.release_imul());
+            auto p = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             bool const is_not_same_tag =
                 extern_node == nullptr || extern_node->node_type() != ::pltxt2htm::NodeType::html_p;
             if (is_not_same_tag) {
@@ -280,7 +281,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             break;
         }
         case ::pltxt2htm::NodeType::html_h1: {
-            auto h1 = reinterpret_cast<::pltxt2htm::I const*>(node.release_imul());
+            auto h1 = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             bool const is_not_same_tag =
                 extern_node == nullptr || extern_node->node_type() != ::pltxt2htm::NodeType::html_h1;
             if (is_not_same_tag) {
@@ -293,7 +294,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             break;
         }
         case ::pltxt2htm::NodeType::html_h2: {
-            auto h2 = reinterpret_cast<::pltxt2htm::I const*>(node.release_imul());
+            auto h2 = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             bool const is_not_same_tag =
                 extern_node == nullptr || extern_node->node_type() != ::pltxt2htm::NodeType::html_h2;
             if (is_not_same_tag) {
@@ -306,7 +307,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             break;
         }
         case ::pltxt2htm::NodeType::html_h3: {
-            auto h3 = reinterpret_cast<::pltxt2htm::I const*>(node.release_imul());
+            auto h3 = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             bool const is_not_same_tag =
                 extern_node == nullptr || extern_node->node_type() != ::pltxt2htm::NodeType::html_h3;
             if (is_not_same_tag) {
@@ -319,7 +320,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             break;
         }
         case ::pltxt2htm::NodeType::html_h4: {
-            auto h4 = reinterpret_cast<::pltxt2htm::I const*>(node.release_imul());
+            auto h4 = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             bool const is_not_same_tag =
                 extern_node == nullptr || extern_node->node_type() != ::pltxt2htm::NodeType::html_h4;
             if (is_not_same_tag) {
@@ -332,7 +333,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             break;
         }
         case ::pltxt2htm::NodeType::html_h5: {
-            auto h5 = reinterpret_cast<::pltxt2htm::I const*>(node.release_imul());
+            auto h5 = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             bool const is_not_same_tag =
                 extern_node == nullptr || extern_node->node_type() != ::pltxt2htm::NodeType::html_h5;
             if (is_not_same_tag) {
@@ -345,7 +346,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             break;
         }
         case ::pltxt2htm::NodeType::html_h6: {
-            auto h6 = reinterpret_cast<::pltxt2htm::I const*>(node.release_imul());
+            auto h6 = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             bool const is_not_same_tag =
                 extern_node == nullptr || extern_node->node_type() != ::pltxt2htm::NodeType::html_h6;
             if (is_not_same_tag) {
@@ -354,6 +355,19 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(h6->get_subast(), host, h6));
             if (is_not_same_tag) {
                 result.append(u8"</h6>");
+            }
+            break;
+        }
+        case ::pltxt2htm::NodeType::html_del: {
+            auto del = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            bool const is_not_same_tag =
+                extern_node == nullptr || extern_node->node_type() != ::pltxt2htm::NodeType::html_del;
+            if (is_not_same_tag) {
+                result.append(u8"<del>");
+            }
+            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(del->get_subast(), host, del));
+            if (is_not_same_tag) {
+                result.append(u8"</del>");
             }
             break;
         }
