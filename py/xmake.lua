@@ -8,13 +8,6 @@ option("py_bin_dir")
 option("py_include_dir")
 option("py_lib_dir")
 
--- function is_valid_py_lib_dir(dir)
---     for  _, a_file in ipairs(os.files(lib .. "/libpython*.so")) do
---         return true
---     end
---     return false
--- end
-
 target("pltxt2htm", function ()
     set_kind("shared")
     set_prefixname("")
@@ -34,6 +27,13 @@ target("pltxt2htm", function ()
 
     local py_bin_dir = nil
     on_config(function (target)
+        local is_valid_py_lib_dir = function(dir)
+            for  _, a_file in ipairs(os.files(dir .. "/libpython*.so")) do
+                return true
+            end
+            return false
+        end
+
         local toolchains = target:tool("cxx")
         if path.basename(toolchains) == "clang++" or path.basename(toolchains) == "clang" then
             target:add("shflags", "-fuse-ld=lld")
@@ -101,11 +101,7 @@ target("pltxt2htm", function ()
                     py_lib_dir = sys_usr_dir .. "/lib"
                 end
 
-                local is_valid_py_lib_dir = false
-                for  _, a_file in ipairs(os.files(py_lib_dir .. "/libpython*.so")) do
-                    is_valid_py_lib_dir = true
-                end
-                if not is_valid_py_lib_dir then
+                if not is_valid_py_lib_dir(py_lib_dir) then
                     py_lib_dir = sys_usr_dir .. "/lib/x86_64-linux-gnu"
                 end
             else
@@ -153,11 +149,7 @@ target("pltxt2htm", function ()
                 os.exit(1)
             end
         elseif is_plat("linux") then
-            local is_valid_py_lib_dir = false
-            for  _, a_file in ipairs(os.files(py_lib_dir .. "/libpython*.so")) do
-                is_valid_py_lib_dir = true
-            end
-            if not is_valid_py_lib_dir then
+            if not is_valid_py_lib_dir(py_lib_dir) then
                 print("error: libpython3 not found in " .. py_lib_dir)
                 os.exit(1)
             end

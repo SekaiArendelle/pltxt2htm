@@ -48,7 +48,7 @@ xmake config --plat=mingw --arch=x64 --toolchain=x86_64-windows-gnu-clang
 # you can specify the sysroot path by yourself (all triplets are supported):
 # xmake config --plat=mingw --arch=x64 --toolchain=x86_64-w64-mingw32-clang --sysroot=$YOUR_SYSROOT_PATH
 xmake build
-xmake install --output=$YOUR_INSTALL_PATH
+xmake install -o auto
 ```
 
 You can also add `--sysroot=$YOUR_SYSROOT_PATH` to `xmake config`, otherwise, clang will detect sysroot automatically if you have installed x86_64-w64-mingw32-native-gcc.
@@ -66,7 +66,7 @@ Download [sysroot](https://github.com/24bit-xjkp/toolchains/releases/download/ll
 ```sh
 xmake config --plat=mingw --arch=x64 --toolchain=x86_64-w64-mingw32-gcc
 xmake build
-xmake install --output=$YOUR_INSTALL_PATH
+xmake install -o auto
 ```
 
 ### x86_64-windows-msvc
@@ -77,7 +77,7 @@ xmake config --plat=windows --arch=x64 --toolchain=x86_64-windows-msvc-clang
 # or, specify --sysroot
 # xmake config --plat=windows --arch=x64 --toolchain=x86_64-windows-msvc-clang --sysroot=$YOUR_SYSROOT_PATH
 xmake build
-xmake install --output=$YOUR_INSTALL_PATH
+xmake install -o auto
 ```
 
 Download [windows-msvc-sysroot](https://github.com/trcrsired/windows-msvc-sysroot) at their.
@@ -88,7 +88,7 @@ Only clang supports this triplet.
 ```sh
 xmake config --plat=windows --arch=aarch64 --toolchain=aarch64-windows-msvc-clang --sysroot=$YOUR_SYSROOT_PATH
 xmake build
-xmake install --output=$YOUR_INSTALL_PATH
+xmake install -o auto
 ```
 
 Download [windows-msvc-sysroot](https://github.com/trcrsired/windows-msvc-sysroot) at their.
@@ -99,7 +99,7 @@ Only clang supports this triplet.
 ```sh
 xmake config --plat=windows --arch=i686 --toolchain=i686-windows-msvc-clang --sysroot=$YOUR_SYSROOT_PATH
 xmake build
-xmake install --output=$YOUR_INSTALL_PATH
+xmake install -o auto
 ```
 
 Download [windows-msvc-sysroot](https://github.com/trcrsired/windows-msvc-sysroot) at their.
@@ -110,14 +110,14 @@ Take ubuntu2004 for example (glibc v2.31):
 ```sh
 xmake config --plat=linux --arch=x64 --toolchain=x86_64-linux-gnu-clang --sysroot=$YOUR_SYSROOT_PATH
 xmake build
-xmake install --output=$YOUR_INSTALL_PATH
+xmake install -o auto
 ```
 
 You can also use `libunwind`, `libc++` and `compiler-rt` to build `pltxt2htm`
 ```sh
 xmake config --plat=linux --arch=x64 --toolchain=x86_64-linux-gnu-clang --unwindlib=libunwind --runtimes=c++_shared --rtlib=compiler-rt --sysroot=$YOUR_SYSROOT_PATH
 xmake build
-xmake install --output=$YOUR_INSTALL_PATH
+xmake install -o auto
 ```
 
 Download x86_64-ubuntu2004-linux-gnu-sysroot at [their](https://github.com/GoodenoughPhysicsLab/releases-for-ubuntu2004/releases/download/only-for-release/x86_64-ubuntu2004-gnu-sysroot.tar.xz)
@@ -129,7 +129,7 @@ Take aarch64-linux-android30 for example:
 ```sh
 xmake config --plat=android --arch=aarch64 --toolchain=aarch64-linux-android30-clang --sysroot=$YOUR_SYSROOT_PATH
 xmake build
-xmake install --output=$YOUR_INSTALL_PATH
+xmake install -o auto
 ```
 
 I downloaded aarch64-linux-android30-sysroot from [their](https://github.com/trcrsired/llvm-releases/releases/download/llvm21-20250518/aarch64-linux-android30.tar.xz) (you should extract aarch64-linux-android30.tar.xz, the sysroot is in aarch64-linux-android30/aarch64-linux-android30)
@@ -138,7 +138,7 @@ I downloaded aarch64-linux-android30-sysroot from [their](https://github.com/trc
 ```sh
 xmake config --plat=macosx --arch=aarch64 --toolchain=aarch64-apple-darwin24-clang --sysroot=$YOUR_SYSROOT_PATH
 xmake build
-xmake install --output=$YOUR_INSTALL_PATH
+xmake install -o auto
 ```
 
 Download aarch64-apple-darwin24-sysroot at [their](https://github.com/trcrsired/apple-darwin-sysroot/releases/download/20250207/aarch64-apple-darwin24.tar.xz)
@@ -147,7 +147,7 @@ Download aarch64-apple-darwin24-sysroot at [their](https://github.com/trcrsired/
 ```sh
 xmake config --plat=wasm --arch=wasm32 --toolchain=wasm32-wasip1-clang --sysroot=$YOUR_SYSROOT_PATH
 xmake build
-xmake install --output=$YOUR_INSTALL_PATH
+xmake install -o auto
 ```
 
 Download wasm-sysroot at [their](https://github.com/trcrsired/llvm-releases/releases/download/llvm21-20250518/wasm-sysroots.tar.xz)

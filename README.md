@@ -70,6 +70,10 @@ markdown extension based on [commonmark](https://spec.commonmark.org/0.31.2/)
 
 `pltxt2htm` only maintains the trunk, and the release versions are only snapshots.
 
+For linux users, please compile and install `pltxt2htm` (and I will never provide binaries for linux since there are tons of linux triplets caused by glibc, musl and architectures)
+
+Users should also compile and install the Python C-extension for pltxt2htm because I don't want to build thousands of versions of Python.
+
 ## others
 
 > Q: Is this the time to use C++20 module?

@@ -7,4 +7,5 @@ Build pltxt2htm to wasm that people can use it in javascript, requires `emcc`.
 cd js
 xmake config -p wasm -m [debug|release] --toolchain=emcc
 xmake build
+xmake install -o auto
 ```
