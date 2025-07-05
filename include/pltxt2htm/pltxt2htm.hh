@@ -6,6 +6,7 @@
 #include <exception/exception.hh>
 #include "parser.hh"
 #include "backend.hh"
+#include "version.hh"
 
 namespace pltxt2htm {
 

@@ -2,10 +2,10 @@
 #include <cstring>
 #include <cassert>
 #include <exception/exception.hh>
-#include <pltxt2htm/pltxt2htm.hh>
-#include "pltxt2htm/backend.hh"
-#include <fast_io/fast_io.h>
+#include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
+#include <fast_io/fast_io.h>
+#include <pltxt2htm/pltxt2htm.hh>
 
 constexpr ::fast_io::u8string_view usage{
     u8R"(Usage:
@@ -22,14 +22,14 @@ int main(int argc, char const* const* const argv)
 {
     if (argc == 1) {
         ::fast_io::print(
-            "version: 0.0.0\n"
-            "exception: "
+            "pltxt2htm\n"
+            "* C++ exception: "
 #if __cpp_exceptions >= 199711L
             "enable\n"
 #else
             "disable\n"
 #endif
-            "rtti: "
+            "* C++ rtti: "
 #if __cpp_rtti >= 199711L
             "enable\n"
 #else
@@ -102,7 +102,9 @@ int main(int argc, char const* const* const argv)
                     "version");
                 return 1;
             }
-            ::fast_io::println("pltxt2htm v0.0.0");
+            ::fast_io::println(::fast_io::concat_fast_io("pltxt2htm v", ::pltxt2htm::version::major, ".",
+                                                         ::pltxt2htm::version::minor, ".",
+                                                         ::pltxt2htm::version::patch));
             return 0;
         } else [[unlikely]] {
             ::fast_io::perrln("Unknown option: ", ::fast_io::mnp::os_c_str(argv[i]));

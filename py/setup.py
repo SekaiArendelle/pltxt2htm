@@ -32,7 +32,6 @@ class XMakeBuild(build_ext):
 
 setuptools.setup(
     name="pltxt2htm",
-    version="0.0.0",
     author="Arendelle",
     author_email="2381642961@qq.com",
     description="Parse Quantam-Physics's text to html",

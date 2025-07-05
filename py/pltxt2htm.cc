@@ -90,5 +90,15 @@ static struct PyModuleDef pltxt2htm_py_module = {
 };
 
 PyMODINIT_FUNC PyInit_pltxt2htm() noexcept {
-    return ::PyModule_Create(::std::addressof(pltxt2htm_py_module));
+    PyObject* m = ::PyModule_Create(::std::addressof(pltxt2htm_py_module));
+    if (m == nullptr) [[unlikely]] {
+        return nullptr;
+    }
+
+    ::PyModule_AddObject(
+        m, "__version__",
+        PyTuple_Pack(3, PyLong_FromLong(::pltxt2htm::version::major), PyLong_FromLong(::pltxt2htm::version::minor),
+                     PyLong_FromLong(::pltxt2htm::version::patch)));
+
+    return m;
 }

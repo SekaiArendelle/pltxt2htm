@@ -241,7 +241,6 @@ constexpr ::std::size_t try_parse_self_closing_tag(::fast_io::u8string_view plte
     return 0;
 }
 
-
 /**
  * @brief Convert a string to a ::std::size_t.
  */

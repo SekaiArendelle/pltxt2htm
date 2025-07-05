@@ -63,6 +63,12 @@ markdown extension based on [commonmark](https://spec.commonmark.org/0.31.2/)
 * HTML's &lt;h5&gt; tag is supported
 * HTML's &lt;h6&gt; tag is supported
 * HTML's &lt;p&gt; tag is supported
+* HTML's &lt;del&gt; tag is supported
+
+## distribution
+`cmd/`, `wasm/` and `py/` distributions share the same version of `pltxt2htm::version`
+
+`pltxt2htm` only maintains the trunk, and the release versions are only snapshots.
 
 ## others
 
