@@ -16,8 +16,6 @@ namespace pltxt2htm {
 
 namespace details {
 
-namespace {
-
 template<auto Func>
 [[nodiscard]]
 constexpr char8_t const* c_ptr_style_wrapper(char8_t const* const text, char8_t const* const host) noexcept(
@@ -32,8 +30,6 @@ constexpr char8_t const* c_ptr_style_wrapper(char8_t const* const text, char8_t 
     result[html.size()] = u8'\0';
     return result;
 }
-
-} // namespace
 
 } // namespace details
 

@@ -1,9 +1,5 @@
 #pragma once
 
-#if __cpp_explicit_this_parameter < 202110L
-    #error "`exception` requires at least C++23"
-#endif
-
 /**
  * @file exception.hh
  * @details https://github.com/GoodenoughPhysicsLab/exception.git
@@ -30,7 +26,7 @@ namespace exception {
 [[msvc::forceinline]]
 #endif
 [[noreturn]]
-constexpr void terminate() noexcept {
+inline void terminate() noexcept {
     // https://llvm.org/doxygen/Compiler_8h_source.html
 #if defined(__has_builtin) && __has_builtin(__builtin_trap)
     __builtin_trap();
@@ -49,7 +45,7 @@ template<bool ndebug = false>
 [[msvc::forceinline]]
 #endif
 [[noreturn]]
-constexpr void unreachable() noexcept {
+inline void unreachable() noexcept {
     if constexpr (ndebug) {
 #if defined(__GNUC__) || defined(__clang__)
         __builtin_unreachable();
