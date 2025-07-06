@@ -7,12 +7,20 @@
 #include <fast_io/fast_io.h>
 #include <pltxt2htm/pltxt2htm.hh>
 
+enum class TargetType : ::std::size_t {
+    indeterminate = 0,
+    advanced_html,
+    common_html,
+};
+
 constexpr ::fast_io::u8string_view usage{
     u8R"(Usage:
     pltxt2htm [-v|--version]
     pltxt2htm [-h|help]
-    pltxt2htm -i <input file> --host <host name>
-    pltxt2htm -i <input file> --host <host name> -o <output file>
+    pltxt2htm --target common_html -i <input file>
+    pltxt2htm --target common_html -i <input file> -o <output file>
+    pltxt2htm --target advanced_html -i <input file> --host <host name>
+    pltxt2htm --target advanced_html -i <input file> --host <host name> -o <output file>
 )"};
 
 int main(int argc, char const* const* const argv)
@@ -46,6 +54,8 @@ int main(int argc, char const* const* const argv)
         return 0;
     }
 
+    // target type
+    ::TargetType target_type = TargetType::indeterminate;
     // store input file path
     char8_t const* input_file_path = nullptr;
     // host prefix of physics-lab-web
@@ -75,6 +85,20 @@ int main(int argc, char const* const* const argv)
             }
             host = reinterpret_cast<char8_t const*>(argv[++i]);
             continue;
+        } else if (::std::strcmp(argv[i], "--target") == 0) {
+            if (i == static_cast<::std::size_t>(argc) - 1) [[unlikely]] {
+                ::fast_io::perrln("Missing target");
+                return 1;
+            }
+            if (::std::strcmp(argv[i + 1], "advanced_html") == 0) {
+                target_type = ::TargetType::advanced_html;
+            } else if (::std::strcmp(argv[i + 1], "common_html") == 0) {
+                target_type = ::TargetType::common_html;
+            } else {
+                ::fast_io::perrln("Invalid target: ", ::fast_io::mnp::os_c_str(argv[i + 1]));
+                return 1;
+            }
+            ++i;
         } else if (::std::strcmp(argv[i], "-o") == 0) {
             if (i == static_cast<::std::size_t>(argc) - 1) [[unlikely]] {
                 ::fast_io::perrln("You must specify output file after `-o`");
@@ -117,10 +141,27 @@ int main(int argc, char const* const* const argv)
         ::fast_io::println(::fast_io::u8c_stderr(), usage);
         return 1;
     }
-    if (host == nullptr) [[unlikely]] {
-        ::fast_io::perrln("** You must specify host name with `--host`");
-        ::fast_io::println(::fast_io::u8c_stderr(), usage);
+    switch (target_type) {
+    case ::TargetType::advanced_html: {
+        if (host == nullptr) [[unlikely]] {
+            ::fast_io::perrln("** You must specify host name with `--host`");
+            ::fast_io::println(::fast_io::u8c_stderr(), usage);
+            return 1;
+        }
+        break;
+    }
+    case ::TargetType::common_html: {
+        if (host != nullptr) [[unlikely]] {
+            ::fast_io::perrln("** You can not specify host name with `--host` when `--target` is common_html");
+            ::fast_io::println(::fast_io::u8c_stderr(), usage);
+            return 1;
+        }
+        break;
+    }
+    case ::TargetType::indeterminate: {
+        ::fast_io::perrln("** You must specify target type with `--target`");
         return 1;
+    }
     }
 
 #if __cpp_exceptions >= 199711L
@@ -128,15 +169,34 @@ int main(int argc, char const* const* const argv)
 #endif // __cpp_exceptions >= 199711L
     {
         ::fast_io::native_file_loader loader(::fast_io::mnp::os_c_str(input_file_path));
-        // TODO can select BackendText in cmd interface
-        auto html = ::pltxt2htm::pltxt2html<
+
+        ::fast_io::u8string html;
+        if (target_type == ::TargetType::advanced_html) {
+            html = ::pltxt2htm::pltxt2advanced_html<
 #ifdef NDEBUG
-            ::pltxt2htm::BackendText::advanced_html, true
+                true
 #else
-            ::pltxt2htm::BackendText::advanced_html, false
+                false
 #endif
-            >(::fast_io::mnp::os_c_str(reinterpret_cast<char8_t const*>(loader.data())),
-              ::fast_io::mnp::os_c_str(host));
+                >(::fast_io::mnp::os_c_str(reinterpret_cast<char8_t const*>(loader.data())),
+                  ::fast_io::mnp::os_c_str(host));
+        } else if (target_type == ::TargetType::common_html) {
+            html = ::pltxt2htm::pltxt2common_html<
+#ifdef NDEBUG
+                true
+#else
+                false
+#endif
+                >(::fast_io::mnp::os_c_str(reinterpret_cast<char8_t const*>(loader.data())));
+        } else {
+            ::exception::unreachable<
+#ifdef NDEBUG
+                true
+#else
+                false
+#endif
+                >();
+        }
         if (output_file_path == nullptr) {
             ::fast_io::println(::fast_io::u8c_stdout(), html);
         } else {

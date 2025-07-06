@@ -1,28 +1,17 @@
 #pragma once
 
 #include <algorithm>
-#include <cstdint>
 #include <exception/exception.hh>
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
-#include "astnode/node_type.hh"
-#include "astnode/basic.hh"
-#include "astnode/html_node.hh"
-#include "astnode/physics_lab_node.hh"
-#include "heap_guard.hh"
-#include "pltxt2htm/astnode/node_type.hh"
+#include "../astnode/node_type.hh"
+#include "../astnode/basic.hh"
+#include "../astnode/html_node.hh"
+#include "../astnode/physics_lab_node.hh"
+#include "../heap_guard.hh"
 
-#include "push_macro.hh"
-
-namespace pltxt2htm {
-
-enum class BackendText : ::std::uint_least32_t {
-    advanced_html = 0,
-    common_html,
-};
-
-namespace details {
+namespace pltxt2htm::details {
 
 constexpr ::fast_io::u8string size_t2str(::std::size_t num) noexcept {
     if (num == 0) {
@@ -46,18 +35,14 @@ constexpr ::fast_io::u8string size_t2str(::std::size_t num) noexcept {
  * @brief Integrate ast nodes to HTML.
  * @tparam ndebug: true  -> release mode, disables most of the checks which is unsafe but fast
  *                 false -> debug mode, enables most of the checks
- * @tparam T: you should not pass this param because the compiler can infer it automatically.
- * @note tparam T should not be marked const, that's the reason why I use `remove_reference_t`
  * @param [in] ast: Ast of Quantum-Physics's text
- * @param [in] extern_node_type: The type of the parent node (extern_node).
-                                 If extern_node_type is ::pltxt2htm::NodeType::base,
-                                 the current node is the root node (no parent node).
  * @param [in] extern_node: The pointer of parent node
  */
-template<BackendText backend_text, bool ndebug>
+template<bool ndebug>
 [[nodiscard]]
-constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> const& ast,
-                        ::fast_io::u8string_view host, ::pltxt2htm::PlTxtNode const* const extern_node = nullptr)
+constexpr auto ast2advanced_html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> const& ast,
+                                 ::fast_io::u8string_view host,
+                                 ::pltxt2htm::PlTxtNode const* const extern_node = nullptr)
 #if __cpp_exceptions < 199711L
     noexcept
 #endif
@@ -118,7 +103,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
                 result.append(color->get_color());
                 result.append(u8";\">");
             }
-            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(subast, host, color));
+            result.append(::pltxt2htm::details::ast2advanced_html<ndebug>(subast, host, color));
             if (is_not_same_tag) {
                 result.append(u8"</span>");
             }
@@ -147,7 +132,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
                 result.append(experiment->get_id());
                 result.append(u8"\" internal>");
             }
-            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(subast, host, experiment));
+            result.append(::pltxt2htm::details::ast2advanced_html<ndebug>(subast, host, experiment));
             if (is_not_same_tag) {
                 result.append(u8"</a>");
             }
@@ -176,8 +161,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
                 result.append(discussion->get_id());
                 result.append(u8"\" internal>");
             }
-            result.append(
-                ::pltxt2htm::details::ast2html<backend_text, ndebug>(discussion->get_subast(), host, discussion));
+            result.append(::pltxt2htm::details::ast2advanced_html<ndebug>(discussion->get_subast(), host, discussion));
             if (is_not_same_tag) {
                 result.append(u8"</a>");
             }
@@ -202,7 +186,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
                 result.append(user->get_id());
                 result.append(u8"\'>");
             }
-            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(user->get_subast(), host, user));
+            result.append(::pltxt2htm::details::ast2advanced_html<ndebug>(user->get_subast(), host, user));
             if (is_not_same_tag) {
                 result.append(u8"</span>");
             }
@@ -227,7 +211,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
                 result.append(::pltxt2htm::details::size_t2str(size->get_id() / 2));
                 result.append(u8"px\">");
             }
-            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(size->get_subast(), host, size));
+            result.append(::pltxt2htm::details::ast2advanced_html<ndebug>(size->get_subast(), host, size));
             if (is_not_same_tag) {
                 result.append(u8"</span>");
             }
@@ -240,7 +224,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             if (is_not_same_tag) {
                 result.append(u8"<b>");
             }
-            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(b->get_subast(), host, b));
+            result.append(::pltxt2htm::details::ast2advanced_html<ndebug>(b->get_subast(), host, b));
             if (is_not_same_tag) {
                 result.append(u8"</b>");
             }
@@ -253,7 +237,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             if (is_not_same_tag) {
                 result.append(u8"<i>");
             }
-            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(i->get_subast(), host, i));
+            result.append(::pltxt2htm::details::ast2advanced_html<ndebug>(i->get_subast(), host, i));
             if (is_not_same_tag) {
                 result.append(u8"</i>");
             }
@@ -266,7 +250,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             if (is_not_same_tag) {
                 result.append(u8"<p>");
             }
-            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(p->get_subast(), host, p));
+            result.append(::pltxt2htm::details::ast2advanced_html<ndebug>(p->get_subast(), host, p));
             if (is_not_same_tag) {
                 result.append(u8"</p>");
             }
@@ -275,9 +259,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
         case ::pltxt2htm::NodeType::line_break:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_br: {
-            if constexpr (backend_text == ::pltxt2htm::BackendText::advanced_html) {
-                result.append(u8"<br>");
-            }
+            result.append(u8"<br>");
             break;
         }
         case ::pltxt2htm::NodeType::html_h1: {
@@ -287,7 +269,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             if (is_not_same_tag) {
                 result.append(u8"<h1>");
             }
-            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(h1->get_subast(), host, h1));
+            result.append(::pltxt2htm::details::ast2advanced_html<ndebug>(h1->get_subast(), host, h1));
             if (is_not_same_tag) {
                 result.append(u8"</h1>");
             }
@@ -300,7 +282,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             if (is_not_same_tag) {
                 result.append(u8"<h2>");
             }
-            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(h2->get_subast(), host, h2));
+            result.append(::pltxt2htm::details::ast2advanced_html<ndebug>(h2->get_subast(), host, h2));
             if (is_not_same_tag) {
                 result.append(u8"</h2>");
             }
@@ -313,7 +295,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             if (is_not_same_tag) {
                 result.append(u8"<h3>");
             }
-            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(h3->get_subast(), host, h3));
+            result.append(::pltxt2htm::details::ast2advanced_html<ndebug>(h3->get_subast(), host, h3));
             if (is_not_same_tag) {
                 result.append(u8"</h3>");
             }
@@ -326,7 +308,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             if (is_not_same_tag) {
                 result.append(u8"<h4>");
             }
-            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(h4->get_subast(), host, h4));
+            result.append(::pltxt2htm::details::ast2advanced_html<ndebug>(h4->get_subast(), host, h4));
             if (is_not_same_tag) {
                 result.append(u8"</h4>");
             }
@@ -339,7 +321,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             if (is_not_same_tag) {
                 result.append(u8"<h5>");
             }
-            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(h5->get_subast(), host, h5));
+            result.append(::pltxt2htm::details::ast2advanced_html<ndebug>(h5->get_subast(), host, h5));
             if (is_not_same_tag) {
                 result.append(u8"</h5>");
             }
@@ -352,7 +334,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             if (is_not_same_tag) {
                 result.append(u8"<h6>");
             }
-            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(h6->get_subast(), host, h6));
+            result.append(::pltxt2htm::details::ast2advanced_html<ndebug>(h6->get_subast(), host, h6));
             if (is_not_same_tag) {
                 result.append(u8"</h6>");
             }
@@ -365,7 +347,7 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
             if (is_not_same_tag) {
                 result.append(u8"<del>");
             }
-            result.append(::pltxt2htm::details::ast2html<backend_text, ndebug>(del->get_subast(), host, del));
+            result.append(::pltxt2htm::details::ast2advanced_html<ndebug>(del->get_subast(), host, del));
             if (is_not_same_tag) {
                 result.append(u8"</del>");
             }
@@ -385,30 +367,4 @@ constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltx
     return result;
 }
 
-} // namespace details
-
-/**
- * @brief Integrate ast nodes to HTML.
- * @tparam ndebug: true  -> release mode, disables most of the checks which is unsafe but fast
- *                 false -> debug mode, enables most of the checks
- * @tparam T: you should not pass this param because the compiler can infer it automatically.
- * @note tparam T should not be marked const, that's the reason why I use `remove_reference_t`
- * @tparam backend_text: text type that backend generates
- * @param [in] ast: Ast of Quantum-Physics's text
- * @param [in] host: host of plweb
- * @return generated backend text
- */
-template<BackendText backend_text, bool ndebug>
-[[nodiscard]]
-constexpr auto ast2html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> const& ast,
-                        ::fast_io::u8string_view host)
-#if __cpp_exceptions < 199711L
-    noexcept
-#endif
-    -> ::fast_io::u8string {
-    return ::pltxt2htm::details::ast2html<backend_text, ndebug>(ast, host);
-}
-
-} // namespace pltxt2htm
-
-#include "pop_macro.hh"
+} // namespace pltxt2htm::details

@@ -3,19 +3,19 @@
 #include <exception/exception.hh>
 
 int main() noexcept {
-    auto html1 =
-        ::pltxt2htm::pltxt2html(u8"<experiment=642cf37a494746375aae306a>physicsLab</experiment>", u8"localhost:5173");
+    auto html1 = ::pltxt2htm::pltxt2advanced_html(u8"<experiment=642cf37a494746375aae306a>physicsLab</experiment>",
+                                                  u8"localhost:5173");
     auto answer1 =
         u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/642cf37a494746375aae306a\" internal>physicsLab</a>";
     ::exception::assert_true(::std::memcmp(html1.data(), answer1, html1.size()) == 0);
 
-    auto html2 = ::pltxt2htm::pltxt2html(u8"<expEriMent=642cf37a494746375aae306a      >physicsLab</EXPERIMENT      >",
-                                         u8"localhost:5173");
+    auto html2 = ::pltxt2htm::pltxt2advanced_html(
+        u8"<expEriMent=642cf37a494746375aae306a      >physicsLab</EXPERIMENT      >", u8"localhost:5173");
     auto answer2 =
         u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/642cf37a494746375aae306a\" internal>physicsLab</a>";
     ::exception::assert_true(::std::memcmp(html2.data(), answer2, html2.size()) == 0);
 
-    auto html3 = ::pltxt2htm::pltxt2html(
+    auto html3 = ::pltxt2htm::pltxt2advanced_html(
         u8R"(
 <Experiment=642cf37a494746375aae306a      >te
  xt</EXPERIMENT      >
@@ -26,7 +26,7 @@ int main() noexcept {
         u8"internal>te<br>&nbsp;xt</a><br>";
     ::exception::assert_true(::std::memcmp(html3.data(), answer3, html3.size()) == 0);
 
-    auto html4 = ::pltxt2htm::pltxt2html(
+    auto html4 = ::pltxt2htm::pltxt2advanced_html(
         u8"<Experiment=642cf37a494746375aae306a><experiment=642cf37a494746375aae306a>physicsLab</experiment></"
         u8"experiment>",
         u8"localhost:5173");
@@ -35,23 +35,23 @@ int main() noexcept {
     ;
     ::exception::assert_true(::std::memcmp(html4.data(), answer4, html4.size()) == 0);
 
-    auto html5 = ::pltxt2htm::pltxt2html(
+    auto html5 = ::pltxt2htm::pltxt2advanced_html(
         u8"<Experiment=123><experiment=642cf37a494746375aae306a>physicsLab</experiment></Experiment>",
         u8"localhost:5173");
     auto answer5 =
         u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/642cf37a494746375aae306a\" internal>physicsLab</a>";
     ::exception::assert_true(::std::memcmp(html5.data(), answer5, html5.size()) == 0);
 
-    auto html6 = ::pltxt2htm::pltxt2html(u8"test<eXperiment=>", u8"localhost:5173");
+    auto html6 = ::pltxt2htm::pltxt2advanced_html(u8"test<eXperiment=>", u8"localhost:5173");
     auto answer6 = u8"test";
     ::exception::assert_true(::std::memcmp(html6.data(), answer6, html6.size()) == 0);
 
     // test invalid tag
-    auto html8 = ::pltxt2htm::pltxt2html(u8"test<experiment=", u8"localhost:5173");
+    auto html8 = ::pltxt2htm::pltxt2advanced_html(u8"test<experiment=", u8"localhost:5173");
     auto answer8 = u8"test&lt;experiment=";
     ::exception::assert_true(::std::memcmp(html8.data(), answer8, html8.size()) == 0);
 
-    auto html9 = ::pltxt2htm::pltxt2html(
+    auto html9 = ::pltxt2htm::pltxt2advanced_html(
         u8"<experiment=642cf37a494746375aae306a>text<experiment=642cf37a494746375aae306a>text</experiment></"
         u8"experiment>",
         u8"localhost:5173");
@@ -59,7 +59,7 @@ int main() noexcept {
         u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/642cf37a494746375aae306a\" internal>texttext</a>";
     ::exception::assert_true(::std::memcmp(html9.data(), answer9, html9.size()) == 0);
 
-    auto html10 = ::pltxt2htm::pltxt2html(
+    auto html10 = ::pltxt2htm::pltxt2advanced_html(
         u8"<experiment=642cf37a494746375aae306a>physics<experiment=123>L</experiment>ab</experiment>",
         u8"localhost:5173");
     auto answer10 =

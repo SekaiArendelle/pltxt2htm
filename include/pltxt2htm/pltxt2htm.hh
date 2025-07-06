@@ -5,7 +5,8 @@
 #include <fast_io/fast_io_dsal/string_view.h>
 #include <exception/exception.hh>
 #include "parser.hh"
-#include "backend.hh"
+#include "backend/advanced_html.hh"
+#include "backend/common_html.hh"
 #include "version.hh"
 
 namespace pltxt2htm {
@@ -16,14 +17,24 @@ namespace pltxt2htm {
  * @tparam ndebug: show explanation in README.md Q/A
  * @param pltext The text of Quantum Physics.
  */
-template<::pltxt2htm::BackendText backend_text = ::pltxt2htm::BackendText::advanced_html, bool ndebug = false>
+template<bool ndebug = false>
 [[nodiscard]]
-constexpr auto pltxt2html(::fast_io::u8string_view pltext, ::fast_io::u8string_view host)
+constexpr auto pltxt2advanced_html(::fast_io::u8string_view pltext, ::fast_io::u8string_view host)
 #if __cpp_exceptions < 199711L
     noexcept
 #endif
 {
-    return ::pltxt2htm::ast2html<backend_text, ndebug>(::pltxt2htm::parse_pltxt<ndebug>(pltext), host);
+    return ::pltxt2htm::details::ast2advanced_html<ndebug>(::pltxt2htm::parse_pltxt<ndebug>(pltext), host);
+}
+
+template<bool ndebug = false>
+[[nodiscard]]
+constexpr auto pltxt2common_html(::fast_io::u8string_view pltext)
+#if __cpp_exceptions < 199711L
+    noexcept
+#endif
+{
+    return ::pltxt2htm::details::ast2common_html<ndebug>(::pltxt2htm::parse_pltxt<ndebug>(pltext));
 }
 
 } // namespace pltxt2htm
