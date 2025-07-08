@@ -56,7 +56,12 @@ target("pltxt2htm", function ()
 
         local get_py_install_dir = function (py_bin_dir)
             if is_plat("windows", "mingw") then
-                return py_bin_dir
+                if path.basename(py_bin_dir) == "Scripts" then
+                    -- found python in virtual environment on windows
+                    return path.directory(py_bin_dir)
+                else
+                    return py_bin_dir
+                end
             elseif is_plat("linux") then
                 local sys_usr_dir = get_sys_usr_dir()
 
@@ -240,7 +245,11 @@ target("pltxt2htm", function ()
         local py_install_dir = get_py_install_dir(py_bin_dir)
         if os.exists(py_install_dir .. "/pyvenv.cfg") and os.isfile(py_install_dir .. "/pyvenv.cfg") then
             -- if detect python in venv, rectify the install dir
-            py_install_dir = get_py_install_dir(parse_pyvenv_cfg(py_install_dir .. "/pyvenv.cfg")["home"])
+            local real_py_install_dir = parse_pyvenv_cfg(py_install_dir .. "/pyvenv.cfg")["home"]
+            if real_py_install_dir then
+                print("Found python in venv, rectify python install dir to " .. real_py_install_dir)
+                py_install_dir = get_py_install_dir(real_py_install_dir)
+            end
         end
 
         local py_include_dir, py_lib_dir = detect_py_include_and_lib_dir(py_install_dir)
