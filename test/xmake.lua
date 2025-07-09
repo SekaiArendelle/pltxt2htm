@@ -19,9 +19,15 @@ for _, file in ipairs(os.files("*.cc")) do
         add_cxxflags("-Werror=return-type", {tool = {"gcc", "clang"}})
         add_cxxflags("-Werror=switch", {tool = {"gcc", "clang"}})
         add_cxxflags("-Werror=implicit-fallthrough", {tool = {"gcc", "clang"}})
-        add_ldflags("-fuse-ld=lld", {force = true, tool = "clang"})
         if is_plat("windows") or is_plat("mingw") then
             add_syslinks("ntdll")
         end
+
+        on_config(function (target)
+            local toolchains = target:tool("cxx")
+            if path.basename(toolchains) == "clang++" or path.basename(toolchains) == "clang" then
+                target:add("ldflags", "-fuse-ld=lld")
+            end
+        end)
     end)
 end

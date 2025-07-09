@@ -20,7 +20,7 @@ show other snitizers in [xmake doc](https://xmake.io/api/description/builtin-pol
 
 ## enable codecov
 ```sh
-xmake config --mode=coverage
+xmake config --mode=coverage --toolchain=gcc
 xmake test
 lcov --capture --directory build/.objs --output-file build/coverage.info --exclude "*/fast_io/*" --exclude "*/exception/*" --exclude "*/c++/*"
 genhtml build/coverage.info --output-directory lcov-report
