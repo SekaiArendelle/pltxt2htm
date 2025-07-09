@@ -12,7 +12,7 @@ target("pltxt2htm", function ()
     set_kind("shared")
     set_prefixname("")
     add_files("pltxt2htm.cc")
-    add_includedirs("../include")
+    add_includedirs("$(projectdir)/../include")
     set_exceptions("no-cxx")
     if is_plat("windows", "mingw") then
         add_links("ntdll")
@@ -215,7 +215,7 @@ target("pltxt2htm", function ()
         end
         if path.basename(toolchains) == "clang++" or path.basename(toolchains) == "clang" then
             target:add("shflags", "-fuse-ld=lld")
-            target:add("shflags", "-flto=full")
+            target:add("shflags", "-flto")
         end
 
         -- if python install dir have been passed in console
