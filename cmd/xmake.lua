@@ -7,9 +7,7 @@ set_encodings("utf-8")
 target("pltxt2htm", function()
     set_kind("binary")
     add_files("pltxt2htm.cc")
-    add_includedirs("../include")
-
-    add_ldflags("-fuse-ld=lld", {force = true, tool = "clangxx"})
+    add_includedirs("$(projectdir)/../include")
 
     if is_plat("windows") or is_plat("mingw") then
         add_syslinks("ntdll")
@@ -17,14 +15,28 @@ target("pltxt2htm", function()
 
     if is_mode("release") then
         set_exceptions("no-cxx")
-        add_cxxflags("-fno-rtti", {tools = {"clangxx", "gcc"}})
-        add_cxxflags("-fno-unwind-tables", {tools = {"clangxx", "gcc"}})
-        add_cxxflags("-fno-asynchronous-unwind-tables", {tools = {"clangxx", "gcc"}})
-        add_cxxflags("-fno-ident", {tools = {"clangxx", "gcc"}})
     elseif is_mode("debug") then
         set_warnings("all")
         set_warnings("extra")
     end
+
+    on_config(function (target)
+        local toolchains = target:tool("cxx")
+        if path.basename(toolchains) == "clang++" or path.basename(toolchains) == "clang" then
+            target:add("ldflags", "-fuse-ld=lld")
+            target:add("ldflags", "-flto")
+        end
+
+        if is_mode("release") and path.basename(toolchains) == "clang++"
+                or path.basename(toolchains) == "clang"
+                or path.basename(toolchains) == "gcc"
+                or path.basename(toolchains) == "g++" then
+            target:add("cxxflags", "-fno-rtti")
+            target:add("cxxflags", "-fno-unwind-tables")
+            target:add("cxxflags", "-fno-asynchronous-unwind-tables")
+            target:add("cxxflags", "-fno-ident")
+        end
+    end)
 
     on_install(function (target)
         import("utility.utility", {rootdir = target:scriptdir() .. "/../xmake"})

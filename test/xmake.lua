@@ -15,7 +15,7 @@ for _, file in ipairs(os.files("*.cc")) do
         add_files(name .. ".cc")
         set_warnings("all", "extra")
         add_tests("default")
-        add_includedirs("../include")
+        add_includedirs("$(projectdir)/../include")
         add_cxxflags("-Werror=return-type", {tool = {"gcc", "clang"}})
         add_cxxflags("-Werror=switch", {tool = {"gcc", "clang"}})
         add_cxxflags("-Werror=implicit-fallthrough", {tool = {"gcc", "clang"}})
