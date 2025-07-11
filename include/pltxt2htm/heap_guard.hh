@@ -45,16 +45,12 @@ public:
     template<typename... Args>
         requires (((!::pltxt2htm::details::is_heap_guard<Args>) && ...) && ::std::constructible_from<T, Args...>)
     constexpr HeapGuard(Args&&... args) noexcept {
-        if consteval {
-            this->ptr_ = new T(::std::forward<Args>(args)...);
-        } else {
-            this->ptr_ = reinterpret_cast<T*>(::std::malloc(sizeof(T)));
-            if (this->ptr_ == nullptr) [[unlikely]] {
-                // bad alloc should never be an exception or err_code
-                ::exception::terminate();
-            }
-            ::std::construct_at(this->ptr_, ::std::forward<Args>(args)...);
+        this->ptr_ = reinterpret_cast<T*>(::std::malloc(sizeof(T)));
+        if (this->ptr_ == nullptr) [[unlikely]] {
+            // bad alloc should never be an exception or err_code
+            ::exception::terminate();
         }
+        ::std::construct_at(this->ptr_, ::std::forward<Args>(args)...);
     }
 
 #if 1
@@ -102,12 +98,16 @@ public:
 
     constexpr ~HeapGuard() noexcept {
         if (ptr_ != nullptr) {
-            ::std::destroy_at(ptr_);
-            ::std::free(ptr_);
+            ::std::destroy_at(this->ptr_);
+            ::std::free(this->ptr_);
         }
     }
 
-    constexpr T* operator->(this HeapGuard<T> const& self) noexcept {
+    constexpr T* operator->(this auto&& self) noexcept {
+        return self.ptr_;
+    }
+
+    constexpr T const* operator->(this HeapGuard<T> const& self) noexcept {
         return self.ptr_;
     }
 
