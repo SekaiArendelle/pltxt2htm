@@ -11,6 +11,7 @@ for _, file in ipairs(os.files("*.cc")) do
     target(name, function ()
         set_symbols("debug")
         set_kind("binary")
+        set_exceptions("cxx")
         set_default(false)
         add_files(name .. ".cc")
         set_warnings("all", "extra")
