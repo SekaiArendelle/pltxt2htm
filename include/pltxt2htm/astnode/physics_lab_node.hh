@@ -31,7 +31,7 @@ public:
           color_(::std::move(color)) {
     }
 
-    constexpr Color(::pltxt2htm::Color const&) noexcept = delete;
+    constexpr Color(::pltxt2htm::Color const&) noexcept = default;
 
     constexpr Color(::pltxt2htm::Color&& other) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_color, ::std::move(other.subast_)},
@@ -65,7 +65,7 @@ public:
           color_{u8"#0000AA"} {
     }
 
-    constexpr A(::pltxt2htm::A const&) noexcept = delete;
+    constexpr A(::pltxt2htm::A const&) noexcept = default;
 
     constexpr A(::pltxt2htm::A&& other) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_a, ::std::move(other.subast_)},
@@ -106,7 +106,7 @@ public:
           id_(::std::move(id)) {
     }
 
-    constexpr Experiment(::pltxt2htm::Experiment const&) noexcept = delete;
+    constexpr Experiment(::pltxt2htm::Experiment const&) noexcept = default;
 
     constexpr Experiment(::pltxt2htm::Experiment&& other) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_experiment, ::std::move(other.subast_)},
@@ -145,7 +145,7 @@ public:
           id_(::std::move(id)) {
     }
 
-    constexpr Discussion(::pltxt2htm::Discussion const&) noexcept = delete;
+    constexpr Discussion(::pltxt2htm::Discussion const&) noexcept = default;
 
     constexpr Discussion(::pltxt2htm::Discussion&& other) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_discussion, ::std::move(other.subast_)},
@@ -182,7 +182,7 @@ public:
           id_(::std::move(id)) {
     }
 
-    constexpr User(::pltxt2htm::User const&) noexcept = delete;
+    constexpr User(::pltxt2htm::User const&) noexcept = default;
 
     constexpr User(::pltxt2htm::User&& other) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_user, ::std::move(other.subast_)},
@@ -217,7 +217,7 @@ public:
           id_(::std::move(id)) {
     }
 
-    constexpr Size(::pltxt2htm::Size const&) noexcept = delete;
+    constexpr Size(::pltxt2htm::Size const&) noexcept = default;
 
     constexpr Size(::pltxt2htm::Size&& other) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_size, ::std::move(other.subast_)},
@@ -244,7 +244,7 @@ public:
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_i, ::std::move(subast)} {
     }
 
-    constexpr I(::pltxt2htm::I const&) noexcept = delete;
+    constexpr I(::pltxt2htm::I const&) noexcept = default;
 
     constexpr I(::pltxt2htm::I&& other) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_i, ::std::move(other.subast_)} {
@@ -265,7 +265,7 @@ public:
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_b, ::std::move(subast)} {
     }
 
-    constexpr B(::pltxt2htm::B const&) noexcept = delete;
+    constexpr B(::pltxt2htm::B const&) noexcept = default;
 
     constexpr B(::pltxt2htm::B&& other) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_b, ::std::move(other.subast_)} {

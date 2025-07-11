@@ -34,7 +34,7 @@ public:
     constexpr PlTxtNode(PlTxtNode&&) noexcept = default;
     constexpr auto operator=(PlTxtNode const&) noexcept -> PlTxtNode& = default;
     constexpr auto operator=(PlTxtNode&&) noexcept -> PlTxtNode& = default;
-    constexpr ~PlTxtNode() noexcept = default;
+    constexpr virtual ~PlTxtNode() noexcept = default;
 
     [[nodiscard]]
     constexpr auto node_type(this PlTxtNode const& self) noexcept {
@@ -82,6 +82,11 @@ public:
         : ::pltxt2htm::PlTxtNode{node_type},
           subast_(::std::move(subast)) {
     }
+
+    constexpr PairedTagBase(PairedTagBase const&) noexcept = default;
+    constexpr PairedTagBase(PairedTagBase&&) noexcept = default;
+    constexpr PairedTagBase& operator=(PairedTagBase const&) noexcept = default;
+    constexpr PairedTagBase& operator=(PairedTagBase&&) noexcept = default;
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {

@@ -1,10 +1,10 @@
 #pragma once
 
 #include <cstdlib>
-#include <cstring>
 #include <memory>
 #include <utility>
 #include <concepts>
+#include <type_traits>
 #include <exception/exception.hh>
 
 namespace pltxt2htm::details {
@@ -53,8 +53,9 @@ public:
         ::std::construct_at(this->ptr_, ::std::forward<Args>(args)...);
     }
 
-#if 1
-    constexpr HeapGuard(HeapGuard<T> const& other) noexcept {
+    constexpr HeapGuard(HeapGuard<T> const& other) noexcept
+        requires (::std::is_copy_constructible_v<T>)
+    {
         // ::std::malloc will implicitly start lifetime of ptr
         // Therefore, should not call ::std::start_lifetime_as
         this->ptr_ = reinterpret_cast<T*>(::std::malloc(sizeof(T)));
@@ -62,19 +63,14 @@ public:
             // bad alloc should never be an exception or err_code
             ::exception::terminate();
         }
-        ::std::memcpy(this->ptr_, other.ptr_, sizeof(T));
+        ::std::construct_at(this->ptr_, *other.release_imul());
     }
-#else
-    constexpr HeapGuard(HeapGuard<T> const&) noexcept = delete
-    #if __cpp_deleted_function >= 202403L
-        ("Despite copy a HeapGuard is safe, but the HeapGuard's behavior is more similar to ::std::unique_ptr")
-    #endif
-        ;
-#endif
 
     template<typename U>
         requires (::std::derived_from<U, T>)
-    constexpr HeapGuard(HeapGuard<U>&& other) noexcept {
+    constexpr HeapGuard(HeapGuard<U>&& other) noexcept
+        requires (::std::is_move_constructible_v<T>)
+    {
         this->ptr_ = other.release();
     }
 
