@@ -36,7 +36,7 @@ jobs:
         working-directory: test
         run: |
           xmake config -p windows -a x64 --toolchain=x86_64-windows-msvc-clang
-          xmake test
+          xmake test -v
 
   x86_64-linux-gnu-test-asan:
     name: x86_64-linux-gnu (test/, asan)
@@ -92,6 +92,11 @@ jobs:
         run: |
           xmake config -p windows -a x64 --toolchain=x86_64-windows-msvc-clang -m debug
           xmake build -v
+
+      - name: Run
+        shell: powershell
+        working-directory: cmd
+        run: |
           xmake run pltxt2htm
 
   wasm32-unknown-emscripten-wasm-debug:
@@ -120,5 +125,7 @@ jobs:
         working-directory: wasm
         run: |
           xmake config -p wasm -m debug --toolchain=emcc
-          xmake build
+          xmake build -v
+
+      - name: Install
           xmake install -o auto
