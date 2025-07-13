@@ -1,0 +1,134 @@
+name: Tests
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  x86_64-windows-msvc-test:
+    name: x86_64-windows-msvc (test/)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Clang
+        uses: egor-tensin/setup-clang@v1
+        with:
+          version: latest
+          platform: x64
+
+      - name: Setup xmake
+        uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: latest
+
+      - name: clang version
+        shell: powershell
+        run: |
+          clang -v
+
+      - name: Configure and build
+        shell: powershell
+        working-directory: test
+        run: |
+          xmake config -p windows -a x64 --toolchain=x86_64-windows-msvc-clang
+          xmake test -v
+
+  x86_64-linux-gnu-test-asan:
+    name: x86_64-linux-gnu (test/, asan)
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup GCC and XMake
+        working-directory: test
+        run: |
+          wget https://github.com/GoodenoughPhysicsLab/releases-for-ubuntu2004/releases/download/only-for-release/x86_64-ubuntu2004-gnu-native-gcc16.tar.xz
+          tar -xJf x86_64-ubuntu2004-gnu-native-gcc16.tar.xz
+          wget https://github.com/GoodenoughPhysicsLab/releases-for-ubuntu2004/releases/download/only-for-release/x86_64-ubuntu2004-gnu-xmake.tar.xz
+          tar -xJf x86_64-ubuntu2004-gnu-xmake.tar.xz
+
+      - name: Configure and build
+        working-directory: test
+        run: |
+          export PATH=$PWD/x86_64-ubuntu2004-gnu-native-gcc16/bin:$PWD/x86_64-ubuntu2004-gnu-xmake/bin:$PATH
+          export LD_LIBRARY_PATH=$PWD/x86_64-ubuntu2004-gnu-native-gcc16/lib:$PWD/x86_64-ubuntu2004-gnu-native-gcc16/lib64
+          xmake config --toolchain=gcc --policies=build.sanitizer.address
+          xmake test -v
+
+  x86_64-windows-msvc-cmd-debug:
+    name: x86_64-windows-msvc (cmd/, debug mode)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Clang
+        uses: egor-tensin/setup-clang@v1
+        with:
+          version: latest
+          platform: x64
+
+      - name: Setup xmake
+        uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: latest
+
+      - name: clang version
+        shell: powershell
+        run: |
+          clang -v
+
+      - name: Configure and build
+        shell: powershell
+        working-directory: cmd
+        run: |
+          xmake config -p windows -a x64 --toolchain=x86_64-windows-msvc-clang -m debug
+          xmake build -v
+
+      - name: Run
+        shell: powershell
+        working-directory: cmd
+        run: |
+          xmake run pltxt2htm
+
+  wasm32-unknown-emscripten-wasm-debug:
+    name: wasm32-unknown-emscripten (wasm/, debug mode)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Emscripten
+        uses: mymindstorm/setup-emsdk@v12
+
+      - name: Setup xmake
+        uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: latest
+
+      - name: emcc version
+        shell: powershell
+        run: |
+          emcc -v
+
+      - name: Configure and build
+        shell: powershell
+        working-directory: wasm
+        run: |
+          xmake config -p wasm -m debug --toolchain=emcc
+          xmake build -v
+
+      - name: Install
+        shell: powershell
+        working-directory: wasm
+        run: |
+          xmake install -o auto
