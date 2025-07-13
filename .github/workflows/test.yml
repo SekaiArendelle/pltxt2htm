@@ -42,12 +42,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup MSYS2 with MinGW-w64 GCC
-        uses: msys2/setup-msys2@v2
+      - name: Set up MinGW GCC
+        uses: egor-tensin/setup-mingw@v2
         with:
-          msystem: UCRT64
-          update: true
-          install: mingw-w64-ucrt-x86_64-gcc
+          platform: x64
 
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
