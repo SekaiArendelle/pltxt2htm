@@ -14,12 +14,7 @@ namespace pltxt2htm {
 /**
  * @brief Base node of other nodes
  */
-class PlTxtNode
-// #if __cpp_trivial_relocatability >= 202502L
-//     // TODO relocate?
-//     // https://en.cppreference.com/w/cpp/language/class_property_specifiers#Trivial_relocatability
-// #endif
-{
+class PlTxtNode {
 protected:
     ::pltxt2htm::NodeType runtime_node_type_info{::pltxt2htm::NodeType::base};
 

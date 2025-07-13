@@ -18,7 +18,7 @@ namespace pltxt2htm::details {
 #if __has_cpp_attribute(__gnu__::__cold__)
 [[__gnu__::__cold__]]
 #endif
-constexpr void panic_print(::std::source_location const& location, char const* const expression,
+inline void panic_print(::std::source_location const& location, char const* const expression,
                            ::fast_io::u8cstring_view msg) {
     ::fast_io::perrln("Program panicked because \"assert(", ::fast_io::mnp::os_c_str(expression),
                       ")\" failed\n"
