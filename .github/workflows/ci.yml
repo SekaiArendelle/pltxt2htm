@@ -21,11 +21,6 @@ jobs:
         with:
           xmake-version: latest
 
-      - name: Xmake version
-        shell: powershell
-        run: |
-          xmake --version
-
       - name: clang version
         shell: powershell
         run: |
@@ -35,5 +30,5 @@ jobs:
         shell: powershell
         working-directory: test
         run: |
-          xmake config -p mingw -a x64 --toolchain=x86_64-w64-mingw32-clang
+          xmake config --toolchain=clang
           xmake test -v
