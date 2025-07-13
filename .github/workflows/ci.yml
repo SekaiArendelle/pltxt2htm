@@ -68,7 +68,7 @@ jobs:
 
   wasm32-unknown-emscripten-wasm-debug:
     name: wasm32-unknown-emscripten (wasm/, debug mode)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout code
