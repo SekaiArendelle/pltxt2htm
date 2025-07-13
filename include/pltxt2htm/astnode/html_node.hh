@@ -17,10 +17,8 @@ public:
     constexpr LineBreak(::pltxt2htm::LineBreak const& other) noexcept = default;
     constexpr LineBreak(::pltxt2htm::LineBreak&& other) noexcept = default;
     constexpr ~LineBreak() noexcept = default;
-    constexpr ::pltxt2htm::LineBreak& operator=(this ::pltxt2htm::LineBreak& self,
-                                                ::pltxt2htm::LineBreak const& other) noexcept = delete;
-    constexpr ::pltxt2htm::LineBreak& operator=(this ::pltxt2htm::LineBreak& self,
-                                                ::pltxt2htm::LineBreak&& other) noexcept = delete;
+    constexpr ::pltxt2htm::LineBreak& operator=(::pltxt2htm::LineBreak const& other) noexcept = delete;
+    constexpr ::pltxt2htm::LineBreak& operator=(::pltxt2htm::LineBreak&& other) noexcept = delete;
 };
 
 /**
@@ -51,10 +49,8 @@ public:
     constexpr Space(::pltxt2htm::Space const& other) noexcept = default;
     constexpr Space(::pltxt2htm::Space&& other) noexcept = default;
     constexpr ~Space() noexcept = default;
-    constexpr ::pltxt2htm::Space& operator=(this ::pltxt2htm::Space& self,
-                                            ::pltxt2htm::Space const& other) noexcept = delete;
-    constexpr ::pltxt2htm::Space& operator=(this ::pltxt2htm::Space& self,
-                                            ::pltxt2htm::Space&& other) noexcept = delete;
+    constexpr ::pltxt2htm::Space& operator=(::pltxt2htm::Space const& other) noexcept = delete;
+    constexpr ::pltxt2htm::Space& operator=(::pltxt2htm::Space&& other) noexcept = delete;
 };
 
 /**
@@ -69,10 +65,8 @@ public:
     constexpr LessThan(::pltxt2htm::LessThan const& other) noexcept = default;
     constexpr LessThan(::pltxt2htm::LessThan&& other) noexcept = default;
     constexpr ~LessThan() noexcept = default;
-    constexpr ::pltxt2htm::LessThan& operator=(this ::pltxt2htm::LessThan& self,
-                                               ::pltxt2htm::LessThan const& other) noexcept = delete;
-    constexpr ::pltxt2htm::LessThan& operator=(this ::pltxt2htm::LessThan& self,
-                                               ::pltxt2htm::LessThan&& other) noexcept = delete;
+    constexpr ::pltxt2htm::LessThan& operator=(::pltxt2htm::LessThan const& other) noexcept = delete;
+    constexpr ::pltxt2htm::LessThan& operator=(::pltxt2htm::LessThan&& other) noexcept = delete;
 };
 
 /**
@@ -87,10 +81,8 @@ public:
     constexpr GreaterThan(::pltxt2htm::GreaterThan const& other) noexcept = default;
     constexpr GreaterThan(::pltxt2htm::GreaterThan&& other) noexcept = default;
     constexpr ~GreaterThan() noexcept = default;
-    constexpr ::pltxt2htm::GreaterThan& operator=(this ::pltxt2htm::GreaterThan& self,
-                                                  ::pltxt2htm::GreaterThan const& other) noexcept = delete;
-    constexpr ::pltxt2htm::GreaterThan& operator=(this ::pltxt2htm::GreaterThan& self,
-                                                  ::pltxt2htm::GreaterThan&& other) noexcept = delete;
+    constexpr ::pltxt2htm::GreaterThan& operator=(::pltxt2htm::GreaterThan const& other) noexcept = delete;
+    constexpr ::pltxt2htm::GreaterThan& operator=(::pltxt2htm::GreaterThan&& other) noexcept = delete;
 };
 
 /**
@@ -105,10 +97,8 @@ public:
     constexpr Ampersand(::pltxt2htm::Ampersand const& other) noexcept = default;
     constexpr Ampersand(::pltxt2htm::Ampersand&& other) noexcept = default;
     constexpr ~Ampersand() noexcept = default;
-    constexpr ::pltxt2htm::Ampersand& operator=(this ::pltxt2htm::Ampersand& self,
-                                                ::pltxt2htm::Ampersand const& other) noexcept = delete;
-    constexpr ::pltxt2htm::Ampersand& operator=(this ::pltxt2htm::Ampersand& self,
-                                                ::pltxt2htm::Ampersand&& other) noexcept = delete;
+    constexpr ::pltxt2htm::Ampersand& operator=(::pltxt2htm::Ampersand const& other) noexcept = delete;
+    constexpr ::pltxt2htm::Ampersand& operator=(::pltxt2htm::Ampersand&& other) noexcept = delete;
 };
 
 /**
@@ -140,10 +130,8 @@ public:
     constexpr DoubleQuotationMark(::pltxt2htm::DoubleQuotationMark const&) noexcept = default;
     constexpr DoubleQuotationMark(::pltxt2htm::DoubleQuotationMark&&) noexcept = default;
     constexpr ~DoubleQuotationMark() noexcept = default;
-    constexpr ::pltxt2htm::DoubleQuotationMark& operator=(this ::pltxt2htm::DoubleQuotationMark& self,
-                                                          ::pltxt2htm::DoubleQuotationMark const&) noexcept = delete;
-    constexpr ::pltxt2htm::DoubleQuotationMark& operator=(this ::pltxt2htm::DoubleQuotationMark& self,
-                                                          ::pltxt2htm::DoubleQuotationMark&&) noexcept = delete;
+    constexpr ::pltxt2htm::DoubleQuotationMark& operator=(::pltxt2htm::DoubleQuotationMark const&) noexcept = delete;
+    constexpr ::pltxt2htm::DoubleQuotationMark& operator=(::pltxt2htm::DoubleQuotationMark&&) noexcept = delete;
 };
 
 /**

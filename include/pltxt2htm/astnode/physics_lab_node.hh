@@ -111,11 +111,9 @@ public:
 
     constexpr ~Experiment() noexcept = default;
 
-    constexpr ::pltxt2htm::Experiment& operator=(this ::pltxt2htm::Experiment& self,
-                                                 ::pltxt2htm::Experiment const&) noexcept = delete;
+    constexpr ::pltxt2htm::Experiment& operator=(::pltxt2htm::Experiment const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::Experiment& operator=(this ::pltxt2htm::Experiment& self,
-                                                 ::pltxt2htm::Experiment&&) noexcept = delete;
+    constexpr ::pltxt2htm::Experiment& operator=(::pltxt2htm::Experiment&&) noexcept = delete;
 
     [[nodiscard]]
     constexpr auto&& get_id(this auto&& self) noexcept {
@@ -150,11 +148,9 @@ public:
 
     constexpr ~Discussion() noexcept = default;
 
-    constexpr ::pltxt2htm::Discussion& operator=(this ::pltxt2htm::Discussion& self,
-                                                 ::pltxt2htm::Discussion const&) noexcept = delete;
+    constexpr ::pltxt2htm::Discussion& operator=(::pltxt2htm::Discussion const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::Discussion& operator=(this ::pltxt2htm::Discussion& self,
-                                                 ::pltxt2htm::Discussion&&) noexcept = delete;
+    constexpr ::pltxt2htm::Discussion& operator=(::pltxt2htm::Discussion&&) noexcept = delete;
 
     [[nodiscard]]
     constexpr auto&& get_id(this auto&& self) noexcept {
