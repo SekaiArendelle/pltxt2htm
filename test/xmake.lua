@@ -20,6 +20,7 @@ for _, file in ipairs(os.files("*.cc")) do
         add_cxxflags("-Werror=return-type", {tool = {"gcc", "clang"}})
         add_cxxflags("-Werror=switch", {tool = {"gcc", "clang"}})
         add_cxxflags("-Werror=implicit-fallthrough", {tool = {"gcc", "clang"}})
+        add_cxxflags("-Wshadow", {tool = {"gcc", "clang"}})
         if is_plat("windows") or is_plat("mingw") then
             add_syslinks("ntdll")
         end
