@@ -1,10 +1,10 @@
-name: Tests
+name: Build cmd/
 
 on: [push, pull_request]
 
 jobs:
   x86_64-windows-msvc:
-    name: x86_64-windows-msvc (test/)
+    name: x86_64-windows-msvc (cmd/)
     runs-on: windows-latest
 
     steps:
@@ -29,7 +29,7 @@ jobs:
 
       - name: Configure and build
         shell: powershell
-        working-directory: test
+        working-directory: cmd
         run: |
           xmake config -p windows -a x64 --toolchain=x86_64-windows-msvc-clang
-          xmake test
+          xmake build -v
