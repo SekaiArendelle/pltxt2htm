@@ -34,33 +34,34 @@ jobs:
           xmake config -p windows -a x64 --toolchain=x86_64-windows-msvc-clang
           xmake test
 
-  x86_64-windows-gnu:
-    name: x86_64-windows-gnu (test/)
+  x86_64-w64-mingw32:
+    name: x86_64-w64-mingw32 (test/)
     runs-on: windows-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Clang
-        uses: egor-tensin/setup-clang@v1
+      - name: Setup MSYS2 with MinGW-w64 GCC
+        uses: msys2/setup-msys2@v2
         with:
-          version: latest
-          platform: x64
+          msystem: UCRT64
+          update: true
+          install: mingw-w64-ucrt-x86_64-gcc
 
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
         with:
           xmake-version: latest
 
-      - name: clang version
+      - name: gcc version
         shell: powershell
         run: |
-          clang -v
+          gcc -v
 
       - name: Configure and build
         shell: powershell
         working-directory: test
         run: |
-          xmake config -p mingw -a x64 --toolchain=x86_64-windows-gnu-clang --unwindlib=libunwind --runtimes=c++_shared --rtlib=compiler-rt
+          xmake config --toolchain=gcc
           xmake test -v
