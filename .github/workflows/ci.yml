@@ -43,6 +43,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup GCC and XMake
+        working-directory: test
         run: |
           wget https://github.com/GoodenoughPhysicsLab/releases-for-ubuntu2004/releases/download/only-for-release/x86_64-ubuntu2004-gnu-native-gcc16.tar.xz
           tar -xJf x86_64-ubuntu2004-gnu-native-gcc16.tar.xz
