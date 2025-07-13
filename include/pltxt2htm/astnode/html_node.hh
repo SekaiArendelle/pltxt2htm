@@ -113,8 +113,7 @@ public:
     constexpr SingleQuotationMark(::pltxt2htm::SingleQuotationMark const& other) noexcept = default;
     constexpr SingleQuotationMark(::pltxt2htm::SingleQuotationMark&& other) noexcept = default;
     constexpr ~SingleQuotationMark() noexcept = default;
-    constexpr ::pltxt2htm::SingleQuotationMark& operator=(::pltxt2htm::SingleQuotationMark const&) noexcept =
-        delete;
+    constexpr ::pltxt2htm::SingleQuotationMark& operator=(::pltxt2htm::SingleQuotationMark const&) noexcept = delete;
     constexpr ::pltxt2htm::SingleQuotationMark& operator=(::pltxt2htm::SingleQuotationMark&&) noexcept = delete;
 };
 
