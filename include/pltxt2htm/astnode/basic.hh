@@ -80,7 +80,7 @@ public:
 
     constexpr PairedTagBase(PairedTagBase const&) noexcept = default;
     constexpr PairedTagBase(PairedTagBase&&) noexcept = default;
-    constexpr PairedTagBase& operator=(PairedTagBase const&) noexcept = default;
+    constexpr PairedTagBase& operator=(PairedTagBase const&) noexcept = delete;
     constexpr PairedTagBase& operator=(PairedTagBase&&) noexcept = default;
 
     [[nodiscard]]

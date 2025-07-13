@@ -40,13 +40,9 @@ public:
 
     constexpr ~Color() noexcept = default;
 
-    constexpr ::pltxt2htm::Color& operator=(this ::pltxt2htm::Color& self, ::pltxt2htm::Color const&) noexcept = delete;
+    constexpr ::pltxt2htm::Color& operator=(::pltxt2htm::Color const&) noexcept = delete;
 
-    /**
-     * @brief move assignment operator
-     * @note assign to a rvalue is not allowed
-     */
-    constexpr ::pltxt2htm::Color& operator=(this ::pltxt2htm::Color& self, ::pltxt2htm::Color&&) noexcept = delete;
+    constexpr ::pltxt2htm::Color& operator=(::pltxt2htm::Color&&) noexcept = delete;
 
     [[nodiscard]]
     constexpr auto&& get_color(this auto&& self) noexcept {
@@ -74,13 +70,13 @@ public:
 
     constexpr ~A() noexcept = default;
 
-    constexpr ::pltxt2htm::A& operator=(this ::pltxt2htm::A& self, ::pltxt2htm::A const&) noexcept = delete;
+    constexpr ::pltxt2htm::A& operator=(::pltxt2htm::A const&) noexcept = delete;
 
     /**
      * @brief move assignment operator
      * @note assign to a rvalue is not allowed
      */
-    constexpr ::pltxt2htm::A& operator=(this ::pltxt2htm::A& self, ::pltxt2htm::A&&) noexcept = delete;
+    constexpr ::pltxt2htm::A& operator=(::pltxt2htm::A&&) noexcept = delete;
 
     [[nodiscard]]
     constexpr auto&& get_color(this auto&& self) noexcept {
@@ -115,11 +111,9 @@ public:
 
     constexpr ~Experiment() noexcept = default;
 
-    constexpr ::pltxt2htm::Experiment& operator=(this ::pltxt2htm::Experiment& self,
-                                                 ::pltxt2htm::Experiment const&) noexcept = delete;
+    constexpr ::pltxt2htm::Experiment& operator=(::pltxt2htm::Experiment const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::Experiment& operator=(this ::pltxt2htm::Experiment& self,
-                                                 ::pltxt2htm::Experiment&&) noexcept = delete;
+    constexpr ::pltxt2htm::Experiment& operator=(::pltxt2htm::Experiment&&) noexcept = delete;
 
     [[nodiscard]]
     constexpr auto&& get_id(this auto&& self) noexcept {
@@ -154,11 +148,9 @@ public:
 
     constexpr ~Discussion() noexcept = default;
 
-    constexpr ::pltxt2htm::Discussion& operator=(this ::pltxt2htm::Discussion& self,
-                                                 ::pltxt2htm::Discussion const&) noexcept = delete;
+    constexpr ::pltxt2htm::Discussion& operator=(::pltxt2htm::Discussion const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::Discussion& operator=(this ::pltxt2htm::Discussion& self,
-                                                 ::pltxt2htm::Discussion&&) noexcept = delete;
+    constexpr ::pltxt2htm::Discussion& operator=(::pltxt2htm::Discussion&&) noexcept = delete;
 
     [[nodiscard]]
     constexpr auto&& get_id(this auto&& self) noexcept {
@@ -191,9 +183,9 @@ public:
 
     constexpr ~User() noexcept = default;
 
-    constexpr ::pltxt2htm::User& operator=(this ::pltxt2htm::User& self, ::pltxt2htm::User const&) noexcept = delete;
+    constexpr ::pltxt2htm::User& operator=(::pltxt2htm::User const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::User& operator=(this ::pltxt2htm::User& self, ::pltxt2htm::User&&) noexcept = delete;
+    constexpr ::pltxt2htm::User& operator=(::pltxt2htm::User&&) noexcept = delete;
 
     [[nodiscard]]
     constexpr auto&& get_id(this auto&& self) noexcept {
@@ -226,9 +218,9 @@ public:
 
     constexpr ~Size() noexcept = default;
 
-    constexpr ::pltxt2htm::Size& operator=(this ::pltxt2htm::Size& self, ::pltxt2htm::Size const&) noexcept = delete;
+    constexpr ::pltxt2htm::Size& operator=(::pltxt2htm::Size const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::Size& operator=(this ::pltxt2htm::Size& self, ::pltxt2htm::Size&&) noexcept = delete;
+    constexpr ::pltxt2htm::Size& operator=(::pltxt2htm::Size&&) noexcept = delete;
 
     [[nodiscard]]
     constexpr auto&& get_id(this auto&& self) noexcept {
@@ -252,9 +244,9 @@ public:
 
     constexpr ~I() noexcept = default;
 
-    constexpr ::pltxt2htm::I& operator=(this ::pltxt2htm::I& self, ::pltxt2htm::I const&) noexcept = delete;
+    constexpr ::pltxt2htm::I& operator=(::pltxt2htm::I const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::I& operator=(this ::pltxt2htm::I& self, ::pltxt2htm::I&&) noexcept = delete;
+    constexpr ::pltxt2htm::I& operator=(::pltxt2htm::I&&) noexcept = delete;
 };
 
 class B : public ::pltxt2htm::details::PairedTagBase {
@@ -273,9 +265,9 @@ public:
 
     constexpr ~B() noexcept = default;
 
-    constexpr ::pltxt2htm::B& operator=(this ::pltxt2htm::B& self, ::pltxt2htm::B const&) noexcept = delete;
+    constexpr ::pltxt2htm::B& operator=(::pltxt2htm::B const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::B& operator=(this ::pltxt2htm::B& self, ::pltxt2htm::B&&) noexcept = delete;
+    constexpr ::pltxt2htm::B& operator=(::pltxt2htm::B&&) noexcept = delete;
 };
 
 } // namespace pltxt2htm

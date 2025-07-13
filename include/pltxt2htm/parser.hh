@@ -10,6 +10,7 @@
 #include "astnode/basic.hh"
 #include "astnode/html_node.hh"
 #include "astnode/physics_lab_node.hh"
+#include "pltxt2htm/astnode/markdown.hh"
 #include "push_macro.hh"
 
 namespace pltxt2htm {
@@ -46,12 +47,13 @@ template<bool ndebug>
 [[msvc::forceinline]]
 #endif
 [[nodiscard]]
-constexpr auto u8string_view_subview(::fast_io::u8string_view pltext, ::std::size_t i) noexcept
+constexpr auto u8string_view_subview(::fast_io::u8string_view pltext, ::std::size_t i,
+                                     ::std::size_t count = ::fast_io::containers::npos) noexcept
     -> ::fast_io::u8string_view {
     if constexpr (ndebug) {
-        return pltext.subview_unchecked(i);
+        return pltext.subview_unchecked(i, count);
     } else {
-        return pltext.subview(i);
+        return pltext.subview(i, count);
     }
 }
 
@@ -244,6 +246,86 @@ constexpr bool try_parse_self_closing_tag(::fast_io::u8string_view pltext, ::std
 }
 
 /**
+ * @brief Parsing markdown ATX headings
+ * TODO more notes
+ */
+template<bool ndebug>
+[[nodiscard]]
+constexpr bool try_parse_md_atx_heading(::fast_io::u8string_view pltext, ::std::size_t& start_index_,
+                                        ::std::size_t& sublength_, ::std::size_t& header_level_)
+#if __cpp_exceptions < 199711L
+    noexcept
+#endif
+{
+    ::std::size_t const pltext_size{pltext.size()};
+    ::std::size_t start_index{};
+    // spaces before the first #
+    while (true) {
+        if (start_index >= pltext_size) {
+            return false;
+        }
+        if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, start_index) != u8' ') {
+            break;
+        }
+        ++start_index;
+    }
+
+    // count how many `#` characters
+    ::std::size_t header_level{};
+    while (true) {
+        if (start_index >= pltext_size) {
+            // https://spec.commonmark.org/0.31.2/#example-79
+            if (0 < header_level && header_level <= 6) {
+                start_index_ = start_index;
+                sublength_ = 0;
+                header_level_ = header_level;
+                return true;
+            } else {
+                return false;
+            }
+        }
+        if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, start_index) != u8'#') {
+            break;
+        }
+        ++start_index;
+        ++header_level;
+    }
+    if (header_level == 0 || header_level > 6 ||
+        ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, start_index) != u8' ') {
+        // invalid atx header
+        return false;
+    }
+    ++start_index;
+    // spaces after the last #
+    while (true) {
+        if (start_index >= pltext_size) {
+            // https://spec.commonmark.org/0.31.2/#example-79
+            start_index_ = start_index;
+            sublength_ = 0;
+            header_level_ = header_level;
+            return true;
+        }
+        if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, start_index) != u8' ') {
+            break;
+        }
+        ++start_index;
+    }
+    // end of the atx header
+    ::std::size_t sublength{start_index};
+    for (::std::size_t _; sublength < pltext_size; ++sublength) {
+        if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, sublength) == u8'\n' ||
+            ::pltxt2htm::details::try_parse_self_closing_tag<ndebug, u8'<', u8'b', u8'r'>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, sublength), _)) {
+            break;
+        }
+    }
+    start_index_ = start_index;
+    sublength_ = sublength;
+    header_level_ = header_level;
+    return true;
+}
+
+/**
  * @brief Convert a string to a ::std::size_t.
  */
 [[nodiscard]]
@@ -288,12 +370,123 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
 
     auto result = ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>{};
 
+    ::std::size_t i{};
     ::std::size_t const pltxt_size{pltext.size()};
-    for (::std::size_t i{}; i < pltxt_size; ++i) {
+
+    {
+#if __has_cpp_attribute(indeterminate)
+        ::std::size_t start_index [[indeterminate]];
+        ::std::size_t end_index [[indeterminate]];
+        ::std::size_t header_level [[indeterminate]];
+#else
+        ::std::size_t start_index;
+        ::std::size_t sublength;
+        ::std::size_t header_level;
+#endif
+        // try parsing markdown atx header
+        if (::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(pltext, start_index, sublength, header_level)) {
+            ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast;
+            if (start_index < pltxt_size) {
+                auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + start_index,
+                                                                                   sublength - start_index);
+                subast = ::pltxt2htm::details::parse_pltxt<ndebug>(subtext, ::pltxt2htm::NodeType::md_atx_h1,
+                                                                   ::std::addressof(i));
+            } else {
+                subast = ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>{};
+            }
+            i += start_index;
+            switch (header_level) {
+            case 1: {
+                result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH1>(::std::move(subast)));
+                break;
+            }
+            case 2: {
+                result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH2>(::std::move(subast)));
+                break;
+            }
+            case 3: {
+                result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH3>(::std::move(subast)));
+                break;
+            }
+            case 4: {
+                result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH4>(::std::move(subast)));
+                break;
+            }
+            case 5: {
+                result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH5>(::std::move(subast)));
+                break;
+            }
+            case 6: {
+                result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH6>(::std::move(subast)));
+                break;
+            }
+            default: {
+                ::exception::unreachable<ndebug>();
+            }
+            }
+        }
+    }
+
+    for (; i < pltxt_size; ++i) {
         char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i)};
 
         if (chr == u8'\n') {
             result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::LineBreak>{});
+
+#if __has_cpp_attribute(indeterminate)
+            ::std::size_t start_index [[indeterminate]];
+            ::std::size_t end_index [[indeterminate]];
+            ::std::size_t header_level [[indeterminate]];
+#else
+            ::std::size_t start_index;
+            ::std::size_t sublength;
+            ::std::size_t header_level;
+#endif
+            // try parsing markdown atx header
+            if (i + 1 < pltxt_size && ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(
+                                          ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
+                                          start_index, sublength, header_level)) {
+                ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast;
+                if (i + start_index + 1 < pltxt_size) {
+                    auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + start_index + 1,
+                                                                                       sublength - start_index);
+
+                    subast = ::pltxt2htm::details::parse_pltxt<ndebug>(subtext, ::pltxt2htm::NodeType::md_atx_h1,
+                                                                       ::std::addressof(i));
+                } else {
+                    subast = ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>{};
+                }
+                i += start_index;
+                switch (header_level) {
+                case 1: {
+                    result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH1>(::std::move(subast)));
+                    break;
+                }
+                case 2: {
+                    result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH2>(::std::move(subast)));
+                    break;
+                }
+                case 3: {
+                    result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH3>(::std::move(subast)));
+                    break;
+                }
+                case 4: {
+                    result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH4>(::std::move(subast)));
+                    break;
+                }
+                case 5: {
+                    result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH5>(::std::move(subast)));
+                    break;
+                }
+                case 6: {
+                    result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH6>(::std::move(subast)));
+                    break;
+                }
+                default: {
+                    ::exception::unreachable<ndebug>();
+                }
+                }
+            }
             continue;
         } else if (chr == u8' ') {
             // TODO should we delete tail space?
@@ -372,6 +565,61 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), tag_len)) {
                     i += tag_len + 2;
                     result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Br>(::pltxt2htm::Br()));
+
+#if __has_cpp_attribute(indeterminate)
+                    ::std::size_t start_index [[indeterminate]];
+                    ::std::size_t end_index [[indeterminate]];
+                    ::std::size_t header_level [[indeterminate]];
+#else
+                    ::std::size_t start_index;
+                    ::std::size_t sublength;
+                    ::std::size_t header_level;
+#endif
+                    // try parsing markdown atx header
+                    if (i + 1 < pltxt_size && ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(
+                                                  ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
+                                                  start_index, sublength, header_level)) {
+                        ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast;
+                        if (i + start_index + 1 < pltxt_size) {
+                            auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(
+                                pltext, i + start_index + 1, sublength - start_index);
+
+                            subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
+                                subtext, ::pltxt2htm::NodeType::md_atx_h1, ::std::addressof(i));
+                        } else {
+                            subast = ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>{};
+                        }
+                        i += start_index;
+                        switch (header_level) {
+                        case 1: {
+                            result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH1>(::std::move(subast)));
+                            break;
+                        }
+                        case 2: {
+                            result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH2>(::std::move(subast)));
+                            break;
+                        }
+                        case 3: {
+                            result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH3>(::std::move(subast)));
+                            break;
+                        }
+                        case 4: {
+                            result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH4>(::std::move(subast)));
+                            break;
+                        }
+                        case 5: {
+                            result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH5>(::std::move(subast)));
+                            break;
+                        }
+                        case 6: {
+                            result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH6>(::std::move(subast)));
+                            break;
+                        }
+                        default: {
+                            ::exception::unreachable<ndebug>();
+                        }
+                        }
+                    }
                     goto complete_parsing_tag;
                 } else {
                     goto not_valid_tag;

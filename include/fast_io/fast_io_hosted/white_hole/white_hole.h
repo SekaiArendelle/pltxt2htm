@@ -10,7 +10,7 @@
 namespace fast_io::details
 {
 template <typename T>
-concept has_entroy_method_impl = requires(T &&handle) {
+concept has_entropy_method_impl = requires(T &&handle) {
 	{ random_entropy(handle) } -> ::std::convertible_to<double>;
 };
 
@@ -46,12 +46,12 @@ inline int my_random_entropy(int fd) noexcept
 	if (system_call<__NR_ioctl, ::std::ptrdiff_t>(fd, static_cast<::std::uint_least32_t>(u8'R') << 8u,
 												  __builtin_addressof(ent)) != 0)
 	{
-		return 0.0;
+		return 0;
 	}
 #else
 	if (::fast_io::posix::ioctl(fd, RNDGETENTCNT, __builtin_addressof(ent)) != 0)
 	{
-		return 0.0;
+		return 0;
 	}
 #endif
 	return ent;
@@ -69,7 +69,7 @@ inline int random_entropy(basic_posix_io_observer<ch_type> piob) noexcept
 template <::std::integral char_type>
 using basic_native_white_hole =
 #if defined(_WIN32) && !defined(__WINE__)
-#if defined(_WIN32_WINDOWS) || (defined(_WIN32_WINNT) && _WIN32_WINNT <= 0x0500)
+#if defined(_WIN32_WINDOWS) || (_WIN32_WINNT <= 0x0500)
 	basic_win32_crypt_gen_random_file<char_type>;
 #else
 	basic_rtl_gen_random<char_type>;
@@ -130,7 +130,7 @@ struct basic_white_hole_engine
 	}
 	inline constexpr double entropy() const noexcept
 	{
-		if constexpr (::fast_io::details::has_entroy_method_impl<handletype>)
+		if constexpr (::fast_io::details::has_entropy_method_impl<handletype>)
 		{
 			auto v{random_entropy(handle)};
 			constexpr ::std::size_t mx_value{static_cast<::std::size_t>(::std::numeric_limits<::std::size_t>::digits)};
@@ -155,7 +155,7 @@ struct basic_white_hole_engine
 			auto currptr{ibuffer_curr(instmref)}, edptr{ibuffer_end(instmref)};
 			::std::size_t diff{static_cast<::std::size_t>(edptr - currptr)};
 			constexpr ::std::size_t objsz{sizeof(result_type)};
-			if (diff <= objsz)
+			if (diff < objsz)
 #if __has_cpp_attribute(unlikely)
 				[[unlikely]]
 #endif

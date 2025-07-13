@@ -74,16 +74,15 @@ inline constexpr T addc(T a, T b, bool carryin, bool &carryout) noexcept
 				return (static_cast<long long unsigned>(reshigh) << 32u) | reslow;
 			}
 		}
-#elif defined(__has_builtin)
-#if __has_builtin(__builtin_add_overflow)
+#elif  FAST_IO_HAS_BUILTIN(__builtin_add_overflow)
 		T s;
 		auto c1 = __builtin_add_overflow(a, b, __builtin_addressof(s));
 		auto c2 = __builtin_add_overflow(s, carryin, __builtin_addressof(s));
 		carryout = c1 | c2;
 		return s;
 #endif
-#endif
 	}
+
 	a += b;
 	carryout = a < b;
 	a += carryin;
@@ -152,19 +151,21 @@ inline constexpr T subc(T a, T b, bool carryin, bool &carryout) noexcept
 				return (static_cast<long long unsigned>(reshigh) << 32u) | reslow;
 			}
 		}
-#elif defined(__has_builtin)
-#if __has_builtin(__builtin_sub_overflow)
+		
+#elif FAST_IO_HAS_BUILTIN(__builtin_sub_overflow)
 		T s;
 		auto c1 = __builtin_sub_overflow(a, b, __builtin_addressof(s));
 		auto c2 = __builtin_sub_overflow(s, carryin, __builtin_addressof(s));
 		carryout = c1 | c2;
 		return s;
 #endif
-#endif
 	}
+
 	b = a - b;
 	carryout = a < b;
-	a = b - carryin;
+	// b is a-b but does not handle the result of the abdication, 
+	// at which point a can be reused for subsequent abdication underflow judgments
+	a = b - static_cast<T>(carryin);
 	carryout |= b < a;
 	return a;
 }

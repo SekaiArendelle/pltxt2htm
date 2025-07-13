@@ -700,7 +700,7 @@ namespace win32::details
 
 inline ::fast_io::intfpos_t seek_impl(void *handle, ::fast_io::intfpos_t offset, seekdir s)
 {
-#if (defined(_WIN32_WINNT) && _WIN32_WINNT <= 0x0500) || defined(_WIN32_WINDOWS)
+#if (_WIN32_WINNT <= 0x0500) || defined(_WIN32_WINDOWS)
 	if constexpr (sizeof(::fast_io::intfpos_t) > sizeof(::std::int_least32_t))
 	{
 		constexpr ::fast_io::intfpos_t l32mx{INT_LEAST32_MAX};
@@ -905,7 +905,6 @@ struct win32_file_factory FAST_IO_TRIVIALLY_RELOCATABLE_IF_ELIGIBLE
 		if (handle) [[likely]]
 		{
 			::fast_io::win32::CloseHandle(handle);
-			handle = nullptr;
 		}
 	}
 };
@@ -1513,7 +1512,6 @@ public:
 		if (*this) [[likely]]
 		{
 			::fast_io::win32::CloseHandle(this->handle);
-			this->handle = nullptr;
 		}
 	}
 };
@@ -1543,7 +1541,6 @@ struct handle_guard
 		if (h) [[likely]]
 		{
 			::fast_io::win32::CloseHandle(h);
-			h = nullptr;
 		}
 	};
 	inline constexpr void clear() noexcept
@@ -1569,7 +1566,6 @@ struct map_guard
 		if (map) [[likely]]
 		{
 			::fast_io::win32::UnmapViewOfFile(map);
-			map = nullptr;
 		}
 	};
 	inline constexpr void clear() noexcept
