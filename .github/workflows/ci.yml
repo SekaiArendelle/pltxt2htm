@@ -1,0 +1,66 @@
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+  x86_64-windows-msvc-test:
+    name: x86_64-windows-msvc (test/)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Clang
+        uses: egor-tensin/setup-clang@v1
+        with:
+          version: latest
+          platform: x64
+
+      - name: Setup xmake
+        uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: latest
+
+      - name: clang version
+        shell: powershell
+        run: |
+          clang -v
+
+      - name: Configure and build
+        shell: powershell
+        working-directory: test
+        run: |
+          xmake config -p windows -a x64 --toolchain=x86_64-windows-msvc-clang
+          xmake test
+
+  x86_64-windows-msvc-cmd-debug:
+    name: x86_64-windows-msvc (cmd/)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Clang
+        uses: egor-tensin/setup-clang@v1
+        with:
+          version: latest
+          platform: x64
+
+      - name: Setup xmake
+        uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: latest
+
+      - name: clang version
+        shell: powershell
+        run: |
+          clang -v
+
+      - name: Configure and build
+        shell: powershell
+        working-directory: cmd
+        run: |
+          xmake config -p windows -a x64 --toolchain=x86_64-windows-msvc-clang -m debug
+          xmake build -v
