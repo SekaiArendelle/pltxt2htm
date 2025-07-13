@@ -3,7 +3,7 @@ name: Windows CI with xmake and clang
 on: [push, pull_request]
 
 jobs:
-  build:
+  x86_64-windows-gnu:
     runs-on: windows-latest
 
     steps:
@@ -21,8 +21,19 @@ jobs:
         with:
           xmake-version: latest
 
-      - name: Configure and build
+      - name: Xmake version
         shell: powershell
         run: |
-          xmake -v
-          clang++ -v
+          xmake --version
+
+      - name: clang version
+        shell: powershell
+        run: |
+          clang -v
+
+      - name: Configure and build
+        shell: powershell
+        working-directory: test
+        run: |
+          xmake config -p mingw -a x64 --toolchain=x86_64-w64-mingw32-clang
+          xmake test -v
