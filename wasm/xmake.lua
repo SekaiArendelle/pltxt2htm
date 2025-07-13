@@ -15,11 +15,11 @@ target("pltxt2htm", function()
     add_cxxflags("-fno-unwind-tables")
     add_cxxflags("-fno-asynchronous-unwind-tables")
     if is_mode("release") then
-        add_cxflags("-fno-ident")
+        add_cxxflags("-fno-ident")
+        add_ldflags("-flto")
     end
     add_includedirs("$(projectdir)/../include")
     add_ldflags("-fuse-ld=lld", {force = true})
-    add_ldflags("-flto", {force = true})
     add_ldflags("-s EXPORTED_FUNCTIONS=['_common_parser','_advanced_parser','_ver_major','_ver_minor','_ver_patch']", {force = true})
     add_ldflags("-s EXPORTED_RUNTIME_METHODS=['ccall','cwrap']", {force = true})
     add_ldflags("-s MODULARIZE=1", {force = true})

@@ -24,7 +24,9 @@ target("pltxt2htm", function()
         local toolchains = target:tool("cxx")
         if path.basename(toolchains) == "clang++" or path.basename(toolchains) == "clang" then
             target:add("ldflags", "-fuse-ld=lld")
-            target:add("ldflags", "-flto")
+            if is_mode("release") then
+                target:add("ldflags", "-flto")
+            end
         end
 
         if is_mode("release") and path.basename(toolchains) == "clang++"

@@ -215,7 +215,9 @@ target("pltxt2htm", function ()
         end
         if path.basename(toolchains) == "clang++" or path.basename(toolchains) == "clang" then
             target:add("shflags", "-fuse-ld=lld")
-            target:add("shflags", "-flto")
+            if is_mode("release") then
+                target:add("shflags", "-flto")
+            end
         end
 
         -- if python install dir have been passed in console
