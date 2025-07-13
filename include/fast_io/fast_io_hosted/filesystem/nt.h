@@ -22,7 +22,7 @@ struct nt_dirent
 	void *d_handle{};
 	file_type d_type{};
 	::std::uint_least64_t d_ino{};
-	char16_t native_d_name[0x2001];
+	char16_t native_d_name[0x2001]; // max ntfs filename length
 	::std::size_t native_d_namlen{};
 	char8_t u8d_name[0x8004];
 	::std::size_t u8d_namlen{};
@@ -47,10 +47,7 @@ struct nt_dirent_space_guard
 	}
 	inline ~nt_dirent_space_guard()
 	{
-		if (ptr)
-		{
-			typed_generic_allocator_adapter<Allocator, T>::deallocate_n(ptr, 1);
-		}
+		typed_generic_allocator_adapter<Allocator, T>::deallocate_n(ptr, 1);
 	}
 };
 
@@ -64,7 +61,7 @@ inline
 {
 	if (__builtin_is_constant_evaluated())
 	{
-		return new nt_dirent;
+		return ::new nt_dirent;
 	}
 	else
 	{
@@ -85,7 +82,7 @@ inline
 {
 	if (__builtin_is_constant_evaluated())
 	{
-		delete ptr;
+		::delete ptr;
 	}
 	else
 	{
@@ -388,7 +385,7 @@ struct basic_nt_family_recursive_directory_generator
 		: root_handle(other.root_handle), entry(other.entry)
 	{
 		other.root_handle = nullptr;
-		entry = nullptr;
+		other.entry = nullptr;
 	}
 	inline constexpr basic_nt_family_recursive_directory_generator &
 	operator=(basic_nt_family_recursive_directory_generator &&__restrict other) noexcept
@@ -400,6 +397,8 @@ struct basic_nt_family_recursive_directory_generator
 		::fast_io::win32::nt::details::delete_nt_dirent<Allocator>(this->entry);
 		root_handle = other.root_handle;
 		entry = other.entry;
+		other.root_handle = nullptr;
+		other.entry = nullptr;
 		return *this;
 	}
 	inline constexpr ~basic_nt_family_recursive_directory_generator()

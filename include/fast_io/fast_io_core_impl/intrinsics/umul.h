@@ -65,6 +65,7 @@ inline constexpr T pack_generic(U low, U high) noexcept
 
 inline constexpr ::fast_io::intrinsics::ul64x2 pack_ul64(::std::uint_least64_t low, ::std::uint_least64_t high) noexcept
 {
+	// This is a full 128-bit number that requires a size end-order conversion
 	if constexpr (::std::endian::native == ::std::endian::big)
 	{
 		return {high, low};
@@ -100,8 +101,7 @@ template <typename T, typename U>
 	requires(sizeof(U) * 2 <= sizeof(T))
 inline constexpr U umul_least_generic(U a, U b, U &high) noexcept
 {
-#if defined(__has_builtin) && defined(__GNUC__) && !defined(__clang__)
-#if __has_builtin(__builtin_bit_cast)
+#if defined(__GNUC__) && !defined(__clang__) && FAST_IO_HAS_BUILTIN(__builtin_bit_cast)
 	if constexpr (::std::endian::native == ::std::endian::little || ::std::endian::native == ::std::endian::big)
 	{
 		auto ret{__builtin_bit_cast(::fast_io::intrinsics::ul_generic_x2<U>, static_cast<T>(a) * b)};
@@ -109,7 +109,6 @@ inline constexpr U umul_least_generic(U a, U b, U &high) noexcept
 		return ret.low;
 	}
 	else
-#endif
 #endif
 	{
 		T v{static_cast<T>(a) * b};
@@ -174,15 +173,13 @@ template <typename T, typename U>
 	requires(sizeof(U) * 2 <= sizeof(T))
 inline constexpr U umulh_least_generic(U a, U b) noexcept
 {
-#if defined(__has_builtin) && defined(__GNUC__) && !defined(__clang__)
-#if __has_builtin(__builtin_bit_cast)
+#if defined(__GNUC__) && !defined(__clang__) && FAST_IO_HAS_BUILTIN(__builtin_bit_cast)
 	if constexpr (::std::endian::native == ::std::endian::little || ::std::endian::native == ::std::endian::big)
 	{
 		auto ret{__builtin_bit_cast(::fast_io::intrinsics::ul_generic_x2<U>, static_cast<T>(a) * b)};
 		return ret.high;
 	}
 	else
-#endif
 #endif
 	{
 		T v{static_cast<T>(a) * b};
@@ -426,7 +423,7 @@ inline constexpr T umul(U a, T b, U &high) noexcept
 			else
 			{
 				T h;
-				T low{::fast_io::intrinsics::msvc::x86::_umul128(a, b, __builtin_addressof(high))};
+				T low{::fast_io::intrinsics::msvc::x86::_umul128(a, b, __builtin_addressof(h))};
 				high = static_cast<U>(h);
 				return low;
 			}

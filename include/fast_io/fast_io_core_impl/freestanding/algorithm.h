@@ -123,6 +123,10 @@ inline constexpr output_iter copy(input_iter first, input_iter last, output_iter
 		{
 			*result = static_cast<::std::byte>(*first);
 		}
+		else
+		{
+			*result = *first;
+		}
 		++first;
 		++result;
 	}
@@ -243,21 +247,15 @@ namespace fast_io::freestanding
 {
 
 inline
-#if defined(__has_builtin)
-#if __has_builtin(__builtin_memcpy)
+#if FAST_IO_HAS_BUILTIN(__builtin_memcpy)
 	constexpr
-#endif
 #endif
 	void *
 	my_memcpy(void *dest, void const *src, ::std::size_t count) noexcept
 {
 	return
-#if defined(__has_builtin)
-#if __has_builtin(__builtin_memcpy)
+#if FAST_IO_HAS_BUILTIN(__builtin_memcpy)
 		__builtin_memcpy
-#else
-		::std::memcpy
-#endif
 #else
 		::std::memcpy
 #endif
@@ -265,21 +263,15 @@ inline
 }
 
 inline
-#if defined(__has_builtin)
-#if __has_builtin(__builtin_memmove)
+#if FAST_IO_HAS_BUILTIN(__builtin_memmove)
 	constexpr
-#endif
 #endif
 	void *
 	my_memmove(void *dest, void const *src, ::std::size_t count) noexcept
 {
 	return
-#if defined(__has_builtin)
-#if __has_builtin(__builtin_memmove)
+#if FAST_IO_HAS_BUILTIN(__builtin_memmove)
 		__builtin_memmove
-#else
-		::std::memmove
-#endif
 #else
 		::std::memmove
 #endif
@@ -289,12 +281,8 @@ inline
 inline void *my_memset(void *dest, int ch, ::std::size_t count) noexcept
 {
 	return
-#if defined(__has_builtin)
-#if __has_builtin(__builtin_memset)
+#if FAST_IO_HAS_BUILTIN(__builtin_memset)
 		__builtin_memset
-#else
-		::std::memset
-#endif
 #else
 		::std::memset
 #endif
@@ -302,21 +290,15 @@ inline void *my_memset(void *dest, int ch, ::std::size_t count) noexcept
 }
 
 inline
-#if defined(__has_builtin)
-#if __has_builtin(__builtin_memcmp)
+#if FAST_IO_HAS_BUILTIN(__builtin_memcmp)
 	constexpr
-#endif
 #endif
 	int
 	my_memcmp(void const *dest, void const *src, ::std::size_t count) noexcept
 {
 	return
-#if defined(__has_builtin)
-#if __has_builtin(__builtin_memcmp)
+#if FAST_IO_HAS_BUILTIN(__builtin_memcmp)
 		__builtin_memcmp
-#else
-		::std::memcmp
-#endif
 #else
 		::std::memcmp
 #endif
@@ -429,8 +411,8 @@ inline constexpr output_iter my_copy(input_iter first, input_iter second, output
 				  ::std::is_trivially_copyable_v<output_value_type> &&
 				  (::std::same_as<input_value_type, output_value_type> ||
 				   (::std::integral<input_value_type> && ::std::integral<output_value_type> &&
-					sizeof(::std::is_trivially_copyable_v<input_value_type>) ==
-						sizeof(::std::is_trivially_copyable_v<output_value_type>))))
+					::std::is_trivially_copyable_v<input_value_type> &&
+						::std::is_trivially_copyable_v<output_value_type>)))
 	{
 		my_copy_n(first, static_cast<::std::size_t>(second - first), result);
 		return result + (second - first);
@@ -500,13 +482,13 @@ inline constexpr bool my_compare_iter_n(input_iter first, ::std::size_t n, outpu
 					   (::std::integral<input_value_type> && ::std::integral<output_value_type> &&
 						sizeof(input_value_type) == sizeof(output_value_type))))
 		{
-			return my_memcmp(::std::to_address(first), ::std::to_address(outier), n) == 0;
+			return my_memcmp(::std::to_address(first), ::std::to_address(outier), n * sizeof(input_value_type)) == 0;
 		}
 		else
 		{
 			for (auto last{first + n}; first != last; ++first)
 			{
-				if (*first != outier)
+				if (*first != *outier)
 				{
 					return false;
 				}

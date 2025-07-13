@@ -27,7 +27,7 @@ inline constexpr ::std::ios::openmode calculate_fstream_file_open_mode(open_mode
 		ios_om = ios_om | ::std::ios::trunc;
 	}
 #if defined(__cpp_lib_ios_noreplace)
-	if ((om & open_mode::noreplace) != open_mode::noreplace)
+	if ((om & open_mode::noreplace) != open_mode::none)
 	{
 		ios_om = ios_om | ::std::ios::noreplace;
 	}
@@ -54,10 +54,7 @@ struct filebuf_guard
 
 	inline ~filebuf_guard()
 	{
-		if (new_filebuf)
-		{
-			delete new_filebuf;
-		}
+		delete new_filebuf;
 	}
 	inline constexpr filebuf_type *release() noexcept
 	{

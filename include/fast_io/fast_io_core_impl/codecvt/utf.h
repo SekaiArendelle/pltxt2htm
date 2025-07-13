@@ -69,13 +69,13 @@ template <::std::size_t src_char_type_size, ::std::size_t dest_char_type_size>
 	requires((dest_char_type_size <= 4) && (src_char_type_size <= 4))
 inline constexpr ::std::size_t cal_full_reserve_size(::std::size_t internal_size) noexcept
 {
-	constexpr ::std::size_t external_max{::std::numeric_limits<::std::size_t>::max() / dest_char_type_size};
+	[[maybe_unused]] constexpr ::std::size_t external_max{::std::numeric_limits<::std::size_t>::max() / dest_char_type_size};
 	constexpr ::std::size_t internal_max{::std::numeric_limits<::std::size_t>::max() / src_char_type_size};
 	if constexpr (src_char_type_size == 4)
 	{
 		if constexpr (dest_char_type_size == 4)
 		{
-			constexpr ::std::size_t imax{external_max};
+			constexpr ::std::size_t imax{internal_max};
 			if (internal_size >= imax)
 			{
 				fast_terminate();
@@ -84,7 +84,7 @@ inline constexpr ::std::size_t cal_full_reserve_size(::std::size_t internal_size
 		}
 		else if constexpr (dest_char_type_size == 2)
 		{
-			constexpr ::std::size_t imax{external_max / 2};
+			constexpr ::std::size_t imax{internal_max / 2};
 			if (internal_size >= imax)
 			{
 				fast_terminate();
@@ -93,7 +93,7 @@ inline constexpr ::std::size_t cal_full_reserve_size(::std::size_t internal_size
 		}
 		else
 		{
-			constexpr ::std::size_t imax{external_max / 8};
+			constexpr ::std::size_t imax{internal_max / 8};
 			if (internal_size >= imax)
 			{
 				fast_terminate();
@@ -105,7 +105,7 @@ inline constexpr ::std::size_t cal_full_reserve_size(::std::size_t internal_size
 	{
 		if constexpr (dest_char_type_size == 4)
 		{
-			constexpr ::std::size_t imax{external_max};
+			constexpr ::std::size_t imax{internal_max};
 			if (internal_size >= imax)
 			{
 				fast_terminate();
@@ -114,7 +114,7 @@ inline constexpr ::std::size_t cal_full_reserve_size(::std::size_t internal_size
 		}
 		else if constexpr (dest_char_type_size == 2)
 		{
-			constexpr ::std::size_t imax{external_max / 2};
+			constexpr ::std::size_t imax{internal_max / 2};
 			if (internal_size >= imax)
 			{
 				fast_terminate();
@@ -123,7 +123,7 @@ inline constexpr ::std::size_t cal_full_reserve_size(::std::size_t internal_size
 		}
 		else
 		{
-			constexpr ::std::size_t imax{external_max / 8};
+			constexpr ::std::size_t imax{internal_max / 8};
 			if (internal_size >= imax)
 			{
 				fast_terminate();
@@ -135,7 +135,7 @@ inline constexpr ::std::size_t cal_full_reserve_size(::std::size_t internal_size
 	{
 		if constexpr (dest_char_type_size == 4)
 		{
-			constexpr ::std::size_t imax{external_max};
+			constexpr ::std::size_t imax{internal_max};
 			if (internal_size >= imax)
 			{
 				fast_terminate();
@@ -167,13 +167,13 @@ template <::std::size_t src_char_type_size, ::std::size_t dest_char_type_size>
 	requires((dest_char_type_size <= 4) && (src_char_type_size <= 4))
 inline constexpr ::std::size_t cal_decorated_reserve_size(::std::size_t internal_size) noexcept
 {
-	constexpr ::std::size_t external_max{::std::numeric_limits<::std::size_t>::max() / dest_char_type_size};
+	[[maybe_unused]] constexpr ::std::size_t external_max{::std::numeric_limits<::std::size_t>::max() / dest_char_type_size};
 	constexpr ::std::size_t internal_max{::std::numeric_limits<::std::size_t>::max() / src_char_type_size};
 	if constexpr (src_char_type_size == 4)
 	{
 		if constexpr (dest_char_type_size == 4)
 		{
-			constexpr ::std::size_t imax{external_max};
+			constexpr ::std::size_t imax{internal_max};
 			if (internal_size >= imax)
 			{
 				fast_terminate();
@@ -182,7 +182,7 @@ inline constexpr ::std::size_t cal_decorated_reserve_size(::std::size_t internal
 		}
 		else if constexpr (dest_char_type_size == 2)
 		{
-			constexpr ::std::size_t imax{external_max / 2};
+			constexpr ::std::size_t imax{internal_max / 2};
 			if (internal_size >= imax)
 			{
 				fast_terminate();
@@ -191,7 +191,7 @@ inline constexpr ::std::size_t cal_decorated_reserve_size(::std::size_t internal
 		}
 		else
 		{
-			constexpr ::std::size_t imax{external_max / 8};
+			constexpr ::std::size_t imax{internal_max / 8};
 			if (internal_size >= imax)
 			{
 				fast_terminate();
@@ -203,7 +203,7 @@ inline constexpr ::std::size_t cal_decorated_reserve_size(::std::size_t internal
 	{
 		if constexpr (dest_char_type_size == 4)
 		{
-			constexpr ::std::size_t imax{external_max - 1};
+			constexpr ::std::size_t imax{internal_max - 1};
 			if (internal_size >= imax)
 			{
 				fast_terminate();
@@ -212,7 +212,7 @@ inline constexpr ::std::size_t cal_decorated_reserve_size(::std::size_t internal
 		}
 		else if constexpr (dest_char_type_size == 2)
 		{
-			constexpr ::std::size_t imax{external_max / 2 - 1};
+			constexpr ::std::size_t imax{internal_max / 2 - 1};
 			if (internal_size >= imax)
 			{
 				fast_terminate();
@@ -221,7 +221,7 @@ inline constexpr ::std::size_t cal_decorated_reserve_size(::std::size_t internal
 		}
 		else
 		{
-			constexpr ::std::size_t imax{external_max / 8 - 1};
+			constexpr ::std::size_t imax{internal_max / 8 - 1};
 			if (internal_size >= imax)
 			{
 				fast_terminate();
@@ -233,7 +233,7 @@ inline constexpr ::std::size_t cal_decorated_reserve_size(::std::size_t internal
 	{
 		if constexpr (dest_char_type_size == 4)
 		{
-			constexpr ::std::size_t imax{external_max - 7};
+			constexpr ::std::size_t imax{internal_max - 7};
 			if (internal_size >= imax)
 			{
 				fast_terminate();
@@ -498,11 +498,13 @@ inline constexpr char32_t utf16_surrogate_to_utf32(char16_t high, char16_t low) 
 	return static_cast<char32_t>((static_cast<::std::uint_least32_t>(high) << 10u) + low - 0x35fdc00u);
 }
 
-#if (defined(_MSC_VER) && defined(_M_AMD64) && !defined(__clang__)) || (defined(__SSE__) && defined(__x86_64__))
+#if (defined(_MSC_VER) && defined(_M_AMD64) && !defined(__clang__)) || (defined(__SSE__) && defined(__SSE2__) && defined(__x86_64__))
 template <::std::integral T, ::std::integral U>
 	requires((sizeof(T) == 1) && (sizeof(U) == 1 || sizeof(U) == 2 || sizeof(U) == 4))
 inline code_cvt_result<T, U> convert_ascii_with_sse(T const *__restrict pSrc, U *__restrict pDst) noexcept
 {
+	// No internal buffer judgment, external calls need to be judged
+
 	::std::uint_least32_t mask;
 #if (defined(__GNUC__) || defined(__clang__)) && !defined(__INTEL_COMPILER)
 	using namespace fast_io::intrinsics;
@@ -520,7 +522,7 @@ inline code_cvt_result<T, U> convert_ascii_with_sse(T const *__restrict pSrc, U 
 		x86_64_v16qi chunk;
 		__builtin_memcpy(__builtin_addressof(chunk), pSrc, m128i_size);
 		mask = static_cast<::std::uint_least32_t>(__builtin_ia32_pmovmskb128(chunk));
-#if __has_builtin(__builtin_shufflevector)
+#if FAST_IO_HAS_BUILTIN(__builtin_shufflevector)
 		x86_64_v16qi half{__builtin_shufflevector(chunk, zero, 0, 16 + 0, 1, 16 + 1, 2, 16 + 2, 3, 16 + 3, 4, 16 + 4, 5,
 												  16 + 5, 6, 16 + 6, 7, 16 + 7)};
 		__builtin_memcpy(pDst, __builtin_addressof(half), m128i_size);
@@ -539,7 +541,7 @@ inline code_cvt_result<T, U> convert_ascii_with_sse(T const *__restrict pSrc, U 
 		x86_64_v16qi chunk;
 		__builtin_memcpy(__builtin_addressof(chunk), pSrc, m128i_size);
 		mask = static_cast<::std::uint_least32_t>(__builtin_ia32_pmovmskb128(chunk));
-#if __has_builtin(__builtin_shufflevector)
+#if FAST_IO_HAS_BUILTIN(__builtin_shufflevector)
 		x86_64_v16qi half_result{__builtin_shufflevector(chunk, zero, 0, 16 + 0, 1, 16 + 1, 2, 16 + 2, 3, 16 + 3, 4,
 														 16 + 4, 5, 16 + 5, 6, 16 + 6, 7, 16 + 7)};
 		x86_64_v8hi half;

@@ -52,6 +52,13 @@ struct basic_general_io_lockable_nonmovable
 			this->handle = T(::std::forward<Args>(args)...);
 		}
 	}
+
+	inline constexpr auto native_handle() noexcept(noexcept(handle.native_handle()))
+		requires(requires() { handle.native_handle(); })
+	{
+		return handle.native_handle();
+	}
+
 	inline constexpr void close() noexcept(noexcept(handle.close()))
 	{
 		::fast_io::io_lock_guard guard(mutex);
@@ -83,11 +90,8 @@ struct heap_typed_allocate_guard
 	}
 	inline constexpr void clear() noexcept
 	{
-		if (this->ptr) [[likely]]
-		{
-			typed_allocator_type::deallocate_n(this->ptr, 1);
-			this->ptr = nullptr;
-		}
+		typed_allocator_type::deallocate_n(this->ptr, 1);
+		this->ptr = nullptr;
 	}
 	inline constexpr ~heap_typed_allocate_guard()
 	{
@@ -159,11 +163,12 @@ public:
 private:
 	inline constexpr void destroy() noexcept
 	{
-		if (pmutex)
+		if (this->pmutex) [[likely]]
 		{
 			::std::destroy_at(this->pmutex);
-			::fast_io::typed_generic_allocator_adapter<allocator_type, mutex_type>::deallocate_n(pmutex, 1);
 		}
+		::fast_io::typed_generic_allocator_adapter<allocator_type, mutex_type>::deallocate_n(this->pmutex, 1);
+		this->pmutex = nullptr;
 	}
 
 public:

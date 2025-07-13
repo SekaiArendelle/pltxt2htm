@@ -1,7 +1,7 @@
 #pragma once
 
 #if defined(_MSC_VER) && !defined(__clang__)
-    #pragma message("Fuck you, MSVC! Use [mingw gcc/clang](https://github.com/24bit-xjkp/toolchains/releases) instead")
+    #pragma message("Fuck you, MSVC! Use [gcc/clang](https://github.com/24bit-xjkp/toolchains/releases) instead")
 #endif
 
 #include <fast_io/fast_io_dsal/vector.h>

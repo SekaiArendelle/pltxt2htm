@@ -103,12 +103,8 @@ inline void *my_malloc_crt(::std::size_t buffer_size) noexcept
 https://github.com/mirror/mingw-w64/blob/master/mingw-w64-headers/crt/crtdbg.h
 CRT heap debugging does not exist on mingw-w64
 */
-#if defined(__has_builtin)
-#if __has_builtin(__builtin_malloc)
+#if FAST_IO_HAS_BUILTIN(__builtin_malloc)
 		__builtin_malloc(buffer_size)
-#else
-		malloc(buffer_size)
-#endif
 #else
 		malloc(buffer_size)
 #endif
@@ -217,7 +213,16 @@ inline void wincrt_fp_write_cold_impl(FILE *__restrict fp, char const *first, ch
 	crt_iobuf *fpp{reinterpret_cast<crt_iobuf *>(fp)};
 	if (fpp->_base == nullptr)
 	{
-		wincrt_fp_write_cold_malloc_case_impl(fp, first, diff);
+		if (auto const fd{fpp->_file}; fd == ::fast_io::posix_stderr_number)
+		{
+			// https://github.com/huangqinjin/ucrt/blob/d6e817a4cc90f6f1fe54f8a0aa4af4fff0bb647d/stdio/_sftbuf.cpp#L34
+			// Here, a buffer is forced to be added to stdout
+			::fast_io::details::posix_write_bytes_impl(fd, reinterpret_cast<::std::byte const *>(first), reinterpret_cast<::std::byte const *>(last));
+		}
+		else
+		{
+			wincrt_fp_write_cold_malloc_case_impl(fp, first, diff);
+		}
 	}
 	else
 	{
@@ -482,8 +487,9 @@ template <::std::integral char_type>
 inline ::std::byte *read_some_bytes_underflow_define(::fast_io::basic_c_io_observer_unlocked<char_type> ciob,
 													 ::std::byte *first, ::std::byte *last)
 {
-	return ::fast_io::details::wincrt_fp_read_cold_impl(ciob.fp, reinterpret_cast<char *>(first),
-														reinterpret_cast<char *>(last));
+	return reinterpret_cast<::std::byte *>(::fast_io::details::wincrt_fp_read_cold_impl(ciob.fp, 
+																						reinterpret_cast<char *>(first),
+																						reinterpret_cast<char *>(last)));
 }
 
 template <::std::integral char_type>
