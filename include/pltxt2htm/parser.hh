@@ -259,6 +259,7 @@ constexpr bool try_parse_md_atx_heading(::fast_io::u8string_view pltext, ::std::
 {
     ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t start_index{};
+    // spaces before the first #
     while (true) {
         if (start_index >= pltext_size) {
             return false;
@@ -284,6 +285,16 @@ constexpr bool try_parse_md_atx_heading(::fast_io::u8string_view pltext, ::std::
         return false;
     }
     ++start_index;
+    // spaces after the last #
+    while (true) {
+        if (start_index >= pltext_size) {
+            return false;
+        }
+        if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, start_index) != u8' ') {
+            break;
+        }
+        ++start_index;
+    }
     // end of the atx header
     ::std::size_t sublength{start_index};
     ::std::size_t _;

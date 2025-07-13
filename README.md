@@ -64,6 +64,7 @@ markdown extension based on [commonmark](https://spec.commonmark.org/0.31.2/)
 * HTML's &lt;h6&gt; tag is supported
 * HTML's &lt;p&gt; tag is supported
 * HTML's &lt;del&gt; tag is supported
+* most of the markdown ATX headers are supported
 
 > Note: undocumented/untested features is undefined behavior
 

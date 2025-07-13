@@ -23,5 +23,37 @@ int main() noexcept {
     auto answer5 = ::fast_io::u8string_view{u8""};
     ::exception::assert_true(html5 == answer5);
 
+    auto html6 = ::pltxt2htm::pltxt2advanced_html(u8"# test<b>\ntext", u8"_");
+    auto answer6 = ::fast_io::u8string_view{u8"<h1>test</h1><br>text"};
+    ::exception::assert_true(html6 == answer6);
+
+    auto html7 = ::pltxt2htm::pltxt2advanced_html(u8"# te<b>st\ntext", u8"_");
+    auto answer7 = ::fast_io::u8string_view{u8"<h1>te<b>st</b></h1><br>text"};
+    ::exception::assert_true(html7 == answer7);
+
+    auto html8 = ::pltxt2htm::pltxt2advanced_html(u8"## test\ntext", u8"_");
+    auto answer8 = ::fast_io::u8string_view{u8"<h2>test</h2><br>text"};
+    ::exception::assert_true(html8 == answer8);
+
+    auto html9 = ::pltxt2htm::pltxt2advanced_html(u8"###### test\ntext", u8"_");
+    auto answer9 = ::fast_io::u8string_view{u8"<h6>test</h6><br>text"};
+    ::exception::assert_true(html9 == answer9);
+
+    auto html10 = ::pltxt2htm::pltxt2advanced_html(u8"####### test\ntext", u8"_");
+    auto answer10 = ::fast_io::u8string_view{u8"#######&nbsp;test<br>text"};
+    ::exception::assert_true(html10 == answer10);
+
+    auto html11 = ::pltxt2htm::pltxt2advanced_html(u8"#test\ntext", u8"_");
+    auto answer11 = ::fast_io::u8string_view{u8"#test<br>text"};
+    ::exception::assert_true(html11 == answer11);
+
+    auto html12 = ::pltxt2htm::pltxt2advanced_html(u8"#            test\ntext", u8"_");
+    auto answer12 = ::fast_io::u8string_view{u8"<h1>test</h1><br>text"};
+    ::exception::assert_true(html12 == answer12);
+
+    auto html13 = ::pltxt2htm::pltxt2advanced_html(u8"          # test\ntext", u8"_");
+    auto answer13 = ::fast_io::u8string_view{u8"<h1>test</h1><br>text"};
+    ::exception::assert_true(html13 == answer13);
+
     return 0;
 }
