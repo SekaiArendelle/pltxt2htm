@@ -128,4 +128,7 @@ jobs:
           xmake build -v
 
       - name: Install
+        shell: powershell
+        working-directory: wasm
+        run: |
           xmake install -o auto
