@@ -35,6 +35,13 @@ int main() noexcept {
     auto answer8 = ::fast_io::u8string_view{u8"<h2>test</h2><br>text"};
     ::exception::assert_true(html8 == answer8);
 
+    ::exception::assert_true(::pltxt2htm::pltxt2advanced_html(u8"### test", u8"_") ==
+                             ::fast_io::u8string_view{u8"<h3>test</h3>"});
+    ::exception::assert_true(::pltxt2htm::pltxt2advanced_html(u8"#### test", u8"_") ==
+                             ::fast_io::u8string_view{u8"<h4>test</h4>"});
+    ::exception::assert_true(::pltxt2htm::pltxt2advanced_html(u8"##### test", u8"_") ==
+                             ::fast_io::u8string_view{u8"<h5>test</h5>"});
+
     auto html9 = ::pltxt2htm::pltxt2advanced_html(u8"###### test\ntext", u8"_");
     auto answer9 = ::fast_io::u8string_view{u8"<h6>test</h6><br>text"};
     ::exception::assert_true(html9 == answer9);

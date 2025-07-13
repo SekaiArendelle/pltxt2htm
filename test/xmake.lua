@@ -28,6 +28,10 @@ for _, file in ipairs(os.files("*.cc")) do
         on_config(function (target)
             local toolchains = target:tool("cxx")
             if path.basename(toolchains) == "clang++" or path.basename(toolchains) == "clang" then
+                if is_mode("coverage") then
+                    print("error: lcov only support gcc, please reconfig with `--toolchain=gcc --mode=coverage`")
+                    os.exit(1)
+                end
                 target:add("ldflags", "-fuse-ld=lld")
             end
         end)

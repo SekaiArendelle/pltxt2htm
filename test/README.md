@@ -22,6 +22,6 @@ show other snitizers in [xmake doc](https://xmake.io/api/description/builtin-pol
 ```sh
 xmake config --mode=coverage --toolchain=gcc
 xmake test
-lcov --capture --directory build/.objs --output-file build/coverage.info --exclude "*/fast_io/*" --exclude "*/exception/*" --exclude "*/c++/*"
+lcov --capture --directory build/.objs --output-file build/coverage.info --exclude "*/fast_io/*" --exclude "*/exception/*" --exclude "*/c++/*" --exclude "*/test/0*.cc"
 genhtml build/coverage.info --output-directory lcov-report
 ```
