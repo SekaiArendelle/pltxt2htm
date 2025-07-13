@@ -35,7 +35,7 @@ jobs:
           xmake test
 
   x86_64-windows-msvc-cmd-debug:
-    name: x86_64-windows-msvc (cmd/)
+    name: x86_64-windows-msvc (cmd/, debug mode)
     runs-on: windows-latest
 
     steps:
@@ -64,3 +64,33 @@ jobs:
         run: |
           xmake config -p windows -a x64 --toolchain=x86_64-windows-msvc-clang -m debug
           xmake build -v
+          xmake run pltxt2htm
+
+  wasm32-unknown-emscripten-wasm-debug:
+    name: wasm32-unknown-emscripten (wasm/, debug mode)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Emscripten
+        uses: mymindstorm/setup-emsdk@v12
+
+      - name: Setup xmake
+        uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: latest
+
+      - name: emcc version
+        shell: powershell
+        run: |
+          emcc -v
+
+      - name: Configure and build
+        shell: powershell
+        working-directory: wasm
+        run: |
+          xmake config -p wasm -m debug --toolchain=emcc
+          xmake build
+          xmake install -o auto
