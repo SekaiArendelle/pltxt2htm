@@ -99,6 +99,41 @@ jobs:
         run: |
           xmake run pltxt2htm
 
+      - name: Install
+        shell: powershell
+        working-directory: cmd
+        run: |
+          xmake install -o auto
+
+  aarch64-apple-darwin24-cmd-debug:
+    name: aarch64-apple-darwin24 (cmd/, debug mode)
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install clang and xmake
+        run: |
+          brew update
+          brew install llvm xmake
+
+      - name: Configure and build
+        working-directory: cmd
+        run: |
+          xmake f -p macosx -a aarch64 -m debug
+          xmake build
+
+      - name: Run
+        working-directory: cmd
+        run: |
+          xmake run pltxt2htm
+
+      - name: Install
+        working-directory: cmd
+        run: |
+          xmake install -o auto
+
   wasm32-unknown-emscripten-wasm-debug:
     name: wasm32-unknown-emscripten (wasm/, debug mode)
     runs-on: windows-latest
