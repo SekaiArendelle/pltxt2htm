@@ -90,5 +90,9 @@ int main() noexcept {
     auto answer20 = ::fast_io::u8string_view{u8"<br><h2></h2>"};
     ::exception::assert_true(html20 == answer20);
 
+    auto html21 = ::pltxt2htm::pltxt2advanced_html(u8"\\# test<br>text", u8"_");
+    auto answer21 = ::fast_io::u8string_view{u8"#&nbsp;test<br>text"};
+    ::exception::assert_true(html21 == answer21);
+
     return 0;
 }

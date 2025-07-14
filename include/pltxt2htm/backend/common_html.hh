@@ -31,22 +31,32 @@ constexpr auto ast2common_html(::fast_io::vector<::pltxt2htm::details::HeapGuard
             result.append(u8"&nbsp;");
             break;
         }
+        case ::pltxt2htm::NodeType::md_escape_ampersand:
+            [[fallthrough]];
         case ::pltxt2htm::NodeType::ampersand: {
             result.append(u8"&amp;");
             break;
         }
+        case ::pltxt2htm::NodeType::md_escape_single_quote:
+            [[fallthrough]];
         case ::pltxt2htm::NodeType::single_quote: {
             result.append(u8"&apos;");
             break;
         }
+        case ::pltxt2htm::NodeType::md_escape_double_quote:
+            [[fallthrough]];
         case ::pltxt2htm::NodeType::double_quote: {
             result.append(u8"&quot;");
             break;
         }
+        case ::pltxt2htm::NodeType::md_escape_less_than:
+            [[fallthrough]];
         case ::pltxt2htm::NodeType::less_than: {
             result.append(u8"&lt;");
             break;
         }
+        case ::pltxt2htm::NodeType::md_escape_greater_than:
+            [[fallthrough]];
         case ::pltxt2htm::NodeType::greater_than: {
             result.append(u8"&gt;");
             break;
@@ -110,6 +120,114 @@ constexpr auto ast2common_html(::fast_io::vector<::pltxt2htm::details::HeapGuard
             if (is_not_same_tag) {
                 result.append(u8"</span>");
             }
+            break;
+        }
+        case ::pltxt2htm::NodeType::md_escape_backslash: {
+            result.push_back(u8'\\');
+            break;
+        }
+        case ::pltxt2htm::NodeType::md_escape_exclamation: {
+            result.push_back(u8'!');
+            break;
+        }
+        case ::pltxt2htm::NodeType::md_escape_hash: {
+            result.push_back(u8'#');
+            break;
+        }
+        case ::pltxt2htm::NodeType::md_escape_dollar: {
+            result.push_back(u8'$');
+            break;
+        }
+        case ::pltxt2htm::NodeType::md_escape_percent: {
+            result.push_back(u8'%');
+            break;
+        }
+        case ::pltxt2htm::NodeType::md_escape_left_paren: {
+            result.push_back(u8'(');
+            break;
+        }
+        case ::pltxt2htm::NodeType::md_escape_right_paren: {
+            result.push_back(u8')');
+            break;
+        }
+        case ::pltxt2htm::NodeType::md_escape_asterisk: {
+            result.push_back(u8'*');
+            break;
+        }
+        case ::pltxt2htm::NodeType::md_escape_plus: {
+            result.push_back(u8'+');
+            break;
+        }
+        case ::pltxt2htm::NodeType::md_escape_comma: {
+            result.push_back(u8',');
+            break;
+        }
+        case ::pltxt2htm::NodeType::md_escape_hyphen: {
+            result.push_back(u8'-');
+            break;
+        }
+        case ::pltxt2htm::NodeType::md_escape_dot: {
+            result.push_back(u8'.');
+            break;
+        }
+        case ::pltxt2htm::NodeType::md_escape_slash: {
+            result.push_back(u8'/');
+            break;
+        }
+        case ::pltxt2htm::NodeType::md_escape_colon: {
+            result.push_back(u8':');
+            break;
+        }
+        case ::pltxt2htm::NodeType::md_escape_semicolon: {
+            result.push_back(u8';');
+            break;
+        }
+        case ::pltxt2htm::NodeType::md_escape_equals: {
+            result.push_back(u8'=');
+            break;
+        }
+        case ::pltxt2htm::NodeType::md_escape_question: {
+            result.push_back(u8'?');
+            break;
+        }
+        case ::pltxt2htm::NodeType::md_escape_at: {
+            result.push_back(u8'@');
+            break;
+        }
+        case ::pltxt2htm::NodeType::md_escape_left_bracket: {
+            result.push_back(u8'[');
+            break;
+        }
+        case ::pltxt2htm::NodeType::md_escape_right_bracket: {
+            result.push_back(u8']');
+            break;
+        }
+        case ::pltxt2htm::NodeType::md_escape_caret: {
+            result.push_back(u8'^');
+            break;
+        }
+        case ::pltxt2htm::NodeType::md_escape_underscore: {
+            result.push_back(u8'_');
+            break;
+        }
+        case ::pltxt2htm::NodeType::md_escape_backtick: {
+            result.push_back(u8'`');
+            break;
+        }
+        case ::pltxt2htm::NodeType::md_escape_left_brace: {
+            result.push_back(u8'{');
+            break;
+        }
+        case ::pltxt2htm::NodeType::md_escape_pipe: {
+            result.push_back(u8'|');
+            break;
+        }
+        case ::pltxt2htm::NodeType::md_escape_right_brace: {
+            result.push_back(u8'}');
+            break;
+        }
+        case ::pltxt2htm::NodeType::md_escape_tilde: {
+            result.push_back(u8'~');
             break;
         }
         default: {
