@@ -105,8 +105,8 @@ jobs:
         run: |
           xmake install -o auto
 
-  aarch64-apple-darwin24-cmd-debug:
-    name: aarch64-apple-darwin24 (cmd/, debug mode)
+  aarch64-apple-darwin24-cmd-release:
+    name: aarch64-apple-darwin24 (cmd/, release mode)
     runs-on: macos-latest
 
     steps:
@@ -128,7 +128,7 @@ jobs:
       - name: Configure and build
         working-directory: cmd
         run: |
-          xmake f -m debug --toolchain=clang
+          xmake f -m release --toolchain=clang
           xmake build -v
 
       - name: Run
