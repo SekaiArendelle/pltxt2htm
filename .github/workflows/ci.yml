@@ -99,6 +99,49 @@ jobs:
         run: |
           xmake run pltxt2htm
 
+      - name: Install
+        shell: powershell
+        working-directory: cmd
+        run: |
+          xmake install -o auto
+
+  aarch64-apple-darwin24-cmd-release:
+    name: aarch64-apple-darwin24 (cmd/, release mode)
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install clang and xmake
+        run: |
+          brew update
+          brew install llvm lld xmake
+
+      - name: Set PATH for LLVM clang
+        run: echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
+
+      - name: Verify clang installation
+        run: |
+          clang -v
+
+      - name: Configure and build
+        working-directory: cmd
+        run: |
+          xmake f -m release --toolchain=clang
+          xmake build -v
+
+      - name: Run
+        working-directory: cmd
+        run: |
+          xmake run pltxt2htm
+
+      # Unknown install error, disabled temporarily
+      # - name: Install
+      #   working-directory: cmd
+      #   run: |
+      #     xmake install -o auto
+
   wasm32-unknown-emscripten-wasm-debug:
     name: wasm32-unknown-emscripten (wasm/, debug mode)
     runs-on: windows-latest
