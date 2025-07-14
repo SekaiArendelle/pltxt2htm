@@ -38,7 +38,7 @@ if err_code != 0:
 err_code = os.system("xmake test")
 if err_code != 0:
     raise Exception("xmake test failed")
-err_code = os.system("lcov --capture --directory build/.objs --output-file build/coverage.info --exclude \"*/fast_io/*\" --exclude \"*/exception/*\" --exclude \"*/c++/*\" --exclude \"*/test/0*.cc\" | grep -v \"^Excluding file\"")
+err_code = os.system("lcov --rc geninfo_unexecuted_blocks=1 --capture --directory build/.objs --output-file build/coverage.info --exclude \"*/fast_io/*\" --exclude \"*/exception/*\" --exclude \"*/c++/*\" --exclude \"*/test/0*.cc\" | grep -v \"^Excluding file\"")
 if err_code != 0:
     raise Exception("lcov failed")
 err_code = os.system(f"genhtml build/coverage.info --output-directory {os.path.join(SCRIPT_DIR, 'lcov-report')}")

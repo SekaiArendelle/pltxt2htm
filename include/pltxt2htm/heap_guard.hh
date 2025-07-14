@@ -80,9 +80,16 @@ public:
 #endif
         ;
 
-    constexpr HeapGuard& operator=(this HeapGuard<T>& self, HeapGuard<T>&& other) noexcept {
+    template<bool ndebug = false>
+    constexpr HeapGuard& operator=([[maybe_unused]] this HeapGuard<T>& self,
+                                   [[maybe_unused]] HeapGuard<T>&& other) noexcept {
+#if 1
+        static_assert(false, "This move assignment is useless in pltxt2htm");
+#else
+        pltxt2htm_assert(self.ptr_ != other.release_imul(), u8"Assigning to self is not allowed");
         self.swap(self, other);
         return self;
+#endif
     }
 
     constexpr ~HeapGuard() noexcept {
@@ -100,6 +107,7 @@ public:
         return self.ptr_;
     }
 
+    [[nodiscard]]
     constexpr T const* release_imul(this HeapGuard<T> const& self) noexcept {
         return self.ptr_;
     }
