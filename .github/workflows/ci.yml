@@ -118,6 +118,13 @@ jobs:
           brew update
           brew install llvm xmake
 
+      - name: Set PATH for LLVM clang
+        run: echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
+
+      - name: Verify clang installation
+        run: |
+          clang --v
+
       - name: Configure and build
         working-directory: cmd
         run: |
