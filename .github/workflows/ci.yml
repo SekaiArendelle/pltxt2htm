@@ -123,7 +123,7 @@ jobs:
 
       - name: Verify clang installation
         run: |
-          clang --v
+          clang -v
 
       - name: Configure and build
         working-directory: cmd
