@@ -121,8 +121,8 @@ jobs:
       - name: Configure and build
         working-directory: cmd
         run: |
-          xmake f -p macosx -a aarch64 -m debug
-          xmake build
+          xmake f -m debug --toolchain=clang
+          xmake build -v
 
       - name: Run
         working-directory: cmd
