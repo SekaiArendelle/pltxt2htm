@@ -3,7 +3,7 @@
 #include <Python.h>
 #include <pltxt2htm/pltxt2htm.h>
 
-static ::PyObject* common_parser(::PyObject* self, ::PyObject* args, ::PyObject* kwargs)
+static ::PyObject* common_parser([[maybe_unused]] ::PyObject* self, ::PyObject* args, ::PyObject* kwargs)
 #if __cpp_exceptions < 199711L
     noexcept
 #endif // __cpp_exceptions < 199711L
@@ -34,7 +34,7 @@ static ::PyObject* common_parser(::PyObject* self, ::PyObject* args, ::PyObject*
     return result;
 }
 
-static ::PyObject* advanced_parser(::PyObject* self, ::PyObject* args, ::PyObject* kwargs)
+static ::PyObject* advanced_parser([[maybe_unused]] ::PyObject* self, ::PyObject* args, ::PyObject* kwargs)
 #if __cpp_exceptions < 199711L
     noexcept
 #endif // __cpp_exceptions < 199711L
@@ -75,7 +75,7 @@ static ::PyMethodDef methods_[] = {
     {"advanced_parser", reinterpret_cast<PyCFunction>(::advanced_parser), METH_VARARGS | METH_KEYWORDS, nullptr},
     {nullptr, nullptr, 0, nullptr}};
 
-static struct ::PyModuleDef pltxt2htm_py_module = {
+static ::PyModuleDef pltxt2htm_py_module = {
     .m_base = PyModuleDef_HEAD_INIT,
     .m_name = "pltxt2htm",
     .m_doc = "Parse Quantam-Physics's text to html",

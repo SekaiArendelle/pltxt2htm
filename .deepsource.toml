@@ -1,4 +1,12 @@
 version = 1
 
+exclude_patterns = [
+  "include/fast_io/**"
+]
+
+test_patterns = [
+  "test/*.cc"
+]
+
 [[analyzers]]
 name = "cxx"
