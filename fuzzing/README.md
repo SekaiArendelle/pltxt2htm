@@ -1,0 +1,1 @@
+Clang Fuzzer for `pltxt2htm::advanced_parser` and `pltxt2htm::common_parser`
