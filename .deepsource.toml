@@ -3,6 +3,4 @@ version = 1
 [[analyzers]]
 name = "cxx"
   [analyzers.meta]
-  exclude_patterns = [
-    "include/fast_io/**",
-  ]
+  exclude_patterns = ["include/fast_io/**"]
