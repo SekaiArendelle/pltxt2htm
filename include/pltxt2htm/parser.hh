@@ -11,6 +11,7 @@
 #include "astnode/html_node.hh"
 #include "astnode/physics_lab_node.hh"
 #include "pltxt2htm/astnode/markdown.hh"
+#include "pltxt2htm/heap_guard.hh"
 #include "push_macro.hh"
 
 namespace pltxt2htm {
@@ -1331,14 +1332,22 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
             if ((chr & 0b1000'0000) == 0) {
                 result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{chr});
             } else if ((chr & 0b1100'0000) == 0b1100'0000 && (chr & 0b0010'0000) == 0) {
-                pltxt2htm_assert(i + 1 < pltxt_size, u8"Invalid utf-8 encoding");
+                if (i + 1 >= pltxt_size) {
+                    // Invalid utf-8 encoding
+                    result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::InvalidUtf8Char>{});
+                    continue;
+                }
 
                 result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{chr});
                 result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{
                     ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i + 1)});
                 i += 1;
             } else if ((chr & 0b1110'0000) == 0b1110'0000 && (chr & 0b0001'0000) == 0) {
-                pltxt2htm_assert(i + 2 < pltxt_size, u8"Invalid utf-8 encoding");
+                if (i + 2 >= pltxt_size) {
+                    // Invalid utf-8 encoding
+                    result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::InvalidUtf8Char>{});
+                    continue;
+                }
 
                 result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{chr});
                 result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{
@@ -1347,7 +1356,11 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                     ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i + 2)});
                 i += 2;
             } else if ((chr & 0b1111'0000) == 0b1111'0000 && (chr & 0b0000'1000) == 0) {
-                pltxt2htm_assert(i + 3 < pltxt_size, u8"Invalid utf-8 encoding");
+                if (i + 3 >= pltxt_size) {
+                    // Invalid utf-8 encoding
+                    result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::InvalidUtf8Char>{});
+                    continue;
+                }
 
                 result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{chr});
                 result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{
@@ -1358,8 +1371,9 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                     ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i + 3)});
                 i += 3;
             } else [[unlikely]] {
-                // invalid utf-8 encoding
-                ::exception::unreachable<ndebug>();
+                // Invalid utf-8 encoding
+                result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::InvalidUtf8Char>{});
+                continue;
             }
         }
     }

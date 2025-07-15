@@ -10,8 +10,10 @@ namespace pltxt2htm {
  */
 enum class NodeType : ::std::uint_least32_t {
     base = 0,
-    // a utf-8 char/string
+    // a utf-8 char
     u8char,
+    // invalid utf-8 char
+    invalid_u8char,
 
     // \n
     line_break,
