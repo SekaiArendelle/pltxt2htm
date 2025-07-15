@@ -66,6 +66,32 @@ jobs:
           xmake config --toolchain=gcc --policies=build.sanitizer.address
           xmake test -v
 
+  aarch64-apple-darwin24-test-msan:
+    name: aarch64-apple-darwin24 (test/, msan)
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install clang and xmake
+        run: |
+          brew update
+          brew install llvm lld xmake
+
+      - name: Set PATH for LLVM clang
+        run: echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
+
+      - name: Verify clang installation
+        run: |
+          clang -v
+
+      - name: Configure and build
+        working-directory: test
+        run: |
+          xmake config --toolchain=clang --policies=build.sanitizer.memory
+          xmake test -v
+
   x86_64-windows-msvc-cmd-debug:
     name: x86_64-windows-msvc (cmd/, debug mode)
     runs-on: windows-latest
