@@ -11,6 +11,7 @@
 #include "astnode/html_node.hh"
 #include "astnode/physics_lab_node.hh"
 #include "pltxt2htm/astnode/markdown.hh"
+#include "pltxt2htm/heap_guard.hh"
 #include "push_macro.hh"
 
 namespace pltxt2htm {
@@ -1328,17 +1329,47 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
             continue;
         } else {
             // normal utf-8 characters
-            if ((chr & 0b1000'0000) == 0) {
+            if ((chr & 0x80) == 0) {
                 result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{chr});
-            } else if ((chr & 0b1100'0000) == 0b1100'0000 && (chr & 0b0010'0000) == 0) {
-                pltxt2htm_assert(i + 1 < pltxt_size, u8"Invalid utf-8 encoding");
+                continue;
+            } else if ((chr & 0xE0) == 0xC0) {
+                if (i + 1 >= pltxt_size) {
+                    goto invalid_u8char;
+                }
+                auto next_char = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i + 1);
+                if ((next_char & 0xC0) != 0x80) {
+                    goto invalid_u8char;
+                }
+                char32_t combine{static_cast<char32_t>(chr & 0x1F) << 6 | static_cast<char32_t>(next_char & 0x3F)};
+                if (combine < 0x80 || combine > 0x7FF) {
+                    goto invalid_u8char;
+                }
 
                 result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{chr});
-                result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{
-                    ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i + 1)});
+                result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{next_char});
                 i += 1;
-            } else if ((chr & 0b1110'0000) == 0b1110'0000 && (chr & 0b0001'0000) == 0) {
-                pltxt2htm_assert(i + 2 < pltxt_size, u8"Invalid utf-8 encoding");
+                continue;
+            } else if ((chr & 0xF0) == 0xE0) {
+                if (i + 2 >= pltxt_size) {
+                    goto invalid_u8char;
+                }
+                auto next_char = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i + 1);
+                if ((next_char & 0xC0) != 0x80) {
+                    goto invalid_u8char;
+                }
+                auto next_char2 = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i + 2);
+                if ((next_char2 & 0xC0) != 0x80) {
+                    goto invalid_u8char;
+                }
+                char32_t combine{static_cast<char32_t>(chr & 0x0f) << 12 |
+                                 static_cast<char32_t>(next_char & 0x3f) << 6 |
+                                 static_cast<char32_t>(next_char2 & 0x3f)};
+                if (combine < 0x800 || combine > 0xffff) {
+                    goto invalid_u8char;
+                }
+                if (0xd800 <= combine && combine <= 0xdfff) {
+                    goto invalid_u8char;
+                }
 
                 result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{chr});
                 result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{
@@ -1346,21 +1377,44 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                 result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{
                     ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i + 2)});
                 i += 2;
-            } else if ((chr & 0b1111'0000) == 0b1111'0000 && (chr & 0b0000'1000) == 0) {
-                pltxt2htm_assert(i + 3 < pltxt_size, u8"Invalid utf-8 encoding");
+                continue;
+            } else if ((chr & 0xF8) == 0xF0) {
+                if (i + 3 >= pltxt_size) {
+                    goto invalid_u8char;
+                }
+                auto next_char = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i + 1);
+                if ((next_char & 0xC0) != 0x80) {
+                    goto invalid_u8char;
+                }
+                auto next_char2 = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i + 2);
+                if ((next_char & 0xC0) != 0x80) {
+                    goto invalid_u8char;
+                }
+                auto next_char3 = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i + 3);
+                if ((next_char3 & 0xC0) != 0x80) {
+                    goto invalid_u8char;
+                }
+                char32_t combine{
+                    static_cast<char32_t>(chr & 0x07) << 18 | static_cast<char32_t>(next_char & 0x3F) << 12 |
+                    static_cast<char32_t>(next_char2 & 0x3F) << 6 | static_cast<char32_t>(next_char3 & 0x3F)};
+                if (combine < 0x10000 || combine > 0x10FFFF) {
+                    goto invalid_u8char;
+                }
+                if (0xd800 <= combine && combine <= 0xdfff) {
+                    goto invalid_u8char;
+                }
 
                 result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{chr});
-                result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{
-                    ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i + 1)});
-                result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{
-                    ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i + 2)});
-                result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{
-                    ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i + 3)});
+                result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{next_char});
+                result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{next_char2});
+                result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{next_char3});
                 i += 3;
-            } else [[unlikely]] {
-                // invalid utf-8 encoding
-                ::exception::unreachable<ndebug>();
+                continue;
             }
+        invalid_u8char:
+            // Invalid utf-8 encoding
+            result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::InvalidUtf8Char>{});
+            continue;
         }
     }
 

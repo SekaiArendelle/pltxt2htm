@@ -47,7 +47,7 @@ public:
     constexpr U8Char() noexcept = delete;
 
     constexpr U8Char(char8_t const& chr) noexcept
-        : PlTxtNode{NodeType::u8char},
+        : PlTxtNode{::pltxt2htm::NodeType::u8char},
           data_{chr} {
     }
 
@@ -60,6 +60,18 @@ public:
     constexpr auto get_u8char(this U8Char const& self) noexcept {
         return self.data_;
     }
+};
+
+class InvalidUtf8Char : public ::pltxt2htm::PlTxtNode {
+public:
+    constexpr InvalidUtf8Char()
+        : PlTxtNode(::pltxt2htm::NodeType::invalid_u8char) {
+    }
+
+    constexpr InvalidUtf8Char(InvalidUtf8Char const& other) noexcept = default;
+    constexpr InvalidUtf8Char(InvalidUtf8Char&& other) noexcept = default;
+    constexpr InvalidUtf8Char& operator=(InvalidUtf8Char const& other) noexcept = default;
+    constexpr InvalidUtf8Char& operator=(InvalidUtf8Char&& other) noexcept = default;
 };
 
 namespace details {

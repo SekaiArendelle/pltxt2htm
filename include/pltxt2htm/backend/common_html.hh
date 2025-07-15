@@ -28,6 +28,10 @@ constexpr auto ast2common_html(::fast_io::vector<::pltxt2htm::details::HeapGuard
             result.push_back(reinterpret_cast<::pltxt2htm::U8Char const*>(node.release_imul())->get_u8char());
             break;
         }
+        case ::pltxt2htm::NodeType::invalid_u8char: {
+            result.append(u8"\xEF\xBF\xBD");
+            break;
+        }
         case ::pltxt2htm::NodeType::space: {
             result.append(u8"&nbsp;");
             break;
