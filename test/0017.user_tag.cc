@@ -1,6 +1,5 @@
-#include <cstring>
-#include <exception/exception.hh>
 #include <fast_io/fast_io_dsal/string_view.h>
+#include <exception/exception.hh>
 #include <pltxt2htm/pltxt2htm.hh>
 
 int main() noexcept {
@@ -46,8 +45,8 @@ int main() noexcept {
 
     // test invalid tag
     auto html8 = ::pltxt2htm::pltxt2advanced_html(u8"test<user=", u8"localhost:5173");
-    auto answer8 = u8"test&lt;user=";
-    ::exception::assert_true(::std::memcmp(html8.data(), answer8, html8.size()) == 0);
+    auto answer8 = ::fast_io::u8string_view{u8"test&lt;user="};
+    ::exception::assert_true(html8 == answer8);
 
     auto html9 = ::pltxt2htm::pltxt2advanced_html(
         u8"<User=642cf37a494746375aae306a>text<user=642cf37a494746375aae306a>text</user></user>", u8"localhost:5173");
