@@ -6,6 +6,7 @@
 #include "../heap_guard.hh"
 #include "../astnode/basic.hh"
 #include "../astnode/physics_lab_node.hh"
+#include "pltxt2htm/astnode/node_type.hh"
 
 namespace pltxt2htm::details {
 
@@ -228,6 +229,9 @@ constexpr auto ast2common_html(::fast_io::vector<::pltxt2htm::details::HeapGuard
         }
         case ::pltxt2htm::NodeType::md_escape_tilde: {
             result.push_back(u8'~');
+            break;
+        }
+        case ::pltxt2htm::NodeType::html_hr: {
             break;
         }
         default: {

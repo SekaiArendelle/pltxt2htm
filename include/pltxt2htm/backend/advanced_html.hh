@@ -375,6 +375,10 @@ constexpr auto ast2advanced_html(::fast_io::vector<::pltxt2htm::details::HeapGua
             }
             break;
         }
+        case ::pltxt2htm::NodeType::html_hr: {
+            result.append(u8"<hr>");
+            break;
+        }
         case ::pltxt2htm::NodeType::md_escape_backslash: {
             result.push_back(u8'\\');
             break;

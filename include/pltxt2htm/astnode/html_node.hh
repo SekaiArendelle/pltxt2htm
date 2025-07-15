@@ -325,4 +325,20 @@ public:
     constexpr ::pltxt2htm::Del& operator=(::pltxt2htm::Del&&) noexcept = delete;
 };
 
+/**
+ * @brief Represents a <hr> tag.
+ */
+class Hr : public ::pltxt2htm::PlTxtNode {
+public:
+    constexpr Hr() noexcept
+        : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::html_hr} {
+    }
+
+    constexpr Hr(::pltxt2htm::Hr const& other) noexcept = default;
+    constexpr Hr(::pltxt2htm::Hr&& other) noexcept = default;
+    constexpr ~Hr() noexcept = default;
+    constexpr ::pltxt2htm::Hr& operator=(::pltxt2htm::Hr const& other) noexcept = delete;
+    constexpr ::pltxt2htm::Hr& operator=(::pltxt2htm::Hr&& other) noexcept = delete;
+};
+
 } // namespace pltxt2htm

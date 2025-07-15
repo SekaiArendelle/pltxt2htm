@@ -922,6 +922,11 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                         result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H6>(::std::move(subast)));
                     }
                     goto complete_parsing_tag;
+                } else if (::pltxt2htm::details::try_parse_self_closing_tag<ndebug, u8'r'>(
+                               ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), tag_len)) {
+                    i += tag_len + 2;
+                    result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Hr>());
+                    goto complete_parsing_tag;
                 } else {
                     goto not_valid_tag;
                 }
