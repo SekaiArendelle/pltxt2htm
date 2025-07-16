@@ -29,3 +29,6 @@ core*
 # clangd
 compile_commands.json
 .cache
+
+# fuzzer crashing file
+crash-*

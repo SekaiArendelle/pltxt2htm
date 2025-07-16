@@ -16,6 +16,11 @@ xmake config --policies=build.sanitizer.address
 xmake test
 ```
 
+## enable msan in test:
+```sh
+xmake config --policies=build.sanitizer.memory
+xmake test
+
 show other snitizers in [xmake doc](https://xmake.io/api/description/builtin-policies.html#build-sanitizer-address)
 
 ## enable codecov
