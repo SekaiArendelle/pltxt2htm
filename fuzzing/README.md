@@ -1,4 +1,4 @@
-Clang Fuzzer for `pltxt2htm::advanced_parser` and `pltxt2htm::common_parser`
+Clang Fuzzer for `pltxt2htm::pltxt2advanced_html` and `pltxt2htm::pltxt2common_html`
 
 ## Compile it
 chdir to fuzzing/
