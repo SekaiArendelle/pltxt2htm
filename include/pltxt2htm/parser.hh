@@ -325,7 +325,7 @@ constexpr bool try_parse_md_atx_heading(::fast_io::u8string_view pltext, ::std::
         }
     }
     start_index_ = start_index;
-    sublength_ = sublength;
+    sublength_ = sublength - start_index;
     header_level_ = header_level;
     return true;
 }
@@ -551,7 +551,12 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
     ::std::size_t i{};
     ::std::size_t const pltxt_size{pltext.size()};
 
-    {
+    if (extern_syntax_type == ::pltxt2htm::NodeType::base) {
+        // Consider the following markdown
+        // ```md
+        // ## test
+        // ```
+        // Here, the first line is a header, will hit this case
 #if __has_cpp_attribute(indeterminate)
         ::std::size_t start_index [[indeterminate]];
         ::std::size_t end_index [[indeterminate]];
@@ -565,8 +570,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
         if (::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(pltext, start_index, sublength, header_level)) {
             ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast;
             if (start_index < pltxt_size) {
-                auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + start_index,
-                                                                                   sublength - start_index);
+                auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + start_index, sublength);
                 subast = ::pltxt2htm::details::parse_pltxt<ndebug>(subtext, ::pltxt2htm::NodeType::md_atx_h1,
                                                                    ::std::addressof(i));
             } else {
@@ -598,8 +602,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                                           start_index, sublength, header_level)) {
                 ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast;
                 if (i + start_index + 1 < pltxt_size) {
-                    auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + start_index + 1,
-                                                                                       sublength - start_index);
+                    auto subtext =
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + start_index + 1, sublength);
 
                     subast = ::pltxt2htm::details::parse_pltxt<ndebug>(subtext, ::pltxt2htm::NodeType::md_atx_h1,
                                                                        ::std::addressof(i));
@@ -718,7 +722,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                         ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast;
                         if (i + start_index + 1 < pltxt_size) {
                             auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(
-                                pltext, i + start_index + 1, sublength - start_index);
+                                pltext, i + start_index + 1, sublength);
 
                             subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
                                 subtext, ::pltxt2htm::NodeType::md_atx_h1, ::std::addressof(i));

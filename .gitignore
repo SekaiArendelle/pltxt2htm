@@ -25,3 +25,7 @@ lcov-report/
 
 # core dump file
 core*
+
+# clangd
+compile_commands.json
+.cache
