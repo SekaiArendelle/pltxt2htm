@@ -154,8 +154,7 @@ constexpr bool try_parse_bare_tag(::fast_io::u8string_view pltext, ::std::size_t
         return false;
     }
 
-    auto const pltxt_size = pltext.size();
-    for (::std::size_t i{sizeof...(tag_name)}; i < pltxt_size; ++i) {
+    for (::std::size_t i{sizeof...(tag_name)}; i < pltext.size(); ++i) {
         auto forward_chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i);
         if (forward_chr == u8'>') {
             extern_index = i;
@@ -183,15 +182,14 @@ constexpr bool try_parse_equal_sign_tag(::fast_io::u8string_view pltext, ::std::
         return false;
     }
 
-    auto const pltxt_size = pltext.size();
-    for (::std::size_t forward_index{sizeof...(prefix_str) + 1}; forward_index < pltxt_size; ++forward_index) {
+    for (::std::size_t forward_index{sizeof...(prefix_str) + 1}; forward_index < pltext.size(); ++forward_index) {
         char8_t const forward_chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index)};
         if (forward_chr == u8'>') {
             extern_index = forward_index;
             return true;
         } else if (forward_chr == u8' ') {
             while (true) {
-                if (forward_index + 1 >= pltxt_size) {
+                if (forward_index + 1 >= pltext.size()) {
                     return false;
                 }
 
@@ -220,17 +218,16 @@ constexpr bool try_parse_equal_sign_tag(::fast_io::u8string_view pltext, ::std::
 template<bool ndebug, char8_t... tag_name>
 [[nodiscard]]
 constexpr bool try_parse_self_closing_tag(::fast_io::u8string_view pltext, ::std::size_t& extern_index) noexcept {
-    ::std::size_t const pltxt_size{pltext.size()};
     if (::pltxt2htm::details::is_prefix_match<ndebug, tag_name...>(pltext) == false) {
         return false;
     }
 
-    for (::std::size_t forward_index{sizeof...(tag_name)}; forward_index < pltxt_size; ++forward_index) {
+    for (::std::size_t forward_index{sizeof...(tag_name)}; forward_index < pltext.size(); ++forward_index) {
         char8_t const forward_chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index)};
         if (forward_chr == u8'>') {
             extern_index = forward_index;
             return true;
-        } else if (forward_chr == u8'/' && forward_index + 1 < pltxt_size &&
+        } else if (forward_chr == u8'/' && forward_index + 1 < pltext.size() &&
                    ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index + 1) == u8'>') {
             extern_index = forward_index + 1;
             return true;
@@ -544,7 +541,6 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
     auto result = ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>{};
 
     ::std::size_t i{};
-    ::std::size_t const pltxt_size{pltext.size()};
 
     if (extern_syntax_type == ::pltxt2htm::NodeType::base) {
         // Consider the following markdown
@@ -564,7 +560,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
         // try parsing markdown atx header
         if (::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(pltext, start_index, sublength, header_level)) {
             ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast;
-            if (start_index < pltxt_size) {
+            if (start_index < pltext.size()) {
                 auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + start_index, sublength);
                 subast = ::pltxt2htm::details::parse_pltxt<ndebug>(subtext, ::pltxt2htm::NodeType::md_atx_h1,
                                                                    ::std::addressof(i));
@@ -576,7 +572,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
         }
     }
 
-    for (; i < pltxt_size; ++i) {
+    for (; i < pltext.size(); ++i) {
         char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i)};
 
         if (chr == u8'\n') {
@@ -592,11 +588,11 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
             ::std::size_t header_level;
 #endif
             // try parsing markdown atx header
-            if (i + 1 < pltxt_size && ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(
+            if (i + 1 < pltext.size() && ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(
                                           ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
                                           start_index, sublength, header_level)) {
                 ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast;
-                if (i + start_index + 1 < pltxt_size) {
+                if (i + start_index + 1 < pltext.size()) {
                     auto subtext =
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + start_index + 1, sublength);
 
@@ -626,7 +622,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
             result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::GreaterThan>{});
             continue;
         } else if (chr == u8'\\') {
-            if (i + 1 == pltxt_size) {
+            if (i + 1 == pltext.size()) {
                 result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{u8'\\'});
                 continue;
             }
@@ -640,10 +636,10 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
             }
             continue;
         } else if (chr == u8'<') {
-            // if i is a valid value, i always less than pltxt_size
-            pltxt2htm_assert(i < pltxt_size, u8"Index of parser out of bound");
+            // if i is a valid value, i always less than pltext.size()
+            pltxt2htm_assert(i < pltext.size(), u8"Index of parser out of bound");
 
-            if (i + 1 == pltxt_size) {
+            if (i + 1 == pltext.size()) {
                 goto not_valid_tag;
             }
 
@@ -661,8 +657,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                 if (::pltxt2htm::details::try_parse_bare_tag<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), tag_len)) {
                     i += tag_len + 2;
-                    if (i + 1 < pltxt_size) {
-                        // if forward_index + 1 >= pltxt_size, it means that a not closed tag in the end of the text
+                    if (i + 1 < pltext.size()) {
+                        // if forward_index + 1 >= pltext.size(), it means that a not closed tag in the end of the text
                         // which does not make sense, can be opetimized(ignored) during parsing ast
                         auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
@@ -687,8 +683,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), tag_len)) {
                     // parsing pl&html <b> tag
                     i += tag_len + 2;
-                    if (i + 1 < pltxt_size) {
-                        // if forward_index + 1 >= pltxt_size, it means that a not closed tag in the end of the text
+                    if (i + 1 < pltext.size()) {
+                        // if forward_index + 1 >= pltext.size(), it means that a not closed tag in the end of the text
                         // which does not make sense, can be opetimized(ignored) during parsing ast
                         auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
@@ -711,11 +707,11 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                     ::std::size_t header_level;
 #endif
                     // try parsing markdown atx header
-                    if (i + 1 < pltxt_size && ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(
+                    if (i + 1 < pltext.size() && ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(
                                                   ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
                                                   start_index, sublength, header_level)) {
                         ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast;
-                        if (i + start_index + 1 < pltxt_size) {
+                        if (i + start_index + 1 < pltext.size()) {
                             auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(
                                 pltext, i + start_index + 1, sublength);
 
@@ -748,8 +744,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                         u8string_view_subview<ndebug>(pltext, i + 2), tag_len, color)) {
                     i += tag_len + 2;
                     // parsing start tag <color> successed
-                    if (i + 1 < pltxt_size) {
-                        // if forward_index + 1 >= pltxt_size, it means that a not closed tag in the end of the text
+                    if (i + 1 < pltext.size()) {
+                        // if forward_index + 1 >= pltext.size(), it means that a not closed tag in the end of the text
                         // which does not make sense, can be opetimized(ignored) during parsing ast
                         auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
@@ -775,8 +771,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), tag_len)) {
                     // parsing <del>$1</del>
                     i += tag_len + 2;
-                    if (i + 1 < pltxt_size) {
-                        // if forward_index + 1 >= pltxt_size, it means that a not closed tag in the end of the text
+                    if (i + 1 < pltext.size()) {
+                        // if forward_index + 1 >= pltext.size(), it means that a not closed tag in the end of the text
                         // which does not make sense, can be opetimized(ignored) during parsing ast
                         auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
@@ -795,8 +791,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                     goto not_valid_tag;
                 }
 
-                if (i + 1 < pltxt_size) {
-                    // if forward_index + 1 >= pltxt_size, it means that a not closed tag in the end of the text
+                if (i + 1 < pltext.size()) {
+                    // if forward_index + 1 >= pltext.size(), it means that a not closed tag in the end of the text
                     // which does not make sense, can be opetimized(ignored) during parsing ast
                     auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
@@ -821,8 +817,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                                                                    u8'e', u8'n', u8't'>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), tag_len, id)) {
                     i += tag_len + 2;
-                    if (i + 1 < pltxt_size) {
-                        // if forward_index + 1 >= pltxt_size, it means that a not closed tag in the end of the text
+                    if (i + 1 < pltext.size()) {
+                        // if forward_index + 1 >= pltext.size(), it means that a not closed tag in the end of the text
                         // which does not make sense, can be opetimized(ignored) during parsing ast
                         auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
@@ -848,8 +844,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), tag_len)) {
                     // parsing html <h1> tag
                     i += tag_len + 2;
-                    if (i + 1 < pltxt_size) {
-                        // if forward_index + 1 >= pltxt_size, it means that a not closed tag in the end of the text
+                    if (i + 1 < pltext.size()) {
+                        // if forward_index + 1 >= pltext.size(), it means that a not closed tag in the end of the text
                         // which does not make sense, can be opetimized(ignored) during parsing ast
                         auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
@@ -861,8 +857,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), tag_len)) {
                     // parsing html <h2> tag
                     i += tag_len + 2;
-                    if (i + 1 < pltxt_size) {
-                        // if forward_index + 1 >= pltxt_size, it means that a not closed tag in the end of the text
+                    if (i + 1 < pltext.size()) {
+                        // if forward_index + 1 >= pltext.size(), it means that a not closed tag in the end of the text
                         // which does not make sense, can be opetimized(ignored) during parsing ast
                         auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
@@ -874,8 +870,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), tag_len)) {
                     // parsing html <h3> tag
                     i += tag_len + 2;
-                    if (i + 1 < pltxt_size) {
-                        // if forward_index + 1 >= pltxt_size, it means that a not closed tag in the end of the text
+                    if (i + 1 < pltext.size()) {
+                        // if forward_index + 1 >= pltext.size(), it means that a not closed tag in the end of the text
                         // which does not make sense, can be opetimized(ignored) during parsing ast
                         auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
@@ -887,8 +883,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), tag_len)) {
                     // parsing html <h4> tag
                     i += tag_len + 2;
-                    if (i + 1 < pltxt_size) {
-                        // if forward_index + 1 >= pltxt_size, it means that a not closed tag in the end of the text
+                    if (i + 1 < pltext.size()) {
+                        // if forward_index + 1 >= pltext.size(), it means that a not closed tag in the end of the text
                         // which does not make sense, can be opetimized(ignored) during parsing ast
                         auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
@@ -900,8 +896,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), tag_len)) {
                     // parsing html <h5> tag
                     i += tag_len + 2;
-                    if (i + 1 < pltxt_size) {
-                        // if forward_index + 1 >= pltxt_size, it means that a not closed tag in the end of the text
+                    if (i + 1 < pltext.size()) {
+                        // if forward_index + 1 >= pltext.size(), it means that a not closed tag in the end of the text
                         // which does not make sense, can be opetimized(ignored) during parsing ast
                         auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
@@ -913,8 +909,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), tag_len)) {
                     // parsing html <h6> tag
                     i += tag_len + 2;
-                    if (i + 1 < pltxt_size) {
-                        // if forward_index + 1 >= pltxt_size, it means that a not closed tag in the end of the text
+                    if (i + 1 < pltext.size()) {
+                        // if forward_index + 1 >= pltext.size(), it means that a not closed tag in the end of the text
                         // which does not make sense, can be opetimized(ignored) during parsing ast
                         auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
@@ -944,8 +940,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                 if (::pltxt2htm::details::try_parse_bare_tag<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), tag_len)) {
                     i += tag_len + 2;
-                    if (i + 1 < pltxt_size) {
-                        // if forward_index + 1 >= pltxt_size, it means that a not closed tag in the end of the text
+                    if (i + 1 < pltext.size()) {
+                        // if forward_index + 1 >= pltext.size(), it means that a not closed tag in the end of the text
                         // which does not make sense, can be opetimized(ignored) during parsing ast
                         auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
@@ -970,8 +966,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                 if (::pltxt2htm::details::try_parse_bare_tag<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), tag_len)) {
                     i += tag_len + 2;
-                    if (i + 1 < pltxt_size) {
-                        // if forward_index + 1 >= pltxt_size, it means that a not closed tag in the end of the text
+                    if (i + 1 < pltext.size()) {
+                        // if forward_index + 1 >= pltext.size(), it means that a not closed tag in the end of the text
                         // which does not make sense, can be opetimized(ignored) during parsing ast
                         auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
@@ -1002,8 +998,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                         goto not_valid_tag;
                     }
 
-                    if (i + 1 < pltxt_size) {
-                        // if forward_index + 1 >= pltxt_size, it means that a not closed tag in the end of the text
+                    if (i + 1 < pltext.size()) {
+                        // if forward_index + 1 >= pltext.size(), it means that a not closed tag in the end of the text
                         // which does not make sense, can be opetimized(ignored) during parsing ast
                         auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
@@ -1030,8 +1026,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                 if (::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, u8's', u8'e', u8'r'>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 2), tag_len, id)) {
                     i += tag_len + 2;
-                    if (i + 1 < pltxt_size) {
-                        // if forward_index + 1 >= pltxt_size, it means that a not closed tag in the end of the text
+                    if (i + 1 < pltext.size()) {
+                        // if forward_index + 1 >= pltext.size(), it means that a not closed tag in the end of the text
                         // which does not make sense, can be opetimized(ignored) during parsing ast
                         auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, i + 1),
@@ -1332,7 +1328,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                 result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{chr});
                 continue;
             } else if ((chr & 0xE0) == 0xC0) {
-                if (i + 1 >= pltxt_size) {
+                if (i + 1 >= pltext.size()) {
                     goto invalid_u8char;
                 }
                 auto next_char = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i + 1);
@@ -1349,7 +1345,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                 i += 1;
                 continue;
             } else if ((chr & 0xF0) == 0xE0) {
-                if (i + 2 >= pltxt_size) {
+                if (i + 2 >= pltext.size()) {
                     goto invalid_u8char;
                 }
                 auto next_char = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i + 1);
@@ -1371,14 +1367,12 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                 }
 
                 result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{chr});
-                result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{
-                    ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i + 1)});
-                result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{
-                    ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i + 2)});
+                result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{next_char});
+                result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{next_char2});
                 i += 2;
                 continue;
             } else if ((chr & 0xF8) == 0xF0) {
-                if (i + 3 >= pltxt_size) {
+                if (i + 3 >= pltext.size()) {
                     goto invalid_u8char;
                 }
                 auto next_char = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i + 1);
@@ -1418,7 +1412,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
     }
 
     if (extern_index != nullptr) {
-        *extern_index += pltxt_size;
+        *extern_index += pltext.size();
     }
     return result;
 }
