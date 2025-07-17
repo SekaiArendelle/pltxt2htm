@@ -561,7 +561,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
         if (::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(pltext, start_index, sublength, header_level)) {
             ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast{};
             if (start_index < pltext.size()) {
-                auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + start_index, sublength);
+                auto subtext =
+                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + start_index, sublength);
                 subast = ::pltxt2htm::details::parse_pltxt<ndebug>(subtext, ::pltxt2htm::NodeType::md_atx_h1,
                                                                    ::std::addressof(current_index));
             }
@@ -586,13 +587,14 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
             ::std::size_t header_level;
 #endif
             // try parsing markdown atx header
-            if (current_index + 1 < pltext.size() && ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(
-                                          ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1),
-                                          start_index, sublength, header_level)) {
+            if (current_index + 1 < pltext.size() &&
+                ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(
+                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1), start_index,
+                    sublength, header_level)) {
                 ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast{};
                 if (current_index + start_index + 1 < pltext.size()) {
-                    auto subtext =
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + start_index + 1, sublength);
+                    auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(
+                        pltext, current_index + start_index + 1, sublength);
 
                     subast = ::pltxt2htm::details::parse_pltxt<ndebug>(subtext, ::pltxt2htm::NodeType::md_atx_h1,
                                                                        ::std::addressof(current_index));
@@ -689,7 +691,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                     }
                     goto complete_parsing_tag;
                 } else if (::pltxt2htm::details::try_parse_self_closing_tag<ndebug, u8'r'>(
-                               ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len)) {
+                               ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
+                               tag_len)) {
                     current_index += tag_len + 2;
                     result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Br>(::pltxt2htm::Br()));
 
@@ -703,9 +706,10 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                     ::std::size_t header_level;
 #endif
                     // try parsing markdown atx header
-                    if (current_index + 1 < pltext.size() && ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(
-                                                  ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1),
-                                                  start_index, sublength, header_level)) {
+                    if (current_index + 1 < pltext.size() &&
+                        ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1), start_index,
+                            sublength, header_level)) {
                         ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast{};
                         if (current_index + start_index + 1 < pltext.size()) {
                             auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(
@@ -848,7 +852,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                     }
                     goto complete_parsing_tag;
                 } else if (::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'2'>(
-                               ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len)) {
+                               ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
+                               tag_len)) {
                     // parsing html <h2> tag
                     current_index += tag_len + 2;
                     if (current_index + 1 < pltext.size()) {
@@ -861,7 +866,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                     }
                     goto complete_parsing_tag;
                 } else if (::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'3'>(
-                               ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len)) {
+                               ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
+                               tag_len)) {
                     // parsing html <h3> tag
                     current_index += tag_len + 2;
                     if (current_index + 1 < pltext.size()) {
@@ -874,7 +880,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                     }
                     goto complete_parsing_tag;
                 } else if (::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'4'>(
-                               ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len)) {
+                               ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
+                               tag_len)) {
                     // parsing html <h4> tag
                     current_index += tag_len + 2;
                     if (current_index + 1 < pltext.size()) {
@@ -887,7 +894,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                     }
                     goto complete_parsing_tag;
                 } else if (::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'5'>(
-                               ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len)) {
+                               ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
+                               tag_len)) {
                     // parsing html <h5> tag
                     current_index += tag_len + 2;
                     if (current_index + 1 < pltext.size()) {
@@ -900,7 +908,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                     }
                     goto complete_parsing_tag;
                 } else if (::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'6'>(
-                               ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len)) {
+                               ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
+                               tag_len)) {
                     // parsing html <h6> tag
                     current_index += tag_len + 2;
                     if (current_index + 1 < pltext.size()) {
@@ -913,7 +922,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                     }
                     goto complete_parsing_tag;
                 } else if (::pltxt2htm::details::try_parse_self_closing_tag<ndebug, u8'r'>(
-                               ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len)) {
+                               ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
+                               tag_len)) {
                     current_index += tag_len + 2;
                     result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Hr>());
                     goto complete_parsing_tag;
@@ -1044,7 +1054,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                     ::std::size_t tag_len;
 #endif
                     if (::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'c', u8'o', u8'l', u8'o', u8'r'>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len) == false) {
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len) ==
+                        false) {
                         goto not_valid_tag;
                     }
                     // parsing end tag </color> successed
@@ -1062,7 +1073,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
 #endif
                     // parsing </a>
                     if (::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'a'>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len) == false) {
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len) ==
+                        false) {
                         goto not_valid_tag;
                     }
                     // parsing end tag </a> successed
@@ -1080,7 +1092,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                     // parsing </experiment>
                     if (::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'e', u8'x', u8'p', u8'e', u8'r', u8'i',
                                                                  u8'm', u8'e', u8'n', u8't'>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len) == false) {
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len) ==
+                        false) {
                         goto not_valid_tag;
                     }
                     // Whether or not extern_index is out of range, extern for loop will handle it correctly.
@@ -1098,7 +1111,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                     // parsing </discussion>
                     if (::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'd', u8'i', u8's', u8'c', u8'u', u8's',
                                                                  u8's', u8'i', u8'o', u8'n'>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len) == false) {
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len) ==
+                        false) {
                         goto not_valid_tag;
                     }
                     // Whether or not extern_index is out of range, extern for loop will handle it correctly.
@@ -1115,7 +1129,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
 #endif
                     // parsing </user>
                     if (::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'u', u8's', u8'e', u8'r'>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len) == false) {
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len) ==
+                        false) {
                         goto not_valid_tag;
                     }
                     if (extern_index != nullptr) {
@@ -1131,7 +1146,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
 #endif
                     // parsing </size>
                     if (::pltxt2htm::details::try_parse_bare_tag<ndebug, u8's', u8'i', u8'z', u8'e'>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len) == false) {
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len) ==
+                        false) {
                         goto not_valid_tag;
                     }
                     if (extern_index != nullptr) {
@@ -1146,7 +1162,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                     ::std::size_t tag_len;
 #endif
                     if (::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'b'>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len) == false) {
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len) ==
+                        false) {
                         goto not_valid_tag;
                     }
                     // parsing end tag </b> successed
@@ -1162,7 +1179,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                     ::std::size_t tag_len;
 #endif
                     if (::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'i'>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len) == false) {
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len) ==
+                        false) {
                         goto not_valid_tag;
                     }
                     // parsing end tag </a> successed
@@ -1178,7 +1196,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                     ::std::size_t tag_len;
 #endif
                     if (::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'p'>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len) == false) {
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len) ==
+                        false) {
                         goto not_valid_tag;
                     }
                     // parsing end tag </p> successed
@@ -1194,7 +1213,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                     ::std::size_t tag_len;
 #endif
                     if (::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'h', u8'1'>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len) == false) {
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len) ==
+                        false) {
                         goto not_valid_tag;
                     }
                     // parsing end tag </h1> successed
@@ -1210,7 +1230,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                     ::std::size_t tag_len;
 #endif
                     if (::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'h', u8'2'>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len) == false) {
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len) ==
+                        false) {
                         goto not_valid_tag;
                     }
                     // parsing end tag </h2> successed
@@ -1226,7 +1247,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                     ::std::size_t tag_len;
 #endif
                     if (::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'h', u8'3'>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len) == false) {
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len) ==
+                        false) {
                         goto not_valid_tag;
                     }
                     // parsing end tag </h3> successed
@@ -1242,7 +1264,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                     ::std::size_t tag_len;
 #endif
                     if (::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'h', u8'4'>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len) == false) {
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len) ==
+                        false) {
                         goto not_valid_tag;
                     }
                     // parsing end tag </h4> successed
@@ -1258,7 +1281,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                     ::std::size_t tag_len;
 #endif
                     if (::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'h', u8'5'>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len) == false) {
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len) ==
+                        false) {
                         goto not_valid_tag;
                     }
                     // parsing end tag </h5> successed
@@ -1274,7 +1298,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                     ::std::size_t tag_len;
 #endif
                     if (::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'h', u8'6'>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len) == false) {
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len) ==
+                        false) {
                         goto not_valid_tag;
                     }
                     // parsing end tag </h6> successed
@@ -1290,7 +1315,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                     ::std::size_t tag_len;
 #endif
                     if (::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'd', u8'e', u8'l'>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len) == false) {
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len) ==
+                        false) {
                         goto not_valid_tag;
                     }
                     // parsing end tag </del> successed
