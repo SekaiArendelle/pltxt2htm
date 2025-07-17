@@ -184,8 +184,7 @@ constexpr bool try_parse_equal_sign_tag(::fast_io::u8string_view pltext, ::std::
     }
 
     auto const pltxt_size = pltext.size();
-    ::std::size_t forward_index{sizeof...(prefix_str) + 1};
-    while (true) {
+    for (::std::size_t forward_index{sizeof...(prefix_str) + 1}; forward_index < pltxt_size; ++forward_index) {
         char8_t const forward_chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index)};
         if (forward_chr == u8'>') {
             extern_index = forward_index;
@@ -208,12 +207,8 @@ constexpr bool try_parse_equal_sign_tag(::fast_io::u8string_view pltext, ::std::
         } else {
             substr.push_back(forward_chr);
         }
-        if (forward_index + 1 >= pltxt_size) {
-            return false;
-        } else {
-            ++forward_index;
-        }
     }
+    return false;
 }
 
 /**

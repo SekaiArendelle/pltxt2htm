@@ -43,4 +43,4 @@ if err_code != 0:
     raise Exception("lcov failed")
 err_code = os.system(f"genhtml build/coverage.info --output-directory {os.path.join(SCRIPT_DIR, 'lcov-report')}")
 if shutil.which("firefox"):
-    os.system(f"firefox {os.path.join(SCRIPT_DIR, 'lcov-report', 'index.html')}")
+    os.system(f"firefox {os.path.join(SCRIPT_DIR, 'lcov-report', 'index.html')} &")
