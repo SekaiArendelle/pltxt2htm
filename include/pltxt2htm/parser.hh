@@ -559,13 +559,11 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
 #endif
         // try parsing markdown atx header
         if (::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(pltext, start_index, sublength, header_level)) {
-            ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast;
+            ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast{};
             if (start_index < pltext.size()) {
                 auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + start_index, sublength);
                 subast = ::pltxt2htm::details::parse_pltxt<ndebug>(subtext, ::pltxt2htm::NodeType::md_atx_h1,
                                                                    ::std::addressof(current_index));
-            } else {
-                subast = ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>{};
             }
             current_index += start_index;
             result.push_back(::pltxt2htm::details::switch_md_atx_header<ndebug>(header_level, ::std::move(subast)));
@@ -591,15 +589,13 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
             if (current_index + 1 < pltext.size() && ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(
                                           ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1),
                                           start_index, sublength, header_level)) {
-                ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast;
+                ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast{};
                 if (current_index + start_index + 1 < pltext.size()) {
                     auto subtext =
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + start_index + 1, sublength);
 
                     subast = ::pltxt2htm::details::parse_pltxt<ndebug>(subtext, ::pltxt2htm::NodeType::md_atx_h1,
                                                                        ::std::addressof(current_index));
-                } else {
-                    subast = ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>{};
                 }
                 current_index += start_index;
                 result.push_back(::pltxt2htm::details::switch_md_atx_header<ndebug>(header_level, ::std::move(subast)));
@@ -710,15 +706,13 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext,
                     if (current_index + 1 < pltext.size() && ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(
                                                   ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1),
                                                   start_index, sublength, header_level)) {
-                        ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast;
+                        ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast{};
                         if (current_index + start_index + 1 < pltext.size()) {
                             auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(
                                 pltext, current_index + start_index + 1, sublength);
 
                             subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
                                 subtext, ::pltxt2htm::NodeType::md_atx_h1, ::std::addressof(current_index));
-                        } else {
-                            subast = ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>{};
                         }
                         current_index += start_index;
                         result.push_back(
