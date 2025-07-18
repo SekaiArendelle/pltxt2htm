@@ -13,6 +13,7 @@ target("pltxt2htm", function ()
     set_prefixname("")
     add_files("pltxt2htm.cc")
     add_includedirs("$(projectdir)/../include")
+    add_cxxflags("-fPIC")
     set_exceptions("no-cxx")
     if is_plat("windows", "mingw") then
         add_links("ntdll")
@@ -244,47 +245,58 @@ target("pltxt2htm", function ()
             end
         end
 
-        local py_install_dir = get_py_install_dir(py_bin_dir)
-        if os.exists(py_install_dir .. "/pyvenv.cfg") and os.isfile(py_install_dir .. "/pyvenv.cfg") then
-            -- if detect python in venv, rectify the install dir
-            local real_py_install_dir = parse_pyvenv_cfg(py_install_dir .. "/pyvenv.cfg")["home"]
-            if real_py_install_dir then
-                print("Found python in venv, rectify python install dir to " .. real_py_install_dir)
-                py_install_dir = get_py_install_dir(real_py_install_dir)
+        local python3_config = nil
+        if not is_plat("windows") and not is_plat("mingw") then
+            python3_config = os.iorunv("which", {"python3-config"})
+        end
+        if python3_config then
+            python3_config = python3_config:gsub("\n$", "")
+            print("detecting for python3-config .. " .. python3_config)
+            target:add("cxxflags", os.iorunv("python3-config", {"--includes"}))
+            target:add("cxxflags", os.iorunv("python3-config", {"--ldflags"}))
+        else
+            local py_install_dir = get_py_install_dir(py_bin_dir)
+            if os.exists(py_install_dir .. "/pyvenv.cfg") and os.isfile(py_install_dir .. "/pyvenv.cfg") then
+                -- if detect python in venv, rectify the install dir
+                local real_py_install_dir = parse_pyvenv_cfg(py_install_dir .. "/pyvenv.cfg")["home"]
+                if real_py_install_dir then
+                    print("Found python in venv, rectify python install dir to " .. real_py_install_dir)
+                    py_install_dir = get_py_install_dir(real_py_install_dir)
+                end
             end
-        end
 
-        local py_include_dir, py_lib_dir = detect_py_include_and_lib_dir(py_install_dir)
+            local py_include_dir, py_lib_dir = detect_py_include_and_lib_dir(py_install_dir)
 
-        local suffix = nil
-        if is_plat("windows", "mingw") then
-            suffix = os.iorunv(py_bin_dir .. "\\python.exe", {"-c", "import sysconfig; print(sysconfig.get_config_var('EXT_SUFFIX'))"})
-        elseif is_plat("linux") then
-            suffix = os.iorunv(py_bin_dir .. "/python3", {"-c", "import sysconfig; print(sysconfig.get_config_var('EXT_SUFFIX'))"})
-        else
-            print("unreachable code touched, please bug report")
-            os.exit(1)
-        end
-        if suffix and suffix ~= "None" then
-            suffix = suffix:trim()
-            target:set("extension", suffix)
-        else
-            if target:is_plat("windows", "mingw") then
-                target:set("extension", ".pyd")
+            local suffix = nil
+            if is_plat("windows", "mingw") then
+                suffix = os.iorunv(py_bin_dir .. "\\python.exe", {"-c", "import sysconfig; print(sysconfig.get_config_var('EXT_SUFFIX'))"})
+            elseif is_plat("linux") then
+                suffix = os.iorunv(py_bin_dir .. "/python3", {"-c", "import sysconfig; print(sysconfig.get_config_var('EXT_SUFFIX'))"})
             else
-                target:set("extension", ".so")
+                print("unreachable code touched, please bug report")
+                os.exit(1)
             end
-        end
+            if suffix and suffix ~= "None" then
+                suffix = suffix:trim()
+                target:set("extension", suffix)
+            else
+                if target:is_plat("windows", "mingw") then
+                    target:set("extension", ".pyd")
+                else
+                    target:set("extension", ".so")
+                end
+            end
 
-        target:add("includedirs", py_include_dir)
-        target:add("linkdirs", py_lib_dir)
-        if is_plat("windows", "mingw") then
-            for  _, a_file in ipairs(os.files(py_lib_dir .. "/python*.dll")) do
-                target:add("links", path.basename(a_file))
-            end
-        else
-            for  _, a_file in ipairs(os.files(py_lib_dir .. "/libpython*.so")) do
-                target:add("links", string.sub(path.basename(a_file), 4))
+            target:add("includedirs", py_include_dir)
+            target:add("linkdirs", py_lib_dir)
+            if is_plat("windows", "mingw") then
+                for  _, a_file in ipairs(os.files(py_lib_dir .. "/python*.dll")) do
+                    target:add("links", path.basename(a_file))
+                end
+            else
+                for  _, a_file in ipairs(os.files(py_lib_dir .. "/libpython*.so")) do
+                    target:add("links", string.sub(path.basename(a_file), 4))
+                end
             end
         end
     end) -- on_config
