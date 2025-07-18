@@ -64,7 +64,7 @@ public:
 
 class InvalidU8Char : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr InvalidU8Char()
+    constexpr InvalidU8Char() noexcept
         : PlTxtNode(::pltxt2htm::NodeType::invalid_u8char) {
     }
 
