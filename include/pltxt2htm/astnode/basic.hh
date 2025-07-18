@@ -62,16 +62,16 @@ public:
     }
 };
 
-class InvalidUtf8Char : public ::pltxt2htm::PlTxtNode {
+class InvalidU8Char : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr InvalidUtf8Char()
+    constexpr InvalidU8Char()
         : PlTxtNode(::pltxt2htm::NodeType::invalid_u8char) {
     }
 
-    constexpr InvalidUtf8Char(InvalidUtf8Char const& other) noexcept = default;
-    constexpr InvalidUtf8Char(InvalidUtf8Char&& other) noexcept = default;
-    constexpr InvalidUtf8Char& operator=(InvalidUtf8Char const& other) noexcept = default;
-    constexpr InvalidUtf8Char& operator=(InvalidUtf8Char&& other) noexcept = default;
+    constexpr InvalidU8Char(InvalidU8Char const& other) noexcept = default;
+    constexpr InvalidU8Char(InvalidU8Char&& other) noexcept = default;
+    constexpr InvalidU8Char& operator=(InvalidU8Char const& other) noexcept = default;
+    constexpr InvalidU8Char& operator=(InvalidU8Char&& other) noexcept = default;
 };
 
 namespace details {

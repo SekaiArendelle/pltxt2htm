@@ -1394,7 +1394,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
             }
         invalid_u8char:
             // Invalid utf-8 encoding
-            result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::InvalidUtf8Char>{});
+            result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::InvalidU8Char>{});
             continue;
         }
     }
