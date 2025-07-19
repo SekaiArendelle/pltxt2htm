@@ -210,7 +210,6 @@ jobs:
           xmake-version: latest
 
       - name: Configure and build
-        shell: powershell
         working-directory: py
         run: |
           xmake config -p windows -a x64 --toolchain=x86_64-windows-msvc-clang -m release
@@ -243,7 +242,6 @@ jobs:
         run: echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
 
       - name: Configure and build
-        shell: powershell
         working-directory: py
         run: |
           xmake f --toolchain=clang -m release
