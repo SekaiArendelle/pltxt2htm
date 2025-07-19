@@ -1,6 +1,5 @@
 import os
 import shutil
-import platform
 import setuptools
 from setuptools.command.build_ext import build_ext
 
@@ -18,14 +17,20 @@ class XMakeBuild(build_ext):
             raise Exception("xmake not found")
 
         xmake_config_flags = os.environ.get("PLTXT2HTM_XMAKE_CONFIG_FLAGS", "")
-        config_cmd = f"xmake config --mode=release {xmake_config_flags}"
-        print(">>", config_cmd)
+        if shutil.which("g++"):
+            toolchain = "--toolchain=gcc"
+        elif shutil.which("clang"):
+            toolchain = "--toolchain=clang"
+        else:
+            raise Exception("No GCC or Clang found")
+        config_cmd = f"xmake config --mode=release {toolchain} {xmake_config_flags}"
+        print(">> ", config_cmd)
         config_result = os.system(config_cmd)
         if config_result != 0:
             raise Exception("xmake config failed")
 
         build_cmd = "xmake build"
-        print(">>", build_cmd)
+        print(">> ", build_cmd)
         build_result = os.system(build_cmd)
         if build_result != 0:
             raise Exception("xmake build failed")

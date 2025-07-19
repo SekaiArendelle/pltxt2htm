@@ -8,16 +8,11 @@ you can specify C++ toolchain e.g. `--toolchain=gcc`, `--toolchain=clang`, `--to
 
 > Note: `--toolchain=x86_64-w64-mingw32-clang` means `clang++ --target=x86_64-w64-mingw32`
 
-You can also specify python bin, include and lib dir by `--py_bin_dir=`, `--py_include_dir=` and `--py_lib_dir=`
+You can also specify python executable path e.g. `--python=/usr/bin/python3`
 
 then build:
 ```sh
 xmake build
-```
-
-install:
-```sh
-xmake install -o $PREFIX
 ```
 
 > Note: `pip install .` or `python -m build --wheel --dist` based on xmake build script, use `PLTXT2HTM_XMAKE_CONFIG_FLAGS` env var to specify xmake config flags
