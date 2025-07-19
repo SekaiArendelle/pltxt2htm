@@ -44,6 +44,7 @@ And I strongly suggest you to add `-O2`, `-fno-ident`, `-fno-exceptions`, `-fno-
 ## Exported API
 * `pltxt2htm::parse_pltxt`: Get AST of Quantum-Physics's text
   - only exported in C++ API (include/pltxt2htm/pltxt2htm.hh)
+  - All the AST node is exported in C++ API (class derived from `pltxt2htm::PlTxtNode`)
 * `pltxt2htm::pltxt2advanced_html`: Render for Experiment's introduction text, all Quantum-Physics's Tag, minor HTML tag, most of the markdown and latex syntax is supported.
   - only exported in C++ API (include/pltxt2htm/pltxt2htm.hh)
 * `pltxt2htm::advanced_parser`: C-Style pointer interface wrapper for pltxt2advanced_html
