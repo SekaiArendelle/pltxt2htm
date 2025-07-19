@@ -79,12 +79,11 @@ target("pltxt2htm", function ()
         target:add("includedirs", py_include_dir)
 
         if is_plat("windows") or is_plat("mingw") then
-            local py_lib_dir = os.iorunv(python, {"-c", "import sysconfig; print(sysconfig.get_config_var('LIBDIR'), end='')"})
-            target:add("linkdirs", py_lib_dir)
-            local py_rt_path = os.iorunv(python, {"-c", "import sys; print(f'python{sys.version_info.major}{sys.version_info.minor}')"})
+            target:add("linkdirs", py_include_dir .. "/../libs")
+            local py_rt_path = os.iorunv(python, {"-c", "import sys; print(f'python{sys.version_info.major}{sys.version_info.minor}', end='')"})
             target:add("links", py_rt_path)
         else
-            local python3_config = os.iorunv(python, {"-c", "import sys, sysconfig; print(f'python3.{sys.version_info.minor}-config')"})
+            local python3_config = os.iorunv(python, {"-c", "import sys, sysconfig; print(f'python3.{sys.version_info.minor}-config', end='')"})
             local ldflags = os.iorunv(python3_config, {"--ldflags", "--embed"})
             target:add("shflags", ldflags)
         end
