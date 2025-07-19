@@ -215,3 +215,36 @@ jobs:
         run: |
           xmake config -p windows -a x64 --toolchain=x86_64-windows-msvc-clang -m release
           xmake build -v
+
+  aarch64-apple-darwin24-py-release:
+    name: aarch64-apple-darwin24 (py/, release mode, python ${{ matrix.python-version }})
+    runs-on: macos-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install clang and xmake
+        run: |
+          brew update
+          brew install llvm lld xmake
+
+      - name: Set PATH for LLVM clang
+        run: echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
+
+      - name: Configure and build
+        shell: powershell
+        working-directory: py
+        run: |
+          xmake f --toolchain=clang -m release
+          xmake build -v
