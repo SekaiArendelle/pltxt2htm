@@ -42,29 +42,51 @@ jobs:
           xmake config -p windows -a x64 --toolchain=x86_64-windows-msvc-clang
           xmake test -v
 
-  x86_64-linux-gnu-test-asan:
-    name: x86_64-linux-gnu (test/, asan)
-    runs-on: ubuntu-22.04
+  aarch64-apple-darwin24-test-asan:
+    name: aarch64-apple-darwin24 (test/, asan)
+    runs-on: macos-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup GCC and XMake
-        working-directory: test
+      - name: Install clang and xmake
         run: |
-          wget https://github.com/GoodenoughPhysicsLab/releases-for-ubuntu2004/releases/download/only-for-release/x86_64-ubuntu2004-gnu-native-gcc16.tar.xz
-          tar -xJf x86_64-ubuntu2004-gnu-native-gcc16.tar.xz
-          wget https://github.com/GoodenoughPhysicsLab/releases-for-ubuntu2004/releases/download/only-for-release/x86_64-ubuntu2004-gnu-xmake.tar.xz
-          tar -xJf x86_64-ubuntu2004-gnu-xmake.tar.xz
+          brew update
+          brew install llvm lld xmake
+
+      - name: Set PATH for LLVM clang
+        run: echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
 
       - name: Configure and build
         working-directory: test
         run: |
-          export PATH=$PWD/x86_64-ubuntu2004-gnu-native-gcc16/bin:$PWD/x86_64-ubuntu2004-gnu-xmake/bin:$PATH
-          export LD_LIBRARY_PATH=$PWD/x86_64-ubuntu2004-gnu-native-gcc16/lib:$PWD/x86_64-ubuntu2004-gnu-native-gcc16/lib64
-          xmake config --toolchain=gcc --policies=build.sanitizer.address
+          xmake config --toolchain=clang --policies=build.sanitizer.address
           xmake test -v
+
+  aarch64-apple-darwin24-test-ubsan:
+    name: aarch64-apple-darwin24 (test/, ubsan)
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install clang and xmake
+        run: |
+          brew update
+          brew install llvm lld xmake
+
+      - name: Set PATH for LLVM clang
+        run: echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
+
+      - name: Configure and build
+        working-directory: test
+        run: |
+          xmake config --toolchain=clang --policies=build.sanitizer.undefined
+          xmake test -v
+
+  # TODO add x86_64-linux-gnu-test-msan ci (based on Ubuntu 2604)
 
   x86_64-windows-msvc-cmd-debug:
     name: x86_64-windows-msvc (cmd/, debug mode)
