@@ -99,16 +99,16 @@ public:
         }
     }
 
-    constexpr T* operator->(this auto&& self) noexcept {
+    constexpr T* operator->(this ::pltxt2htm::details::HeapGuard<T>& self) noexcept {
         return self.ptr_;
     }
 
-    constexpr T const* operator->(this HeapGuard<T> const& self) noexcept {
+    constexpr T const* operator->(this ::pltxt2htm::details::HeapGuard<T> const& self) noexcept {
         return self.ptr_;
     }
 
     [[nodiscard]]
-    constexpr T const* release_imul(this HeapGuard<T> const& self) noexcept {
+    constexpr T const* release_imul(this ::pltxt2htm::details::HeapGuard<T> const& self) noexcept {
         return self.ptr_;
     }
 

@@ -1,35 +1,17 @@
 #pragma once
 
-#include <algorithm>
 #include <exception/exception.hh>
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
-#include "../astnode/node_type.hh"
+#include "../utils.hh"
 #include "../astnode/basic.hh"
+#include "../astnode/node_type.hh"
 #include "../astnode/html_node.hh"
 #include "../astnode/physics_lab_node.hh"
 #include "../heap_guard.hh"
 
 namespace pltxt2htm::details {
-
-constexpr ::fast_io::u8string size_t2str(::std::size_t num) noexcept {
-    if (num == 0) {
-        return ::fast_io::u8string{u8"0"};
-    }
-
-    ::fast_io::u8string result;
-
-    while (num > 0) {
-        char8_t digit = (num % 10) + u8'0';
-        result.push_back(digit);
-        num /= 10;
-    }
-
-    ::std::reverse(result.begin(), result.end());
-
-    return result;
-}
 
 /**
  * @brief Integrate ast nodes to HTML.
@@ -101,7 +83,7 @@ constexpr auto ast2advanced_html(::fast_io::vector<::pltxt2htm::details::HeapGua
             auto&& subast = color->get_subast();
             if (subast.size() == 1) {
                 // <color=red><color=blue>text</color></color> can be optimized
-                auto subnode = subast.index_unchecked(0).release_imul();
+                auto subnode = ::pltxt2htm::details::vector_front<ndebug>(subast).release_imul();
                 if (subnode->node_type() == ::pltxt2htm::NodeType::pl_color) {
                     color = reinterpret_cast<::pltxt2htm::Color const*>(subnode);
                 }
@@ -129,7 +111,7 @@ constexpr auto ast2advanced_html(::fast_io::vector<::pltxt2htm::details::HeapGua
             if (subast.size() == 1) {
                 // <Experiment=123><experiment=642cf37a494746375aae306a>physicsLab</experiment></Experiment> can be
                 // optimized as <a href=\"localhost:5173/ExperimentSummary/Experiment/642cf37a494746375aae306a\"
-                auto subnode = subast.index_unchecked(0).release_imul();
+                auto subnode = ::pltxt2htm::details::vector_front<ndebug>(subast).release_imul();
                 if (subnode->node_type() == ::pltxt2htm::NodeType::pl_experiment) {
                     experiment = reinterpret_cast<::pltxt2htm::Experiment const*>(subnode);
                 }
@@ -159,7 +141,7 @@ constexpr auto ast2advanced_html(::fast_io::vector<::pltxt2htm::details::HeapGua
                 // <Discussion=123><discussion=642cf37a494746375aae306a>physicsLab</discussion></Discussion> can be
                 // optimized as <a href=\"localhost:5173/ExperimentSummary/Discussion/642cf37a494746375aae306a\"
                 // internal>physicsLab</a>
-                auto subnode = subast.index_unchecked(0).release_imul();
+                auto subnode = ::pltxt2htm::details::vector_front<ndebug>(subast).release_imul();
                 if (subnode->node_type() == ::pltxt2htm::NodeType::pl_discussion) {
                     discussion = reinterpret_cast<::pltxt2htm::Discussion const*>(subnode);
                 }
@@ -186,7 +168,7 @@ constexpr auto ast2advanced_html(::fast_io::vector<::pltxt2htm::details::HeapGua
             auto&& subast = user->get_subast();
             if (subast.size() == 1) {
                 // <User=123><user=642cf37a494746375aae306a>physicsLab</user></User> can be
-                auto subnode = subast.index_unchecked(0).release_imul();
+                auto subnode = ::pltxt2htm::details::vector_front<ndebug>(subast).release_imul();
                 if (subnode->node_type() == ::pltxt2htm::NodeType::pl_user) {
                     user = reinterpret_cast<::pltxt2htm::User const*>(subnode);
                 }
@@ -211,7 +193,7 @@ constexpr auto ast2advanced_html(::fast_io::vector<::pltxt2htm::details::HeapGua
             auto&& subast = size->get_subast();
             if (subast.size() == 1) {
                 // <size=123><size=642cf37a494746375aae306a>physicsLab</size></size> can be
-                auto subnode = subast.index_unchecked(0).release_imul();
+                auto subnode = ::pltxt2htm::details::vector_front<ndebug>(subast).release_imul();
                 if (subnode->node_type() == ::pltxt2htm::NodeType::pl_size) {
                     size = reinterpret_cast<::pltxt2htm::Size const*>(subnode);
                 }
