@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
@@ -426,6 +427,39 @@ constexpr ::exception::optional<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlT
         return ::exception::nullopt_t{};
     }
 }
+
+class BasicFrameContext {
+public:
+    ::fast_io::u8string_view pltext;
+    ::pltxt2htm::NodeType const nested_tag_type;
+    bool const return_from_recursion{false};
+    ::std::size_t current_index{};
+    ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast{};
+
+protected:
+    constexpr BasicFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
+                                bool const return_from_recursion_) noexcept
+        : pltext(pltext_),
+          nested_tag_type{nested_tag_type_},
+          return_from_recursion{return_from_recursion_} {
+    }
+};
+
+class BareTagContext : public ::pltxt2htm::details::BasicFrameContext {
+public:
+    using ::pltxt2htm::details::BasicFrameContext::BasicFrameContext;
+};
+
+class EqualSignTagContext : public ::pltxt2htm::details::BasicFrameContext {
+public:
+    ::fast_io::u8string id;
+
+    constexpr EqualSignTagContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
+                                  ::fast_io::u8string&& id_, bool const return_from_recursion_ = false) noexcept
+        : ::pltxt2htm::details::BasicFrameContext{pltext_, nested_tag_type_, return_from_recursion_},
+          id(::std::move(id_)) {
+    }
+};
 
 /**
  * @brief Parse pl-text to nodes.
