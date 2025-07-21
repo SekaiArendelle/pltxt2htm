@@ -175,14 +175,14 @@ constexpr bool try_parse_self_closing_tag(::fast_io::u8string_view pltext, ::std
  * @brief Parsing markdown ATX headings
  * @param[in] pltext: input string
  * @param[out] start_index_: start index
- * @param[out] sublength: length of the heading context
- * @param[out] header_level: 1~6 => <h1> ~ <h6>
+ * @param[out] sublength_: length of the heading context
+ * @param[out] md_atx_heading_type_: md_atx_h1 ~ md_atx_h6
  * @return true if the parsing is successful
  */
 template<bool ndebug>
 [[nodiscard]]
 constexpr bool try_parse_md_atx_heading(::fast_io::u8string_view pltext, ::std::size_t& start_index_,
-                                        ::std::size_t& sublength_, ::std::size_t& header_level_)
+                                        ::std::size_t& sublength_, ::pltxt2htm::NodeType& md_atx_heading_type_)
 #if __cpp_exceptions < 199711L
     noexcept
 #endif
@@ -201,14 +201,14 @@ constexpr bool try_parse_md_atx_heading(::fast_io::u8string_view pltext, ::std::
     }
 
     // count how many `#` characters
-    ::std::size_t header_level{};
+    ::std::size_t md_atx_heading_type{static_cast<::std::size_t>(::pltxt2htm::NodeType::md_atx_h1) - 1};
     while (true) {
         if (start_index >= pltext_size) {
             // https://spec.commonmark.org/0.31.2/#example-79
-            if (0 < header_level && header_level <= 6) {
+            if (static_cast<::std::size_t>(::pltxt2htm::NodeType::md_atx_h1) <= md_atx_heading_type && md_atx_heading_type <= static_cast<::std::size_t>(::pltxt2htm::NodeType::md_atx_h6)) {
                 start_index_ = start_index;
                 sublength_ = 0;
-                header_level_ = header_level;
+                md_atx_heading_type_ = static_cast<::pltxt2htm::NodeType>(md_atx_heading_type);
                 return true;
             } else {
                 return false;
@@ -218,9 +218,9 @@ constexpr bool try_parse_md_atx_heading(::fast_io::u8string_view pltext, ::std::
             break;
         }
         ++start_index;
-        ++header_level;
+        ++md_atx_heading_type;
     }
-    if (header_level == 0 || header_level > 6 ||
+    if (md_atx_heading_type < static_cast<::std::size_t>(::pltxt2htm::NodeType::md_atx_h1) || static_cast<::std::size_t>(::pltxt2htm::NodeType::md_atx_h6) < md_atx_heading_type ||
         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, start_index) != u8' ') {
         // invalid atx header
         return false;
@@ -232,7 +232,7 @@ constexpr bool try_parse_md_atx_heading(::fast_io::u8string_view pltext, ::std::
             // https://spec.commonmark.org/0.31.2/#example-79
             start_index_ = start_index;
             sublength_ = 0;
-            header_level_ = header_level;
+            md_atx_heading_type_ = static_cast<::pltxt2htm::NodeType>(md_atx_heading_type);
             return true;
         }
         if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, start_index) != u8' ') {
@@ -251,7 +251,7 @@ constexpr bool try_parse_md_atx_heading(::fast_io::u8string_view pltext, ::std::
     }
     start_index_ = start_index;
     sublength_ = sublength - start_index;
-    header_level_ = header_level;
+    md_atx_heading_type_ = static_cast<::pltxt2htm::NodeType>(md_atx_heading_type);
     return true;
 }
 
@@ -264,26 +264,26 @@ constexpr bool try_parse_md_atx_heading(::fast_io::u8string_view pltext, ::std::
 template<bool ndebug>
 [[nodiscard]]
 constexpr auto switch_md_atx_header(
-    ::std::size_t header_level,
+::pltxt2htm::NodeType md_atx_heading_type,
     ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
     -> ::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode> {
-    switch (header_level) {
-    case 1: {
+    switch (md_atx_heading_type) {
+    case ::pltxt2htm::NodeType::md_atx_h1: {
         return ::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH1>(::std::move(subast));
     }
-    case 2: {
+    case ::pltxt2htm::NodeType::md_atx_h2: {
         return ::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH2>(::std::move(subast));
     }
-    case 3: {
+    case ::pltxt2htm::NodeType::md_atx_h3: {
         return ::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH3>(::std::move(subast));
     }
-    case 4: {
+    case ::pltxt2htm::NodeType::md_atx_h4: {
         return ::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH4>(::std::move(subast));
     }
-    case 5: {
+    case ::pltxt2htm::NodeType::md_atx_h5: {
         return ::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH5>(::std::move(subast));
     }
-    case 6: {
+    case ::pltxt2htm::NodeType::md_atx_h6: {
         return ::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH6>(::std::move(subast));
     }
     default:
@@ -460,27 +460,27 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
 #if __has_cpp_attribute(indeterminate)
             ::std::size_t start_index [[indeterminate]];
             ::std::size_t end_index [[indeterminate]];
-            ::std::size_t header_level [[indeterminate]];
+            ::pltxt2htm::NodeType md_atx_heading_type [[indeterminate]];
 #else
             ::std::size_t start_index;
             ::std::size_t sublength;
-            ::std::size_t header_level;
+            ::pltxt2htm::NodeType md_atx_heading_type;
 #endif
             // try parsing markdown atx header
             if (current_index + 1 < pltext_size &&
                 ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1), start_index,
-                    sublength, header_level)) {
+                    sublength, md_atx_heading_type)) {
                 ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast{};
                 if (current_index + start_index + 1 < pltext_size) {
                     auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(
                         pltext, current_index + start_index + 1, sublength);
 
-                    subast = ::pltxt2htm::details::parse_pltxt<ndebug>(subtext, ::pltxt2htm::NodeType::md_atx_h1,
+                    subast = ::pltxt2htm::details::parse_pltxt<ndebug>(subtext, md_atx_heading_type,
                                                                        ::std::addressof(current_index));
                 }
                 current_index += start_index;
-                result.push_back(::pltxt2htm::details::switch_md_atx_header<ndebug>(header_level, ::std::move(subast)));
+                result.push_back(::pltxt2htm::details::switch_md_atx_header<ndebug>(md_atx_heading_type, ::std::move(subast)));
             }
             continue;
         } else if (chr == u8' ') {
@@ -581,28 +581,28 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
 #if __has_cpp_attribute(indeterminate)
                     ::std::size_t start_index [[indeterminate]];
                     ::std::size_t end_index [[indeterminate]];
-                    ::std::size_t header_level [[indeterminate]];
+                    ::pltxt2htm::NodeType md_atx_heading_type [[indeterminate]];
 #else
                     ::std::size_t start_index;
                     ::std::size_t sublength;
-                    ::std::size_t header_level;
+                    ::pltxt2htm::NodeType md_atx_heading_type;
 #endif
                     // try parsing markdown atx header
                     if (current_index + 1 < pltext_size &&
                         ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1), start_index,
-                            sublength, header_level)) {
+                            sublength, md_atx_heading_type)) {
                         ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast{};
                         if (current_index + start_index + 1 < pltext_size) {
                             auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(
                                 pltext, current_index + start_index + 1, sublength);
 
                             subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
-                                subtext, ::pltxt2htm::NodeType::md_atx_h1, ::std::addressof(current_index));
+                                subtext, md_atx_heading_type, ::std::addressof(current_index));
                         }
                         current_index += start_index;
                         result.push_back(
-                            ::pltxt2htm::details::switch_md_atx_header<ndebug>(header_level, ::std::move(subast)));
+                            ::pltxt2htm::details::switch_md_atx_header<ndebug>(md_atx_heading_type, ::std::move(subast)));
                     }
                     continue;
                 } else {
@@ -1382,21 +1382,21 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext)
 #if __has_cpp_attribute(indeterminate)
 
     ::std::size_t end_index [[indeterminate]];
-    ::std::size_t header_level [[indeterminate]];
+    ::pltxt2htm::NodeType md_atx_heading_type [[indeterminate]];
 #else
 
     ::std::size_t sublength;
-    ::std::size_t header_level;
+    ::pltxt2htm::NodeType md_atx_heading_type;
 #endif
     // try parsing markdown atx header
-    if (::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(pltext, start_index, sublength, header_level)) {
+    if (::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(pltext, start_index, sublength, md_atx_heading_type)) {
         ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast{};
         if (start_index < pltext.size()) {
             auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index, sublength);
-            subast = ::pltxt2htm::details::parse_pltxt<ndebug>(subtext, ::pltxt2htm::NodeType::md_atx_h1,
+            subast = ::pltxt2htm::details::parse_pltxt<ndebug>(subtext, md_atx_heading_type,
                                                                ::std::addressof(start_index));
         }
-        result.push_back(::pltxt2htm::details::switch_md_atx_header<ndebug>(header_level, ::std::move(subast)));
+        result.push_back(::pltxt2htm::details::switch_md_atx_header<ndebug>(md_atx_heading_type, ::std::move(subast)));
     }
 
     auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
