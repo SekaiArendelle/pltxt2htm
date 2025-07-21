@@ -447,7 +447,10 @@ protected:
 
 class BareTagContext : public ::pltxt2htm::details::BasicFrameContext {
 public:
-    using ::pltxt2htm::details::BasicFrameContext::BasicFrameContext;
+    constexpr BareTagContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
+                             bool const return_from_recursion_ = false) noexcept
+        : ::pltxt2htm::details::BasicFrameContext(pltext_, nested_tag_type_, return_from_recursion_) {
+    }
 };
 
 class EqualSignTagContext : public ::pltxt2htm::details::BasicFrameContext {
@@ -472,8 +475,8 @@ public:
  */
 template<bool ndebug>
 [[nodiscard]]
-constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeType extern_syntax_type,
-                           ::std::size_t* extern_index)
+constexpr auto parse_pltxt(::fast_io::stack<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BasicFrameContext>,
+    ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BasicFrameContext>>>& call_stack)
 #if __cpp_exceptions < 199711L
     noexcept
 #endif
@@ -1405,20 +1408,23 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext)
 #if __cpp_exceptions < 199711L
     noexcept
 #endif
-{
-    auto result = ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>{};
-    ::std::size_t start_index{};
+    -> ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> {
+    // fast_io::deque contains bug about RAII
+    ::fast_io::stack<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BasicFrameContext>,
+                     ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BasicFrameContext>>>
+        call_stack{};
+    ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> result{};
+
     // Consider the following markdown
     // ```md
     // ## test
     // ```
     // Here, the first line is a header, will hit this case
+    ::std::size_t start_index{};
 #if __has_cpp_attribute(indeterminate)
-
     ::std::size_t end_index [[indeterminate]];
     ::pltxt2htm::NodeType md_atx_heading_type [[indeterminate]];
 #else
-
     ::std::size_t sublength;
     ::pltxt2htm::NodeType md_atx_heading_type;
 #endif
@@ -1427,12 +1433,16 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext)
         ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast{};
         if (start_index < pltext.size()) {
             auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index, sublength);
-            subast = ::pltxt2htm::details::parse_pltxt<ndebug>(subtext, md_atx_heading_type,
-                                                               ::std::addressof(start_index));
+            call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                subtext, md_atx_heading_type, true));
+            subast = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
         }
         result.push_back(::pltxt2htm::details::switch_md_atx_header<ndebug>(md_atx_heading_type, ::std::move(subast)));
     }
 
+    // other common cases
+    call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+        pltext, ::pltxt2htm::NodeType::base, true));
     auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index), ::pltxt2htm::NodeType::base, nullptr);
     for (auto&& node : subast) {
