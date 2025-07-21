@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <memory>
 #include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/vector.h>
@@ -475,20 +476,21 @@ public:
  */
 template<bool ndebug>
 [[nodiscard]]
-constexpr auto parse_pltxt(::fast_io::stack<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BasicFrameContext>,
-    ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BasicFrameContext>>>& call_stack)
+constexpr auto parse_pltxt(
+    ::fast_io::stack<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BasicFrameContext>,
+                     ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BasicFrameContext>>>&
+        call_stack)
 #if __cpp_exceptions < 199711L
     noexcept
 #endif
     -> ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> {
-    pltxt2htm_assert((extern_syntax_type == ::pltxt2htm::NodeType::base && extern_index == nullptr) ||
-                         (extern_syntax_type != ::pltxt2htm::NodeType::base && extern_index != nullptr),
-                     u8"Invalid extern_syntax_type with extern_index");
-
-    auto result = ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>{};
-
+restart:
+    auto&& current_index = call_stack.top()->current_index;
+    auto&& pltext = call_stack.top()->pltext;
+    auto&& result = call_stack.top()->subast;
     ::std::size_t const pltext_size{pltext.size()};
-    for (::std::size_t current_index{}; current_index < pltext_size; ++current_index) {
+
+    for (; current_index < pltext_size; ++current_index) {
         char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index)};
 
         if (chr == u8'\n') {
@@ -512,9 +514,9 @@ constexpr auto parse_pltxt(::fast_io::stack<::pltxt2htm::details::HeapGuard<::pl
                 if (current_index + start_index + 1 < pltext_size) {
                     auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(
                         pltext, current_index + start_index + 1, sublength);
-
-                    subast = ::pltxt2htm::details::parse_pltxt<ndebug>(subtext, md_atx_heading_type,
-                                                                       ::std::addressof(current_index));
+                    call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                        subtext, md_atx_heading_type));
+                    goto restart;
                 }
                 current_index += start_index;
                 result.push_back(::pltxt2htm::details::switch_md_atx_header<ndebug>(md_atx_heading_type, ::std::move(subast)));
@@ -1442,9 +1444,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext)
 
     // other common cases
     call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
-        pltext, ::pltxt2htm::NodeType::base, true));
-    auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
-        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index), ::pltxt2htm::NodeType::base, nullptr);
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index), ::pltxt2htm::NodeType::base, true));
+    auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
     for (auto&& node : subast) {
         result.push_back(::std::move(node));
     }
