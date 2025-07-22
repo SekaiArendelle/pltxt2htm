@@ -26,9 +26,9 @@ public:
     constexpr Color() noexcept = delete;
 
     constexpr Color(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& text,
-                    auto&& color) noexcept
+                    ::fast_io::u8string&& color) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_color, ::std::move(text)},
-          color_(::std::forward<decltype(color)>(color)) {
+          color_(::std::move(color)) {
     }
 
     constexpr Color(::pltxt2htm::Color const&) noexcept = default;
@@ -97,9 +97,9 @@ public:
     constexpr Experiment() noexcept = delete;
 
     constexpr Experiment(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast,
-                         auto&& id) noexcept
+                         ::fast_io::u8string&& id) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_experiment, ::std::move(subast)},
-          id_(::std::forward<decltype(id)>(id)) {
+          id_(::std::move(id)) {
     }
 
     constexpr Experiment(::pltxt2htm::Experiment const&) noexcept = default;
@@ -134,9 +134,9 @@ public:
     constexpr Discussion() noexcept = delete;
 
     constexpr Discussion(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast,
-                         auto&& id) noexcept
+                         ::fast_io::u8string&& id) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_discussion, ::std::move(subast)},
-          id_(::std::forward<decltype((id))>(id)) {
+          id_(::std::move(id)) {
     }
 
     constexpr Discussion(::pltxt2htm::Discussion const&) noexcept = default;
@@ -169,9 +169,9 @@ public:
     constexpr User() noexcept = delete;
 
     constexpr User(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast,
-                   auto&& id) noexcept
+                   ::fast_io::u8string&& id) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_user, ::std::move(subast)},
-          id_(::std::forward<decltype(id)>(id)) {
+          id_(::std::move(id)) {
     }
 
     constexpr User(::pltxt2htm::User const&) noexcept = default;
