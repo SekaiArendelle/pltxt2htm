@@ -995,11 +995,15 @@ restart:
                         continue;
                     }
                     // parsing end tag </color> successed
-                    // Whether or not extern_index is out of range, extern for loop will handle it correctly.
-                    if (extern_index != nullptr) {
-                        *extern_index += current_index + tag_len + 3;
-                    }
-                    return result;
+                    auto frame = reinterpret_cast<::pltxt2htm::details::EqualSignTagContext const*>(
+                        call_stack.top().release_imul());
+                    ::std::size_t const staged_index{current_index};
+                    ::pltxt2htm::Color staged_node(::std::move(result), ::std::move(frame->id));
+                    call_stack.pop();
+                    call_stack.top()->subast.push_back(
+                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::Color>(::std::move(staged_node)));
+                    call_stack.top()->current_index += staged_index + tag_len + 3;
+                    goto restart;
                 }
                 case ::pltxt2htm::NodeType::pl_a: {
 #if __has_cpp_attribute(indeterminate)
@@ -1015,10 +1019,13 @@ restart:
                         continue;
                     }
                     // parsing end tag </a> successed
-                    if (extern_index != nullptr) {
-                        *extern_index += current_index + tag_len + 3;
-                    }
-                    return result;
+                    ::std::size_t const staged_index{current_index};
+                    ::pltxt2htm::A staged_node(::std::move(result));
+                    call_stack.pop();
+                    call_stack.top()->subast.push_back(
+                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::A>(::std::move(staged_node)));
+                    call_stack.top()->current_index += staged_index + tag_len + 3;
+                    goto restart;
                 }
                 case ::pltxt2htm::NodeType::pl_experiment: {
 #if __has_cpp_attribute(indeterminate)
@@ -1035,10 +1042,15 @@ restart:
                         continue;
                     }
                     // Whether or not extern_index is out of range, extern for loop will handle it correctly.
-                    if (extern_index != nullptr) {
-                        *extern_index += current_index + tag_len + 3;
-                    }
-                    return result;
+                    auto frame = reinterpret_cast<::pltxt2htm::details::EqualSignTagContext const*>(
+                        call_stack.top().release_imul());
+                    ::std::size_t const staged_index{current_index};
+                    ::pltxt2htm::Experiment staged_node(::std::move(result), ::std::move(frame->id));
+                    call_stack.pop();
+                    call_stack.top()->subast.push_back(
+                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::Experiment>(::std::move(staged_node)));
+                    call_stack.top()->current_index += staged_index + tag_len + 3;
+                    goto restart;
                 }
                 case ::pltxt2htm::NodeType::pl_discussion: {
 #if __has_cpp_attribute(indeterminate)
@@ -1055,10 +1067,15 @@ restart:
                         continue;
                     }
                     // Whether or not extern_index is out of range, extern for loop will handle it correctly.
-                    if (extern_index != nullptr) {
-                        *extern_index += current_index + tag_len + 3;
-                    }
-                    return result;
+                    auto frame = reinterpret_cast<::pltxt2htm::details::EqualSignTagContext const*>(
+                        call_stack.top().release_imul());
+                    ::std::size_t const staged_index{current_index};
+                    ::pltxt2htm::Discussion staged_node(::std::move(result), ::std::move(frame->id));
+                    call_stack.pop();
+                    call_stack.top()->subast.push_back(
+                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::Discussion>(::std::move(staged_node)));
+                    call_stack.top()->current_index += staged_index + tag_len + 3;
+                    goto restart;
                 }
                 case ::pltxt2htm::NodeType::pl_user: {
 #if __has_cpp_attribute(indeterminate)
@@ -1073,10 +1090,15 @@ restart:
                         result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::LessThan>{});
                         continue;
                     }
-                    if (extern_index != nullptr) {
-                        *extern_index += current_index + tag_len + 3;
-                    }
-                    return result;
+                    auto frame = reinterpret_cast<::pltxt2htm::details::EqualSignTagContext const*>(
+                        call_stack.top().release_imul());
+                    ::std::size_t const staged_index{current_index};
+                    ::pltxt2htm::User staged_node(::std::move(result), ::std::move(frame->id));
+                    call_stack.pop();
+                    call_stack.top()->subast.push_back(
+                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::User>(::std::move(staged_node)));
+                    call_stack.top()->current_index += staged_index + tag_len + 3;
+                    goto restart;
                 }
                 case ::pltxt2htm::NodeType::pl_size: {
 #if __has_cpp_attribute(indeterminate)
@@ -1091,10 +1113,15 @@ restart:
                         result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::LessThan>{});
                         continue;
                     }
-                    if (extern_index != nullptr) {
-                        *extern_index += current_index + tag_len + 3;
-                    }
-                    return result;
+                    auto frame = reinterpret_cast<::pltxt2htm::details::PlSizeTagContext const*>(
+                        call_stack.top().release_imul());
+                    ::std::size_t const staged_index{current_index};
+                    ::pltxt2htm::Size staged_node(::std::move(result), ::std::move(frame->id));
+                    call_stack.pop();
+                    call_stack.top()->subast.push_back(
+                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::Size>(::std::move(staged_node)));
+                    call_stack.top()->current_index += staged_index + tag_len + 3;
+                    goto restart;
                 }
                 case ::pltxt2htm::NodeType::pl_b: {
 #if __has_cpp_attribute(indeterminate)
@@ -1109,10 +1136,13 @@ restart:
                         continue;
                     }
                     // parsing end tag </b> successed
-                    if (extern_index != nullptr) {
-                        *extern_index += current_index + tag_len + 3;
-                    }
-                    return result;
+                    ::std::size_t const staged_index{current_index};
+                    ::pltxt2htm::B staged_node(::std::move(result));
+                    call_stack.pop();
+                    call_stack.top()->subast.push_back(
+                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::B>(::std::move(staged_node)));
+                    call_stack.top()->current_index += staged_index + tag_len + 3;
+                    goto restart;
                 }
                 case ::pltxt2htm::NodeType::pl_i: {
 #if __has_cpp_attribute(indeterminate)
@@ -1127,10 +1157,13 @@ restart:
                         continue;
                     }
                     // parsing end tag </a> successed
-                    if (extern_index != nullptr) {
-                        *extern_index += current_index + tag_len + 3;
-                    }
-                    return result;
+                    ::std::size_t const staged_index{current_index};
+                    ::pltxt2htm::I staged_node(::std::move(result));
+                    call_stack.pop();
+                    call_stack.top()->subast.push_back(
+                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::I>(::std::move(staged_node)));
+                    call_stack.top()->current_index += staged_index + tag_len + 3;
+                    goto restart;
                 }
                 case ::pltxt2htm::NodeType::html_p: {
 #if __has_cpp_attribute(indeterminate)
@@ -1145,10 +1178,13 @@ restart:
                         continue;
                     }
                     // parsing end tag </p> successed
-                    if (extern_index != nullptr) {
-                        *extern_index += current_index + tag_len + 3;
-                    }
-                    return result;
+                    ::std::size_t const staged_index{current_index};
+                    ::pltxt2htm::P staged_node(::std::move(result));
+                    call_stack.pop();
+                    call_stack.top()->subast.push_back(
+                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::P>(::std::move(staged_node)));
+                    call_stack.top()->current_index += staged_index + tag_len + 3;
+                    goto restart;
                 }
                 case ::pltxt2htm::NodeType::html_h1: {
 #if __has_cpp_attribute(indeterminate)
@@ -1163,10 +1199,13 @@ restart:
                         continue;
                     }
                     // parsing end tag </h1> successed
-                    if (extern_index != nullptr) {
-                        *extern_index += current_index + tag_len + 3;
-                    }
-                    return result;
+                    ::std::size_t const staged_index{current_index};
+                    ::pltxt2htm::H1 staged_node(::std::move(result));
+                    call_stack.pop();
+                    call_stack.top()->subast.push_back(
+                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::H1>(::std::move(staged_node)));
+                    call_stack.top()->current_index += staged_index + tag_len + 3;
+                    goto restart;
                 }
                 case ::pltxt2htm::NodeType::html_h2: {
 #if __has_cpp_attribute(indeterminate)
@@ -1181,10 +1220,13 @@ restart:
                         continue;
                     }
                     // parsing end tag </h2> successed
-                    if (extern_index != nullptr) {
-                        *extern_index += current_index + tag_len + 3;
-                    }
-                    return result;
+                    ::std::size_t const staged_index{current_index};
+                    ::pltxt2htm::H2 staged_node(::std::move(result));
+                    call_stack.pop();
+                    call_stack.top()->subast.push_back(
+                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::H2>(::std::move(staged_node)));
+                    call_stack.top()->current_index += staged_index + tag_len + 3;
+                    goto restart;
                 }
                 case ::pltxt2htm::NodeType::html_h3: {
 #if __has_cpp_attribute(indeterminate)
@@ -1199,10 +1241,13 @@ restart:
                         continue;
                     }
                     // parsing end tag </h3> successed
-                    if (extern_index != nullptr) {
-                        *extern_index += current_index + tag_len + 3;
-                    }
-                    return result;
+                    ::std::size_t const staged_index{current_index};
+                    ::pltxt2htm::H3 staged_node(::std::move(result));
+                    call_stack.pop();
+                    call_stack.top()->subast.push_back(
+                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::H3>(::std::move(staged_node)));
+                    call_stack.top()->current_index += staged_index + tag_len + 3;
+                    goto restart;
                 }
                 case ::pltxt2htm::NodeType::html_h4: {
 #if __has_cpp_attribute(indeterminate)
@@ -1217,10 +1262,13 @@ restart:
                         continue;
                     }
                     // parsing end tag </h4> successed
-                    if (extern_index != nullptr) {
-                        *extern_index += current_index + tag_len + 3;
-                    }
-                    return result;
+                    ::std::size_t const staged_index{current_index};
+                    ::pltxt2htm::H4 staged_node(::std::move(result));
+                    call_stack.pop();
+                    call_stack.top()->subast.push_back(
+                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::H4>(::std::move(staged_node)));
+                    call_stack.top()->current_index += staged_index + tag_len + 3;
+                    goto restart;
                 }
                 case ::pltxt2htm::NodeType::html_h5: {
 #if __has_cpp_attribute(indeterminate)
@@ -1235,10 +1283,13 @@ restart:
                         continue;
                     }
                     // parsing end tag </h5> successed
-                    if (extern_index != nullptr) {
-                        *extern_index += current_index + tag_len + 3;
-                    }
-                    return result;
+                    ::std::size_t const staged_index{current_index};
+                    ::pltxt2htm::H5 staged_node(::std::move(result));
+                    call_stack.pop();
+                    call_stack.top()->subast.push_back(
+                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::H5>(::std::move(staged_node)));
+                    call_stack.top()->current_index += staged_index + tag_len + 3;
+                    goto restart;
                 }
                 case ::pltxt2htm::NodeType::html_h6: {
 #if __has_cpp_attribute(indeterminate)
@@ -1253,10 +1304,13 @@ restart:
                         continue;
                     }
                     // parsing end tag </h6> successed
-                    if (extern_index != nullptr) {
-                        *extern_index += current_index + tag_len + 3;
-                    }
-                    return result;
+                    ::std::size_t const staged_index{current_index};
+                    ::pltxt2htm::H6 staged_node(::std::move(result));
+                    call_stack.pop();
+                    call_stack.top()->subast.push_back(
+                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::H6>(::std::move(staged_node)));
+                    call_stack.top()->current_index += staged_index + tag_len + 3;
+                    goto restart;
                 }
                 case ::pltxt2htm::NodeType::html_del: {
 #if __has_cpp_attribute(indeterminate)
@@ -1271,10 +1325,13 @@ restart:
                         continue;
                     }
                     // parsing end tag </del> successed
-                    if (extern_index != nullptr) {
-                        *extern_index += current_index + tag_len + 3;
-                    }
-                    return result;
+                    ::std::size_t const staged_index{current_index};
+                    ::pltxt2htm::Del staged_node(::std::move(result));
+                    call_stack.pop();
+                    call_stack.top()->subast.push_back(
+                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::Del>(::std::move(staged_node)));
+                    call_stack.top()->current_index += staged_index + tag_len + 3;
+                    goto restart;
                 }
                 default:
                     result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::LessThan>{});
@@ -1395,8 +1452,18 @@ restart:
         }
     }
 
-    if (extern_index != nullptr) {
-        *extern_index += pltext_size;
+    ::std::size_t const staged_index = pltext_size;
+    ::pltxt2htm::NodeType const staged_tag_type{call_stack.top()->nested_tag_type};
+    ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> staged_node(::std::move(result));
+    bool const return_from_recursion{call_stack.top()->return_from_recursion};
+    call_stack.pop();
+    if (return_from_recursion) {
+        return staged_node;
+    } else {
+        // unverified
+        call_stack.top()->subast.push_back(::pltxt2htm::details::switch_md_atx_header<ndebug>(staged_tag_type));
+        call_stack.top()->current_index += staged_index;
+        goto restart;
     }
     return result;
 }
