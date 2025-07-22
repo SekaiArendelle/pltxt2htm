@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cstddef>
 #include <memory>
 #include <fast_io/fast_io_dsal/stack.h>
@@ -524,13 +525,17 @@ restart:
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1), start_index,
                     sublength, md_atx_heading_type)) {
                 ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast{};
-                if (current_index + start_index + 1 < pltext_size) {
-                    auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(
-                        pltext, current_index + start_index + 1, sublength);
+                current_index += start_index + 1;
+                if (current_index < pltext_size) {
+                    auto subtext =
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index, sublength);
                     call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
                         subtext, md_atx_heading_type));
-                    goto restart;
+                } else {
+                    call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                        ::fast_io::u8string_view{}, md_atx_heading_type));
                 }
+                goto restart;
             }
             continue;
         } else if (chr == u8' ') {
@@ -643,15 +648,18 @@ restart:
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1), start_index,
                             sublength, md_atx_heading_type)) {
                         ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast{};
-                        if (current_index + start_index + 1 < pltext_size) {
-                            auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(
-                                pltext, current_index + start_index + 1, sublength);
-
+                        current_index += start_index + 1;
+                        if (current_index < pltext_size) {
+                            auto subtext =
+                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index, sublength);
                             call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
                                 subtext, md_atx_heading_type));
-                            subast = ::pltxt2htm::details::parse_pltxt<ndebug>(subtext, md_atx_heading_type,
-                                                                               ::std::addressof(current_index));
+                            
+                        } else {
+                            call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                                ::fast_io::u8string_view{}, md_atx_heading_type));
                         }
+                        goto restart;
                     }
                     continue;
                 } else {
@@ -679,7 +687,7 @@ restart:
                         // which does not make sense, can be opetimized(ignored) during parsing ast
                         call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::EqualSignTagContext>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeType::pl_color, color));
+                            ::pltxt2htm::NodeType::pl_color, ::std::move(color)));
                         goto restart;
                     }
                     continue;
@@ -722,7 +730,7 @@ restart:
                         // which does not make sense, can be opetimized(ignored) during parsing ast
                         call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::EqualSignTagContext>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeType::pl_discussion, id));
+                            ::pltxt2htm::NodeType::pl_discussion, ::std::move(id)));
                         goto restart;
                     }
                     continue;
@@ -751,7 +759,7 @@ restart:
                         // which does not make sense, can be opetimized(ignored) during parsing ast
                         call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::EqualSignTagContext>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeType::pl_experiment, id));
+                            ::pltxt2htm::NodeType::pl_experiment, ::std::move(id)));
                         goto restart;
                     }
                     continue;
@@ -1452,20 +1460,138 @@ restart:
         }
     }
 
-    ::std::size_t const staged_index = pltext_size;
-    ::pltxt2htm::NodeType const staged_tag_type{call_stack.top()->nested_tag_type};
-    ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> staged_node(::std::move(result));
-    bool const return_from_recursion{call_stack.top()->return_from_recursion};
-    call_stack.pop();
-    if (return_from_recursion) {
-        return staged_node;
-    } else {
-        // unverified
-        call_stack.top()->subast.push_back(::pltxt2htm::details::switch_md_atx_header<ndebug>(staged_tag_type));
-        call_stack.top()->current_index += staged_index;
-        goto restart;
+    {
+        ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BasicFrameContext> frame(::std::move(call_stack.top()));
+        ::std::size_t const staged_index = pltext_size;
+        call_stack.pop();
+        if (frame->return_from_recursion) {
+            return ::std::move(frame->subast);
+        } else {
+            // Considering the following markdown:
+            // ```md
+            // <b>example
+            // ```
+            // Any tag without a closing tag will hit this branch.
+            auto&& subast = frame->subast;
+            auto&& superast = call_stack.top()->subast;
+            auto&& super_index = call_stack.top()->current_index;
+            switch (frame->nested_tag_type) {
+            case ::pltxt2htm::NodeType::pl_color: {
+                auto&& id =
+                    reinterpret_cast<::pltxt2htm::details::EqualSignTagContext const*>(frame.release_imul())->id;
+                superast.push_back(
+                    ::pltxt2htm::details::HeapGuard<::pltxt2htm::Color>(::std::move(subast), ::std::move(id)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::pl_a: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::A>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::pl_experiment: {
+                auto&& id =
+                    reinterpret_cast<::pltxt2htm::details::EqualSignTagContext const*>(frame.release_imul())->id;
+                superast.push_back(
+                    ::pltxt2htm::details::HeapGuard<::pltxt2htm::Experiment>(::std::move(subast), ::std::move(id)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::pl_discussion: {
+                auto&& id =
+                    reinterpret_cast<::pltxt2htm::details::EqualSignTagContext const*>(frame.release_imul())->id;
+                superast.push_back(
+                    ::pltxt2htm::details::HeapGuard<::pltxt2htm::Discussion>(::std::move(subast), ::std::move(id)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::pl_user: {
+                auto&& id =
+                    reinterpret_cast<::pltxt2htm::details::EqualSignTagContext const*>(frame.release_imul())->id;
+                superast.push_back(
+                    ::pltxt2htm::details::HeapGuard<::pltxt2htm::User>(::std::move(subast), ::std::move(id)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::pl_size: {
+                auto&& id = reinterpret_cast<::pltxt2htm::details::PlSizeTagContext const*>(frame.release_imul())->id;
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Size>(::std::move(subast), id));
+                break;
+            }
+            case ::pltxt2htm::NodeType::pl_b: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::B>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::pl_i: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::I>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::html_p: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::P>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::html_h1: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H1>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::html_h2: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H2>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::html_h3: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H3>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::html_h4: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H4>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::html_h5: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H5>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::html_h6: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H6>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::html_del: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Del>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::md_atx_h1: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH1>(::std::move(subast)));
+                super_index += frame->subast.size();
+                break;
+            }
+            case ::pltxt2htm::NodeType::md_atx_h2: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH2>(::std::move(subast)));
+                super_index += frame->subast.size();
+                break;
+            }
+            case ::pltxt2htm::NodeType::md_atx_h3: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH3>(::std::move(subast)));
+                super_index += frame->subast.size();
+                break;
+            }
+            case ::pltxt2htm::NodeType::md_atx_h4: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH4>(::std::move(subast)));
+                super_index += frame->subast.size();
+                break;
+            }
+            case ::pltxt2htm::NodeType::md_atx_h5: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH5>(::std::move(subast)));
+                super_index += frame->subast.size();
+                break;
+            }
+            case ::pltxt2htm::NodeType::md_atx_h6: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH6>(::std::move(subast)));
+                super_index += frame->subast.size();
+                break;
+            }
+            default:
+                [[unlikely]] {
+                    ::exception::unreachable<ndebug>();
+                }
+            }
+            call_stack.top()->current_index += staged_index;
+            goto restart;
+        }
     }
-    return result;
 }
 
 } // namespace details
@@ -1511,6 +1637,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext)
             subast = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
         }
         result.push_back(::pltxt2htm::details::switch_md_atx_header<ndebug>(md_atx_heading_type, ::std::move(subast)));
+        // rectify the start index to the start of next text (aka. below common cases)
+        start_index += sublength;
     }
 
     // other common cases
