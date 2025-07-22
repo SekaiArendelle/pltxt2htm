@@ -1,6 +1,7 @@
 #pragma once
 
-#include <memory>
+#include <cstddef>
+#include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
@@ -205,7 +206,8 @@ constexpr bool try_parse_md_atx_heading(::fast_io::u8string_view pltext, ::std::
     while (true) {
         if (start_index >= pltext_size) {
             // https://spec.commonmark.org/0.31.2/#example-79
-            if (static_cast<::std::size_t>(::pltxt2htm::NodeType::md_atx_h1) <= md_atx_heading_type && md_atx_heading_type <= static_cast<::std::size_t>(::pltxt2htm::NodeType::md_atx_h6)) {
+            if (static_cast<::std::size_t>(::pltxt2htm::NodeType::md_atx_h1) <= md_atx_heading_type &&
+                md_atx_heading_type <= static_cast<::std::size_t>(::pltxt2htm::NodeType::md_atx_h6)) {
                 start_index_ = start_index;
                 sublength_ = 0;
                 md_atx_heading_type_ = static_cast<::pltxt2htm::NodeType>(md_atx_heading_type);
@@ -220,7 +222,8 @@ constexpr bool try_parse_md_atx_heading(::fast_io::u8string_view pltext, ::std::
         ++start_index;
         ++md_atx_heading_type;
     }
-    if (md_atx_heading_type < static_cast<::std::size_t>(::pltxt2htm::NodeType::md_atx_h1) || static_cast<::std::size_t>(::pltxt2htm::NodeType::md_atx_h6) < md_atx_heading_type ||
+    if (md_atx_heading_type < static_cast<::std::size_t>(::pltxt2htm::NodeType::md_atx_h1) ||
+        static_cast<::std::size_t>(::pltxt2htm::NodeType::md_atx_h6) < md_atx_heading_type ||
         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, start_index) != u8' ') {
         // invalid atx header
         return false;
@@ -264,7 +267,7 @@ constexpr bool try_parse_md_atx_heading(::fast_io::u8string_view pltext, ::std::
 template<bool ndebug>
 [[nodiscard]]
 constexpr auto switch_md_atx_header(
-::pltxt2htm::NodeType md_atx_heading_type,
+    ::pltxt2htm::NodeType md_atx_heading_type,
     ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
     -> ::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode> {
     switch (md_atx_heading_type) {
@@ -427,6 +430,53 @@ constexpr ::exception::optional<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlT
     }
 }
 
+class BasicFrameContext {
+public:
+    ::fast_io::u8string_view pltext;
+    ::pltxt2htm::NodeType const nested_tag_type;
+    bool const return_from_recursion{false};
+    ::std::size_t current_index{};
+    ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast{};
+
+protected:
+    constexpr BasicFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
+                                bool const return_from_recursion_) noexcept
+        : pltext(pltext_),
+          nested_tag_type{nested_tag_type_},
+          return_from_recursion{return_from_recursion_} {
+    }
+};
+
+class BareTagContext : public ::pltxt2htm::details::BasicFrameContext {
+public:
+    constexpr BareTagContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
+                             bool const return_from_recursion_ = false) noexcept
+        : ::pltxt2htm::details::BasicFrameContext(pltext_, nested_tag_type_, return_from_recursion_) {
+    }
+};
+
+class EqualSignTagContext : public ::pltxt2htm::details::BasicFrameContext {
+public:
+    ::fast_io::u8string id;
+
+    constexpr EqualSignTagContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
+                                  ::fast_io::u8string&& id_, bool const return_from_recursion_ = false) noexcept
+        : ::pltxt2htm::details::BasicFrameContext{pltext_, nested_tag_type_, return_from_recursion_},
+          id(::std::move(id_)) {
+    }
+};
+
+class PlSizeTagContext : public ::pltxt2htm::details::BasicFrameContext {
+public:
+    ::std::size_t id;
+
+    constexpr PlSizeTagContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
+                               ::std::size_t id_, bool const return_from_recursion_ = false) noexcept
+        : ::pltxt2htm::details::BasicFrameContext{pltext_, nested_tag_type_, return_from_recursion_},
+          id(::std::move(id_)) {
+    }
+};
+
 /**
  * @brief Parse pl-text to nodes.
  * @tparam ndebug: Whether disables all debug checks.
@@ -438,20 +488,21 @@ constexpr ::exception::optional<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlT
  */
 template<bool ndebug>
 [[nodiscard]]
-constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeType extern_syntax_type,
-                           ::std::size_t* extern_index)
+constexpr auto parse_pltxt(
+    ::fast_io::stack<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BasicFrameContext>,
+                     ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BasicFrameContext>>>&
+        call_stack)
 #if __cpp_exceptions < 199711L
     noexcept
 #endif
     -> ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> {
-    pltxt2htm_assert((extern_syntax_type == ::pltxt2htm::NodeType::base && extern_index == nullptr) ||
-                         (extern_syntax_type != ::pltxt2htm::NodeType::base && extern_index != nullptr),
-                     u8"Invalid extern_syntax_type with extern_index");
-
-    auto result = ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>{};
-
+restart:
+    auto&& current_index = call_stack.top()->current_index;
+    auto&& pltext = call_stack.top()->pltext;
+    auto&& result = call_stack.top()->subast;
     ::std::size_t const pltext_size{pltext.size()};
-    for (::std::size_t current_index{}; current_index < pltext_size; ++current_index) {
+
+    for (; current_index < pltext_size; ++current_index) {
         char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index)};
 
         if (chr == u8'\n') {
@@ -472,15 +523,17 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1), start_index,
                     sublength, md_atx_heading_type)) {
                 ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast{};
-                if (current_index + start_index + 1 < pltext_size) {
-                    auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(
-                        pltext, current_index + start_index + 1, sublength);
-
-                    subast = ::pltxt2htm::details::parse_pltxt<ndebug>(subtext, md_atx_heading_type,
-                                                                       ::std::addressof(current_index));
+                current_index += start_index + 1;
+                if (current_index < pltext_size) {
+                    auto subtext =
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index, sublength);
+                    call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                        subtext, md_atx_heading_type));
+                } else {
+                    call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                        ::fast_io::u8string_view{}, md_atx_heading_type));
                 }
-                current_index += start_index;
-                result.push_back(::pltxt2htm::details::switch_md_atx_header<ndebug>(md_atx_heading_type, ::std::move(subast)));
+                goto restart;
             }
             continue;
         } else if (chr == u8' ') {
@@ -535,14 +588,14 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
                 // parsing pl <a>$1</a> tag (not html <a> tag)
                 if (::pltxt2htm::details::try_parse_bare_tag<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len)) {
-                    current_index += tag_len + 2;
-                    if (current_index + 1 < pltext_size) {
-                        // if forward_index + 1 >= pltext_size, it means that a not closed tag in the end of the text
+                    current_index += tag_len + 3;
+                    if (current_index < pltext_size) {
+                        // if forward_index >= pltext_size, it means that a not closed tag in the end of the text
                         // which does not make sense, can be opetimized(ignored) during parsing ast
-                        auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1),
-                            ::pltxt2htm::NodeType::pl_a, ::std::addressof(current_index));
-                        result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::A>(::std::move(subast)));
+                        call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                            ::pltxt2htm::NodeType::pl_a));
+                        goto restart;
                     }
                     continue;
                 } else {
@@ -562,14 +615,14 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
                 if (::pltxt2htm::details::try_parse_bare_tag<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len)) {
                     // parsing pl&html <b> tag
-                    current_index += tag_len + 2;
-                    if (current_index + 1 < pltext_size) {
-                        // if forward_index + 1 >= pltext_size, it means that a not closed tag in the end of the text
+                    current_index += tag_len + 3;
+                    if (current_index < pltext_size) {
+                        // if forward_index >= pltext_size, it means that a not closed tag in the end of the text
                         // which does not make sense, can be opetimized(ignored) during parsing ast
-                        auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1),
-                            ::pltxt2htm::NodeType::pl_b, ::std::addressof(current_index));
-                        result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::B>(::std::move(subast)));
+                        call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                            ::pltxt2htm::NodeType::pl_b));
+                        goto restart;
                     }
                     continue;
                 } else if (::pltxt2htm::details::try_parse_self_closing_tag<ndebug, u8'r'>(
@@ -593,16 +646,18 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1), start_index,
                             sublength, md_atx_heading_type)) {
                         ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast{};
-                        if (current_index + start_index + 1 < pltext_size) {
-                            auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(
-                                pltext, current_index + start_index + 1, sublength);
+                        current_index += start_index + 1;
+                        if (current_index < pltext_size) {
+                            auto subtext =
+                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index, sublength);
+                            call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                                subtext, md_atx_heading_type));
 
-                            subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
-                                subtext, md_atx_heading_type, ::std::addressof(current_index));
+                        } else {
+                            call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                                ::fast_io::u8string_view{}, md_atx_heading_type));
                         }
-                        current_index += start_index;
-                        result.push_back(
-                            ::pltxt2htm::details::switch_md_atx_header<ndebug>(md_atx_heading_type, ::std::move(subast)));
+                        goto restart;
                     }
                     continue;
                 } else {
@@ -623,16 +678,15 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
                 ::fast_io::u8string color;
                 if (::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, u8'o', u8'l', u8'o', u8'r'>(
                         u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len, color)) {
-                    current_index += tag_len + 2;
+                    current_index += tag_len + 3;
                     // parsing start tag <color> successed
-                    if (current_index + 1 < pltext_size) {
-                        // if forward_index + 1 >= pltext_size, it means that a not closed tag in the end of the text
+                    if (current_index < pltext_size) {
+                        // if forward_index >= pltext_size, it means that a not closed tag in the end of the text
                         // which does not make sense, can be opetimized(ignored) during parsing ast
-                        auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1),
-                            ::pltxt2htm::NodeType::pl_color, ::std::addressof(current_index));
-                        result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Color>(::std::move(subast),
-                                                                                             ::std::move(color)));
+                        call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::EqualSignTagContext>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                            ::pltxt2htm::NodeType::pl_color, ::std::move(color)));
+                        goto restart;
                     }
                     continue;
                 } else {
@@ -652,14 +706,14 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
                 if (::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'e', u8'l'>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len)) {
                     // parsing <del>$1</del>
-                    current_index += tag_len + 2;
-                    if (current_index + 1 < pltext_size) {
-                        // if forward_index + 1 >= pltext_size, it means that a not closed tag in the end of the text
+                    current_index += tag_len + 3;
+                    if (current_index < pltext_size) {
+                        // if forward_index >= pltext_size, it means that a not closed tag in the end of the text
                         // which does not make sense, can be opetimized(ignored) during parsing ast
-                        auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1),
-                            ::pltxt2htm::NodeType::html_del, ::std::addressof(current_index));
-                        result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Del>(::std::move(subast)));
+                        call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                            ::pltxt2htm::NodeType::html_del));
+                        goto restart;
                     }
                     continue;
                 }
@@ -668,22 +722,20 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
                 if (::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, u8'i', u8's', u8'c', u8'u', u8's', u8's',
                                                                    u8'i', u8'o', u8'n'>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len, id)) {
-                    current_index += tag_len + 2;
+                    current_index += tag_len + 3;
+                    if (current_index < pltext_size) {
+                        // if forward_index >= pltext_size, it means that a not closed tag in the end of the text
+                        // which does not make sense, can be opetimized(ignored) during parsing ast
+                        call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::EqualSignTagContext>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                            ::pltxt2htm::NodeType::pl_discussion, ::std::move(id)));
+                        goto restart;
+                    }
+                    continue;
                 } else {
                     result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::LessThan>{});
                     continue;
                 }
-
-                if (current_index + 1 < pltext_size) {
-                    // if forward_index + 1 >= pltext_size, it means that a not closed tag in the end of the text
-                    // which does not make sense, can be opetimized(ignored) during parsing ast
-                    auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1),
-                        ::pltxt2htm::NodeType::pl_discussion, ::std::addressof(current_index));
-                    result.push_back(
-                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::Discussion>(::std::move(subast), ::std::move(id)));
-                }
-                continue;
             }
 
             case u8'e':
@@ -699,15 +751,14 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
                 if (::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, u8'x', u8'p', u8'e', u8'r', u8'i', u8'm',
                                                                    u8'e', u8'n', u8't'>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len, id)) {
-                    current_index += tag_len + 2;
-                    if (current_index + 1 < pltext_size) {
-                        // if forward_index + 1 >= pltext_size, it means that a not closed tag in the end of the text
+                    current_index += tag_len + 3;
+                    if (current_index < pltext_size) {
+                        // if forward_index >= pltext_size, it means that a not closed tag in the end of the text
                         // which does not make sense, can be opetimized(ignored) during parsing ast
-                        auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1),
-                            ::pltxt2htm::NodeType::pl_experiment, ::std::addressof(current_index));
-                        result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Experiment>(::std::move(subast),
-                                                                                                  ::std::move(id)));
+                        call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::EqualSignTagContext>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                            ::pltxt2htm::NodeType::pl_experiment, ::std::move(id)));
+                        goto restart;
                     }
                     continue;
                 } else {
@@ -727,84 +778,84 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
                 if (::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'1'>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len)) {
                     // parsing html <h1> tag
-                    current_index += tag_len + 2;
-                    if (current_index + 1 < pltext_size) {
-                        // if forward_index + 1 >= pltext_size, it means that a not closed tag in the end of the text
+                    current_index += tag_len + 3;
+                    if (current_index < pltext_size) {
+                        // if forward_index >= pltext_size, it means that a not closed tag in the end of the text
                         // which does not make sense, can be opetimized(ignored) during parsing ast
-                        auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1),
-                            ::pltxt2htm::NodeType::html_h1, ::std::addressof(current_index));
-                        result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H1>(::std::move(subast)));
+                        call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                            ::pltxt2htm::NodeType::html_h1));
+                        goto restart;
                     }
                     continue;
                 } else if (::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'2'>(
                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
                                tag_len)) {
                     // parsing html <h2> tag
-                    current_index += tag_len + 2;
-                    if (current_index + 1 < pltext_size) {
-                        // if forward_index + 1 >= pltext_size, it means that a not closed tag in the end of the text
+                    current_index += tag_len + 3;
+                    if (current_index < pltext_size) {
+                        // if forward_index >= pltext_size, it means that a not closed tag in the end of the text
                         // which does not make sense, can be opetimized(ignored) during parsing ast
-                        auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1),
-                            ::pltxt2htm::NodeType::html_h2, ::std::addressof(current_index));
-                        result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H2>(::std::move(subast)));
+                        call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                            ::pltxt2htm::NodeType::html_h2));
+                        goto restart;
                     }
                     continue;
                 } else if (::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'3'>(
                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
                                tag_len)) {
                     // parsing html <h3> tag
-                    current_index += tag_len + 2;
-                    if (current_index + 1 < pltext_size) {
-                        // if forward_index + 1 >= pltext_size, it means that a not closed tag in the end of the text
+                    current_index += tag_len + 3;
+                    if (current_index < pltext_size) {
+                        // if forward_index >= pltext_size, it means that a not closed tag in the end of the text
                         // which does not make sense, can be opetimized(ignored) during parsing ast
-                        auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1),
-                            ::pltxt2htm::NodeType::html_h3, ::std::addressof(current_index));
-                        result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H3>(::std::move(subast)));
+                        call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                            ::pltxt2htm::NodeType::html_h3));
+                        goto restart;
                     }
                     continue;
                 } else if (::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'4'>(
                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
                                tag_len)) {
                     // parsing html <h4> tag
-                    current_index += tag_len + 2;
-                    if (current_index + 1 < pltext_size) {
-                        // if forward_index + 1 >= pltext_size, it means that a not closed tag in the end of the text
+                    current_index += tag_len + 3;
+                    if (current_index < pltext_size) {
+                        // if forward_index >= pltext_size, it means that a not closed tag in the end of the text
                         // which does not make sense, can be opetimized(ignored) during parsing ast
-                        auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1),
-                            ::pltxt2htm::NodeType::html_h4, ::std::addressof(current_index));
-                        result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H4>(::std::move(subast)));
+                        call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                            ::pltxt2htm::NodeType::html_h4));
+                        goto restart;
                     }
                     continue;
                 } else if (::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'5'>(
                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
                                tag_len)) {
                     // parsing html <h5> tag
-                    current_index += tag_len + 2;
-                    if (current_index + 1 < pltext_size) {
-                        // if forward_index + 1 >= pltext_size, it means that a not closed tag in the end of the text
+                    current_index += tag_len + 3;
+                    if (current_index < pltext_size) {
+                        // if forward_index >= pltext_size, it means that a not closed tag in the end of the text
                         // which does not make sense, can be opetimized(ignored) during parsing ast
-                        auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1),
-                            ::pltxt2htm::NodeType::html_h5, ::std::addressof(current_index));
-                        result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H5>(::std::move(subast)));
+                        call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                            ::pltxt2htm::NodeType::html_h5));
+                        goto restart;
                     }
                     continue;
                 } else if (::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'6'>(
                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
                                tag_len)) {
                     // parsing html <h6> tag
-                    current_index += tag_len + 2;
-                    if (current_index + 1 < pltext_size) {
-                        // if forward_index + 1 >= pltext_size, it means that a not closed tag in the end of the text
+                    current_index += tag_len + 3;
+                    if (current_index < pltext_size) {
+                        // if forward_index >= pltext_size, it means that a not closed tag in the end of the text
                         // which does not make sense, can be opetimized(ignored) during parsing ast
-                        auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1),
-                            ::pltxt2htm::NodeType::html_h6, ::std::addressof(current_index));
-                        result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H6>(::std::move(subast)));
+                        call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                            ::pltxt2htm::NodeType::html_h6));
+                        goto restart;
                     }
                     continue;
                 } else if (::pltxt2htm::details::try_parse_self_closing_tag<ndebug, u8'r'>(
@@ -830,14 +881,14 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
                 // parsing pl&html <i>$1</i> tag
                 if (::pltxt2htm::details::try_parse_bare_tag<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len)) {
-                    current_index += tag_len + 2;
-                    if (current_index + 1 < pltext_size) {
-                        // if forward_index + 1 >= pltext_size, it means that a not closed tag in the end of the text
+                    current_index += tag_len + 3;
+                    if (current_index < pltext_size) {
+                        // if forward_index >= pltext_size, it means that a not closed tag in the end of the text
                         // which does not make sense, can be opetimized(ignored) during parsing ast
-                        auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1),
-                            ::pltxt2htm::NodeType::pl_i, ::std::addressof(current_index));
-                        result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::I>(::std::move(subast)));
+                        call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                            ::pltxt2htm::NodeType::pl_i));
+                        goto restart;
                     }
                     continue;
                 } else {
@@ -857,14 +908,14 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
                 // parsing html <p></p> tag
                 if (::pltxt2htm::details::try_parse_bare_tag<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len)) {
-                    current_index += tag_len + 2;
-                    if (current_index + 1 < pltext_size) {
-                        // if forward_index + 1 >= pltext_size, it means that a not closed tag in the end of the text
+                    current_index += tag_len + 3;
+                    if (current_index < pltext_size) {
+                        // if forward_index >= pltext_size, it means that a not closed tag in the end of the text
                         // which does not make sense, can be opetimized(ignored) during parsing ast
-                        auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1),
-                            ::pltxt2htm::NodeType::html_p, ::std::addressof(current_index));
-                        result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::P>(::std::move(subast)));
+                        call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                            ::pltxt2htm::NodeType::html_p));
+                        goto restart;
                     }
                     continue;
                 } else {
@@ -885,21 +936,20 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
                 ::fast_io::u8string id_{};
                 if (::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, u8'i', u8'z', u8'e'>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len, id_)) {
-                    current_index += tag_len + 2;
                     auto id{::pltxt2htm::details::u8str2size_t(::fast_io::mnp::os_c_str(id_))};
                     if (!id.has_value()) {
                         result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::LessThan>{});
                         continue;
                     }
 
-                    if (current_index + 1 < pltext_size) {
-                        // if forward_index + 1 >= pltext_size, it means that a not closed tag in the end of the text
+                    current_index += tag_len + 3;
+                    if (current_index < pltext_size) {
+                        // if forward_index >= pltext_size, it means that a not closed tag in the end of the text
                         // which does not make sense, can be opetimized(ignored) during parsing ast
-                        auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1),
-                            ::pltxt2htm::NodeType::pl_size, ::std::addressof(current_index));
-                        result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Size>(
-                            ::std::move(subast), ::std::move(id.template value<ndebug>())));
+                        call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::PlSizeTagContext>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                            ::pltxt2htm::NodeType::pl_size, id.template value<ndebug>()));
+                        goto restart;
                     }
                     continue;
                 } else {
@@ -920,15 +970,14 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
                 ::fast_io::u8string id{};
                 if (::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, u8's', u8'e', u8'r'>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len, id)) {
-                    current_index += tag_len + 2;
-                    if (current_index + 1 < pltext_size) {
-                        // if forward_index + 1 >= pltext_size, it means that a not closed tag in the end of the text
+                    current_index += tag_len + 3;
+                    if (current_index < pltext_size) {
+                        // if forward_index >= pltext_size, it means that a not closed tag in the end of the text
                         // which does not make sense, can be opetimized(ignored) during parsing ast
-                        auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1),
-                            ::pltxt2htm::NodeType::pl_user, ::std::addressof(current_index));
-                        result.push_back(
-                            ::pltxt2htm::details::HeapGuard<::pltxt2htm::User>(::std::move(subast), ::std::move(id)));
+                        call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::EqualSignTagContext>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                            ::pltxt2htm::NodeType::pl_user, ::std::move(id)));
+                        goto restart;
                     }
                     continue;
                 } else {
@@ -938,7 +987,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
             }
 
             case u8'/': {
-                switch (extern_syntax_type) {
+                switch (call_stack.top()->nested_tag_type) {
                 case ::pltxt2htm::NodeType::pl_color: {
 #if __has_cpp_attribute(indeterminate)
                     ::std::size_t tag_len [[indeterminate]];
@@ -952,11 +1001,15 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
                         continue;
                     }
                     // parsing end tag </color> successed
-                    // Whether or not extern_index is out of range, extern for loop will handle it correctly.
-                    if (extern_index != nullptr) {
-                        *extern_index += current_index + tag_len + 3;
-                    }
-                    return result;
+                    auto frame =
+                        reinterpret_cast<::pltxt2htm::details::EqualSignTagContext*>(call_stack.top().release());
+                    ::std::size_t const staged_index{current_index};
+                    ::pltxt2htm::Color staged_node(::std::move(result), ::std::move(frame->id));
+                    call_stack.pop();
+                    call_stack.top()->subast.push_back(
+                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::Color>(::std::move(staged_node)));
+                    call_stack.top()->current_index += staged_index + tag_len + 3;
+                    goto restart;
                 }
                 case ::pltxt2htm::NodeType::pl_a: {
 #if __has_cpp_attribute(indeterminate)
@@ -972,10 +1025,13 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
                         continue;
                     }
                     // parsing end tag </a> successed
-                    if (extern_index != nullptr) {
-                        *extern_index += current_index + tag_len + 3;
-                    }
-                    return result;
+                    ::std::size_t const staged_index{current_index};
+                    ::pltxt2htm::A staged_node(::std::move(result));
+                    call_stack.pop();
+                    call_stack.top()->subast.push_back(
+                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::A>(::std::move(staged_node)));
+                    call_stack.top()->current_index += staged_index + tag_len + 3;
+                    goto restart;
                 }
                 case ::pltxt2htm::NodeType::pl_experiment: {
 #if __has_cpp_attribute(indeterminate)
@@ -992,10 +1048,15 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
                         continue;
                     }
                     // Whether or not extern_index is out of range, extern for loop will handle it correctly.
-                    if (extern_index != nullptr) {
-                        *extern_index += current_index + tag_len + 3;
-                    }
-                    return result;
+                    auto frame =
+                        reinterpret_cast<::pltxt2htm::details::EqualSignTagContext*>(call_stack.top().release());
+                    ::std::size_t const staged_index{current_index};
+                    ::pltxt2htm::Experiment staged_node(::std::move(result), ::std::move(frame->id));
+                    call_stack.pop();
+                    call_stack.top()->subast.push_back(
+                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::Experiment>(::std::move(staged_node)));
+                    call_stack.top()->current_index += staged_index + tag_len + 3;
+                    goto restart;
                 }
                 case ::pltxt2htm::NodeType::pl_discussion: {
 #if __has_cpp_attribute(indeterminate)
@@ -1012,10 +1073,15 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
                         continue;
                     }
                     // Whether or not extern_index is out of range, extern for loop will handle it correctly.
-                    if (extern_index != nullptr) {
-                        *extern_index += current_index + tag_len + 3;
-                    }
-                    return result;
+                    auto frame =
+                        reinterpret_cast<::pltxt2htm::details::EqualSignTagContext*>(call_stack.top().release());
+                    ::std::size_t const staged_index{current_index};
+                    ::pltxt2htm::Discussion staged_node(::std::move(result), ::std::move(frame->id));
+                    call_stack.pop();
+                    call_stack.top()->subast.push_back(
+                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::Discussion>(::std::move(staged_node)));
+                    call_stack.top()->current_index += staged_index + tag_len + 3;
+                    goto restart;
                 }
                 case ::pltxt2htm::NodeType::pl_user: {
 #if __has_cpp_attribute(indeterminate)
@@ -1030,10 +1096,15 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
                         result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::LessThan>{});
                         continue;
                     }
-                    if (extern_index != nullptr) {
-                        *extern_index += current_index + tag_len + 3;
-                    }
-                    return result;
+                    auto frame =
+                        reinterpret_cast<::pltxt2htm::details::EqualSignTagContext*>(call_stack.top().release());
+                    ::std::size_t const staged_index{current_index};
+                    ::pltxt2htm::User staged_node(::std::move(result), ::std::move(frame->id));
+                    call_stack.pop();
+                    call_stack.top()->subast.push_back(
+                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::User>(::std::move(staged_node)));
+                    call_stack.top()->current_index += staged_index + tag_len + 3;
+                    goto restart;
                 }
                 case ::pltxt2htm::NodeType::pl_size: {
 #if __has_cpp_attribute(indeterminate)
@@ -1048,10 +1119,15 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
                         result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::LessThan>{});
                         continue;
                     }
-                    if (extern_index != nullptr) {
-                        *extern_index += current_index + tag_len + 3;
-                    }
-                    return result;
+                    auto frame = reinterpret_cast<::pltxt2htm::details::PlSizeTagContext const*>(
+                        call_stack.top().release_imul());
+                    ::std::size_t const staged_index{current_index};
+                    ::pltxt2htm::Size staged_node(::std::move(result), ::std::move(frame->id));
+                    call_stack.pop();
+                    call_stack.top()->subast.push_back(
+                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::Size>(::std::move(staged_node)));
+                    call_stack.top()->current_index += staged_index + tag_len + 3;
+                    goto restart;
                 }
                 case ::pltxt2htm::NodeType::pl_b: {
 #if __has_cpp_attribute(indeterminate)
@@ -1066,10 +1142,13 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
                         continue;
                     }
                     // parsing end tag </b> successed
-                    if (extern_index != nullptr) {
-                        *extern_index += current_index + tag_len + 3;
-                    }
-                    return result;
+                    ::std::size_t const staged_index{current_index};
+                    ::pltxt2htm::B staged_node(::std::move(result));
+                    call_stack.pop();
+                    call_stack.top()->subast.push_back(
+                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::B>(::std::move(staged_node)));
+                    call_stack.top()->current_index += staged_index + tag_len + 3;
+                    goto restart;
                 }
                 case ::pltxt2htm::NodeType::pl_i: {
 #if __has_cpp_attribute(indeterminate)
@@ -1084,10 +1163,13 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
                         continue;
                     }
                     // parsing end tag </a> successed
-                    if (extern_index != nullptr) {
-                        *extern_index += current_index + tag_len + 3;
-                    }
-                    return result;
+                    ::std::size_t const staged_index{current_index};
+                    ::pltxt2htm::I staged_node(::std::move(result));
+                    call_stack.pop();
+                    call_stack.top()->subast.push_back(
+                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::I>(::std::move(staged_node)));
+                    call_stack.top()->current_index += staged_index + tag_len + 3;
+                    goto restart;
                 }
                 case ::pltxt2htm::NodeType::html_p: {
 #if __has_cpp_attribute(indeterminate)
@@ -1102,10 +1184,13 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
                         continue;
                     }
                     // parsing end tag </p> successed
-                    if (extern_index != nullptr) {
-                        *extern_index += current_index + tag_len + 3;
-                    }
-                    return result;
+                    ::std::size_t const staged_index{current_index};
+                    ::pltxt2htm::P staged_node(::std::move(result));
+                    call_stack.pop();
+                    call_stack.top()->subast.push_back(
+                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::P>(::std::move(staged_node)));
+                    call_stack.top()->current_index += staged_index + tag_len + 3;
+                    goto restart;
                 }
                 case ::pltxt2htm::NodeType::html_h1: {
 #if __has_cpp_attribute(indeterminate)
@@ -1120,10 +1205,13 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
                         continue;
                     }
                     // parsing end tag </h1> successed
-                    if (extern_index != nullptr) {
-                        *extern_index += current_index + tag_len + 3;
-                    }
-                    return result;
+                    ::std::size_t const staged_index{current_index};
+                    ::pltxt2htm::H1 staged_node(::std::move(result));
+                    call_stack.pop();
+                    call_stack.top()->subast.push_back(
+                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::H1>(::std::move(staged_node)));
+                    call_stack.top()->current_index += staged_index + tag_len + 3;
+                    goto restart;
                 }
                 case ::pltxt2htm::NodeType::html_h2: {
 #if __has_cpp_attribute(indeterminate)
@@ -1138,10 +1226,13 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
                         continue;
                     }
                     // parsing end tag </h2> successed
-                    if (extern_index != nullptr) {
-                        *extern_index += current_index + tag_len + 3;
-                    }
-                    return result;
+                    ::std::size_t const staged_index{current_index};
+                    ::pltxt2htm::H2 staged_node(::std::move(result));
+                    call_stack.pop();
+                    call_stack.top()->subast.push_back(
+                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::H2>(::std::move(staged_node)));
+                    call_stack.top()->current_index += staged_index + tag_len + 3;
+                    goto restart;
                 }
                 case ::pltxt2htm::NodeType::html_h3: {
 #if __has_cpp_attribute(indeterminate)
@@ -1156,10 +1247,13 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
                         continue;
                     }
                     // parsing end tag </h3> successed
-                    if (extern_index != nullptr) {
-                        *extern_index += current_index + tag_len + 3;
-                    }
-                    return result;
+                    ::std::size_t const staged_index{current_index};
+                    ::pltxt2htm::H3 staged_node(::std::move(result));
+                    call_stack.pop();
+                    call_stack.top()->subast.push_back(
+                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::H3>(::std::move(staged_node)));
+                    call_stack.top()->current_index += staged_index + tag_len + 3;
+                    goto restart;
                 }
                 case ::pltxt2htm::NodeType::html_h4: {
 #if __has_cpp_attribute(indeterminate)
@@ -1174,10 +1268,13 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
                         continue;
                     }
                     // parsing end tag </h4> successed
-                    if (extern_index != nullptr) {
-                        *extern_index += current_index + tag_len + 3;
-                    }
-                    return result;
+                    ::std::size_t const staged_index{current_index};
+                    ::pltxt2htm::H4 staged_node(::std::move(result));
+                    call_stack.pop();
+                    call_stack.top()->subast.push_back(
+                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::H4>(::std::move(staged_node)));
+                    call_stack.top()->current_index += staged_index + tag_len + 3;
+                    goto restart;
                 }
                 case ::pltxt2htm::NodeType::html_h5: {
 #if __has_cpp_attribute(indeterminate)
@@ -1192,10 +1289,13 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
                         continue;
                     }
                     // parsing end tag </h5> successed
-                    if (extern_index != nullptr) {
-                        *extern_index += current_index + tag_len + 3;
-                    }
-                    return result;
+                    ::std::size_t const staged_index{current_index};
+                    ::pltxt2htm::H5 staged_node(::std::move(result));
+                    call_stack.pop();
+                    call_stack.top()->subast.push_back(
+                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::H5>(::std::move(staged_node)));
+                    call_stack.top()->current_index += staged_index + tag_len + 3;
+                    goto restart;
                 }
                 case ::pltxt2htm::NodeType::html_h6: {
 #if __has_cpp_attribute(indeterminate)
@@ -1210,10 +1310,13 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
                         continue;
                     }
                     // parsing end tag </h6> successed
-                    if (extern_index != nullptr) {
-                        *extern_index += current_index + tag_len + 3;
-                    }
-                    return result;
+                    ::std::size_t const staged_index{current_index};
+                    ::pltxt2htm::H6 staged_node(::std::move(result));
+                    call_stack.pop();
+                    call_stack.top()->subast.push_back(
+                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::H6>(::std::move(staged_node)));
+                    call_stack.top()->current_index += staged_index + tag_len + 3;
+                    goto restart;
                 }
                 case ::pltxt2htm::NodeType::html_del: {
 #if __has_cpp_attribute(indeterminate)
@@ -1228,10 +1331,13 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
                         continue;
                     }
                     // parsing end tag </del> successed
-                    if (extern_index != nullptr) {
-                        *extern_index += current_index + tag_len + 3;
-                    }
-                    return result;
+                    ::std::size_t const staged_index{current_index};
+                    ::pltxt2htm::Del staged_node(::std::move(result));
+                    call_stack.pop();
+                    call_stack.top()->subast.push_back(
+                        ::pltxt2htm::details::HeapGuard<::pltxt2htm::Del>(::std::move(staged_node)));
+                    call_stack.top()->current_index += staged_index + tag_len + 3;
+                    goto restart;
                 }
                 default:
                     result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::LessThan>{});
@@ -1352,10 +1458,134 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext, ::pltxt2htm::NodeTyp
         }
     }
 
-    if (extern_index != nullptr) {
-        *extern_index += pltext_size;
+    {
+        ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BasicFrameContext> frame(::std::move(call_stack.top()));
+        ::std::size_t const staged_index = pltext_size;
+        call_stack.pop();
+        if (frame->return_from_recursion) {
+            return ::std::move(frame->subast);
+        } else {
+            // Considering the following markdown:
+            // ```md
+            // <b>example
+            // ```
+            // Any tag without a closing tag will hit this branch.
+            auto&& subast = frame->subast;
+            auto&& superast = call_stack.top()->subast;
+            auto&& super_index = call_stack.top()->current_index;
+            switch (frame->nested_tag_type) {
+            case ::pltxt2htm::NodeType::pl_color: {
+                auto&& id = reinterpret_cast<::pltxt2htm::details::EqualSignTagContext*>(frame.release())->id;
+                superast.push_back(
+                    ::pltxt2htm::details::HeapGuard<::pltxt2htm::Color>(::std::move(subast), ::std::move(id)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::pl_a: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::A>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::pl_experiment: {
+                auto&& id = reinterpret_cast<::pltxt2htm::details::EqualSignTagContext*>(frame.release())->id;
+                superast.push_back(
+                    ::pltxt2htm::details::HeapGuard<::pltxt2htm::Experiment>(::std::move(subast), ::std::move(id)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::pl_discussion: {
+                auto&& id = reinterpret_cast<::pltxt2htm::details::EqualSignTagContext*>(frame.release())->id;
+                superast.push_back(
+                    ::pltxt2htm::details::HeapGuard<::pltxt2htm::Discussion>(::std::move(subast), ::std::move(id)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::pl_user: {
+                auto&& id = reinterpret_cast<::pltxt2htm::details::EqualSignTagContext*>(frame.release())->id;
+                superast.push_back(
+                    ::pltxt2htm::details::HeapGuard<::pltxt2htm::User>(::std::move(subast), ::std::move(id)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::pl_size: {
+                auto&& id = reinterpret_cast<::pltxt2htm::details::PlSizeTagContext*>(frame.release())->id;
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Size>(::std::move(subast), id));
+                break;
+            }
+            case ::pltxt2htm::NodeType::pl_b: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::B>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::pl_i: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::I>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::html_p: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::P>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::html_h1: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H1>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::html_h2: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H2>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::html_h3: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H3>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::html_h4: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H4>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::html_h5: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H5>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::html_h6: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H6>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::html_del: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Del>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::md_atx_h1: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH1>(::std::move(subast)));
+                super_index += frame->subast.size();
+                break;
+            }
+            case ::pltxt2htm::NodeType::md_atx_h2: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH2>(::std::move(subast)));
+                super_index += frame->subast.size();
+                break;
+            }
+            case ::pltxt2htm::NodeType::md_atx_h3: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH3>(::std::move(subast)));
+                super_index += frame->subast.size();
+                break;
+            }
+            case ::pltxt2htm::NodeType::md_atx_h4: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH4>(::std::move(subast)));
+                super_index += frame->subast.size();
+                break;
+            }
+            case ::pltxt2htm::NodeType::md_atx_h5: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH5>(::std::move(subast)));
+                super_index += frame->subast.size();
+                break;
+            }
+            case ::pltxt2htm::NodeType::md_atx_h6: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH6>(::std::move(subast)));
+                super_index += frame->subast.size();
+                break;
+            }
+            default:
+                [[unlikely]] {
+                    ::exception::unreachable<ndebug>();
+                }
+            }
+            call_stack.top()->current_index += staged_index;
+            goto restart;
+        }
     }
-    return result;
 }
 
 } // namespace details
@@ -1371,20 +1601,23 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext)
 #if __cpp_exceptions < 199711L
     noexcept
 #endif
-{
-    auto result = ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>{};
-    ::std::size_t start_index{};
+    -> ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> {
+    // fast_io::deque contains bug about RAII
+    ::fast_io::stack<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BasicFrameContext>,
+                     ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BasicFrameContext>>>
+        call_stack{};
+    ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> result{};
+
     // Consider the following markdown
     // ```md
     // ## test
     // ```
     // Here, the first line is a header, will hit this case
+    ::std::size_t start_index{};
 #if __has_cpp_attribute(indeterminate)
-
     ::std::size_t end_index [[indeterminate]];
     ::pltxt2htm::NodeType md_atx_heading_type [[indeterminate]];
 #else
-
     ::std::size_t sublength;
     ::pltxt2htm::NodeType md_atx_heading_type;
 #endif
@@ -1393,14 +1626,19 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext)
         ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast{};
         if (start_index < pltext.size()) {
             auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index, sublength);
-            subast = ::pltxt2htm::details::parse_pltxt<ndebug>(subtext, md_atx_heading_type,
-                                                               ::std::addressof(start_index));
+            call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                subtext, md_atx_heading_type, true));
+            subast = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
         }
         result.push_back(::pltxt2htm::details::switch_md_atx_header<ndebug>(md_atx_heading_type, ::std::move(subast)));
+        // rectify the start index to the start of next text (aka. below common cases)
+        start_index += sublength;
     }
 
-    auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(
-        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index), ::pltxt2htm::NodeType::base, nullptr);
+    // other common cases
+    call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index), ::pltxt2htm::NodeType::base, true));
+    auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
     for (auto&& node : subast) {
         result.push_back(::std::move(node));
     }
