@@ -1,8 +1,6 @@
 #pragma once
 
-#include <algorithm>
 #include <cstddef>
-#include <memory>
 #include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
@@ -654,7 +652,7 @@ restart:
                                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index, sublength);
                             call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
                                 subtext, md_atx_heading_type));
-                            
+
                         } else {
                             call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
                                 ::fast_io::u8string_view{}, md_atx_heading_type));
