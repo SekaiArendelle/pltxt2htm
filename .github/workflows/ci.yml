@@ -50,26 +50,28 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - uses: msys2/setup-msys2@v2
+      - name: Setup msys2
+        uses: msys2/setup-msys2@v2
         with:
           msystem: UCRT64
           update: true
-          install: wget zstd mingw-w64-ucrt-x86_64-gcc
+          install: wget zstd
+
+      - name: Install g++
+        run: |
+          wget https://github.com/24bit-xjkp/toolchains/releases/download/gcc16.0.0-rc2/x86_64-w64-mingw32-native-gcc16.tar.zst
+          tar --use-compress-program=zstd -xvf x86_64-w64-mingw32-native-gcc16.tar.zst
 
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
         with:
           xmake-version: latest
 
-      - name: g++ version
-        shell: powershell
-        run: |
-          g++ -v
-
       - name: Configure and build
         shell: powershell
         working-directory: test
         run: |
+          $env:PATH="$PWD/x86_64-w64-mingw32-native-gcc16/bin;$PWD/x86_64-w64-mingw32-native-gcc16/lib;$PWD/x86_64-w64-mingw32-native-gcc16/lib64;$env:PATH"
           xmake config -p windows -a x64 --toolchain=gcc --policies=build.sanitizer.address
           xmake test -v
 
