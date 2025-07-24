@@ -55,19 +55,21 @@ jobs:
         with:
           msystem: UCRT64
           update: true
-          install: wget zstd
+
+      - name: Install g++
+        shell: bash
+        run: |
+          pacman -Sy --noconfirm mingw-w64-ucrt-x86_64-gcc --noconfirm
+
+      - name: g++ version
+        shell: bash
+        run: |
+          g++ -v
 
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
         with:
           xmake-version: latest
-
-      - name: Install g++
-        shell: bash
-        working-directory: test
-        run: |
-          wget https://github.com/24bit-xjkp/toolchains/releases/download/gcc16.0.0-rc2/x86_64-w64-mingw32-native-gcc16.tar.zst
-          tar --use-compress-program=zstd -xf x86_64-w64-mingw32-native-gcc16.tar.zst
 
       - name: Configure and build
         shell: bash
