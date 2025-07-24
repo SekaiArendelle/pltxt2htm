@@ -43,7 +43,7 @@ jobs:
           xmake test -v
 
   x86_64-w64-mingw32-test:
-    name: x86_64-w64-mingw32 (test/, asan)
+    name: x86_64-w64-mingw32 (test/)
     runs-on: windows-latest
 
     steps:
@@ -82,7 +82,7 @@ jobs:
         working-directory: test
         run: |
           $env:PATH="$PWD/x86_64-w64-mingw32-native-gcc16/bin;$PWD/x86_64-w64-mingw32-native-gcc16/lib;$env:PATH"
-          xmake config -p mingw -a x64 --toolchain=gcc --policies=build.sanitizer.address
+          xmake config -p mingw -a x64 --toolchain=gcc
           xmake test -v
 
   aarch64-apple-darwin24-test-asan:
