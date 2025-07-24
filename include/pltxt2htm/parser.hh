@@ -434,27 +434,25 @@ class BasicFrameContext {
 public:
     ::fast_io::u8string_view pltext;
     ::pltxt2htm::NodeType const nested_tag_type;
-    bool const return_from_recursion{false};
     ::std::size_t current_index{};
     ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast{};
 
-    virtual ~BasicFrameContext() = default;
+    constexpr virtual ~BasicFrameContext() noexcept = default;
 
 protected:
-    constexpr BasicFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
-                                bool const return_from_recursion_) noexcept
+    constexpr BasicFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_) noexcept
         : pltext(pltext_),
-          nested_tag_type{nested_tag_type_},
-          return_from_recursion{return_from_recursion_} {
+          nested_tag_type{nested_tag_type_} {
     }
 };
 
 class BareTagContext : public ::pltxt2htm::details::BasicFrameContext {
 public:
-    constexpr BareTagContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
-                             bool const return_from_recursion_ = false) noexcept
-        : ::pltxt2htm::details::BasicFrameContext(pltext_, nested_tag_type_, return_from_recursion_) {
+    constexpr BareTagContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_) noexcept
+        : ::pltxt2htm::details::BasicFrameContext(pltext_, nested_tag_type_) {
     }
+
+    constexpr ~BareTagContext() noexcept = default;
 };
 
 class EqualSignTagContext : public ::pltxt2htm::details::BasicFrameContext {
@@ -462,10 +460,12 @@ public:
     ::fast_io::u8string id;
 
     constexpr EqualSignTagContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
-                                  ::fast_io::u8string&& id_, bool const return_from_recursion_ = false) noexcept
-        : ::pltxt2htm::details::BasicFrameContext{pltext_, nested_tag_type_, return_from_recursion_},
+                                  ::fast_io::u8string&& id_) noexcept
+        : ::pltxt2htm::details::BasicFrameContext{pltext_, nested_tag_type_},
           id(::std::move(id_)) {
     }
+
+    constexpr ~EqualSignTagContext() noexcept = default;
 };
 
 class PlSizeTagContext : public ::pltxt2htm::details::BasicFrameContext {
@@ -473,10 +473,12 @@ public:
     ::std::size_t id;
 
     constexpr PlSizeTagContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
-                               ::std::size_t id_, bool const return_from_recursion_ = false) noexcept
-        : ::pltxt2htm::details::BasicFrameContext{pltext_, nested_tag_type_, return_from_recursion_},
+                               ::std::size_t id_) noexcept
+        : ::pltxt2htm::details::BasicFrameContext{pltext_, nested_tag_type_},
           id(::std::move(id_)) {
     }
+
+    constexpr ~PlSizeTagContext() noexcept = default;
 };
 
 /**
@@ -1004,7 +1006,7 @@ restart:
                     }
                     // parsing end tag </color> successed
                     auto frame =
-                        reinterpret_cast<::pltxt2htm::details::EqualSignTagContext*>(call_stack.top().release());
+                        reinterpret_cast<::pltxt2htm::details::EqualSignTagContext*>(call_stack.top().release_unsafe());
                     ::std::size_t const staged_index{current_index};
                     ::pltxt2htm::Color staged_node(::std::move(result), ::std::move(frame->id));
                     call_stack.pop();
@@ -1051,7 +1053,7 @@ restart:
                     }
                     // Whether or not extern_index is out of range, extern for loop will handle it correctly.
                     auto frame =
-                        reinterpret_cast<::pltxt2htm::details::EqualSignTagContext*>(call_stack.top().release());
+                        reinterpret_cast<::pltxt2htm::details::EqualSignTagContext*>(call_stack.top().release_unsafe());
                     ::std::size_t const staged_index{current_index};
                     ::pltxt2htm::Experiment staged_node(::std::move(result), ::std::move(frame->id));
                     call_stack.pop();
@@ -1076,7 +1078,7 @@ restart:
                     }
                     // Whether or not extern_index is out of range, extern for loop will handle it correctly.
                     auto frame =
-                        reinterpret_cast<::pltxt2htm::details::EqualSignTagContext*>(call_stack.top().release());
+                        reinterpret_cast<::pltxt2htm::details::EqualSignTagContext*>(call_stack.top().release_unsafe());
                     ::std::size_t const staged_index{current_index};
                     ::pltxt2htm::Discussion staged_node(::std::move(result), ::std::move(frame->id));
                     call_stack.pop();
@@ -1099,7 +1101,7 @@ restart:
                         continue;
                     }
                     auto frame =
-                        reinterpret_cast<::pltxt2htm::details::EqualSignTagContext*>(call_stack.top().release());
+                        reinterpret_cast<::pltxt2htm::details::EqualSignTagContext*>(call_stack.top().release_unsafe());
                     ::std::size_t const staged_index{current_index};
                     ::pltxt2htm::User staged_node(::std::move(result), ::std::move(frame->id));
                     call_stack.pop();
@@ -1124,7 +1126,7 @@ restart:
                     auto frame = reinterpret_cast<::pltxt2htm::details::PlSizeTagContext const*>(
                         call_stack.top().release_imul());
                     ::std::size_t const staged_index{current_index};
-                    ::pltxt2htm::Size staged_node(::std::move(result), ::std::move(frame->id));
+                    ::pltxt2htm::Size staged_node(::std::move(result), frame->id);
                     call_stack.pop();
                     call_stack.top()->subast.push_back(
                         ::pltxt2htm::details::HeapGuard<::pltxt2htm::Size>(::std::move(staged_node)));
@@ -1464,9 +1466,14 @@ restart:
         ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BasicFrameContext> frame(::std::move(call_stack.top()));
         ::std::size_t const staged_index = pltext_size;
         call_stack.pop();
-        if (frame->return_from_recursion) {
+        if (call_stack.empty()) {
+            // Considering the following markdown:
+            // ```md
+            // example
+            // ```
+            // Text without any tag in the end will hit this branch.
             return ::std::move(frame->subast);
-        } else {
+        }  else {
             // Considering the following markdown:
             // ```md
             // <b>example
@@ -1477,7 +1484,7 @@ restart:
             auto&& super_index = call_stack.top()->current_index;
             switch (frame->nested_tag_type) {
             case ::pltxt2htm::NodeType::pl_color: {
-                auto&& id = reinterpret_cast<::pltxt2htm::details::EqualSignTagContext*>(frame.release())->id;
+                auto&& id = reinterpret_cast<::pltxt2htm::details::EqualSignTagContext*>(frame.release_unsafe())->id;
                 superast.push_back(
                     ::pltxt2htm::details::HeapGuard<::pltxt2htm::Color>(::std::move(subast), ::std::move(id)));
                 break;
@@ -1487,25 +1494,25 @@ restart:
                 break;
             }
             case ::pltxt2htm::NodeType::pl_experiment: {
-                auto&& id = reinterpret_cast<::pltxt2htm::details::EqualSignTagContext*>(frame.release())->id;
+                auto&& id = reinterpret_cast<::pltxt2htm::details::EqualSignTagContext*>(frame.release_unsafe())->id;
                 superast.push_back(
                     ::pltxt2htm::details::HeapGuard<::pltxt2htm::Experiment>(::std::move(subast), ::std::move(id)));
                 break;
             }
             case ::pltxt2htm::NodeType::pl_discussion: {
-                auto&& id = reinterpret_cast<::pltxt2htm::details::EqualSignTagContext*>(frame.release())->id;
+                auto&& id = reinterpret_cast<::pltxt2htm::details::EqualSignTagContext*>(frame.release_unsafe())->id;
                 superast.push_back(
                     ::pltxt2htm::details::HeapGuard<::pltxt2htm::Discussion>(::std::move(subast), ::std::move(id)));
                 break;
             }
             case ::pltxt2htm::NodeType::pl_user: {
-                auto&& id = reinterpret_cast<::pltxt2htm::details::EqualSignTagContext*>(frame.release())->id;
+                auto&& id = reinterpret_cast<::pltxt2htm::details::EqualSignTagContext*>(frame.release_unsafe())->id;
                 superast.push_back(
                     ::pltxt2htm::details::HeapGuard<::pltxt2htm::User>(::std::move(subast), ::std::move(id)));
                 break;
             }
             case ::pltxt2htm::NodeType::pl_size: {
-                auto&& id = reinterpret_cast<::pltxt2htm::details::PlSizeTagContext*>(frame.release())->id;
+                auto&& id = reinterpret_cast<::pltxt2htm::details::PlSizeTagContext const*>(frame.release_imul())->id;
                 superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Size>(::std::move(subast), id));
                 break;
             }
@@ -1629,7 +1636,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext)
         if (start_index < pltext.size()) {
             auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index, sublength);
             call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
-                subtext, md_atx_heading_type, true));
+                subtext, md_atx_heading_type));
             subast = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
         }
         result.push_back(::pltxt2htm::details::switch_md_atx_header<ndebug>(md_atx_heading_type, ::std::move(subast)));
@@ -1639,11 +1646,14 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext)
 
     // other common cases
     call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
-        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index), ::pltxt2htm::NodeType::base, true));
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index), ::pltxt2htm::NodeType::base));
     auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
     for (auto&& node : subast) {
         result.push_back(::std::move(node));
     }
+
+    pltxt2htm_assert(call_stack.empty(), u8"call_stack is not empty");
+
     return result;
 }
 

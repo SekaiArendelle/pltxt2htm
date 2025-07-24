@@ -112,6 +112,14 @@ public:
         return self.ptr_;
     }
 
+    /**
+     * @note The result is a borrowed reference.
+     */
+    [[nodiscard]]
+    constexpr T* release_unsafe(this auto&& self) noexcept {
+        return self.ptr_;
+    }
+
     [[nodiscard]]
     constexpr T* release(this auto&& self) noexcept {
         T* ptr = self.ptr_;
