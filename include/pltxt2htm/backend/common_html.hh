@@ -1,8 +1,10 @@
 #pragma once
 
+#include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
+#include "frame_context.hh"
 #include "../heap_guard.hh"
 #include "../astnode/basic.hh"
 #include "../astnode/physics_lab_node.hh"
@@ -14,14 +16,20 @@ namespace pltxt2htm::details {
  * @brief render in header, only enable color, b and i tag
  */
 template<bool ndebug>
-constexpr auto ast2common_html(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> const& ast,
-                               ::pltxt2htm::PlTxtNode const* const extern_node = nullptr)
+constexpr auto ast2common_html(
+    ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> const& ast_init)
 #if __cpp_exceptions < 199711L
     noexcept
 #endif
     -> ::fast_io::u8string {
     ::fast_io::u8string result{};
+    ::fast_io::stack<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBasicFrameContext>,
+                     ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBasicFrameContext>>>
+        call_stack{};
+    call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(ast_init, ::pltxt2htm::NodeType::base, false));
 
+restart:
+    auto&& ast = call_stack.top()->ast_;
     for (auto&& node : ast) {
         switch (node->node_type()) {
         case ::pltxt2htm::NodeType::u8char: {
@@ -73,29 +81,25 @@ constexpr auto ast2common_html(::fast_io::vector<::pltxt2htm::details::HeapGuard
         }
         case ::pltxt2htm::NodeType::pl_b: {
             auto b = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
-            bool const is_not_same_tag =
-                extern_node == nullptr || extern_node->node_type() != ::pltxt2htm::NodeType::pl_b;
+            auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
+            bool const is_not_same_tag = nested_tag_type != ::pltxt2htm::NodeType::pl_b;
+            call_stack.push(::pltxt2htm::details::BackendBareTagContext{b->get_subast(), ::pltxt2htm::NodeType::pl_b,
+                                                                           is_not_same_tag});
             if (is_not_same_tag) {
                 result.append(u8"<b>");
             }
-            result.append(::pltxt2htm::details::ast2common_html<ndebug>(b->get_subast(), b));
-            if (is_not_same_tag) {
-                result.append(u8"</b>");
-            }
-            break;
+            goto restart;
         }
         case ::pltxt2htm::NodeType::pl_i: {
             auto i = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
-            bool const is_not_same_tag =
-                extern_node == nullptr || extern_node->node_type() != ::pltxt2htm::NodeType::pl_i;
+            auto&& nested_tag_type = call_stack.top().nested_tag_type_;
+            bool const is_not_same_tag = nested_tag_type != ::pltxt2htm::NodeType::pl_i;
+            call_stack.push(::pltxt2htm::details::BackendBareTagContext{i->get_subast(), ::pltxt2htm::NodeType::pl_i,
+                                                                           is_not_same_tag});
             if (is_not_same_tag) {
                 result.append(u8"<i>");
             }
-            result.append(::pltxt2htm::details::ast2common_html<ndebug>(i->get_subast(), i));
-            if (is_not_same_tag) {
-                result.append(u8"</i>");
-            }
-            break;
+            goto restart;
         }
         case ::pltxt2htm::NodeType::pl_color:
             [[fallthrough]];
@@ -245,7 +249,34 @@ constexpr auto ast2common_html(::fast_io::vector<::pltxt2htm::details::HeapGuard
         }
         }
     }
-    return result;
+    {
+        bool is_not_same_tag{call_stack.top().is_not_same_tag_};
+        ::pltxt2htm::NodeType nested_tag_type{call_stack.top().nested_tag_type_};
+        call_stack.pop();
+        if (call_stack.empty()) {
+            return result;
+        } else {
+            switch (nested_tag_type) {
+            case ::pltxt2htm::NodeType::pl_b: {
+                if (is_not_same_tag) {
+                    result.append(u8"</b>");
+                }
+                goto restart;
+            }
+            case ::pltxt2htm::NodeType::pl_i: {
+                if (is_not_same_tag) {
+                    result.append(u8"</i>");
+                }
+                goto restart;
+            }
+            case ::pltxt2htm::NodeType::base: {
+                goto restart;
+            }
+            default:
+                ::exception::unreachable<ndebug>();
+            }
+        }
+    }
 }
 
 } // namespace pltxt2htm::details

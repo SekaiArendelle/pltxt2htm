@@ -1473,7 +1473,7 @@ restart:
             // ```
             // Text without any tag in the end will hit this branch.
             return ::std::move(frame->subast);
-        }  else {
+        } else {
             // Considering the following markdown:
             // ```md
             // <b>example
@@ -1635,8 +1635,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext)
         ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast{};
         if (start_index < pltext.size()) {
             auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index, sublength);
-            call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
-                subtext, md_atx_heading_type));
+            call_stack.push(
+                ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(subtext, md_atx_heading_type));
             subast = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
         }
         result.push_back(::pltxt2htm::details::switch_md_atx_header<ndebug>(md_atx_heading_type, ::std::move(subast)));
