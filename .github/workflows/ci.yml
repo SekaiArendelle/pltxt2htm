@@ -50,32 +50,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup msys2
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: UCRT64
-          update: true
-
-      - name: Install g++
-        shell: bash
-        run: |
-          pacman -Sy --noconfirm mingw-w64-ucrt-x86_64-gcc --noconfirm
-
-      - name: g++ version
-        shell: bash
-        run: |
-          g++ -v
-
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
         with:
           xmake-version: latest
 
+      - name: Install g++
+        shell: powershell
+        run: |
+          winget install --id=Meta.Zstandard -e
+          Invoke-WebRequest -Uri "https://github.com/24bit-xjkp/toolchains/releases/download/gcc16.0.0-rc2/x86_64-w64-mingw32-native-gcc16.tar.zst" -OutFile "x86_64-w64-mingw32-native-gcc16.tar.zst"
+          zstd -d x86_64-w64-mingw32-native-gcc16.tar.zst
+          tar -xf x86_64-w64-mingw32-native-gcc16.tar
+
       - name: Configure and build
-        shell: bash
+        shell: powershell
         working-directory: test
         run: |
-          export PATH="$PWD/x86_64-w64-mingw32-native-gcc16/bin;$PWD/x86_64-w64-mingw32-native-gcc16/lib;$PWD/x86_64-w64-mingw32-native-gcc16/lib64;$env:PATH"
+          export PATH="$PWD/x86_64-w64-mingw32-native-gcc16/bin;$PWD/x86_64-w64-mingw32-native-gcc16/lib;$env:PATH"
+          g++ -v
           xmake config -p windows -a x64 --toolchain=gcc --policies=build.sanitizer.address
           xmake test -v
 
