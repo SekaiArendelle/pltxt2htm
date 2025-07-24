@@ -6,6 +6,9 @@ includes("../xmake/*.lua")
 set_languages("c++23")
 set_encodings("utf-8")
 
+-- requires g++ >= 14
+-- requires clang++ >= 20
+
 for _, file in ipairs(os.files("*.cc")) do
     local name = path.basename(file)
     target(name, function ()

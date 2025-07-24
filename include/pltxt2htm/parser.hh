@@ -438,6 +438,8 @@ public:
     ::std::size_t current_index{};
     ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast{};
 
+    virtual ~BasicFrameContext() = default;
+
 protected:
     constexpr BasicFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
                                 bool const return_from_recursion_) noexcept
