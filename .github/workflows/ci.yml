@@ -55,12 +55,19 @@ jobs:
         with:
           xmake-version: latest
 
+      - name: Install zstd
+        shell: powershell
+        working-directory: test
+        run: |
+           Invoke-WebRequest -Uri "https://github.com/facebook/zstd/releases/download/v1.5.7/zstd-v1.5.7-win64.zip" -OutFile "zstd.zip"
+           Expand-Archive -Path .\zstd.zip -DestinationPath .
+
       - name: Install g++
         shell: powershell
+        working-directory: test
         run: |
-          winget install --id=Meta.Zstandard -e
           Invoke-WebRequest -Uri "https://github.com/24bit-xjkp/toolchains/releases/download/gcc16.0.0-rc2/x86_64-w64-mingw32-native-gcc16.tar.zst" -OutFile "x86_64-w64-mingw32-native-gcc16.tar.zst"
-          zstd -d x86_64-w64-mingw32-native-gcc16.tar.zst
+          .\zstd-v1.5.7-win64\zstd -d x86_64-w64-mingw32-native-gcc16.tar.zst
           tar -xf x86_64-w64-mingw32-native-gcc16.tar
 
       - name: Configure and build
