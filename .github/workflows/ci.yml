@@ -70,11 +70,18 @@ jobs:
           .\zstd-v1.5.7-win64\zstd -d x86_64-w64-mingw32-native-gcc16.tar.zst
           tar -xf x86_64-w64-mingw32-native-gcc16.tar
 
+      - name: g++ version
+        shell: powershell
+        working-directory: test
+        run: |
+          $env:PATH="$PWD/x86_64-w64-mingw32-native-gcc16/bin;$PWD/x86_64-w64-mingw32-native-gcc16/lib;$env:PATH"
+          g++ -v
+
       - name: Configure and build
         shell: powershell
         working-directory: test
         run: |
-          export PATH="$PWD/x86_64-w64-mingw32-native-gcc16/bin;$PWD/x86_64-w64-mingw32-native-gcc16/lib;$env:PATH"
+          $env:PATH="$PWD/x86_64-w64-mingw32-native-gcc16/bin;$PWD/x86_64-w64-mingw32-native-gcc16/lib;$env:PATH"
           g++ -v
           xmake config -p windows -a x64 --toolchain=gcc --policies=build.sanitizer.address
           xmake test -v
