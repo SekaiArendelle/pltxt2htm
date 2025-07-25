@@ -5,6 +5,7 @@
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
 #include "frame_context.hh"
+#include "../utils.hh"
 #include "../heap_guard.hh"
 #include "../astnode/basic.hh"
 #include "../astnode/physics_lab_node.hh"
@@ -23,13 +24,13 @@ constexpr auto ast2common_html(
 #endif
     -> ::fast_io::u8string {
     ::fast_io::u8string result{};
-    ::fast_io::stack<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBasicFrameContext>,
-                     ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBasicFrameContext>>>
+    ::fast_io::stack<::pltxt2htm::details::BackendBasicFrameContext,
+                     ::fast_io::vector<::pltxt2htm::details::BackendBasicFrameContext>>
         call_stack{};
-    call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(ast_init, ::pltxt2htm::NodeType::base, false));
+    call_stack.push({ast_init, ::pltxt2htm::NodeType::base, false});
 
 restart:
-    auto&& ast = call_stack.top()->ast_;
+    auto&& ast = call_stack.top().ast_;
     for (auto&& node : ast) {
         switch (node->node_type()) {
         case ::pltxt2htm::NodeType::u8char: {
@@ -81,9 +82,9 @@ restart:
         }
         case ::pltxt2htm::NodeType::pl_b: {
             auto b = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
-            auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
+            auto&& nested_tag_type = call_stack.top().nested_tag_type_;
             bool const is_not_same_tag = nested_tag_type != ::pltxt2htm::NodeType::pl_b;
-            call_stack.push(::pltxt2htm::details::BackendBareTagContext{b->get_subast(), ::pltxt2htm::NodeType::pl_b,
+            call_stack.push({b->get_subast(), ::pltxt2htm::NodeType::pl_b,
                                                                            is_not_same_tag});
             if (is_not_same_tag) {
                 result.append(u8"<b>");
@@ -94,10 +95,10 @@ restart:
             auto i = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             auto&& nested_tag_type = call_stack.top().nested_tag_type_;
             bool const is_not_same_tag = nested_tag_type != ::pltxt2htm::NodeType::pl_i;
-            call_stack.push(::pltxt2htm::details::BackendBareTagContext{i->get_subast(), ::pltxt2htm::NodeType::pl_i,
+            call_stack.push({i->get_subast(), ::pltxt2htm::NodeType::pl_i,
                                                                            is_not_same_tag});
             if (is_not_same_tag) {
-                result.append(u8"<i>");
+                result.append(::fast_io::u8string_view{{u8'<', u8'i', u8'>'}});
             }
             goto restart;
         }
@@ -109,11 +110,12 @@ restart:
             auto&& subast = color->get_subast();
             if (subast.size() == 1) {
                 // <color=red><color=blue>text</color></color> can be optimized
-                auto subnode = subast.index_unchecked(0).release_imul();
+                auto subnode = ::pltxt2htm::details::vector_front<ndebug>(subast).release_imul();
                 if (subnode->node_type() == ::pltxt2htm::NodeType::pl_color) {
                     color = reinterpret_cast<::pltxt2htm::Color const*>(subnode);
                 }
             }
+            auto&& nested_tag_type = call_stack.top().nested_tag_type_;
             // Optimization: If the color is the same as the parent node, then ignore the nested tag.
             bool const is_not_same_tag =
                 extern_node == nullptr ||
