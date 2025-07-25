@@ -24,13 +24,14 @@ constexpr auto ast2common_html(
 #endif
     -> ::fast_io::u8string {
     ::fast_io::u8string result{};
-    ::fast_io::stack<::pltxt2htm::details::BackendBasicFrameContext,
-                     ::fast_io::vector<::pltxt2htm::details::BackendBasicFrameContext>>
+    ::fast_io::stack<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBasicFrameContext>,
+                     ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBasicFrameContext>>>
         call_stack{};
-    call_stack.push({ast_init, ::pltxt2htm::NodeType::base, false});
+    call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
+        ast_init, ::pltxt2htm::NodeType::base, false));
 
 restart:
-    auto&& ast = call_stack.top().ast_;
+    auto&& ast = call_stack.top()->ast_;
     for (auto&& node : ast) {
         switch (node->node_type()) {
         case ::pltxt2htm::NodeType::u8char: {
@@ -82,10 +83,10 @@ restart:
         }
         case ::pltxt2htm::NodeType::pl_b: {
             auto b = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
-            auto&& nested_tag_type = call_stack.top().nested_tag_type_;
+            auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
             bool const is_not_same_tag = nested_tag_type != ::pltxt2htm::NodeType::pl_b;
-            call_stack.push({b->get_subast(), ::pltxt2htm::NodeType::pl_b,
-                                                                           is_not_same_tag});
+            call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
+                b->get_subast(), ::pltxt2htm::NodeType::pl_b, is_not_same_tag));
             if (is_not_same_tag) {
                 result.append(u8"<b>");
             }
@@ -93,12 +94,13 @@ restart:
         }
         case ::pltxt2htm::NodeType::pl_i: {
             auto i = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
-            auto&& nested_tag_type = call_stack.top().nested_tag_type_;
-            bool const is_not_same_tag = nested_tag_type != ::pltxt2htm::NodeType::pl_i;
-            call_stack.push({i->get_subast(), ::pltxt2htm::NodeType::pl_i,
-                                                                           is_not_same_tag});
+            auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
+            bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::pl_i};
+            call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
+                i->get_subast(), ::pltxt2htm::NodeType::pl_i, is_not_same_tag));
             if (is_not_same_tag) {
-                result.append(::fast_io::u8string_view{{u8'<', u8'i', u8'>'}});
+                char8_t i_start_tag[]{u8'<', u8'i', u8'>'};
+                result.append(::fast_io::u8string_view{i_start_tag, sizeof(i_start_tag)});
             }
             goto restart;
         }
@@ -107,31 +109,33 @@ restart:
         case ::pltxt2htm::NodeType::pl_a: {
             // <a> and <color> is the same tag&struct in fact
             auto color = reinterpret_cast<::pltxt2htm::Color const*>(node.release_imul());
-            auto&& subast = color->get_subast();
-            if (subast.size() == 1) {
+            {
                 // <color=red><color=blue>text</color></color> can be optimized
-                auto subnode = ::pltxt2htm::details::vector_front<ndebug>(subast).release_imul();
-                if (subnode->node_type() == ::pltxt2htm::NodeType::pl_color) {
-                    color = reinterpret_cast<::pltxt2htm::Color const*>(subnode);
+                auto&& subast = color->get_subast();
+                if (subast.size() == 1) {
+                    auto subnode = ::pltxt2htm::details::vector_front<ndebug>(subast).release_imul();
+                    if (subnode->node_type() == ::pltxt2htm::NodeType::pl_color) {
+                        color = reinterpret_cast<::pltxt2htm::Color const*>(subnode);
+                    }
                 }
             }
-            auto&& nested_tag_type = call_stack.top().nested_tag_type_;
+            auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
             // Optimization: If the color is the same as the parent node, then ignore the nested tag.
             bool const is_not_same_tag =
-                extern_node == nullptr ||
-                (extern_node->node_type() != ::pltxt2htm::NodeType::pl_color &&
-                 extern_node->node_type() != ::pltxt2htm::NodeType::pl_a) ||
-                color->get_color() != reinterpret_cast<::pltxt2htm::Color const*>(extern_node)->get_color();
+                (nested_tag_type != ::pltxt2htm::NodeType::pl_color &&
+                 nested_tag_type != ::pltxt2htm::NodeType::pl_a) ||
+                color->get_color() != reinterpret_cast<::pltxt2htm::details::BackendEqualSignTagContext const*>(
+                                          call_stack.top().release_imul())
+                                          ->id_;
+            call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendEqualSignTagContext>(
+                color->get_subast(), ::pltxt2htm::NodeType::pl_color, is_not_same_tag,
+                ::fast_io::mnp::os_c_str(color->get_color())));
             if (is_not_same_tag) {
                 result.append(u8"<span style=\"color:");
                 result.append(color->get_color());
                 result.append(u8";\">");
             }
-            result.append(::pltxt2htm::details::ast2common_html<ndebug>(subast, color));
-            if (is_not_same_tag) {
-                result.append(u8"</span>");
-            }
-            break;
+            goto restart;
         }
         case ::pltxt2htm::NodeType::md_escape_backslash: {
             result.push_back(u8'\\');
@@ -246,14 +250,15 @@ restart:
         }
         default: {
             auto a_paired_tag = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
-            result.append(::pltxt2htm::details::ast2common_html<ndebug>(a_paired_tag->get_subast(), a_paired_tag));
-            break;
+            call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
+                a_paired_tag->get_subast(), ::pltxt2htm::NodeType::base, false));
+            goto restart;
         }
         }
     }
-    {
-        bool is_not_same_tag{call_stack.top().is_not_same_tag_};
-        ::pltxt2htm::NodeType nested_tag_type{call_stack.top().nested_tag_type_};
+    while (true) {
+        bool is_not_same_tag{call_stack.top()->is_not_same_tag_};
+        ::pltxt2htm::NodeType const nested_tag_type{call_stack.top()->nested_tag_type_};
         call_stack.pop();
         if (call_stack.empty()) {
             return result;
@@ -263,16 +268,24 @@ restart:
                 if (is_not_same_tag) {
                     result.append(u8"</b>");
                 }
-                goto restart;
+                continue;
             }
             case ::pltxt2htm::NodeType::pl_i: {
                 if (is_not_same_tag) {
                     result.append(u8"</i>");
                 }
-                goto restart;
+                continue;
+            }
+            case ::pltxt2htm::NodeType::pl_a:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::pl_color: {
+                if (is_not_same_tag) {
+                    result.append(u8"</span>");
+                }
+                continue;
             }
             case ::pltxt2htm::NodeType::base: {
-                goto restart;
+                continue;
             }
             default:
                 ::exception::unreachable<ndebug>();
