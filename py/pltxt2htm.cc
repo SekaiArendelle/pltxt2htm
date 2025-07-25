@@ -31,11 +31,11 @@ static ::PyObject* common_parser([[maybe_unused]] ::PyObject* self, ::PyObject* 
     }
     char8_t const* html = ::pltxt2htm::common_parser<
 #ifdef NDEBUG
-    true
+        true
 #else
-    false
+        false
 #endif
-    >(reinterpret_cast<char8_t const*>(text));
+        >(reinterpret_cast<char8_t const*>(text));
     ::PyObject* result = ::PyUnicode_FromString(reinterpret_cast<char const*>(html));
     ::free(reinterpret_cast<void*>(const_cast<char8_t*>(html)));
     return result;
@@ -69,12 +69,11 @@ static ::PyObject* advanced_parser([[maybe_unused]] ::PyObject* self, ::PyObject
                                        ::std::addressof(text), ::std::addressof(host))) [[unlikely]] {
         return nullptr;
     }
-    char8_t const* html =
-        ::pltxt2htm::advanced_parser<
+    char8_t const* html = ::pltxt2htm::advanced_parser<
 #ifdef NDEBUG
-    true
+        true
 #else
-    false
+        false
 #endif
         >(reinterpret_cast<char8_t const*>(text), reinterpret_cast<char8_t const*>(host));
     ::PyObject* result = ::PyUnicode_FromString(reinterpret_cast<char const*>(html));
@@ -84,19 +83,23 @@ static ::PyObject* advanced_parser([[maybe_unused]] ::PyObject* self, ::PyObject
 
 static auto methods_ = ::fast_io::array{
     // It was a little weird that PyCFunction mismatch with PyCFunctionWithKeywords, which will cause compiler warning
-    ::PyMethodDef{"common_parser", reinterpret_cast<PyCFunction>(::common_parser), METH_VARARGS | METH_KEYWORDS, nullptr},
-    ::PyMethodDef{"advanced_parser", reinterpret_cast<PyCFunction>(::advanced_parser), METH_VARARGS | METH_KEYWORDS, nullptr},
+    ::PyMethodDef{"common_parser", reinterpret_cast<PyCFunction>(::common_parser), METH_VARARGS | METH_KEYWORDS,
+                  nullptr},
+    ::PyMethodDef{"advanced_parser", reinterpret_cast<PyCFunction>(::advanced_parser), METH_VARARGS | METH_KEYWORDS,
+                  nullptr},
     ::PyMethodDef{nullptr, nullptr, 0, nullptr}};
 
 static ::PyModuleDef pltxt2htm_py_module = {
     .m_base = PyModuleDef_HEAD_INIT,
     .m_name = "pltxt2htm",
     .m_doc = "Parse Quantam-Physics's text to html",
-    .m_size =
-        -1, /* size of per-interpreter state of the module, or -1 if the module keeps state in global variables. */
+    /* size of per-interpreter state of the module, or -1 if the module keeps state in global variables. */
+    .m_size = -1,
     .m_methods = ::methods_.data(),
     .m_slots = nullptr,
-};
+    .m_traverse = nullptr,
+    .m_clear = nullptr,
+    .m_free = nullptr};
 
 PyMODINIT_FUNC PyInit_pltxt2htm() noexcept {
     ::PyObject* m = PyModule_Create(::std::addressof(::pltxt2htm_py_module));

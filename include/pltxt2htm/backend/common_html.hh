@@ -141,12 +141,9 @@ restart:
                 color->get_subast(), ::pltxt2htm::NodeType::pl_color, is_not_same_tag,
                 ::fast_io::mnp::os_c_str(color->get_color())));
             if (is_not_same_tag) {
-                auto close_tag1 = ::fast_io::array{
-                    u8'<', u8's', u8'p', u8'a', u8'n',
-                    u8' ', u8's', u8't', u8'y', u8'l',
-                    u8'e', u8'=', u8'\"', u8'c', u8'o',
-                    u8'l', u8'o', u8'r', u8':'
-                };
+                auto close_tag1 =
+                    ::fast_io::array{u8'<', u8's', u8'p',  u8'a', u8'n', u8' ', u8's', u8't', u8'y', u8'l',
+                                     u8'e', u8'=', u8'\"', u8'c', u8'o', u8'l', u8'o', u8'r', u8':'};
                 result.append(::fast_io::u8string_view{close_tag1.data(), close_tag1.size()});
                 result.append(color->get_color());
                 auto close_tag2 = ::fast_io::array{u8';', u8'\"', u8'>'};
