@@ -280,8 +280,8 @@ jobs:
           xmake config -p windows -a x64 --toolchain=x86_64-windows-msvc-clang -m release
           xmake build -v
 
-  aarch64-apple-darwin24-py-release:
-    name: aarch64-apple-darwin24 (py/, release mode, python ${{ matrix.python-version }})
+  aarch64-apple-darwin24-py-debug:
+    name: aarch64-apple-darwin24 (py/, debug mode, python ${{ matrix.python-version }})
     runs-on: macos-latest
 
     strategy:
@@ -309,5 +309,5 @@ jobs:
       - name: Configure and build
         working-directory: py
         run: |
-          xmake f --toolchain=clang -m release
+          xmake f --toolchain=clang -m debug
           xmake build -v
