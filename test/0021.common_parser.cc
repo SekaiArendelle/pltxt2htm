@@ -23,10 +23,13 @@ int main() noexcept {
     auto answer5 = ::fast_io::u8string_view{u8"<i>test</i>"};
     ::exception::assert_true(html5 == answer5);
 
-    auto html6 =
-        ::pltxt2htm::pltxt2advanced_html(u8"<color=red><Color=#66CcFf>text</color></color>", u8"localhost:5173");
+    auto html6 = ::pltxt2htm::pltxt2common_html(u8"<color=red><Color=#66CcFf>text</color></color>");
     auto answer6 = ::fast_io::u8string_view{u8"<span style=\"color:#66CcFf;\">text</span>"};
     ::exception::assert_true(html6 == answer6);
+
+    auto html7 = ::pltxt2htm::pltxt2common_html(u8"t<b>ex</b>t");
+    auto answer7 = ::fast_io::u8string_view{u8"t<b>ex</b>t"};
+    ::exception::assert_true(html7 == answer7);
 
     return 0;
 }

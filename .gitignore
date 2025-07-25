@@ -32,3 +32,4 @@ compile_commands.json
 
 # fuzzer crashing file
 crash-*
+oom-*

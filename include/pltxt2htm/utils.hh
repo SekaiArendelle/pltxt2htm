@@ -64,6 +64,27 @@ constexpr auto vector_front(::fast_io::vector<T> const& vec) noexcept -> T const
 }
 
 /**
+ * @return index of ::fast_io::u8string_view
+ */
+template<bool ndebug, typename T>
+#if __has_cpp_attribute(__gnu__::always_inline)
+[[__gnu__::always_inline]]
+#elif __has_cpp_attribute(msvc::forceinline)
+[[msvc::forceinline]]
+#endif
+[[nodiscard]]
+constexpr auto vector_index(::fast_io::vector<T> const& vec, ::std::size_t i)
+#if __cpp_exceptions < 199711L
+    noexcept
+#endif
+    -> T const&
+{
+    pltxt2htm_assert(i < vec.size(), u8"Index of parser out of bound");
+
+    return vec.index_unchecked(i);
+}
+
+/**
  * @brief Get the index-th char8_t from the string.
  * @return The char8_t at index I of str.
  */
