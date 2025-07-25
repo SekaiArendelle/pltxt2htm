@@ -12,13 +12,17 @@ public:
     ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> const& ast_;
     ::pltxt2htm::NodeType const nested_tag_type_;
     bool is_not_same_tag_;
+    // TODO How about store iterator?
+    ::std::size_t current_index_;
 
 protected:
     BackendBasicFrameContext(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> const& ast,
-                             ::pltxt2htm::NodeType const nested_tag_type, bool is_not_same_tag) noexcept
+                             ::pltxt2htm::NodeType const nested_tag_type, bool is_not_same_tag,
+                             ::std::size_t current_index) noexcept
         : ast_(ast),
           nested_tag_type_{nested_tag_type},
-          is_not_same_tag_{is_not_same_tag} {
+          is_not_same_tag_{is_not_same_tag},
+          current_index_{current_index} {
     }
 
 public:
@@ -37,8 +41,9 @@ public:
 class BackendBareTagContext : public ::pltxt2htm::details::BackendBasicFrameContext {
 public:
     BackendBareTagContext(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> const& ast,
-                          ::pltxt2htm::NodeType const nested_tag_type, bool is_not_same_tag) noexcept
-        : ::pltxt2htm::details::BackendBasicFrameContext(ast, nested_tag_type, is_not_same_tag) {
+                          ::pltxt2htm::NodeType const nested_tag_type, bool is_not_same_tag,
+                          ::std::size_t current_index) noexcept
+        : ::pltxt2htm::details::BackendBasicFrameContext(ast, nested_tag_type, is_not_same_tag, current_index) {
     }
 
     constexpr BackendBareTagContext(::pltxt2htm::details::BackendBareTagContext const&) noexcept = default;
@@ -59,8 +64,8 @@ public:
 
     BackendEqualSignTagContext(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> const& ast,
                                ::pltxt2htm::NodeType const nested_tag_type, bool is_not_same_tag,
-                               ::fast_io::u8string_view id) noexcept
-        : ::pltxt2htm::details::BackendBasicFrameContext(ast, nested_tag_type, is_not_same_tag),
+                               ::std::size_t current_index, ::fast_io::u8string_view id) noexcept
+        : ::pltxt2htm::details::BackendBasicFrameContext(ast, nested_tag_type, is_not_same_tag, current_index),
           id_{id} {
     }
 
