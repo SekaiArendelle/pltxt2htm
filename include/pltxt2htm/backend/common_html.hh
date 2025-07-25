@@ -1,5 +1,6 @@
 #pragma once
 
+#include <fast_io/fast_io_dsal/array.h>
 #include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
@@ -14,7 +15,8 @@
 namespace pltxt2htm::details {
 
 /**
- * @brief render in header, only enable color, b and i tag
+ * @brief Translate pl-text's ast to common html(only enable color, b and i tag).
+ *        usually be used to render header
  */
 template<bool ndebug>
 constexpr auto ast2common_html(
@@ -39,41 +41,48 @@ restart:
             break;
         }
         case ::pltxt2htm::NodeType::invalid_u8char: {
-            result.append(u8"\xEF\xBF\xBD");
+            auto escape_str = ::fast_io::array{char8_t{0xef}, 0xbf, 0xbd};
+            result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
             break;
         }
         case ::pltxt2htm::NodeType::space: {
-            result.append(u8"&nbsp;");
+            auto escape_str = ::fast_io::array{u8'&', u8'n', u8'b', u8's', u8'p', u8';'};
+            result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
             break;
         }
         case ::pltxt2htm::NodeType::md_escape_ampersand:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::ampersand: {
-            result.append(u8"&amp;");
+            auto escape_str = ::fast_io::array{u8'&', u8'a', u8'm', u8'p', u8';'};
+            result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
             break;
         }
         case ::pltxt2htm::NodeType::md_escape_single_quote:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::single_quote: {
-            result.append(u8"&apos;");
+            auto escape_str = ::fast_io::array{u8'&', u8'a', u8'p', u8'o', u8's', u8';'};
+            result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
             break;
         }
         case ::pltxt2htm::NodeType::md_escape_double_quote:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::double_quote: {
-            result.append(u8"&quot;");
+            auto escape_str = ::fast_io::array{u8'&', u8'q', u8'u', u8'o', u8't', u8';'};
+            result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
             break;
         }
         case ::pltxt2htm::NodeType::md_escape_less_than:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::less_than: {
-            result.append(u8"&lt;");
+            auto escape_str = ::fast_io::array{u8'&', u8'l', u8't', u8';'};
+            result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
             break;
         }
         case ::pltxt2htm::NodeType::md_escape_greater_than:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::greater_than: {
-            result.append(u8"&gt;");
+            auto escape_str = ::fast_io::array{u8'&', u8'g', u8't', u8';'};
+            result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
             break;
         }
         case ::pltxt2htm::NodeType::line_break:
@@ -88,7 +97,8 @@ restart:
             call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
                 b->get_subast(), ::pltxt2htm::NodeType::pl_b, is_not_same_tag));
             if (is_not_same_tag) {
-                result.append(u8"<b>");
+                auto start_tag = ::fast_io::array{u8'<', u8'b', u8'>'};
+                result.append(::fast_io::u8string_view{start_tag.data(), start_tag.size()});
             }
             goto restart;
         }
@@ -99,8 +109,8 @@ restart:
             call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
                 i->get_subast(), ::pltxt2htm::NodeType::pl_i, is_not_same_tag));
             if (is_not_same_tag) {
-                char8_t i_start_tag[]{u8'<', u8'i', u8'>'};
-                result.append(::fast_io::u8string_view{i_start_tag, sizeof(i_start_tag)});
+                auto start_tag = ::fast_io::array{u8'<', u8'i', u8'>'};
+                result.append(::fast_io::u8string_view{start_tag.data(), start_tag.size()});
             }
             goto restart;
         }
@@ -131,9 +141,16 @@ restart:
                 color->get_subast(), ::pltxt2htm::NodeType::pl_color, is_not_same_tag,
                 ::fast_io::mnp::os_c_str(color->get_color())));
             if (is_not_same_tag) {
-                result.append(u8"<span style=\"color:");
+                auto close_tag1 = ::fast_io::array{
+                    u8'<', u8's', u8'p', u8'a', u8'n',
+                    u8' ', u8's', u8't', u8'y', u8'l',
+                    u8'e', u8'=', u8'\"', u8'c', u8'o',
+                    u8'l', u8'o', u8'r', u8':'
+                };
+                result.append(::fast_io::u8string_view{close_tag1.data(), close_tag1.size()});
                 result.append(color->get_color());
-                result.append(u8";\">");
+                auto close_tag2 = ::fast_io::array{u8';', u8'\"', u8'>'};
+                result.append(::fast_io::u8string_view{close_tag2.data(), close_tag2.size()});
             }
             goto restart;
         }
@@ -266,13 +283,15 @@ restart:
             switch (nested_tag_type) {
             case ::pltxt2htm::NodeType::pl_b: {
                 if (is_not_same_tag) {
-                    result.append(u8"</b>");
+                    auto close_tag = ::fast_io::array{u8'<', u8'/', u8'b', u8'>'};
+                    result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
                 }
                 continue;
             }
             case ::pltxt2htm::NodeType::pl_i: {
                 if (is_not_same_tag) {
-                    result.append(u8"</i>");
+                    auto close_tag = ::fast_io::array{u8'<', u8'/', u8'i', u8'>'};
+                    result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
                 }
                 continue;
             }
@@ -280,7 +299,8 @@ restart:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::pl_color: {
                 if (is_not_same_tag) {
-                    result.append(u8"</span>");
+                    auto close_tag = ::fast_io::array{u8'<', u8'/', u8's', u8'p', u8'a', u8'n', u8'>'};
+                    result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
                 }
                 continue;
             }
