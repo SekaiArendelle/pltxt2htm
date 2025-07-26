@@ -1,4 +1,5 @@
 #include <cstddef>
+#include <cstdint>
 #include <cstring>
 #include <cassert>
 #include <exception/exception.hh>
@@ -7,7 +8,7 @@
 #include <fast_io/fast_io.h>
 #include <pltxt2htm/pltxt2htm.hh>
 
-enum class TargetType : ::std::size_t {
+enum class TargetType : ::std::uint_least32_t {
     indeterminate = 0,
     advanced_html,
     common_html,
@@ -17,10 +18,10 @@ constexpr ::fast_io::u8string_view usage{
     u8R"(Usage:
     pltxt2htm [-v|--version]
     pltxt2htm [-h|help]
-    pltxt2htm --target common_html -i <input file>
-    pltxt2htm --target common_html -i <input file> -o <output file>
-    pltxt2htm --target advanced_html -i <input file> --host <host name>
-    pltxt2htm --target advanced_html -i <input file> --host <host name> -o <output file>
+    echo "example" | pltxt2htm --target common_html
+    echo "example" | pltxt2htm --target common_html -o <output file>
+    echo "example" | pltxt2htm --target advanced_html --host <host name>
+    echo "example" | pltxt2htm --target advanced_html --host <host name> -o <output file>
 )"};
 
 int main(int argc, char const* const* const argv)
@@ -56,25 +57,12 @@ int main(int argc, char const* const* const argv)
 
     // target type
     ::TargetType target_type = TargetType::indeterminate;
-    // store input file path
-    char8_t const* input_file_path = nullptr;
     // host prefix of physics-lab-web
     char8_t const* host = nullptr;
     // store output file path, can be optional
     char const* output_file_path = nullptr;
     for (::std::size_t i{1}; i < static_cast<::std::size_t>(argc); ++i) {
-        if (::std::strcmp(argv[i], "-i") == 0) {
-            if (i == static_cast<::std::size_t>(argc) - 1) [[unlikely]] {
-                ::fast_io::perrln("You must specify input file after `-i`");
-                return 1;
-            }
-            if (input_file_path != nullptr) [[unlikely]] {
-                ::fast_io::perrln("You can only specify one input file");
-                return 1;
-            }
-            input_file_path = reinterpret_cast<char8_t const*>(argv[++i]);
-            continue;
-        } else if (::std::strcmp(argv[i], "--host") == 0) {
+        if (::std::strcmp(argv[i], "--host") == 0) {
             if (i == static_cast<::std::size_t>(argc) - 1) [[unlikely]] {
                 ::fast_io::perrln("You must specify host name after `--host`");
                 return 1;
@@ -136,11 +124,6 @@ int main(int argc, char const* const* const argv)
         }
     }
 
-    if (input_file_path == nullptr) [[unlikely]] {
-        ::fast_io::perrln("** You must specify input file with `-i`");
-        ::fast_io::println(::fast_io::u8c_stderr(), usage);
-        return 1;
-    }
     switch (target_type) {
     case ::TargetType::advanced_html: {
         if (host == nullptr) [[unlikely]] {
@@ -168,7 +151,8 @@ int main(int argc, char const* const* const argv)
     try
 #endif // __cpp_exceptions >= 199711L
     {
-        ::fast_io::native_file_loader loader(::fast_io::mnp::os_c_str(input_file_path));
+        ::fast_io::u8string input_text{};
+        ::fast_io::io::scan(::fast_io::u8c_stdin(), ::fast_io::mnp::whole_get(input_text));
 
         ::fast_io::u8string html;
         if (target_type == ::TargetType::advanced_html) {
@@ -178,8 +162,7 @@ int main(int argc, char const* const* const argv)
 #else
                 false
 #endif
-                >(::fast_io::mnp::os_c_str(reinterpret_cast<char8_t const*>(loader.data())),
-                  ::fast_io::mnp::os_c_str(host));
+                >(::fast_io::mnp::os_c_str(input_text), ::fast_io::mnp::os_c_str(host));
         } else if (target_type == ::TargetType::common_html) {
             html = ::pltxt2htm::pltxt2common_html<
 #ifdef NDEBUG
@@ -187,7 +170,7 @@ int main(int argc, char const* const* const argv)
 #else
                 false
 #endif
-                >(::fast_io::mnp::os_c_str(reinterpret_cast<char8_t const*>(loader.data())));
+                >(::fast_io::mnp::os_c_str(input_text));
         } else {
             ::exception::unreachable<
 #ifdef NDEBUG
