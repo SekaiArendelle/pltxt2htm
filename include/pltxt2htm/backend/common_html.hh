@@ -100,7 +100,7 @@ restart:
             call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
                 b->get_subast(), ::pltxt2htm::NodeType::pl_b, is_not_same_tag, 0));
             ++current_index;
-                if (is_not_same_tag) {
+            if (is_not_same_tag) {
                 auto start_tag = ::fast_io::array{u8'<', u8'b', u8'>'};
                 result.append(::fast_io::u8string_view{start_tag.data(), start_tag.size()});
             }
@@ -113,7 +113,7 @@ restart:
             call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
                 i->get_subast(), ::pltxt2htm::NodeType::pl_i, is_not_same_tag, 0));
             ++current_index;
-                if (is_not_same_tag) {
+            if (is_not_same_tag) {
                 auto start_tag = ::fast_io::array{u8'<', u8'i', u8'>'};
                 result.append(::fast_io::u8string_view{start_tag.data(), start_tag.size()});
             }
@@ -273,7 +273,7 @@ restart:
             call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
                 a_paired_tag->get_subast(), ::pltxt2htm::NodeType::base, false, 0));
             ++current_index;
-                goto restart;
+            goto restart;
         }
         }
     }

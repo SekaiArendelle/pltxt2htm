@@ -77,8 +77,7 @@ constexpr auto vector_index(::fast_io::vector<T> const& vec, ::std::size_t i)
 #if __cpp_exceptions < 199711L
     noexcept
 #endif
-    -> T const&
-{
+    -> T const& {
     pltxt2htm_assert(i < vec.size(), u8"Index of parser out of bound");
 
     return vec.index_unchecked(i);
