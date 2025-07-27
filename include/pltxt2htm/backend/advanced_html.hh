@@ -225,9 +225,11 @@ restart:
                 ::fast_io::mnp::os_c_str(user->get_id())));
             ++current_index;
             if (is_not_same_tag) {
-                result.append(u8"<span class=\'RUser\' data-user=\'");
+                auto open_tag1 = ::fast_io::array{u8'<', u8's', u8'p', u8'a', u8'n', u8' ', u8'c', u8'l', u8'a', u8's', u8's', u8'=', u8'\'', u8'R', u8'U', u8's', u8'e', u8'r', u8'\'', u8' ', u8'd', u8'a', u8't', u8'a', u8'-', u8'u', u8's', u8'e', u8'r', u8'=', u8'\''};
+                result.append(::fast_io::u8string_view{open_tag1.data(), open_tag1.size()});
                 result.append(user->get_id());
-                result.append(u8"\'>");
+                auto open_tag2 = ::fast_io::array{u8'\'', u8'>'};
+                result.append(::fast_io::u8string_view{open_tag2.data(), open_tag2.size()});
             }
             goto restart;
         }
@@ -254,9 +256,11 @@ restart:
                 size->get_subast(), ::pltxt2htm::NodeType::pl_size, is_not_same_tag, 0, size->get_id()));
             ++current_index;
             if (is_not_same_tag) {
-                result.append(u8"<span style=\"font-size:");
+                auto open_tag1 = ::fast_io::array{u8'<', u8's', u8'p', u8'a', u8'n', u8' ', u8's', u8't', u8'y', u8'l', u8'e', u8'=', u8'\"', u8'f', u8'o', u8'n', u8't', u8'-', u8's', u8'i', u8'z', u8'e', u8':'};
+                result.append(::fast_io::u8string_view{open_tag1.data(), open_tag1.size()});
                 result.append(::pltxt2htm::details::size_t2str(size->get_id() / 2));
-                result.append(u8"px\">");
+                auto open_tag2 = ::fast_io::array{u8'p', u8'x', u8'\"', u8'>'};
+                result.append(::fast_io::u8string_view{open_tag2.data(), open_tag2.size()});
             }
             goto restart;
         }
