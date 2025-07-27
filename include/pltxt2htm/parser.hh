@@ -286,6 +286,7 @@ constexpr auto switch_md_atx_header(
         return ::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH6>(::std::move(subast));
     }
     default:
+        [[unlikely]]
         ::exception::unreachable<ndebug>();
     }
 }
@@ -480,10 +481,7 @@ public:
 /**
  * @brief Parse pl-text to nodes.
  * @tparam ndebug: Whether disables all debug checks.
- * @param pltext: The text readed from Quantum-Physics.
- * @param extern_syntax_type: if extern_syntax_type is ::pltxt2htm::NodeType::base, means
- *                            no nested nodes.
- * @param extern_index: after parsing the current tag, extern index should be corrected.
+ * @param call_stack: use `call_stack` + `goto restart` to avoid stack overflow.
  * @return Quantum-Physics text's ast.
  */
 template<bool ndebug>
@@ -1527,7 +1525,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext)
     noexcept
 #endif
     -> ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> {
-    // fast_io::deque contains bug about RAII
+    // fast_io::deque contains bug about RAII, use fast_io::vector instead
     ::fast_io::stack<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BasicFrameContext>,
                      ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BasicFrameContext>>>
         call_stack{};
@@ -1537,7 +1535,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext)
     // ```md
     // ## test
     // ```
-    // Here, the first line is a header, will hit this case
+    // Here, the first line is a markdown atx heading, will hit this case
     ::std::size_t start_index{};
 #if __has_cpp_attribute(indeterminate)
     ::std::size_t end_index [[indeterminate]];

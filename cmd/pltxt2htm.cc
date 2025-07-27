@@ -171,7 +171,7 @@ int main(int argc, char const* const* const argv)
                 false
 #endif
                 >(::fast_io::mnp::os_c_str(input_text));
-        } else {
+        } else [[unlikely]] {
             ::exception::unreachable<
 #ifdef NDEBUG
                 true

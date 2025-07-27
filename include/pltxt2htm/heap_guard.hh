@@ -33,7 +33,6 @@ concept is_heap_guard = is_heap_guard_<::std::remove_cvref_t<T>>;
 
 /**
  * @brief RAII a heap allocated pointer
- * @tparam type to allocate
  */
 template<typename T>
 class HeapGuard {

@@ -81,4 +81,27 @@ public:
         ::pltxt2htm::details::BackendEqualSignTagContext&&) noexcept = delete;
 };
 
+class BackendPlSizeTagContext : public ::pltxt2htm::details::BackendBasicFrameContext {
+public:
+    ::std::size_t id_;
+
+    BackendPlSizeTagContext(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> const& ast,
+                            ::pltxt2htm::NodeType const nested_tag_type, bool is_not_same_tag,
+                            ::std::size_t current_index, ::std::size_t id) noexcept
+        : ::pltxt2htm::details::BackendBasicFrameContext(ast, nested_tag_type, is_not_same_tag, current_index),
+          id_{id} {
+    }
+
+    constexpr BackendPlSizeTagContext(::pltxt2htm::details::BackendPlSizeTagContext const&) noexcept = default;
+    constexpr BackendPlSizeTagContext(::pltxt2htm::details::BackendPlSizeTagContext&&) noexcept = default;
+
+    constexpr ~BackendPlSizeTagContext() noexcept = default;
+
+    // const reference do not support operator=
+    constexpr ::pltxt2htm::details::BackendPlSizeTagContext& operator=(
+        ::pltxt2htm::details::BackendPlSizeTagContext const&) noexcept = delete;
+    constexpr ::pltxt2htm::details::BackendPlSizeTagContext& operator=(
+        ::pltxt2htm::details::BackendPlSizeTagContext&&) noexcept = delete;
+};
+
 } // namespace pltxt2htm::details
