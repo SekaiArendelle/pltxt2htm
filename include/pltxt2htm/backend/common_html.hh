@@ -312,8 +312,7 @@ restart:
                 goto restart;
             }
             default:
-                [[unlikely]]
-                ::exception::unreachable<ndebug>();
+                [[unlikely]] ::exception::unreachable<ndebug>();
             }
         }
     }

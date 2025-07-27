@@ -66,10 +66,10 @@ int main() noexcept {
         u8"href=\"localhost:5173/ExperimentSummary/Experiment/123\" internal>L</a>ab</a>"};
     ::exception::assert_true(html10 == answer10);
 
-    auto html11 = ::pltxt2htm::pltxt2advanced_html(u8"<experiment=642cf37a494746375aae306a>physicsLab",
-        u8"localhost:5173");
+    auto html11 =
+        ::pltxt2htm::pltxt2advanced_html(u8"<experiment=642cf37a494746375aae306a>physicsLab", u8"localhost:5173");
     auto answer11 = ::fast_io::u8string_view{
-    u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/642cf37a494746375aae306a\" internal>physicsLab</a>"};
+        u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/642cf37a494746375aae306a\" internal>physicsLab</a>"};
     ::exception::assert_true(html11 == answer11);
 
     return 0;

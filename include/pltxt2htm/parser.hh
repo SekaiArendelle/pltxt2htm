@@ -286,8 +286,7 @@ constexpr auto switch_md_atx_header(
         return ::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH6>(::std::move(subast));
     }
     default:
-        [[unlikely]]
-        ::exception::unreachable<ndebug>();
+        [[unlikely]] ::exception::unreachable<ndebug>();
     }
 }
 

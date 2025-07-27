@@ -302,7 +302,8 @@ restart:
         case ::pltxt2htm::NodeType::line_break:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_br: {
-            result.append(u8"<br>");
+            auto start_tag = ::fast_io::array{u8'<', u8'b', u8'r', u8'>'};
+            result.append(::fast_io::u8string_view{start_tag.data(), start_tag.size()});
             break;
         }
         case ::pltxt2htm::NodeType::html_h1:
@@ -311,12 +312,14 @@ restart:
             // TODO # <h1>abstract richtext</h1>
             auto h1 = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
-            bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_h1 && nested_tag_type != ::pltxt2htm::NodeType::md_atx_h1};
+            bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_h1 &&
+                                       nested_tag_type != ::pltxt2htm::NodeType::md_atx_h1};
             call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
                 h1->get_subast(), ::pltxt2htm::NodeType::html_h1, is_not_same_tag, 0));
             ++current_index;
             if (is_not_same_tag) {
-                result.append(u8"<h1>");
+                auto start_tag = ::fast_io::array{u8'<', u8'h', u8'1', u8'>'};
+                result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
             }
             goto restart;
         }
@@ -325,12 +328,14 @@ restart:
         case ::pltxt2htm::NodeType::md_atx_h2: {
             auto h2 = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
-            bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_h2 && nested_tag_type != ::pltxt2htm::NodeType::md_atx_h2};
+            bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_h2 &&
+                                       nested_tag_type != ::pltxt2htm::NodeType::md_atx_h2};
             call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
                 h2->get_subast(), ::pltxt2htm::NodeType::html_h2, is_not_same_tag, 0));
             ++current_index;
             if (is_not_same_tag) {
-                result.append(u8"<h2>");
+                auto start_tag = ::fast_io::array{u8'<', u8'h', u8'2', u8'>'};
+                result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
             }
             goto restart;
         }
@@ -339,12 +344,14 @@ restart:
         case ::pltxt2htm::NodeType::md_atx_h3: {
             auto h3 = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
-            bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_h3 && nested_tag_type != ::pltxt2htm::NodeType::md_atx_h3};
+            bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_h3 &&
+                                       nested_tag_type != ::pltxt2htm::NodeType::md_atx_h3};
             call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
                 h3->get_subast(), ::pltxt2htm::NodeType::html_h3, is_not_same_tag, 0));
             ++current_index;
             if (is_not_same_tag) {
-                result.append(u8"<h3>");
+                auto start_tag = ::fast_io::array{u8'<', u8'h', u8'3', u8'>'};
+                result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
             }
             goto restart;
         }
@@ -353,12 +360,14 @@ restart:
         case ::pltxt2htm::NodeType::md_atx_h4: {
             auto h4 = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
-            bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_h4 && nested_tag_type != ::pltxt2htm::NodeType::md_atx_h4};
+            bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_h4 &&
+                                       nested_tag_type != ::pltxt2htm::NodeType::md_atx_h4};
             call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
                 h4->get_subast(), ::pltxt2htm::NodeType::html_h4, is_not_same_tag, 0));
             ++current_index;
             if (is_not_same_tag) {
-                result.append(u8"<h4>");
+                auto start_tag = ::fast_io::array{u8'<', u8'h', u8'4', u8'>'};
+                result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
             }
             goto restart;
         }
@@ -367,12 +376,14 @@ restart:
         case ::pltxt2htm::NodeType::md_atx_h5: {
             auto h5 = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
-            bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_h5 && nested_tag_type != ::pltxt2htm::NodeType::md_atx_h5};
+            bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_h5 &&
+                                       nested_tag_type != ::pltxt2htm::NodeType::md_atx_h5};
             call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
                 h5->get_subast(), ::pltxt2htm::NodeType::html_h5, is_not_same_tag, 0));
             ++current_index;
             if (is_not_same_tag) {
-                result.append(u8"<h5>");
+                auto start_tag = ::fast_io::array{u8'<', u8'h', u8'5', u8'>'};
+                result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
             }
             goto restart;
         }
@@ -381,12 +392,14 @@ restart:
         case ::pltxt2htm::NodeType::md_atx_h6: {
             auto h6 = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
-            bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_h6 && nested_tag_type != ::pltxt2htm::NodeType::md_atx_h6};
+            bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_h6 &&
+                                       nested_tag_type != ::pltxt2htm::NodeType::md_atx_h6};
             call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
                 h6->get_subast(), ::pltxt2htm::NodeType::html_h6, is_not_same_tag, 0));
             ++current_index;
             if (is_not_same_tag) {
-                result.append(u8"<h6>");
+                auto start_tag = ::fast_io::array{u8'<', u8'h', u8'6', u8'>'};
+                result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
             }
             goto restart;
         }
@@ -398,12 +411,14 @@ restart:
                 del->get_subast(), ::pltxt2htm::NodeType::html_del, is_not_same_tag, 0));
             ++current_index;
             if (is_not_same_tag) {
-                result.append(u8"<del>");
+                auto start_tag = ::fast_io::array{u8'<', u8'd', u8'e', u8'l', u8'>'};
+                result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
             }
             goto restart;
         }
         case ::pltxt2htm::NodeType::html_hr: {
-            result.append(u8"<hr>");
+            auto start_tag = ::fast_io::array{u8'<', u8'h', u8'r', u8'>'};
+            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
             break;
         }
         case ::pltxt2htm::NodeType::md_escape_backslash: {
@@ -643,8 +658,7 @@ restart:
             case ::pltxt2htm::NodeType::base:
                 [[fallthrough]];
             default:
-                [[unlikely]]
-                ::exception::unreachable<ndebug>();
+                [[unlikely]] ::exception::unreachable<ndebug>();
             }
         }
     }
