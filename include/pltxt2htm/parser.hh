@@ -557,7 +557,7 @@ restart:
             auto escape_node = ::pltxt2htm::details::switch_escape_char(
                 ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index + 1));
             if (escape_node.has_value()) {
-                result.push_back(::std::move(escape_node.value()));
+                result.push_back(::std::move(escape_node.template value<ndebug>()));
                 ++current_index;
             } else {
                 result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{u8'\\'});

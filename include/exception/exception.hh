@@ -31,7 +31,7 @@ inline void terminate() noexcept {
 #if defined(__has_builtin) && __has_builtin(__builtin_trap)
     __builtin_trap();
 #else
-    ::std::abort();
+    ::std::terminate();
 #endif
 }
 
@@ -47,7 +47,7 @@ template<bool ndebug = false>
 [[noreturn]]
 inline void unreachable() noexcept {
     if constexpr (ndebug) {
-#if defined(__GNUC__) || defined(__clang__)
+#if defined(__has_builtin) && __has_builtin(__builtin_unreachable)
         __builtin_unreachable();
 #else
         ::std::unreachable();
@@ -87,10 +87,10 @@ constexpr void assert_false(bool cond) noexcept {
 
 template<typename T>
 struct unexpected {
-#if __has_cpp_attribute(no_unique_address)
-    [[no_unique_address]]
-#elif __has_cpp_attribute(msvc::no_unique_address)
+#if __has_cpp_attribute(msvc::no_unique_address)
     [[msvc::no_unique_address]]
+#elif __has_cpp_attribute(no_unique_address)
+    [[no_unique_address]]
 #endif
     T val_{};
 };
@@ -101,7 +101,7 @@ template<typename T>
 constexpr bool is_unexpected_v = false;
 
 template<typename T>
-constexpr bool is_unexpected_v<unexpected<T>> = true;
+constexpr bool is_unexpected_v<::exception::unexpected<T>> = true;
 
 } // namespace details
 
@@ -110,9 +110,16 @@ concept is_unexpected = ::exception::details::is_unexpected_v<::std::remove_cvre
 
 template<typename Ok, typename Fail>
 class expected {
+    static_assert(!::std::is_reference_v<Ok>);
+    static_assert(!::std::is_function_v<Ok>);
+    static_assert(!::exception::is_unexpected<Ok>);
+
 public:
     using value_type = ::std::remove_cvref_t<Ok>;
     using error_type = ::std::remove_cvref_t<Fail>;
+    using unexpected_type = ::exception::unexpected<Fail>;
+    template<typename T>
+    using rebind = ::exception::expected<T, Fail>;
 
 private:
     union {
@@ -123,105 +130,107 @@ private:
     bool has_value_;
 
 public:
+    constexpr expected() noexcept(::std::is_nothrow_default_constructible_v<Ok>)
+        requires ::std::is_default_constructible_v<Ok>
+        : ok_(),
+          has_value_{true} {
+    }
+
     constexpr expected() noexcept = delete;
 
     constexpr expected(Ok const& ok) noexcept(::std::is_nothrow_copy_constructible_v<Ok>)
         requires (::std::is_copy_constructible_v<Ok>)
         : has_value_{true} {
-        ::std::construct_at(&this->ok_, ok);
+        ::std::construct_at(::std::addressof(this->ok_), ok);
     }
 
     constexpr expected(Ok&& ok) noexcept(::std::is_nothrow_move_constructible_v<Ok>)
         requires (::std::is_move_constructible_v<Ok>)
         : has_value_{true} {
-        ::std::construct_at(&this->ok_, ::std::move(ok));
+        ::std::construct_at(::std::addressof(this->ok_), ::std::move(ok));
     }
 
     constexpr expected(unexpected<Fail> const& fail) noexcept(::std::is_nothrow_copy_constructible_v<Fail>)
         requires (::std::is_copy_constructible_v<Fail>)
         : has_value_{false} {
-        ::std::construct_at(&this->fail_, fail.val_);
+        ::std::construct_at(::std::addressof(this->fail_), fail.val_);
     }
 
     constexpr expected(unexpected<Fail>&& fail) noexcept(::std::is_nothrow_move_constructible_v<Fail>)
         requires (::std::is_move_constructible_v<Fail>)
         : has_value_{false} {
-        ::std::construct_at(&this->fail_, ::std::move(fail.val_));
+        ::std::construct_at(::std::addressof(this->fail_), ::std::move(fail.val_));
     }
 
     constexpr expected(expected<Ok, Fail> const& other) noexcept(::std::is_nothrow_copy_constructible_v<Ok> &&
                                                                  ::std::is_nothrow_copy_constructible_v<Fail>)
-        : has_value_{other.has_value_} {
+        : has_value_(other.has_value_) {
         if (this->has_value()) {
-            ::std::construct_at(&this->ok_, other.ok_);
+            ::std::construct_at(::std::addressof(this->ok_), other.ok_);
         } else {
-            ::std::construct_at(&this->fail_, other.fail_);
+            ::std::construct_at(::std::addressof(this->fail_), other.fail_);
         }
     }
 
     constexpr expected(expected<Ok, Fail>&& other) noexcept(::std::is_nothrow_move_constructible_v<Ok> &&
                                                             ::std::is_nothrow_move_constructible_v<Fail>)
-        : has_value_{::std::move(other.has_value_)} {
+        : has_value_(::std::move(other.has_value_)) {
         if (this->has_value()) {
-            ::std::construct_at(&this->ok_, ::std::move(other.ok_));
+            ::std::construct_at(::std::addressof(this->ok_), ::std::move(other.ok_));
         } else {
-            ::std::construct_at(&this->fail_, ::std::move(other.fail_));
+            ::std::construct_at(::std::addressof(this->fail_), ::std::move(other.fail_));
         }
     }
 
-    constexpr ~expected() noexcept {
+    constexpr ~expected() noexcept = default;
+
+    constexpr ~expected() noexcept
+        requires ((!::std::is_trivially_destructible_v<Ok>) || (!::std::is_trivially_destructible_v<Fail>))
+    {
         if (this->has_value()) {
-            ::std::destroy_at(&this->ok_);
+            ::std::destroy_at(::std::addressof(this->ok_));
         } else {
-            ::std::destroy_at(&this->fail_);
+            ::std::destroy_at(::std::addressof(this->fail_));
         }
     }
 
     template<typename T>
         requires (::std::same_as<::std::remove_cvref_t<T>, Ok> &&
                   (::std::is_copy_assignable_v<T> || ::std::is_move_assignable_v<T>))
-    constexpr auto&& operator=(this expected<Ok, Fail>& self, T&& ok) noexcept {
+    constexpr auto&& operator=(this ::exception::expected<Ok, Fail>& self, T&& ok) noexcept {
         if (self.has_value()) {
             self.ok_ = ::std::forward<T>(ok);
         } else {
-            ::std::destroy_at(&self.fail_);
-            ::std::construct_at(&self.ok_, ::std::forward<T>(ok));
+            ::std::destroy_at(::std::addressof(self.fail_));
+            ::std::construct_at(::std::addressof(self.ok_), ::std::forward<T>(ok));
             self.has_value_ = true;
         }
         return self;
     }
 
-    template<is_unexpected T>
-    constexpr auto&& operator=(this expected<Ok, Fail>& self, T const& fail) noexcept {
+    template<::exception::is_unexpected T>
+    constexpr auto&& operator=(this ::exception::expected<Ok, Fail>& self, T const& fail) noexcept {
         self.has_value_ = false;
         self.fail_ = fail.val_;
         return self;
     }
 
-    template<is_unexpected T>
-    constexpr auto&& operator=(this expected<Ok, Fail>& self, T&& fail) noexcept {
+    template<::exception::is_unexpected T>
+    constexpr auto&& operator=(this ::exception::expected<Ok, Fail>& self, T&& fail) noexcept {
         self.has_value_ = false;
         self.fail_ = ::std::move(fail.val_);
         return self;
     }
 
-    constexpr auto&& operator=(this expected<Ok, Fail>& self, expected<Ok, Fail> const& other) noexcept {
-        self.has_value_ = other.has_value_;
-        if (self.has_value()) {
-            self.ok_ = other.ok_;
-        } else {
-            self.fail_ = other.fail_;
-        }
+    constexpr auto&& operator=(this ::exception::expected<Ok, Fail>& self,
+                               ::exception::expected<Ok, Fail> const& other) noexcept {
+        ::exception::expected<Ok, Fail> tmp(other);
+        tmp.swap(self);
         return self;
     }
 
     constexpr auto&& operator=(this expected<Ok, Fail>& self, expected<Ok, Fail>&& other) noexcept {
-        self.has_value_ = other.has_value_;
-        if (self.has_value()) {
-            self.ok_ = ::std::move(other.ok_);
-        } else {
-            self.fail_ = ::std::move(other.fail_);
-        }
+        self.swap(other);
         return self;
     }
 
@@ -281,54 +290,20 @@ public:
      * @param self: the optional or expected object
      */
     template<bool ndebug = false>
-#if __has_cpp_attribute(__gnu__::__always_inline__)
-    [[__gnu__::__always_inline__]]
-#elif __has_cpp_attribute(msvc::forceinline)
-    [[msvc::forceinline]]
-#endif
     [[nodiscard]]
-    constexpr auto&& value(this expected<Ok, Fail> const& self) noexcept {
+    constexpr auto&& value(this auto&& self) noexcept {
         ::exception::assert_true<ndebug>(self.has_value());
-        return self.ok_;
-    }
-
-    template<bool ndebug = false>
-#if __has_cpp_attribute(__gnu__::__always_inline__)
-    [[__gnu__::__always_inline__]]
-#elif __has_cpp_attribute(msvc::forceinline)
-    [[msvc::forceinline]]
-#endif
-    [[nodiscard]]
-    constexpr auto&& value(this expected<Ok, Fail> const&& self) noexcept {
-        ::exception::assert_true<ndebug>(self.has_value());
-        return ::std::move(self.ok_);
+        return ::std::forward_like<decltype(self)>(self.ok_);
     }
 
     /**
      * @brief get the error value from an expected
      */
     template<bool ndebug = false>
-#if __has_cpp_attribute(__gnu__::__always_inline__)
-    [[__gnu__::__always_inline__]]
-#elif __has_cpp_attribute(msvc::forceinline)
-    [[msvc::forceinline]]
-#endif
     [[nodiscard]]
-    constexpr auto&& error(this expected<Ok, Fail> const& self) noexcept {
+    constexpr auto&& error(this auto&& self) noexcept {
         ::exception::assert_false<ndebug>(self.has_value());
-        return self.fail_;
-    }
-
-    template<bool ndebug = false>
-#if __has_cpp_attribute(__gnu__::__always_inline__)
-    [[__gnu__::__always_inline__]]
-#elif __has_cpp_attribute(msvc::forceinline)
-    [[msvc::forceinline]]
-#endif
-    [[nodiscard]]
-    constexpr auto&& error(this expected<Ok, Fail> const&& self) noexcept {
-        ::exception::assert_false<ndebug>(self.has_value());
-        return ::std::move(self.fail_);
+        return ::std::forward_like<decltype(self)>(self.fail_);
     }
 
     /**
