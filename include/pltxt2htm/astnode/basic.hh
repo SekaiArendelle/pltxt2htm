@@ -29,7 +29,7 @@ public:
     constexpr PlTxtNode(PlTxtNode&&) noexcept = default;
     constexpr auto operator=(PlTxtNode const&) noexcept -> PlTxtNode& = default;
     constexpr auto operator=(PlTxtNode&&) noexcept -> PlTxtNode& = default;
-    constexpr virtual ~PlTxtNode() noexcept = default;
+    constexpr ~PlTxtNode() noexcept = default;
 
     [[nodiscard]]
     constexpr auto node_type(this PlTxtNode const& self) noexcept {

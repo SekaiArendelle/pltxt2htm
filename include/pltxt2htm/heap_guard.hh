@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <memory>
 #include <utility>
+#include <ranges>
 #include <concepts>
 #include <type_traits>
 #include <exception/exception.hh>
@@ -32,18 +33,20 @@ template<typename T>
 concept is_heap_guard = is_heap_guard_<::std::remove_cvref_t<T>>;
 
 /**
- * @brief RAII a heap allocated pointer
+ * @brief RAII a heap allocated pointer, similar to std::unique_ptr
  */
 template<typename T>
 class HeapGuard {
     T* ptr_;
 
 public:
+    void (*deleter_)(T*);
     using value_type = T;
 
     template<typename... Args>
         requires (((!::pltxt2htm::details::is_heap_guard<Args>) && ...) && ::std::constructible_from<T, Args...>)
     constexpr HeapGuard(Args&&... args) noexcept {
+        this->deleter_ = [](T* self) static constexpr noexcept { self->~T(); };
         this->ptr_ = reinterpret_cast<T*>(::std::malloc(sizeof(T)));
         if (this->ptr_ == nullptr) [[unlikely]] {
             // bad alloc should never be an exception or err_code
@@ -55,6 +58,7 @@ public:
     constexpr HeapGuard(HeapGuard<T> const& other) noexcept
         requires (::std::is_copy_constructible_v<T>)
     {
+        this->deleter_ = other.deleter_;
         // ::std::malloc will implicitly start lifetime of ptr
         // Therefore, should not call ::std::start_lifetime_as
         this->ptr_ = reinterpret_cast<T*>(::std::malloc(sizeof(T)));
@@ -68,9 +72,9 @@ public:
     template<typename U>
         requires (::std::derived_from<U, T>)
     constexpr HeapGuard(HeapGuard<U>&& other) noexcept
-        requires (::std::is_move_constructible_v<T>)
-    {
+        : deleter_{reinterpret_cast<void (*)(T*)>(other.deleter_)} {
         this->ptr_ = other.release();
+        other.deleter_ = nullptr;
     }
 
     constexpr HeapGuard& operator=(HeapGuard<T> const&) noexcept = delete
@@ -93,7 +97,7 @@ public:
 
     constexpr ~HeapGuard() noexcept {
         if (ptr_ != nullptr) {
-            ::std::destroy_at(this->ptr_);
+            this->deleter_(this->ptr_);
             ::std::free(this->ptr_);
         }
     }
@@ -115,7 +119,7 @@ public:
      * @note The result is a borrowed reference.
      */
     [[nodiscard]]
-    constexpr T* release_unsafe(this auto&& self) noexcept {
+    constexpr T* get_unsafe(this auto&& self) noexcept {
         return self.ptr_;
     }
 
@@ -127,9 +131,8 @@ public:
     }
 
     constexpr void swap(this HeapGuard<T>& self, HeapGuard<T>& other) noexcept {
-        T* tmp = self.ptr_;
-        self.ptr_ = other.ptr_;
-        other.ptr_ = tmp;
+        ::std::ranges::swap(self.ptr_, other.get_unsafe());
+        ::std::ranges::swap(self.deleter_, other.deleter_);
     }
 };
 
