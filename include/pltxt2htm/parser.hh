@@ -1,5 +1,8 @@
 #pragma once
 
+#if __cpp_expansion_statements >= 202506L
+    #include <ranges>
+#endif
 #include <cstddef>
 #include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/vector.h>
@@ -40,34 +43,42 @@ constexpr bool is_prefix_match(::fast_io::u8string_view str)
     noexcept
 #endif
 {
-    // TODO use template-for to refactor this function
+    // Check whether the index is out of bound.
+    if (sizeof...(prefix_str) >= str.size()) [[unlikely]] {
+        return false;
+    }
+
+    // Return whether the `prefix_str` is a prefix of the str.
+#if __cpp_expansion_statements >= 202506L
+    template for (constexpr ::std::size_t I : ::std::ranges::views::iota(::std::size_t{}, sizeof...(prefix_str))) {
+#else
     return [str]<::std::size_t... Is>(::std::index_sequence<Is...>) {
-        // Check whether the index is out of bound.
-        if (sizeof...(prefix_str) >= str.size()) [[unlikely]] {
-            return false;
-        }
-        // Return whether the `prefix_str` is a prefix of the str.
         return ([str]<::std::size_t I>() {
-            constexpr auto expect = pack_indexing_char8_t<I, prefix_str...>();
-            if constexpr ('a' <= expect && expect <= 'z') {
-                // ASCII between lowercase and uppercase is 32 (e.g. 'a' - 'A' == 32)
-                constexpr char8_t diff{32};
-                // (expect != str[I] && expect != str[I] + diff) <=> (expect != (str[I] | diff))
-                if (expect != (::pltxt2htm::details::u8string_view_index<ndebug>(str, I) | diff)) {
-                    return false;
-                } else {
-                    return true;
-                }
+#endif
+        constexpr auto expect = pack_indexing_char8_t<I, prefix_str...>();
+        if constexpr ('a' <= expect && expect <= 'z') {
+            // ASCII between lowercase and uppercase is 32 (e.g. 'a' - 'A' == 32)
+            constexpr char8_t diff{32};
+            // (expect != str[I] && expect != str[I] + diff) <=> (expect != (str[I] | diff))
+            if (expect != (::pltxt2htm::details::u8string_view_index<ndebug>(str, I) | diff)) {
+                return false;
             } else {
-                if (expect != ::pltxt2htm::details::u8string_view_index<ndebug>(str, I)) {
-                    return false;
-                } else {
-                    return true;
-                }
+                return true;
             }
+        } else {
+            if (expect != ::pltxt2htm::details::u8string_view_index<ndebug>(str, I)) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+#if __cpp_expansion_statements >= 202506L
+    }
+#else
         }.template operator()<Is>() &&
                 ...);
     }(::std::make_index_sequence<sizeof...(prefix_str)>{});
+#endif
 }
 
 /**
