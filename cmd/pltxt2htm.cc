@@ -12,6 +12,7 @@ enum class TargetType : ::std::uint_least32_t {
     indeterminate = 0,
     advanced_html,
     common_html,
+    fixedadv_html
 };
 
 constexpr ::fast_io::u8string_view usage{
@@ -82,6 +83,8 @@ int main(int argc, char const* const* const argv)
                 target_type = ::TargetType::advanced_html;
             } else if (::std::strcmp(argv[i + 1], "common_html") == 0) {
                 target_type = ::TargetType::common_html;
+            } else if (::std::strcmp(argv[i + 1], "fixedadv_html") == 0) {
+                target_type = ::TargetType::fixedadv_html;
             } else {
                 ::fast_io::perrln("Invalid target: ", ::fast_io::mnp::os_c_str(argv[i + 1]));
                 return 1;
@@ -133,6 +136,8 @@ int main(int argc, char const* const* const argv)
         }
         break;
     }
+    case ::TargetType::fixedadv_html:
+        [[fallthrough]];
     case ::TargetType::common_html: {
         if (host != nullptr) [[unlikely]] {
             ::fast_io::perrln("** You can not specify host name with `--host` when `--target` is common_html");
@@ -171,6 +176,14 @@ int main(int argc, char const* const* const argv)
                 false
 #endif
                 >(::fast_io::mnp::os_c_str(input_text));
+        } else if (target_type == ::TargetType::fixedadv_html) {
+            html = ::pltxt2htm::pltxt2fixedadv_html<
+#ifdef NDEBUG
+                true
+#else
+                false
+#endif
+                >(::fast_io::mnp::os_c_str(input_text), ::fast_io::mnp::os_c_str(host));
         } else [[unlikely]] {
             ::exception::unreachable<
 #ifdef NDEBUG

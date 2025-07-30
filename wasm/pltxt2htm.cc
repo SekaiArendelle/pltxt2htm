@@ -32,6 +32,17 @@ extern "C" char8_t const* advanced_parser(char8_t const* const text, char8_t con
 }
 
 EMSCRIPTEN_KEEPALIVE
+extern "C" char8_t const* fixedadv_parser(char8_t const* const text, char8_t const* const host) noexcept {
+    return ::pltxt2htm::fixedadv_parser<
+#ifdef NDEBUG
+        true
+#else
+        false
+#endif
+        >(text, host);
+}
+
+EMSCRIPTEN_KEEPALIVE
 extern "C" char8_t const* common_parser(char8_t const* text) noexcept {
     return ::pltxt2htm::common_parser<
 #ifdef NDEBUG

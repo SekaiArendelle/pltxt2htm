@@ -31,6 +31,20 @@ constexpr auto pltxt2advanced_html(::fast_io::u8string_view pltext, ::fast_io::u
     return ::pltxt2htm::details::ast2advanced_html<ndebug>(::pltxt2htm::parse_pltxt<ndebug>(pltext), host);
 }
 
+/**
+ * @brief The only diffrence between pltxt2advanced_html and pltxt2fixedadv_html is that
+ *        `<` won't be transformed to `&lt;`
+ */
+template<bool ndebug = false>
+[[nodiscard]]
+constexpr auto pltxt2fixedadv_html(::fast_io::u8string_view pltext, ::fast_io::u8string_view host)
+#if __cpp_exceptions < 199711L
+    noexcept
+#endif
+{
+    return ::pltxt2htm::details::ast2advanced_html<ndebug, false>(::pltxt2htm::parse_pltxt<ndebug>(pltext), host);
+}
+
 template<bool ndebug = false>
 [[nodiscard]]
 constexpr auto pltxt2common_html(::fast_io::u8string_view pltext)

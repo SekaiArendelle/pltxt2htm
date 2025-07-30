@@ -20,10 +20,11 @@ namespace pltxt2htm::details {
  * @brief Integrate ast nodes to HTML.
  * @tparam ndebug: true  -> release mode, disables most of the checks which is unsafe but fast
  *                 false -> debug mode, enable all checks
+ * @tparam escape_less_than: Whether escaping `<` to `&lt;`
  * @param [in] ast_init: Ast of Quantum-Physics's text
  * @note To avoid stack overflow, this function manage `call_stack` by hand.
  */
-template<bool ndebug>
+template<bool ndebug, bool escape_less_than = true>
 [[nodiscard]]
 constexpr auto ast2advanced_html(
     ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> const& ast_init,
@@ -84,8 +85,12 @@ restart:
         case ::pltxt2htm::NodeType::md_escape_less_than:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::less_than: {
-            auto escape_str = ::fast_io::array{u8'&', u8'l', u8't', u8';'};
-            result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
+            if constexpr (escape_less_than) {
+                auto escape_str = ::fast_io::array{u8'&', u8'l', u8't', u8';'};
+                result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
+            } else {
+                result.push_back(u8'<');
+            }
             break;
         }
         case ::pltxt2htm::NodeType::md_escape_greater_than:

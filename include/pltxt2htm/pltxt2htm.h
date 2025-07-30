@@ -49,6 +49,21 @@ constexpr char8_t const* advanced_parser(char8_t const* const text, char8_t cons
 }
 
 /**
+ * @brief C-Pointer-Style interface for C++ API pltxt2htm::pltxt2advanced_html
+ * @note Don't forget to free the returned pointer
+ */
+ template<bool ndebug = false>
+ [[nodiscard]]
+ constexpr char8_t const* fixedadv_parser(char8_t const* const text, char8_t const* const host)
+ #if __cpp_exceptions < 199711L
+     noexcept
+ #endif
+ {
+     return ::pltxt2htm::details::c_ptr_style_wrapper<::pltxt2htm::pltxt2fixedadv_html<ndebug>>(
+         ::fast_io::mnp::os_c_str(text), ::fast_io::mnp::os_c_str(host));
+ }
+
+/**
  * @brief C-Pointer-Style interface for C++ API pltxt2htm::pltxt2common_html
  * @note Don't forget to free the returned pointer
  */

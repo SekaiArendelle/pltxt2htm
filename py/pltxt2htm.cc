@@ -81,12 +81,54 @@ static ::PyObject* advanced_parser([[maybe_unused]] ::PyObject* self, ::PyObject
     return result;
 }
 
+static ::PyObject* fixedadv_parser([[maybe_unused]] ::PyObject* self, ::PyObject* args, ::PyObject* kwargs)
+#if __cpp_exceptions < 199711L
+    noexcept
+#endif // __cpp_exceptions < 199711L
+{
+    static auto kwlist = ::fast_io::array{"text", "host", nullptr};
+#ifndef NDEBUG
+    char8_t const* text = nullptr;
+    char8_t const* host = nullptr;
+#else
+    #if __has_cpp_attribute(indeterminate)
+    char8_t const* text [[indeterminate]];
+    char8_t const* host [[indeterminate]];
+    #else
+    char8_t const* text;
+    char8_t const* host;
+    #endif
+#endif
+    // Before python3.13, argument `keywords` does not marked as const
+    if (!::PyArg_ParseTupleAndKeywords(args, kwargs, "ss",
+#if PY_MINOR_VERSION < 13
+                                       const_cast<char**>(kwlist.data()),
+#else
+                                       kwlist.data(),
+#endif
+                                       ::std::addressof(text), ::std::addressof(host))) [[unlikely]] {
+        return nullptr;
+    }
+    char8_t const* html = ::pltxt2htm::fixedadv_parser<
+#ifdef NDEBUG
+        true
+#else
+        false
+#endif
+        >(reinterpret_cast<char8_t const*>(text), reinterpret_cast<char8_t const*>(host));
+    ::PyObject* result = ::PyUnicode_FromString(reinterpret_cast<char const*>(html));
+    ::free(static_cast<void*>(const_cast<char8_t*>(html)));
+    return result;
+}
+
 static auto methods_ = ::fast_io::array{
     // It was a little weird that PyCFunction mismatch with PyCFunctionWithKeywords, which will cause compiler warning
     ::PyMethodDef{"common_parser", reinterpret_cast<PyCFunction>(::common_parser), METH_VARARGS | METH_KEYWORDS,
                   nullptr},
     ::PyMethodDef{"advanced_parser", reinterpret_cast<PyCFunction>(::advanced_parser), METH_VARARGS | METH_KEYWORDS,
                   nullptr},
+    ::PyMethodDef{"fixedadv_parser", reinterpret_cast<PyCFunction>(::fixedadv_parser), METH_VARARGS | METH_KEYWORDS,
+                    nullptr},
     ::PyMethodDef{nullptr, nullptr, 0, nullptr}};
 
 static ::PyModuleDef pltxt2htm_py_module = {
