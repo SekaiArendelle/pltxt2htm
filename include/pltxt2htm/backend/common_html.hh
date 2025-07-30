@@ -272,7 +272,9 @@ restart:
             result.push_back(u8'~');
             break;
         }
-        case ::pltxt2htm::NodeType::html_hr: {
+        case ::pltxt2htm::NodeType::html_hr:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::html_note: {
             break;
         }
         default: {

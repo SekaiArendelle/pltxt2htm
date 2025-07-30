@@ -981,6 +981,30 @@ restart:
                 }
             }
 
+            case u8'!': {
+                // parsing: <!--$1-->
+                if (::pltxt2htm::details::is_prefix_match<ndebug, u8'-', u8'-'>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2))) {
+                    // Find the closing -->
+                    ::std::size_t comment_end{current_index + 4}; // Position after <!--
+                    ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast{};
+
+                    for (; comment_end < pltext_size; ++comment_end) {
+                        if (::pltxt2htm::details::is_prefix_match<ndebug, u8'-', u8'-', u8'>'>(::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, comment_end))) {
+                            break;
+                        }
+                        subast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>(::pltxt2htm::details::u8string_view_index<ndebug>(pltext, comment_end)));
+                    }
+
+                        current_index = comment_end + 2; // Point to '>'
+                        result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Note>(::std::move(subast)));
+                        continue;
+                } else {
+                    result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::LessThan>{});
+                    continue;
+                }
+            }
+
             case u8'/': {
                 switch (call_stack.top()->nested_tag_type) {
                 case ::pltxt2htm::NodeType::pl_color: {
@@ -1273,6 +1297,9 @@ restart:
                         continue;
                     }
                 }
+                case ::pltxt2htm::NodeType::html_note: {
+                    ::exception::unreachable<ndebug>();
+                }
                 default:
                     result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::LessThan>{});
                     continue;
@@ -1461,6 +1488,9 @@ restart:
             case ::pltxt2htm::NodeType::html_h1: {
                 superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H1>(::std::move(subast)));
                 break;
+            }
+            case ::pltxt2htm::NodeType::html_note: {
+                ::exception::unreachable<ndebug>();
             }
             case ::pltxt2htm::NodeType::html_h2: {
                 superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::H2>(::std::move(subast)));

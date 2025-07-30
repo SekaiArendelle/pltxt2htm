@@ -437,6 +437,9 @@ restart:
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
             break;
         }
+        case ::pltxt2htm::NodeType::html_note: {
+            break;
+        }
         case ::pltxt2htm::NodeType::md_escape_backslash: {
             result.push_back(u8'\\');
             break;

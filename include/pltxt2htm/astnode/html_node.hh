@@ -357,4 +357,28 @@ public:
     constexpr ::pltxt2htm::Hr& operator=(::pltxt2htm::Hr&& other) noexcept = delete;
 };
 
+/**
+ * @brief Represents HTML comment `<!-- -->`.
+ */
+class Note : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr Note() noexcept = delete;
+
+    constexpr Note(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_note, ::std::move(subast)} {
+    }
+
+    constexpr Note(::pltxt2htm::Note const&) noexcept = default;
+
+    constexpr Note(::pltxt2htm::Note&& other) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_note, ::std::move(other.subast_)} {
+    }
+
+    constexpr ~Note() noexcept = default;
+
+    constexpr ::pltxt2htm::Note& operator=(::pltxt2htm::Note const&) noexcept = delete;
+
+    constexpr ::pltxt2htm::Note& operator=(::pltxt2htm::Note&&) noexcept = delete;
+};
+
 } // namespace pltxt2htm
