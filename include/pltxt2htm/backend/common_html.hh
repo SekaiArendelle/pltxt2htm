@@ -102,6 +102,10 @@ restart:
         }
         case ::pltxt2htm::NodeType::pl_b: {
             auto b = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            if (b->get_subast().empty()) {
+                // Optimization: if the tag is empty, we can skip it
+                break;
+            }
             auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
             bool const is_not_same_tag = nested_tag_type != ::pltxt2htm::NodeType::pl_b;
             call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
@@ -115,6 +119,10 @@ restart:
         }
         case ::pltxt2htm::NodeType::pl_i: {
             auto i = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            if (i->get_subast().empty()) {
+                // Optimization: if the tag is empty, we can skip it
+                break;
+            }
             auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
             bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::pl_i};
             call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
@@ -131,6 +139,10 @@ restart:
         case ::pltxt2htm::NodeType::pl_a: {
             // <a> and <color> is the same tag&struct in fact
             auto color = reinterpret_cast<::pltxt2htm::Color const*>(node.release_imul());
+            if (color->get_subast().empty()) {
+                // Optimization: if the tag is empty, we can skip it
+                break;
+            }
             {
                 // <color=red><color=blue>text</color></color> can be optimized
                 auto&& subast = color->get_subast();
@@ -279,6 +291,10 @@ restart:
         }
         default: {
             auto a_paired_tag = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            if (a_paired_tag->get_subast().empty()) {
+                // Optimization: if the tag is empty, we can skip it
+                break;
+            }
             call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
                 a_paired_tag->get_subast(), ::pltxt2htm::NodeType::base, false, 0));
             ++current_index;

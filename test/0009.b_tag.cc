@@ -27,5 +27,10 @@ int main() noexcept {
     auto answer6 = ::fast_io::u8string_view{u8""};
     ::exception::assert_true(html6 == answer6);
 
+    // Optimization example: empty tag
+    auto html7 = ::pltxt2htm::pltxt2advanced_html(u8"t<b></b>t", u8"localhost");
+    auto answer7 = ::fast_io::u8string_view{u8"tt"};
+    ::exception::assert_true(html7 == answer7);
+
     return 0;
 }

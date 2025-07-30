@@ -107,6 +107,10 @@ restart:
         case ::pltxt2htm::NodeType::pl_a: {
             // <a> and <color> is the same tag&struct in fact
             auto color = reinterpret_cast<::pltxt2htm::Color const*>(node.release_imul());
+            if (color->get_subast().empty()) {
+                // Optimization: if the tag is empty, we can skip it
+                break;
+            }
             {
                 // <color=red><color=blue>text</color></color> can be optimized
                 auto&& subast = color->get_subast();
@@ -142,6 +146,10 @@ restart:
         }
         case ::pltxt2htm::NodeType::pl_experiment: {
             auto experiment = reinterpret_cast<::pltxt2htm::Experiment const*>(node.release_imul());
+            if (experiment->get_subast().empty()) {
+                // Optimization: if the tag is empty, we can skip it
+                break;
+            }
             {
                 auto&& subast = experiment->get_subast();
                 if (subast.size() == 1) {
@@ -176,6 +184,10 @@ restart:
         }
         case ::pltxt2htm::NodeType::pl_discussion: {
             auto discussion = reinterpret_cast<::pltxt2htm::Discussion const*>(node.release_imul());
+            if (discussion->get_subast().empty()) {
+                // Optimization: if the tag is empty, we can skip it
+                break;
+            }
             {
                 auto&& subast = discussion->get_subast();
                 if (subast.size() == 1) {
@@ -210,6 +222,10 @@ restart:
         }
         case ::pltxt2htm::NodeType::pl_user: {
             auto user = reinterpret_cast<::pltxt2htm::User const*>(node.release_imul());
+            if (user->get_subast().empty()) {
+                // Optimization: if the tag is empty, we can skip it
+                break;
+            }
             {
                 auto&& subast = user->get_subast();
                 if (subast.size() == 1) {
@@ -245,6 +261,10 @@ restart:
         }
         case ::pltxt2htm::NodeType::pl_size: {
             auto size = reinterpret_cast<::pltxt2htm::Size const*>(node.release_imul());
+            if (size->get_subast().empty()) {
+                // Optimization: if the tag is empty, we can skip it
+                break;
+            }
             {
                 auto&& subast = size->get_subast();
                 if (subast.size() == 1) {
@@ -278,6 +298,11 @@ restart:
         }
         case ::pltxt2htm::NodeType::pl_b: {
             auto b = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            if (b->get_subast().empty()) {
+                // e.g. <b></b>
+                // Which can be optimized(ignored)
+                break;
+            }
             auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
             bool const is_not_same_tag = nested_tag_type != ::pltxt2htm::NodeType::pl_b;
             call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
@@ -291,6 +316,11 @@ restart:
         }
         case ::pltxt2htm::NodeType::pl_i: {
             auto i = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            if (i->get_subast().empty()) {
+                // e.g. <i></i>
+                // Which can be optimized(ignored)
+                break;
+            }
             auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
             bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::pl_i};
             call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
@@ -304,6 +334,11 @@ restart:
         }
         case ::pltxt2htm::NodeType::html_p: {
             auto p = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            if (p->get_subast().empty()) {
+                // e.g. <p></p>
+                // Which can be optimized(ignored)
+                break;
+            }
             auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
             bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_p};
             call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
@@ -325,8 +360,8 @@ restart:
         case ::pltxt2htm::NodeType::html_h1:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_atx_h1: {
-            // TODO # <h1>abstract richtext</h1>
             auto h1 = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            // NOTE: Empty heading tag can NOT be ignored
             auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
             bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_h1 &&
                                        nested_tag_type != ::pltxt2htm::NodeType::md_atx_h1};
@@ -343,6 +378,7 @@ restart:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_atx_h2: {
             auto h2 = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            // NOTE: Empty heading tag can NOT be ignored
             auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
             bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_h2 &&
                                        nested_tag_type != ::pltxt2htm::NodeType::md_atx_h2};
@@ -359,6 +395,7 @@ restart:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_atx_h3: {
             auto h3 = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            // NOTE: Empty heading tag can NOT be ignored
             auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
             bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_h3 &&
                                        nested_tag_type != ::pltxt2htm::NodeType::md_atx_h3};
@@ -375,6 +412,7 @@ restart:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_atx_h4: {
             auto h4 = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            // NOTE: Empty heading tag can NOT be ignored
             auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
             bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_h4 &&
                                        nested_tag_type != ::pltxt2htm::NodeType::md_atx_h4};
@@ -391,6 +429,7 @@ restart:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_atx_h5: {
             auto h5 = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            // NOTE: Empty heading tag can NOT be ignored
             auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
             bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_h5 &&
                                        nested_tag_type != ::pltxt2htm::NodeType::md_atx_h5};
@@ -407,6 +446,7 @@ restart:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_atx_h6: {
             auto h6 = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            // NOTE: Empty heading tag can NOT be ignored
             auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
             bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_h6 &&
                                        nested_tag_type != ::pltxt2htm::NodeType::md_atx_h6};
@@ -421,6 +461,9 @@ restart:
         }
         case ::pltxt2htm::NodeType::html_del: {
             auto del = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            if (del->get_subast().empty()) {
+                break;
+            }
             auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
             bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_del};
             call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(

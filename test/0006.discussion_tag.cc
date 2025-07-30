@@ -66,5 +66,9 @@ int main() noexcept {
         u8"href=\"localhost:5173/ExperimentSummary/Discussion/123\" internal>L</a>ab</a>"};
     ::exception::assert_true(html10 == answer10);
 
+    auto html11 = ::pltxt2htm::pltxt2advanced_html(u8"t<discussion=642cf37a494746375aae306a></discussion>t", u8"localhost:5173");
+    auto answer11 = ::fast_io::u8string_view{u8"tt"};
+    ::exception::assert_true(html11 == answer11);
+
     return 0;
 }

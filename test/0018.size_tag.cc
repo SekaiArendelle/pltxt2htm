@@ -35,4 +35,10 @@ int main() noexcept {
     auto html8 = ::pltxt2htm::pltxt2advanced_html(u8"<size=10>hello<size=10>world</size></size>", u8"localhost");
     auto answer8 = ::fast_io::u8string_view{u8"<span style=\"font-size:5px\">helloworld</span>"};
     ::exception::assert_true(html8 == answer8);
+
+    auto html9 = ::pltxt2htm::pltxt2advanced_html(u8"t<size=10></size>t", u8"localhost:5173");
+    auto answer9 = ::fast_io::u8string_view{u8"tt"};
+    ::exception::assert_true(html9 == answer9);
+
+    return 0;
 }
