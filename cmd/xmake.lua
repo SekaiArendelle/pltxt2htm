@@ -29,10 +29,10 @@ target("pltxt2htm", function()
             end
         end
 
-        if is_mode("release") and path.basename(toolchains) == "clang++"
+        if is_mode("release") and (path.basename(toolchains) == "clang++"
                 or path.basename(toolchains) == "clang"
                 or path.basename(toolchains) == "gcc"
-                or path.basename(toolchains) == "g++" then
+                or path.basename(toolchains) == "g++") then
             target:add("cxxflags", "-fno-rtti")
             target:add("cxxflags", "-fno-unwind-tables")
             target:add("cxxflags", "-fno-asynchronous-unwind-tables")
@@ -74,10 +74,5 @@ target("pltxt2htm", function()
         end
         os.cp(target:targetfile(), install_dir)
         print("install to " .. path.join(target:scriptdir(), install_dir))
-        if infer_out_dir then
-            import("utils.archive")
-            archive.archive(install_dir .. ".zip", install_dir)
-            print("archive to \"" .. install_dir .. ".zip\"")
-        end
     end)
 end)

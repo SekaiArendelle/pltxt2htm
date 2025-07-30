@@ -42,10 +42,5 @@ target("pltxt2htm", function()
             os.cp(a_file, install_dir)
         end
         print("install to \"" .. path.join(target:scriptdir(), install_dir) .. "\"")
-        if infer_out_dir then
-            import("utils.archive")
-            archive.archive(install_dir .. ".zip", install_dir)
-            print("archive to \"" .. install_dir .. ".zip\"")
-        end
     end)
 end)
