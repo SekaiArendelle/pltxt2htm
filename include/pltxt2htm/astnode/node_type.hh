@@ -29,6 +29,8 @@ enum class NodeType : ::std::uint_least32_t {
     less_than,
     // >
     greater_than,
+    // \t
+    tab,
 
     // Quantum-Physics's <color> tag
     pl_color,

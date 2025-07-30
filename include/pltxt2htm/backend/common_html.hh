@@ -88,6 +88,13 @@ restart:
             result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
             break;
         }
+        case ::pltxt2htm::NodeType::tab: {
+            auto escape_str =
+                ::fast_io::array{u8'&', u8'n', u8'b', u8's', u8'p', u8';', u8'&', u8'n', u8'b', u8's', u8'p', u8';',
+                                 u8'&', u8'n', u8'b', u8's', u8'p', u8';', u8'&', u8'n', u8'b', u8's', u8'p', u8';'};
+            result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
+            break;
+        }
         case ::pltxt2htm::NodeType::line_break:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_br: {

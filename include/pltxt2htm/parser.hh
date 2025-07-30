@@ -301,6 +301,9 @@ constexpr auto switch_md_atx_header(
     }
 }
 
+/**
+ * @brief Switch to a markdown punctuation character.
+ */
 constexpr ::exception::optional<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> switch_escape_char(
     char8_t u8char) noexcept {
     switch (u8char) {
@@ -559,6 +562,9 @@ restart:
             continue;
         } else if (chr == u8'>') {
             result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::GreaterThan>{});
+            continue;
+        } else if (chr == u8'\t') {
+            result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Tab>{});
             continue;
         } else if (chr == u8'\\') {
             if (current_index + 1 == pltext_size) {

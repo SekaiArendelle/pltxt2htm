@@ -86,6 +86,22 @@ public:
 };
 
 /**
+ * @brief Represents `\t`
+ */
+class Tab : public ::pltxt2htm::PlTxtNode {
+public:
+    constexpr Tab() noexcept
+        : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::tab} {
+    }
+
+    constexpr Tab(::pltxt2htm::Tab const& other) noexcept = default;
+    constexpr Tab(::pltxt2htm::Tab&& other) noexcept = default;
+    constexpr ~Tab() noexcept = default;
+    constexpr ::pltxt2htm::Tab& operator=(::pltxt2htm::Tab const& other) noexcept = delete;
+    constexpr ::pltxt2htm::Tab& operator=(::pltxt2htm::Tab&& other) noexcept = delete;
+};
+
+/**
  * @brief Represents `&`.
  */
 class Ampersand : public ::pltxt2htm::PlTxtNode {

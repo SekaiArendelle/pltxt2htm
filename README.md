@@ -90,6 +90,7 @@ markdown extension based on [commonmark](https://spec.commonmark.org/0.31.2/)
   - [commonmark example 69 ~ 76](https://spec.commonmark.org/0.31.2/#example-69) does not support
 * MarkDown escape characters are supported
 * [Indent code block](https://spec.commonmark.org/0.31.2/#indented-code-blocks) does not support because I hate it.
+* Markdown escape characters (ASCII punctuation character) are supported
 
 > Note: undocumented/untested features is undefined behavior
 
