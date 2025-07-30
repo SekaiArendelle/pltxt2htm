@@ -19,7 +19,7 @@ lcov-report/
 *.tar
 *.zip
 
-*.ignore.*
+*.ignore*
 
 *.lnk
 

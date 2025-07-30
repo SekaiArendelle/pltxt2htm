@@ -8,12 +8,7 @@
 #include <fast_io/fast_io.h>
 #include <pltxt2htm/pltxt2htm.hh>
 
-enum class TargetType : ::std::uint_least32_t {
-    indeterminate = 0,
-    advanced_html,
-    common_html,
-    fixedadv_html
-};
+enum class TargetType : ::std::uint_least32_t { indeterminate = 0, advanced_html, common_html, fixedadv_html };
 
 constexpr ::fast_io::u8string_view usage{
     u8R"(Usage:
@@ -23,6 +18,8 @@ constexpr ::fast_io::u8string_view usage{
     echo "example" | pltxt2htm --target common_html -o <output file>
     echo "example" | pltxt2htm --target advanced_html --host <host name>
     echo "example" | pltxt2htm --target advanced_html --host <host name> -o <output file>
+    echo "example" | pltxt2htm --target fixedadv_html --host <host name>
+    echo "example" | pltxt2htm --target fixedadv_html --host <host name> -o <output file>
 )"};
 
 int main(int argc, char const* const* const argv)
@@ -45,13 +42,18 @@ int main(int argc, char const* const* const argv)
 #else
             "disable\n"
 #endif
-            "build mode: "
+            "* build mode: "
 #ifdef NDEBUG
             "release\n"
 #else
             "debug\n"
 #endif
-            // TODO get install path
+            "* build time: " __TIMESTAMP__
+            "\n"
+            "* compiler: " __VERSION__ "\n"
+#if __has_include("commit_hash.ignore")
+    #include "commit_hash.ignore"
+#endif
         );
         return 0;
     }
@@ -128,6 +130,8 @@ int main(int argc, char const* const* const argv)
     }
 
     switch (target_type) {
+    case ::TargetType::fixedadv_html:
+        [[fallthrough]];
     case ::TargetType::advanced_html: {
         if (host == nullptr) [[unlikely]] {
             ::fast_io::perrln("** You must specify host name with `--host`");
@@ -136,8 +140,6 @@ int main(int argc, char const* const* const argv)
         }
         break;
     }
-    case ::TargetType::fixedadv_html:
-        [[fallthrough]];
     case ::TargetType::common_html: {
         if (host != nullptr) [[unlikely]] {
             ::fast_io::perrln("** You can not specify host name with `--host` when `--target` is common_html");

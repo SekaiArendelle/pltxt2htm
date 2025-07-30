@@ -128,7 +128,7 @@ static auto methods_ = ::fast_io::array{
     ::PyMethodDef{"advanced_parser", reinterpret_cast<PyCFunction>(::advanced_parser), METH_VARARGS | METH_KEYWORDS,
                   nullptr},
     ::PyMethodDef{"fixedadv_parser", reinterpret_cast<PyCFunction>(::fixedadv_parser), METH_VARARGS | METH_KEYWORDS,
-                    nullptr},
+                  nullptr},
     ::PyMethodDef{nullptr, nullptr, 0, nullptr}};
 
 static ::PyModuleDef pltxt2htm_py_module = {

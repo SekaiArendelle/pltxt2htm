@@ -40,6 +40,22 @@ target("pltxt2htm", function()
         end
     end)
 
+    before_build(function (target)
+        git_commit_hash = os.iorunv("git", {"rev-parse", "HEAD"})
+        local file = io.open("$(projectdir)/commit_hash.ignore", "w")
+        if file then
+            file:write("\"* build commit: ", git_commit_hash:sub(1, -2), "\\n\"")
+            file:close()
+        end
+    end)
+
+    after_build(function (target)
+        if os.exists("$(projectdir)/commit_hash.ignore")
+                and os.isfile("$(projectdir)/commit_hash.ignore") then
+            os.rm("$(projectdir)/commit_hash.ignore")
+        end
+    end)
+
     on_install(function (target)
         import("utility.utility", {rootdir = target:scriptdir() .. "/../xmake"})
         local toolchain = get_config("toolchain")

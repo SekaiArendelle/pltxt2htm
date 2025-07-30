@@ -47,6 +47,7 @@ And I strongly suggest you to add `-O2`, `-fno-ident`, `-fno-exceptions`, `-fno-
   - All the AST node is exported in C++ API (class derived from `pltxt2htm::PlTxtNode`)
 * `pltxt2htm::pltxt2advanced_html`: Render for Experiment's introduction text, all Quantum-Physics's Tag, minor HTML tag, most of the markdown and latex syntax is supported.
   - only exported in C++ API (include/pltxt2htm/pltxt2htm.hh)
+* `pltxt2htm::pltxt2fixedadv_html`: Does not escaping `<` to `&lt;`, and the rest is the same as `pltxt2htm::pltxt2advanced_html`
 * `pltxt2htm::advanced_parser`: C-Style pointer interface wrapper for pltxt2advanced_html
   - in include/pltxt2htm/pltxt2htm.h
   - Python API: `pltxt2htm.advanced_parser(text: str, host: str) -> str`
@@ -57,6 +58,7 @@ And I strongly suggest you to add `-O2`, `-fno-ident`, `-fno-exceptions`, `-fno-
   - in include/pltxt2htm/pltxt2htm.h
   - Python API: `pltxt2htm.common_parser(text: str) -> str`
   - WASM API: `_common_parser(text: string) -> string`
+* `pltxt2htm::fixedadv_parser`: C-Style pointer interface wrapper for pltxt2fixedadv_html
 * version
   - C++ API: `pltxt2htm::version::(major|minor|patch)`: Get version of pltxt2htm
   - Python API: `pltxt2htm.__version__`
