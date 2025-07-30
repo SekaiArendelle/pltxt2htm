@@ -62,8 +62,7 @@ int main() noexcept {
     ::exception::assert_true(html10 == answer10);
 
     // Optimization example: empty tag
-    auto html11 = ::pltxt2htm::pltxt2advanced_html(
-        u8"t<user=642cf37a494746375aae306a></user>t", u8"localhost:5173");
+    auto html11 = ::pltxt2htm::pltxt2advanced_html(u8"t<user=642cf37a494746375aae306a></user>t", u8"localhost:5173");
     auto answer11 = ::fast_io::u8string_view{u8"tt"};
     ::exception::assert_true(html11 == answer11);
 

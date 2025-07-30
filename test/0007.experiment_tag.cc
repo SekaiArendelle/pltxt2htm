@@ -72,7 +72,8 @@ int main() noexcept {
         u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/642cf37a494746375aae306a\" internal>physicsLab</a>"};
     ::exception::assert_true(html11 == answer11);
 
-    auto html12 = ::pltxt2htm::pltxt2advanced_html(u8"t<experiment=642cf37a494746375aae306a></experiment>t", u8"localhost:5173");
+    auto html12 =
+        ::pltxt2htm::pltxt2advanced_html(u8"t<experiment=642cf37a494746375aae306a></experiment>t", u8"localhost:5173");
     auto answer12 = ::fast_io::u8string_view{u8"tt"};
     ::exception::assert_true(html12 == answer12);
 

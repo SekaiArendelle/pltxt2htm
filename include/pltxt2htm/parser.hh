@@ -113,11 +113,15 @@ constexpr auto try_parse_bare_tag(::fast_io::u8string_view pltext)
 /**
  * @brief parsing `Tag=$1>`
  * @param[out] substr: str of $1
+ * @param func: Check whether the character append to substr is valid
  */
-template<bool ndebug, char8_t... prefix_str>
+template<bool ndebug, char8_t... prefix_str, typename Func>
+    requires requires(Func&& func, char8_t chr) {
+        { func(chr) } -> ::std::same_as<bool>;
+    }
 [[nodiscard]]
 constexpr bool try_parse_equal_sign_tag(::fast_io::u8string_view pltext, ::std::size_t& extern_index,
-                                        ::fast_io::u8string& substr)
+                                        ::fast_io::u8string& substr, Func&& func)
 #if __cpp_exceptions < 199711L
     noexcept
 #endif
@@ -146,8 +150,10 @@ constexpr bool try_parse_equal_sign_tag(::fast_io::u8string_view pltext, ::std::
                     return false;
                 }
             }
-        } else {
+        } else if (func(forward_chr)) {
             substr.push_back(forward_chr);
+        } else {
+            return false;
         }
     }
     return false;
@@ -683,7 +689,11 @@ restart:
                 // parsing: <color=$1>$2</color>
                 ::fast_io::u8string color;
                 if (::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, u8'o', u8'l', u8'o', u8'r'>(
-                        u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len, color)) {
+                        u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len, color,
+                        [](char8_t chr) static constexpr noexcept {
+                            return (u8'0' <= chr && chr <= u8'9') || (u8'a' <= chr && chr <= u8'z') ||
+                                   (u8'A' <= chr && chr <= u8'Z') || chr == u8'#';
+                        })) {
                     current_index += tag_len + 3;
                     // parsing start tag <color> successed
                     if (current_index < pltext_size) {
@@ -728,7 +738,10 @@ restart:
                 ::fast_io::u8string id{};
                 if (::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, u8'i', u8's', u8'c', u8'u', u8's', u8's',
                                                                    u8'i', u8'o', u8'n'>(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len, id)) {
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len, id,
+                        [](char8_t chr) static constexpr noexcept {
+                            return (u8'a' <= chr && chr <= u8'z') || (u8'0' <= chr && chr <= u8'9');
+                        })) {
                     current_index += tag_len + 3;
                     if (current_index < pltext_size) {
                         // if forward_index >= pltext_size, it means that a not closed tag in the end of the text
@@ -757,7 +770,10 @@ restart:
                 ::fast_io::u8string id{};
                 if (::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, u8'x', u8'p', u8'e', u8'r', u8'i', u8'm',
                                                                    u8'e', u8'n', u8't'>(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len, id)) {
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len, id,
+                        [](char8_t chr) static constexpr noexcept {
+                            return (u8'a' <= chr && chr <= u8'z') || (u8'0' <= chr && chr <= u8'9');
+                        })) {
                     current_index += tag_len + 3;
                     if (current_index < pltext_size) {
                         // if forward_index >= pltext_size, it means that a not closed tag in the end of the text
@@ -930,11 +946,11 @@ restart:
 #endif
                 ::fast_io::u8string id_{};
                 if (::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, u8'i', u8'z', u8'e'>(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len, id_)) {
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len, id_,
+                        [](char8_t chr) static constexpr noexcept { return u8'0' <= chr && chr <= u8'9'; })) {
                     auto id{::pltxt2htm::details::u8str2size_t(::fast_io::mnp::os_c_str(id_))};
                     if (!id.has_value()) {
-                        result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::LessThan>{});
-                        continue;
+                        ::exception::unreachable<ndebug>();
                     }
 
                     current_index += tag_len + 3;
@@ -964,7 +980,10 @@ restart:
 #endif
                 ::fast_io::u8string id{};
                 if (::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, u8's', u8'e', u8'r'>(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len, id)) {
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len, id,
+                        [](char8_t chr) static constexpr noexcept {
+                            return (u8'a' <= chr && chr <= u8'z') || (u8'0' <= chr && chr <= u8'9');
+                        })) {
                     current_index += tag_len + 3;
                     if (current_index < pltext_size) {
                         // if forward_index >= pltext_size, it means that a not closed tag in the end of the text
@@ -990,15 +1009,17 @@ restart:
                     ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast{};
 
                     for (; comment_end < pltext_size; ++comment_end) {
-                        if (::pltxt2htm::details::is_prefix_match<ndebug, u8'-', u8'-', u8'>'>(::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, comment_end))) {
+                        if (::pltxt2htm::details::is_prefix_match<ndebug, u8'-', u8'-', u8'>'>(
+                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, comment_end))) {
                             break;
                         }
-                        subast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>(::pltxt2htm::details::u8string_view_index<ndebug>(pltext, comment_end)));
+                        subast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>(
+                            ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, comment_end)));
                     }
 
-                        current_index = comment_end + 2; // Point to '>'
-                        result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Note>(::std::move(subast)));
-                        continue;
+                    current_index = comment_end + 2; // Point to '>'
+                    result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Note>(::std::move(subast)));
+                    continue;
                 } else {
                     result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::LessThan>{});
                     continue;
