@@ -7,7 +7,7 @@ namespace pltxt2htm::version {
 // For breaking change
 constexpr ::std::size_t major{0};
 // For new features without breaking change
-constexpr ::std::size_t minor{1};
+constexpr ::std::size_t minor{2};
 // For bug fixes without new features
 constexpr ::std::size_t patch{0};
 
