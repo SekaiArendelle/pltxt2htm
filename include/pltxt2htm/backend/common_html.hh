@@ -113,7 +113,7 @@ restart:
                 b->get_subast(), ::pltxt2htm::NodeType::pl_b, is_not_same_tag, 0));
             ++current_index;
             if (is_not_same_tag) {
-                auto start_tag = ::fast_io::array{u8'<', u8'b', u8'>'};
+                auto start_tag = ::fast_io::array{u8'<', u8's', u8't', u8'r', u8'o', u8'n', u8'g', u8'>'};
                 result.append(::fast_io::u8string_view{start_tag.data(), start_tag.size()});
             }
             goto restart;
@@ -313,7 +313,7 @@ restart:
             switch (nested_tag_type) {
             case ::pltxt2htm::NodeType::pl_b: {
                 if (is_not_same_tag) {
-                    auto close_tag = ::fast_io::array{u8'<', u8'/', u8'b', u8'>'};
+                    auto close_tag = ::fast_io::array{u8'<', u8'/', u8's', u8't', u8'r', u8'o', u8'n', u8'g', u8'>'};
                     result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
                 }
                 goto restart;

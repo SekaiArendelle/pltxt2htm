@@ -16,7 +16,7 @@ int main() noexcept {
     ::exception::assert_true(html3 == answer3);
 
     auto html4 = ::pltxt2htm::pltxt2common_html(u8"<b>test");
-    auto answer4 = ::fast_io::u8string_view{u8"<b>test</b>"};
+    auto answer4 = ::fast_io::u8string_view{u8"<strong>test</strong>"};
     ::exception::assert_true(html4 == answer4);
 
     auto html5 = ::pltxt2htm::pltxt2common_html(u8"<i>test");
@@ -28,7 +28,7 @@ int main() noexcept {
     ::exception::assert_true(html6 == answer6);
 
     auto html7 = ::pltxt2htm::pltxt2common_html(u8"t<b>ex</b>t");
-    auto answer7 = ::fast_io::u8string_view{u8"t<b>ex</b>t"};
+    auto answer7 = ::fast_io::u8string_view{u8"t<strong>ex</strong>t"};
     ::exception::assert_true(html7 == answer7);
 
     return 0;
