@@ -480,6 +480,22 @@ restart:
             }
             goto restart;
         }
+        case ::pltxt2htm::NodeType::html_em: {
+            auto em = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            if (em->get_subast().empty()) {
+                break;
+            }
+            auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
+            bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_em};
+            call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
+                em->get_subast(), ::pltxt2htm::NodeType::html_em, is_not_same_tag, 0));
+            ++current_index;
+            if (is_not_same_tag) {
+                auto start_tag = ::fast_io::array{u8'<', u8'e', u8'm', u8'>'};
+                result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            }
+            goto restart;
+        }
         case ::pltxt2htm::NodeType::html_hr: {
             auto start_tag = ::fast_io::array{u8'<', u8'h', u8'r', u8'>'};
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
@@ -718,6 +734,13 @@ restart:
             case ::pltxt2htm::NodeType::html_del: {
                 if (is_not_same_tag) {
                     auto close_tag = ::fast_io::array{u8'<', u8'/', u8'd', u8'e', u8'l', u8'>'};
+                    result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+                }
+                goto restart;
+            }
+            case ::pltxt2htm::NodeType::html_em: {
+                if (is_not_same_tag) {
+                    auto close_tag = ::fast_io::array{u8'<', u8'/', u8'e', u8'm', u8'>'};
                     result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
                 }
                 goto restart;

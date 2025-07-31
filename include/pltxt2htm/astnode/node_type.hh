@@ -67,6 +67,8 @@ enum class NodeType : ::std::uint_least32_t {
     html_hr,
     // html notes
     html_note,
+    // html <em> tag
+    html_em,
 
     // markdown headers
     md_atx_h1,
