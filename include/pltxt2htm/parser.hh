@@ -682,9 +682,9 @@ restart:
                 ::fast_io::u8string color;
                 if (::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, u8'o', u8'l', u8'o', u8'r'>(
                         u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len, color,
-                        [](char8_t chr) static constexpr noexcept {
-                            return (u8'0' <= chr && chr <= u8'9') || (u8'a' <= chr && chr <= u8'z') ||
-                                   (u8'A' <= chr && chr <= u8'Z') || chr == u8'#';
+                        [](char8_t u8chr) static constexpr noexcept {
+                            return (u8'0' <= u8chr && u8chr <= u8'9') || (u8'a' <= u8chr && u8chr <= u8'z') ||
+                                   (u8'A' <= u8chr && u8chr <= u8'Z') || u8chr == u8'#';
                         })) {
                     current_index += tag_len + 3;
                     // parsing start tag <color> successed
@@ -723,8 +723,8 @@ restart:
                 if (::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, u8'i', u8's', u8'c', u8'u', u8's', u8's',
                                                                    u8'i', u8'o', u8'n'>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len, id,
-                        [](char8_t chr) static constexpr noexcept {
-                            return (u8'a' <= chr && chr <= u8'z') || (u8'0' <= chr && chr <= u8'9');
+                        [](char8_t u8chr) static constexpr noexcept {
+                            return (u8'a' <= u8chr && u8chr <= u8'z') || (u8'0' <= u8chr && u8chr <= u8'9');
                         })) {
                     current_index += tag_len + 3;
                     call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::EqualSignTagContext>(
@@ -751,8 +751,8 @@ restart:
                 if (::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, u8'x', u8'p', u8'e', u8'r', u8'i', u8'm',
                                                                    u8'e', u8'n', u8't'>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len, id,
-                        [](char8_t chr) static constexpr noexcept {
-                            return (u8'a' <= chr && chr <= u8'z') || (u8'0' <= chr && chr <= u8'9');
+                        [](char8_t u8chr) static constexpr noexcept {
+                            return (u8'a' <= u8chr && u8chr <= u8'z') || (u8'0' <= u8chr && u8chr <= u8'9');
                         })) {
                     current_index += tag_len + 3;
                     call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::EqualSignTagContext>(
@@ -891,7 +891,7 @@ restart:
                 ::fast_io::u8string id_{};
                 if (::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, u8'i', u8'z', u8'e'>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len, id_,
-                        [](char8_t chr) static constexpr noexcept { return u8'0' <= chr && chr <= u8'9'; })) {
+                        [](char8_t u8chr) static constexpr noexcept { return u8'0' <= u8chr && u8chr <= u8'9'; })) {
                     auto id{::pltxt2htm::details::u8str2size_t(::fast_io::mnp::os_c_str(id_))};
                     if (!id.has_value()) {
                         ::exception::unreachable<ndebug>();
@@ -921,8 +921,8 @@ restart:
                 ::fast_io::u8string id{};
                 if (::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, u8's', u8'e', u8'r'>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), tag_len, id,
-                        [](char8_t chr) static constexpr noexcept {
-                            return (u8'a' <= chr && chr <= u8'z') || (u8'0' <= chr && chr <= u8'9');
+                        [](char8_t u8chr) static constexpr noexcept {
+                            return (u8'a' <= u8chr && u8chr <= u8'z') || (u8'0' <= u8chr && u8chr <= u8'9');
                         })) {
                     current_index += tag_len + 3;
                     call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::EqualSignTagContext>(
