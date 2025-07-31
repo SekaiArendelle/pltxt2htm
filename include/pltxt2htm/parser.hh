@@ -756,8 +756,8 @@ restart:
                         ::pltxt2htm::NodeType::pl_experiment, ::std::move(id)));
                     goto restart;
                 } else if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'm'>(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
-                    opt_tag_len.has_value()) {
+                               ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                           opt_tag_len.has_value()) {
                     current_index += opt_tag_len.template value<ndebug>() + 3;
                     call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),

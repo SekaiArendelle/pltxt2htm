@@ -4,23 +4,23 @@
 
 int main() noexcept {
     auto html1 = ::pltxt2htm::pltxt2advanced_html(u8"<i>text</i>", u8"localhost");
-    auto answer1 = ::fast_io::u8string_view{u8"<i>text</i>"};
+    auto answer1 = ::fast_io::u8string_view{u8"<em>text</em>"};
     ::exception::assert_true(html1 == answer1);
 
     auto html2 = ::pltxt2htm::pltxt2advanced_html(u8"<I    >text</I  >", u8"localhost");
-    auto answer2 = ::fast_io::u8string_view{u8"<i>text</i>"};
+    auto answer2 = ::fast_io::u8string_view{u8"<em>text</em>"};
     ::exception::assert_true(html2 == answer2);
 
     auto html3 = ::pltxt2htm::pltxt2advanced_html(u8"<i><color=red>text</color></i>", u8"localhost");
-    auto answer3 = ::fast_io::u8string_view{u8"<i><span style=\"color:red;\">text</span></i>"};
+    auto answer3 = ::fast_io::u8string_view{u8"<em><span style=\"color:red;\">text</span></em>"};
     ::exception::assert_true(html3 == answer3);
 
     auto html4 = ::pltxt2htm::pltxt2advanced_html(u8"<i><color=red>text</i></color>", u8"localhost");
-    auto answer4 = ::fast_io::u8string_view{u8"<i><span style=\"color:red;\">text&lt;/i&gt;</span></i>"};
+    auto answer4 = ::fast_io::u8string_view{u8"<em><span style=\"color:red;\">text&lt;/i&gt;</span></em>"};
     ::exception::assert_true(html4 == answer4);
 
     auto html5 = ::pltxt2htm::pltxt2advanced_html(u8"<i>text<i>text</i></i>", u8"localhost");
-    auto answer5 = ::fast_io::u8string_view{u8"<i>texttext</i>"};
+    auto answer5 = ::fast_io::u8string_view{u8"<em>texttext</em>"};
     ::exception::assert_true(html5 == answer5);
 
     auto html6 = ::pltxt2htm::pltxt2advanced_html(u8"<i>", u8"localhost");

@@ -20,7 +20,7 @@ int main() noexcept {
     ::exception::assert_true(html4 == answer4);
 
     auto html5 = ::pltxt2htm::pltxt2common_html(u8"<i>test");
-    auto answer5 = ::fast_io::u8string_view{u8"<i>test</i>"};
+    auto answer5 = ::fast_io::u8string_view{u8"<em>test</em>"};
     ::exception::assert_true(html5 == answer5);
 
     auto html6 = ::pltxt2htm::pltxt2common_html(u8"<color=red><Color=#66CcFf>text</color></color>");

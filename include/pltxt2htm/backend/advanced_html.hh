@@ -320,24 +320,6 @@ restart:
             }
             goto restart;
         }
-        case ::pltxt2htm::NodeType::pl_i: {
-            auto i = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
-            if (i->get_subast().empty()) {
-                // e.g. <i></i>
-                // Which can be optimized(ignored)
-                break;
-            }
-            auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
-            bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::pl_i};
-            call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
-                i->get_subast(), ::pltxt2htm::NodeType::pl_i, is_not_same_tag, 0));
-            ++current_index;
-            if (is_not_same_tag) {
-                auto start_tag = ::fast_io::array{u8'<', u8'i', u8'>'};
-                result.append(::fast_io::u8string_view{start_tag.data(), start_tag.size()});
-            }
-            goto restart;
-        }
         case ::pltxt2htm::NodeType::html_p: {
             auto p = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             if (p->get_subast().empty()) {
@@ -481,6 +463,8 @@ restart:
             }
             goto restart;
         }
+        case ::pltxt2htm::NodeType::pl_i:
+            [[fallthrough]];
         case ::pltxt2htm::NodeType::html_em: {
             auto em = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             if (em->get_subast().empty()) {
@@ -676,9 +660,11 @@ restart:
                 }
                 goto restart;
             }
+            case ::pltxt2htm::NodeType::html_em:
+                [[fallthrough]];
             case ::pltxt2htm::NodeType::pl_i: {
                 if (is_not_same_tag) {
-                    auto close_tag = ::fast_io::array{u8'<', u8'/', u8'i', u8'>'};
+                    auto close_tag = ::fast_io::array{u8'<', u8'/', u8'e', u8'm', u8'>'};
                     result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
                 }
                 goto restart;
@@ -735,13 +721,6 @@ restart:
             case ::pltxt2htm::NodeType::html_del: {
                 if (is_not_same_tag) {
                     auto close_tag = ::fast_io::array{u8'<', u8'/', u8'd', u8'e', u8'l', u8'>'};
-                    result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
-                }
-                goto restart;
-            }
-            case ::pltxt2htm::NodeType::html_em: {
-                if (is_not_same_tag) {
-                    auto close_tag = ::fast_io::array{u8'<', u8'/', u8'e', u8'm', u8'>'};
                     result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
                 }
                 goto restart;

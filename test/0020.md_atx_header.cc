@@ -95,11 +95,11 @@ int main() noexcept {
     ::exception::assert_true(html21 == answer21);
 
     auto html22 = ::pltxt2htm::pltxt2advanced_html(u8"# <i>test<br>text", u8"_");
-    auto answer22 = ::fast_io::u8string_view{u8"<h1><i>test</i></h1><br>text"};
+    auto answer22 = ::fast_io::u8string_view{u8"<h1><em>test</em></h1><br>text"};
     ::exception::assert_true(html22 == answer22);
 
     auto html23 = ::pltxt2htm::pltxt2advanced_html(u8"# <i>test\ntext", u8"_");
-    auto answer23 = ::fast_io::u8string_view{u8"<h1><i>test</i></h1><br>text"};
+    auto answer23 = ::fast_io::u8string_view{u8"<h1><em>test</em></h1><br>text"};
     ::exception::assert_true(html23 == answer23);
 
     auto html24 = ::pltxt2htm::pltxt2advanced_html(u8" ## #", u8"_");
