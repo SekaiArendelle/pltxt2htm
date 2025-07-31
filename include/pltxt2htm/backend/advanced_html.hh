@@ -302,6 +302,8 @@ restart:
             }
             goto restart;
         }
+        case ::pltxt2htm::NodeType::html_strong:
+            [[fallthrough]];
         case ::pltxt2htm::NodeType::pl_b: {
             auto b = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             if (b->get_subast().empty()) {
@@ -653,6 +655,8 @@ restart:
                 }
                 goto restart;
             }
+            case ::pltxt2htm::NodeType::html_strong:
+                [[fallthrough]];
             case ::pltxt2htm::NodeType::pl_b: {
                 if (is_not_same_tag) {
                     auto close_tag = ::fast_io::array{u8'<', u8'/', u8's', u8't', u8'r', u8'o', u8'n', u8'g', u8'>'};

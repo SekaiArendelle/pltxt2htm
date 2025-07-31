@@ -405,4 +405,28 @@ public:
     constexpr ::pltxt2htm::Em& operator=(::pltxt2htm::Em&&) noexcept = delete;
 };
 
+/**
+ * @brief Represents HTML `<strong>`.
+ */
+class Strong : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr Strong() noexcept = delete;
+
+    constexpr Strong(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_strong, ::std::move(subast)} {
+    }
+
+    constexpr Strong(::pltxt2htm::Strong const&) noexcept = default;
+
+    constexpr Strong(::pltxt2htm::Strong&& other) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_strong, ::std::move(other.subast_)} {
+    }
+
+    constexpr ~Strong() noexcept = default;
+
+    constexpr ::pltxt2htm::Strong& operator=(::pltxt2htm::Strong const&) noexcept = delete;
+
+    constexpr ::pltxt2htm::Strong& operator=(::pltxt2htm::Strong&&) noexcept = delete;
+};
+
 } // namespace pltxt2htm

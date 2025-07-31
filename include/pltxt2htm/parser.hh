@@ -897,6 +897,16 @@ restart:
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
                         ::pltxt2htm::NodeType::pl_size, id.template value<ndebug>()));
                     goto restart;
+                } else if (auto opt_tag_len =
+                               ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8't', u8'r', u8'o', u8'n', u8'g'>(
+                                   ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                           opt_tag_len.has_value()) {
+                    // HTML <strong> tag
+                    current_index += opt_tag_len.template value<ndebug>() + 3;
+                    call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                        ::pltxt2htm::NodeType::html_strong));
+                    goto restart;
                 } else {
                     result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::LessThan>{});
                     continue;
@@ -1267,6 +1277,23 @@ restart:
                         continue;
                     }
                 }
+                case ::pltxt2htm::NodeType::html_strong: {
+                    if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8's', u8't', u8'r', u8'o', u8'n', u8'g'>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                        opt_tag_len.has_value()) {
+                        // parsing end tag </strong> successed
+                        ::std::size_t const staged_index{current_index};
+                        ::pltxt2htm::Strong staged_node(::std::move(result));
+                        call_stack.pop();
+                        call_stack.top()->subast.push_back(
+                            ::pltxt2htm::details::HeapGuard<::pltxt2htm::Strong>(::std::move(staged_node)));
+                        call_stack.top()->current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
+                        goto restart;
+                    } else {
+                        result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::LessThan>{});
+                        continue;
+                    }
+                }
                 default:
                     result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::LessThan>{});
                     continue;
@@ -1440,6 +1467,8 @@ restart:
                 superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Size>(::std::move(subast), id));
                 break;
             }
+            case ::pltxt2htm::NodeType::html_strong:
+                [[fallthrough]];
             case ::pltxt2htm::NodeType::pl_b: {
                 superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::B>(::std::move(subast)));
                 break;
