@@ -1,5 +1,6 @@
 #pragma once
 
+#include <fast_io/fast_io_dsal/list.h>
 #include <fast_io/fast_io_dsal/array.h>
 #include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/vector.h>
@@ -27,7 +28,7 @@ constexpr auto ast2common_html(
     -> ::fast_io::u8string {
     ::fast_io::u8string result{};
     ::fast_io::stack<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBasicFrameContext>,
-                     ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBasicFrameContext>>>
+                     ::fast_io::list<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBasicFrameContext>>>
         call_stack{};
     call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
         ast_init, ::pltxt2htm::NodeType::base, false, 0));

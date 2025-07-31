@@ -4,6 +4,7 @@
     #include <ranges>
 #endif
 #include <cstddef>
+#include <fast_io/fast_io_dsal/list.h>
 #include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
@@ -507,7 +508,7 @@ template<bool ndebug>
 [[nodiscard]]
 constexpr auto parse_pltxt(
     ::fast_io::stack<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BasicFrameContext>,
-                     ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BasicFrameContext>>>&
+                     ::fast_io::list<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BasicFrameContext>>>&
         call_stack)
 #if __cpp_exceptions < 199711L
     noexcept
@@ -1541,9 +1542,9 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext)
     noexcept
 #endif
     -> ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> {
-    // fast_io::deque contains bug about RAII, use fast_io::vector instead
+    // fast_io::deque contains bug about RAII, use fast_io::list instead
     ::fast_io::stack<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BasicFrameContext>,
-                     ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BasicFrameContext>>>
+                     ::fast_io::list<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BasicFrameContext>>>
         call_stack{};
     ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> result{};
 
