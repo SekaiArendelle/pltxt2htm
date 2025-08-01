@@ -1,6 +1,7 @@
 # Use `pltxt2htm` in Programming language C
 
 This folder supply c style header-source style interface. (build source code to library and include [pltxt2htm.h](./pltxt2htm.h) in c project)
+
 Despite C++ interface also be exported by [pltxt2htm.h](./pltxt2htm.h) if eligible, I strongly recommend you to use [pltxt2htm.hh](../include/pltxt2htm/pltxt2htm.hh) unless you are facing build performance issue.
 
 ## build

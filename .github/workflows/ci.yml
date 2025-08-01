@@ -312,7 +312,7 @@ jobs:
           xmake f --toolchain=clang -m debug
           xmake build -v
 
-    aarch64-apple-darwin24-c-debug:
+  aarch64-apple-darwin24-c-debug:
     name: aarch64-apple-darwin24 (c/, debug mode)
     runs-on: macos-latest
 
