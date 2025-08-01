@@ -311,3 +311,25 @@ jobs:
         run: |
           xmake f --toolchain=clang -m debug
           xmake build -v
+
+  aarch64-apple-darwin24-c-debug:
+    name: aarch64-apple-darwin24 (c/, debug mode)
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install clang and xmake
+        run: |
+          brew update
+          brew install llvm lld xmake
+
+      - name: Set PATH for LLVM clang
+        run: echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
+
+      - name: Configure and build
+        working-directory: c
+        run: |
+          xmake config --toolchain=clang
+          xmake build -v
