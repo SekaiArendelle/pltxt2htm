@@ -10,7 +10,7 @@ This project aimed to provide a translater that compiles the Quantam-PhysicsLab'
 This project requires at least C++23, disables rtti and exceptions, use header-only style to supply api, has great cross platform ability and I strongly recommend you to use clang.
 
 # How to use?
-You can use `pltxt2htm` in [console](cmd/README.md), [browser](wasm/README.md) and [python](py/README.md).
+You can use `pltxt2htm` in [console](cmd/README.md), [browser](wasm/README.md), [python](py/README.md) and [c](c/README.md).
 
 C++ APIs is in [include/pltxt2htm](include/pltxt2htm/), here is a simple example:
 ```cpp

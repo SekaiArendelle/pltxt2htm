@@ -10,6 +10,7 @@ WASM_DIR = os.path.join(SCRIPT_DIR, "wasm")
 CMD_DIR = os.path.join(SCRIPT_DIR, "cmd")
 PY_DIR = os.path.join(SCRIPT_DIR, "py")
 FUZZING_DIR = os.path.join(SCRIPT_DIR, "fuzzing")
+C_DIR = os.path.join(SCRIPT_DIR, "c")
 
 def format_files_in_a_dir(dir: str) -> None:
     for root, dirs, files in os.walk(dir):
@@ -23,3 +24,4 @@ format_files_in_a_dir(WASM_DIR)
 format_files_in_a_dir(CMD_DIR)
 format_files_in_a_dir(PY_DIR)
 format_files_in_a_dir(FUZZING_DIR)
+format_files_in_a_dir(C_DIR)

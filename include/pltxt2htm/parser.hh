@@ -1278,8 +1278,9 @@ restart:
                     }
                 }
                 case ::pltxt2htm::NodeType::html_strong: {
-                    if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8's', u8't', u8'r', u8'o', u8'n', u8'g'>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                    if (auto opt_tag_len =
+                            ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8's', u8't', u8'r', u8'o', u8'n', u8'g'>(
+                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
                         // parsing end tag </strong> successed
                         ::std::size_t const staged_index{current_index};
