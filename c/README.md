@@ -36,6 +36,6 @@ gcc example.c -o example -L ./build/linux/x64/debug -lpltxt2htm_shared
 
 ```sh
 # Don't forget to `-lntdll` on windows/mingw
-gcc example.c -o example -L ./build/linux/x64/debug pltxt2htm_static
+gcc example.c -o example -L ./build/linux/x64/debug -lpltxt2htm_static
 ./example
 ```
