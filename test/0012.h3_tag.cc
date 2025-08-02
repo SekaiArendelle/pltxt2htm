@@ -1,4 +1,3 @@
-#include <fast_io/fast_io_dsal/string_view.h>
 #include "precompile.hh"
 
 int main() noexcept {
