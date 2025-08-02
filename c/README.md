@@ -19,11 +19,13 @@ shared library in libpltxt2htm_shared.so, static library in libpltxt2htm_static.
 ```c
 // example.c
 #include <stdio.h>
+#include <stdlib.h>
 #include "pltxt2htm.h"
 
 int main(void) {
     char const* html = advanced_parserd("<a>example</a>", "_");
     printf("%s\n", html);
+    free((void*)html);
 
     return 0;
 }
