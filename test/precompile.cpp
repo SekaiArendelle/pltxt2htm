@@ -1,6 +1,12 @@
+/**
+ * @file precompile.cpp
+ * @brief To improve build performance, we precompile the pltxt2htm.cpp file as static library
+ */
+
+#include <fast_io/fast_io_dsal/string.h>
+#include <fast_io/fast_io_dsal/string_view.h>
 #include <exception/exception.hh>
 #include <pltxt2htm/pltxt2htm.hh>
-#include "exception/exception.hh"
 
 namespace pltxt2htm_test {
 
