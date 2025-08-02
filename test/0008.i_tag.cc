@@ -1,39 +1,38 @@
 #include <fast_io/fast_io_dsal/string_view.h>
-#include <pltxt2htm/pltxt2htm.hh>
-#include <exception/exception.hh>
+#include "precompile.hh"
 
 int main() noexcept {
-    auto html1 = ::pltxt2htm::pltxt2advanced_html(u8"<i>text</i>", u8"localhost");
+    auto html1 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<i>text</i>");
     auto answer1 = ::fast_io::u8string_view{u8"<em>text</em>"};
-    ::exception::assert_true(html1 == answer1);
+    ::pltxt2htm_test::assert_true(html1 == answer1);
 
-    auto html2 = ::pltxt2htm::pltxt2advanced_html(u8"<I    >text</I  >", u8"localhost");
+    auto html2 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<I    >text</I  >");
     auto answer2 = ::fast_io::u8string_view{u8"<em>text</em>"};
-    ::exception::assert_true(html2 == answer2);
+    ::pltxt2htm_test::assert_true(html2 == answer2);
 
-    auto html3 = ::pltxt2htm::pltxt2advanced_html(u8"<i><color=red>text</color></i>", u8"localhost");
+    auto html3 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<i><color=red>text</color></i>");
     auto answer3 = ::fast_io::u8string_view{u8"<em><span style=\"color:red;\">text</span></em>"};
-    ::exception::assert_true(html3 == answer3);
+    ::pltxt2htm_test::assert_true(html3 == answer3);
 
-    auto html4 = ::pltxt2htm::pltxt2advanced_html(u8"<i><color=red>text</i></color>", u8"localhost");
+    auto html4 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<i><color=red>text</i></color>");
     auto answer4 = ::fast_io::u8string_view{u8"<em><span style=\"color:red;\">text&lt;/i&gt;</span></em>"};
-    ::exception::assert_true(html4 == answer4);
+    ::pltxt2htm_test::assert_true(html4 == answer4);
 
-    auto html5 = ::pltxt2htm::pltxt2advanced_html(u8"<i>text<i>text</i></i>", u8"localhost");
+    auto html5 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<i>text<i>text</i></i>");
     auto answer5 = ::fast_io::u8string_view{u8"<em>texttext</em>"};
-    ::exception::assert_true(html5 == answer5);
+    ::pltxt2htm_test::assert_true(html5 == answer5);
 
-    auto html6 = ::pltxt2htm::pltxt2advanced_html(u8"<i>", u8"localhost");
+    auto html6 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<i>");
     auto answer6 = ::fast_io::u8string_view{u8""};
-    ::exception::assert_true(html6 == answer6);
+    ::pltxt2htm_test::assert_true(html6 == answer6);
 
-    auto html7 = ::pltxt2htm::pltxt2advanced_html(u8"<i", u8"localhost");
+    auto html7 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<i");
     auto answer7 = ::fast_io::u8string_view{u8"&lt;i"};
-    ::exception::assert_true(html7 == answer7);
+    ::pltxt2htm_test::assert_true(html7 == answer7);
 
-    auto html8 = ::pltxt2htm::pltxt2advanced_html(u8"t<i></i>t", u8"localhost:5173");
+    auto html8 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"t<i></i>t");
     auto answer8 = ::fast_io::u8string_view{u8"tt"};
-    ::exception::assert_true(html8 == answer8);
+    ::pltxt2htm_test::assert_true(html8 == answer8);
 
     return 0;
 }

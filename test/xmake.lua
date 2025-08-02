@@ -5,9 +5,22 @@ set_defaultmode("debug")
 includes("../xmake/*.lua")
 set_languages("c++23")
 set_encodings("utf-8")
+add_includedirs("$(projectdir)/../include")
 
 -- requires g++ >= 14
 -- requires clang++ >= 20
+
+target("precompile", function()
+    set_kind("static")
+    set_symbols("debug")
+    -- add_includedirs("$(projectdir)/../include")
+    add_files("precompile.cpp")
+    set_warnings("all", "extra")
+    add_cxxflags("-Werror=return-type", {tool = {"gcc", "clang"}})
+    add_cxxflags("-Werror=switch", {tool = {"gcc", "clang"}})
+    add_cxxflags("-Werror=implicit-fallthrough", {tool = {"gcc", "clang"}})
+    add_cxxflags("-Wshadow", {tool = {"gcc", "clang"}})
+end)
 
 for _, file in ipairs(os.files("*.cc")) do
     local name = path.basename(file)
@@ -17,13 +30,8 @@ for _, file in ipairs(os.files("*.cc")) do
         set_exceptions("cxx")
         set_default(false)
         add_files(name .. ".cc")
-        set_warnings("all", "extra")
+        add_deps("precompile")
         add_tests("default")
-        add_includedirs("$(projectdir)/../include")
-        add_cxxflags("-Werror=return-type", {tool = {"gcc", "clang"}})
-        add_cxxflags("-Werror=switch", {tool = {"gcc", "clang"}})
-        add_cxxflags("-Werror=implicit-fallthrough", {tool = {"gcc", "clang"}})
-        add_cxxflags("-Wshadow", {tool = {"gcc", "clang"}})
         if is_plat("windows") or is_plat("mingw") then
             add_syslinks("ntdll")
         end
