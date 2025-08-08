@@ -1,8 +1,6 @@
 # Use `pltxt2htm` in Programming language C
 
-This folder supply c style header-source style interface. (build source code to library and include [pltxt2htm.h](./pltxt2htm.h) in c project)
-
-Despite C++ interface also be exported by [pltxt2htm.h](./pltxt2htm.h) if eligible, I strongly recommend you to use [pltxt2htm.hh](../include/pltxt2htm/pltxt2htm.hh) unless you are facing build performance issue.
+This folder supply C's header-source style interface. (build source code to library and include [pltxt2htm.h](./pltxt2htm.h) in a C project)
 
 ## build
 
@@ -11,6 +9,7 @@ Despite C++ interface also be exported by [pltxt2htm.h](./pltxt2htm.h) if eligib
 ```sh
 xmake config
 xmake build
+xmake install -o $PREFIX
 ```
 
 shared library in libpltxt2htm_shared.so, static library in libpltxt2htm_static.a
@@ -33,12 +32,12 @@ int main(void) {
 
 compile `example.c`:
 ```sh
-gcc example.c -o example -L ./build/linux/x64/debug -lpltxt2htm_shared
+gcc example.c -o example -L ./build/linux/x64/release -lpltxt2htm_shared
 ./example
 ```
 
 ```sh
 # Don't forget to `-lntdll` on windows/mingw
-gcc example.c -o example -L ./build/linux/x64/debug -lpltxt2htm_static
+gcc example.c -o example -L ./build/linux/x64/release -lpltxt2htm_static
 ./example
 ```

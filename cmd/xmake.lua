@@ -61,8 +61,14 @@ target("pltxt2htm", function()
         local toolchain = get_config("toolchain")
         local triplet = nil
         local modifier = nil
-        if toolchain:endswith("clang") then
-            if toolchain == "clang" then
+	-- On Windows, the default toolchain is MSVC, which is not supported in this project
+	-- On Linux, the default toolchain is GCC
+	-- On MacOS, the default toolchain is AppleClang, which is also not supported in the project
+	-- For other OS, I don't care.
+	-- But which toolchain is the default is not important
+	-- Following code just to get the build triplet
+        if toolchain == nil or toolchain:endswith("clang") then
+            if toolchain == nil or toolchain == "clang" then
                 triplet, modifier = utility.get_target_modifier("target", "clang")
             else
                 triplet, modifier = utility.get_target_modifier(string.sub(toolchain, 0, -7), "clang")
