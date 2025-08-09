@@ -38,4 +38,4 @@ void assert_true(bool cond) noexcept {
     ::exception::assert_true<false>(cond);
 }
 
-} // namespace pltxt2htm_test::prebuild
+} // namespace pltxt2htm_test

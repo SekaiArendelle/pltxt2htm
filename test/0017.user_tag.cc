@@ -1,13 +1,13 @@
 #include "precompile.hh"
 
 int main() noexcept {
-    auto html1 =
-        ::pltxt2htm_test::pltxt2advanced_htmld(u8"<user=642cf37a494746375aae306a>physicsLab</user>");
+    auto html1 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<user=642cf37a494746375aae306a>physicsLab</user>");
     auto answer1 =
         ::fast_io::u8string_view{u8"<span class=\'RUser\' data-user=\'642cf37a494746375aae306a\'>physicsLab</span>"};
     ::pltxt2htm_test::assert_true(html1 == answer1);
 
-    auto html2 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<USER=642cf37a494746375aae306a      >physicsLab</USER      >");
+    auto html2 =
+        ::pltxt2htm_test::pltxt2advanced_htmld(u8"<USER=642cf37a494746375aae306a      >physicsLab</USER      >");
     auto answer2 =
         ::fast_io::u8string_view{u8"<span class=\'RUser\' data-user=\'642cf37a494746375aae306a\'>physicsLab</span>"};
     ::pltxt2htm_test::assert_true(html2 == answer2);
@@ -28,7 +28,8 @@ int main() noexcept {
         ::fast_io::u8string_view{u8"<span class=\'RUser\' data-user=\'642cf37a494746375aae306a\'>physicsLab</span>"};
     ::pltxt2htm_test::assert_true(html4 == answer4);
 
-    auto html5 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<User=123><user=642cf37a494746375aae306a>physicsLab</user></User>");
+    auto html5 =
+        ::pltxt2htm_test::pltxt2advanced_htmld(u8"<User=123><user=642cf37a494746375aae306a>physicsLab</user></User>");
     auto answer5 =
         ::fast_io::u8string_view{u8"<span class=\'RUser\' data-user=\'642cf37a494746375aae306a\'>physicsLab</span>"};
     ::pltxt2htm_test::assert_true(html5 == answer5);
@@ -48,8 +49,8 @@ int main() noexcept {
         ::fast_io::u8string_view{u8"<span class=\'RUser\' data-user=\'642cf37a494746375aae306a\'>texttext</span>"};
     ::pltxt2htm_test::assert_true(html9 == answer9);
 
-    auto html10 = ::pltxt2htm_test::pltxt2advanced_htmld(
-        u8"<user=642cf37a494746375aae306a>physics<user=123>L</user>ab</user>");
+    auto html10 =
+        ::pltxt2htm_test::pltxt2advanced_htmld(u8"<user=642cf37a494746375aae306a>physics<user=123>L</user>ab</user>");
     auto answer10 = ::fast_io::u8string_view{
         u8"<span class=\'RUser\' data-user=\'642cf37a494746375aae306a\'>physics<span class=\'RUser\' "
         u8"data-user=\'123\'>L</span>ab</span>"};

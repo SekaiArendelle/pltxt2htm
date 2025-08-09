@@ -1,7 +1,8 @@
 #include "precompile.hh"
 
 int main() noexcept {
-    auto html1 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<experiment=642cf37a494746375aae306a>physicsLab</experiment>");
+    auto html1 =
+        ::pltxt2htm_test::pltxt2advanced_htmld(u8"<experiment=642cf37a494746375aae306a>physicsLab</experiment>");
     auto answer1 = ::fast_io::u8string_view{
         u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/642cf37a494746375aae306a\" internal>physicsLab</a>"};
     ::pltxt2htm_test::assert_true(html1 == answer1);
@@ -58,14 +59,12 @@ int main() noexcept {
         u8"href=\"localhost:5173/ExperimentSummary/Experiment/123\" internal>L</a>ab</a>"};
     ::pltxt2htm_test::assert_true(html10 == answer10);
 
-    auto html11 =
-        ::pltxt2htm_test::pltxt2advanced_htmld(u8"<experiment=642cf37a494746375aae306a>physicsLab");
+    auto html11 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<experiment=642cf37a494746375aae306a>physicsLab");
     auto answer11 = ::fast_io::u8string_view{
         u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/642cf37a494746375aae306a\" internal>physicsLab</a>"};
     ::pltxt2htm_test::assert_true(html11 == answer11);
 
-    auto html12 =
-        ::pltxt2htm_test::pltxt2advanced_htmld(u8"t<experiment=642cf37a494746375aae306a></experiment>t");
+    auto html12 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"t<experiment=642cf37a494746375aae306a></experiment>t");
     auto answer12 = ::fast_io::u8string_view{u8"tt"};
     ::pltxt2htm_test::assert_true(html12 == answer12);
 

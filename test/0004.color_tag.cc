@@ -21,8 +21,7 @@ int main() noexcept {
     auto answer4 = ::fast_io::u8string_view{u8"<span style=\"color:red;\">text</span>"};
     ::pltxt2htm_test::assert_true(html4 == answer4);
 
-    auto html5 =
-        ::pltxt2htm_test::pltxt2advanced_htmld(u8"<color=red><Color=#66CcFf>text</color></color>");
+    auto html5 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<color=red><Color=#66CcFf>text</color></color>");
     auto answer5 = ::fast_io::u8string_view{u8"<span style=\"color:#66CcFf;\">text</span>"};
     ::pltxt2htm_test::assert_true(html5 == answer5);
 
@@ -39,13 +38,11 @@ int main() noexcept {
     auto answer8 = ::fast_io::u8string_view{u8"test&lt;Color=#66CcFf&nbsp;&nbsp;$"};
     ::pltxt2htm_test::assert_true(html8 == answer8);
 
-    auto html9 =
-        ::pltxt2htm_test::pltxt2advanced_htmld(u8"<color=red>text<Color=red>text</color></color>");
+    auto html9 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<color=red>text<Color=red>text</color></color>");
     auto answer9 = ::fast_io::u8string_view{u8"<span style=\"color:red;\">texttext</span>"};
     ::pltxt2htm_test::assert_true(html9 == answer9);
 
-    auto html10 =
-        ::pltxt2htm_test::pltxt2advanced_htmld(u8"<color=red>text<Color=#66ccff>text</color></color>");
+    auto html10 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<color=red>text<Color=#66ccff>text</color></color>");
     auto answer10 =
         ::fast_io::u8string_view{u8"<span style=\"color:red;\">text<span style=\"color:#66ccff;\">text</span></span>"};
     ::pltxt2htm_test::assert_true(html10 == answer10);

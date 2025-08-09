@@ -23,4 +23,4 @@ namespace pltxt2htm_test {
 
 void assert_true(bool cond) noexcept;
 
-} // namespace pltxt2htm_test::prebuild
+} // namespace pltxt2htm_test
