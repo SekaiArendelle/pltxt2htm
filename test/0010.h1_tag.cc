@@ -1,6 +1,6 @@
 #include "precompile.hh"
 
-int main() noexcept {
+int main() {
     auto html1 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<h1>text</h1>");
     auto answer1 = ::fast_io::u8string_view{u8"<h1>text</h1>"};
     ::pltxt2htm_test::assert_true(html1 == answer1);

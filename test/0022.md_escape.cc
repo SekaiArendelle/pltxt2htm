@@ -1,6 +1,6 @@
 #include "precompile.hh"
 
-int main() noexcept {
+int main() {
     ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt2advanced_htmld(u8"\\\\") == ::fast_io::u8string_view{u8"\\"});
     ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt2common_htmld(u8"\\\\") == ::fast_io::u8string_view{u8"\\"});
     ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt2advanced_htmld(u8"\\!") == ::fast_io::u8string_view{u8"!"});

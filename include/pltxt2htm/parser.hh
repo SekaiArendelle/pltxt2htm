@@ -135,6 +135,11 @@ constexpr bool try_parse_equal_sign_tag(::fast_io::u8string_view pltext, ::std::
         char8_t const forward_chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index)};
         if (forward_chr == u8'>') {
             extern_index = forward_index;
+            if (substr.empty()) {
+                // test/0030.fuzzing-crassh1.cc
+                // <size=>text
+                return false;
+            }
             return true;
         } else if (forward_chr == u8' ') {
             while (true) {
@@ -145,6 +150,11 @@ constexpr bool try_parse_equal_sign_tag(::fast_io::u8string_view pltext, ::std::
                 if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index + 1) == u8' ') {
                     ++forward_index;
                 } else if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index + 1) == u8'>') {
+                    if (substr.empty()) {
+                        // test/0030.fuzzing-crassh1.cc
+                        // <size= >text
+                        return false;
+                    }
                     extern_index = forward_index + 1;
                     return true;
                 } else {

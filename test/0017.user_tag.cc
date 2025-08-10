@@ -1,6 +1,6 @@
 #include "precompile.hh"
 
-int main() noexcept {
+int main() {
     auto html1 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<user=642cf37a494746375aae306a>physicsLab</user>");
     auto answer1 =
         ::fast_io::u8string_view{u8"<span class=\'RUser\' data-user=\'642cf37a494746375aae306a\'>physicsLab</span>"};

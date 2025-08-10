@@ -18,7 +18,7 @@ C++ APIs is in [include/pltxt2htm](include/pltxt2htm/), here is a simple example
 #include <fast_io/fast_io.h> // in include/fast_io
 #include <pltxt2htm/pltxt2htm.hh> // in include/pltxt2htm
 
-int main() noexcept {
+int main() {
     auto html = ::pltxt2htm::pltxt2advanced_html(u8R"(
 # Hello Quantum PhysicsLab
 With Markdown supports

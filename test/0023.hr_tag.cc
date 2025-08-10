@@ -1,6 +1,6 @@
 #include "precompile.hh"
 
-int main() noexcept {
+int main() {
     ::fast_io::u8string_view text{
         u8R"(
 文本1<hR   />文本2<hr/>文本3<hr   >文本4<HR    /
