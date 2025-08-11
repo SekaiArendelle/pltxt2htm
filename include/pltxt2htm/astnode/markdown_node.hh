@@ -725,4 +725,24 @@ public:
     constexpr ::pltxt2htm::EscapeTilde& operator=(::pltxt2htm::EscapeTilde&&) noexcept = default;
 };
 
+/**
+ * @brief Represents markdown horizontal rule (`---`, `***`, `___`).
+ */
+class MdHr : public ::pltxt2htm::PlTxtNode {
+public:
+    constexpr MdHr() noexcept
+        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_hr) {
+    }
+
+    constexpr MdHr(::pltxt2htm::MdHr const&) noexcept = default;
+
+    constexpr MdHr(::pltxt2htm::MdHr&&) noexcept
+        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_hr) {
+    }
+
+    constexpr ::pltxt2htm::MdHr& operator=(::pltxt2htm::MdHr const&) noexcept = default;
+
+    constexpr ::pltxt2htm::MdHr& operator=(::pltxt2htm::MdHr&&) noexcept = default;
+};
+
 } // namespace pltxt2htm

@@ -483,6 +483,8 @@ restart:
             }
             goto restart;
         }
+        case ::pltxt2htm::NodeType::md_hr:
+            [[fallthrough]];
         case ::pltxt2htm::NodeType::html_hr: {
             auto start_tag = ::fast_io::array{u8'<', u8'h', u8'r', u8'>'};
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));

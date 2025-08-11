@@ -148,6 +148,8 @@ enum class NodeType : ::std::uint_least32_t {
     md_escape_right_brace,
     /* ~ */
     md_escape_tilde,
+    // https://spec.commonmark.org/0.31.2/#thematic-break
+    md_hr,
 
     // latex
     // latex,

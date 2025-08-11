@@ -298,6 +298,98 @@ constexpr bool try_parse_md_atx_heading(::fast_io::u8string_view pltext, ::std::
     return true;
 }
 
+enum class ThematicBreakType : ::std::uint_least32_t {
+    none = 0,
+    // -
+    hyphen,
+    // _
+    underscore,
+    // *
+    asterisk,
+};
+
+enum class EndType : ::std::uint_least32_t {
+    end_of_string = 0,
+    line_break,
+    br_tag,
+};
+
+struct TryParseMdThematicBreakResult {
+    ::std::size_t index;
+    ::pltxt2htm::details::EndType end_type;
+};
+
+/**
+ * @brief Parsing markdown thematic breaks (e.g. `---`, `___`, `***`)
+ * @param text The text to parse
+ * @return length of the parsed markdown thematic breaks
+ */
+template<bool ndebug>
+constexpr auto try_parse_md_thematic_break(::fast_io::u8string_view text)
+#if __cpp_exceptions < 199711L
+    noexcept
+#endif
+    -> ::exception::optional<TryParseMdThematicBreakResult> {
+    if (text.size() < 3) {
+        return ::exception::nullopt_t{};
+    }
+    ::pltxt2htm::details::ThematicBreakType thematic_break_type{::pltxt2htm::details::ThematicBreakType::none};
+    ::std::size_t i{};
+    for (; i < text.size(); ++i) {
+        auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(text, i);
+        if (chr == u8' ') {
+            continue;
+        }
+        if (chr == u8'*') {
+            if (thematic_break_type == ::pltxt2htm::details::ThematicBreakType::none) {
+                thematic_break_type = ::pltxt2htm::details::ThematicBreakType::asterisk;
+                continue;
+            } else if (thematic_break_type == ::pltxt2htm::details::ThematicBreakType::asterisk) {
+                continue;
+            } else {
+                return ::exception::nullopt_t{};
+            }
+        } else if (chr == u8'-') {
+            if (thematic_break_type == ::pltxt2htm::details::ThematicBreakType::none) {
+                thematic_break_type = ::pltxt2htm::details::ThematicBreakType::hyphen;
+                continue;
+            } else if (thematic_break_type == ::pltxt2htm::details::ThematicBreakType::hyphen) {
+                continue;
+            } else {
+                return ::exception::nullopt_t{};
+            }
+        } else if (chr == u8'_') {
+            if (thematic_break_type == ::pltxt2htm::details::ThematicBreakType::none) {
+                thematic_break_type = ::pltxt2htm::details::ThematicBreakType::underscore;
+                continue;
+            } else if (thematic_break_type == ::pltxt2htm::details::ThematicBreakType::underscore) {
+                continue;
+            } else {
+                return ::exception::nullopt_t{};
+            }
+        } else if (thematic_break_type != ::pltxt2htm::details::ThematicBreakType::none) {
+            if (chr == u8'\n') {
+                return ::pltxt2htm::details::TryParseMdThematicBreakResult{i + 1,
+                                                                           ::pltxt2htm::details::EndType::line_break};
+            } else if (auto opt_tag_len = ::pltxt2htm::details::try_parse_self_closing_tag<ndebug, u8'<', u8'b', u8'r'>(
+                           ::pltxt2htm::details::u8string_view_subview<ndebug>(text, i));
+                       opt_tag_len.has_value()) {
+                return ::pltxt2htm::details::TryParseMdThematicBreakResult{i + opt_tag_len.template value<ndebug>() + 1,
+                                                                           ::pltxt2htm::details::EndType::br_tag};
+            } else {
+                return ::exception::nullopt_t{};
+            }
+        } else {
+            return ::exception::nullopt_t{};
+        }
+    }
+    if (thematic_break_type == ::pltxt2htm::details::ThematicBreakType::none) {
+        return ::exception::nullopt_t{};
+    } else {
+        return ::pltxt2htm::details::TryParseMdThematicBreakResult{i, ::pltxt2htm::details::EndType::end_of_string};
+    }
+}
+
 /**
  * @brief Switch to a markdown atx header.
  * @param[in] header_level: The header level.
@@ -593,6 +685,18 @@ restart:
                         ::fast_io::u8string_view{}, md_atx_heading_type, ending_type));
                 }
                 goto restart;
+            } else if (auto opt_len = ::pltxt2htm::details::try_parse_md_thematic_break<ndebug>(
+                           ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1));
+                       opt_len.has_value()) {
+                auto&& [index, end_type] = opt_len.template value<ndebug>();
+                current_index += index;
+                result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::MdHr>{});
+                if (end_type == ::pltxt2htm::details::EndType::br_tag) {
+                    result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Br>{});
+                } else if (end_type == ::pltxt2htm::details::EndType::line_break) {
+                    result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::LineBreak>{});
+                }
+                continue;
             }
             continue;
         } else if (chr == u8' ') {
@@ -703,6 +807,18 @@ restart:
                                 ::fast_io::u8string_view{}, md_atx_heading_type, ending_type));
                         }
                         goto restart;
+                    } else if (auto opt_len = ::pltxt2htm::details::try_parse_md_thematic_break<ndebug>(
+                                   ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1));
+                               opt_len.has_value()) {
+                        auto&& [index, end_type] = opt_len.template value<ndebug>();
+                        current_index += index;
+                        result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::MdHr>{});
+                        if (end_type == ::pltxt2htm::details::EndType::br_tag) {
+                            result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Br>{});
+                        } else if (end_type == ::pltxt2htm::details::EndType::line_break) {
+                            result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::LineBreak>{});
+                        }
+                        continue;
                     }
                     continue;
                 } else {
@@ -1736,6 +1852,16 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext)
     // other common cases
     call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index), ::pltxt2htm::NodeType::base));
+    if (auto opt_len = ::pltxt2htm::details::try_parse_md_thematic_break<ndebug>(pltext); opt_len.has_value()) {
+        auto&& [index, end_type] = opt_len.template value<ndebug>();
+        call_stack.top()->current_index += index;
+        result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::MdHr>{});
+        if (end_type == ::pltxt2htm::details::EndType::br_tag) {
+            result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Br>{});
+        } else if (end_type == ::pltxt2htm::details::EndType::line_break) {
+            result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::LineBreak>{});
+        }
+    }
     auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
     for (auto&& node : subast) {
         result.push_back(::std::move(node));
