@@ -429,4 +429,52 @@ public:
     constexpr ::pltxt2htm::Strong& operator=(::pltxt2htm::Strong&&) noexcept = delete;
 };
 
+/**
+ * @brief Represents HTML `<ul>`.
+ */
+class Ul : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr Ul() noexcept = delete;
+
+    constexpr Ul(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_ul, ::std::move(subast)} {
+    }
+
+    constexpr Ul(::pltxt2htm::Ul const&) noexcept = default;
+
+    constexpr Ul(::pltxt2htm::Ul&& other) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_ul, ::std::move(other.subast_)} {
+    }
+
+    constexpr ~Ul() noexcept = default;
+
+    constexpr ::pltxt2htm::Ul& operator=(::pltxt2htm::Ul const&) noexcept = delete;
+
+    constexpr ::pltxt2htm::Ul& operator=(::pltxt2htm::Ul&&) noexcept = delete;
+};
+
+/**
+ * @brief Represents HTML `<li>`.
+ */
+class Li : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr Li() noexcept = delete;
+
+    constexpr Li(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_li, ::std::move(subast)} {
+    }
+
+    constexpr Li(::pltxt2htm::Li const&) noexcept = default;
+
+    constexpr Li(::pltxt2htm::Li&& other) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_li, ::std::move(other.subast_)} {
+    }
+
+    constexpr ~Li() noexcept = default;
+
+    constexpr ::pltxt2htm::Li& operator=(::pltxt2htm::Li const&) noexcept = delete;
+
+    constexpr ::pltxt2htm::Li& operator=(::pltxt2htm::Li&&) noexcept = delete;
+};
+
 } // namespace pltxt2htm

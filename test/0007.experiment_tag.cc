@@ -70,7 +70,7 @@ int main() {
 
     auto html13 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<experiment=>t");
     auto answer13 = ::fast_io::u8string_view{u8"&lt;experiment=&gt;t"};
-    ::pltxt2htm_test::assert_true(html12 == answer12);
+    ::pltxt2htm_test::assert_true(html13 == answer13);
 
     return 0;
 }
