@@ -778,7 +778,9 @@ restart:
             case ::pltxt2htm::NodeType::base:
                 [[fallthrough]];
             default:
-                [[unlikely]] {::exception::unreachable<ndebug>();}
+                [[unlikely]] {
+                    ::exception::unreachable<ndebug>();
+                }
             }
         }
     }

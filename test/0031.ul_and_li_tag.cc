@@ -10,11 +10,13 @@ int main() {
     ::pltxt2htm_test::assert_true(html2 == answer2);
 
     auto html3 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<ul><li><color=red>item1</color></li><li>item2</li></ul>");
-    auto answer3 = ::fast_io::u8string_view{u8"<ul><li><span style=\"color:red;\">item1</span></li><li>item2</li></ul>"};
+    auto answer3 =
+        ::fast_io::u8string_view{u8"<ul><li><span style=\"color:red;\">item1</span></li><li>item2</li></ul>"};
     ::pltxt2htm_test::assert_true(html3 == answer3);
 
     auto html4 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<ul><li><color=red>item1</li></ul></color>");
-    auto answer4 = ::fast_io::u8string_view{u8"<ul><li><span style=\"color:red;\">item1&lt;/li&gt;&lt;/ul&gt;</span></li></ul>"};
+    auto answer4 =
+        ::fast_io::u8string_view{u8"<ul><li><span style=\"color:red;\">item1&lt;/li&gt;&lt;/ul&gt;</span></li></ul>"};
     ::pltxt2htm_test::assert_true(html4 == answer4);
 
     auto html5 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<ul><li>item1<ul><li>item2</li></ul></li></ul>");

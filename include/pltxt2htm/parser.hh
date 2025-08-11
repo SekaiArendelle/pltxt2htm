@@ -1363,9 +1363,8 @@ restart:
                     }
                 }
                 case ::pltxt2htm::NodeType::html_ul: {
-                    if (auto opt_tag_len =
-                            ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'u', u8'l'>(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                    if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'u', u8'l'>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
                         // parsing end tag </ul> successed
                         ::std::size_t const staged_index{current_index};
@@ -1381,9 +1380,8 @@ restart:
                     }
                 }
                 case ::pltxt2htm::NodeType::html_li: {
-                    if (auto opt_tag_len =
-                            ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'l', u8'i'>(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                    if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'l', u8'i'>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
                         // parsing end tag </li> successed
                         ::std::size_t const staged_index{current_index};
