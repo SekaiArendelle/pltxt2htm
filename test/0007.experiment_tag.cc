@@ -36,7 +36,7 @@ int main() {
         u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/642cf37a494746375aae306a\" internal>physicsLab</a>"};
     ::pltxt2htm_test::assert_true(html5 == answer5);
 
-    auto html6 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"test<eXperiment=>");
+    auto html6 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"test<eXperiment=123>");
     auto answer6 = ::fast_io::u8string_view{u8"test"};
     ::pltxt2htm_test::assert_true(html6 == answer6);
 
@@ -66,6 +66,10 @@ int main() {
 
     auto html12 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"t<experiment=642cf37a494746375aae306a></experiment>t");
     auto answer12 = ::fast_io::u8string_view{u8"tt"};
+    ::pltxt2htm_test::assert_true(html12 == answer12);
+
+    auto html13 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<experiment=>t");
+    auto answer13 = ::fast_io::u8string_view{u8"&lt;experiment=&gt;t"};
     ::pltxt2htm_test::assert_true(html12 == answer12);
 
     return 0;
