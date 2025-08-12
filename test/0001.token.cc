@@ -10,7 +10,7 @@ int main() {
     static_assert(::std::is_copy_constructible_v<::pltxt2htm::details::HeapGuard<::pltxt2htm::NodeType>>);
     static_assert(::std::movable<::pltxt2htm::details::HeapGuard<::pltxt2htm::NodeType>>);
 
-    ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> text{};
+    ::pltxt2htm::Ast text{};
     text.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{u8't'});
     text.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{u8'e'});
     text.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{u8's'});
@@ -18,12 +18,9 @@ int main() {
 
     ::fast_io::vector<::pltxt2htm::PlTxtNode> arr{
         ::pltxt2htm::U8Char{u8'a'},
-        ::pltxt2htm::Color{::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(text),
-                           ::fast_io::u8string{u8"red"}},
-        ::pltxt2htm::Experiment{::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(text),
-                                ::fast_io::u8string{u8"123"}},
-        ::pltxt2htm::Discussion{::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(text),
-                                ::fast_io::u8string{u8"123"}},
+        ::pltxt2htm::Color{::pltxt2htm::Ast(text), ::fast_io::u8string{u8"red"}},
+        ::pltxt2htm::Experiment{::pltxt2htm::Ast(text), ::fast_io::u8string{u8"123"}},
+        ::pltxt2htm::Discussion{::pltxt2htm::Ast(text), ::fast_io::u8string{u8"123"}},
     };
 
     ::exception::assert_true(arr[0].node_type() == ::pltxt2htm::NodeType::u8char);

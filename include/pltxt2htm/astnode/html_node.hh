@@ -156,7 +156,7 @@ class H1 : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr H1() noexcept = delete;
 
-    constexpr H1(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+    constexpr H1(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_h1, ::std::move(subast)} {
     }
 
@@ -180,7 +180,7 @@ class H2 : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr H2() noexcept = delete;
 
-    constexpr H2(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+    constexpr H2(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_h2, ::std::move(subast)} {
     }
 
@@ -204,7 +204,7 @@ class H3 : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr H3() noexcept = delete;
 
-    constexpr H3(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+    constexpr H3(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_h3, ::std::move(subast)} {
     }
 
@@ -228,7 +228,7 @@ class H4 : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr H4() noexcept = delete;
 
-    constexpr H4(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+    constexpr H4(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_h4, ::std::move(subast)} {
     }
 
@@ -252,7 +252,7 @@ class H5 : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr H5() noexcept = delete;
 
-    constexpr H5(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+    constexpr H5(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_h5, ::std::move(subast)} {
     }
 
@@ -276,7 +276,7 @@ class H6 : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr H6() noexcept = delete;
 
-    constexpr H6(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+    constexpr H6(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_h6, ::std::move(subast)} {
     }
 
@@ -300,7 +300,7 @@ class P : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr P() noexcept = delete;
 
-    constexpr P(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+    constexpr P(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_p, ::std::move(subast)} {
     }
 
@@ -324,7 +324,7 @@ class Del : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr Del() noexcept = delete;
 
-    constexpr Del(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+    constexpr Del(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_del, ::std::move(subast)} {
     }
 
@@ -364,7 +364,7 @@ class Note : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr Note() noexcept = delete;
 
-    constexpr Note(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+    constexpr Note(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_note, ::std::move(subast)} {
     }
 
@@ -388,7 +388,7 @@ class Em : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr Em() noexcept = delete;
 
-    constexpr Em(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+    constexpr Em(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_em, ::std::move(subast)} {
     }
 
@@ -412,7 +412,7 @@ class Strong : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr Strong() noexcept = delete;
 
-    constexpr Strong(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+    constexpr Strong(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_strong, ::std::move(subast)} {
     }
 
@@ -436,7 +436,7 @@ class Ul : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr Ul() noexcept = delete;
 
-    constexpr Ul(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+    constexpr Ul(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_ul, ::std::move(subast)} {
     }
 
@@ -460,7 +460,7 @@ class Li : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr Li() noexcept = delete;
 
-    constexpr Li(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+    constexpr Li(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_li, ::std::move(subast)} {
     }
 

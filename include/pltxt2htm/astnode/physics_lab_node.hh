@@ -25,8 +25,7 @@ class Color : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr Color() noexcept = delete;
 
-    constexpr Color(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& text,
-                    ::fast_io::u8string&& color) noexcept
+    constexpr Color(::pltxt2htm::Ast&& text, ::fast_io::u8string&& color) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_color, ::std::move(text)},
           color_(::std::move(color)) {
     }
@@ -56,7 +55,7 @@ class A : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr A() noexcept = delete;
 
-    constexpr A(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& text) noexcept
+    constexpr A(::pltxt2htm::Ast&& text) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_a, ::std::move(text)},
           color_{u8"#0000AA"} {
     }
@@ -96,8 +95,7 @@ class Experiment : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr Experiment() noexcept = delete;
 
-    constexpr Experiment(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast,
-                         ::fast_io::u8string&& id) noexcept
+    constexpr Experiment(::pltxt2htm::Ast&& subast, ::fast_io::u8string&& id) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_experiment, ::std::move(subast)},
           id_(::std::move(id)) {
     }
@@ -133,8 +131,7 @@ class Discussion : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr Discussion() noexcept = delete;
 
-    constexpr Discussion(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast,
-                         ::fast_io::u8string&& id) noexcept
+    constexpr Discussion(::pltxt2htm::Ast&& subast, ::fast_io::u8string&& id) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_discussion, ::std::move(subast)},
           id_(::std::move(id)) {
     }
@@ -168,8 +165,7 @@ class User : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr User() noexcept = delete;
 
-    constexpr User(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast,
-                   ::fast_io::u8string&& id) noexcept
+    constexpr User(::pltxt2htm::Ast&& subast, ::fast_io::u8string&& id) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_user, ::std::move(subast)},
           id_(::std::move(id)) {
     }
@@ -203,8 +199,7 @@ class Size : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr Size() noexcept = delete;
 
-    constexpr Size(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast,
-                   ::std::size_t id) noexcept
+    constexpr Size(::pltxt2htm::Ast&& subast, ::std::size_t id) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_size, ::std::move(subast)},
           id_(::std::move(id)) {
     }
@@ -232,7 +227,7 @@ class I : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr I() noexcept = delete;
 
-    constexpr I(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+    constexpr I(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_i, ::std::move(subast)} {
     }
 
@@ -253,7 +248,7 @@ class B : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr B() noexcept = delete;
 
-    constexpr B(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+    constexpr B(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_b, ::std::move(subast)} {
     }
 

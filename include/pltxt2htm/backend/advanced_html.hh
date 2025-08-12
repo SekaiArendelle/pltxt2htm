@@ -27,9 +27,7 @@ namespace pltxt2htm::details {
  */
 template<bool ndebug, bool escape_less_than = true>
 [[nodiscard]]
-constexpr auto ast2advanced_html(
-    ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> const& ast_init,
-    ::fast_io::u8string_view host)
+constexpr auto ast2advanced_html(::pltxt2htm::Ast const& ast_init, ::fast_io::u8string_view host)
 #if __cpp_exceptions < 199711L
     noexcept
 #endif

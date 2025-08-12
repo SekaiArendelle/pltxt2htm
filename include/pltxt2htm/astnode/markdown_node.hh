@@ -12,7 +12,7 @@ class AtxH1 : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr AtxH1() noexcept = delete;
 
-    constexpr AtxH1(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+    constexpr AtxH1(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_atx_h1, ::std::move(subast)} {
     }
 
@@ -36,7 +36,7 @@ class AtxH2 : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr AtxH2() noexcept = delete;
 
-    constexpr AtxH2(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+    constexpr AtxH2(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_atx_h2, ::std::move(subast)} {
     }
 
@@ -60,7 +60,7 @@ class AtxH3 : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr AtxH3() noexcept = delete;
 
-    constexpr AtxH3(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+    constexpr AtxH3(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_atx_h3, ::std::move(subast)} {
     }
 
@@ -84,7 +84,7 @@ class AtxH4 : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr AtxH4() noexcept = delete;
 
-    constexpr AtxH4(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+    constexpr AtxH4(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_atx_h4, ::std::move(subast)} {
     }
 
@@ -108,7 +108,7 @@ class AtxH5 : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr AtxH5() noexcept = delete;
 
-    constexpr AtxH5(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+    constexpr AtxH5(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_atx_h5, ::std::move(subast)} {
     }
 
@@ -132,7 +132,7 @@ class AtxH6 : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr AtxH6() noexcept = delete;
 
-    constexpr AtxH6(::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+    constexpr AtxH6(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_atx_h6, ::std::move(subast)} {
     }
 

@@ -37,6 +37,8 @@ public:
     }
 };
 
+using Ast = ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>;
+
 /**
  * @brief UTF-8 char/string node
  */
@@ -78,14 +80,12 @@ namespace details {
 
 class PairedTagBase : public ::pltxt2htm::PlTxtNode {
 protected:
-    ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast_;
+    ::pltxt2htm::Ast subast_;
 
 public:
     constexpr PairedTagBase() noexcept = delete;
 
-    constexpr PairedTagBase(
-        ::pltxt2htm::NodeType node_type,
-        ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+    constexpr PairedTagBase(::pltxt2htm::NodeType node_type, ::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::PlTxtNode{node_type},
           subast_(::std::move(subast)) {
     }

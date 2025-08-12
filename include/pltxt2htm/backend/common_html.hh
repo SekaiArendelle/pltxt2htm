@@ -20,8 +20,7 @@ namespace pltxt2htm::details {
  *        usually be used to render header
  */
 template<bool ndebug>
-constexpr auto ast2common_html(
-    ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> const& ast_init)
+constexpr auto ast2common_html(::pltxt2htm::Ast const& ast_init)
 #if __cpp_exceptions < 199711L
     noexcept
 #endif

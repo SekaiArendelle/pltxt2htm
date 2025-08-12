@@ -398,9 +398,7 @@ constexpr auto try_parse_md_thematic_break(::fast_io::u8string_view text)
  */
 template<bool ndebug>
 [[nodiscard]]
-constexpr auto switch_md_atx_header(
-    ::pltxt2htm::NodeType md_atx_heading_type,
-    ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>&& subast) noexcept
+constexpr auto switch_md_atx_header(::pltxt2htm::NodeType md_atx_heading_type, ::pltxt2htm::Ast&& subast) noexcept
     -> ::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode> {
     switch (md_atx_heading_type) {
     case ::pltxt2htm::NodeType::md_atx_h1: {
@@ -570,7 +568,7 @@ public:
     ::fast_io::u8string_view pltext;
     ::pltxt2htm::NodeType const nested_tag_type;
     ::std::size_t current_index{};
-    ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast{};
+    ::pltxt2htm::Ast subast{};
 
     constexpr ~BasicFrameContext() noexcept = default;
 
@@ -644,7 +642,7 @@ constexpr auto parse_pltxt(
 #if __cpp_exceptions < 199711L
     noexcept
 #endif
-    -> ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> {
+    -> ::pltxt2htm::Ast {
 restart:
     auto&& current_index = call_stack.top()->current_index;
     auto&& pltext = call_stack.top()->pltext;
@@ -673,7 +671,7 @@ restart:
                 ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1), start_index,
                     sublength, md_atx_heading_type, ending_type)) {
-                ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast{};
+                ::pltxt2htm::Ast subast{};
                 current_index += start_index + 1;
                 if (current_index < pltext_size) {
                     auto subtext =
@@ -795,7 +793,7 @@ restart:
                         ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1), start_index,
                             sublength, md_atx_heading_type, ending_type)) {
-                        ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast{};
+                        ::pltxt2htm::Ast subast{};
                         current_index += start_index + 1;
                         if (current_index < pltext_size) {
                             auto subtext =
@@ -1128,7 +1126,7 @@ restart:
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2))) {
                     // Find the closing -->
                     ::std::size_t comment_end{current_index + 4}; // Position after <!--
-                    ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast{};
+                    ::pltxt2htm::Ast subast{};
 
                     for (; comment_end < pltext_size; ++comment_end) {
                         if (::pltxt2htm::details::is_prefix_match<ndebug, u8'-', u8'-', u8'>'>(
@@ -1812,12 +1810,12 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext)
 #if __cpp_exceptions < 199711L
     noexcept
 #endif
-    -> ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> {
+    -> ::pltxt2htm::Ast {
     // fast_io::deque contains bug about RAII, use fast_io::list instead
     ::fast_io::stack<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BasicFrameContext>,
                      ::fast_io::list<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BasicFrameContext>>>
         call_stack{};
-    ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> result{};
+    ::pltxt2htm::Ast result{};
 
     // Consider the following markdown
     // ```md
@@ -1837,7 +1835,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext)
     // try parsing markdown atx header
     if (::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(pltext, start_index, sublength, md_atx_heading_type,
                                                                ending_type)) {
-        ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> subast{};
+        ::pltxt2htm::Ast subast{};
         if (start_index < pltext.size()) {
             auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index, sublength);
             call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::MdAtxHeadingContext>(
