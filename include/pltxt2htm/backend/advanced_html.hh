@@ -34,8 +34,8 @@ constexpr auto ast2advanced_html(::pltxt2htm::Ast const& ast_init, ::fast_io::u8
     ::fast_io::stack<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBasicFrameContext>,
                      ::fast_io::list<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBasicFrameContext>>>
         call_stack{};
-    call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
-        ast_init, ::pltxt2htm::NodeType::base, false, 0));
+    call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendHtmlPreCodeContext>(
+        ast_init, ::pltxt2htm::NodeType::base, 0));
 
 restart:
     auto&& ast = call_stack.top()->ast_;
