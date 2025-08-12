@@ -523,6 +523,20 @@ restart:
             }
             goto restart;
         }
+        case ::pltxt2htm::NodeType::html_code: {
+            auto code = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            // Note: Despite `<code></code>` is empty, we still need to handle it
+            auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
+            bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_code};
+            call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
+                code->get_subast(), ::pltxt2htm::NodeType::html_code, is_not_same_tag, 0));
+            ++current_index;
+            if (is_not_same_tag) {
+                auto start_tag = ::fast_io::array{u8'<', u8'c', u8'o', u8'd', u8'e', u8'>'};
+                result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            }
+            goto restart;
+        }
         case ::pltxt2htm::NodeType::md_escape_backslash: {
             result.push_back(u8'\\');
             break;
@@ -771,6 +785,13 @@ restart:
             case ::pltxt2htm::NodeType::html_li: {
                 if (is_not_same_tag) {
                     auto close_tag = ::fast_io::array{u8'<', u8'/', u8'l', u8'i', u8'>'};
+                    result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+                }
+                goto restart;
+            }
+            case ::pltxt2htm::NodeType::html_code: {
+                if (is_not_same_tag) {
+                    auto close_tag = ::fast_io::array{u8'<', u8'/', u8'c', u8'o', u8'd', u8'e', u8'>'};
                     result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
                 }
                 goto restart;

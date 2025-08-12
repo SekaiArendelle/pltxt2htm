@@ -477,4 +477,28 @@ public:
     constexpr ::pltxt2htm::Li& operator=(::pltxt2htm::Li&&) noexcept = delete;
 };
 
+/**
+ * @brief Represents HTML `<code>`.
+ */
+class Code : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr Code() noexcept = delete;
+
+    constexpr Code(::pltxt2htm::Ast&& subast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_code, ::std::move(subast)} {
+    }
+
+    constexpr Code(::pltxt2htm::Code const&) noexcept = default;
+
+    constexpr Code(::pltxt2htm::Code&& other) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_code, ::std::move(other.subast_)} {
+    }
+
+    constexpr ~Code() noexcept = default;
+
+    constexpr ::pltxt2htm::Code& operator=(::pltxt2htm::Code const&) noexcept = delete;
+
+    constexpr ::pltxt2htm::Code& operator=(::pltxt2htm::Code&&) noexcept = delete;
+};
+
 } // namespace pltxt2htm
