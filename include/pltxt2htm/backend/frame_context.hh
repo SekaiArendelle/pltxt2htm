@@ -37,6 +37,14 @@ public:
         ::pltxt2htm::details::BackendBasicFrameContext&&) noexcept = delete;
 };
 
+class BackendHtmlPreCodeContext : public ::pltxt2htm::details::BackendBasicFrameContext {
+public:
+    constexpr BackendHtmlPreCodeContext(::pltxt2htm::Ast const& ast, ::pltxt2htm::NodeType const nested_tag_type,
+                                        ::std::size_t current_index) noexcept
+        : ::pltxt2htm::details::BackendBasicFrameContext(ast, nested_tag_type, true, current_index) {
+    }
+};
+
 class BackendBareTagContext : public ::pltxt2htm::details::BackendBasicFrameContext {
 public:
     BackendBareTagContext(::pltxt2htm::Ast const& ast, ::pltxt2htm::NodeType const nested_tag_type,

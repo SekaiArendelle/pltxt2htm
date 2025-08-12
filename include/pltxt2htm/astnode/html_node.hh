@@ -501,4 +501,28 @@ public:
     constexpr ::pltxt2htm::Code& operator=(::pltxt2htm::Code&&) noexcept = delete;
 };
 
+/**
+ * @brief Represents HTML `<pre>`.
+ */
+class Pre : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr Pre() noexcept = delete;
+
+    constexpr Pre(::pltxt2htm::Ast&& subast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_pre, ::std::move(subast)} {
+    }
+
+    constexpr Pre(::pltxt2htm::Pre const&) noexcept = default;
+
+    constexpr Pre(::pltxt2htm::Pre&& other) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_pre, ::std::move(other.subast_)} {
+    }
+
+    constexpr ~Pre() noexcept = default;
+
+    constexpr ::pltxt2htm::Pre& operator=(::pltxt2htm::Pre const&) noexcept = delete;
+
+    constexpr ::pltxt2htm::Pre& operator=(::pltxt2htm::Pre&&) noexcept = delete;
+};
+
 } // namespace pltxt2htm
