@@ -224,3 +224,15 @@ Internal assert macros for fuzzing fast_io.
 #else
 # define FAST_IO_HAS_BUILTIN(...) 0
 #endif
+
+#pragma push_macro("FAST_IO_CPP_EXCEPTIONS")
+#undef FAST_IO_CPP_EXCEPTIONS
+#if defined (_MSC_VER) && !defined(__clang__)
+#if defined(_CPPUNWIND)
+#define FAST_IO_CPP_EXCEPTIONS
+#endif
+#else
+#if __cpp_exceptions >= 199711L
+#define FAST_IO_CPP_EXCEPTIONS
+#endif
+#endif

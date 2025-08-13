@@ -137,7 +137,7 @@ jobs:
       matrix:
         build-mode: [debug, release]
 
-    name: x86_64-windows-msvc (cmd/, ${{ matrix.build-mode }})
+    name: x86_64-windows-msvc (cmd/, ${{ matrix.build-mode }} mode)
     runs-on: windows-latest
 
     steps:

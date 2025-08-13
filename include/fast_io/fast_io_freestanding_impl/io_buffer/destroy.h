@@ -37,12 +37,12 @@ inline constexpr void destroy_basic_io_buffer(T &t) noexcept
 	constexpr auto mode{traits_type::mode};
 	if constexpr ((mode & buffer_mode::out) == buffer_mode::out)
 	{
-#if __cpp_exceptions >= 199711L
+#ifdef FAST_IO_CPP_EXCEPTIONS
 		try
 		{
 #endif
 			::fast_io::details::close_basic_io_buffer(t);
-#if __cpp_exceptions >= 199711L
+#ifdef FAST_IO_CPP_EXCEPTIONS
 		}
 		catch (...)
 		{
