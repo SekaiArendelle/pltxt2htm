@@ -131,8 +131,12 @@ jobs:
 
   # TODO add x86_64-linux-gnu-test-msan ci (based on Ubuntu 2604)
 
-  x86_64-windows-msvc-cmd-debug:
-    name: x86_64-windows-msvc (cmd/, debug mode)
+  x86_64-windows-msvc-cmd:
+    strategy:
+      matrix:
+        build-mode: [debug, release]
+
+    name: x86_64-windows-msvc (cmd/, ${{ matrix.build-mode }})
     runs-on: windows-latest
 
     steps:
@@ -159,7 +163,7 @@ jobs:
         shell: powershell
         working-directory: cmd
         run: |
-          xmake config -p windows -a x64 --toolchain=x86_64-windows-msvc-clang -m debug
+          xmake config -p windows -a x64 --toolchain=x86_64-windows-msvc-clang -m ${{ matrix.build-mode }}
           xmake build -v
 
       - name: Run
