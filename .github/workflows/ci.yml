@@ -133,6 +133,7 @@ jobs:
 
   x86_64-windows-msvc-cmd:
     strategy:
+      fail-fast: false
       matrix:
         build-mode: [debug, release]
 

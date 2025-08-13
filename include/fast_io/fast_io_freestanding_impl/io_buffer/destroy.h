@@ -38,6 +38,7 @@ inline constexpr void destroy_basic_io_buffer(T &t) noexcept
 	if constexpr ((mode & buffer_mode::out) == buffer_mode::out)
 	{
 #if (defined(_MSC_VER) && _HAS_EXCEPTIONS != 0) || (!defined(_MSC_VER) && defined(__cpp_exceptions))
+		static_assert(false, _HAS_EXCEPTIONS);
 		try
 		{
 #endif
