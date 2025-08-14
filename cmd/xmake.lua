@@ -9,7 +9,7 @@ target("pltxt2htm", function()
     add_files("pltxt2htm.cc")
     add_includedirs("$(projectdir)/../include")
 
-    if is_plat("windows") or is_plat("mingw") then
+    if os.host() == "windows" then
         add_syslinks("ntdll")
     end
 
