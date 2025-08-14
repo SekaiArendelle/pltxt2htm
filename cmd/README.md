@@ -39,6 +39,8 @@ to show all config options.
 > ```
 > If you are building `pltxt2htm` to windows, don't forget to add `-lntdll`
 
+> Note: XMake --cross flag does not work properly, therefore, avoid to use --cross flag
+
 ### x86_64-windows-gnu (aka. x86_64-w64-mingw32)
 
 #### clang

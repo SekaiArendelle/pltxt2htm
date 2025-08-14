@@ -14,7 +14,7 @@ add_cxxflags("-fsanitize=fuzzer", {force = true})
 add_ldflags("-fsanitize=fuzzer", {force = true})
 add_cxxflags("-fno-rtti")
 add_cxxflags("-fno-omit-frame-pointer")
-if os.host() == "windows" then
+if is_plat("windows") or is_plat("mingw") then
     print("error: do not support fuzzing on windows")
     os.exit(1)
 end

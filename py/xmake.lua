@@ -13,7 +13,7 @@ target("pltxt2htm", function ()
     add_includedirs("$(projectdir)/../include")
     add_cxxflags("-fPIC")
     set_exceptions("no-cxx")
-    if os.host() == "windows" then
+    if is_plat("windows", "mingw") then
         add_links("ntdll")
     end
 

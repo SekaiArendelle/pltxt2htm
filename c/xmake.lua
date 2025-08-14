@@ -8,7 +8,7 @@ set_encodings("utf-8")
 add_files("pltxt2htm.cc")
 add_includedirs("$(projectdir)/../include")
 
-if os.host() == "windows" then
+if is_plat("windows") or is_plat("mingw") then
     add_syslinks("ntdll")
 end
 

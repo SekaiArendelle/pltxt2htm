@@ -31,7 +31,7 @@ for _, file in ipairs(os.files("*.cc")) do
         add_files(name .. ".cc")
         add_deps("precompile")
         add_tests("default")
-        if os.host() == "windows" then
+        if is_plat("windows") or is_plat("mingw") then
             add_syslinks("ntdll")
         end
 
