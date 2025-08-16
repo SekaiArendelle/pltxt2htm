@@ -210,11 +210,10 @@ jobs:
         run: |
           xmake run pltxt2htm
 
-      # Unknown install error, disabled temporarily
-      # - name: Install
-      #   working-directory: cmd
-      #   run: |
-      #     xmake install -o auto
+      - name: Install
+        working-directory: cmd
+        run: |
+          xmake install -o auto
 
   wasm32-unknown-emscripten-wasm-debug:
     name: wasm32-unknown-emscripten (wasm/, debug mode)
