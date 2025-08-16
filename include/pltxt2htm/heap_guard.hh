@@ -84,8 +84,7 @@ public:
         ;
 
     template<bool ndebug = false>
-    constexpr HeapGuard& operator=(this HeapGuard<T>& self,
-                                   HeapGuard<T>&& other) noexcept {
+    constexpr HeapGuard& operator=(this HeapGuard<T>& self, HeapGuard<T>&& other) noexcept {
         pltxt2htm_assert(self.ptr_ != other.release_imul(), u8"Assigning to self is not allowed");
         self.swap(self, other);
         return self;
