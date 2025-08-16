@@ -1,10 +1,10 @@
 import("common")
 
 ---根据arch和plat推导target和modifier
----@param target string --目标平台
----@param toolchain string --工具链名称
----@return string --目标平台
----@return modifier_t --调整函数
+---@param target string @目标平台
+---@param toolchain string @工具链名称
+---@return string @目标平台
+---@return modifier_t @调整函数
 function get_target_modifier(target, toolchain)
     ---@type modifier_table_t
     local target_list = import("target", { anonymous = true }).get_target_list()
@@ -14,16 +14,17 @@ function get_target_modifier(target, toolchain)
 
     ---@type table<string, any>
     local cache_info = common.get_cache()
-    ---@type string, modifier_t
-    local target, modifier = table.unpack(cache_info["target"] or {})
+    local modifier
+    ---@type string?, modifier_t?
+    target, modifier = table.unpack(cache_info["target"] or {})
     if target and modifier then -- 已经探测过，直接返回target和modifier
         return target, modifier
     end
 
-    ---@type string | nil
-    local arch = get_config("arch")
-    ---@type string | nil
-    local plat = get_config("plat")
+    ---@type string
+    local origin_arch = get_config("arch")
+    ---@type string
+    local origin_plat = get_config("plat")
     ---@type string
     local target_os = get_config("target_os") or "none"
     local message = [[Unsupported %s "%s". Please select a specific toolchain.]]
@@ -45,12 +46,12 @@ function get_target_modifier(target, toolchain)
         arm64 = "aarch64",
         arm64ec = "aarch64"
     }
-    local old_arch = arch
-    arch = arch_table[arch]
-    assert(arch, format(message, "arch", old_arch))
+    ---@type string?
+    local arch = arch_table[origin_arch]
+    assert(arch, format(message, "arch", origin_arch))
 
-    if plat == "windows" and toolchain == "gcc" then
-        plat = "mingw" -- gcc不支持msvc目标，但clang支持
+    if origin_plat == "windows" and toolchain == "gcc" then
+        origin_plat = "mingw" -- gcc不支持msvc目标，但clang支持
     end
     ---@type map_t
     local plat_table = {
@@ -58,11 +59,12 @@ function get_target_modifier(target, toolchain)
         msys = "w64",
         linux = "linux",
         windows = "windows",
+        macosx = "apple",
         cross = target_os
     }
-    local old_plat = plat
-    plat = plat_table[plat]
-    assert(plat, format(message, "plat", old_plat))
+    ---@type string?
+    local plat = plat_table[origin_plat]
+    assert(plat, format(message, "plat", origin_plat))
 
     ---@type map_t
     local x86_abi_table = {
@@ -81,7 +83,10 @@ function get_target_modifier(target, toolchain)
             linux = "gnueabihf",
             none = "eabi"
         },
-        aarch64 = linux_abi_table,
+        aarch64 = {
+            linux = "gnu",
+            apple = "darwin24"
+        },
         riscv64 = linux_abi_table,
         loongarch64 = linux_abi_table
     }
@@ -96,6 +101,7 @@ function get_target_modifier(target, toolchain)
     end
     target = table.concat(field, "-")
 
+    ---@type modifier_t?
     modifier = target_list[target]
     cprint("detecting for target .. " .. (modifier and "${color.success}" or "${color.failure}") .. target)
     assert(modifier, format(message, "target", target))
@@ -107,20 +113,18 @@ function get_target_modifier(target, toolchain)
 end
 
 ---根据选项或探测结果获取sysroot选项列表
----@return table<string, string | string[]> | nil --选项列表
+---@return table<string, string>? @选项列表
 function get_sysroot_option()
+    ---@type table<string, any>
     local cache_info = common.get_cache()
     ---sysroot缓存
-    ---@type string | nil
+    ---@type string?
     local sysroot = cache_info["sysroot"]
     ---根据sysroot获取选项列表
-    ---@return table<string, string | string[]> --选项列表
+    ---@return table<string, string> --选项列表
     local function get_option_list()
         local sysroot_option = "--sysroot=" .. sysroot
-        -- 判断是不是libc++
-        local is_libcxx = (get_config("runtimes") or ""):startswith("c++")
-        local libcxx_option = is_libcxx and "-isystem" .. path.join(sysroot, "include", "c++", "v1") or nil
-        return { cxflags = { sysroot_option, libcxx_option }, ldflags = sysroot_option, shflags = sysroot_option }
+        return { cxflags = sysroot_option, ldflags = sysroot_option, shflags = sysroot_option }
     end
     if sysroot == "" then
         return nil               -- 已经探测过，无sysroot可用
@@ -129,17 +133,19 @@ function get_sysroot_option()
     end
 
     -- 检查给定sysroot或者自动探测sysroot
+    ---@type string?
     sysroot = get_config("sysroot")
     local detect = sysroot == "detect"
     -- sysroot不为"none"或"detect"则为指定的sysroot
     sysroot = (sysroot ~= "none" and not detect) and sysroot or nil
     -- 若使用clang工具链且未指定sysroot则尝试自动探测
+    ---@type boolean
     detect = detect and common.is_clang()
     cache_info["sysroot_set_by_user"] = sysroot and true or false
     if sysroot then    -- 有指定sysroot则检查合法性
         assert(os.isdir(sysroot), string.format([[The sysroot "%s" is not a directory.]], sysroot))
     elseif detect then -- 尝试探测
-        ---@type string | nil
+        ---@type string?
         local prefix
         if get_config("bin") then
             prefix = path.join(string.trim(get_config("bin")), "..")
@@ -175,12 +181,13 @@ function get_sysroot_option()
 end
 
 ---获取march选项
----@param target string --目标平台
----@param toolchain string --工具链类型
+---@param target string? @目标平台
+---@param toolchain string? @工具链类型
 ---@note 在target和toolchain存在时才检查选项合法性
----@return string | nil --march选项
+---@return string? @march选项
 function get_march_option(target, toolchain)
     local cache_info = common.get_cache()
+    ---@type string?
     local option = cache_info["march"]
     if option == "" then
         return nil    -- 已经探测过，-march不受支持
@@ -193,15 +200,15 @@ function get_march_option(target, toolchain)
     local arch = get_config("march")
     if arch ~= "none" then
         local march = (arch ~= "default" and arch or "native")
-        option = { "-march=" .. march }
+        local options = { "-march=" .. march }
         -- 在target和toolchain存在时才检查选项合法性
         if target and toolchain then
             import("core.tool.compiler")
             if toolchain == "clang" and target ~= "native" then
-                table.insert(option, "--target=" .. target)
+                table.insert(options, "--target=" .. target)
             end
             ---@type boolean
-            local support = compiler.has_flags("cxx", table.concat(option, " "))
+            local support = compiler.has_flags("cxx", table.concat(options, " "))
             local message = "checking for march ... "
             cprint(message .. (support and "${color.success}" or "${color.failure}") .. march)
             if not support then
@@ -210,7 +217,7 @@ function get_march_option(target, toolchain)
                 end
                 option = ""
             else
-                option = option[1]
+                option = options[1]
             end
         else
             option = nil -- 未探测，设置为nil在下次进行探测
@@ -226,14 +233,14 @@ function get_march_option(target, toolchain)
 end
 
 ---获取rtlib选项
----@return string | nil --rtlib选项
+---@return string? @rtlib选项
 function get_rtlib_option()
     local config = get_config("rtlib")
     return (common.is_clang() and config ~= "default") and "-rtlib=" .. config or nil
 end
 
 ---获取unwindlib选项
----@return string | nil --unwindlib选项
+---@return string? @unwindlib选项
 function get_unwindlib_option()
     local config = get_config("unwindlib")
     local force = config:startswith("force")
@@ -243,8 +250,8 @@ function get_unwindlib_option()
 end
 
 ---将mode映射为cmake风格
----@param mode string --xmake风格编译模式
----@return string | nil --cmake风格编译模式
+---@param mode string @xmake风格编译模式
+---@return string? @cmake风格编译模式
 function get_cmake_mode(mode)
     ---@type map_t
     local table = { debug = "Debug", release = "Release", minsizerel = "MinSizeRel", releasedbg = "RelWithDebInfo" }

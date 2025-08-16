@@ -1,9 +1,11 @@
 includes("option.lua")
----@type string | nil
+---@type string?
 local debug_strip = get_config("debug_strip")
 if debug_strip == "none" then -- 不剥离符号
     debug_strip = nil
 end
+---@type string?
+local debug_info = get_config("debug_info") == "minsizerel" and "debug" or nil
 ---@type boolean
 local enable_lto = get_config("enable_lto")
 
@@ -31,6 +33,7 @@ rule("minsizerel", function()
         target:set("optimize", "smallest")
         target:set("strip", "all")
         target:set("policy", "build.optimization.lto", enable_lto)
+        target:set("symbols", debug_info)
     end)
 end)
 
