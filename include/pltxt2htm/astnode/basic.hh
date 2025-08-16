@@ -15,10 +15,11 @@ namespace pltxt2htm {
  * @brief Base node of other nodes
  */
 class PlTxtNode {
-protected:
+public:
+    /// This should be a protected member
+    /// To make it a trivial type, I mark it as public
     ::pltxt2htm::NodeType runtime_node_type_info{::pltxt2htm::NodeType::base};
 
-public:
     constexpr PlTxtNode() noexcept = default;
 
     constexpr PlTxtNode(::pltxt2htm::NodeType type) noexcept
@@ -43,9 +44,9 @@ using Ast = ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxt
  * @brief UTF-8 char/string node
  */
 class U8Char : public ::pltxt2htm::PlTxtNode {
+public:
     char8_t data_;
 
-public:
     constexpr U8Char() noexcept = delete;
 
     constexpr U8Char(char8_t const& chr) noexcept

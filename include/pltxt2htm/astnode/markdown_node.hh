@@ -26,7 +26,7 @@ public:
 
     constexpr ::pltxt2htm::AtxH1& operator=(::pltxt2htm::AtxH1 const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::AtxH1& operator=(::pltxt2htm::AtxH1&&) noexcept = delete;
+    constexpr ::pltxt2htm::AtxH1& operator=(::pltxt2htm::AtxH1&&) noexcept = default;
 };
 
 /**
@@ -50,7 +50,7 @@ public:
 
     constexpr ::pltxt2htm::AtxH2& operator=(::pltxt2htm::AtxH2 const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::AtxH2& operator=(::pltxt2htm::AtxH2&&) noexcept = delete;
+    constexpr ::pltxt2htm::AtxH2& operator=(::pltxt2htm::AtxH2&&) noexcept = default;
 };
 
 /**
@@ -74,7 +74,7 @@ public:
 
     constexpr ::pltxt2htm::AtxH3& operator=(::pltxt2htm::AtxH3 const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::AtxH3& operator=(::pltxt2htm::AtxH3&&) noexcept = delete;
+    constexpr ::pltxt2htm::AtxH3& operator=(::pltxt2htm::AtxH3&&) noexcept = default;
 };
 
 /**
@@ -98,7 +98,7 @@ public:
 
     constexpr ::pltxt2htm::AtxH4& operator=(::pltxt2htm::AtxH4 const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::AtxH4& operator=(::pltxt2htm::AtxH4&&) noexcept = delete;
+    constexpr ::pltxt2htm::AtxH4& operator=(::pltxt2htm::AtxH4&&) noexcept = default;
 };
 
 /**
@@ -122,7 +122,7 @@ public:
 
     constexpr ::pltxt2htm::AtxH5& operator=(::pltxt2htm::AtxH5 const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::AtxH5& operator=(::pltxt2htm::AtxH5&&) noexcept = delete;
+    constexpr ::pltxt2htm::AtxH5& operator=(::pltxt2htm::AtxH5&&) noexcept = default;
 };
 
 /**
@@ -146,7 +146,7 @@ public:
 
     constexpr ::pltxt2htm::AtxH6& operator=(::pltxt2htm::AtxH6 const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::AtxH6& operator=(::pltxt2htm::AtxH6&&) noexcept = delete;
+    constexpr ::pltxt2htm::AtxH6& operator=(::pltxt2htm::AtxH6&&) noexcept = default;
 };
 
 /**

@@ -130,7 +130,7 @@ public:
     constexpr SingleQuotationMark(::pltxt2htm::SingleQuotationMark&& other) noexcept = default;
     constexpr ~SingleQuotationMark() noexcept = default;
     constexpr ::pltxt2htm::SingleQuotationMark& operator=(::pltxt2htm::SingleQuotationMark const&) noexcept = delete;
-    constexpr ::pltxt2htm::SingleQuotationMark& operator=(::pltxt2htm::SingleQuotationMark&&) noexcept = delete;
+    constexpr ::pltxt2htm::SingleQuotationMark& operator=(::pltxt2htm::SingleQuotationMark&&) noexcept = default;
 };
 
 /**
@@ -146,7 +146,7 @@ public:
     constexpr DoubleQuotationMark(::pltxt2htm::DoubleQuotationMark&&) noexcept = default;
     constexpr ~DoubleQuotationMark() noexcept = default;
     constexpr ::pltxt2htm::DoubleQuotationMark& operator=(::pltxt2htm::DoubleQuotationMark const&) noexcept = delete;
-    constexpr ::pltxt2htm::DoubleQuotationMark& operator=(::pltxt2htm::DoubleQuotationMark&&) noexcept = delete;
+    constexpr ::pltxt2htm::DoubleQuotationMark& operator=(::pltxt2htm::DoubleQuotationMark&&) noexcept = default;
 };
 
 /**
@@ -170,7 +170,7 @@ public:
 
     constexpr ::pltxt2htm::H1& operator=(::pltxt2htm::H1 const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::H1& operator=(::pltxt2htm::H1&&) noexcept = delete;
+    constexpr ::pltxt2htm::H1& operator=(::pltxt2htm::H1&&) noexcept = default;
 };
 
 /**
@@ -194,7 +194,7 @@ public:
 
     constexpr ::pltxt2htm::H2& operator=(::pltxt2htm::H2 const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::H2& operator=(::pltxt2htm::H2&&) noexcept = delete;
+    constexpr ::pltxt2htm::H2& operator=(::pltxt2htm::H2&&) noexcept = default;
 };
 
 /**
@@ -218,7 +218,7 @@ public:
 
     constexpr ::pltxt2htm::H3& operator=(::pltxt2htm::H3 const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::H3& operator=(::pltxt2htm::H3&&) noexcept = delete;
+    constexpr ::pltxt2htm::H3& operator=(::pltxt2htm::H3&&) noexcept = default;
 };
 
 /**
@@ -242,7 +242,7 @@ public:
 
     constexpr ::pltxt2htm::H4& operator=(::pltxt2htm::H4 const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::H4& operator=(::pltxt2htm::H4&&) noexcept = delete;
+    constexpr ::pltxt2htm::H4& operator=(::pltxt2htm::H4&&) noexcept = default;
 };
 
 /**
@@ -266,7 +266,7 @@ public:
 
     constexpr ::pltxt2htm::H5& operator=(::pltxt2htm::H5 const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::H5& operator=(::pltxt2htm::H5&&) noexcept = delete;
+    constexpr ::pltxt2htm::H5& operator=(::pltxt2htm::H5&&) noexcept = default;
 };
 
 /**
@@ -290,7 +290,7 @@ public:
 
     constexpr ::pltxt2htm::H6& operator=(::pltxt2htm::H6 const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::H6& operator=(::pltxt2htm::H6&&) noexcept = delete;
+    constexpr ::pltxt2htm::H6& operator=(::pltxt2htm::H6&&) noexcept = default;
 };
 
 /**
@@ -314,7 +314,7 @@ public:
 
     constexpr ::pltxt2htm::P& operator=(::pltxt2htm::P const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::P& operator=(::pltxt2htm::P&&) noexcept = delete;
+    constexpr ::pltxt2htm::P& operator=(::pltxt2htm::P&&) noexcept = default;
 };
 
 /**
@@ -338,7 +338,7 @@ public:
 
     constexpr ::pltxt2htm::Del& operator=(::pltxt2htm::Del const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::Del& operator=(::pltxt2htm::Del&&) noexcept = delete;
+    constexpr ::pltxt2htm::Del& operator=(::pltxt2htm::Del&&) noexcept = default;
 };
 
 /**
@@ -378,7 +378,7 @@ public:
 
     constexpr ::pltxt2htm::Note& operator=(::pltxt2htm::Note const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::Note& operator=(::pltxt2htm::Note&&) noexcept = delete;
+    constexpr ::pltxt2htm::Note& operator=(::pltxt2htm::Note&&) noexcept = default;
 };
 
 /**
@@ -402,7 +402,7 @@ public:
 
     constexpr ::pltxt2htm::Em& operator=(::pltxt2htm::Em const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::Em& operator=(::pltxt2htm::Em&&) noexcept = delete;
+    constexpr ::pltxt2htm::Em& operator=(::pltxt2htm::Em&&) noexcept = default;
 };
 
 /**
@@ -426,7 +426,7 @@ public:
 
     constexpr ::pltxt2htm::Strong& operator=(::pltxt2htm::Strong const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::Strong& operator=(::pltxt2htm::Strong&&) noexcept = delete;
+    constexpr ::pltxt2htm::Strong& operator=(::pltxt2htm::Strong&&) noexcept = default;
 };
 
 /**
@@ -450,7 +450,7 @@ public:
 
     constexpr ::pltxt2htm::Ul& operator=(::pltxt2htm::Ul const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::Ul& operator=(::pltxt2htm::Ul&&) noexcept = delete;
+    constexpr ::pltxt2htm::Ul& operator=(::pltxt2htm::Ul&&) noexcept = default;
 };
 
 /**
@@ -474,7 +474,7 @@ public:
 
     constexpr ::pltxt2htm::Li& operator=(::pltxt2htm::Li const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::Li& operator=(::pltxt2htm::Li&&) noexcept = delete;
+    constexpr ::pltxt2htm::Li& operator=(::pltxt2htm::Li&&) noexcept = default;
 };
 
 /**
@@ -498,7 +498,7 @@ public:
 
     constexpr ::pltxt2htm::Code& operator=(::pltxt2htm::Code const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::Code& operator=(::pltxt2htm::Code&&) noexcept = delete;
+    constexpr ::pltxt2htm::Code& operator=(::pltxt2htm::Code&&) noexcept = default;
 };
 
 /**
@@ -522,7 +522,7 @@ public:
 
     constexpr ::pltxt2htm::Pre& operator=(::pltxt2htm::Pre const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::Pre& operator=(::pltxt2htm::Pre&&) noexcept = delete;
+    constexpr ::pltxt2htm::Pre& operator=(::pltxt2htm::Pre&&) noexcept = default;
 };
 
 } // namespace pltxt2htm
