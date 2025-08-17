@@ -1,5 +1,8 @@
 /* alias char = char8_t */
 
+#ifndef PLTXT2HTM_H
+#define PLTXT2HTM_H
+
 #if defined(__cplusplus)
 extern "C"
 #endif
@@ -53,3 +56,5 @@ extern "C"
         noexcept
 #endif
     ;
+
+#endif
