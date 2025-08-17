@@ -109,20 +109,6 @@ restart:
         case ::pltxt2htm::NodeType::pl_a: {
             // <a> and <color> is the same tag&struct in fact
             auto color = reinterpret_cast<::pltxt2htm::Color const*>(node.release_imul());
-            if (color->get_subast().empty()) {
-                // Optimization: if the tag is empty, we can skip it
-                break;
-            }
-            {
-                // <color=red><color=blue>text</color></color> can be optimized
-                auto&& subast = color->get_subast();
-                if (subast.size() == 1) {
-                    auto subnode = ::pltxt2htm::details::vector_front<ndebug>(subast).release_imul();
-                    if (subnode->node_type() == ::pltxt2htm::NodeType::pl_color) {
-                        color = reinterpret_cast<::pltxt2htm::Color const*>(subnode);
-                    }
-                }
-            }
             auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
             // Optimization: If the color is the same as the parent node, then ignore the nested tag.
             bool const is_not_same_tag =
@@ -148,10 +134,6 @@ restart:
         }
         case ::pltxt2htm::NodeType::pl_experiment: {
             auto experiment = reinterpret_cast<::pltxt2htm::Experiment const*>(node.release_imul());
-            if (experiment->get_subast().empty()) {
-                // Optimization: if the tag is empty, we can skip it
-                break;
-            }
             {
                 auto&& subast = experiment->get_subast();
                 if (subast.size() == 1) {
