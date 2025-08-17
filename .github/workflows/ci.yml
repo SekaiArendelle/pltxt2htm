@@ -254,14 +254,15 @@ jobs:
         run: |
           xmake install -o auto
 
-  x86_64-windows-msvc-py-release:
-    name: x86_64-windows-msvc (py/, release mode, python ${{ matrix.python-version }})
-    runs-on: windows-latest
-
+  x86_64-windows-msvc-py:
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.8", "3.13"]
+        build-mode: [debug, release]
+
+    name: x86_64-windows-msvc (py/, ${{ matrix.build-mode }} mode, python ${{ matrix.python-version }})
+    runs-on: windows-latest
 
     steps:
       - name: Checkout code
@@ -286,7 +287,7 @@ jobs:
       - name: Configure and build
         working-directory: py
         run: |
-          xmake config -p windows -a x64 --toolchain=x86_64-windows-msvc-clang -m release
+          xmake config -p windows -a x64 --toolchain=x86_64-windows-msvc-clang -m ${{ matrix.build-mode }}
           xmake build -v
 
   aarch64-apple-darwin24-py:
