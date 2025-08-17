@@ -220,8 +220,13 @@ jobs:
         run: |
           xmake install -o auto
 
-  wasm32-unknown-emscripten-wasm-debug:
-    name: wasm32-unknown-emscripten (wasm/, debug mode)
+  wasm32-unknown-emscripten-wasm:
+    strategy:
+      fail-fast: false
+      matrix:
+        build-mode: [debug, release]
+
+    name: wasm32-unknown-emscripten (wasm/, ${{ matrix.build-mode }} mode)
     runs-on: windows-latest
 
     steps:
@@ -245,7 +250,7 @@ jobs:
         shell: powershell
         working-directory: wasm
         run: |
-          xmake config -p wasm -m debug --toolchain=emcc
+          xmake config -p wasm -m ${{ matrix.build-mode }} --toolchain=emcc
           xmake build -v
 
       - name: Install
