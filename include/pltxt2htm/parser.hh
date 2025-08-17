@@ -196,7 +196,11 @@ constexpr auto try_parse_self_closing_tag(::fast_io::u8string_view pltext) noexc
     return ::exception::nullopt_t{};
 }
 
-enum class MdAtxHeadingEndingType : ::std::uint_least32_t { no_ending = 0, newline, br_tag };
+enum class MdAtxHeadingEndingType : ::std::uint_least32_t {
+    no_ending = 0,
+    newline,
+    br_tag
+};
 
 struct MdAtxEndingType {
     ::pltxt2htm::details::MdAtxHeadingEndingType ending_type;

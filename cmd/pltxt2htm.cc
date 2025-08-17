@@ -8,7 +8,12 @@
 #include <fast_io/fast_io.h>
 #include <pltxt2htm/pltxt2htm.hh>
 
-enum class TargetType : ::std::uint_least32_t { indeterminate = 0, advanced_html, common_html, fixedadv_html };
+enum class TargetType : ::std::uint_least32_t {
+    indeterminate = 0,
+    advanced_html,
+    common_html,
+    fixedadv_html
+};
 
 constexpr ::fast_io::u8string_view usage{
     u8R"(Usage:

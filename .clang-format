@@ -17,6 +17,11 @@ AccessModifierOffset: -4
 AllowShortCompoundRequirementOnASingleLine: true
 PackConstructorInitializers: Never
 AllowShortBlocksOnASingleLine: Never
+AlwaysBreakAfterReturnType: None
+# Sort using declarations is not allowed
+SortUsingDeclarations: false
+# Enums should never be on a single line
+AllowShortEnumsOnASingleLine: false
 
 AlignConsecutiveAssignments: false
 AlignConsecutiveDeclarations: false
