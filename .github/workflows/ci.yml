@@ -261,7 +261,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.8", "3.13"]
 
     steps:
       - name: Checkout code
@@ -289,14 +289,15 @@ jobs:
           xmake config -p windows -a x64 --toolchain=x86_64-windows-msvc-clang -m release
           xmake build -v
 
-  aarch64-apple-darwin24-py-debug:
-    name: aarch64-apple-darwin24 (py/, debug mode, python ${{ matrix.python-version }})
-    runs-on: macos-latest
-
+  aarch64-apple-darwin24-py:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.8", "3.13"]
+        build-mode: [debug, release]
+
+    name: aarch64-apple-darwin24 (py/, ${{ matrix.build-mode }} mode, python ${{ matrix.python-version }})
+    runs-on: macos-latest
 
     steps:
       - name: Checkout code
@@ -318,7 +319,7 @@ jobs:
       - name: Configure and build
         working-directory: py
         run: |
-          xmake f --toolchain=clang -m debug
+          xmake f --toolchain=clang -m ${{ matrix.build-mode }}
           xmake build -v
 
   aarch64-apple-darwin24-c-debug:
