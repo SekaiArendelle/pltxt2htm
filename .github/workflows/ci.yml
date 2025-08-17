@@ -179,8 +179,13 @@ jobs:
         run: |
           xmake install -o auto
 
-  aarch64-apple-darwin24-cmd-release:
-    name: aarch64-apple-darwin24 (cmd/, release mode)
+  aarch64-apple-darwin24-cmd:
+    strategy:
+      fail-fast: false
+      matrix:
+        build-mode: [debug, release]
+
+    name: aarch64-apple-darwin24 (cmd/, ${{ matrix.build-mode }} mode)
     runs-on: macos-latest
 
     steps:
@@ -202,7 +207,7 @@ jobs:
       - name: Configure and build
         working-directory: cmd
         run: |
-          xmake f -m release --toolchain=clang
+          xmake f -m ${{ matrix.build-mode }} --toolchain=clang
           xmake build -v
 
       - name: Run
@@ -215,8 +220,13 @@ jobs:
         run: |
           xmake install -o auto
 
-  wasm32-unknown-emscripten-wasm-debug:
-    name: wasm32-unknown-emscripten (wasm/, debug mode)
+  wasm32-unknown-emscripten-wasm:
+    strategy:
+      fail-fast: false
+      matrix:
+        build-mode: [debug, release]
+
+    name: wasm32-unknown-emscripten (wasm/, ${{ matrix.build-mode }} mode)
     runs-on: windows-latest
 
     steps:
@@ -240,7 +250,7 @@ jobs:
         shell: powershell
         working-directory: wasm
         run: |
-          xmake config -p wasm -m debug --toolchain=emcc
+          xmake config -p wasm -m ${{ matrix.build-mode }} --toolchain=emcc
           xmake build -v
 
       - name: Install
@@ -249,14 +259,15 @@ jobs:
         run: |
           xmake install -o auto
 
-  x86_64-windows-msvc-py-release:
-    name: x86_64-windows-msvc (py/, release mode, python ${{ matrix.python-version }})
-    runs-on: windows-latest
-
+  x86_64-windows-msvc-py:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.8", "3.13"]
+        build-mode: [debug, release]
+
+    name: x86_64-windows-msvc (py/, ${{ matrix.build-mode }} mode, python ${{ matrix.python-version }})
+    runs-on: windows-latest
 
     steps:
       - name: Checkout code
@@ -281,17 +292,18 @@ jobs:
       - name: Configure and build
         working-directory: py
         run: |
-          xmake config -p windows -a x64 --toolchain=x86_64-windows-msvc-clang -m release
+          xmake config -p windows -a x64 --toolchain=x86_64-windows-msvc-clang -m ${{ matrix.build-mode }}
           xmake build -v
 
-  aarch64-apple-darwin24-py-debug:
-    name: aarch64-apple-darwin24 (py/, debug mode, python ${{ matrix.python-version }})
-    runs-on: macos-latest
-
+  aarch64-apple-darwin24-py:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.8", "3.13"]
+        build-mode: [debug, release]
+
+    name: aarch64-apple-darwin24 (py/, ${{ matrix.build-mode }} mode, python ${{ matrix.python-version }})
+    runs-on: macos-latest
 
     steps:
       - name: Checkout code
@@ -313,7 +325,7 @@ jobs:
       - name: Configure and build
         working-directory: py
         run: |
-          xmake f --toolchain=clang -m debug
+          xmake f --toolchain=clang -m ${{ matrix.build-mode }}
           xmake build -v
 
   aarch64-apple-darwin24-c-debug:
