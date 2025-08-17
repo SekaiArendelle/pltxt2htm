@@ -41,6 +41,8 @@ clang++ example.cc -o example -std=c++23 -I include
 
 And I strongly suggest you to add `-O2`, `-fno-ident`, `-fno-exceptions`, `-fno-rtti`, `-fno-unwind-tables`, `-fno-asynchronous-unwind-tables`, `-DNDEBUG`, `-fuse-ld=lld`, `-flto=thin`, `-stdlib=libc++`, `-rtlib=compiler-rt`, `--unwindlib=libunwind` and cross compiling flags(`--target=$TRIPLET` and `--sysroot=$YOUR_SYSROOT_PATH`) to your clang.
 
+C++20 module example is in [module/example.cc](./module/example.cc)
+
 ## Exported API
 * `pltxt2htm::parse_pltxt`: Get AST of Quantum-Physics's text
   - only exported in C++ API (include/pltxt2htm/pltxt2htm.hh)
@@ -63,6 +65,8 @@ And I strongly suggest you to add `-O2`, `-fno-ident`, `-fno-exceptions`, `-fno-
   - C++ API: `pltxt2htm::version::(major|minor|patch)`: Get version of pltxt2htm
   - Python API: `pltxt2htm.__version__`
   - WASM API: `_ver_major() -> number`, `_ver_minor() -> number`, `_ver_patch() -> number`
+
+All C++ APIs have been listed in [pltxt2htm.cppm](./module/pltxt2htm/pltxt2htm.cppm)
 
 ## features
 I am ensure any new features (like markdown extension) will break old Quantum Physics's text. However, compatibility is not the reason that we should stop our steps. Here are some features why I (or why I not) support:
