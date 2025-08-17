@@ -179,8 +179,13 @@ jobs:
         run: |
           xmake install -o auto
 
-  aarch64-apple-darwin24-cmd-release:
-    name: aarch64-apple-darwin24 (cmd/, release mode)
+  aarch64-apple-darwin24-cmd:
+    strategy:
+      fail-fast: false
+      matrix:
+        build-mode: [debug, release]
+
+    name: aarch64-apple-darwin24 (cmd/, ${{ matrix.build-mode }} mode)
     runs-on: macos-latest
 
     steps:
@@ -202,7 +207,7 @@ jobs:
       - name: Configure and build
         working-directory: cmd
         run: |
-          xmake f -m release --toolchain=clang
+          xmake f -m ${{ matrix.build-mode }} --toolchain=clang
           xmake build -v
 
       - name: Run
