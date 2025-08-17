@@ -162,9 +162,7 @@ public:
 
     constexpr H1(::pltxt2htm::H1 const&) noexcept = default;
 
-    constexpr H1(::pltxt2htm::H1&& other) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_h1, ::std::move(other.subast_)} {
-    }
+    constexpr H1(::pltxt2htm::H1&&) noexcept = default;
 
     constexpr ~H1() noexcept = default;
 
@@ -186,9 +184,7 @@ public:
 
     constexpr H2(::pltxt2htm::H2 const&) noexcept = default;
 
-    constexpr H2(::pltxt2htm::H2&& other) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_h2, ::std::move(other.subast_)} {
-    }
+    constexpr H2(::pltxt2htm::H2&&) noexcept = default;
 
     constexpr ~H2() noexcept = default;
 
@@ -210,9 +206,7 @@ public:
 
     constexpr H3(::pltxt2htm::H3 const&) noexcept = default;
 
-    constexpr H3(::pltxt2htm::H3&& other) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_h3, ::std::move(other.subast_)} {
-    }
+    constexpr H3(::pltxt2htm::H3&&) noexcept = default;
 
     constexpr ~H3() noexcept = default;
 
@@ -234,9 +228,7 @@ public:
 
     constexpr H4(::pltxt2htm::H4 const&) noexcept = default;
 
-    constexpr H4(::pltxt2htm::H4&& other) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_h4, ::std::move(other.subast_)} {
-    }
+    constexpr H4(::pltxt2htm::H4&&) noexcept = default;
 
     constexpr ~H4() noexcept = default;
 
@@ -258,9 +250,7 @@ public:
 
     constexpr H5(::pltxt2htm::H5 const&) noexcept = default;
 
-    constexpr H5(::pltxt2htm::H5&& other) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_h5, ::std::move(other.subast_)} {
-    }
+    constexpr H5(::pltxt2htm::H5&&) noexcept = default;
 
     constexpr ~H5() noexcept = default;
 
@@ -282,9 +272,7 @@ public:
 
     constexpr H6(::pltxt2htm::H6 const&) noexcept = default;
 
-    constexpr H6(::pltxt2htm::H6&& other) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_h6, ::std::move(other.subast_)} {
-    }
+    constexpr H6(::pltxt2htm::H6&&) noexcept = default;
 
     constexpr ~H6() noexcept = default;
 
@@ -306,9 +294,7 @@ public:
 
     constexpr P(::pltxt2htm::P const&) noexcept = default;
 
-    constexpr P(::pltxt2htm::P&& other) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_p, ::std::move(other.subast_)} {
-    }
+    constexpr P(::pltxt2htm::P&&) noexcept = default;
 
     constexpr ~P() noexcept = default;
 
@@ -330,9 +316,7 @@ public:
 
     constexpr Del(::pltxt2htm::Del const&) noexcept = default;
 
-    constexpr Del(::pltxt2htm::Del&& other) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_del, ::std::move(other.subast_)} {
-    }
+    constexpr Del(::pltxt2htm::Del&&) noexcept = default;
 
     constexpr ~Del() noexcept = default;
 
@@ -370,9 +354,7 @@ public:
 
     constexpr Note(::pltxt2htm::Note const&) noexcept = default;
 
-    constexpr Note(::pltxt2htm::Note&& other) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_note, ::std::move(other.subast_)} {
-    }
+    constexpr Note(::pltxt2htm::Note&&) noexcept = default;
 
     constexpr ~Note() noexcept = default;
 
@@ -394,9 +376,7 @@ public:
 
     constexpr Em(::pltxt2htm::Em const&) noexcept = default;
 
-    constexpr Em(::pltxt2htm::Em&& other) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_em, ::std::move(other.subast_)} {
-    }
+    constexpr Em(::pltxt2htm::Em&&) noexcept = default;
 
     constexpr ~Em() noexcept = default;
 
@@ -418,9 +398,7 @@ public:
 
     constexpr Strong(::pltxt2htm::Strong const&) noexcept = default;
 
-    constexpr Strong(::pltxt2htm::Strong&& other) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_strong, ::std::move(other.subast_)} {
-    }
+    constexpr Strong(::pltxt2htm::Strong&&) noexcept = default;
 
     constexpr ~Strong() noexcept = default;
 
@@ -442,9 +420,7 @@ public:
 
     constexpr Ul(::pltxt2htm::Ul const&) noexcept = default;
 
-    constexpr Ul(::pltxt2htm::Ul&& other) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_ul, ::std::move(other.subast_)} {
-    }
+    constexpr Ul(::pltxt2htm::Ul&&) noexcept = default;
 
     constexpr ~Ul() noexcept = default;
 
@@ -466,9 +442,7 @@ public:
 
     constexpr Li(::pltxt2htm::Li const&) noexcept = default;
 
-    constexpr Li(::pltxt2htm::Li&& other) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_li, ::std::move(other.subast_)} {
-    }
+    constexpr Li(::pltxt2htm::Li&&) noexcept = default;
 
     constexpr ~Li() noexcept = default;
 
@@ -490,9 +464,7 @@ public:
 
     constexpr Code(::pltxt2htm::Code const&) noexcept = default;
 
-    constexpr Code(::pltxt2htm::Code&& other) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_code, ::std::move(other.subast_)} {
-    }
+    constexpr Code(::pltxt2htm::Code&&) noexcept = default;
 
     constexpr ~Code() noexcept = default;
 
@@ -514,9 +486,7 @@ public:
 
     constexpr Pre(::pltxt2htm::Pre const&) noexcept = default;
 
-    constexpr Pre(::pltxt2htm::Pre&& other) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_pre, ::std::move(other.subast_)} {
-    }
+    constexpr Pre(::pltxt2htm::Pre&&) noexcept = default;
 
     constexpr ~Pre() noexcept = default;
 

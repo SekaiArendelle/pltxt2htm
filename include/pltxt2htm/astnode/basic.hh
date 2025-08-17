@@ -103,4 +103,19 @@ public:
 
 } // namespace details
 
+class Text : ::pltxt2htm::details::PairedTagBase {
+    constexpr Text() noexcept = delete;
+
+    constexpr Text(::pltxt2htm::Ast&& subast) noexcept
+        : ::pltxt2htm::details::PairedTagBase(::pltxt2htm::NodeType::text, ::std::move(subast)) {
+    }
+
+    constexpr Text(::pltxt2htm::Text const& other) noexcept = default;
+
+    constexpr Text(::pltxt2htm::Text&& other) noexcept = default;
+
+    constexpr Text& operator=(::pltxt2htm::Text const&) noexcept = delete;
+    constexpr Text& operator=(::pltxt2htm::Text&&) noexcept = default;
+};
+
 } // namespace pltxt2htm
