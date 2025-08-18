@@ -14,6 +14,8 @@ enum class NodeType : ::std::uint_least32_t {
     u8char,
     // invalid utf-8 char
     invalid_u8char,
+    // text
+    text,
 
     // \n
     line_break,

@@ -33,5 +33,9 @@ int main() {
     auto answer8 = ::fast_io::u8string_view{u8"tt"};
     ::pltxt2htm_test::assert_true(html8 == answer8);
 
+    auto html9 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<em>te<i>st</i></em>");
+    auto answer9 = ::fast_io::u8string_view{u8"<em>test</em>"};
+    ::pltxt2htm_test::assert_true(html9 == answer9);
+
     return 0;
 }

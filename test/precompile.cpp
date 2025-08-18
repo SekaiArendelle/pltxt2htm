@@ -18,6 +18,14 @@ namespace pltxt2htm_test {
     return ::pltxt2htm::pltxt2common_html<false>(pltext);
 }
 
+::fast_io::u8string pltxt2common_html(::fast_io::u8string_view pltext)
+#if __cpp_exceptions < 199711L
+    noexcept
+#endif
+{
+    return ::pltxt2htm::pltxt2common_html<false, true>(pltext);
+}
+
 ::fast_io::u8string pltxt2advanced_htmld(::fast_io::u8string_view pltext)
 #if __cpp_exceptions < 199711L
     noexcept

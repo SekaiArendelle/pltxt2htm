@@ -24,11 +24,11 @@ int main() {
     ::pltxt2htm_test::assert_true(html5 == answer5);
 
     auto html6 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<ul>");
-    auto answer6 = ::fast_io::u8string_view{u8""};
+    auto answer6 = ::fast_io::u8string_view{u8"<ul></ul>"};
     ::pltxt2htm_test::assert_true(html6 == answer6);
 
     auto html7 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"t<ul></ul>t");
-    auto answer7 = ::fast_io::u8string_view{u8"tt"};
+    auto answer7 = ::fast_io::u8string_view{u8"t<ul></ul>t"};
     ::pltxt2htm_test::assert_true(html7 == answer7);
 
     return 0;

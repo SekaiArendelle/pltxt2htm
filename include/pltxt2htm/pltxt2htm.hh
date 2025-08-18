@@ -9,6 +9,7 @@
 #include <fast_io/fast_io_dsal/string_view.h>
 #include <exception/exception.hh>
 #include "parser.hh"
+#include "optimizer.hh"
 #include "backend/advanced_html.hh"
 #include "backend/common_html.hh"
 #include "version.hh"
@@ -18,41 +19,60 @@ namespace pltxt2htm {
 /**
  * @brief Convert Quantum Physics (aka. Physics-Lab, pl) text to HTML.
  *        Supported syntax are listed in pltxt2htm/astnode.hh: `enum class NodeType`
- * @tparam ndebug: show explanation in README.md Q/A
+ * @tparam ndebug: Whether enable more debug checks like NDEBUG macro. show details in README.md Q/A
+ * @tparam optimize: whether optimize the generated html
  * @param pltext The text of Quantum Physics.
  */
-template<bool ndebug = false>
+template<bool ndebug = false, bool optimize = true>
 [[nodiscard]]
 constexpr auto pltxt2advanced_html(::fast_io::u8string_view pltext, ::fast_io::u8string_view host)
 #if __cpp_exceptions < 199711L
     noexcept
 #endif
 {
-    return ::pltxt2htm::details::ast2advanced_html<ndebug>(::pltxt2htm::parse_pltxt<ndebug>(pltext), host);
+    auto ast = ::pltxt2htm::parse_pltxt<ndebug>(pltext);
+    if constexpr (optimize) {
+        ::pltxt2htm::optimize_ast<ndebug>(ast);
+    }
+    return ::pltxt2htm::details::ast2advanced_html<ndebug>(::std::move(ast), host);
 }
 
 /**
  * @brief The only diffrence between pltxt2advanced_html and pltxt2fixedadv_html is that
  *        `<` won't be transformed to `&lt;`
+ * @tparam ndebug: Whether enable more debug checks like NDEBUG macro. show details in README.md Q/A
+ * @tparam optimize: whether optimize the generated html
  */
-template<bool ndebug = false>
+template<bool ndebug = false, bool optimize = true>
 [[nodiscard]]
 constexpr auto pltxt2fixedadv_html(::fast_io::u8string_view pltext, ::fast_io::u8string_view host)
 #if __cpp_exceptions < 199711L
     noexcept
 #endif
 {
-    return ::pltxt2htm::details::ast2advanced_html<ndebug, false>(::pltxt2htm::parse_pltxt<ndebug>(pltext), host);
+    auto ast = ::pltxt2htm::parse_pltxt<ndebug>(pltext);
+    if constexpr (optimize) {
+        ::pltxt2htm::optimize_ast<ndebug>(ast);
+    }
+    return ::pltxt2htm::details::ast2advanced_html<ndebug, false>(::std::move(ast), host);
 }
 
-template<bool ndebug = false>
+/**
+ * @tparam ndebug: Whether enable more debug checks like NDEBUG macro. show details in README.md Q/A
+ * @tparam optimize: whether optimize the generated html
+ */
+template<bool ndebug = false, bool optimize = false>
 [[nodiscard]]
 constexpr auto pltxt2common_html(::fast_io::u8string_view pltext)
 #if __cpp_exceptions < 199711L
     noexcept
 #endif
 {
-    return ::pltxt2htm::details::ast2common_html<ndebug>(::pltxt2htm::parse_pltxt<ndebug>(pltext));
+    auto ast = ::pltxt2htm::parse_pltxt<ndebug>(pltext);
+    if constexpr (optimize) {
+        ::pltxt2htm::optimize_ast<ndebug>(ast);
+    }
+    return ::pltxt2htm::details::ast2common_html<ndebug>(::std::move(ast));
 }
 
 } // namespace pltxt2htm

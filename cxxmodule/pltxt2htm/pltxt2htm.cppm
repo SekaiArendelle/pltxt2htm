@@ -11,6 +11,7 @@ using ::pltxt2htm::pltxt2common_html;
 using ::pltxt2htm::pltxt2advanced_html;
 using ::pltxt2htm::pltxt2fixedadv_html;
 using ::pltxt2htm::parse_pltxt;
+using ::pltxt2htm::optimize_ast;
 
 namespace version {
 // exported global constant variable (version of pltxt2htm)
@@ -28,6 +29,7 @@ using ::pltxt2htm::NodeType;
 using ::pltxt2htm::PlTxtNode;
 using ::pltxt2htm::U8Char;
 using ::pltxt2htm::InvalidU8Char;
+using ::pltxt2htm::Text;
 
 // html_node
 using ::pltxt2htm::LineBreak;

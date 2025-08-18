@@ -83,10 +83,13 @@ public:
 #endif
         ;
 
-    template<bool ndebug = false>
     constexpr HeapGuard& operator=(this HeapGuard<T>& self, HeapGuard<T>&& other) noexcept {
-        pltxt2htm_assert(self.ptr_ != other.release_imul(), u8"Assigning to self is not allowed");
-        self.swap(self, other);
+#if 0
+        if (self.ptr_ == other.release_imul()) [[unlikely]] {
+            ::exception::terminate();
+        }
+#endif
+        self.swap(other);
         return self;
     }
 
@@ -126,8 +129,12 @@ public:
     }
 
     constexpr void swap(this HeapGuard<T>& self, HeapGuard<T>& other) noexcept {
-        ::std::ranges::swap(self.ptr_, other.get_unsafe());
-        ::std::ranges::swap(self.deleter_, other.deleter_);
+        auto tmp_ptr = self.ptr_;
+        auto tmp_deleter = self.deleter_;
+        self.ptr_ = other.ptr_;
+        self.deleter_ = other.deleter_;
+        other.ptr_ = tmp_ptr;
+        other.deleter_ = tmp_deleter;
     }
 };
 
