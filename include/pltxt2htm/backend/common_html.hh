@@ -8,7 +8,6 @@
 #include <fast_io/fast_io_dsal/string_view.h>
 #include "frame_context.hh"
 #include "../utils.hh"
-#include "../heap_guard.hh"
 #include "../astnode/basic.hh"
 #include "../astnode/physics_lab_node.hh"
 #include "pltxt2htm/astnode/node_type.hh"
@@ -26,15 +25,14 @@ constexpr auto ast2common_html(::pltxt2htm::Ast const& ast_init)
 #endif
     -> ::fast_io::u8string {
     ::fast_io::u8string result{};
-    ::fast_io::stack<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBasicFrameContext>,
-                     ::fast_io::list<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBasicFrameContext>>>
+    ::fast_io::stack<::pltxt2htm::details::BackendBasicFrameContext,
+                     ::fast_io::list<::pltxt2htm::details::BackendBasicFrameContext>>
         call_stack{};
-    call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendHtmlPreCodeContext>(
-        ast_init, ::pltxt2htm::NodeType::base, 0));
+    call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(ast_init, ::pltxt2htm::NodeType::base, 0));
 
 restart:
-    auto&& ast = call_stack.top()->ast_;
-    auto&& current_index = call_stack.top()->current_index_;
+    auto&& ast = call_stack.top().ast_;
+    auto&& current_index = call_stack.top().current_index_;
     for (; current_index < ast.size(); ++current_index) {
         auto&& node = ::pltxt2htm::details::vector_index<ndebug>(ast, current_index);
 
@@ -105,9 +103,8 @@ restart:
         case ::pltxt2htm::NodeType::pl_a: {
             // <a> and <color> is the same tag&struct in fact
             auto color = reinterpret_cast<::pltxt2htm::Color const*>(node.release_imul());
-            call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendEqualSignTagContext>(
-                color->get_subast(), ::pltxt2htm::NodeType::pl_color, false, 0,
-                ::fast_io::mnp::os_c_str(color->get_color())));
+            call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(color->get_subast(),
+                                                                           ::pltxt2htm::NodeType::pl_color, 0));
             ++current_index;
             auto close_tag1 = ::fast_io::array{u8'<', u8's', u8'p',  u8'a', u8'n', u8' ', u8's', u8't', u8'y', u8'l',
                                                u8'e', u8'=', u8'\"', u8'c', u8'o', u8'l', u8'o', u8'r', u8':'};
@@ -121,8 +118,8 @@ restart:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::pl_b: {
             auto b = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
-            call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
-                b->get_subast(), ::pltxt2htm::NodeType::pl_b, false, 0));
+            call_stack.push(
+                ::pltxt2htm::details::BackendBasicFrameContext(b->get_subast(), ::pltxt2htm::NodeType::pl_b, 0));
             ++current_index;
             auto start_tag = ::fast_io::array{u8'<', u8's', u8't', u8'r', u8'o', u8'n', u8'g', u8'>'};
             result.append(::fast_io::u8string_view{start_tag.data(), start_tag.size()});
@@ -132,8 +129,8 @@ restart:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_em: {
             auto em = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
-            call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
-                em->get_subast(), ::pltxt2htm::NodeType::html_em, false, 0));
+            call_stack.push(
+                ::pltxt2htm::details::BackendBasicFrameContext(em->get_subast(), ::pltxt2htm::NodeType::html_em, 0));
             ++current_index;
             auto start_tag = ::fast_io::array{u8'<', u8'e', u8'm', u8'>'};
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
@@ -260,8 +257,8 @@ restart:
                 // Optimization: if the tag is empty, we can skip it
                 break;
             }
-            call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
-                a_paired_tag->get_subast(), ::pltxt2htm::NodeType::base, false, 0));
+            call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(a_paired_tag->get_subast(),
+                                                                           ::pltxt2htm::NodeType::base, 0));
             ++current_index;
             goto restart;
         }
@@ -274,7 +271,7 @@ restart:
         if (call_stack.empty()) {
             return result;
         } else {
-            switch (top_frame->nested_tag_type_) {
+            switch (top_frame.nested_tag_type_) {
             case ::pltxt2htm::NodeType::html_strong:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::pl_b: {

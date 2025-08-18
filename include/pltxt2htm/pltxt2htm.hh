@@ -19,7 +19,8 @@ namespace pltxt2htm {
 /**
  * @brief Convert Quantum Physics (aka. Physics-Lab, pl) text to HTML.
  *        Supported syntax are listed in pltxt2htm/astnode.hh: `enum class NodeType`
- * @tparam ndebug: show explanation in README.md Q/A
+ * @tparam ndebug: Whether enable more debug checks like NDEBUG macro. show details in README.md Q/A
+ * @tparam optimize: whether optimize the generated html
  * @param pltext The text of Quantum Physics.
  */
 template<bool ndebug = false, bool optimize = true>
@@ -39,6 +40,8 @@ constexpr auto pltxt2advanced_html(::fast_io::u8string_view pltext, ::fast_io::u
 /**
  * @brief The only diffrence between pltxt2advanced_html and pltxt2fixedadv_html is that
  *        `<` won't be transformed to `&lt;`
+ * @tparam ndebug: Whether enable more debug checks like NDEBUG macro. show details in README.md Q/A
+ * @tparam optimize: whether optimize the generated html
  */
 template<bool ndebug = false, bool optimize = false>
 [[nodiscard]]
@@ -54,6 +57,10 @@ constexpr auto pltxt2fixedadv_html(::fast_io::u8string_view pltext, ::fast_io::u
     return ::pltxt2htm::details::ast2advanced_html<ndebug, false>(::std::move(ast), host);
 }
 
+/**
+ * @tparam ndebug: Whether enable more debug checks like NDEBUG macro. show details in README.md Q/A
+ * @tparam optimize: whether optimize the generated html
+ */
 template<bool ndebug = false, bool optimize = false>
 [[nodiscard]]
 constexpr auto pltxt2common_html(::fast_io::u8string_view pltext)
