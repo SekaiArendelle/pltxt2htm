@@ -21,7 +21,7 @@ int main() {
     auto answer5 = ::fast_io::u8string_view{u8"<em>test</em>"};
     ::pltxt2htm_test::assert_true(html5 == answer5);
 
-    auto html6 = ::pltxt2htm_test::pltxt2common_htmld(u8"<color=red><Color=#66CcFf>text</color></color>");
+    auto html6 = ::pltxt2htm_test::pltxt2common_html(u8"<color=red><Color=#66CcFf>text</color></color>");
     auto answer6 = ::fast_io::u8string_view{u8"<span style=\"color:#66CcFf;\">text</span>"};
     ::pltxt2htm_test::assert_true(html6 == answer6);
 
