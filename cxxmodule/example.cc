@@ -1,9 +1,4 @@
-#if 0
-// fast_io module exports contains some bug
 import fast_io;
-#else
-#include <fast_io/fast_io.h>
-#endif
 import pltxt2htm;
 
 int main() {
