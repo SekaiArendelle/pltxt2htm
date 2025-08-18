@@ -16,4 +16,10 @@ target("example", function ()
     if is_plat("windows", "mingw") then
         add_links("ntdll")
     end
+    on_config(function (target)
+        local toolchains = target:tool("cxx")
+        if path.basename(toolchains) == "clang++" or path.basename(toolchains) == "clang" then
+            target:add("ldflags", "-fuse-ld=lld")
+        end
+    end)
 end)
