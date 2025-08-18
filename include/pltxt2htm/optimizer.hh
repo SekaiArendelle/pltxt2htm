@@ -138,7 +138,7 @@ restart:
         case ::pltxt2htm::NodeType::tab: {
             break;
         }
-        case ::pltxt2htm::NodeType::text:  {
+        case ::pltxt2htm::NodeType::text: {
             auto text = reinterpret_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& subast = text->get_subast();
             call_stack.push(
@@ -151,14 +151,13 @@ restart:
         case ::pltxt2htm::NodeType::pl_a: {
             // <a> and <color> is the same tag&struct in fact
             auto color = reinterpret_cast<::pltxt2htm::Color*>(node.get_unsafe());
-
             {
                 // <color=red><color=blue>text</color></color> can be optimized
                 auto&& subast = color->get_subast();
                 if (subast.size() == 1) {
                     ::pltxt2htm::PlTxtNode* psubnode{::pltxt2htm::details::vector_front<ndebug>(subast).get_unsafe()};
                     if (psubnode->node_type() == ::pltxt2htm::NodeType::pl_color) {
-                        auto subnode = ::std::move(*reinterpret_cast<Color*>(psubnode));
+                        auto subnode = ::std::move(*reinterpret_cast<::pltxt2htm::Color*>(psubnode));
                         (*color) = ::std::move(subnode);
                     }
                 }
@@ -189,128 +188,167 @@ restart:
         }
         case ::pltxt2htm::NodeType::pl_experiment: {
             auto experiment = reinterpret_cast<::pltxt2htm::Experiment*>(node.get_unsafe());
-            //     {
-            //         auto&& subast = experiment->get_subast();
-            //         if (subast.size() == 1) {
-            //             // <Experiment=123><experiment=642cf37a494746375aae306a>physicsLab</experiment></Experiment>
-            //             can be
-            //             // optimized as <a
-            //             href=\"localhost:5173/ExperimentSummary/Experiment/642cf37a494746375aae306a\"
-            //             // internal>physicsLab</a>
-            //             auto subnode = ::pltxt2htm::details::vector_front<ndebug>(subast).release_imul();
-            //             if (subnode->node_type() == ::pltxt2htm::NodeType::pl_experiment) {
-            //                 experiment = reinterpret_cast<::pltxt2htm::Experiment const*>(subnode);
-            //             }
-            //         }
-            //     }
-            //     auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
-            //     // Optimization: If the experiment is the same as the parent node, then ignore the nested tag.
-            //     bool const is_not_same_tag =
-            //         nested_tag_type != ::pltxt2htm::NodeType::pl_experiment ||
-            //         experiment->get_id() != reinterpret_cast<::pltxt2htm::details::BackendEqualSignTagContext
-            //         const*>(
-            //                                     call_stack.top().release_imul())
-            //                                     ->id_;
-            auto&& subast = experiment->get_subast();
-            call_stack.push(::pltxt2htm::details::HeapGuard<
-                            ::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator>>(
-                ::std::addressof(subast), ::pltxt2htm::NodeType::pl_experiment, subast.begin(),
-                ::fast_io::mnp::os_c_str(experiment->get_id())));
-            goto restart;
+            {
+                auto&& subast = experiment->get_subast();
+                if (subast.size() == 1) {
+                    // <Experiment=123><experiment=642cf37a494746375aae306a>physicsLab</experiment></Experiment> can be
+                    // optimized as <a href=\"localhost:5173/ExperimentSummary/Experiment/642cf37a494746375aae306a\"
+                    // internal>physicsLab</a>
+                    auto psubnode = ::pltxt2htm::details::vector_front<ndebug>(subast).get_unsafe();
+                    if (psubnode->node_type() == ::pltxt2htm::NodeType::pl_experiment) {
+                        auto subnode = ::std::move(*reinterpret_cast<::pltxt2htm::Experiment*>(psubnode));
+                        (*experiment) = ::std::move(subnode);
+                    }
+                }
+            }
+            auto&& nested_tag_type = call_stack.top()->nested_tag_type;
+            // Optimization: If the experiment is the same as the parent node, then ignore the nested tag.
+            bool const is_not_same_tag =
+                nested_tag_type != ::pltxt2htm::NodeType::pl_experiment ||
+                experiment->get_id() !=
+                    reinterpret_cast<
+                        ::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator> const*>(
+                        call_stack.top().release_imul())
+                        ->id_;
+            if (is_not_same_tag) {
+                auto&& subast = experiment->get_subast();
+                call_stack.push(::pltxt2htm::details::HeapGuard<
+                                ::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator>>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeType::pl_experiment, subast.begin(),
+                    ::fast_io::mnp::os_c_str(experiment->get_id())));
+                goto restart;
+            } else {
+                node = static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+                    ::pltxt2htm::details::HeapGuard<::pltxt2htm::Text>(::std::move(experiment->get_subast())));
+                continue;
+            }
         }
         case ::pltxt2htm::NodeType::pl_discussion: {
             auto discussion = reinterpret_cast<::pltxt2htm::Discussion*>(node.get_unsafe());
-            //     {
-            //         auto&& subast = discussion->get_subast();
-            //         if (subast.size() == 1) {
-            //             // <Discussion=123><discussion=642cf37a494746375aae306a>physicsLab</discussion></Discussion>
-            //             can be
-            //             // optimized as <a
-            //             href=\"localhost:5173/ExperimentSummary/Discussion/642cf37a494746375aae306a\"
-            //             // internal>physicsLab</a>
-            //             auto subnode = ::pltxt2htm::details::vector_front<ndebug>(subast).release_imul();
-            //             if (subnode->node_type() == ::pltxt2htm::NodeType::pl_discussion) {
-            //                 discussion = reinterpret_cast<::pltxt2htm::Discussion const*>(subnode);
-            //             }
-            //         }
-            //     }
-            //     auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
-            //     // Optimization: If the discussion is the same as the parent node, then ignore the nested tag.
-            //     bool const is_not_same_tag =
-            //         nested_tag_type != ::pltxt2htm::NodeType::pl_discussion ||
-            //         discussion->get_id() != reinterpret_cast<::pltxt2htm::details::BackendEqualSignTagContext
-            //         const*>(
-            //                                     call_stack.top().release_imul())
-            //                                     ->id_;
-            auto&& subast = discussion->get_subast();
-            call_stack.push(::pltxt2htm::details::HeapGuard<
-                            ::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator>>(
-                ::std::addressof(subast), ::pltxt2htm::NodeType::pl_discussion, subast.begin(),
-                ::fast_io::mnp::os_c_str(discussion->get_id())));
-            goto restart;
+            {
+                auto&& subast = discussion->get_subast();
+                if (subast.size() == 1) {
+                    // <Discussion=123><discussion=642cf37a494746375aae306a>physicsLab</discussion></Discussion>
+                    // can be
+                    // optimized as <a
+                    // href=\"localhost:5173/ExperimentSummary/Discussion/642cf37a494746375aae306a\"
+                    // internal>physicsLab</a>
+                    auto psubnode = ::pltxt2htm::details::vector_front<ndebug>(subast).get_unsafe();
+                    if (psubnode->node_type() == ::pltxt2htm::NodeType::pl_discussion) {
+                        auto subnode = ::std::move(*reinterpret_cast<::pltxt2htm::Discussion*>(psubnode));
+                        (*discussion) = ::std::move(subnode);
+                    }
+                }
+            }
+            auto&& nested_tag_type = call_stack.top()->nested_tag_type;
+            // Optimization: If the discussion is the same as the parent node, then ignore the nested tag.
+            bool const is_not_same_tag =
+                nested_tag_type != ::pltxt2htm::NodeType::pl_discussion ||
+                discussion->get_id() !=
+                    reinterpret_cast<
+                        ::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator> const*>(
+                        call_stack.top().release_imul())
+                        ->id_;
+            if (is_not_same_tag) {
+                auto&& subast = discussion->get_subast();
+                call_stack.push(::pltxt2htm::details::HeapGuard<
+                                ::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator>>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeType::pl_discussion, subast.begin(),
+                    ::fast_io::mnp::os_c_str(discussion->get_id())));
+                goto restart;
+            } else {
+                node = static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+                    ::pltxt2htm::details::HeapGuard<::pltxt2htm::Text>(::std::move(discussion->get_subast())));
+                continue;
+            }
         }
         case ::pltxt2htm::NodeType::pl_user: {
             auto user = reinterpret_cast<::pltxt2htm::User*>(node.get_unsafe());
-            //     {
-            //         auto&& subast = user->get_subast();
-            //         if (subast.size() == 1) {
-            //             // <User=123><user=642cf37a494746375aae306a>physicsLab</user></User> can be
-            //             auto subnode = ::pltxt2htm::details::vector_front<ndebug>(subast).release_imul();
-            //             if (subnode->node_type() == ::pltxt2htm::NodeType::pl_user) {
-            //                 user = reinterpret_cast<::pltxt2htm::User const*>(subnode);
-            //             }
-            //         }
-            //     }
-            //     auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
-            //     // Optimization: If the user is the same as the parent node, then ignore the nested tag.
-            //     bool const is_not_same_tag =
-            //         nested_tag_type != ::pltxt2htm::NodeType::pl_user ||
-            //         user->get_id() != reinterpret_cast<::pltxt2htm::details::BackendEqualSignTagContext const*>(
-            //                               call_stack.top().release_imul())
-            //                               ->id_;
-            auto&& subast = user->get_subast();
-            call_stack.push(::pltxt2htm::details::HeapGuard<
-                            ::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator>>(
-                ::std::addressof(subast), ::pltxt2htm::NodeType::pl_user, subast.begin(),
-                ::fast_io::mnp::os_c_str(user->get_id())));
-            goto restart;
+            {
+                auto&& subast = user->get_subast();
+                if (subast.size() == 1) {
+                    // <User=123><user=642cf37a494746375aae306a>physicsLab</user></User> can be
+                    auto psubnode = ::pltxt2htm::details::vector_front<ndebug>(subast).get_unsafe();
+                    if (psubnode->node_type() == ::pltxt2htm::NodeType::pl_user) {
+                        auto subnode = ::std::move(*reinterpret_cast<::pltxt2htm::User*>(psubnode));
+                        (*user) = ::std::move(subnode);
+                    }
+                }
+            }
+            auto&& nested_tag_type = call_stack.top()->nested_tag_type;
+            // Optimization: If the user is the same as the parent node, then ignore the nested tag.
+            bool const is_not_same_tag =
+                nested_tag_type != ::pltxt2htm::NodeType::pl_user ||
+                user->get_id() !=
+                    reinterpret_cast<
+                        ::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator> const*>(
+                        call_stack.top().get_unsafe())
+                        ->id_;
+            if (is_not_same_tag) {
+                auto&& subast = user->get_subast();
+                call_stack.push(::pltxt2htm::details::HeapGuard<
+                                ::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator>>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeType::pl_user, subast.begin(),
+                    ::fast_io::mnp::os_c_str(user->get_id())));
+                goto restart;
+            } else {
+                node = static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+                    ::pltxt2htm::details::HeapGuard<::pltxt2htm::Text>(::std::move(user->get_subast())));
+                continue;
+            }
         }
         case ::pltxt2htm::NodeType::pl_size: {
             auto size = reinterpret_cast<::pltxt2htm::Size*>(node.get_unsafe());
-            //     {
-            //         auto&& subast = size->get_subast();
-            //         if (subast.size() == 1) {
-            //             // <size=12><size=3>physicsLab</size></size> can be
-            //             auto subnode = ::pltxt2htm::details::vector_front<ndebug>(subast).release_imul();
-            //             if (subnode->node_type() == ::pltxt2htm::NodeType::pl_size) {
-            //                 size = reinterpret_cast<::pltxt2htm::Size const*>(subnode);
-            //             }
-            //         }
-            //     }
-            //     auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
-            //     // Optimization: If the size is the same as the parent node, then ignore the nested tag.
-            //     bool const is_not_same_tag =
-            //         nested_tag_type != ::pltxt2htm::NodeType::pl_size ||
-            //         size->get_id() != reinterpret_cast<::pltxt2htm::details::BackendPlSizeTagContext const*>(
-            //                               call_stack.top().release_imul())
-            //                               ->id_;
-            auto&& subast = size->get_subast();
-            call_stack.push(
-                ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerPlSizeTagContext<::pltxt2htm::Ast::iterator>>(
+            {
+                auto&& subast = size->get_subast();
+                if (subast.size() == 1) {
+                    // <size=12><size=3>physicsLab</size></size> can be
+                    auto psubnode = ::pltxt2htm::details::vector_front<ndebug>(subast).get_unsafe();
+                    if (psubnode->node_type() == ::pltxt2htm::NodeType::pl_size) {
+                        auto subnode = ::std::move(*reinterpret_cast<::pltxt2htm::Size*>(psubnode));
+                        (*size) = ::std::move(subnode);
+                    }
+                }
+            }
+            auto&& nested_tag_type = call_stack.top()->nested_tag_type;
+            // Optimization: If the size is the same as the parent node, then ignore the nested tag.
+            bool const is_not_same_tag =
+                nested_tag_type != ::pltxt2htm::NodeType::pl_size ||
+                size->get_id() !=
+                    reinterpret_cast<
+                        ::pltxt2htm::details::OptimizerPlSizeTagContext<::pltxt2htm::Ast::iterator> const*>(
+                        call_stack.top().release_imul())
+                        ->id_;
+            if (is_not_same_tag) {
+                auto&& subast = size->get_subast();
+                call_stack.push(::pltxt2htm::details::HeapGuard<
+                                ::pltxt2htm::details::OptimizerPlSizeTagContext<::pltxt2htm::Ast::iterator>>(
                     ::std::addressof(subast), ::pltxt2htm::NodeType::pl_size, subast.begin(), size->get_id()));
-            goto restart;
+                goto restart;
+            } else {
+                node = static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+                    ::pltxt2htm::details::HeapGuard<::pltxt2htm::Text>(::std::move(size->get_subast())));
+                continue;
+            }
         }
         case ::pltxt2htm::NodeType::html_strong:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::pl_b: {
             auto b = reinterpret_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
-            //     auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
-            //     bool const is_not_same_tag = nested_tag_type != ::pltxt2htm::NodeType::pl_b;
-            auto&& subast = b->get_subast();
-            call_stack.push(
-                ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
-                    ::std::addressof(subast), ::pltxt2htm::NodeType::html_strong, subast.begin()));
-            goto restart;
+            auto&& nested_tag_type = call_stack.top()->nested_tag_type;
+            bool const is_not_same_tag =
+                nested_tag_type != ::pltxt2htm::NodeType::pl_b && nested_tag_type != ::pltxt2htm::NodeType::html_strong;
+            if (is_not_same_tag) {
+                auto&& subast = b->get_subast();
+                call_stack.push(
+                    ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+                        ::std::addressof(subast), ::pltxt2htm::NodeType::html_strong, subast.begin()));
+                goto restart;
+            } else {
+                node = static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+                    ::pltxt2htm::details::HeapGuard<::pltxt2htm::Text>(::std::move(b->get_subast())));
+                continue;
+            }
         }
         case ::pltxt2htm::NodeType::html_p: {
             auto p = reinterpret_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
@@ -388,25 +426,37 @@ restart:
         }
         case ::pltxt2htm::NodeType::html_del: {
             auto del = reinterpret_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
-        //     auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
-        //     bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_del};
-            auto&& subast = del->get_subast();
-            call_stack.push(
-                ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
-                    ::std::addressof(subast), ::pltxt2htm::NodeType::html_pre, subast.begin()));
-            goto restart;
+            auto&& nested_tag_type = call_stack.top()->nested_tag_type;
+            bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_del};
+            if (is_not_same_tag) {
+                auto&& subast = del->get_subast();
+                call_stack.push(
+                    ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+                        ::std::addressof(subast), ::pltxt2htm::NodeType::html_del, subast.begin()));
+                goto restart;
+            } else {
+                node = static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+                    ::pltxt2htm::details::HeapGuard<::pltxt2htm::Text>(::std::move(del->get_subast())));
+                continue;
+            }
         }
         case ::pltxt2htm::NodeType::pl_i:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_em: {
-        
-        //     auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
-        //     bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_em};
-        auto em = reinterpret_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
-            auto&& subast = em->get_subast();
-            call_stack.push(
-                ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
-                    ::std::addressof(subast), ::pltxt2htm::NodeType::html_em, subast.begin()));
+            auto em = reinterpret_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
+            auto&& nested_tag_type = call_stack.top()->nested_tag_type;
+            bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_em &&
+                                       nested_tag_type != ::pltxt2htm::NodeType::pl_i};
+            if (is_not_same_tag) {
+                auto&& subast = em->get_subast();
+                call_stack.push(
+                    ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+                        ::std::addressof(subast), ::pltxt2htm::NodeType::html_em, subast.begin()));
+            } else {
+                node = static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+                    ::pltxt2htm::details::HeapGuard<::pltxt2htm::Text>(::std::move(em->get_subast())));
+                continue;
+            }
             goto restart;
         }
         case ::pltxt2htm::NodeType::md_hr:
@@ -418,10 +468,10 @@ restart:
             break;
         }
         case ::pltxt2htm::NodeType::html_ul: {
-        //     auto ul = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
-        //     auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
-        //     bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_ul};
-        auto ul = reinterpret_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
+            //     auto ul = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            //     auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
+            //     bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_ul};
+            auto ul = reinterpret_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& subast = ul->get_subast();
             call_stack.push(
                 ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
@@ -430,16 +480,15 @@ restart:
         }
         case ::pltxt2htm::NodeType::html_li: {
             auto li = reinterpret_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
-        //     auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
-        //     bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_li};
+            //     auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
+            //     bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_li};
             auto&& subast = li->get_subast();
             call_stack.push(
                 ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                     ::std::addressof(subast), ::pltxt2htm::NodeType::html_li, subast.begin()));
             goto restart;
         }
-        case ::pltxt2htm::NodeType::html_code:
-             {
+        case ::pltxt2htm::NodeType::html_code: {
             auto code = reinterpret_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& subast = code->get_subast();
             call_stack.push(
@@ -447,7 +496,7 @@ restart:
                     ::std::addressof(subast), ::pltxt2htm::NodeType::html_code, subast.begin()));
             goto restart;
         }
-        case ::pltxt2htm::NodeType::html_pre:  {
+        case ::pltxt2htm::NodeType::html_pre: {
             auto pre = reinterpret_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& subast = pre->get_subast();
             call_stack.push(
@@ -548,11 +597,7 @@ restart:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::pl_i:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_del:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_code:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_pre: {
+            case ::pltxt2htm::NodeType::html_del: {
                 if (top_frame->ast->empty()) {
                     // Optimization: if the tag is empty, we can skip it
                     call_stack.top()->ast->erase(call_stack.top()->iter);
@@ -561,6 +606,10 @@ restart:
                 }
                 goto restart;
             }
+            case ::pltxt2htm::NodeType::html_code:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::html_pre:
+                [[fallthrough]];
             case ::pltxt2htm::NodeType::html_li:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::html_ul:
@@ -577,10 +626,9 @@ restart:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::html_h5:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_h6:
-                {
-                    break;
-                }
+            case ::pltxt2htm::NodeType::html_h6: {
+                break;
+            }
             default:
                 [[unlikely]] {
                     ::exception::unreachable<ndebug>();

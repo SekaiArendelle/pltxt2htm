@@ -30,5 +30,9 @@ int main() {
     auto answer7 = ::fast_io::u8string_view{u8"tt"};
     ::pltxt2htm_test::assert_true(html7 == answer7);
 
+    auto html8 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<strong>text<b>text</b></strong>");
+    auto answer8 = ::fast_io::u8string_view{u8"<strong>texttext</strong>"};
+    ::pltxt2htm_test::assert_true(html8 == answer8);
+
     return 0;
 }
