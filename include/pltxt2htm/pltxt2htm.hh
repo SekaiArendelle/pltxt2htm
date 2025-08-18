@@ -43,7 +43,7 @@ constexpr auto pltxt2advanced_html(::fast_io::u8string_view pltext, ::fast_io::u
  * @tparam ndebug: Whether enable more debug checks like NDEBUG macro. show details in README.md Q/A
  * @tparam optimize: whether optimize the generated html
  */
-template<bool ndebug = false, bool optimize = false>
+template<bool ndebug = false, bool optimize = true>
 [[nodiscard]]
 constexpr auto pltxt2fixedadv_html(::fast_io::u8string_view pltext, ::fast_io::u8string_view host)
 #if __cpp_exceptions < 199711L
