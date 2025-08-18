@@ -84,7 +84,7 @@ public:
         ;
 
     constexpr HeapGuard& operator=(this HeapGuard<T>& self, HeapGuard<T>&& other) noexcept {
-#if 1
+#if 0
         if (self.ptr_ == other.release_imul()) [[unlikely]] {
             ::exception::terminate();
         }
