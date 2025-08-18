@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iterator>
 #include <fast_io/fast_io_dsal/list.h>
 #include <fast_io/fast_io_dsal/stack.h>
 #include "utils.hh"
@@ -12,46 +13,100 @@ namespace pltxt2htm {
 
 namespace details {
 
+template<::std::forward_iterator Iter>
 class OptimizerContext {
 public:
     ::pltxt2htm::Ast* ast;
-    ::pltxt2htm::NodeType nested_tag_type;
-    ::std::size_t current_index;
+    ::pltxt2htm::NodeType const nested_tag_type;
+    Iter iter;
 
-    OptimizerContext(::pltxt2htm::Ast* node_, ::pltxt2htm::NodeType nested_tag_type_,
-                     ::std::size_t current_index_) noexcept
-        : ast(node_),
+    OptimizerContext(::pltxt2htm::Ast* ast_, ::pltxt2htm::NodeType const nested_tag_type_, Iter&& iter_) noexcept
+        : ast(ast_),
           nested_tag_type{nested_tag_type_},
-          current_index{current_index_} {
+          iter{iter_} {
     }
 
-    constexpr OptimizerContext(::pltxt2htm::details::OptimizerContext const&) noexcept = default;
+    constexpr OptimizerContext(::pltxt2htm::details::OptimizerContext<Iter> const&) noexcept = default;
 
-    constexpr OptimizerContext(::pltxt2htm::details::OptimizerContext&&) noexcept = default;
+    constexpr OptimizerContext(::pltxt2htm::details::OptimizerContext<Iter>&&) noexcept = default;
 
     constexpr ~OptimizerContext() noexcept = default;
 
-    constexpr ::pltxt2htm::details::OptimizerContext& operator=(
-        ::pltxt2htm::details::OptimizerContext const&) noexcept = default;
+    constexpr ::pltxt2htm::details::OptimizerContext<Iter>& operator=(
+        ::pltxt2htm::details::OptimizerContext<Iter> const&) noexcept = default;
 
-    constexpr ::pltxt2htm::details::OptimizerContext& operator=(::pltxt2htm::details::OptimizerContext&&) noexcept =
+    constexpr ::pltxt2htm::details::OptimizerContext<Iter>& operator=(
+        ::pltxt2htm::details::OptimizerContext<Iter>&&) noexcept = default;
+};
+
+template<::std::forward_iterator Iter>
+class OptimizerEqualSignTagContext : public ::pltxt2htm::details::OptimizerContext<Iter> {
+public:
+    ::fast_io::u8string_view id_;
+
+    OptimizerEqualSignTagContext(::pltxt2htm::Ast* ast, ::pltxt2htm::NodeType const nested_tag_type, Iter&& iter,
+                                 ::fast_io::u8string_view id) noexcept
+        : ::pltxt2htm::details::OptimizerContext<Iter>(ast, nested_tag_type, ::std::move(iter)),
+          id_{id} {
+    }
+
+    constexpr OptimizerEqualSignTagContext(::pltxt2htm::details::OptimizerEqualSignTagContext<Iter> const&) noexcept =
         default;
+    constexpr OptimizerEqualSignTagContext(::pltxt2htm::details::OptimizerEqualSignTagContext<Iter>&&) noexcept =
+        default;
+
+    constexpr ~OptimizerEqualSignTagContext() noexcept = default;
+
+    // const reference do not support operator=
+    constexpr ::pltxt2htm::details::OptimizerEqualSignTagContext<Iter>& operator=(
+        ::pltxt2htm::details::OptimizerEqualSignTagContext<Iter> const&) noexcept = delete;
+    constexpr ::pltxt2htm::details::OptimizerEqualSignTagContext<Iter>& operator=(
+        ::pltxt2htm::details::OptimizerEqualSignTagContext<Iter>&&) noexcept = delete;
+};
+
+template<::std::forward_iterator Iter>
+class OptimizerPlSizeTagContext : public ::pltxt2htm::details::OptimizerContext<Iter> {
+public:
+    ::std::size_t id_;
+
+    OptimizerPlSizeTagContext(::pltxt2htm::Ast* ast, ::pltxt2htm::NodeType const nested_tag_type, Iter&& iter,
+                              ::std::size_t id) noexcept
+        : ::pltxt2htm::details::OptimizerContext<Iter>(ast, nested_tag_type, ::std::move(iter)),
+          id_{id} {
+    }
+
+    constexpr OptimizerPlSizeTagContext(::pltxt2htm::details::OptimizerPlSizeTagContext<Iter> const&) noexcept =
+        default;
+
+    constexpr OptimizerPlSizeTagContext(::pltxt2htm::details::OptimizerPlSizeTagContext<Iter>&&) noexcept = default;
+
+    constexpr ~OptimizerPlSizeTagContext() noexcept = default;
+
+    // const reference do not support operator=
+    constexpr ::pltxt2htm::details::OptimizerPlSizeTagContext<Iter>& operator=(
+        ::pltxt2htm::details::OptimizerPlSizeTagContext<Iter> const&) noexcept = delete;
+
+    constexpr ::pltxt2htm::details::OptimizerPlSizeTagContext<Iter>& operator=(
+        ::pltxt2htm::details::OptimizerPlSizeTagContext<Iter>&&) noexcept = delete;
 };
 
 } // namespace details
 
 template<bool ndebug>
 constexpr void optimize_ast(::pltxt2htm::Ast& ast_init) noexcept {
-    ::fast_io::stack<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext>,
-                     ::fast_io::list<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext>>>
+    ::fast_io::stack<
+        ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>,
+        ::fast_io::list<
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>>>
         call_stack{};
-    call_stack.push(::pltxt2htm::details::OptimizerContext{::std::addressof(ast_init), ::pltxt2htm::NodeType::base, 0});
+    call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>{
+        ::std::addressof(ast_init), ::pltxt2htm::NodeType::base, ast_init.begin()});
 
 restart:
     auto&& ast = *(call_stack.top()->ast);
-    auto&& current_index = call_stack.top()->current_index;
-    for (; current_index < ast.size(); ++current_index) {
-        auto&& node = ::pltxt2htm::details::vector_index<ndebug>(ast, current_index);
+    auto&& current_iter = call_stack.top()->iter;
+    for (; current_iter != ast.end(); ++current_iter) {
+        auto&& node = *current_iter;
 
         switch (node->node_type()) {
         case ::pltxt2htm::NodeType::u8char:
@@ -83,6 +138,14 @@ restart:
         case ::pltxt2htm::NodeType::tab: {
             break;
         }
+        case ::pltxt2htm::NodeType::text:  {
+            auto text = reinterpret_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
+            auto&& subast = text->get_subast();
+            call_stack.push(
+                ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeType::text, subast.begin()));
+            goto restart;
+        }
         case ::pltxt2htm::NodeType::pl_color:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::pl_a: {
@@ -100,17 +163,29 @@ restart:
                     }
                 }
             }
-            // auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
-            // // Optimization: If the color is the same as the parent node, then ignore the nested tag.
-            // bool const is_not_same_tag =
-            //     (nested_tag_type != ::pltxt2htm::NodeType::pl_color &&
-            //      nested_tag_type != ::pltxt2htm::NodeType::pl_a) ||
-            //     color->get_color() != reinterpret_cast<::pltxt2htm::details::BackendEqualSignTagContext const*>(
-            //                               call_stack.top().release_imul())
-            //                               ->id_;
-            call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext>(
-                ::std::addressof(color->get_subast()), ::pltxt2htm::NodeType::pl_color, 0));
-            goto restart;
+            auto&& nested_tag_type = call_stack.top()->nested_tag_type;
+            // Optimization: If the color is the same as the parent node, then ignore the nested tag.
+            bool const is_not_same_tag =
+                (nested_tag_type != ::pltxt2htm::NodeType::pl_color &&
+                 nested_tag_type != ::pltxt2htm::NodeType::pl_a) ||
+                color->get_color() !=
+                    reinterpret_cast<
+                        ::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator> const*>(
+                        call_stack.top().release_imul())
+                        ->id_;
+            if (is_not_same_tag) {
+                auto&& subast = color->get_subast();
+                call_stack.push(::pltxt2htm::details::HeapGuard<
+                                ::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator>>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeType::pl_color, subast.begin(),
+                    ::fast_io::mnp::os_c_str(color->get_color())));
+                goto restart;
+            } else {
+                // Optimization: If the color is the same as the parent node, then ignore the nested tag.
+                node = static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+                    ::pltxt2htm::details::HeapGuard<::pltxt2htm::Text>(::std::move(color->get_subast())));
+                continue;
+            }
         }
         case ::pltxt2htm::NodeType::pl_experiment: {
             auto experiment = reinterpret_cast<::pltxt2htm::Experiment*>(node.get_unsafe());
@@ -136,8 +211,11 @@ restart:
             //         const*>(
             //                                     call_stack.top().release_imul())
             //                                     ->id_;
-            call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext>(
-                ::std::addressof(experiment->get_subast()), ::pltxt2htm::NodeType::pl_experiment, 0));
+            auto&& subast = experiment->get_subast();
+            call_stack.push(::pltxt2htm::details::HeapGuard<
+                            ::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator>>(
+                ::std::addressof(subast), ::pltxt2htm::NodeType::pl_experiment, subast.begin(),
+                ::fast_io::mnp::os_c_str(experiment->get_id())));
             goto restart;
         }
         case ::pltxt2htm::NodeType::pl_discussion: {
@@ -164,8 +242,11 @@ restart:
             //         const*>(
             //                                     call_stack.top().release_imul())
             //                                     ->id_;
-            call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext>(
-                ::std::addressof(discussion->get_subast()), ::pltxt2htm::NodeType::pl_discussion, 0));
+            auto&& subast = discussion->get_subast();
+            call_stack.push(::pltxt2htm::details::HeapGuard<
+                            ::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator>>(
+                ::std::addressof(subast), ::pltxt2htm::NodeType::pl_discussion, subast.begin(),
+                ::fast_io::mnp::os_c_str(discussion->get_id())));
             goto restart;
         }
         case ::pltxt2htm::NodeType::pl_user: {
@@ -187,8 +268,11 @@ restart:
             //         user->get_id() != reinterpret_cast<::pltxt2htm::details::BackendEqualSignTagContext const*>(
             //                               call_stack.top().release_imul())
             //                               ->id_;
-            call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext>(
-                ::std::addressof(user->get_subast()), ::pltxt2htm::NodeType::pl_user, 0));
+            auto&& subast = user->get_subast();
+            call_stack.push(::pltxt2htm::details::HeapGuard<
+                            ::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator>>(
+                ::std::addressof(subast), ::pltxt2htm::NodeType::pl_user, subast.begin(),
+                ::fast_io::mnp::os_c_str(user->get_id())));
             goto restart;
         }
         case ::pltxt2htm::NodeType::pl_size: {
@@ -210,8 +294,10 @@ restart:
             //         size->get_id() != reinterpret_cast<::pltxt2htm::details::BackendPlSizeTagContext const*>(
             //                               call_stack.top().release_imul())
             //                               ->id_;
-            call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext>(
-                ::std::addressof(size->get_subast()), ::pltxt2htm::NodeType::pl_size, 0));
+            auto&& subast = size->get_subast();
+            call_stack.push(
+                ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerPlSizeTagContext<::pltxt2htm::Ast::iterator>>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeType::pl_size, subast.begin(), size->get_id()));
             goto restart;
         }
         case ::pltxt2htm::NodeType::html_strong:
@@ -220,21 +306,18 @@ restart:
             auto b = reinterpret_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             //     auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
             //     bool const is_not_same_tag = nested_tag_type != ::pltxt2htm::NodeType::pl_b;
-            call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext>(
-                ::std::addressof(b->get_subast()), ::pltxt2htm::NodeType::html_strong, 0));
+            auto&& subast = b->get_subast();
+            call_stack.push(
+                ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeType::html_strong, subast.begin()));
             goto restart;
         }
         case ::pltxt2htm::NodeType::html_p: {
             auto p = reinterpret_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
-            //     if (p->get_subast().empty()) {
-            //         // e.g. <p></p>
-            //         // Which can be optimized(ignored)
-            //         break;
-            //     }
-            //     auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
-            //     bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_p};
-            call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext>(
-                ::std::addressof(p->get_subast()), ::pltxt2htm::NodeType::html_em, 0));
+            auto&& subast = p->get_subast();
+            call_stack.push(
+                ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeType::html_p, subast.begin()));
             goto restart;
         }
         case ::pltxt2htm::NodeType::line_break:
@@ -242,158 +325,136 @@ restart:
         case ::pltxt2htm::NodeType::html_br: {
             break;
         }
-        // case ::pltxt2htm::NodeType::html_h1:
-        //     [[fallthrough]];
-        // case ::pltxt2htm::NodeType::md_atx_h1: {
-        //     auto h1 = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
-        //     // NOTE: Empty heading tag can NOT be ignored
-        //     auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
-        //     bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_h1 &&
-        //                                nested_tag_type != ::pltxt2htm::NodeType::md_atx_h1};
-        //     call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
-        //         h1->get_subast(), ::pltxt2htm::NodeType::html_h1, is_not_same_tag, 0));
-        //     ++current_index;
-        //     goto restart;
-        // }
-        // case ::pltxt2htm::NodeType::html_h2:
-        //     [[fallthrough]];
-        // case ::pltxt2htm::NodeType::md_atx_h2: {
-        //     auto h2 = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
-        //     // NOTE: Empty heading tag can NOT be ignored
-        //     auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
-        //     bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_h2 &&
-        //                                nested_tag_type != ::pltxt2htm::NodeType::md_atx_h2};
-        //     call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
-        //         h2->get_subast(), ::pltxt2htm::NodeType::html_h2, is_not_same_tag, 0));
-        //     ++current_index;
-        //     goto restart;
-        // }
-        // case ::pltxt2htm::NodeType::html_h3:
-        //     [[fallthrough]];
-        // case ::pltxt2htm::NodeType::md_atx_h3: {
-        //     auto h3 = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
-        //     // NOTE: Empty heading tag can NOT be ignored
-        //     auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
-        //     bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_h3 &&
-        //                                nested_tag_type != ::pltxt2htm::NodeType::md_atx_h3};
-        //     call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
-        //         h3->get_subast(), ::pltxt2htm::NodeType::html_h3, is_not_same_tag, 0));
-        //     ++current_index;
-        //     goto restart;
-        // }
-        // case ::pltxt2htm::NodeType::html_h4:
-        //     [[fallthrough]];
-        // case ::pltxt2htm::NodeType::md_atx_h4: {
-        //     auto h4 = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
-        //     // NOTE: Empty heading tag can NOT be ignored
-        //     auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
-        //     bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_h4 &&
-        //                                nested_tag_type != ::pltxt2htm::NodeType::md_atx_h4};
-        //     call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
-        //         h4->get_subast(), ::pltxt2htm::NodeType::html_h4, is_not_same_tag, 0));
-        //     ++current_index;
-        //     goto restart;
-        // }
-        // case ::pltxt2htm::NodeType::html_h5:
-        //     [[fallthrough]];
-        // case ::pltxt2htm::NodeType::md_atx_h5: {
-        //     auto h5 = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
-        //     // NOTE: Empty heading tag can NOT be ignored
-        //     auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
-        //     bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_h5 &&
-        //                                nested_tag_type != ::pltxt2htm::NodeType::md_atx_h5};
-        //     call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
-        //         h5->get_subast(), ::pltxt2htm::NodeType::html_h5, is_not_same_tag, 0));
-        //     ++current_index;
-        //     goto restart;
-        // }
-        // case ::pltxt2htm::NodeType::html_h6:
-        //     [[fallthrough]];
-        // case ::pltxt2htm::NodeType::md_atx_h6: {
-        //     auto h6 = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
-        //     // NOTE: Empty heading tag can NOT be ignored
-        //     auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
-        //     bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_h6 &&
-        //                                nested_tag_type != ::pltxt2htm::NodeType::md_atx_h6};
-        //     call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
-        //         h6->get_subast(), ::pltxt2htm::NodeType::html_h6, is_not_same_tag, 0));
-        //     ++current_index;
-        //     goto restart;
-        // }
-        // case ::pltxt2htm::NodeType::html_del: {
-        //     auto del = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
-        //     if (del->get_subast().empty()) {
-        //         break;
-        //     }
+        case ::pltxt2htm::NodeType::html_h1:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_atx_h1: {
+            auto h1 = reinterpret_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
+            // NOTE: All optimization to h1 has side effect
+            auto&& subast = h1->get_subast();
+            call_stack.push(
+                ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeType::html_h1, subast.begin()));
+            goto restart;
+        }
+        case ::pltxt2htm::NodeType::html_h2:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_atx_h2: {
+            auto h2 = reinterpret_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
+            auto&& subast = h2->get_subast();
+            call_stack.push(
+                ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeType::html_h2, subast.begin()));
+            goto restart;
+        }
+        case ::pltxt2htm::NodeType::html_h3:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_atx_h3: {
+            auto h3 = reinterpret_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
+            auto&& subast = h3->get_subast();
+            call_stack.push(
+                ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeType::html_h3, subast.begin()));
+            goto restart;
+        }
+        case ::pltxt2htm::NodeType::html_h4:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_atx_h4: {
+            auto h4 = reinterpret_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
+            auto&& subast = h4->get_subast();
+            call_stack.push(
+                ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeType::html_h4, subast.begin()));
+            goto restart;
+        }
+        case ::pltxt2htm::NodeType::html_h5:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_atx_h5: {
+            auto h5 = reinterpret_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
+            auto&& subast = h5->get_subast();
+            call_stack.push(
+                ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeType::html_h5, subast.begin()));
+            goto restart;
+        }
+        case ::pltxt2htm::NodeType::html_h6:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_atx_h6: {
+            auto h6 = reinterpret_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
+            auto&& subast = h6->get_subast();
+            call_stack.push(
+                ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeType::html_h6, subast.begin()));
+            goto restart;
+        }
+        case ::pltxt2htm::NodeType::html_del: {
+            auto del = reinterpret_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
         //     auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
         //     bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_del};
-        //     call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
-        //         del->get_subast(), ::pltxt2htm::NodeType::html_del, is_not_same_tag, 0));
-        //     ++current_index;
-        //     goto restart;
-        // }
-        // case ::pltxt2htm::NodeType::pl_i:
-        //     [[fallthrough]];
-        // case ::pltxt2htm::NodeType::html_em: {
-        //     auto em = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
-        //     if (em->get_subast().empty()) {
-        //         break;
-        //     }
+            auto&& subast = del->get_subast();
+            call_stack.push(
+                ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeType::html_pre, subast.begin()));
+            goto restart;
+        }
+        case ::pltxt2htm::NodeType::pl_i:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::html_em: {
+        
         //     auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
         //     bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_em};
-        //     call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
-        //         em->get_subast(), ::pltxt2htm::NodeType::html_em, is_not_same_tag, 0));
-        //     ++current_index;
-        //     goto restart;
-        // }
-        // case ::pltxt2htm::NodeType::md_hr:
-        //     [[fallthrough]];
-        // case ::pltxt2htm::NodeType::html_hr: {
-        //     break;
-        // }
-        // case ::pltxt2htm::NodeType::html_note: {
-        //     break;
-        // }
-        // case ::pltxt2htm::NodeType::html_ul: {
+        auto em = reinterpret_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
+            auto&& subast = em->get_subast();
+            call_stack.push(
+                ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeType::html_em, subast.begin()));
+            goto restart;
+        }
+        case ::pltxt2htm::NodeType::md_hr:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::html_hr: {
+            break;
+        }
+        case ::pltxt2htm::NodeType::html_note: {
+            break;
+        }
+        case ::pltxt2htm::NodeType::html_ul: {
         //     auto ul = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
-        //     if (ul->get_subast().empty()) {
-        //         break;
-        //     }
         //     auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
         //     bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_ul};
-        //     call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
-        //         ul->get_subast(), ::pltxt2htm::NodeType::html_ul, is_not_same_tag, 0));
-        //     ++current_index;
-        //     goto restart;
-        // }
-        // case ::pltxt2htm::NodeType::html_li: {
-        //     auto li = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
-        //     if (li->get_subast().empty()) {
-        //         break;
-        //     }
+        auto ul = reinterpret_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
+            auto&& subast = ul->get_subast();
+            call_stack.push(
+                ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeType::html_ul, subast.begin()));
+            goto restart;
+        }
+        case ::pltxt2htm::NodeType::html_li: {
+            auto li = reinterpret_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
         //     auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
         //     bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_li};
-        //     call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendBareTagContext>(
-        //         li->get_subast(), ::pltxt2htm::NodeType::html_li, is_not_same_tag, 0));
-        //     ++current_index;
-        //     goto restart;
-        // }
-        // case ::pltxt2htm::NodeType::html_code: {
-        //     auto code = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
-        //     // Note: Despite `<code></code>` is empty, we still need to handle it
-        //     call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendHtmlPreCodeContext>(
-        //         code->get_subast(), ::pltxt2htm::NodeType::html_code, 0));
-        //     ++current_index;
-        //     goto restart;
-        // }
-        // case ::pltxt2htm::NodeType::html_pre: {
-        //     auto pre = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
-        //     // Note: Despite `<code></code>` is empty, we still need to handle it
-        //     call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendHtmlPreCodeContext>(
-        //         pre->get_subast(), ::pltxt2htm::NodeType::html_pre, 0));
-        //     ++current_index;
-        //     goto restart;
-        // }
+            auto&& subast = li->get_subast();
+            call_stack.push(
+                ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeType::html_li, subast.begin()));
+            goto restart;
+        }
+        case ::pltxt2htm::NodeType::html_code:
+             {
+            auto code = reinterpret_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
+            auto&& subast = code->get_subast();
+            call_stack.push(
+                ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeType::html_code, subast.begin()));
+            goto restart;
+        }
+        case ::pltxt2htm::NodeType::html_pre:  {
+            auto pre = reinterpret_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
+            auto&& subast = pre->get_subast();
+            call_stack.push(
+                ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeType::html_pre, subast.begin()));
+            goto restart;
+        }
         case ::pltxt2htm::NodeType::md_escape_backslash:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_escape_exclamation:
@@ -487,6 +548,23 @@ restart:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::pl_i:
                 [[fallthrough]];
+            case ::pltxt2htm::NodeType::html_del:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::html_code:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::html_pre: {
+                if (top_frame->ast->empty()) {
+                    // Optimization: if the tag is empty, we can skip it
+                    call_stack.top()->ast->erase(call_stack.top()->iter);
+                } else {
+                    ++(call_stack.top()->iter);
+                }
+                goto restart;
+            }
+            case ::pltxt2htm::NodeType::html_li:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::html_ul:
+                [[fallthrough]];
             case ::pltxt2htm::NodeType::html_p:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::html_h1:
@@ -500,24 +578,9 @@ restart:
             case ::pltxt2htm::NodeType::html_h5:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::html_h6:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_del:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_ul:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_li:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_code:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_pre: {
-                if (top_frame->ast->empty()) {
-                    // Optimization: if the tag is empty, we can skip it
-                    call_stack.top()->ast->erase_index(call_stack.top()->current_index);
-                } else {
-                    call_stack.top()->current_index += 1;
+                {
+                    break;
                 }
-                goto restart;
-            }
             default:
                 [[unlikely]] {
                     ::exception::unreachable<ndebug>();

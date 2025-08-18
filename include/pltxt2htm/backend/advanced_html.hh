@@ -53,6 +53,13 @@ restart:
             result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
             break;
         }
+        case ::pltxt2htm::NodeType::text: {
+            auto text = reinterpret_cast<::pltxt2htm::Text const*>(node.release_imul());
+            call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendHtmlPreCodeContext>(
+                text->get_subast(), ::pltxt2htm::NodeType::text, 0));
+            ++current_index;
+            goto restart;
+        }
         case ::pltxt2htm::NodeType::space: {
             auto escape_str = ::fast_io::array{u8'&', u8'n', u8'b', u8's', u8'p', u8';'};
             result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
@@ -109,27 +116,17 @@ restart:
         case ::pltxt2htm::NodeType::pl_a: {
             // <a> and <color> is the same tag&struct in fact
             auto color = reinterpret_cast<::pltxt2htm::Color const*>(node.release_imul());
-            auto&& nested_tag_type = call_stack.top()->nested_tag_type_;
-            // Optimization: If the color is the same as the parent node, then ignore the nested tag.
-            bool const is_not_same_tag =
-                (nested_tag_type != ::pltxt2htm::NodeType::pl_color &&
-                 nested_tag_type != ::pltxt2htm::NodeType::pl_a) ||
-                color->get_color() != reinterpret_cast<::pltxt2htm::details::BackendEqualSignTagContext const*>(
-                                          call_stack.top().release_imul())
-                                          ->id_;
+
             call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BackendEqualSignTagContext>(
-                color->get_subast(), ::pltxt2htm::NodeType::pl_color, is_not_same_tag, 0,
+                color->get_subast(), ::pltxt2htm::NodeType::pl_color, false, 0,
                 ::fast_io::mnp::os_c_str(color->get_color())));
             ++current_index;
-            if (is_not_same_tag) {
-                auto close_tag1 =
-                    ::fast_io::array{u8'<', u8's', u8'p',  u8'a', u8'n', u8' ', u8's', u8't', u8'y', u8'l',
-                                     u8'e', u8'=', u8'\"', u8'c', u8'o', u8'l', u8'o', u8'r', u8':'};
-                result.append(::fast_io::u8string_view{close_tag1.data(), close_tag1.size()});
-                result.append(color->get_color());
-                auto close_tag2 = ::fast_io::array{u8';', u8'\"', u8'>'};
-                result.append(::fast_io::u8string_view{close_tag2.data(), close_tag2.size()});
-            }
+            auto close_tag1 = ::fast_io::array{u8'<', u8's', u8'p',  u8'a', u8'n', u8' ', u8's', u8't', u8'y', u8'l',
+                                               u8'e', u8'=', u8'\"', u8'c', u8'o', u8'l', u8'o', u8'r', u8':'};
+            result.append(::fast_io::u8string_view{close_tag1.data(), close_tag1.size()});
+            result.append(color->get_color());
+            auto close_tag2 = ::fast_io::array{u8';', u8'\"', u8'>'};
+            result.append(::fast_io::u8string_view{close_tag2.data(), close_tag2.size()});
             goto restart;
         }
         case ::pltxt2htm::NodeType::pl_experiment: {
@@ -649,14 +646,14 @@ restart:
             return result;
         } else {
             switch (top_frame->nested_tag_type_) {
+            case ::pltxt2htm::NodeType::text: {
+                goto restart;
+            }
             case ::pltxt2htm::NodeType::pl_a:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::pl_color: {
-                if (reinterpret_cast<::pltxt2htm::details::BackendEqualSignTagContext const*>(top_frame.release_imul())
-                        ->is_not_same_tag_) {
-                    auto close_tag = ::fast_io::array{u8'<', u8'/', u8's', u8'p', u8'a', u8'n', u8'>'};
-                    result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
-                }
+                auto close_tag = ::fast_io::array{u8'<', u8'/', u8's', u8'p', u8'a', u8'n', u8'>'};
+                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
                 goto restart;
             }
             case ::pltxt2htm::NodeType::pl_experiment: {

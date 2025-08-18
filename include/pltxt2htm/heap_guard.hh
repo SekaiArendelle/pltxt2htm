@@ -89,7 +89,7 @@ public:
             ::exception::terminate();
         }
 #endif
-        self.swap(self, other);
+        self.swap(other);
         return self;
     }
 
@@ -129,8 +129,12 @@ public:
     }
 
     constexpr void swap(this HeapGuard<T>& self, HeapGuard<T>& other) noexcept {
-        ::std::ranges::swap(self.ptr_, other.get_unsafe());
-        ::std::ranges::swap(self.deleter_, other.deleter_);
+        auto tmp_ptr = self.ptr_;
+        auto tmp_deleter = self.deleter_;
+        self.ptr_ = other.ptr_;
+        self.deleter_ = other.deleter_;
+        other.ptr_ = tmp_ptr;
+        other.deleter_ = tmp_deleter;
     }
 };
 

@@ -103,7 +103,8 @@ public:
 
 } // namespace details
 
-class Text : ::pltxt2htm::details::PairedTagBase {
+class Text : public ::pltxt2htm::details::PairedTagBase {
+public:
     constexpr Text() noexcept = delete;
 
     constexpr Text(::pltxt2htm::Ast&& subast) noexcept
