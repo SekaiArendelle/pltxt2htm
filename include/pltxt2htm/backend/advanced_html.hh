@@ -448,6 +448,10 @@ restart:
             result.push_back(u8'~');
             break;
         }
+        case ::pltxt2htm::NodeType::md_code_fence: {
+            // TODO
+            break;
+        }
         case ::pltxt2htm::NodeType::base:
 #if 0
      [[unlikely]] [[fallthrough]];

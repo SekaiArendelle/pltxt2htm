@@ -156,6 +156,8 @@ enum class NodeType : ::std::uint_least32_t {
     md_escape_tilde,
     // https://spec.commonmark.org/0.31.2/#thematic-break
     md_hr,
+    // https://spec.commonmark.org/0.31.2/#code-fence
+    md_code_fence,
 
     // latex
     // latex,

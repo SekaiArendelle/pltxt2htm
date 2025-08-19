@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <iterator>
 #include <fast_io/fast_io_dsal/list.h>
 #include <fast_io/fast_io_dsal/stack.h>
@@ -556,7 +557,10 @@ restart:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_escape_right_brace:
             [[fallthrough]];
-        case ::pltxt2htm::NodeType::md_escape_tilde: {
+        case ::pltxt2htm::NodeType::md_escape_tilde:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_code_fence:
+        {
             break;
         }
         case ::pltxt2htm::NodeType::base:
@@ -606,6 +610,8 @@ restart:
                 }
                 goto restart;
             }
+            case ::pltxt2htm::NodeType::md_code_fence:
+                [[fallthrough]];
             case ::pltxt2htm::NodeType::html_code:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::html_pre:

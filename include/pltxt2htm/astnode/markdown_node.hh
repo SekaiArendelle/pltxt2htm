@@ -1,6 +1,8 @@
 #pragma once
 
 #include <utility>
+#include <fast_io/fast_io_dsal/string.h>
+#include <exception/exception.hh>
 #include "basic.hh"
 
 namespace pltxt2htm {
@@ -729,6 +731,31 @@ public:
     constexpr ::pltxt2htm::MdHr& operator=(::pltxt2htm::MdHr const&) noexcept = default;
 
     constexpr ::pltxt2htm::MdHr& operator=(::pltxt2htm::MdHr&&) noexcept = default;
+};
+
+/**
+ * @brief Represents markdown code fence (```).
+ */
+class MdCodeFence : public ::pltxt2htm::details::PairedTagBase {
+    ::exception::optional<::fast_io::u8string> lang;
+
+public:
+    constexpr MdCodeFence(::pltxt2htm::Ast&& ast, ::exception::optional<::fast_io::u8string>&& lang_) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_code_fence, ::std::move(ast)},
+          lang(::std::move(lang_)) {
+    }
+
+    constexpr MdCodeFence(::pltxt2htm::MdCodeFence const&) noexcept = default;
+
+    constexpr MdCodeFence(::pltxt2htm::MdCodeFence&&) noexcept = default;
+
+    constexpr ::pltxt2htm::MdCodeFence& operator=(::pltxt2htm::MdCodeFence const&) noexcept = delete;
+
+    constexpr ::pltxt2htm::MdCodeFence& operator=(::pltxt2htm::MdCodeFence&&) noexcept = default;
+
+    constexpr auto&& get_lang(this auto&& self) noexcept {
+        return ::std::forward_like<decltype(self)>(self.lang);
+    }
 };
 
 } // namespace pltxt2htm
