@@ -75,6 +75,13 @@ xmake install -o auto
 Only clang supports this triplet.
 
 ```sh
+xmake config --plat=windows --arch=x64 --toolchain=clang-cl
+xmake build
+```
+
+After a [patch](https://github.com/llvm/llvm-project/pull/96417) been merged, `-sysroot` syntax can be used with ${unknown}-windows-msvc triplet
+
+```sh
 xmake config --plat=windows --arch=x64 --toolchain=x86_64-windows-msvc-clang
 # or, specify --sysroot
 # xmake config --plat=windows --arch=x64 --toolchain=x86_64-windows-msvc-clang --sysroot=$YOUR_SYSROOT_PATH
@@ -88,7 +95,14 @@ Download [windows-msvc-sysroot](https://github.com/trcrsired/windows-msvc-sysroo
 Only clang supports this triplet.
 
 ```sh
-xmake config --plat=windows --arch=aarch64 --toolchain=aarch64-windows-msvc-clang --sysroot=$YOUR_SYSROOT_PATH
+xmake config --plat=windows --arch=arm64 --toolchain=clang-cl
+xmake build
+```
+
+After a [patch](https://github.com/llvm/llvm-project/pull/96417) been merged, `-sysroot` syntax can be used with ${unknown}-windows-msvc triplet
+
+```sh
+xmake config --plat=windows --arch=arm64 --toolchain=aarch64-windows-msvc-clang --sysroot=$YOUR_SYSROOT_PATH
 xmake build
 xmake install -o auto
 ```
@@ -99,7 +113,14 @@ Download [windows-msvc-sysroot](https://github.com/trcrsired/windows-msvc-sysroo
 Only clang supports this triplet.
 
 ```sh
-xmake config --plat=windows --arch=i686 --toolchain=i686-windows-msvc-clang --sysroot=$YOUR_SYSROOT_PATH
+xmake config --plat=windows --arch=x86 --toolchain=clang-cl
+xmake build
+```
+
+After a [patch](https://github.com/llvm/llvm-project/pull/96417) been merged, `-sysroot` syntax can be used with ${unknown}-windows-msvc triplet
+
+```sh
+xmake config --plat=windows --arch=x86 --toolchain=i686-windows-msvc-clang --sysroot=$YOUR_SYSROOT_PATH
 xmake build
 xmake install -o auto
 ```

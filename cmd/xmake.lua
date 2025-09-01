@@ -67,8 +67,8 @@ target("pltxt2htm", function()
         -- For other OS, I don't care.
         -- But which toolchain is the default is not important
         -- Following code just to get the build triplet
-        if toolchain == nil or toolchain:endswith("clang") then
-            if toolchain == nil or toolchain == "clang" then
+        if toolchain == nil or toolchain:endswith("clang") or toolchain == "clang-cl" then
+            if toolchain == nil or toolchain == "clang" or toolchain == "clang-cl" then
                 triplet, modifier = utility.get_target_modifier("target", "clang")
             else
                 triplet, modifier = utility.get_target_modifier(string.sub(toolchain, 0, -7), "clang")
