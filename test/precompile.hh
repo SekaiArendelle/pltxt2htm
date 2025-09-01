@@ -3,29 +3,13 @@
 
 namespace pltxt2htm_test {
 
-::fast_io::u8string pltxt2advanced_htmld(::fast_io::u8string_view pltext)
-#if __cpp_exceptions < 199711L
-    noexcept
-#endif
-    ;
+::fast_io::u8string pltxt2advanced_htmld(::fast_io::u8string_view pltext) /* throws */;
 
-::fast_io::u8string pltxt2common_html(::fast_io::u8string_view pltext)
-#if __cpp_exceptions < 199711L
-    noexcept
-#endif
-    ;
+::fast_io::u8string pltxt2common_html(::fast_io::u8string_view pltext) /* throws */;
 
-::fast_io::u8string pltxt2common_htmld(::fast_io::u8string_view pltext)
-#if __cpp_exceptions < 199711L
-    noexcept
-#endif
-    ;
+::fast_io::u8string pltxt2common_htmld(::fast_io::u8string_view pltext) /* throws */;
 
-::fast_io::u8string pltxt2fixedadv_htmld(::fast_io::u8string_view pltext)
-#if __cpp_exceptions < 199711L
-    noexcept
-#endif
-    ;
+::fast_io::u8string pltxt2fixedadv_htmld(::fast_io::u8string_view pltext) /* throws */;
 
 void assert_true(bool cond) noexcept;
 

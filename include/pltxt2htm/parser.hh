@@ -39,11 +39,7 @@ template<bool ndebug, char8_t... prefix_str>
 [[msvc::forceinline]]
 #endif
 [[nodiscard]]
-constexpr bool is_prefix_match(::fast_io::u8string_view str)
-#if __cpp_exceptions < 199711L
-    noexcept
-#endif
-{
+constexpr bool is_prefix_match(::fast_io::u8string_view str) /* throws */ {
     // Check whether the index is out of bound.
     if (sizeof...(prefix_str) >= str.size()) [[unlikely]] {
         return false;
@@ -212,11 +208,8 @@ constexpr void parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::s
  */
 template<bool ndebug, char8_t... tag_name>
 [[nodiscard]]
-constexpr auto try_parse_bare_tag(::fast_io::u8string_view pltext)
-#if __cpp_exceptions < 199711L
-    noexcept
-#endif
-    -> ::exception::optional<::std::size_t> {
+constexpr auto try_parse_bare_tag(
+    ::fast_io::u8string_view pltext) /* throws */ -> ::exception::optional<::std::size_t> {
     if (::pltxt2htm::details::is_prefix_match<ndebug, tag_name...>(pltext) == false) {
         return ::exception::nullopt_t{};
     }
@@ -243,11 +236,7 @@ template<bool ndebug, char8_t... prefix_str, typename Func>
     }
 [[nodiscard]]
 constexpr bool try_parse_equal_sign_tag(::fast_io::u8string_view pltext, ::std::size_t& extern_index,
-                                        ::fast_io::u8string& substr, Func&& func)
-#if __cpp_exceptions < 199711L
-    noexcept
-#endif
-{
+                                        ::fast_io::u8string& substr, Func&& func) /* throws */ {
     if (::pltxt2htm::details::is_prefix_match<ndebug, prefix_str..., u8'='>(pltext) == false) {
         return false;
     }
@@ -341,11 +330,7 @@ template<bool ndebug>
 [[nodiscard]]
 constexpr bool try_parse_md_atx_heading(::fast_io::u8string_view pltext, ::std::size_t& start_index_,
                                         ::std::size_t& sublength_, ::pltxt2htm::NodeType& md_atx_heading_type_,
-                                        ::pltxt2htm::details::MdAtxEndingType& ending_type)
-#if __cpp_exceptions < 199711L
-    noexcept
-#endif
-{
+                                        ::pltxt2htm::details::MdAtxEndingType& ending_type) /* throws */ {
     ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t start_index{};
     // spaces before the first #
@@ -450,11 +435,8 @@ struct TryParseMdThematicBreakResult {
  * @return length of the parsed markdown thematic breaks
  */
 template<bool ndebug>
-constexpr auto try_parse_md_thematic_break(::fast_io::u8string_view text)
-#if __cpp_exceptions < 199711L
-    noexcept
-#endif
-    -> ::exception::optional<TryParseMdThematicBreakResult> {
+constexpr auto try_parse_md_thematic_break(
+    ::fast_io::u8string_view text) /* throws */ -> ::exception::optional<TryParseMdThematicBreakResult> {
     if (text.size() < 3) {
         return ::exception::nullopt_t{};
     }
@@ -763,11 +745,7 @@ template<bool ndebug>
 constexpr auto parse_pltxt(
     ::fast_io::stack<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BasicFrameContext>,
                      ::fast_io::list<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BasicFrameContext>>>&
-        call_stack)
-#if __cpp_exceptions < 199711L
-    noexcept
-#endif
-    -> ::pltxt2htm::Ast {
+        call_stack) /* throws */ -> ::pltxt2htm::Ast {
 restart:
     auto&& current_index = call_stack.top()->current_index;
     auto&& pltext = call_stack.top()->pltext;
@@ -1893,11 +1871,7 @@ restart:
  */
 template<bool ndebug>
 [[nodiscard]]
-constexpr auto parse_pltxt(::fast_io::u8string_view pltext)
-#if __cpp_exceptions < 199711L
-    noexcept
-#endif
-    -> ::pltxt2htm::Ast {
+constexpr auto parse_pltxt(::fast_io::u8string_view pltext) /* throws */ -> ::pltxt2htm::Ast {
     // fast_io::deque contains bug about RAII, use fast_io::list instead
     ::fast_io::stack<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BasicFrameContext>,
                      ::fast_io::list<::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BasicFrameContext>>>

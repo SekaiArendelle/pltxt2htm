@@ -105,7 +105,7 @@ markdown extension based on [commonmark](https://spec.commonmark.org/0.31.2/)
 
 `pltxt2htm` only maintains the trunk, and the release versions are only snapshots.
 
-For linux users, please compile and install `pltxt2htm` (and I will never provide binaries for linux since there are tons of linux triplets caused by glibc, musl and architectures)
+For linux users, please use `wine` or compile and install `pltxt2htm` (and I will never provide binaries for linux since there are tons of linux triplets caused by arch and libc)
 
 ## others
 

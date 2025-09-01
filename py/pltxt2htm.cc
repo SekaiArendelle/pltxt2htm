@@ -4,12 +4,8 @@
 #include <fast_io/fast_io_dsal/array.h>
 #include <pltxt2htm/pltxt2htm.h>
 
-static ::PyObject* common_parser([[maybe_unused]] ::PyObject* self, ::PyObject* args, ::PyObject* kwargs)
-#if __cpp_exceptions < 199711L
-    noexcept
-#endif // __cpp_exceptions < 199711L
-{
-    static auto kwlist = ::fast_io::array{"text", nullptr};
+static ::PyObject* common_parser([[maybe_unused]] ::PyObject* self, ::PyObject* args, ::PyObject* kwargs) /* throws */ {
+    constexpr auto kwlist = ::fast_io::array{"text", nullptr};
 #ifndef NDEBUG
     char8_t const* text = nullptr;
 #else
@@ -35,18 +31,15 @@ static ::PyObject* common_parser([[maybe_unused]] ::PyObject* self, ::PyObject* 
 #else
         false
 #endif
-        >(reinterpret_cast<char8_t const*>(text));
+        >(text);
     ::PyObject* result = ::PyUnicode_FromString(reinterpret_cast<char const*>(html));
     ::free(reinterpret_cast<void*>(const_cast<char8_t*>(html)));
     return result;
 }
 
-static ::PyObject* advanced_parser([[maybe_unused]] ::PyObject* self, ::PyObject* args, ::PyObject* kwargs)
-#if __cpp_exceptions < 199711L
-    noexcept
-#endif // __cpp_exceptions < 199711L
-{
-    static auto kwlist = ::fast_io::array{"text", "host", nullptr};
+static ::PyObject* advanced_parser([[maybe_unused]] ::PyObject* self, ::PyObject* args,
+                                   ::PyObject* kwargs) /* throws */ {
+    constexpr auto kwlist = ::fast_io::array{"text", "host", nullptr};
 #ifndef NDEBUG
     char8_t const* text = nullptr;
     char8_t const* host = nullptr;
@@ -75,18 +68,15 @@ static ::PyObject* advanced_parser([[maybe_unused]] ::PyObject* self, ::PyObject
 #else
         false
 #endif
-        >(reinterpret_cast<char8_t const*>(text), reinterpret_cast<char8_t const*>(host));
+        >(text, host);
     ::PyObject* result = ::PyUnicode_FromString(reinterpret_cast<char const*>(html));
     ::free(static_cast<void*>(const_cast<char8_t*>(html)));
     return result;
 }
 
-static ::PyObject* fixedadv_parser([[maybe_unused]] ::PyObject* self, ::PyObject* args, ::PyObject* kwargs)
-#if __cpp_exceptions < 199711L
-    noexcept
-#endif // __cpp_exceptions < 199711L
-{
-    static auto kwlist = ::fast_io::array{"text", "host", nullptr};
+static ::PyObject* fixedadv_parser([[maybe_unused]] ::PyObject* self, ::PyObject* args,
+                                   ::PyObject* kwargs) /* throws */ {
+    constexpr auto kwlist = ::fast_io::array{"text", "host", nullptr};
 #ifndef NDEBUG
     char8_t const* text = nullptr;
     char8_t const* host = nullptr;
@@ -115,7 +105,7 @@ static ::PyObject* fixedadv_parser([[maybe_unused]] ::PyObject* self, ::PyObject
 #else
         false
 #endif
-        >(reinterpret_cast<char8_t const*>(text), reinterpret_cast<char8_t const*>(host));
+        >(text, host);
     ::PyObject* result = ::PyUnicode_FromString(reinterpret_cast<char const*>(html));
     ::free(static_cast<void*>(const_cast<char8_t*>(html)));
     return result;
@@ -144,7 +134,7 @@ static ::PyModuleDef pltxt2htm_py_module = {
     .m_free = nullptr};
 
 PyMODINIT_FUNC PyInit_pltxt2htm() noexcept {
-    ::PyObject* m = PyModule_Create(::std::addressof(::pltxt2htm_py_module));
+    ::PyObject* m = ::PyModule_Create(::std::addressof(::pltxt2htm_py_module));
     if (m == nullptr) [[unlikely]] {
         return nullptr;
     }

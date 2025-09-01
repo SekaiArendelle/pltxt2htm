@@ -19,7 +19,7 @@ local my_on_config = function(target)
 
     local toolchains = target:tool("cxx")
     if path.basename(toolchains) == "clang++" or path.basename(toolchains) == "clang" then
-        target:add("ldflags", "-fuse-ld=lld")
+        target:add("shflags", "-fuse-ld=lld")
         if is_mode("release") then
             target:add("ldflags", "-flto")
         end

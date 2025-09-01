@@ -2,12 +2,12 @@
 
 ## Usage:
 ```sh
-pltxt2htm -i $your_input_file --host localhost
+pltxt2htm --target fixedadv_html --host localhost < $your_input_file
 ```
 pltxt2htm will print output html in stdout
 
 ```sh
-pltxt2htm -i $your_input_file --host localhost -o $your_output_file
+pltxt2htm --target fixedadv_html --host localhost -o $your_output_file < $your_input_file
 ```
 pltxt2htm will write output html to $your_output_file
 

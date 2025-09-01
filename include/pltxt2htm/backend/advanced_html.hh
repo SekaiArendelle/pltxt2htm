@@ -24,11 +24,8 @@ namespace pltxt2htm::details {
  */
 template<bool ndebug, bool escape_less_than = true>
 [[nodiscard]]
-constexpr auto ast2advanced_html(::pltxt2htm::Ast const& ast_init, ::fast_io::u8string_view host)
-#if __cpp_exceptions < 199711L
-    noexcept
-#endif
-    -> ::fast_io::u8string {
+constexpr auto ast2advanced_html(::pltxt2htm::Ast const& ast_init,
+                                 ::fast_io::u8string_view host) /* throws */ -> ::fast_io::u8string {
     ::fast_io::u8string result{};
     ::fast_io::stack<::pltxt2htm::details::BackendBasicFrameContext,
                      ::fast_io::list<::pltxt2htm::details::BackendBasicFrameContext>>

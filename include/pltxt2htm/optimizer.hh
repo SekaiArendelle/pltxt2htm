@@ -559,8 +559,7 @@ restart:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_escape_tilde:
             [[fallthrough]];
-        case ::pltxt2htm::NodeType::md_code_fence:
-        {
+        case ::pltxt2htm::NodeType::md_code_fence: {
             break;
         }
         case ::pltxt2htm::NodeType::base:

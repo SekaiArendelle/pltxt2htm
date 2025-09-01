@@ -19,11 +19,7 @@ namespace pltxt2htm::details {
  *        usually be used to render header
  */
 template<bool ndebug>
-constexpr auto ast2common_html(::pltxt2htm::Ast const& ast_init)
-#if __cpp_exceptions < 199711L
-    noexcept
-#endif
-    -> ::fast_io::u8string {
+constexpr auto ast2common_html(::pltxt2htm::Ast const& ast_init) /* throws */ -> ::fast_io::u8string {
     ::fast_io::u8string result{};
     ::fast_io::stack<::pltxt2htm::details::BackendBasicFrameContext,
                      ::fast_io::list<::pltxt2htm::details::BackendBasicFrameContext>>

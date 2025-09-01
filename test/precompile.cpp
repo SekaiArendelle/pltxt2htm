@@ -10,38 +10,52 @@
 
 namespace pltxt2htm_test {
 
-::fast_io::u8string pltxt2common_htmld(::fast_io::u8string_view pltext)
-#if __cpp_exceptions < 199711L
-    noexcept
+#if __has_cpp_attribute(__gnu__::__used__)
+[[__gnu__::__used__]]
 #endif
-{
+#if __has_attribute(visibility)
+__attribute__((visibility("default")))
+#endif
+::fast_io::u8string pltxt2common_htmld(::fast_io::u8string_view pltext) /* throws */ {
     return ::pltxt2htm::pltxt2common_html<false>(pltext);
 }
 
-::fast_io::u8string pltxt2common_html(::fast_io::u8string_view pltext)
-#if __cpp_exceptions < 199711L
-    noexcept
+#if __has_cpp_attribute(__gnu__::__used__)
+[[__gnu__::__used__]]
 #endif
-{
+#if __has_attribute(visibility)
+__attribute__((visibility("default")))
+#endif
+::fast_io::u8string pltxt2common_html(::fast_io::u8string_view pltext) /* throws */ {
     return ::pltxt2htm::pltxt2common_html<false, true>(pltext);
 }
 
-::fast_io::u8string pltxt2advanced_htmld(::fast_io::u8string_view pltext)
-#if __cpp_exceptions < 199711L
-    noexcept
+#if __has_cpp_attribute(__gnu__::__used__)
+[[__gnu__::__used__]]
 #endif
-{
+#if __has_attribute(visibility)
+__attribute__((visibility("default")))
+#endif
+::fast_io::u8string pltxt2advanced_htmld(::fast_io::u8string_view pltext) /* throws */ {
     return ::pltxt2htm::pltxt2advanced_html<false>(pltext, u8"localhost:5173");
 }
 
-::fast_io::u8string pltxt2fixedadv_htmld(::fast_io::u8string_view pltext)
-#if __cpp_exceptions < 199711L
-    noexcept
+#if __has_cpp_attribute(__gnu__::__used__)
+[[__gnu__::__used__]]
 #endif
-{
+#if __has_attribute(visibility)
+__attribute__((visibility("default")))
+#endif
+::fast_io::u8string pltxt2fixedadv_htmld(::fast_io::u8string_view pltext) /* throws */ {
     return ::pltxt2htm::pltxt2fixedadv_html<false>(pltext, u8"localhost:5173");
 }
 
+#if __has_cpp_attribute(__gnu__::__used__)
+[[__gnu__::__used__]]
+#endif
+#if __has_attribute(visibility)
+__attribute__((visibility("default")))
+#endif
 void assert_true(bool cond) noexcept {
     ::exception::assert_true<false>(cond);
 }

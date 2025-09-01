@@ -39,11 +39,7 @@ constexpr char8_t const* c_ptr_style_wrapper(Args&&... args) noexcept(
  */
 template<bool ndebug = false>
 [[nodiscard]]
-constexpr char8_t const* advanced_parser(char8_t const* const text, char8_t const* const host)
-#if __cpp_exceptions < 199711L
-    noexcept
-#endif
-{
+constexpr char8_t const* advanced_parser(char8_t const* const text, char8_t const* const host) /* throws */ {
     return ::pltxt2htm::details::c_ptr_style_wrapper<::pltxt2htm::pltxt2advanced_html<ndebug>>(
         ::fast_io::mnp::os_c_str(text), ::fast_io::mnp::os_c_str(host));
 }
@@ -54,11 +50,7 @@ constexpr char8_t const* advanced_parser(char8_t const* const text, char8_t cons
  */
 template<bool ndebug = false>
 [[nodiscard]]
-constexpr char8_t const* fixedadv_parser(char8_t const* const text, char8_t const* const host)
-#if __cpp_exceptions < 199711L
-    noexcept
-#endif
-{
+constexpr char8_t const* fixedadv_parser(char8_t const* const text, char8_t const* const host) /* throws */ {
     return ::pltxt2htm::details::c_ptr_style_wrapper<::pltxt2htm::pltxt2fixedadv_html<ndebug>>(
         ::fast_io::mnp::os_c_str(text), ::fast_io::mnp::os_c_str(host));
 }
@@ -69,11 +61,7 @@ constexpr char8_t const* fixedadv_parser(char8_t const* const text, char8_t cons
  */
 template<bool ndebug = false>
 [[nodiscard]]
-constexpr char8_t const* common_parser(char8_t const* const text)
-#if __cpp_exceptions < 199711L
-    noexcept
-#endif
-{
+constexpr char8_t const* common_parser(char8_t const* const text) /* throws */ {
     return ::pltxt2htm::details::c_ptr_style_wrapper<::pltxt2htm::pltxt2common_html<ndebug>>(
         ::fast_io::mnp::os_c_str(text));
 }
