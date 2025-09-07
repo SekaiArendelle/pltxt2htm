@@ -34,7 +34,7 @@ restart:
 
         switch (node->node_type()) {
         case ::pltxt2htm::NodeType::u8char: {
-            result.push_back(reinterpret_cast<::pltxt2htm::U8Char const*>(node.release_imul())->get_u8char());
+            result.push_back(static_cast<::pltxt2htm::U8Char const*>(node.release_imul())->get_u8char());
             break;
         }
         case ::pltxt2htm::NodeType::invalid_u8char: {
@@ -98,7 +98,7 @@ restart:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::pl_a: {
             // <a> and <color> is the same tag&struct in fact
-            auto color = reinterpret_cast<::pltxt2htm::Color const*>(node.release_imul());
+            auto color = static_cast<::pltxt2htm::Color const*>(node.release_imul());
             call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(color->get_subast(),
                                                                            ::pltxt2htm::NodeType::pl_color, 0));
             ++current_index;
@@ -113,7 +113,7 @@ restart:
         case ::pltxt2htm::NodeType::html_strong:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::pl_b: {
-            auto b = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            auto b = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(b->get_subast(), ::pltxt2htm::NodeType::pl_b, 0));
             ++current_index;
@@ -124,7 +124,7 @@ restart:
         case ::pltxt2htm::NodeType::pl_i:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_em: {
-            auto em = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            auto em = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(em->get_subast(), ::pltxt2htm::NodeType::html_em, 0));
             ++current_index;
@@ -248,7 +248,7 @@ restart:
             break;
         }
         default: {
-            auto a_paired_tag = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            auto a_paired_tag = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             if (a_paired_tag->get_subast().empty()) {
                 // Optimization: if the tag is empty, we can skip it
                 break;

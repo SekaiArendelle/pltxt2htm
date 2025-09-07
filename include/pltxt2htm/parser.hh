@@ -1275,7 +1275,7 @@ restart:
                         opt_tag_len.has_value()) {
                         // parsing end tag </color> successed
                         auto frame =
-                            reinterpret_cast<::pltxt2htm::details::EqualSignTagContext*>(call_stack.top().get_unsafe());
+                            static_cast<::pltxt2htm::details::EqualSignTagContext*>(call_stack.top().get_unsafe());
                         ::std::size_t const staged_index{current_index};
                         ::pltxt2htm::Color staged_node(::std::move(result), ::std::move(frame->id));
                         call_stack.pop();
@@ -1315,7 +1315,7 @@ restart:
                         opt_tag_len.has_value()) {
                         // Whether or not extern_index is out of range, extern for loop will handle it correctly.
                         auto frame =
-                            reinterpret_cast<::pltxt2htm::details::EqualSignTagContext*>(call_stack.top().get_unsafe());
+                            static_cast<::pltxt2htm::details::EqualSignTagContext*>(call_stack.top().get_unsafe());
                         ::std::size_t const staged_index{current_index};
                         ::pltxt2htm::Experiment staged_node(::std::move(result), ::std::move(frame->id));
                         call_stack.pop();
@@ -1337,7 +1337,7 @@ restart:
                         opt_tag_len.has_value()) {
                         // Whether or not extern_index is out of range, extern for loop will handle it correctly.
                         auto frame =
-                            reinterpret_cast<::pltxt2htm::details::EqualSignTagContext*>(call_stack.top().get_unsafe());
+                            static_cast<::pltxt2htm::details::EqualSignTagContext*>(call_stack.top().get_unsafe());
                         ::std::size_t const staged_index{current_index};
                         ::pltxt2htm::Discussion staged_node(::std::move(result), ::std::move(frame->id));
                         call_stack.pop();
@@ -1356,7 +1356,7 @@ restart:
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
                         auto frame =
-                            reinterpret_cast<::pltxt2htm::details::EqualSignTagContext*>(call_stack.top().get_unsafe());
+                            static_cast<::pltxt2htm::details::EqualSignTagContext*>(call_stack.top().get_unsafe());
                         ::std::size_t const staged_index{current_index};
                         ::pltxt2htm::User staged_node(::std::move(result), ::std::move(frame->id));
                         call_stack.pop();
@@ -1374,7 +1374,7 @@ restart:
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8's', u8'i', u8'z', u8'e'>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
-                        auto frame = reinterpret_cast<::pltxt2htm::details::PlSizeTagContext const*>(
+                        auto frame = static_cast<::pltxt2htm::details::PlSizeTagContext const*>(
                             call_stack.top().release_imul());
                         ::std::size_t const staged_index{current_index};
                         ::pltxt2htm::Size staged_node(::std::move(result), frame->id);
@@ -1706,7 +1706,7 @@ restart:
             auto&& super_index = call_stack.top()->current_index;
             switch (frame->nested_tag_type) {
             case ::pltxt2htm::NodeType::pl_color: {
-                auto&& id = reinterpret_cast<::pltxt2htm::details::EqualSignTagContext*>(frame.get_unsafe())->id;
+                auto&& id = static_cast<::pltxt2htm::details::EqualSignTagContext*>(frame.get_unsafe())->id;
                 superast.push_back(
                     ::pltxt2htm::details::HeapGuard<::pltxt2htm::Color>(::std::move(subast), ::std::move(id)));
                 break;
@@ -1716,25 +1716,25 @@ restart:
                 break;
             }
             case ::pltxt2htm::NodeType::pl_experiment: {
-                auto&& id = reinterpret_cast<::pltxt2htm::details::EqualSignTagContext*>(frame.get_unsafe())->id;
+                auto&& id = static_cast<::pltxt2htm::details::EqualSignTagContext*>(frame.get_unsafe())->id;
                 superast.push_back(
                     ::pltxt2htm::details::HeapGuard<::pltxt2htm::Experiment>(::std::move(subast), ::std::move(id)));
                 break;
             }
             case ::pltxt2htm::NodeType::pl_discussion: {
-                auto&& id = reinterpret_cast<::pltxt2htm::details::EqualSignTagContext*>(frame.get_unsafe())->id;
+                auto&& id = static_cast<::pltxt2htm::details::EqualSignTagContext*>(frame.get_unsafe())->id;
                 superast.push_back(
                     ::pltxt2htm::details::HeapGuard<::pltxt2htm::Discussion>(::std::move(subast), ::std::move(id)));
                 break;
             }
             case ::pltxt2htm::NodeType::pl_user: {
-                auto&& id = reinterpret_cast<::pltxt2htm::details::EqualSignTagContext*>(frame.get_unsafe())->id;
+                auto&& id = static_cast<::pltxt2htm::details::EqualSignTagContext*>(frame.get_unsafe())->id;
                 superast.push_back(
                     ::pltxt2htm::details::HeapGuard<::pltxt2htm::User>(::std::move(subast), ::std::move(id)));
                 break;
             }
             case ::pltxt2htm::NodeType::pl_size: {
-                auto&& id = reinterpret_cast<::pltxt2htm::details::PlSizeTagContext const*>(frame.release_imul())->id;
+                auto&& id = static_cast<::pltxt2htm::details::PlSizeTagContext const*>(frame.release_imul())->id;
                 superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Size>(::std::move(subast), id));
                 break;
             }
@@ -1841,7 +1841,7 @@ restart:
                 super_index += frame->subast.size();
                 // Handle the ending type
                 auto&& ending_type =
-                    reinterpret_cast<::pltxt2htm::details::MdAtxHeadingContext*>(frame.get_unsafe())->ending_type;
+                    static_cast<::pltxt2htm::details::MdAtxHeadingContext*>(frame.get_unsafe())->ending_type;
                 if (ending_type.ending_type == ::pltxt2htm::details::MdAtxHeadingEndingType::newline) {
                     superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::LineBreak>{});
                     super_index += 1;

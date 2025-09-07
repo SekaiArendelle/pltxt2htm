@@ -40,7 +40,7 @@ restart:
 
         switch (node->node_type()) {
         case ::pltxt2htm::NodeType::u8char: {
-            result.push_back(reinterpret_cast<::pltxt2htm::U8Char const*>(node.release_imul())->get_u8char());
+            result.push_back(static_cast<::pltxt2htm::U8Char const*>(node.release_imul())->get_u8char());
             break;
         }
         case ::pltxt2htm::NodeType::invalid_u8char: {
@@ -49,7 +49,7 @@ restart:
             break;
         }
         case ::pltxt2htm::NodeType::text: {
-            auto text = reinterpret_cast<::pltxt2htm::Text const*>(node.release_imul());
+            auto text = static_cast<::pltxt2htm::Text const*>(node.release_imul());
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(text->get_subast(), ::pltxt2htm::NodeType::text, 0));
             ++current_index;
@@ -110,7 +110,7 @@ restart:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::pl_a: {
             // <a> and <color> is the same tag&struct in fact
-            auto color = reinterpret_cast<::pltxt2htm::Color const*>(node.release_imul());
+            auto color = static_cast<::pltxt2htm::Color const*>(node.release_imul());
 
             call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(color->get_subast(),
                                                                            ::pltxt2htm::NodeType::pl_color, 0));
@@ -124,7 +124,7 @@ restart:
             goto restart;
         }
         case ::pltxt2htm::NodeType::pl_experiment: {
-            auto experiment = reinterpret_cast<::pltxt2htm::Experiment const*>(node.release_imul());
+            auto experiment = static_cast<::pltxt2htm::Experiment const*>(node.release_imul());
             call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(experiment->get_subast(),
                                                                            ::pltxt2htm::NodeType::pl_experiment, 0));
             ++current_index;
@@ -136,7 +136,7 @@ restart:
             goto restart;
         }
         case ::pltxt2htm::NodeType::pl_discussion: {
-            auto discussion = reinterpret_cast<::pltxt2htm::Discussion const*>(node.release_imul());
+            auto discussion = static_cast<::pltxt2htm::Discussion const*>(node.release_imul());
             call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(discussion->get_subast(),
                                                                            ::pltxt2htm::NodeType::pl_discussion, 0));
             ++current_index;
@@ -148,7 +148,7 @@ restart:
             goto restart;
         }
         case ::pltxt2htm::NodeType::pl_user: {
-            auto user = reinterpret_cast<::pltxt2htm::User const*>(node.release_imul());
+            auto user = static_cast<::pltxt2htm::User const*>(node.release_imul());
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(user->get_subast(), ::pltxt2htm::NodeType::pl_user, 0));
             ++current_index;
@@ -163,7 +163,7 @@ restart:
             goto restart;
         }
         case ::pltxt2htm::NodeType::pl_size: {
-            auto size = reinterpret_cast<::pltxt2htm::Size const*>(node.release_imul());
+            auto size = static_cast<::pltxt2htm::Size const*>(node.release_imul());
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(size->get_subast(), ::pltxt2htm::NodeType::pl_size, 0));
             ++current_index;
@@ -179,7 +179,7 @@ restart:
         case ::pltxt2htm::NodeType::html_strong:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::pl_b: {
-            auto b = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            auto b = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(b->get_subast(), ::pltxt2htm::NodeType::pl_b, 0));
             ++current_index;
@@ -188,7 +188,7 @@ restart:
             goto restart;
         }
         case ::pltxt2htm::NodeType::html_p: {
-            auto p = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            auto p = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(p->get_subast(), ::pltxt2htm::NodeType::html_p, 0));
             ++current_index;
@@ -206,7 +206,7 @@ restart:
         case ::pltxt2htm::NodeType::html_h1:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_atx_h1: {
-            auto h1 = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            auto h1 = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(h1->get_subast(), ::pltxt2htm::NodeType::html_h1, 0));
             ++current_index;
@@ -217,7 +217,7 @@ restart:
         case ::pltxt2htm::NodeType::html_h2:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_atx_h2: {
-            auto h2 = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            auto h2 = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(h2->get_subast(), ::pltxt2htm::NodeType::html_h2, 0));
             ++current_index;
@@ -228,7 +228,7 @@ restart:
         case ::pltxt2htm::NodeType::html_h3:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_atx_h3: {
-            auto h3 = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            auto h3 = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(h3->get_subast(), ::pltxt2htm::NodeType::html_h3, 0));
             ++current_index;
@@ -239,7 +239,7 @@ restart:
         case ::pltxt2htm::NodeType::html_h4:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_atx_h4: {
-            auto h4 = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            auto h4 = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(h4->get_subast(), ::pltxt2htm::NodeType::html_h4, 0));
             ++current_index;
@@ -250,7 +250,7 @@ restart:
         case ::pltxt2htm::NodeType::html_h5:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_atx_h5: {
-            auto h5 = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            auto h5 = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(h5->get_subast(), ::pltxt2htm::NodeType::html_h5, 0));
             ++current_index;
@@ -261,7 +261,7 @@ restart:
         case ::pltxt2htm::NodeType::html_h6:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_atx_h6: {
-            auto h6 = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            auto h6 = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(h6->get_subast(), ::pltxt2htm::NodeType::html_h6, 0));
             ++current_index;
@@ -270,7 +270,7 @@ restart:
             goto restart;
         }
         case ::pltxt2htm::NodeType::html_del: {
-            auto del = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            auto del = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(del->get_subast(), ::pltxt2htm::NodeType::html_del, 0));
             ++current_index;
@@ -281,7 +281,7 @@ restart:
         case ::pltxt2htm::NodeType::pl_i:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_em: {
-            auto em = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            auto em = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(em->get_subast(), ::pltxt2htm::NodeType::html_em, 0));
             ++current_index;
@@ -300,7 +300,7 @@ restart:
             break;
         }
         case ::pltxt2htm::NodeType::html_ul: {
-            auto ul = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            auto ul = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(ul->get_subast(), ::pltxt2htm::NodeType::html_ul, 0));
             ++current_index;
@@ -309,7 +309,7 @@ restart:
             goto restart;
         }
         case ::pltxt2htm::NodeType::html_li: {
-            auto li = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            auto li = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(li->get_subast(), ::pltxt2htm::NodeType::html_li, 0));
             ++current_index;
@@ -318,7 +318,7 @@ restart:
             goto restart;
         }
         case ::pltxt2htm::NodeType::html_code: {
-            auto code = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            auto code = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             // Note: Despite `<code></code>` is empty, we still need to handle it
             call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(code->get_subast(),
                                                                            ::pltxt2htm::NodeType::html_code, 0));
@@ -328,7 +328,7 @@ restart:
             goto restart;
         }
         case ::pltxt2htm::NodeType::html_pre: {
-            auto pre = reinterpret_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            auto pre = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             // Note: Despite `<code></code>` is empty, we still need to handle it
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(pre->get_subast(), ::pltxt2htm::NodeType::html_pre, 0));

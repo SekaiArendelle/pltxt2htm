@@ -3,7 +3,6 @@
 #include <cstdlib>
 #include <memory>
 #include <utility>
-#include <ranges>
 #include <concepts>
 #include <type_traits>
 #include <exception/exception.hh>
@@ -47,12 +46,12 @@ public:
         requires (((!::pltxt2htm::details::is_heap_guard<Args>) && ...) && ::std::constructible_from<T, Args...>)
     constexpr HeapGuard(Args&&... args) noexcept {
         this->deleter_ = [](T* self) static constexpr noexcept { self->~T(); };
-        this->ptr_ = reinterpret_cast<T*>(::std::malloc(sizeof(T)));
+        this->ptr_ = static_cast<T*>(::std::malloc(sizeof(T)));
         if (this->ptr_ == nullptr) [[unlikely]] {
             // bad alloc should never be an exception or err_code
             ::exception::terminate();
         }
-        ::std::construct_at(this->ptr_, ::std::forward<Args>(args)...);
+        ::new(this->ptr_) T(::std::forward<Args>(args)...);
     }
 
     constexpr HeapGuard(HeapGuard<T> const& other) noexcept
@@ -61,12 +60,12 @@ public:
         this->deleter_ = other.deleter_;
         // ::std::malloc will implicitly start lifetime of ptr
         // Therefore, should not call ::std::start_lifetime_as
-        this->ptr_ = reinterpret_cast<T*>(::std::malloc(sizeof(T)));
+        this->ptr_ = static_cast<T*>(::std::malloc(sizeof(T)));
         if (this->ptr_ == nullptr) [[unlikely]] {
             // bad alloc should never be an exception or err_code
             ::exception::terminate();
         }
-        ::std::construct_at(this->ptr_, *other.release_imul());
+        ::new(this->ptr_) T(*other.release_imul());
     }
 
     template<typename U>
