@@ -753,7 +753,7 @@ public:
 
     constexpr ::pltxt2htm::MdCodeFence& operator=(::pltxt2htm::MdCodeFence&&) noexcept = default;
 
-    constexpr auto&& get_lang(this auto&& self) noexcept {
+    constexpr auto&& get_language(this auto&& self) noexcept {
         return ::std::forward_like<decltype(self)>(self.lang);
     }
 };

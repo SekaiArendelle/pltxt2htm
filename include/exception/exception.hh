@@ -358,12 +358,16 @@ public:
     }
 };
 
+namespace details {
+
 struct nullopt_t_ {};
 
-template<typename T>
-using optional = ::exception::expected<T, ::exception::nullopt_t_>;
+}
 
-using nullopt_t = ::exception::unexpected<::exception::nullopt_t_>;
+template<typename T>
+using optional = ::exception::expected<T, ::exception::details::nullopt_t_>;
+
+using nullopt_t = ::exception::unexpected<::exception::details::nullopt_t_>;
 
 namespace details {
 
