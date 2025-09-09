@@ -527,7 +527,9 @@ constexpr auto switch_md_atx_header(::pltxt2htm::NodeType md_atx_heading_type, :
         return ::pltxt2htm::details::HeapGuard<::pltxt2htm::AtxH6>(::std::move(subast));
     }
     default:
-        [[unlikely]] ::exception::unreachable<ndebug>();
+        [[unlikely]] {
+            ::exception::unreachable<ndebug>();
+        }
     }
 }
 
@@ -1374,8 +1376,8 @@ restart:
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8's', u8'i', u8'z', u8'e'>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
-                        auto frame = static_cast<::pltxt2htm::details::PlSizeTagContext const*>(
-                            call_stack.top().release_imul());
+                        auto frame =
+                            static_cast<::pltxt2htm::details::PlSizeTagContext const*>(call_stack.top().release_imul());
                         ::std::size_t const staged_index{current_index};
                         ::pltxt2htm::Size staged_node(::std::move(result), frame->id);
                         call_stack.pop();

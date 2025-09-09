@@ -169,8 +169,7 @@ restart:
                 (nested_tag_type != ::pltxt2htm::NodeType::pl_color &&
                  nested_tag_type != ::pltxt2htm::NodeType::pl_a) ||
                 color->get_color() !=
-                    static_cast<
-                        ::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator> const*>(
+                    static_cast<::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator> const*>(
                         call_stack.top().release_imul())
                         ->id_;
             if (is_not_same_tag) {
@@ -207,8 +206,7 @@ restart:
             bool const is_not_same_tag =
                 nested_tag_type != ::pltxt2htm::NodeType::pl_experiment ||
                 experiment->get_id() !=
-                    static_cast<
-                        ::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator> const*>(
+                    static_cast<::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator> const*>(
                         call_stack.top().release_imul())
                         ->id_;
             if (is_not_same_tag) {
@@ -246,8 +244,7 @@ restart:
             bool const is_not_same_tag =
                 nested_tag_type != ::pltxt2htm::NodeType::pl_discussion ||
                 discussion->get_id() !=
-                    static_cast<
-                        ::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator> const*>(
+                    static_cast<::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator> const*>(
                         call_stack.top().release_imul())
                         ->id_;
             if (is_not_same_tag) {
@@ -281,8 +278,7 @@ restart:
             bool const is_not_same_tag =
                 nested_tag_type != ::pltxt2htm::NodeType::pl_user ||
                 user->get_id() !=
-                    static_cast<
-                        ::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator> const*>(
+                    static_cast<::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator> const*>(
                         call_stack.top().get_unsafe())
                         ->id_;
             if (is_not_same_tag) {
@@ -316,8 +312,7 @@ restart:
             bool const is_not_same_tag =
                 nested_tag_type != ::pltxt2htm::NodeType::pl_size ||
                 size->get_id() !=
-                    static_cast<
-                        ::pltxt2htm::details::OptimizerPlSizeTagContext<::pltxt2htm::Ast::iterator> const*>(
+                    static_cast<::pltxt2htm::details::OptimizerPlSizeTagContext<::pltxt2htm::Ast::iterator> const*>(
                         call_stack.top().release_imul())
                         ->id_;
             if (is_not_same_tag) {

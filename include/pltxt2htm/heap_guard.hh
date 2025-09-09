@@ -51,7 +51,7 @@ public:
             // bad alloc should never be an exception or err_code
             ::exception::terminate();
         }
-        ::new(this->ptr_) T(::std::forward<Args>(args)...);
+        ::new (this->ptr_) T(::std::forward<Args>(args)...);
     }
 
     constexpr HeapGuard(HeapGuard<T> const& other) noexcept
@@ -65,7 +65,7 @@ public:
             // bad alloc should never be an exception or err_code
             ::exception::terminate();
         }
-        ::new(this->ptr_) T(*other.release_imul());
+        ::new (this->ptr_) T(*other.release_imul());
     }
 
     template<typename U>
