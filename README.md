@@ -5,9 +5,7 @@
 
 This repository is a sub-project of [Physics-Lab-Web](https://github.com/wsxiaolin/physics-lab-web)
 
-This project aimed to provide a translater that compiles the Quantam-PhysicsLab's text to html (with markdown, minor html tags and latex support [as much as possible](#features)).
-
-This project requires at least C++23, disables rtti and exceptions, use header-only style to supply api, has great cross platform ability and I strongly recommend you to use clang.
+This project is **header-only**, aimed to provide a translater from Quantam-PhysicsLab's text to html (with markdown, minor html tags and latex support [as much as possible](#features)). Requires at least C++23 (g++ >= 14 or clang++ >= 20), disables C++ rtti and exception, has great cross platform ability.
 
 # How to use?
 You can use `pltxt2htm` in [console](cmd/README.md), [browser](wasm/README.md), [python](py/README.md) and [c](c/README.md).
@@ -44,28 +42,6 @@ And I strongly suggest you to add `-O2`, `-fno-ident`, `-fno-exceptions`, `-fno-
 C++20 module example is in [module/example.cc](./cxxmodule/example.cc)
 
 ## Exported API
-* `pltxt2htm::parse_pltxt`: Get AST of Quantum-Physics's text
-  - only exported in C++ API (include/pltxt2htm/pltxt2htm.hh)
-  - All the AST node is exported in C++ API (class derived from `pltxt2htm::PlTxtNode`)
-* `pltxt2htm::pltxt2advanced_html`: Render for Experiment's introduction text, all Quantum-Physics's Tag, minor HTML tag, most of the markdown and latex syntax is supported.
-  - only exported in C++ API (include/pltxt2htm/pltxt2htm.hh)
-* `pltxt2htm::pltxt2fixedadv_html`: Does not escaping `<` to `&lt;`, and the rest is the same as `pltxt2htm::pltxt2advanced_html`
-* `pltxt2htm::advanced_parser`: C-Style pointer interface wrapper for pltxt2advanced_html
-  - in include/pltxt2htm/pltxt2htm.h
-  - Python API: `pltxt2htm.advanced_parser(text: str, host: str) -> str`
-  - WASM API: `_advanced_parser(text: string, host: string) -> string`
-* `pltxt2htm::pltxt2common_html`: Render for Experiment's title, very few syntax is enabled.
-  - only exported in C++ API (include/pltxt2htm/pltxt2htm.hh)
-* `pltxt2htm::common_parser`: C-Style pointer interface wrapper for pltxt2common_html
-  - in include/pltxt2htm/pltxt2htm.h
-  - Python API: `pltxt2htm.common_parser(text: str) -> str`
-  - WASM API: `_common_parser(text: string) -> string`
-* `pltxt2htm::fixedadv_parser`: C-Style pointer interface wrapper for pltxt2fixedadv_html
-* version
-  - C++ API: `pltxt2htm::version::(major|minor|patch)`: Get version of pltxt2htm
-  - Python API: `pltxt2htm.__version__`
-  - WASM API: `_ver_major() -> number`, `_ver_minor() -> number`, `_ver_patch() -> number`
-
 All C++ APIs have been listed in [pltxt2htm.cppm](./cxxmodule/pltxt2htm/pltxt2htm.cppm)
 
 ## features
@@ -98,6 +74,8 @@ markdown extension based on [commonmark](https://spec.commonmark.org/0.31.2/)
 * [Indent code block](https://spec.commonmark.org/0.31.2/#indented-code-blocks) does not support because I hate it.
 * Markdown escape characters (ASCII punctuation character) are supported
 
+Show all supported features in [test](./test/)
+
 > Note: undocumented/untested features is undefined behavior
 
 ## distribution
@@ -115,4 +93,4 @@ A: Not exactly. Despite clang, gcc and msvc all support C++20 modules, but the c
 
 > Q: Why not use NDEBUG macro in include/pltxt2htm
 
-A: Conditional compilation in function body will cause [ODR violation](https://en.cppreference.com/w/cpp/language/definition) and [C++26 Contracts](https://en.cppreference.com/w/cpp/language/contracts) has the same problem. therefore, to make function has different symbols in debug / release mode, I use `template<bool ndebug>` to achieve it.
+A: Conditional compilation in function body will cause [ODR violation](https://en.cppreference.com/w/cpp/language/definition) and [C++26 Contracts](https://en.cppreference.com/w/cpp/language/contracts) has the same problem. Therefore, to make function has different symbols in debug / release mode, I use `template<bool ndebug>` to achieve it.

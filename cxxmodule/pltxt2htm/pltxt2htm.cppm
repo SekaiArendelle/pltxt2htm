@@ -13,8 +13,8 @@ using ::pltxt2htm::pltxt2fixedadv_html;
 using ::pltxt2htm::parse_pltxt;
 using ::pltxt2htm::optimize_ast;
 
+// exported constant global variables
 namespace version {
-// exported global constant variable (version of pltxt2htm)
 
 using ::pltxt2htm::version::major;
 using ::pltxt2htm::version::minor;
@@ -103,6 +103,7 @@ using ::pltxt2htm::EscapePipe;
 using ::pltxt2htm::EscapeRightBrace;
 using ::pltxt2htm::EscapeTilde;
 using ::pltxt2htm::MdHr;
+using ::pltxt2htm::MdCodeFence;
 
 // physics_lab_node
 using ::pltxt2htm::Color;
