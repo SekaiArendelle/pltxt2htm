@@ -157,7 +157,8 @@ enum class NodeType : ::std::uint_least32_t {
     // https://spec.commonmark.org/0.31.2/#thematic-break
     md_hr,
     // https://spec.commonmark.org/0.31.2/#code-fence
-    md_code_fence,
+    md_code_fence_backtick,
+    md_code_fence_tilde,
 
     // latex
     // latex,

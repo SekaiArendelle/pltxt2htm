@@ -10,133 +10,133 @@ namespace pltxt2htm {
 /**
  * @brief Represents markdown atx `#` header.
  */
-class AtxH1 : public ::pltxt2htm::details::PairedTagBase {
+class MdAtxH1 : public ::pltxt2htm::details::PairedTagBase {
 public:
-    constexpr AtxH1() noexcept = delete;
+    constexpr MdAtxH1() noexcept = delete;
 
-    constexpr AtxH1(::pltxt2htm::Ast&& subast) noexcept
+    constexpr MdAtxH1(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_atx_h1, ::std::move(subast)} {
     }
 
-    constexpr AtxH1(::pltxt2htm::AtxH1 const&) noexcept = default;
+    constexpr MdAtxH1(::pltxt2htm::MdAtxH1 const&) noexcept = default;
 
-    constexpr AtxH1(::pltxt2htm::AtxH1&&) noexcept = default;
+    constexpr MdAtxH1(::pltxt2htm::MdAtxH1&&) noexcept = default;
 
-    constexpr ~AtxH1() noexcept = default;
+    constexpr ~MdAtxH1() noexcept = default;
 
-    constexpr ::pltxt2htm::AtxH1& operator=(::pltxt2htm::AtxH1 const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdAtxH1& operator=(::pltxt2htm::MdAtxH1 const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::AtxH1& operator=(::pltxt2htm::AtxH1&&) noexcept = default;
+    constexpr ::pltxt2htm::MdAtxH1& operator=(::pltxt2htm::MdAtxH1&&) noexcept = default;
 };
 
 /**
  * @brief Represents markdown atx `##` header.
  */
-class AtxH2 : public ::pltxt2htm::details::PairedTagBase {
+class MdAtxH2 : public ::pltxt2htm::details::PairedTagBase {
 public:
-    constexpr AtxH2() noexcept = delete;
+    constexpr MdAtxH2() noexcept = delete;
 
-    constexpr AtxH2(::pltxt2htm::Ast&& subast) noexcept
+    constexpr MdAtxH2(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_atx_h2, ::std::move(subast)} {
     }
 
-    constexpr AtxH2(::pltxt2htm::AtxH2 const&) noexcept = default;
+    constexpr MdAtxH2(::pltxt2htm::MdAtxH2 const&) noexcept = default;
 
-    constexpr AtxH2(::pltxt2htm::AtxH2&&) noexcept = default;
+    constexpr MdAtxH2(::pltxt2htm::MdAtxH2&&) noexcept = default;
 
-    constexpr ~AtxH2() noexcept = default;
+    constexpr ~MdAtxH2() noexcept = default;
 
-    constexpr ::pltxt2htm::AtxH2& operator=(::pltxt2htm::AtxH2 const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdAtxH2& operator=(::pltxt2htm::MdAtxH2 const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::AtxH2& operator=(::pltxt2htm::AtxH2&&) noexcept = default;
+    constexpr ::pltxt2htm::MdAtxH2& operator=(::pltxt2htm::MdAtxH2&&) noexcept = default;
 };
 
 /**
  * @brief Represents markdown atx `###` header.
  */
-class AtxH3 : public ::pltxt2htm::details::PairedTagBase {
+class MdAtxH3 : public ::pltxt2htm::details::PairedTagBase {
 public:
-    constexpr AtxH3() noexcept = delete;
+    constexpr MdAtxH3() noexcept = delete;
 
-    constexpr AtxH3(::pltxt2htm::Ast&& subast) noexcept
+    constexpr MdAtxH3(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_atx_h3, ::std::move(subast)} {
     }
 
-    constexpr AtxH3(::pltxt2htm::AtxH3 const&) noexcept = default;
+    constexpr MdAtxH3(::pltxt2htm::MdAtxH3 const&) noexcept = default;
 
-    constexpr AtxH3(::pltxt2htm::AtxH3&&) noexcept = default;
+    constexpr MdAtxH3(::pltxt2htm::MdAtxH3&&) noexcept = default;
 
-    constexpr ~AtxH3() noexcept = default;
+    constexpr ~MdAtxH3() noexcept = default;
 
-    constexpr ::pltxt2htm::AtxH3& operator=(::pltxt2htm::AtxH3 const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdAtxH3& operator=(::pltxt2htm::MdAtxH3 const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::AtxH3& operator=(::pltxt2htm::AtxH3&&) noexcept = default;
+    constexpr ::pltxt2htm::MdAtxH3& operator=(::pltxt2htm::MdAtxH3&&) noexcept = default;
 };
 
 /**
  * @brief Represents markdown atx `####` header.
  */
-class AtxH4 : public ::pltxt2htm::details::PairedTagBase {
+class MdAtxH4 : public ::pltxt2htm::details::PairedTagBase {
 public:
-    constexpr AtxH4() noexcept = delete;
+    constexpr MdAtxH4() noexcept = delete;
 
-    constexpr AtxH4(::pltxt2htm::Ast&& subast) noexcept
+    constexpr MdAtxH4(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_atx_h4, ::std::move(subast)} {
     }
 
-    constexpr AtxH4(::pltxt2htm::AtxH4 const&) noexcept = default;
+    constexpr MdAtxH4(::pltxt2htm::MdAtxH4 const&) noexcept = default;
 
-    constexpr AtxH4(::pltxt2htm::AtxH4&&) noexcept = default;
+    constexpr MdAtxH4(::pltxt2htm::MdAtxH4&&) noexcept = default;
 
-    constexpr ~AtxH4() noexcept = default;
+    constexpr ~MdAtxH4() noexcept = default;
 
-    constexpr ::pltxt2htm::AtxH4& operator=(::pltxt2htm::AtxH4 const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdAtxH4& operator=(::pltxt2htm::MdAtxH4 const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::AtxH4& operator=(::pltxt2htm::AtxH4&&) noexcept = default;
+    constexpr ::pltxt2htm::MdAtxH4& operator=(::pltxt2htm::MdAtxH4&&) noexcept = default;
 };
 
 /**
  * @brief Represents markdown atx `#####` header.
  */
-class AtxH5 : public ::pltxt2htm::details::PairedTagBase {
+class MdAtxH5 : public ::pltxt2htm::details::PairedTagBase {
 public:
-    constexpr AtxH5() noexcept = delete;
+    constexpr MdAtxH5() noexcept = delete;
 
-    constexpr AtxH5(::pltxt2htm::Ast&& subast) noexcept
+    constexpr MdAtxH5(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_atx_h5, ::std::move(subast)} {
     }
 
-    constexpr AtxH5(::pltxt2htm::AtxH5 const&) noexcept = default;
+    constexpr MdAtxH5(::pltxt2htm::MdAtxH5 const&) noexcept = default;
 
-    constexpr AtxH5(::pltxt2htm::AtxH5&&) noexcept = default;
+    constexpr MdAtxH5(::pltxt2htm::MdAtxH5&&) noexcept = default;
 
-    constexpr ~AtxH5() noexcept = default;
+    constexpr ~MdAtxH5() noexcept = default;
 
-    constexpr ::pltxt2htm::AtxH5& operator=(::pltxt2htm::AtxH5 const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdAtxH5& operator=(::pltxt2htm::MdAtxH5 const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::AtxH5& operator=(::pltxt2htm::AtxH5&&) noexcept = default;
+    constexpr ::pltxt2htm::MdAtxH5& operator=(::pltxt2htm::MdAtxH5&&) noexcept = default;
 };
 
 /**
  * @brief Represents markdown atx `######` header.
  */
-class AtxH6 : public ::pltxt2htm::details::PairedTagBase {
+class MdAtxH6 : public ::pltxt2htm::details::PairedTagBase {
 public:
-    constexpr AtxH6() noexcept = delete;
+    constexpr MdAtxH6() noexcept = delete;
 
-    constexpr AtxH6(::pltxt2htm::Ast&& subast) noexcept
+    constexpr MdAtxH6(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_atx_h6, ::std::move(subast)} {
     }
 
-    constexpr AtxH6(::pltxt2htm::AtxH6 const&) noexcept = default;
+    constexpr MdAtxH6(::pltxt2htm::MdAtxH6 const&) noexcept = default;
 
-    constexpr AtxH6(::pltxt2htm::AtxH6&&) noexcept = default;
+    constexpr MdAtxH6(::pltxt2htm::MdAtxH6&&) noexcept = default;
 
-    constexpr ~AtxH6() noexcept = default;
+    constexpr ~MdAtxH6() noexcept = default;
 
-    constexpr ::pltxt2htm::AtxH6& operator=(::pltxt2htm::AtxH6 const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdAtxH6& operator=(::pltxt2htm::MdAtxH6 const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::AtxH6& operator=(::pltxt2htm::AtxH6&&) noexcept = default;
+    constexpr ::pltxt2htm::MdAtxH6& operator=(::pltxt2htm::MdAtxH6&&) noexcept = default;
 };
 
 /**
@@ -717,6 +717,7 @@ public:
 
 /**
  * @brief Represents markdown horizontal rule (`---`, `***`, `___`).
+ * @details https://spec.commonmark.org/0.31.2/#thematic-breaks
  */
 class MdHr : public ::pltxt2htm::PlTxtNode {
 public:
@@ -735,23 +736,50 @@ public:
 
 /**
  * @brief Represents markdown code fence (```).
+ * @details https://spec.commonmark.org/0.31.2/#fenced-code-blocks
  */
-class MdCodeFence : public ::pltxt2htm::details::PairedTagBase {
+class MdCodeFenceBacktick : public ::pltxt2htm::details::PairedTagBase {
     ::exception::optional<::fast_io::u8string> lang;
 
 public:
-    constexpr MdCodeFence(::pltxt2htm::Ast&& ast, ::exception::optional<::fast_io::u8string>&& lang_) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_code_fence, ::std::move(ast)},
+    constexpr MdCodeFenceBacktick(::pltxt2htm::Ast&& ast, ::exception::optional<::fast_io::u8string>&& lang_) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_code_fence_backtick, ::std::move(ast)},
           lang(::std::move(lang_)) {
     }
 
-    constexpr MdCodeFence(::pltxt2htm::MdCodeFence const&) noexcept = default;
+    constexpr MdCodeFenceBacktick(::pltxt2htm::MdCodeFenceBacktick const&) noexcept = default;
 
-    constexpr MdCodeFence(::pltxt2htm::MdCodeFence&&) noexcept = default;
+    constexpr MdCodeFenceBacktick(::pltxt2htm::MdCodeFenceBacktick&&) noexcept = default;
 
-    constexpr ::pltxt2htm::MdCodeFence& operator=(::pltxt2htm::MdCodeFence const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdCodeFenceBacktick& operator=(::pltxt2htm::MdCodeFenceBacktick const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::MdCodeFence& operator=(::pltxt2htm::MdCodeFence&&) noexcept = default;
+    constexpr ::pltxt2htm::MdCodeFenceBacktick& operator=(::pltxt2htm::MdCodeFenceBacktick&&) noexcept = default;
+
+    constexpr auto&& get_language(this auto&& self) noexcept {
+        return ::std::forward_like<decltype(self)>(self.lang);
+    }
+};
+
+/**
+ * @brief Represents markdown code fence (~~~).
+ * @details https://spec.commonmark.org/0.31.2/#fenced-code-blocks
+ */
+class MdCodeFenceTilde : public ::pltxt2htm::details::PairedTagBase {
+    ::exception::optional<::fast_io::u8string> lang;
+
+public:
+    constexpr MdCodeFenceTilde(::pltxt2htm::Ast&& ast, ::exception::optional<::fast_io::u8string>&& lang_) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_code_fence_tilde, ::std::move(ast)},
+          lang(::std::move(lang_)) {
+    }
+
+    constexpr MdCodeFenceTilde(::pltxt2htm::MdCodeFenceTilde const&) noexcept = default;
+
+    constexpr MdCodeFenceTilde(::pltxt2htm::MdCodeFenceTilde&&) noexcept = default;
+
+    constexpr ::pltxt2htm::MdCodeFenceTilde& operator=(::pltxt2htm::MdCodeFenceTilde const&) noexcept = delete;
+
+    constexpr ::pltxt2htm::MdCodeFenceTilde& operator=(::pltxt2htm::MdCodeFenceTilde&&) noexcept = default;
 
     constexpr auto&& get_language(this auto&& self) noexcept {
         return ::std::forward_like<decltype(self)>(self.lang);

@@ -553,7 +553,9 @@ restart:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_escape_tilde:
             [[fallthrough]];
-        case ::pltxt2htm::NodeType::md_code_fence: {
+        case ::pltxt2htm::NodeType::md_code_fence_backtick:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_code_fence_tilde: {
             break;
         }
         case ::pltxt2htm::NodeType::base:
@@ -603,7 +605,9 @@ restart:
                 }
                 goto restart;
             }
-            case ::pltxt2htm::NodeType::md_code_fence:
+            case ::pltxt2htm::NodeType::md_code_fence_backtick:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::md_code_fence_tilde:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::html_code:
                 [[fallthrough]];

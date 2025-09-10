@@ -1,10 +1,10 @@
 #pragma once
 
-#include <exception/exception.hh>
+#include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
+#include <exception/exception.hh>
 
-#include "fast_io/fast_io_dsal/vector.h"
 #include "push_macro.hh"
 
 namespace pltxt2htm::details {

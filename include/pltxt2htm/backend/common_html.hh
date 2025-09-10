@@ -6,6 +6,7 @@
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
+#include "exception/exception.hh"
 #include "frame_context.hh"
 #include "../utils.hh"
 #include "../astnode/basic.hh"
@@ -38,52 +39,52 @@ restart:
             break;
         }
         case ::pltxt2htm::NodeType::invalid_u8char: {
-            auto escape_str = ::fast_io::array{char8_t{0xef}, 0xbf, 0xbd};
+            auto const escape_str = ::fast_io::array{char8_t{0xef}, 0xbf, 0xbd};
             result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
             break;
         }
         case ::pltxt2htm::NodeType::space: {
-            auto escape_str = ::fast_io::array{u8'&', u8'n', u8'b', u8's', u8'p', u8';'};
+            auto const escape_str = ::fast_io::array{u8'&', u8'n', u8'b', u8's', u8'p', u8';'};
             result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
             break;
         }
         case ::pltxt2htm::NodeType::md_escape_ampersand:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::ampersand: {
-            auto escape_str = ::fast_io::array{u8'&', u8'a', u8'm', u8'p', u8';'};
+            auto const escape_str = ::fast_io::array{u8'&', u8'a', u8'm', u8'p', u8';'};
             result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
             break;
         }
         case ::pltxt2htm::NodeType::md_escape_single_quote:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::single_quote: {
-            auto escape_str = ::fast_io::array{u8'&', u8'a', u8'p', u8'o', u8's', u8';'};
+            auto const escape_str = ::fast_io::array{u8'&', u8'a', u8'p', u8'o', u8's', u8';'};
             result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
             break;
         }
         case ::pltxt2htm::NodeType::md_escape_double_quote:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::double_quote: {
-            auto escape_str = ::fast_io::array{u8'&', u8'q', u8'u', u8'o', u8't', u8';'};
+            auto const escape_str = ::fast_io::array{u8'&', u8'q', u8'u', u8'o', u8't', u8';'};
             result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
             break;
         }
         case ::pltxt2htm::NodeType::md_escape_less_than:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::less_than: {
-            auto escape_str = ::fast_io::array{u8'&', u8'l', u8't', u8';'};
+            auto const escape_str = ::fast_io::array{u8'&', u8'l', u8't', u8';'};
             result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
             break;
         }
         case ::pltxt2htm::NodeType::md_escape_greater_than:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::greater_than: {
-            auto escape_str = ::fast_io::array{u8'&', u8'g', u8't', u8';'};
+            auto const escape_str = ::fast_io::array{u8'&', u8'g', u8't', u8';'};
             result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
             break;
         }
         case ::pltxt2htm::NodeType::tab: {
-            auto escape_str =
+            auto const escape_str =
                 ::fast_io::array{u8'&', u8'n', u8'b', u8's', u8'p', u8';', u8'&', u8'n', u8'b', u8's', u8'p', u8';',
                                  u8'&', u8'n', u8'b', u8's', u8'p', u8';', u8'&', u8'n', u8'b', u8's', u8'p', u8';'};
             result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
@@ -102,11 +103,12 @@ restart:
             call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(color->get_subast(),
                                                                            ::pltxt2htm::NodeType::pl_color, 0));
             ++current_index;
-            auto close_tag1 = ::fast_io::array{u8'<', u8's', u8'p',  u8'a', u8'n', u8' ', u8's', u8't', u8'y', u8'l',
-                                               u8'e', u8'=', u8'\"', u8'c', u8'o', u8'l', u8'o', u8'r', u8':'};
+            auto const close_tag1 =
+                ::fast_io::array{u8'<', u8's', u8'p',  u8'a', u8'n', u8' ', u8's', u8't', u8'y', u8'l',
+                                 u8'e', u8'=', u8'\"', u8'c', u8'o', u8'l', u8'o', u8'r', u8':'};
             result.append(::fast_io::u8string_view{close_tag1.data(), close_tag1.size()});
             result.append(color->get_color());
-            auto close_tag2 = ::fast_io::array{u8';', u8'\"', u8'>'};
+            auto const close_tag2 = ::fast_io::array{u8';', u8'\"', u8'>'};
             result.append(::fast_io::u8string_view{close_tag2.data(), close_tag2.size()});
             goto restart;
         }
@@ -117,7 +119,7 @@ restart:
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(b->get_subast(), ::pltxt2htm::NodeType::pl_b, 0));
             ++current_index;
-            auto start_tag = ::fast_io::array{u8'<', u8's', u8't', u8'r', u8'o', u8'n', u8'g', u8'>'};
+            auto const start_tag = ::fast_io::array{u8'<', u8's', u8't', u8'r', u8'o', u8'n', u8'g', u8'>'};
             result.append(::fast_io::u8string_view{start_tag.data(), start_tag.size()});
             goto restart;
         }
@@ -128,7 +130,7 @@ restart:
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(em->get_subast(), ::pltxt2htm::NodeType::html_em, 0));
             ++current_index;
-            auto start_tag = ::fast_io::array{u8'<', u8'e', u8'm', u8'>'};
+            auto const start_tag = ::fast_io::array{u8'<', u8'e', u8'm', u8'>'};
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
             goto restart;
         }
@@ -247,7 +249,55 @@ restart:
         case ::pltxt2htm::NodeType::html_note: {
             break;
         }
-        default: {
+        case ::pltxt2htm::NodeType::text:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::pl_experiment:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::pl_discussion:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::pl_user:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::pl_size:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::html_p:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::html_h1:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::html_h2:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::html_h3:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::html_h4:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::html_h5:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::html_h6:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::html_del:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::html_ul:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::html_li:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::html_code:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_atx_h1:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_atx_h2:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_atx_h3:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_atx_h4:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_atx_h5:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_atx_h6:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::html_pre:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_code_fence_backtick:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_code_fence_tilde: {
             auto a_paired_tag = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             if (a_paired_tag->get_subast().empty()) {
                 // Optimization: if the tag is empty, we can skip it
@@ -258,6 +308,10 @@ restart:
             ++current_index;
             goto restart;
         }
+        case ::pltxt2htm::NodeType::base:
+            [[unlikely]] {
+                ::exception::unreachable<ndebug>();
+            }
         }
     }
 

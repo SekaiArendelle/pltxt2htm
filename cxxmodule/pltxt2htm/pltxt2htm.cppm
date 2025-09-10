@@ -64,12 +64,12 @@ using ::pltxt2htm::Code;
 using ::pltxt2htm::Pre;
 
 // markdown_node
-using ::pltxt2htm::AtxH1;
-using ::pltxt2htm::AtxH2;
-using ::pltxt2htm::AtxH3;
-using ::pltxt2htm::AtxH4;
-using ::pltxt2htm::AtxH5;
-using ::pltxt2htm::AtxH6;
+using ::pltxt2htm::MdAtxH1;
+using ::pltxt2htm::MdAtxH2;
+using ::pltxt2htm::MdAtxH3;
+using ::pltxt2htm::MdAtxH4;
+using ::pltxt2htm::MdAtxH5;
+using ::pltxt2htm::MdAtxH6;
 using ::pltxt2htm::EscapeBackslash;
 using ::pltxt2htm::EscapeExclamation;
 using ::pltxt2htm::EscapeDoubleQuote;
@@ -103,7 +103,8 @@ using ::pltxt2htm::EscapePipe;
 using ::pltxt2htm::EscapeRightBrace;
 using ::pltxt2htm::EscapeTilde;
 using ::pltxt2htm::MdHr;
-using ::pltxt2htm::MdCodeFence;
+using ::pltxt2htm::MdCodeFenceBacktick;
+using ::pltxt2htm::MdCodeFenceBacktick;
 
 // physics_lab_node
 using ::pltxt2htm::Color;

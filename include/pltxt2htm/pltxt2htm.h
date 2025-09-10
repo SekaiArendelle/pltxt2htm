@@ -1,10 +1,5 @@
 #pragma once
 
-/**
- * @file pltxt2htm.h
- * @brief This file provides c pointer style interface wrapped ::pltxt2htm::pltxt2html
- */
-
 #include <cstdlib>
 #include <cstring>
 #include <utility>
@@ -16,6 +11,9 @@ namespace pltxt2htm {
 
 namespace details {
 
+/**
+ * @brief General c pointer style interface
+ */
 template<auto Func, typename... Args>
 [[nodiscard]]
 constexpr char8_t const* c_ptr_style_wrapper(Args&&... args) noexcept(
