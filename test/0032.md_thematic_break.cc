@@ -45,5 +45,13 @@ int main() {
     auto answer11 = ::fast_io::u8string_view{u8"<hr>"};
     ::pltxt2htm_test::assert_true(html11 == answer11);
 
+    auto html12 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"# test\n ---");
+    auto answer12 = ::fast_io::u8string_view{u8"<h1>test</h1><br><hr>"};
+    ::pltxt2htm_test::assert_true(html12 == answer12);
+
+    auto html13 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"# test<br> ---");
+    auto answer13 = ::fast_io::u8string_view{u8"<h1>test</h1><br><hr>"};
+    ::pltxt2htm_test::assert_true(html13 == answer13);
+
     return 0;
 }

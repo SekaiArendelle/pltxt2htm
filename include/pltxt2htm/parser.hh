@@ -941,12 +941,14 @@ restart:
                 [[fallthrough]];
             case u8'C': {
                 // parsing: <color=$1>$2</color>
-                if (auto opt_color_tag = ::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, u8'o', u8'l', u8'o', u8'r'>(
-                        u8string_view_subview<ndebug>(pltext, current_index + 2),
-                        [](char8_t u8chr) static constexpr noexcept {
-                            return (u8'0' <= u8chr && u8chr <= u8'9') || (u8'a' <= u8chr && u8chr <= u8'z') ||
-                                   (u8'A' <= u8chr && u8chr <= u8'Z') || u8chr == u8'#';
-                        }); opt_color_tag.has_value()) {
+                if (auto opt_color_tag =
+                        ::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, u8'o', u8'l', u8'o', u8'r'>(
+                            u8string_view_subview<ndebug>(pltext, current_index + 2),
+                            [](char8_t u8chr) static constexpr noexcept {
+                                return (u8'0' <= u8chr && u8chr <= u8'9') || (u8'a' <= u8chr && u8chr <= u8'z') ||
+                                       (u8'A' <= u8chr && u8chr <= u8'Z') || u8chr == u8'#';
+                            });
+                    opt_color_tag.has_value()) {
                     auto&& [tag_len, color] = opt_color_tag.template value<ndebug>();
                     current_index += tag_len + 3;
                     // parsing start tag <color> successed
@@ -983,12 +985,14 @@ restart:
                     goto restart;
                 }
                 // parsing: <discussion=$1>$2</discussion>
-                if (auto opt_discussion_tag = ::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, u8'i', u8's', u8'c', u8'u', u8's', u8's',
-                                                                   u8'i', u8'o', u8'n'>(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                        [](char8_t u8chr) static constexpr noexcept {
-                            return (u8'a' <= u8chr && u8chr <= u8'z') || (u8'0' <= u8chr && u8chr <= u8'9');
-                        }); opt_discussion_tag.has_value()) {
+                if (auto opt_discussion_tag =
+                        ::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, u8'i', u8's', u8'c', u8'u', u8's', u8's',
+                                                                       u8'i', u8'o', u8'n'>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
+                            [](char8_t u8chr) static constexpr noexcept {
+                                return (u8'a' <= u8chr && u8chr <= u8'z') || (u8'0' <= u8chr && u8chr <= u8'9');
+                            });
+                    opt_discussion_tag.has_value()) {
                     auto&& [tag_len, id] = opt_discussion_tag.template value<ndebug>();
                     current_index += tag_len + 3;
                     call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::EqualSignTagContext>(
@@ -1005,12 +1009,14 @@ restart:
                 [[fallthrough]];
             case u8'E': {
                 // parsing: <experiment=$1>$2</experiment>
-                if (auto opt_experiment_tag = ::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, u8'x', u8'p', u8'e', u8'r', u8'i', u8'm',
-                                                                   u8'e', u8'n', u8't'>(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                        [](char8_t u8chr) static constexpr noexcept {
-                            return (u8'a' <= u8chr && u8chr <= u8'z') || (u8'0' <= u8chr && u8chr <= u8'9');
-                        }); opt_experiment_tag.has_value()) {
+                if (auto opt_experiment_tag =
+                        ::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, u8'x', u8'p', u8'e', u8'r', u8'i', u8'm',
+                                                                       u8'e', u8'n', u8't'>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
+                            [](char8_t u8chr) static constexpr noexcept {
+                                return (u8'a' <= u8chr && u8chr <= u8'z') || (u8'0' <= u8chr && u8chr <= u8'9');
+                            });
+                    opt_experiment_tag.has_value()) {
                     auto&& [tag_len, id] = opt_experiment_tag.template value<ndebug>();
                     current_index += tag_len + 3;
                     call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::EqualSignTagContext>(
@@ -1164,12 +1170,14 @@ restart:
             case u8's':
                 [[fallthrough]];
             case u8'S': {
-// parsing pl <size=$1>$2</size> tag
+                // parsing pl <size=$1>$2</size> tag
                 if (auto opt_size_tag = ::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, u8'i', u8'z', u8'e'>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                        [](char8_t u8chr) static constexpr noexcept { return u8'0' <= u8chr && u8chr <= u8'9'; }); opt_size_tag.has_value()) {
+                        [](char8_t u8chr) static constexpr noexcept { return u8'0' <= u8chr && u8chr <= u8'9'; });
+                    opt_size_tag.has_value()) {
                     auto&& [tag_len, id_] = opt_size_tag.template value<ndebug>();
-                    ::exception::optional<::std::size_t> id{::pltxt2htm::details::u8str2size_t(::fast_io::mnp::os_c_str(id_))};
+                    ::exception::optional<::std::size_t> id{
+                        ::pltxt2htm::details::u8str2size_t(::fast_io::mnp::os_c_str(id_))};
                     if (!id.has_value()) [[unlikely]] {
                         ::exception::unreachable<ndebug>();
                     }
@@ -1198,12 +1206,13 @@ restart:
             case u8'u':
                 [[fallthrough]];
             case u8'U': {
-// parsing pl <user=$1>$2</user> tag
+                // parsing pl <user=$1>$2</user> tag
                 if (auto opt_user_tag = ::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, u8's', u8'e', u8'r'>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
                         [](char8_t u8chr) static constexpr noexcept {
                             return (u8'a' <= u8chr && u8chr <= u8'z') || (u8'0' <= u8chr && u8chr <= u8'9');
-                        }); opt_user_tag.has_value()) {
+                        });
+                    opt_user_tag.has_value()) {
                     auto&& [tag_len, id] = opt_user_tag.template value<ndebug>();
                     current_index += tag_len + 3;
                     call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::EqualSignTagContext>(
@@ -1867,11 +1876,6 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) /* throws */ -> ::pl
         call_stack{};
     ::pltxt2htm::Ast result{};
 
-    // Consider the following markdown
-    // ```md
-    // ## test
-    // ```
-    // Here, the first line is a markdown atx heading, will hit this case
     ::std::size_t start_index{};
 #if __has_cpp_attribute(indeterminate)
     ::std::size_t end_index [[indeterminate]];
@@ -1885,6 +1889,11 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) /* throws */ -> ::pl
     // try parsing markdown atx header
     if (::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(pltext, start_index, sublength, md_atx_heading_type,
                                                                ending_type)) {
+        // Consider the following markdown
+        // ```md
+        // ## test
+        // ```
+        // Here, the first line is a markdown atx heading, will hit this case
         ::pltxt2htm::Ast subast{};
         if (start_index < pltext.size()) {
             auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index, sublength);
@@ -1895,18 +1904,23 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) /* throws */ -> ::pl
         result.push_back(::pltxt2htm::details::switch_md_atx_header<ndebug>(md_atx_heading_type, ::std::move(subast)));
         // rectify the start index to the start of next text (aka. below common cases)
         start_index += sublength;
+    } else if (auto opt_thematic_break = ::pltxt2htm::details::try_parse_md_thematic_break<ndebug>(pltext);
+               opt_thematic_break.has_value()) {
+        // considering following markdown
+        // ```md
+        // ---
+        // ```
+        // above example will hit this branch
+        auto&& [subast, forward_index] = opt_thematic_break.template value<ndebug>();
+        for (auto&& node : subast) {
+            result.push_back(::std::move(node));
+        }
+        start_index += forward_index;
     }
 
     // other common cases
     call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index), ::pltxt2htm::NodeType::base));
-    if (auto opt_len = ::pltxt2htm::details::try_parse_md_thematic_break<ndebug>(pltext); opt_len.has_value()) {
-        auto&& [subast, forward_index] = opt_len.template value<ndebug>();
-        for (auto&& node : subast) {
-            result.push_back(::std::move(node));
-        }
-        call_stack.top()->current_index += forward_index;
-    }
     auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
     for (auto&& node : subast) {
         result.push_back(::std::move(node));
