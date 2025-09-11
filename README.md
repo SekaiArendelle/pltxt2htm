@@ -5,9 +5,9 @@
 
 This repository is a sub-project of [Physics-Lab-Web](https://github.com/wsxiaolin/physics-lab-web)
 
-This project is **header-only**, aimed to provide a translater from Quantam-PhysicsLab's text to html (with markdown, minor html tags and latex support [as much as possible](#features)). Requires at least C++23 (g++ >= 14 or clang++ >= 20), disables C++ rtti and exception, has great cross platform ability.
+This project is **header-only**, aimed to provide a translater from Quantam-PhysicsLab's text to html (with markdown, minor html tags and latex support [as much as possible](#features)). Requires at least C++23 (g++ >= 14 or clang++ >= 21), disables C++ rtti and exception, has great cross platform ability.
 
-# How to use?
+# Usage
 You can use `pltxt2htm` in [console](cmd/README.md), [browser](wasm/README.md), [python](py/README.md) and [c](c/README.md).
 
 C++ APIs is in [include/pltxt2htm](include/pltxt2htm/), here is a simple example:
@@ -68,6 +68,20 @@ markdown extension based on [commonmark](https://spec.commonmark.org/0.31.2/)
 Show all supported features in [test](./test/)
 
 > Note: undocumented/untested features is undefined behavior
+
+## Setup development environment
+Easy to setup development environment by my [Dockerfile](./Dockerfile)
+
+### Setup docker image and container
+```sh
+docker build -t pltxt2htm .
+docker run -d --name pltxt2htm-dev pltxt2htm
+```
+
+### Enter container
+```sh
+docker exec -it pltxt2htm-dev sh
+```
 
 ## distribution
 `cmd/`, `wasm/` and `py/` distributions share the same version of `pltxt2htm::version`
