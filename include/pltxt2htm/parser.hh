@@ -420,8 +420,8 @@ enum class EndType : ::std::uint_least32_t {
 };
 
 struct TryParseMdThematicBreakResult {
+    ::pltxt2htm::Ast subast;
     ::std::size_t index;
-    ::pltxt2htm::details::EndType end_type;
 };
 
 /**
@@ -471,13 +471,17 @@ constexpr auto try_parse_md_thematic_break(
             }
         } else if (thematic_break_type != ::pltxt2htm::details::ThematicBreakType::none) {
             if (chr == u8'\n') {
-                return ::pltxt2htm::details::TryParseMdThematicBreakResult{i + 1,
-                                                                           ::pltxt2htm::details::EndType::line_break};
+                return ::pltxt2htm::details::TryParseMdThematicBreakResult{
+                    ::pltxt2htm::Ast{::pltxt2htm::details::HeapGuard<::pltxt2htm::MdHr>{},
+                                     ::pltxt2htm::details::HeapGuard<::pltxt2htm::LineBreak>{}},
+                    i + 1};
             } else if (auto opt_tag_len = ::pltxt2htm::details::try_parse_self_closing_tag<ndebug, u8'<', u8'b', u8'r'>(
                            ::pltxt2htm::details::u8string_view_subview<ndebug>(text, i));
                        opt_tag_len.has_value()) {
-                return ::pltxt2htm::details::TryParseMdThematicBreakResult{i + opt_tag_len.template value<ndebug>() + 1,
-                                                                           ::pltxt2htm::details::EndType::br_tag};
+                return ::pltxt2htm::details::TryParseMdThematicBreakResult{
+                    ::pltxt2htm::Ast{::pltxt2htm::details::HeapGuard<::pltxt2htm::MdHr>{},
+                                     ::pltxt2htm::details::HeapGuard<::pltxt2htm::Br>{}},
+                    i + opt_tag_len.template value<ndebug>() + 1};
             } else {
                 return ::exception::nullopt_t{};
             }
@@ -488,9 +492,18 @@ constexpr auto try_parse_md_thematic_break(
     if (thematic_break_type == ::pltxt2htm::details::ThematicBreakType::none) {
         return ::exception::nullopt_t{};
     } else {
-        return ::pltxt2htm::details::TryParseMdThematicBreakResult{i, ::pltxt2htm::details::EndType::end_of_string};
+        return ::pltxt2htm::details::TryParseMdThematicBreakResult{
+            ::pltxt2htm::Ast{::pltxt2htm::details::HeapGuard<::pltxt2htm::MdHr>{}}, i};
     }
 }
+
+struct TryParseMdCodeFenceResult {
+    ::pltxt2htm::Ast subast;
+};
+
+// template<bool ndebug>
+// constexpr auto try_parse_md_code_fence(::fast_io::u8string_view pltext) /* throws */ ->
+// ::exception::optional<TryParseMdThematicBreakResult> {}
 
 /**
  * @brief Switch to a markdown atx header.
@@ -786,14 +799,11 @@ restart:
             } else if (auto opt_len = ::pltxt2htm::details::try_parse_md_thematic_break<ndebug>(
                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1));
                        opt_len.has_value()) {
-                auto&& [index, end_type] = opt_len.template value<ndebug>();
-                current_index += index;
-                result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::MdHr>{});
-                if (end_type == ::pltxt2htm::details::EndType::br_tag) {
-                    result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Br>{});
-                } else if (end_type == ::pltxt2htm::details::EndType::line_break) {
-                    result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::LineBreak>{});
+                auto&& [subast, forward_index] = opt_len.template value<ndebug>();
+                for (auto&& node : subast) {
+                    result.push_back(::std::move(node));
                 }
+                current_index += forward_index;
                 continue;
             }
             continue;
@@ -908,14 +918,11 @@ restart:
                     } else if (auto opt_len = ::pltxt2htm::details::try_parse_md_thematic_break<ndebug>(
                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1));
                                opt_len.has_value()) {
-                        auto&& [index, end_type] = opt_len.template value<ndebug>();
-                        current_index += index;
-                        result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::MdHr>{});
-                        if (end_type == ::pltxt2htm::details::EndType::br_tag) {
-                            result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Br>{});
-                        } else if (end_type == ::pltxt2htm::details::EndType::line_break) {
-                            result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::LineBreak>{});
+                        auto&& [subast, forward_index] = opt_len.template value<ndebug>();
+                        for (auto&& node : subast) {
+                            result.push_back(::std::move(node));
                         }
+                        current_index += forward_index;
                         continue;
                     }
                     continue;
@@ -1914,14 +1921,11 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) /* throws */ -> ::pl
     call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index), ::pltxt2htm::NodeType::base));
     if (auto opt_len = ::pltxt2htm::details::try_parse_md_thematic_break<ndebug>(pltext); opt_len.has_value()) {
-        auto&& [index, end_type] = opt_len.template value<ndebug>();
-        call_stack.top()->current_index += index;
-        result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::MdHr>{});
-        if (end_type == ::pltxt2htm::details::EndType::br_tag) {
-            result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Br>{});
-        } else if (end_type == ::pltxt2htm::details::EndType::line_break) {
-            result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::LineBreak>{});
+        auto&& [subast, forward_index] = opt_len.template value<ndebug>();
+        for (auto&& node : subast) {
+            result.push_back(::std::move(node));
         }
+        call_stack.top()->current_index += forward_index;
     }
     auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
     for (auto&& node : subast) {
