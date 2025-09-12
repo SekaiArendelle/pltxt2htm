@@ -461,6 +461,7 @@ restart:
             break;
         }
         case ::pltxt2htm::NodeType::html_note: {
+            // TODO remove note node
             break;
         }
         case ::pltxt2htm::NodeType::html_ul: {

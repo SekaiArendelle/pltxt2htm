@@ -10,6 +10,7 @@
 #include "../utils.hh"
 #include "../astnode/basic.hh"
 #include "../astnode/node_type.hh"
+#include "../astnode/markdown_node.hh"
 #include "../astnode/physics_lab_node.hh"
 
 namespace pltxt2htm::details {
@@ -449,8 +450,26 @@ restart:
         case ::pltxt2htm::NodeType::md_code_fence_backtick:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_code_fence_tilde: {
-            // TODO
-            break;
+            auto code_fence = static_cast<::pltxt2htm::MdCodeFenceBacktick const*>(node.release_imul());
+            auto const& opt_language = code_fence->get_language();
+            if (opt_language.has_value()) {
+                auto const& language = opt_language.template value<ndebug>();
+                auto const start_tag = ::fast_io::array{u8'<', u8'p', u8'r', u8'e', u8'>', u8'<', u8'c', u8'o', u8'd',
+                                                        u8'e', u8' ', u8'c', u8'l', u8'a', u8's', u8's', u8'=', u8'\"',
+                                                        u8'l', u8'a', u8'n', u8'g', u8'u', u8'a', u8'g', u8'e', u8'-'};
+                result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+                result.append(language);
+                auto const start_tag2 = ::fast_io::array{u8'\"', u8'>'};
+                result.append(::fast_io::u8string_view(start_tag2.begin(), start_tag2.size()));
+            } else {
+                auto const start_tag =
+                    ::fast_io::array{u8'<', u8'p', u8'r', u8'e', u8'>', u8'<', u8'c', u8'o', u8'd', u8'e', u8'>'};
+                result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            }
+            call_stack.push(
+                ::pltxt2htm::details::BackendBasicFrameContext(code_fence->get_subast(), ::pltxt2htm::NodeType::md_code_fence_backtick, 0));
+            ++current_index;
+            goto restart;
         }
         case ::pltxt2htm::NodeType::base:
 #if 0
@@ -571,6 +590,14 @@ restart:
             }
             case ::pltxt2htm::NodeType::html_pre: {
                 auto const close_tag = ::fast_io::array{u8'<', u8'/', u8'p', u8'r', u8'e', u8'>'};
+                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+                goto restart;
+            }
+            case ::pltxt2htm::NodeType::md_code_fence_backtick:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::md_code_fence_tilde: {
+                auto const close_tag = ::fast_io::array{u8'<', u8'/', u8'c', u8'o', u8'd', u8'e', u8'>',
+                                                        u8'<', u8'/', u8'p', u8'r', u8'e', u8'>'};
                 result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
                 goto restart;
             }

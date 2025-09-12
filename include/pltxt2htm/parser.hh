@@ -24,6 +24,145 @@ namespace pltxt2htm {
 namespace details {
 
 /**
+ * @brief Switch to a markdown punctuation character.
+ */
+constexpr ::exception::optional<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> switch_escape_char(
+    char8_t u8char) noexcept {
+    switch (u8char) {
+    case u8'\\': {
+        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeBackslash>{});
+    }
+    case u8'!': {
+        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeExclamation>{});
+    }
+    case u8'\"': {
+        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeDoubleQuote>{});
+    }
+    case u8'#': {
+        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeHash>{});
+    }
+    case u8'$': {
+        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeDollar>{});
+    }
+    case u8'%': {
+        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapePercent>{});
+    }
+    case u8'&': {
+        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeAmpersand>{});
+    }
+    case u8'\'': {
+        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeSingleQuote>{});
+    }
+    case u8'(': {
+        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeLeftParen>{});
+    }
+    case u8')': {
+        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeRightParen>{});
+    }
+    case u8'*': {
+        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeAsterisk>{});
+    }
+    case u8'+': {
+        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapePlus>{});
+    }
+    case u8',': {
+        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeComma>{});
+    }
+    case u8'-': {
+        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeHyphen>{});
+    }
+    case u8'.': {
+        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeDot>{});
+    }
+    case u8'/': {
+        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeSlash>{});
+    }
+    case u8':': {
+        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeColon>{});
+    }
+    case u8';': {
+        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeSemicolon>{});
+    }
+    case u8'<': {
+        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeLessThan>{});
+    }
+    case u8'=': {
+        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeEquals>{});
+    }
+    case u8'>': {
+        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeGreaterThan>{});
+    }
+    case u8'?': {
+        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeQuestion>{});
+    }
+    case u8'@': {
+        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeAt>{});
+    }
+    case u8'[': {
+        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeLeftBracket>{});
+    }
+    case u8']': {
+        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeRightBracket>{});
+    }
+    case u8'^': {
+        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeCaret>{});
+    }
+    case u8'_': {
+        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeUnderscore>{});
+    }
+    case u8'`': {
+        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeBacktick>{});
+    }
+    case u8'{': {
+        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeLeftBrace>{});
+    }
+    case u8'|': {
+        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapePipe>{});
+    }
+    case u8'}': {
+        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeRightBrace>{});
+    }
+    case u8'~': {
+        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
+            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeTilde>{});
+    }
+    default:
+        return ::exception::nullopt_t{};
+    }
+}
+
+/**
  * @brief Check whether the string is a prefix (without distinguishing
  *        between uppercase and lowercase) of the pl-text.
  *        This is a magic funciton that will generate if-expression in compile time.
@@ -41,7 +180,7 @@ template<bool ndebug, char8_t... prefix_str>
 [[nodiscard]]
 constexpr bool is_prefix_match(::fast_io::u8string_view str) /* throws */ {
     // Check whether the index is out of bound.
-    if (sizeof...(prefix_str) >= str.size()) [[unlikely]] {
+    if (sizeof...(prefix_str) > str.size()) [[unlikely]] {
         return false;
     }
 
@@ -426,7 +565,7 @@ enum class EndType : ::std::uint_least32_t {
 
 struct TryParseMdThematicBreakResult {
     ::pltxt2htm::Ast subast;
-    ::std::size_t index;
+    ::std::size_t forward_index;
 };
 
 /**
@@ -503,12 +642,138 @@ constexpr auto try_parse_md_thematic_break(
 }
 
 struct TryParseMdCodeFenceResult {
-    ::pltxt2htm::Ast subast;
+    ::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode> node;
+    ::std::size_t forward_index;
 };
 
-// template<bool ndebug>
-// constexpr auto try_parse_md_code_fence(::fast_io::u8string_view pltext) /* throws */ ->
-// ::exception::optional<TryParseMdThematicBreakResult> {}
+template<bool ndebug, bool is_backtick>
+constexpr auto try_parse_md_code_fence(::fast_io::u8string_view pltext) /* throws */ -> ::exception::optional<
+    ::pltxt2htm::details::TryParseMdCodeFenceResult> {
+    if (pltext.size() <= 7) {
+        return ::exception::nullopt_t{};
+    }
+
+    if constexpr (is_backtick) {
+        if (::pltxt2htm::details::is_prefix_match<ndebug, u8'`', u8'`', u8'`'>(pltext) == false) {
+            return ::exception::nullopt_t{};
+        }
+    } else {
+        if (::pltxt2htm::details::is_prefix_match<ndebug, u8'~', u8'~', u8'~'>(pltext) == false) {
+            return ::exception::nullopt_t{};
+        }
+    }
+
+    // TODO rename to ast
+    ::pltxt2htm::Ast ast{};
+    ::fast_io::u8string lang{};
+    ::std::size_t current_index{3};
+    ::std::size_t const pltext_size{pltext.size()};
+
+    // Parsing language string
+
+    // Skipping spaces before language string
+    while (current_index != pltext_size &&
+           ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) == u8' ') {
+        ++current_index;
+    }
+    // parsing language string
+    for (; current_index != pltext_size; ++current_index) {
+        auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
+        if (chr == u8'\n') {
+            ++current_index;
+            break;
+        } else if (chr == u8' ') {
+            ++current_index;
+            do {
+                ++current_index;
+            } while (current_index != pltext_size &&
+                     ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8'\n');
+            ++current_index;
+            break;
+        } else {
+            if constexpr (is_backtick) {
+                if (::pltxt2htm::details::is_prefix_match<ndebug, u8'`', u8'`', u8'`'>(::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) {
+                    return ::exception::nullopt_t{};
+                }
+            }
+            lang.push_back(chr);
+        }
+    }
+
+    // parsing context of code fence
+    for (; current_index < pltext.size(); ++current_index) {
+        char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index)};
+
+        if (chr == u8'\n') {
+            if constexpr (is_backtick) {
+                if (::pltxt2htm::details::is_prefix_match<ndebug, u8'`', u8'`', u8'`'>(::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1))) {
+                    break;
+                }
+            } else {
+                if (::pltxt2htm::details::is_prefix_match<ndebug, u8'~', u8'~', u8'~'>(::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1))) {
+                    break;
+                }
+            }
+            ast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::LineBreak>{});
+        } else if (chr == u8' ') {
+            ast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Space>{});
+            continue;
+        } else if (chr == u8'&') {
+            ast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Ampersand>{});
+            continue;
+        } else if (chr == u8'\'') {
+            ast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::SingleQuotationMark>{});
+            continue;
+        } else if (chr == u8'\"') {
+            ast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::DoubleQuotationMark>{});
+            continue;
+        } else if (chr == u8'>') {
+            ast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::GreaterThan>{});
+            continue;
+        } else if (chr == u8'\t') {
+            ast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Tab>{});
+            continue;
+        } else if (chr == u8'\\') {
+            if (current_index + 1 == pltext_size) {
+                ast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{u8'\\'});
+                continue;
+            }
+            auto escape_node = ::pltxt2htm::details::switch_escape_char(
+                ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index + 1));
+            if (escape_node.has_value()) {
+                ast.push_back(::std::move(escape_node.template value<ndebug>()));
+                ++current_index;
+            } else {
+                ast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{u8'\\'});
+            }
+            continue;
+        } else if (chr == u8'<') {
+            ast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::LessThan>{});
+        } else {
+            auto&& [subast, forward_index] = ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            current_index += forward_index;
+            for (auto&& node : subast) {
+                ast.push_back(::std::move(node));
+            }
+            continue;
+        }
+    }
+
+    ::exception::optional<::fast_io::u8string> opt_lang{::exception::nullopt_t{}};
+    if (!lang.empty()) {
+        opt_lang = ::std::move(lang);
+    }
+    if constexpr (is_backtick) {
+        return ::pltxt2htm::details::TryParseMdCodeFenceResult{
+            .node=::pltxt2htm::details::HeapGuard<::pltxt2htm::MdCodeFenceBacktick>{::std::move(ast), ::std::move(opt_lang)},
+            .forward_index=current_index + 4};
+    } else {
+        return ::pltxt2htm::details::TryParseMdCodeFenceResult{
+            .node=::pltxt2htm::details::HeapGuard<::pltxt2htm::MdCodeFenceTilde>{::std::move(ast), ::std::move(opt_lang)},
+            .forward_index=current_index + 4};
+    }
+}
 
 /**
  * @brief Switch to a markdown atx header.
@@ -543,145 +808,6 @@ constexpr auto switch_md_atx_header(::pltxt2htm::NodeType md_atx_heading_type, :
         [[unlikely]] {
             ::exception::unreachable<ndebug>();
         }
-    }
-}
-
-/**
- * @brief Switch to a markdown punctuation character.
- */
-constexpr ::exception::optional<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>> switch_escape_char(
-    char8_t u8char) noexcept {
-    switch (u8char) {
-    case u8'\\': {
-        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeBackslash>{});
-    }
-    case u8'!': {
-        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeExclamation>{});
-    }
-    case u8'\"': {
-        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeDoubleQuote>{});
-    }
-    case u8'#': {
-        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeHash>{});
-    }
-    case u8'$': {
-        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeDollar>{});
-    }
-    case u8'%': {
-        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapePercent>{});
-    }
-    case u8'&': {
-        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeAmpersand>{});
-    }
-    case u8'\'': {
-        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeSingleQuote>{});
-    }
-    case u8'(': {
-        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeLeftParen>{});
-    }
-    case u8')': {
-        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeRightParen>{});
-    }
-    case u8'*': {
-        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeAsterisk>{});
-    }
-    case u8'+': {
-        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapePlus>{});
-    }
-    case u8',': {
-        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeComma>{});
-    }
-    case u8'-': {
-        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeHyphen>{});
-    }
-    case u8'.': {
-        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeDot>{});
-    }
-    case u8'/': {
-        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeSlash>{});
-    }
-    case u8':': {
-        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeColon>{});
-    }
-    case u8';': {
-        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeSemicolon>{});
-    }
-    case u8'<': {
-        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeLessThan>{});
-    }
-    case u8'=': {
-        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeEquals>{});
-    }
-    case u8'>': {
-        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeGreaterThan>{});
-    }
-    case u8'?': {
-        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeQuestion>{});
-    }
-    case u8'@': {
-        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeAt>{});
-    }
-    case u8'[': {
-        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeLeftBracket>{});
-    }
-    case u8']': {
-        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeRightBracket>{});
-    }
-    case u8'^': {
-        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeCaret>{});
-    }
-    case u8'_': {
-        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeUnderscore>{});
-    }
-    case u8'`': {
-        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeBacktick>{});
-    }
-    case u8'{': {
-        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeLeftBrace>{});
-    }
-    case u8'|': {
-        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapePipe>{});
-    }
-    case u8'}': {
-        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeRightBrace>{});
-    }
-    case u8'~': {
-        return static_cast<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::details::HeapGuard<::pltxt2htm::EscapeTilde>{});
-    }
-    default:
-        return ::exception::nullopt_t{};
     }
 }
 
@@ -1915,6 +2041,16 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) /* throws */ -> ::pl
         for (auto&& node : subast) {
             result.push_back(::std::move(node));
         }
+        start_index += forward_index;
+    } else if (auto opt_code_fence_backtick = ::pltxt2htm::details::try_parse_md_code_fence<ndebug, true>(pltext);
+               opt_code_fence_backtick.has_value()) {
+        auto&& [node, forward_index] = opt_code_fence_backtick.template value<ndebug>();
+        result.push_back(::std::move(node));
+        start_index += forward_index;
+    } else if (auto opt_code_fence_tilde = ::pltxt2htm::details::try_parse_md_code_fence<ndebug, false>(pltext);
+               opt_code_fence_tilde.has_value()) {
+        auto&& [node, forward_index] = opt_code_fence_tilde.template value<ndebug>();
+        result.push_back(::std::move(node));
         start_index += forward_index;
     }
 
