@@ -104,7 +104,10 @@ using ::pltxt2htm::EscapeRightBrace;
 using ::pltxt2htm::EscapeTilde;
 using ::pltxt2htm::MdHr;
 using ::pltxt2htm::MdCodeFenceBacktick;
-using ::pltxt2htm::MdCodeFenceBacktick;
+using ::pltxt2htm::MdCodeFenceTilde;
+using ::pltxt2htm::MdCodeSpan1Backtick;
+using ::pltxt2htm::MdCodeSpan2Backtick;
+using ::pltxt2htm::MdCodeSpan3Backtick;
 
 // physics_lab_node
 using ::pltxt2htm::Color;
