@@ -987,4 +987,21 @@ public:
         default;
 };
 
+class MdDel : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr MdDel() noexcept = delete;
+
+    constexpr MdDel(::pltxt2htm::Ast&& ast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_del, ::std::move(ast)} {
+    }
+
+    constexpr MdDel(::pltxt2htm::MdDel const&) noexcept = default;
+
+    constexpr MdDel(::pltxt2htm::MdDel&&) noexcept = default;
+
+    constexpr ::pltxt2htm::MdDel& operator=(::pltxt2htm::MdDel const&) noexcept = delete;
+
+    constexpr ::pltxt2htm::MdDel& operator=(::pltxt2htm::MdDel&&) noexcept = default;
+};
+
 } // namespace pltxt2htm

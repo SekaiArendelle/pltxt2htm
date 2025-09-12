@@ -170,6 +170,8 @@ enum class NodeType : ::std::uint_least32_t {
     md_single_emphasis_underscore,
     md_double_emphasis_underscore,
     md_triple_emphasis_underscore,
+    // ~~example~~
+    md_del,
 
     // latex
     // latex,

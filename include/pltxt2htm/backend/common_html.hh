@@ -293,6 +293,8 @@ restart:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_h6:
             [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_del:
+            [[fallthrough]];
         case ::pltxt2htm::NodeType::html_del:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_ul:

@@ -426,10 +426,13 @@ restart:
                     ::std::addressof(subast), ::pltxt2htm::NodeType::html_h6, subast.begin()));
             goto restart;
         }
+        case ::pltxt2htm::NodeType::md_del:
+            [[fallthrough]];
         case ::pltxt2htm::NodeType::html_del: {
             auto del = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& nested_tag_type = call_stack.top()->nested_tag_type;
-            bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_del};
+            bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_del &&
+                                       nested_tag_type != ::pltxt2htm::NodeType::md_del};
             if (is_not_same_tag) {
                 auto&& subast = del->get_subast();
                 call_stack.push(
@@ -618,6 +621,8 @@ restart:
             case ::pltxt2htm::NodeType::html_em:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::pl_i:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::md_del:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::html_del: {
                 if (top_frame->ast->empty()) {
