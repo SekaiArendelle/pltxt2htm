@@ -26,4 +26,20 @@ int main() {
     auto html6 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"~~~py\nprint(1)\n~~~");
     auto answer6 = ::fast_io::u8string_view{u8"<pre><code class=\"language-py\">print(1)</code></pre>"};
     ::exception::assert_true(html6 == answer6);
+
+    auto html7 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"\n```\ntest\n```");
+    auto answer7 = ::fast_io::u8string_view{u8"<br><pre><code>test</code></pre>"};
+    ::exception::assert_true(html7 == answer7);
+
+    auto html8 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<br>```\ntest\n```");
+    auto answer8 = ::fast_io::u8string_view{u8"<br><pre><code>test</code></pre>"};
+    ::exception::assert_true(html8 == answer8);
+
+    auto html9 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"\n```py\nprint(1)\n```");
+    auto answer9 = ::fast_io::u8string_view{u8"<br><pre><code class=\"language-py\">print(1)</code></pre>"};
+    ::exception::assert_true(html9 == answer9);
+
+    auto html10 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<br>```py\nprint(1)\n```");
+    auto answer10 = ::fast_io::u8string_view{u8"<br><pre><code class=\"language-py\">print(1)</code></pre>"};
+    ::exception::assert_true(html10 == answer10);
 }

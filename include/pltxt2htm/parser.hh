@@ -647,7 +647,7 @@ struct TryParseMdCodeFenceResult {
 };
 
 template<bool ndebug, bool is_backtick>
-constexpr auto try_parse_md_code_fence(::fast_io::u8string_view pltext) /* throws */ -> ::exception::optional<
+constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) /* throws */ -> ::exception::optional<
     ::pltxt2htm::details::TryParseMdCodeFenceResult> {
     if (pltext.size() <= 7) {
         return ::exception::nullopt_t{};
@@ -692,7 +692,8 @@ constexpr auto try_parse_md_code_fence(::fast_io::u8string_view pltext) /* throw
             break;
         } else {
             if constexpr (is_backtick) {
-                if (::pltxt2htm::details::is_prefix_match<ndebug, u8'`', u8'`', u8'`'>(::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) {
+                if (::pltxt2htm::details::is_prefix_match<ndebug, u8'`', u8'`', u8'`'>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) {
                     return ::exception::nullopt_t{};
                 }
             }
@@ -706,11 +707,13 @@ constexpr auto try_parse_md_code_fence(::fast_io::u8string_view pltext) /* throw
 
         if (chr == u8'\n') {
             if constexpr (is_backtick) {
-                if (::pltxt2htm::details::is_prefix_match<ndebug, u8'`', u8'`', u8'`'>(::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1))) {
+                if (::pltxt2htm::details::is_prefix_match<ndebug, u8'`', u8'`', u8'`'>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1))) {
                     break;
                 }
             } else {
-                if (::pltxt2htm::details::is_prefix_match<ndebug, u8'~', u8'~', u8'~'>(::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1))) {
+                if (::pltxt2htm::details::is_prefix_match<ndebug, u8'~', u8'~', u8'~'>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1))) {
                     break;
                 }
             }
@@ -766,12 +769,28 @@ constexpr auto try_parse_md_code_fence(::fast_io::u8string_view pltext) /* throw
     }
     if constexpr (is_backtick) {
         return ::pltxt2htm::details::TryParseMdCodeFenceResult{
-            .node=::pltxt2htm::details::HeapGuard<::pltxt2htm::MdCodeFenceBacktick>{::std::move(ast), ::std::move(opt_lang)},
-            .forward_index=current_index + 4};
+            .node = ::pltxt2htm::details::HeapGuard<::pltxt2htm::MdCodeFenceBacktick>{::std::move(ast),
+                                                                                      ::std::move(opt_lang)},
+            .forward_index = current_index + 4};
     } else {
         return ::pltxt2htm::details::TryParseMdCodeFenceResult{
-            .node=::pltxt2htm::details::HeapGuard<::pltxt2htm::MdCodeFenceTilde>{::std::move(ast), ::std::move(opt_lang)},
-            .forward_index=current_index + 4};
+            .node =
+                ::pltxt2htm::details::HeapGuard<::pltxt2htm::MdCodeFenceTilde>{::std::move(ast), ::std::move(opt_lang)},
+            .forward_index = current_index + 4};
+    }
+}
+
+template<bool ndebug>
+constexpr auto try_parse_md_code_fence(::fast_io::u8string_view pltext) /* throws */ -> ::exception::optional<
+    ::pltxt2htm::details::TryParseMdCodeFenceResult> {
+    if (auto opt_code_fence_backtick = ::pltxt2htm::details::try_parse_md_code_fence_<ndebug, true>(pltext);
+        opt_code_fence_backtick.has_value()) {
+        return opt_code_fence_backtick;
+    } else if (auto opt_code_fence_tilde = ::pltxt2htm::details::try_parse_md_code_fence_<ndebug, false>(pltext);
+               opt_code_fence_tilde.has_value()) {
+        return opt_code_fence_tilde;
+    } else {
+        return ::exception::nullopt_t{};
     }
 }
 
@@ -936,6 +955,12 @@ restart:
                 }
                 current_index += forward_index;
                 continue;
+            } else if (auto opt_code_fence = ::pltxt2htm::details::try_parse_md_code_fence<ndebug>(
+                           ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1));
+                       opt_code_fence.has_value()) {
+                auto&& [node, forward_index] = opt_code_fence.template value<ndebug>();
+                result.push_back(::std::move(node));
+                current_index += forward_index;
             }
             continue;
         } else if (chr == u8' ') {
@@ -1055,6 +1080,12 @@ restart:
                         }
                         current_index += forward_index;
                         continue;
+                    } else if (auto opt_code_fence = ::pltxt2htm::details::try_parse_md_code_fence<ndebug>(
+                                   ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1));
+                               opt_code_fence.has_value()) {
+                        auto&& [node, forward_index] = opt_code_fence.template value<ndebug>();
+                        result.push_back(::std::move(node));
+                        current_index += forward_index;
                     }
                     continue;
                 } else {
@@ -2042,14 +2073,9 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) /* throws */ -> ::pl
             result.push_back(::std::move(node));
         }
         start_index += forward_index;
-    } else if (auto opt_code_fence_backtick = ::pltxt2htm::details::try_parse_md_code_fence<ndebug, true>(pltext);
-               opt_code_fence_backtick.has_value()) {
-        auto&& [node, forward_index] = opt_code_fence_backtick.template value<ndebug>();
-        result.push_back(::std::move(node));
-        start_index += forward_index;
-    } else if (auto opt_code_fence_tilde = ::pltxt2htm::details::try_parse_md_code_fence<ndebug, false>(pltext);
-               opt_code_fence_tilde.has_value()) {
-        auto&& [node, forward_index] = opt_code_fence_tilde.template value<ndebug>();
+    } else if (auto opt_code_fence = ::pltxt2htm::details::try_parse_md_code_fence<ndebug>(pltext);
+               opt_code_fence.has_value()) {
+        auto&& [node, forward_index] = opt_code_fence.template value<ndebug>();
         result.push_back(::std::move(node));
         start_index += forward_index;
     }

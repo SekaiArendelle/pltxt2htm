@@ -466,8 +466,8 @@ restart:
                     ::fast_io::array{u8'<', u8'p', u8'r', u8'e', u8'>', u8'<', u8'c', u8'o', u8'd', u8'e', u8'>'};
                 result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
             }
-            call_stack.push(
-                ::pltxt2htm::details::BackendBasicFrameContext(code_fence->get_subast(), ::pltxt2htm::NodeType::md_code_fence_backtick, 0));
+            call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(
+                code_fence->get_subast(), ::pltxt2htm::NodeType::md_code_fence_backtick, 0));
             ++current_index;
             goto restart;
         }
