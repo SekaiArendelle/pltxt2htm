@@ -40,4 +40,10 @@ int main() {
     auto html10 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<br>```py\nprint(1)\n```");
     auto answer10 = ::fast_io::u8string_view{u8"<br><pre><code class=\"language-py\">print(1)</code></pre>"};
     ::pltxt2htm_test::assert_true(html10 == answer10);
+
+    auto html11 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<br>```py\nprint(1)");
+    auto answer11 = ::fast_io::u8string_view{u8"<br><pre><code class=\"language-py\">print(1)</code></pre>"};
+    ::pltxt2htm_test::assert_true(html11 == answer11);
+
+    return 0;
 }

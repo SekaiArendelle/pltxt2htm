@@ -163,6 +163,13 @@ enum class NodeType : ::std::uint_least32_t {
     md_code_span_1_backtick,
     md_code_span_2_backtick,
     md_code_span_3_backtick,
+    // https://spec.commonmark.org/0.31.2/#emphasis-and-strong-emphasis
+    md_single_emphasis_asterisk,
+    md_double_emphasis_asterisk,
+    md_triple_emphasis_asterisk,
+    md_single_emphasis_underscore,
+    md_double_emphasis_underscore,
+    md_triple_emphasis_underscore,
 
     // latex
     // latex,

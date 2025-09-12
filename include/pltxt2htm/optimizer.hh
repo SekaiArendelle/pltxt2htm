@@ -327,13 +327,19 @@ restart:
                 continue;
             }
         }
+        case ::pltxt2htm::NodeType::md_double_emphasis_underscore:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_double_emphasis_asterisk:
+            [[fallthrough]];
         case ::pltxt2htm::NodeType::html_strong:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::pl_b: {
             auto b = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& nested_tag_type = call_stack.top()->nested_tag_type;
-            bool const is_not_same_tag =
-                nested_tag_type != ::pltxt2htm::NodeType::pl_b && nested_tag_type != ::pltxt2htm::NodeType::html_strong;
+            bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::pl_b &&
+                                       nested_tag_type != ::pltxt2htm::NodeType::html_strong &&
+                                       nested_tag_type != ::pltxt2htm::NodeType::md_double_emphasis_asterisk &&
+                                       nested_tag_type != ::pltxt2htm::NodeType::md_double_emphasis_underscore};
             if (is_not_same_tag) {
                 auto&& subast = b->get_subast();
                 call_stack.push(
@@ -436,13 +442,19 @@ restart:
                 continue;
             }
         }
+        case ::pltxt2htm::NodeType::md_single_emphasis_underscore:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_single_emphasis_asterisk:
+            [[fallthrough]];
         case ::pltxt2htm::NodeType::pl_i:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_em: {
             auto em = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& nested_tag_type = call_stack.top()->nested_tag_type;
             bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_em &&
-                                       nested_tag_type != ::pltxt2htm::NodeType::pl_i};
+                                       nested_tag_type != ::pltxt2htm::NodeType::pl_i &&
+                                       nested_tag_type != ::pltxt2htm::NodeType::md_single_emphasis_asterisk &&
+                                       nested_tag_type != ::pltxt2htm::NodeType::md_single_emphasis_underscore};
             if (is_not_same_tag) {
                 auto&& subast = em->get_subast();
                 call_stack.push(
@@ -506,6 +518,10 @@ restart:
                     ::std::addressof(subast), ::pltxt2htm::NodeType::html_pre, subast.begin()));
             goto restart;
         }
+        case ::pltxt2htm::NodeType::md_triple_emphasis_underscore:
+            [[fallthrough]]; // TODO optimization support for md_triple_emphasis
+        case ::pltxt2htm::NodeType::md_triple_emphasis_asterisk:
+            [[fallthrough]]; // TODO optimization support for md_triple_emphasis
         case ::pltxt2htm::NodeType::md_escape_backslash:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_escape_exclamation:

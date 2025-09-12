@@ -996,6 +996,108 @@ restart:
                 result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::U8Char>{u8'\\'});
             }
             continue;
+        } else if (::pltxt2htm::details::is_prefix_match<ndebug, u8'*', u8'*', u8'*'>(
+                       ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) {
+            // parsing markdown ***example***
+            current_index += 3;
+            if (call_stack.top()->nested_tag_type == ::pltxt2htm::NodeType::md_triple_emphasis_asterisk) {
+                ::std::size_t const staged_index{current_index};
+                ::pltxt2htm::MdTripleEmphasisAsterisk staged_node(::std::move(result));
+                call_stack.pop();
+                call_stack.top()->subast.push_back(
+                    ::pltxt2htm::details::HeapGuard<::pltxt2htm::MdTripleEmphasisAsterisk>(::std::move(staged_node)));
+                call_stack.top()->current_index += staged_index;
+            } else {
+                call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                    ::pltxt2htm::NodeType::md_triple_emphasis_asterisk));
+            }
+            goto restart;
+        } else if (::pltxt2htm::details::is_prefix_match<ndebug, u8'*', u8'*'>(
+                       ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) {
+            // parsing markdown **example**
+            current_index += 2;
+            if (call_stack.top()->nested_tag_type == ::pltxt2htm::NodeType::md_double_emphasis_asterisk) {
+                ::std::size_t const staged_index{current_index};
+                ::pltxt2htm::MdDoubleEmphasisAsterisk staged_node(::std::move(result));
+                call_stack.pop();
+                call_stack.top()->subast.push_back(
+                    ::pltxt2htm::details::HeapGuard<::pltxt2htm::MdDoubleEmphasisAsterisk>(::std::move(staged_node)));
+                call_stack.top()->current_index += staged_index;
+            } else {
+                call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                    ::pltxt2htm::NodeType::md_double_emphasis_asterisk));
+            }
+            goto restart;
+        } else if (::pltxt2htm::details::is_prefix_match<ndebug, u8'*'>(
+                       ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) {
+            // parsing markdown **example**
+            current_index += 1;
+            if (call_stack.top()->nested_tag_type == ::pltxt2htm::NodeType::md_single_emphasis_asterisk) {
+                ::std::size_t const staged_index{current_index};
+                ::pltxt2htm::MdSingleEmphasisAsterisk staged_node(::std::move(result));
+                call_stack.pop();
+                call_stack.top()->subast.push_back(
+                    ::pltxt2htm::details::HeapGuard<::pltxt2htm::MdSingleEmphasisAsterisk>(::std::move(staged_node)));
+                call_stack.top()->current_index += staged_index;
+            } else {
+                call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                    ::pltxt2htm::NodeType::md_single_emphasis_asterisk));
+            }
+            goto restart;
+        } else if (::pltxt2htm::details::is_prefix_match<ndebug, u8'_', u8'_', u8'_'>(
+                       ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) {
+            // parsing markdown ***example***
+            current_index += 3;
+            if (call_stack.top()->nested_tag_type == ::pltxt2htm::NodeType::md_triple_emphasis_underscore) {
+                ::std::size_t const staged_index{current_index};
+                ::pltxt2htm::MdTripleEmphasisUnderscore staged_node(::std::move(result));
+                call_stack.pop();
+                call_stack.top()->subast.push_back(
+                    ::pltxt2htm::details::HeapGuard<::pltxt2htm::MdTripleEmphasisUnderscore>(::std::move(staged_node)));
+                call_stack.top()->current_index += staged_index;
+            } else {
+                call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                    ::pltxt2htm::NodeType::md_triple_emphasis_underscore));
+            }
+            goto restart;
+        } else if (::pltxt2htm::details::is_prefix_match<ndebug, u8'_', u8'_'>(
+                       ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) {
+            // parsing markdown **example**
+            current_index += 2;
+            if (call_stack.top()->nested_tag_type == ::pltxt2htm::NodeType::md_double_emphasis_underscore) {
+                ::std::size_t const staged_index{current_index};
+                ::pltxt2htm::MdDoubleEmphasisUnderscore staged_node(::std::move(result));
+                call_stack.pop();
+                call_stack.top()->subast.push_back(
+                    ::pltxt2htm::details::HeapGuard<::pltxt2htm::MdDoubleEmphasisUnderscore>(::std::move(staged_node)));
+                call_stack.top()->current_index += staged_index;
+            } else {
+                call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                    ::pltxt2htm::NodeType::md_double_emphasis_underscore));
+            }
+            goto restart;
+        } else if (::pltxt2htm::details::is_prefix_match<ndebug, u8'_'>(
+                       ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) {
+            // parsing markdown **example**
+            current_index += 1;
+            if (call_stack.top()->nested_tag_type == ::pltxt2htm::NodeType::md_single_emphasis_underscore) {
+                ::std::size_t const staged_index{current_index};
+                ::pltxt2htm::MdSingleEmphasisUnderscore staged_node(::std::move(result));
+                call_stack.pop();
+                call_stack.top()->subast.push_back(
+                    ::pltxt2htm::details::HeapGuard<::pltxt2htm::MdSingleEmphasisUnderscore>(::std::move(staged_node)));
+                call_stack.top()->current_index += staged_index;
+            } else {
+                call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                    ::pltxt2htm::NodeType::md_single_emphasis_underscore));
+            }
+            goto restart;
         } else if (::pltxt2htm::details::is_prefix_match<ndebug, u8'`', u8'`', u8'`'>(
                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) {
             // parsing markdown ```example```
@@ -1864,6 +1966,18 @@ restart:
                         continue;
                     }
                 }
+                case ::pltxt2htm::NodeType::md_single_emphasis_asterisk:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeType::md_single_emphasis_underscore:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeType::md_double_emphasis_asterisk:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeType::md_double_emphasis_underscore:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeType::md_triple_emphasis_asterisk:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeType::md_triple_emphasis_underscore:
+                    [[fallthrough]];
                 case ::pltxt2htm::NodeType::md_code_span_1_backtick:
                     [[fallthrough]];
                 case ::pltxt2htm::NodeType::md_code_span_2_backtick:
@@ -2076,6 +2190,36 @@ restart:
             case ::pltxt2htm::NodeType::md_code_span_3_backtick: {
                 superast.push_back(
                     ::pltxt2htm::details::HeapGuard<::pltxt2htm::MdCodeSpan3Backtick>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::md_single_emphasis_asterisk: {
+                superast.push_back(
+                    ::pltxt2htm::details::HeapGuard<::pltxt2htm::MdSingleEmphasisAsterisk>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::md_single_emphasis_underscore: {
+                superast.push_back(
+                    ::pltxt2htm::details::HeapGuard<::pltxt2htm::MdSingleEmphasisUnderscore>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::md_double_emphasis_asterisk: {
+                superast.push_back(
+                    ::pltxt2htm::details::HeapGuard<::pltxt2htm::MdDoubleEmphasisAsterisk>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::md_double_emphasis_underscore: {
+                superast.push_back(
+                    ::pltxt2htm::details::HeapGuard<::pltxt2htm::MdDoubleEmphasisUnderscore>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::md_triple_emphasis_asterisk: {
+                superast.push_back(
+                    ::pltxt2htm::details::HeapGuard<::pltxt2htm::MdTripleEmphasisAsterisk>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::md_triple_emphasis_underscore: {
+                superast.push_back(
+                    ::pltxt2htm::details::HeapGuard<::pltxt2htm::MdTripleEmphasisUnderscore>(::std::move(subast)));
                 break;
             }
             default:

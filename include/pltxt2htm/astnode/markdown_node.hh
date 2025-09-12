@@ -849,4 +849,142 @@ public:
     constexpr ::pltxt2htm::MdCodeSpan3Backtick& operator=(::pltxt2htm::MdCodeSpan3Backtick&&) noexcept = default;
 };
 
+/**
+ * @brief Represents markdown code span (*example*).
+ * @details https://spec.commonmark.org/0.31.2/#emphasis-and-strong-emphasis
+ */
+class MdSingleEmphasisAsterisk : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr MdSingleEmphasisAsterisk() noexcept = delete;
+
+    constexpr MdSingleEmphasisAsterisk(::pltxt2htm::Ast&& ast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_single_emphasis_asterisk, ::std::move(ast)} {
+    }
+
+    constexpr MdSingleEmphasisAsterisk(::pltxt2htm::MdSingleEmphasisAsterisk const&) noexcept = default;
+
+    constexpr MdSingleEmphasisAsterisk(::pltxt2htm::MdSingleEmphasisAsterisk&&) noexcept = default;
+
+    constexpr ::pltxt2htm::MdSingleEmphasisAsterisk& operator=(::pltxt2htm::MdSingleEmphasisAsterisk const&) noexcept =
+        delete;
+
+    constexpr ::pltxt2htm::MdSingleEmphasisAsterisk& operator=(::pltxt2htm::MdSingleEmphasisAsterisk&&) noexcept =
+        default;
+};
+
+/**
+ * @brief Represents markdown code span (**example**).
+ * @details https://spec.commonmark.org/0.31.2/#emphasis-and-strong-emphasis
+ */
+class MdDoubleEmphasisAsterisk : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr MdDoubleEmphasisAsterisk() noexcept = delete;
+
+    constexpr MdDoubleEmphasisAsterisk(::pltxt2htm::Ast&& ast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_double_emphasis_asterisk, ::std::move(ast)} {
+    }
+
+    constexpr MdDoubleEmphasisAsterisk(::pltxt2htm::MdDoubleEmphasisAsterisk const&) noexcept = default;
+
+    constexpr MdDoubleEmphasisAsterisk(::pltxt2htm::MdDoubleEmphasisAsterisk&&) noexcept = default;
+
+    constexpr ::pltxt2htm::MdDoubleEmphasisAsterisk& operator=(::pltxt2htm::MdDoubleEmphasisAsterisk const&) noexcept =
+        delete;
+
+    constexpr ::pltxt2htm::MdDoubleEmphasisAsterisk& operator=(::pltxt2htm::MdDoubleEmphasisAsterisk&&) noexcept =
+        default;
+};
+
+/**
+ * @brief Represents markdown code span (***example***).
+ * @details https://spec.commonmark.org/0.31.2/#emphasis-and-strong-emphasis
+ */
+class MdTripleEmphasisAsterisk : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr MdTripleEmphasisAsterisk() noexcept = delete;
+
+    constexpr MdTripleEmphasisAsterisk(::pltxt2htm::Ast&& ast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_triple_emphasis_asterisk, ::std::move(ast)} {
+    }
+
+    constexpr MdTripleEmphasisAsterisk(::pltxt2htm::MdTripleEmphasisAsterisk const&) noexcept = default;
+
+    constexpr MdTripleEmphasisAsterisk(::pltxt2htm::MdTripleEmphasisAsterisk&&) noexcept = default;
+
+    constexpr ::pltxt2htm::MdTripleEmphasisAsterisk& operator=(::pltxt2htm::MdTripleEmphasisAsterisk const&) noexcept =
+        delete;
+
+    constexpr ::pltxt2htm::MdTripleEmphasisAsterisk& operator=(::pltxt2htm::MdTripleEmphasisAsterisk&&) noexcept =
+        default;
+};
+
+/**
+ * @brief Represents markdown code span (_example_).
+ * @details https://spec.commonmark.org/0.31.2/#emphasis-and-strong-emphasis
+ */
+class MdSingleEmphasisUnderscore : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr MdSingleEmphasisUnderscore() noexcept = delete;
+
+    constexpr MdSingleEmphasisUnderscore(::pltxt2htm::Ast&& ast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_single_emphasis_underscore, ::std::move(ast)} {
+    }
+
+    constexpr MdSingleEmphasisUnderscore(::pltxt2htm::MdSingleEmphasisUnderscore const&) noexcept = default;
+
+    constexpr MdSingleEmphasisUnderscore(::pltxt2htm::MdSingleEmphasisUnderscore&&) noexcept = default;
+
+    constexpr ::pltxt2htm::MdSingleEmphasisUnderscore& operator=(
+        ::pltxt2htm::MdSingleEmphasisUnderscore const&) noexcept = delete;
+
+    constexpr ::pltxt2htm::MdSingleEmphasisUnderscore& operator=(::pltxt2htm::MdSingleEmphasisUnderscore&&) noexcept =
+        default;
+};
+
+/**
+ * @brief Represents markdown code span (__example__).
+ * @details https://spec.commonmark.org/0.31.2/#emphasis-and-strong-emphasis
+ */
+class MdDoubleEmphasisUnderscore : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr MdDoubleEmphasisUnderscore() noexcept = delete;
+
+    constexpr MdDoubleEmphasisUnderscore(::pltxt2htm::Ast&& ast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_double_emphasis_underscore, ::std::move(ast)} {
+    }
+
+    constexpr MdDoubleEmphasisUnderscore(::pltxt2htm::MdDoubleEmphasisUnderscore const&) noexcept = default;
+
+    constexpr MdDoubleEmphasisUnderscore(::pltxt2htm::MdDoubleEmphasisUnderscore&&) noexcept = default;
+
+    constexpr ::pltxt2htm::MdDoubleEmphasisUnderscore& operator=(
+        ::pltxt2htm::MdDoubleEmphasisUnderscore const&) noexcept = delete;
+
+    constexpr ::pltxt2htm::MdDoubleEmphasisUnderscore& operator=(::pltxt2htm::MdDoubleEmphasisUnderscore&&) noexcept =
+        default;
+};
+
+/**
+ * @brief Represents markdown code span (___example___).
+ * @details https://spec.commonmark.org/0.31.2/#emphasis-and-strong-emphasis
+ */
+class MdTripleEmphasisUnderscore : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr MdTripleEmphasisUnderscore() noexcept = delete;
+
+    constexpr MdTripleEmphasisUnderscore(::pltxt2htm::Ast&& ast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_triple_emphasis_underscore, ::std::move(ast)} {
+    }
+
+    constexpr MdTripleEmphasisUnderscore(::pltxt2htm::MdTripleEmphasisUnderscore const&) noexcept = default;
+
+    constexpr MdTripleEmphasisUnderscore(::pltxt2htm::MdTripleEmphasisUnderscore&&) noexcept = default;
+
+    constexpr ::pltxt2htm::MdTripleEmphasisUnderscore& operator=(
+        ::pltxt2htm::MdTripleEmphasisUnderscore const&) noexcept = delete;
+
+    constexpr ::pltxt2htm::MdTripleEmphasisUnderscore& operator=(::pltxt2htm::MdTripleEmphasisUnderscore&&) noexcept =
+        default;
+};
+
 } // namespace pltxt2htm

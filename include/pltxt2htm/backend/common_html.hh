@@ -112,17 +112,25 @@ restart:
             result.append(::fast_io::u8string_view{close_tag2.data(), close_tag2.size()});
             goto restart;
         }
-        case ::pltxt2htm::NodeType::html_strong:
+        case ::pltxt2htm::NodeType::md_double_emphasis_underscore:
             [[fallthrough]];
-        case ::pltxt2htm::NodeType::pl_b: {
+        case ::pltxt2htm::NodeType::md_double_emphasis_asterisk:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::pl_b:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::html_strong: {
             auto b = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(
-                ::pltxt2htm::details::BackendBasicFrameContext(b->get_subast(), ::pltxt2htm::NodeType::pl_b, 0));
+                ::pltxt2htm::details::BackendBasicFrameContext(b->get_subast(), ::pltxt2htm::NodeType::html_strong, 0));
             ++current_index;
             auto const start_tag = ::fast_io::array{u8'<', u8's', u8't', u8'r', u8'o', u8'n', u8'g', u8'>'};
             result.append(::fast_io::u8string_view{start_tag.data(), start_tag.size()});
             goto restart;
         }
+        case ::pltxt2htm::NodeType::md_single_emphasis_underscore:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_single_emphasis_asterisk:
+            [[fallthrough]];
         case ::pltxt2htm::NodeType::pl_i:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_em: {
@@ -131,6 +139,18 @@ restart:
                 ::pltxt2htm::details::BackendBasicFrameContext(em->get_subast(), ::pltxt2htm::NodeType::html_em, 0));
             ++current_index;
             auto const start_tag = ::fast_io::array{u8'<', u8'e', u8'm', u8'>'};
+            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            goto restart;
+        }
+        case ::pltxt2htm::NodeType::md_triple_emphasis_underscore:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_triple_emphasis_asterisk: {
+            auto triple_emphasis = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(
+                triple_emphasis->get_subast(), ::pltxt2htm::NodeType::md_triple_emphasis_asterisk, 0));
+            ++current_index;
+            auto const start_tag =
+                ::fast_io::array{u8'<', u8'e', u8'm', u8'>', u8'<', u8's', u8't', u8'r', u8'o', u8'n', u8'g', u8'>'};
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
             goto restart;
         }
@@ -330,24 +350,34 @@ restart:
             return result;
         } else {
             switch (top_frame.nested_tag_type_) {
+            case ::pltxt2htm::NodeType::md_double_emphasis_asterisk:
+                [[fallthrough]];
             case ::pltxt2htm::NodeType::html_strong:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::pl_b: {
-                auto close_tag = ::fast_io::array{u8'<', u8'/', u8's', u8't', u8'r', u8'o', u8'n', u8'g', u8'>'};
+                auto const close_tag = ::fast_io::array{u8'<', u8'/', u8's', u8't', u8'r', u8'o', u8'n', u8'g', u8'>'};
                 result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
                 goto restart;
             }
-            case ::pltxt2htm::NodeType::html_em:
+            case ::pltxt2htm::NodeType::md_single_emphasis_asterisk:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::pl_i: {
-                auto close_tag = ::fast_io::array{u8'<', u8'/', u8'e', u8'm', u8'>'};
+            case ::pltxt2htm::NodeType::pl_i:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::html_em: {
+                auto const close_tag = ::fast_io::array{u8'<', u8'/', u8'e', u8'm', u8'>'};
+                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+                goto restart;
+            }
+            case ::pltxt2htm::NodeType::md_triple_emphasis_asterisk: {
+                auto const close_tag = ::fast_io::array{u8'<', u8'/', u8's', u8't', u8'r', u8'o', u8'n',
+                                                        u8'g', u8'>', u8'<', u8'/', u8'e', u8'm', u8'>'};
                 result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
                 goto restart;
             }
             case ::pltxt2htm::NodeType::pl_a:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::pl_color: {
-                auto close_tag = ::fast_io::array{u8'<', u8'/', u8's', u8'p', u8'a', u8'n', u8'>'};
+                auto const close_tag = ::fast_io::array{u8'<', u8'/', u8's', u8'p', u8'a', u8'n', u8'>'};
                 result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
                 goto restart;
             }

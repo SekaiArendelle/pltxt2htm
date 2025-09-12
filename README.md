@@ -63,8 +63,9 @@ markdown extension based on [commonmark](https://spec.commonmark.org/0.31.2/)
   - [example 69 ~ 76](https://spec.commonmark.org/0.31.2/#example-69) sucks thus I ignore it
 * MarkDown escape characters are supported
 * I hate [Indent code block](https://spec.commonmark.org/0.31.2/#indented-code-blocks).
-* Rough suport for markdown [code fences](https://spec.commonmark.org/0.31.2/#code-fence) but common usage is well tested.
-* Rough suport for markdown [code span](https://spec.commonmark.org/0.31.2/#code-spans) but common usage is well tested.
+* Rough support for markdown [code fences](https://spec.commonmark.org/0.31.2/#code-fence) but common usage is well tested.
+* Rough support for markdown [code span](https://spec.commonmark.org/0.31.2/#code-spans) but common usage is well tested.
+* Rough support for markdown [emphasis](https://spec.commonmark.org/0.31.2/#emphasis-and-strong-emphasis) but common usage is well tested.
 
 Show all supported features in [test](./test/)
 

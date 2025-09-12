@@ -108,6 +108,12 @@ using ::pltxt2htm::MdCodeFenceTilde;
 using ::pltxt2htm::MdCodeSpan1Backtick;
 using ::pltxt2htm::MdCodeSpan2Backtick;
 using ::pltxt2htm::MdCodeSpan3Backtick;
+using ::pltxt2htm::MdSingleEmphasisAsterisk;
+using ::pltxt2htm::MdDoubleEmphasisAsterisk;
+using ::pltxt2htm::MdTripleEmphasisAsterisk;
+using ::pltxt2htm::MdSingleEmphasisUnderscore;
+using ::pltxt2htm::MdDoubleEmphasisUnderscore;
+using ::pltxt2htm::MdTripleEmphasisUnderscore;
 
 // physics_lab_node
 using ::pltxt2htm::Color;
