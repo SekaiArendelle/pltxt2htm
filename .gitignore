@@ -1,3 +1,4 @@
+### Please run `python gen_dockerignore.py` after change this file ###
 # Python
 venv*/
 dist/
