@@ -30,8 +30,20 @@ int main() {
     ::pltxt2htm_test::assert_true(html7 == answer7);
 
     auto html8 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"t_e*st");
-    auto answer8 = ::fast_io::u8string_view{u8"t<em>est</em>"};
+    auto answer8 = ::fast_io::u8string_view{u8"t_e*st"};
     ::pltxt2htm_test::assert_true(html8 == answer8);
+
+    auto html9 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"*test\n*");
+    auto answer9 = ::fast_io::u8string_view{u8"*test<br>*"};
+    ::pltxt2htm_test::assert_true(html9 == answer9);
+
+    auto html10 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"**test\n**");
+    auto answer10 = ::fast_io::u8string_view{u8"**test<br>**"};
+    ::pltxt2htm_test::assert_true(html10 == answer10);
+
+    auto html11 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"te***st\n***");
+    auto answer11 = ::fast_io::u8string_view{u8"te***st<br><hr>"};
+    ::pltxt2htm_test::assert_true(html11 == answer11);
 
     return 0;
 }
