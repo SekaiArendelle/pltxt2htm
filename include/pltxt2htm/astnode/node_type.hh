@@ -159,6 +159,10 @@ enum class NodeType : ::std::uint_least32_t {
     // https://spec.commonmark.org/0.31.2/#code-fence
     md_code_fence_backtick,
     md_code_fence_tilde,
+    // https://spec.commonmark.org/0.31.2/#code-spans
+    md_code_span_1_backtick,
+    md_code_span_2_backtick,
+    md_code_span_3_backtick,
 
     // latex
     // latex,

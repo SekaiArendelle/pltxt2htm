@@ -482,6 +482,12 @@ restart:
                     ::std::addressof(subast), ::pltxt2htm::NodeType::html_li, subast.begin()));
             goto restart;
         }
+        case ::pltxt2htm::NodeType::md_code_span_1_backtick:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_code_span_2_backtick:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_code_span_3_backtick:
+            [[fallthrough]];
         case ::pltxt2htm::NodeType::html_code: {
             // code tag can't impl nested tag erasing
             auto code = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
@@ -609,6 +615,12 @@ restart:
             case ::pltxt2htm::NodeType::md_code_fence_backtick:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::md_code_fence_tilde:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::md_code_span_1_backtick:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::md_code_span_2_backtick:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::md_code_span_3_backtick:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::html_code:
                 [[fallthrough]];

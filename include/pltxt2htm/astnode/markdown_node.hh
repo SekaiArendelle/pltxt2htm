@@ -786,4 +786,67 @@ public:
     }
 };
 
+/**
+ * @brief Represents markdown code span (`example`).
+ * @details https://spec.commonmark.org/0.31.2/#code-spans
+ */
+class MdCodeSpan1Backtick : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr MdCodeSpan1Backtick() noexcept = delete;
+
+    constexpr MdCodeSpan1Backtick(::pltxt2htm::Ast&& ast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_code_span_1_backtick, ::std::move(ast)} {
+    }
+
+    constexpr MdCodeSpan1Backtick(::pltxt2htm::MdCodeSpan1Backtick const&) noexcept = default;
+
+    constexpr MdCodeSpan1Backtick(::pltxt2htm::MdCodeSpan1Backtick&&) noexcept = default;
+
+    constexpr ::pltxt2htm::MdCodeSpan1Backtick& operator=(::pltxt2htm::MdCodeSpan1Backtick const&) noexcept = delete;
+
+    constexpr ::pltxt2htm::MdCodeSpan1Backtick& operator=(::pltxt2htm::MdCodeSpan1Backtick&&) noexcept = default;
+};
+
+/**
+ * @brief Represents markdown code span (``example``).
+ * @details https://spec.commonmark.org/0.31.2/#code-spans
+ */
+class MdCodeSpan2Backtick : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr MdCodeSpan2Backtick() noexcept = delete;
+
+    constexpr MdCodeSpan2Backtick(::pltxt2htm::Ast&& ast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_code_span_2_backtick, ::std::move(ast)} {
+    }
+
+    constexpr MdCodeSpan2Backtick(::pltxt2htm::MdCodeSpan2Backtick const&) noexcept = default;
+
+    constexpr MdCodeSpan2Backtick(::pltxt2htm::MdCodeSpan2Backtick&&) noexcept = default;
+
+    constexpr ::pltxt2htm::MdCodeSpan2Backtick& operator=(::pltxt2htm::MdCodeSpan2Backtick const&) noexcept = delete;
+
+    constexpr ::pltxt2htm::MdCodeSpan2Backtick& operator=(::pltxt2htm::MdCodeSpan2Backtick&&) noexcept = default;
+};
+
+/**
+ * @brief Represents markdown code span (``example``).
+ * @details https://spec.commonmark.org/0.31.2/#code-spans
+ */
+class MdCodeSpan3Backtick : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr MdCodeSpan3Backtick() noexcept = delete;
+
+    constexpr MdCodeSpan3Backtick(::pltxt2htm::Ast&& ast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_code_span_3_backtick, ::std::move(ast)} {
+    }
+
+    constexpr MdCodeSpan3Backtick(::pltxt2htm::MdCodeSpan3Backtick const&) noexcept = default;
+
+    constexpr MdCodeSpan3Backtick(::pltxt2htm::MdCodeSpan3Backtick&&) noexcept = default;
+
+    constexpr ::pltxt2htm::MdCodeSpan3Backtick& operator=(::pltxt2htm::MdCodeSpan3Backtick const&) noexcept = delete;
+
+    constexpr ::pltxt2htm::MdCodeSpan3Backtick& operator=(::pltxt2htm::MdCodeSpan3Backtick&&) noexcept = default;
+};
+
 } // namespace pltxt2htm

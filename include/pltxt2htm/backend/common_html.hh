@@ -297,7 +297,13 @@ restart:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_code_fence_backtick:
             [[fallthrough]];
-        case ::pltxt2htm::NodeType::md_code_fence_tilde: {
+        case ::pltxt2htm::NodeType::md_code_fence_tilde:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_code_span_1_backtick:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_code_span_2_backtick:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_code_span_3_backtick: {
             // TODO common_html should not ignore the tag context
             // We should recover the tag context
             auto a_paired_tag = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
