@@ -4,6 +4,7 @@
 #include <iterator>
 #include <fast_io/fast_io_dsal/list.h>
 #include <fast_io/fast_io_dsal/stack.h>
+#include "pltxt2htm/astnode/node_type.hh"
 #include "utils.hh"
 #include "heap_guard.hh"
 #include "astnode/basic.hh"
@@ -521,6 +522,8 @@ restart:
                     ::std::addressof(subast), ::pltxt2htm::NodeType::html_pre, subast.begin()));
             goto restart;
         }
+        case ::pltxt2htm::NodeType::md_link:
+            [[fallthrough]];
         case ::pltxt2htm::NodeType::md_triple_emphasis_underscore:
             [[fallthrough]]; // TODO optimization support for md_triple_emphasis
         case ::pltxt2htm::NodeType::md_triple_emphasis_asterisk:
@@ -633,8 +636,6 @@ restart:
                 }
                 goto restart;
             }
-            case ::pltxt2htm::NodeType::md_link:
-                [[fallthrough]];
             case ::pltxt2htm::NodeType::md_code_fence_backtick:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::md_code_fence_tilde:

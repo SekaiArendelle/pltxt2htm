@@ -341,7 +341,12 @@ restart:
         }
         case ::pltxt2htm::NodeType::md_link: {
             auto a_link = static_cast<::pltxt2htm::MdLink const*>(node.release_imul());
-            // TODO
+            result.push_back(u8'[');
+            result.append(a_link->text);
+            result.push_back(u8']');
+            result.push_back(u8'(');
+            result.append(a_link->url);
+            result.push_back(u8')');
             break;
         }
         case ::pltxt2htm::NodeType::base:
