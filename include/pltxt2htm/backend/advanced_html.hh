@@ -367,6 +367,11 @@ restart:
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
             goto restart;
         }
+        case ::pltxt2htm::NodeType::md_link: {
+            auto a_link = static_cast<::pltxt2htm::MdLink const*>(node.release_imul());
+            // TODO
+            break;
+        }
         case ::pltxt2htm::NodeType::md_escape_backslash: {
             result.push_back(u8'\\');
             break;

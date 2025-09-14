@@ -172,6 +172,8 @@ enum class NodeType : ::std::uint_least32_t {
     md_triple_emphasis_underscore,
     // ~~example~~
     md_del,
+    // https://spec.commonmark.org/0.31.2/#links
+    md_link,
 
     // latex
     // latex,

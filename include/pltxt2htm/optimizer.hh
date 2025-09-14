@@ -633,6 +633,8 @@ restart:
                 }
                 goto restart;
             }
+            case ::pltxt2htm::NodeType::md_link:
+                [[fallthrough]];
             case ::pltxt2htm::NodeType::md_code_fence_backtick:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::md_code_fence_tilde:

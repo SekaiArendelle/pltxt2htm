@@ -114,6 +114,8 @@ using ::pltxt2htm::MdTripleEmphasisAsterisk;
 using ::pltxt2htm::MdSingleEmphasisUnderscore;
 using ::pltxt2htm::MdDoubleEmphasisUnderscore;
 using ::pltxt2htm::MdTripleEmphasisUnderscore;
+using ::pltxt2htm::MdDel;
+using ::pltxt2htm::MdLink;
 
 // physics_lab_node
 using ::pltxt2htm::Color;

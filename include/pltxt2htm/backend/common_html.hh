@@ -10,6 +10,7 @@
 #include "frame_context.hh"
 #include "../utils.hh"
 #include "../astnode/basic.hh"
+#include "../astnode/markdown_node.hh"
 #include "../astnode/physics_lab_node.hh"
 #include "pltxt2htm/astnode/node_type.hh"
 
@@ -337,6 +338,11 @@ restart:
                                                                            ::pltxt2htm::NodeType::base, 0));
             ++current_index;
             goto restart;
+        }
+        case ::pltxt2htm::NodeType::md_link: {
+            auto a_link = static_cast<::pltxt2htm::MdLink const*>(node.release_imul());
+            // TODO
+            break;
         }
         case ::pltxt2htm::NodeType::base:
             [[unlikely]] {

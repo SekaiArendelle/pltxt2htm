@@ -1004,4 +1004,23 @@ public:
     constexpr ::pltxt2htm::MdDel& operator=(::pltxt2htm::MdDel&&) noexcept = default;
 };
 
+class MdLink : public ::pltxt2htm::PlTxtNode {
+public:
+    ::fast_io::u8string text;
+    ::fast_io::u8string url;
+
+    constexpr MdLink(::fast_io::u8string&& text, ::fast_io::u8string&& url) noexcept
+        : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::md_link}, text(::std::move(text)),
+          url(::std::move(url)) {
+    }
+
+    constexpr MdLink(::pltxt2htm::MdLink const&) noexcept = default;
+
+    constexpr MdLink(::pltxt2htm::MdLink&&) noexcept = default;
+
+    constexpr ::pltxt2htm::MdLink& operator=(::pltxt2htm::MdLink const&) noexcept = delete;
+
+    constexpr ::pltxt2htm::MdLink& operator=(::pltxt2htm::MdLink&&) noexcept = default;
+};
+
 } // namespace pltxt2htm
