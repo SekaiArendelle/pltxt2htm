@@ -8,7 +8,7 @@ namespace pltxt2htm {
  * @brief ast node type of Quantum-Physics (aka. Physics-Lab, pl) text
  * @details show details in astnode.hh, every AstNode owns a NodeType
  */
-enum class NodeType : ::std::uint_least32_t {
+enum class NodeType : ::std::size_t {
     base = 0,
     // a utf-8 char
     u8char,

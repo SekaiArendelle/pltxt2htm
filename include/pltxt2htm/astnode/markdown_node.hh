@@ -1009,9 +1009,10 @@ public:
     ::fast_io::u8string text;
     ::fast_io::u8string url;
 
-    constexpr MdLink(::fast_io::u8string&& text, ::fast_io::u8string&& url) noexcept
-        : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::md_link}, text(::std::move(text)),
-          url(::std::move(url)) {
+    constexpr MdLink(::fast_io::u8string&& text_, ::fast_io::u8string&& url_) noexcept
+        : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::md_link},
+          text(::std::move(text_)),
+          url(::std::move(url_)) {
     }
 
     constexpr MdLink(::pltxt2htm::MdLink const&) noexcept = default;

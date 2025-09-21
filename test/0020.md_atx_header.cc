@@ -2,19 +2,19 @@
 
 int main() {
     auto html1 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"\n# test<br>text");
-    auto answer1 = ::fast_io::u8string_view{u8"<br><h1>test</h1><br>text"};
+    auto answer1 = ::fast_io::u8string_view{u8"<br><h1>test</h1>text"};
     ::pltxt2htm_test::assert_true(html1 == answer1);
 
     auto html2 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"# test<br>text");
-    auto answer2 = ::fast_io::u8string_view{u8"<h1>test</h1><br>text"};
+    auto answer2 = ::fast_io::u8string_view{u8"<h1>test</h1>text"};
     ::pltxt2htm_test::assert_true(html2 == answer2);
 
     auto html3 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"# test\ntext");
-    auto answer3 = ::fast_io::u8string_view{u8"<h1>test</h1><br>text"};
+    auto answer3 = ::fast_io::u8string_view{u8"<h1>test</h1>text"};
     ::pltxt2htm_test::assert_true(html3 == answer3);
 
     auto html4 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<br># test\ntext");
-    auto answer4 = ::fast_io::u8string_view{u8"<br><h1>test</h1><br>text"};
+    auto answer4 = ::fast_io::u8string_view{u8"<br><h1>test</h1>text"};
     ::pltxt2htm_test::assert_true(html4 == answer4);
 
     auto html5 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"");
@@ -22,15 +22,15 @@ int main() {
     ::pltxt2htm_test::assert_true(html5 == answer5);
 
     auto html6 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"# test<b>\ntext");
-    auto answer6 = ::fast_io::u8string_view{u8"<h1>test</h1><br>text"};
+    auto answer6 = ::fast_io::u8string_view{u8"<h1>test</h1>text"};
     ::pltxt2htm_test::assert_true(html6 == answer6);
 
     auto html7 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"# te<b>st\ntext");
-    auto answer7 = ::fast_io::u8string_view{u8"<h1>te<strong>st</strong></h1><br>text"};
+    auto answer7 = ::fast_io::u8string_view{u8"<h1>te<strong>st</strong></h1>text"};
     ::pltxt2htm_test::assert_true(html7 == answer7);
 
     auto html8 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"## test\ntext");
-    auto answer8 = ::fast_io::u8string_view{u8"<h2>test</h2><br>text"};
+    auto answer8 = ::fast_io::u8string_view{u8"<h2>test</h2>text"};
     ::pltxt2htm_test::assert_true(html8 == answer8);
 
     ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt2advanced_htmld(u8"### test") ==
@@ -41,7 +41,7 @@ int main() {
                                   ::fast_io::u8string_view{u8"<h5>test</h5>"});
 
     auto html9 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"###### test\ntext");
-    auto answer9 = ::fast_io::u8string_view{u8"<h6>test</h6><br>text"};
+    auto answer9 = ::fast_io::u8string_view{u8"<h6>test</h6>text"};
     ::pltxt2htm_test::assert_true(html9 == answer9);
 
     auto html10 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"####### test\ntext");
@@ -53,11 +53,11 @@ int main() {
     ::pltxt2htm_test::assert_true(html11 == answer11);
 
     auto html12 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"#            test\ntext");
-    auto answer12 = ::fast_io::u8string_view{u8"<h1>test</h1><br>text"};
+    auto answer12 = ::fast_io::u8string_view{u8"<h1>test</h1>text"};
     ::pltxt2htm_test::assert_true(html12 == answer12);
 
     auto html13 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"          # test\ntext");
-    auto answer13 = ::fast_io::u8string_view{u8"<h1>test</h1><br>text"};
+    auto answer13 = ::fast_io::u8string_view{u8"<h1>test</h1>text"};
     ::pltxt2htm_test::assert_true(html13 == answer13);
 
     auto html14 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"# test");
@@ -93,11 +93,11 @@ int main() {
     ::pltxt2htm_test::assert_true(html21 == answer21);
 
     auto html22 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"# <i>test<br>text");
-    auto answer22 = ::fast_io::u8string_view{u8"<h1><em>test</em></h1><br>text"};
+    auto answer22 = ::fast_io::u8string_view{u8"<h1><em>test</em></h1>text"};
     ::pltxt2htm_test::assert_true(html22 == answer22);
 
     auto html23 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"# <i>test\ntext");
-    auto answer23 = ::fast_io::u8string_view{u8"<h1><em>test</em></h1><br>text"};
+    auto answer23 = ::fast_io::u8string_view{u8"<h1><em>test</em></h1>text"};
     ::pltxt2htm_test::assert_true(html23 == answer23);
 
     auto html24 = ::pltxt2htm_test::pltxt2advanced_htmld(u8" ## #");

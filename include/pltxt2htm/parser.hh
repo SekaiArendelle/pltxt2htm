@@ -445,15 +445,11 @@ constexpr auto try_parse_self_closing_tag(::fast_io::u8string_view pltext) noexc
     return ::exception::nullopt_t{};
 }
 
-enum class MdAtxHeadingEndingType : ::std::uint_least32_t {
-    no_ending = 0,
-    newline,
-    br_tag
-};
-
-struct MdAtxEndingType {
-    ::pltxt2htm::details::MdAtxHeadingEndingType ending_type;
-    ::std::size_t br_len;
+struct TryParseMdAtxHeadingResult {
+    ::std::size_t start_index;
+    ::std::size_t sublength;
+    ::std::size_t forward_index;
+    ::pltxt2htm::NodeType md_atx_heading_type;
 };
 
 /**
@@ -467,15 +463,14 @@ struct MdAtxEndingType {
  */
 template<bool ndebug>
 [[nodiscard]]
-constexpr bool try_parse_md_atx_heading(::fast_io::u8string_view pltext, ::std::size_t& start_index_,
-                                        ::std::size_t& sublength_, ::pltxt2htm::NodeType& md_atx_heading_type_,
-                                        ::pltxt2htm::details::MdAtxEndingType& ending_type) /* throws */ {
+constexpr auto try_parse_md_atx_heading(::fast_io::u8string_view pltext) /* throws */ -> ::exception::optional<
+    ::pltxt2htm::details::TryParseMdAtxHeadingResult> {
     ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t start_index{};
     // spaces before the first #
     while (true) {
         if (start_index >= pltext_size) {
-            return false;
+            return ::exception::nullopt_t{};
         }
         if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, start_index) != u8' ') {
             break;
@@ -490,13 +485,10 @@ constexpr bool try_parse_md_atx_heading(::fast_io::u8string_view pltext, ::std::
             // https://spec.commonmark.org/0.31.2/#example-79
             if (static_cast<::std::size_t>(::pltxt2htm::NodeType::md_atx_h1) <= md_atx_heading_type &&
                 md_atx_heading_type <= static_cast<::std::size_t>(::pltxt2htm::NodeType::md_atx_h6)) {
-                start_index_ = start_index;
-                sublength_ = 0;
-                md_atx_heading_type_ = static_cast<::pltxt2htm::NodeType>(md_atx_heading_type);
-                ending_type.ending_type = ::pltxt2htm::details::MdAtxHeadingEndingType::no_ending;
-                return true;
+                return ::pltxt2htm::details::TryParseMdAtxHeadingResult{
+                    start_index, 0, start_index, static_cast<::pltxt2htm::NodeType>(md_atx_heading_type)};
             } else {
-                return false;
+                return ::exception::nullopt_t{};
             }
         }
         if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, start_index) != u8'#') {
@@ -509,18 +501,15 @@ constexpr bool try_parse_md_atx_heading(::fast_io::u8string_view pltext, ::std::
         static_cast<::std::size_t>(::pltxt2htm::NodeType::md_atx_h6) < md_atx_heading_type ||
         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, start_index) != u8' ') {
         // invalid atx header
-        return false;
+        return ::exception::nullopt_t{};
     }
     ++start_index;
     // spaces after the last #
     while (true) {
         if (start_index >= pltext_size) {
             // https://spec.commonmark.org/0.31.2/#example-79
-            start_index_ = start_index;
-            sublength_ = 0;
-            md_atx_heading_type_ = static_cast<::pltxt2htm::NodeType>(md_atx_heading_type);
-            ending_type.ending_type = ::pltxt2htm::details::MdAtxHeadingEndingType::no_ending;
-            return true;
+            return ::pltxt2htm::details::TryParseMdAtxHeadingResult{
+                start_index, 0, start_index, static_cast<::pltxt2htm::NodeType>(md_atx_heading_type)};
         }
         if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, start_index) != u8' ') {
             break;
@@ -528,23 +517,24 @@ constexpr bool try_parse_md_atx_heading(::fast_io::u8string_view pltext, ::std::
         ++start_index;
     }
     // end of the atx header
-    ::std::size_t sublength{start_index};
-    for (; sublength < pltext_size; ++sublength) {
-        if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, sublength) == u8'\n') {
-            ending_type.ending_type = ::pltxt2htm::details::MdAtxHeadingEndingType::newline;
+    ::std::size_t end_index{start_index};
+    ::std::size_t extra_length{};
+    for (; end_index < pltext_size; ++end_index) {
+        if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, end_index) == u8'\n') {
+            extra_length = 1;
             break;
         } else if (auto opt = ::pltxt2htm::details::try_parse_self_closing_tag<ndebug, u8'<', u8'b', u8'r'>(
-                       ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, sublength));
+                       ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, end_index));
                    opt.has_value()) {
-            ending_type.ending_type = ::pltxt2htm::details::MdAtxHeadingEndingType::br_tag;
-            ending_type.br_len = opt.template value<ndebug>();
+            extra_length = opt.template value<ndebug>() + 1;
             break;
         }
     }
-    start_index_ = start_index;
-    sublength_ = sublength - start_index;
-    md_atx_heading_type_ = static_cast<::pltxt2htm::NodeType>(md_atx_heading_type);
-    return true;
+    return ::pltxt2htm::details::TryParseMdAtxHeadingResult{
+        .start_index = start_index,
+        .sublength = end_index - start_index,
+        .forward_index = start_index + extra_length,
+        .md_atx_heading_type = static_cast<::pltxt2htm::NodeType>(md_atx_heading_type)};
 }
 
 enum class ThematicBreakType : ::std::uint_least32_t {
@@ -568,8 +558,8 @@ struct TryParseMdThematicBreakResult {
  * @return length of the parsed markdown thematic breaks
  */
 template<bool ndebug>
-constexpr auto try_parse_md_thematic_break(
-    ::fast_io::u8string_view text) /* throws */ -> ::exception::optional<::pltxt2htm::details::TryParseMdThematicBreakResult> {
+constexpr auto try_parse_md_thematic_break(::fast_io::u8string_view text) /* throws */ -> ::exception::optional<
+    ::pltxt2htm::details::TryParseMdThematicBreakResult> {
     if (text.size() < 3) {
         return ::exception::nullopt_t{};
     }
@@ -610,8 +600,7 @@ constexpr auto try_parse_md_thematic_break(
         } else if (thematic_break_type != ::pltxt2htm::details::ThematicBreakType::none) {
             if (chr == u8'\n') {
                 return ::pltxt2htm::details::TryParseMdThematicBreakResult{
-                    ::pltxt2htm::Ast{::pltxt2htm::details::HeapGuard<::pltxt2htm::MdHr>{}},
-                    i + 1};
+                    ::pltxt2htm::Ast{::pltxt2htm::details::HeapGuard<::pltxt2htm::MdHr>{}}, i + 1};
             } else if (auto opt_tag_len = ::pltxt2htm::details::try_parse_self_closing_tag<ndebug, u8'<', u8'b', u8'r'>(
                            ::pltxt2htm::details::u8string_view_subview<ndebug>(text, i));
                        opt_tag_len.has_value()) {
@@ -871,19 +860,6 @@ public:
     constexpr ~BareTagContext() noexcept = default;
 };
 
-class MdAtxHeadingContext : public ::pltxt2htm::details::BasicFrameContext {
-public:
-    ::pltxt2htm::details::MdAtxEndingType ending_type;
-
-    constexpr MdAtxHeadingContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
-                                  ::pltxt2htm::details::MdAtxEndingType ending_type_) noexcept
-        : ::pltxt2htm::details::BasicFrameContext(pltext_, nested_tag_type_),
-          ending_type{ending_type_} {
-    }
-
-    constexpr ~MdAtxHeadingContext() noexcept = default;
-};
-
 class EqualSignTagContext : public ::pltxt2htm::details::BasicFrameContext {
 public:
     ::fast_io::u8string id;
@@ -934,33 +910,30 @@ restart:
         if (chr == u8'\n') {
             result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::LineBreak>{});
 
-#if __has_cpp_attribute(indeterminate)
-            ::std::size_t start_index [[indeterminate]];
-            ::std::size_t end_index [[indeterminate]];
-            ::pltxt2htm::NodeType md_atx_heading_type [[indeterminate]];
-            ::pltxt2htm::details::MdAtxEndingType ending_type [[indeterminate]];
-#else
-            ::std::size_t start_index;
-            ::std::size_t sublength;
-            ::pltxt2htm::NodeType md_atx_heading_type;
-            ::pltxt2htm::details::MdAtxEndingType ending_type;
-#endif
+            if (current_index + 1 >= pltext_size) {
+                continue;
+            }
+
             // try parsing markdown atx header
-            if (current_index + 1 < pltext_size &&
-                ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1), start_index,
-                    sublength, md_atx_heading_type, ending_type)) {
-                ::pltxt2htm::Ast subast{};
-                current_index += start_index + 1;
-                if (current_index < pltext_size) {
-                    auto subtext =
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index, sublength);
-                    call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::MdAtxHeadingContext>(
-                        subtext, md_atx_heading_type, ending_type));
+            if (auto opt_md_atx_heading = ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(
+                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1));
+                opt_md_atx_heading.has_value()) {
+                // forward index of the linebreak
+                current_index += 1;
+
+                auto&& [start_index, sublength, forward_index, md_atx_heading_type] =
+                    opt_md_atx_heading.template value<ndebug>();
+                if (current_index + start_index < pltext_size) {
+                    auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(
+                        pltext, current_index + start_index, sublength);
+                    call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                        subtext, md_atx_heading_type));
                 } else {
-                    call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::MdAtxHeadingContext>(
-                        ::fast_io::u8string_view{}, md_atx_heading_type, ending_type));
+                    // TODO do not push frame, just add an empty ast node
+                    call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                        ::fast_io::u8string_view{}, md_atx_heading_type));
                 }
+                current_index += forward_index;
                 goto restart;
             } else if (auto opt_len = ::pltxt2htm::details::try_parse_md_thematic_break<ndebug>(
                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1));
@@ -1182,33 +1155,26 @@ restart:
                     current_index += opt_br_tag_len.template value<ndebug>() + 2;
                     result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Br>(::pltxt2htm::Br()));
 
-#if __has_cpp_attribute(indeterminate)
-                    ::std::size_t start_index [[indeterminate]];
-                    ::std::size_t end_index [[indeterminate]];
-                    ::pltxt2htm::NodeType md_atx_heading_type [[indeterminate]];
-                    ::pltxt2htm::details::MdAtxEndingType ending_type [[indeterminate]];
-#else
-                    ::std::size_t start_index;
-                    ::std::size_t sublength;
-                    ::pltxt2htm::NodeType md_atx_heading_type;
-                    ::pltxt2htm::details::MdAtxEndingType ending_type;
-#endif
                     // try parsing markdown atx header
-                    if (current_index + 1 < pltext_size &&
-                        ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1), start_index,
-                            sublength, md_atx_heading_type, ending_type)) {
-                        ::pltxt2htm::Ast subast{};
-                        current_index += start_index + 1;
-                        if (current_index < pltext_size) {
-                            auto subtext =
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index, sublength);
-                            call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::MdAtxHeadingContext>(
-                                subtext, md_atx_heading_type, ending_type));
+                    if (auto opt_md_atx_heading_len = ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1));
+                        opt_md_atx_heading_len.has_value()) {
+                        // forward index of the linebreak
+                        current_index += 1;
+
+                        auto&& [start_index, sublength, forward_index, md_atx_heading_type] =
+                            opt_md_atx_heading_len.template value<ndebug>();
+                        if (current_index + start_index < pltext_size) {
+                            auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(
+                                pltext, current_index + start_index, sublength);
+                            call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                                subtext, md_atx_heading_type));
                         } else {
-                            call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::MdAtxHeadingContext>(
-                                ::fast_io::u8string_view{}, md_atx_heading_type, ending_type));
+                            // TODO do not push frame, just add an empty ast node
+                            call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                                ::fast_io::u8string_view{}, md_atx_heading_type));
                         }
+                        current_index += forward_index;
                         goto restart;
                     } else if (auto opt_len = ::pltxt2htm::details::try_parse_md_thematic_break<ndebug>(
                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1));
@@ -2116,52 +2082,28 @@ restart:
                 superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Pre>(::std::move(subast)));
                 break;
             }
-            case ::pltxt2htm::NodeType::md_atx_h1:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_atx_h2:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_atx_h3:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_atx_h4:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_atx_h5:
-                [[fallthrough]];
+            case ::pltxt2htm::NodeType::md_atx_h1: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::MdAtxH1>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::md_atx_h2: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::MdAtxH2>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::md_atx_h3: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::MdAtxH3>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::md_atx_h4: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::MdAtxH4>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::md_atx_h5: {
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::MdAtxH5>(::std::move(subast)));
+                break;
+            }
             case ::pltxt2htm::NodeType::md_atx_h6: {
-                switch (frame->nested_tag_type) {
-                case ::pltxt2htm::NodeType::md_atx_h1:
-                    superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::MdAtxH1>(::std::move(subast)));
-                    break;
-                case ::pltxt2htm::NodeType::md_atx_h2:
-                    superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::MdAtxH2>(::std::move(subast)));
-                    break;
-                case ::pltxt2htm::NodeType::md_atx_h3:
-                    superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::MdAtxH3>(::std::move(subast)));
-                    break;
-                case ::pltxt2htm::NodeType::md_atx_h4:
-                    superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::MdAtxH4>(::std::move(subast)));
-                    break;
-                case ::pltxt2htm::NodeType::md_atx_h5:
-                    superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::MdAtxH5>(::std::move(subast)));
-                    break;
-                case ::pltxt2htm::NodeType::md_atx_h6:
-                    superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::MdAtxH6>(::std::move(subast)));
-                    break;
-                default:
-                    [[unlikely]] {
-                        ::exception::unreachable<ndebug>();
-                    }
-                }
-                super_index += frame->subast.size();
-                // Handle the ending type
-                auto&& ending_type =
-                    static_cast<::pltxt2htm::details::MdAtxHeadingContext*>(frame.get_unsafe())->ending_type;
-                if (ending_type.ending_type == ::pltxt2htm::details::MdAtxHeadingEndingType::newline) {
-                    superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::LineBreak>{});
-                    super_index += 1;
-                } else if (ending_type.ending_type == ::pltxt2htm::details::MdAtxHeadingEndingType::br_tag) {
-                    superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::Br>{});
-                    super_index += ending_type.br_len + 1;
-                }
+                superast.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::MdAtxH6>(::std::move(subast)));
                 break;
             }
             case ::pltxt2htm::NodeType::md_code_span_1_backtick: {
@@ -2248,33 +2190,26 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) /* throws */ -> ::pl
     ::pltxt2htm::Ast result{};
 
     ::std::size_t start_index{};
-#if __has_cpp_attribute(indeterminate)
-    ::std::size_t end_index [[indeterminate]];
-    ::pltxt2htm::NodeType md_atx_heading_type [[indeterminate]];
-    ::pltxt2htm::details::MdAtxEndingType ending_type [[indeterminate]];
-#else
-    ::std::size_t sublength;
-    ::pltxt2htm::NodeType md_atx_heading_type;
-    ::pltxt2htm::details::MdAtxEndingType ending_type;
-#endif
     // try parsing markdown atx header
-    if (::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(pltext, start_index, sublength, md_atx_heading_type,
-                                                               ending_type)) {
+    if (auto opt_md_atx_heading = ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(pltext);
+        opt_md_atx_heading.has_value()) {
         // Consider the following markdown
         // ```md
         // ## test
         // ```
         // Here, the first line is a markdown atx heading, will hit this case
+        auto&& [start_index_, sublength, forward_index, md_atx_heading_type] =
+            opt_md_atx_heading.template value<ndebug>();
         ::pltxt2htm::Ast subast{};
-        if (start_index < pltext.size()) {
-            auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index, sublength);
-            call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::MdAtxHeadingContext>(
-                subtext, md_atx_heading_type, ending_type));
+        if (start_index_ < pltext.size()) {
+            auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index_, sublength);
+            call_stack.push(
+                ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(subtext, md_atx_heading_type));
             subast = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
         }
         result.push_back(::pltxt2htm::details::switch_md_atx_header<ndebug>(md_atx_heading_type, ::std::move(subast)));
         // rectify the start index to the start of next text (aka. below common cases)
-        start_index += sublength;
+        start_index = forward_index + sublength;
     } else if (auto opt_thematic_break = ::pltxt2htm::details::try_parse_md_thematic_break<ndebug>(pltext);
                opt_thematic_break.has_value()) {
         // considering following markdown
