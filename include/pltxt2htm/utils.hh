@@ -108,7 +108,7 @@ constexpr ::fast_io::u8string size_t2str(::std::size_t num) noexcept {
         return ::fast_io::u8string{u8"0"};
     }
 
-    ::fast_io::u8string result;
+    ::fast_io::u8string result{};
 
     while (num > 0) {
         char8_t digit = (num % 10) + u8'0';

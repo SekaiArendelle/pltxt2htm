@@ -557,12 +557,6 @@ enum class ThematicBreakType : ::std::uint_least32_t {
     asterisk,
 };
 
-enum class EndType : ::std::uint_least32_t {
-    end_of_string = 0,
-    line_break,
-    br_tag,
-};
-
 struct TryParseMdThematicBreakResult {
     ::pltxt2htm::Ast subast;
     ::std::size_t forward_index;
@@ -575,7 +569,7 @@ struct TryParseMdThematicBreakResult {
  */
 template<bool ndebug>
 constexpr auto try_parse_md_thematic_break(
-    ::fast_io::u8string_view text) /* throws */ -> ::exception::optional<TryParseMdThematicBreakResult> {
+    ::fast_io::u8string_view text) /* throws */ -> ::exception::optional<::pltxt2htm::details::TryParseMdThematicBreakResult> {
     if (text.size() < 3) {
         return ::exception::nullopt_t{};
     }
@@ -616,15 +610,13 @@ constexpr auto try_parse_md_thematic_break(
         } else if (thematic_break_type != ::pltxt2htm::details::ThematicBreakType::none) {
             if (chr == u8'\n') {
                 return ::pltxt2htm::details::TryParseMdThematicBreakResult{
-                    ::pltxt2htm::Ast{::pltxt2htm::details::HeapGuard<::pltxt2htm::MdHr>{},
-                                     ::pltxt2htm::details::HeapGuard<::pltxt2htm::LineBreak>{}},
+                    ::pltxt2htm::Ast{::pltxt2htm::details::HeapGuard<::pltxt2htm::MdHr>{}},
                     i + 1};
             } else if (auto opt_tag_len = ::pltxt2htm::details::try_parse_self_closing_tag<ndebug, u8'<', u8'b', u8'r'>(
                            ::pltxt2htm::details::u8string_view_subview<ndebug>(text, i));
                        opt_tag_len.has_value()) {
                 return ::pltxt2htm::details::TryParseMdThematicBreakResult{
-                    ::pltxt2htm::Ast{::pltxt2htm::details::HeapGuard<::pltxt2htm::MdHr>{},
-                                     ::pltxt2htm::details::HeapGuard<::pltxt2htm::Br>{}},
+                    ::pltxt2htm::Ast{::pltxt2htm::details::HeapGuard<::pltxt2htm::MdHr>{}},
                     i + opt_tag_len.template value<ndebug>() + 1};
             } else {
                 return ::exception::nullopt_t{};
