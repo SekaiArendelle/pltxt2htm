@@ -39,7 +39,7 @@ class HeapGuard {
     T* ptr_;
 
 public:
-    void (*deleter_)(T*);
+    void (*deleter_)(T*) noexcept;
     using value_type = T;
 
     template<typename... Args>
@@ -71,7 +71,7 @@ public:
     template<typename U>
         requires (::std::derived_from<U, T>)
     constexpr HeapGuard(HeapGuard<U>&& other) noexcept
-        : deleter_{reinterpret_cast<void (*)(T*)>(other.deleter_)} {
+        : deleter_{reinterpret_cast<void (*)(T*) noexcept>(other.deleter_)} {
         this->ptr_ = other.release();
         other.deleter_ = nullptr;
     }
