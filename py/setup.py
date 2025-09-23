@@ -1,5 +1,6 @@
 import os
 import shutil
+import version
 import setuptools
 from setuptools.command.build_ext import build_ext
 
@@ -37,6 +38,7 @@ class XMakeBuild(build_ext):
 
 setuptools.setup(
     name="pltxt2htm",
+    version=version.__version__,
     author="Arendelle",
     author_email="Arendelle_@outlook.com",
     description="Parse Quantam-Physics's text to html",

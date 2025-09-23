@@ -15,7 +15,7 @@ then build:
 xmake build
 ```
 
-> Note: `pip install .` or `python -m build --wheel --dist` based on xmake build script, use `PLTXT2HTM_XMAKE_CONFIG_FLAGS` env var to specify xmake config flags
+> Note: `pip install .` or `python -m build --wheel` based on xmake build script, use `PLTXT2HTM_XMAKE_CONFIG_FLAGS` env var to specify xmake config flags
 
 ## Usage
 ```py
