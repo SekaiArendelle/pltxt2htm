@@ -12,48 +12,41 @@ if is_plat("windows") or is_plat("mingw") then
     add_syslinks("ntdll")
 end
 
-local my_on_config = function(target)
-    if is_mode("debug") then
-        set_symbols("debug")
-    end
+target("pltxt2htm", function ()
+    set_kind("$(kind)")
 
-    local toolchains = target:tool("cxx")
-    if path.basename(toolchains) == "clang++" or path.basename(toolchains) == "clang" then
-        target:add("shflags", "-fuse-ld=lld")
-        if is_mode("release") then
-            target:add("ldflags", "-flto")
+    on_config(function(target)
+        if not target:get("kind") == "static" and not target:get("kind") == "shared" then
+            print("error: kind must be static or shared")
+            os.exit(1)
         end
-    end
 
-    if path.basename(toolchains) == "clang++"
-            or path.basename(toolchains) == "clang"
-            or path.basename(toolchains) == "gcc"
-            or path.basename(toolchains) == "g++" then
-        target:add("cxxflags", "-fno-exceptions")
-        target:add("cxxflags", "-fno-cxx-exceptions")
-        target:add("cxxflags", "-fno-rtti")
-        target:add("cxxflags", "-fno-unwind-tables")
-        target:add("cxxflags", "-fno-asynchronous-unwind-tables")
-        target:add("cxxflags", "-fvisibility=hidden")
-        target:add("cxxflags", "-fvisibility-inlines-hidden")
-        if is_mode("release") then
-            target:add("cxxflags", "-fno-ident")
+        if is_mode("debug") then
+            set_symbols("debug")
         end
-    end
-end
 
-target("pltxt2htm_shared", function ()
-    set_kind("shared")
+        local toolchains = target:tool("cxx")
+        if path.basename(toolchains) == "clang++" or path.basename(toolchains) == "clang" then
+            target:add("shflags", "-fuse-ld=lld")
+            if is_mode("release") then
+                target:add("ldflags", "-flto")
+            end
+        end
 
-    on_config(function (target)
-        my_on_config(target)
-    end)
-end)
-
-target("pltxt2htm_static", function ()
-    set_kind("static")
-
-    on_config(function (target)
-        my_on_config(target)
+        if path.basename(toolchains) == "clang++"
+                or path.basename(toolchains) == "clang"
+                or path.basename(toolchains) == "gcc"
+                or path.basename(toolchains) == "g++" then
+            target:add("cxxflags", "-fno-exceptions")
+            target:add("cxxflags", "-fno-cxx-exceptions")
+            target:add("cxxflags", "-fno-rtti")
+            target:add("cxxflags", "-fno-unwind-tables")
+            target:add("cxxflags", "-fno-asynchronous-unwind-tables")
+            target:add("cxxflags", "-fvisibility=hidden")
+            target:add("cxxflags", "-fvisibility-inlines-hidden")
+            if is_mode("release") then
+                target:add("cxxflags", "-fno-ident")
+            end
+        end
     end)
 end)

@@ -7,12 +7,10 @@ This folder supply C's header-source style interface. (build source code to libr
 > Note: building library still requires C++ toolchains
 
 ```sh
-xmake config
+xmake config -k [static|shared]
 xmake build
 xmake install -o $PREFIX
 ```
-
-shared library in libpltxt2htm_shared.so, static library in libpltxt2htm_static.a
 
 ## Usage
 ```c
@@ -32,12 +30,6 @@ int main(void) {
 
 compile `example.c`:
 ```sh
-gcc example.c -o example -L ./build/linux/x64/release -lpltxt2htm_shared
-./example
-```
-
-```sh
-# Don't forget to `-lntdll` on windows/mingw
-gcc example.c -o example -L ./build/linux/x64/release -lpltxt2htm_static
+gcc example.c -o example -L ./build/linux/x64/release -lpltxt2htm
 ./example
 ```
