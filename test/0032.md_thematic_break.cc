@@ -45,15 +45,15 @@ int main() {
     auto answer11 = ::fast_io::u8string_view{u8"<hr>"};
     ::pltxt2htm_test::assert_true(html11 == answer11);
 
+    auto html12 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"# test\n ---");
+    auto answer12 = ::fast_io::u8string_view{u8"<h1>test</h1><hr>"};
+    ::pltxt2htm_test::assert_true(html12 == answer12);
+
+    auto html13 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"# test<br> ---");
+    auto answer13 = ::fast_io::u8string_view{u8"<h1>test</h1><hr>"};
+    ::pltxt2htm_test::assert_true(html13 == answer13);
+
     // TODO FIXME
-
-    // auto html12 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"# test\n ---");
-    // auto answer12 = ::fast_io::u8string_view{u8"<h1>test</h1><hr>"};
-    // ::pltxt2htm_test::assert_true(html12 == answer12);
-
-    // auto html13 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"# test<br> ---");
-    // auto answer13 = ::fast_io::u8string_view{u8"<h1>test</h1><hr>"};
-    // ::pltxt2htm_test::assert_true(html13 == answer13);
 
     // auto html14 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"\n# test\n ---");
     // auto answer14 = ::fast_io::u8string_view{u8"<h1>test</h1><hr>"};
@@ -63,13 +63,13 @@ int main() {
     // auto answer15 = ::fast_io::u8string_view{u8"<h1>test</h1><hr>"};
     // ::pltxt2htm_test::assert_true(html15 == answer15);
 
-    // auto html16 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"---\n# test\n ---");
-    // auto answer16 = ::fast_io::u8string_view{u8"<h1>test</h1><hr>"};
-    // ::pltxt2htm_test::assert_true(html16 == answer16);
+    auto html16 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"---\n# test\n ---");
+    auto answer16 = ::fast_io::u8string_view{u8"<hr><h1>test</h1><hr>"};
+    ::pltxt2htm_test::assert_true(html16 == answer16);
 
-    // auto html17 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"---\n---\n ---");
-    // auto answer17 = ::fast_io::u8string_view{u8"<hr><hr><hr>"};
-    // ::pltxt2htm_test::assert_true(html17 == answer17);
+    auto html17 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"---\n---\n ---");
+    auto answer17 = ::fast_io::u8string_view{u8"<hr><hr><hr>"};
+    ::pltxt2htm_test::assert_true(html17 == answer17);
 
     return 0;
 }

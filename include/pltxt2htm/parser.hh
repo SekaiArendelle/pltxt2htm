@@ -2190,51 +2190,63 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) /* throws */ -> ::pl
     ::pltxt2htm::Ast result{};
 
     ::std::size_t start_index{};
-    // try parsing markdown atx header
-    if (auto opt_md_atx_heading = ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(pltext);
-        opt_md_atx_heading.has_value()) {
-        // Consider the following markdown
-        // ```md
-        // ## test
-        // ```
-        // Here, the first line is a markdown atx heading, will hit this case
-        auto&& [start_index_, sublength, forward_index, md_atx_heading_type] =
-            opt_md_atx_heading.template value<ndebug>();
-        ::pltxt2htm::Ast subast{};
-        if (start_index_ < pltext.size()) {
-            auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index_, sublength);
-            call_stack.push(
-                ::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(subtext, md_atx_heading_type));
-            subast = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
+
+    while (start_index < pltext.size()) {
+        if (auto opt_md_atx_heading = ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index));
+            opt_md_atx_heading.has_value()) {
+            // Consider the following text
+            // ## test
+            // ...
+            // Here, the first line is a markdown atx heading, will hit this case
+            auto&& [start_index_, sublength, forward_index, md_atx_heading_type] =
+                opt_md_atx_heading.template value<ndebug>();
+            ::pltxt2htm::Ast subast{};
+            if (start_index_ < pltext.size()) {
+                auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(
+                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index), start_index_, sublength);
+                call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                    subtext, md_atx_heading_type));
+                subast = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
+            }
+            result.push_back(
+                ::pltxt2htm::details::switch_md_atx_header<ndebug>(md_atx_heading_type, ::std::move(subast)));
+            // rectify the start index to the start of next text (aka. below common cases)
+            start_index += forward_index + sublength;
+            continue;
+        } else if (auto opt_thematic_break = ::pltxt2htm::details::try_parse_md_thematic_break<ndebug>(
+                       ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index));
+                   opt_thematic_break.has_value()) {
+            // considering following markdown
+            // ---
+            // ...
+            // above example will hit this branch
+            auto&& [subast, forward_index] = opt_thematic_break.template value<ndebug>();
+            for (auto&& node : subast) {
+                result.push_back(::std::move(node));
+            }
+            start_index += forward_index;
+            continue;
+        } else if (auto opt_code_fence = ::pltxt2htm::details::try_parse_md_code_fence<ndebug>(
+                       ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index));
+                   opt_code_fence.has_value()) {
+            auto&& [node, forward_index] = opt_code_fence.template value<ndebug>();
+            result.push_back(::std::move(node));
+            start_index += forward_index;
+            break;
+        } else {
+            break;
         }
-        result.push_back(::pltxt2htm::details::switch_md_atx_header<ndebug>(md_atx_heading_type, ::std::move(subast)));
-        // rectify the start index to the start of next text (aka. below common cases)
-        start_index = forward_index + sublength;
-    } else if (auto opt_thematic_break = ::pltxt2htm::details::try_parse_md_thematic_break<ndebug>(pltext);
-               opt_thematic_break.has_value()) {
-        // considering following markdown
-        // ```md
-        // ---
-        // ```
-        // above example will hit this branch
-        auto&& [subast, forward_index] = opt_thematic_break.template value<ndebug>();
+    }
+
+    if (start_index < pltext.size()) {
+        // other common cases
+        call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
+            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index), ::pltxt2htm::NodeType::base));
+        auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
         for (auto&& node : subast) {
             result.push_back(::std::move(node));
         }
-        start_index += forward_index;
-    } else if (auto opt_code_fence = ::pltxt2htm::details::try_parse_md_code_fence<ndebug>(pltext);
-               opt_code_fence.has_value()) {
-        auto&& [node, forward_index] = opt_code_fence.template value<ndebug>();
-        result.push_back(::std::move(node));
-        start_index += forward_index;
-    }
-
-    // other common cases
-    call_stack.push(::pltxt2htm::details::HeapGuard<::pltxt2htm::details::BareTagContext>(
-        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index), ::pltxt2htm::NodeType::base));
-    auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
-    for (auto&& node : subast) {
-        result.push_back(::std::move(node));
     }
 
     pltxt2htm_assert(call_stack.empty(), u8"call_stack is not empty");

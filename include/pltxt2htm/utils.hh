@@ -51,6 +51,7 @@ template<bool ndebug, typename T>
 #elif __has_cpp_attribute(msvc::forceinline)
 [[msvc::forceinline]]
 #endif
+[[nodiscard]]
 constexpr auto vector_front(::fast_io::vector<T> const& vec) /* throws */ -> T const& {
     pltxt2htm_assert(!vec.empty(), u8"Indexing front but vector is empty");
 
@@ -103,6 +104,7 @@ consteval char8_t pack_indexing_char8_t() noexcept {
 /**
  * @brief Convert a ::std::size_t to a string.
  */
+[[nodiscard]]
 constexpr ::fast_io::u8string size_t2str(::std::size_t num) noexcept {
     if (num == 0) {
         return ::fast_io::u8string{u8"0"};
