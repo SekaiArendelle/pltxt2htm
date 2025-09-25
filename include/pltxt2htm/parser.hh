@@ -547,19 +547,14 @@ enum class ThematicBreakType : ::std::uint_least32_t {
     asterisk,
 };
 
-struct TryParseMdThematicBreakResult {
-    ::pltxt2htm::Ast subast;
-    ::std::size_t forward_index;
-};
-
 /**
  * @brief Parsing markdown thematic breaks (e.g. `---`, `___`, `***`)
  * @param text The text to parse
  * @return length of the parsed markdown thematic breaks
  */
 template<bool ndebug>
-constexpr auto try_parse_md_thematic_break(::fast_io::u8string_view text) /* throws */ -> ::exception::optional<
-    ::pltxt2htm::details::TryParseMdThematicBreakResult> {
+constexpr auto try_parse_md_thematic_break(
+    ::fast_io::u8string_view text) /* throws */ -> ::exception::optional<::std::size_t> {
     if (text.size() < 3) {
         return ::exception::nullopt_t{};
     }
@@ -599,14 +594,11 @@ constexpr auto try_parse_md_thematic_break(::fast_io::u8string_view text) /* thr
             }
         } else if (thematic_break_type != ::pltxt2htm::details::ThematicBreakType::none) {
             if (chr == u8'\n') {
-                return ::pltxt2htm::details::TryParseMdThematicBreakResult{
-                    ::pltxt2htm::Ast{::pltxt2htm::details::HeapGuard<::pltxt2htm::MdHr>{}}, i + 1};
+                return i + 1;
             } else if (auto opt_tag_len = ::pltxt2htm::details::try_parse_self_closing_tag<ndebug, u8'<', u8'b', u8'r'>(
                            ::pltxt2htm::details::u8string_view_subview<ndebug>(text, i));
                        opt_tag_len.has_value()) {
-                return ::pltxt2htm::details::TryParseMdThematicBreakResult{
-                    ::pltxt2htm::Ast{::pltxt2htm::details::HeapGuard<::pltxt2htm::MdHr>{}},
-                    i + opt_tag_len.template value<ndebug>() + 1};
+                return i + opt_tag_len.template value<ndebug>() + 1;
             } else {
                 return ::exception::nullopt_t{};
             }
@@ -617,8 +609,7 @@ constexpr auto try_parse_md_thematic_break(::fast_io::u8string_view text) /* thr
     if (thematic_break_type == ::pltxt2htm::details::ThematicBreakType::none) {
         return ::exception::nullopt_t{};
     } else {
-        return ::pltxt2htm::details::TryParseMdThematicBreakResult{
-            ::pltxt2htm::Ast{::pltxt2htm::details::HeapGuard<::pltxt2htm::MdHr>{}}, i};
+        return i;
     }
 }
 
@@ -938,11 +929,8 @@ restart:
             } else if (auto opt_len = ::pltxt2htm::details::try_parse_md_thematic_break<ndebug>(
                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1));
                        opt_len.has_value()) {
-                auto&& [subast, forward_index] = opt_len.template value<ndebug>();
-                for (auto&& node : subast) {
-                    result.push_back(::std::move(node));
-                }
-                current_index += forward_index;
+                result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::MdHr>{});
+                current_index += opt_len.template value<ndebug>();
                 continue;
             } else if (auto opt_code_fence = ::pltxt2htm::details::try_parse_md_code_fence<ndebug>(
                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1));
@@ -1179,11 +1167,8 @@ restart:
                     } else if (auto opt_len = ::pltxt2htm::details::try_parse_md_thematic_break<ndebug>(
                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1));
                                opt_len.has_value()) {
-                        auto&& [subast, forward_index] = opt_len.template value<ndebug>();
-                        for (auto&& node : subast) {
-                            result.push_back(::std::move(node));
-                        }
-                        current_index += forward_index;
+                        result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::MdHr>{});
+                        current_index += opt_len.template value<ndebug>();
                         continue;
                     } else if (auto opt_code_fence = ::pltxt2htm::details::try_parse_md_code_fence<ndebug>(
                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1));
@@ -2221,11 +2206,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) /* throws */ -> ::pl
             // ---
             // ...
             // above example will hit this branch
-            auto&& [subast, forward_index] = opt_thematic_break.template value<ndebug>();
-            for (auto&& node : subast) {
-                result.push_back(::std::move(node));
-            }
-            start_index += forward_index;
+            result.push_back(::pltxt2htm::details::HeapGuard<::pltxt2htm::MdHr>{});
+            start_index += opt_thematic_break.template value<ndebug>();
             continue;
         } else if (auto opt_code_fence = ::pltxt2htm::details::try_parse_md_code_fence<ndebug>(
                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index));
