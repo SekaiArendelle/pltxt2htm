@@ -37,7 +37,7 @@ public:
     }
 };
 
-using Ast = ::fast_io::vector<::pltxt2htm::details::HeapGuard<::pltxt2htm::PlTxtNode>>;
+using Ast = ::fast_io::vector<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>;
 
 /**
  * @brief UTF-8 char/string node

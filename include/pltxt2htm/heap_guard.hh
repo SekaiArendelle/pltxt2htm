@@ -7,7 +7,7 @@
 #include <type_traits>
 #include <exception/exception.hh>
 
-namespace pltxt2htm::details {
+namespace pltxt2htm {
 
 template<typename T>
 class HeapGuard;
@@ -43,7 +43,7 @@ public:
     using value_type = T;
 
     template<typename... Args>
-        requires (((!::pltxt2htm::details::is_heap_guard<Args>) && ...) && ::std::constructible_from<T, Args...>)
+        requires (((!::pltxt2htm::is_heap_guard<Args>) && ...) && ::std::constructible_from<T, Args...>)
     constexpr HeapGuard(Args&&... args) noexcept {
         this->deleter_ = [](T* self) static constexpr noexcept { self->~T(); };
         this->ptr_ = static_cast<T*>(::std::malloc(sizeof(T)));
@@ -99,16 +99,16 @@ public:
         }
     }
 
-    constexpr T* operator->(this ::pltxt2htm::details::HeapGuard<T>& self) noexcept {
+    constexpr T* operator->(this ::pltxt2htm::HeapGuard<T>& self) noexcept {
         return self.ptr_;
     }
 
-    constexpr T const* operator->(this ::pltxt2htm::details::HeapGuard<T> const& self) noexcept {
+    constexpr T const* operator->(this ::pltxt2htm::HeapGuard<T> const& self) noexcept {
         return self.ptr_;
     }
 
     [[nodiscard]]
-    constexpr T const* release_imul(this ::pltxt2htm::details::HeapGuard<T> const& self) noexcept {
+    constexpr T const* release_imul(this ::pltxt2htm::HeapGuard<T> const& self) noexcept {
         return self.ptr_;
     }
 
@@ -137,4 +137,4 @@ public:
     }
 };
 
-} // namespace pltxt2htm::details
+} // namespace pltxt2htm

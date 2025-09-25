@@ -10,8 +10,8 @@
 #include <exception/exception.hh>
 #include "parser.hh"
 #include "optimizer.hh"
-#include "backend/advanced_html.hh"
-#include "backend/common_html.hh"
+#include "details/backend/advanced_html.hh"
+#include "details/backend/common_html.hh"
 #include "version.hh"
 
 namespace pltxt2htm {

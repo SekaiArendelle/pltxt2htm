@@ -8,10 +8,10 @@
 #include <fast_io/fast_io_dsal/string_view.h>
 #include "exception/exception.hh"
 #include "frame_context.hh"
-#include "../utils.hh"
-#include "../astnode/basic.hh"
-#include "../astnode/markdown_node.hh"
-#include "../astnode/physics_lab_node.hh"
+#include "../../details/utils.hh"
+#include "../../astnode/basic.hh"
+#include "../../astnode/markdown_node.hh"
+#include "../../astnode/physics_lab_node.hh"
 #include "pltxt2htm/astnode/node_type.hh"
 
 namespace pltxt2htm::details {

@@ -13,6 +13,9 @@ using ::pltxt2htm::pltxt2fixedadv_html;
 using ::pltxt2htm::parse_pltxt;
 using ::pltxt2htm::optimize_ast;
 
+// heap_guard
+using ::pltxt2htm::HeapGuard;
+
 // exported constant global variables
 namespace version {
 
