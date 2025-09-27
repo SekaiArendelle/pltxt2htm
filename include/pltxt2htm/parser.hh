@@ -49,7 +49,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) /* throws */ -> ::pl
             result.push_back(
                 ::pltxt2htm::details::switch_md_atx_header<ndebug>(md_atx_heading_type, ::std::move(subast)));
             // rectify the start index to the start of next text (aka. below common cases)
-            start_index += forward_index + sublength;
+            start_index += forward_index;
             continue;
         } else if (auto opt_thematic_break = ::pltxt2htm::details::try_parse_md_thematic_break<ndebug>(
                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index));

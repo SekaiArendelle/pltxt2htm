@@ -113,11 +113,11 @@ static ::PyObject* fixedadv_parser([[maybe_unused]] ::PyObject* self, ::PyObject
 
 static auto methods_ = ::fast_io::array{
     // It was a little weird that PyCFunction mismatch with PyCFunctionWithKeywords, which will cause compiler warning
-    ::PyMethodDef{"common_parser", reinterpret_cast<PyCFunction>(::common_parser), METH_VARARGS | METH_KEYWORDS,
+    ::PyMethodDef{"common_parser", reinterpret_cast<::PyCFunction>(::common_parser), METH_VARARGS | METH_KEYWORDS,
                   nullptr},
-    ::PyMethodDef{"advanced_parser", reinterpret_cast<PyCFunction>(::advanced_parser), METH_VARARGS | METH_KEYWORDS,
+    ::PyMethodDef{"advanced_parser", reinterpret_cast<::PyCFunction>(::advanced_parser), METH_VARARGS | METH_KEYWORDS,
                   nullptr},
-    ::PyMethodDef{"fixedadv_parser", reinterpret_cast<PyCFunction>(::fixedadv_parser), METH_VARARGS | METH_KEYWORDS,
+    ::PyMethodDef{"fixedadv_parser", reinterpret_cast<::PyCFunction>(::fixedadv_parser), METH_VARARGS | METH_KEYWORDS,
                   nullptr},
     ::PyMethodDef{nullptr, nullptr, 0, nullptr}};
 

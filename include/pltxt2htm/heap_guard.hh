@@ -35,7 +35,7 @@ concept is_heap_guard = is_heap_guard_<::std::remove_cvref_t<T>>;
  * @brief RAII a heap allocated pointer, similar to std::unique_ptr
  */
 template<typename T>
-class HeapGuard {
+class HeapGuard { // TODO can be trivially_relocatable_if_eligible
     T* ptr_;
 
 public:

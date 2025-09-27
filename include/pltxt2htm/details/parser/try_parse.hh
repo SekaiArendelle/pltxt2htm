@@ -464,7 +464,7 @@ constexpr auto try_parse_md_atx_heading(::fast_io::u8string_view pltext) /* thro
     return ::pltxt2htm::details::TryParseMdAtxHeadingResult{
         .start_index = start_index,
         .sublength = end_index - start_index,
-        .forward_index = start_index + extra_length,
+        .forward_index = end_index + extra_length,
         .md_atx_heading_type = static_cast<::pltxt2htm::NodeType>(md_atx_heading_type)};
 }
 
