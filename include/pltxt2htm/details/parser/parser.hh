@@ -145,7 +145,7 @@ restart:
         } else if (chr == u8'\\') {
             if (current_index + 1 == pltext_size) {
                 result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{u8'\\'});
-                continue;
+                break;
             }
             auto escape_node = ::pltxt2htm::details::switch_escape_char(
                 ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index + 1));
