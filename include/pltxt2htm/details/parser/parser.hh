@@ -79,47 +79,50 @@ restart:
         if (chr == u8'\n') {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LineBreak>{});
 
-            if (current_index + 1 >= pltext_size) {
-                continue;
-            }
-
-            // try parsing markdown atx header
-            if (auto opt_md_atx_heading = ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1));
-                opt_md_atx_heading.has_value()) {
-                // forward index of the linebreak
-                current_index += 1;
-
-                auto&& [start_index, sublength, forward_index, md_atx_heading_type] =
-                    opt_md_atx_heading.template value<ndebug>();
-                if (current_index + start_index < pltext_size) {
-                    auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(
-                        pltext, current_index + start_index, sublength);
-                    call_stack.push(
-                        ::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(subtext, md_atx_heading_type));
-                } else {
-                    // TODO do not push frame, just add an empty ast node
-                    call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
-                        ::fast_io::u8string_view{}, md_atx_heading_type));
+            while (true) {
+                if (current_index + 1 >= pltext_size) {
+                    break;
                 }
-                current_index += forward_index;
-                goto restart;
-            } else if (auto opt_len = ::pltxt2htm::details::try_parse_md_thematic_break<ndebug>(
-                           ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1));
-                       opt_len.has_value()) {
-                result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdHr>{});
-                current_index += opt_len.template value<ndebug>();
-                continue;
-            } else if (auto opt_code_fence = ::pltxt2htm::details::try_parse_md_code_fence<ndebug>(
-                           ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1));
-                       opt_code_fence.has_value()) {
-                auto&& [node, forward_index] = opt_code_fence.template value<ndebug>();
-                result.push_back(::std::move(node));
-                current_index += forward_index;
-                continue;
-            } else {
-                continue;
+
+                if (auto opt_md_atx_heading = ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1));
+                    opt_md_atx_heading.has_value()) {
+                    auto&& [start_index, sublength, forward_index, md_atx_heading_type] =
+                        opt_md_atx_heading.template value<ndebug>();
+                    if (sublength != 0) {
+                        // forward index of the linebreak
+                        current_index += 1;
+
+                        auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(
+                            pltext, current_index + start_index, sublength);
+                        call_stack.push(
+                            ::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(subtext, md_atx_heading_type));
+                        current_index += forward_index;
+                        goto restart;
+                    } else {
+                        result.push_back(::pltxt2htm::details::switch_md_atx_header<ndebug>(md_atx_heading_type,
+                                                                                            ::pltxt2htm::Ast{}));
+                        current_index += forward_index;
+                        continue;
+                    }
+                } else if (auto opt_len = ::pltxt2htm::details::try_parse_md_thematic_break<ndebug>(
+                               ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1));
+                           opt_len.has_value()) {
+                    result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdHr>{});
+                    current_index += opt_len.template value<ndebug>();
+                    continue;
+                } else if (auto opt_code_fence = ::pltxt2htm::details::try_parse_md_code_fence<ndebug>(
+                               ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1));
+                           opt_code_fence.has_value()) {
+                    auto&& [node, forward_index] = opt_code_fence.template value<ndebug>();
+                    result.push_back(::std::move(node));
+                    current_index += forward_index;
+                    break;
+                } else {
+                    break;
+                }
             }
+            continue;
         } else if (chr == u8' ') {
             // TODO should we delete tail space?
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Space>{});
@@ -323,43 +326,50 @@ restart:
                     current_index += opt_br_tag_len.template value<ndebug>() + 2;
                     result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Br>(::pltxt2htm::Br()));
 
-                    // try parsing markdown atx header
-                    if (auto opt_md_atx_heading_len = ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1));
-                        opt_md_atx_heading_len.has_value()) {
-                        // forward index of the linebreak
-                        current_index += 1;
-
-                        auto&& [start_index, sublength, forward_index, md_atx_heading_type] =
-                            opt_md_atx_heading_len.template value<ndebug>();
-                        if (current_index + start_index < pltext_size) {
-                            auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(
-                                pltext, current_index + start_index, sublength);
-                            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
-                                subtext, md_atx_heading_type));
-                        } else {
-                            // TODO do not push frame, just add an empty ast node
-                            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
-                                ::fast_io::u8string_view{}, md_atx_heading_type));
+                    while (true) {
+                        if (current_index + 1 >= pltext_size) {
+                            break;
                         }
-                        current_index += forward_index;
-                        goto restart;
-                    } else if (auto opt_len = ::pltxt2htm::details::try_parse_md_thematic_break<ndebug>(
-                                   ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1));
-                               opt_len.has_value()) {
-                        result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdHr>{});
-                        current_index += opt_len.template value<ndebug>();
-                        continue;
-                    } else if (auto opt_code_fence = ::pltxt2htm::details::try_parse_md_code_fence<ndebug>(
-                                   ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1));
-                               opt_code_fence.has_value()) {
-                        auto&& [node, forward_index] = opt_code_fence.template value<ndebug>();
-                        result.push_back(::std::move(node));
-                        current_index += forward_index;
-                        continue;
-                    } else {
-                        continue;
+
+                        if (auto opt_md_atx_heading = ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(
+                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1));
+                            opt_md_atx_heading.has_value()) {
+                            auto&& [start_index, sublength, forward_index, md_atx_heading_type] =
+                                opt_md_atx_heading.template value<ndebug>();
+                            if (sublength != 0) {
+                                // forward index of the linebreak
+                                current_index += 1;
+
+                                auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(
+                                    pltext, current_index + start_index, sublength);
+                                call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                                    subtext, md_atx_heading_type));
+                                current_index += forward_index;
+                                goto restart;
+                            } else {
+                                result.push_back(::pltxt2htm::details::switch_md_atx_header<ndebug>(
+                                    md_atx_heading_type, ::pltxt2htm::Ast{}));
+                                current_index += forward_index;
+                                continue;
+                            }
+                        } else if (auto opt_len = ::pltxt2htm::details::try_parse_md_thematic_break<ndebug>(
+                                       ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1));
+                                   opt_len.has_value()) {
+                            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdHr>{});
+                            current_index += opt_len.template value<ndebug>();
+                            continue;
+                        } else if (auto opt_code_fence = ::pltxt2htm::details::try_parse_md_code_fence<ndebug>(
+                                       ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1));
+                                   opt_code_fence.has_value()) {
+                            auto&& [node, forward_index] = opt_code_fence.template value<ndebug>();
+                            result.push_back(::std::move(node));
+                            current_index += forward_index;
+                            break;
+                        } else {
+                            break;
+                        }
                     }
+                    continue;
                 } else {
                     result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
                     continue;

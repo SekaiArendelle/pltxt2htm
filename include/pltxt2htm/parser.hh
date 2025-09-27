@@ -39,7 +39,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) /* throws */ -> ::pl
             auto&& [start_index_, sublength, forward_index, md_atx_heading_type] =
                 opt_md_atx_heading.template value<ndebug>();
             ::pltxt2htm::Ast subast{};
-            if (start_index_ < pltext.size()) {
+            if (sublength) {
                 auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index), start_index_, sublength);
                 call_stack.push(

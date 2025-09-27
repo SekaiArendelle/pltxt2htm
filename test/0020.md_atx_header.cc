@@ -104,5 +104,11 @@ int main() {
     auto answer24 = ::fast_io::u8string_view{u8"<h2>#</h2>"};
     ::pltxt2htm_test::assert_true(html24 == answer24);
 
+    // TODO FIXME
+
+    // auto html25 = ::pltxt2htm_test::pltxt2advanced_htmld(u8" #\n");
+    // auto answer25 = ::fast_io::u8string_view{u8"<h1></h1>"};
+    // ::pltxt2htm_test::assert_true(html25 == answer25);
+
     return 0;
 }
