@@ -242,6 +242,7 @@ jobs:
         run: echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
 
       - name: Install wasm32-wasip1 sysroot
+        working-directory: cmd
         run: |
           wget https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-27/wasi-sysroot-27.0.tar.gz
           tar -xf wasi-sysroot-27.0.tar.gz
@@ -256,7 +257,7 @@ jobs:
         working-directory: cmd
         run: |
           xmake install -o wasm32-wasip1-pltxt2htm-cmd-release
-          tar cJf wasm32-wasip1-pltxt2htm-cmd-release.tar.xz wasm32-wasip1-pltxt2htm-cmd-release
+          tar cJvf wasm32-wasip1-pltxt2htm-cmd-release.tar.xz wasm32-wasip1-pltxt2htm-cmd-release
 
   wasm32-unknown-emscripten-wasm:
     strategy:
