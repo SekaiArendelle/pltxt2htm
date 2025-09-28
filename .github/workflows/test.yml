@@ -220,7 +220,7 @@ jobs:
         run: |
           xmake install -o auto
 
-    wasm32-wasip1-cmd:
+  wasm32-wasip1-cmd:
     strategy:
       fail-fast: false
       matrix:
