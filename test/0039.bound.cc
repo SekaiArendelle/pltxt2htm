@@ -9,5 +9,9 @@ int main() {
     auto answer2 = ::fast_io::u8string_view{u8"test\\"};
     ::pltxt2htm_test::assert_true(html2 == answer2);
 
+    auto html3 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"test</");
+    auto answer3 = ::fast_io::u8string_view{u8"test&lt;/"};
+    ::pltxt2htm_test::assert_true(html3 == answer3);
+
     return 0;
 }
