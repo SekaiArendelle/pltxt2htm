@@ -233,31 +233,36 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install clang and xmake
+      - name: Install xmake
         run: |
           brew update
-          brew install llvm lld xmake
+          brew install xmake
 
-      - name: Set PATH for LLVM clang
-        run: echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
-
-      - name: Install wasm32-wasip1 sysroot
+      - name: Install wasm32-wasip1-clang
         working-directory: cmd
         run: |
-          wget https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-27/wasi-sysroot-27.0.tar.gz
-          tar -xf wasi-sysroot-27.0.tar.gz
+          wget https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-27/wasi-sdk-27.0-arm64-macos.tar.gz
+          tar -xf wasi-sdk-27.0-arm64-macos.tar.gz
+
+      - name: Set PATH for clang
+        working-directory: cmd
+        run: echo "$PWD/wasi-sdk-27.0-arm64-macos/bin" >> $GITHUB_PATH
+
+      - name: Verify wasm32-wasip1-clang installation
+        run: |
+          wasm32-wasip1-clang -v
 
       - name: Configure and build
         working-directory: cmd
         run: |
-          xmake f -m ${{ matrix.build-mode }} -p wasm --toolchain=wasm32-wasip1-clang --sysroot=wasi-sysroot-27.0
+          xmake f -m ${{ matrix.build-mode }} -p wasm --toolchain=wasm32-wasip1-clang
           xmake build -v
 
       - name: Install
         working-directory: cmd
         run: |
-          xmake install -o wasm32-wasip1-pltxt2htm-cmd-release
-          tar cJvf wasm32-wasip1-pltxt2htm-cmd-release.tar.xz wasm32-wasip1-pltxt2htm-cmd-release
+          xmake install -o wasm32-wasip1-pltxt2htm-cmd-${{ matrix.build-mode }}
+          tar cJvf wasm32-wasip1-pltxt2htm-cmd-${{ matrix.build-mode }}.tar.xz wasm32-wasip1-pltxt2htm-cmd-${{ matrix.build-mode }}
 
   wasm32-unknown-emscripten-wasm:
     strategy:
