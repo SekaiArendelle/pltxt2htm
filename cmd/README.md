@@ -173,7 +173,7 @@ xmake build
 xmake install -o auto
 ```
 
-Download wasm-sysroot at [their](https://github.com/trcrsired/llvm-releases/releases/download/llvm21-20250518/wasm-sysroots.tar.xz)
+Download wasm-sysroot at [their](https://github.com/trcrsired/llvm-releases/releases/download/llvm21-20250518/wasm-sysroots.tar.xz) or [their](https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-27/wasi-sysroot-27.0.tar.gz)
 
 > Q: why I still use emcc in wasm/xmake.lua?
 
