@@ -1,3 +1,5 @@
+set_policy("check.auto_ignore_flags", false)
+
 includes("../xmake/*.lua")
 
 add_rules("mode.debug", "mode.release")
