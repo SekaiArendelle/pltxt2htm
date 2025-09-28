@@ -220,6 +220,44 @@ jobs:
         run: |
           xmake install -o auto
 
+    wasm32-wasip1-cmd:
+    strategy:
+      fail-fast: false
+      matrix:
+        build-mode: [debug, release]
+
+    name: wasm32-wasip1 (cmd/, ${{ matrix.build-mode }} mode)
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install clang and xmake
+        run: |
+          brew update
+          brew install llvm lld xmake
+
+      - name: Set PATH for LLVM clang
+        run: echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
+
+      - name: Install wasm32-wasip1 sysroot
+        run: |
+          wget https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-27/wasi-sysroot-27.0.tar.gz
+          tar -xf wasi-sysroot-27.0.tar.gz
+
+      - name: Configure and build
+        working-directory: cmd
+        run: |
+          xmake f -m ${{ matrix.build-mode }} -p wasm --toolchain=wasm32-wasip1-clang --sysroot=wasi-sysroot-27.0
+          xmake build -v
+
+      - name: Install
+        working-directory: cmd
+        run: |
+          xmake install -o wasm32-wasip1-pltxt2htm-cmd-release
+          tar cJf wasm32-wasip1-pltxt2htm-cmd-release.tar.xz wasm32-wasip1-pltxt2htm-cmd-release
+
   wasm32-unknown-emscripten-wasm:
     strategy:
       fail-fast: false
