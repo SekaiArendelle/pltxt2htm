@@ -13,6 +13,10 @@ target("pltxt2htm", function()
         add_syslinks("ntdll")
     end
 
+    if is_plat("wasm") then
+        set_extension(".wasm")
+    end
+
     if is_mode("release") then
         set_exceptions("no-cxx")
     elseif is_mode("debug") then
