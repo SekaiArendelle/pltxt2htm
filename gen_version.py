@@ -4,7 +4,7 @@ if __name__ != "__main__":
     print("This script is not meant to be imported.")
     exit(1)
 
-__version__ = (0, 4, 1)
+__version__ = (0, 5, 0)
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
