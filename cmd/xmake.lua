@@ -19,30 +19,28 @@ target("pltxt2htm", function()
         set_extension(".wasm")
     end
 
-    if is_mode("release") then
-        set_exceptions("no-cxx")
-    elseif is_mode("debug") then
-        set_warnings("all")
-        set_warnings("extra")
-    end
-
     on_config(function (target)
         local toolchains = target:tool("cxx")
-        if path.basename(toolchains) == "clang++" or path.basename(toolchains) == "clang" then
+        local compiler = path.basename(toolchains)
+        if compiler == "clang++" or compiler == "clang" then
             target:add("ldflags", "-fuse-ld=lld")
             if is_mode("release") then
                 target:add("ldflags", "-flto")
             end
         end
 
-        if is_mode("release") and (path.basename(toolchains) == "clang++"
-                or path.basename(toolchains) == "clang"
-                or path.basename(toolchains) == "gcc"
-                or path.basename(toolchains) == "g++") then
-            target:add("cxxflags", "-fno-rtti")
-            target:add("cxxflags", "-fno-unwind-tables")
-            target:add("cxxflags", "-fno-asynchronous-unwind-tables")
-            target:add("cxxflags", "-fno-ident")
+        if compiler == "gcc" or compiler == "g++" or compiler == "clang" or compiler == "clang++" then
+            if is_mode("release") then
+                target:add("-fno-exceptions")
+                target:add("cxxflags", "-fno-rtti")
+                target:add("cxxflags", "-fno-unwind-tables")
+                target:add("cxxflags", "-fno-asynchronous-unwind-tables")
+                target:add("cxxflags", "-fno-ident")
+            elseif is_mode("debug") then
+                target:add("cxxflags", "-Wall")
+                target:add("cxxflags", "-Wextra")
+                target:add("cxxflags", "-fexceptions")
+            end
         end
     end)
 
