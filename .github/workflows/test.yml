@@ -248,7 +248,7 @@ jobs:
       - name: Install wasm sysroot
         working-directory: cmd
         run: |
-          $env:Path = $PWD/xz;$env:Path
+          $env:Path = $PWD\xz;$env:Path
           Invoke-WebRequest -Uri https://github.com/trcrsired/llvm-releases/releases/download/llvm22-20250925/wasm-sysroots.tar.xz -OutFile "wasm-sysroots.tar.xz"
           tar xJf wasm-sysroots.tar.xz
 
@@ -256,7 +256,7 @@ jobs:
         working-directory: cmd
         shell: powershell
         run: |
-          $env:Path = $PWD/xz;$env:Path
+          $env:Path = $PWD\xz;$env:Path
           Invoke-WebRequest -Uri https://github.com/trcrsired/llvm-releases/releases/download/llvm22-20250925/x86_64-windows-gnu.tar.xz -OutFile "x86_64-windows-gnu.tar.xz"
           tar xJf x86_64-windows-gnu.tar.xz
           Copy-Item -Path wasm-sysroots/builtins/lib -Destination x86_64-windows-gnu/llvm/lib/clang/22/
@@ -266,7 +266,7 @@ jobs:
         shell: powershell
         if: ${{ matrix.build-mode == 'debug' }}
         run: |
-          $env:PATH = $PWD/x86_64-windows-gnu/llvm/bin;$env:PATH
+          $env:PATH = $PWD\x86_64-windows-gnu\llvm\bin;$env:PATH
           xmake f -m ${{ matrix.build-mode }} -p wasm --toolchain=wasm32-wasip1-clang --sysroot=wasm-sysroots/wasm-sysroot/wasm32-wasip1 --ldflags="-lunwind"
 
       - name: Configure (release mode)
@@ -274,7 +274,7 @@ jobs:
         shell: powershell
         if: ${{ matrix.build-mode == 'release' }}
         run: |
-          $env:PATH = $PWD/x86_64-windows-gnu/llvm/bin;$env:PATH
+          $env:PATH = $PWD\x86_64-windows-gnu\llvm\bin;$env:PATH
           xmake f -m ${{ matrix.build-mode }} -p wasm --toolchain=wasm32-wasip1-clang --sysroot=wasm-sysroots/wasm-sysroot/wasm32-wasip1
 
       - name: Build
@@ -285,7 +285,7 @@ jobs:
       - name: Install
         working-directory: cmd
         run: |
-          $env:PATH = $PWD/xz;$env:PATH
+          $env:PATH = $PWD\xz;$env:PATH
           xmake install -o wasm32-wasip1-pltxt2htm-cmd-${{ matrix.build-mode }}
           tar cJvf wasm32-wasip1-pltxt2htm-cmd-${{ matrix.build-mode }}.tar.xz wasm32-wasip1-pltxt2htm-cmd-${{ matrix.build-mode }}
 
