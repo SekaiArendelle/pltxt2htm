@@ -251,18 +251,12 @@ jobs:
           tar xJf aarch64-apple-darwin24.tar.xz
           cp -r wasm-sysroots/builtins/lib aarch64-apple-darwin24/llvm/lib/clang/22/
 
-      - name: Verify wasm32-wasip1-clang installation
-        run: |
-          export PATH=$PWD/aarch64-apple-darwin24/llvm/bin:$PATH
-          export LD_LIBRARY_PATH=$PWD/aarch64-apple-darwin24/llvm/lib:$LD_LIBRARY_PATH
-          clang++ -v
-
       - name: Configure and build
         working-directory: cmd
         run: |
           export PATH=$PWD/aarch64-apple-darwin24/llvm/bin:$PATH
           export LD_LIBRARY_PATH=$PWD/aarch64-apple-darwin24/llvm/lib:$LD_LIBRARY_PATH
-          xmake f -m ${{ matrix.build-mode }} -p wasm --toolchain=wasm32-wasip1-clang --sysroot=wasm-sysroots/wasm-sysroot/wasm32-wasip1
+          xmake f -m ${{ matrix.build-mode }} -p wasm --toolchain=wasm32-wasip1-clang --sysroot=wasm-sysroots/wasm-sysroot/wasm32-wasip1 --ldflags="-lunwind -lc++abi"
           xmake build -v
 
       - name: Install
