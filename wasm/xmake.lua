@@ -1,3 +1,5 @@
+set_policy("check.auto_ignore_flags", false)
+
 add_rules("mode.debug", "mode.release")
 set_allowedmodes("debug", "release")
 
@@ -19,12 +21,12 @@ target("pltxt2htm", function()
         add_ldflags("-flto")
     end
     add_includedirs("$(projectdir)/../include")
-    add_ldflags("-fuse-ld=lld", {force = true})
-    add_ldflags("-s EXPORTED_FUNCTIONS=['_common_parser','_advanced_parser','_fixedadv_parser','_ver_major','_ver_minor','_ver_patch']", {force = true})
-    add_ldflags("-s EXPORTED_RUNTIME_METHODS=['ccall','cwrap']", {force = true})
-    add_ldflags("-s MODULARIZE=1", {force = true})
-    add_ldflags("-s EXPORT_ES6=1", {force = true})
-    add_ldflags("-s EXPORT_NAME=\"pltxt2htm\"", {force = true})
+    add_ldflags("-fuse-ld=lld")
+    add_ldflags("-s EXPORTED_FUNCTIONS=['_common_parser','_advanced_parser','_fixedadv_parser','_ver_major','_ver_minor','_ver_patch']")
+    add_ldflags("-s EXPORTED_RUNTIME_METHODS=['ccall','cwrap']")
+    add_ldflags("-s MODULARIZE=1")
+    add_ldflags("-s EXPORT_ES6=1")
+    add_ldflags("-s EXPORT_NAME=\"pltxt2htm\"")
 
     on_install(function (target)
         local install_dir = target:installdir()
