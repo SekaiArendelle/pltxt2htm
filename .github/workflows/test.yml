@@ -220,6 +220,48 @@ jobs:
         run: |
           xmake install -o auto
 
+  wasm32-wasip1-cmd-release:
+    strategy:
+      fail-fast: false
+
+    name: wasm32-wasip1 (cmd/, release mode)
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install xmake
+        run: |
+          brew update
+          brew install xmake
+
+      - name: Install wasm32-wasip1-clang
+        working-directory: cmd
+        run: |
+          wget https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-27/wasi-sdk-27.0-arm64-macos.tar.gz
+          tar -xf wasi-sdk-27.0-arm64-macos.tar.gz
+
+      - name: Set PATH for clang
+        working-directory: cmd
+        run: echo "$PWD/wasi-sdk-27.0-arm64-macos/bin" >> $GITHUB_PATH
+
+      - name: Verify wasm32-wasip1-clang installation
+        run: |
+          wasm32-wasip1-clang -v
+
+      - name: Configure and build
+        working-directory: cmd
+        run: |
+          xmake f -m release -p wasm --toolchain=wasm32-wasip1-clang
+          xmake build -v
+
+      - name: Install
+        working-directory: cmd
+        run: |
+          xmake install -o wasm32-wasip1-pltxt2htm-cmd-release
+          tar cJvf wasm32-wasip1-pltxt2htm-cmd-release.tar.xz wasm32-wasip1-pltxt2htm-cmd-release
+
   wasm32-unknown-emscripten-wasm:
     strategy:
       fail-fast: false
