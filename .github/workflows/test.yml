@@ -89,7 +89,22 @@ jobs:
         shell: powershell
         working-directory: cmd
         run: |
-          ./xmake/xmake install -o auto
+          ./xmake/xmake install -o x86_64-w64-mingw32-pltxt2htm-cmd-${{ matrix.build-mode }}
+
+      - name: Copy libgcc and libstdc++
+        shell: powershell
+        working-directory: cmd
+        if: ${{ matrix.build-mode == 'debug' }}
+        run: |
+          Copy-Item -Path "x86_64-w64-mingw32-native-gcc16/lib/libgcc_s_seh-1.dll" -Destination "x86_64-w64-mingw32-pltxt2htm-cmd-${{ matrix.build-mode }}/"
+          Copy-Item -Path "x86_64-w64-mingw32-native-gcc16/lib/libstdc++-6.dll" -Destination "x86_64-w64-mingw32-pltxt2htm-cmd-${{ matrix.build-mode }}/"
+
+      - name: Archive install dir
+        shell: powershell
+        working-directory: cmd
+        run: |
+          $dir = Join-Path (Get-Location) "x86_64-w64-mingw32-pltxt2htm-cmd-${{ matrix.build-mode }}"
+          Compress-Archive -Path $dir -DestinationPath (Join-Path (Split-Path $dir) "$((Get-Item $dir).Name).zip")
 
   aarch64-apple-darwin24-test-asan:
     name: aarch64-apple-darwin24 (test/, asan)
