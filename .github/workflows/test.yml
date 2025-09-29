@@ -81,7 +81,7 @@ jobs:
         shell: powershell
         working-directory: cmd
         run: |
-          $env:PATH = "$PWD/x86_64-w64-mingw32-native-gcc16/bin;$PWD/x86_64-w64-mingw32-native-gcc16/lib";$env:PATH
+          $env:Path = "$PWD/x86_64-w64-mingw32-native-gcc16/bin;$PWD/x86_64-w64-mingw32-native-gcc16/lib;$env:Path"
           ./xmake/xmake config -p mingw -a x64 --toolchain=gcc -m ${{ matrix.build-mode }}
           ./xmake/xmake build -v
 
