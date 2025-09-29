@@ -238,18 +238,27 @@ jobs:
         with:
           xmake-version: latest
 
+      - name: Install xz
+        working-directory: cmd
+        shell: powershell
+        run: |
+          Invoke-WebRequest -Uri https://github.com/SekaiArendelle/releases-for-ubuntu2004/releases/download/my-other-plat-releases/xz-x86_64-w64-mingw32.zip -OutFile "xz.zip"
+          Expand-Archive -Path .\xz.zip -DestinationPath .
+
       - name: Install wasm sysroot
         working-directory: cmd
         run: |
-          wget https://github.com/trcrsired/llvm-releases/releases/download/llvm22-20250925/wasm-sysroots.tar.xz
+          $env:Path = $PWD/xz/;$env:Path
+          Invoke-WebRequest -Uri https://github.com/trcrsired/llvm-releases/releases/download/llvm22-20250925/wasm-sysroots.tar.xz -OutFile "wasm-sysroots.tar.xz"
           tar xJf wasm-sysroots.tar.xz
 
       - name: Install clang
         working-directory: cmd
         run: |
-          wget https://github.com/trcrsired/llvm-releases/releases/download/llvm22-20250925/x86_64-windows-gnu.tar.xz
+          $env:Path = $PWD/xz/;$env:Path
+          Invoke-WebRequest -Uri https://github.com/trcrsired/llvm-releases/releases/download/llvm22-20250925/x86_64-windows-gnu.tar.xz -OutFile "x86_64-windows-gnu.tar.xz"
           tar xJf x86_64-windows-gnu.tar.xz
-          cp -r wasm-sysroots/builtins/lib x86_64-windows-gnu/llvm/lib/clang/22/
+          Copy-Item -Path wasm-sysroots/builtins/lib -Destination x86_64-windows-gnu/llvm/lib/clang/22/
 
       - name: Configure (debug mode)
         working-directory: cmd
