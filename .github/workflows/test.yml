@@ -48,31 +48,33 @@ jobs:
       matrix:
         build-mode: [debug, release]
 
-    name: x86_64-w64-mingw32 (test/)
+    name: x86_64-w64-mingw32 (cmd/, ${{ matrix.build-mode }} mode)
     runs-on: windows-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup xmake
-        uses: xmake-io/github-action-setup-xmake@v1
-        with:
-          xmake-version: latest
+      - name: Install XMake
+        shell: powershell
+        working-directory: cmd
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/xmake-io/xmake/releases/download/v3.0.3/xmake-master.win64.zip" -OutFile "xmake.zip"
+          Expand-Archive -Path xmake.zip -DestinationPath .
 
       - name: Install zstd
         shell: powershell
         working-directory: cmd
         run: |
            Invoke-WebRequest -Uri "https://github.com/facebook/zstd/releases/download/v1.5.7/zstd-v1.5.7-win64.zip" -OutFile "zstd.zip"
-           Expand-Archive -Path .\zstd.zip -DestinationPath .
+           Expand-Archive -Path zstd.zip -DestinationPath .
 
       - name: Install g++
         shell: powershell
         working-directory: cmd
         run: |
           Invoke-WebRequest -Uri "https://github.com/24bit-xjkp/toolchains/releases/download/gcc16.0.0-rc2/x86_64-w64-mingw32-native-gcc16.tar.zst" -OutFile "x86_64-w64-mingw32-native-gcc16.tar.zst"
-          .\zstd-v1.5.7-win64\zstd -d x86_64-w64-mingw32-native-gcc16.tar.zst
+          ./zstd-v1.5.7-win64/zstd -d x86_64-w64-mingw32-native-gcc16.tar.zst
           tar -xf x86_64-w64-mingw32-native-gcc16.tar
 
       - name: Configure and build
@@ -80,14 +82,14 @@ jobs:
         working-directory: cmd
         run: |
           $env:PATH = "$PWD/x86_64-w64-mingw32-native-gcc16/bin;$PWD/x86_64-w64-mingw32-native-gcc16/lib";$env:PATH
-          xmake config -p mingw -a x64 --toolchain=gcc -m ${{ matrix.build-mode }}
-          xmake build -v
+          ./xmake/xmake config -p mingw -a x64 --toolchain=gcc -m ${{ matrix.build-mode }}
+          ./xmake/xmake build -v
 
       - name: install
         shell: powershell
         working-directory: cmd
         run: |
-          xmake install -o auto
+          ./xmake/xmake install -o auto
 
   aarch64-apple-darwin24-test-asan:
     name: aarch64-apple-darwin24 (test/, asan)
