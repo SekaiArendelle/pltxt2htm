@@ -90,7 +90,7 @@ docker exec -it pltxt2htm-dev sh
 
 `pltxt2htm` only maintains the trunk, and the release versions are only snapshots.
 
-For linux users, please use `wine` or compile and install `pltxt2htm` (and I will never provide binaries for linux since there are tons of linux triplets caused by arch and libc)
+For linux users, please use `wine pltxt2htm.exe` or `wavm run pltxt2htm.wasm` or compile and install `pltxt2htm` (and I will never provide binaries for linux since there are tons of linux triplets caused by arch and libc)
 
 ## others
 

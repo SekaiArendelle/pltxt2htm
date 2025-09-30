@@ -5,15 +5,15 @@ import os
 import shutil
 
 if not shutil.which("lcov"):
-    print("lcov not found, type \"sudo pacman -S lcov perl-cpanel-json-xs\" to install it")
+    raise Exception("lcov not found, type \"sudo pacman -S lcov perl-cpanel-json-xs\" to install it")
 if not shutil.which("xmake"):
-    print("xmake not found, type \"sudo pacman -S xmake\" to install it")
+    raise Exception("xmake not found, type \"sudo pacman -S xmake\" to install it")
 if not shutil.which("g++"):
-    print("g++ not found, are you kidding?")
+    raise Exception("g++ not found, are you kidding?")
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 BUILD_DIR = os.path.join(SCRIPT_DIR, "build")
-XMAKE_DIR = os.path.join(SCRIPT_DIR, "xmake")
+XMAKE_DIR = os.path.join(SCRIPT_DIR, ".xmake")
 LCOV_REPORT_DIR = os.path.join(SCRIPT_DIR, "lcov-report")
 
 if os.path.exists(BUILD_DIR):
