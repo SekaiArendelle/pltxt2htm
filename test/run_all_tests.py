@@ -1,5 +1,5 @@
 if __name__ != "__main__":
-    raise RuntimeError("This file can't be imported")
+    raise Exception("This file can't be imported")
 
 import os
 import shutil
