@@ -26,7 +26,7 @@ target("pltxt2htm", function ()
         end
 
         if is_mode("debug") then
-            set_symbols("debug")
+            target:set("cxxflags", "-g")
         end
 
         local toolchains = target:tool("cxx")
