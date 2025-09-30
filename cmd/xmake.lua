@@ -20,10 +20,14 @@ target("pltxt2htm", function()
     end
 
     on_config(function (target)
-        local toolchains = target:tool("cxx")
-        local compiler = path.basename(toolchains)
-        if compiler == "clang++" or compiler == "clang" then
+        local compiler = path.basename(target:tool("cxx"))
+        local linker = path.basename(target:tool("ld"))
+
+        import("lib.detect.find_tool")
+        if find_tool("ld.lld") and (linker == "clang" or linker == "clang++" or linker == "gcc" or linker == "g++") then
             target:add("ldflags", "-fuse-ld=lld")
+        end
+        if compiler == "clang++" or compiler == "clang" then
             if is_mode("release") then
                 target:add("ldflags", "-flto")
             end
