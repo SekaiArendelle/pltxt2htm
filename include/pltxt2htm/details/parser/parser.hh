@@ -55,6 +55,63 @@ constexpr auto switch_md_atx_header(::pltxt2htm::NodeType md_atx_heading_type, :
     }
 }
 
+struct DevilStuffAfterLineBreakResult {
+    ::std::size_t forward_index;
+    bool require_goto_restart;
+};
+
+template<bool ndebug>
+[[nodiscard]]
+constexpr auto devil_stuff_after_line_break(
+    ::fast_io::u8string_view pltext,
+    ::fast_io::stack<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>,
+                     ::fast_io::list<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>>>& call_stack,
+    ::pltxt2htm::Ast& result) /* throws */ -> ::pltxt2htm::details::DevilStuffAfterLineBreakResult {
+    ::std::size_t current_index{};
+    while (true) {
+        if (current_index >= pltext.size()) {
+            return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{.forward_index = current_index,
+                                                                        .require_goto_restart = false};
+        }
+
+        if (auto opt_md_atx_heading = ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            opt_md_atx_heading.has_value()) {
+            auto&& [start_index, sublength, forward_index, md_atx_heading_type] =
+                opt_md_atx_heading.template value<ndebug>();
+            if (sublength != 0) {
+                auto subtext =
+                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + start_index, sublength);
+                call_stack.push(
+                    ::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(subtext, md_atx_heading_type));
+                return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{
+                    .forward_index = current_index + forward_index + 1, .require_goto_restart = true};
+            } else {
+                result.push_back(
+                    ::pltxt2htm::details::switch_md_atx_header<ndebug>(md_atx_heading_type, ::pltxt2htm::Ast{}));
+                current_index += forward_index;
+                continue;
+            }
+        } else if (auto opt_len = ::pltxt2htm::details::try_parse_md_thematic_break<ndebug>(
+                       ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                   opt_len.has_value()) {
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdHr>{});
+            current_index += opt_len.template value<ndebug>();
+            continue;
+        } else if (auto opt_code_fence = ::pltxt2htm::details::try_parse_md_code_fence<ndebug>(
+                       ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                   opt_code_fence.has_value()) {
+            auto&& [node, forward_index] = opt_code_fence.template value<ndebug>();
+            result.push_back(::std::move(node));
+            return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{.forward_index = current_index + forward_index,
+                                                                        .require_goto_restart = false};
+        } else {
+            return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{.forward_index = current_index,
+                                                                        .require_goto_restart = false};
+        }
+    }
+}
+
 /**
  * @brief Parse pl-text to nodes.
  * @tparam ndebug: Whether disables all debug checks.
@@ -79,48 +136,11 @@ restart:
         if (chr == u8'\n') {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LineBreak>{});
 
-            while (true) {
-                if (current_index + 1 >= pltext_size) {
-                    break;
-                }
-
-                if (auto opt_md_atx_heading = ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1));
-                    opt_md_atx_heading.has_value()) {
-                    auto&& [start_index, sublength, forward_index, md_atx_heading_type] =
-                        opt_md_atx_heading.template value<ndebug>();
-                    if (sublength != 0) {
-                        // forward index of the linebreak
-                        current_index += 1;
-
-                        auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(
-                            pltext, current_index + start_index, sublength);
-                        call_stack.push(
-                            ::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(subtext, md_atx_heading_type));
-                        current_index += forward_index;
-                        goto restart;
-                    } else {
-                        result.push_back(::pltxt2htm::details::switch_md_atx_header<ndebug>(md_atx_heading_type,
-                                                                                            ::pltxt2htm::Ast{}));
-                        current_index += forward_index;
-                        continue;
-                    }
-                } else if (auto opt_len = ::pltxt2htm::details::try_parse_md_thematic_break<ndebug>(
-                               ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1));
-                           opt_len.has_value()) {
-                    result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdHr>{});
-                    current_index += opt_len.template value<ndebug>();
-                    continue;
-                } else if (auto opt_code_fence = ::pltxt2htm::details::try_parse_md_code_fence<ndebug>(
-                               ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1));
-                           opt_code_fence.has_value()) {
-                    auto&& [node, forward_index] = opt_code_fence.template value<ndebug>();
-                    result.push_back(::std::move(node));
-                    current_index += forward_index;
-                    break;
-                } else {
-                    break;
-                }
+            auto&& [forward_index, require_goto_restart] = ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1), call_stack, result);
+            current_index += forward_index;
+            if (require_goto_restart) {
+                goto restart;
             }
             continue;
         } else if (chr == u8' ') {
@@ -326,48 +346,13 @@ restart:
                     current_index += opt_br_tag_len.template value<ndebug>() + 2;
                     result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Br>(::pltxt2htm::Br()));
 
-                    while (true) {
-                        if (current_index + 1 >= pltext_size) {
-                            break;
-                        }
-
-                        if (auto opt_md_atx_heading = ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1));
-                            opt_md_atx_heading.has_value()) {
-                            auto&& [start_index, sublength, forward_index, md_atx_heading_type] =
-                                opt_md_atx_heading.template value<ndebug>();
-                            if (sublength != 0) {
-                                // forward index of the linebreak
-                                current_index += 1;
-
-                                auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(
-                                    pltext, current_index + start_index, sublength);
-                                call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
-                                    subtext, md_atx_heading_type));
-                                current_index += forward_index;
-                                goto restart;
-                            } else {
-                                result.push_back(::pltxt2htm::details::switch_md_atx_header<ndebug>(
-                                    md_atx_heading_type, ::pltxt2htm::Ast{}));
-                                current_index += forward_index;
-                                continue;
-                            }
-                        } else if (auto opt_len = ::pltxt2htm::details::try_parse_md_thematic_break<ndebug>(
-                                       ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1));
-                                   opt_len.has_value()) {
-                            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdHr>{});
-                            current_index += opt_len.template value<ndebug>();
-                            continue;
-                        } else if (auto opt_code_fence = ::pltxt2htm::details::try_parse_md_code_fence<ndebug>(
-                                       ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1));
-                                   opt_code_fence.has_value()) {
-                            auto&& [node, forward_index] = opt_code_fence.template value<ndebug>();
-                            result.push_back(::std::move(node));
-                            current_index += forward_index;
-                            break;
-                        } else {
-                            break;
-                        }
+                    auto&& [forward_index, require_goto_restart] =
+                        ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1), call_stack,
+                            result);
+                    current_index += forward_index;
+                    if (require_goto_restart) {
+                        goto restart;
                     }
                     continue;
                 } else {
@@ -1272,203 +1257,252 @@ restart:
             // ```
             // Any tag without a closing tag will hit this branch.
             auto&& subast = frame->subast;
-            auto&& superast = call_stack.top()->subast;
+            auto&& super_ast = call_stack.top()->subast;
+            auto&& super_pltext = call_stack.top()->pltext;
             auto&& super_index = call_stack.top()->current_index;
             switch (frame->nested_tag_type) {
             case ::pltxt2htm::NodeType::pl_color: {
                 auto&& id = static_cast<::pltxt2htm::details::EqualSignTagContext*>(frame.get_unsafe())->id;
-                superast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Color>(::std::move(subast), ::std::move(id)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Color>(::std::move(subast), ::std::move(id)));
                 super_index += staged_index;
                 break;
             }
             case ::pltxt2htm::NodeType::pl_a: {
-                superast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::A>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::A>(::std::move(subast)));
                 super_index += staged_index;
                 break;
             }
             case ::pltxt2htm::NodeType::pl_experiment: {
                 auto&& id = static_cast<::pltxt2htm::details::EqualSignTagContext*>(frame.get_unsafe())->id;
-                superast.push_back(
+                super_ast.push_back(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::Experiment>(::std::move(subast), ::std::move(id)));
                 super_index += staged_index;
                 break;
             }
             case ::pltxt2htm::NodeType::pl_discussion: {
                 auto&& id = static_cast<::pltxt2htm::details::EqualSignTagContext*>(frame.get_unsafe())->id;
-                superast.push_back(
+                super_ast.push_back(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::Discussion>(::std::move(subast), ::std::move(id)));
                 super_index += staged_index;
                 break;
             }
             case ::pltxt2htm::NodeType::pl_user: {
                 auto&& id = static_cast<::pltxt2htm::details::EqualSignTagContext*>(frame.get_unsafe())->id;
-                superast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::User>(::std::move(subast), ::std::move(id)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::User>(::std::move(subast), ::std::move(id)));
                 super_index += staged_index;
                 break;
             }
             case ::pltxt2htm::NodeType::pl_size: {
                 auto&& id = static_cast<::pltxt2htm::details::PlSizeTagContext const*>(frame.release_imul())->id;
-                superast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Size>(::std::move(subast), id));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Size>(::std::move(subast), id));
                 super_index += staged_index;
                 break;
             }
             case ::pltxt2htm::NodeType::html_strong:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::pl_b: {
-                superast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::B>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::B>(::std::move(subast)));
                 super_index += staged_index;
                 break;
             }
             case ::pltxt2htm::NodeType::pl_i: {
-                superast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::I>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::I>(::std::move(subast)));
                 super_index += staged_index;
                 break;
             }
             case ::pltxt2htm::NodeType::html_p: {
-                superast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::P>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::P>(::std::move(subast)));
                 super_index += staged_index;
                 break;
             }
             case ::pltxt2htm::NodeType::html_h1: {
-                superast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::H1>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::H1>(::std::move(subast)));
                 super_index += staged_index;
                 break;
             }
             case ::pltxt2htm::NodeType::html_h2: {
-                superast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::H2>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::H2>(::std::move(subast)));
                 super_index += staged_index;
                 break;
             }
             case ::pltxt2htm::NodeType::html_h3: {
-                superast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::H3>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::H3>(::std::move(subast)));
                 super_index += staged_index;
                 break;
             }
             case ::pltxt2htm::NodeType::html_h4: {
-                superast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::H4>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::H4>(::std::move(subast)));
                 super_index += staged_index;
                 break;
             }
             case ::pltxt2htm::NodeType::html_h5: {
-                superast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::H5>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::H5>(::std::move(subast)));
                 super_index += staged_index;
                 break;
             }
             case ::pltxt2htm::NodeType::html_h6: {
-                superast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::H6>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::H6>(::std::move(subast)));
                 super_index += staged_index;
                 break;
             }
             case ::pltxt2htm::NodeType::html_del: {
-                superast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Del>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Del>(::std::move(subast)));
                 super_index += staged_index;
                 break;
             }
             case ::pltxt2htm::NodeType::html_em: {
-                superast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Em>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Em>(::std::move(subast)));
                 super_index += staged_index;
                 break;
             }
             case ::pltxt2htm::NodeType::html_ul: {
-                superast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Ul>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Ul>(::std::move(subast)));
                 super_index += staged_index;
                 break;
             }
             case ::pltxt2htm::NodeType::html_li: {
-                superast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Li>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Li>(::std::move(subast)));
                 super_index += staged_index;
                 break;
             }
             case ::pltxt2htm::NodeType::html_code: {
-                superast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Code>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Code>(::std::move(subast)));
                 super_index += staged_index;
                 break;
             }
             case ::pltxt2htm::NodeType::html_pre: {
-                superast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Pre>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Pre>(::std::move(subast)));
                 super_index += staged_index;
                 break;
             }
             case ::pltxt2htm::NodeType::md_atx_h1: {
-                superast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH1>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH1>(::std::move(subast)));
+                auto&& [forward_index, require_goto_restart] =
+                    ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(super_pltext, super_index), call_stack,
+                        super_ast);
+                super_index += forward_index;
+                if (require_goto_restart) {
+                    goto restart;
+                }
                 break;
             }
             case ::pltxt2htm::NodeType::md_atx_h2: {
-                superast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH2>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH2>(::std::move(subast)));
+                auto&& [forward_index, require_goto_restart] =
+                    ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(super_pltext, super_index), call_stack,
+                        super_ast);
+                super_index += forward_index;
+                if (require_goto_restart) {
+                    goto restart;
+                }
                 break;
             }
             case ::pltxt2htm::NodeType::md_atx_h3: {
-                superast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH3>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH3>(::std::move(subast)));
+                auto&& [forward_index, require_goto_restart] =
+                    ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(super_pltext, super_index), call_stack,
+                        super_ast);
+                super_index += forward_index;
+                if (require_goto_restart) {
+                    goto restart;
+                }
                 break;
             }
             case ::pltxt2htm::NodeType::md_atx_h4: {
-                superast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH4>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH4>(::std::move(subast)));
+                auto&& [forward_index, require_goto_restart] =
+                    ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(super_pltext, super_index), call_stack,
+                        super_ast);
+                super_index += forward_index;
+                if (require_goto_restart) {
+                    goto restart;
+                }
                 break;
             }
             case ::pltxt2htm::NodeType::md_atx_h5: {
-                superast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH5>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH5>(::std::move(subast)));
+                auto&& [forward_index, require_goto_restart] =
+                    ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(super_pltext, super_index), call_stack,
+                        super_ast);
+                super_index += forward_index;
+                if (require_goto_restart) {
+                    goto restart;
+                }
                 break;
             }
             case ::pltxt2htm::NodeType::md_atx_h6: {
-                superast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH6>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH6>(::std::move(subast)));
+                auto&& [forward_index, require_goto_restart] =
+                    ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(super_pltext, super_index), call_stack,
+                        super_ast);
+                super_index += forward_index;
+                if (require_goto_restart) {
+                    goto restart;
+                }
                 break;
             }
             case ::pltxt2htm::NodeType::md_code_span_1_backtick: {
-                superast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdCodeSpan1Backtick>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdCodeSpan1Backtick>(::std::move(subast)));
                 super_index += staged_index;
                 break;
             }
             case ::pltxt2htm::NodeType::md_code_span_2_backtick: {
-                superast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdCodeSpan2Backtick>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdCodeSpan2Backtick>(::std::move(subast)));
                 super_index += staged_index;
                 break;
             }
             case ::pltxt2htm::NodeType::md_code_span_3_backtick: {
-                superast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdCodeSpan3Backtick>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdCodeSpan3Backtick>(::std::move(subast)));
                 super_index += staged_index;
                 break;
             }
             case ::pltxt2htm::NodeType::md_single_emphasis_asterisk: {
-                superast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdSingleEmphasisAsterisk>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdSingleEmphasisAsterisk>(::std::move(subast)));
                 super_index += 1;
                 super_index += staged_index;
                 break;
             }
             case ::pltxt2htm::NodeType::md_single_emphasis_underscore: {
-                superast.push_back(
+                super_ast.push_back(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::MdSingleEmphasisUnderscore>(::std::move(subast)));
                 super_index += 1;
                 super_index += staged_index;
                 break;
             }
             case ::pltxt2htm::NodeType::md_double_emphasis_asterisk: {
-                superast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdDoubleEmphasisAsterisk>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdDoubleEmphasisAsterisk>(::std::move(subast)));
                 super_index += 2;
                 super_index += staged_index;
                 break;
             }
             case ::pltxt2htm::NodeType::md_double_emphasis_underscore: {
-                superast.push_back(
+                super_ast.push_back(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::MdDoubleEmphasisUnderscore>(::std::move(subast)));
                 super_index += 2;
                 super_index += staged_index;
                 break;
             }
             case ::pltxt2htm::NodeType::md_triple_emphasis_asterisk: {
-                superast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdTripleEmphasisAsterisk>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdTripleEmphasisAsterisk>(::std::move(subast)));
                 super_index += 3;
                 super_index += staged_index;
                 break;
             }
             case ::pltxt2htm::NodeType::md_triple_emphasis_underscore: {
-                superast.push_back(
+                super_ast.push_back(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::MdTripleEmphasisUnderscore>(::std::move(subast)));
                 super_index += 3;
                 super_index += staged_index;
                 break;
             }
             case ::pltxt2htm::NodeType::md_del: {
-                superast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdDel>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdDel>(::std::move(subast)));
                 super_index += 2;
                 super_index += staged_index;
                 break;
