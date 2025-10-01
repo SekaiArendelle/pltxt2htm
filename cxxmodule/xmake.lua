@@ -8,6 +8,7 @@ set_encodings("utf-8")
 
 target("example", function ()
     set_kind("binary")
+    set_policy("build.c++.modules.std", false)
     add_includedirs("$(projectdir)/../include")
     add_includedirs("$(projectdir)/../include/fast_io")
     add_files("example.cc")
