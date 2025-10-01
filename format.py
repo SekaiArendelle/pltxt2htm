@@ -2,8 +2,13 @@ if __name__ != "__main__":
     raise Exception("This file can't be imported")
 
 import os
+import shutil
+
+if not shutil.which("clang-format"):
+    raise Exception("clang-format not found")
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
 dirs = [
     os.path.join(SCRIPT_DIR, "test"),
     os.path.join(SCRIPT_DIR, "include", "pltxt2htm"),

@@ -3,6 +3,8 @@
 #ifndef PLTXT2HTM_H
 #define PLTXT2HTM_H
 
+#include <stddef.h>
+
 #if defined(__cplusplus)
 extern "C"
 #endif
@@ -15,11 +17,7 @@ extern "C"
 #if defined(__cplusplus)
 extern "C"
 #endif
-    char const* common_parserd(char const* text)
-#if __cpp_noexcept_function_type >= 201501L
-        noexcept
-#endif
-    ;
+    char const* common_parserd(char const* text);
 
 #if defined(__cplusplus)
 extern "C"
@@ -33,11 +31,7 @@ extern "C"
 #if defined(__cplusplus)
 extern "C"
 #endif
-    char const* advanced_parserd(char const* text, char const* host)
-#if __cpp_noexcept_function_type >= 201501L
-        noexcept
-#endif
-    ;
+    char const* advanced_parserd(char const* text, char const* host);
 
 #if defined(__cplusplus)
 extern "C"
@@ -51,10 +45,33 @@ extern "C"
 #if defined(__cplusplus)
 extern "C"
 #endif
-    char const* fixedadv_parserd(char const* text, char const* host)
+    char const* fixedadv_parserd(char const* text, char const* host);
+
+#if defined(__cplusplus)
+extern "C"
+#endif
+    size_t get_version_major(void)
 #if __cpp_noexcept_function_type >= 201501L
         noexcept
 #endif
     ;
 
+#if defined(__cplusplus)
+extern "C"
 #endif
+    size_t get_version_minor(void)
+#if __cpp_noexcept_function_type >= 201501L
+        noexcept
+#endif
+    ;
+
+#if defined(__cplusplus)
+extern "C"
+#endif
+    size_t get_version_patch(void)
+#if __cpp_noexcept_function_type >= 201501L
+        noexcept
+#endif
+    ;
+
+#endif // PLTXT2HTM_H
