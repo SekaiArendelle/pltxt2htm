@@ -84,8 +84,9 @@ constexpr auto devil_stuff_after_line_break(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + start_index, sublength);
                 call_stack.push(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(subtext, md_atx_heading_type));
+                current_index += forward_index;
                 return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{
-                    .forward_index = current_index + forward_index + 1, .require_goto_restart = true};
+                    .forward_index = current_index, .require_goto_restart = true};
             } else {
                 result.push_back(
                     ::pltxt2htm::details::switch_md_atx_header<ndebug>(md_atx_heading_type, ::pltxt2htm::Ast{}));
@@ -140,6 +141,7 @@ restart:
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1), call_stack, result);
             current_index += forward_index;
             if (require_goto_restart) {
+                current_index += 1;
                 goto restart;
             }
             continue;
@@ -352,6 +354,7 @@ restart:
                             result);
                     current_index += forward_index;
                     if (require_goto_restart) {
+                        current_index += 1;
                         goto restart;
                     }
                     continue;

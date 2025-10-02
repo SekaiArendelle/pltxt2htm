@@ -101,5 +101,17 @@ int main() {
     auto answer25 = ::fast_io::u8string_view{u8"<br><hr><h1></h1><h1></h1>test"};
     ::pltxt2htm_test::assert_true(html25 == answer25);
 
+    auto html26 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"\n# t\n# t");
+    auto answer26 = ::fast_io::u8string_view{u8"<br><h1>t</h1><h1>t</h1>"};
+    ::pltxt2htm_test::assert_true(html26 == answer26);
+
+    auto html27 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<br># t\n# t");
+    auto answer27 = ::fast_io::u8string_view{u8"<br><h1>t</h1><h1>t</h1>"};
+    ::pltxt2htm_test::assert_true(html27 == answer27);
+
+    auto html28 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"\n# t\n# t\n# t");
+    auto answer28 = ::fast_io::u8string_view{u8"<br><h1>t</h1><h1>t</h1><h1>t</h1>"};
+    ::pltxt2htm_test::assert_true(html28 == answer28);
+
     return 0;
 }
