@@ -1081,10 +1081,8 @@ restart:
                         continue;
                     }
                 }
-                case ::pltxt2htm::NodeType::base: {
-                    result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
-                    continue;
-                }
+                case ::pltxt2htm::NodeType::base:
+                    [[fallthrough]];
                 case ::pltxt2htm::NodeType::md_code_fence_backtick:
                     [[fallthrough]];
                 case ::pltxt2htm::NodeType::md_code_fence_tilde:
@@ -1214,9 +1212,11 @@ restart:
                 case ::pltxt2htm::NodeType::md_code_span_2_backtick:
                     [[fallthrough]];
                 case ::pltxt2htm::NodeType::md_code_span_3_backtick:
-                    [[unlikely]] {
-                        ::exception::unreachable<ndebug>();
-                    }
+                    // relate to 0041.fuzzing-crush3
+                    // any tag contains `</` context would hit this branch
+                    result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                    continue;
+
                 }
                 ::exception::unreachable<ndebug>();
             }
