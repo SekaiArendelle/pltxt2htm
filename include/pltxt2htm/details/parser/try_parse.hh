@@ -6,6 +6,7 @@
 #include "../../astnode/node_type.hh"
 #include "../../astnode/html_node.hh"
 #include "../../astnode/markdown_node.hh"
+#include "exception/exception.hh"
 
 namespace pltxt2htm::details {
 
@@ -566,7 +567,6 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) /* thro
         }
     }
 
-    // TODO rename to ast
     ::pltxt2htm::Ast ast{};
     ::fast_io::u8string lang{};
     ::std::size_t current_index{3};
@@ -586,6 +586,10 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) /* thro
             ++current_index;
             break;
         } else if (chr == u8' ') {
+            if (current_index + 1 == pltext_size) {
+                // 0042.fuzzing-crash3
+                return ::exception::nullopt_t{};
+            }
             ++current_index;
             do {
                 ++current_index;

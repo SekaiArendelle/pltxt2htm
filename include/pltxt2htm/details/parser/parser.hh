@@ -1212,11 +1212,10 @@ restart:
                 case ::pltxt2htm::NodeType::md_code_span_2_backtick:
                     [[fallthrough]];
                 case ::pltxt2htm::NodeType::md_code_span_3_backtick:
-                    // relate to 0041.fuzzing-crush3
+                    // relate to 0041.fuzzing-crash3
                     // any tag contains `</` context would hit this branch
                     result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
                     continue;
-
                 }
                 ::exception::unreachable<ndebug>();
             }
