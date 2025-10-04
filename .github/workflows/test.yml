@@ -93,7 +93,7 @@ jobs:
     name: x86_64-linux-musl (test/, asan)
     runs-on: ubuntu-latest
 
-    step:
+    steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
