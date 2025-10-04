@@ -13,6 +13,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--compiler", choices=("clang", "gcc"), help="compiler to use")
 parser.add_argument("--target", help="target triplet")
 parser.add_argument("--sysroot", help="sysroot to use")
+parser.add_argument("--enable-asan", action="store_true")
 args = parser.parse_args()
 
 if args.compiler is None:
@@ -57,5 +58,13 @@ if args.sysroot is not None:
 else:
     sysroot = ""
 
-os.system(f"xmake config --mode=debug --toolchain={toolchain} {sysroot}")
-os.system("xmake test")
+asan_flag=""
+if args.enable_asan:
+    asan_flag="--policies=build.sanitizer.address"
+
+err_code = os.system(f"xmake config --mode=debug --toolchain={toolchain} {sysroot} {asan_flag}")
+if err_code != 0:
+    raise Exception("XMake config fail")
+err_code = os.system("xmake test -v")
+if err_code != 0:
+    raise Exception("XMake test fail")

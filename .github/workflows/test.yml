@@ -2,13 +2,13 @@ name: Tests
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
     paths-ignore:
-      - '**/*.md'
+      - "**/*.md"
   pull_request:
-    branches: [ master ]
+    branches: [master]
     paths-ignore:
-      - '**/*.md'
+      - "**/*.md"
 
 jobs:
   x86_64-windows-msvc-test:
@@ -86,7 +86,28 @@ jobs:
           xmake config --toolchain=clang --policies=build.sanitizer.undefined
           xmake test -v
 
-  # TODO add x86_64-linux-gnu-test-msan ci (based on Ubuntu 2604)
+  x86_64-linux-gnu-test-asan:
+    strategy:
+      fail-fast: false
+
+    name: x86_64-linux-gnu (test/, asan)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build docker image
+        run: |
+          docker build --build-arg _MINIMAL_IMAGE=y -t pltxt2htm .
+
+      - name: Create docker container
+        run: |
+          docker run -d --name pltxt2htm-dev pltxt2htm
+
+      - name: Enter container
+        run: |
+          docker exec pltxt2htm-dev python3 test/run_all_tests.py --compiler=gcc --enable-asan
 
   x86_64-windows-msvc-cmd:
     strategy:
