@@ -88,7 +88,7 @@ jobs:
 
   x86_64-linux-musl-test-asan:
     strategy:
-      fast-fail: false
+      fail-fast: false
 
     name: x86_64-linux-musl (test/, asan)
     runs-on: ubuntu-latest
