@@ -107,10 +107,7 @@ jobs:
 
       - name: Enter container
         run: |
-          docker exec -it pltxt2htm-dev python3 test/run_all_tests.py --compiler=gcc --enable-asan
-          cd test
-          xmake config --toolchain=gcc --policies=build.sanitizer.address
-          xmake test -v
+          docker exec pltxt2htm-dev python3 test/run_all_tests.py --compiler=gcc --enable-asan
 
   x86_64-windows-msvc-cmd:
     strategy:
