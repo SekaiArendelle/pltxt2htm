@@ -105,6 +105,13 @@ jobs:
         run: |
           docker run -d --name pltxt2htm-dev pltxt2htm
 
+      - name: Enter container
+        run: |
+          docker exec -it pltxt2htm-dev sh
+          cd test
+          xmake config --toolchain=gcc --policies=build.sanitizer.address
+          xmake test -v
+
   x86_64-windows-msvc-cmd:
     strategy:
       fail-fast: false
