@@ -86,11 +86,11 @@ jobs:
           xmake config --toolchain=clang --policies=build.sanitizer.undefined
           xmake test -v
 
-  x86_64-linux-musl-test-asan:
+  x86_64-linux-gnu-test-asan:
     strategy:
       fail-fast: false
 
-    name: x86_64-linux-musl (test/, asan)
+    name: x86_64-linux-gnu (test/, asan)
     runs-on: ubuntu-latest
 
     steps:

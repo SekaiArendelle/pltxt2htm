@@ -8,15 +8,15 @@ RUN apt update
 RUN apt install -y --no-install-recommends g++ xmake python3
 # Install development tools
 RUN if [ -z ${_MINIMAL_IMAGE} ] ; then \
-        apt install -y --no-install-recommends gdb git vim; \
+    apt install -y --no-install-recommends gdb git vim; \
     fi
 # Install clang tools
 RUN if [ -z ${_MINIMAL_IMAGE} ] ; then \
-        apt install -y --no-install-recommends clang lld lldb libc++-dev libclang-rt-dev; \
+    apt install -y --no-install-recommends clang lld lldb libc++-dev libclang-rt-dev; \
     fi
 # Install coverage report tools
 RUN if [ -z ${_MINIMAL_IMAGE} ] ; then \
-        apt install -y --no-install-recommends lcov libcpanel-json-xs-perl; \
+    apt install -y --no-install-recommends lcov libcpanel-json-xs-perl; \
     fi
 
 WORKDIR /pltxt2htm
