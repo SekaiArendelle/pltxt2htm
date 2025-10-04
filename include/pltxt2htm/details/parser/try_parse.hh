@@ -1,12 +1,12 @@
 #pragma once
 
+#include <exception/exception.hh>
 #include "../utils.hh"
 #include "../../heap_guard.hh"
 #include "../../astnode/basic.hh"
 #include "../../astnode/node_type.hh"
 #include "../../astnode/html_node.hh"
 #include "../../astnode/markdown_node.hh"
-#include "exception/exception.hh"
 
 namespace pltxt2htm::details {
 
