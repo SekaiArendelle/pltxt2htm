@@ -9,15 +9,14 @@ includes("../xmake/*.lua")
 set_languages("c++23")
 set_encodings("utf-8")
 
-add_files("pltxt2htm.cc")
-add_includedirs("$(projectdir)/../include")
-
-if is_plat("windows") or is_plat("mingw") then
-    add_syslinks("ntdll")
-end
-
 target("pltxt2htm", function ()
     set_kind("$(kind)")
+    add_files("pltxt2htm.cc")
+    add_includedirs("$(projectdir)/../include")
+
+    if is_plat("windows") or is_plat("mingw") then
+        add_syslinks("ntdll")
+    end
 
     on_config(function(target)
         if not target:get("kind") == "static" and not target:get("kind") == "shared" then
@@ -29,11 +28,13 @@ target("pltxt2htm", function ()
             set_symbols("debug")
         end
 
+        import("lib.detect.find_tool")
         local toolchains = target:tool("cxx")
-        if path.basename(toolchains) == "clang++" or path.basename(toolchains) == "clang" then
+        local linker = path.basename(target:tool("ld"))
+        if find_tool("ld.lld") and (linker == "gcc" or linker == "g++" or linker == "clang++" or linker == "clang") then
             target:add("shflags", "-fuse-ld=lld")
             if is_mode("release") then
-                target:add("ldflags", "-flto")
+                target:add("shflags", "-flto")
             end
         end
 
