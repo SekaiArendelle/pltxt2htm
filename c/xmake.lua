@@ -25,7 +25,7 @@ target("pltxt2htm", function ()
         end
 
         if is_mode("debug") then
-            set_symbols("debug")
+            target:set("cxxflags", "-g")
         end
 
         import("lib.detect.find_tool")
