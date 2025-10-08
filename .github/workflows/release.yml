@@ -419,7 +419,7 @@ jobs:
       - name: Upload binary
         uses: softprops/action-gh-release@v2
         with:
-          files: c/aarch64-apple-darwin24-c-${{ matrix.build-mode }}.tar.xz
+          files: c/aarch64-apple-darwin24-pltxt2htm-c-${{ matrix.build-mode }}.tar.xz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -468,6 +468,6 @@ jobs:
       - name: Upload binary
         uses: softprops/action-gh-release@v2
         with:
-          files: c/x86_64-windows-msvc-c-${{ matrix.build-mode }}.zip
+          files: c/x86_64-windows-msvc-pltxt2htm-c-${{ matrix.build-mode }}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

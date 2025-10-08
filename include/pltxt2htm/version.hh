@@ -10,6 +10,6 @@ inline constexpr ::std::size_t major{0};
 // For new features without breaking change
 inline constexpr ::std::size_t minor{5};
 // For bug fixes without new features
-inline constexpr ::std::size_t patch{1};
+inline constexpr ::std::size_t patch{2};
 
 } // namespace pltxt2htm::version
