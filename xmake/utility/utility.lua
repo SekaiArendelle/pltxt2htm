@@ -186,9 +186,14 @@ end
 ---@note 在target和toolchain存在时才检查选项合法性
 ---@return string? @march选项
 function get_march_option(target, toolchain)
+    ---@type table<string, any>
     local cache_info = common.get_cache()
+    -- 支持一个工程同时使用目标平台和本地两套工具链
+    -- 目标平台为native或该工具链为host工具链时，march选项为march_host；其他平台时，march选项为march
+    local is_host = target == "native" or get_config("toolchain_host") == format("%s-%s", target, toolchain)
+    local march_key = is_host and "march_host" or "march"
     ---@type string?
-    local option = cache_info["march"]
+    local option = cache_info[march_key]
     if option == "" then
         return nil    -- 已经探测过，-march不受支持
     elseif option then
@@ -197,7 +202,7 @@ function get_march_option(target, toolchain)
 
     ---探测march是否受支持
     ---@type string
-    local arch = get_config("march")
+    local arch = get_config(march_key)
     if arch ~= "none" then
         local march = (arch ~= "default" and arch or "native")
         local options = { "-march=" .. march }
@@ -209,11 +214,10 @@ function get_march_option(target, toolchain)
             end
             ---@type boolean
             local support = compiler.has_flags("cxx", table.concat(options, " "))
-            local message = "checking for march ... "
-            cprint(message .. (support and "${color.success}" or "${color.failure}") .. march)
+            cprint("checking for %s ... %s%s", march_key, support and "${color.success}" or "${color.failure}", march)
             if not support then
                 if arch ~= "default" then
-                    raise(string.format([[The toolchain doesn't support the arch "%s"]], march))
+                    raise(format([[The toolchain doesn't support the arch "%s"]], march))
                 end
                 option = ""
             else
@@ -227,7 +231,7 @@ function get_march_option(target, toolchain)
     end
 
     -- 更新缓存
-    cache_info["march"] = option
+    cache_info[march_key] = option
     common.update_cache(cache_info)
     return option
 end
@@ -256,4 +260,64 @@ function get_cmake_mode(mode)
     ---@type map_t
     local table = { debug = "Debug", release = "Release", minsizerel = "MinSizeRel", releasedbg = "RelWithDebInfo" }
     return table[mode]
+end
+
+---@class check_target_for_coverage_opt_t
+---@field option_name string? @选项名称，默认为target
+---@field allow_kinds string[] @允许的目标类型，默认为{"binary", "shared"}
+---@field is_array boolean? @是否为数组，默认为false
+
+---检查目标是否支持覆盖率分析
+---@param opt check_target_for_coverage_opt_t? @选项名称，默认为target
+---@return table | table[] @目标实例
+function check_target_for_coverage(opt)
+    import("core.base.option")
+    import("core.project.project")
+
+    ---@type check_target_for_coverage_opt_t
+    opt = opt or {}
+    local option_name = opt.option_name or "target"
+    local allow_kinds = opt.allow_kinds or { "binary", "shared" }
+    local is_array = opt.is_array == nil and false or opt.is_array
+    local len = #allow_kinds
+    local message = table.concat(allow_kinds, ", ", 1, len - 1) .. ", or " .. allow_kinds[len]
+
+    ---检查目标是否支持覆盖率分析
+    ---@param target_name string? @目标名称
+    ---@return table | table[] @目标实例
+    local function do_check(target_name)
+        local target = project.target(target_name)
+        -- 从工程中查找指定目标
+        assert(target, [[Target "%s" not found!]], target_name)
+        local target_kind = target:targetkind()
+        -- 目标应当是可执行文件或动态库
+        local is_allowed = table.contains(allow_kinds, target_kind)
+        assert(is_allowed, [[Target "%s" should be a %s target!]], target_name, message)
+        return target
+    end
+
+    if is_array then
+        ---@type string[]?
+        local target_names = option.get(option_name)
+        assert(target_names, "Targets not set!")
+        target_names = table.unique(target_names)
+        ---@type table[]
+        local targets = {}
+        for _, target_name in ipairs(target_names) do
+            table.insert(targets, do_check(target_name))
+        end
+        return targets
+    else
+        local target_name = option.get(option_name)
+        assert(target_name, "Target not set!")
+        return do_check(target_name)
+    end
+end
+
+---覆盖率分析任务执行成功后的回显函数
+---@param output_path string @输出目录
+---@param start_time number @任务开始时间
+function coverage_task_echo_on_success(output_path, start_time)
+    local seconds = (os.mclock() - start_time) / 1000
+    cprint("${color.success}[100%%]: Output has been written to %s, spent %.3f s", output_path, seconds)
 end

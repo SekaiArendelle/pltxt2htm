@@ -27,6 +27,11 @@ elif args.toolchain == "clang" and not shutil.which("clang++"):
 
 os.chdir(SCRIPT_DIR)
 
+INSTALL_DIR = os.path.join(SCRIPT_DIR, f"{args.target}-pltxt2htm-c-{args.mode}")
+
+if os.path.exists(INSTALL_DIR):
+    raise Exception(f"install directory {INSTALL_DIR} already exists")
+
 if os.path.exists(XMAKE_DIR):
     shutil.rmtree(XMAKE_DIR)
     print(f"removed directory: {XMAKE_DIR}")
@@ -51,7 +56,7 @@ if err_code != 0:
 err_code = os.system("xmake build -v")
 if err_code != 0:
     raise Exception("xmake build failed")
-err_code = os.system(f"xmake install -o \"{args.target}-pltxt2htm-c-{args.mode}\"")
+err_code = os.system(f"xmake install -o \"{INSTALL_DIR}\"")
 if err_code != 0:
     raise Exception("xmake install failed")
 
@@ -66,6 +71,10 @@ if err_code != 0:
 err_code = os.system("xmake build -v")
 if err_code != 0:
     raise Exception("xmake build failed")
-err_code = os.system(f"xmake install -o \"{args.target}-pltxt2htm-c-{args.mode}\"")
+err_code = os.system(f"xmake install -o \"{INSTALL_DIR}\"")
 if err_code != 0:
     raise Exception("xmake install failed")
+
+INCLUDE_DIR = os.path.join(INSTALL_DIR, "include")
+os.mkdir(INCLUDE_DIR)
+shutil.copy(os.path.join(SCRIPT_DIR, "pltxt2htm.h"), INCLUDE_DIR)
