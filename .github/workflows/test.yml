@@ -329,13 +329,13 @@ jobs:
           xmake build -v
 
   aarch64-apple-darwin24-c:
-    name: aarch64-apple-darwin24 (c/, debug mode)
-    runs-on: macos-latest
-
     strategy:
       fail-fast: false
       matrix:
         build-mode: [debug, release]
+
+    name: aarch64-apple-darwin24 (c/, ${{ matrix.build-mode }} mode)
+    runs-on: macos-latest
 
     steps:
       - name: Checkout code
@@ -353,3 +353,50 @@ jobs:
         working-directory: c
         run: |
           python3 dist.py --target=aarch64-apple-darwin24 --toolchain=clang --mode=${{ matrix.build-mode }}
+
+      - name: Archive
+        working-directory: c
+        run: |
+          tar -cJvf aarch64-apple-darwin24-pltxt2htm-c-${{ matrix.build-mode }}.tar.xz aarch64-apple-darwin24-pltxt2htm-c-${{ matrix.build-mode }}
+
+  x86_64-windows-msvc-c:
+    strategy:
+      fail-fast: false
+      matrix:
+        build-mode: [debug, release]
+
+    name: x86_64-windows-msvc (c/, ${{ matrix.build-mode }} mode)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.13
+
+      - name: Install Clang
+        uses: egor-tensin/setup-clang@v1
+        with:
+          version: latest
+          platform: x64
+
+      - name: Setup xmake
+        uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: latest
+
+      - name: Configure and build
+        working-directory: c
+        shell: powershell
+        run: |
+          python dist.py --target=x86_64-windows-msvc --toolchain=clang --mode=${{ matrix.build-mode }}
+
+      - name: Archive
+        working-directory: c
+        shell: powershell
+        run: |
+          $dir = Join-Path (Get-Location) "x86_64-windows-msvc-pltxt2htm-c-${{ matrix.build-mode }}"
+          Compress-Archive -Path $dir -DestinationPath (Join-Path (Split-Path $dir) "$((Get-Item $dir).Name).zip")
