@@ -40,3 +40,18 @@ compile_commands.json
 # clang fuzzer crashing file
 **/crash-*
 **/oom-*
+
+# library
+*.lib
+*.dll
+*.a
+*.so
+
+# object file
+*.o
+
+# executable
+*.exe
+
+# debug file
+*.pdb

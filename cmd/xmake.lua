@@ -33,9 +33,9 @@ target("pltxt2htm", function()
             end
         end
 
-        if compiler == "gcc" or compiler == "g++" or compiler == "clang" or compiler == "clang++" then
+        if compiler:endswith("gcc") or compiler:endswith("g++") or compiler:endswith("clang") or compiler:endswith("clang++") then
             if is_mode("release") then
-                target:add("cxxflags", "-fno-exceptions")
+                target:set("exceptions", "no-cxx")
                 target:add("cxxflags", "-fno-rtti")
                 target:add("cxxflags", "-fno-unwind-tables")
                 target:add("cxxflags", "-fno-asynchronous-unwind-tables")

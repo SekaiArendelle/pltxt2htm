@@ -8,6 +8,9 @@ extern "C"
 #if __has_cpp_attribute(__gnu__::__used__)
     [[__gnu__::__used__]]
 #endif
+#if defined(_WIN32)
+    __declspec(dllexport)
+#endif // defined(_WIN32)
     auto common_parserd(char8_t const* pltext) /* throws */ -> char8_t const* {
     return ::pltxt2htm::common_parser<false>(pltext);
 }
@@ -19,6 +22,9 @@ extern "C"
 #if __has_cpp_attribute(__gnu__::__used__)
     [[__gnu__::__used__]]
 #endif
+#if defined(_WIN32)
+    __declspec(dllexport)
+#endif // defined(_WIN32)
     auto common_parser(char8_t const* pltext) /* throws */ -> char8_t const* {
     return ::pltxt2htm::common_parser<true>(pltext);
 }
@@ -30,6 +36,9 @@ extern "C"
 #if __has_cpp_attribute(__gnu__::__used__)
     [[__gnu__::__used__]]
 #endif
+#if defined(_WIN32)
+    __declspec(dllexport)
+#endif // defined(_WIN32)
     auto advanced_parserd(char8_t const* pltext, const char8_t* const host) /* throws */ -> char8_t const* {
     return ::pltxt2htm::advanced_parser<false>(pltext, host);
 }
@@ -41,6 +50,9 @@ extern "C"
 #if __has_cpp_attribute(__gnu__::__used__)
     [[__gnu__::__used__]]
 #endif
+#if defined(_WIN32)
+    __declspec(dllexport)
+#endif // defined(_WIN32)
     auto advanced_parser(char8_t const* pltext, const char8_t* const host) /* throws */ -> char8_t const* {
     return ::pltxt2htm::advanced_parser<true>(pltext, host);
 }
@@ -52,6 +64,9 @@ extern "C"
 #if __has_cpp_attribute(__gnu__::__used__)
     [[__gnu__::__used__]]
 #endif
+#if defined(_WIN32)
+    __declspec(dllexport)
+#endif // defined(_WIN32)
     auto fixedadv_parserd(char8_t const* pltext, const char8_t* const host) /* throws */ -> char8_t const* {
     return ::pltxt2htm::fixedadv_parser<false>(pltext, host);
 }
@@ -63,6 +78,9 @@ extern "C"
 #if __has_cpp_attribute(__gnu__::__used__)
     [[__gnu__::__used__]]
 #endif
+#if defined(_WIN32)
+    __declspec(dllexport)
+#endif // defined(_WIN32)
     auto fixedadv_parser(char8_t const* pltext, const char8_t* const host) /* throws */ -> char8_t const* {
     return ::pltxt2htm::fixedadv_parser<true>(pltext, host);
 }
@@ -74,6 +92,9 @@ extern "C"
 #if __has_cpp_attribute(__gnu__::__used__)
     [[__gnu__::__used__]]
 #endif
+#if defined(_WIN32)
+    __declspec(dllexport)
+#endif // defined(_WIN32)
     auto get_version_major() noexcept -> ::std::size_t {
     return ::pltxt2htm::version::major;
 }
@@ -85,6 +106,9 @@ extern "C"
 #if __has_cpp_attribute(__gnu__::__used__)
     [[__gnu__::__used__]]
 #endif
+#if defined(_WIN32)
+    __declspec(dllexport)
+#endif // defined(_WIN32)
     auto get_version_minor() noexcept -> ::std::size_t {
     return ::pltxt2htm::version::minor;
 }
@@ -96,6 +120,9 @@ extern "C"
 #if __has_cpp_attribute(__gnu__::__used__)
     [[__gnu__::__used__]]
 #endif
+#if defined(_WIN32)
+    __declspec(dllexport)
+#endif // defined(_WIN32)
     auto get_version_patch() noexcept -> ::std::size_t {
     return ::pltxt2htm::version::patch;
 }

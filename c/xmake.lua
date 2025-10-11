@@ -29,7 +29,7 @@ target("pltxt2htm", function ()
         end
 
         import("lib.detect.find_tool")
-        local toolchains = target:tool("cxx")
+        local compiler = path.basename(target:tool("cxx"))
         local linker = path.basename(target:tool("ld"))
         if find_tool("ld.lld") and (linker == "gcc" or linker == "g++" or linker == "clang++" or linker == "clang") then
             target:add("shflags", "-fuse-ld=lld")
@@ -38,11 +38,11 @@ target("pltxt2htm", function ()
             end
         end
 
-        if path.basename(toolchains) == "clang++"
-                or path.basename(toolchains) == "clang"
-                or path.basename(toolchains) == "gcc"
-                or path.basename(toolchains) == "g++" then
-            target:add("cxxflags", "-fno-exceptions")
+        if compiler:endswith("clang++")
+                or compiler:endswith("clang")
+                or compiler:endswith("gcc")
+                or compiler:endswith("g++") then
+            target:set("exceptions", "no-cxx")
             target:add("cxxflags", "-fno-rtti")
             target:add("cxxflags", "-fno-unwind-tables")
             target:add("cxxflags", "-fno-asynchronous-unwind-tables")

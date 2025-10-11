@@ -48,21 +48,6 @@ else:
 if args.toolchain != "clang-cl":
     args.toolchain = f"{args.target}-{args.toolchain}"
 
-static_config_cmd = f"xmake config -m {args.mode} -k static --toolchain={args.toolchain} {args.sysroot}"
-print(">> ", static_config_cmd)
-err_code = os.system(static_config_cmd)
-if err_code != 0:
-    raise Exception("xmake config failed")
-err_code = os.system("xmake build -v")
-if err_code != 0:
-    raise Exception("xmake build failed")
-err_code = os.system(f"xmake install -o \"{INSTALL_DIR}\"")
-if err_code != 0:
-    raise Exception("xmake install failed")
-
-shutil.rmtree(XMAKE_DIR)
-shutil.rmtree(BUILD_DIR)
-
 shared_config_cmd = f"xmake config -m {args.mode} -k shared --toolchain={args.toolchain} {args.sysroot}"
 print(">> ", shared_config_cmd)
 err_code = os.system(shared_config_cmd)
@@ -78,3 +63,18 @@ if err_code != 0:
 INCLUDE_DIR = os.path.join(INSTALL_DIR, "include")
 os.mkdir(INCLUDE_DIR)
 shutil.copy(os.path.join(SCRIPT_DIR, "pltxt2htm.h"), INCLUDE_DIR)
+
+shutil.rmtree(XMAKE_DIR)
+shutil.rmtree(BUILD_DIR)
+
+static_config_cmd = f"xmake config -m {args.mode} -k static --toolchain={args.toolchain} {args.sysroot}"
+print(">> ", static_config_cmd)
+err_code = os.system(static_config_cmd)
+if err_code != 0:
+    raise Exception("xmake config failed")
+err_code = os.system("xmake build -v")
+if err_code != 0:
+    raise Exception("xmake build failed")
+err_code = os.system(f"xmake install -o \"{INSTALL_DIR}\"")
+if err_code != 0:
+    raise Exception("xmake install failed")

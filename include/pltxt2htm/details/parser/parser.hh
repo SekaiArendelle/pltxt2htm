@@ -85,8 +85,8 @@ constexpr auto devil_stuff_after_line_break(
                 call_stack.push(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(subtext, md_atx_heading_type));
                 current_index += forward_index;
-                return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{
-                    .forward_index = current_index, .require_goto_restart = true};
+                return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{.forward_index = current_index,
+                                                                            .require_goto_restart = true};
             } else {
                 result.push_back(
                     ::pltxt2htm::details::switch_md_atx_header<ndebug>(md_atx_heading_type, ::pltxt2htm::Ast{}));
