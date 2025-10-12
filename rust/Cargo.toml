@@ -1,0 +1,11 @@
+[workspace]
+members = [
+    "libpltxt2htm-sys",
+    "pltxt2htm",
+]
+resolver = "2"
+
+[profile.release]
+lto = true
+strip = true
+panic = "abort"

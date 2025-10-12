@@ -1,0 +1,6 @@
+[package]
+name = "libpltxt2htm-sys"
+edition = "2021"
+
+[dependencies]
+libc = "0.2"

@@ -30,15 +30,16 @@ os.chdir(SCRIPT_DIR)
 INSTALL_DIR = os.path.join(SCRIPT_DIR, f"{args.target}-pltxt2htm-c-{args.mode}")
 
 if os.path.exists(INSTALL_DIR):
-    raise Exception(f"install directory {INSTALL_DIR} already exists")
+    shutil.rmtree(INSTALL_DIR)
+    print(f"remove directory: {INSTALL_DIR}")
 
 if os.path.exists(XMAKE_DIR):
     shutil.rmtree(XMAKE_DIR)
-    print(f"removed directory: {XMAKE_DIR}")
+    print(f"remove directory: {XMAKE_DIR}")
 
 if os.path.exists(BUILD_DIR):
     shutil.rmtree(BUILD_DIR)
-    print(f"removed directory: {BUILD_DIR}")
+    print(f"remove directory: {BUILD_DIR}")
 
 if args.sysroot:
     args.sysroot = f"--sysroot={args.sysroot}"
@@ -48,7 +49,29 @@ else:
 if args.toolchain != "clang-cl":
     args.toolchain = f"{args.target}-{args.toolchain}"
 
-shared_config_cmd = f"xmake config -m {args.mode} -k shared --toolchain={args.toolchain} {args.sysroot}"
+if args.toolchain == "clang-cl" or "-windows-" in args.target:
+    plat_flag = "-p windows"
+elif "-w64-mingw32" in args.target:
+    plat_flag = "-p mingw"
+elif "-linux-" in args.target:
+    plat_flag = "-p linux"
+elif "-apple-darwin" in args.target:
+    plat_flag = "-p macosx"
+else:
+    plat_flag = ""
+
+if args.target.startswith("x86_64"):
+    arch_flag = "-a x64"
+elif args.target.startswith("i686"):
+    arch_flag = "-a x86"
+elif args.target.startswith("aarch64"):
+    arch_flag = "-a arm64"
+elif args.target.startswith("wasm32"):
+    arch_flag = "-a wasm"
+else:
+    arch_flag = ""
+
+shared_config_cmd = f"xmake config -m {args.mode} -k shared --toolchain={args.toolchain} {args.sysroot} {plat_flag} {arch_flag}"
 print(">> ", shared_config_cmd)
 err_code = os.system(shared_config_cmd)
 if err_code != 0:
@@ -60,14 +83,15 @@ err_code = os.system(f"xmake install -o \"{INSTALL_DIR}\"")
 if err_code != 0:
     raise Exception("xmake install failed")
 
-INCLUDE_DIR = os.path.join(INSTALL_DIR, "include")
-os.mkdir(INCLUDE_DIR)
-shutil.copy(os.path.join(SCRIPT_DIR, "pltxt2htm.h"), INCLUDE_DIR)
+if plat_flag == "-p windows":
+    shutil.move(os.path.join(INSTALL_DIR, "lib", "pltxt2htm.lib"), os.path.join(INSTALL_DIR, "bin"))
+elif plat_flag == "-p mingw":
+    shutil.move(os.path.join(INSTALL_DIR, "lib", "libpltxt2htm.dll.a"), os.path.join(INSTALL_DIR, "bin"))
 
 shutil.rmtree(XMAKE_DIR)
 shutil.rmtree(BUILD_DIR)
 
-static_config_cmd = f"xmake config -m {args.mode} -k static --toolchain={args.toolchain} {args.sysroot}"
+static_config_cmd = f"xmake config -m {args.mode} -k static --toolchain={args.toolchain} {args.sysroot} {plat_flag} {arch_flag}"
 print(">> ", static_config_cmd)
 err_code = os.system(static_config_cmd)
 if err_code != 0:
@@ -78,3 +102,8 @@ if err_code != 0:
 err_code = os.system(f"xmake install -o \"{INSTALL_DIR}\"")
 if err_code != 0:
     raise Exception("xmake install failed")
+
+# Copy headers
+INCLUDE_DIR = os.path.join(INSTALL_DIR, "include")
+os.mkdir(INCLUDE_DIR)
+shutil.copy(os.path.join(SCRIPT_DIR, "pltxt2htm.h"), INCLUDE_DIR)

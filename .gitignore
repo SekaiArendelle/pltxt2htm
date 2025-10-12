@@ -55,3 +55,7 @@ compile_commands.json
 
 # debug file
 *.pdb
+
+# Rust
+**/target/
+**/Cargo.lock

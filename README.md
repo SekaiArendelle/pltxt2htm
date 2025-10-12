@@ -8,7 +8,7 @@ This repository is a sub-project of [Physics-Lab-Web](https://github.com/NetLogo
 This project is **header-only**, aimed to provide a translater from Quantam-PhysicsLab's text to html (with markdown, minor html tags and latex support [as much as possible](#features)). Requires at least C++23 (g++ >= 14 or clang++ >= 20), disables C++ rtti and exception, has great cross platform ability.
 
 # Usage
-You can use `pltxt2htm` in [console](cmd/README.md), [browser](wasm/README.md), [python](py/README.md) and [c](c/README.md).
+You can use `pltxt2htm` in [console](cmd/README.md), [browser](wasm/README.md), [python](py/README.md), [c](c/README.md) and [rust](rust/README.md).
 
 C++ APIs is in [include/pltxt2htm](include/pltxt2htm/), here is a simple example:
 ```cpp
