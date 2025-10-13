@@ -45,6 +45,6 @@ impl Clone for CMallocString {
         unsafe {
             *ptr.offset(str_len as isize) = '\0' as libc::c_char;
         };
-        CMallocString::new(ptr as *const libc::c_char)
+        CMallocString::new(ptr)
     }
 }

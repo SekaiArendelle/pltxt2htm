@@ -12,12 +12,11 @@ target("precompile", function()
     add_files("precompile.cpp")
 
     on_config(function (target)
-        local toolchains = target:tool("cxx")
-        local compiler = path.basename(toolchains)
-        if compiler == "gcc"
-                or compiler == "g++"
-                or compiler == "clang++"
-                or compiler == "clang" then
+        local compiler = path.basename(target:tool("cxx"))
+        if compiler:endswith("gcc")
+                or compiler:endswith("g++")
+                or compiler:endswith("clang++")
+                or compiler:endswith("clang") then
             target:add("cxxflags", "-g")
             target:add("cxxflags", "-Wall")
             target:add("cxxflags", "-Wextra")
@@ -43,13 +42,11 @@ for _, file in ipairs(os.files("*.cc")) do
         end
 
         on_config(function (target)
-            local toolchains = target:tool("cxx")
-            local compiler = path.basename(toolchains)
-
-            if compiler == "gcc"
-                or compiler == "g++"
-                or compiler == "clang++"
-                or compiler == "clang" then
+            local compiler = path.basename(target:tool("cxx"))
+            if compiler:endswith("gcc")
+                    or compiler:endswith("g++")
+                    or compiler:endswith("clang++")
+                    or compiler:endswith("clang") then
                 target:add("cxxflags", "-g")
             end
 
