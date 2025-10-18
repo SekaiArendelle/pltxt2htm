@@ -25,7 +25,7 @@ public:
         : runtime_node_type_info{type} {
     }
 
-    constexpr PlTxtNode(PlTxtNode const&) noexcept = default;
+    constexpr PlTxtNode(PlTxtNode const&) noexcept = delete; // copy construct costs
     constexpr PlTxtNode(PlTxtNode&&) noexcept = default;
     constexpr auto operator=(PlTxtNode const&) noexcept -> PlTxtNode& = default;
     constexpr auto operator=(PlTxtNode&&) noexcept -> PlTxtNode& = default;
@@ -53,7 +53,7 @@ public:
           data_{chr} {
     }
 
-    constexpr U8Char(U8Char const& other) noexcept = default;
+    constexpr U8Char(U8Char const& other) noexcept = delete;
     constexpr U8Char(U8Char&& other) noexcept = default;
     constexpr auto operator=(U8Char const& other) noexcept -> U8Char& = default;
     constexpr auto operator=(U8Char&& other) noexcept -> U8Char& = default;
@@ -70,9 +70,9 @@ public:
         : PlTxtNode(::pltxt2htm::NodeType::invalid_u8char) {
     }
 
-    constexpr InvalidU8Char(InvalidU8Char const& other) noexcept = default;
+    constexpr InvalidU8Char(InvalidU8Char const& other) noexcept = delete;
     constexpr InvalidU8Char(InvalidU8Char&& other) noexcept = default;
-    constexpr InvalidU8Char& operator=(InvalidU8Char const& other) noexcept = default;
+    constexpr InvalidU8Char& operator=(InvalidU8Char const&) noexcept = delete;
     constexpr InvalidU8Char& operator=(InvalidU8Char&& other) noexcept = default;
 };
 
@@ -90,7 +90,7 @@ public:
           subast_(::std::move(subast)) {
     }
 
-    constexpr PairedTagBase(PairedTagBase const&) noexcept = default;
+    constexpr PairedTagBase(PairedTagBase const&) noexcept = delete;
     constexpr PairedTagBase(PairedTagBase&&) noexcept = default;
     constexpr PairedTagBase& operator=(PairedTagBase const&) noexcept = delete;
     constexpr PairedTagBase& operator=(PairedTagBase&&) noexcept = default;
@@ -111,7 +111,7 @@ public:
         : ::pltxt2htm::details::PairedTagBase(::pltxt2htm::NodeType::text, ::std::move(subast)) {
     }
 
-    constexpr Text(::pltxt2htm::Text const& other) noexcept = default;
+    constexpr Text(::pltxt2htm::Text const& other) noexcept = delete;
 
     constexpr Text(::pltxt2htm::Text&& other) noexcept = default;
 

@@ -30,7 +30,7 @@ constexpr auto pltxt2advanced_html(::fast_io::u8string_view pltext, ::fast_io::u
     if constexpr (optimize) {
         ::pltxt2htm::optimize_ast<ndebug>(ast);
     }
-    return ::pltxt2htm::details::ast2advanced_html<ndebug>(::std::move(ast), host);
+    return ::pltxt2htm::details::ast2advanced_html<ndebug>(ast, host);
 }
 
 /**
@@ -46,7 +46,7 @@ constexpr auto pltxt2fixedadv_html(::fast_io::u8string_view pltext, ::fast_io::u
     if constexpr (optimize) {
         ::pltxt2htm::optimize_ast<ndebug>(ast);
     }
-    return ::pltxt2htm::details::ast2advanced_html<ndebug, false>(::std::move(ast), host);
+    return ::pltxt2htm::details::ast2advanced_html<ndebug, false>(ast, host);
 }
 
 /**
@@ -60,7 +60,7 @@ constexpr auto pltxt2common_html(::fast_io::u8string_view pltext) /* throws */ {
     if constexpr (optimize) {
         ::pltxt2htm::optimize_ast<ndebug>(ast);
     }
-    return ::pltxt2htm::details::ast2common_html<ndebug>(::std::move(ast));
+    return ::pltxt2htm::details::ast2common_html<ndebug>(ast);
 }
 
 } // namespace pltxt2htm

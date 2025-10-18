@@ -14,7 +14,7 @@ public:
         : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::line_break} {
     }
 
-    constexpr LineBreak(::pltxt2htm::LineBreak const& other) noexcept = default;
+    constexpr LineBreak(::pltxt2htm::LineBreak const&) noexcept = delete;
     constexpr LineBreak(::pltxt2htm::LineBreak&& other) noexcept = default;
     constexpr ~LineBreak() noexcept = default;
     constexpr ::pltxt2htm::LineBreak& operator=(::pltxt2htm::LineBreak const& other) noexcept = delete;
@@ -30,7 +30,7 @@ public:
         : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::html_br} {
     }
 
-    constexpr Br(::pltxt2htm::Br const& other) noexcept = default;
+    constexpr Br(::pltxt2htm::Br const&) noexcept = delete;
     constexpr Br(::pltxt2htm::Br&& other) noexcept = default;
     constexpr ~Br() noexcept = default;
     constexpr ::pltxt2htm::Br& operator=(::pltxt2htm::Br const& other) noexcept = delete;
@@ -46,7 +46,7 @@ public:
         : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::space} {
     }
 
-    constexpr Space(::pltxt2htm::Space const& other) noexcept = default;
+    constexpr Space(::pltxt2htm::Space const&) noexcept = delete;
     constexpr Space(::pltxt2htm::Space&& other) noexcept = default;
     constexpr ~Space() noexcept = default;
     constexpr ::pltxt2htm::Space& operator=(::pltxt2htm::Space const& other) noexcept = delete;
@@ -62,7 +62,7 @@ public:
         : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::less_than} {
     }
 
-    constexpr LessThan(::pltxt2htm::LessThan const& other) noexcept = default;
+    constexpr LessThan(::pltxt2htm::LessThan const&) noexcept = delete;
     constexpr LessThan(::pltxt2htm::LessThan&& other) noexcept = default;
     constexpr ~LessThan() noexcept = default;
     constexpr ::pltxt2htm::LessThan& operator=(::pltxt2htm::LessThan const& other) noexcept = delete;
@@ -78,7 +78,7 @@ public:
         : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::greater_than} {
     }
 
-    constexpr GreaterThan(::pltxt2htm::GreaterThan const& other) noexcept = default;
+    constexpr GreaterThan(::pltxt2htm::GreaterThan const&) noexcept = delete;
     constexpr GreaterThan(::pltxt2htm::GreaterThan&& other) noexcept = default;
     constexpr ~GreaterThan() noexcept = default;
     constexpr ::pltxt2htm::GreaterThan& operator=(::pltxt2htm::GreaterThan const& other) noexcept = delete;
@@ -94,7 +94,7 @@ public:
         : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::tab} {
     }
 
-    constexpr Tab(::pltxt2htm::Tab const& other) noexcept = default;
+    constexpr Tab(::pltxt2htm::Tab const&) noexcept = delete;
     constexpr Tab(::pltxt2htm::Tab&& other) noexcept = default;
     constexpr ~Tab() noexcept = default;
     constexpr ::pltxt2htm::Tab& operator=(::pltxt2htm::Tab const& other) noexcept = delete;
@@ -110,7 +110,7 @@ public:
         : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::ampersand} {
     }
 
-    constexpr Ampersand(::pltxt2htm::Ampersand const& other) noexcept = default;
+    constexpr Ampersand(::pltxt2htm::Ampersand const&) noexcept = delete;
     constexpr Ampersand(::pltxt2htm::Ampersand&& other) noexcept = default;
     constexpr ~Ampersand() noexcept = default;
     constexpr ::pltxt2htm::Ampersand& operator=(::pltxt2htm::Ampersand const& other) noexcept = delete;
@@ -126,7 +126,7 @@ public:
         : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::single_quote} {
     }
 
-    constexpr SingleQuotationMark(::pltxt2htm::SingleQuotationMark const& other) noexcept = default;
+    constexpr SingleQuotationMark(::pltxt2htm::SingleQuotationMark const&) noexcept = delete;
     constexpr SingleQuotationMark(::pltxt2htm::SingleQuotationMark&& other) noexcept = default;
     constexpr ~SingleQuotationMark() noexcept = default;
     constexpr ::pltxt2htm::SingleQuotationMark& operator=(::pltxt2htm::SingleQuotationMark const&) noexcept = delete;
@@ -142,7 +142,7 @@ public:
         : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::double_quote} {
     }
 
-    constexpr DoubleQuotationMark(::pltxt2htm::DoubleQuotationMark const&) noexcept = default;
+    constexpr DoubleQuotationMark(::pltxt2htm::DoubleQuotationMark const&) noexcept = delete;
     constexpr DoubleQuotationMark(::pltxt2htm::DoubleQuotationMark&&) noexcept = default;
     constexpr ~DoubleQuotationMark() noexcept = default;
     constexpr ::pltxt2htm::DoubleQuotationMark& operator=(::pltxt2htm::DoubleQuotationMark const&) noexcept = delete;
@@ -160,7 +160,7 @@ public:
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_h1, ::std::move(subast)} {
     }
 
-    constexpr H1(::pltxt2htm::H1 const&) noexcept = default;
+    constexpr H1(::pltxt2htm::H1 const&) noexcept = delete;
 
     constexpr H1(::pltxt2htm::H1&&) noexcept = default;
 
@@ -182,7 +182,7 @@ public:
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_h2, ::std::move(subast)} {
     }
 
-    constexpr H2(::pltxt2htm::H2 const&) noexcept = default;
+    constexpr H2(::pltxt2htm::H2 const&) noexcept = delete;
 
     constexpr H2(::pltxt2htm::H2&&) noexcept = default;
 
@@ -204,7 +204,7 @@ public:
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_h3, ::std::move(subast)} {
     }
 
-    constexpr H3(::pltxt2htm::H3 const&) noexcept = default;
+    constexpr H3(::pltxt2htm::H3 const&) noexcept = delete;
 
     constexpr H3(::pltxt2htm::H3&&) noexcept = default;
 
@@ -226,7 +226,7 @@ public:
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_h4, ::std::move(subast)} {
     }
 
-    constexpr H4(::pltxt2htm::H4 const&) noexcept = default;
+    constexpr H4(::pltxt2htm::H4 const&) noexcept = delete;
 
     constexpr H4(::pltxt2htm::H4&&) noexcept = default;
 
@@ -248,7 +248,7 @@ public:
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_h5, ::std::move(subast)} {
     }
 
-    constexpr H5(::pltxt2htm::H5 const&) noexcept = default;
+    constexpr H5(::pltxt2htm::H5 const&) noexcept = delete;
 
     constexpr H5(::pltxt2htm::H5&&) noexcept = default;
 
@@ -270,7 +270,7 @@ public:
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_h6, ::std::move(subast)} {
     }
 
-    constexpr H6(::pltxt2htm::H6 const&) noexcept = default;
+    constexpr H6(::pltxt2htm::H6 const&) noexcept = delete;
 
     constexpr H6(::pltxt2htm::H6&&) noexcept = default;
 
@@ -292,7 +292,7 @@ public:
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_p, ::std::move(subast)} {
     }
 
-    constexpr P(::pltxt2htm::P const&) noexcept = default;
+    constexpr P(::pltxt2htm::P const&) noexcept = delete;
 
     constexpr P(::pltxt2htm::P&&) noexcept = default;
 
@@ -314,7 +314,7 @@ public:
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_del, ::std::move(subast)} {
     }
 
-    constexpr Del(::pltxt2htm::Del const&) noexcept = default;
+    constexpr Del(::pltxt2htm::Del const&) noexcept = delete;
 
     constexpr Del(::pltxt2htm::Del&&) noexcept = default;
 
@@ -334,7 +334,7 @@ public:
         : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::html_hr} {
     }
 
-    constexpr Hr(::pltxt2htm::Hr const& other) noexcept = default;
+    constexpr Hr(::pltxt2htm::Hr const&) noexcept = delete;
     constexpr Hr(::pltxt2htm::Hr&& other) noexcept = default;
     constexpr ~Hr() noexcept = default;
     constexpr ::pltxt2htm::Hr& operator=(::pltxt2htm::Hr const& other) noexcept = delete;
@@ -352,7 +352,7 @@ public:
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_note, ::std::move(subast)} {
     }
 
-    constexpr Note(::pltxt2htm::Note const&) noexcept = default;
+    constexpr Note(::pltxt2htm::Note const&) noexcept = delete;
 
     constexpr Note(::pltxt2htm::Note&&) noexcept = default;
 
@@ -374,7 +374,7 @@ public:
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_em, ::std::move(subast)} {
     }
 
-    constexpr Em(::pltxt2htm::Em const&) noexcept = default;
+    constexpr Em(::pltxt2htm::Em const&) noexcept = delete;
 
     constexpr Em(::pltxt2htm::Em&&) noexcept = default;
 
@@ -396,7 +396,7 @@ public:
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_strong, ::std::move(subast)} {
     }
 
-    constexpr Strong(::pltxt2htm::Strong const&) noexcept = default;
+    constexpr Strong(::pltxt2htm::Strong const&) noexcept = delete;
 
     constexpr Strong(::pltxt2htm::Strong&&) noexcept = default;
 
@@ -418,7 +418,7 @@ public:
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_ul, ::std::move(subast)} {
     }
 
-    constexpr Ul(::pltxt2htm::Ul const&) noexcept = default;
+    constexpr Ul(::pltxt2htm::Ul const&) noexcept = delete;
 
     constexpr Ul(::pltxt2htm::Ul&&) noexcept = default;
 
@@ -440,7 +440,7 @@ public:
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_li, ::std::move(subast)} {
     }
 
-    constexpr Li(::pltxt2htm::Li const&) noexcept = default;
+    constexpr Li(::pltxt2htm::Li const&) noexcept = delete;
 
     constexpr Li(::pltxt2htm::Li&&) noexcept = default;
 
@@ -462,7 +462,7 @@ public:
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_code, ::std::move(subast)} {
     }
 
-    constexpr Code(::pltxt2htm::Code const&) noexcept = default;
+    constexpr Code(::pltxt2htm::Code const&) noexcept = delete;
 
     constexpr Code(::pltxt2htm::Code&&) noexcept = default;
 
@@ -484,7 +484,7 @@ public:
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_pre, ::std::move(subast)} {
     }
 
-    constexpr Pre(::pltxt2htm::Pre const&) noexcept = default;
+    constexpr Pre(::pltxt2htm::Pre const&) noexcept = delete;
 
     constexpr Pre(::pltxt2htm::Pre&&) noexcept = default;
 
