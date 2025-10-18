@@ -49,9 +49,9 @@ else:
 if args.toolchain != "clang-cl":
     args.toolchain = f"{args.target}-{args.toolchain}"
 
-if args.toolchain == "clang-cl" or "-windows-" in args.target:
+if args.toolchain == "clang-cl" or args.target.endswith("-windows-msvc"):
     plat_flag = "-p windows"
-elif "-w64-mingw32" in args.target:
+elif args.target.endswith("-w64-mingw32") or args.target.endswith("-windows-gnu"):
     plat_flag = "-p mingw"
 elif "-linux-" in args.target:
     plat_flag = "-p linux"
@@ -104,6 +104,4 @@ if err_code != 0:
     raise Exception("xmake install failed")
 
 # Copy headers
-INCLUDE_DIR = os.path.join(INSTALL_DIR, "include")
-os.mkdir(INCLUDE_DIR)
-shutil.copy(os.path.join(SCRIPT_DIR, "pltxt2htm.h"), INCLUDE_DIR)
+shutil.copytree(os.path.join(SCRIPT_DIR, "include"), os.path.join(INSTALL_DIR, "include"))

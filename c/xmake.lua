@@ -11,7 +11,7 @@ set_encodings("utf-8")
 
 target("pltxt2htm", function ()
     set_kind("$(kind)")
-    add_files("pltxt2htm.cc")
+    add_files("src/pltxt2htm.cc")
     add_includedirs("$(projectdir)/../include")
 
     if is_plat("windows") or is_plat("mingw") then
