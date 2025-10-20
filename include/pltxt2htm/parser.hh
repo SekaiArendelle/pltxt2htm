@@ -76,7 +76,8 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) /* throws */ -> ::pl
     if (start_index < pltext.size()) {
         // other common cases
         call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
-            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index), ::pltxt2htm::NodeType::base, ::std::move(result)));
+            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index), ::pltxt2htm::NodeType::base,
+            ::std::move(result)));
         result = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
     }
 

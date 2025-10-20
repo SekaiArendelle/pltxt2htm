@@ -13,23 +13,10 @@ xmake install -o $PREFIX
 ```
 
 ## Usage
-```c
-// example.c
-#include <stdio.h>
-#include <stdlib.h>
-#include "pltxt2htm.h"
-
-int main(void) {
-    char const* html = advanced_parserd("<a>example</a>", "_");
-    printf("%s\n", html);
-    free((void*)html);
-
-    return 0;
-}
-```
+view [example.c](examples/example.c)
 
 compile `example.c`:
 ```sh
-gcc example.c -o example -L ./build/linux/x64/release -lpltxt2htm
+gcc example.c -o example -L $PATH_OF_PLTXT2HTM_LIB -lpltxt2htm
 ./example
 ```

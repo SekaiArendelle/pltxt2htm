@@ -21,7 +21,8 @@ protected:
           nested_tag_type{nested_tag_type_} {
     }
 
-    constexpr BasicFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_, ::pltxt2htm::Ast&& subast_) noexcept
+    constexpr BasicFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
+                                ::pltxt2htm::Ast&& subast_) noexcept
         : pltext(pltext_),
           nested_tag_type{nested_tag_type_},
           subast(::std::move(subast_)) {
@@ -34,7 +35,8 @@ public:
         : ::pltxt2htm::details::BasicFrameContext(pltext_, nested_tag_type_) {
     }
 
-    constexpr BareTagContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_, ::pltxt2htm::Ast&& subast_) noexcept
+    constexpr BareTagContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
+                             ::pltxt2htm::Ast&& subast_) noexcept
         : ::pltxt2htm::details::BasicFrameContext(pltext_, nested_tag_type_, ::std::move(subast_)) {
     }
 
