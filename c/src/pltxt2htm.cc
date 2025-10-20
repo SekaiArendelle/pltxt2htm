@@ -58,16 +58,16 @@ auto PLTXT2HTM_C_NAME_MANGLING(fixedadv_parser)(char8_t const* const pltext,
 }
 
 PLTXT2HTM_C_SRC_EXPORT_FUNCTION
-auto get_version_major() noexcept -> ::std::size_t {
+auto pltxt2htm_version_major() noexcept -> ::std::size_t {
     return ::pltxt2htm::version::major;
 }
 
 PLTXT2HTM_C_SRC_EXPORT_FUNCTION
-auto get_version_minor() noexcept -> ::std::size_t {
+auto pltxt2htm_version_minor() noexcept -> ::std::size_t {
     return ::pltxt2htm::version::minor;
 }
 
 PLTXT2HTM_C_SRC_EXPORT_FUNCTION
-auto get_version_patch() noexcept -> ::std::size_t {
+auto pltxt2htm_version_patch() noexcept -> ::std::size_t {
     return ::pltxt2htm::version::patch;
 }

@@ -14,14 +14,26 @@ char const* PLTXT2HTM_C_NAME_MANGLING(common_parser)(char const* text) /* throws
 char const* PLTXT2HTM_C_NAME_MANGLING(advanced_parser)(char const* text, char const* host) /* throws */;
 char const* PLTXT2HTM_C_NAME_MANGLING(fixedadv_parser)(char const* text, char const* host) /* throws */;
 
-size_t get_version_major(void) PLTXT2HTM_C_NOEXCEPT;
-size_t get_version_minor(void) PLTXT2HTM_C_NOEXCEPT;
-size_t get_version_patch(void) PLTXT2HTM_C_NOEXCEPT;
+size_t pltxt2htm_version_major(void)
+#if __cpp_noexcept_function_type >= 201510L
+    noexcept
+#endif
+    ;
+
+size_t pltxt2htm_version_minor(void)
+#if __cpp_noexcept_function_type >= 201510L
+    noexcept
+#endif
+    ;
+
+size_t pltxt2htm_version_patch(void)
+#if __cpp_noexcept_function_type >= 201510L
+    noexcept
+#endif
+    ;
 
 #if defined(__cplusplus)
 }
 #endif
-
-#include "pop_macros.h"
 
 #endif // PLTXT2HTM_H
