@@ -1,5 +1,6 @@
-use std::ffi::CString;
+pub mod version;
 
+use std::ffi::CString;
 use libpltxt2htm_sys::libpltxt2htm_sys;
 mod c_malloc_string;
 
