@@ -9,8 +9,11 @@
 
 namespace pltxt2htm::details {
 
-int c_fputs(const char* __restrict _Str, FILE* __restrict) noexcept __asm__("fputs");
+#if defined(__clang__) && (defined(__linux__) || defined(_WIN32))
+// To minimize clang generate __clang_call_terminate, only for optimization
+int c_fputs(char const* __restrict _Str, FILE* __restrict) noexcept __asm__("fputs");
 int c_fflush(FILE* __restrict) noexcept __asm__("fflush");
+#endif
 
 template<::pltxt2htm::details::LiteralString expression, ::pltxt2htm::details::LiteralString file_name,
          ::std::uint_least32_t line, ::std::uint_least32_t column, ::pltxt2htm::details::LiteralString msg>
@@ -32,8 +35,13 @@ inline void panic_print() noexcept {
         ::pltxt2htm::details::LiteralString{"\n"
                                             "* with message: \""},
         msg, ::pltxt2htm::details::LiteralString{"\"\0"});
+#if defined(__clang__) && (defined(__linux__) || defined(_WIN32))
     ::pltxt2htm::details::c_fputs(to_be_printed.cdata(), stderr);
     ::pltxt2htm::details::c_fflush(stderr);
+#else
+    ::std::fputs(to_be_printed.cdata(), stderr);
+    ::std::fflush(stderr);
+#endif
 }
 
 } // namespace pltxt2htm::details

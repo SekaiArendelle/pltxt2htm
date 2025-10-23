@@ -37,8 +37,7 @@ static ::PyObject* common_parser([[maybe_unused]] ::PyObject* self, ::PyObject* 
     return result;
 }
 
-static ::PyObject* advanced_parser([[maybe_unused]] ::PyObject* self, ::PyObject* args,
-                                   ::PyObject* kwargs) noexcept {
+static ::PyObject* advanced_parser([[maybe_unused]] ::PyObject* self, ::PyObject* args, ::PyObject* kwargs) noexcept {
     constexpr auto kwlist = ::fast_io::array{"text", "host", nullptr};
 #ifndef NDEBUG
     char8_t const* text = nullptr;
@@ -74,8 +73,7 @@ static ::PyObject* advanced_parser([[maybe_unused]] ::PyObject* self, ::PyObject
     return result;
 }
 
-static ::PyObject* fixedadv_parser([[maybe_unused]] ::PyObject* self, ::PyObject* args,
-                                   ::PyObject* kwargs) noexcept {
+static ::PyObject* fixedadv_parser([[maybe_unused]] ::PyObject* self, ::PyObject* args, ::PyObject* kwargs) noexcept {
     constexpr auto kwlist = ::fast_io::array{"text", "host", nullptr};
 #ifndef NDEBUG
     char8_t const* text = nullptr;
