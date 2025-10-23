@@ -3,6 +3,10 @@ if __name__ != "__main__":
 
 import os
 import shutil
+import platform
+
+if platform.system() != "Linux":
+    raise Exception("This script only works on Linux")
 
 if not shutil.which("lcov"):
     raise Exception("lcov not found, type \"sudo pacman -S lcov perl-cpanel-json-xs\" to install it")

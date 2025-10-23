@@ -86,7 +86,7 @@ docker exec -it pltxt2htm-dev sh
 ```
 
 ## distribution
-`cmd/`, `wasm/` and `py/` distributions share the same version of `pltxt2htm::version`
+All distributions share the same version of `pltxt2htm::version`
 
 `pltxt2htm` only maintains the trunk, and the release versions are only snapshots.
 
@@ -96,7 +96,7 @@ For linux users, please use `wine pltxt2htm.exe` or `wavm run pltxt2htm.wasm` or
 
 > Q: Is this the time to use C++20 module?
 
-A: Not exactly. Despite clang, gcc and msvc all support C++20 modules, but the compiler crashes more frequently than hearder-only. At the same time, Header unit is not fullly supported.
+A: Not exactly. Despite clang, gcc and msvc all support C++20 module, but the compiler crashes more frequently than hearder-only. At the same time, C++20 module heavily rely on build system, which makes it more painful than header-only.
 
 > Q: Why not use NDEBUG macro in include/pltxt2htm
 
