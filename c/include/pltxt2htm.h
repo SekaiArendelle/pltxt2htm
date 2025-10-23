@@ -14,19 +14,19 @@ char const* PLTXT2HTM_C_NAME_MANGLING(common_parser)(char const* text)
 #if __cpp_noexcept_function_type >= 201510L
     noexcept
 #endif
-;
+    ;
 
 char const* PLTXT2HTM_C_NAME_MANGLING(advanced_parser)(char const* text, char const* host)
 #if __cpp_noexcept_function_type >= 201510L
     noexcept
 #endif
-;
+    ;
 
 char const* PLTXT2HTM_C_NAME_MANGLING(fixedadv_parser)(char const* text, char const* host)
 #if __cpp_noexcept_function_type >= 201510L
     noexcept
 #endif
-;
+    ;
 
 size_t pltxt2htm_version_major(void)
 #if __cpp_noexcept_function_type >= 201510L
