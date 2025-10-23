@@ -22,7 +22,7 @@ template<bool ndebug>
 [[msvc::forceinline]]
 #endif
 [[nodiscard]]
-constexpr auto u8string_view_index(::fast_io::u8string_view pltext, ::std::size_t i) /* throws */ {
+constexpr auto u8string_view_index(::fast_io::u8string_view pltext, ::std::size_t i) noexcept {
     pltxt2htm_assert(i < pltext.size(), u8"Index of u8string_view out of bound");
 
     return pltext.index_unchecked(i);
@@ -55,7 +55,7 @@ template<bool ndebug, typename T>
 [[msvc::forceinline]]
 #endif
 [[nodiscard]]
-constexpr auto vector_front(::fast_io::vector<T> const& vec) /* throws */ -> T const& {
+constexpr auto vector_front(::fast_io::vector<T> const& vec) noexcept -> T const& {
     pltxt2htm_assert(!vec.empty(), u8"Indexing front but vector is empty");
 
     return vec.front_unchecked();
@@ -71,7 +71,7 @@ template<bool ndebug, typename T>
 [[msvc::forceinline]]
 #endif
 [[nodiscard]]
-constexpr auto vector_index(::fast_io::vector<T> const& vec, ::std::size_t i) /* throws */ -> T const& {
+constexpr auto vector_index(::fast_io::vector<T> const& vec, ::std::size_t i) noexcept -> T const& {
     pltxt2htm_assert(i < vec.size(), u8"Index of vector out of bound");
 
     return vec.index_unchecked(i);
@@ -120,7 +120,7 @@ template<bool ndebug, char8_t... prefix_str>
 [[msvc::forceinline]]
 #endif
 [[nodiscard]]
-constexpr bool is_prefix_match(::fast_io::u8string_view str) /* throws */ {
+constexpr bool is_prefix_match(::fast_io::u8string_view str) noexcept {
     // Check whether the index is out of bound.
     if (sizeof...(prefix_str) > str.size()) [[unlikely]] {
         return false;

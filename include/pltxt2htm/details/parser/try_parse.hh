@@ -162,7 +162,7 @@ struct ParseUtf8CodePointResult {
  */
 template<bool ndebug>
 constexpr ::pltxt2htm::details::ParseUtf8CodePointResult parse_utf8_code_point(
-    ::fast_io::u8string_view const& pltext) /* throws */ {
+    ::fast_io::u8string_view const& pltext) noexcept {
     ::pltxt2htm::Ast result{};
     ::std::size_t const pltext_size{pltext.size()};
     char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 0)};
@@ -275,7 +275,7 @@ constexpr ::pltxt2htm::details::ParseUtf8CodePointResult parse_utf8_code_point(
 template<bool ndebug, char8_t... tag_name>
 [[nodiscard]]
 constexpr auto try_parse_bare_tag(
-    ::fast_io::u8string_view pltext) /* throws */ -> ::exception::optional<::std::size_t> {
+    ::fast_io::u8string_view pltext) noexcept -> ::exception::optional<::std::size_t> {
     if (::pltxt2htm::details::is_prefix_match<ndebug, tag_name...>(pltext) == false) {
         return ::exception::nullopt_t{};
     }
@@ -306,7 +306,7 @@ template<bool ndebug, char8_t... prefix_str, typename Func>
     }
 [[nodiscard]]
 constexpr auto try_parse_equal_sign_tag(::fast_io::u8string_view pltext,
-                                        Func&& func) /* throws */ -> ::exception::optional<TryParseEqualSignTagResult> {
+                                        Func&& func) noexcept -> ::exception::optional<TryParseEqualSignTagResult> {
     if (::pltxt2htm::details::is_prefix_match<ndebug, prefix_str..., u8'='>(pltext) == false) {
         return ::exception::nullopt_t{};
     }
@@ -395,7 +395,7 @@ struct TryParseMdAtxHeadingResult {
  */
 template<bool ndebug>
 [[nodiscard]]
-constexpr auto try_parse_md_atx_heading(::fast_io::u8string_view pltext) /* throws */ -> ::exception::optional<
+constexpr auto try_parse_md_atx_heading(::fast_io::u8string_view pltext) noexcept -> ::exception::optional<
     ::pltxt2htm::details::TryParseMdAtxHeadingResult> {
     ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t start_index{};
@@ -486,7 +486,7 @@ enum class ThematicBreakType : ::std::uint_least32_t {
  */
 template<bool ndebug>
 constexpr auto try_parse_md_thematic_break(
-    ::fast_io::u8string_view text) /* throws */ -> ::exception::optional<::std::size_t> {
+    ::fast_io::u8string_view text) noexcept -> ::exception::optional<::std::size_t> {
     if (text.size() < 3) {
         return ::exception::nullopt_t{};
     }
@@ -551,7 +551,7 @@ struct TryParseMdCodeFenceResult {
 };
 
 template<bool ndebug, bool is_backtick>
-constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) /* throws */ -> ::exception::optional<
+constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcept -> ::exception::optional<
     ::pltxt2htm::details::TryParseMdCodeFenceResult> {
     if (pltext.size() <= 7) {
         return ::exception::nullopt_t{};
@@ -686,7 +686,7 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) /* thro
 }
 
 template<bool ndebug>
-constexpr auto try_parse_md_code_fence(::fast_io::u8string_view pltext) /* throws */ -> ::exception::optional<
+constexpr auto try_parse_md_code_fence(::fast_io::u8string_view pltext) noexcept -> ::exception::optional<
     ::pltxt2htm::details::TryParseMdCodeFenceResult> {
     if (auto opt_code_fence_backtick = ::pltxt2htm::details::try_parse_md_code_fence_<ndebug, true>(pltext);
         opt_code_fence_backtick.has_value()) {
@@ -701,7 +701,7 @@ constexpr auto try_parse_md_code_fence(::fast_io::u8string_view pltext) /* throw
 
 template<bool ndebug, char8_t... embraced_chars>
 constexpr auto try_parse_md_inlines(
-    ::fast_io::u8string_view pltext) /* throws */ -> ::exception::optional<::std::size_t> {
+    ::fast_io::u8string_view pltext) noexcept -> ::exception::optional<::std::size_t> {
     if (!::pltxt2htm::details::is_prefix_match<ndebug, embraced_chars...>(pltext)) {
         return ::exception::nullopt_t{};
     }

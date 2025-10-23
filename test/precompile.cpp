@@ -16,7 +16,7 @@ namespace pltxt2htm_test {
 #if __has_attribute(visibility)
 __attribute__((visibility("default")))
 #endif
-::fast_io::u8string pltxt2common_htmld(::fast_io::u8string_view pltext) /* throws */ {
+::fast_io::u8string pltxt2common_htmld(::fast_io::u8string_view pltext) noexcept {
     return ::pltxt2htm::pltxt2common_html<false>(pltext);
 }
 
@@ -26,7 +26,7 @@ __attribute__((visibility("default")))
 #if __has_attribute(visibility)
 __attribute__((visibility("default")))
 #endif
-::fast_io::u8string pltxt2common_html(::fast_io::u8string_view pltext) /* throws */ {
+::fast_io::u8string pltxt2common_html(::fast_io::u8string_view pltext) noexcept {
     return ::pltxt2htm::pltxt2common_html<false, true>(pltext);
 }
 
@@ -36,7 +36,7 @@ __attribute__((visibility("default")))
 #if __has_attribute(visibility)
 __attribute__((visibility("default")))
 #endif
-::fast_io::u8string pltxt2advanced_htmld(::fast_io::u8string_view pltext) /* throws */ {
+::fast_io::u8string pltxt2advanced_htmld(::fast_io::u8string_view pltext) noexcept {
     return ::pltxt2htm::pltxt2advanced_html<false>(pltext, u8"localhost:5173");
 }
 
@@ -46,7 +46,7 @@ __attribute__((visibility("default")))
 #if __has_attribute(visibility)
 __attribute__((visibility("default")))
 #endif
-::fast_io::u8string pltxt2fixedadv_htmld(::fast_io::u8string_view pltext) /* throws */ {
+::fast_io::u8string pltxt2fixedadv_htmld(::fast_io::u8string_view pltext) noexcept {
     return ::pltxt2htm::pltxt2fixedadv_html<false>(pltext, u8"localhost:5173");
 }
 

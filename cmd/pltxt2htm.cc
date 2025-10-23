@@ -27,7 +27,7 @@ constexpr ::fast_io::u8string_view usage{
     echo "example" | pltxt2htm --target fixedadv_html --host <host name> -o <output file>
 )"};
 
-int main(int argc, char const* const* const argv) /* throws */ {
+int main(int argc, char const* const* const argv) noexcept{
     if (argc == 1) {
         ::fast_io::print(
             "pltxt2htm\n"

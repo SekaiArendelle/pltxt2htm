@@ -4,7 +4,7 @@
 #include <fast_io/fast_io_dsal/array.h>
 #include <pltxt2htm/pltxt2htm.h>
 
-static ::PyObject* common_parser([[maybe_unused]] ::PyObject* self, ::PyObject* args, ::PyObject* kwargs) /* throws */ {
+static ::PyObject* common_parser([[maybe_unused]] ::PyObject* self, ::PyObject* args, ::PyObject* kwargs) noexcept {
     constexpr auto kwlist = ::fast_io::array{"text", nullptr};
 #ifndef NDEBUG
     char8_t const* text = nullptr;
@@ -38,7 +38,7 @@ static ::PyObject* common_parser([[maybe_unused]] ::PyObject* self, ::PyObject* 
 }
 
 static ::PyObject* advanced_parser([[maybe_unused]] ::PyObject* self, ::PyObject* args,
-                                   ::PyObject* kwargs) /* throws */ {
+                                   ::PyObject* kwargs) noexcept {
     constexpr auto kwlist = ::fast_io::array{"text", "host", nullptr};
 #ifndef NDEBUG
     char8_t const* text = nullptr;
@@ -75,7 +75,7 @@ static ::PyObject* advanced_parser([[maybe_unused]] ::PyObject* self, ::PyObject
 }
 
 static ::PyObject* fixedadv_parser([[maybe_unused]] ::PyObject* self, ::PyObject* args,
-                                   ::PyObject* kwargs) /* throws */ {
+                                   ::PyObject* kwargs) noexcept {
     constexpr auto kwlist = ::fast_io::array{"text", "host", nullptr};
 #ifndef NDEBUG
     char8_t const* text = nullptr;

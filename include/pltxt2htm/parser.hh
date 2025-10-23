@@ -19,7 +19,7 @@ namespace pltxt2htm {
  */
 template<bool ndebug>
 [[nodiscard]]
-constexpr auto parse_pltxt(::fast_io::u8string_view pltext) /* throws */ -> ::pltxt2htm::Ast {
+constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2htm::Ast {
     // fast_io::deque contains bug about RAII, use fast_io::list instead
     ::fast_io::stack<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>,
                      ::fast_io::list<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>>>

@@ -23,7 +23,7 @@
     extern "C" PLTXT2HTM_C_SRC_VISIBILITY_DEFAULT PLTXT2HTM_C_SRC_USED PLTXT2HTM_C_SRC_WIN32_DLLEXPORT
 
 PLTXT2HTM_C_SRC_EXPORT_FUNCTION
-auto PLTXT2HTM_C_NAME_MANGLING(common_parser)(char8_t const* const pltext) /* throws */ -> char8_t const* {
+auto PLTXT2HTM_C_NAME_MANGLING(common_parser)(char8_t const* const pltext) noexcept -> char8_t const* {
     return ::pltxt2htm::common_parser<
 #if defined(NDEBUG)
         true
@@ -35,7 +35,7 @@ auto PLTXT2HTM_C_NAME_MANGLING(common_parser)(char8_t const* const pltext) /* th
 
 PLTXT2HTM_C_SRC_EXPORT_FUNCTION
 auto PLTXT2HTM_C_NAME_MANGLING(advanced_parser)(char8_t const* const pltext,
-                                                char8_t const* const host) /* throws */ -> char8_t const* {
+                                                char8_t const* const host) noexcept -> char8_t const* {
     return ::pltxt2htm::advanced_parser<
 #if defined(NDEBUG)
         true
@@ -47,7 +47,7 @@ auto PLTXT2HTM_C_NAME_MANGLING(advanced_parser)(char8_t const* const pltext,
 
 PLTXT2HTM_C_SRC_EXPORT_FUNCTION
 auto PLTXT2HTM_C_NAME_MANGLING(fixedadv_parser)(char8_t const* const pltext,
-                                                char8_t const* const host) /* throws */ -> char8_t const* {
+                                                char8_t const* const host) noexcept -> char8_t const* {
     return ::pltxt2htm::fixedadv_parser<
 #if defined(NDEBUG)
         true

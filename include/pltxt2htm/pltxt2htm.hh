@@ -25,7 +25,7 @@ namespace pltxt2htm {
  */
 template<bool ndebug = false, bool optimize = true>
 [[nodiscard]]
-constexpr auto pltxt2advanced_html(::fast_io::u8string_view pltext, ::fast_io::u8string_view host) /* throws */ {
+constexpr auto pltxt2advanced_html(::fast_io::u8string_view pltext, ::fast_io::u8string_view host) noexcept{
     auto ast = ::pltxt2htm::parse_pltxt<ndebug>(pltext);
     if constexpr (optimize) {
         ::pltxt2htm::optimize_ast<ndebug>(ast);
@@ -41,7 +41,7 @@ constexpr auto pltxt2advanced_html(::fast_io::u8string_view pltext, ::fast_io::u
  */
 template<bool ndebug = false, bool optimize = true>
 [[nodiscard]]
-constexpr auto pltxt2fixedadv_html(::fast_io::u8string_view pltext, ::fast_io::u8string_view host) /* throws */ {
+constexpr auto pltxt2fixedadv_html(::fast_io::u8string_view pltext, ::fast_io::u8string_view host) noexcept{
     auto ast = ::pltxt2htm::parse_pltxt<ndebug>(pltext);
     if constexpr (optimize) {
         ::pltxt2htm::optimize_ast<ndebug>(ast);
@@ -55,7 +55,7 @@ constexpr auto pltxt2fixedadv_html(::fast_io::u8string_view pltext, ::fast_io::u
  */
 template<bool ndebug = false, bool optimize = false>
 [[nodiscard]]
-constexpr auto pltxt2common_html(::fast_io::u8string_view pltext) /* throws */ {
+constexpr auto pltxt2common_html(::fast_io::u8string_view pltext) noexcept{
     auto ast = ::pltxt2htm::parse_pltxt<ndebug>(pltext);
     if constexpr (optimize) {
         ::pltxt2htm::optimize_ast<ndebug>(ast);

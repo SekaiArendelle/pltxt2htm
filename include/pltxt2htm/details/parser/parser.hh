@@ -66,7 +66,7 @@ constexpr auto devil_stuff_after_line_break(
     ::fast_io::u8string_view pltext,
     ::fast_io::stack<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>,
                      ::fast_io::list<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>>>& call_stack,
-    ::pltxt2htm::Ast& result) /* throws */ -> ::pltxt2htm::details::DevilStuffAfterLineBreakResult {
+    ::pltxt2htm::Ast& result) noexcept -> ::pltxt2htm::details::DevilStuffAfterLineBreakResult {
     ::std::size_t current_index{};
     while (true) {
         if (current_index >= pltext.size()) {
@@ -124,7 +124,7 @@ template<bool ndebug>
 constexpr auto parse_pltxt(
     ::fast_io::stack<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>,
                      ::fast_io::list<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>>>&
-        call_stack) /* throws */ -> ::pltxt2htm::Ast {
+        call_stack) noexcept -> ::pltxt2htm::Ast {
 restart:
     auto&& current_index = call_stack.top()->current_index;
     auto&& pltext = call_stack.top()->pltext;
