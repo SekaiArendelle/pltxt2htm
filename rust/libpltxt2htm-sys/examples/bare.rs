@@ -1,5 +1,5 @@
 use libc;
-use libpltxt2htm_sys::libpltxt2htm_sys;
+use libpltxt2htm_sys;
 use std::ffi::{CStr, CString};
 
 fn main() {

@@ -1,1 +1,4 @@
-pub mod pltxt2htm;
+mod pltxt2htm;
+
+pub use pltxt2htm::*;
+

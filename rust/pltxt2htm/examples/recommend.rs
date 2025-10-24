@@ -1,4 +1,4 @@
-use pltxt2htm::pltxt2htm;
+use pltxt2htm;
 use std::ffi::CString;
 
 fn main() {

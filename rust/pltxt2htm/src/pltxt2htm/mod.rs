@@ -1,7 +1,7 @@
 pub mod version;
 
 use std::ffi::CString;
-use libpltxt2htm_sys::libpltxt2htm_sys;
+use libpltxt2htm_sys;
 mod c_malloc_string;
 
 pub fn pltxt2common_html(pltext: CString) -> c_malloc_string::CMallocString {
