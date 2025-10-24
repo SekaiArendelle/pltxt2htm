@@ -2,4 +2,3 @@
 pub const MAJOR: usize = 0;
 pub const MINOR: usize = 6;
 pub const PATCH: usize = 0;
-
