@@ -45,5 +45,9 @@ int main() {
     auto answer11 = ::fast_io::u8string_view{u8"<br><pre><code class=\"language-py\">print(1)</code></pre>"};
     ::pltxt2htm_test::assert_true(html11 == answer11);
 
+    auto html12 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<br>```\nte st\n```");
+    auto answer12 = ::fast_io::u8string_view{u8"<br><pre><code>te&nbsp;st</code></pre>"};
+    ::pltxt2htm_test::assert_true(html12 == answer12);
+
     return 0;
 }

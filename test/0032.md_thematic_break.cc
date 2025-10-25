@@ -113,5 +113,9 @@ int main() {
     auto answer28 = ::fast_io::u8string_view{u8"<br><h1>t</h1><h1>t</h1><h1>t</h1>"};
     ::pltxt2htm_test::assert_true(html28 == answer28);
 
+    auto html29 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"\n#  #\n# #\n # #");
+    auto answer29 = ::fast_io::u8string_view{u8"<br><h1>#</h1><h1>#</h1><h1>#</h1>"};
+    ::pltxt2htm_test::assert_true(html29 == answer29);
+
     return 0;
 }
