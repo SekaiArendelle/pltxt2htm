@@ -5,6 +5,7 @@
 //     #include <stacktrace>
 // #endif
 #include <cstdio>
+#include <exception/exception.hh>
 #include "literal_string.hh"
 
 namespace pltxt2htm::details {
@@ -20,7 +21,8 @@ template<::pltxt2htm::details::LiteralString expression, ::pltxt2htm::details::L
 #if __has_cpp_attribute(__gnu__::__cold__)
 [[__gnu__::__cold__]]
 #endif
-inline void panic_print() noexcept {
+[[noreturn]]
+inline void panic() noexcept {
     auto to_be_printed = ::pltxt2htm::details::concat(
         ::pltxt2htm::details::LiteralString{"Program panicked because \"assert("}, expression,
         ::pltxt2htm::details::LiteralString{")\" failed\n"
@@ -42,6 +44,7 @@ inline void panic_print() noexcept {
     ::std::fputs(to_be_printed.cdata(), stderr);
     ::std::fflush(stderr);
 #endif
+    ::exception::terminate();
 }
 
 } // namespace pltxt2htm::details

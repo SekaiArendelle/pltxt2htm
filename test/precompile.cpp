@@ -8,6 +8,10 @@
 #include <exception/exception.hh>
 #include <pltxt2htm/pltxt2htm.hh>
 
+#if defined(pltxt2htm_assert)
+    #error "Test fail: pltxt2htm_assert is defined"
+#endif
+
 namespace pltxt2htm_test {
 
 #if __has_cpp_attribute(__gnu__::__used__)

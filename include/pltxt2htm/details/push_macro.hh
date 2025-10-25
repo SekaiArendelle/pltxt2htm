@@ -5,7 +5,6 @@
  */
 
 #include <source_location>
-#include <exception/exception.hh>
 #include "panic.hh"
 
 #pragma push_macro("pltxt2htm_assert")
@@ -19,10 +18,9 @@
         if constexpr (ndebug == false) { \
             if ((condition) == false) [[unlikely]] { \
                 constexpr auto source_location = ::std::source_location::current(); \
-                ::pltxt2htm::details::panic_print< \
+                ::pltxt2htm::details::panic< \
                     ::pltxt2htm::details::LiteralString{#condition}, ::pltxt2htm::details::LiteralString{__FILE__}, \
                     source_location.line(), source_location.column(), ::pltxt2htm::details::LiteralString{message}>(); \
-                ::exception::terminate(); \
             } \
         } \
     } while (0)
