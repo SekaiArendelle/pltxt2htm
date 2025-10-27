@@ -11,7 +11,19 @@
 #undef pltxt2htm_assert
 /**
  * @brief Assert whether the condition expression is true, if not, print
- *         the message and terminate the program.
+ *        the message and terminate the program.
+ *
+ * This macro evaluates the given condition and if it evaluates to false,
+ * it will call panic() to terminate the program with diagnostic information.
+ * The assertion is only active when ndebug is set to false.
+ *
+ * @param condition The condition expression to evaluate
+ * @param message A descriptive error message to display if the assertion fails
+ *
+ * @note This macro behaves like a standard assert but uses the pltxt2htm
+ *       panic mechanism for error reporting.
+ *
+ * @see pltxt2htm::details::panic()
  */
 #define pltxt2htm_assert(condition, message) \
     do { \

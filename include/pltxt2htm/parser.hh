@@ -28,46 +28,43 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
 
     ::std::size_t start_index{};
 
-    while (start_index < pltext.size()) {
-        if (auto opt_md_atx_heading = ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(
-                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index));
-            opt_md_atx_heading.has_value()) {
-            // Consider the following text
-            // ## test
-            // ...
-            // Here, the first line is a markdown atx heading, will hit this case
-            auto&& [start_index_, sublength, forward_index, md_atx_heading_type] =
-                opt_md_atx_heading.template value<ndebug>();
-            ::pltxt2htm::Ast subast{};
-            if (sublength) {
-                auto subtext = ::pltxt2htm::details::u8string_view_subview<ndebug>(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index), start_index_, sublength);
-                call_stack.push(
-                    ::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(subtext, md_atx_heading_type));
-                subast = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
+    while (true) {
+        auto&& [forward_index, require_goto_restart] = ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(
+            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index), call_stack, result);
+        start_index += forward_index;
+        if (require_goto_restart) {
+            ::pltxt2htm::NodeType type_of_subast{call_stack.top()->nested_tag_type};
+            auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
+            switch (type_of_subast) {
+            case ::pltxt2htm::NodeType::md_atx_h1: {
+                result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH1>(::std::move(subast)));
+                break;
             }
-            result.push_back(
-                ::pltxt2htm::details::switch_md_atx_header<ndebug>(md_atx_heading_type, ::std::move(subast)));
-            // rectify the start index to the start of next text (aka. below common cases)
-            start_index += forward_index;
-            continue;
-        } else if (auto opt_thematic_break = ::pltxt2htm::details::try_parse_md_thematic_break<ndebug>(
-                       ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index));
-                   opt_thematic_break.has_value()) {
-            // considering following markdown
-            // ---
-            // ...
-            // above example will hit this branch
-            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdHr>{});
-            start_index += opt_thematic_break.template value<ndebug>();
-            continue;
-        } else if (auto opt_code_fence = ::pltxt2htm::details::try_parse_md_code_fence<ndebug>(
-                       ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index));
-                   opt_code_fence.has_value()) {
-            auto&& [node, forward_index] = opt_code_fence.template value<ndebug>();
-            result.push_back(::std::move(node));
-            start_index += forward_index;
-            break;
+            case ::pltxt2htm::NodeType::md_atx_h2: {
+                result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH2>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::md_atx_h3: {
+                result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH3>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::md_atx_h4: {
+                result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH4>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::md_atx_h5: {
+                result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH5>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::md_atx_h6: {
+                result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH6>(::std::move(subast)));
+                break;
+            }
+            default:
+                [[unlikely]] {
+                    ::exception::unreachable<ndebug>();
+                }
+            }
         } else {
             break;
         }

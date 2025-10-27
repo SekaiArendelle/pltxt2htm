@@ -19,42 +19,6 @@
 
 namespace pltxt2htm::details {
 
-/**
- * @brief Switch to a markdown atx header.
- * @param[in] header_level: The header level.
- * @param[in] subast: The sub ast.
- * @return True if successful.
- */
-template<bool ndebug>
-[[nodiscard]]
-constexpr auto switch_md_atx_header(::pltxt2htm::NodeType md_atx_heading_type, ::pltxt2htm::Ast&& subast) noexcept
-    -> ::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode> {
-    switch (md_atx_heading_type) {
-    case ::pltxt2htm::NodeType::md_atx_h1: {
-        return ::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH1>(::std::move(subast));
-    }
-    case ::pltxt2htm::NodeType::md_atx_h2: {
-        return ::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH2>(::std::move(subast));
-    }
-    case ::pltxt2htm::NodeType::md_atx_h3: {
-        return ::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH3>(::std::move(subast));
-    }
-    case ::pltxt2htm::NodeType::md_atx_h4: {
-        return ::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH4>(::std::move(subast));
-    }
-    case ::pltxt2htm::NodeType::md_atx_h5: {
-        return ::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH5>(::std::move(subast));
-    }
-    case ::pltxt2htm::NodeType::md_atx_h6: {
-        return ::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH6>(::std::move(subast));
-    }
-    default:
-        [[unlikely]] {
-            ::exception::unreachable<ndebug>();
-        }
-    }
-}
-
 struct DevilStuffAfterLineBreakResult {
     ::std::size_t forward_index;
     bool require_goto_restart;
@@ -88,8 +52,36 @@ constexpr auto devil_stuff_after_line_break(
                 return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{.forward_index = current_index,
                                                                             .require_goto_restart = true};
             } else {
-                result.push_back(
-                    ::pltxt2htm::details::switch_md_atx_header<ndebug>(md_atx_heading_type, ::pltxt2htm::Ast{}));
+                switch (md_atx_heading_type) {
+                case ::pltxt2htm::NodeType::md_atx_h1: {
+                    result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH1>(::pltxt2htm::Ast{}));
+                    break;
+                }
+                case ::pltxt2htm::NodeType::md_atx_h2: {
+                    result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH2>(::pltxt2htm::Ast{}));
+                    break;
+                }
+                case ::pltxt2htm::NodeType::md_atx_h3: {
+                    result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH3>(::pltxt2htm::Ast{}));
+                    break;
+                }
+                case ::pltxt2htm::NodeType::md_atx_h4: {
+                    result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH4>(::pltxt2htm::Ast{}));
+                    break;
+                }
+                case ::pltxt2htm::NodeType::md_atx_h5: {
+                    result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH5>(::pltxt2htm::Ast{}));
+                    break;
+                }
+                case ::pltxt2htm::NodeType::md_atx_h6: {
+                    result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH6>(::pltxt2htm::Ast{}));
+                    break;
+                }
+                default:
+                    [[unlikely]] {
+                        ::exception::unreachable<ndebug>();
+                    }
+                }
                 current_index += forward_index;
                 continue;
             }
