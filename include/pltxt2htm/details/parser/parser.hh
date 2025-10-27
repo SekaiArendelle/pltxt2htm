@@ -1223,12 +1223,9 @@ restart:
 
             ::exception::unreachable<ndebug>();
         } else {
-            auto&& [subast, forward_index] = ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
-                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            auto forward_index = ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), result);
             current_index += forward_index;
-            for (auto&& node : subast) {
-                result.push_back(::std::move(node));
-            }
             continue;
         }
     }

@@ -149,11 +149,6 @@ constexpr ::exception::optional<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>> 
     }
 }
 
-struct ParseUtf8CodePointResult {
-    ::pltxt2htm::Ast result;
-    ::std::size_t forward_index;
-};
-
 /**
  * @brief Parse a single UTF-8 code point and append the corresponding AST node(s).
  *
@@ -161,107 +156,106 @@ struct ParseUtf8CodePointResult {
  * @param pltext   The complete input text being parsed.
  */
 template<bool ndebug>
-constexpr ::pltxt2htm::details::ParseUtf8CodePointResult parse_utf8_code_point(
-    ::fast_io::u8string_view const& pltext) noexcept {
-    ::pltxt2htm::Ast result{};
+constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::pltxt2htm::Ast& result) noexcept
+    -> ::std::size_t {
     ::std::size_t const pltext_size{pltext.size()};
     char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 0)};
 
     if (chr <= 0x1f || (0x7f <= chr && chr <= 0x9f)) {
-        return {.result = ::std::move(result), .forward_index = 0};
+        return 0;
     }
     if ((chr & 0x80) == 0) {
         // normal utf-8 characters
         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{chr});
-        return {.result = ::std::move(result), .forward_index = 0};
+        return 0;
     } else if ((chr & 0xE0) == 0xC0) {
         if (1 >= pltext_size) {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
-            return {.result = ::std::move(result), .forward_index = 0};
+            return 0;
         }
         auto next_char = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 1);
         if ((next_char & 0xC0) != 0x80) {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
-            return {.result = ::std::move(result), .forward_index = 0};
+            return 0;
         }
         char32_t combine{static_cast<char32_t>(chr & 0x1F) << 6 | static_cast<char32_t>(next_char & 0x3F)};
         if (combine < 0x80 || combine > 0x7FF) {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
-            return {.result = ::std::move(result), .forward_index = 0};
+            return 0;
         }
 
         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{chr});
         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{next_char});
-        return {.result = ::std::move(result), .forward_index = 1};
+        return 1;
     } else if ((chr & 0xF0) == 0xE0) {
         if (2 >= pltext_size) {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
-            return {.result = ::std::move(result), .forward_index = 0};
+            return 0;
         }
         auto next_char = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 1);
         if ((next_char & 0xC0) != 0x80) {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
-            return {.result = ::std::move(result), .forward_index = 0};
+            return 0;
         }
         auto next_char2 = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 2);
         if ((next_char2 & 0xC0) != 0x80) {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
-            return {.result = ::std::move(result), .forward_index = 0};
+            return 0;
         }
         char32_t combine{static_cast<char32_t>(chr & 0x0f) << 12 | static_cast<char32_t>(next_char & 0x3f) << 6 |
                          static_cast<char32_t>(next_char2 & 0x3f)};
         if (combine < 0x800 || combine > 0xffff) {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
-            return {.result = ::std::move(result), .forward_index = 0};
+            return 0;
         }
         if (0xd800 <= combine && combine <= 0xdfff) {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
-            return {.result = ::std::move(result), .forward_index = 0};
+            return 0;
         }
 
         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{chr});
         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{next_char});
         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{next_char2});
-        return {.result = ::std::move(result), .forward_index = 2};
+        return 2;
     } else if ((chr & 0xF8) == 0xF0) {
         if (3 >= pltext_size) {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
-            return {.result = ::std::move(result), .forward_index = 0};
+            return 0;
         }
         auto next_char = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 1);
         if ((next_char & 0xC0) != 0x80) {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
-            return {.result = ::std::move(result), .forward_index = 0};
+            return 0;
         }
         auto next_char2 = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 2);
         if ((next_char & 0xC0) != 0x80) {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
-            return {.result = ::std::move(result), .forward_index = 0};
+            return 0;
         }
         auto next_char3 = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 3);
         if ((next_char3 & 0xC0) != 0x80) {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
-            return {.result = ::std::move(result), .forward_index = 0};
+            return 0;
         }
         char32_t combine{static_cast<char32_t>(chr & 0x07) << 18 | static_cast<char32_t>(next_char & 0x3F) << 12 |
                          static_cast<char32_t>(next_char2 & 0x3F) << 6 | static_cast<char32_t>(next_char3 & 0x3F)};
         if (combine < 0x10000 || combine > 0x10FFFF) {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
-            return {.result = ::std::move(result), .forward_index = 0};
+            return 0;
         }
         if (0xd800 <= combine && combine <= 0xdfff) {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
-            return {.result = ::std::move(result), .forward_index = 0};
+            return 0;
         }
 
         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{chr});
         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{next_char});
         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{next_char2});
         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{next_char3});
-        return {.result = ::std::move(result), .forward_index = 3};
+        return 3;
     } else {
         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
-        return {.result = ::std::move(result), .forward_index = 0};
+        return 0;
     }
 }
 
@@ -659,12 +653,9 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
         } else if (chr == u8'<') {
             ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
         } else {
-            auto&& [subast, forward_index] = ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
-                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            auto forward_index = ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), ast);
             current_index += forward_index;
-            for (auto&& node : subast) {
-                ast.push_back(::std::move(node));
-            }
             continue;
         }
     }
