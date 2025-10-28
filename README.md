@@ -56,7 +56,7 @@ docker run -d --name pltxt2htm-dev pltxt2htm
 
 ### Enter container
 ```sh
-docker exec -it pltxt2htm-dev sh
+docker exec -it pltxt2htm-dev bash
 ```
 
 ## distribution
