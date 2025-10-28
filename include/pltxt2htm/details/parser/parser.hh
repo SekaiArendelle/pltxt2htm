@@ -350,6 +350,17 @@ restart:
                         goto restart;
                     }
                     continue;
+                } else if (auto opt_blockquote_tag =
+                               ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'l', u8'o', u8'c', u8'k', u8'q',
+                                                                        u8'u', u8'o', u8't', u8'e'>(
+                                   ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                           opt_blockquote_tag.has_value()) {
+                    // parsing pl&html <b> tag
+                    current_index += opt_blockquote_tag.template value<ndebug>() + 3;
+                    call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                        ::pltxt2htm::NodeType::html_blockquote));
+                    goto restart;
                 } else {
                     result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
                     continue;
@@ -1076,6 +1087,25 @@ restart:
                         continue;
                     }
                 }
+                case ::pltxt2htm::NodeType::html_blockquote: {
+                    if (auto opt_tag_len =
+                            ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8'b', u8'l', u8'o', u8'c', u8'k', u8'q',
+                                                                     u8'u', u8'o', u8't', u8'e'>(
+                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                        opt_tag_len.has_value()) {
+                        // parsing end tag </blockquote> successed
+                        ::std::size_t const staged_index{current_index};
+                        ::pltxt2htm::Blockquote staged_node(::std::move(result));
+                        call_stack.pop();
+                        call_stack.top()->subast.push_back(
+                            ::pltxt2htm::HeapGuard<::pltxt2htm::Blockquote>(::std::move(staged_node)));
+                        call_stack.top()->current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
+                        goto restart;
+                    } else {
+                        result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                        continue;
+                    }
+                }
                 case ::pltxt2htm::NodeType::base:
                     [[fallthrough]];
                 case ::pltxt2htm::NodeType::md_code_fence_backtick:
@@ -1363,6 +1393,11 @@ restart:
             }
             case ::pltxt2htm::NodeType::html_pre: {
                 super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Pre>(::std::move(subast)));
+                super_index += staged_index;
+                break;
+            }
+            case ::pltxt2htm::NodeType::html_blockquote: {
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Blockquote>(::std::move(subast)));
                 super_index += staged_index;
                 break;
             }

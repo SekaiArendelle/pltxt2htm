@@ -495,4 +495,26 @@ public:
     constexpr ::pltxt2htm::Pre& operator=(::pltxt2htm::Pre&&) noexcept = default;
 };
 
+/**
+ * @brief Represents HTML `<blockquote>`.
+ */
+class Blockquote : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr Blockquote() noexcept = delete;
+
+    constexpr Blockquote(::pltxt2htm::Ast&& subast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_blockquote, ::std::move(subast)} {
+    }
+
+    constexpr Blockquote(::pltxt2htm::Blockquote const&) noexcept = delete;
+
+    constexpr Blockquote(::pltxt2htm::Blockquote&&) noexcept = default;
+
+    constexpr ~Blockquote() noexcept = default;
+
+    constexpr ::pltxt2htm::Blockquote& operator=(::pltxt2htm::Blockquote const&) noexcept = delete;
+
+    constexpr ::pltxt2htm::Blockquote& operator=(::pltxt2htm::Blockquote&&) noexcept = default;
+};
+
 } // namespace pltxt2htm

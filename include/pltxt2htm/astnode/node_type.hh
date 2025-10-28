@@ -81,6 +81,8 @@ enum class NodeType : ::std::size_t {
     html_code,
     // html <pre> tag
     html_pre,
+    // html <blockquote> tag
+    html_blockquote,
 
     // markdown headers
     md_atx_h1,

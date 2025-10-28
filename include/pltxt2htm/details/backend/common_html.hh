@@ -318,6 +318,8 @@ restart:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_pre:
             [[fallthrough]];
+        case ::pltxt2htm::NodeType::html_blockquote:
+            [[fallthrough]];
         case ::pltxt2htm::NodeType::md_code_fence_backtick:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_code_fence_tilde:
@@ -330,10 +332,6 @@ restart:
             // TODO common_html should not ignore the tag context
             // We should recover the tag context
             auto a_paired_tag = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
-            if (a_paired_tag->get_subast().empty()) {
-                // Optimization: if the tag is empty, we can skip it
-                break;
-            }
             call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(a_paired_tag->get_subast(),
                                                                            ::pltxt2htm::NodeType::base, 0));
             ++current_index;

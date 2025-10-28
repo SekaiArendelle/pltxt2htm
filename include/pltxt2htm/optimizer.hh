@@ -509,6 +509,14 @@ restart:
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_pre, subast.begin()));
             goto restart;
         }
+        case ::pltxt2htm::NodeType::html_blockquote: {
+            // pre tag can't impl nested tag erasing
+            auto blockquote = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
+            auto&& subast = blockquote->get_subast();
+            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+                ::std::addressof(subast), ::pltxt2htm::NodeType::html_blockquote, subast.begin()));
+            goto restart;
+        }
         case ::pltxt2htm::NodeType::md_link:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_triple_emphasis_underscore:
@@ -623,6 +631,8 @@ restart:
                 }
                 goto restart;
             }
+            case ::pltxt2htm::NodeType::html_blockquote:
+                [[fallthrough]];
             case ::pltxt2htm::NodeType::md_code_fence_backtick:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::md_code_fence_tilde:
@@ -654,9 +664,11 @@ restart:
             case ::pltxt2htm::NodeType::html_h5:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::html_h6: {
+                // Above tag can't be optimized
                 break;
             }
             default:
+                // Rest of tags will never hit this branch
                 [[unlikely]] {
                     ::exception::unreachable<ndebug>();
                 }
