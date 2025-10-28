@@ -681,12 +681,20 @@ constexpr auto try_parse_md_code_fence(::fast_io::u8string_view pltext) noexcept
     if (auto opt_code_fence_backtick = ::pltxt2htm::details::try_parse_md_code_fence_<ndebug, true>(pltext);
         opt_code_fence_backtick.has_value()) {
         return opt_code_fence_backtick;
-    } else if (auto opt_code_fence_tilde = ::pltxt2htm::details::try_parse_md_code_fence_<ndebug, false>(pltext);
-               opt_code_fence_tilde.has_value()) {
+    }
+#if 1
+    else {
+        return ::pltxt2htm::details::try_parse_md_code_fence_<ndebug, false>(pltext);
+    }
+#else
+    // Above code equals to below code
+    else if (auto opt_code_fence_tilde = ::pltxt2htm::details::try_parse_md_code_fence_<ndebug, false>(pltext);
+             opt_code_fence_tilde.has_value()) {
         return opt_code_fence_tilde;
     } else {
         return ::exception::nullopt_t{};
     }
+#endif
 }
 
 template<bool ndebug, char8_t... embraced_chars>
