@@ -103,6 +103,9 @@ public:
 
 } // namespace details
 
+/**
+ * @brief Utf-8 text node
+ */
 class Text : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr Text() noexcept = delete;

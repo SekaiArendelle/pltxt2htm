@@ -14,7 +14,7 @@ enum class NodeType : ::std::size_t {
     u8char,
     // invalid utf-8 char
     invalid_u8char,
-    // text
+    // utf8 text
     text,
 
     // \n
