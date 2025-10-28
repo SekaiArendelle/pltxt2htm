@@ -8,41 +8,14 @@ This repository is a sub-project of [Physics-Lab-Web](https://github.com/NetLogo
 This project is **header-only**, aimed to provide a translater from Quantam-PhysicsLab's text to html (with markdown, minor html tags and latex support [as much as possible](#features)). Requires at least C++23 (g++ >= 14 or clang++ >= 20), disables C++ rtti and exception, has great cross platform ability.
 
 # Usage
-You can use `pltxt2htm` in [console](cmd/README.md), [browser](wasm/README.md), [python](py/README.md), [c](c/README.md) and [rust](rust/README.md).
+C++ APIs is in [include/pltxt2htm](include/pltxt2htm/), [Click here](examples/example.cc) to see a simple example.
 
-C++ APIs is in [include/pltxt2htm](include/pltxt2htm/), here is a simple example:
-```cpp
-// example.cc
-#include <fast_io/fast_io.h> // in include/fast_io
-#include <pltxt2htm/pltxt2htm.hh> // in include/pltxt2htm
+You can also use `pltxt2htm` in [console](cmd/README.md), [browser](wasm/README.md), [python](py/README.md), [c](c/README.md) and [rust](rust/README.md).
 
-int main() {
-    auto html = ::pltxt2htm::pltxt2advanced_html(u8R"(
-# Hello Quantum PhysicsLab
-With Markdown supports
-)", u8"localhost:5173");
-    ::fast_io::io::println(::fast_io::u8c_stdout(), html);
-
-    return 0;
-}
-```
-
-Compile it: (Windows)
-```sh
-clang++ example.cc -o example -std=c++23 -I include -lntdll
-```
-
-Other platforms:
-```sh
-clang++ example.cc -o example -std=c++23 -I include
-```
-
-flag `-O2`, `-fno-ident`, `-fno-exceptions`, `-fno-rtti`, `-fno-unwind-tables`, `-fno-asynchronous-unwind-tables`, `-DNDEBUG` is recommended in release mode.
-
-C++20 module example is in [module/example.cc](./cxxmodule/example.cc)
+C++20 module example is in [cxxmodule/example.cc](cxxmodule/example.cc)
 
 ## Exported API
-All C++ APIs have been listed in [pltxt2htm.cppm](./cxxmodule/pltxt2htm/pltxt2htm.cppm)
+All C++ APIs have been listed in [pltxt2htm.cppm](cxxmodule/pltxt2htm/pltxt2htm.cppm)
 
 ## features
 I am ensure any new features (like markdown extension) will break old Quantum Physics's text. However, compatibility is not the reason that we should stop our steps. Here are some features why I (or why I not) support:
@@ -61,6 +34,7 @@ markdown extension based on [commonmark](https://spec.commonmark.org/0.31.2/)
 * Partial supports of [HTML blocks](https://spec.commonmark.org/0.31.2/#html-blocks)
 * most of the markdown ATX headers are supported
   - [example 69 ~ 76](https://spec.commonmark.org/0.31.2/#example-69) sucks thus I ignore it
+* [setext headers](https://spec.commonmark.org/0.31.2/#setext-headings) is not planed
 * MarkDown escape characters are supported
 * I hate [Indent code block](https://spec.commonmark.org/0.31.2/#indented-code-blocks).
 * Rough support for markdown [code fences](https://spec.commonmark.org/0.31.2/#code-fence) but common usage is well tested.

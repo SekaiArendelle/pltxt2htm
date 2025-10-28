@@ -65,6 +65,7 @@ using ::pltxt2htm::Li;
 
 using ::pltxt2htm::Code;
 using ::pltxt2htm::Pre;
+using ::pltxt2htm::Blockquote;
 
 // markdown_node
 using ::pltxt2htm::MdAtxH1;
