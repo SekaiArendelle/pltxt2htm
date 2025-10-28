@@ -320,6 +320,8 @@ restart:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_blockquote:
             [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_block_quotes:
+            [[fallthrough]];
         case ::pltxt2htm::NodeType::md_code_fence_backtick:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_code_fence_tilde:

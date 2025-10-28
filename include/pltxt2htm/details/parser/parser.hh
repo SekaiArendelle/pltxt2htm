@@ -1108,6 +1108,8 @@ restart:
                 }
                 case ::pltxt2htm::NodeType::base:
                     [[fallthrough]];
+                case ::pltxt2htm::NodeType::md_block_quotes:
+                    [[fallthrough]];
                 case ::pltxt2htm::NodeType::md_code_fence_backtick:
                     [[fallthrough]];
                 case ::pltxt2htm::NodeType::md_code_fence_tilde:
@@ -1608,6 +1610,8 @@ restart:
             case ::pltxt2htm::NodeType::md_code_fence_tilde:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::md_link:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::md_block_quotes:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::html_note:
                 [[unlikely]] {

@@ -518,6 +518,8 @@ restart:
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_blockquote, subast.begin()));
             goto restart;
         }
+        case ::pltxt2htm::NodeType::md_block_quotes:
+            [[fallthrough]];
         case ::pltxt2htm::NodeType::md_link:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_triple_emphasis_underscore:

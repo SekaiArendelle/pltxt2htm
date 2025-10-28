@@ -720,4 +720,39 @@ constexpr auto try_parse_md_inlines(::fast_io::u8string_view pltext) noexcept ->
     return ::exception::nullopt_t{};
 }
 
+struct TryParseMdBlockQuotesResult {
+    ::std::size_t forward_index;
+    ::fast_io::u8string subpltext;
+};
+
+template<bool ndebug>
+constexpr auto try_parse_md_block_quotes(::fast_io::u8string_view pltext) noexcept -> ::exception::optional<::pltxt2htm::details::TryParseMdBlockQuotesResult> {
+    ::fast_io::u8string subpltext{};
+
+    ::std::size_t const pltext_size{pltext.size()};
+    for (::std::size_t current_index{}; current_index < pltext_size; ++current_index) {
+        char8_t chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index)};
+
+        while (chr == u8' ' && current_index + 1 < pltext_size) {
+            ++current_index;
+        }
+        if (chr != u8'>') {
+            if (subpltext.empty()) {
+                return ::exception::nullopt_t{};
+            } else {
+                return ::pltxt2htm::details::TryParseMdBlockQuotesResult{
+                    .forward_index = current_index,
+                    .subpltext = ::std::move(subpltext)};
+            }
+        }
+        while (chr == u8' ' && current_index + 1 < pltext_size) {
+            ++current_index;
+        }
+        while (chr != u8'\n' && current_index + 1 < pltext_size) {
+            subpltext.push_back(::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index));
+            ++current_index;
+        }
+    }
+}
+
 } // namespace pltxt2htm::details

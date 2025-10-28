@@ -522,6 +522,10 @@ restart:
             ++current_index;
             goto restart;
         }
+        case ::pltxt2htm::NodeType::md_block_quotes: {
+            // TODO
+            goto restart;
+        }
         case ::pltxt2htm::NodeType::base:
 #if 0
      [[unlikely]] [[fallthrough]];
