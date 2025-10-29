@@ -355,6 +355,8 @@ restart:
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
             goto restart;
         }
+        case ::pltxt2htm::NodeType::md_block_quotes:
+            [[fallthrough]];
         case ::pltxt2htm::NodeType::html_blockquote: {
             auto blockquote = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             // Note: Despite `<blockquote></blockquote>` is empty, we still need to handle it
@@ -522,10 +524,6 @@ restart:
             ++current_index;
             goto restart;
         }
-        case ::pltxt2htm::NodeType::md_block_quotes: {
-            // TODO
-            goto restart;
-        }
         case ::pltxt2htm::NodeType::base:
 #if 0
      [[unlikely]] [[fallthrough]];
@@ -672,6 +670,8 @@ restart:
                 result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
                 goto restart;
             }
+            case ::pltxt2htm::NodeType::md_block_quotes:
+                [[fallthrough]];
             case ::pltxt2htm::NodeType::html_blockquote: {
                 auto const close_tag = ::fast_io::array{u8'<', u8'/', u8'b', u8'l', u8'o', u8'c', u8'k',
                                                         u8'q', u8'u', u8'o', u8't', u8'e', u8'>'};

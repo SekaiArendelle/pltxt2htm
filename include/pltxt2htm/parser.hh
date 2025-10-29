@@ -29,10 +29,10 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
     ::std::size_t start_index{};
 
     while (true) {
-        auto&& [forward_index, require_goto_restart] = ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(
+        auto&& [forward_index, has_new_frame] = ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(
             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index), call_stack, result);
         start_index += forward_index;
-        if (require_goto_restart) {
+        if (has_new_frame) {
             ::pltxt2htm::NodeType type_of_subast{call_stack.top()->nested_tag_type};
             auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
             switch (type_of_subast) {
