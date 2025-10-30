@@ -757,6 +757,11 @@ constexpr auto try_parse_md_block_quotes(::fast_io::u8string_view pltext) noexce
             ++current_index;
         } while (current_index < pltext_size &&
                  ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8'\n');
+        if (current_index == pltext_size) {
+            break;
+        } else {
+            subpltext.push_back(u8'\n');
+        }
     }
     if (subpltext.empty()) {
         return ::exception::nullopt_t{};

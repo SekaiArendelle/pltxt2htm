@@ -102,7 +102,7 @@ constexpr auto devil_stuff_after_line_break(
         } else if (auto opt_block_quote = ::pltxt2htm::details::try_parse_md_block_quotes<ndebug>(pltext);
                    opt_block_quote.has_value()) {
             auto&& [forward_index, subpltext] = opt_block_quote.template value<ndebug>();
-            // call_stack.push(::pltxt2htm::details::);
+            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::MdBlockQuotesContext>(::std::move(subpltext)));
             return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{.forward_index = current_index + forward_index,
                                                                         .new_frame_been_pushed_into_call_stack = true};
         } else {
@@ -112,6 +112,7 @@ constexpr auto devil_stuff_after_line_break(
     }
 }
 
+template <bool ndebug>
 constexpr auto get_pltext_from_parser_frame_context(
     ::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext> const& top_frame) noexcept
     -> ::fast_io::u8string_view {
@@ -304,9 +305,10 @@ constexpr auto get_pltext_from_parser_frame_context(
         [[fallthrough]];
     case ::pltxt2htm::NodeType::md_escape_tilde:
         [[unlikely]] {
-            ::exception::unreachable();
+            ::exception::unreachable<ndebug>();
         }
     }
+    ::exception::unreachable<ndebug>();
 }
 
 /**
@@ -323,9 +325,20 @@ constexpr auto parse_pltxt(
         call_stack) noexcept -> ::pltxt2htm::Ast {
 restart:
     auto&& current_index = call_stack.top()->current_index;
-    ::fast_io::u8string_view pltext{::pltxt2htm::details::get_pltext_from_parser_frame_context(call_stack.top())};
+    ::fast_io::u8string_view pltext{::pltxt2htm::details::get_pltext_from_parser_frame_context<ndebug>(call_stack.top())};
     auto&& result = call_stack.top()->subast;
     ::std::size_t const pltext_size{pltext.size()};
+
+    if (call_stack.top()->nested_tag_type == ::pltxt2htm::NodeType::md_block_quotes && current_index == 0) {
+        // https://spec.commonmark.org/0.31.2/#example-228
+        // to support parsing md-atx-heading e.t.c inside md-block-quotes
+        auto&& [forward_index, require_goto_restart] = ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+            call_stack,result);
+        current_index += forward_index;
+        if (require_goto_restart) {
+            goto restart;
+        }
+    }
 
     for (; current_index < pltext_size; ++current_index) {
         char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index)};
@@ -1488,7 +1501,7 @@ restart:
             auto&& subast = frame->subast;
             auto&& super_ast = call_stack.top()->subast;
             ::fast_io::u8string_view super_pltext{
-                ::pltxt2htm::details::get_pltext_from_parser_frame_context(call_stack.top())};
+                ::pltxt2htm::details::get_pltext_from_parser_frame_context<ndebug>(call_stack.top())};
             auto&& super_index = call_stack.top()->current_index;
             switch (frame->nested_tag_type) {
             case ::pltxt2htm::NodeType::pl_color: {
@@ -1718,6 +1731,10 @@ restart:
                 super_index += staged_index;
                 goto restart;
             }
+            case ::pltxt2htm::NodeType::md_block_quotes: {
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdBlockQuotes>(::std::move(subast)));
+                goto restart;
+            }
             case ::pltxt2htm::NodeType::base:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::u8char:
@@ -1817,8 +1834,6 @@ restart:
             case ::pltxt2htm::NodeType::md_code_fence_tilde:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::md_link:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_block_quotes:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::html_note:
                 [[unlikely]] {

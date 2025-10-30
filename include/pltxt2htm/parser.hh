@@ -4,6 +4,7 @@
 #include <fast_io/fast_io_dsal/list.h>
 #include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/string_view.h>
+#include "astnode/node_type.hh"
 #include "heap_guard.hh"
 #include "details/utils.hh"
 #include "details/parser/frame_concext.hh"
@@ -58,6 +59,10 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
             }
             case ::pltxt2htm::NodeType::md_atx_h6: {
                 result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH6>(::std::move(subast)));
+                break;
+            }
+            case ::pltxt2htm::NodeType::md_block_quotes: {
+                result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdBlockQuotes>(::std::move(subast)));
                 break;
             }
             default:
