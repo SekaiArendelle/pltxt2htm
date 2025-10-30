@@ -1024,4 +1024,21 @@ public:
     constexpr ::pltxt2htm::MdLink& operator=(::pltxt2htm::MdLink&&) noexcept = default;
 };
 
+class MdBlockQuotes : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr MdBlockQuotes() noexcept = delete;
+
+    constexpr MdBlockQuotes(::pltxt2htm::Ast&& ast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_block_quotes, ::std::move(ast)} {
+    }
+
+    constexpr MdBlockQuotes(::pltxt2htm::MdBlockQuotes const&) noexcept = delete;
+
+    constexpr MdBlockQuotes(::pltxt2htm::MdBlockQuotes&&) noexcept = default;
+
+    constexpr ::pltxt2htm::MdBlockQuotes& operator=(::pltxt2htm::MdBlockQuotes const&) noexcept = delete;
+
+    constexpr ::pltxt2htm::MdBlockQuotes& operator=(::pltxt2htm::MdBlockQuotes&&) noexcept = default;
+};
+
 } // namespace pltxt2htm

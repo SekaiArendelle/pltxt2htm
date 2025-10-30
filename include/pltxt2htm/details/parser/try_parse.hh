@@ -720,4 +720,55 @@ constexpr auto try_parse_md_inlines(::fast_io::u8string_view pltext) noexcept ->
     return ::exception::nullopt_t{};
 }
 
+struct TryParseMdBlockQuotesResult {
+    ::std::size_t forward_index;
+    ::fast_io::u8string subpltext;
+};
+
+template<bool ndebug>
+constexpr auto try_parse_md_block_quotes(::fast_io::u8string_view pltext) noexcept
+    -> ::exception::optional<::pltxt2htm::details::TryParseMdBlockQuotesResult> {
+    ::fast_io::u8string subpltext{};
+
+    ::std::size_t const pltext_size{pltext.size()};
+    ::std::size_t current_index{};
+    for (; current_index < pltext_size; ++current_index) {
+        ::std::size_t temp_index{current_index};
+        while (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, temp_index) == u8' ' &&
+               temp_index + 1 < pltext_size) {
+            ++temp_index;
+        }
+        if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, temp_index) != u8'>') {
+            if (subpltext.empty()) {
+                return ::exception::nullopt_t{};
+            } else {
+                return ::pltxt2htm::details::TryParseMdBlockQuotesResult{.forward_index = current_index,
+                                                                         .subpltext = ::std::move(subpltext)};
+            }
+        } else {
+            current_index = temp_index + 1;
+        }
+        while (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) == u8' ' &&
+               current_index + 1 < pltext_size) {
+            ++current_index;
+        }
+        do {
+            subpltext.push_back(::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index));
+            ++current_index;
+        } while (current_index < pltext_size &&
+                 ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8'\n');
+        if (current_index == pltext_size) {
+            break;
+        } else {
+            subpltext.push_back(u8'\n');
+        }
+    }
+    if (subpltext.empty()) {
+        return ::exception::nullopt_t{};
+    } else {
+        return ::pltxt2htm::details::TryParseMdBlockQuotesResult{.forward_index = current_index,
+                                                                 .subpltext = ::std::move(subpltext)};
+    }
+}
+
 } // namespace pltxt2htm::details

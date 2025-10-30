@@ -8,7 +8,6 @@ namespace pltxt2htm::details {
 
 class BasicFrameContext {
 public:
-    ::fast_io::u8string_view pltext;
     ::pltxt2htm::NodeType const nested_tag_type;
     ::std::size_t current_index{};
     ::pltxt2htm::Ast subast{};
@@ -16,28 +15,29 @@ public:
     constexpr ~BasicFrameContext() noexcept = default;
 
 protected:
-    constexpr BasicFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_) noexcept
-        : pltext(pltext_),
-          nested_tag_type{nested_tag_type_} {
+    constexpr BasicFrameContext(::pltxt2htm::NodeType const nested_tag_type_) noexcept
+        : nested_tag_type{nested_tag_type_} {
     }
 
-    constexpr BasicFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
-                                ::pltxt2htm::Ast&& subast_) noexcept
-        : pltext(pltext_),
-          nested_tag_type{nested_tag_type_},
+    constexpr BasicFrameContext(::pltxt2htm::NodeType const nested_tag_type_, ::pltxt2htm::Ast&& subast_) noexcept
+        : nested_tag_type{nested_tag_type_},
           subast(::std::move(subast_)) {
     }
 };
 
 class BareTagContext : public ::pltxt2htm::details::BasicFrameContext {
 public:
+    ::fast_io::u8string_view pltext;
+
     constexpr BareTagContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_) noexcept
-        : ::pltxt2htm::details::BasicFrameContext(pltext_, nested_tag_type_) {
+        : ::pltxt2htm::details::BasicFrameContext(nested_tag_type_),
+          pltext(pltext_) {
     }
 
     constexpr BareTagContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
                              ::pltxt2htm::Ast&& subast_) noexcept
-        : ::pltxt2htm::details::BasicFrameContext(pltext_, nested_tag_type_, ::std::move(subast_)) {
+        : ::pltxt2htm::details::BasicFrameContext(nested_tag_type_, ::std::move(subast_)),
+          pltext(pltext_) {
     }
 
     constexpr ~BareTagContext() noexcept = default;
@@ -45,11 +45,13 @@ public:
 
 class EqualSignTagContext : public ::pltxt2htm::details::BasicFrameContext {
 public:
+    ::fast_io::u8string_view pltext;
     ::fast_io::u8string id;
 
     constexpr EqualSignTagContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
                                   ::fast_io::u8string&& id_) noexcept
-        : ::pltxt2htm::details::BasicFrameContext{pltext_, nested_tag_type_},
+        : ::pltxt2htm::details::BasicFrameContext{nested_tag_type_},
+          pltext(pltext_),
           id(::std::move(id_)) {
     }
 
@@ -58,15 +60,29 @@ public:
 
 class PlSizeTagContext : public ::pltxt2htm::details::BasicFrameContext {
 public:
+    ::fast_io::u8string_view pltext;
     ::std::size_t id;
 
     constexpr PlSizeTagContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
                                ::std::size_t id_) noexcept
-        : ::pltxt2htm::details::BasicFrameContext{pltext_, nested_tag_type_},
+        : ::pltxt2htm::details::BasicFrameContext{nested_tag_type_},
+          pltext(pltext_),
           id(::std::move(id_)) {
     }
 
     constexpr ~PlSizeTagContext() noexcept = default;
+};
+
+class MdBlockQuotesContext : public ::pltxt2htm::details::BasicFrameContext {
+public:
+    ::fast_io::u8string pltext;
+
+    constexpr explicit MdBlockQuotesContext(::fast_io::u8string&& pltext_) noexcept
+        : ::pltxt2htm::details::BasicFrameContext{::pltxt2htm::NodeType::md_block_quotes},
+          pltext(::std::move(pltext_)) {
+    }
+
+    constexpr ~MdBlockQuotesContext() noexcept = default;
 };
 
 } // namespace pltxt2htm::details

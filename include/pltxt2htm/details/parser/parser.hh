@@ -14,6 +14,7 @@
 #include "../../astnode/markdown_node.hh"
 #include "../../astnode/physics_lab_node.hh"
 #include "frame_concext.hh"
+#include "pltxt2htm/heap_guard.hh"
 #include "try_parse.hh"
 #include "../push_macro.hh"
 
@@ -21,7 +22,7 @@ namespace pltxt2htm::details {
 
 struct DevilStuffAfterLineBreakResult {
     ::std::size_t forward_index;
-    bool require_goto_restart;
+    bool new_frame_been_pushed_into_call_stack;
 };
 
 template<bool ndebug>
@@ -35,7 +36,7 @@ constexpr auto devil_stuff_after_line_break(
     while (true) {
         if (current_index >= pltext.size()) {
             return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{.forward_index = current_index,
-                                                                        .require_goto_restart = false};
+                                                                        .new_frame_been_pushed_into_call_stack = false};
         }
 
         if (auto opt_md_atx_heading = ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(
@@ -49,8 +50,8 @@ constexpr auto devil_stuff_after_line_break(
                 call_stack.push(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(subtext, md_atx_heading_type));
                 current_index += forward_index;
-                return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{.forward_index = current_index,
-                                                                            .require_goto_restart = true};
+                return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{
+                    .forward_index = current_index, .new_frame_been_pushed_into_call_stack = true};
             } else {
                 switch (md_atx_heading_type) {
                 case ::pltxt2htm::NodeType::md_atx_h1: {
@@ -97,12 +98,217 @@ constexpr auto devil_stuff_after_line_break(
             auto&& [node, forward_index] = opt_code_fence.template value<ndebug>();
             result.push_back(::std::move(node));
             return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{.forward_index = current_index + forward_index,
-                                                                        .require_goto_restart = false};
+                                                                        .new_frame_been_pushed_into_call_stack = false};
+        } else if (auto opt_block_quote = ::pltxt2htm::details::try_parse_md_block_quotes<ndebug>(pltext);
+                   opt_block_quote.has_value()) {
+            auto&& [forward_index, subpltext] = opt_block_quote.template value<ndebug>();
+            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::MdBlockQuotesContext>(::std::move(subpltext)));
+            return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{.forward_index = current_index + forward_index,
+                                                                        .new_frame_been_pushed_into_call_stack = true};
         } else {
             return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{.forward_index = current_index,
-                                                                        .require_goto_restart = false};
+                                                                        .new_frame_been_pushed_into_call_stack = false};
         }
     }
+}
+
+template <bool ndebug>
+constexpr auto get_pltext_from_parser_frame_context(
+    ::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext> const& top_frame) noexcept
+    -> ::fast_io::u8string_view {
+    switch (top_frame->nested_tag_type) {
+    case ::pltxt2htm::NodeType::base:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::pl_b:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::pl_i:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::html_p:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::html_h1:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::html_h2:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::html_h3:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::html_h4:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::html_h5:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::html_h6:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::html_del:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_del:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::html_em:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::html_strong:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::html_ul:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::html_li:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::html_code:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::html_pre:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::html_blockquote:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_atx_h1:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_atx_h2:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_atx_h3:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_atx_h4:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_atx_h5:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_atx_h6:
+        [[fallthrough]];
+    // FIXME md code span should be the branch of unreachable
+    case ::pltxt2htm::NodeType::md_code_span_1_backtick:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_code_span_2_backtick:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_code_span_3_backtick:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_triple_emphasis_asterisk:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_double_emphasis_asterisk:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_single_emphasis_asterisk:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_triple_emphasis_underscore:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_double_emphasis_underscore:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_single_emphasis_underscore: {
+        return static_cast<::pltxt2htm::details::BareTagContext const*>(top_frame.release_imul())->pltext;
+    }
+    case ::pltxt2htm::NodeType::pl_color:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::pl_a:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::pl_experiment:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::pl_discussion:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::pl_user: {
+        return static_cast<::pltxt2htm::details::EqualSignTagContext const*>(top_frame.release_imul())->pltext;
+    }
+    case ::pltxt2htm::NodeType::pl_size: {
+        return static_cast<::pltxt2htm::details::PlSizeTagContext const*>(top_frame.release_imul())->pltext;
+    }
+    case ::pltxt2htm::NodeType::md_block_quotes: {
+        return ::fast_io::mnp::os_c_str(
+            static_cast<::pltxt2htm::details::MdBlockQuotesContext const*>(top_frame.release_imul())->pltext);
+    }
+    case ::pltxt2htm::NodeType::md_link:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_code_fence_backtick:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_code_fence_tilde:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::html_br:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::html_hr:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_hr:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::html_note:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::u8char:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::invalid_u8char:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::text:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::line_break:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::space:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::ampersand:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::double_quote:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::single_quote:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::less_than:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::greater_than:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::tab:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_escape_backslash:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_escape_exclamation:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_escape_double_quote:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_escape_hash:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_escape_dollar:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_escape_percent:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_escape_ampersand:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_escape_single_quote:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_escape_left_paren:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_escape_right_paren:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_escape_asterisk:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_escape_plus:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_escape_comma:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_escape_hyphen:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_escape_dot:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_escape_slash:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_escape_colon:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_escape_semicolon:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_escape_less_than:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_escape_equals:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_escape_greater_than:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_escape_question:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_escape_at:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_escape_left_bracket:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_escape_right_bracket:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_escape_caret:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_escape_underscore:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_escape_backtick:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_escape_left_brace:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_escape_pipe:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_escape_right_brace:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_escape_tilde:
+        [[unlikely]] {
+            ::exception::unreachable<ndebug>();
+        }
+    }
+    ::exception::unreachable<ndebug>();
 }
 
 /**
@@ -119,9 +325,20 @@ constexpr auto parse_pltxt(
         call_stack) noexcept -> ::pltxt2htm::Ast {
 restart:
     auto&& current_index = call_stack.top()->current_index;
-    auto&& pltext = call_stack.top()->pltext;
+    ::fast_io::u8string_view pltext{::pltxt2htm::details::get_pltext_from_parser_frame_context<ndebug>(call_stack.top())};
     auto&& result = call_stack.top()->subast;
     ::std::size_t const pltext_size{pltext.size()};
+
+    if (call_stack.top()->nested_tag_type == ::pltxt2htm::NodeType::md_block_quotes && current_index == 0) {
+        // https://spec.commonmark.org/0.31.2/#example-228
+        // to support parsing md-atx-heading e.t.c inside md-block-quotes
+        auto&& [forward_index, require_goto_restart] = ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+            call_stack,result);
+        current_index += forward_index;
+        if (require_goto_restart) {
+            goto restart;
+        }
+    }
 
     for (; current_index < pltext_size; ++current_index) {
         char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index)};
@@ -246,6 +463,8 @@ restart:
         } else if (::pltxt2htm::details::is_prefix_match<ndebug, u8'`', u8'`', u8'`'>(
                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) {
             // parsing markdown ```example```
+            // FIXME md code span should not be pushed into call stack
+            //       e.g. `t<b>es</b>t` => <b> does not work
             current_index += 3;
             if (call_stack.top()->nested_tag_type == ::pltxt2htm::NodeType::md_code_span_3_backtick) {
                 ::std::size_t const staged_index{current_index};
@@ -1108,6 +1327,8 @@ restart:
                 }
                 case ::pltxt2htm::NodeType::base:
                     [[fallthrough]];
+                case ::pltxt2htm::NodeType::md_block_quotes:
+                    [[fallthrough]];
                 case ::pltxt2htm::NodeType::md_code_fence_backtick:
                     [[fallthrough]];
                 case ::pltxt2htm::NodeType::md_code_fence_tilde:
@@ -1279,7 +1500,8 @@ restart:
             // Any tag without a closing tag will hit this branch.
             auto&& subast = frame->subast;
             auto&& super_ast = call_stack.top()->subast;
-            auto&& super_pltext = call_stack.top()->pltext;
+            ::fast_io::u8string_view super_pltext{
+                ::pltxt2htm::details::get_pltext_from_parser_frame_context<ndebug>(call_stack.top())};
             auto&& super_index = call_stack.top()->current_index;
             switch (frame->nested_tag_type) {
             case ::pltxt2htm::NodeType::pl_color: {
@@ -1507,6 +1729,10 @@ restart:
                 super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdDel>(::std::move(subast)));
                 super_index += 2;
                 super_index += staged_index;
+                goto restart;
+            }
+            case ::pltxt2htm::NodeType::md_block_quotes: {
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdBlockQuotes>(::std::move(subast)));
                 goto restart;
             }
             case ::pltxt2htm::NodeType::base:
