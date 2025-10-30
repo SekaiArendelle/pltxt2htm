@@ -112,7 +112,7 @@ constexpr auto devil_stuff_after_line_break(
     }
 }
 
-template <bool ndebug>
+template<bool ndebug>
 constexpr auto get_pltext_from_parser_frame_context(
     ::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext> const& top_frame) noexcept
     -> ::fast_io::u8string_view {
@@ -325,15 +325,16 @@ constexpr auto parse_pltxt(
         call_stack) noexcept -> ::pltxt2htm::Ast {
 restart:
     auto&& current_index = call_stack.top()->current_index;
-    ::fast_io::u8string_view pltext{::pltxt2htm::details::get_pltext_from_parser_frame_context<ndebug>(call_stack.top())};
+    ::fast_io::u8string_view pltext{
+        ::pltxt2htm::details::get_pltext_from_parser_frame_context<ndebug>(call_stack.top())};
     auto&& result = call_stack.top()->subast;
     ::std::size_t const pltext_size{pltext.size()};
 
     if (call_stack.top()->nested_tag_type == ::pltxt2htm::NodeType::md_block_quotes && current_index == 0) {
         // https://spec.commonmark.org/0.31.2/#example-228
         // to support parsing md-atx-heading e.t.c inside md-block-quotes
-        auto&& [forward_index, require_goto_restart] = ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-            call_stack,result);
+        auto&& [forward_index, require_goto_restart] = ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(
+            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), call_stack, result);
         current_index += forward_index;
         if (require_goto_restart) {
             goto restart;

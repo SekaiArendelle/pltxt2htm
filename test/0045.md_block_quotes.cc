@@ -33,5 +33,14 @@ int main() {
     auto answer8 = ::fast_io::u8string_view{u8"<br><blockquote>text</blockquote>"};
     ::pltxt2htm_test::assert_true(html8 == answer8);
 
+    // empty block quotes is undocumented in spec.commonmark.org, this is an implement defined behavior
+    auto html9 = ::pltxt2htm_test::pltxt2advanced_htmld(u8">");
+    auto answer9 = ::fast_io::u8string_view{u8"&gt;"};
+    ::pltxt2htm_test::assert_true(html9 == answer9);
+
+    auto html10 = ::pltxt2htm_test::pltxt2advanced_htmld(u8" > ");
+    auto answer10 = ::fast_io::u8string_view{u8"&nbsp;&gt;&nbsp;"};
+    ::pltxt2htm_test::assert_true(html10 == answer10);
+
     return 0;
 }

@@ -25,8 +25,10 @@ template<::pltxt2htm::details::LiteralString expression, ::pltxt2htm::details::L
 inline void panic() noexcept {
     auto to_be_printed = ::pltxt2htm::details::concat(
         ::pltxt2htm::details::LiteralString{"Program panicked because \"assert("}, expression,
-        ::pltxt2htm::details::LiteralString{")\" failed, please file a bug at \"https://github.com/SekaiArendelle/pltxt2htm/issues\" and attach the crash info along with the source text\n"
-                                            "* in file: "},
+        ::pltxt2htm::details::LiteralString{
+            ")\" failed, please file a bug at \"https://github.com/SekaiArendelle/pltxt2htm/issues\" and attach the "
+            "crash info along with the source text\n"
+            "* in file: "},
         file_name,
         ::pltxt2htm::details::LiteralString{"\n"
                                             "* in line: "},
