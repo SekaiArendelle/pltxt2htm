@@ -184,8 +184,7 @@ constexpr auto get_pltext_from_parser_frame_context(
     case ::pltxt2htm::NodeType::md_double_emphasis_underscore:
         [[fallthrough]];
     case ::pltxt2htm::NodeType::md_single_emphasis_underscore: {
-        return ::fast_io::mnp::os_c_str(
-            static_cast<::pltxt2htm::details::BareTagContext const*>(top_frame.release_imul())->pltext);
+        return static_cast<::pltxt2htm::details::BareTagContext const*>(top_frame.release_imul())->pltext;
     }
     case ::pltxt2htm::NodeType::pl_color:
         [[fallthrough]];
@@ -196,12 +195,10 @@ constexpr auto get_pltext_from_parser_frame_context(
     case ::pltxt2htm::NodeType::pl_discussion:
         [[fallthrough]];
     case ::pltxt2htm::NodeType::pl_user: {
-        return ::fast_io::mnp::os_c_str(
-            static_cast<::pltxt2htm::details::EqualSignTagContext const*>(top_frame.release_imul())->pltext);
+        return static_cast<::pltxt2htm::details::EqualSignTagContext const*>(top_frame.release_imul())->pltext;
     }
     case ::pltxt2htm::NodeType::pl_size: {
-        return ::fast_io::mnp::os_c_str(
-            static_cast<::pltxt2htm::details::PlSizeTagContext const*>(top_frame.release_imul())->pltext);
+        return static_cast<::pltxt2htm::details::PlSizeTagContext const*>(top_frame.release_imul())->pltext;
     }
     case ::pltxt2htm::NodeType::md_block_quotes: {
         return ::fast_io::mnp::os_c_str(
