@@ -76,3 +76,18 @@ A: Not exactly. Despite clang, gcc and msvc all support C++20 module, but the co
 > Q: Why not use NDEBUG macro in include/pltxt2htm
 
 A: Conditional compilation in function body will cause [ODR violation](https://en.cppreference.com/w/cpp/language/definition) and [C++26 Contracts](https://en.cppreference.com/w/cpp/language/contracts) has the same problem. Therefore, to make function has different symbols in debug / release mode, I use `template<bool ndebug>` to achieve it.
+
+> Q: Why use C++ instead of a "memory safe" language like Rust?
+
+A: I appreciate Rust but not for its "safety". Basically, safety should always be guaranteed by programmer, because most of the logic error can't be detected at compile time, not even type safety can be handled, thats why rtti exists, while Rust is not 100% memory safe.
+
+At the same time, `pltxt2htm` is absolutely safe:
+* Lots of assertions are enabled in debug mode to assure memory safety and logic correctness.
+*  Over 90% (with a future target of 95%) test coverage.
+* Every commit in master undergose testing with asan under both clang and gcc in ci.
+* Every release undergose at least 6 hours of fuzzing with clang, with asan or ubsan enabled.
+
+> Q: Why use C++ instead of language with VM?
+
+A: Only system languages have the strongest ability to not only run in different arch and platform but provide binds to other language.
+
