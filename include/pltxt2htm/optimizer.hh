@@ -104,7 +104,7 @@ constexpr void optimize_ast(::pltxt2htm::Ast& ast_init) noexcept {
     call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>{
         ::std::addressof(ast_init), ::pltxt2htm::NodeType::base, ast_init.begin()});
 
-restart:
+entry:
     auto&& ast = *(call_stack.top()->ast);
     auto&& current_iter = call_stack.top()->iter;
     for (; current_iter != ast.end(); ++current_iter) {
@@ -145,7 +145,7 @@ restart:
             auto&& subast = text->get_subast();
             call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::text, subast.begin()));
-            goto restart;
+            goto entry;
         }
         case ::pltxt2htm::NodeType::pl_color:
             [[fallthrough]];
@@ -178,7 +178,7 @@ restart:
                                 ::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator>>(
                     ::std::addressof(subast), ::pltxt2htm::NodeType::pl_color, subast.begin(),
                     ::fast_io::mnp::os_c_str(color->get_color())));
-                goto restart;
+                goto entry;
             } else {
                 // Optimization: If the color is the same as the parent node, then ignore the nested tag.
                 node = static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
@@ -215,7 +215,7 @@ restart:
                                 ::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator>>(
                     ::std::addressof(subast), ::pltxt2htm::NodeType::pl_experiment, subast.begin(),
                     ::fast_io::mnp::os_c_str(experiment->get_id())));
-                goto restart;
+                goto entry;
             } else {
                 node = static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::Text>(::std::move(experiment->get_subast())));
@@ -253,7 +253,7 @@ restart:
                                 ::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator>>(
                     ::std::addressof(subast), ::pltxt2htm::NodeType::pl_discussion, subast.begin(),
                     ::fast_io::mnp::os_c_str(discussion->get_id())));
-                goto restart;
+                goto entry;
             } else {
                 node = static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::Text>(::std::move(discussion->get_subast())));
@@ -287,7 +287,7 @@ restart:
                                 ::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator>>(
                     ::std::addressof(subast), ::pltxt2htm::NodeType::pl_user, subast.begin(),
                     ::fast_io::mnp::os_c_str(user->get_id())));
-                goto restart;
+                goto entry;
             } else {
                 node = static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::Text>(::std::move(user->get_subast())));
@@ -320,7 +320,7 @@ restart:
                 call_stack.push(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerPlSizeTagContext<::pltxt2htm::Ast::iterator>>(
                         ::std::addressof(subast), ::pltxt2htm::NodeType::pl_size, subast.begin(), size->get_id()));
-                goto restart;
+                goto entry;
             } else {
                 node = static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::Text>(::std::move(size->get_subast())));
@@ -345,7 +345,7 @@ restart:
                 call_stack.push(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                         ::std::addressof(subast), ::pltxt2htm::NodeType::html_strong, subast.begin()));
-                goto restart;
+                goto entry;
             } else {
                 node = static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::Text>(::std::move(b->get_subast())));
@@ -357,7 +357,7 @@ restart:
             auto&& subast = p->get_subast();
             call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_p, subast.begin()));
-            goto restart;
+            goto entry;
         }
         case ::pltxt2htm::NodeType::line_break:
             [[fallthrough]];
@@ -372,7 +372,7 @@ restart:
             auto&& subast = h1->get_subast();
             call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_h1, subast.begin()));
-            goto restart;
+            goto entry;
         }
         case ::pltxt2htm::NodeType::html_h2:
             [[fallthrough]];
@@ -381,7 +381,7 @@ restart:
             auto&& subast = h2->get_subast();
             call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_h2, subast.begin()));
-            goto restart;
+            goto entry;
         }
         case ::pltxt2htm::NodeType::html_h3:
             [[fallthrough]];
@@ -390,7 +390,7 @@ restart:
             auto&& subast = h3->get_subast();
             call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_h3, subast.begin()));
-            goto restart;
+            goto entry;
         }
         case ::pltxt2htm::NodeType::html_h4:
             [[fallthrough]];
@@ -399,7 +399,7 @@ restart:
             auto&& subast = h4->get_subast();
             call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_h4, subast.begin()));
-            goto restart;
+            goto entry;
         }
         case ::pltxt2htm::NodeType::html_h5:
             [[fallthrough]];
@@ -408,7 +408,7 @@ restart:
             auto&& subast = h5->get_subast();
             call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_h5, subast.begin()));
-            goto restart;
+            goto entry;
         }
         case ::pltxt2htm::NodeType::html_h6:
             [[fallthrough]];
@@ -417,7 +417,7 @@ restart:
             auto&& subast = h6->get_subast();
             call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_h6, subast.begin()));
-            goto restart;
+            goto entry;
         }
         case ::pltxt2htm::NodeType::md_del:
             [[fallthrough]];
@@ -431,7 +431,7 @@ restart:
                 call_stack.push(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                         ::std::addressof(subast), ::pltxt2htm::NodeType::html_del, subast.begin()));
-                goto restart;
+                goto entry;
             } else {
                 node = static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::Text>(::std::move(del->get_subast())));
@@ -461,7 +461,7 @@ restart:
                     ::pltxt2htm::HeapGuard<::pltxt2htm::Text>(::std::move(em->get_subast())));
                 continue;
             }
-            goto restart;
+            goto entry;
         }
         case ::pltxt2htm::NodeType::md_hr:
             [[fallthrough]];
@@ -478,7 +478,7 @@ restart:
             auto&& subast = ul->get_subast();
             call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_ul, subast.begin()));
-            goto restart;
+            goto entry;
         }
         case ::pltxt2htm::NodeType::html_li: {
             // li tag can't impl nested tag erasing
@@ -486,7 +486,7 @@ restart:
             auto&& subast = li->get_subast();
             call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_li, subast.begin()));
-            goto restart;
+            goto entry;
         }
         case ::pltxt2htm::NodeType::md_code_span_1_backtick:
             [[fallthrough]];
@@ -500,7 +500,7 @@ restart:
             auto&& subast = code->get_subast();
             call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_code, subast.begin()));
-            goto restart;
+            goto entry;
         }
         case ::pltxt2htm::NodeType::html_pre: {
             // pre tag can't impl nested tag erasing
@@ -508,7 +508,7 @@ restart:
             auto&& subast = pre->get_subast();
             call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_pre, subast.begin()));
-            goto restart;
+            goto entry;
         }
         case ::pltxt2htm::NodeType::html_blockquote: {
             // pre tag can't impl nested tag erasing
@@ -516,7 +516,7 @@ restart:
             auto&& subast = blockquote->get_subast();
             call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_blockquote, subast.begin()));
-            goto restart;
+            goto entry;
         }
         case ::pltxt2htm::NodeType::md_block_quotes:
             [[fallthrough]];
@@ -632,7 +632,7 @@ restart:
                 } else {
                     ++(call_stack.top()->iter);
                 }
-                goto restart;
+                goto entry;
             }
             case ::pltxt2htm::NodeType::html_blockquote:
                 [[fallthrough]];
