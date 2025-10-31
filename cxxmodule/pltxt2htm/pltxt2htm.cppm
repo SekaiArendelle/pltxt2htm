@@ -120,6 +120,7 @@ using ::pltxt2htm::MdDoubleEmphasisUnderscore;
 using ::pltxt2htm::MdTripleEmphasisUnderscore;
 using ::pltxt2htm::MdDel;
 using ::pltxt2htm::MdLink;
+using ::pltxt2htm::MdBlockQuotes;
 
 // physics_lab_node
 using ::pltxt2htm::Color;
