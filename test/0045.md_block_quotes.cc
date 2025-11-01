@@ -42,5 +42,9 @@ int main() {
     auto answer10 = ::fast_io::u8string_view{u8"&nbsp;&gt;&nbsp;"};
     ::pltxt2htm_test::assert_true(html10 == answer10);
 
+    auto html11 = ::pltxt2htm_test::pltxt2advanced_htmld(u8" >> test");
+    auto answer11 = ::fast_io::u8string_view{u8"<blockquote><blockquote>test</blockquote></blockquote>"};
+    ::pltxt2htm_test::assert_true(html11 == answer11);
+
     return 0;
 }

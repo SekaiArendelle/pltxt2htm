@@ -44,14 +44,14 @@ constexpr bool is_literal_string_ = false;
  * @tparam N The length of the string
  */
 template<::std::size_t N>
-constexpr bool is_literal_string_<LiteralString<N>> = true;
+constexpr bool is_literal_string_<::pltxt2htm::details::LiteralString<N>> = true;
 
 /**
  * @brief Concept to identify LiteralString types
  * @tparam T The type to check
  */
 template<typename T>
-concept is_leteral_string = is_literal_string_<::std::remove_cvref_t<T>>;
+concept is_leteral_string = ::pltxt2htm::details::is_literal_string_<::std::remove_cvref_t<T>>;
 
 /**
  * @brief A compile-time string class that stores string data as part of the type
