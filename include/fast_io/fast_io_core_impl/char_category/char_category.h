@@ -1795,7 +1795,7 @@ inline constexpr bool is_html_whitespace_wide_impl(wchar_t ch) noexcept
 	};
 }
 
-inline constexpr bool is_dos_path_invalid_character_impl(char32_t ch) noexcept
+inline constexpr bool is_dos_file_invalid_character_impl(char32_t ch) noexcept
 {
 	if (ch < static_cast<char32_t>(32u))
 	{
@@ -1859,7 +1859,9 @@ inline constexpr bool is_c_halfwidth(char_type ch) noexcept
 	using unsigned_char_type = ::std::make_unsigned_t<char_type>;
 	if constexpr (sizeof(char_type) < sizeof(char32_t))
 	{
-		return ch;
+		constexpr unsigned_char_type halfwidth_exclaimation_mark_val{u8'!'};
+		constexpr unsigned_char_type num{94};
+		return static_cast<unsigned_char_type>(ch - halfwidth_exclaimation_mark_val) < num;
 	}
 	else if constexpr (!::std::same_as<char_type, char32_t> && sizeof(char_type) == sizeof(char32_t))
 	{
@@ -1891,7 +1893,9 @@ inline constexpr bool is_c_fullwidth(char_type ch) noexcept
 	using unsigned_char_type = ::std::make_unsigned_t<char_type>;
 	if constexpr (sizeof(char_type) < sizeof(char32_t))
 	{
-		return ch;
+		constexpr unsigned_char_type fullwidth_exclaimation_mark_val{0xFF01};
+		constexpr unsigned_char_type num{94};
+		return static_cast<unsigned_char_type>(ch - fullwidth_exclaimation_mark_val) < num;
 	}
 	else if constexpr (!::std::same_as<char_type, char32_t> && sizeof(char_type) == sizeof(char32_t))
 	{
@@ -1922,15 +1926,15 @@ To do: to_c_fullwidth
 */
 
 template <::std::integral T>
-inline constexpr bool is_dos_path_invalid_character(T ch) noexcept
+inline constexpr bool is_dos_file_invalid_character(T ch) noexcept
 {
 	if constexpr (::std::signed_integral<T>)
 	{
-		return ::fast_io::char_category::details::is_dos_path_invalid_character_impl(static_cast<char32_t>(static_cast<::std::make_unsigned_t<T>>(ch)));
+		return ::fast_io::char_category::details::is_dos_file_invalid_character_impl(static_cast<char32_t>(static_cast<::std::make_unsigned_t<T>>(ch)));
 	}
 	else
 	{
-		return ::fast_io::char_category::details::is_dos_path_invalid_character_impl(static_cast<char32_t>(ch));
+		return ::fast_io::char_category::details::is_dos_file_invalid_character_impl(static_cast<char32_t>(ch));
 	}
 }
 

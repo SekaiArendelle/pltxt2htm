@@ -88,7 +88,7 @@ inline constexpr nt_open_mode calculate_nt_open_mode(open_mode_perms ompm) noexc
 	constexpr auto default_write_attribute{0x00020000L /*READ_CONTROL*/ | 0x0002 /*FILE_WRITE_DATA*/ | 0x0004 /*FILE_APPEND_DATA*/};
 	constexpr auto default_read_attribute{0x00020000L /*READ_CONTROL*/ | 0x0001 /*FILE_READ_DATA*/};
 
-	mode.DesiredAccess |= 0x00100000L /*SYNCHRONIZE*/ | 0x0080 /*FILE_READ_ATTRIBUTES*/;
+	mode.DesiredAccess |= 0x00100000L /*SYNCHRONIZE*/ | 0x0080 /*FILE_READ_ATTRIBUTES*/ | 0x0100 /*FILE_WRITE_ATTRIBUTES*/;
 
 	if ((value & open_mode::no_shared_read) == open_mode::none)
 	{
@@ -96,11 +96,11 @@ inline constexpr nt_open_mode calculate_nt_open_mode(open_mode_perms ompm) noexc
 	}
 	if ((value & open_mode::no_shared_write) == open_mode::none)
 	{
-		mode.ShareAccess |= 2; // FILE_SHARE_DELETE
+		mode.ShareAccess |= 2; // FILE_SHARE_WRITE
 	}
 	if ((value & open_mode::shared_delete) != open_mode::none)
 	{
-		mode.ShareAccess |= 4; // FILE_SHARE_WRITE
+		mode.ShareAccess |= 4; // FILE_SHARE_DELETE
 	}
 	bool generic_write{};
 	if ((value & open_mode::app) != open_mode::none)
@@ -282,14 +282,17 @@ inline constexpr nt_open_mode calculate_nt_open_mode(open_mode_perms ompm) noexc
 			mode.DesiredAccess |= default_write_attribute | default_read_attribute; // GENERIC_READ | GENERIC_WRITE
 		}
 	}
+	
 	if ((value & open_mode::no_block) == open_mode::none)
 	{
 		mode.CreateOptions |= 0x00000020; // FILE_SYNCHRONOUS_IO_NONALERT 0x00000020
 	}
+#if 0
 	else
 	{
 		mode.CreateOptions |= 0x00000010; // FILE_SYNCHRONOUS_IO_ALERT 0x00000010
 	}
+#endif
 
 	if ((value & open_mode::random_access) == open_mode::none)
 	{
@@ -543,6 +546,9 @@ template <nt_family family>
 inline ::std::byte *nt_pread_some_bytes_impl(void *__restrict handle, ::std::byte *first, ::std::byte *last,
 											 ::fast_io::intfpos_t off)
 {
+	// The difference between P-series functions in Windows synchronization mode and POSIX is that under Windows,
+	// the functions will advance the position by the number of bytes written or read after each write/read operation.
+
 	::std::int_least64_t offs{nt_calculate_offset_impl(off)};
 	return ::fast_io::win32::nt::details::nt_read_pread_some_bytes_common_impl<family>(handle, first, last,
 																					   __builtin_addressof(offs));
@@ -574,6 +580,9 @@ template <nt_family family>
 inline ::std::byte const *nt_pwrite_some_bytes_impl(void *__restrict handle, ::std::byte const *first,
 													::std::byte const *last, ::fast_io::intfpos_t off)
 {
+	// The difference between P-series functions in Windows synchronization mode and POSIX is that under Windows,
+	// the functions will advance the position by the number of bytes written or read after each write/read operation.
+
 	::std::int_least64_t offs{nt_calculate_offset_impl(off)};
 	return ::fast_io::win32::nt::details::nt_write_pwrite_some_bytes_common_impl<family>(handle, first, last,
 																						 __builtin_addressof(offs));
@@ -827,7 +836,7 @@ inline nt_file_position_status nt_get_file_position_impl(void *__restrict handle
 			::fast_io::win32::nt::file_information_class::FilePositionInformation)};
 		if (status)
 		{
-			return {status};
+			return {.status = status, .file_position = 0u};
 		}
 		file_position += fps;
 	}
@@ -841,7 +850,7 @@ inline nt_file_position_status nt_get_file_position_impl(void *__restrict handle
 			::fast_io::win32::nt::file_information_class::FileStandardInformation)};
 		if (status)
 		{
-			return {status};
+			return {.status = status, .file_position = 0u};
 		}
 		file_position += fsi.end_of_file;
 	}

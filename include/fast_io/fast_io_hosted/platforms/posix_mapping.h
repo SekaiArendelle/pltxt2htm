@@ -44,7 +44,7 @@ inline ::std::byte *sys_mmap(void *addr, ::std::size_t len, int prot, int flags,
 		}
 	}
 	auto ret{reinterpret_cast<::std::byte *>(
-		::mmap(addr, len, prot, flags, fd, static_cast<off_t>(static_cast<my_make_unsigned_t<off_t>>(offset))))};
+		::fast_io::noexcept_call(::mmap, addr, len, prot, flags, fd, static_cast<off_t>(static_cast<my_make_unsigned_t<off_t>>(offset))))};
 	if (ret == MAP_FAILED)
 	{
 		throw_posix_error();
@@ -69,7 +69,7 @@ inline int sys_mprotect(void *start, ::std::size_t len, int prot)
 	return result;
 }
 
-inline int sys_munmap(void *addr, ::std::size_t len)
+inline int sys_munmap_nothrow(void *addr, ::std::size_t len)
 {
 	return
 #if defined(__linux__) && defined(__NR_munmap)
@@ -79,9 +79,9 @@ inline int sys_munmap(void *addr, ::std::size_t len)
 #endif
 }
 
-inline void sys_munmap_throw_error(void *addr, ::std::size_t len)
+inline void sys_munmap(void *addr, ::std::size_t len)
 {
-	system_call_throw_error(sys_munmap(addr, len));
+	system_call_throw_error(sys_munmap_nothrow(addr, len));
 }
 } // namespace details
 
@@ -195,7 +195,7 @@ public:
 		}
 		if (this->address_begin != reinterpret_cast<::std::byte *>(MAP_FAILED)) [[likely]]
 		{
-			details::sys_munmap(this->address_begin, static_cast<::std::size_t>(address_end - address_begin));
+			details::sys_munmap_nothrow(this->address_begin, static_cast<::std::size_t>(address_end - address_begin));
 		}
 		this->address_begin = other.address_begin;
 		this->address_end = other.address_end;
@@ -291,20 +291,20 @@ public:
 	{
 		return address_begin[pos];
 	}
-	inline void close()
+	inline constexpr void close()
 	{
 		if (this->address_begin != MAP_FAILED) [[likely]]
 		{
-			auto ret{details::sys_munmap(this->address_begin, static_cast<::std::size_t>(address_end - address_begin))};
+			auto ret{details::sys_munmap_nothrow(this->address_begin, static_cast<::std::size_t>(address_end - address_begin))};
 			this->address_end = this->address_begin = reinterpret_cast<::std::byte *>(MAP_FAILED);
 			system_call_throw_error(ret);
 		}
 	}
-	inline ~posix_memory_map_file()
+	inline constexpr ~posix_memory_map_file()
 	{
 		if (this->address_begin != MAP_FAILED) [[likely]]
 		{
-			details::sys_munmap(this->address_begin, static_cast<::std::size_t>(address_end - address_begin));
+			details::sys_munmap_nothrow(this->address_begin, static_cast<::std::size_t>(address_end - address_begin));
 		}
 	}
 };

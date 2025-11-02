@@ -5,6 +5,8 @@ namespace fast_io
 
 namespace posix
 {
+using posix_ssize_t = ::std::make_signed_t<::std::size_t>;
+
 #ifdef __DARWIN_C_LEVEL
 extern int libc_faccessat(int dirfd, char const *pathname, int mode, int flags) noexcept __asm__("_faccessat");
 extern int libc_renameat(int olddirfd, char const *oldpath, int newdirfd, char const *newpath) noexcept
@@ -21,8 +23,7 @@ extern int libc_fstatat(int dirfd, char const *pathname, struct stat *buf, int f
 extern int libc_mkdirat(int dirfd, char const *pathname, mode_t mode) noexcept __asm__("_mkdirat");
 extern int libc_mknodat(int dirfd, char const *pathname, mode_t mode, dev_t dev) noexcept __asm__("_mknodat");
 extern int libc_unlinkat(int dirfd, char const *pathname, int flags) noexcept __asm__("_unlinkat");
-extern int libc_readlinkat(int dirfd, char const *pathname, char *buf, ::std::size_t bufsiz) noexcept
-	__asm__("_readlinkat");
+extern posix_ssize_t libc_readlinkat(int dirfd, char const *pathname, char *buf, ::std::size_t bufsiz) noexcept __asm__("_readlinkat");
 #else
 extern int libc_faccessat(int dirfd, char const *pathname, int mode, int flags) noexcept __asm__("faccessat");
 extern int libc_renameat(int olddirfd, char const *oldpath, int newdirfd, char const *newpath) noexcept
@@ -39,8 +40,7 @@ extern int libc_fstatat(int dirfd, char const *pathname, struct stat *buf, int f
 extern int libc_mkdirat(int dirfd, char const *pathname, mode_t mode) noexcept __asm__("mkdirat");
 extern int libc_mknodat(int dirfd, char const *pathname, mode_t mode, dev_t dev) noexcept __asm__("mknodat");
 extern int libc_unlinkat(int dirfd, char const *pathname, int flags) noexcept __asm__("unlinkat");
-extern int libc_readlinkat(int dirfd, char const *pathname, char *buf, ::std::size_t bufsiz) noexcept
-	__asm__("readlinkat");
+extern posix_ssize_t libc_readlinkat(int dirfd, char const *pathname, char *buf, ::std::size_t bufsiz) noexcept __asm__("readlinkat");
 #endif
 } // namespace posix
 
@@ -186,13 +186,13 @@ inline void posix_faccessat_impl(int dirfd, char const *pathname, int mode, int 
 {
 	system_call_throw_error(
 #if defined(__linux__) && defined(__NR_faccessat2)
-		system_call<__NR_faccessat2, int>
+		system_call<__NR_faccessat2, int>(dirfd, pathname, mode, flags)
 #elif defined(__linux__) && defined(__NR_faccessat)
-		system_call<__NR_faccessat, int>
+		system_call<__NR_faccessat, int>(dirfd, pathname, mode)
 #else
-		::fast_io::posix::libc_faccessat
+		::fast_io::posix::libc_faccessat(dirfd, pathname, mode, flags)
 #endif
-		(dirfd, pathname, mode, flags));
+		);
 }
 
 #if defined(__wasi__) && !defined(__wasilibc_unmodified_upstream)
@@ -214,7 +214,7 @@ inline void posix_fchownat_impl(int dirfd, char const *pathname, uintmax_t owner
 	if constexpr (sizeof(uintmax_t) > sizeof(gid_t))
 	{
 		constexpr ::std::uintmax_t mx{::std::numeric_limits<gid_t>::max()};
-		if (static_cast<::std::uintmax_t>(owner) > mx)
+		if (static_cast<::std::uintmax_t>(group) > mx)
 		{
 			throw_posix_error(EOVERFLOW);
 		}
@@ -336,11 +336,11 @@ inline void posix_unlinkat_impl(int dirfd, char const *path, int flags)
 
 namespace details
 {
-inline constexpr struct timespec unix_timestamp_to_struct_timespec64(unix_timestamp stmp) noexcept
+inline constexpr struct timespec unix_timestamp_to_struct_timespec(unix_timestamp stmp) noexcept
 {
 	constexpr ::std::uint_least64_t mul_factor{uint_least64_subseconds_per_second / 1000000000u};
 	return {static_cast<::std::time_t>(stmp.seconds),
-			static_cast<long>(static_cast<long unsigned>((stmp.subseconds) / mul_factor))};
+			static_cast<long>(static_cast<long unsigned>(stmp.subseconds / mul_factor))};
 }
 
 inline
@@ -348,7 +348,7 @@ inline
 	constexpr
 #endif
 	struct timespec
-	unix_timestamp_to_struct_timespec64([[maybe_unused]] unix_timestamp_option opt) noexcept
+	unix_timestamp_to_struct_timespec([[maybe_unused]] unix_timestamp_option opt) noexcept
 {
 #if defined(UTIME_NOW) && defined(UTIME_OMIT)
 	switch (opt.flags)
@@ -358,12 +358,53 @@ inline
 	case utime_flags::omit:
 		return {.tv_sec = 0, .tv_nsec = UTIME_OMIT};
 	default:
+		return unix_timestamp_to_struct_timespec(opt.timestamp);
+	}
+#else
+	throw_posix_error(EINVAL);
+#endif
+}
+
+#if defined(__linux__) && defined(__NR_utimensat_time64)
+
+// https://github.com/torvalds/linux/blob/07e27ad16399afcd693be20211b0dfae63e0615f/include/uapi/linux/time_types.h#L7
+// https://github.com/qemu/qemu/blob/ab8008b231e758e03c87c1c483c03afdd9c02e19/linux-user/syscall_defs.h#L251
+// https://github.com/bminor/glibc/blob/b7e0ec907ba94b6fcc6142bbaddea995bcc3cef3/include/struct___timespec64.h#L15
+struct kernel_timespec64
+{
+	::std::int_least64_t tv_sec;
+	::std::int_least64_t tv_nsec;
+};
+
+inline constexpr kernel_timespec64 unix_timestamp_to_struct_timespec64(unix_timestamp stmp) noexcept
+{
+	constexpr ::std::uint_least64_t mul_factor{uint_least64_subseconds_per_second / 1000000000u};
+	return {static_cast<::std::int_least64_t>(stmp.seconds),
+			static_cast<::std::int_least64_t>(stmp.subseconds / mul_factor)};
+}
+
+inline
+#if defined(UTIME_NOW) && defined(UTIME_OMIT)
+	constexpr
+#endif
+    kernel_timespec64
+	unix_timestamp_to_struct_timespec64([[maybe_unused]] unix_timestamp_option opt) noexcept
+{
+#if defined(UTIME_NOW) && defined(UTIME_OMIT)
+	switch (opt.flags)
+	{
+	case utime_flags::now:
+		return {.tv_sec = 0, .tv_nsec = static_cast<::std::int_least64_t>(UTIME_NOW)};
+	case utime_flags::omit:
+		return {.tv_sec = 0, .tv_nsec = static_cast<::std::int_least64_t>(UTIME_OMIT)};
+	default:
 		return unix_timestamp_to_struct_timespec64(opt.timestamp);
 	}
 #else
 	throw_posix_error(EINVAL);
 #endif
 }
+#endif
 
 } // namespace details
 
@@ -375,23 +416,123 @@ inline void posix_utimensat_impl(int dirfd, char const *path, unix_timestamp_opt
 	{
 		throw_posix_error(EINVAL);
 	}
-	struct timespec ts[2]{
+
+#if defined(__linux__) && defined(__NR_utimensat_time64)
+    details::kernel_timespec64 ts[2]{
 		details::unix_timestamp_to_struct_timespec64(last_access_time),
 		details::unix_timestamp_to_struct_timespec64(last_modification_time),
 	};
-	struct timespec *tsptr{ts};
-	system_call_throw_error(
-#if defined(__linux__)
-#if defined(__NR_utimensat64)
-		system_call<__NR_utimensat64, int>
+	details::kernel_timespec64 *tsptr{ts};
 #else
-		system_call<__NR_utimensat, int>
+	struct timespec ts[2]{
+		details::unix_timestamp_to_struct_timespec(last_access_time),
+		details::unix_timestamp_to_struct_timespec(last_modification_time),
+	};
+	struct timespec *tsptr{ts};
 #endif
 
+	system_call_throw_error(
+#if defined(__linux__)
+#if defined(__NR_utimensat_time64)
+		system_call<__NR_utimensat_time64, int>
+#elif defined(__NR_utimensat)
+		system_call<__NR_utimensat, int>
+#else
+        ::fast_io::posix::libc_utimensat
+#endif
 #else
 		::fast_io::posix::libc_utimensat
 #endif
 		(dirfd, path, tsptr, flags));
+}
+
+template<::std::integral char_type>
+inline ::fast_io::details::basic_ct_string<char_type> posix_readlinkat_impl([[maybe_unused]] int dirfd, [[maybe_unused]] char const *pathname)
+{
+#if defined(AT_SYMLINK_NOFOLLOW)
+    using posix_ssize_t = ::std::make_signed_t<::std::size_t>;
+
+	// The standard POSIX API does not provide a direct interface to call readlink using an fd, so toctou cannot be avoided.
+
+#if defined(__linux__)
+
+#if defined(__USE_LARGEFILE64) && (defined(__NR_newfstatat) || defined(__NR_fstatat64))
+	struct ::stat64 buf;
+#else
+	struct ::stat buf;
+#endif
+#if defined(__NR_newfstatat) || defined(__NR_fstatat64) || defined(__NR_fstatat)
+	system_call_throw_error(system_call<
+#if defined(__NR_newfstatat)
+							__NR_newfstatat
+#elif defined(__NR_fstatat64)
+							__NR_fstatat64
+#else
+							__NR_fstatat
+#endif
+							,
+							int>(dirfd, pathname, __builtin_addressof(buf), AT_SYMLINK_NOFOLLOW));
+
+#else
+	if ((::fast_io::posix::libc_fstatat(dirfd, pathname, __builtin_addressof(buf), AT_SYMLINK_NOFOLLOW)) < 0)
+	{
+		throw_posix_error();
+	}
+#endif
+
+#else
+	struct ::stat buf;
+	system_call_throw_error(::fast_io::posix::libc_fstatat(dirfd, pathname, __builtin_addressof(buf),AT_SYMLINK_NOFOLLOW));
+#endif
+
+    auto const symlink_size{static_cast<::std::size_t>(buf.st_size)};
+
+	if constexpr (::std::same_as<char_type, char>)
+	{
+		::fast_io::details::basic_ct_string<char> result(symlink_size);
+
+		posix_ssize_t readlink_bytes{
+#if defined(__linux__) && defined(__NR_readlinkat)
+							system_call<__NR_readlinkat, posix_ssize_t>(dirfd, pathname, result.data(), symlink_size)
+#else
+							static_cast<posix_ssize_t>(::fast_io::posix::libc_readlinkat(dirfd, pathname, result.data(), symlink_size))
+#endif
+						};
+			
+		system_call_throw_error(readlink_bytes);
+			
+		if(static_cast<::std::size_t>(readlink_bytes) != symlink_size)
+		{
+			throw_posix_error(EIO);
+		}
+
+		return result;
+	}
+	else 
+	{
+		local_operator_new_array_ptr<char> dynamic_buffer{symlink_size};
+
+		posix_ssize_t readlink_bytes{
+#if defined(__linux__) && defined(__NR_readlinkat)
+							system_call<__NR_readlinkat, posix_ssize_t>(dirfd, pathname, dynamic_buffer.get(), symlink_size)
+#else
+							static_cast<posix_ssize_t>(::fast_io::posix::libc_readlinkat(dirfd, pathname, dynamic_buffer.get(), symlink_size))
+#endif
+						};
+			
+		system_call_throw_error(readlink_bytes);
+			
+		if(static_cast<::std::size_t>(readlink_bytes) != symlink_size) [[unlikely]]
+		{
+			throw_posix_error(EIO);
+		}
+
+		return ::fast_io::details::concat_ct<char_type>(::fast_io::mnp::code_cvt(::fast_io::mnp::strvw(dynamic_buffer.get(), dynamic_buffer.get() + symlink_size)));
+	}
+#else
+	// Since faccessat also requires the AT_SYMLINK_NOFOLLOW flag, it can only result in an error.
+	throw_posix_error(EINVAL);
+#endif
 }
 
 template <posix_api_1x dsp, typename... Args>
@@ -431,6 +572,15 @@ inline auto posix1x_api_dispatcher(int dirfd, char const *path, Args... args)
 	}
 }
 
+template <::std::integral char_type, posix_api_ct dsp, typename... Args>
+inline auto posixct_api_dispatcher(int dirfd, char const *path, Args... args)
+{
+    if constexpr (dsp == posix_api_ct::readlinkat)
+    {
+        return posix_readlinkat_impl<char_type>(dirfd, path, args...);
+    }
+}
+
 template <posix_api_22 dsp, ::fast_io::constructible_to_os_c_str old_path_type,
 		  ::fast_io::constructible_to_os_c_str new_path_type, typename... Args>
 inline auto posix_deal_with22(int olddirfd, old_path_type const &oldpath, int newdirfd, new_path_type const &newpath, Args... args)
@@ -459,6 +609,12 @@ template <posix_api_1x dsp, ::fast_io::constructible_to_os_c_str path_type, type
 inline auto posix_deal_with1x(int dirfd, path_type const &path, Args... args)
 {
 	return fast_io::posix_api_common(path, [&](char const *path_c_str) { return posix1x_api_dispatcher<dsp>(dirfd, path_c_str, args...); });
+}
+
+template <::std::integral char_type, posix_api_ct dsp, ::fast_io::constructible_to_os_c_str path_type, typename... Args>
+inline auto posix_deal_withct(int dirfd, path_type const &path, Args... args)
+{
+    return fast_io::posix_api_common(path, [&](char const *path_c_str) { return posixct_api_dispatcher<char_type, dsp>(dirfd, path_c_str, args...); });
 }
 
 } // namespace details
@@ -574,19 +730,7 @@ inline void native_mkdirat(posix_at_entry ent, path_type const &path, perms perm
 {
 	return details::posix_deal_with1x<details::posix_api_1x::mkdirat>(ent.fd, path, static_cast<mode_t>(perm));
 }
-#if 0
-template<::fast_io::constructible_to_os_c_str path_type>
-inline void posix_mknodat(posix_at_entry ent,path_type const& path,perms perm,::std::uintmax_t dev)
-{
-	return details::posix_deal_with1x<details::posix_api_1x::mknodat>(ent.fd,path,static_cast<mode_t>(perm),dev);
-}
 
-template<::fast_io::constructible_to_os_c_str path_type>
-inline void native_mknodat(posix_at_entry ent,path_type const& path,perms perm,::std::uintmax_t dev)
-{
-	return details::posix_deal_with1x<details::posix_api_1x::mknodat>(ent.fd,path,static_cast<mode_t>(perm),dev);
-}
-#endif
 template <::fast_io::constructible_to_os_c_str path_type>
 inline void posix_unlinkat(posix_at_entry ent, path_type const &path, posix_at_flags flags = {})
 {
@@ -632,6 +776,34 @@ inline void native_utimensat(posix_at_entry ent, path_type const &path, unix_tim
 	details::posix_deal_with1x<details::posix_api_1x::utimensat>(ent.fd, path, creation_time, last_access_time,
 																 last_modification_time, static_cast<int>(flags));
 }
+
+// ct
+template <::std::integral char_type, ::fast_io::constructible_to_os_c_str path_type>
+inline ::fast_io::details::basic_ct_string<char_type> posix_readlinkat(posix_at_entry ent, path_type const &path)
+{
+    return details::posix_deal_withct<char_type, details::posix_api_ct::readlinkat>(ent.fd, path);
+}
+
+template <::std::integral char_type, ::fast_io::constructible_to_os_c_str path_type>
+inline ::fast_io::details::basic_ct_string<char_type> native_readlinkat(posix_at_entry ent, path_type const &path)
+{
+    return details::posix_deal_withct<char_type, details::posix_api_ct::readlinkat>(ent.fd, path);
+}
+
+#if 0
+template<::fast_io::constructible_to_os_c_str path_type>
+inline void posix_mknodat(posix_at_entry ent,path_type const& path,perms perm,::std::uintmax_t dev)
+{
+	return details::posix_deal_with1x<details::posix_api_1x::mknodat>(ent.fd,path,static_cast<mode_t>(perm),dev);
+}
+
+template<::fast_io::constructible_to_os_c_str path_type>
+inline void native_mknodat(posix_at_entry ent,path_type const& path,perms perm,::std::uintmax_t dev)
+{
+	return details::posix_deal_with1x<details::posix_api_1x::mknodat>(ent.fd,path,static_cast<mode_t>(perm),dev);
+}
+#endif
+
 #if 0
 template<::std::integral ch_type>
 struct basic_posix_readlinkat_t

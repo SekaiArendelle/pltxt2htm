@@ -271,11 +271,11 @@ inline constexpr int calculate_posix_open_mode(open_mode value) noexcept
 #ifdef _O_SEQUENTIAL
 	if ((value & open_mode::random_access) != open_mode::none)
 	{
-		mode |= _O_SEQUENTIAL;
+		mode |= _O_RANDOM;
 	}
 	else
 	{
-		mode |= _O_RANDOM;
+		mode |= _O_SEQUENTIAL;
 	}
 #endif
 #ifdef O_LARGEFILE
@@ -522,10 +522,36 @@ template <::fast_io::posix_family family, ::std::integral ch_type>
 inline constexpr basic_posix_family_io_observer<family, char>
 io_bytes_stream_ref_define(basic_posix_family_io_observer<family, ch_type> other) noexcept
 {
-	return {other.handle};
+	return {other.fd};
 }
 
-#if !(defined(_WIN32) && !defined(__WINE__) && !defined(__BIONIC__)) && defined(AT_FDCWD)
+#if defined(__CYGWIN__)
+
+// https://github.com/cygwin/cygwin/blob/c43ec5f5951c7f4b882a0f8e619601a45ae70a91/newlib/libc/include/sys/_default_fcntl.h#L168
+
+inline constexpr posix_at_entry posix_at_fdcwd() noexcept
+{
+	return posix_at_entry(
+#if defined(AT_FDCWD)
+			AT_FDCWD
+#else
+			-2
+#endif
+	);
+}
+
+inline constexpr posix_at_entry at_fdcwd() noexcept
+{
+	return posix_at_entry(
+#if defined(AT_FDCWD)
+			AT_FDCWD
+#else
+			-2
+#endif
+	);
+}
+
+#elif !(defined(_WIN32) && !defined(__WINE__) && !defined(__BIONIC__)) && defined(AT_FDCWD)
 
 inline constexpr posix_at_entry posix_at_fdcwd() noexcept
 {
@@ -536,6 +562,7 @@ inline constexpr posix_at_entry at_fdcwd() noexcept
 {
 	return posix_at_entry(AT_FDCWD);
 }
+
 #elif defined(__MSDOS__) || defined(__DJGPP__)
 
 inline constexpr posix_at_entry posix_at_fdcwd() noexcept
@@ -547,6 +574,7 @@ inline constexpr posix_at_entry at_fdcwd() noexcept
 {
 	return posix_at_entry(-100);
 }
+
 #endif
 
 namespace details
@@ -775,7 +803,7 @@ template <::fast_io::posix_family family, ::std::integral ch_type>
 inline auto redirect_handle(basic_posix_family_io_observer<family, ch_type> h) noexcept
 {
 #if (defined(_WIN32) && !defined(__WINE__) && !defined(__BIONIC__))
-	return my_get_osfile_handle(h.fd);
+	return details::my_get_osfile_handle(h.fd);
 #else
 	return h.fd;
 #endif
@@ -892,10 +920,12 @@ inline constexpr my_dos_concat_tlc_path_common_result my_dos_concat_tlc_path_com
 			return {true};
 		}
 
-		if (::fast_io::details::is_invalid_dos_filename_with_size(pathname, sz)) [[unlikely]]
+#if 0
+		if (::fast_io::details::is_invalid_dos_pathname_with_size(pathname, sz)) [[unlikely]]
 		{
 			return {true};
 		}
+#endif
 
 		// concat
 		return {false, concat_dos_path_tlc_string(::fast_io::mnp::os_c_str(fd_pathname_cstr), ::fast_io::mnp::chvw('\\'), ::fast_io::mnp::os_c_str(pathname))};
@@ -921,7 +951,7 @@ inline int my_posix_openat(int dirfd, char const *pathname, int flags, mode_t mo
 	return fd;
 }
 
-#elif defined(__NEWLIB__) || defined(_PICOLIBC__)
+#elif (defined(__NEWLIB__) || defined(_PICOLIBC__)) && !defined(__CYGWIN__)
 
 template <bool always_terminate = false>
 inline int my_posix_openat(int, char const *, int, mode_t)
@@ -980,11 +1010,11 @@ inline constexpr unsigned calculate_win32_cygwin_open_mode(open_mode value)
 	unsigned access{};
 	if ((value & open_mode::out) == open_mode::out)
 	{
-		access |= 0x80000000;
+		access |= 0x40000000 /*GENERIC_WRITE*/;
 	}
 	if ((value & open_mode::in) == open_mode::in)
 	{
-		access |= 0x40000000;
+		access |= 0x80000000 /*GENERIC_READ*/;
 	}
 	return access;
 }
@@ -1052,7 +1082,7 @@ struct my_posix_open_paramter
 	}
 };
 
-#if (defined(__NEWLIB__) && !defined(AT_FDCWD)) || defined(_PICOLIBC__)
+#if ((defined(__NEWLIB__) && !defined(AT_FDCWD)) || defined(_PICOLIBC__)) && !defined(__CYGWIN__)
 
 template <::fast_io::constructible_to_os_c_str T>
 inline constexpr int posix_openat_file_impl(int, T const &, open_mode, perms)
@@ -1273,7 +1303,14 @@ public:
 		{
 			return *this;
 		}
-		this->fd = ::fast_io::details::sys_dup2(dp.fd, this->fd);
+		if (this->fd == -1) [[unlikely]]
+		{
+			this->fd = ::fast_io::details::sys_dup(dp.fd);
+		}
+		else
+		{
+			this->fd = ::fast_io::details::sys_dup2(dp.fd, this->fd);
+		}
 		return *this;
 	}
 	inline constexpr basic_posix_family_file(basic_posix_family_file &&__restrict b) noexcept
@@ -1370,11 +1407,114 @@ inline void posix_truncate_impl(int fd, ::fast_io::uintfpos_t size)
 	}
 #endif
 
-#elif defined(__linux__) && defined(__NR_ftruncate64)
-	system_call_throw_error(system_call<__NR_ftruncate64, int>(fd, size));
-#elif defined(__linux__) && defined(__NR_ftruncate)
-	system_call_throw_error(system_call<__NR_ftruncate, int>(fd, size));
+#elif defined(__linux__)
+	if constexpr (sizeof(::std::size_t) >= sizeof(::std::uint_least64_t))
+	{
+#if defined(__NR_ftruncate)
+		if constexpr (::std::numeric_limits<::fast_io::uintfpos_t>::max() > ::std::numeric_limits<::std::uint_least64_t>::max())
+		{
+			if (size > ::std::numeric_limits<::std::uint_least64_t>::max())
+			{
+				throw_posix_error(EINVAL);
+			}
+		}
+
+		system_call_throw_error(system_call<__NR_ftruncate, int>(fd, static_cast<::std::uint_least64_t>(size)));
 #else
+		if constexpr (::std::numeric_limits<::fast_io::uintfpos_t>::max() > ::std::numeric_limits<off_t>::max())
+		{
+			if (size > ::std::numeric_limits<off_t>::max())
+			{
+				throw_posix_error(EINVAL);
+			}
+		}
+
+		if (noexcept_call(ftruncate, fd, static_cast<off_t>(size)) < 0)
+		{
+			throw_posix_error();
+		}
+#endif
+	}
+	else if constexpr (sizeof(::std::size_t) >= sizeof(::std::uint_least32_t))
+	{
+#if defined(__NR_ftruncate64)
+		if constexpr (::std::numeric_limits<::fast_io::uintfpos_t>::max() > ::std::numeric_limits<::std::uint_least64_t>::max())
+		{
+			if (size > ::std::numeric_limits<::std::uint_least64_t>::max())
+			{
+				throw_posix_error(EINVAL);
+			}
+		}
+
+		::std::uint_least64_t size_u64{static_cast<::std::uint_least64_t>(size)};
+		::std::uint_least32_t size_u32_low{static_cast<::std::uint_least32_t>(size_u64)};
+		::std::uint_least32_t size_u32_high{static_cast<::std::uint_least32_t>(size_u64 >> 32u)};
+
+		int result_syscall; // no initlize
+
+		if constexpr (::std::endian::native == ::std::endian::big)
+		{
+			/* 3 args: fd, size (high, low) */
+			result_syscall = ::fast_io::system_call<__NR_ftruncate64, int>(fd, size_u32_high, size_u32_low);
+		}
+		else
+		{
+			/* 3 args: fd, size (low, high) */
+			result_syscall = ::fast_io::system_call<__NR_ftruncate64, int>(fd, size_u32_low, size_u32_high);
+		}
+
+		system_call_throw_error(result_syscall);
+
+#elif defined(__NR_ftruncate)
+
+		if constexpr (::std::numeric_limits<::fast_io::uintfpos_t>::max() > ::std::numeric_limits<::std::uint_least32_t>::max())
+		{
+			if (size > ::std::numeric_limits<::std::uint_least32_t>::max())
+			{
+				throw_posix_error(EINVAL);
+			}
+		}
+
+		system_call_throw_error(system_call<__NR_ftruncate, int>(fd, static_cast<::std::uint_least32_t>(size)));
+#else
+		if constexpr (::std::numeric_limits<::fast_io::uintfpos_t>::max() > ::std::numeric_limits<off_t>::max())
+		{
+			if (size > ::std::numeric_limits<off_t>::max())
+			{
+				throw_posix_error(EINVAL);
+			}
+		}
+
+		if (noexcept_call(ftruncate, fd, static_cast<off_t>(size)) < 0)
+		{
+			throw_posix_error();
+		}
+#endif
+	}
+	else
+	{
+		if constexpr (::std::numeric_limits<::fast_io::uintfpos_t>::max() > ::std::numeric_limits<off_t>::max())
+		{
+			if (size > ::std::numeric_limits<off_t>::max())
+			{
+				throw_posix_error(EINVAL);
+			}
+		}
+
+		if (noexcept_call(ftruncate, fd, static_cast<off_t>(size)) < 0)
+		{
+			throw_posix_error();
+		}
+	}
+#else
+	if constexpr (::std::numeric_limits<::fast_io::uintfpos_t>::max() > ::std::numeric_limits<off_t>::max())
+	{
+		if (size > ::std::numeric_limits<off_t>::max())
+		{
+			throw_posix_error(EINVAL);
+		}
+	}
+
 	if (noexcept_call(ftruncate, fd, static_cast<off_t>(size)) < 0)
 	{
 		throw_posix_error();
@@ -1405,17 +1545,38 @@ public:
 #if defined(__wasi__)
 		throw_posix_error(ENOTSUP);
 #else
+
 		int a2[2]{-1, -1};
+
 #if (defined(_WIN32) && !defined(__WINE__) && !defined(__BIONIC__)) && !defined(__CYGWIN__)
 		if (noexcept_call(::_pipe, a2, 131072u, _O_BINARY) == -1)
+		{
+			throw_posix_error();
+		}
 #elif defined(__linux__)
 		if (noexcept_call(::pipe2, a2, O_CLOEXEC) == -1)
-#elif (defined(__MSDOS__) || defined(__DJGPP__)) || defined(__NEWLIB__)
-		if (noexcept_call(::pipe, a2) == -1)
-#else
-		if (noexcept_call(::pipe, a2) == -1 || ::fast_io::details::sys_fcntl(a2[0], F_SETFD, FD_CLOEXEC) == -1 || ::fast_io::details::sys_fcntl(a2[1], F_SETFD, FD_CLOEXEC) == -1)
-#endif
+		{
 			throw_posix_error();
+		}
+#elif (defined(__MSDOS__) || defined(__DJGPP__)) || (defined(__NEWLIB__) && !defined(__CYGWIN__))
+		if (noexcept_call(::pipe, a2) == -1)
+		{
+			throw_posix_error();
+		}
+#else
+		{
+			if (noexcept_call(::pipe, a2) == -1)
+			{
+				throw_posix_error();
+			}
+			::fast_io::posix_file_factory fd0(a2[0]);
+			::fast_io::posix_file_factory fd1(a2[1]);
+			::fast_io::details::sys_fcntl(fd0.fd, F_SETFD, FD_CLOEXEC);
+			::fast_io::details::sys_fcntl(fd1.fd, F_SETFD, FD_CLOEXEC);
+			fd0.fd = -1;
+			fd1.fd = -1;
+		}
+#endif
 		pipes->fd = *a2;
 		pipes[1].fd = a2[1];
 #endif
