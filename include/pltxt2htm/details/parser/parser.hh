@@ -308,6 +308,7 @@ constexpr auto get_pltext_from_parser_frame_context(
             ::exception::unreachable<ndebug>();
         }
     }
+    // suppress GCC -Wreturn-type warning
     ::exception::unreachable<ndebug>();
 }
 

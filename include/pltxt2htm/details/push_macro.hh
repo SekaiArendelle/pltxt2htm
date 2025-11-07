@@ -38,4 +38,3 @@
             [[assume(condition)]]; \
         } \
     } while (0)
-
