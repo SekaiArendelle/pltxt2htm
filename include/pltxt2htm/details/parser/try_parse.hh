@@ -795,4 +795,33 @@ constexpr auto try_parse_md_block_quotes(::fast_io::u8string_view pltext) noexce
     }
 }
 
+struct TryParseMdCodeSpanResult {
+    ::std::size_t forward_index;
+    ::pltxt2htm::Ast subast;
+};
+
+template<bool ndebug, char8_t... embraced_string>
+constexpr auto try_parse_md_code_span(::fast_io::u8string_view pltext) noexcept
+    -> ::exception::optional<::pltxt2htm::details::TryParseMdCodeSpanResult> {
+    if (!::pltxt2htm::details::is_prefix_match<ndebug, embraced_string...>(pltext)) {
+        return ::exception::nullopt_t{};
+    }
+
+    auto&& [forward_index, ast] = ::pltxt2htm::details::simply_parse_pltext<ndebug, embraced_string...>(
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, sizeof...(embraced_string)));
+
+    if constexpr (sizeof...(embraced_string) == 1) {
+        return ::pltxt2htm::details::TryParseMdCodeSpanResult{
+            .forward_index = forward_index + sizeof...(embraced_string), .subast = ::std::move(ast)};
+    } else if constexpr (sizeof...(embraced_string) == 2) {
+        return ::pltxt2htm::details::TryParseMdCodeSpanResult{
+            .forward_index = forward_index + sizeof...(embraced_string), .subast = ::std::move(ast)};
+    } else if constexpr (sizeof...(embraced_string) == 3) {
+        return ::pltxt2htm::details::TryParseMdCodeSpanResult{
+            .forward_index = forward_index + sizeof...(embraced_string), .subast = ::std::move(ast)};
+    } else {
+        ::exception::unreachable();
+    }
+}
+
 } // namespace pltxt2htm::details

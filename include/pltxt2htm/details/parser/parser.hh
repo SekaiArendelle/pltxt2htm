@@ -167,13 +167,6 @@ constexpr auto get_pltext_from_parser_frame_context(
         [[fallthrough]];
     case ::pltxt2htm::NodeType::md_atx_h6:
         [[fallthrough]];
-    // FIXME md code span should be the branch of unreachable
-    case ::pltxt2htm::NodeType::md_code_span_1_backtick:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_code_span_2_backtick:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_code_span_3_backtick:
-        [[fallthrough]];
     case ::pltxt2htm::NodeType::md_triple_emphasis_asterisk:
         [[fallthrough]];
     case ::pltxt2htm::NodeType::md_double_emphasis_asterisk:
@@ -205,6 +198,12 @@ constexpr auto get_pltext_from_parser_frame_context(
         return ::fast_io::mnp::os_c_str(
             static_cast<::pltxt2htm::details::MdBlockQuotesContext const*>(top_frame.release_imul())->pltext);
     }
+    case ::pltxt2htm::NodeType::md_code_span_1_backtick:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_code_span_2_backtick:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_code_span_3_backtick:
+        [[fallthrough]];
     case ::pltxt2htm::NodeType::md_link:
         [[fallthrough]];
     case ::pltxt2htm::NodeType::md_code_fence_backtick:
@@ -462,58 +461,31 @@ entry:
                                                                     opt_md_del.template value<ndebug>()),
                 ::pltxt2htm::NodeType::md_del));
             goto entry;
-        } else if (::pltxt2htm::details::is_prefix_match<ndebug, u8'`', u8'`', u8'`'>(
-                       ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) {
+        } else if (auto opt_code_span_3_backtick =
+                       ::pltxt2htm::details::try_parse_md_code_span<ndebug, u8'`', u8'`', u8'`'>(
+                           ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                   opt_code_span_3_backtick.has_value()) {
             // parsing markdown ```example```
-            // FIXME md code span should not be pushed into call stack
-            //       e.g. `t<b>es</b>t` => <b> does not work
-            current_index += 3;
-            if (call_stack.top()->nested_tag_type == ::pltxt2htm::NodeType::md_code_span_3_backtick) {
-                ::std::size_t const staged_index{current_index};
-                ::pltxt2htm::MdCodeSpan3Backtick staged_node(::std::move(result));
-                call_stack.pop();
-                call_stack.top()->subast.push_back(
-                    ::pltxt2htm::HeapGuard<::pltxt2htm::MdCodeSpan3Backtick>(::std::move(staged_node)));
-                call_stack.top()->current_index += staged_index;
-            } else {
-                call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                    ::pltxt2htm::NodeType::md_code_span_3_backtick));
-            }
-            goto entry;
-        } else if (::pltxt2htm::details::is_prefix_match<ndebug, u8'`', u8'`'>(
-                       ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) {
+            auto&& [forward_index, subast] = opt_code_span_3_backtick.template value<ndebug>();
+            current_index = current_index + forward_index - 1;
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdCodeSpan3Backtick>(::std::move(subast)));
+            continue;
+        } else if (auto opt_code_span_2_backtick = ::pltxt2htm::details::try_parse_md_code_span<ndebug, u8'`', u8'`'>(
+                       ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                   opt_code_span_2_backtick.has_value()) {
             // parsing markdown ``example``
-            current_index += 2;
-            if (call_stack.top()->nested_tag_type == ::pltxt2htm::NodeType::md_code_span_2_backtick) {
-                ::std::size_t const staged_index{current_index};
-                ::pltxt2htm::MdCodeSpan2Backtick staged_node(::std::move(result));
-                call_stack.pop();
-                call_stack.top()->subast.push_back(
-                    ::pltxt2htm::HeapGuard<::pltxt2htm::MdCodeSpan2Backtick>(::std::move(staged_node)));
-                call_stack.top()->current_index += staged_index;
-            } else {
-                call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                    ::pltxt2htm::NodeType::md_code_span_2_backtick));
-            }
-            goto entry;
-        } else if (chr == u8'`') {
+            auto&& [forward_index, subast] = opt_code_span_2_backtick.template value<ndebug>();
+            current_index = current_index + forward_index - 1;
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdCodeSpan2Backtick>(::std::move(subast)));
+            continue;
+        } else if (auto opt_code_span_1_backtick = ::pltxt2htm::details::try_parse_md_code_span<ndebug, u8'`'>(
+                       ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                   opt_code_span_1_backtick.has_value()) {
             // parsing markdown `example`
-            current_index += 1;
-            if (call_stack.top()->nested_tag_type == ::pltxt2htm::NodeType::md_code_span_1_backtick) {
-                ::std::size_t const staged_index{current_index};
-                ::pltxt2htm::MdCodeSpan1Backtick staged_node(::std::move(result));
-                call_stack.pop();
-                call_stack.top()->subast.push_back(
-                    ::pltxt2htm::HeapGuard<::pltxt2htm::MdCodeSpan1Backtick>(::std::move(staged_node)));
-                call_stack.top()->current_index += staged_index;
-            } else {
-                call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                    ::pltxt2htm::NodeType::md_code_span_1_backtick));
-            }
-            goto entry;
+            auto&& [forward_index, subast] = opt_code_span_1_backtick.template value<ndebug>();
+            current_index = current_index + forward_index - 1;
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdCodeSpan1Backtick>(::std::move(subast)));
+            continue;
         } else if (chr == u8'<') {
             // if i is a valid value, i always less than pltext_size
             pltxt2htm_assert(current_index < pltext_size, u8"Index of parser out of bound");
@@ -1675,17 +1647,14 @@ entry:
             }
             case ::pltxt2htm::NodeType::md_code_span_1_backtick: {
                 super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdCodeSpan1Backtick>(::std::move(subast)));
-                super_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeType::md_code_span_2_backtick: {
                 super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdCodeSpan2Backtick>(::std::move(subast)));
-                super_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeType::md_code_span_3_backtick: {
                 super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdCodeSpan3Backtick>(::std::move(subast)));
-                super_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeType::md_single_emphasis_asterisk: {

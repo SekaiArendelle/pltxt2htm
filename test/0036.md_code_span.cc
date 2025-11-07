@@ -33,9 +33,19 @@ int main() {
     auto answer8 = ::fast_io::u8string_view{u8"t<code>e</code>st"};
     ::pltxt2htm_test::assert_true(html8 == answer8);
 
+    // Note: this does not follow commonmark
+    // This is an implement defined behavior
     auto html9 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"`t");
     auto answer9 = ::fast_io::u8string_view{u8"<code>t</code>"};
     ::pltxt2htm_test::assert_true(html9 == answer9);
+
+    auto html10 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"```<br>```");
+    auto answer10 = ::fast_io::u8string_view{u8"<code>&lt;br&gt;</code>"};
+    ::pltxt2htm_test::assert_true(html10 == answer10);
+
+    auto html11 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"`<em>t</em>`");
+    auto answer11 = ::fast_io::u8string_view{u8"<code>&lt;em&gt;t&lt;/em&gt;</code>"};
+    ::pltxt2htm_test::assert_true(html11 == answer11);
 
     return 0;
 }
