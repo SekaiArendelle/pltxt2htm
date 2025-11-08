@@ -31,5 +31,9 @@ int main() {
     auto answer7 = ::fast_io::u8string_view{u8"t<ul></ul>t"};
     ::pltxt2htm_test::assert_true(html7 == answer7);
 
+    auto html8 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"t<li");
+    auto answer8 = ::fast_io::u8string_view{u8"t&lt;li"};
+    ::pltxt2htm_test::assert_true(html8 == answer8);
+
     return 0;
 }

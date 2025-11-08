@@ -263,7 +263,7 @@ consteval auto uint_to_literal_string() noexcept {
  * @param args The strings to concatenate
  * @return A new LiteralString containing all input strings concatenated
  */
-template<is_leteral_string... Args>
+template<::pltxt2htm::details::is_leteral_string... Args>
 consteval auto concat(Args const&... args) noexcept {
     ::pltxt2htm::details::LiteralString<(args.size() + ...)> result{};
     ::std::size_t index{};

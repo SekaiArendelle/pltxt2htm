@@ -469,7 +469,8 @@ entry:
             break;
         }
         case ::pltxt2htm::NodeType::html_note: {
-            // TODO remove note node
+            // TODO should I remove note node?
+            // which costs a lot and really dangerous
             break;
         }
         case ::pltxt2htm::NodeType::html_ul: {
