@@ -73,7 +73,9 @@ int main() {
     ::pltxt2htm_test::assert_true(html13 == answer13);
 
     auto html14 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<experiment=642cf37a494746375aae306a></experiment");
-    auto answer14 = ::fast_io::u8string_view{u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/642cf37a494746375aae306a\" internal>&lt;/experiment</a>"};
+    auto answer14 = ::fast_io::u8string_view{
+        u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/642cf37a494746375aae306a\" "
+        u8"internal>&lt;/experiment</a>"};
     ::pltxt2htm_test::assert_true(html14 == answer14);
 
     return 0;

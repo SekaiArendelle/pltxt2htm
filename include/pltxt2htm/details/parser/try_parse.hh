@@ -12,6 +12,9 @@ namespace pltxt2htm::details {
 
 /**
  * @brief Switch to a markdown punctuation character.
+ *
+ * @param u8char The UTF-8 character to switch.
+ * @return An optional HeapGuard containing the corresponding PlTxtNode, or nullopt if no match is found.
  */
 constexpr ::exception::optional<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>> switch_escape_char(
     char8_t u8char) noexcept {
@@ -152,8 +155,10 @@ constexpr ::exception::optional<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>> 
 /**
  * @brief Parse a single UTF-8 code point and append the corresponding AST node(s).
  *
- * @tparam ndebug  When `true`, runtime assertions are disabled.
- * @param pltext   The complete input text being parsed.
+ * @tparam ndebug When `true`, runtime assertions are disabled.
+ * @param pltext The complete input text being parsed.
+ * @param result The AST to which parsed nodes are appended.
+ * @return The number of UTF-8 code units consumed.
  */
 template<bool ndebug>
 constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::pltxt2htm::Ast& result) noexcept
@@ -260,11 +265,11 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
 }
 
 /**
- * @brief same as regex /^tag_name *\>/
- * @example parsing <i>, <b>, <h3> e.t.c
- * @tparam tag_name: The prefix string.
- * @param pltext: The string to be checked.
- * @return Whether the string is a prefix of the pl-text.
+ * @brief Check if the input matches a bare tag pattern.
+ *
+ * @tparam tag_name The prefix string representing the tag name.
+ * @param pltext The string to be checked.
+ * @return The length of the matched tag, or nullopt if no match is found.
  */
 template<bool ndebug, char8_t... tag_name>
 [[nodiscard]]
@@ -285,13 +290,19 @@ constexpr auto try_parse_bare_tag(::fast_io::u8string_view pltext) noexcept -> :
 }
 
 struct TryParseEqualSignTagResult {
-    ::std::size_t tag_len;
-    ::fast_io::u8string substr;
+    ::std::size_t tag_len; ///< Length of the tag.
+    ::fast_io::u8string substr; ///< Substring extracted from the tag.
 };
 
 /**
- * @brief parsing `Tag=$1>`
- * @param func: Check whether the character append to substr is valid
+ * @brief Parse a tag with an equal sign, e.g., `<tag=value>`.
+ *
+ * @tparam ndebug When `true`, runtime assertions are disabled.
+ * @tparam prefix_str The prefix string before the equal sign.
+ * @tparam Func A callable to validate characters in the tag value.
+ * @param pltext The input text to parse.
+ * @param func The validation function for tag value characters.
+ * @return The parsed result, or nullopt if parsing fails.
  */
 template<bool ndebug, char8_t... prefix_str, typename Func>
     requires requires(Func&& func, char8_t chr) {
@@ -345,8 +356,11 @@ constexpr auto try_parse_equal_sign_tag(::fast_io::u8string_view pltext, Func&& 
 }
 
 /**
- * @brief try to parsing `<tag_name>` or `<tag_name/>`
- * @param[in] pltext: source text
+ * @brief Try to parse a self-closing tag, e.g., `<tag/>`.
+ *
+ * @tparam tag_name The tag name to match.
+ * @param pltext The input text to parse.
+ * @return The length of the matched tag, or nullopt if no match is found.
  */
 template<bool ndebug, char8_t... tag_name>
 [[nodiscard]]
@@ -371,20 +385,17 @@ constexpr auto try_parse_self_closing_tag(::fast_io::u8string_view pltext) noexc
 }
 
 struct TryParseMdAtxHeadingResult {
-    ::std::size_t start_index;
-    ::std::size_t sublength;
-    ::std::size_t forward_index;
-    ::pltxt2htm::NodeType md_atx_heading_type;
+    ::std::size_t start_index; ///< Start index of the heading content.
+    ::std::size_t sublength; ///< Length of the heading content.
+    ::std::size_t forward_index; ///< Index to continue parsing from.
+    ::pltxt2htm::NodeType md_atx_heading_type; ///< Type of the ATX heading.
 };
 
 /**
- * @brief Parsing markdown ATX headings
- * @param[in] pltext: input string
- * @param[out] start_index_: start index
- * @param[out] sublength_: length of the heading context
- * @param[out] md_atx_heading_type_: md_atx_h1 ~ md_atx_h6
- * @param[out] ending_type: indicates how the heading ends
- * @return true if the parsing is successful
+ * @brief Parse Markdown ATX headings (e.g., `# Heading`).
+ *
+ * @param pltext The input text to parse.
+ * @return The parsed result, or nullopt if parsing fails.
  */
 template<bool ndebug>
 [[nodiscard]]
@@ -463,19 +474,17 @@ constexpr auto try_parse_md_atx_heading(::fast_io::u8string_view pltext) noexcep
 }
 
 enum class ThematicBreakType : ::std::uint_least32_t {
-    none = 0,
-    // -
-    hyphen,
-    // _
-    underscore,
-    // *
-    asterisk,
+    none = 0, ///< No thematic break.
+    hyphen, ///< Thematic break using hyphens (`---`).
+    underscore, ///< Thematic break using underscores (`___`).
+    asterisk, ///< Thematic break using asterisks (`***`).
 };
 
 /**
- * @brief Parsing markdown thematic breaks (e.g. `---`, `___`, `***`)
- * @param text The text to parse
- * @return length of the parsed markdown thematic breaks
+ * @brief Parse Markdown thematic breaks (e.g., `---`, `___`, `***`).
+ *
+ * @param text The input text to parse.
+ * @return The length of the parsed thematic break, or nullopt if parsing fails.
  */
 template<bool ndebug>
 constexpr auto try_parse_md_thematic_break(::fast_io::u8string_view text) noexcept
@@ -539,10 +548,17 @@ constexpr auto try_parse_md_thematic_break(::fast_io::u8string_view text) noexce
 }
 
 struct SimplyParsePLtextResult {
-    ::std::size_t forward_index;
-    ::pltxt2htm::Ast ast;
+    ::std::size_t forward_index; ///< Index to continue parsing from.
+    ::pltxt2htm::Ast ast; ///< Parsed AST.
 };
 
+/**
+ * @brief Parse plain text into an AST.
+ *
+ * @tparam end_string The string that marks the end of parsing.
+ * @param pltext The input text to parse.
+ * @return The parsed result.
+ */
 template<bool ndebug, char8_t... end_string>
 constexpr auto simply_parse_pltext(::fast_io::u8string_view pltext) noexcept
     -> ::pltxt2htm::details::SimplyParsePLtextResult {
@@ -606,10 +622,17 @@ constexpr auto simply_parse_pltext(::fast_io::u8string_view pltext) noexcept
 }
 
 struct TryParseMdCodeFenceResult {
-    ::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode> node;
-    ::std::size_t forward_index;
+    ::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode> node; ///< Parsed code fence node.
+    ::std::size_t forward_index; ///< Index to continue parsing from.
 };
 
+/**
+ * @brief Parse Markdown code fences (e.g., ````` or `~~~`).
+ *
+ * @tparam is_backtick Whether the code fence uses backticks.
+ * @param pltext The input text to parse.
+ * @return The parsed result, or nullopt if parsing fails.
+ */
 template<bool ndebug, bool is_backtick>
 constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseMdCodeFenceResult> {
@@ -696,6 +719,12 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
     }
 }
 
+/**
+ * @brief Parse Markdown code fences (both backticks and tildes).
+ *
+ * @param pltext The input text to parse.
+ * @return The parsed result, or nullopt if parsing fails.
+ */
 template<bool ndebug>
 constexpr auto try_parse_md_code_fence(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseMdCodeFenceResult> {
@@ -718,6 +747,13 @@ constexpr auto try_parse_md_code_fence(::fast_io::u8string_view pltext) noexcept
 #endif
 }
 
+/**
+ * @brief Parse Markdown inline elements enclosed by specific characters.
+ *
+ * @tparam embraced_chars The characters enclosing the inline elements.
+ * @param pltext The input text to parse.
+ * @return The length of the parsed inline element, or nullopt if parsing fails.
+ */
 template<bool ndebug, char8_t... embraced_chars>
 constexpr auto try_parse_md_inlines(::fast_io::u8string_view pltext) noexcept -> ::exception::optional<::std::size_t> {
     if (!::pltxt2htm::details::is_prefix_match<ndebug, embraced_chars...>(pltext)) {
@@ -742,10 +778,16 @@ constexpr auto try_parse_md_inlines(::fast_io::u8string_view pltext) noexcept ->
 }
 
 struct TryParseMdBlockQuotesResult {
-    ::std::size_t forward_index;
-    ::fast_io::u8string subpltext;
+    ::std::size_t forward_index; ///< Index to continue parsing from.
+    ::fast_io::u8string subpltext; ///< Parsed block quote content.
 };
 
+/**
+ * @brief Parse Markdown block quotes (e.g., `> Block quote`).
+ *
+ * @param pltext The input text to parse.
+ * @return The parsed result, or nullopt if parsing fails.
+ */
 template<bool ndebug>
 constexpr auto try_parse_md_block_quotes(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseMdBlockQuotesResult> {
@@ -796,10 +838,17 @@ constexpr auto try_parse_md_block_quotes(::fast_io::u8string_view pltext) noexce
 }
 
 struct TryParseMdCodeSpanResult {
-    ::std::size_t forward_index;
-    ::pltxt2htm::Ast subast;
+    ::std::size_t forward_index; ///< Index to continue parsing from.
+    ::pltxt2htm::Ast subast; ///< Parsed AST for the code span.
 };
 
+/**
+ * @brief Parse Markdown code spans (e.g., `` `code` ``).
+ *
+ * @tparam embraced_string The string enclosing the code span.
+ * @param pltext The input text to parse.
+ * @return The parsed result, or nullopt if parsing fails.
+ */
 template<bool ndebug, char8_t... embraced_string>
 constexpr auto try_parse_md_code_span(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseMdCodeSpanResult> {
