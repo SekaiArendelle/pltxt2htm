@@ -18,6 +18,10 @@ target("pltxt2htm", function ()
         add_syslinks("ntdll")
     end
 
+    if is_plat("mingw") then
+        set_prefixname("")
+    end
+
     on_config(function(target)
         if not target:get("kind") == "static" and not target:get("kind") == "shared" then
             print("error: kind must be static or shared")

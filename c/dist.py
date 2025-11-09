@@ -86,7 +86,7 @@ if err_code != 0:
 if plat_flag == "-p windows":
     shutil.move(os.path.join(INSTALL_DIR, "lib", "pltxt2htm.lib"), os.path.join(INSTALL_DIR, "bin"))
 elif plat_flag == "-p mingw":
-    shutil.move(os.path.join(INSTALL_DIR, "lib", "libpltxt2htm.dll.a"), os.path.join(INSTALL_DIR, "bin"))
+    shutil.move(os.path.join(INSTALL_DIR, "lib", "pltxt2htm.dll.a"), os.path.join(INSTALL_DIR, "bin"))
 
 shutil.rmtree(XMAKE_DIR)
 shutil.rmtree(BUILD_DIR)
