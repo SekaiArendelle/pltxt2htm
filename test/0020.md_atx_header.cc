@@ -110,5 +110,25 @@ int main() {
     auto answer25 = ::fast_io::u8string_view{u8"&nbsp;#<br>"};
     ::pltxt2htm_test::assert_true(html25 == answer25);
 
+    auto html26 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"###");
+    auto answer26 = ::fast_io::u8string_view{u8"<h3></h3>"};
+    ::pltxt2htm_test::assert_true(html26 == answer26);
+
+    auto html27 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"####");
+    auto answer27 = ::fast_io::u8string_view{u8"<h4></h4>"};
+    ::pltxt2htm_test::assert_true(html27 == answer27);
+
+    auto html28 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"#####");
+    auto answer28 = ::fast_io::u8string_view{u8"<h5></h5>"};
+    ::pltxt2htm_test::assert_true(html28 == answer28);
+
+    auto html29 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"######");
+    auto answer29 = ::fast_io::u8string_view{u8"<h6></h6>"};
+    ::pltxt2htm_test::assert_true(html29 == answer29);
+
+    auto html30 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"#######");
+    auto answer30 = ::fast_io::u8string_view{u8"#######"};
+    ::pltxt2htm_test::assert_true(html30 == answer30);
+
     return 0;
 }

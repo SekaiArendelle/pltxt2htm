@@ -41,5 +41,13 @@ int main() {
     auto answer12 = ::fast_io::u8string_view{u8"[text](url"};
     ::pltxt2htm_test::assert_true(html12 == answer12);
 
+    auto html13 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"[]()");
+    auto answer13 = ::fast_io::u8string_view{u8"<a href=\"\"></a>"};
+    ::pltxt2htm_test::assert_true(html13 == answer13);
+
+    auto html14 = ::pltxt2htm_test::pltxt2advanced_htmld(u8"[](test)");
+    auto answer14 = ::fast_io::u8string_view{u8"<a href=\"test\"></a>"};
+    ::pltxt2htm_test::assert_true(html14 == answer14);
+
     return 0;
 }

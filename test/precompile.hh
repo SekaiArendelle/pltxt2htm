@@ -5,13 +5,17 @@
 
 namespace pltxt2htm_test {
 
-::fast_io::u8string pltxt2advanced_htmld(::fast_io::u8string_view) noexcept;
+[[nodiscard]] [[__gnu__::__pure__]]
+auto pltxt2advanced_htmld(::fast_io::u8string_view) noexcept -> ::fast_io::u8string;
 
-::fast_io::u8string pltxt2common_html(::fast_io::u8string_view) noexcept;
+[[nodiscard]] [[__gnu__::__pure__]]
+auto pltxt2common_html(::fast_io::u8string_view) noexcept -> ::fast_io::u8string;
 
-::fast_io::u8string pltxt2common_htmld(::fast_io::u8string_view) noexcept;
+[[nodiscard]] [[__gnu__::__pure__]]
+auto pltxt2common_htmld(::fast_io::u8string_view) noexcept -> ::fast_io::u8string;
 
-::fast_io::u8string pltxt2fixedadv_htmld(::fast_io::u8string_view) noexcept;
+[[nodiscard]] [[__gnu__::__pure__]]
+auto pltxt2fixedadv_htmld(::fast_io::u8string_view) noexcept -> ::fast_io::u8string;
 
 void assert_true(bool) noexcept;
 
