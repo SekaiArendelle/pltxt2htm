@@ -1,4 +1,4 @@
-# pltxt2htm for Rust
+# Use `pltxt2htm` in Rust
 Note that this is experimental.
 
 You should manually build a static library of [c/](../c/README.md), specify `RUSTFLAGS` env variable to link it.

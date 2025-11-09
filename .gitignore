@@ -59,3 +59,7 @@ compile_commands.json
 # Rust
 **/target/
 **/Cargo.lock
+
+# csharp
+csharp/obj/
+csharp/bin/

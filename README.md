@@ -10,7 +10,7 @@ This project is **header-only**, aimed to provide a translater from Quantam-Phys
 # Usage
 C++ APIs is in [include/pltxt2htm](include/pltxt2htm/), [Click here](examples/example.cc) to see a simple example.
 
-You can also use `pltxt2htm` in [console](cmd/README.md), [browser](wasm/README.md), [python](py/README.md), [c](c/README.md) and [rust](rust/README.md).
+You can also use `pltxt2htm` in [console](cmd/README.md), [browser](wasm/README.md), [python](py/README.md), [c](c/README.md), [rust](rust/README.md) and [csharp](csharp/README.md).
 
 C++20 module example is in [cxxmodule/example.cc](cxxmodule/example.cc)
 
@@ -88,7 +88,6 @@ At the same time, `pltxt2htm` is absolutely safe:
 * Every commit in master undergose testing with asan under both clang and gcc in ci.
 * Every release undergose at least 6 hours of fuzzing with clang, with asan or ubsan enabled.
 
-> Q: Why use C++ instead of language with VM?
+> Q: Why use C++ instead of a language with VM?
 
 A: Only system languages have the strongest ability to not only run in different arch and platform but provide binds to other language.
-

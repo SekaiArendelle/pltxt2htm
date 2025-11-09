@@ -20,10 +20,10 @@
 #endif
 
 #define PLTXT2HTM_C_SRC_EXPORT_FUNCTION \
-    extern "C" PLTXT2HTM_C_SRC_VISIBILITY_DEFAULT PLTXT2HTM_C_SRC_USED PLTXT2HTM_C_SRC_WIN32_DLLEXPORT
+    extern "C" PLTXT2HTM_C_SRC_VISIBILITY_DEFAULT PLTXT2HTM_C_SRC_USED PLTXT2HTM_C_SRC_WIN32_DLLEXPORT auto
 
 PLTXT2HTM_C_SRC_EXPORT_FUNCTION
-auto PLTXT2HTM_C_NAME_MANGLING(common_parser)(char8_t const* const pltext) noexcept -> char8_t const* {
+PLTXT2HTM_C_NAME_MANGLING(common_parser)(char8_t const* const pltext) noexcept -> char8_t const* {
     return ::pltxt2htm::common_parser<
 #if defined(NDEBUG)
         true
@@ -34,7 +34,7 @@ auto PLTXT2HTM_C_NAME_MANGLING(common_parser)(char8_t const* const pltext) noexc
 }
 
 PLTXT2HTM_C_SRC_EXPORT_FUNCTION
-auto PLTXT2HTM_C_NAME_MANGLING(advanced_parser)(char8_t const* const pltext, char8_t const* const host) noexcept
+PLTXT2HTM_C_NAME_MANGLING(advanced_parser)(char8_t const* const pltext, char8_t const* const host) noexcept
     -> char8_t const* {
     return ::pltxt2htm::advanced_parser<
 #if defined(NDEBUG)
@@ -46,7 +46,7 @@ auto PLTXT2HTM_C_NAME_MANGLING(advanced_parser)(char8_t const* const pltext, cha
 }
 
 PLTXT2HTM_C_SRC_EXPORT_FUNCTION
-auto PLTXT2HTM_C_NAME_MANGLING(fixedadv_parser)(char8_t const* const pltext, char8_t const* const host) noexcept
+PLTXT2HTM_C_NAME_MANGLING(fixedadv_parser)(char8_t const* const pltext, char8_t const* const host) noexcept
     -> char8_t const* {
     return ::pltxt2htm::fixedadv_parser<
 #if defined(NDEBUG)
@@ -58,16 +58,16 @@ auto PLTXT2HTM_C_NAME_MANGLING(fixedadv_parser)(char8_t const* const pltext, cha
 }
 
 PLTXT2HTM_C_SRC_EXPORT_FUNCTION
-auto pltxt2htm_version_major() noexcept -> ::std::size_t {
+pltxt2htm_version_major() noexcept -> ::std::size_t {
     return ::pltxt2htm::version::major;
 }
 
 PLTXT2HTM_C_SRC_EXPORT_FUNCTION
-auto pltxt2htm_version_minor() noexcept -> ::std::size_t {
+pltxt2htm_version_minor() noexcept -> ::std::size_t {
     return ::pltxt2htm::version::minor;
 }
 
 PLTXT2HTM_C_SRC_EXPORT_FUNCTION
-auto pltxt2htm_version_patch() noexcept -> ::std::size_t {
+pltxt2htm_version_patch() noexcept -> ::std::size_t {
     return ::pltxt2htm::version::patch;
 }
