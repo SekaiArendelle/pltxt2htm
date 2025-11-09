@@ -1,6 +1,7 @@
 #pragma once
 
 #include <exception/exception.hh>
+#include <fast_io/fast_io_dsal/string_view.h>
 #include "../utils.hh"
 #include "../../heap_guard.hh"
 #include "../../astnode/basic.hh"
@@ -161,6 +162,7 @@ constexpr ::exception::optional<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>> 
  * @return The number of UTF-8 code units consumed.
  */
 template<bool ndebug>
+[[nodiscard]]
 constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::pltxt2htm::Ast& result) noexcept
     -> ::std::size_t {
     ::std::size_t const pltext_size{pltext.size()};
@@ -487,6 +489,7 @@ enum class ThematicBreakType : ::std::uint_least32_t {
  * @return The length of the parsed thematic break, or nullopt if parsing fails.
  */
 template<bool ndebug>
+[[nodiscard]]
 constexpr auto try_parse_md_thematic_break(::fast_io::u8string_view text) noexcept
     -> ::exception::optional<::std::size_t> {
     if (text.size() < 3) {
@@ -560,6 +563,7 @@ struct SimplyParsePLtextResult {
  * @return The parsed result.
  */
 template<bool ndebug, char8_t... end_string>
+[[nodiscard]]
 constexpr auto simply_parse_pltext(::fast_io::u8string_view pltext) noexcept
     -> ::pltxt2htm::details::SimplyParsePLtextResult {
     ::pltxt2htm::Ast ast{};
@@ -634,6 +638,7 @@ struct TryParseMdCodeFenceResult {
  * @return The parsed result, or nullopt if parsing fails.
  */
 template<bool ndebug, bool is_backtick>
+[[nodiscard]]
 constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseMdCodeFenceResult> {
     if (pltext.size() <= 7) {
@@ -726,6 +731,7 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
  * @return The parsed result, or nullopt if parsing fails.
  */
 template<bool ndebug>
+[[nodiscard]]
 constexpr auto try_parse_md_code_fence(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseMdCodeFenceResult> {
     if (auto opt_code_fence_backtick = ::pltxt2htm::details::try_parse_md_code_fence_<ndebug, true>(pltext);
@@ -755,6 +761,7 @@ constexpr auto try_parse_md_code_fence(::fast_io::u8string_view pltext) noexcept
  * @return The length of the parsed inline element, or nullopt if parsing fails.
  */
 template<bool ndebug, char8_t... embraced_chars>
+[[nodiscard]]
 constexpr auto try_parse_md_inlines(::fast_io::u8string_view pltext) noexcept -> ::exception::optional<::std::size_t> {
     if (!::pltxt2htm::details::is_prefix_match<ndebug, embraced_chars...>(pltext)) {
         return ::exception::nullopt_t{};
@@ -789,6 +796,7 @@ struct TryParseMdBlockQuotesResult {
  * @return The parsed result, or nullopt if parsing fails.
  */
 template<bool ndebug>
+[[nodiscard]]
 constexpr auto try_parse_md_block_quotes(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseMdBlockQuotesResult> {
     ::fast_io::u8string subpltext{};
@@ -850,6 +858,7 @@ struct TryParseMdCodeSpanResult {
  * @return The parsed result, or nullopt if parsing fails.
  */
 template<bool ndebug, char8_t... embraced_string>
+[[nodiscard]]
 constexpr auto try_parse_md_code_span(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseMdCodeSpanResult> {
     if (!::pltxt2htm::details::is_prefix_match<ndebug, embraced_string...>(pltext)) {
@@ -871,6 +880,65 @@ constexpr auto try_parse_md_code_span(::fast_io::u8string_view pltext) noexcept
     } else {
         ::exception::unreachable();
     }
+}
+
+struct TryParseMdLinkResult {
+    ::std::size_t forward_index;
+    ::fast_io::u8string_view link_text;
+    ::fast_io::u8string_view link_url;
+};
+
+template<bool ndebug>
+[[nodiscard]]
+constexpr auto try_parse_md_link(::fast_io::u8string_view pltext) noexcept
+    -> ::exception::optional<::pltxt2htm::details::TryParseMdLinkResult> {
+    if (pltext.size() < 4 || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 0) != u8'[') {
+        return ::exception::nullopt_t{};
+    }
+
+    ::std::size_t current_index{1};
+
+    // Parse link text
+    while (current_index < pltext.size() &&
+           ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8']') {
+        if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) == u8'\\') {
+            ++current_index;
+        }
+        ++current_index;
+    }
+
+    if (current_index >= pltext.size() ||
+        ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8']') {
+        return ::exception::nullopt_t{};
+    }
+    ::std::size_t link_text_end = current_index;
+    ++current_index;
+
+    // Ensure the next character is '('
+    if (current_index >= pltext.size() ||
+        ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8'(') {
+        return ::exception::nullopt_t{};
+    }
+    ++current_index;
+    ::std::size_t link_url_start = current_index;
+
+    // Parse link URL
+    while (current_index < pltext.size() &&
+           ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8')') {
+        ++current_index;
+    }
+
+    if (current_index >= pltext.size() ||
+        ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8')') {
+        return ::exception::nullopt_t{};
+    }
+    ::std::size_t link_url_end = current_index;
+    ++current_index;
+
+    return ::pltxt2htm::details::TryParseMdLinkResult{
+        .forward_index = current_index,
+        .link_text = pltext.subview(1, link_text_end - 1),
+        .link_url = pltext.subview(link_url_start, link_url_end - link_url_start)};
 }
 
 } // namespace pltxt2htm::details

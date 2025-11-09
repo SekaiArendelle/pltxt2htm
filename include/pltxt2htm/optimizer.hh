@@ -519,9 +519,10 @@ entry:
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_blockquote, subast.begin()));
             goto entry;
         }
+        case ::pltxt2htm::NodeType::md_link: {
+            break;
+        }
         case ::pltxt2htm::NodeType::md_block_quotes:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeType::md_link:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_triple_emphasis_underscore:
             [[fallthrough]]; // TODO optimization support for md_triple_emphasis

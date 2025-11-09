@@ -2,6 +2,7 @@
 
 #include <utility>
 #include <fast_io/fast_io_dsal/string.h>
+#include <fast_io/fast_io_dsal/string_view.h>
 #include <exception/exception.hh>
 #include "basic.hh"
 
@@ -1006,13 +1007,13 @@ public:
 
 class MdLink : public ::pltxt2htm::PlTxtNode {
 public:
-    ::fast_io::u8string text;
-    ::fast_io::u8string url;
+    ::pltxt2htm::Ast subast_;
+    ::fast_io::u8string_view url_;
 
-    constexpr MdLink(::fast_io::u8string&& text_, ::fast_io::u8string&& url_) noexcept
+    constexpr MdLink(::pltxt2htm::Ast&& subast, ::fast_io::u8string_view url) noexcept
         : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::md_link},
-          text(::std::move(text_)),
-          url(::std::move(url_)) {
+          subast_(::std::move(subast)),
+          url_(::std::move(url)) {
     }
 
     constexpr MdLink(::pltxt2htm::MdLink const&) noexcept = delete;
@@ -1022,6 +1023,11 @@ public:
     constexpr ::pltxt2htm::MdLink& operator=(::pltxt2htm::MdLink const&) noexcept = delete;
 
     constexpr ::pltxt2htm::MdLink& operator=(::pltxt2htm::MdLink&&) noexcept = default;
+
+    [[nodiscard]]
+    constexpr auto&& get_subast(this auto&& self) noexcept {
+        return ::std::forward_like<decltype(self)>(self.subast_);
+    }
 };
 
 class MdBlockQuotes : public ::pltxt2htm::details::PairedTagBase {

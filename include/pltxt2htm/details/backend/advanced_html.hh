@@ -384,13 +384,13 @@ entry:
             auto a_link = static_cast<::pltxt2htm::MdLink const*>(node.release_imul());
             auto const start_tag = ::fast_io::array{u8'<', u8'a', u8' ', u8'h', u8'r', u8'e', u8'f', u8'=', u8'\"'};
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
-            result.append(a_link->url);
+            result.append(a_link->url_);
             auto const mid_tag = ::fast_io::array{u8'\"', u8'>'};
             result.append(::fast_io::u8string_view(mid_tag.begin(), mid_tag.size()));
-            result.append(a_link->text);
-            auto const end_tag = ::fast_io::array{u8'<', u8'/', u8'a', u8'>'};
-            result.append(::fast_io::u8string_view(end_tag.begin(), end_tag.size()));
-            break;
+            call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(a_link->get_subast(),
+                                                                           ::pltxt2htm::NodeType::md_link, 0));
+            ++current_index;
+            goto entry;
         }
         case ::pltxt2htm::NodeType::md_escape_backslash: {
             result.push_back(u8'\\');
@@ -684,6 +684,11 @@ entry:
                 auto const close_tag = ::fast_io::array{u8'<', u8'/', u8'c', u8'o', u8'd', u8'e', u8'>',
                                                         u8'<', u8'/', u8'p', u8'r', u8'e', u8'>'};
                 result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+                goto entry;
+            }
+            case ::pltxt2htm::NodeType::md_link: {
+                auto const end_tag = ::fast_io::array{u8'<', u8'/', u8'a', u8'>'};
+                result.append(::fast_io::u8string_view(end_tag.begin(), end_tag.size()));
                 goto entry;
             }
             case ::pltxt2htm::NodeType::base:

@@ -85,4 +85,18 @@ public:
     constexpr ~MdBlockQuotesContext() noexcept = default;
 };
 
+class MdLinkContext : public ::pltxt2htm::details::BasicFrameContext {
+public:
+    ::fast_io::u8string_view pltext;
+    ::fast_io::u8string_view link;
+
+    constexpr MdLinkContext(::fast_io::u8string_view pltext_, ::fast_io::u8string_view link_) noexcept
+        : ::pltxt2htm::details::BasicFrameContext{::pltxt2htm::NodeType::md_link},
+          pltext(::std::move(pltext_)),
+          link(::std::move(link_)) {
+    }
+
+    constexpr ~MdLinkContext() noexcept = default;
+};
+
 } // namespace pltxt2htm::details

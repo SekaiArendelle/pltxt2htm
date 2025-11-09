@@ -198,13 +198,14 @@ constexpr auto get_pltext_from_parser_frame_context(
         return ::fast_io::mnp::os_c_str(
             static_cast<::pltxt2htm::details::MdBlockQuotesContext const*>(top_frame.release_imul())->pltext);
     }
+    case ::pltxt2htm::NodeType::md_link: {
+        return static_cast<::pltxt2htm::details::MdLinkContext const*>(top_frame.release_imul())->pltext;
+    }
     case ::pltxt2htm::NodeType::md_code_span_1_backtick:
         [[fallthrough]];
     case ::pltxt2htm::NodeType::md_code_span_2_backtick:
         [[fallthrough]];
     case ::pltxt2htm::NodeType::md_code_span_3_backtick:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_link:
         [[fallthrough]];
     case ::pltxt2htm::NodeType::md_code_fence_backtick:
         [[fallthrough]];
@@ -486,6 +487,13 @@ entry:
             current_index = current_index + forward_index - 1;
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdCodeSpan1Backtick>(::std::move(subast)));
             continue;
+        } else if (auto opt_md_link = ::pltxt2htm::details::try_parse_md_link<ndebug>(
+                       ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                   opt_md_link.has_value()) {
+            auto&& [forward_index, url_text, url_link] = opt_md_link.template value<ndebug>();
+            current_index += forward_index;
+            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::MdLinkContext>(url_text, url_link));
+            goto entry;
         } else if (chr == u8'<') {
             // if i is a valid value, i always less than pltext_size
             pltxt2htm_assert(current_index < pltext_size, u8"Index of parser out of bound");
@@ -1706,6 +1714,12 @@ entry:
                 super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdBlockQuotes>(::std::move(subast)));
                 goto entry;
             }
+            case ::pltxt2htm::NodeType::md_link: {
+                auto&& link_url = static_cast<::pltxt2htm::details::MdLinkContext const*>(frame.release_imul())->link;
+                super_ast.push_back(
+                    ::pltxt2htm::HeapGuard<::pltxt2htm::MdLink>(::std::move(subast), ::std::move(link_url)));
+                goto entry;
+            }
             case ::pltxt2htm::NodeType::base:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::u8char:
@@ -1803,8 +1817,6 @@ entry:
             case ::pltxt2htm::NodeType::md_code_fence_backtick:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::md_code_fence_tilde:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_link:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::html_note:
                 [[unlikely]] {

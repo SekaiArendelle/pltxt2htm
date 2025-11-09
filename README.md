@@ -41,6 +41,7 @@ markdown extension based on [commonmark](https://spec.commonmark.org/0.31.2/)
 * Rough support for markdown [code span](https://spec.commonmark.org/0.31.2/#code-spans) but common usage is well tested.
 * Rough support for markdown [emphasis](https://spec.commonmark.org/0.31.2/#emphasis-and-strong-emphasis) but common usage is well tested.
 * Rough support for markdown [block quotes](https://spec.commonmark.org/0.31.2/#block-quotes) but common usage is well tested.
+* Rough support for markdown [links](https://spec.commonmark.org/0.31.2/#links) but common usage is well tested.
 
 Show all supported features in [test](./test/)
 
