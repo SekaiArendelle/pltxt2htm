@@ -1005,14 +1005,12 @@ public:
     constexpr ::pltxt2htm::MdDel& operator=(::pltxt2htm::MdDel&&) noexcept = default;
 };
 
-class MdLink : public ::pltxt2htm::PlTxtNode {
+class MdLink : public ::pltxt2htm::details::PairedTagBase {
 public:
-    ::pltxt2htm::Ast subast_;
     ::fast_io::u8string_view url_;
 
     constexpr MdLink(::pltxt2htm::Ast&& subast, ::fast_io::u8string_view url) noexcept
-        : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::md_link},
-          subast_(::std::move(subast)),
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_link, ::std::move(subast)},
           url_(::std::move(url)) {
     }
 

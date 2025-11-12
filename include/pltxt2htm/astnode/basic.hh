@@ -96,8 +96,18 @@ public:
     constexpr PairedTagBase& operator=(PairedTagBase&&) noexcept = default;
 
     [[nodiscard]]
-    constexpr auto&& get_subast(this auto&& self) noexcept {
-        return ::std::forward_like<decltype(self)>(self.subast_);
+    constexpr auto&& get_subast(this PairedTagBase& self) noexcept {
+        return self.subast_;
+    }
+
+    [[nodiscard]]
+    constexpr auto&& get_subast(this PairedTagBase const& self) noexcept {
+	    return ::std::as_const(self.subast_);
+    }
+
+    [[nodiscard]]
+    constexpr auto&& get_subast(this PairedTagBase&& self) noexcept {
+        return ::std::move(self.subast_);
     }
 };
 
