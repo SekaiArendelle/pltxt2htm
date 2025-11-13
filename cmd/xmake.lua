@@ -49,8 +49,18 @@ target("pltxt2htm", function()
     end)
 
     before_build(function (target)
-        git_commit_hash = os.iorunv("git", {"rev-parse", "HEAD"})
         local file = io.open("$(projectdir)/commit_hash.ignore", "w")
+
+        git_status = os.iorunv("git", {"status", "--porcelain"})
+        if git_status ~= "" then
+            git_status = os.iorunv("git", {"status"})
+            file:write("\"* repo status: UNCOMMITED\\n", git_status:gsub("\n", "\\n"):gsub("\"", "\\\""), "\"")
+            file:close()
+            return
+        end
+
+        -- all edits in git workspace is commited
+        git_commit_hash = os.iorunv("git", {"rev-parse", "HEAD"})
         if file then
             file:write("\"* build commit: ", git_commit_hash:sub(1, -2), "\\n\"")
             file:close()
