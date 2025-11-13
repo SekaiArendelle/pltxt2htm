@@ -102,7 +102,7 @@ public:
 
     [[nodiscard]]
     constexpr auto&& get_subast(this PairedTagBase const& self) noexcept {
-	    return ::std::as_const(self.subast_);
+        return ::std::as_const(self.subast_);
     }
 
     [[nodiscard]]

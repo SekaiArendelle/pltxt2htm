@@ -673,15 +673,19 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
             ++current_index;
             break;
         } else if (chr == u8' ') {
-            if (current_index + 1 == pltext_size) {
+            ++current_index;
+            if (current_index == pltext_size) {
                 // 0042.fuzzing-crash3
                 return ::exception::nullopt_t{};
             }
-            ++current_index;
             do {
                 ++current_index;
             } while (current_index != pltext_size &&
                      ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8'\n');
+            if (current_index == pltext_size) {
+                // 0047.fuzzing-crash
+                return ::exception::nullopt_t{};
+            }
             ++current_index;
             break;
         } else {
