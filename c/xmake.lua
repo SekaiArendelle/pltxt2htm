@@ -9,43 +9,36 @@ includes("../xmake/*.lua")
 set_languages("c++23")
 set_encodings("utf-8")
 
-target("pltxt2htm", function ()
+target("pltxt2htm", function()
     set_kind("$(kind)")
     add_files("src/pltxt2htm.cc")
     add_includedirs("$(projectdir)/../include")
 
-    if is_plat("windows") or is_plat("mingw") then
-        add_syslinks("ntdll")
-    end
+    if is_plat("windows") or is_plat("mingw") then add_syslinks("ntdll") end
 
-    if is_plat("mingw") then
-        set_prefixname("")
-    end
+    if is_plat("mingw") then set_prefixname("") end
 
     on_config(function(target)
-        if not target:get("kind") == "static" and not target:get("kind") == "shared" then
+        if not target:get("kind") == "static" and not target:get("kind") ==
+            "shared" then
             print("error: kind must be static or shared")
             os.exit(1)
         end
 
-        if is_mode("debug") then
-            target:set("cxxflags", "-g")
-        end
+        if is_mode("debug") then target:set("cxxflags", "-g") end
 
         import("lib.detect.find_tool")
         local compiler = path.basename(target:tool("cxx"))
         local linker = path.basename(target:tool("ld"))
-        if find_tool("ld.lld") and (linker == "gcc" or linker == "g++" or linker == "clang++" or linker == "clang") then
+        if find_tool("ld.lld") and
+            (linker == "gcc" or linker == "g++" or linker == "clang++" or linker ==
+                "clang") then
             target:add("shflags", "-fuse-ld=lld")
-            if is_mode("release") then
-                target:add("shflags", "-flto")
-            end
+            if is_mode("release") then target:add("shflags", "-flto") end
         end
 
-        if compiler:endswith("clang++")
-                or compiler:endswith("clang")
-                or compiler:endswith("gcc")
-                or compiler:endswith("g++") then
+        if compiler:endswith("clang++") or compiler:endswith("clang") or
+            compiler:endswith("gcc") or compiler:endswith("g++") then
             target:set("exceptions", "no-cxx")
             target:add("cxxflags", "-fno-rtti")
             target:add("cxxflags", "-fno-unwind-tables")

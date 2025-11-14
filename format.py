@@ -4,8 +4,27 @@ if __name__ != "__main__":
 import os
 import shutil
 
-if not shutil.which("clang-format"):
-    raise Exception("clang-format not found")
+# C++
+if shutil.which("clang-format"):
+    HAS_CLANG_FORMAT = True
+else:
+    print("warning: clang-format not found")
+    HAS_CLANG_FORMAT = False
+
+# Rust
+if shutil.which("rustfmt"):
+    HAS_RUST_FMT = True
+else:
+    print("warning: rustfmt not found")
+    HAS_RUST_FMT = False
+
+# Lua
+# lua-format from https://github.com/Koihik/LuaFormatter
+if shutil.which("lua-format"):
+    HAS_LUA_FORMAT = True
+else:
+    print("warning: lua-format not found")
+    HAS_LUA_FORMAT = False
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -33,9 +52,15 @@ def format_files_in_a_dir(dir: str) -> None:
                 or file.endswith(".cpp")
                 or file.endswith(".cppm")
             ):
-                os.system(f'clang-format -i "{os.path.join(root, file)}"')
+                if HAS_CLANG_FORMAT:
+                    os.system(f'clang-format -i "{os.path.join(root, file)}"')
             elif file.endswith(".rs"):
-                os.system(f'rustfmt "{os.path.join(root, file)}"')
+                if HAS_RUST_FMT:
+                    os.system(f'rustfmt "{os.path.join(root, file)}"')
+            elif file.endswith(".lua"):
+                if HAS_LUA_FORMAT:
+                    os.system(f'lua-format -i "{os.path.join(root, file)}"')
 
 for a_dir in dirs:
     format_files_in_a_dir(a_dir)
+

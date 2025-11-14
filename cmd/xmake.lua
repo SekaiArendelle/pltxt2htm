@@ -11,29 +11,26 @@ target("pltxt2htm", function()
     add_files("pltxt2htm.cc")
     add_includedirs("$(projectdir)/../include")
 
-    if is_plat("windows", "mingw") then
-        add_syslinks("ntdll")
-    end
+    if is_plat("windows", "mingw") then add_syslinks("ntdll") end
 
-    if is_plat("wasm") then
-        set_extension(".wasm")
-    end
+    if is_plat("wasm") then set_extension(".wasm") end
 
-    on_config(function (target)
+    on_config(function(target)
         local compiler = path.basename(target:tool("cxx"))
         local linker = path.basename(target:tool("ld"))
 
         import("lib.detect.find_tool")
-        if find_tool("ld.lld") and (linker == "clang" or linker == "clang++" or linker == "gcc" or linker == "g++") then
+        if find_tool("ld.lld") and
+            (linker == "clang" or linker == "clang++" or linker == "gcc" or
+                linker == "g++") then
             target:add("ldflags", "-fuse-ld=lld")
         end
         if compiler == "clang++" or compiler == "clang" then
-            if is_mode("release") then
-                target:add("ldflags", "-flto")
-            end
+            if is_mode("release") then target:add("ldflags", "-flto") end
         end
 
-        if compiler:endswith("gcc") or compiler:endswith("g++") or compiler:endswith("clang") or compiler:endswith("clang++") then
+        if compiler:endswith("gcc") or compiler:endswith("g++") or
+            compiler:endswith("clang") or compiler:endswith("clang++") then
             if is_mode("release") then
                 target:set("exceptions", "no-cxx")
                 target:add("cxxflags", "-fno-rtti")
@@ -48,13 +45,14 @@ target("pltxt2htm", function()
         end
     end)
 
-    before_build(function (target)
+    before_build(function(target)
         local file = io.open("$(projectdir)/commit_hash.ignore", "w")
 
         git_status = os.iorunv("git", {"status", "--porcelain"})
         if git_status ~= "" then
             git_status = os.iorunv("git", {"status"})
-            file:write("\"* repo status: UNCOMMITED\\n", git_status:gsub("\n", "\\n"):gsub("\"", "\\\""), "\"")
+            file:write("\"* repo status: UNCOMMITED\\n",
+                       git_status:gsub("\n", "\\n"):gsub("\"", "\\\""), "\"")
             file:close()
             return
         end
@@ -67,14 +65,14 @@ target("pltxt2htm", function()
         end
     end)
 
-    after_build(function (target)
-        if os.exists("$(projectdir)/commit_hash.ignore")
-                and os.isfile("$(projectdir)/commit_hash.ignore") then
+    after_build(function(target)
+        if os.exists("$(projectdir)/commit_hash.ignore") and
+            os.isfile("$(projectdir)/commit_hash.ignore") then
             os.rm("$(projectdir)/commit_hash.ignore")
         end
     end)
 
-    on_install(function (target)
+    on_install(function(target)
         import("utility.utility", {rootdir = target:scriptdir() .. "/../xmake"})
         local toolchain = get_config("toolchain")
         local triplet = nil
@@ -85,17 +83,26 @@ target("pltxt2htm", function()
         -- For other OS, I don't care.
         -- But which toolchain is the default is not important
         -- Following code just to get the build triplet
-        if toolchain == nil or toolchain:endswith("clang") or toolchain == "clang-cl" then
-            if toolchain == nil or toolchain == "clang" or toolchain == "clang-cl" then
-                triplet, modifier = utility.get_target_modifier("target", "clang")
+        if toolchain == nil or toolchain:endswith("clang") or toolchain ==
+            "clang-cl" then
+            if toolchain == nil or toolchain == "clang" or toolchain ==
+                "clang-cl" then
+                triplet, modifier = utility.get_target_modifier("target",
+                                                                "clang")
             else
-                triplet, modifier = utility.get_target_modifier(string.sub(toolchain, 0, -7), "clang")
+                triplet, modifier = utility.get_target_modifier(string.sub(
+                                                                    toolchain,
+                                                                    0, -7),
+                                                                "clang")
             end
         elseif toolchain:endswith("gcc") then
             if toolchain == "gcc" then
                 triplet, modifier = utility.get_target_modifier("target", "gcc")
             else
-                triplet, modifier = utility.get_target_modifier(string.sub(toolchain, 0, -5), "gcc")
+                triplet, modifier = utility.get_target_modifier(string.sub(
+                                                                    toolchain,
+                                                                    0, -5),
+                                                                "gcc")
             end
         else
             print("unknown toolchain: " .. toolchain)
@@ -107,7 +114,8 @@ target("pltxt2htm", function()
             infer_out_dir = true
         end
         if infer_out_dir then
-            install_dir = triplet .. "-" .. "pltxt2htm-cmd-" .. get_config("mode")
+            install_dir = triplet .. "-" .. "pltxt2htm-cmd-" ..
+                              get_config("mode")
         end
         if not os.exists(install_dir) or not os.isdir(install_dir) then
             os.mkdir(install_dir)

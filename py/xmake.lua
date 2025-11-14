@@ -6,24 +6,21 @@ set_encodings("utf-8")
 
 option("python")
 
-target("pltxt2htm", function ()
+target("pltxt2htm", function()
     set_kind("shared")
     set_prefixname("")
     add_files("pltxt2htm.cc")
     add_includedirs("$(projectdir)/../include")
     add_cxxflags("-fPIC")
     set_exceptions("no-cxx")
-    if is_plat("windows", "mingw") then
-        add_links("ntdll")
-    end
+    if is_plat("windows", "mingw") then add_links("ntdll") end
 
     local python = nil
-    on_config(function (target)
+    on_config(function(target)
         local toolchains = target:tool("cxx")
-        if path.basename(toolchains) == "clang++"
-                or path.basename(toolchains) == "clang"
-                or path.basename(toolchains) == "gcc"
-                or path.basename(toolchains) == "g++" then
+        if path.basename(toolchains) == "clang++" or path.basename(toolchains) ==
+            "clang" or path.basename(toolchains) == "gcc" or
+            path.basename(toolchains) == "g++" then
             target:add("cxxflags", "-fno-rtti")
             target:add("cxxflags", "-fno-unwind-tables")
             target:add("cxxflags", "-fno-asynchronous-unwind-tables")
@@ -33,11 +30,10 @@ target("pltxt2htm", function ()
                 target:add("cxxflags", "-fno-ident")
             end
         end
-        if path.basename(toolchains) == "clang++" or path.basename(toolchains) == "clang" then
+        if path.basename(toolchains) == "clang++" or path.basename(toolchains) ==
+            "clang" then
             target:add("shflags", "-fuse-ld=lld")
-            if is_mode("release") then
-                target:add("shflags", "-flto")
-            end
+            if is_mode("release") then target:add("shflags", "-flto") end
         end
 
         -- if python install dir have been passed in console
@@ -46,9 +42,7 @@ target("pltxt2htm", function ()
         if not python then
             import("lib.detect.find_tool")
             python = find_tool("python").program
-            if not python then
-                python = find_tool("python3").program
-            end
+            if not python then python = find_tool("python3").program end
 
             if not python then
                 print("error: python or python3 not found")
@@ -63,7 +57,10 @@ target("pltxt2htm", function ()
             os.exit(1)
         end
 
-        local suffix = os.iorunv(python, {"-c", "import sysconfig; print(sysconfig.get_config_var('EXT_SUFFIX'))"})
+        local suffix = os.iorunv(python, {
+            "-c",
+            "import sysconfig; print(sysconfig.get_config_var('EXT_SUFFIX'))"
+        })
         if suffix and suffix ~= "None" then
             suffix = suffix:trim()
             target:set("extension", suffix)
@@ -75,21 +72,30 @@ target("pltxt2htm", function ()
             end
         end
 
-        local py_include_dir = os.iorunv(python, {"-c", "import sysconfig; print(sysconfig.get_path('include'), end='')"})
+        local py_include_dir = os.iorunv(python, {
+            "-c",
+            "import sysconfig; print(sysconfig.get_path('include'), end='')"
+        })
         target:add("includedirs", py_include_dir)
 
         if is_plat("windows") or is_plat("mingw") then
             target:add("linkdirs", py_include_dir .. "/../libs")
-            local py_rt_path = os.iorunv(python, {"-c", "import sys; print(f'python{sys.version_info.major}{sys.version_info.minor}', end='')"})
+            local py_rt_path = os.iorunv(python, {
+                "-c",
+                "import sys; print(f'python{sys.version_info.major}{sys.version_info.minor}', end='')"
+            })
             target:add("links", py_rt_path)
         else
-            local python3_config = os.iorunv(python, {"-c", "import sys, sysconfig; print(f'python3.{sys.version_info.minor}-config', end='')"})
+            local python3_config = os.iorunv(python, {
+                "-c",
+                "import sys, sysconfig; print(f'python3.{sys.version_info.minor}-config', end='')"
+            })
             local ldflags = os.iorunv(python3_config, {"--ldflags", "--embed"})
             target:add("shflags", ldflags)
         end
     end) -- on_config
 
-    after_build(function (target)
+    after_build(function(target)
         local lib_plat_cpy_dir = os.iorunv(python, {"after_build.py"})
         os.cp(target:targetfile(), lib_plat_cpy_dir)
         print("copying " .. target:targetfile() .. " to " .. lib_plat_cpy_dir)

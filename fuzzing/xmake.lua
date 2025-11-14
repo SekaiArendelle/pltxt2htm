@@ -20,22 +20,20 @@ if is_plat("windows") or is_plat("mingw") then
 end
 add_includedirs("$(projectdir)/../include")
 
-on_config(function (target)
+on_config(function(target)
     local toolchains = target:tool("cxx")
-    if path.basename(toolchains) ~= "clang++" and path.basename(toolchains) ~= "clang" then
+    if path.basename(toolchains) ~= "clang++" and path.basename(toolchains) ~=
+        "clang" then
         print("error: Only `--toolchain=clang` is supported")
         os.exit(1)
     end
 end)
 
-target("advanced_parser", function()
-    add_files("$(projectdir)/advanced_parser.cc")
-end)
+target("advanced_parser",
+       function() add_files("$(projectdir)/advanced_parser.cc") end)
 
-target("fixedadv_parser", function()
-    add_files("$(projectdir)/fixedadv_parser.cc")
-end)
+target("fixedadv_parser",
+       function() add_files("$(projectdir)/fixedadv_parser.cc") end)
 
-target("common_parser", function()
-    add_files("$(projectdir)/common_parser.cc")
-end)
+target("common_parser",
+       function() add_files("$(projectdir)/common_parser.cc") end)
