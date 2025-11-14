@@ -492,7 +492,8 @@ entry:
                    opt_md_link.has_value()) {
             auto&& [forward_index, url_text, url_link] = opt_md_link.template value<ndebug>();
             current_index += forward_index;
-            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::MdLinkContext>(url_text, url_link));
+            call_stack.push(
+                ::pltxt2htm::HeapGuard<::pltxt2htm::details::MdLinkContext>(url_text, ::std::move(url_link)));
             goto entry;
         } else if (chr == u8'<') {
             // if i is a valid value, i always less than pltext_size
@@ -1701,7 +1702,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeType::md_link: {
-                auto&& link_url = static_cast<::pltxt2htm::details::MdLinkContext const*>(frame.release_imul())->link;
+                auto&& link_url = static_cast<::pltxt2htm::details::MdLinkContext*>(frame.get_unsafe())->link;
                 super_ast.push_back(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::MdLink>(::std::move(subast), ::std::move(link_url)));
                 goto entry;

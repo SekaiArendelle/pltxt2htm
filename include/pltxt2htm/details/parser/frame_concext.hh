@@ -88,9 +88,9 @@ public:
 class MdLinkContext : public ::pltxt2htm::details::BasicFrameContext {
 public:
     ::fast_io::u8string_view pltext;
-    ::fast_io::u8string_view link;
+    ::fast_io::u8string link;
 
-    constexpr MdLinkContext(::fast_io::u8string_view pltext_, ::fast_io::u8string_view link_) noexcept
+    constexpr MdLinkContext(::fast_io::u8string_view pltext_, ::fast_io::u8string&& link_) noexcept
         : ::pltxt2htm::details::BasicFrameContext{::pltxt2htm::NodeType::md_link},
           pltext(::std::move(pltext_)),
           link(::std::move(link_)) {

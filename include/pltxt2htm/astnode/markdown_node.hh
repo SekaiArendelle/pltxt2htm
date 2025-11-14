@@ -1007,9 +1007,9 @@ public:
 
 class MdLink : public ::pltxt2htm::details::PairedTagBase {
 public:
-    ::fast_io::u8string_view url_;
+    ::fast_io::u8string url_;
 
-    constexpr MdLink(::pltxt2htm::Ast&& subast, ::fast_io::u8string_view url) noexcept
+    constexpr MdLink(::pltxt2htm::Ast&& subast, ::fast_io::u8string&& url) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_link, ::std::move(subast)},
           url_(::std::move(url)) {
     }
