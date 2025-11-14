@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #if __cpp_expansion_statements >= 202506L
     #include <ranges>
 #endif
@@ -23,7 +24,8 @@ template<bool ndebug>
 #endif
 [[nodiscard]]
 constexpr auto u8string_view_index(::fast_io::u8string_view pltext, ::std::size_t i) noexcept {
-    pltxt2htm_assert(i < pltext.size(), u8"Index of u8string_view out of bound");
+    ::std::size_t const pltext_size{pltext.size()};
+    pltxt2htm_assert(i < pltext_size, u8"Index of u8string_view out of bound");
 
     return pltext.index_unchecked(i);
 }
