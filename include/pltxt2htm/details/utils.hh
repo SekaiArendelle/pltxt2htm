@@ -17,11 +17,6 @@ namespace pltxt2htm::details {
  * @return index of ::fast_io::u8string_view
  */
 template<bool ndebug>
-#if __has_cpp_attribute(__gnu__::always_inline)
-[[__gnu__::always_inline]]
-#elif __has_cpp_attribute(msvc::forceinline)
-[[msvc::forceinline]]
-#endif
 [[nodiscard]]
 constexpr auto u8string_view_index(::fast_io::u8string_view pltext, ::std::size_t i) noexcept {
     ::std::size_t const pltext_size{pltext.size()};
@@ -34,11 +29,6 @@ constexpr auto u8string_view_index(::fast_io::u8string_view pltext, ::std::size_
  * @brief Get the slice of u8string_view
  */
 template<bool ndebug>
-#if __has_cpp_attribute(__gnu__::always_inline)
-[[__gnu__::always_inline]]
-#elif __has_cpp_attribute(msvc::forceinline)
-[[msvc::forceinline]]
-#endif
 [[nodiscard]]
 constexpr auto u8string_view_subview(::fast_io::u8string_view pltext, ::std::size_t i,
                                      ::std::size_t count = ::fast_io::containers::npos) noexcept
@@ -51,11 +41,6 @@ constexpr auto u8string_view_subview(::fast_io::u8string_view pltext, ::std::siz
 }
 
 template<bool ndebug, typename T>
-#if __has_cpp_attribute(__gnu__::always_inline)
-[[__gnu__::always_inline]]
-#elif __has_cpp_attribute(msvc::forceinline)
-[[msvc::forceinline]]
-#endif
 [[nodiscard]]
 constexpr auto vector_front(::fast_io::vector<T> const& vec) noexcept -> T const& {
     pltxt2htm_assert(!vec.empty(), u8"Indexing front but vector is empty");
@@ -67,11 +52,6 @@ constexpr auto vector_front(::fast_io::vector<T> const& vec) noexcept -> T const
  * @return index of ::fast_io::u8string_view
  */
 template<bool ndebug, typename T>
-#if __has_cpp_attribute(__gnu__::always_inline)
-[[__gnu__::always_inline]]
-#elif __has_cpp_attribute(msvc::forceinline)
-[[msvc::forceinline]]
-#endif
 [[nodiscard]]
 constexpr auto vector_index(::fast_io::vector<T> const& vec, ::std::size_t i) noexcept -> T const& {
     pltxt2htm_assert(i < vec.size(), u8"Index of vector out of bound");

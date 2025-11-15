@@ -38,7 +38,7 @@ inline void panic() noexcept {
         ::pltxt2htm::details::uint_to_literal_string<column>(),
         ::pltxt2htm::details::LiteralString{"\n"
                                             "* with message: \""},
-        msg, ::pltxt2htm::details::LiteralString{"\"\0"});
+        msg, ::pltxt2htm::details::LiteralString{"\"\n\0"});
 #if defined(__clang__) && (defined(__linux__) || defined(_WIN32))
     ::pltxt2htm::details::c_fputs(to_be_printed.cdata(), stderr);
     ::pltxt2htm::details::c_fflush(stderr);
