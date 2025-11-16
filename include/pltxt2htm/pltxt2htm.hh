@@ -1,7 +1,11 @@
 #pragma once
 
+#if __cpp_explicit_this_parameter < 202110L
+    #error "Your compiler is too old to compile (e.g. VS2022 MSVC)"
+#endif
+
 #if defined(_MSC_VER) && !defined(__clang__)
-    #pragma message("Fuck you, MSVC! Use [gcc/clang](https://github.com/24bit-xjkp/toolchains/releases) instead")
+    #warning "While VS2026 MSVC mostly works properly, gcc/clang are remommended."
 #endif
 
 #include <fast_io/fast_io_dsal/vector.h>

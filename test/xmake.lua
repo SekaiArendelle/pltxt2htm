@@ -54,6 +54,11 @@ for _, file in ipairs(os.files("*.cc")) do
                 end
                 target:add("ldflags", "-fuse-ld=lld")
             end
+
+            if compiler == "cl" then
+                -- TODO Whether the latest MSVC ture on this flag by dafault?
+                target:add("cxxflags", "/Zc:u8EscapeEncoding")
+            end
         end)
     end)
 end

@@ -5,7 +5,9 @@
 
 This repository is a sub-project of [Physics-Lab-Web](https://github.com/NetLogo-Mobile/Physics-Lab-Web)
 
-This project is **header-only**, aimed to provide a translater from Quantam-PhysicsLab's text to html (with markdown, minor html tags and latex support [as much as possible](#features)). Requires at least C++23 (g++ >= 14 or clang++ >= 20), disables C++ rtti and exception, has great cross platform ability.
+**header-only** C++23 library for converting Quantum-Physics(aka. Physics-Lab)'s text format to HTML ,with supports for markdown and latex [as much as possible](#features). Requires g++ >= 14 ,clang++ >= 20 or MSVC >= VS2026. Build without C++ rtti and exceptions for maximum cross-platform compatibility.
+
+> Note: MSVC support is still experimental
 
 # Usage
 C++ APIs is in [include/pltxt2htm](include/pltxt2htm/), [Click here](examples/example.cc) to see a simple example.

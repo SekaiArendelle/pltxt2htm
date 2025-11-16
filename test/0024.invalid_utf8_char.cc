@@ -18,7 +18,7 @@ int main() {
     ::pltxt2htm_test::assert_true(html4 == answer4);
 
     auto html5 = ::pltxt2htm_test::pltxt2common_htmld(u8"\xc3");
-    auto answer5 = ::fast_io::u8string_view{u8"�"};
+    auto answer5 = ::fast_io::u8string_view{u8"\xef\xbf\xbd"};
     ::pltxt2htm_test::assert_true(html5 == answer5);
 
     auto html6 = ::pltxt2htm_test::pltxt2common_htmld(u8"\xc3\xa");

@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <cstring>
 #include <type_traits>
+#include <exception/exception.hh>
 
 namespace pltxt2htm::details {
 
@@ -130,7 +131,7 @@ public:
     template<::pltxt2htm::details::is_leteral_string Self>
     constexpr auto operator[](this Self&& self, ::std::size_t index) noexcept -> char& {
         if (index >= N) [[unlikely]] {
-            __builtin_trap();
+            ::exception::terminate();
         }
         return self.data_[index];
     }
@@ -145,7 +146,7 @@ public:
     template<::pltxt2htm::details::is_leteral_string Self>
     constexpr auto operator[](this Self const& self, ::std::size_t index) noexcept -> char const& {
         if (index >= N) [[unlikely]] {
-            __builtin_trap();
+            ::exception::terminate();
         }
         return self.data_[index];
     }
@@ -177,14 +178,7 @@ public:
         return static_cast<const_iterator>(self.data_ + N);
     }
 
-    /**
-     * @brief Get pointer to the underlying data (non-const version)
-     * @tparam Self The type of this object (deduced)
-     * @param self This object
-     * @return Pointer to the string data
-     */
-    template<::pltxt2htm::details::is_leteral_string Self>
-    constexpr auto data(this Self&& self) noexcept -> char* {
+    constexpr auto data(this ::pltxt2htm::details::LiteralString<N>& self) noexcept {
         return self.data_;
     }
 
@@ -194,9 +188,18 @@ public:
      * @param self This object
      * @return Const pointer to the string data
      */
-    template<::pltxt2htm::details::is_leteral_string Self>
-    constexpr auto data(this Self const& self) noexcept {
-        return static_cast<char const*>(self.data_);
+    constexpr auto data(this ::pltxt2htm::details::LiteralString<N> const& self) noexcept {
+        return ::std::as_const(self.data_);
+    }
+
+    /**
+     * @brief Get pointer to the underlying data (non-const version)
+     * @tparam Self The type of this object (deduced)
+     * @param self This object
+     * @return Pointer to the string data
+     */
+    constexpr auto data(this ::pltxt2htm::details::LiteralString<N>&& self) noexcept {
+        return ::std::move(self.data_);
     }
 
     /**
