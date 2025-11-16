@@ -675,9 +675,9 @@ inline basic_timestamp<off_to_epoch> nt_family_clock_settime(posix_clock_id pclk
 		case posix_clock_id::tai:
 		{
 			constexpr ::std::uint_least64_t mul_factor{uint_least64_subseconds_per_second / 10000000u};
-			::std::uint_least64_t tms(static_cast<::std::uint_least64_t>(timestamp.seconds) * 10000000ULL +
-									  timestamp.subseconds / mul_factor);
-			::std::uint_least64_t old_tms{};
+			::std::int_least64_t tms(static_cast<::std::int_least64_t>(static_cast<::std::uint_least64_t>(timestamp.seconds) * 10000000ULL +
+																	   timestamp.subseconds / mul_factor));
+			::std::int_least64_t old_tms{};
 			auto ntstatus{win32::nt::nt_set_system_time<(family == nt_family::zw)>(__builtin_addressof(tms), __builtin_addressof(old_tms))};
 			if (ntstatus)
 			{
@@ -739,11 +739,11 @@ inline struct tm unix_timestamp_to_tm_impl(::std::int_least64_t seconds)
 #if defined(__AVR__)
 	if constexpr (local_tm)
 	{
-		noexcept_call(localtime_r, __builtin_addressof(val), __builtin_addressof(t));
+		noexcept_call(::localtime_r, __builtin_addressof(val), __builtin_addressof(t));
 	}
 	else
 	{
-		noexcept_call(gmtime_r, __builtin_addressof(val), __builtin_addressof(t));
+		noexcept_call(::gmtime_r, __builtin_addressof(val), __builtin_addressof(t));
 	}
 #elif defined(__MSDOS__)
 	if constexpr (local_tm)
@@ -763,14 +763,14 @@ inline struct tm unix_timestamp_to_tm_impl(::std::int_least64_t seconds)
 #else
 	if constexpr (local_tm)
 	{
-		if (localtime_r(__builtin_addressof(val), __builtin_addressof(t)) == 0)
+		if (::fast_io::noexcept_call(::localtime_r, __builtin_addressof(val), __builtin_addressof(t)) == 0)
 		{
 			throw_posix_error();
 		}
 	}
 	else
 	{
-		if (gmtime_r(__builtin_addressof(val), __builtin_addressof(t)) == 0)
+		if (::fast_io::noexcept_call(::gmtime_r, __builtin_addressof(val), __builtin_addressof(t)) == 0)
 		{
 			throw_posix_error();
 		}

@@ -36,16 +36,16 @@ inline ::fast_io::install_path get_module_install_path()
 #endif
 	::std::size_t size{PATH_MAX};
 
-	if (auto status{::fast_io::noexcept_call(::sysctl, mib, 4, buffer1, __builtin_addressof(size), nullptr, 0)}; !status) [[unlikely]]
+	if (auto status{::fast_io::noexcept_call(::sysctl, mib, 4, buffer1, __builtin_addressof(size), nullptr, 0)}; status == -1) [[unlikely]]
 	{
-		throw_posix_error(status);
+		throw_posix_error();
 	}
 
 	resolved = ::fast_io::noexcept_call(::realpath, buffer1, buffer2);
 
 	if (!resolved) [[unlikely]]
 	{
-		throw_posix_error(resolved);
+		throw_posix_error();
 	}
 
 	::fast_io::install_path ret;
