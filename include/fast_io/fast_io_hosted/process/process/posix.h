@@ -8,6 +8,11 @@ namespace fast_io
 
 namespace posix
 {
+// The statement about argu[] and enopl] being constants is included to make explicit to future writers of language bindings that these objects are completely constant.
+// Due toa limitation of the ISOC standard, it is not possible to state that idea in standard C. Specifying two levels of const-qualification for the argol] and enopll
+// parameters for the exec functions may seem to be the natural choice, given that these functions do not modify either the array of pointers or the characters to which the
+// function points, but this would disallow existing correct code. Instead, only the array of pointers is noted as constant.
+
 #if defined(__DARWIN_C_LEVEL) || defined(__MSDOS__)
 extern int libc_fexecve(int fd, char *const *argv, char *const *envp) noexcept __asm__("_fexecve");
 extern int libc_execveat(int dirfd, char const *pathname, char *const *argv, char *const *envp, int flags) noexcept __asm__("_execveat");
@@ -130,7 +135,7 @@ namespace details
  *   - The returned path may differ from original open() argument due to symlinks or namespaces.
  */
 
-inline void portable_fd_path(int fd, char *buf, ::std::size_t bufsz)
+inline void portable_fd_path([[maybe_unused]] int fd, char *buf, ::std::size_t bufsz)
 {
 	if (buf == nullptr || bufsz == 0u) [[unlikely]]
 	{
@@ -179,7 +184,7 @@ inline void portable_fd_path(int fd, char *buf, ::std::size_t bufsz)
 	::fast_io::obuffer_view linkpath_ov{linkpath, linkpath + all_sz};
 	::fast_io::operations::print_freestanding<false>(linkpath_ov, path_str, fd, ::fast_io::mnp::chvw(::fast_io::char_literal_v<u8'\0', char>));
 
-	using my_ssize_t = ::std::make_signed_t<::std::size_t>;
+    using my_ssize_t [[maybe_unused]] = ::std::make_signed_t<::std::size_t>;
 
 #if defined(__linux__) && defined(__NR_readlink)
 	auto resolved{::fast_io::system_call<__NR_readlink, my_ssize_t>(linkpath, buf, bufsz - 1u)};
@@ -763,7 +768,7 @@ inline void vfork_and_execveat(pid_t &pid, int dirfd, char const *cstr, char con
 		flags |= AT_SYMLINK_NOFOLLOW;
 	}
 
-	auto ret{::fast_io::posix::libc_execveat(dirfd, cstr, args, envp, flags)};
+	auto ret{::fast_io::posix::libc_execveat(dirfd, cstr, const_cast<char *const *>(args), const_cast<char *const *>(envp), flags)};
 	if (ret == -1)
 	{
 		t_errno = errno;
@@ -786,7 +791,7 @@ inline void vfork_and_execveat(pid_t &pid, int dirfd, char const *cstr, char con
 		flags |= AT_SYMLINK_NOFOLLOW;
 	}
 
-	auto ret{::fast_io::posix::libc_execveat(dirfd, cstr, args, envp, flags)};
+	auto ret{::fast_io::posix::libc_execveat(dirfd, cstr, const_cast<char *const *>(args), const_cast<char *const *>(envp), flags)};
 	if (ret == -1)
 	{
 		t_errno = errno;
