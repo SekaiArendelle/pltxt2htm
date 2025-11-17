@@ -107,6 +107,11 @@ public:
         return self.ptr_;
     }
 
+    constexpr auto operator==(this ::pltxt2htm::HeapGuard<T> const& self,
+                              ::pltxt2htm::HeapGuard<T> const& other) noexcept(noexcept(*self.ptr_ == *other.ptr_)) {
+        return *self.ptr_ == *other.ptr_;
+    }
+
     [[nodiscard]]
     constexpr T const* release_imul(this ::pltxt2htm::HeapGuard<T> const& self) noexcept {
         return self.ptr_;
