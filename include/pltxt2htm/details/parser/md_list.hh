@@ -207,7 +207,8 @@ constexpr auto try_parse_a_list_item(
                     // - test
                     //   - text
                     // - text <== here
-                    // Despite this is a valid list, but we will return nullopt to leave it as the problem of previous frame of call_stack
+                    // Despite this is a valid list, but we will return nullopt to leave it as the problem of previous
+                    // frame of call_stack
                     return ::exception::nullopt_t{};
                 } else {
                     ::exception::unreachable<ndebug>();
@@ -240,7 +241,8 @@ constexpr auto try_parse_a_list_item(
                     // + test
                     //   + text
                     // + text <== here
-                    // Despite this is a valid list, but we will return nullopt to leave it as the problem of previous frame of call_stack
+                    // Despite this is a valid list, but we will return nullopt to leave it as the problem of previous
+                    // frame of call_stack
                     return ::exception::nullopt_t{};
                 } else {
                     ::exception::unreachable<ndebug>();
@@ -273,7 +275,8 @@ constexpr auto try_parse_a_list_item(
                     // * test
                     //   * text
                     // * text <== here
-                    // Despite this is a valid list, but we will return nullopt to leave it as the problem of previous frame of call_stack
+                    // Despite this is a valid list, but we will return nullopt to leave it as the problem of previous
+                    // frame of call_stack
                     return ::exception::nullopt_t{};
                 } else {
                     ::exception::unreachable<ndebug>();
@@ -341,7 +344,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
         auto opt_list_item = ::pltxt2htm::details::try_parse_a_list_item<ndebug>(
             ::pltxt2htm::details::u8string_view_subview<ndebug>(call_stack.top().pltext, current_index),
             ::pltxt2htm::details::PreviousItemInfo{.space_hierarchy = call_stack.top().space_hierarchy,
-                                                    .call_stack_depth = call_stack_depth});
+                                                   .call_stack_depth = call_stack_depth});
         if (!opt_list_item.has_value()) {
             auto frame = ::std::move(call_stack.top());
             call_stack.pop();
@@ -361,7 +364,8 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
             call_stack.push(::pltxt2htm::details::MdListFrameContext{
                 item_kind, space_hierarchy,
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)});
-            call_stack.top().result.emplace_back(::pltxt2htm::HeapGuard<::pltxt2htm::details::MdListTextNode>(::std::move(text)));
+            call_stack.top().result.emplace_back(
+                ::pltxt2htm::HeapGuard<::pltxt2htm::details::MdListTextNode>(::std::move(text)));
             ++call_stack_depth;
             continue;
         } else {
