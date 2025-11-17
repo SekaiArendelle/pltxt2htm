@@ -1,5 +1,6 @@
 #pragma once
 
+#include <concepts>
 #include <cstddef>
 #include <cstdint>
 #include <fast_io/fast_io_dsal/list.h>
@@ -62,6 +63,11 @@ public:
     constexpr auto operator=(::pltxt2htm::details::MdListTextNode&&) & noexcept
         -> ::pltxt2htm::details::MdListTextNode& = default;
 
+    constexpr auto operator==(this ::pltxt2htm::details::MdListTextNode const& self,
+                              ::pltxt2htm::details::MdListTextNode const& other) noexcept -> bool {
+        return self.text == other.text;
+    }
+
     constexpr auto&& get_text(this ::pltxt2htm::details::MdListTextNode const& self) noexcept {
         return ::std::as_const(self.text);
     }
@@ -90,10 +96,45 @@ public:
     constexpr auto operator=(::pltxt2htm::details::MdListSublistNode&&) & noexcept
         -> ::pltxt2htm::details::MdListSublistNode& = default;
 
+    constexpr auto operator==(this ::pltxt2htm::details::MdListSublistNode const& self,
+                              ::pltxt2htm::details::MdListSublistNode const& other) noexcept -> bool;
+
     constexpr auto&& get_sublist(this ::pltxt2htm::details::MdListSublistNode const& self) noexcept {
         return ::std::as_const(self.sublist);
     }
 };
+
+constexpr auto operator==(::pltxt2htm::details::MdListBaseNode const& self,
+                          ::pltxt2htm::details::MdListBaseNode const& other) noexcept -> bool {
+    if (self.get_type() != other.get_type()) {
+        return false;
+    }
+
+    switch (self.get_type()) {
+    case ::pltxt2htm::details::MdListNodeType::text: {
+        return static_cast<::pltxt2htm::details::MdListTextNode const&>(self) ==
+               static_cast<::pltxt2htm::details::MdListTextNode const&>(other);
+    }
+    case ::pltxt2htm::details::MdListNodeType::sublist: {
+        return static_cast<::pltxt2htm::details::MdListSublistNode const&>(self) ==
+               static_cast<::pltxt2htm::details::MdListSublistNode const&>(other);
+    }
+#if 0
+    default:
+        [[unlikely]] {
+            ::exception::unreachable/*<false>*/();
+        }
+#endif
+    }
+}
+
+constexpr auto MdListSublistNode::operator==(this ::pltxt2htm::details::MdListSublistNode const& self,
+                                             ::pltxt2htm::details::MdListSublistNode const& other) noexcept -> bool {
+    return self.sublist == other.sublist;
+}
+
+template<typename T>
+concept is_md_list_node = ::std::derived_from<::std::remove_cvref_t<T>, ::pltxt2htm::details::MdListBaseNode>;
 
 enum class MdListItemKind : ::std::uint_least32_t {
     // -
