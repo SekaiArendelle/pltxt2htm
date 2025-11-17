@@ -149,7 +149,7 @@ struct TryParseAListItemResult {
 
 struct PreviousItemInfo {
     ::std::size_t space_hierarchy;
-    ::pltxt2htm::details::MdListItemKind item_kind;
+    ::std::size_t call_stack_depth;
 };
 
 template<bool ndebug>
@@ -181,21 +181,109 @@ constexpr auto try_parse_a_list_item(
         [[indeterminate]]
 #endif
         ;
-    if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) == u8'-' &&
-        (!expect.has_value() || space_hierarchy > expect.template value<ndebug>().space_hierarchy + 1 ||
-         expect.template value<ndebug>().item_kind == ::pltxt2htm::details::MdListItemKind::hyphen)) {
-        item_kind = ::pltxt2htm::details::MdListItemKind::hyphen;
-    } else if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) == u8'+' &&
-               (!expect.has_value() || space_hierarchy > expect.template value<ndebug>().space_hierarchy + 1 ||
-                expect.template value<ndebug>().item_kind == ::pltxt2htm::details::MdListItemKind::plus)) {
-        item_kind = ::pltxt2htm::details::MdListItemKind::plus;
-    } else if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) == u8'*' &&
-               (!expect.has_value() || space_hierarchy > expect.template value<ndebug>().space_hierarchy + 1 ||
-                expect.template value<ndebug>().item_kind == ::pltxt2htm::details::MdListItemKind::asterisk)) {
-        item_kind = ::pltxt2htm::details::MdListItemKind::asterisk;
+    if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) == u8'-') {
+        if (!expect.has_value()) {
+            // parsing the first line
+            item_kind = ::pltxt2htm::details::MdListItemKind::hyphen;
+        } else {
+            if (space_hierarchy > expect.template value<ndebug>().space_hierarchy + 1) {
+                // e.g.
+                // - test
+                // - test
+                //   - text <== here
+                //   - text
+                item_kind = ::pltxt2htm::details::MdListItemKind::hyphen;
+            } else {
+                if (expect.template value<ndebug>().call_stack_depth == 1) {
+                    // e.g.
+                    //   - test
+                    //   - test
+                    // - text <== here
+                    // - text
+                    item_kind = ::pltxt2htm::details::MdListItemKind::hyphen;
+                } else if (expect.template value<ndebug>().call_stack_depth > 1) {
+                    // e.g.
+                    // - test
+                    // - test
+                    //   - text
+                    // - text <== here
+                    // Despite this is a valid list, but we will return nullopt to leave it as the problem of previous frame of call_stack
+                    return ::exception::nullopt_t{};
+                } else {
+                    ::exception::unreachable<ndebug>();
+                }
+            }
+        }
+    } else if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) == u8'+') {
+        if (!expect.has_value()) {
+            // parsing the first line
+            item_kind = ::pltxt2htm::details::MdListItemKind::plus;
+        } else {
+            if (space_hierarchy > expect.template value<ndebug>().space_hierarchy + 1) {
+                // e.g.
+                // + test
+                // + test
+                //   + text <== here
+                //   + text
+                item_kind = ::pltxt2htm::details::MdListItemKind::plus;
+            } else {
+                if (expect.template value<ndebug>().call_stack_depth == 1) {
+                    // e.g.
+                    //   + test
+                    //   + test
+                    // + text <== here
+                    // + text
+                    item_kind = ::pltxt2htm::details::MdListItemKind::plus;
+                } else if (expect.template value<ndebug>().call_stack_depth > 1) {
+                    // e.g.
+                    // + test
+                    // + test
+                    //   + text
+                    // + text <== here
+                    // Despite this is a valid list, but we will return nullopt to leave it as the problem of previous frame of call_stack
+                    return ::exception::nullopt_t{};
+                } else {
+                    ::exception::unreachable<ndebug>();
+                }
+            }
+        }
+    } else if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) == u8'*') {
+        if (!expect.has_value()) {
+            // parsing the first line
+            item_kind = ::pltxt2htm::details::MdListItemKind::asterisk;
+        } else {
+            if (space_hierarchy > expect.template value<ndebug>().space_hierarchy + 1) {
+                // e.g.
+                // * test
+                // * test
+                //   * text <== here
+                //   * text
+                item_kind = ::pltxt2htm::details::MdListItemKind::asterisk;
+            } else {
+                if (expect.template value<ndebug>().call_stack_depth == 1) {
+                    // e.g.
+                    //   * test
+                    //   * test
+                    // * text <== here
+                    // * text
+                    item_kind = ::pltxt2htm::details::MdListItemKind::asterisk;
+                } else if (expect.template value<ndebug>().call_stack_depth > 1) {
+                    // e.g.
+                    // * test
+                    // * test
+                    //   * text
+                    // * text <== here
+                    // Despite this is a valid list, but we will return nullopt to leave it as the problem of previous frame of call_stack
+                    return ::exception::nullopt_t{};
+                } else {
+                    ::exception::unreachable<ndebug>();
+                }
+            }
+        }
     } else {
         return ::exception::nullopt_t{};
     }
+
     ++current_index;
     // parsing spaces after - or + or *
     for (; current_index < pltext.size(); ++current_index) {
@@ -244,6 +332,8 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
         }
         call_stack.push(::std::move(current_frame));
     }
+    // TODO fast_io::list::is_single
+    ::std::size_t call_stack_depth{1};
     while (true) {
         auto&& current_index = call_stack.top().current_index;
         auto&& result = call_stack.top().result;
@@ -251,10 +341,11 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
         auto opt_list_item = ::pltxt2htm::details::try_parse_a_list_item<ndebug>(
             ::pltxt2htm::details::u8string_view_subview<ndebug>(call_stack.top().pltext, current_index),
             ::pltxt2htm::details::PreviousItemInfo{.space_hierarchy = call_stack.top().space_hierarchy,
-                                                   .item_kind = call_stack.top().get_item_kind()});
+                                                    .call_stack_depth = call_stack_depth});
         if (!opt_list_item.has_value()) {
             auto frame = ::std::move(call_stack.top());
             call_stack.pop();
+            --call_stack_depth;
             if (call_stack.empty()) {
                 return ::std::move(frame.result);
             } else {
@@ -265,14 +356,16 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
             }
         }
         auto&& [space_hierarchy, forward_index, text, item_kind] = opt_list_item.template value<ndebug>();
+        current_index += forward_index;
         if (space_hierarchy > call_stack.top().space_hierarchy + 1) {
             call_stack.push(::pltxt2htm::details::MdListFrameContext{
                 item_kind, space_hierarchy,
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)});
+            call_stack.top().result.emplace_back(::pltxt2htm::HeapGuard<::pltxt2htm::details::MdListTextNode>(::std::move(text)));
+            ++call_stack_depth;
             continue;
         } else {
             result.emplace_back(::pltxt2htm::HeapGuard<::pltxt2htm::details::MdListTextNode>(::std::move(text)));
-            current_index += forward_index;
             call_stack.top().space_hierarchy = space_hierarchy;
 
             if (current_index < pltext_size) {
@@ -280,6 +373,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
             }
             auto frame = ::std::move(call_stack.top());
             call_stack.pop();
+            --call_stack_depth;
             if (call_stack.empty()) {
                 return ::std::move(frame.result);
             } else {
