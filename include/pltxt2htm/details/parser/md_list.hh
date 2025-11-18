@@ -236,9 +236,6 @@ constexpr auto try_parse_a_list_item(
     ::fast_io::u8string_view pltext,
     ::exception::optional<::pltxt2htm::details::PreviousItemInfo> const expect = ::exception::nullopt_t{}) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseAListItemResult> {
-    if (pltext.size() <= 2) {
-        return ::exception::nullopt_t{};
-    }
     ::std::size_t current_index{};
     // parsing spaces before - or + or *
     for (; current_index < pltext.size(); ++current_index) {

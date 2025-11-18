@@ -116,6 +116,47 @@ int main() {
                     text_item(u8"test"));
         ::exception::assert_true<false>(ast == answer);
     }
+    {
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" ");
+        ::exception::assert_false<false>(ast.has_value());
+    }
+    {
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" -");
+        ::exception::assert_true<false>(ast.has_value());
+    }
+    {
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8"   ");
+        ::exception::assert_false<false>(ast.has_value());
+    }
+    {
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8"This is not a md list.");
+        ::exception::assert_false<false>(ast.has_value());
+    }
+    {
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(
+                       u8" * text\n   * text\n     * text\n   * test\n * test")
+                       .value();
+        auto answer =
+            md_list(text_item(u8"text"),
+                    sub_md_list_item(text_item(u8"text"), sub_md_list_item(text_item(u8"text")), text_item(u8"test")),
+                    text_item(u8"test"));
+        ::exception::assert_true<false>(ast == answer);
+    }
+    {
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" - test\n -");
+        auto answer = md_list(text_item(u8"test"), text_item(u8""));
+        ::exception::assert_true<false>(ast.value() == answer);
+    }
+    {
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" -");
+        auto answer = md_list(text_item(u8""));
+        ::exception::assert_true<false>(ast.value() == answer);
+    }
+    {
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8"  -");
+        auto answer = md_list(text_item(u8""));
+        ::exception::assert_true<false>(ast.value() == answer);
+    }
 
     return 0;
 }
