@@ -189,6 +189,7 @@ struct TryParseAListItemResult {
 struct PreviousItemInfo {
     ::std::size_t space_hierarchy;
     ::std::size_t call_stack_depth;
+    ::pltxt2htm::details::MdListItemKind item_kind;
 };
 
 template<bool ndebug, ::pltxt2htm::details::MdListItemKind item_kind>
@@ -210,12 +211,14 @@ constexpr auto is_valid_md_list_hierarchy(
         // - test
         //   - text
         // - test <== here
-        space_hierarchy >= expect.template value<ndebug>().space_hierarchy ||
+        (space_hierarchy >= expect.template value<ndebug>().space_hierarchy &&
+         item_kind == expect.template value<ndebug>().item_kind) ||
         // e.g.
         //   - test
         //   - test
         // - text <== here
-        expect.template value<ndebug>().call_stack_depth == 1) {
+        (expect.template value<ndebug>().call_stack_depth == 1 &&
+         item_kind == expect.template value<ndebug>().item_kind)) {
         return true;
     }
 
@@ -326,7 +329,8 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
         auto opt_list_item = ::pltxt2htm::details::try_parse_a_list_item<ndebug>(
             ::pltxt2htm::details::u8string_view_subview<ndebug>(call_stack.top().pltext, current_index),
             ::pltxt2htm::details::PreviousItemInfo{.space_hierarchy = call_stack.top().space_hierarchy,
-                                                   .call_stack_depth = call_stack_depth});
+                                                   .call_stack_depth = call_stack_depth,
+                                                   .item_kind = call_stack.top().get_item_kind()});
         if (!opt_list_item.has_value()) {
             auto frame = ::std::move(call_stack.top());
             call_stack.pop();
@@ -345,7 +349,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
         if (space_hierarchy > call_stack.top().space_hierarchy + 1) {
             call_stack.push(::pltxt2htm::details::MdListFrameContext{
                 item_kind, space_hierarchy,
-                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)});
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(call_stack.top().pltext, current_index)});
             call_stack.top().result.emplace_back(
                 ::pltxt2htm::HeapGuard<::pltxt2htm::details::MdListTextNode>(::std::move(text)));
             ++call_stack_depth;

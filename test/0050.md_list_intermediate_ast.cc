@@ -157,6 +157,27 @@ int main() {
         auto answer = md_list(text_item(u8""));
         ::exception::assert_true<false>(ast.value() == answer);
     }
+    {
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" - text\n   - text\n * text").value();
+        auto answer = md_list(text_item(u8"text"), sub_md_list_item(text_item(u8"text")));
+        ::exception::assert_true<false>(ast == answer);
+    }
+    {
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" - text\n   - text\n     - text\n * text")
+                       .value();
+        auto answer =
+            md_list(text_item(u8"text"), sub_md_list_item(text_item(u8"text"), sub_md_list_item(text_item(u8"text"))));
+        ::exception::assert_true<false>(ast == answer);
+    }
+    {
+        auto ast =
+            ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" - text\n   - text\n     - text\n   * text")
+                .value();
+        auto answer =
+            md_list(text_item(u8"text"), sub_md_list_item(text_item(u8"text"), sub_md_list_item(text_item(u8"text"))),
+                    sub_md_list_item(text_item(u8"text")));
+        ::exception::assert_true<false>(ast == answer);
+    }
 
     return 0;
 }
