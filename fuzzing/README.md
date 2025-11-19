@@ -1,6 +1,11 @@
 Clang Fuzzer for `pltxt2htm::pltxt2advanced_html`, `pltxt2htm::pltxt2fixedadv_html` and `pltxt2htm::pltxt2common_html`
 
-## Build
+## Launch fuzzing
+```sh
+python launch-fuzzing.py
+```
+
+## Manually Build
 chdir to fuzzing/
 
 ```sh

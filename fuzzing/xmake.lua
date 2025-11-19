@@ -30,10 +30,10 @@ on_config(function(target)
 end)
 
 target("advanced_parser",
-       function() add_files("$(projectdir)/advanced_parser.cc") end)
+       function() add_files("$(projectdir)/src/advanced_parser.cc") end)
 
 target("fixedadv_parser",
-       function() add_files("$(projectdir)/fixedadv_parser.cc") end)
+       function() add_files("$(projectdir)/src/fixedadv_parser.cc") end)
 
 target("common_parser",
-       function() add_files("$(projectdir)/common_parser.cc") end)
+       function() add_files("$(projectdir)/src/common_parser.cc") end)
