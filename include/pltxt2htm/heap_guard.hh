@@ -35,7 +35,11 @@ concept is_heap_guard = is_heap_guard_<::std::remove_cvref_t<T>>;
  * @brief RAII a heap allocated pointer, similar to std::unique_ptr
  */
 template<typename T>
-class HeapGuard { // TODO can be trivially_relocatable_if_eligible
+class
+#if __has_cpp_attribute(clang::trivial_abi)
+    [[clang::trivial_abi]]
+#endif
+    HeapGuard {
     T* ptr_;
 
 public:
@@ -54,7 +58,7 @@ public:
         ::new (this->ptr_) T(::std::forward<Args>(args)...);
     }
 
-    constexpr HeapGuard(HeapGuard<T> const& other) noexcept
+    constexpr HeapGuard(::pltxt2htm::HeapGuard<T> const& other) noexcept
         requires (::std::is_copy_constructible_v<T>)
     {
         this->deleter_ = other.deleter_;
@@ -70,19 +74,20 @@ public:
 
     template<typename U>
         requires (::std::derived_from<U, T>)
-    constexpr HeapGuard(HeapGuard<U>&& other) noexcept
+    constexpr HeapGuard(::pltxt2htm::HeapGuard<U>&& other) noexcept
         : deleter_{reinterpret_cast<void (*)(T*) noexcept>(other.deleter_)} {
         this->ptr_ = other.release();
         other.deleter_ = nullptr;
     }
 
-    constexpr HeapGuard& operator=(HeapGuard<T> const&) noexcept = delete
+    constexpr auto operator=(::pltxt2htm::HeapGuard<T> const&) noexcept -> ::pltxt2htm::HeapGuard<T>& = delete
 #if __cpp_deleted_function >= 202403L
         ("Despite copy a HeapGuard is safe, but the HeapGuard's behavior is more similar to std::unique_ptr")
 #endif
         ;
 
-    constexpr HeapGuard& operator=(this HeapGuard<T>& self, HeapGuard<T>&& other) noexcept {
+    constexpr auto operator=(this ::pltxt2htm::HeapGuard<T>& self, ::pltxt2htm::HeapGuard<T>&& other) noexcept
+        -> ::pltxt2htm::HeapGuard<T>& {
 #if 0
         if (self.ptr_ == other.release_imul()) [[unlikely]] {
             ::exception::terminate();
