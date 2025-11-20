@@ -13,8 +13,6 @@ public:
     ::std::size_t current_index{};
     ::pltxt2htm::Ast subast{};
 
-    constexpr ~BasicFrameContext() noexcept = default;
-
 protected:
     constexpr BasicFrameContext(::pltxt2htm::NodeType const nested_tag_type_) noexcept
         : nested_tag_type{nested_tag_type_} {
@@ -24,6 +22,13 @@ protected:
         : nested_tag_type{nested_tag_type_},
           subast(::std::move(subast_)) {
     }
+
+    constexpr BasicFrameContext(BasicFrameContext const&) noexcept = delete;
+
+    constexpr BasicFrameContext(::pltxt2htm::details::BasicFrameContext&&) noexcept = default;
+
+public:
+    constexpr ~BasicFrameContext() noexcept = default;
 };
 
 class BareTagContext : public ::pltxt2htm::details::BasicFrameContext {
@@ -112,11 +117,7 @@ public:
           iter(this->md_list_ast.begin()) {
     }
 
-    constexpr MdUlContext(::pltxt2htm::details::MdUlContext&& other) noexcept
-        : ::pltxt2htm::details::BasicFrameContext{::pltxt2htm::NodeType::md_ul},
-          md_list_ast(::std::move(other.md_list_ast)),
-          iter(::std::move(other.iter)) {
-    }
+    constexpr MdUlContext(::pltxt2htm::details::MdUlContext&& other) noexcept = default;
 
     constexpr ~MdUlContext() noexcept = default;
 };
