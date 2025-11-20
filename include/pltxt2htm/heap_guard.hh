@@ -12,6 +12,8 @@ namespace pltxt2htm {
 template<typename T>
 class HeapGuard;
 
+namespace details  {
+
 /**
  * @brief This internal var is a part of `concept is_heap_gurad`
  */
@@ -24,12 +26,14 @@ constexpr bool is_heap_guard_ = false;
 template<typename T>
 constexpr bool is_heap_guard_<HeapGuard<T>> = true;
 
+}
+
 /**
  * @brief Whether the type is a heap guard
  * @tparam type to check
  */
 template<typename T>
-concept is_heap_guard = is_heap_guard_<::std::remove_cvref_t<T>>;
+concept is_heap_guard = ::pltxt2htm::details::is_heap_guard_<::std::remove_cvref_t<T>>;
 
 /**
  * @brief RAII a heap allocated pointer, similar to std::unique_ptr
