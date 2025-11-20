@@ -358,7 +358,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
             call_stack.pop();
             --call_stack_depth;
             if (call_stack.empty()) {
-                return ::pltxt2htm::details::ToMdListAstResult{::std::move(frame.result), current_index};
+                return ::pltxt2htm::details::ToMdListAstResult{::std::move(frame.result), frame.current_index};
             } else {
                 call_stack.top().result.emplace_back(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::details::MdListSublistNode>(::std::move(frame.result)));
