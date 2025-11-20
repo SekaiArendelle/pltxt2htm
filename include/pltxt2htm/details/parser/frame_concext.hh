@@ -2,6 +2,7 @@
 
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
+#include "md_list.hh"
 #include "../../astnode/basic.hh"
 
 namespace pltxt2htm::details {
@@ -12,8 +13,6 @@ public:
     ::std::size_t current_index{};
     ::pltxt2htm::Ast subast{};
 
-    constexpr ~BasicFrameContext() noexcept = default;
-
 protected:
     constexpr BasicFrameContext(::pltxt2htm::NodeType const nested_tag_type_) noexcept
         : nested_tag_type{nested_tag_type_} {
@@ -23,6 +22,13 @@ protected:
         : nested_tag_type{nested_tag_type_},
           subast(::std::move(subast_)) {
     }
+
+    constexpr BasicFrameContext(BasicFrameContext const&) noexcept = delete;
+
+    constexpr BasicFrameContext(::pltxt2htm::details::BasicFrameContext&&) noexcept = default;
+
+public:
+    constexpr ~BasicFrameContext() noexcept = default;
 };
 
 class BareTagContext : public ::pltxt2htm::details::BasicFrameContext {
@@ -90,6 +96,7 @@ public:
     ::fast_io::u8string_view pltext;
     ::fast_io::u8string link;
 
+    // TODO can constructor be marked with explicit?
     constexpr MdLinkContext(::fast_io::u8string_view pltext_, ::fast_io::u8string&& link_) noexcept
         : ::pltxt2htm::details::BasicFrameContext{::pltxt2htm::NodeType::md_link},
           pltext(::std::move(pltext_)),
@@ -97,6 +104,22 @@ public:
     }
 
     constexpr ~MdLinkContext() noexcept = default;
+};
+
+class MdUlContext : public ::pltxt2htm::details::BasicFrameContext {
+public:
+    ::pltxt2htm::details::MdListAst md_list_ast;
+    ::pltxt2htm::details::MdListAst::iterator iter;
+
+    constexpr explicit MdUlContext(::pltxt2htm::details::MdListAst&& md_list_ast_) noexcept
+        : ::pltxt2htm::details::BasicFrameContext{::pltxt2htm::NodeType::md_ul},
+          md_list_ast(::std::move(md_list_ast_)),
+          iter(this->md_list_ast.begin()) {
+    }
+
+    constexpr MdUlContext(::pltxt2htm::details::MdUlContext&& other) noexcept = default;
+
+    constexpr ~MdUlContext() noexcept = default;
 };
 
 } // namespace pltxt2htm::details

@@ -311,6 +311,8 @@ entry:
         case ::pltxt2htm::NodeType::html_note: {
             break;
         }
+        case ::pltxt2htm::NodeType::md_ul:
+            [[fallthrough]];
         case ::pltxt2htm::NodeType::html_ul: {
             auto ul = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(
@@ -320,6 +322,8 @@ entry:
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
             goto entry;
         }
+        case ::pltxt2htm::NodeType::md_li:
+            [[fallthrough]];
         case ::pltxt2htm::NodeType::html_li: {
             auto li = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(

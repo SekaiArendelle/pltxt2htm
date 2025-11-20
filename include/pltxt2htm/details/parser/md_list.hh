@@ -71,6 +71,10 @@ public:
     constexpr auto&& get_text(this ::pltxt2htm::details::MdListTextNode const& self) noexcept {
         return ::std::as_const(self.text);
     }
+
+    constexpr auto get_text_view(this ::pltxt2htm::details::MdListTextNode const& self) noexcept {
+        return ::fast_io::u8string_view(::fast_io::mnp::os_c_str(self.text));
+    }
 };
 
 using MdListAst = ::fast_io::list<::pltxt2htm::HeapGuard<::pltxt2htm::details::MdListBaseNode>>;
@@ -99,8 +103,16 @@ public:
     constexpr auto operator==(this ::pltxt2htm::details::MdListSublistNode const& self,
                               ::pltxt2htm::details::MdListSublistNode const& other) noexcept -> bool;
 
+    constexpr auto&& get_sublist(this ::pltxt2htm::details::MdListSublistNode& self) noexcept {
+        return self.sublist;
+    }
+
     constexpr auto&& get_sublist(this ::pltxt2htm::details::MdListSublistNode const& self) noexcept {
         return ::std::as_const(self.sublist);
+    }
+
+    constexpr auto&& get_sublist(this ::pltxt2htm::details::MdListSublistNode&& self) noexcept {
+        return ::std::move(self.sublist);
     }
 };
 
@@ -273,6 +285,11 @@ constexpr auto try_parse_a_list_item(
     }
 
     ++current_index;
+    // - or + or * must be followed by space
+    if (current_index == pltext.size() ||
+        ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8' ') {
+        return ::exception::nullopt_t{};
+    }
     // parsing spaces after - or + or *
     for (; current_index < pltext.size(); ++current_index) {
         auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
@@ -298,9 +315,14 @@ constexpr auto try_parse_a_list_item(
     };
 }
 
+struct ToMdListAstResult {
+    ::pltxt2htm::details::MdListAst ast;
+    ::std::size_t forward_index;
+};
+
 template<bool ndebug>
 constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::MdListAst> {
+    -> ::exception::optional<::pltxt2htm::details::ToMdListAstResult> {
     ::fast_io::stack<::pltxt2htm::details::MdListFrameContext,
                      ::fast_io::list<::pltxt2htm::details::MdListFrameContext>>
         call_stack{};
@@ -316,7 +338,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
         current_frame.result.emplace_back(
             ::pltxt2htm::HeapGuard<::pltxt2htm::details::MdListTextNode>(::std::move(text)));
         if (forward_index >= current_frame.pltext.size()) {
-            return ::std::move(current_frame.result);
+            return ::pltxt2htm::details::ToMdListAstResult{::std::move(current_frame.result), forward_index};
         }
         call_stack.push(::std::move(current_frame));
     }
@@ -336,7 +358,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
             call_stack.pop();
             --call_stack_depth;
             if (call_stack.empty()) {
-                return ::std::move(frame.result);
+                return ::pltxt2htm::details::ToMdListAstResult{::std::move(frame.result), frame.current_index};
             } else {
                 call_stack.top().result.emplace_back(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::details::MdListSublistNode>(::std::move(frame.result)));
@@ -365,7 +387,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
             call_stack.pop();
             --call_stack_depth;
             if (call_stack.empty()) {
-                return ::std::move(frame.result);
+                return ::pltxt2htm::details::ToMdListAstResult{::std::move(frame.result), pltext_size};
             } else {
                 call_stack.top().result.emplace_back(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::details::MdListSublistNode>(::std::move(frame.result)));
