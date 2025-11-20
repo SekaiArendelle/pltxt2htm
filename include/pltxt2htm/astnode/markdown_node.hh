@@ -1045,4 +1045,38 @@ public:
     constexpr ::pltxt2htm::MdBlockQuotes& operator=(::pltxt2htm::MdBlockQuotes&&) noexcept = default;
 };
 
+class MdUl : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr MdUl() noexcept = delete;
+
+    constexpr MdUl(::pltxt2htm::Ast&& ast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_ul, ::std::move(ast)} {
+    }
+
+    constexpr MdUl(::pltxt2htm::MdUl const&) noexcept = delete;
+
+    constexpr MdUl(::pltxt2htm::MdUl&&) noexcept = default;
+
+    constexpr ::pltxt2htm::MdUl& operator=(::pltxt2htm::MdUl const&) noexcept = delete;
+
+    constexpr ::pltxt2htm::MdUl& operator=(::pltxt2htm::MdUl&&) noexcept = default;
+};
+
+class MdLi : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr MdLi() noexcept = delete;
+
+    constexpr MdLi(::pltxt2htm::Ast&& ast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_li, ::std::move(ast)} {
+    }
+
+    constexpr MdLi(::pltxt2htm::MdLi const&) noexcept = delete;
+
+    constexpr MdLi(::pltxt2htm::MdLi&&) noexcept = default;
+
+    constexpr ::pltxt2htm::MdLi& operator=(::pltxt2htm::MdLi const&) noexcept = delete;
+
+    constexpr ::pltxt2htm::MdLi& operator=(::pltxt2htm::MdLi&&) noexcept = default;
+};
+
 } // namespace pltxt2htm

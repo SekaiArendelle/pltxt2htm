@@ -178,6 +178,9 @@ enum class NodeType : ::std::size_t {
     md_link,
     // https://spec.commonmark.org/0.31.2/#block-quotes
     md_block_quotes,
+    // Markdown list
+    md_ul,
+    md_li,
 
     // latex
     // latex,

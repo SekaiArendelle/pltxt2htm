@@ -302,6 +302,10 @@ entry:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_li:
             [[fallthrough]];
+            case ::pltxt2htm::NodeType::md_ul:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_li:
+            [[fallthrough]];
         case ::pltxt2htm::NodeType::html_code:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_atx_h1:

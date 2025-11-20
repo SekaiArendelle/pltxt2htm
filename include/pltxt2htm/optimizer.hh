@@ -473,6 +473,8 @@ entry:
             // which costs a lot and really dangerous
             break;
         }
+        case ::pltxt2htm::NodeType::md_ul:
+            [[fallthrough]];
         case ::pltxt2htm::NodeType::html_ul: {
             // ul tag can't impl nested tag erasing
             auto ul = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
@@ -481,6 +483,8 @@ entry:
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_ul, subast.begin()));
             goto entry;
         }
+        case ::pltxt2htm::NodeType::md_li:
+            [[fallthrough]];
         case ::pltxt2htm::NodeType::html_li: {
             // li tag can't impl nested tag erasing
             auto li = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
@@ -655,6 +659,10 @@ entry:
             case ::pltxt2htm::NodeType::html_li:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::html_ul:
+                [[fallthrough]];
+                case ::pltxt2htm::NodeType::md_li:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::md_ul:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::html_p:
                 [[fallthrough]];

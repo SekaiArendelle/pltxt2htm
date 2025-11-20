@@ -13,6 +13,7 @@
 #include "../../astnode/html_node.hh"
 #include "../../astnode/markdown_node.hh"
 #include "../../astnode/physics_lab_node.hh"
+#include "md_list.hh"
 #include "frame_concext.hh"
 #include "pltxt2htm/heap_guard.hh"
 #include "try_parse.hh"
@@ -105,6 +106,12 @@ constexpr auto devil_stuff_after_line_break(
             call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::MdBlockQuotesContext>(::std::move(subpltext)));
             return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{.forward_index = current_index + forward_index,
                                                                         .new_frame_been_pushed_into_call_stack = true};
+        } else if (auto opt_md_list_ast = ::pltxt2htm::details::optionally_to_md_list_ast<ndebug>(::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                   opt_md_list_ast.has_value()) {
+            auto&& [md_list_ast, forward_index] = opt_md_list_ast.template value<ndebug>();
+            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::MdUlContext>(::std::move(md_list_ast)));
+            return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{.forward_index = current_index + forward_index,
+                                                                        .new_frame_been_pushed_into_call_stack = true};
         } else {
             return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{.forward_index = current_index,
                                                                         .new_frame_been_pushed_into_call_stack = false};
@@ -148,6 +155,8 @@ constexpr auto get_pltext_from_parser_frame_context(
     case ::pltxt2htm::NodeType::html_ul:
         [[fallthrough]];
     case ::pltxt2htm::NodeType::html_li:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_li:
         [[fallthrough]];
     case ::pltxt2htm::NodeType::html_code:
         [[fallthrough]];
@@ -304,6 +313,8 @@ constexpr auto get_pltext_from_parser_frame_context(
     case ::pltxt2htm::NodeType::md_escape_right_brace:
         [[fallthrough]];
     case ::pltxt2htm::NodeType::md_escape_tilde:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_ul:
         [[unlikely]] {
             ::exception::unreachable<ndebug>();
         }
@@ -325,6 +336,29 @@ constexpr auto parse_pltxt(
                      ::fast_io::list<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>>>&
         call_stack) noexcept -> ::pltxt2htm::Ast {
 entry:
+    if (call_stack.top()->nested_tag_type == ::pltxt2htm::NodeType::md_ul) {
+        // ::pltxt2htm::details::MdListAst to ::pltxt2htm::Ast
+        ::pltxt2htm::details::MdUlContext* frame{
+            static_cast<::pltxt2htm::details::MdUlContext*>(call_stack.top().get_unsafe())};
+        if (frame->iter == frame->md_list_ast.end()) {
+            ::pltxt2htm::details::MdUlContext previous_frame(::std::move(*frame));
+            call_stack.pop();
+            call_stack.top().get_unsafe()->subast.emplace_back(
+                ::pltxt2htm::HeapGuard<::pltxt2htm::MdUl>(::std::move(previous_frame.subast)));
+                goto entry;
+        } else if ((*frame->iter)->get_type() == ::pltxt2htm::details::MdListNodeType::text) {
+            auto text_node = static_cast<::pltxt2htm::details::MdListTextNode const*>(frame->iter->release_imul());
+            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(text_node->get_text_view(),
+                                                                                         ::pltxt2htm::NodeType::md_li));
+        } else if ((*frame->iter)->get_type() == ::pltxt2htm::details::MdListNodeType::sublist) {
+            auto sublist_node = static_cast<::pltxt2htm::details::MdListSublistNode*>(frame->iter->get_unsafe());
+            call_stack.push(
+                ::pltxt2htm::HeapGuard<::pltxt2htm::details::MdUlContext>(::std::move(sublist_node->get_sublist())));
+        }
+        ++(frame->iter);
+        goto entry;
+    }
+
     auto&& current_index = call_stack.top()->current_index;
     ::fast_io::u8string_view pltext{
         ::pltxt2htm::details::get_pltext_from_parser_frame_context<ndebug>(call_stack.top())};
@@ -1358,6 +1392,8 @@ entry:
                     [[fallthrough]];
                 case ::pltxt2htm::NodeType::html_hr:
                     [[fallthrough]];
+                case ::pltxt2htm::NodeType::md_li:
+                    [[fallthrough]];
                 case ::pltxt2htm::NodeType::md_escape_backslash:
                     [[fallthrough]];
                 case ::pltxt2htm::NodeType::md_escape_exclamation:
@@ -1440,11 +1476,16 @@ entry:
                     [[fallthrough]];
                 case ::pltxt2htm::NodeType::md_code_span_2_backtick:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_code_span_3_backtick:
+                case ::pltxt2htm::NodeType::md_code_span_3_backtick: {
                     // relate to 0041.fuzzing-crash3
                     // any tag contains `</` context would hit this branch
                     result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
                     continue;
+                }
+                case ::pltxt2htm::NodeType::md_ul:
+                    [[unlikely]] {
+                        ::exception::unreachable<ndebug>();
+                    }
                 }
                 ::exception::unreachable<ndebug>();
             }
@@ -1587,6 +1628,11 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeType::html_li: {
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Li>(::std::move(subast)));
+                super_index += staged_index;
+                goto entry;
+            }
+            case ::pltxt2htm::NodeType::md_li: {
                 super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Li>(::std::move(subast)));
                 super_index += staged_index;
                 goto entry;
@@ -1800,6 +1846,8 @@ entry:
             case ::pltxt2htm::NodeType::md_escape_tilde:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::md_hr:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::md_ul:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::md_code_fence_backtick:
                 [[fallthrough]];
