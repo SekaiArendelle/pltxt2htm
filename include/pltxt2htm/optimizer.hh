@@ -660,7 +660,7 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::html_ul:
                 [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_li:
+            case ::pltxt2htm::NodeType::md_li:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::md_ul:
                 [[fallthrough]];

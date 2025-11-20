@@ -106,7 +106,8 @@ constexpr auto devil_stuff_after_line_break(
             call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::MdBlockQuotesContext>(::std::move(subpltext)));
             return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{.forward_index = current_index + forward_index,
                                                                         .new_frame_been_pushed_into_call_stack = true};
-        } else if (auto opt_md_list_ast = ::pltxt2htm::details::optionally_to_md_list_ast<ndebug>(::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+        } else if (auto opt_md_list_ast = ::pltxt2htm::details::optionally_to_md_list_ast<ndebug>(
+                       ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
                    opt_md_list_ast.has_value()) {
             auto&& [md_list_ast, forward_index] = opt_md_list_ast.template value<ndebug>();
             call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::MdUlContext>(::std::move(md_list_ast)));
@@ -345,10 +346,9 @@ entry:
             call_stack.pop();
             if (call_stack.empty()) {
                 return ::std::move(previous_frame.subast);
-            }
-            else {
-            call_stack.top().get_unsafe()->subast.emplace_back(
-                ::pltxt2htm::HeapGuard<::pltxt2htm::MdUl>(::std::move(previous_frame.subast)));
+            } else {
+                call_stack.top().get_unsafe()->subast.emplace_back(
+                    ::pltxt2htm::HeapGuard<::pltxt2htm::MdUl>(::std::move(previous_frame.subast)));
                 goto entry;
             }
         } else if ((*frame->iter)->get_type() == ::pltxt2htm::details::MdListNodeType::text) {

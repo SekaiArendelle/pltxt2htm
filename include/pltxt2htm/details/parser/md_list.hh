@@ -286,7 +286,8 @@ constexpr auto try_parse_a_list_item(
 
     ++current_index;
     // - or + or * must be followed by space
-    if (current_index == pltext.size() || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8' ') {
+    if (current_index == pltext.size() ||
+        ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8' ') {
         return ::exception::nullopt_t{};
     }
     // parsing spaces after - or + or *
