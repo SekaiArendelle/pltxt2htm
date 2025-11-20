@@ -72,6 +72,23 @@ int main() {
         auto answer = ::fast_io::u8string_view{u8"<br><pre><code>te&nbsp;st</code></pre>"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
+    {
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"```\ntest\n```test");
+        auto answer = ::fast_io::u8string_view{u8"<pre><code>test</code></pre>test"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+    {
+        auto data = ::fast_io::u8string_view{u8R"(
+```py
+print("Hello World")
+```
+```py
+print("Hello World")
+```)"};
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(data);
+        auto answer = ::fast_io::u8string_view{u8"<br><pre><code class=\"language-py\">print(&quot;Hello&nbsp;World&quot;)</code></pre><br><pre><code class=\"language-py\">print(&quot;Hello&nbsp;World&quot;)</code></pre>"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
 
     return 0;
 }

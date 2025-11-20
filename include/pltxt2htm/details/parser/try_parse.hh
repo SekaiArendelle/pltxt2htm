@@ -720,11 +720,11 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
     if constexpr (is_backtick) {
         return ::pltxt2htm::details::TryParseMdCodeFenceResult{
             .node = ::pltxt2htm::HeapGuard<::pltxt2htm::MdCodeFenceBacktick>{::std::move(ast), ::std::move(opt_lang)},
-            .forward_index = current_index + 4};
+            .forward_index = current_index};
     } else {
         return ::pltxt2htm::details::TryParseMdCodeFenceResult{
             .node = ::pltxt2htm::HeapGuard<::pltxt2htm::MdCodeFenceTilde>{::std::move(ast), ::std::move(opt_lang)},
-            .forward_index = current_index + 4};
+            .forward_index = current_index};
     }
 }
 
