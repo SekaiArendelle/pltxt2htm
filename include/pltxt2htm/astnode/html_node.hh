@@ -430,6 +430,28 @@ public:
 };
 
 /**
+ * @brief Represents HTML `<ol>`.
+ */
+class Ol : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr Ol() noexcept = delete;
+
+    constexpr Ol(::pltxt2htm::Ast&& subast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_ol, ::std::move(subast)} {
+    }
+
+    constexpr Ol(::pltxt2htm::Ol const&) noexcept = delete;
+
+    constexpr Ol(::pltxt2htm::Ol&&) noexcept = default;
+
+    constexpr ~Ol() noexcept = default;
+
+    constexpr ::pltxt2htm::Ol& operator=(::pltxt2htm::Ol const&) noexcept = delete;
+
+    constexpr ::pltxt2htm::Ol& operator=(::pltxt2htm::Ol&&) noexcept = default;
+};
+
+/**
  * @brief Represents HTML `<li>`.
  */
 class Li : public ::pltxt2htm::details::PairedTagBase {

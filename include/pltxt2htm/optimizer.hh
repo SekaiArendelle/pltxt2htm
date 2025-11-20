@@ -483,6 +483,14 @@ entry:
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_ul, subast.begin()));
             goto entry;
         }
+        case ::pltxt2htm::NodeType::html_ol: {
+            // ol tag can't impl nested tag erasing
+            auto ol = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
+            auto&& subast = ol->get_subast();
+            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+                ::std::addressof(subast), ::pltxt2htm::NodeType::html_ol, subast.begin()));
+            goto entry;
+        }
         case ::pltxt2htm::NodeType::md_li:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_li: {
@@ -659,6 +667,8 @@ entry:
             case ::pltxt2htm::NodeType::html_li:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::html_ul:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::html_ol:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::md_li:
                 [[fallthrough]];

@@ -75,6 +75,8 @@ enum class NodeType : ::std::size_t {
     html_strong,
     // html <ul> tag
     html_ul,
+    // html <ol> tag
+    html_ol,
     // html <li> tag
     html_li,
     // html <code> tag

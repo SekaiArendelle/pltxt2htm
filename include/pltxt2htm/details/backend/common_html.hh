@@ -300,6 +300,8 @@ entry:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_ul:
             [[fallthrough]];
+        case ::pltxt2htm::NodeType::html_ol:
+            [[fallthrough]];
         case ::pltxt2htm::NodeType::html_li:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_ul:
