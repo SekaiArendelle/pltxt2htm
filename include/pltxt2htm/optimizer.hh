@@ -20,7 +20,11 @@ class OptimizerContext {
 public:
     ::pltxt2htm::Ast* ast;
     ::pltxt2htm::NodeType const nested_tag_type;
+#if __has_cpp_attribute(no_unique_address)
     [[no_unique_address]]
+#elif __has_cpp_attribute(msvc::no_unique_address)
+    [[msvc::no_unique_address]]
+#endif
     Iter iter;
 
     OptimizerContext(::pltxt2htm::Ast* ast_, ::pltxt2htm::NodeType const nested_tag_type_, Iter&& iter_) noexcept

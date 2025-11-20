@@ -43,7 +43,8 @@ constexpr auto u8string_view_subview(::fast_io::u8string_view pltext, ::std::siz
 template<bool ndebug, typename T>
 [[nodiscard]]
 constexpr auto vector_front(::fast_io::vector<T> const& vec) noexcept -> T const& {
-    pltxt2htm_assert(!vec.empty(), u8"Indexing front but vector is empty");
+    bool const vec_is_not_empty{!vec.empty()};
+    pltxt2htm_assert(vec_is_not_empty, u8"Indexing front but vector is empty");
 
     return vec.front_unchecked();
 }
@@ -54,7 +55,8 @@ constexpr auto vector_front(::fast_io::vector<T> const& vec) noexcept -> T const
 template<bool ndebug, typename T>
 [[nodiscard]]
 constexpr auto vector_index(::fast_io::vector<T> const& vec, ::std::size_t i) noexcept -> T const& {
-    pltxt2htm_assert(i < vec.size(), u8"Index of vector out of bound");
+    bool const is_not_out_of_bound{i < vec.size()};
+    pltxt2htm_assert(is_not_out_of_bound, u8"Index of vector out of bound");
 
     return vec.index_unchecked(i);
 }
