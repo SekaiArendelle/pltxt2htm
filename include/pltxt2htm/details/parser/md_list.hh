@@ -218,6 +218,11 @@ constexpr auto is_valid_md_list_hierarchy(
         // - test
         // - test
         //   - text <== here
+        space_hierarchy > expect.template value<ndebug>().space_hierarchy + 1 ||
+        // e.g.
+        // - test
+        //   - test
+        //   + test <== here
         (!expect.template value<ndebug>().call_stack_is_single &&
          space_hierarchy >= expect.template value<ndebug>().space_hierarchy) ||
         // e.g.

@@ -211,6 +211,11 @@ int main() {
         auto answer = md_list(text_item(u8"text"));
         ::exception::assert_true<false>(ast == answer);
     }
+    {
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8"- test\n - test\n   + text").value().ast;
+        auto answer = md_list(text_item(u8"test"), text_item(u8"test"), sub_md_list_item(text_item(u8"text")));
+        ::exception::assert_true<false>(ast == answer);
+    }
 
     return 0;
 }
