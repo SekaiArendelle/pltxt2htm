@@ -2,7 +2,7 @@
 
 /**
  * @file exception.hh
- * @details https://github.com/GoodenoughPhysicsLab/exception.git
+ * @details https://github.com/SekaiArendelle/exception.git
  */
 
 #include <memory>
@@ -20,11 +20,6 @@ namespace exception {
 /**
  * @brief Terminates the program.
  */
-#if __has_cpp_attribute(__gnu__::__always_inline__)
-[[__gnu__::__always_inline__]]
-#elif __has_cpp_attribute(msvc::forceinline)
-[[msvc::forceinline]]
-#endif
 [[noreturn]]
 inline void terminate() noexcept {
     // https://llvm.org/doxygen/Compiler_8h_source.html
@@ -39,11 +34,6 @@ inline void terminate() noexcept {
  * @brief Unreachable code.
  */
 template<bool ndebug = false>
-#if __has_cpp_attribute(__gnu__::__always_inline__)
-[[__gnu__::__always_inline__]]
-#elif __has_cpp_attribute(msvc::forceinline)
-[[msvc::forceinline]]
-#endif
 [[noreturn]]
 inline void unreachable() noexcept {
     if constexpr (ndebug) {
@@ -58,11 +48,6 @@ inline void unreachable() noexcept {
 }
 
 template<bool ndebug = false>
-#if __has_cpp_attribute(__gnu__::__always_inline__)
-[[__gnu__::__always_inline__]]
-#elif __has_cpp_attribute(msvc::forceinline)
-[[msvc::forceinline]]
-#endif
 constexpr void assert_true(bool cond) noexcept {
     if constexpr (ndebug == false) {
         if (cond == false) [[unlikely]] {
@@ -72,11 +57,6 @@ constexpr void assert_true(bool cond) noexcept {
 }
 
 template<bool ndebug = false>
-#if __has_cpp_attribute(__gnu__::__always_inline__)
-[[__gnu__::__always_inline__]]
-#elif __has_cpp_attribute(msvc::forceinline)
-[[msvc::forceinline]]
-#endif
 constexpr void assert_false(bool cond) noexcept {
     if constexpr (ndebug == false) {
         if (cond == true) [[unlikely]] {
@@ -265,21 +245,11 @@ public:
         }
     }
 
-#if __has_cpp_attribute(__gnu__::__always_inline__)
-    [[__gnu__::__always_inline__]]
-#elif __has_cpp_attribute(msvc::forceinline)
-    [[msvc::forceinline]]
-#endif
     [[nodiscard]]
     constexpr auto&& has_value(this expected<Ok, Fail> const& self) noexcept {
         return self.has_value_;
     }
 
-#if __has_cpp_attribute(__gnu__::__always_inline__)
-    [[__gnu__::__always_inline__]]
-#elif __has_cpp_attribute(msvc::forceinline)
-    [[msvc::forceinline]]
-#endif
     [[nodiscard]]
     constexpr auto&& has_value(this expected<Ok, Fail> const&& self) noexcept {
         return ::std::move(self.has_value_);
