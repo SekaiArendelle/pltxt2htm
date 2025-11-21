@@ -16,6 +16,7 @@ namespace pltxt2htm::details {
 enum class MdListNodeType : ::std::uint_least32_t {
     text = 0,
     md_ul,
+    md_ol,
 };
 
 class MdListBaseNode {
@@ -116,6 +117,43 @@ public:
     }
 };
 
+class MdListOlNode : public ::pltxt2htm::details::MdListBaseNode {
+    ::pltxt2htm::details::MdListAst sublist;
+
+public:
+    constexpr MdListOlNode(::pltxt2htm::details::MdListAst&& sublist_) noexcept
+        : ::pltxt2htm::details::MdListBaseNode{::pltxt2htm::details::MdListNodeType::md_ul},
+          sublist(::std::move(sublist_)) {
+    }
+
+    constexpr MdListOlNode(::pltxt2htm::details::MdListOlNode const&) noexcept = delete;
+
+    constexpr MdListOlNode(::pltxt2htm::details::MdListOlNode&&) noexcept = default;
+
+    constexpr ~MdListOlNode() noexcept = default;
+
+    constexpr auto operator=(::pltxt2htm::details::MdListOlNode const&) & noexcept
+        -> ::pltxt2htm::details::MdListOlNode& = delete;
+
+    constexpr auto operator=(::pltxt2htm::details::MdListOlNode&&) & noexcept
+        -> ::pltxt2htm::details::MdListOlNode& = default;
+
+    constexpr auto operator==(this ::pltxt2htm::details::MdListOlNode const& self,
+                              ::pltxt2htm::details::MdListOlNode const& other) noexcept -> bool;
+
+    constexpr auto&& get_sublist(this ::pltxt2htm::details::MdListOlNode& self) noexcept {
+        return self.sublist;
+    }
+
+    constexpr auto&& get_sublist(this ::pltxt2htm::details::MdListOlNode const& self) noexcept {
+        return ::std::as_const(self.sublist);
+    }
+
+    constexpr auto&& get_sublist(this ::pltxt2htm::details::MdListOlNode&& self) noexcept {
+        return ::std::move(self.sublist);
+    }
+};
+
 constexpr auto operator==(::pltxt2htm::details::MdListBaseNode const& self,
                           ::pltxt2htm::details::MdListBaseNode const& other) noexcept -> bool {
     if (self.get_type() != other.get_type()) {
@@ -131,6 +169,10 @@ constexpr auto operator==(::pltxt2htm::details::MdListBaseNode const& self,
         return static_cast<::pltxt2htm::details::MdListUlNode const&>(self) ==
                static_cast<::pltxt2htm::details::MdListUlNode const&>(other);
     }
+    case ::pltxt2htm::details::MdListNodeType::md_ol: {
+        return static_cast<::pltxt2htm::details::MdListOlNode const&>(self) ==
+               static_cast<::pltxt2htm::details::MdListOlNode const&>(other);
+    }
 #if 0
     default:
         [[unlikely]] {
@@ -142,7 +184,12 @@ constexpr auto operator==(::pltxt2htm::details::MdListBaseNode const& self,
 }
 
 constexpr auto MdListUlNode::operator==(this ::pltxt2htm::details::MdListUlNode const& self,
-                                             ::pltxt2htm::details::MdListUlNode const& other) noexcept -> bool {
+                                        ::pltxt2htm::details::MdListUlNode const& other) noexcept -> bool {
+    return self.sublist == other.sublist;
+}
+
+constexpr auto MdListOlNode::operator==(this ::pltxt2htm::details::MdListOlNode const& self,
+                                        ::pltxt2htm::details::MdListOlNode const& other) noexcept -> bool {
     return self.sublist == other.sublist;
 }
 
@@ -205,6 +252,7 @@ struct PreviousItemInfo {
 };
 
 template<bool ndebug, ::pltxt2htm::details::MdListItemKind item_kind>
+[[nodiscard]]
 constexpr auto is_valid_md_list_hierarchy(
     ::fast_io::u8string_view pltext, ::std::size_t const space_hierarchy,
     ::exception::optional<::pltxt2htm::details::PreviousItemInfo> const expect) noexcept -> bool {
@@ -252,7 +300,7 @@ constexpr auto is_valid_md_list_hierarchy(
 
 template<bool ndebug>
 [[nodiscard]]
-constexpr auto try_parse_a_list_item(
+constexpr auto try_parse_item(
     ::fast_io::u8string_view pltext,
     ::exception::optional<::pltxt2htm::details::PreviousItemInfo> const expect = ::exception::nullopt_t{}) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseAListItemResult> {
@@ -326,6 +374,7 @@ struct ToMdListAstResult {
 };
 
 template<bool ndebug>
+[[nodiscard]]
 constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::ToMdListAstResult> {
     ::fast_io::stack<::pltxt2htm::details::MdListFrameContext,
@@ -334,7 +383,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
 
     // manually managing stack to avoid stack-overflow
     {
-        auto opt_list_item = ::pltxt2htm::details::try_parse_a_list_item<ndebug>(pltext);
+        auto opt_list_item = ::pltxt2htm::details::try_parse_item<ndebug>(pltext);
         if (!opt_list_item.has_value()) {
             return ::exception::nullopt_t{};
         }
@@ -351,7 +400,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
         auto&& current_index = call_stack.top().current_index;
         auto&& result = call_stack.top().result;
         ::std::size_t const pltext_size{call_stack.top().pltext.size()};
-        auto opt_list_item = ::pltxt2htm::details::try_parse_a_list_item<ndebug>(
+        auto opt_list_item = ::pltxt2htm::details::try_parse_item<ndebug>(
             ::pltxt2htm::details::u8string_view_subview<ndebug>(call_stack.top().pltext, current_index),
             ::pltxt2htm::details::PreviousItemInfo{.space_hierarchy = call_stack.top().space_hierarchy,
                                                    .call_stack_is_single = call_stack.size() == 1,
