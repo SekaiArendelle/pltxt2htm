@@ -15,7 +15,7 @@ namespace pltxt2htm::details {
 
 enum class MdListNodeType : ::std::uint_least32_t {
     text = 0,
-    sublist,
+    md_ul,
 };
 
 class MdListBaseNode {
@@ -79,39 +79,39 @@ public:
 
 using MdListAst = ::fast_io::vector<::pltxt2htm::HeapGuard<::pltxt2htm::details::MdListBaseNode>>;
 
-class MdListSublistNode : public ::pltxt2htm::details::MdListBaseNode {
+class MdListUlNode : public ::pltxt2htm::details::MdListBaseNode {
     ::pltxt2htm::details::MdListAst sublist;
 
 public:
-    constexpr MdListSublistNode(::pltxt2htm::details::MdListAst&& sublist_) noexcept
-        : ::pltxt2htm::details::MdListBaseNode{::pltxt2htm::details::MdListNodeType::sublist},
+    constexpr MdListUlNode(::pltxt2htm::details::MdListAst&& sublist_) noexcept
+        : ::pltxt2htm::details::MdListBaseNode{::pltxt2htm::details::MdListNodeType::md_ul},
           sublist(::std::move(sublist_)) {
     }
 
-    constexpr MdListSublistNode(::pltxt2htm::details::MdListSublistNode const&) noexcept = delete;
+    constexpr MdListUlNode(::pltxt2htm::details::MdListUlNode const&) noexcept = delete;
 
-    constexpr MdListSublistNode(::pltxt2htm::details::MdListSublistNode&&) noexcept = default;
+    constexpr MdListUlNode(::pltxt2htm::details::MdListUlNode&&) noexcept = default;
 
-    constexpr ~MdListSublistNode() noexcept = default;
+    constexpr ~MdListUlNode() noexcept = default;
 
-    constexpr auto operator=(::pltxt2htm::details::MdListSublistNode const&) & noexcept
-        -> ::pltxt2htm::details::MdListSublistNode& = delete;
+    constexpr auto operator=(::pltxt2htm::details::MdListUlNode const&) & noexcept
+        -> ::pltxt2htm::details::MdListUlNode& = delete;
 
-    constexpr auto operator=(::pltxt2htm::details::MdListSublistNode&&) & noexcept
-        -> ::pltxt2htm::details::MdListSublistNode& = default;
+    constexpr auto operator=(::pltxt2htm::details::MdListUlNode&&) & noexcept
+        -> ::pltxt2htm::details::MdListUlNode& = default;
 
-    constexpr auto operator==(this ::pltxt2htm::details::MdListSublistNode const& self,
-                              ::pltxt2htm::details::MdListSublistNode const& other) noexcept -> bool;
+    constexpr auto operator==(this ::pltxt2htm::details::MdListUlNode const& self,
+                              ::pltxt2htm::details::MdListUlNode const& other) noexcept -> bool;
 
-    constexpr auto&& get_sublist(this ::pltxt2htm::details::MdListSublistNode& self) noexcept {
+    constexpr auto&& get_sublist(this ::pltxt2htm::details::MdListUlNode& self) noexcept {
         return self.sublist;
     }
 
-    constexpr auto&& get_sublist(this ::pltxt2htm::details::MdListSublistNode const& self) noexcept {
+    constexpr auto&& get_sublist(this ::pltxt2htm::details::MdListUlNode const& self) noexcept {
         return ::std::as_const(self.sublist);
     }
 
-    constexpr auto&& get_sublist(this ::pltxt2htm::details::MdListSublistNode&& self) noexcept {
+    constexpr auto&& get_sublist(this ::pltxt2htm::details::MdListUlNode&& self) noexcept {
         return ::std::move(self.sublist);
     }
 };
@@ -127,9 +127,9 @@ constexpr auto operator==(::pltxt2htm::details::MdListBaseNode const& self,
         return static_cast<::pltxt2htm::details::MdListTextNode const&>(self) ==
                static_cast<::pltxt2htm::details::MdListTextNode const&>(other);
     }
-    case ::pltxt2htm::details::MdListNodeType::sublist: {
-        return static_cast<::pltxt2htm::details::MdListSublistNode const&>(self) ==
-               static_cast<::pltxt2htm::details::MdListSublistNode const&>(other);
+    case ::pltxt2htm::details::MdListNodeType::md_ul: {
+        return static_cast<::pltxt2htm::details::MdListUlNode const&>(self) ==
+               static_cast<::pltxt2htm::details::MdListUlNode const&>(other);
     }
 #if 0
     default:
@@ -141,8 +141,8 @@ constexpr auto operator==(::pltxt2htm::details::MdListBaseNode const& self,
     ::exception::unreachable<false>();
 }
 
-constexpr auto MdListSublistNode::operator==(this ::pltxt2htm::details::MdListSublistNode const& self,
-                                             ::pltxt2htm::details::MdListSublistNode const& other) noexcept -> bool {
+constexpr auto MdListUlNode::operator==(this ::pltxt2htm::details::MdListUlNode const& self,
+                                             ::pltxt2htm::details::MdListUlNode const& other) noexcept -> bool {
     return self.sublist == other.sublist;
 }
 
@@ -363,7 +363,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
                 return ::pltxt2htm::details::ToMdListAstResult{::std::move(frame.result), frame.current_index};
             } else {
                 call_stack.top().result.emplace_back(
-                    ::pltxt2htm::HeapGuard<::pltxt2htm::details::MdListSublistNode>(::std::move(frame.result)));
+                    ::pltxt2htm::HeapGuard<::pltxt2htm::details::MdListUlNode>(::std::move(frame.result)));
                 call_stack.top().current_index += frame.current_index;
                 continue;
             }
@@ -390,7 +390,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
                 return ::pltxt2htm::details::ToMdListAstResult{::std::move(frame.result), pltext_size};
             } else {
                 call_stack.top().result.emplace_back(
-                    ::pltxt2htm::HeapGuard<::pltxt2htm::details::MdListSublistNode>(::std::move(frame.result)));
+                    ::pltxt2htm::HeapGuard<::pltxt2htm::details::MdListUlNode>(::std::move(frame.result)));
                 call_stack.top().current_index += frame.current_index;
                 continue;
             }

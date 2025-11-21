@@ -357,8 +357,8 @@ entry:
             auto text_node = static_cast<::pltxt2htm::details::MdListTextNode const*>(frame->iter->release_imul());
             call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(text_node->get_text_view(),
                                                                                          ::pltxt2htm::NodeType::md_li));
-        } else if ((*frame->iter)->get_type() == ::pltxt2htm::details::MdListNodeType::sublist) {
-            auto sublist_node = static_cast<::pltxt2htm::details::MdListSublistNode*>(frame->iter->get_unsafe());
+        } else if ((*frame->iter)->get_type() == ::pltxt2htm::details::MdListNodeType::md_ul) {
+            auto sublist_node = static_cast<::pltxt2htm::details::MdListUlNode*>(frame->iter->get_unsafe());
             call_stack.push(
                 ::pltxt2htm::HeapGuard<::pltxt2htm::details::MdUlContext>(::std::move(sublist_node->get_sublist())));
         }

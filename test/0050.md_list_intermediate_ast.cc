@@ -18,7 +18,7 @@ constexpr auto md_list(Nodes&&... nodes) noexcept {
 
 template<::pltxt2htm::details::is_md_list_node... Nodes>
 constexpr auto sub_md_list_item(Nodes&&... nodes) noexcept {
-    return ::pltxt2htm::details::MdListSublistNode(::pltxt2htm_test::md_list(::std::forward<Nodes>(nodes)...));
+    return ::pltxt2htm::details::MdListUlNode(::pltxt2htm_test::md_list(::std::forward<Nodes>(nodes)...));
 }
 
 } // namespace pltxt2htm_test
@@ -30,8 +30,8 @@ int main() {
         ::exception::assert_true<false>(node1 == node2);
     }
     {
-        ::pltxt2htm::details::MdListSublistNode node1{::pltxt2htm::details::MdListAst{}};
-        ::pltxt2htm::details::MdListSublistNode node2{::pltxt2htm::details::MdListAst{}};
+        ::pltxt2htm::details::MdListUlNode node1{::pltxt2htm::details::MdListAst{}};
+        ::pltxt2htm::details::MdListUlNode node2{::pltxt2htm::details::MdListAst{}};
         ::exception::assert_true<false>(node1 == node2);
     }
     {
