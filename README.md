@@ -3,7 +3,7 @@
 ![language](https://img.shields.io/badge/language-C++23-blue.svg)
 ![license](https://img.shields.io/badge/License-GPL-green.svg)
 
-This repository is a sub-project of [Physics-Lab-Web](https://github.com/NetLogo-Mobile/Physics-Lab-Web)
+This repository is a sub-project of [Physics-Lab-Web2](https://github.com/NetLogo-Mobile/plweb2)
 
 **header-only** C++23 library for converting Quantum-Physics(aka. Physics-Lab)'s text format to HTML, with supports for markdown and latex [as much as possible](#features). Requires g++ >= 14, clang++ >= 20 or MSVC >= VS2026. Build without C++ rtti and exceptions for maximum cross-platform compatibility.
 
