@@ -47,13 +47,13 @@ class
     T* ptr_;
 
 public:
-    void (*deleter_)(T*) noexcept;
+    void (*deleter_)(void*) noexcept;
     using value_type = T;
 
     template<typename... Args>
         requires (((!::pltxt2htm::is_heap_guard<Args>) && ...) && ::std::constructible_from<T, Args...>)
     constexpr HeapGuard(Args&&... args) noexcept {
-        this->deleter_ = [](T* self) static constexpr noexcept { self->~T(); };
+        this->deleter_ = [](void* self) static constexpr noexcept { static_cast<T*>(self)->~T(); };
         this->ptr_ = static_cast<T*>(::std::malloc(sizeof(T)));
         if (this->ptr_ == nullptr) [[unlikely]] {
             // bad alloc should never be an exception or err_code
@@ -79,7 +79,7 @@ public:
     template<typename U>
         requires (::std::derived_from<U, T>)
     constexpr HeapGuard(::pltxt2htm::HeapGuard<U>&& other) noexcept
-        : deleter_{reinterpret_cast<void (*)(T*) noexcept>(other.deleter_)} {
+        : deleter_{other.deleter_} {
         this->ptr_ = other.release();
         other.deleter_ = nullptr;
     }
