@@ -316,6 +316,9 @@ constexpr auto is_valid_md_ol_list_hierarchy(
                 break;
             }
         }
+        if (i == pltext_size) {
+            return ::exception::nullopt_t{};
+        }
         if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i) != u8'.') {
             return ::exception::nullopt_t{};
         }
