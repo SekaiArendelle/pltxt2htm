@@ -12,7 +12,7 @@ namespace pltxt2htm {
 template<typename T>
 class HeapGuard;
 
-namespace details  {
+namespace details {
 
 /**
  * @brief This internal var is a part of `concept is_heap_gurad`
@@ -26,7 +26,7 @@ constexpr bool is_heap_guard_ = false;
 template<typename T>
 constexpr bool is_heap_guard_<HeapGuard<T>> = true;
 
-}
+} // namespace details
 
 /**
  * @brief Whether the type is a heap guard

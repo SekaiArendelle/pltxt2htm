@@ -1062,6 +1062,23 @@ public:
     constexpr ::pltxt2htm::MdUl& operator=(::pltxt2htm::MdUl&&) noexcept = default;
 };
 
+class MdOl : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr MdOl() noexcept = delete;
+
+    constexpr MdOl(::pltxt2htm::Ast&& ast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_ol, ::std::move(ast)} {
+    }
+
+    constexpr MdOl(::pltxt2htm::MdOl const&) noexcept = delete;
+
+    constexpr MdOl(::pltxt2htm::MdOl&&) noexcept = default;
+
+    constexpr ::pltxt2htm::MdOl& operator=(::pltxt2htm::MdOl const&) noexcept = delete;
+
+    constexpr ::pltxt2htm::MdOl& operator=(::pltxt2htm::MdOl&&) noexcept = default;
+};
+
 class MdLi : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr MdLi() noexcept = delete;
