@@ -10,6 +10,7 @@
 #include <exception/exception.hh>
 #include "../utils.hh"
 #include "../../heap_guard.hh"
+#include "../../astnode/node_type.hh"
 
 namespace pltxt2htm::details {
 
@@ -122,7 +123,7 @@ class MdListOlNode : public ::pltxt2htm::details::MdListBaseNode {
 
 public:
     constexpr MdListOlNode(::pltxt2htm::details::MdListAst&& sublist_) noexcept
-        : ::pltxt2htm::details::MdListBaseNode{::pltxt2htm::details::MdListNodeType::md_ul},
+        : ::pltxt2htm::details::MdListBaseNode{::pltxt2htm::details::MdListNodeType::md_ol},
           sublist(::std::move(sublist_)) {
     }
 
@@ -210,7 +211,7 @@ public:
     ::std::size_t space_hierarchy;
     ::fast_io::u8string_view pltext;
     ::std::size_t current_index{};
-    ::pltxt2htm::details::MdListAst result{};
+    ::pltxt2htm::details::MdListAst md_list_ast{};
 
     constexpr MdListFrameContext(::pltxt2htm::details::MdUlListItemKind item_kind_, ::std::size_t space_hierarchy_,
                                  ::fast_io::u8string_view pltext_) noexcept
@@ -251,12 +252,6 @@ template<bool ndebug, ::pltxt2htm::details::MdUlListItemKind item_kind>
 constexpr auto is_valid_md_ul_list_hierarchy(
     ::fast_io::u8string_view pltext, ::std::size_t const space_hierarchy,
     ::exception::optional<::pltxt2htm::details::PreviousItemInfo> const expect) noexcept -> bool {
-    if (expect.has_value() &&
-        expect.template value<ndebug>().item_kind != ::pltxt2htm::details::MdUlListItemKind::hyphen &&
-        expect.template value<ndebug>().item_kind != ::pltxt2htm::details::MdUlListItemKind::plus &&
-        expect.template value<ndebug>().item_kind != ::pltxt2htm::details::MdUlListItemKind::asterisk) {
-        return false;
-    }
     if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, space_hierarchy) != static_cast<char8_t>(item_kind)) {
         return false;
     }
@@ -305,20 +300,16 @@ constexpr auto is_valid_md_ol_list_hierarchy(
     ::fast_io::u8string_view pltext, ::std::size_t const space_hierarchy,
     ::exception::optional<::pltxt2htm::details::PreviousItemInfo> const expect) noexcept
     -> ::exception::optional<::std::size_t> {
-    if (expect.has_value() &&
-        expect.template value<ndebug>().item_kind != ::pltxt2htm::details::MdUlListItemKind::ordered_item) {
-        return ::exception::nullopt_t{};
-    }
     ::std::size_t pltext_size{pltext.size()};
     if (pltext_size < 4) {
         return ::exception::nullopt_t{};
     }
-    if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 0) < u8'0' ||
-        ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 1) > u8'9') {
-        return false;
+    if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, space_hierarchy) < u8'0' ||
+        ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, space_hierarchy) > u8'9') {
+        return ::exception::nullopt_t{};
     }
     {
-        ::std::size_t i{1};
+        ::std::size_t i{space_hierarchy + 1};
         for (; i < pltext_size; ++i) {
             auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i);
             if (chr < u8'0' || chr > u8'9') {
@@ -345,10 +336,11 @@ constexpr auto is_valid_md_ol_list_hierarchy(
             (!expect.template value<ndebug>().call_stack_is_single &&
              space_hierarchy >= expect.template value<ndebug>().space_hierarchy) ||
             // e.g.
-            // 1. test
-            // 2. test
-            // 3. test <== here, this line is invalid markdown list
-            expect.template value<ndebug>().call_stack_is_single) {
+            // - test
+            // - test
+            // 1. test <== here, this line is invalid markdown list
+            (expect.template value<ndebug>().call_stack_is_single &&
+             expect.template value<ndebug>().item_kind == ::pltxt2htm::details::MdUlListItemKind::ordered_item)) {
             return i;
         }
     }
@@ -407,7 +399,7 @@ constexpr auto try_parse_item(
                    ::pltxt2htm::details::is_valid_md_ol_list_hierarchy<ndebug>(pltext, space_hierarchy, expect);
                opt_size.has_value()) {
         item_kind = ::pltxt2htm::details::MdUlListItemKind::ordered_item;
-        current_index += opt_size.template value<ndebug>();
+        current_index = opt_size.template value<ndebug>();
     } else {
         return ::exception::nullopt_t{};
     }
@@ -445,6 +437,7 @@ constexpr auto try_parse_item(
 struct ToMdListAstResult {
     ::pltxt2htm::details::MdListAst ast;
     ::std::size_t forward_index;
+    ::pltxt2htm::NodeType item_kind;
 };
 
 template<bool ndebug>
@@ -457,13 +450,18 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
 
     // manually managing stack to avoid stack-overflow
     {
-        if (auto opt_ul_item = ::pltxt2htm::details::try_parse_item<ndebug>(pltext); opt_ul_item.has_value()) {
-            auto&& [space_hierarchy, forward_index, text, item_kind] = opt_ul_item.template value<ndebug>();
+        if (auto opt_item = ::pltxt2htm::details::try_parse_item<ndebug>(pltext); opt_item.has_value()) {
+            auto&& [space_hierarchy, forward_index, text, item_kind] = opt_item.template value<ndebug>();
             ::pltxt2htm::details::MdListFrameContext current_frame{item_kind, space_hierarchy, pltext, forward_index};
-            current_frame.result.emplace_back(
+            current_frame.md_list_ast.emplace_back(
                 ::pltxt2htm::HeapGuard<::pltxt2htm::details::MdListTextNode>(::std::move(text)));
             if (forward_index >= current_frame.pltext.size()) {
-                return ::pltxt2htm::details::ToMdListAstResult{::std::move(current_frame.result), forward_index};
+                return ::pltxt2htm::details::ToMdListAstResult{
+                    .ast = ::std::move(current_frame.md_list_ast),
+                    .forward_index = forward_index,
+                    .item_kind = item_kind == ::pltxt2htm::details::MdUlListItemKind::ordered_item
+                                     ? ::pltxt2htm::NodeType::md_ol
+                                     : ::pltxt2htm::NodeType::md_ul};
             }
             call_stack.push(::std::move(current_frame));
         } else {
@@ -472,7 +470,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
     }
     while (true) {
         auto&& current_index = call_stack.top().current_index;
-        auto&& result = call_stack.top().result;
+        auto&& result = call_stack.top().md_list_ast;
         ::std::size_t const pltext_size{call_stack.top().pltext.size()};
         auto opt_list_item = ::pltxt2htm::details::try_parse_item<ndebug>(
             ::pltxt2htm::details::u8string_view_subview<ndebug>(call_stack.top().pltext, current_index),
@@ -483,10 +481,35 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
             auto frame = ::std::move(call_stack.top());
             call_stack.pop();
             if (call_stack.empty()) {
-                return ::pltxt2htm::details::ToMdListAstResult{::std::move(frame.result), frame.current_index};
+                return ::pltxt2htm::details::ToMdListAstResult{
+                    .ast = ::std::move(frame.md_list_ast),
+                    .forward_index = frame.current_index,
+                    .item_kind = frame.get_item_kind() == ::pltxt2htm::details::MdUlListItemKind::ordered_item
+                                     ? ::pltxt2htm::NodeType::md_ol
+                                     : ::pltxt2htm::NodeType::md_ul};
             } else {
-                call_stack.top().result.emplace_back(
-                    ::pltxt2htm::HeapGuard<::pltxt2htm::details::MdListUlNode>(::std::move(frame.result)));
+                switch (frame.get_item_kind()) {
+                case ::pltxt2htm::details::MdUlListItemKind::ordered_item: {
+                    call_stack.top().md_list_ast.emplace_back(
+                        ::pltxt2htm::HeapGuard<::pltxt2htm::details::MdListOlNode>(::std::move(frame.md_list_ast)));
+                    break;
+                }
+                case ::pltxt2htm::details::MdUlListItemKind::hyphen:
+                    [[fallthrough]];
+                case ::pltxt2htm::details::MdUlListItemKind::plus:
+                    [[fallthrough]];
+                case ::pltxt2htm::details::MdUlListItemKind::asterisk: {
+                    call_stack.top().md_list_ast.emplace_back(
+                        ::pltxt2htm::HeapGuard<::pltxt2htm::details::MdListUlNode>(::std::move(frame.md_list_ast)));
+                    break;
+                }
+#if 0
+                default:
+                    [[unlikely]] {
+                        ::exception::unreachable<ndebug>();
+                    }
+#endif
+                }
                 call_stack.top().current_index += frame.current_index;
                 continue;
             }
@@ -497,7 +520,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
             call_stack.push(::pltxt2htm::details::MdListFrameContext{
                 item_kind, space_hierarchy,
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(call_stack.top().pltext, current_index)});
-            call_stack.top().result.emplace_back(
+            call_stack.top().md_list_ast.emplace_back(
                 ::pltxt2htm::HeapGuard<::pltxt2htm::details::MdListTextNode>(::std::move(text)));
             continue;
         } else {
@@ -510,10 +533,35 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
             auto frame = ::std::move(call_stack.top());
             call_stack.pop();
             if (call_stack.empty()) {
-                return ::pltxt2htm::details::ToMdListAstResult{::std::move(frame.result), pltext_size};
+                return ::pltxt2htm::details::ToMdListAstResult{
+                    .ast = ::std::move(frame.md_list_ast),
+                    .forward_index = pltext_size,
+                    .item_kind = frame.get_item_kind() == ::pltxt2htm::details::MdUlListItemKind::ordered_item
+                                     ? ::pltxt2htm::NodeType::md_ol
+                                     : ::pltxt2htm::NodeType::md_ul};
             } else {
-                call_stack.top().result.emplace_back(
-                    ::pltxt2htm::HeapGuard<::pltxt2htm::details::MdListUlNode>(::std::move(frame.result)));
+                switch (frame.get_item_kind()) {
+                case ::pltxt2htm::details::MdUlListItemKind::ordered_item: {
+                    call_stack.top().md_list_ast.emplace_back(
+                        ::pltxt2htm::HeapGuard<::pltxt2htm::details::MdListOlNode>(::std::move(frame.md_list_ast)));
+                    break;
+                }
+                case ::pltxt2htm::details::MdUlListItemKind::hyphen:
+                    [[fallthrough]];
+                case ::pltxt2htm::details::MdUlListItemKind::plus:
+                    [[fallthrough]];
+                case ::pltxt2htm::details::MdUlListItemKind::asterisk: {
+                    call_stack.top().md_list_ast.emplace_back(
+                        ::pltxt2htm::HeapGuard<::pltxt2htm::details::MdListUlNode>(::std::move(frame.md_list_ast)));
+                    break;
+                }
+#if 0
+                default:
+                    [[unlikely]] {
+                        ::exception::unreachable<ndebug>();
+                    }
+#endif
+                }
                 call_stack.top().current_index += frame.current_index;
                 continue;
             }

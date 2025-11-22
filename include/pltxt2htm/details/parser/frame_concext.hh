@@ -4,6 +4,7 @@
 #include <fast_io/fast_io_dsal/string_view.h>
 #include "md_list.hh"
 #include "../../astnode/basic.hh"
+#include "../push_macro.hh"
 
 namespace pltxt2htm::details {
 
@@ -106,20 +107,26 @@ public:
     constexpr ~MdLinkContext() noexcept = default;
 };
 
-class MdUlContext : public ::pltxt2htm::details::BasicFrameContext {
+template<bool ndebug>
+class MdListContext : public ::pltxt2htm::details::BasicFrameContext {
 public:
     ::pltxt2htm::details::MdListAst md_list_ast;
     ::pltxt2htm::details::MdListAst::iterator iter;
 
-    constexpr explicit MdUlContext(::pltxt2htm::details::MdListAst&& md_list_ast_) noexcept
-        : ::pltxt2htm::details::BasicFrameContext{::pltxt2htm::NodeType::md_ul},
+    constexpr explicit MdListContext(::pltxt2htm::NodeType node_type,
+                                     ::pltxt2htm::details::MdListAst&& md_list_ast_) noexcept
+        : ::pltxt2htm::details::BasicFrameContext{node_type},
           md_list_ast(::std::move(md_list_ast_)),
           iter(this->md_list_ast.begin()) {
+        pltxt2htm_assert(node_type == ::pltxt2htm::NodeType::md_ul || node_type == ::pltxt2htm::NodeType::md_ol,
+                         u8"mismatch node type");
     }
 
-    constexpr MdUlContext(::pltxt2htm::details::MdUlContext&& other) noexcept = default;
+    constexpr MdListContext(::pltxt2htm::details::MdListContext<ndebug>&& other) noexcept = default;
 
-    constexpr ~MdUlContext() noexcept = default;
+    constexpr ~MdListContext() noexcept = default;
 };
 
 } // namespace pltxt2htm::details
+
+#include "../pop_macro.hh"

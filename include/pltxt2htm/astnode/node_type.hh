@@ -182,6 +182,7 @@ enum class NodeType : ::std::size_t {
     md_block_quotes,
     // Markdown list
     md_ul,
+    md_ol,
     md_li,
 
     // latex

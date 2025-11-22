@@ -17,8 +17,13 @@ constexpr auto md_list(Nodes&&... nodes) noexcept {
 }
 
 template<::pltxt2htm::details::is_md_list_node... Nodes>
-constexpr auto sub_md_list_item(Nodes&&... nodes) noexcept {
+constexpr auto ul_item(Nodes&&... nodes) noexcept {
     return ::pltxt2htm::details::MdListUlNode(::pltxt2htm_test::md_list(::std::forward<Nodes>(nodes)...));
+}
+
+template<::pltxt2htm::details::is_md_list_node... Nodes>
+constexpr auto ol_item(Nodes&&... nodes) noexcept {
+    return ::pltxt2htm::details::MdListOlNode(::pltxt2htm_test::md_list(::std::forward<Nodes>(nodes)...));
 }
 
 } // namespace pltxt2htm_test
@@ -45,15 +50,14 @@ int main() {
         ::exception::assert_false<false>(ast1 == ast2);
     }
     {
-        auto ast1 = md_list(text_item(u8"test"), text_item(u8"test"),
-                            sub_md_list_item(text_item(u8"test"), text_item(u8"test"),
-                                             sub_md_list_item(text_item(u8"test"), text_item(u8"test"))));
-        auto ast2 =
-            md_list(text_item(u8"test"), text_item(u8"test"),
-                    sub_md_list_item(text_item(u8"test"), text_item(u8"test"), sub_md_list_item(text_item(u8"test"))));
-        auto ast3 = md_list(text_item(u8"test"), text_item(u8"test"),
-                            sub_md_list_item(text_item(u8"test"), text_item(u8"test"),
-                                             sub_md_list_item(text_item(u8"test"), text_item(u8"test"))));
+        auto ast1 = md_list(
+            text_item(u8"test"), text_item(u8"test"),
+            ul_item(text_item(u8"test"), text_item(u8"test"), ul_item(text_item(u8"test"), text_item(u8"test"))));
+        auto ast2 = md_list(text_item(u8"test"), text_item(u8"test"),
+                            ul_item(text_item(u8"test"), text_item(u8"test"), ul_item(text_item(u8"test"))));
+        auto ast3 = md_list(
+            text_item(u8"test"), text_item(u8"test"),
+            ul_item(text_item(u8"test"), text_item(u8"test"), ul_item(text_item(u8"test"), text_item(u8"test"))));
         ::exception::assert_false<false>(ast1 == ast2);
         ::exception::assert_true<false>(ast1 == ast3);
     }
@@ -74,7 +78,7 @@ int main() {
     }
     {
         auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" - text\n   - text").value().ast;
-        auto answer = md_list(text_item(u8"text"), sub_md_list_item(text_item(u8"text")));
+        auto answer = md_list(text_item(u8"text"), ul_item(text_item(u8"text")));
         ::exception::assert_true<false>(ast == answer);
     }
     {
@@ -86,7 +90,7 @@ int main() {
     }
     {
         auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" - text\n   - text\n - test").value().ast;
-        auto answer = md_list(text_item(u8"text"), sub_md_list_item(text_item(u8"text")), text_item(u8"test"));
+        auto answer = md_list(text_item(u8"text"), ul_item(text_item(u8"text")), text_item(u8"test"));
         ::exception::assert_true<false>(ast == answer);
     }
     {
@@ -94,9 +98,8 @@ int main() {
             ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" - text\n   - text\n     - text\n   - test\n")
                 .value()
                 .ast;
-        auto answer =
-            md_list(text_item(u8"text"),
-                    sub_md_list_item(text_item(u8"text"), sub_md_list_item(text_item(u8"text")), text_item(u8"test")));
+        auto answer = md_list(text_item(u8"text"),
+                              ul_item(text_item(u8"text"), ul_item(text_item(u8"text")), text_item(u8"test")));
         ::exception::assert_true<false>(ast == answer);
     }
     {
@@ -104,9 +107,8 @@ int main() {
             ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" + text\n   + text\n     + text\n   + test\n")
                 .value()
                 .ast;
-        auto answer =
-            md_list(text_item(u8"text"),
-                    sub_md_list_item(text_item(u8"text"), sub_md_list_item(text_item(u8"text")), text_item(u8"test")));
+        auto answer = md_list(text_item(u8"text"),
+                              ul_item(text_item(u8"text"), ul_item(text_item(u8"text")), text_item(u8"test")));
         ::exception::assert_true<false>(ast == answer);
     }
     {
@@ -114,10 +116,9 @@ int main() {
                        u8" - text\n   - text\n     - text\n   - test\n - test")
                        .value()
                        .ast;
-        auto answer =
-            md_list(text_item(u8"text"),
-                    sub_md_list_item(text_item(u8"text"), sub_md_list_item(text_item(u8"text")), text_item(u8"test")),
-                    text_item(u8"test"));
+        auto answer = md_list(text_item(u8"text"),
+                              ul_item(text_item(u8"text"), ul_item(text_item(u8"text")), text_item(u8"test")),
+                              text_item(u8"test"));
         ::exception::assert_true<false>(ast == answer);
     }
     {
@@ -145,10 +146,9 @@ int main() {
                        u8" * text\n   * text\n     * text\n   * test\n * test")
                        .value()
                        .ast;
-        auto answer =
-            md_list(text_item(u8"text"),
-                    sub_md_list_item(text_item(u8"text"), sub_md_list_item(text_item(u8"text")), text_item(u8"test")),
-                    text_item(u8"test"));
+        auto answer = md_list(text_item(u8"text"),
+                              ul_item(text_item(u8"text"), ul_item(text_item(u8"text")), text_item(u8"test")),
+                              text_item(u8"test"));
         ::exception::assert_true<false>(ast == answer);
     }
     {
@@ -168,15 +168,14 @@ int main() {
     }
     {
         auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" - text\n   - text\n * text").value().ast;
-        auto answer = md_list(text_item(u8"text"), sub_md_list_item(text_item(u8"text")));
+        auto answer = md_list(text_item(u8"text"), ul_item(text_item(u8"text")));
         ::exception::assert_true<false>(ast == answer);
     }
     {
         auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" - text\n   - text\n     - text\n * text")
                        .value()
                        .ast;
-        auto answer =
-            md_list(text_item(u8"text"), sub_md_list_item(text_item(u8"text"), sub_md_list_item(text_item(u8"text"))));
+        auto answer = md_list(text_item(u8"text"), ul_item(text_item(u8"text"), ul_item(text_item(u8"text"))));
         ::exception::assert_true<false>(ast == answer);
     }
     {
@@ -184,9 +183,8 @@ int main() {
             ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" - text\n   - text\n     - text\n   * text")
                 .value()
                 .ast;
-        auto answer =
-            md_list(text_item(u8"text"),
-                    sub_md_list_item(text_item(u8"text"), sub_md_list_item(text_item(u8"text")), text_item(u8"text")));
+        auto answer = md_list(text_item(u8"text"),
+                              ul_item(text_item(u8"text"), ul_item(text_item(u8"text")), text_item(u8"text")));
         ::exception::assert_true<false>(ast == answer);
     }
     {
@@ -198,12 +196,12 @@ int main() {
         auto ast =
             ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" - text\n   - text\n   * text").value().ast;
         // TODO can this be fixed?
-        auto answer = md_list(text_item(u8"text"), sub_md_list_item(text_item(u8"text"), text_item(u8"text")));
+        auto answer = md_list(text_item(u8"text"), ul_item(text_item(u8"text"), text_item(u8"text")));
         ::exception::assert_true<false>(ast == answer);
     }
     {
         auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" - text\n   - text\n * text").value().ast;
-        auto answer = md_list(text_item(u8"text"), sub_md_list_item(text_item(u8"text")));
+        auto answer = md_list(text_item(u8"text"), ul_item(text_item(u8"text")));
         ::exception::assert_true<false>(ast == answer);
     }
     {
@@ -213,8 +211,14 @@ int main() {
     }
     {
         auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8"- test\n - test\n   + text").value().ast;
-        auto answer = md_list(text_item(u8"test"), text_item(u8"test"), sub_md_list_item(text_item(u8"text")));
+        auto answer = md_list(text_item(u8"test"), text_item(u8"test"), ul_item(text_item(u8"text")));
         ::exception::assert_true<false>(ast == answer);
+    }
+    {
+        auto html =
+            ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8"1. test\n 2. test\n   1. text").value().ast;
+        auto answer = md_list(text_item(u8"test"), text_item(u8"test"), ol_item(text_item(u8"text")));
+        ::exception::assert_true<false>(html == answer);
     }
 
     return 0;

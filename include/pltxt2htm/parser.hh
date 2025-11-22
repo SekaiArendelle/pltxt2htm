@@ -69,6 +69,10 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
                 result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdUl>(::std::move(subast)));
                 break;
             }
+            case ::pltxt2htm::NodeType::md_ol: {
+                result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdOl>(::std::move(subast)));
+                break;
+            }
             default:
                 [[unlikely]] {
                     ::exception::unreachable<ndebug>();

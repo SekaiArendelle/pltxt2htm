@@ -487,6 +487,8 @@ entry:
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_ul, subast.begin()));
             goto entry;
         }
+        case ::pltxt2htm::NodeType::md_ol:
+            [[fallthrough]];
         case ::pltxt2htm::NodeType::html_ol: {
             // ol tag can't impl nested tag erasing
             auto ol = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
