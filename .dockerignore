@@ -63,3 +63,7 @@ compile_commands.json
 # csharp
 csharp/obj/
 csharp/bin/
+
+# Visual Studio
+**/vs2026/
+
