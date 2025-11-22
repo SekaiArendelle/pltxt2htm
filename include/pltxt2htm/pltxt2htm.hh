@@ -5,7 +5,7 @@
 #endif
 
 #if defined(_MSC_VER) && !defined(__clang__)
-    #warning "While VS2026 MSVC mostly works properly, gcc/clang are remommended."
+    #warning "gcc/clang are remommended more than MSVC(VS2026)"
 #endif
 
 #include <fast_io/fast_io_dsal/vector.h>

@@ -15,11 +15,11 @@ public:
     ::pltxt2htm::Ast subast{};
 
 protected:
-    constexpr BasicFrameContext(::pltxt2htm::NodeType const nested_tag_type_) noexcept
+    constexpr explicit BasicFrameContext(::pltxt2htm::NodeType const nested_tag_type_) noexcept
         : nested_tag_type{nested_tag_type_} {
     }
 
-    constexpr BasicFrameContext(::pltxt2htm::NodeType const nested_tag_type_, ::pltxt2htm::Ast&& subast_) noexcept
+    constexpr explicit BasicFrameContext(::pltxt2htm::NodeType const nested_tag_type_, ::pltxt2htm::Ast&& subast_) noexcept
         : nested_tag_type{nested_tag_type_},
           subast(::std::move(subast_)) {
     }
@@ -36,12 +36,12 @@ class BareTagContext : public ::pltxt2htm::details::BasicFrameContext {
 public:
     ::fast_io::u8string_view pltext;
 
-    constexpr BareTagContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_) noexcept
+    constexpr explicit BareTagContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_) noexcept
         : ::pltxt2htm::details::BasicFrameContext(nested_tag_type_),
           pltext(pltext_) {
     }
 
-    constexpr BareTagContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
+    constexpr explicit BareTagContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
                              ::pltxt2htm::Ast&& subast_) noexcept
         : ::pltxt2htm::details::BasicFrameContext(nested_tag_type_, ::std::move(subast_)),
           pltext(pltext_) {
@@ -55,7 +55,7 @@ public:
     ::fast_io::u8string_view pltext;
     ::fast_io::u8string id;
 
-    constexpr EqualSignTagContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
+    constexpr explicit EqualSignTagContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
                                   ::fast_io::u8string&& id_) noexcept
         : ::pltxt2htm::details::BasicFrameContext{nested_tag_type_},
           pltext(pltext_),
@@ -70,7 +70,7 @@ public:
     ::fast_io::u8string_view pltext;
     ::std::size_t id;
 
-    constexpr PlSizeTagContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
+    constexpr explicit PlSizeTagContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
                                ::std::size_t id_) noexcept
         : ::pltxt2htm::details::BasicFrameContext{nested_tag_type_},
           pltext(pltext_),
@@ -97,8 +97,7 @@ public:
     ::fast_io::u8string_view pltext;
     ::fast_io::u8string link;
 
-    // TODO can constructor be marked with explicit?
-    constexpr MdLinkContext(::fast_io::u8string_view pltext_, ::fast_io::u8string&& link_) noexcept
+    constexpr explicit MdLinkContext(::fast_io::u8string_view pltext_, ::fast_io::u8string&& link_) noexcept
         : ::pltxt2htm::details::BasicFrameContext{::pltxt2htm::NodeType::md_link},
           pltext(::std::move(pltext_)),
           link(::std::move(link_)) {
