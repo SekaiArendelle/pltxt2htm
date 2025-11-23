@@ -61,6 +61,7 @@ using ::pltxt2htm::Em;
 using ::pltxt2htm::Strong;
 
 using ::pltxt2htm::Ul;
+using ::pltxt2htm::Ol;
 using ::pltxt2htm::Li;
 
 using ::pltxt2htm::Code;
@@ -121,6 +122,9 @@ using ::pltxt2htm::MdTripleEmphasisUnderscore;
 using ::pltxt2htm::MdDel;
 using ::pltxt2htm::MdLink;
 using ::pltxt2htm::MdBlockQuotes;
+using ::pltxt2htm::MdUl;
+using ::pltxt2htm::MdOl;
+using ::pltxt2htm::MdLi;
 
 // physics_lab_node
 using ::pltxt2htm::Color;
