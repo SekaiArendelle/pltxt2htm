@@ -69,3 +69,11 @@ extern "C"
 #endif
         >(text);
 }
+
+extern "C"
+#if __has_cpp_attribute(__gnu__::__used__)
+    [[__gnu__::__used__]]
+#endif
+    void deallocate(void* ptr) noexcept {
+    ::free(ptr);
+}
