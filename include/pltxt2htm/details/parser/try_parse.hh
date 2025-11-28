@@ -17,6 +17,10 @@ namespace pltxt2htm::details {
  * @param u8char The UTF-8 character to switch.
  * @return An optional HeapGuard containing the corresponding PlTxtNode, or nullopt if no match is found.
  */
+[[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
 constexpr ::exception::optional<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>> switch_escape_char(
     char8_t u8char) noexcept {
     switch (u8char) {

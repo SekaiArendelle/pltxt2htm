@@ -43,6 +43,9 @@ namespace pltxt2htm {
  */
 template<bool ndebug = false, bool optimize = true>
 [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
 constexpr auto pltxt2advanced_html(::fast_io::u8string_view pltext, ::fast_io::u8string_view host) noexcept {
     auto ast = ::pltxt2htm::parse_pltxt<ndebug>(pltext);
     if constexpr (optimize) {
@@ -70,6 +73,9 @@ constexpr auto pltxt2advanced_html(::fast_io::u8string_view pltext, ::fast_io::u
  */
 template<bool ndebug = false, bool optimize = true>
 [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
 constexpr auto pltxt2fixedadv_html(::fast_io::u8string_view pltext, ::fast_io::u8string_view host) noexcept {
     auto ast = ::pltxt2htm::parse_pltxt<ndebug>(pltext);
     if constexpr (optimize) {
@@ -98,6 +104,9 @@ constexpr auto pltxt2fixedadv_html(::fast_io::u8string_view pltext, ::fast_io::u
  */
 template<bool ndebug = false, bool optimize = false>
 [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
 constexpr auto pltxt2common_html(::fast_io::u8string_view pltext) noexcept {
     auto ast = ::pltxt2htm::parse_pltxt<ndebug>(pltext);
     if constexpr (optimize) {

@@ -113,6 +113,10 @@ public:
      * @return true if strings are equal, false otherwise
      */
     template<::pltxt2htm::details::is_leteral_string Self, ::std::size_t M>
+    [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
     constexpr auto operator==(this Self const& self, ::pltxt2htm::details::LiteralString<M> const& other) noexcept {
         if constexpr (N != M) {
             return false;
@@ -144,6 +148,10 @@ public:
      * @return Const reference to the character at the specified index
      */
     template<::pltxt2htm::details::is_leteral_string Self>
+    [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
     constexpr auto operator[](this Self const& self, ::std::size_t index) noexcept -> char const& {
         if (index >= N) [[unlikely]] {
             ::exception::terminate();
@@ -152,6 +160,10 @@ public:
     }
 
     /** @brief Get the size of the string */
+    [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
     static constexpr ::std::size_t size() noexcept {
         return N;
     }
@@ -163,6 +175,10 @@ public:
      * @return Iterator pointing to the first character
      */
     template<::pltxt2htm::details::is_leteral_string Self>
+    [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
     constexpr auto cbegin(this Self const& self) noexcept {
         return static_cast<const_iterator>(self.data_);
     }
@@ -174,10 +190,18 @@ public:
      * @return Iterator pointing past the last character
      */
     template<::pltxt2htm::details::is_leteral_string Self>
+    [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
     constexpr auto cend(this Self const& self) noexcept {
         return static_cast<const_iterator>(self.data_ + N);
     }
 
+    [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
     constexpr auto data(this ::pltxt2htm::details::LiteralString<N>& self) noexcept {
         return self.data_;
     }
@@ -198,6 +222,10 @@ public:
      * @param self This object
      * @return Pointer to the string data
      */
+    [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
     constexpr auto data(this ::pltxt2htm::details::LiteralString<N>&& self) noexcept {
         return ::std::move(self.data_);
     }
@@ -209,6 +237,10 @@ public:
      * @return Const pointer to the string data
      */
     template<::pltxt2htm::details::is_leteral_string Self>
+    [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
     constexpr auto cdata(this Self&& self) noexcept {
         return static_cast<char const*>(self.data_);
     }

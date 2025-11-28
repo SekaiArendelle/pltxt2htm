@@ -30,6 +30,9 @@ namespace pltxt2htm::details {
  */
 template<bool ndebug>
 [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
 constexpr auto u8string_view_index(::fast_io::u8string_view pltext, ::std::size_t i) noexcept {
     ::std::size_t const pltext_size{pltext.size()};
     pltxt2htm_assert(i < pltext_size, u8"Index of u8string_view out of bound");
@@ -48,6 +51,9 @@ constexpr auto u8string_view_index(::fast_io::u8string_view pltext, ::std::size_
  */
 template<bool ndebug>
 [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
 constexpr auto u8string_view_subview(::fast_io::u8string_view pltext, ::std::size_t i,
                                      ::std::size_t count = ::fast_io::containers::npos) noexcept
     -> ::fast_io::u8string_view {
@@ -60,6 +66,9 @@ constexpr auto u8string_view_subview(::fast_io::u8string_view pltext, ::std::siz
 
 template<bool ndebug, typename T>
 [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
 constexpr auto vector_front(::fast_io::vector<T> const& vec) noexcept -> T const& {
     bool const vec_is_not_empty{!vec.empty()};
     pltxt2htm_assert(vec_is_not_empty, u8"Indexing front but vector is empty");
@@ -72,6 +81,9 @@ constexpr auto vector_front(::fast_io::vector<T> const& vec) noexcept -> T const
  */
 template<bool ndebug, typename T>
 [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
 constexpr auto vector_index(::fast_io::vector<T> const& vec, ::std::size_t i) noexcept -> T const& {
     bool const is_not_out_of_bound{i < vec.size()};
     pltxt2htm_assert(is_not_out_of_bound, u8"Index of vector out of bound");
@@ -86,6 +98,9 @@ constexpr auto vector_index(::fast_io::vector<T> const& vec, ::std::size_t i) no
 template<::std::size_t I, char8_t first_char, char8_t... str>
     requires (I <= sizeof...(str))
 [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
 consteval char8_t pack_indexing_char8_t() noexcept {
     // https://en.cppreference.com/w/cpp/language/pack_indexing.html
     if constexpr (I == 0) {
@@ -124,6 +139,9 @@ template<bool ndebug, char8_t... prefix_str>
 [[msvc::forceinline]]
 #endif
 [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
 constexpr bool is_prefix_match(::fast_io::u8string_view str) noexcept {
     // Check whether the index is out of bound.
     if (sizeof...(prefix_str) > str.size()) [[unlikely]] {
@@ -172,6 +190,9 @@ constexpr bool is_prefix_match(::fast_io::u8string_view str) noexcept {
  *       then reversing the result
  */
 [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
 constexpr ::fast_io::u8string size_t2str(::std::size_t num) noexcept {
     if (num == 0) {
         return ::fast_io::u8string{u8"0"};
@@ -198,6 +219,9 @@ constexpr ::fast_io::u8string size_t2str(::std::size_t num) noexcept {
  *       Empty strings or strings with non-digit characters return nullopt
  */
 [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
 constexpr ::exception::optional<std::size_t> u8str2size_t(::fast_io::u8string_view str) noexcept {
     if (str.empty()) {
         return ::exception::nullopt_t{};

@@ -39,6 +39,10 @@ protected:
     constexpr auto operator=(MdListBaseNode&&) & noexcept -> MdListBaseNode& = default;
 
 public:
+    [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
     constexpr auto&& get_type(this ::pltxt2htm::details::MdListBaseNode const& self) noexcept {
         return ::std::as_const(self.md_list_node_type);
     }
@@ -65,15 +69,27 @@ public:
     constexpr auto operator=(::pltxt2htm::details::MdListTextNode&&) & noexcept
         -> ::pltxt2htm::details::MdListTextNode& = default;
 
+    [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
     constexpr auto operator==(this ::pltxt2htm::details::MdListTextNode const& self,
                               ::pltxt2htm::details::MdListTextNode const& other) noexcept -> bool {
         return self.text == other.text;
     }
 
+    [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
     constexpr auto&& get_text(this ::pltxt2htm::details::MdListTextNode const& self) noexcept {
         return ::std::as_const(self.text);
     }
 
+    [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
     constexpr auto get_text_view(this ::pltxt2htm::details::MdListTextNode const& self) noexcept {
         return ::fast_io::u8string_view(::fast_io::mnp::os_c_str(self.text));
     }

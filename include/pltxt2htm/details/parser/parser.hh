@@ -122,6 +122,10 @@ constexpr auto devil_stuff_after_line_break(
 }
 
 template<bool ndebug>
+[[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
 constexpr auto get_pltext_from_parser_frame_context(
     ::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext> const& top_frame) noexcept
     -> ::fast_io::u8string_view {
@@ -337,6 +341,9 @@ constexpr auto get_pltext_from_parser_frame_context(
  */
 template<bool ndebug>
 [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
 constexpr auto parse_pltxt(
     ::fast_io::stack<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>,
                      ::fast_io::list<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>>>&

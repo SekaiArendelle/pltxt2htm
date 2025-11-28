@@ -756,6 +756,10 @@ public:
 
     constexpr ::pltxt2htm::MdCodeFenceBacktick& operator=(::pltxt2htm::MdCodeFenceBacktick&&) noexcept = default;
 
+    [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
     constexpr auto&& get_language(this auto&& self) noexcept {
         return ::std::forward_like<decltype(self)>(self.lang);
     }

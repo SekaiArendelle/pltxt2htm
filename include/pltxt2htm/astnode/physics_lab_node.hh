@@ -47,6 +47,9 @@ public:
     constexpr ::pltxt2htm::Color& operator=(::pltxt2htm::Color&&) noexcept = default;
 
     [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
     constexpr auto&& get_color(this auto&& self) noexcept {
         return ::std::forward_like<decltype(self)>(self.color_);
     }
@@ -86,6 +89,9 @@ public:
     constexpr ::pltxt2htm::A& operator=(::pltxt2htm::A&&) noexcept = default;
 
     [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
     constexpr auto&& get_color(this auto&& self) noexcept {
         return ::std::forward_like<decltype(self)>(self.color_);
     }
@@ -122,6 +128,9 @@ public:
     constexpr ::pltxt2htm::Experiment& operator=(::pltxt2htm::Experiment&&) noexcept = default;
 
     [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
     constexpr auto&& get_id(this auto&& self) noexcept {
         return ::std::forward_like<decltype(self)>(self.id_);
     }
@@ -158,6 +167,9 @@ public:
     constexpr ::pltxt2htm::Discussion& operator=(::pltxt2htm::Discussion&&) noexcept = default;
 
     [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
     constexpr auto&& get_id(this auto&& self) noexcept {
         return ::std::forward_like<decltype(self)>(self.id_);
     }
@@ -194,6 +206,9 @@ public:
     constexpr ::pltxt2htm::User& operator=(::pltxt2htm::User&&) noexcept = default;
 
     [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
     constexpr auto&& get_id(this auto&& self) noexcept {
         return ::std::forward_like<decltype(self)>(self.id_);
     }
@@ -230,6 +245,9 @@ public:
     constexpr ::pltxt2htm::Size& operator=(::pltxt2htm::Size&&) noexcept = default;
 
     [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
     constexpr auto&& get_id(this auto&& self) noexcept {
         return ::std::forward_like<decltype(self)>(self.id_);
     }

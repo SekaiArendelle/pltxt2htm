@@ -141,12 +141,19 @@ public:
         return self.ptr_;
     }
 
+    [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
     constexpr auto operator==(this ::pltxt2htm::HeapGuard<T> const& self,
                               ::pltxt2htm::HeapGuard<T> const& other) noexcept(noexcept(*self.ptr_ == *other.ptr_)) {
         return *self.ptr_ == *other.ptr_;
     }
 
     [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
     constexpr T const* release_imul(this ::pltxt2htm::HeapGuard<T> const& self) noexcept {
         return self.ptr_;
     }
@@ -161,6 +168,9 @@ public:
      * @warning Do not delete this pointer manually!
      */
     [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
     constexpr T* get_unsafe(this auto&& self) noexcept {
         return self.ptr_;
     }

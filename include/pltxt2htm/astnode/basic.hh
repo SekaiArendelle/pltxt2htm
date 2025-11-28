@@ -43,6 +43,9 @@ public:
     constexpr ~PlTxtNode() noexcept = default;
 
     [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
     constexpr auto node_type(this PlTxtNode const& self) noexcept {
         return self.runtime_node_type_info;
     }
@@ -72,8 +75,11 @@ public:
     constexpr auto operator=(U8Char&& other) noexcept -> U8Char& = default;
 
     [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
     constexpr auto get_u8char(this U8Char const& self) noexcept {
-        return self.data_;
+        return ::std::as_const(self.data_);
     }
 };
 
@@ -120,16 +126,25 @@ public:
     constexpr PairedTagBase& operator=(PairedTagBase&&) noexcept = default;
 
     [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
     constexpr auto&& get_subast(this PairedTagBase& self) noexcept {
         return self.subast_;
     }
 
     [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
     constexpr auto&& get_subast(this PairedTagBase const& self) noexcept {
         return ::std::as_const(self.subast_);
     }
 
     [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
     constexpr auto&& get_subast(this PairedTagBase&& self) noexcept {
         return ::std::move(self.subast_);
     }

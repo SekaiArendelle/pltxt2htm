@@ -39,6 +39,9 @@ namespace pltxt2htm::details {
  */
 template<bool ndebug, bool escape_less_than = true>
 [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
 constexpr auto ast2advanced_html(::pltxt2htm::Ast const& ast_init, ::fast_io::u8string_view host) noexcept
     -> ::fast_io::u8string {
     ::fast_io::u8string result{};
