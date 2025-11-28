@@ -484,9 +484,7 @@ entry:
             continue;
         }
         case ::pltxt2htm::NodeType::html_note: {
-            // TODO should I remove note node?
-            // which costs a lot and really dangerous
-            ++current_iter;
+            ast.erase(current_iter);
             continue;
         }
         case ::pltxt2htm::NodeType::md_ul:
