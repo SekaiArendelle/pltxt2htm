@@ -111,7 +111,7 @@ constexpr void optimize_ast(::pltxt2htm::Ast& ast_init) noexcept {
 entry:
     auto&& ast = *(call_stack.top()->ast);
     auto&& current_iter = call_stack.top()->iter;
-    for (; current_iter != ast.end(); ++current_iter) {
+    while (current_iter != ast.end()) {
         auto&& node = *current_iter;
 
         switch (node->node_type()) {
@@ -142,7 +142,8 @@ entry:
         case ::pltxt2htm::NodeType::greater_than:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::tab: {
-            break;
+            ++current_iter;
+            continue;
         }
         case ::pltxt2htm::NodeType::text: {
             auto text = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
@@ -187,6 +188,7 @@ entry:
                 // Optimization: If the color is the same as the parent node, then ignore the nested tag.
                 node = static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::Text>(::std::move(color->get_subast())));
+                ++current_iter;
                 continue;
             }
         }
@@ -223,6 +225,7 @@ entry:
             } else {
                 node = static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::Text>(::std::move(experiment->get_subast())));
+                ++current_iter;
                 continue;
             }
         }
@@ -261,6 +264,7 @@ entry:
             } else {
                 node = static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::Text>(::std::move(discussion->get_subast())));
+                ++current_iter;
                 continue;
             }
         }
@@ -295,6 +299,7 @@ entry:
             } else {
                 node = static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::Text>(::std::move(user->get_subast())));
+                ++current_iter;
                 continue;
             }
         }
@@ -328,6 +333,7 @@ entry:
             } else {
                 node = static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::Text>(::std::move(size->get_subast())));
+                ++current_iter;
                 continue;
             }
         }
@@ -353,6 +359,7 @@ entry:
             } else {
                 node = static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::Text>(::std::move(b->get_subast())));
+                ++current_iter;
                 continue;
             }
         }
@@ -366,7 +373,8 @@ entry:
         case ::pltxt2htm::NodeType::line_break:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_br: {
-            break;
+            ++current_iter;
+            continue;
         }
         case ::pltxt2htm::NodeType::html_h1:
             [[fallthrough]];
@@ -439,6 +447,7 @@ entry:
             } else {
                 node = static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::Text>(::std::move(del->get_subast())));
+                ++current_iter;
                 continue;
             }
         }
@@ -463,6 +472,7 @@ entry:
             } else {
                 node = static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::Text>(::std::move(em->get_subast())));
+                ++current_iter;
                 continue;
             }
             goto entry;
@@ -470,12 +480,14 @@ entry:
         case ::pltxt2htm::NodeType::md_hr:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_hr: {
-            break;
+            ++current_iter;
+            continue;
         }
         case ::pltxt2htm::NodeType::html_note: {
             // TODO should I remove note node?
             // which costs a lot and really dangerous
-            break;
+            ++current_iter;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_ul:
             [[fallthrough]];
@@ -538,7 +550,8 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::md_link: {
-            break;
+            ++current_iter;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_block_quotes:
             [[fallthrough]];
@@ -603,7 +616,8 @@ entry:
         case ::pltxt2htm::NodeType::md_code_fence_backtick:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_code_fence_tilde: {
-            break;
+            ++current_iter;
+            continue;
         }
         case ::pltxt2htm::NodeType::base:
 #if 0
