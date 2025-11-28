@@ -1,3 +1,12 @@
+/**
+ * @file optimizer.hh
+ * @brief AST optimizer for pltxt2htm
+ * @details Provides AST optimization functionality to simplify and optimize
+ *          the Abstract Syntax Tree before HTML generation. This includes
+ *          removing redundant tags, merging adjacent text nodes, and other
+ *          optimizations to produce cleaner HTML output.
+ */
+
 #pragma once
 
 #include <cstddef>
@@ -15,17 +24,24 @@ namespace pltxt2htm {
 
 namespace details {
 
+/**
+ * @brief Base context for AST optimization operations
+ * @tparam Iter Iterator type for traversing the AST
+ * @details This context maintains the state during AST optimization,
+ *          tracking the current AST being processed, the type of nested tag,
+ *          and the current iterator position
+ */
 template<::std::forward_iterator Iter>
 class OptimizerContext {
 public:
-    ::pltxt2htm::Ast* ast;
-    ::pltxt2htm::NodeType const nested_tag_type;
+    ::pltxt2htm::Ast* ast; ///< Pointer to the AST being optimized
+    ::pltxt2htm::NodeType const nested_tag_type; ///< Type of the current nested tag context
 #if __has_cpp_attribute(no_unique_address)
     [[no_unique_address]]
 #elif __has_cpp_attribute(msvc::no_unique_address)
     [[msvc::no_unique_address]]
 #endif
-    Iter iter;
+    Iter iter; ///< Iterator pointing to the current position in the AST
 
     OptimizerContext(::pltxt2htm::Ast* ast_, ::pltxt2htm::NodeType const nested_tag_type_, Iter&& iter_) noexcept
         : ast(ast_),
@@ -46,10 +62,16 @@ public:
         ::pltxt2htm::details::OptimizerContext<Iter>&&) noexcept = default;
 };
 
+/**
+ * @brief Optimization context for tags with equal-sign attributes
+ * @tparam Iter Iterator type for traversing the AST
+ * @details Specialized context for optimizing tags that have attributes
+ *          in the format key=value, such as <color=red> or <experiment=123>
+ */
 template<::std::forward_iterator Iter>
 class OptimizerEqualSignTagContext : public ::pltxt2htm::details::OptimizerContext<Iter> {
 public:
-    ::fast_io::u8string_view id_;
+    ::fast_io::u8string_view id_; ///< The value part of the attribute (e.g., "red" in color=red)
 
     OptimizerEqualSignTagContext(::pltxt2htm::Ast* ast, ::pltxt2htm::NodeType const nested_tag_type, Iter&& iter,
                                  ::fast_io::u8string_view id) noexcept
@@ -71,10 +93,16 @@ public:
         ::pltxt2htm::details::OptimizerEqualSignTagContext<Iter>&&) noexcept = delete;
 };
 
+/**
+ * @brief Optimization context for size tags with numeric values
+ * @tparam Iter Iterator type for traversing the AST
+ * @details Specialized context for optimizing size tags that have
+ *          numeric values like <size=12> where the value is a std::size_t
+ */
 template<::std::forward_iterator Iter>
 class OptimizerPlSizeTagContext : public ::pltxt2htm::details::OptimizerContext<Iter> {
 public:
-    ::std::size_t id_;
+    ::std::size_t id_; ///< Numeric size value (e.g., 12 in size=12)
 
     OptimizerPlSizeTagContext(::pltxt2htm::Ast* ast, ::pltxt2htm::NodeType const nested_tag_type, Iter&& iter,
                               ::std::size_t id) noexcept
@@ -99,6 +127,20 @@ public:
 
 } // namespace details
 
+/**
+ * @brief Optimize an Abstract Syntax Tree (AST)
+ * @details This function performs various optimizations on the AST to produce
+ *          cleaner and more efficient HTML output. Optimizations include:
+ *          - Removing redundant nested tags of the same type
+ *          - Merging adjacent text nodes when possible
+ *          - Eliminating empty formatting tags
+ *          - Simplifying nested color/size tags with identical values
+ * @tparam ndebug Debug mode flag - controls assertion behavior
+ * @param ast_init The AST to optimize (modified in-place)
+ * @note This function modifies the input AST directly
+ * @warning The optimization process is recursive and uses manual stack management
+ *          to avoid stack overflow with deeply nested structures
+ */
 template<bool ndebug>
 constexpr void optimize_ast(::pltxt2htm::Ast& ast_init) noexcept {
     ::fast_io::stack<

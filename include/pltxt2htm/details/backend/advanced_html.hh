@@ -1,3 +1,10 @@
+/**
+ * @file advanced_html.hh
+ * @brief Advanced HTML backend for pltxt2htm
+ * @details Generates full-featured HTML output with comprehensive support for
+ *          Physics-Lab tags, Markdown syntax, and HTML elements.
+ */
+
 #pragma once
 
 #include <fast_io/fast_io_dsal/list.h>
@@ -16,12 +23,19 @@
 namespace pltxt2htm::details {
 
 /**
- * @brief Integrate ast nodes to HTML.
- * @tparam ndebug: true  -> release mode, disables most of the checks which is unsafe but fast
- *                 false -> debug mode, enable all checks
- * @tparam escape_less_than: Whether escaping `<` to `&lt;`
- * @param [in] ast_init: Ast of Quantum-Physics's text
- * @note To avoid stack overflow, this function manage `call_stack` by hand.
+ * @brief Convert AST nodes to advanced HTML with full feature support
+ * @details This backend generates comprehensive HTML output supporting:
+ *          - Physics-Lab specific tags (color, experiment, discussion, user, size)
+ *          - Markdown syntax (headers, lists, emphasis, links, etc.)
+ *          - HTML elements (paragraphs, line breaks, etc.)
+ *          - Proper HTML escaping and encoding
+ * @tparam ndebug Debug mode flag - true for release mode (faster, fewer checks),
+ *                false for debug mode (slower, more safety checks)
+ * @tparam escape_less_than Whether to escape `<` characters to `&lt;` in output
+ * @param ast_init The AST to convert to HTML
+ * @param host Host URL for generating internal links (used for experiment/discussion links)
+ * @return A string containing the generated HTML
+ * @note To avoid stack overflow, this function manages call_stack manually using goto-based state machine
  */
 template<bool ndebug, bool escape_less_than = true>
 [[nodiscard]]

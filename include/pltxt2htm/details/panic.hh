@@ -1,6 +1,12 @@
+/**
+ * @file panic.hh
+ * @brief Panic and error handling utilities for pltxt2htm
+ * @details Provides panic functionality for assertion failures and critical errors
+ */
+
 #pragma once
 
-// // libc++ do not support <stacktrace>
+// Stack trace support is currently disabled as libc++ doesn't support <stacktrace>
 // #if __has_include(<stacktrace>)
 //     #include <stacktrace>
 // #endif
@@ -11,15 +17,29 @@
 namespace pltxt2htm::details {
 
 #if defined(__clang__) && (defined(__linux__) || defined(_WIN32))
-// To minimize clang generate __clang_call_terminate, only for optimization
+/**
+ * @brief Direct C function bindings to minimize clang's __clang_call_terminate generation
+ * @details These direct bindings to C library functions help optimize error reporting
+ *          by avoiding C++ wrapper overhead during panic situations
+ */
 int c_fputs(char const* __restrict _Str, FILE* __restrict) noexcept __asm__("fputs");
 int c_fflush(FILE* __restrict) noexcept __asm__("fflush");
 #endif
 
+/**
+ * @brief Panic function that reports assertion failures and terminates the program
+ * @tparam expression The assertion expression that failed
+ * @tparam file_name The source file where the assertion failed
+ * @tparam line The line number where the assertion failed
+ * @tparam column The column number where the assertion failed
+ * @tparam msg The error message to display
+ * @note This function is marked as [[noreturn]] - it never returns and always terminates the program
+ * @warning This function should only be called when a critical assertion failure occurs
+ */
 template<::pltxt2htm::details::LiteralString expression, ::pltxt2htm::details::LiteralString file_name,
          ::std::uint_least32_t line, ::std::uint_least32_t column, ::pltxt2htm::details::LiteralString msg>
 #if __has_cpp_attribute(__gnu__::__cold__)
-[[__gnu__::__cold__]]
+[[__gnu__::__cold__]] // Mark as cold path for compiler optimization
 #endif
 [[noreturn]]
 inline void panic() noexcept {

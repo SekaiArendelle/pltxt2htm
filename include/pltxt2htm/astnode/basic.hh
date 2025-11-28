@@ -1,3 +1,9 @@
+/**
+ * @file basic.hh
+ * @brief Basic AST node definitions for pltxt2htm
+ * @brief Contains the fundamental node types that form the Abstract Syntax Tree
+ */
+
 #pragma once
 
 #include <utility>
@@ -7,12 +13,17 @@
 
 /**
  * @note Quantum-Physics's tag do not case upper / lower
+ *       This means that tags like <color>, <Color>, and <COLOR> are treated the same
  */
 
 namespace pltxt2htm {
 
 /**
- * @brief Base node of other nodes
+ * @brief Base node class for all AST nodes
+ * @details This is the fundamental base class for all nodes in the Abstract Syntax Tree.
+ *          Every AST node inherits from this class and has a NodeType that identifies
+ *          what kind of node it is.
+ * @note The copy constructor is deleted to prevent accidental copying which could be expensive
  */
 class PlTxtNode {
 protected:
@@ -40,7 +51,9 @@ public:
 using Ast = ::fast_io::vector<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>;
 
 /**
- * @brief UTF-8 char/string node
+ * @brief UTF-8 character node
+ * @details Represents a single UTF-8 character in the AST
+ * @note This is a leaf node that contains actual text content
  */
 class U8Char : public ::pltxt2htm::PlTxtNode {
     char8_t data_;
@@ -78,6 +91,12 @@ public:
 
 namespace details {
 
+/**
+ * @brief Base class for paired HTML-like tags
+ * @details This class serves as a base for nodes that have opening and closing tags
+ *          and contain sub-content (sub-AST). Examples include <color>, <b>, <i>, etc.
+ * @note The copy constructor and assignment operator are deleted to prevent expensive copies
+ */
 class PairedTagBase : public ::pltxt2htm::PlTxtNode {
 protected:
     ::pltxt2htm::Ast subast_;
@@ -85,6 +104,11 @@ protected:
 public:
     constexpr PairedTagBase() noexcept = delete;
 
+    /**
+     * @brief Construct a paired tag with specified node type and sub-AST
+     * @param node_type The type of this node (from NodeType enum)
+     * @param subast The sub-AST that represents the content inside this tag
+     */
     constexpr PairedTagBase(::pltxt2htm::NodeType node_type, ::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::PlTxtNode{node_type},
           subast_(::std::move(subast)) {
@@ -113,10 +137,21 @@ public:
 
 } // namespace details
 
+/**
+ * @brief Text node - container for text content
+ * @details This node represents a text container that can hold various sub-nodes
+ *          including characters, formatting tags, and other inline elements
+ * @note Text nodes are fundamental building blocks that group together
+ *       characters and inline formatting
+ */
 class Text : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr Text() noexcept = delete;
 
+    /**
+     * @brief Construct a text node with sub-AST content
+     * @param subast The sub-AST representing the text content and inline formatting
+     */
     constexpr Text(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase(::pltxt2htm::NodeType::text, ::std::move(subast)) {
     }

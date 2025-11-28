@@ -1,3 +1,10 @@
+/**
+ * @file parser.hh
+ * @brief Main parser interface for pltxt2htm
+ * @details Provides the main parsing functionality to convert pl-text
+ *          (Physics-Lab text) into an Abstract Syntax Tree (AST)
+ */
+
 #pragma once
 
 #include <cstddef>
@@ -14,9 +21,15 @@
 namespace pltxt2htm {
 
 /**
- * @brief Impl of parse pl-text to nodes.
- * @tparam ndebug: Whether or not to disable debugging checks (like NDEBUG macro).
- * @param pltext: The text readed from Quantum-Physics.
+ * @brief Parse pl-text into an Abstract Syntax Tree (AST)
+ * @details This is the main parsing function that converts Physics-Lab text
+ *          format into a structured AST that can be processed by other components.
+ *          It handles nested structures, various tag types, and Markdown syntax.
+ * @tparam ndebug Debug mode flag - false enables debug checks, true for release mode
+ * @param pltext The Physics-Lab text content to parse
+ * @return An AST representing the parsed structure of the input text
+ * @note This function uses a stack-based approach to handle nested tag structures
+ * @warning The parsing process is recursive and handles complex nested structures
  */
 template<bool ndebug>
 [[nodiscard]]

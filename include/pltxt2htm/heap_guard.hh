@@ -1,3 +1,11 @@
+/**
+ * @file heap_guard.hh
+ * @brief RAII smart pointer for heap-allocated objects
+ * @details Provides a unique_ptr-like smart pointer that manages heap-allocated
+ *          objects with automatic cleanup. Unlike std::unique_ptr, this uses
+ *          custom deleters and is optimized for the pltxt2htm use case.
+ */
+
 #pragma once
 
 #include <cstdlib>
@@ -9,6 +17,10 @@
 
 namespace pltxt2htm {
 
+/**
+ * @brief Forward declaration of HeapGuard template
+ * @tparam T The type of object being managed
+ */
 template<typename T>
 class HeapGuard;
 
@@ -29,14 +41,20 @@ constexpr bool is_heap_guard_<HeapGuard<T>> = true;
 } // namespace details
 
 /**
- * @brief Whether the type is a heap guard
- * @tparam type to check
+ * @brief Concept to check if a type is a HeapGuard
+ * @tparam T The type to check
+ * @note This concept is used for template specialization and type checking
  */
 template<typename T>
 concept is_heap_guard = ::pltxt2htm::details::is_heap_guard_<::std::remove_cvref_t<T>>;
 
 /**
- * @brief RAII a heap allocated pointer, similar to std::unique_ptr
+ * @brief RAII smart pointer for heap-allocated objects
+ * @details This class provides unique ownership of heap-allocated objects with
+ *          automatic cleanup. It is similar to std::unique_ptr but optimized
+ *          for the pltxt2htm library's specific needs.
+ * @tparam T The type of object being managed
+ * @note The class is marked with [[clang::trivial_abi]] when available for better performance
  */
 template<typename T>
 class
@@ -50,6 +68,13 @@ public:
     void (*deleter_)(void*) noexcept;
     using value_type = T;
 
+    /**
+     * @brief Construct a HeapGuard by constructing the managed object in-place
+     * @tparam Args Types of arguments to forward to the constructor
+     * @param args Arguments to forward to the constructor of T
+     * @note This function allocates memory on the heap and constructs the object in-place
+     * @warning If allocation fails, the program terminates via exception::terminate()
+     */
     template<typename... Args>
         requires (((!::pltxt2htm::is_heap_guard<Args>) && ...) && ::std::constructible_from<T, Args...>)
     constexpr HeapGuard(Args&&... args) noexcept {
@@ -127,13 +152,28 @@ public:
     }
 
     /**
-     * @note The result is a borrowed reference.
+     * @brief Get a raw pointer to the managed object (unsafe)
+     * @tparam Self The type of this object (deduced)
+     * @param self This object
+     * @return Raw pointer to the managed object
+     * @note This is unsafe because it doesn't transfer ownership.
+     *       The caller must ensure the HeapGuard outlives the pointer usage.
+     * @warning Do not delete this pointer manually!
      */
     [[nodiscard]]
     constexpr T* get_unsafe(this auto&& self) noexcept {
         return self.ptr_;
     }
 
+    /**
+     * @brief Release ownership of the managed object
+     * @tparam Self The type of this object (deduced)
+     * @param self This object
+     * @return Raw pointer to the managed object, ownership is transferred to caller
+     * @note After calling this, the HeapGuard no longer manages the object.
+     *       The caller is responsible for properly destroying and freeing the object.
+     * @warning The returned pointer must be properly deleted using the original deleter
+     */
     [[nodiscard]]
     constexpr T* release(this auto&& self) noexcept {
         T* ptr = self.ptr_;

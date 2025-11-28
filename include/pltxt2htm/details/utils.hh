@@ -1,3 +1,10 @@
+/**
+ * @file utils.hh
+ * @brief Utility functions and helpers for pltxt2htm
+ * @details Provides various utility functions for string manipulation,
+ *          type conversions, and parsing operations
+ */
+
 #pragma once
 
 #include <cstddef>
@@ -14,7 +21,12 @@
 namespace pltxt2htm::details {
 
 /**
- * @return index of ::fast_io::u8string_view
+ * @brief Get character at specific index from u8string_view with bounds checking
+ * @tparam ndebug Debug mode flag - controls assertion behavior
+ * @param pltext The string view to index into
+ * @param i The index to access
+ * @return The character at the specified index
+ * @note This function performs bounds checking in debug mode for safety
  */
 template<bool ndebug>
 [[nodiscard]]
@@ -26,7 +38,13 @@ constexpr auto u8string_view_index(::fast_io::u8string_view pltext, ::std::size_
 }
 
 /**
- * @brief Get the slice of u8string_view
+ * @brief Get a substring view from u8string_view
+ * @tparam ndebug Debug mode flag - controls bounds checking
+ * @param pltext The original string view
+ * @param i Starting index of the substring
+ * @param count Number of characters in the substring (npos for remainder)
+ * @return A new string view representing the substring
+ * @note In debug mode, performs bounds checking; in release mode, uses unchecked access
  */
 template<bool ndebug>
 [[nodiscard]]
@@ -89,12 +107,14 @@ consteval char8_t pack_indexing_char8_t() noexcept {
 }
 
 /**
- * @brief Check whether the string is a prefix (without distinguishing
- *        between uppercase and lowercase) of the pl-text.
- *        This is a magic funciton that will generate if-expression in compile time.
- * @tparam prefix_str: The prefix string.
- * @param str: The string to be checked.
- * @return Whether the string is a prefix of the pl-text.
+ * @brief Check if a string is a case-insensitive prefix match
+ * @details This function performs compile-time prefix matching that is case-insensitive.
+ *          It generates efficient if-expressions at compile time for optimal runtime performance.
+ * @tparam prefix_str The prefix to match (must be lowercase compile-time string)
+ * @param str The string to check against
+ * @return true if str starts with prefix_str (case-insensitive), false otherwise
+ * @note prefix_str must contain only lowercase characters due to compile-time constraints
+ * @warning This is a compile-time function that generates optimized matching code
  */
 template<bool ndebug, char8_t... prefix_str>
     requires ((prefix_str < 'A' || prefix_str > 'Z') && ...)
@@ -144,7 +164,12 @@ constexpr bool is_prefix_match(::fast_io::u8string_view str) noexcept {
 }
 
 /**
- * @brief Convert a ::std::size_t to a string.
+ * @brief Convert a std::size_t to a UTF-8 string
+ * @param num The number to convert
+ * @return A UTF-8 string representation of the number
+ * @note This function handles the special case of 0 and builds the string
+ *       by extracting digits from least significant to most significant,
+ *       then reversing the result
  */
 [[nodiscard]]
 constexpr ::fast_io::u8string size_t2str(::std::size_t num) noexcept {
@@ -166,7 +191,11 @@ constexpr ::fast_io::u8string size_t2str(::std::size_t num) noexcept {
 }
 
 /**
- * @brief Convert a string to a ::std::size_t.
+ * @brief Convert a UTF-8 string to std::size_t
+ * @param str The string to convert (must contain only digits)
+ * @return Optional containing the converted number, or nullopt if conversion fails
+ * @note This function only accepts strings containing ASCII digits (0-9).
+ *       Empty strings or strings with non-digit characters return nullopt
  */
 [[nodiscard]]
 constexpr ::exception::optional<std::size_t> u8str2size_t(::fast_io::u8string_view str) noexcept {

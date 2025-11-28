@@ -1,3 +1,11 @@
+/**
+ * @file common_html.hh
+ * @brief Common HTML backend for pltxt2htm
+ * @details Generates basic HTML output with minimal formatting support.
+ *          Only supports color, bold (b), and italic (i) tags.
+ *          Typically used for rendering headers and simple text.
+ */
+
 #pragma once
 
 #include <fast_io/fast_io_dsal/list.h>
@@ -17,8 +25,14 @@
 namespace pltxt2htm::details {
 
 /**
- * @brief Translate pl-text's ast to common html(only enable color, b and i tag).
- *        usually be used to render header
+ * @brief Translate pl-text's AST to common HTML (only supports color, b and i tags)
+ * @details This backend generates simplified HTML output suitable for basic formatting.
+ *          It only processes color tags, bold tags, and italic tags, ignoring
+ *          more complex formatting like Markdown syntax or advanced HTML elements.
+ *          This is typically used for rendering headers or simple text content.
+ * @tparam ndebug Debug mode flag - controls assertion behavior
+ * @param ast_init The AST to convert to HTML
+ * @return A string containing the generated HTML
  */
 template<bool ndebug>
 constexpr auto ast2common_html(::pltxt2htm::Ast const& ast_init) noexcept -> ::fast_io::u8string {

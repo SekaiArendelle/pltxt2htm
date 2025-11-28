@@ -1,7 +1,11 @@
 /**
- * @brief Macro defined by pltxt2htm
+ * @file push_macro.hh
+ * @brief Macro definitions for pltxt2htm assertions and debugging
+ * @details This header defines assertion macros and debugging utilities.
+ *          It should be paired with pop_macro.hh to properly manage macro scope.
  * @note This header may be included multiple times with pop_macro.hh,
- *       therefore, do not `#pragma once`
+ *       therefore, do not use `#pragma once`
+ * @warning Always include pop_macro.hh after this file to restore previous macro state
  */
 
 #include <source_location>
