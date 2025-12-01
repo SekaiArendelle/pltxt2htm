@@ -497,7 +497,7 @@ jobs:
       - name: Upload binary
         uses: softprops/action-gh-release@v2
         with:
-          files: cmd/x86_64-linux-musl-pltxt2htm-cmd-${{ matrix.build-mode }}.tar.xz
+          files: x86_64-linux-musl-pltxt2htm-cmd-${{ matrix.build-mode }}.tar.xz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -526,7 +526,7 @@ jobs:
       - name: Upload binary
         uses: softprops/action-gh-release@v2
         with:
-          files: cmd/aarch64-linux-musl-pltxt2htm-cmd-${{ matrix.build-mode }}.tar.xz
+          files: aarch64-linux-musl-pltxt2htm-cmd-${{ matrix.build-mode }}.tar.xz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -555,6 +555,6 @@ jobs:
       - name: Upload binary
         uses: softprops/action-gh-release@v2
         with:
-          files: cmd/loongarch64-linux-musl-pltxt2htm-cmd-${{ matrix.build-mode }}.tar.xz
+          files: loongarch64-linux-musl-pltxt2htm-cmd-${{ matrix.build-mode }}.tar.xz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
