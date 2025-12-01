@@ -103,7 +103,7 @@ jobs:
 
       - name: Run all tests
         run: |
-          docker run -it --name x86_64-linux-gnu-test-asan x86_64-linux-gnu-test-asan
+          docker run --name x86_64-linux-gnu-test-asan x86_64-linux-gnu-test-asan
 
   x86_64-windows-msvc-cmd:
     strategy:
