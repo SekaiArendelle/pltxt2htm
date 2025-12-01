@@ -346,6 +346,28 @@ jobs:
           docker run -d --name x86_64-linux-musl-pltxt2htm-cmd-${{ matrix.build-mode }} x86_64-linux-musl-pltxt2htm-cmd-${{ matrix.build-mode }}
           docker cp x86_64-linux-musl-pltxt2htm-cmd-${{ matrix.build-mode }}:/pltxt2htm/cmd/x86_64-linux-musl-pltxt2htm-cmd-${{ matrix.build-mode }}.tar.xz .
 
+  aarch64-linux-musl-cmd:
+    strategy:
+        fail-fast: false
+        matrix:
+          build-mode: [debug, release]
+
+    name: aarch64-linux-musl (cmd/, ${{ matrix.build-mode }} mode)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build docker image
+        run: |
+          docker build -f cmd/docker/aarch64-linux-musl/Dockerfile --build-arg mode=${{ matrix.build-mode }} -t aarch64-linux-musl-pltxt2htm-cmd-${{ matrix.build-mode }} .
+
+      - name: Copy binary
+        run: |
+          docker run -d --name aarch64-linux-musl-pltxt2htm-cmd-${{ matrix.build-mode }} aarch64-linux-musl-pltxt2htm-cmd-${{ matrix.build-mode }}
+          docker cp aarch64-linux-musl-pltxt2htm-cmd-${{ matrix.build-mode }}:/pltxt2htm/cmd/aarch64-linux-musl-pltxt2htm-cmd-${{ matrix.build-mode }}.tar.xz .
+
   loongarch64-linux-musl-cmd:
     strategy:
         fail-fast: false
