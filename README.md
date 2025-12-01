@@ -70,7 +70,7 @@ All distributions share the same version of `pltxt2htm::version`
 
 `pltxt2htm` only maintains the trunk, and the release versions are only snapshots.
 
-For linux users, please use `wine pltxt2htm.exe` or `wavm run pltxt2htm.wasm` or compile and install `pltxt2htm` (and I will never provide binaries for linux since there are tons of linux triplets caused by arch and libc)
+For linux users, the `$ARCH-linux-musl-pltxt2htm-cmd-{debug|release}` distribution have static-linked musl-libc. you can also use `wine pltxt2htm.exe`, `wavm run pltxt2htm.wasm` or compile and install `pltxt2htm`.
 
 ## others
 
