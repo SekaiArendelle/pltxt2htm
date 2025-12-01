@@ -99,15 +99,11 @@ jobs:
 
       - name: Build docker image
         run: |
-          docker build --build-arg _MINIMAL_IMAGE=y -t pltxt2htm .
+          docker build -f test/docker/x86_64-linux-gnu/Dockerfile -t x86_64-linux-gnu-test-asan .
 
-      - name: Create docker container
+      - name: Run all tests
         run: |
-          docker run -d --name pltxt2htm-dev pltxt2htm
-
-      - name: Enter container
-        run: |
-          docker exec pltxt2htm-dev python3 test/run_all_tests.py --compiler=gcc --enable-asan
+          docker run --name x86_64-linux-gnu-test-asan x86_64-linux-gnu-test-asan
 
   x86_64-windows-msvc-cmd:
     strategy:
