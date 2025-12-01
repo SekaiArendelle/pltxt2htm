@@ -330,7 +330,7 @@ jobs:
         matrix:
           build-mode: [debug, release]
 
-    name: x86_64-linux-musl (cmd/, ${{ build-mode }} mode)
+    name: x86_64-linux-musl (cmd/, ${{ matrix.build-mode }} mode)
     runs-on: ubuntu-latest
 
     steps:
@@ -339,9 +339,9 @@ jobs:
 
       - name: Build docker image
         run: |
-          docker build -f cmd/docker/x86_64-linux-musl/Dockerfile --build-arg mode=${{ build-mode }} -t x86_64-linux-musl-pltxt2htm-cmd-${{ build-mode }} .
+          docker build -f cmd/docker/x86_64-linux-musl/Dockerfile --build-arg mode=${{ matrix.build-mode }} -t x86_64-linux-musl-pltxt2htm-cmd-${{ matrix.build-mode }} .
 
       - name: Copy binary
         run: |
-          docker run -d --name x86_64-linux-musl-pltxt2htm-cmd-${{ build-mode }} x86_64-linux-musl-pltxt2htm-cmd-${{ build-mode }}
-          docker cp x86_64-linux-musl-pltxt2htm-cmd-${{ build-mode }}:/pltxt2htm/cmd/x86_64-linux-musl-pltxt2htm-cmd-${{ build-mode }}.tar.xz .
+          docker run -d --name x86_64-linux-musl-pltxt2htm-cmd-${{ matrix.build-mode }} x86_64-linux-musl-pltxt2htm-cmd-${{ matrix.build-mode }}
+          docker cp x86_64-linux-musl-pltxt2htm-cmd-${{ matrix.build-mode }}:/pltxt2htm/cmd/x86_64-linux-musl-pltxt2htm-cmd-${{ matrix.build-mode }}.tar.xz .
