@@ -32,7 +32,7 @@ ENV XMAKE_ROOT=y
 
 WORKDIR /pltxt2htm/cmd
 ARG mode=debug
-RUN xmake config --toolchain=clang --arch=loong64 --plat=linux -m ${mode} --cxxflags='--sysroot=/sysroots/loongarch64-linux-musl -stdlib=libc++ -rtlib=compiler-rt -unwindlib=libunwind' --ldflags='-static --sysroot=/sysroots/loongarch64-linux-musl/ -stdlib=libc++ -rtlib=compiler-rt -unwindlib=libunwind -lunwind -lc++abi'
+RUN xmake config --toolchain=clang --arch=loong64 --plat=linux -m ${mode} --cxxflags='--target=loongarch64-linux-musl --sysroot=/sysroots/loongarch64-linux-musl -stdlib=libc++ -rtlib=compiler-rt -unwindlib=libunwind' --ldflags='-static --target=loongarch64-linux-musl --sysroot=/sysroots/loongarch64-linux-musl/ -stdlib=libc++ -rtlib=compiler-rt -unwindlib=libunwind -lunwind -lc++abi'
 RUN xmake build -v
 RUN xmake install -o loongarch64-linux-musl-pltxt2htm-cmd-${mode}
 RUN tar cJf loongarch64-linux-musl-pltxt2htm-cmd-${mode}.tar.xz loongarch64-linux-musl-pltxt2htm-cmd-${mode}/
