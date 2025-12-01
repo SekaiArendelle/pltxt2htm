@@ -346,7 +346,7 @@ jobs:
           docker run -d --name x86_64-linux-musl-pltxt2htm-cmd-${{ matrix.build-mode }} x86_64-linux-musl-pltxt2htm-cmd-${{ matrix.build-mode }}
           docker cp x86_64-linux-musl-pltxt2htm-cmd-${{ matrix.build-mode }}:/pltxt2htm/cmd/x86_64-linux-musl-pltxt2htm-cmd-${{ matrix.build-mode }}.tar.xz .
 
-    loongarch64-linux-musl-cmd:
+  loongarch64-linux-musl-cmd:
     strategy:
         fail-fast: false
         matrix:
