@@ -74,6 +74,12 @@ public:
     constexpr auto operator=(U8Char const& other) noexcept -> U8Char& = default;
     constexpr auto operator=(U8Char&& other) noexcept -> U8Char& = default;
 
+    /**
+     * @brief Get the UTF-8 character stored in this node
+     * @param[in] self This U8Char instance
+     * @return The UTF-8 character stored in this node
+     * @retval char8_t The UTF-8 character data
+     */
     [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
     [[__gnu__::__pure__]]
@@ -112,8 +118,10 @@ public:
 
     /**
      * @brief Construct a paired tag with specified node type and sub-AST
-     * @param node_type The type of this node (from NodeType enum)
-     * @param subast The sub-AST that represents the content inside this tag
+     * @param[in] node_type The type of this node (from NodeType enum)
+     * @param[in] subast The sub-AST that represents the content inside this tag
+     * @return New PairedTagBase instance
+     * @retval PairedTagBase New paired tag base instance with specified properties
      */
     constexpr PairedTagBase(::pltxt2htm::NodeType node_type, ::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::PlTxtNode{node_type},
@@ -125,6 +133,12 @@ public:
     constexpr PairedTagBase& operator=(PairedTagBase const&) noexcept = delete;
     constexpr PairedTagBase& operator=(PairedTagBase&&) noexcept = default;
 
+    /**
+     * @brief Get the sub-AST contained in this paired tag
+     * @param[in] self This PairedTagBase instance (non-const version)
+     * @return Reference to the sub-AST
+     * @retval pltxt2htm::Ast& Reference to the sub-AST (modifiable)
+     */
     [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
     [[__gnu__::__pure__]]
@@ -133,6 +147,12 @@ public:
         return self.subast_;
     }
 
+    /**
+     * @brief Get the sub-AST contained in this paired tag
+     * @param[in] self This PairedTagBase instance (const version)
+     * @return Const reference to the sub-AST
+     * @retval const pltxt2htm::Ast& Const reference to the sub-AST (non-modifiable)
+     */
     [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
     [[__gnu__::__pure__]]
@@ -141,6 +161,12 @@ public:
         return ::std::as_const(self.subast_);
     }
 
+    /**
+     * @brief Get the sub-AST contained in this paired tag (move semantics)
+     * @param[in,out] self This PairedTagBase instance (moved from)
+     * @return Rvalue reference to the sub-AST
+     * @retval pltxt2htm::Ast&& Rvalue reference to the sub-AST (for move construction)
+     */
     [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
     [[__gnu__::__pure__]]
@@ -165,7 +191,9 @@ public:
 
     /**
      * @brief Construct a text node with sub-AST content
-     * @param subast The sub-AST representing the text content and inline formatting
+     * @param[in] subast The sub-AST representing the text content and inline formatting
+     * @return New Text instance
+     * @retval Text New text node instance with specified sub-AST content
      */
     constexpr Text(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase(::pltxt2htm::NodeType::text, ::std::move(subast)) {

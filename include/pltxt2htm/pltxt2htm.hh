@@ -36,9 +36,10 @@ namespace pltxt2htm {
  *          - Internal linking to experiments and discussions
  * @tparam ndebug Debug mode flag - false enables debug checks, true for release mode
  * @tparam optimize Whether to optimize the AST before HTML generation
- * @param pltext The Physics-Lab text content to convert
- * @param host Host URL for generating internal links (used for experiment/discussion links)
+ * @param[in] pltext The Physics-Lab text content to convert
+ * @param[in] host Host URL for generating internal links (used for experiment/discussion links)
  * @return Generated HTML string with full formatting support
+ * @retval fast_io::u8string UTF-8 string containing the generated HTML
  * @note This is the recommended function for most use cases requiring full feature support
  */
 template<bool ndebug = false, bool optimize = true>
@@ -65,9 +66,10 @@ constexpr auto pltxt2advanced_html(::fast_io::u8string_view pltext, ::fast_io::u
  *          - Create templates with placeholder HTML
  * @tparam ndebug Debug mode flag - false enables debug checks, true for release mode
  * @tparam optimize Whether to optimize the AST before HTML generation
- * @param pltext The Physics-Lab text content to convert
- * @param host Host URL for generating internal links
+ * @param[in] pltext The Physics-Lab text content to convert
+ * @param[in] host Host URL for generating internal links
  * @return Generated HTML string with full formatting but unescaped < characters
+ * @retval fast_io::u8string UTF-8 string containing the generated HTML with unescaped <
  * @warning Only use this function if you understand the security implications
  *          of unescaped HTML output. Unescaped < can lead to XSS vulnerabilities.
  */
@@ -97,8 +99,9 @@ constexpr auto pltxt2fixedadv_html(::fast_io::u8string_view pltext, ::fast_io::u
  *          - Performance-critical applications that don't need full features
  * @tparam ndebug Debug mode flag - false enables debug checks, true for release mode
  * @tparam optimize Whether to optimize the AST before HTML generation (default: false)
- * @param pltext The Physics-Lab text content to convert
+ * @param[in] pltext The Physics-Lab text content to convert
  * @return Generated HTML string with basic formatting support
+ * @retval fast_io::u8string UTF-8 string containing the generated basic HTML
  * @note This function is faster than the advanced versions but supports fewer features
  * @warning Markdown syntax and advanced HTML features are not supported in this mode
  */

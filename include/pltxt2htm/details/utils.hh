@@ -23,9 +23,10 @@ namespace pltxt2htm::details {
 /**
  * @brief Get character at specific index from u8string_view with bounds checking
  * @tparam ndebug Debug mode flag - controls assertion behavior
- * @param pltext The string view to index into
- * @param i The index to access
+ * @param[in] pltext The string view to index into
+ * @param[in] i The index to access
  * @return The character at the specified index
+ * @retval char8_t The UTF-8 character at the specified index
  * @note This function performs bounds checking in debug mode for safety
  */
 template<bool ndebug>
@@ -43,10 +44,11 @@ constexpr auto u8string_view_index(::fast_io::u8string_view pltext, ::std::size_
 /**
  * @brief Get a substring view from u8string_view
  * @tparam ndebug Debug mode flag - controls bounds checking
- * @param pltext The original string view
- * @param i Starting index of the substring
- * @param count Number of characters in the substring (npos for remainder)
+ * @param[in] pltext The original string view
+ * @param[in] i Starting index of the substring
+ * @param[in] count Number of characters in the substring (npos for remainder)
  * @return A new string view representing the substring
+ * @retval fast_io::u8string_view New string view representing the substring
  * @note In debug mode, performs bounds checking; in release mode, uses unchecked access
  */
 template<bool ndebug>
@@ -93,7 +95,11 @@ constexpr auto vector_index(::fast_io::vector<T> const& vec, ::std::size_t i) no
 
 /**
  * @brief Get the index-th char8_t from the string.
+ * @tparam I Index to access
+ * @tparam first_char First character in the parameter pack
+ * @tparam str Remaining characters in the parameter pack
  * @return The char8_t at index I of str.
+ * @retval char8_t The UTF-8 character at the specified compile-time index
  */
 template<::std::size_t I, char8_t first_char, char8_t... str>
     requires (I <= sizeof...(str))
@@ -125,9 +131,11 @@ consteval char8_t pack_indexing_char8_t() noexcept {
  * @brief Check if a string is a case-insensitive prefix match
  * @details This function performs compile-time prefix matching that is case-insensitive.
  *          It generates efficient if-expressions at compile time for optimal runtime performance.
+ * @tparam ndebug Debug mode flag - controls bounds checking
  * @tparam prefix_str The prefix to match (must be lowercase compile-time string)
- * @param str The string to check against
+ * @param[in] str The string to check against
  * @return true if str starts with prefix_str (case-insensitive), false otherwise
+ * @retval bool Boolean indicating whether the prefix match succeeded
  * @note prefix_str must contain only lowercase characters due to compile-time constraints
  * @warning This is a compile-time function that generates optimized matching code
  */
@@ -183,8 +191,9 @@ constexpr bool is_prefix_match(::fast_io::u8string_view str) noexcept {
 
 /**
  * @brief Convert a std::size_t to a UTF-8 string
- * @param num The number to convert
+ * @param[in] num The number to convert
  * @return A UTF-8 string representation of the number
+ * @retval fast_io::u8string UTF-8 string containing the number representation
  * @note This function handles the special case of 0 and builds the string
  *       by extracting digits from least significant to most significant,
  *       then reversing the result
@@ -213,8 +222,9 @@ constexpr ::fast_io::u8string size_t2str(::std::size_t num) noexcept {
 
 /**
  * @brief Convert a UTF-8 string to std::size_t
- * @param str The string to convert (must contain only digits)
+ * @param[in] str The string to convert (must contain only digits)
  * @return Optional containing the converted number, or nullopt if conversion fails
+ * @retval exception::optional<std::size_t> Optional containing the converted number
  * @note This function only accepts strings containing ASCII digits (0-9).
  *       Empty strings or strings with non-digit characters return nullopt
  */

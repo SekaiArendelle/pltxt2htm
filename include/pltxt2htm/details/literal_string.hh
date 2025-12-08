@@ -20,7 +20,7 @@ class LiteralString;
 /**
  * @brief Deduction guide for char array literals
  * @tparam N The length of the string including null terminator
- * @param str The input string literal
+ * @param[in] str The input string literal
  */
 template<::std::size_t N>
 LiteralString(char const (&str)[N]) -> LiteralString<N - 1>;
@@ -79,7 +79,7 @@ public:
     /**
      * @brief Constructor from char array literal
      * @tparam M The size of the input array (including null terminator)
-     * @param str The input string literal
+     * @param[in] str The input string literal
      */
     template<::std::size_t M>
     constexpr LiteralString(char const (&str)[M]) noexcept {
@@ -108,8 +108,8 @@ public:
      * @brief Equality comparison with another LiteralString
      * @tparam Self The type of this object (deduced)
      * @tparam M The length of the other string
-     * @param self This object
-     * @param other The other LiteralString to compare with
+     * @param[in] self This object
+     * @param[in] other The other LiteralString to compare with
      * @return true if strings are equal, false otherwise
      */
     template<::pltxt2htm::details::is_leteral_string Self, ::std::size_t M>
@@ -128,8 +128,8 @@ public:
     /**
      * @brief Access character at specific index (non-const version)
      * @tparam Self The type of this object (deduced)
-     * @param self This object
-     * @param index The index of the character to access
+     * @param[in] self This object
+     * @param[in] index The index of the character to access
      * @return Reference to the character at the specified index
      */
     template<::pltxt2htm::details::is_leteral_string Self>
@@ -267,7 +267,7 @@ consteval auto shrink_string_literal_() noexcept {
 
 /**
  * @brief Convert an unsigned integer to a LiteralString
- * @param number The number to convert
+ * @param[in] number The number to convert
  * @return A LiteralString representing the number
  */
 consteval auto uint_to_literal_string_(::std::uint_least32_t number) noexcept {
@@ -295,7 +295,7 @@ consteval auto uint_to_literal_string() noexcept {
 /**
  * @brief Concatenate multiple LiteralStrings into one
  * @tparam Args Types of the input strings
- * @param args The strings to concatenate
+ * @param[in] args The strings to concatenate
  * @return A new LiteralString containing all input strings concatenated
  */
 template<::pltxt2htm::details::is_leteral_string... Args>

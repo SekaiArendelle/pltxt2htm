@@ -7,6 +7,7 @@ namespace pltxt2htm {
 
 /**
  * @brief Represents '\n'.
+ * @details This node represents a line break character in the AST
  */
 class LineBreak : public ::pltxt2htm::PlTxtNode {
 public:
@@ -23,6 +24,7 @@ public:
 
 /**
  * @brief Represents a <br> tag.
+ * @details This node represents an HTML line break element in the AST
  */
 class Br : public ::pltxt2htm::PlTxtNode {
 public:
@@ -39,6 +41,7 @@ public:
 
 /**
  * @brief Represents ` `.
+ * @details This node represents a space character in the AST
  */
 class Space : public ::pltxt2htm::PlTxtNode {
 public:
@@ -55,6 +58,7 @@ public:
 
 /**
  * @brief Represents `<`.
+ * @details This node represents a less-than character in the AST
  */
 class LessThan : public ::pltxt2htm::PlTxtNode {
 public:
@@ -71,6 +75,7 @@ public:
 
 /**
  * @brief Represents `>`.
+ * @details This node represents a greater-than character in the AST
  */
 class GreaterThan : public ::pltxt2htm::PlTxtNode {
 public:
@@ -87,6 +92,7 @@ public:
 
 /**
  * @brief Represents `\t`
+ * @details This node represents a tab character in the AST
  */
 class Tab : public ::pltxt2htm::PlTxtNode {
 public:
@@ -103,6 +109,7 @@ public:
 
 /**
  * @brief Represents `&`.
+ * @details This node represents an ampersand character in the AST
  */
 class Ampersand : public ::pltxt2htm::PlTxtNode {
 public:
@@ -135,6 +142,7 @@ public:
 
 /**
  * @brief Represents `"`.
+ * @details This node represents a double quotation mark character in the AST
  */
 class DoubleQuotationMark : public ::pltxt2htm::PlTxtNode {
 public:

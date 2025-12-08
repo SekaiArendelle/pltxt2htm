@@ -31,7 +31,7 @@ namespace pltxt2htm::details {
  *          more complex formatting like Markdown syntax or advanced HTML elements.
  *          This is typically used for rendering headers or simple text content.
  * @tparam ndebug Debug mode flag - controls assertion behavior
- * @param ast_init The AST to convert to HTML
+ * @param[in] ast_init The AST to convert to HTML
  * @return A string containing the generated HTML
  */
 template<bool ndebug>

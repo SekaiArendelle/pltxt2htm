@@ -32,8 +32,8 @@ namespace pltxt2htm::details {
  * @tparam ndebug Debug mode flag - true for release mode (faster, fewer checks),
  *                false for debug mode (slower, more safety checks)
  * @tparam escape_less_than Whether to escape `<` characters to `&lt;` in output
- * @param ast_init The AST to convert to HTML
- * @param host Host URL for generating internal links (used for experiment/discussion links)
+ * @param[in] ast_init The AST to convert to HTML
+ * @param[in] host Host URL for generating internal links (used for experiment/discussion links)
  * @return A string containing the generated HTML
  * @note To avoid stack overflow, this function manages call_stack manually using goto-based state machine
  */
