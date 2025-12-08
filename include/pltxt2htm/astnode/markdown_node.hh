@@ -10,6 +10,7 @@ namespace pltxt2htm {
 
 /**
  * @brief Represents markdown atx `#` header.
+ * @details This node represents a level 1 Markdown heading in the AST
  */
 class MdAtxH1 : public ::pltxt2htm::details::PairedTagBase {
 public:
@@ -32,6 +33,7 @@ public:
 
 /**
  * @brief Represents markdown atx `##` header.
+ * @details This node represents a level 2 Markdown heading in the AST
  */
 class MdAtxH2 : public ::pltxt2htm::details::PairedTagBase {
 public:
@@ -54,6 +56,7 @@ public:
 
 /**
  * @brief Represents markdown atx `###` header.
+ * @details This node represents a level 3 Markdown heading in the AST
  */
 class MdAtxH3 : public ::pltxt2htm::details::PairedTagBase {
 public:
@@ -76,6 +79,7 @@ public:
 
 /**
  * @brief Represents markdown atx `####` header.
+ * @details This node represents a level 4 Markdown heading in the AST
  */
 class MdAtxH4 : public ::pltxt2htm::details::PairedTagBase {
 public:
@@ -98,6 +102,7 @@ public:
 
 /**
  * @brief Represents markdown atx `#####` header.
+ * @details This node represents a level 5 Markdown heading in the AST
  */
 class MdAtxH5 : public ::pltxt2htm::details::PairedTagBase {
 public:
@@ -120,6 +125,7 @@ public:
 
 /**
  * @brief Represents markdown atx `######` header.
+ * @details This node represents a level 6 Markdown heading in the AST
  */
 class MdAtxH6 : public ::pltxt2htm::details::PairedTagBase {
 public:

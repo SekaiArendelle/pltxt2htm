@@ -30,6 +30,9 @@ namespace details {
  * @details This context maintains the state during AST optimization,
  *          tracking the current AST being processed, the type of nested tag,
  *          and the current iterator position
+ * @var ast Pointer to the AST being optimized (input/output parameter)
+ * @var nested_tag_type Type of the current nested tag context (input parameter)
+ * @var iter Iterator pointing to the current position in the AST (input/output parameter)
  */
 template<::std::forward_iterator Iter>
 class OptimizerContext {
@@ -67,6 +70,7 @@ public:
  * @tparam Iter Iterator type for traversing the AST
  * @details Specialized context for optimizing tags that have attributes
  *          in the format key=value, such as <color=red> or <experiment=123>
+ * @var id_ The value part of the attribute (e.g., "red" in color=red) (input parameter)
  */
 template<::std::forward_iterator Iter>
 class OptimizerEqualSignTagContext : public ::pltxt2htm::details::OptimizerContext<Iter> {
@@ -98,6 +102,7 @@ public:
  * @tparam Iter Iterator type for traversing the AST
  * @details Specialized context for optimizing size tags that have
  *          numeric values like <size=12> where the value is a std::size_t
+ * @var id_ Numeric size value (e.g., 12 in size=12) (input parameter)
  */
 template<::std::forward_iterator Iter>
 class OptimizerPlSizeTagContext : public ::pltxt2htm::details::OptimizerContext<Iter> {

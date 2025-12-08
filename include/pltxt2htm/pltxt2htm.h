@@ -26,6 +26,7 @@ namespace details {
  * @tparam Args Argument types for the function
  * @param[in] args Arguments to forward to the function
  * @return Heap-allocated UTF-8 string that must be freed by caller
+ * @retval char8_t const* Pointer to heap-allocated UTF-8 string
  * @note This function allocates memory on the heap and copies the result string
  * @warning The caller is responsible for freeing the returned pointer using std::free()
  */
@@ -60,6 +61,7 @@ constexpr char8_t const* c_ptr_style_wrapper(Args&&... args) noexcept(
  * @param[in] text The Physics-Lab text to convert (null-terminated UTF-8 string)
  * @param[in] host Host URL for internal links (null-terminated UTF-8 string)
  * @return Heap-allocated UTF-8 string containing the HTML output
+ * @retval char8_t const* Pointer to heap-allocated UTF-8 string containing HTML
  * @note The returned pointer must be freed using std::free() to avoid memory leaks
  * @warning This function calls std::malloc() and std::memcpy() internally
  * @see pltxt2htm::pltxt2advanced_html for the underlying C++ implementation
@@ -83,8 +85,9 @@ constexpr char8_t const* advanced_parser(char8_t const* const text, char8_t cons
  *          This is the C wrapper around pltxt2htm::pltxt2fixedadv_html.
  * @tparam ndebug Debug mode flag - false for debug checks, true for release mode
  * @param[in] text The Physics-Lab text to convert (null-terminated UTF-8 string)
- * @param host Host URL for internal links (null-terminated UTF-8 string)
+ * @param[in] host Host URL for internal links (null-terminated UTF-8 string)
  * @return Heap-allocated UTF-8 string containing the HTML output
+ * @retval char8_t const* Pointer to heap-allocated UTF-8 string containing HTML
  * @note The returned pointer must be freed using std::free() to avoid memory leaks
  * @warning The HTML output contains unescaped < characters which may pose security risks
  * @see pltxt2htm::pltxt2fixedadv_html for the underlying C++ implementation
@@ -107,8 +110,9 @@ constexpr char8_t const* fixedadv_parser(char8_t const* const text, char8_t cons
  * @details Converts Physics-Lab text to basic HTML with limited formatting support.
  *          This is the C wrapper around pltxt2htm::pltxt2common_html.
  * @tparam ndebug Debug mode flag - false for debug checks, true for release mode
- * @param text The Physics-Lab text to convert (null-terminated UTF-8 string)
+ * @param[in] text The Physics-Lab text to convert (null-terminated UTF-8 string)
  * @return Heap-allocated UTF-8 string containing the HTML output
+ * @retval char8_t const* Pointer to heap-allocated UTF-8 string containing HTML
  * @note The returned pointer must be freed using std::free() to avoid memory leaks
  * @note Only supports basic formatting: color tags, bold, and italic
  * @see pltxt2htm::pltxt2common_html for the underlying C++ implementation

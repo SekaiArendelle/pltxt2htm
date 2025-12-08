@@ -46,6 +46,13 @@ public:
 
     constexpr ::pltxt2htm::Color& operator=(::pltxt2htm::Color&&) noexcept = default;
 
+    /**
+     * @brief Get the color of this anchor node
+     * @param[in] self This A instance
+     * @return The color string of this anchor
+     * @retval fast_io::u8string const& Const reference to the color string
+     * @retval fast_io::u8string& Reference to the color string (modifiable)
+     */
     [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
     [[__gnu__::__pure__]]
@@ -68,6 +75,8 @@ public:
     /**
      * @brief Construct an anchor node with text content
      * @param[in] text The text content of the anchor
+     * @return New A instance
+     * @retval A New anchor node instance with blue color
      */
     constexpr A(::pltxt2htm::Ast&& text) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_a, ::std::move(text)},
@@ -84,6 +93,9 @@ public:
 
     /**
      * @brief move assignment operator
+     * @param[in] other The A instance to move from
+     * @return Reference to this A instance
+     * @retval A& Reference to this anchor node instance
      * @note assign to a rvalue is not allowed
      */
     constexpr ::pltxt2htm::A& operator=(::pltxt2htm::A&&) noexcept = default;
@@ -127,6 +139,27 @@ public:
 
     constexpr ::pltxt2htm::Experiment& operator=(::pltxt2htm::Experiment&&) noexcept = default;
 
+    /**
+     * @brief Get the ID of this experiment node
+     * @param[in] self This Experiment instance
+     * @return The ID string of this experiment
+     * @retval fast_io::u8string const& Const reference to the ID string
+     * @retval fast_io::u8string& Reference to the ID string (modifiable)
+     */
+    /**
+     * @brief Get the ID of this discussion node
+     * @param[in] self This Discussion instance
+     * @return The ID string of this discussion
+     * @retval fast_io::u8string const& Const reference to the ID string
+     * @retval fast_io::u8string& Reference to the ID string (modifiable)
+     */
+    /**
+     * @brief Get the ID of this user node
+     * @param[in] self This User instance
+     * @return The ID string of this user
+     * @retval fast_io::u8string const& Const reference to the ID string
+     * @retval fast_io::u8string& Reference to the ID string (modifiable)
+     */
     [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
     [[__gnu__::__pure__]]
@@ -266,6 +299,8 @@ public:
     /**
      * @brief Construct an italic node with text content
      * @param[in] subast The text content to be displayed in italic
+     * @return New I instance
+     * @retval I New italic node instance
      */
     constexpr I(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_i, ::std::move(subast)} {
@@ -295,6 +330,8 @@ public:
     /**
      * @brief Construct a bold node with text content
      * @param[in] subast The text content to be displayed in bold
+     * @return New B instance
+     * @retval B New bold node instance
      */
     constexpr B(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_b, ::std::move(subast)} {

@@ -72,6 +72,8 @@ public:
      * @brief Construct a HeapGuard by constructing the managed object in-place
      * @tparam Args Types of arguments to forward to the constructor
      * @param[in] args Arguments to forward to the constructor of T
+     * @return New HeapGuard instance managing the constructed object
+     * @retval HeapGuard<T> RAII smart pointer managing the heap-allocated object
      * @note This function allocates memory on the heap and constructs the object in-place
      * @warning If allocation fails, the program terminates via exception::terminate()
      */
@@ -161,8 +163,10 @@ public:
     /**
      * @brief Get a raw pointer to the managed object (unsafe)
      * @tparam Self The type of this object (deduced)
-     * @param self This object
+     * @param[in] self This object
      * @return Raw pointer to the managed object
+     * @retval T const* Raw pointer to the managed object (const version)
+     * @retval T* Raw pointer to the managed object (non-const version)
      * @note This is unsafe because it doesn't transfer ownership.
      *       The caller must ensure the HeapGuard outlives the pointer usage.
      * @warning Do not delete this pointer manually!
@@ -178,8 +182,9 @@ public:
     /**
      * @brief Release ownership of the managed object
      * @tparam Self The type of this object (deduced)
-     * @param self This object
+     * @param[in,out] self This object (modified to release ownership)
      * @return Raw pointer to the managed object, ownership is transferred to caller
+     * @retval T* Raw pointer to the managed object with ownership transferred
      * @note After calling this, the HeapGuard no longer manages the object.
      *       The caller is responsible for properly destroying and freeing the object.
      * @warning The returned pointer must be properly deleted using the original deleter

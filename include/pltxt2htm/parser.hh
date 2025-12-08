@@ -28,6 +28,7 @@ namespace pltxt2htm {
  * @tparam ndebug Debug mode flag - false enables debug checks, true for release mode
  * @param[in] pltext The Physics-Lab text content to parse
  * @return An AST representing the parsed structure of the input text
+ * @retval pltxt2htm::Ast Abstract Syntax Tree containing the parsed structure
  * @note This function uses a stack-based approach to handle nested tag structures
  * @warning The parsing process is recursive and handles complex nested structures
  */
