@@ -14,7 +14,7 @@ namespace pltxt2htm::details {
 /**
  * @brief Switch to a markdown punctuation character.
  *
- * @param u8char The UTF-8 character to switch.
+ * @param[in] u8char The UTF-8 character to switch.
  * @return An optional HeapGuard containing the corresponding PlTxtNode, or nullopt if no match is found.
  */
 [[nodiscard]]
@@ -161,8 +161,8 @@ constexpr ::exception::optional<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>> 
  * @brief Parse a single UTF-8 code point and append the corresponding AST node(s).
  *
  * @tparam ndebug When `true`, runtime assertions are disabled.
- * @param pltext The complete input text being parsed.
- * @param result The AST to which parsed nodes are appended.
+ * @param[in] pltext The complete input text being parsed.
+ * @param[out] result The AST to which parsed nodes are appended.
  * @return The number of UTF-8 code units consumed.
  */
 template<bool ndebug>
@@ -274,7 +274,7 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
  * @brief Check if the input matches a bare tag pattern.
  *
  * @tparam tag_name The prefix string representing the tag name.
- * @param pltext The string to be checked.
+ * @param[in] pltext The string to be checked.
  * @return The length of the matched tag, or nullopt if no match is found.
  */
 template<bool ndebug, char8_t... tag_name>
@@ -306,8 +306,8 @@ struct TryParseEqualSignTagResult {
  * @tparam ndebug When `true`, runtime assertions are disabled.
  * @tparam prefix_str The prefix string before the equal sign.
  * @tparam Func A callable to validate characters in the tag value.
- * @param pltext The input text to parse.
- * @param func The validation function for tag value characters.
+ * @param[in] pltext The input text to parse.
+ * @param[in] func The validation function for tag value characters.
  * @return The parsed result, or nullopt if parsing fails.
  */
 template<bool ndebug, char8_t... prefix_str, typename Func>
@@ -365,7 +365,7 @@ constexpr auto try_parse_equal_sign_tag(::fast_io::u8string_view pltext, Func&& 
  * @brief Try to parse a self-closing tag, e.g., `<tag/>`.
  *
  * @tparam tag_name The tag name to match.
- * @param pltext The input text to parse.
+ * @param[in] pltext The input text to parse.
  * @return The length of the matched tag, or nullopt if no match is found.
  */
 template<bool ndebug, char8_t... tag_name>
@@ -489,7 +489,7 @@ enum class ThematicBreakType : ::std::uint_least32_t {
 /**
  * @brief Parse Markdown thematic breaks (e.g., `---`, `___`, `***`).
  *
- * @param text The input text to parse.
+ * @param[in] text The input text to parse.
  * @return The length of the parsed thematic break, or nullopt if parsing fails.
  */
 template<bool ndebug>

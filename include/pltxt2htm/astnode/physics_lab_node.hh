@@ -67,7 +67,7 @@ public:
 
     /**
      * @brief Construct an anchor node with text content
-     * @param text The text content of the anchor
+     * @param[in] text The text content of the anchor
      */
     constexpr A(::pltxt2htm::Ast&& text) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_a, ::std::move(text)},
@@ -265,7 +265,7 @@ public:
 
     /**
      * @brief Construct an italic node with text content
-     * @param subast The text content to be displayed in italic
+     * @param[in] subast The text content to be displayed in italic
      */
     constexpr I(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_i, ::std::move(subast)} {
@@ -294,7 +294,7 @@ public:
 
     /**
      * @brief Construct a bold node with text content
-     * @param subast The text content to be displayed in bold
+     * @param[in] subast The text content to be displayed in bold
      */
     constexpr B(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_b, ::std::move(subast)} {

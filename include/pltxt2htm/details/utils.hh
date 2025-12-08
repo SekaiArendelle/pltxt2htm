@@ -23,8 +23,8 @@ namespace pltxt2htm::details {
 /**
  * @brief Get character at specific index from u8string_view with bounds checking
  * @tparam ndebug Debug mode flag - controls assertion behavior
- * @param pltext The string view to index into
- * @param i The index to access
+ * @param[in] pltext The string view to index into
+ * @param[in] i The index to access
  * @return The character at the specified index
  * @note This function performs bounds checking in debug mode for safety
  */
@@ -43,9 +43,9 @@ constexpr auto u8string_view_index(::fast_io::u8string_view pltext, ::std::size_
 /**
  * @brief Get a substring view from u8string_view
  * @tparam ndebug Debug mode flag - controls bounds checking
- * @param pltext The original string view
- * @param i Starting index of the substring
- * @param count Number of characters in the substring (npos for remainder)
+ * @param[in] pltext The original string view
+ * @param[in] i Starting index of the substring
+ * @param[in] count Number of characters in the substring (npos for remainder)
  * @return A new string view representing the substring
  * @note In debug mode, performs bounds checking; in release mode, uses unchecked access
  */
@@ -126,7 +126,7 @@ consteval char8_t pack_indexing_char8_t() noexcept {
  * @details This function performs compile-time prefix matching that is case-insensitive.
  *          It generates efficient if-expressions at compile time for optimal runtime performance.
  * @tparam prefix_str The prefix to match (must be lowercase compile-time string)
- * @param str The string to check against
+ * @param[in] str The string to check against
  * @return true if str starts with prefix_str (case-insensitive), false otherwise
  * @note prefix_str must contain only lowercase characters due to compile-time constraints
  * @warning This is a compile-time function that generates optimized matching code
@@ -183,7 +183,7 @@ constexpr bool is_prefix_match(::fast_io::u8string_view str) noexcept {
 
 /**
  * @brief Convert a std::size_t to a UTF-8 string
- * @param num The number to convert
+ * @param[in] num The number to convert
  * @return A UTF-8 string representation of the number
  * @note This function handles the special case of 0 and builds the string
  *       by extracting digits from least significant to most significant,

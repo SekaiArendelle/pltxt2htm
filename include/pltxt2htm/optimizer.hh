@@ -136,7 +136,7 @@ public:
  *          - Eliminating empty formatting tags
  *          - Simplifying nested color/size tags with identical values
  * @tparam ndebug Debug mode flag - controls assertion behavior
- * @param ast_init The AST to optimize (modified in-place)
+ * @param[in,out] ast_init The AST to optimize (modified in-place)
  * @note This function modifies the input AST directly
  * @warning The optimization process is recursive and uses manual stack management
  *          to avoid stack overflow with deeply nested structures

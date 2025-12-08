@@ -112,8 +112,8 @@ public:
 
     /**
      * @brief Construct a paired tag with specified node type and sub-AST
-     * @param node_type The type of this node (from NodeType enum)
-     * @param subast The sub-AST that represents the content inside this tag
+     * @param[in] node_type The type of this node (from NodeType enum)
+     * @param[in] subast The sub-AST that represents the content inside this tag
      */
     constexpr PairedTagBase(::pltxt2htm::NodeType node_type, ::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::PlTxtNode{node_type},
@@ -165,7 +165,7 @@ public:
 
     /**
      * @brief Construct a text node with sub-AST content
-     * @param subast The sub-AST representing the text content and inline formatting
+     * @param[in] subast The sub-AST representing the text content and inline formatting
      */
     constexpr Text(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase(::pltxt2htm::NodeType::text, ::std::move(subast)) {
