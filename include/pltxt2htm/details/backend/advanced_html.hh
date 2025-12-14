@@ -52,6 +52,7 @@ constexpr auto ast2advanced_html(::pltxt2htm::Ast const& ast_init, ::fast_io::u8
 
 entry:
     auto&& ast = call_stack.top().ast_;
+    auto const& nested_tag_type = call_stack.top().nested_tag_type_;
     auto&& current_index = call_stack.top().current_index_;
     for (; current_index < ast.size(); ++current_index) {
         auto&& node = ::pltxt2htm::details::vector_index<ndebug>(ast, current_index);
@@ -219,8 +220,16 @@ entry:
             result.append(::fast_io::u8string_view{start_tag.data(), start_tag.size()});
             goto entry;
         }
-        case ::pltxt2htm::NodeType::line_break:
-            [[fallthrough]];
+        case ::pltxt2htm::NodeType::line_break: {
+            if (nested_tag_type == ::pltxt2htm::NodeType::md_code_fence_backtick ||
+                nested_tag_type == ::pltxt2htm::NodeType::md_code_fence_tilde) {
+                result.push_back('\n');
+            } else {
+                auto const start_tag = ::fast_io::array{u8'<', u8'b', u8'r', u8'>'};
+                result.append(::fast_io::u8string_view{start_tag.data(), start_tag.size()});
+            }
+            break;
+        }
         case ::pltxt2htm::NodeType::html_br: {
             auto const start_tag = ::fast_io::array{u8'<', u8'b', u8'r', u8'>'};
             result.append(::fast_io::u8string_view{start_tag.data(), start_tag.size()});

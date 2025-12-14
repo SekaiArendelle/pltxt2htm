@@ -81,6 +81,5 @@ int main() {
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
-
     return 0;
 }
