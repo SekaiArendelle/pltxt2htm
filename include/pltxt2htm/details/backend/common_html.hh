@@ -47,7 +47,7 @@ constexpr auto ast2common_html(::pltxt2htm::Ast const& ast_init) noexcept -> ::f
     call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(ast_init, ::pltxt2htm::NodeType::base, 0));
 
 entry:
-    auto&& ast = call_stack.top().ast_;
+    auto const& ast = call_stack.top().ast_;
     auto&& current_index = call_stack.top().current_index_;
     for (; current_index < ast.size(); ++current_index) {
         auto&& node = ::pltxt2htm::details::vector_index<ndebug>(ast, current_index);

@@ -51,7 +51,7 @@ constexpr auto ast2advanced_html(::pltxt2htm::Ast const& ast_init, ::fast_io::u8
     call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(ast_init, ::pltxt2htm::NodeType::base, 0));
 
 entry:
-    auto&& ast = call_stack.top().ast_;
+    auto const& ast = call_stack.top().ast_;
     auto const& nested_tag_type = call_stack.top().nested_tag_type_;
     auto&& current_index = call_stack.top().current_index_;
     for (; current_index < ast.size(); ++current_index) {
