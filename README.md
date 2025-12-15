@@ -49,8 +49,6 @@ markdown extension based on [commonmark](https://spec.commonmark.org/0.31.2/)
 
 Show all supported features in [test](./test/)
 
-> Note: undocumented/untested features is undefined behavior
-
 ## Setup development environment
 Easy to setup development environment by my [Dockerfile](./Dockerfile)
 
