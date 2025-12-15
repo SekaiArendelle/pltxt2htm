@@ -31,5 +31,29 @@ int main() {
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"t  ");
+        auto answer = ::fast_io::u8string_view{u8"t"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"t\t\t");
+        auto answer = ::fast_io::u8string_view{u8"t"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"\t\t");
+        auto answer = ::fast_io::u8string_view{u8""};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"  ");
+        auto answer = ::fast_io::u8string_view{u8""};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
     return 0;
 }
