@@ -687,7 +687,8 @@ entry:
         auto top_frame = ::std::move(call_stack.top());
         call_stack.pop();
         if (call_stack.empty()) {
-            while (current_iter-- != ast.begin()) {
+            while (current_iter != ast.begin()) {
+                --current_iter;
                 auto node_type = (*current_iter)->node_type();
                 if (node_type != ::pltxt2htm::NodeType::space && node_type != ::pltxt2htm::NodeType::tab) {
                     break;
