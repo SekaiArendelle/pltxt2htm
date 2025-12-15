@@ -425,8 +425,8 @@ entry:
                 if (node_type != ::pltxt2htm::NodeType::space && node_type != ::pltxt2htm::NodeType::tab) {
                     break;
                 }
-                ast.erase(current_iter - 1);
                 --current_iter;
+                ast.erase(current_iter);
             }
             ++current_iter;
             continue;
