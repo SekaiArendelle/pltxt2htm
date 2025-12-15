@@ -420,7 +420,7 @@ entry:
         case ::pltxt2htm::NodeType::line_break:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_br: {
-            while (!ast.empty()) {
+            while (current_iter != ast.begin()) {
                 auto node_type = (*(current_iter - 1))->node_type();
                 if (node_type != ::pltxt2htm::NodeType::space && node_type != ::pltxt2htm::NodeType::tab) {
                     break;
