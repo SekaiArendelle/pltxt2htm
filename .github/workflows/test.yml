@@ -82,6 +82,8 @@ jobs:
 
       - name: Configure and build
         working-directory: test
+        env:
+          UBSAN_OPTIONS: "halt_on_error=1:abort_on_error=1:print_stacktrace=1"
         run: |
           xmake config --toolchain=clang --policies=build.sanitizer.undefined
           xmake test -v
