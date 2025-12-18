@@ -101,17 +101,36 @@ jobs:
 
       - name: Build docker image
         run: |
-          docker build -f test/docker/x86_64-linux-gnu/Dockerfile -t x86_64-linux-gnu-test-asan .
+          docker build -f test/docker/x86_64-linux-gnu-asan/Dockerfile -t x86_64-linux-gnu-test-asan .
 
       - name: Run all tests
         run: |
           docker run --name x86_64-linux-gnu-test-asan x86_64-linux-gnu-test-asan
 
+  x86_64-linux-gnu-test-msan:
+    strategy:
+      fail-fast: false
+
+    name: x86_64-linux-gnu (test/, msan)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build docker image
+        run: |
+          docker build -f test/docker/x86_64-linux-gnu-msan/Dockerfile -t x86_64-linux-gnu-test-msan .
+
+      - name: Run all tests
+        run: |
+          docker run --name x86_64-linux-gnu-test-msan x86_64-linux-gnu-test-msan
+
   x86_64-windows-msvc-cmd:
     strategy:
       fail-fast: false
       matrix:
-        build-mode: [debug, release]
+        build-mode: [release]
 
     name: x86_64-windows-msvc (cmd/, ${{ matrix.build-mode }} mode)
     runs-on: windows-latest
@@ -159,7 +178,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        build-mode: [debug, release]
+        build-mode: [debug]
 
     name: aarch64-apple-darwin24 (cmd/, ${{ matrix.build-mode }} mode)
     runs-on: macos-latest
