@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--compiler", choices=("clang", "gcc"), help="compiler to use")
 parser.add_argument("--target", help="target triplet")
 parser.add_argument("--sysroot", help="sysroot to use")
-parser.add_argument("--enable-asan", action="store_true")
+parser.add_argument("--sanitizer", choices=("address",  "undefined", "memory"))
 args = parser.parse_args()
 
 if args.compiler is None:
@@ -58,9 +58,14 @@ if args.sysroot is not None:
 else:
     sysroot = ""
 
-asan_flag=""
-if args.enable_asan:
+if args.sanitizer == "address":
     asan_flag="--policies=build.sanitizer.address"
+elif args.sanitizer == "undefined":
+    asan_flag="--policies=build.sanitizer.undefined"
+elif args.sanitizer == "memory":
+    asan_flag="--policies=build.sanitizer.memory"
+else:
+    asan_flag=""
 
 err_code = os.system(f"xmake config --mode=debug --toolchain={toolchain} {sysroot} {asan_flag}")
 if err_code != 0:

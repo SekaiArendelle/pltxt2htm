@@ -9,4 +9,4 @@ COPY ../../../xmake/ /pltxt2htm/xmake/
 COPY ../../../test/ /pltxt2htm/test/
 
 ENV XMAKE_ROOT=y
-CMD ["python3", "test/run_all_tests.py", "--compiler=gcc", "--enable-asan"]
+CMD ["python3", "test/run_all_tests.py", "--compiler=gcc", "--sanitizer=address"]
