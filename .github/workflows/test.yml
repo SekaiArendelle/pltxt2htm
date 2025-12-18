@@ -105,7 +105,7 @@ jobs:
 
       - name: Run all tests
         run: |
-          docker run --name x86_64-linux-gnu-test-asan x86_64-linux-gnu-test-asan
+          docker run --name x86_64-linux-gnu-test-asan x86_64-linux-gnu-test-asan python3 test/run_all_tests.py --compiler=gcc --sanitizer=address
 
   x86_64-windows-msvc-cmd:
     strategy:
