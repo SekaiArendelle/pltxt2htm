@@ -1,7 +1,7 @@
 # TODO: Update to Ubuntu 26.04 LTS
 FROM ubuntu:25.04
 
-RUN apt update && apt install -y --no-install-recommends g++ xmake python3
+RUN apt update && apt install -y --no-install-recommends g++ xmake python3 clang++
 
 WORKDIR /pltxt2htm
 COPY ../../../include/ /pltxt2htm/include/
