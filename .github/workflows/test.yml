@@ -101,11 +101,11 @@ jobs:
 
       - name: Build docker image
         run: |
-          docker build -f test/docker/x86_64-linux-gnu/Dockerfile -t x86_64-linux-gnu-test-asan .
+          docker build -f test/docker/x86_64-linux-gnu-asan/Dockerfile -t x86_64-linux-gnu-test-asan .
 
       - name: Run all tests
         run: |
-          docker run --name x86_64-linux-gnu-test-asan x86_64-linux-gnu-test-asan python3 test/run_all_tests.py --compiler=gcc --sanitizer=address
+          docker run --name x86_64-linux-gnu-test-asan x86_64-linux-gnu-test-asan
 
   x86_64-linux-gnu-test-msan:
     strategy:
@@ -120,11 +120,11 @@ jobs:
 
       - name: Build docker image
         run: |
-          docker build -f test/docker/x86_64-linux-gnu/Dockerfile -t x86_64-linux-gnu-test-asan .
+          docker build -f test/docker/x86_64-linux-gnu-msan/Dockerfile -t x86_64-linux-gnu-test-asan .
 
       - name: Run all tests
         run: |
-          docker run --name x86_64-linux-gnu-test-asan x86_64-linux-gnu-test-asan python3 test/run_all_tests.py --compiler=clang --sanitizer=memory
+          docker run --name x86_64-linux-gnu-test-asan x86_64-linux-gnu-test-asan
 
   x86_64-windows-msvc-cmd:
     strategy:
