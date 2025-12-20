@@ -322,3 +322,15 @@ jobs:
         run: |
           xmake config --toolchain=clang -k shared
           xmake build -v
+
+  x86_64-linux-gnu-cxxmodule:
+    name: x86_64-linux-gnu (cxxmodule/)
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Build docker image
+      run: |
+        docker build -f cxxmodule/docker/x86_64-linux-gnu/Dockerfile -t pltxt2htm-cxxmodule .
