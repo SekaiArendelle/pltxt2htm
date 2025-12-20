@@ -12,8 +12,6 @@ RUN make install
 
 FROM emscripten/emsdk:4.0.22
 
-RUN apt-get update && apt-get install -y --no-install-recommends zip
-
 ENV PATH=/xmake/bin:$PATH
 ENV XMAKE_ROOT=y
 
