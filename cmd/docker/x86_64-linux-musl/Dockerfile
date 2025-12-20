@@ -40,5 +40,3 @@ FROM ubuntu:26.04
 
 WORKDIR /pltxt2htm
 COPY --from=builder /pltxt2htm /pltxt2htm
-
-CMD ["sleep", "infinity"]
