@@ -1,5 +1,4 @@
-# TODO: Update to Ubuntu 26.04 LTS
-FROM ubuntu:25.04
+FROM ubuntu:26.04
 
 RUN apt update && apt install -y --no-install-recommends xmake python3 clang libclang-rt-dev
 
