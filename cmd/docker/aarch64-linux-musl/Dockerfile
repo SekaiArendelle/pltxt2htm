@@ -1,5 +1,4 @@
-# TODO: Update to Ubuntu 26.04 LTS
-FROM ubuntu:25.04 AS toolchain
+FROM ubuntu:26.04 AS toolchain
 
 RUN apt update && apt install -y --no-install-recommends wget ca-certificates xz-utils
 
@@ -15,7 +14,7 @@ RUN wget https://github.com/trcrsired/llvm-releases/releases/download/llvm22-202
     && rm -rf /llvm/x86_64-linux-gnu/x86_64-linux-gnu \
     && rm /llvm/x86_64-linux-gnu.tar.xz aarch64-linux-musl.tar.xz
 
-FROM ubuntu:25.04 AS builder
+FROM ubuntu:26.04 AS builder
 
 RUN apt update && apt install -y --no-install-recommends binutils xmake git xz-utils
 
@@ -37,7 +36,7 @@ RUN xmake build -v
 RUN xmake install -o aarch64-linux-musl-pltxt2htm-cmd-${mode}
 RUN tar cJf aarch64-linux-musl-pltxt2htm-cmd-${mode}.tar.xz aarch64-linux-musl-pltxt2htm-cmd-${mode}/
 
-FROM ubuntu:25.04
+FROM ubuntu:26.04
 
 WORKDIR /pltxt2htm
 COPY --from=builder /pltxt2htm /pltxt2htm
