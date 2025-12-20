@@ -222,37 +222,15 @@ jobs:
         build-mode: [debug, release]
 
     name: wasm32-unknown-emscripten (wasm/, ${{ matrix.build-mode }} mode)
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Emscripten
-        uses: mymindstorm/setup-emsdk@v12
-
-      - name: Setup xmake
-        uses: xmake-io/github-action-setup-xmake@v1
-        with:
-          xmake-version: latest
-
-      - name: emcc version
-        shell: powershell
+      - name: Build docker image
         run: |
-          emcc -v
-
-      - name: Configure and build
-        shell: powershell
-        working-directory: wasm
-        run: |
-          xmake config -p wasm -m ${{ matrix.build-mode }} --toolchain=emcc
-          xmake build -v
-
-      - name: Install
-        shell: powershell
-        working-directory: wasm
-        run: |
-          xmake install -o auto
+          docker build -f wasm/docker/wasm32-unknown-emscripten/Dockerfile --build-arg mode=debug -t wasm32-unknown-emscripten-pltxt2htm-wasm-debug .
 
   x86_64-windows-msvc-py:
     strategy:

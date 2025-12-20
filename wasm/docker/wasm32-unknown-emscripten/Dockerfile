@@ -1,7 +1,4 @@
-# The emscripten/emsdk:4.0.22 is based on Ubuntu 22.04
-FROM ubuntu:22.04 AS xmake
-
-RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates wget make gcc libc6-dev
+FROM emscripten/emsdk:4.0.22 AS xmake
 
 WORKDIR /xmake-builder
 
