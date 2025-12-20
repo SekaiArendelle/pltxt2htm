@@ -116,49 +116,25 @@ jobs:
         build-mode: [debug, release]
 
     name: wasm32-unknown-emscripten (wasm/, ${{ matrix.build-mode }} mode)
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Emscripten
-        uses: mymindstorm/setup-emsdk@v12
-
-      - name: Setup xmake
-        uses: xmake-io/github-action-setup-xmake@v1
-        with:
-          xmake-version: latest
-
-      - name: emcc version
-        shell: powershell
+      - name: Build docker image
         run: |
-          emcc -v
+          docker build -f wasm/docker/wasm32-unknown-emscripten/Dockerfile --build-arg mode=${{ matrix.build-mode }} -t wasm32-unknown-emscripten-pltxt2htm-wasm-${{ matrix.build-mode }} .
+          docker run -d --name wasm32-unknown-emscripten-pltxt2htm-wasm-${{ matrix.build-mode }} wasm32-unknown-emscripten-pltxt2htm-wasm-${{ matrix.build-mode }}
 
-      - name: Configure and build
-        shell: powershell
-        working-directory: wasm
+      - name: Copy wasm
         run: |
-          xmake config -p wasm -m ${{ matrix.build-mode }} --toolchain=emcc
-          xmake build -v
-
-      - name: Install
-        shell: powershell
-        working-directory: wasm
-        run: |
-          xmake install -o wasm32-unknown-emscripten-pltxt2htm-wasm-${{ matrix.build-mode }}
-
-      - name: Archive install dir
-        shell: powershell
-        working-directory: wasm
-        run: |
-          $dir = Join-Path (Get-Location) "wasm32-unknown-emscripten-pltxt2htm-wasm-${{ matrix.build-mode }}"
-          Compress-Archive -Path $dir -DestinationPath (Join-Path (Split-Path $dir) "$((Get-Item $dir).Name).zip")
+          docker cp wasm32-unknown-emscripten-pltxt2htm-wasm-${{ matrix.build-mode }}:/pltxt2htm/wasm/wasm32-unknown-emscripten-pltxt2htm-wasm-${{ matrix.build-mode }}.zip .
 
       - name: Upload binary
         uses: softprops/action-gh-release@v2
         with:
-          files: wasm/wasm32-unknown-emscripten-pltxt2htm-wasm-${{ matrix.build-mode }}.zip
+          files: wasm32-unknown-emscripten-pltxt2htm-wasm-${{ matrix.build-mode }}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
