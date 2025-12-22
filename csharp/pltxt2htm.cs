@@ -13,9 +13,6 @@ public static class Pltxt2Htm
     public static extern IntPtr pltxt2htm_advanced_parser(string text, string host);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-    public static extern IntPtr pltxt2htm_fixedadv_parser(string text, string host);
-
-    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
     public static extern UIntPtr pltxt2htm_version_major();
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
@@ -39,10 +36,5 @@ public static class Pltxt2Htm
     public static string AdvancedParser(string text, string host)
     {
         return GetStringFromIntPtr(pltxt2htm_advanced_parser(text, host));
-    }
-
-    public static string FixedAdvParser(string text, string host)
-    {
-        return GetStringFromIntPtr(pltxt2htm_fixedadv_parser(text, host));
     }
 }

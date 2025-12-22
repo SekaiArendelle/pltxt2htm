@@ -100,6 +100,7 @@ template<bool ndebug = false>
 #if __has_cpp_attribute(__gnu__::__nonnull__)
 [[__gnu__::__nonnull__]]
 #endif
+[[deprecated]]
 constexpr char8_t const* fixedadv_parser(char8_t const* const text, char8_t const* const host) noexcept {
     return ::pltxt2htm::details::c_ptr_style_wrapper<::pltxt2htm::pltxt2fixedadv_html<ndebug>>(
         ::fast_io::mnp::os_c_str(text), ::fast_io::mnp::os_c_str(host));
