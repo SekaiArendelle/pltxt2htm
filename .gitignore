@@ -67,3 +67,5 @@ csharp/bin/
 # Visual Studio
 **/vs2026/
 
+# ninja
+**/.ninja_log
