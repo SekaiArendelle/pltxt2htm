@@ -11,13 +11,6 @@ else:
     print("warning: clang-format not found")
     HAS_CLANG_FORMAT = False
 
-# Rust
-if shutil.which("rustfmt"):
-    HAS_RUST_FMT = True
-else:
-    print("warning: rustfmt not found")
-    HAS_RUST_FMT = False
-
 # Lua
 # lua-format from https://github.com/Koihik/LuaFormatter
 if shutil.which("lua-format"):
@@ -37,8 +30,6 @@ dirs = [
     os.path.join(SCRIPT_DIR, "fuzzing"),
     os.path.join(SCRIPT_DIR, "c"),
     os.path.join(SCRIPT_DIR, "cxxmodule", "pltxt2htm"),
-    os.path.join(SCRIPT_DIR, "rust", "pltxt2htm"),
-    os.path.join(SCRIPT_DIR, "rust", "libpltxt2htm-sys"),
 ]
 
 
@@ -54,13 +45,9 @@ def format_files_in_a_dir(dir: str) -> None:
             ):
                 if HAS_CLANG_FORMAT:
                     os.system(f'clang-format -i "{os.path.join(root, file)}"')
-            elif file.endswith(".rs"):
-                if HAS_RUST_FMT:
-                    os.system(f'rustfmt "{os.path.join(root, file)}"')
             elif file.endswith(".lua"):
                 if HAS_LUA_FORMAT:
                     os.system(f'lua-format -i "{os.path.join(root, file)}"')
 
 for a_dir in dirs:
     format_files_in_a_dir(a_dir)
-
