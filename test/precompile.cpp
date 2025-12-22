@@ -47,6 +47,7 @@ __attribute__((visibility("default")))
 #if __has_cpp_attribute(__gnu__::__used__)
 [[__gnu__::__used__]]
 #endif
+[[deprecated]]
 #if __has_attribute(visibility)
 __attribute__((visibility("default")))
 #endif

@@ -16,16 +16,6 @@ unsafe extern "C" {
         pltext: *const c_char,
         host: *const c_char,
     ) -> *const c_char;
-    #[cfg(not(debug_assertions))]
-    pub unsafe fn pltxt2htm_fixedadv_parser(
-        pltext: *const c_char,
-        host: *const c_char,
-    ) -> *const c_char;
-    #[cfg(debug_assertions)]
-    pub unsafe fn pltxt2htm_fixedadv_parserd(
-        pltext: *const c_char,
-        host: *const c_char,
-    ) -> *const c_char;
     pub unsafe fn pltxt2htm_version_major() -> size_t;
     pub unsafe fn pltxt2htm_version_minor() -> size_t;
     pub unsafe fn pltxt2htm_version_patch() -> size_t;
