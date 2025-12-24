@@ -31,13 +31,12 @@ namespace pltxt2htm::details {
  *          - Proper HTML escaping and encoding
  * @tparam ndebug Debug mode flag - true for release mode (faster, fewer checks),
  *                false for debug mode (slower, more safety checks)
- * @tparam escape_less_than Whether to escape `<` characters to `&lt;` in output
  * @param[in] ast_init The AST to convert to HTML
  * @param[in] host Host URL for generating internal links (used for experiment/discussion links)
  * @return A string containing the generated HTML
  * @note To avoid stack overflow, this function manages call_stack manually using goto-based state machine
  */
-template<bool ndebug, bool escape_less_than = true>
+template<bool ndebug, bool fix = true>
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
@@ -103,12 +102,8 @@ entry:
         case ::pltxt2htm::NodeType::md_escape_less_than:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::less_than: {
-            if constexpr (escape_less_than) {
-                auto const escape_str = ::fast_io::array{u8'&', u8'l', u8't', u8';'};
-                result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
-            } else {
-                result.push_back(u8'<');
-            }
+            auto const escape_str = ::fast_io::array{u8'&', u8'l', u8't', u8';'};
+            result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
             break;
         }
         case ::pltxt2htm::NodeType::md_escape_greater_than:
