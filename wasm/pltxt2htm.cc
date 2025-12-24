@@ -46,7 +46,6 @@ extern "C"
 #if __has_cpp_attribute(__gnu__::__used__)
     [[__gnu__::__used__]]
 #endif
-    [[deprecated]]
     char8_t const* fixedadv_parser(char8_t const* const text, char8_t const* const host) noexcept {
     return ::pltxt2htm::fixedadv_parser<
 #ifdef NDEBUG
