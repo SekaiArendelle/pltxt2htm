@@ -22,8 +22,11 @@ def find_cpp_files(root_dirs):
             continue
 
         for path in Path(directory).rglob("*"):
-            if path.is_file() and path.suffix.lower() in extensions:
-                files.append(str(path).replace("\\", "/"))
+            if path.is_file() and path.suffix in extensions:
+                spath = str(path).replace("\\", "/")
+                if "-pltxt2htm-" in spath:
+                    continue
+                files.append(spath)
 
     return sorted(files)
 
