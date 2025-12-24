@@ -21,7 +21,7 @@
 #include <exception/exception.hh>
 #include "parser.hh"
 #include "optimizer.hh"
-#include "details/backend/advanced_html.hh"
+#include "details/backend/generic.hh"
 #include "details/backend/common_html.hh"
 #include "version.hh"
 
@@ -52,18 +52,11 @@ constexpr auto pltxt2advanced_html(::fast_io::u8string_view pltext, ::fast_io::u
     if constexpr (optimize) {
         ::pltxt2htm::optimize_ast<ndebug>(ast);
     }
-    return ::pltxt2htm::details::ast2advanced_html<ndebug>(ast, host);
+    return ::pltxt2htm::details::generic_backend<ndebug, ::pltxt2htm::details::backend_mode::normal_html>(ast, host);
 }
 
 /**
  * @brief Convert Physics-Lab text to advanced HTML without escaping less-than symbols
- * @details This function is identical to pltxt2advanced_html except that `<` characters
- *          are not escaped to `&lt;`. This allows embedding raw HTML within the output.
- *
- *          Use this function when you need to:
- *          - Embed custom HTML tags in the output
- *          - Generate HTML that will be further processed
- *          - Create templates with placeholder HTML
  * @tparam ndebug Debug mode flag - false enables debug checks, true for release mode
  * @tparam optimize Whether to optimize the AST before HTML generation
  * @param[in] pltext The Physics-Lab text content to convert
@@ -78,13 +71,12 @@ template<bool ndebug = false, bool optimize = true>
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-[[deprecated("Use pltxt2advanced_html instead")]]
 constexpr auto pltxt2fixedadv_html(::fast_io::u8string_view pltext, ::fast_io::u8string_view host) noexcept {
     auto ast = ::pltxt2htm::parse_pltxt<ndebug>(pltext);
     if constexpr (optimize) {
         ::pltxt2htm::optimize_ast<ndebug>(ast);
     }
-    return ::pltxt2htm::details::ast2advanced_html<ndebug, false>(ast, host);
+    return ::pltxt2htm::details::generic_backend<ndebug, ::pltxt2htm::details::backend_mode::main_text_html>(ast, host);
 }
 
 /**
