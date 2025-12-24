@@ -27,19 +27,19 @@ namespace pltxt2htm::version {{
  * @brief Major version number - incremented for breaking changes
  * @note Breaking changes include API changes that are not backward compatible
  */
-inline constexpr ::std::size_t major{{0}};
+inline constexpr ::std::size_t major{{{__version__[0]}}};
 
 /**
  * @brief Minor version number - incremented for new features without breaking changes
  * @note New features that are backward compatible increment this number
  */
-inline constexpr ::std::size_t minor{{7}};
+inline constexpr ::std::size_t minor{{{__version__[1]}}};
 
 /**
  * @brief Patch version number - incremented for bug fixes without new features
  * @note Bug fixes and minor improvements increment this number
  */
-inline constexpr ::std::size_t patch{{0}};
+inline constexpr ::std::size_t patch{{{__version__[2]}}};
 
 }} // namespace pltxt2htm::version
 """
