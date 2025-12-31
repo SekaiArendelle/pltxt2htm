@@ -236,6 +236,10 @@ constexpr auto get_pltext_from_parser_frame_context(
         [[fallthrough]];
     case ::pltxt2htm::NodeType::html_note:
         [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_latex_inline:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::md_latex_block:
+        [[fallthrough]];
     case ::pltxt2htm::NodeType::u8char:
         [[fallthrough]];
     case ::pltxt2htm::NodeType::invalid_u8char:
@@ -598,6 +602,20 @@ entry:
             auto&& [forward_index, subast] = opt_code_span_1_backtick.template value<ndebug>();
             current_index = current_index + forward_index - 1;
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdCodeSpan1Backtick>(::std::move(subast)));
+            continue;
+        } else if (auto opt_md_latex_block_dollar = ::pltxt2htm::details::try_parse_md_latex_block_dollar<ndebug>(
+                       ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                   opt_md_latex_block_dollar.has_value()) {
+            auto&& [forward_index, subast] = opt_md_latex_block_dollar.template value<ndebug>();
+            current_index = current_index + forward_index - 1;
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdLatexBlock>(::std::move(subast)));
+            continue;
+        } else if (auto opt_md_latex_inline = ::pltxt2htm::details::try_parse_md_latex_inline<ndebug>(
+                       ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                   opt_md_latex_inline.has_value()) {
+            auto&& [forward_index, subast] = opt_md_latex_inline.template value<ndebug>();
+            current_index = current_index + forward_index - 1;
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdLatexInline>(::std::move(subast)));
             continue;
         } else if (auto opt_md_link = ::pltxt2htm::details::try_parse_md_link<ndebug>(
                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
@@ -1594,6 +1612,12 @@ entry:
                     result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
                     continue;
                 }
+                case ::pltxt2htm::NodeType::md_latex_inline:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeType::md_latex_block: {
+                    result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                    continue;
+                }
                 case ::pltxt2htm::NodeType::md_ul:
                     [[fallthrough]];
                 case ::pltxt2htm::NodeType::md_ol:
@@ -1839,6 +1863,14 @@ entry:
             }
             case ::pltxt2htm::NodeType::md_code_span_3_backtick: {
                 super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdCodeSpan3Backtick>(::std::move(subast)));
+                goto entry;
+            }
+            case ::pltxt2htm::NodeType::md_latex_inline: {
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdLatexInline>(::std::move(subast)));
+                goto entry;
+            }
+            case ::pltxt2htm::NodeType::md_latex_block: {
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdLatexBlock>(::std::move(subast)));
                 goto entry;
             }
             case ::pltxt2htm::NodeType::md_single_emphasis_asterisk: {

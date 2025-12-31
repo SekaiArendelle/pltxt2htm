@@ -890,6 +890,91 @@ constexpr auto try_parse_md_code_span(::fast_io::u8string_view pltext) noexcept
     }
 }
 
+struct TryParseMdLatexResult {
+    ::std::size_t forward_index; ///< Index to continue parsing from (includes both delimiters).
+    ::pltxt2htm::Ast subast; ///< Parsed AST inside the latex delimiters.
+};
+
+/**
+ * @brief Parse block LaTeX with $$...$$
+ */
+template<bool ndebug>
+[[nodiscard]]
+constexpr auto try_parse_md_latex_block_dollar(::fast_io::u8string_view pltext) noexcept
+    -> ::exception::optional<::pltxt2htm::details::TryParseMdLatexResult> {
+    if (pltext.size() < 4 || ::pltxt2htm::details::is_prefix_match<ndebug, u8'$', u8'$'>(pltext) == false) {
+        return ::exception::nullopt_t{};
+    }
+
+    auto body = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 2);
+    ::std::size_t const body_size{body.size()};
+    ::std::size_t close_pos{body_size};
+    for (::std::size_t i{}; i < body_size; ++i) {
+        if (::pltxt2htm::details::is_prefix_match<ndebug, u8'$', u8'$'>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(body, i))) {
+            close_pos = i;
+            break;
+        }
+    }
+    if (close_pos == body_size) {
+        return ::exception::nullopt_t{};
+    }
+
+    ::pltxt2htm::Ast ast{};
+    for (::std::size_t idx{}; idx < close_pos;) {
+        if (::pltxt2htm::details::u8string_view_index<ndebug>(body, idx) == u8'\n') {
+            ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{u8'\n'});
+            ++idx;
+        } else {
+            auto forward = ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(body, idx), ast);
+            idx += forward + 1;
+        }
+    }
+
+    return ::pltxt2htm::details::TryParseMdLatexResult{.forward_index = close_pos + 4, .subast = ::std::move(ast)};
+}
+
+/**
+ * @brief Parse inline LaTeX with $...$
+ */
+template<bool ndebug>
+[[nodiscard]]
+constexpr auto try_parse_md_latex_inline(::fast_io::u8string_view pltext) noexcept
+    -> ::exception::optional<::pltxt2htm::details::TryParseMdLatexResult> {
+    if (pltext.size() < 3 || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 0) != u8'$') {
+        return ::exception::nullopt_t{};
+    }
+
+    auto body = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 1);
+    ::std::size_t const body_size{body.size()};
+    ::std::size_t close_pos{body_size};
+    for (::std::size_t i{}; i < body_size; ++i) {
+        auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(body, i);
+        if (chr == u8'\n') {
+            return ::exception::nullopt_t{};
+        } else if (chr == u8'$') {
+            close_pos = i;
+            break;
+        }
+    }
+    if (close_pos == body_size) {
+        return ::exception::nullopt_t{};
+    }
+    if (close_pos == 0) {
+        return ::exception::nullopt_t{};
+    }
+
+    ::pltxt2htm::Ast ast{};
+    for (::std::size_t idx{}; idx < close_pos;) {
+        auto&& sub = ::pltxt2htm::details::u8string_view_subview<ndebug>(body, idx);
+        auto forward = ::pltxt2htm::details::parse_utf8_code_point<ndebug>(sub, ast);
+        idx += forward + 1;
+    }
+
+    return ::pltxt2htm::details::TryParseMdLatexResult{.forward_index = close_pos + 2, .subast = ::std::move(ast)};
+}
+
 struct TryParseMdLinkResult {
     ::std::size_t forward_index;
     ::fast_io::u8string_view link_text;

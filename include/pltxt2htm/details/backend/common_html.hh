@@ -330,6 +330,10 @@ entry:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_code:
             [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_latex_inline:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_latex_block:
+            [[fallthrough]];
         case ::pltxt2htm::NodeType::md_atx_h1:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_atx_h2:
