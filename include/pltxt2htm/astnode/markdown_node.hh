@@ -1106,4 +1106,44 @@ public:
     constexpr ::pltxt2htm::MdLi& operator=(::pltxt2htm::MdLi&&) noexcept = default;
 };
 
+/**
+ * @brief Represents inline LaTeX math ($...$).
+ */
+class MdLatexInline : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr MdLatexInline() noexcept = delete;
+
+    constexpr MdLatexInline(::pltxt2htm::Ast&& ast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_latex_inline, ::std::move(ast)} {
+    }
+
+    constexpr MdLatexInline(::pltxt2htm::MdLatexInline const&) noexcept = delete;
+
+    constexpr MdLatexInline(::pltxt2htm::MdLatexInline&&) noexcept = default;
+
+    constexpr ::pltxt2htm::MdLatexInline& operator=(::pltxt2htm::MdLatexInline const&) noexcept = delete;
+
+    constexpr ::pltxt2htm::MdLatexInline& operator=(::pltxt2htm::MdLatexInline&&) noexcept = default;
+};
+
+/**
+ * @brief Represents block/display LaTeX math ($$...$$).
+ */
+class MdLatexBlock : public ::pltxt2htm::details::PairedTagBase {
+public:
+    constexpr MdLatexBlock() noexcept = delete;
+
+    constexpr MdLatexBlock(::pltxt2htm::Ast&& ast) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_latex_block, ::std::move(ast)} {
+    }
+
+    constexpr MdLatexBlock(::pltxt2htm::MdLatexBlock const&) noexcept = delete;
+
+    constexpr MdLatexBlock(::pltxt2htm::MdLatexBlock&&) noexcept = default;
+
+    constexpr ::pltxt2htm::MdLatexBlock& operator=(::pltxt2htm::MdLatexBlock const&) noexcept = delete;
+
+    constexpr ::pltxt2htm::MdLatexBlock& operator=(::pltxt2htm::MdLatexBlock&&) noexcept = default;
+};
+
 } // namespace pltxt2htm

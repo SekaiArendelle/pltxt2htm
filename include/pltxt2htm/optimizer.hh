@@ -532,6 +532,10 @@ entry:
             }
             goto entry;
         }
+        case ::pltxt2htm::NodeType::md_latex_inline:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_latex_block:
+            [[fallthrough]];
         case ::pltxt2htm::NodeType::md_hr:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_hr: {
@@ -742,6 +746,10 @@ entry:
             case ::pltxt2htm::NodeType::md_code_span_3_backtick:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::html_code:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::md_latex_inline:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::md_latex_block:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::html_pre:
                 [[fallthrough]];

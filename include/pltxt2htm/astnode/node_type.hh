@@ -151,8 +151,9 @@ enum class NodeType : ::std::size_t {
     md_ol, ///< Ordered list marker
     md_li, ///< List item
 
-    // Future extension: LaTeX support (currently disabled)
-    // latex,                    ///< LaTeX mathematical expressions
+    // LaTeX support
+    md_latex_inline, ///< Inline LaTeX math: $...$
+    md_latex_block, ///< Block/display LaTeX math: $$...$$
 };
 
 } // namespace pltxt2htm
