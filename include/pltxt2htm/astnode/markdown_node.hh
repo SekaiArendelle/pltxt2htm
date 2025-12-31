@@ -1127,7 +1127,7 @@ public:
 };
 
 /**
- * @brief Represents block/display LaTeX math ($$...$$ or \\[...\\]).
+ * @brief Represents block/display LaTeX math ($$...$$).
  */
 class MdLatexBlock : public ::pltxt2htm::details::PairedTagBase {
 public:

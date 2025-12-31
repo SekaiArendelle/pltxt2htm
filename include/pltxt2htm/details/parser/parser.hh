@@ -584,7 +584,7 @@ entry:
                    opt_code_span_3_backtick.has_value()) {
             // parsing markdown ```example```
             auto&& [forward_index, subast] = opt_code_span_3_backtick.template value<ndebug>();
-            current_index = current_index + forward_index - 1;
+            current_index += forward_index - 1;
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdCodeSpan3Backtick>(::std::move(subast)));
             continue;
         } else if (auto opt_code_span_2_backtick = ::pltxt2htm::details::try_parse_md_code_span<ndebug, u8'`', u8'`'>(
@@ -592,7 +592,7 @@ entry:
                    opt_code_span_2_backtick.has_value()) {
             // parsing markdown ``example``
             auto&& [forward_index, subast] = opt_code_span_2_backtick.template value<ndebug>();
-            current_index = current_index + forward_index - 1;
+            current_index += forward_index - 1;
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdCodeSpan2Backtick>(::std::move(subast)));
             continue;
         } else if (auto opt_code_span_1_backtick = ::pltxt2htm::details::try_parse_md_code_span<ndebug, u8'`'>(
@@ -600,21 +600,21 @@ entry:
                    opt_code_span_1_backtick.has_value()) {
             // parsing markdown `example`
             auto&& [forward_index, subast] = opt_code_span_1_backtick.template value<ndebug>();
-            current_index = current_index + forward_index - 1;
+            current_index += forward_index - 1;
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdCodeSpan1Backtick>(::std::move(subast)));
             continue;
         } else if (auto opt_md_latex_block_dollar = ::pltxt2htm::details::try_parse_md_latex_block_dollar<ndebug>(
                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
                    opt_md_latex_block_dollar.has_value()) {
             auto&& [forward_index, subast] = opt_md_latex_block_dollar.template value<ndebug>();
-            current_index = current_index + forward_index - 1;
+            current_index += forward_index - 1;
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdLatexBlock>(::std::move(subast)));
             continue;
         } else if (auto opt_md_latex_inline = ::pltxt2htm::details::try_parse_md_latex_inline<ndebug>(
                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
                    opt_md_latex_inline.has_value()) {
             auto&& [forward_index, subast] = opt_md_latex_inline.template value<ndebug>();
-            current_index = current_index + forward_index - 1;
+            current_index += forward_index - 1;
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdLatexInline>(::std::move(subast)));
             continue;
         } else if (auto opt_md_link = ::pltxt2htm::details::try_parse_md_link<ndebug>(

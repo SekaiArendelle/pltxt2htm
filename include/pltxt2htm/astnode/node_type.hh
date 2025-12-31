@@ -153,7 +153,7 @@ enum class NodeType : ::std::size_t {
 
     // LaTeX support
     md_latex_inline, ///< Inline LaTeX math: $...$
-    md_latex_block, ///< Block/display LaTeX math: $$...$$ or \\[...\\]
+    md_latex_block, ///< Block/display LaTeX math: $$...$$
 };
 
 } // namespace pltxt2htm
