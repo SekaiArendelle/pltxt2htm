@@ -70,6 +70,9 @@ public:
     /** @brief Type used for difference values */
     using diffrence_type = ::std::ptrdiff_t;
 
+    /** @brief Iterator type for non-const access */
+    using iterator = char*;
+
     /** @brief Iterator type for const access */
     using const_iterator = char const*;
 
@@ -168,19 +171,52 @@ public:
         return N;
     }
 
+    template<::pltxt2htm::details::is_leteral_string Self>
+    [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
+    constexpr auto begin(this Self&& self) noexcept -> iterator {
+        return self.data_;
+    }
+
+    [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
+    constexpr auto begin(this ::pltxt2htm::details::LiteralString<N> const& self) noexcept {
+        return const_iterator(self.data_);
+    }
+
     /**
      * @brief Get iterator to the beginning of the string
      * @tparam Self The type of this object (deduced)
      * @param self This object
      * @return Iterator pointing to the first character
      */
+    [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
+    constexpr auto cbegin(this ::pltxt2htm::details::LiteralString<N> const& self) noexcept {
+        return const_iterator(self.data_);
+    }
+
     template<::pltxt2htm::details::is_leteral_string Self>
     [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
     [[__gnu__::__pure__]]
 #endif
-    constexpr auto cbegin(this Self const& self) noexcept {
-        return static_cast<const_iterator>(self.data_);
+    constexpr auto end(this Self&& self) noexcept -> iterator {
+        return self.data_ + N;
+    }
+
+    [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
+    constexpr auto end(this ::pltxt2htm::details::LiteralString<N> const& self) noexcept {
+        return const_iterator(self.data_ + N);
     }
 
     /**
@@ -189,13 +225,12 @@ public:
      * @param self This object
      * @return Iterator pointing past the last character
      */
-    template<::pltxt2htm::details::is_leteral_string Self>
     [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
     [[__gnu__::__pure__]]
 #endif
-    constexpr auto cend(this Self const& self) noexcept {
-        return static_cast<const_iterator>(self.data_ + N);
+    constexpr auto cend(this ::pltxt2htm::details::LiteralString<N> const& self) noexcept {
+        return const_iterator(self.data_ + N);
     }
 
     [[nodiscard]]

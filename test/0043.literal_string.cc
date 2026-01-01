@@ -1,4 +1,6 @@
 #include <pltxt2htm/details/literal_string.hh>
+#include <pltxt2htm/details/utils.hh>
+#include "precompile.hh"
 
 template<::pltxt2htm::details::LiteralString test>
 struct X {};
@@ -29,6 +31,22 @@ consteval void test_uint_to_literal_string() noexcept {
     static_assert(str == answer);
 }
 
+consteval void test_for_loop() noexcept {
+    constexpr auto str = ::pltxt2htm::details::LiteralString{u8"test"};
+    for ([[maybe_unused]] auto&& _ : str) {
+    }
+}
+
 int main() noexcept {
+    {
+        constexpr auto str = ::pltxt2htm::details::LiteralString{u8"test"};
+        ::pltxt2htm_test::assert_true(
+            ::pltxt2htm::details::is_prefix_match<false, str>(::fast_io::u8string_view{u8"test"}));
+        ::pltxt2htm_test::assert_true(
+            ::pltxt2htm::details::is_prefix_match<false, str>(::fast_io::u8string_view{u8"TEST"}));
+        ::pltxt2htm_test::assert_true(
+            !::pltxt2htm::details::is_prefix_match<false, str>(::fast_io::u8string_view{u8"kksk"}));
+    }
+
     return 0;
 }

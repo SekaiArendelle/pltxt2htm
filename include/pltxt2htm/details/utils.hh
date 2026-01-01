@@ -8,13 +8,12 @@
 #pragma once
 
 #include <cstddef>
-#if __cpp_expansion_statements >= 202506L
-    #include <ranges>
-#endif
+#include <ranges>
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
 #include <exception/exception.hh>
+#include "literal_string.hh"
 
 #include "push_macro.hh"
 
@@ -139,31 +138,32 @@ consteval char8_t pack_indexing_char8_t() noexcept {
  * @note prefix_str must contain only lowercase characters due to compile-time constraints
  * @warning This is a compile-time function that generates optimized matching code
  */
-template<bool ndebug, char8_t... prefix_str>
-    requires ((prefix_str < 'A' || prefix_str > 'Z') && ...)
-#if __has_cpp_attribute(__gnu__::always_inline)
-[[__gnu__::always_inline]]
-#elif __has_cpp_attribute(msvc::forceinline)
-[[msvc::forceinline]]
-#endif
+template<bool ndebug, ::pltxt2htm::details::LiteralString prefix_str>
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
 constexpr bool is_prefix_match(::fast_io::u8string_view str) noexcept {
+    // Ensure prefix_str does not contain uppercase characters.
+    constexpr bool has_uppercase = []<::std::size_t... Is>(::std::index_sequence<Is...>) static constexpr noexcept {
+        return (((prefix_str[Is] >= 'A') && (prefix_str[Is] <= 'Z')) || ...);
+    }(::std::make_index_sequence<prefix_str.size()>{});
+    static_assert(!has_uppercase, "prefix_str must not contain uppercase letters");
+
     // Check whether the index is out of bound.
-    if (sizeof...(prefix_str) > str.size()) [[unlikely]] {
+    if (prefix_str.size() > str.size()) [[unlikely]] {
         return false;
     }
 
     // Return whether the `prefix_str` is a prefix of the str.
+    // libc++ does not implement std::ranges::enumerate yet
 #if __cpp_expansion_statements >= 202506L
-    template for (constexpr ::std::size_t I : ::std::ranges::views::iota(::std::size_t{}, sizeof...(prefix_str))) {
+    template for (constexpr ::std::size_t I : ::std::ranges::views::iota(::std::size_t{}, prefix_str.size())) {
 #else
     return [str]<::std::size_t... Is>(::std::index_sequence<Is...>) {
         return ([str]<::std::size_t I>() {
 #endif
-        constexpr auto expect = ::pltxt2htm::details::pack_indexing_char8_t<I, prefix_str...>();
+        constexpr auto expect = prefix_str[I];
         if constexpr ('a' <= expect && expect <= 'z') {
             // ASCII between lowercase and uppercase is 32 (e.g. 'a' - 'A' == 32)
             constexpr ::std::uint8_t diff{32};
@@ -185,7 +185,7 @@ constexpr bool is_prefix_match(::fast_io::u8string_view str) noexcept {
 #else
         }.template operator()<Is>() &&
                 ...);
-    }(::std::make_index_sequence<sizeof...(prefix_str)>{});
+    }(::std::make_index_sequence<prefix_str.size()>{});
 #endif
 }
 

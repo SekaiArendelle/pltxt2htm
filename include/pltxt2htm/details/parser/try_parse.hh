@@ -277,14 +277,15 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
  * @param[in] pltext The string to be checked.
  * @return The length of the matched tag, or nullopt if no match is found.
  */
-template<bool ndebug, char8_t... tag_name>
-[[nodiscard]]
-constexpr auto try_parse_bare_tag(::fast_io::u8string_view pltext) noexcept -> ::exception::optional<::std::size_t> {
-    if (::pltxt2htm::details::is_prefix_match<ndebug, tag_name...>(pltext) == false) {
+template<bool ndebug, ::pltxt2htm::details::LiteralString tag_name = ::pltxt2htm::details::LiteralString<0>{}>
+[[nodiscard]] constexpr auto try_parse_bare_tag(::fast_io::u8string_view pltext) noexcept
+    -> ::exception::optional<::std::size_t> {
+    constexpr ::std::size_t tag_name_size{tag_name.size()};
+    if (::pltxt2htm::details::is_prefix_match<ndebug, tag_name>(pltext) == false) {
         return ::exception::nullopt_t{};
     }
 
-    for (::std::size_t i{sizeof...(tag_name)}; i < pltext.size(); ++i) {
+    for (::std::size_t i{tag_name_size}; i < pltext.size(); ++i) {
         auto forward_chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i);
         if (forward_chr == u8'>') {
             return i;
@@ -310,21 +311,24 @@ struct TryParseEqualSignTagResult {
  * @param[in] func The validation function for tag value characters.
  * @return The parsed result, or nullopt if parsing fails.
  */
-template<bool ndebug, char8_t... prefix_str, typename Func>
+template<bool ndebug, ::pltxt2htm::details::LiteralString prefix_str, typename Func>
     requires requires(Func&& func, char8_t chr) {
         { func(chr) } -> ::std::same_as<bool>;
     }
 [[nodiscard]]
 constexpr auto try_parse_equal_sign_tag(::fast_io::u8string_view pltext, Func&& func) noexcept
     -> ::exception::optional<TryParseEqualSignTagResult> {
-    if (::pltxt2htm::details::is_prefix_match<ndebug, prefix_str..., u8'='>(pltext) == false) {
+    ::std::size_t prefix_size{prefix_str.size()};
+    constexpr auto prefix_with_equal =
+        ::pltxt2htm::details::concat(prefix_str, ::pltxt2htm::details::LiteralString{u8"="});
+    if (::pltxt2htm::details::is_prefix_match<ndebug, prefix_with_equal>(pltext) == false) {
         return ::exception::nullopt_t{};
     }
 
     // substr: str of $1
     ::fast_io::u8string substr{};
 
-    for (::std::size_t forward_index{sizeof...(prefix_str) + 1}; forward_index < pltext.size(); ++forward_index) {
+    for (::std::size_t forward_index{prefix_size + 1}; forward_index < pltext.size(); ++forward_index) {
         char8_t const forward_chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index)};
         if (forward_chr == u8'>') {
             if (substr.empty()) {
@@ -368,15 +372,35 @@ constexpr auto try_parse_equal_sign_tag(::fast_io::u8string_view pltext, Func&& 
  * @param[in] pltext The input text to parse.
  * @return The length of the matched tag, or nullopt if no match is found.
  */
-template<bool ndebug, char8_t... tag_name>
+
+template<bool ndebug>
 [[nodiscard]]
 constexpr auto try_parse_self_closing_tag(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::std::size_t> {
-    if (::pltxt2htm::details::is_prefix_match<ndebug, tag_name...>(pltext) == false) {
+    for (::std::size_t forward_index{}; forward_index < pltext.size(); ++forward_index) {
+        char8_t const forward_chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index)};
+        if (forward_chr == u8'>') {
+            return forward_index;
+        } else if (forward_chr == u8'/' && forward_index + 1 < pltext.size() &&
+                   ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index + 1) == u8'>') {
+            return forward_index + 1;
+        } else if (forward_chr != u8' ') {
+            return ::exception::nullopt_t{};
+        }
+    }
+    return ::exception::nullopt_t{};
+}
+
+template<bool ndebug, ::pltxt2htm::details::LiteralString tag_name>
+[[nodiscard]]
+constexpr auto try_parse_self_closing_tag(::fast_io::u8string_view pltext) noexcept
+    -> ::exception::optional<::std::size_t> {
+    constexpr ::std::size_t tag_name_size{tag_name.size()};
+    if (::pltxt2htm::details::is_prefix_match<ndebug, tag_name>(pltext) == false) {
         return ::exception::nullopt_t{};
     }
 
-    for (::std::size_t forward_index{sizeof...(tag_name)}; forward_index < pltext.size(); ++forward_index) {
+    for (::std::size_t forward_index{tag_name_size}; forward_index < pltext.size(); ++forward_index) {
         char8_t const forward_chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index)};
         if (forward_chr == u8'>') {
             return forward_index;
@@ -465,8 +489,10 @@ constexpr auto try_parse_md_atx_heading(::fast_io::u8string_view pltext) noexcep
         if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, end_index) == u8'\n') {
             extra_length = 1;
             break;
-        } else if (auto opt = ::pltxt2htm::details::try_parse_self_closing_tag<ndebug, u8'<', u8'b', u8'r'>(
-                       ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, end_index));
+        } else if (auto opt =
+                       ::pltxt2htm::details::try_parse_self_closing_tag<ndebug,
+                                                                        ::pltxt2htm::details::LiteralString{u8"<br"}>(
+                           ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, end_index));
                    opt.has_value()) {
             extra_length = opt.template value<ndebug>() + 1;
             break;
@@ -536,7 +562,8 @@ constexpr auto try_parse_md_thematic_break(::fast_io::u8string_view text) noexce
         } else if (thematic_break_type != ::pltxt2htm::details::ThematicBreakType::none) {
             if (chr == u8'\n') {
                 return i + 1;
-            } else if (auto opt_tag_len = ::pltxt2htm::details::try_parse_self_closing_tag<ndebug, u8'<', u8'b', u8'r'>(
+            } else if (auto opt_tag_len = ::pltxt2htm::details::try_parse_self_closing_tag<
+                           ndebug, ::pltxt2htm::details::LiteralString{u8"<br"}>(
                            ::pltxt2htm::details::u8string_view_subview<ndebug>(text, i));
                        opt_tag_len.has_value()) {
                 return i + opt_tag_len.template value<ndebug>() + 1;
@@ -566,20 +593,21 @@ struct SimplyParsePLtextResult {
  * @param pltext The input text to parse.
  * @return The parsed result.
  */
-template<bool ndebug, char8_t... end_string>
+template<bool ndebug, ::pltxt2htm::details::LiteralString end_string>
 [[nodiscard]]
 constexpr auto simply_parse_pltext(::fast_io::u8string_view pltext) noexcept
     -> ::pltxt2htm::details::SimplyParsePLtextResult {
     ::pltxt2htm::Ast ast{};
     ::std::size_t current_index{};
     ::std::size_t const pltext_size{pltext.size()};
+    constexpr ::std::size_t end_size{end_string.size()};
 
     for (; current_index < pltext.size(); ++current_index) {
         char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index)};
 
-        if (::pltxt2htm::details::is_prefix_match<ndebug, end_string...>(
+        if (::pltxt2htm::details::is_prefix_match<ndebug, end_string>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) {
-            current_index += sizeof...(end_string);
+            current_index += end_size;
             break;
         }
 
@@ -649,18 +677,21 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
         return ::exception::nullopt_t{};
     }
 
-    if constexpr (is_backtick) {
-        if (::pltxt2htm::details::is_prefix_match<ndebug, u8'`', u8'`', u8'`'>(pltext) == false) {
-            return ::exception::nullopt_t{};
+    constexpr auto fence = []() static constexpr noexcept {
+        if constexpr (is_backtick) {
+            return ::pltxt2htm::details::LiteralString{u8"```"};
+        } else {
+            return ::pltxt2htm::details::LiteralString{u8"~~~"};
         }
-    } else {
-        if (::pltxt2htm::details::is_prefix_match<ndebug, u8'~', u8'~', u8'~'>(pltext) == false) {
-            return ::exception::nullopt_t{};
-        }
+    }();
+    constexpr ::std::size_t fence_size{fence.size()};
+
+    if (::pltxt2htm::details::is_prefix_match<ndebug, fence>(pltext) == false) {
+        return ::exception::nullopt_t{};
     }
 
     ::fast_io::u8string lang{};
-    ::std::size_t current_index{3};
+    ::std::size_t current_index{fence_size};
     ::std::size_t const pltext_size{pltext.size()};
 
     // Parsing language string
@@ -694,7 +725,7 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
             break;
         } else {
             if constexpr (is_backtick) {
-                if (::pltxt2htm::details::is_prefix_match<ndebug, u8'`', u8'`', u8'`'>(
+                if (::pltxt2htm::details::is_prefix_match<ndebug, fence>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) {
                     return ::exception::nullopt_t{};
                 }
@@ -706,12 +737,14 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
     // parsing context of code fence
     ::pltxt2htm::Ast ast{};
     if constexpr (is_backtick) {
-        auto&& [forward_index, ast_] = ::pltxt2htm::details::simply_parse_pltext<ndebug, u8'\n', u8'`', u8'`', u8'`'>(
+        constexpr auto end_string = ::pltxt2htm::details::concat(::pltxt2htm::details::LiteralString{u8"\n"}, fence);
+        auto&& [forward_index, ast_] = ::pltxt2htm::details::simply_parse_pltext<ndebug, end_string>(
             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
         ast = ::std::move(ast_);
         current_index += forward_index;
     } else {
-        auto&& [forward_index, ast_] = ::pltxt2htm::details::simply_parse_pltext<ndebug, u8'\n', u8'~', u8'~', u8'~'>(
+        constexpr auto end_string = ::pltxt2htm::details::concat(::pltxt2htm::details::LiteralString{u8"\n"}, fence);
+        auto&& [forward_index, ast_] = ::pltxt2htm::details::simply_parse_pltext<ndebug, end_string>(
             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
         ast = ::std::move(ast_);
         current_index += forward_index;
@@ -768,20 +801,21 @@ constexpr auto try_parse_md_code_fence(::fast_io::u8string_view pltext) noexcept
  * @param pltext The input text to parse.
  * @return The length of the parsed inline element, or nullopt if parsing fails.
  */
-template<bool ndebug, char8_t... embraced_chars>
+template<bool ndebug, ::pltxt2htm::details::LiteralString embraced_chars>
 [[nodiscard]]
 constexpr auto try_parse_md_inlines(::fast_io::u8string_view pltext) noexcept -> ::exception::optional<::std::size_t> {
-    if (!::pltxt2htm::details::is_prefix_match<ndebug, embraced_chars...>(pltext)) {
+    constexpr ::std::size_t embraced_size{embraced_chars.size()};
+    if (!::pltxt2htm::details::is_prefix_match<ndebug, embraced_chars>(pltext)) {
         return ::exception::nullopt_t{};
     }
 
-    for (::std::size_t current_index{sizeof...(embraced_chars)}; current_index < pltext.size(); ++current_index) {
+    for (::std::size_t current_index{embraced_size}; current_index < pltext.size(); ++current_index) {
         if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) == u8'\n') {
             return ::exception::nullopt_t{};
         }
-        if (::pltxt2htm::details::is_prefix_match<ndebug, embraced_chars...>(
+        if (::pltxt2htm::details::is_prefix_match<ndebug, embraced_chars>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) {
-            ::std::size_t result{current_index - sizeof...(embraced_chars)};
+            ::std::size_t result{current_index - embraced_size};
             if (result == 0) {
                 return ::exception::nullopt_t{};
             } else {
@@ -865,26 +899,27 @@ struct TryParseMdCodeSpanResult {
  * @param pltext The input text to parse.
  * @return The parsed result, or nullopt if parsing fails.
  */
-template<bool ndebug, char8_t... embraced_string>
+template<bool ndebug, ::pltxt2htm::details::LiteralString embraced_string>
 [[nodiscard]]
 constexpr auto try_parse_md_code_span(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseMdCodeSpanResult> {
-    if (!::pltxt2htm::details::is_prefix_match<ndebug, embraced_string...>(pltext)) {
+    constexpr ::std::size_t embraced_size{embraced_string.size()};
+    if (!::pltxt2htm::details::is_prefix_match<ndebug, embraced_string>(pltext)) {
         return ::exception::nullopt_t{};
     }
 
-    auto&& [forward_index, ast] = ::pltxt2htm::details::simply_parse_pltext<ndebug, embraced_string...>(
-        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, sizeof...(embraced_string)));
+    auto&& [forward_index, ast] = ::pltxt2htm::details::simply_parse_pltext<ndebug, embraced_string>(
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, embraced_size));
 
-    if constexpr (sizeof...(embraced_string) == 1) {
-        return ::pltxt2htm::details::TryParseMdCodeSpanResult{
-            .forward_index = forward_index + sizeof...(embraced_string), .subast = ::std::move(ast)};
-    } else if constexpr (sizeof...(embraced_string) == 2) {
-        return ::pltxt2htm::details::TryParseMdCodeSpanResult{
-            .forward_index = forward_index + sizeof...(embraced_string), .subast = ::std::move(ast)};
-    } else if constexpr (sizeof...(embraced_string) == 3) {
-        return ::pltxt2htm::details::TryParseMdCodeSpanResult{
-            .forward_index = forward_index + sizeof...(embraced_string), .subast = ::std::move(ast)};
+    if constexpr (embraced_size == 1) {
+        return ::pltxt2htm::details::TryParseMdCodeSpanResult{.forward_index = forward_index + embraced_size,
+                                                              .subast = ::std::move(ast)};
+    } else if constexpr (embraced_size == 2) {
+        return ::pltxt2htm::details::TryParseMdCodeSpanResult{.forward_index = forward_index + embraced_size,
+                                                              .subast = ::std::move(ast)};
+    } else if constexpr (embraced_size == 3) {
+        return ::pltxt2htm::details::TryParseMdCodeSpanResult{.forward_index = forward_index + embraced_size,
+                                                              .subast = ::std::move(ast)};
     } else {
         ::exception::unreachable();
     }
@@ -902,7 +937,8 @@ template<bool ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_latex_block_dollar(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseMdLatexResult> {
-    if (pltext.size() < 4 || ::pltxt2htm::details::is_prefix_match<ndebug, u8'$', u8'$'>(pltext) == false) {
+    constexpr auto double_dollar = ::pltxt2htm::details::LiteralString{u8"$$"};
+    if (pltext.size() < 4 || ::pltxt2htm::details::is_prefix_match<ndebug, double_dollar>(pltext) == false) {
         return ::exception::nullopt_t{};
     }
 
@@ -910,7 +946,7 @@ constexpr auto try_parse_md_latex_block_dollar(::fast_io::u8string_view pltext) 
     ::std::size_t const body_size{body.size()};
     ::std::size_t close_pos{body_size};
     for (::std::size_t i{}; i < body_size; ++i) {
-        if (::pltxt2htm::details::is_prefix_match<ndebug, u8'$', u8'$'>(
+        if (::pltxt2htm::details::is_prefix_match<ndebug, double_dollar>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(body, i))) {
             close_pos = i;
             break;
