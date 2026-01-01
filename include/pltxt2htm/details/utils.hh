@@ -93,40 +93,6 @@ constexpr auto vector_index(::fast_io::vector<T> const& vec, ::std::size_t i) no
 }
 
 /**
- * @brief Get the index-th char8_t from the string.
- * @tparam I Index to access
- * @tparam first_char First character in the parameter pack
- * @tparam str Remaining characters in the parameter pack
- * @return The char8_t at index I of str.
- * @retval char8_t The UTF-8 character at the specified compile-time index
- */
-template<::std::size_t I, char8_t first_char, char8_t... str>
-    requires (I <= sizeof...(str))
-[[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
-consteval char8_t pack_indexing_char8_t() noexcept {
-    // https://en.cppreference.com/w/cpp/language/pack_indexing.html
-    if constexpr (I == 0) {
-        return first_char;
-    } else {
-#if __cpp_pack_indexing >= 202311L
-    #if defined(__clang__)
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wc++26-extensions"
-    #endif
-        return str...[I - 1];
-    #if defined(__clang__)
-        #pragma clang diagnostic pop
-    #endif
-#else
-        return pack_indexing_char8_t<I - 1, str...>();
-#endif
-    }
-}
-
-/**
  * @brief Check if a string is a case-insensitive prefix match
  * @details This function performs compile-time prefix matching that is case-insensitive.
  *          It generates efficient if-expressions at compile time for optimal runtime performance.
