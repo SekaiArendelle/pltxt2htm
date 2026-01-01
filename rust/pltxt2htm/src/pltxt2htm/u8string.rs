@@ -15,8 +15,12 @@ impl U8String {
         self.ptr
     }
 
-    pub fn to_ffi_cstr(&self) -> &CStr {
-        unsafe { CStr::from_ptr(self.ptr) }
+    pub fn as_cstr(&self) -> &CStr {
+        return unsafe { CStr::from_ptr(self.ptr) };
+    }
+
+    pub fn as_str(&self) -> &str {
+        return unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(self.ptr as *const u8, libc::strlen(self.ptr))) };
     }
 }
 
@@ -46,5 +50,17 @@ impl Clone for U8String {
             *ptr.offset(str_len as isize) = '\0' as libc::c_char;
         };
         U8String::new(ptr)
+    }
+}
+
+impl AsRef<CStr> for U8String {
+    fn as_ref(&self) -> &CStr {
+        self.as_cstr()
+    }
+}
+
+impl AsRef<str> for U8String {
+    fn as_ref(&self) -> &str {
+        self.as_str()
     }
 }

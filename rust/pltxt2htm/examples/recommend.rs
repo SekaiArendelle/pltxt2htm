@@ -12,5 +12,5 @@ With Markdown supports
     let host = CString::new("localhost:5173").unwrap();
 
     let html = pltxt2htm::pltxt2advanced_html(pltext, host);
-    println!("{}", html.to_ffi_cstr().to_str().unwrap());
+    println!("{}", html.as_str());
 }
