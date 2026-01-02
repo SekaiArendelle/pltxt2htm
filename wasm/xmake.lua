@@ -23,7 +23,7 @@ target("pltxt2htm", function()
     add_includedirs("$(projectdir)/../include")
     add_ldflags("-fuse-ld=lld")
     add_ldflags(
-        "-s EXPORTED_FUNCTIONS=['_common_parser','_advanced_parser','_fixedadv_parser','_deallocate','_ver_major','_ver_minor','_ver_patch']")
+        "-s EXPORTED_FUNCTIONS=['_common_parser','_advanced_parser','_fixedadv_parser','_free','_ver_major','_ver_minor','_ver_patch']")
     add_ldflags("-s EXPORTED_RUNTIME_METHODS=['cwrap','UTF8ToString']")
     add_ldflags("-s MODULARIZE=1")
     add_ldflags("-s EXPORT_ES6=1")
