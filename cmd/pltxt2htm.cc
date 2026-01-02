@@ -21,8 +21,8 @@ constexpr ::fast_io::u8string_view usage{
     pltxt2htm [-h|help]
     echo "example" | pltxt2htm --target common_html
     echo "example" | pltxt2htm --target common_html -o <output file>
-    echo "example" | pltxt2htm --target advanced_html --host <host name>
-    echo "example" | pltxt2htm --target advanced_html --host <host name> -o <output file>
+    echo "example" | pltxt2htm --target advanced_html
+    echo "example" | pltxt2htm --target advanced_html -o <output file>
     echo "example" | pltxt2htm --target fixedadv_html --host <host name>
     echo "example" | pltxt2htm --target fixedadv_html --host <host name> -o <output file>
 )"};
@@ -131,11 +131,18 @@ int main(int argc, char const* const* const argv) noexcept {
     }
 
     switch (target_type) {
-    case ::TargetType::fixedadv_html:
-        [[fallthrough]];
-    case ::TargetType::advanced_html: {
+    case ::TargetType::fixedadv_html:{
         if (host == nullptr) [[unlikely]] {
             ::fast_io::perrln("** You must specify host name with `--host`");
+            ::fast_io::println(::fast_io::u8c_stderr(), usage);
+            return 1;
+        }
+        break;
+    }
+    case ::TargetType::advanced_html:
+    {
+        if (host != nullptr) [[unlikely]] {
+            ::fast_io::perrln("** You can not specify host name with `--host` when `--target` is advanced_html");
             ::fast_io::println(::fast_io::u8c_stderr(), usage);
             return 1;
         }
@@ -170,7 +177,7 @@ int main(int argc, char const* const* const argv) noexcept {
 #else
                 false
 #endif
-                >(::fast_io::mnp::os_c_str(input_text), ::fast_io::mnp::os_c_str(host));
+                >(::fast_io::mnp::os_c_str(input_text));
         } else if (target_type == ::TargetType::common_html) {
             html = ::pltxt2htm::pltxt2common_html<
 #ifdef NDEBUG

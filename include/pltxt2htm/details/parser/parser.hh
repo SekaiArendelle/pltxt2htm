@@ -1117,7 +1117,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
-                    ++current_index;
+                        ++current_index;
                         continue;
                     }
                 }
@@ -1204,7 +1204,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
-                    ++current_index;
+                        ++current_index;
                         continue;
                     }
                 }
@@ -1226,7 +1226,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
-                    ++current_index;
+                        ++current_index;
                         continue;
                     }
                 }
@@ -1246,7 +1246,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
-                    ++current_index;
+                        ++current_index;
                         continue;
                     }
                 }
@@ -1266,7 +1266,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
-                    ++current_index;
+                        ++current_index;
                         continue;
                     }
                 }
@@ -1509,7 +1509,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
-                    ++current_index;
+                        ++current_index;
                         continue;
                     }
                 }
@@ -1529,7 +1529,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
-                    ++current_index;
+                        ++current_index;
                         continue;
                     }
                 }
@@ -1549,7 +1549,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
-                    ++current_index;
+                        ++current_index;
                         continue;
                     }
                 }
@@ -1569,7 +1569,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
-                    ++current_index;
+                        ++current_index;
                         continue;
                     }
                 }

@@ -3,7 +3,7 @@
 #include "../include/pltxt2htm.h"
 
 int main(void) {
-    char const* html = PLTXT2HTM_C_NAME_MANGLING(advanced_parser)("<a>example</a>", "_");
+    char const* html = PLTXT2HTM_C_NAME_MANGLING(advanced_parser)("<a>example</a>");
     printf("%s\n", html);
     free((void*)html);
 

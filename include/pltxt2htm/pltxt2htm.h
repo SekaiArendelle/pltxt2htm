@@ -74,9 +74,9 @@ template<bool ndebug = false>
 #if __has_cpp_attribute(__gnu__::__nonnull__)
 [[__gnu__::__nonnull__]]
 #endif
-constexpr char8_t const* advanced_parser(char8_t const* const text, char8_t const* const host) noexcept {
+constexpr char8_t const* advanced_parser(char8_t const* const text) noexcept {
     return ::pltxt2htm::details::c_ptr_style_wrapper<::pltxt2htm::pltxt2advanced_html<ndebug>>(
-        ::fast_io::mnp::os_c_str(text), ::fast_io::mnp::os_c_str(host));
+        ::fast_io::mnp::os_c_str(text));
 }
 
 /**

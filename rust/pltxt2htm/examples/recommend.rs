@@ -9,8 +9,7 @@ With Markdown supports
 "#,
     )
     .unwrap();
-    let host = CString::new("localhost:5173").unwrap();
 
-    let html = pltxt2htm::pltxt2advanced_html(pltext, host);
+    let html = pltxt2htm::pltxt2advanced_html(pltext);
     println!("{}", html.as_str());
 }

@@ -8,9 +8,7 @@ class Program
 # Hello Quantum PhysicsLab
 With Markdown supports
 ";
-        string host = "localhost:5173";
-
-        string html = Pltxt2Htm.AdvancedParser(markdownText, host);
+        string html = Pltxt2Htm.AdvancedParser(markdownText);
         Console.WriteLine(html);
     }
 }
