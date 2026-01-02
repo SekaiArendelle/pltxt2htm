@@ -24,6 +24,8 @@ if args.toolchain == "gcc" and not shutil.which("g++"):
     raise Exception("g++ not found")
 elif args.toolchain == "clang" and not shutil.which("clang++"):
     raise Exception("clang++ not found")
+elif args.toolchain == "clang-cl" and not shutil.which("clang-cl"):
+    raise Exception("clang-cl not found")
 
 os.chdir(SCRIPT_DIR)
 
