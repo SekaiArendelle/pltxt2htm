@@ -131,7 +131,7 @@ int main(int argc, char const* const* const argv) noexcept {
     }
 
     switch (target_type) {
-    case ::TargetType::fixedadv_html:{
+    case ::TargetType::fixedadv_html: {
         if (host == nullptr) [[unlikely]] {
             ::fast_io::perrln("** You must specify host name with `--host`");
             ::fast_io::println(::fast_io::u8c_stderr(), usage);
@@ -139,8 +139,7 @@ int main(int argc, char const* const* const argv) noexcept {
         }
         break;
     }
-    case ::TargetType::advanced_html:
-    {
+    case ::TargetType::advanced_html: {
         if (host != nullptr) [[unlikely]] {
             ::fast_io::perrln("** You can not specify host name with `--host` when `--target` is advanced_html");
             ::fast_io::println(::fast_io::u8c_stderr(), usage);

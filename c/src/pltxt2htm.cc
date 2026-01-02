@@ -34,8 +34,7 @@ PLTXT2HTM_C_NAME_MANGLING(common_parser)(char8_t const* const pltext) noexcept -
 }
 
 PLTXT2HTM_C_SRC_EXPORT_FUNCTION
-PLTXT2HTM_C_NAME_MANGLING(advanced_parser)(char8_t const* const pltext) noexcept
-    -> char8_t const* {
+PLTXT2HTM_C_NAME_MANGLING(advanced_parser)(char8_t const* const pltext) noexcept -> char8_t const* {
     return ::pltxt2htm::advanced_parser<
 #if defined(NDEBUG)
         true
