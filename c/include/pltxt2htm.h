@@ -16,7 +16,7 @@ char const* PLTXT2HTM_C_NAME_MANGLING(common_parser)(char const* text)
 #endif
     ;
 
-char const* PLTXT2HTM_C_NAME_MANGLING(advanced_parser)(char const* text, char const* host)
+char const* PLTXT2HTM_C_NAME_MANGLING(advanced_parser)(char const* text)
 #if __cpp_noexcept_function_type >= 201510L
     noexcept
 #endif

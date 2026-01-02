@@ -21,8 +21,9 @@
 #include <exception/exception.hh>
 #include "parser.hh"
 #include "optimizer.hh"
-#include "details/backend/generic.hh"
-#include "details/backend/common_html.hh"
+#include "details/backend/for_plweb_text.hh"
+#include "details/backend/for_unittest.hh"
+#include "details/backend/for_plweb_title.hh"
 #include "version.hh"
 
 namespace pltxt2htm {
@@ -47,12 +48,12 @@ template<bool ndebug = false, bool optimize = true>
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-constexpr auto pltxt2advanced_html(::fast_io::u8string_view pltext, ::fast_io::u8string_view host) noexcept {
+constexpr auto pltxt2advanced_html(::fast_io::u8string_view pltext) noexcept {
     auto ast = ::pltxt2htm::parse_pltxt<ndebug>(pltext);
     if constexpr (optimize) {
         ::pltxt2htm::optimize_ast<ndebug>(ast);
     }
-    return ::pltxt2htm::details::generic_backend<ndebug, ::pltxt2htm::details::backend_mode::normal_html>(ast, host);
+    return ::pltxt2htm::details::unittest_backend<ndebug>(ast);
 }
 
 /**
@@ -76,7 +77,7 @@ constexpr auto pltxt2fixedadv_html(::fast_io::u8string_view pltext, ::fast_io::u
     if constexpr (optimize) {
         ::pltxt2htm::optimize_ast<ndebug>(ast);
     }
-    return ::pltxt2htm::details::generic_backend<ndebug, ::pltxt2htm::details::backend_mode::main_text_html>(ast, host);
+    return ::pltxt2htm::details::plweb_text_backend<ndebug>(ast, host);
 }
 
 /**
@@ -108,7 +109,7 @@ constexpr auto pltxt2common_html(::fast_io::u8string_view pltext) noexcept {
     if constexpr (optimize) {
         ::pltxt2htm::optimize_ast<ndebug>(ast);
     }
-    return ::pltxt2htm::details::ast2common_html<ndebug>(ast);
+    return ::pltxt2htm::details::plweb_title_backend<ndebug>(ast);
 }
 
 } // namespace pltxt2htm

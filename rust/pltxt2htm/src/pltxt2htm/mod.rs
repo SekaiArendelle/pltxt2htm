@@ -13,13 +13,13 @@ pub fn pltxt2common_html(pltext: CString) -> u8string::U8String {
     return u8string::U8String::new(c_html);
 }
 
-pub fn pltxt2advanced_html(pltxt: CString, host: CString) -> u8string::U8String {
+pub fn pltxt2advanced_html(pltxt: CString) -> u8string::U8String {
     #[cfg(debug_assertions)]
     let c_html =
-        unsafe { libpltxt2htm_sys::pltxt2htm_advanced_parserd(pltxt.as_ptr(), host.as_ptr()) };
+        unsafe { libpltxt2htm_sys::pltxt2htm_advanced_parserd(pltxt.as_ptr()) };
     #[cfg(not(debug_assertions))]
     let c_html =
-        unsafe { libpltxt2htm_sys::pltxt2htm_advanced_parser(pltxt.as_ptr(), host.as_ptr()) };
+        unsafe { libpltxt2htm_sys::pltxt2htm_advanced_parser(pltxt.as_ptr()) };
 
     return u8string::U8String::new(c_html);
 }
