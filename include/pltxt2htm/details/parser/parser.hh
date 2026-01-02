@@ -458,7 +458,7 @@ entry:
         }
     }
 
-    for (; current_index < pltext_size; ++current_index) {
+    while (current_index < pltext_size) {
         char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index)};
 
         if (chr == u8'\n') {
@@ -471,25 +471,31 @@ entry:
                 current_index += 1;
                 goto entry;
             }
+            ++current_index;
             continue;
         } else if (chr == u8' ') {
-            // TODO should we delete tail space?
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Space>{});
+            ++current_index;
             continue;
         } else if (chr == u8'&') {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Ampersand>{});
+            ++current_index;
             continue;
         } else if (chr == u8'\'') {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::SingleQuotationMark>{});
+            ++current_index;
             continue;
         } else if (chr == u8'\"') {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::DoubleQuotationMark>{});
+            ++current_index;
             continue;
         } else if (chr == u8'>') {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::GreaterThan>{});
+            ++current_index;
             continue;
         } else if (chr == u8'\t') {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Tab>{});
+            ++current_index;
             continue;
         } else if (chr == u8'\\') {
             if (current_index + 1 == pltext_size) {
@@ -504,6 +510,7 @@ entry:
             } else {
                 result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{u8'\\'});
             }
+            ++current_index;
             continue;
         } else if (auto opt_triple_emphasis_asterisk =
                        ::pltxt2htm::details::try_parse_md_inlines<ndebug, ::pltxt2htm::details::LiteralString{u8"***"}>(
@@ -589,7 +596,7 @@ entry:
                    opt_code_span_3_backtick.has_value()) {
             // parsing markdown ```example```
             auto&& [forward_index, subast] = opt_code_span_3_backtick.template value<ndebug>();
-            current_index += forward_index - 1;
+            current_index += forward_index;
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdCodeSpan3Backtick>(::std::move(subast)));
             continue;
         } else if (auto opt_code_span_2_backtick =
@@ -599,7 +606,7 @@ entry:
                    opt_code_span_2_backtick.has_value()) {
             // parsing markdown ``example``
             auto&& [forward_index, subast] = opt_code_span_2_backtick.template value<ndebug>();
-            current_index += forward_index - 1;
+            current_index += forward_index;
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdCodeSpan2Backtick>(::std::move(subast)));
             continue;
         } else if (auto opt_code_span_1_backtick =
@@ -608,21 +615,21 @@ entry:
                    opt_code_span_1_backtick.has_value()) {
             // parsing markdown `example`
             auto&& [forward_index, subast] = opt_code_span_1_backtick.template value<ndebug>();
-            current_index += forward_index - 1;
+            current_index += forward_index;
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdCodeSpan1Backtick>(::std::move(subast)));
             continue;
         } else if (auto opt_md_latex_block_dollar = ::pltxt2htm::details::try_parse_md_latex_block_dollar<ndebug>(
                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
                    opt_md_latex_block_dollar.has_value()) {
             auto&& [forward_index, subast] = opt_md_latex_block_dollar.template value<ndebug>();
-            current_index += forward_index - 1;
+            current_index += forward_index;
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdLatexBlock>(::std::move(subast)));
             continue;
         } else if (auto opt_md_latex_inline = ::pltxt2htm::details::try_parse_md_latex_inline<ndebug>(
                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
                    opt_md_latex_inline.has_value()) {
             auto&& [forward_index, subast] = opt_md_latex_inline.template value<ndebug>();
-            current_index += forward_index - 1;
+            current_index += forward_index;
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdLatexInline>(::std::move(subast)));
             continue;
         } else if (auto opt_md_link = ::pltxt2htm::details::try_parse_md_link<ndebug>(
@@ -639,6 +646,7 @@ entry:
 
             if (current_index + 1 == pltext_size) {
                 result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                ++current_index;
                 continue;
             }
 
@@ -658,6 +666,7 @@ entry:
                     goto entry;
                 } else {
                     result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                    ++current_index;
                     continue;
                 }
             }
@@ -690,6 +699,7 @@ entry:
                         current_index += 1;
                         goto entry;
                     }
+                    ++current_index;
                     continue;
                 } else if (auto opt_blockquote_tag = ::pltxt2htm::details::try_parse_bare_tag<
                                ndebug, ::pltxt2htm::details::LiteralString{u8"lockquote"}>(
@@ -703,6 +713,7 @@ entry:
                     goto entry;
                 } else {
                     result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                    ++current_index;
                     continue;
                 }
             }
@@ -740,6 +751,7 @@ entry:
                     goto entry;
                 } else {
                     result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                    ++current_index;
                     continue;
                 }
             }
@@ -774,6 +786,7 @@ entry:
                     goto entry;
                 } else {
                     result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                    ++current_index;
                     continue;
                 }
             }
@@ -807,6 +820,7 @@ entry:
                     goto entry;
                 } else {
                     result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                    ++current_index;
                     continue;
                 }
             }
@@ -885,9 +899,11 @@ entry:
                            opt_tag_len.has_value()) {
                     current_index += opt_tag_len.template value<ndebug>() + 2;
                     result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Hr>());
+                    ++current_index;
                     continue;
                 } else {
                     result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                    ++current_index;
                     continue;
                 }
             }
@@ -906,6 +922,7 @@ entry:
                     goto entry;
                 } else {
                     result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                    ++current_index;
                     continue;
                 }
             }
@@ -924,6 +941,7 @@ entry:
                     goto entry;
                 } else {
                     result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                    ++current_index;
                     continue;
                 }
             }
@@ -942,6 +960,7 @@ entry:
                     goto entry;
                 } else {
                     result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                    ++current_index;
                     continue;
                 }
             }
@@ -970,6 +989,7 @@ entry:
                     goto entry;
                 } else {
                     result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                    ++current_index;
                     continue;
                 }
             }
@@ -1009,6 +1029,7 @@ entry:
                     goto entry;
                 } else {
                     result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                    ++current_index;
                     continue;
                 }
             }
@@ -1043,6 +1064,7 @@ entry:
                     goto entry;
                 } else {
                     result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                    ++current_index;
                     continue;
                 }
             }
@@ -1066,9 +1088,11 @@ entry:
 
                     current_index = comment_end + 2; // Point to '>'
                     result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Note>(::std::move(subast)));
+                    ++current_index;
                     continue;
                 } else {
                     result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                    ++current_index;
                     continue;
                 }
             }
@@ -1093,6 +1117,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                    ++current_index;
                         continue;
                     }
                 }
@@ -1113,6 +1138,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                        ++current_index;
                         continue;
                     }
                 }
@@ -1134,6 +1160,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                        ++current_index;
                         continue;
                     }
                 }
@@ -1155,6 +1182,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                        ++current_index;
                         continue;
                     }
                 }
@@ -1176,6 +1204,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                    ++current_index;
                         continue;
                     }
                 }
@@ -1197,6 +1226,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                    ++current_index;
                         continue;
                     }
                 }
@@ -1216,6 +1246,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                    ++current_index;
                         continue;
                     }
                 }
@@ -1235,6 +1266,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                    ++current_index;
                         continue;
                     }
                 }
@@ -1254,6 +1286,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                        ++current_index;
                         continue;
                     }
                 }
@@ -1273,6 +1306,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                        ++current_index;
                         continue;
                     }
                 }
@@ -1292,6 +1326,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                        ++current_index;
                         continue;
                     }
                 }
@@ -1311,6 +1346,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                        ++current_index;
                         continue;
                     }
                 }
@@ -1330,6 +1366,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                        ++current_index;
                         continue;
                     }
                 }
@@ -1349,6 +1386,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                        ++current_index;
                         continue;
                     }
                 }
@@ -1368,6 +1406,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                        ++current_index;
                         continue;
                     }
                 }
@@ -1387,6 +1426,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                        ++current_index;
                         continue;
                     }
                 }
@@ -1409,6 +1449,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                        ++current_index;
                         continue;
                     }
                 }
@@ -1428,6 +1469,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                        ++current_index;
                         continue;
                     }
                 }
@@ -1447,6 +1489,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                        ++current_index;
                         continue;
                     }
                 }
@@ -1466,6 +1509,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                    ++current_index;
                         continue;
                     }
                 }
@@ -1485,6 +1529,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                    ++current_index;
                         continue;
                     }
                 }
@@ -1504,6 +1549,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                    ++current_index;
                         continue;
                     }
                 }
@@ -1523,6 +1569,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                    ++current_index;
                         continue;
                     }
                 }
@@ -1541,6 +1588,7 @@ entry:
                         goto entry;
                     } else {
                         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                        ++current_index;
                         continue;
                     }
                 }
@@ -1682,12 +1730,14 @@ entry:
                     // relate to 0041.fuzzing-crash3
                     // any tag contains `</` context would hit this branch
                     result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                    ++current_index;
                     continue;
                 }
                 case ::pltxt2htm::NodeType::md_latex_inline:
                     [[fallthrough]];
                 case ::pltxt2htm::NodeType::md_latex_block: {
                     result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                    ++current_index;
                     continue;
                 }
                 case ::pltxt2htm::NodeType::md_ul:
@@ -1702,6 +1752,7 @@ entry:
 
             default: {
                 result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                ++current_index;
                 continue;
             }
             }
@@ -1711,6 +1762,7 @@ entry:
             auto forward_index = ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), result);
             current_index += forward_index;
+            ++current_index;
             continue;
         }
     }
