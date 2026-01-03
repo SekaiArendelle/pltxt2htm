@@ -42,7 +42,9 @@ template<bool ndebug>
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-constexpr auto plweb_text_backend(::pltxt2htm::Ast const& ast_init, ::fast_io::u8string_view host) noexcept
+constexpr auto plweb_text_backend(::pltxt2htm::Ast const& ast_init, ::fast_io::u8string_view host,
+                                  ::fast_io::u8string_view project, ::fast_io::u8string_view visitor,
+                                  ::fast_io::u8string_view author, ::fast_io::u8string_view coauthors) noexcept
     -> ::fast_io::u8string {
     ::fast_io::u8string result{};
     ::fast_io::stack<::pltxt2htm::details::BackendBasicFrameContext,
@@ -60,12 +62,12 @@ entry:
         switch (node->node_type()) {
         case ::pltxt2htm::NodeType::u8char: {
             result.push_back(static_cast<::pltxt2htm::U8Char const*>(node.release_imul())->get_u8char());
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::invalid_u8char: {
             auto const escape_str = ::fast_io::array{char8_t{0xef}, 0xbf, 0xbd};
             result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::text: {
             auto text = static_cast<::pltxt2htm::Text const*>(node.release_imul());
@@ -77,49 +79,49 @@ entry:
         case ::pltxt2htm::NodeType::space: {
             auto const escape_str = ::fast_io::array{u8'&', u8'n', u8'b', u8's', u8'p', u8';'};
             result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_escape_ampersand:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::ampersand: {
             auto const escape_str = ::fast_io::array{u8'&', u8'a', u8'm', u8'p', u8';'};
             result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_escape_single_quote:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::single_quote: {
             auto const escape_str = ::fast_io::array{u8'&', u8'a', u8'p', u8'o', u8's', u8';'};
             result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_escape_double_quote:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::double_quote: {
             auto const escape_str = ::fast_io::array{u8'&', u8'q', u8'u', u8'o', u8't', u8';'};
             result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_escape_less_than:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::less_than: {
             auto const escape_str = ::fast_io::array{u8'&', u8'l', u8't', u8';'};
             result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_escape_greater_than:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::greater_than: {
             auto const escape_str = ::fast_io::array{u8'&', u8'g', u8't', u8';'};
             result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::tab: {
             auto const escape_str =
                 ::fast_io::array{u8'&', u8'n', u8'b', u8's', u8'p', u8';', u8'&', u8'n', u8'b', u8's', u8'p', u8';',
                                  u8'&', u8'n', u8'b', u8's', u8'p', u8';', u8'&', u8'n', u8'b', u8's', u8'p', u8';'};
             result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::pl_color:
             [[fallthrough]];
@@ -224,12 +226,12 @@ entry:
                 auto const start_tag = ::fast_io::array{u8'<', u8'b', u8'r', u8'>'};
                 result.append(::fast_io::u8string_view{start_tag.data(), start_tag.size()});
             }
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::html_br: {
             auto const start_tag = ::fast_io::array{u8'<', u8'b', u8'r', u8'>'};
             result.append(::fast_io::u8string_view{start_tag.data(), start_tag.size()});
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::html_h1:
             [[fallthrough]];
@@ -328,10 +330,10 @@ entry:
         case ::pltxt2htm::NodeType::html_hr: {
             auto const start_tag = ::fast_io::array{u8'<', u8'h', u8'r', u8'>'};
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::html_note: {
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_ul:
             [[fallthrough]];
@@ -447,111 +449,111 @@ entry:
         }
         case ::pltxt2htm::NodeType::md_escape_backslash: {
             result.push_back(u8'\\');
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_escape_exclamation: {
             result.push_back(u8'!');
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_escape_hash: {
             result.push_back(u8'#');
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_escape_dollar: {
             result.push_back(u8'$');
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_escape_percent: {
             result.push_back(u8'%');
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_escape_left_paren: {
             result.push_back(u8'(');
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_escape_right_paren: {
             result.push_back(u8')');
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_escape_asterisk: {
             result.push_back(u8'*');
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_escape_plus: {
             result.push_back(u8'+');
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_escape_comma: {
             result.push_back(u8',');
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_escape_hyphen: {
             result.push_back(u8'-');
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_escape_dot: {
             result.push_back(u8'.');
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_escape_slash: {
             result.push_back(u8'/');
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_escape_colon: {
             result.push_back(u8':');
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_escape_semicolon: {
             result.push_back(u8';');
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_escape_equals: {
             result.push_back(u8'=');
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_escape_question: {
             result.push_back(u8'?');
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_escape_at: {
             result.push_back(u8'@');
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_escape_left_bracket: {
             result.push_back(u8'[');
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_escape_right_bracket: {
             result.push_back(u8']');
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_escape_caret: {
             result.push_back(u8'^');
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_escape_underscore: {
             result.push_back(u8'_');
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_escape_backtick: {
             result.push_back(u8'`');
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_escape_left_brace: {
             result.push_back(u8'{');
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_escape_pipe: {
             result.push_back(u8'|');
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_escape_right_brace: {
             result.push_back(u8'}');
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_escape_tilde: {
             result.push_back(u8'~');
-            break;
+            continue;
         }
         case ::pltxt2htm::NodeType::md_code_fence_backtick:
             [[fallthrough]];
@@ -576,6 +578,22 @@ entry:
                 code_fence->get_subast(), ::pltxt2htm::NodeType::md_code_fence_backtick, 0));
             ++current_index;
             goto entry;
+        }
+        case ::pltxt2htm::NodeType::pl_macro_project: {
+            result.append(project);
+            continue;
+        }
+        case ::pltxt2htm::NodeType::pl_macro_visitor: {
+            result.append(visitor);
+            continue;
+        }
+        case ::pltxt2htm::NodeType::pl_macro_author: {
+            result.append(author);
+            continue;
+        }
+        case ::pltxt2htm::NodeType::pl_macro_coauthors: {
+            result.append(coauthors);
+            continue;
         }
         case ::pltxt2htm::NodeType::base:
 #if 0

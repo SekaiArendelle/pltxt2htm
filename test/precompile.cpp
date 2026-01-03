@@ -51,7 +51,8 @@ __attribute__((visibility("default")))
 __attribute__((visibility("default")))
 #endif
 ::fast_io::u8string pltxt2fixedadv_htmld(::fast_io::u8string_view pltext) noexcept {
-    return ::pltxt2htm::pltxt2fixedadv_html<false>(pltext, u8"localhost:5173");
+    return ::pltxt2htm::pltxt2fixedadv_html<false>(pltext, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR",
+                                                   u8"$CO_AUTHORS");
 }
 
 #if __has_cpp_attribute(__gnu__::__used__)

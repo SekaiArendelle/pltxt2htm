@@ -125,6 +125,8 @@ using ::pltxt2htm::MdBlockQuotes;
 using ::pltxt2htm::MdUl;
 using ::pltxt2htm::MdOl;
 using ::pltxt2htm::MdLi;
+using ::pltxt2htm::MdLatexInline;
+using ::pltxt2htm::MdLatexBlock;
 
 // physics_lab_node
 using ::pltxt2htm::Color;
@@ -135,5 +137,9 @@ using ::pltxt2htm::User;
 using ::pltxt2htm::Size;
 using ::pltxt2htm::I;
 using ::pltxt2htm::B;
+using ::pltxt2htm::PlMacroProject;
+using ::pltxt2htm::PlMacroVisitor;
+using ::pltxt2htm::PlMacroAuthor;
+using ::pltxt2htm::PlMacroCoauthors;
 
 } // namespace pltxt2htm

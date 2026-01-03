@@ -72,12 +72,14 @@ template<bool ndebug = false, bool optimize = true>
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-constexpr auto pltxt2fixedadv_html(::fast_io::u8string_view pltext, ::fast_io::u8string_view host) noexcept {
+constexpr auto pltxt2fixedadv_html(::fast_io::u8string_view pltext, ::fast_io::u8string_view host,
+                                   ::fast_io::u8string_view project, ::fast_io::u8string_view visitor,
+                                   ::fast_io::u8string_view author, ::fast_io::u8string_view coauthors) noexcept {
     auto ast = ::pltxt2htm::parse_pltxt<ndebug>(pltext);
     if constexpr (optimize) {
         ::pltxt2htm::optimize_ast<ndebug>(ast);
     }
-    return ::pltxt2htm::details::plweb_text_backend<ndebug>(ast, host);
+    return ::pltxt2htm::details::plweb_text_backend<ndebug>(ast, host, project, visitor, author, coauthors);
 }
 
 /**

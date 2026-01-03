@@ -23,8 +23,8 @@ constexpr ::fast_io::u8string_view usage{
     echo "example" | pltxt2htm --target common_html -o <output file>
     echo "example" | pltxt2htm --target advanced_html
     echo "example" | pltxt2htm --target advanced_html -o <output file>
-    echo "example" | pltxt2htm --target fixedadv_html --host <host name>
-    echo "example" | pltxt2htm --target fixedadv_html --host <host name> -o <output file>
+    echo "example" | pltxt2htm --target fixedadv_html --host <host name> --project <project name> --visitor <visitor name> --author <author name> --coauthors <coauthors string>
+    echo "example" | pltxt2htm --target fixedadv_html --host <host name> --project <project name> --visitor <visitor name> --author <author name> --coauthors <coauthors string> -o <output file>
 )"};
 
 int main(int argc, char const* const* const argv) noexcept {
@@ -61,8 +61,12 @@ int main(int argc, char const* const* const argv) noexcept {
 
     // target type
     ::TargetType target_type = TargetType::indeterminate;
-    // host prefix of physics-lab-web
+    // host/project/visitor/author/coauthors for fixedadv_html target
     char8_t const* host = nullptr;
+    char8_t const* project = nullptr;
+    char8_t const* visitor = nullptr;
+    char8_t const* author = nullptr;
+    char8_t const* coauthors = nullptr;
     // store output file path, can be optional
     char const* output_file_path = nullptr;
     for (::std::size_t i{1}; i < static_cast<::std::size_t>(argc); ++i) {
@@ -104,6 +108,50 @@ int main(int argc, char const* const* const argv) noexcept {
             }
             output_file_path = argv[++i];
             continue;
+        } else if (::std::strcmp(argv[i], "--project") == 0) {
+            if (i == static_cast<::std::size_t>(argc) - 1) [[unlikely]] {
+                ::fast_io::perrln("You must specify project name after `--project`");
+                return 1;
+            }
+            if (project != nullptr) [[unlikely]] {
+                ::fast_io::perrln("You can only specify one project name");
+                return 1;
+            }
+            project = reinterpret_cast<char8_t const*>(argv[++i]);
+            continue;
+        } else if (::std::strcmp(argv[i], "--visitor") == 0) {
+            if (i == static_cast<::std::size_t>(argc) - 1) [[unlikely]] {
+                ::fast_io::perrln("You must specify visitor name after `--visitor`");
+                return 1;
+            }
+            if (visitor != nullptr) [[unlikely]] {
+                ::fast_io::perrln("You can only specify one visitor name");
+                return 1;
+            }
+            visitor = reinterpret_cast<char8_t const*>(argv[++i]);
+            continue;
+        } else if (::std::strcmp(argv[i], "--author") == 0) {
+            if (i == static_cast<::std::size_t>(argc) - 1) [[unlikely]] {
+                ::fast_io::perrln("You must specify author name after `--author`");
+                return 1;
+            }
+            if (author != nullptr) [[unlikely]] {
+                ::fast_io::perrln("You can only specify one author name");
+                return 1;
+            }
+            author = reinterpret_cast<char8_t const*>(argv[++i]);
+            continue;
+        } else if (::std::strcmp(argv[i], "--coauthors") == 0) {
+            if (i == static_cast<::std::size_t>(argc) - 1) [[unlikely]] {
+                ::fast_io::perrln("You must specify coauthors string after `--coauthors`");
+                return 1;
+            }
+            if (coauthors != nullptr) [[unlikely]] {
+                ::fast_io::perrln("You can only specify one coauthors string");
+                return 1;
+            }
+            coauthors = reinterpret_cast<char8_t const*>(argv[++i]);
+            continue;
         } else if (::std::strcmp(argv[i], "-h") == 0 || ::std::strcmp(argv[i], "--help") == 0) {
             if (i != 1) [[unlikely]] {
                 ::fast_io::perrln(
@@ -137,19 +185,45 @@ int main(int argc, char const* const* const argv) noexcept {
             ::fast_io::println(::fast_io::u8c_stderr(), usage);
             return 1;
         }
+        if (project == nullptr) [[unlikely]] {
+            ::fast_io::perrln("** You must specify project name with `--project`");
+            ::fast_io::println(::fast_io::u8c_stderr(), usage);
+            return 1;
+        }
+        if (visitor == nullptr) [[unlikely]] {
+            ::fast_io::perrln("** You must specify visitor name with `--visitor`");
+            ::fast_io::println(::fast_io::u8c_stderr(), usage);
+            return 1;
+        }
+        if (author == nullptr) [[unlikely]] {
+            ::fast_io::perrln("** You must specify author name with `--author`");
+            ::fast_io::println(::fast_io::u8c_stderr(), usage);
+            return 1;
+        }
+        if (coauthors == nullptr) [[unlikely]] {
+            ::fast_io::perrln("** You must specify coauthors string with `--coauthors`");
+            ::fast_io::println(::fast_io::u8c_stderr(), usage);
+            return 1;
+        }
         break;
     }
     case ::TargetType::advanced_html: {
-        if (host != nullptr) [[unlikely]] {
-            ::fast_io::perrln("** You can not specify host name with `--host` when `--target` is advanced_html");
+        if (host != nullptr || project != nullptr || visitor != nullptr || author != nullptr || coauthors != nullptr)
+            [[unlikely]] {
+            ::fast_io::perrln(
+                "** You can not specify host/project/visitor/author/coauthors when `--target` is "
+                "advanced_html");
             ::fast_io::println(::fast_io::u8c_stderr(), usage);
             return 1;
         }
         break;
     }
     case ::TargetType::common_html: {
-        if (host != nullptr) [[unlikely]] {
-            ::fast_io::perrln("** You can not specify host name with `--host` when `--target` is common_html");
+        if (host != nullptr || project != nullptr || visitor != nullptr || author != nullptr || coauthors != nullptr)
+            [[unlikely]] {
+            ::fast_io::perrln(
+                "** You can not specify host/project/visitor/author/coauthors when `--target` is "
+                "common_html");
             ::fast_io::println(::fast_io::u8c_stderr(), usage);
             return 1;
         }
@@ -192,7 +266,9 @@ int main(int argc, char const* const* const argv) noexcept {
 #else
                 false
 #endif
-                >(::fast_io::mnp::os_c_str(input_text), ::fast_io::mnp::os_c_str(host));
+                >(::fast_io::mnp::os_c_str(input_text), ::fast_io::mnp::os_c_str(host),
+                  ::fast_io::mnp::os_c_str(project), ::fast_io::mnp::os_c_str(visitor),
+                  ::fast_io::mnp::os_c_str(author), ::fast_io::mnp::os_c_str(coauthors));
         } else [[unlikely]] {
             ::exception::unreachable<
 #ifdef NDEBUG
