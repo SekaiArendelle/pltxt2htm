@@ -1,6 +1,5 @@
 #pragma once
 
-#include <span>
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
 
