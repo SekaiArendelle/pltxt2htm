@@ -52,8 +52,8 @@ int main(int argc, char const* const* const argv) noexcept {
             "* build time: " __TIMESTAMP__
             "\n"
             "* compiler: " __VERSION__ "\n"
-#if __has_include("commit_hash.ignore")
-    #include "commit_hash.ignore"
+#if __has_include("repo_info.ignore")
+    #include "repo_info.ignore"
 #endif
         );
         return 0;

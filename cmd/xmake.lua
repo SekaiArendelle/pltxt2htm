@@ -46,7 +46,7 @@ target("pltxt2htm", function()
     end)
 
     before_build(function(target)
-        local file = io.open("$(projectdir)/commit_hash.ignore", "w")
+        local file = io.open("$(projectdir)/repo_info.ignore", "w")
 
         git_status = os.iorunv("git", {"status", "--porcelain"})
         if git_status ~= "" then
@@ -66,9 +66,9 @@ target("pltxt2htm", function()
     end)
 
     after_build(function(target)
-        if os.exists("$(projectdir)/commit_hash.ignore") and
-            os.isfile("$(projectdir)/commit_hash.ignore") then
-            os.rm("$(projectdir)/commit_hash.ignore")
+        if os.exists("$(projectdir)/repo_info.ignore") and
+            os.isfile("$(projectdir)/repo_info.ignore") then
+            os.rm("$(projectdir)/repo_info.ignore")
         end
     end)
 
