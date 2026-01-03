@@ -1,7 +1,6 @@
 module;
 
 #include <pltxt2htm/pltxt2htm.hh>
-#include "pltxt2htm/astnode/physics_lab_node.hh"
 
 export module pltxt2htm;
 
