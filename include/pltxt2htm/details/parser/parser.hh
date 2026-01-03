@@ -1132,11 +1132,18 @@ entry:
             case u8'/': {
                 switch (call_stack.top()->nested_tag_type) {
                 case ::pltxt2htm::NodeType::pl_color: {
-                    if (auto opt_tag_len =
+                    // parsing </color> or </a>
+                    ::exception::optional<::std::size_t> opt_tag_len{
+                        ::pltxt2htm::details::try_parse_bare_tag<ndebug,
+                                                                 ::pltxt2htm::details::LiteralString{u8"color"}>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2))};
+                    if (!opt_tag_len.has_value()) {
+                        opt_tag_len =
                             ::pltxt2htm::details::try_parse_bare_tag<ndebug,
-                                                                     ::pltxt2htm::details::LiteralString{u8"color"}>(
+                                                                     ::pltxt2htm::details::LiteralString{u8"a"}>(
                                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
-                        opt_tag_len.has_value()) {
+                    }
+                    if (opt_tag_len.has_value()) {
                         // parsing end tag </color> successed
                         auto frame =
                             static_cast<::pltxt2htm::details::EqualSignTagContext*>(call_stack.top().get_unsafe());
@@ -1154,12 +1161,18 @@ entry:
                     }
                 }
                 case ::pltxt2htm::NodeType::pl_a: {
-                    // parsing </a>
-                    if (auto opt_tag_len =
+                    // parsing </color> or </a>
+                    ::exception::optional<::std::size_t> opt_tag_len{
+                        ::pltxt2htm::details::try_parse_bare_tag<ndebug,
+                                                                 ::pltxt2htm::details::LiteralString{u8"color"}>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2))};
+                    if (!opt_tag_len.has_value()) {
+                        opt_tag_len =
                             ::pltxt2htm::details::try_parse_bare_tag<ndebug,
                                                                      ::pltxt2htm::details::LiteralString{u8"a"}>(
                                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
-                        opt_tag_len.has_value()) {
+                    }
+                    if (opt_tag_len.has_value()) {
                         // parsing end tag </a> successed
                         ::std::size_t const staged_index{current_index};
                         ::pltxt2htm::A staged_node(::std::move(result));

@@ -91,5 +91,12 @@ int main() {
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
+    {
+        // https://github.com/SekaiArendelle/pltxt2htm/issues/20
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<color=red>test</a>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"color:red;\">test</span>"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
     return 0;
 }

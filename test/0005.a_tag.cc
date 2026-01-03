@@ -11,9 +11,9 @@ int main() {
         auto html = ::pltxt2htm_test::pltxt2advanced_htmld(
             u8R"(
 <A      >text
-</color   >)");
+</Discussion   >)");
         auto answer = ::fast_io::u8string_view{
-            u8"<br><span style=\"color:#0000AA;\">text<br>&lt;/color&nbsp;&nbsp;&nbsp;&gt;</span>"};
+            u8"<br><span style=\"color:#0000AA;\">text<br>&lt;/Discussion&nbsp;&nbsp;&nbsp;&gt;</span>"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
@@ -52,6 +52,12 @@ int main() {
     {
         auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"t<a></a>t");
         auto answer = ::fast_io::u8string_view{u8"tt"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"t<a>es</color>t");
+        auto answer = ::fast_io::u8string_view{u8"t<span style=\"color:#0000AA;\">es</span>t"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
