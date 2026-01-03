@@ -218,6 +218,14 @@ constexpr auto get_pltext_from_parser_frame_context(
     case ::pltxt2htm::NodeType::md_link: {
         return static_cast<::pltxt2htm::details::MdLinkContext const*>(top_frame.release_imul())->pltext;
     }
+    case ::pltxt2htm::NodeType::pl_macro_project:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::pl_macro_visitor:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::pl_macro_author:
+        [[fallthrough]];
+    case ::pltxt2htm::NodeType::pl_macro_coauthors:
+        [[fallthrough]];
     case ::pltxt2htm::NodeType::md_code_span_1_backtick:
         [[fallthrough]];
     case ::pltxt2htm::NodeType::md_code_span_2_backtick:
@@ -511,6 +519,30 @@ entry:
                 result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{u8'\\'});
             }
             ++current_index;
+            continue;
+        } else if (::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::LiteralString{u8"{project}"}>(
+                       ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) {
+            constexpr auto length_of_literal_string = ::std::size_t{9};
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::PlMacroProject>{});
+            current_index += length_of_literal_string;
+            continue;
+        } else if (::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::LiteralString{u8"{visitor}"}>(
+                       ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) {
+            constexpr auto length_of_literal_string = ::std::size_t{9};
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::PlMacroVisitor>{});
+            current_index += length_of_literal_string;
+            continue;
+        } else if (::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::LiteralString{u8"{author}"}>(
+                       ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) {
+            constexpr auto length_of_literal_string = ::std::size_t{8};
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::PlMacroAuthor>{});
+            current_index += length_of_literal_string;
+            continue;
+        } else if (::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::LiteralString{u8"{coauthors}"}>(
+                       ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) {
+            constexpr auto length_of_literal_string = ::std::size_t{11};
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::PlMacroCoauthors>{});
+            current_index += length_of_literal_string;
             continue;
         } else if (auto opt_triple_emphasis_asterisk =
                        ::pltxt2htm::details::try_parse_md_inlines<ndebug, ::pltxt2htm::details::LiteralString{u8"***"}>(
@@ -1726,20 +1758,25 @@ entry:
                     [[fallthrough]];
                 case ::pltxt2htm::NodeType::md_code_span_2_backtick:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_code_span_3_backtick: {
+                case ::pltxt2htm::NodeType::md_code_span_3_backtick:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeType::md_latex_inline:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeType::md_latex_block: {
                     // relate to 0041.fuzzing-crash3
                     // any tag contains `</` context would hit this branch
                     result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
                     ++current_index;
                     continue;
                 }
-                case ::pltxt2htm::NodeType::md_latex_inline:
+                case ::pltxt2htm::NodeType::pl_macro_project:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_latex_block: {
-                    result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
-                    ++current_index;
-                    continue;
-                }
+                case ::pltxt2htm::NodeType::pl_macro_visitor:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeType::pl_macro_author:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeType::pl_macro_coauthors:
+                    [[fallthrough]];
                 case ::pltxt2htm::NodeType::md_ul:
                     [[fallthrough]];
                 case ::pltxt2htm::NodeType::md_ol:
@@ -2141,6 +2178,14 @@ entry:
             case ::pltxt2htm::NodeType::md_code_fence_tilde:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::html_note:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::pl_macro_project:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::pl_macro_visitor:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::pl_macro_author:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::pl_macro_coauthors:
                 [[unlikely]] {
                     ::exception::unreachable<ndebug>();
                 }

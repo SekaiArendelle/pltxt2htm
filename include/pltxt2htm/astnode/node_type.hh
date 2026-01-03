@@ -49,6 +49,12 @@ enum class NodeType : ::std::size_t {
     pl_b, ///< Bold text: <b>...</b>, **text** (Markdown), <strong> (HTML)
     pl_i, ///< Italic text: <i>...</i>, *text* (Markdown), <em> (HTML)
 
+    // Physics-Lab specific macros
+    pl_macro_project, // {Project}
+    pl_macro_visitor, // {Visitor}
+    pl_macro_author, // {Author}
+    pl_macro_coauthors, // {CoAuthors}
+
     // HTML structural elements
     html_p, ///< Paragraph: <p>...</p> (HTML), created by double newline (Markdown)
     html_br, ///< Line break: <br> (HTML)

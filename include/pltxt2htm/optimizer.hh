@@ -188,7 +188,15 @@ entry:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::greater_than:
             [[fallthrough]];
-        case ::pltxt2htm::NodeType::tab: {
+        case ::pltxt2htm::NodeType::tab:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::pl_macro_project:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::pl_macro_visitor:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::pl_macro_author:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::pl_macro_coauthors: {
             ++current_iter;
             continue;
         }
