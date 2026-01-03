@@ -71,27 +71,39 @@ static ::PyObject* advanced_parser([[maybe_unused]] ::PyObject* self, ::PyObject
 }
 
 static ::PyObject* fixedadv_parser([[maybe_unused]] ::PyObject* self, ::PyObject* args, ::PyObject* kwargs) noexcept {
-    constexpr auto kwlist = ::fast_io::array{"text", "host", nullptr};
+    constexpr auto kwlist = ::fast_io::array{"text", "host", "project", "visitor", "author", "coauthors", nullptr};
 #ifndef NDEBUG
     char8_t const* text = nullptr;
     char8_t const* host = nullptr;
+    char8_t const* project = nullptr;
+    char8_t const* visitor = nullptr;
+    char8_t const* author = nullptr;
+    char8_t const* coauthors = nullptr;
 #else
     #if __has_cpp_attribute(indeterminate)
     char8_t const* text [[indeterminate]];
     char8_t const* host [[indeterminate]];
+    char8_t const* project [[indeterminate]];
+    char8_t const* visitor [[indeterminate]];
+    char8_t const* author [[indeterminate]];
+    char8_t const* coauthors [[indeterminate]];
     #else
     char8_t const* text;
     char8_t const* host;
+    char8_t const* project;
+    char8_t const* visitor;
+    char8_t const* author;
+    char8_t const* coauthors;
     #endif
 #endif
     // Before python3.13, argument `keywords` does not marked as const
-    if (!::PyArg_ParseTupleAndKeywords(args, kwargs, "ss",
+    if (!::PyArg_ParseTupleAndKeywords(args, kwargs, "ssssss",
 #if PY_MINOR_VERSION < 13
                                        const_cast<char**>(kwlist.data()),
 #else
                                        kwlist.data(),
 #endif
-                                       ::std::addressof(text), ::std::addressof(host))) [[unlikely]] {
+                                       ::std::addressof(text), ::std::addressof(host), ::std::addressof(project), ::std::addressof(visitor), ::std::addressof(author), ::std::addressof(coauthors))) [[unlikely]] {
         return nullptr;
     }
     char8_t const* html = ::pltxt2htm::fixedadv_parser<
@@ -100,7 +112,7 @@ static ::PyObject* fixedadv_parser([[maybe_unused]] ::PyObject* self, ::PyObject
 #else
         false
 #endif
-        >(text, host);
+        >(text, host, project, visitor, author, coauthors);
     ::PyObject* result = ::PyUnicode_FromString(reinterpret_cast<char const*>(html));
     ::free(static_cast<void*>(const_cast<char8_t*>(html)));
     return result;

@@ -75,7 +75,7 @@ template<bool ndebug = false, bool optimize = true>
 constexpr auto pltxt2fixedadv_html(::fast_io::u8string_view pltext, ::fast_io::u8string_view host,
                                    ::fast_io::u8string_view project, ::fast_io::u8string_view visitor,
                                    ::fast_io::u8string_view author,
-                                   ::std::span<::fast_io::u8string_view> coauthors) noexcept {
+                                   ::fast_io::u8string_view coauthors) noexcept {
     auto ast = ::pltxt2htm::parse_pltxt<ndebug>(pltext);
     if constexpr (optimize) {
         ::pltxt2htm::optimize_ast<ndebug>(ast);

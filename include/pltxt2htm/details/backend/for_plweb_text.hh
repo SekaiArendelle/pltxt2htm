@@ -7,8 +7,6 @@
 
 #pragma once
 
-#include <span>
-#include <ranges>
 #include <fast_io/fast_io_dsal/list.h>
 #include <fast_io/fast_io_dsal/array.h>
 #include <fast_io/fast_io_dsal/stack.h>
@@ -47,7 +45,7 @@ template<bool ndebug>
 constexpr auto plweb_text_backend(::pltxt2htm::Ast const& ast_init, ::fast_io::u8string_view host,
                                   ::fast_io::u8string_view project, ::fast_io::u8string_view visitor,
                                   ::fast_io::u8string_view author,
-                                  ::std::span<::fast_io::u8string_view> coauthors) noexcept -> ::fast_io::u8string {
+                                  ::fast_io::u8string_view coauthors) noexcept -> ::fast_io::u8string {
     ::fast_io::u8string result{};
     ::fast_io::stack<::pltxt2htm::details::BackendBasicFrameContext,
                      ::fast_io::list<::pltxt2htm::details::BackendBasicFrameContext>>
@@ -594,12 +592,7 @@ entry:
             continue;
         }
         case ::pltxt2htm::NodeType::pl_macro_coauthors: {
-            if (coauthors.empty()) {
-                result.append(u8"None");
-            } else {
-                auto join = coauthors | ::std::views::join_with(',') | ::std::ranges::to<::fast_io::u8string>();
-                result.append(join);
-            }
+            result.append(coauthors);
             continue;
         }
         case ::pltxt2htm::NodeType::base:
