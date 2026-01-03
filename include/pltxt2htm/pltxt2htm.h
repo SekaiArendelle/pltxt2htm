@@ -100,10 +100,12 @@ template<bool ndebug = false>
 #if __has_cpp_attribute(__gnu__::__nonnull__)
 [[__gnu__::__nonnull__]]
 #endif
-constexpr char8_t const* fixedadv_parser(char8_t const* const text, char8_t const* const host, char8_t const* const project, char8_t const* const visitor, char8_t const* const author, char8_t const* const coauthors) noexcept {
+constexpr char8_t const* fixedadv_parser(char8_t const* const text, char8_t const* const host,
+                                         char8_t const* const project, char8_t const* const visitor,
+                                         char8_t const* const author, char8_t const* const coauthors) noexcept {
     return ::pltxt2htm::details::c_ptr_style_wrapper<::pltxt2htm::pltxt2fixedadv_html<ndebug>>(
-        ::fast_io::mnp::os_c_str(text), ::fast_io::mnp::os_c_str(host), ::fast_io::mnp::os_c_str(project), ::fast_io::mnp::os_c_str(visitor),
-        ::fast_io::mnp::os_c_str(author), ::fast_io::mnp::os_c_str(coauthors));
+        ::fast_io::mnp::os_c_str(text), ::fast_io::mnp::os_c_str(host), ::fast_io::mnp::os_c_str(project),
+        ::fast_io::mnp::os_c_str(visitor), ::fast_io::mnp::os_c_str(author), ::fast_io::mnp::os_c_str(coauthors));
 }
 
 /**

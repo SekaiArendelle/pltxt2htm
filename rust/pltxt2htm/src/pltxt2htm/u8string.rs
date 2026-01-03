@@ -20,7 +20,12 @@ impl U8String {
     }
 
     pub fn as_str(&self) -> &str {
-        return unsafe { std::str::from_utf8_unchecked(std::slice::from_raw_parts(self.ptr as *const u8, libc::strlen(self.ptr))) };
+        return unsafe {
+            std::str::from_utf8_unchecked(std::slice::from_raw_parts(
+                self.ptr as *const u8,
+                libc::strlen(self.ptr),
+            ))
+        };
     }
 }
 

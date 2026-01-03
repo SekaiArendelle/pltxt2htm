@@ -210,23 +210,23 @@ int main(int argc, char const* const* const argv) noexcept {
     case ::TargetType::advanced_html: {
         if (host != nullptr || project != nullptr || visitor != nullptr || author != nullptr || coauthors != nullptr)
             [[unlikely]] {
-                ::fast_io::perrln(
-                    "** You can not specify host/project/visitor/author/coauthors when `--target` is "
-                    "advanced_html");
-                ::fast_io::println(::fast_io::u8c_stderr(), usage);
-                return 1;
-            }
+            ::fast_io::perrln(
+                "** You can not specify host/project/visitor/author/coauthors when `--target` is "
+                "advanced_html");
+            ::fast_io::println(::fast_io::u8c_stderr(), usage);
+            return 1;
+        }
         break;
     }
     case ::TargetType::common_html: {
         if (host != nullptr || project != nullptr || visitor != nullptr || author != nullptr || coauthors != nullptr)
             [[unlikely]] {
-                ::fast_io::perrln(
-                    "** You can not specify host/project/visitor/author/coauthors when `--target` is "
-                    "common_html");
-                ::fast_io::println(::fast_io::u8c_stderr(), usage);
-                return 1;
-            }
+            ::fast_io::perrln(
+                "** You can not specify host/project/visitor/author/coauthors when `--target` is "
+                "common_html");
+            ::fast_io::println(::fast_io::u8c_stderr(), usage);
+            return 1;
+        }
         break;
     }
     case ::TargetType::indeterminate: {

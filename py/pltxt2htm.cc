@@ -103,7 +103,9 @@ static ::PyObject* fixedadv_parser([[maybe_unused]] ::PyObject* self, ::PyObject
 #else
                                        kwlist.data(),
 #endif
-                                       ::std::addressof(text), ::std::addressof(host), ::std::addressof(project), ::std::addressof(visitor), ::std::addressof(author), ::std::addressof(coauthors))) [[unlikely]] {
+                                       ::std::addressof(text), ::std::addressof(host), ::std::addressof(project),
+                                       ::std::addressof(visitor), ::std::addressof(author),
+                                       ::std::addressof(coauthors))) [[unlikely]] {
         return nullptr;
     }
     char8_t const* html = ::pltxt2htm::fixedadv_parser<
