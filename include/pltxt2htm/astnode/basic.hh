@@ -1,7 +1,7 @@
 /**
  * @file basic.hh
  * @brief Basic AST node definitions for pltxt2htm
- * @brief Contains the fundamental node types that form the Abstract Syntax Tree
+ * @details Contains the fundamental node types that form the Abstract Syntax Tree
  */
 
 #pragma once

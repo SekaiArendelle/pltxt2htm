@@ -3,6 +3,8 @@
  * @brief Parser frame contexts for parsing pl-text
  * @details Defines various context classes used during the parsing process
  *          to maintain state and handle different types of parsing scenarios
+ * @note The filename "concext" is intentionally spelled this way (not "context")
+ *       to avoid potential naming conflicts in the codebase
  */
 
 #pragma once

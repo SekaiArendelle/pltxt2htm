@@ -25,12 +25,21 @@ namespace pltxt2htm {
  * @details This is the main parsing function that converts Physics-Lab text
  *          format into a structured AST that can be processed by other components.
  *          It handles nested structures, various tag types, and Markdown syntax.
- * @tparam ndebug Debug mode flag - false enables debug checks, true for release mode
+ *
+ *          The parsing process involves:
+ *          - Tokenization of the input text
+ *          - Recognition of Physics-Lab specific tags (<color>, <experiment>, etc.)
+ *          - Markdown syntax parsing (headers, lists, emphasis, etc.)
+ *          - HTML tag recognition and processing
+ *          - Building a hierarchical AST structure
+ * @tparam ndebug Debug mode flag - false enables debug checks and assertions, true for release mode
  * @param[in] pltext The Physics-Lab text content to parse
  * @return An AST representing the parsed structure of the input text
  * @retval pltxt2htm::Ast Abstract Syntax Tree containing the parsed structure
  * @note This function uses a stack-based approach to handle nested tag structures
  * @warning The parsing process is recursive and handles complex nested structures
+ * @warning This function uses manual memory management via HeapGuard
+ * @see pltxt2htm::details::parse_pltxt for the internal implementation
  */
 template<bool ndebug>
 [[nodiscard]]
@@ -39,6 +48,7 @@ template<bool ndebug>
 #endif
 constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2htm::Ast {
     // fast_io::deque contains bug about RAII, use fast_io::list instead
+    // This stack is used to track nested tag contexts during parsing
     ::fast_io::stack<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>,
                      ::fast_io::list<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>>>
         call_stack{};

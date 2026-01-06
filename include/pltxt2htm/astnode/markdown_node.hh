@@ -1,3 +1,12 @@
+/**
+ * @file markdown_node.hh
+ * @brief Markdown-specific AST node definitions for pltxt2htm
+ * @details Defines AST nodes for Markdown syntax elements including headers,
+ *          emphasis, lists, code blocks, and other Markdown constructs
+ * @note These nodes represent standard Markdown elements that can appear
+ *       in Physics-Lab text format, following the CommonMark specification
+ */
+
 #pragma once
 
 #include <utility>

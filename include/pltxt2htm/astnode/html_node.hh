@@ -1,3 +1,12 @@
+/**
+ * @file html_node.hh
+ * @brief HTML-specific AST node definitions for pltxt2htm
+ * @details Defines AST nodes for HTML elements including structural elements,
+ *          formatting tags, and special HTML constructs
+ * @note These nodes represent standard HTML elements that can appear
+ *       in Physics-Lab text format
+ */
+
 #pragma once
 
 #include "node_type.hh"

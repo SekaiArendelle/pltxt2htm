@@ -135,16 +135,27 @@ public:
 /**
  * @brief Optimize an Abstract Syntax Tree (AST)
  * @details This function performs various optimizations on the AST to produce
- *          cleaner and more efficient HTML output. Optimizations include:
- *          - Removing redundant nested tags of the same type
- *          - Merging adjacent text nodes when possible
- *          - Eliminating empty formatting tags
- *          - Simplifying nested color/size tags with identical values
- * @tparam ndebug Debug mode flag - controls assertion behavior
+ *          cleaner and more efficient HTML output. The optimization process
+ *          traverses the entire AST and applies multiple optimization rules.
+ *
+ *          Key optimizations performed:
+ *          - **Redundant tag removal**: Nested tags of the same type with identical
+ *            attributes are merged (e.g., <color=red><color=blue>text</color></color>
+ *            becomes <color=blue>text</color>)
+ *          - **Empty tag elimination**: Tags with empty content are removed entirely
+ *          - **Text node merging**: Adjacent text nodes are combined when possible
+ *          - **Nested tag flattening**: Deeply nested structures are simplified
+ *          - **Whitespace normalization**: Excessive whitespace around line breaks is trimmed
+ *
+ *          The optimization uses a manual stack-based approach to handle deeply nested
+ *          structures without risking stack overflow.
+ * @tparam ndebug Debug mode flag - false enables debug checks and assertions, true for release mode
  * @param[in,out] ast_init The AST to optimize (modified in-place)
- * @note This function modifies the input AST directly
+ * @note This function modifies the input AST directly - the original structure is lost
  * @warning The optimization process is recursive and uses manual stack management
  *          to avoid stack overflow with deeply nested structures
+ * @warning Some optimizations may change the semantic meaning of the output
+ * @see pltxt2htm::details::OptimizerContext for the optimization context structure
  */
 template<bool ndebug>
 constexpr void optimize_ast(::pltxt2htm::Ast& ast_init) noexcept {
@@ -210,10 +221,13 @@ entry:
         case ::pltxt2htm::NodeType::pl_color:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::pl_a: {
-            // <a> and <color> is the same tag&struct in fact
+            // <a> and <color> share the same underlying structure (Color class)
+            // Both are equal-sign tags with string attributes
             auto color = static_cast<::pltxt2htm::Color*>(node.get_unsafe());
             {
-                // <color=red><color=blue>text</color></color> can be optimized
+                // Optimization: <color=red><color=blue>text</color></color>
+                // can be simplified to <color=blue>text</color>
+                // The inner color takes precedence over the outer color
                 auto&& subast = color->get_subast();
                 if (subast.size() == 1) {
                     ::pltxt2htm::PlTxtNode* psubnode{::pltxt2htm::details::vector_front<ndebug>(subast).get_unsafe()};
@@ -224,7 +238,8 @@ entry:
                 }
             }
             auto&& nested_tag_type = call_stack.top()->nested_tag_type;
-            // Optimization: If the color is the same as the parent node, then ignore the nested tag.
+            // Optimization: If this color matches the parent color, flatten the nesting
+            // <color=red><color=red>text</color></color> -> <color=red>text</color>
             bool const is_not_same_tag =
                 (nested_tag_type != ::pltxt2htm::NodeType::pl_color &&
                  nested_tag_type != ::pltxt2htm::NodeType::pl_a) ||

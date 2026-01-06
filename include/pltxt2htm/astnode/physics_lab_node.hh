@@ -47,11 +47,12 @@ public:
     constexpr ::pltxt2htm::Color& operator=(::pltxt2htm::Color&&) noexcept = default;
 
     /**
-     * @brief Get the color of this anchor node
-     * @param[in] self This A instance
-     * @return The color string of this anchor
+     * @brief Get the color of this color node
+     * @param[in] self This Color instance
+     * @return The color string of this node
      * @retval fast_io::u8string const& Const reference to the color string
      * @retval fast_io::u8string& Reference to the color string (modifiable)
+     * @note Color values can be CSS color names (e.g., "red") or hex values (e.g., "#FF0000")
      */
     [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
@@ -92,11 +93,12 @@ public:
     constexpr ::pltxt2htm::A& operator=(::pltxt2htm::A const&) noexcept = delete;
 
     /**
-     * @brief move assignment operator
+     * @brief Move assignment operator
      * @param[in] other The A instance to move from
      * @return Reference to this A instance
      * @retval A& Reference to this anchor node instance
-     * @note assign to a rvalue is not allowed
+     * @note Assignment to an rvalue is not allowed
+     * @warning After move assignment, the other instance is left in a moved-from state
      */
     constexpr ::pltxt2htm::A& operator=(::pltxt2htm::A&&) noexcept = default;
 

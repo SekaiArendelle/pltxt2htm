@@ -1,3 +1,11 @@
+/**
+ * @file literal_string.hh
+ * @brief Compile-time string utilities for pltxt2htm
+ * @details Provides a compile-time string class that stores string data
+ *          as part of the type, enabling efficient compile-time string operations
+ * @note This is used for compile-time error messages and static string processing
+ */
+
 #pragma once
 
 #include <limits>

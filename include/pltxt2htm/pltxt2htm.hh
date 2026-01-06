@@ -12,7 +12,7 @@
 #endif
 
 #if defined(_MSC_VER) && !defined(__clang__)
-    #warning "gcc/clang are remommended more than MSVC(VS2026)"
+    #warning "gcc/clang are recommended more than MSVC(VS2026)"
 #endif
 
 #include <fast_io/fast_io_dsal/vector.h>
@@ -35,13 +35,14 @@ namespace pltxt2htm {
  *          - Full Markdown syntax (headers, lists, emphasis, links, code blocks, etc.)
  *          - HTML elements with proper escaping and formatting
  *          - Internal linking to experiments and discussions
- * @tparam ndebug Debug mode flag - false enables debug checks, true for release mode
- * @tparam optimize Whether to optimize the AST before HTML generation
+ * @tparam ndebug Debug mode flag - false enables debug checks and assertions, true for release mode
+ * @tparam optimize Whether to optimize the AST before HTML generation (default: true)
  * @param[in] pltext The Physics-Lab text content to convert
- * @param[in] host Host URL for generating internal links (used for experiment/discussion links)
  * @return Generated HTML string with full formatting support
  * @retval fast_io::u8string UTF-8 string containing the generated HTML
  * @note This is the recommended function for most use cases requiring full feature support
+ * @note The function automatically optimizes the AST by default for better performance
+ * @warning This function does not support the host parameter - use pltxt2fixedadv_html for that
  */
 template<bool ndebug = false, bool optimize = true>
 [[nodiscard]]
@@ -58,14 +59,23 @@ constexpr auto pltxt2advanced_html(::fast_io::u8string_view pltext) noexcept {
 
 /**
  * @brief Convert Physics-Lab text to advanced HTML without escaping less-than symbols
- * @tparam ndebug Debug mode flag - false enables debug checks, true for release mode
- * @tparam optimize Whether to optimize the AST before HTML generation
+ * @details This function is similar to pltxt2advanced_html but does not escape
+ *          less-than (<) characters in the output. This allows for embedding
+ *          raw HTML within Physics-Lab text, but comes with security implications.
+ * @tparam ndebug Debug mode flag - false enables debug checks and assertions, true for release mode
+ * @tparam optimize Whether to optimize the AST before HTML generation (default: true)
  * @param[in] pltext The Physics-Lab text content to convert
- * @param[in] host Host URL for generating internal links
+ * @param[in] host Host URL for generating internal links (e.g., "https://physicslab.example.com")
+ * @param[in] project Project identifier for Physics-Lab context
+ * @param[in] visitor Visitor identifier for Physics-Lab context
+ * @param[in] author Author identifier for Physics-Lab context
+ * @param[in] coauthors Co-authors identifier for Physics-Lab context
  * @return Generated HTML string with full formatting but unescaped < characters
  * @retval fast_io::u8string UTF-8 string containing the generated HTML with unescaped <
  * @warning Only use this function if you understand the security implications
  *          of unescaped HTML output. Unescaped < can lead to XSS vulnerabilities.
+ * @warning This function should only be used with trusted input sources
+ * @note The host parameter is used for generating proper internal links to experiments and discussions
  */
 template<bool ndebug = false, bool optimize = true>
 [[nodiscard]]
@@ -93,13 +103,15 @@ constexpr auto pltxt2fixedadv_html(::fast_io::u8string_view pltext, ::fast_io::u
  *          - Simple text formatting needs
  *          - Header rendering where complex formatting isn't needed
  *          - Performance-critical applications that don't need full features
- * @tparam ndebug Debug mode flag - false enables debug checks, true for release mode
+ * @tparam ndebug Debug mode flag - false enables debug checks and assertions, true for release mode
  * @tparam optimize Whether to optimize the AST before HTML generation (default: false)
  * @param[in] pltext The Physics-Lab text content to convert
  * @return Generated HTML string with basic formatting support
  * @retval fast_io::u8string UTF-8 string containing the generated basic HTML
  * @note This function is faster than the advanced versions but supports fewer features
  * @warning Markdown syntax and advanced HTML features are not supported in this mode
+ * @warning AST optimization is disabled by default for this function
+ * @see pltxt2advanced_html for full feature support
  */
 template<bool ndebug = false, bool optimize = false>
 [[nodiscard]]
