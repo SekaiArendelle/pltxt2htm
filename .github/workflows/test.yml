@@ -28,7 +28,7 @@ jobs:
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
         with:
-          xmake-version: latest
+          xmake-version: 3.0.5
 
       - name: clang version
         shell: powershell
@@ -148,7 +148,7 @@ jobs:
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
         with:
-          xmake-version: latest
+          xmake-version: 3.0.5
 
       - name: clang version
         shell: powershell
@@ -260,7 +260,7 @@ jobs:
       - name: Setup XMake
         uses: xmake-io/github-action-setup-xmake@v1
         with:
-          xmake-version: latest
+          xmake-version: 3.0.5
 
       - name: Configure and build
         working-directory: py
@@ -328,9 +328,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Build docker image
-      run: |
-        docker build -f cxxmodule/docker/x86_64-linux-gnu/Dockerfile -t pltxt2htm-cxxmodule .
+      - name: Build docker image
+        run: |
+          docker build -f cxxmodule/docker/x86_64-linux-gnu/Dockerfile -t pltxt2htm-cxxmodule .

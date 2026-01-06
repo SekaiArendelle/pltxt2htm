@@ -27,7 +27,7 @@ jobs:
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
         with:
-          xmake-version: latest
+          xmake-version: 3.0.5
 
       - name: clang version
         shell: powershell
@@ -216,7 +216,7 @@ jobs:
       - name: Setup XMake
         uses: xmake-io/github-action-setup-xmake@v1
         with:
-          xmake-version: latest
+          xmake-version: 3.0.5
 
       - name: Configure and build
         working-directory: py
@@ -314,8 +314,8 @@ jobs:
         shell: powershell
         working-directory: cmd
         run: |
-           Invoke-WebRequest -Uri "https://github.com/facebook/zstd/releases/download/v1.5.7/zstd-v1.5.7-win64.zip" -OutFile "zstd.zip"
-           Expand-Archive -Path zstd.zip -DestinationPath .
+          Invoke-WebRequest -Uri "https://github.com/facebook/zstd/releases/download/v1.5.7/zstd-v1.5.7-win64.zip" -OutFile "zstd.zip"
+          Expand-Archive -Path zstd.zip -DestinationPath .
 
       - name: Install g++
         shell: powershell
@@ -426,7 +426,7 @@ jobs:
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
         with:
-          xmake-version: latest
+          xmake-version: 3.0.5
 
       - name: Configure and build
         working-directory: c
@@ -450,9 +450,9 @@ jobs:
 
   x86_64-linux-musl-cmd:
     strategy:
-        fail-fast: false
-        matrix:
-          build-mode: [debug, release]
+      fail-fast: false
+      matrix:
+        build-mode: [debug, release]
 
     name: x86_64-linux-musl (cmd/, ${{ matrix.build-mode }} mode)
     runs-on: ubuntu-latest
@@ -479,9 +479,9 @@ jobs:
 
   aarch64-linux-musl-cmd:
     strategy:
-        fail-fast: false
-        matrix:
-          build-mode: [debug, release]
+      fail-fast: false
+      matrix:
+        build-mode: [debug, release]
 
     name: aarch64-linux-musl (cmd/, ${{ matrix.build-mode }} mode)
     runs-on: ubuntu-latest
@@ -508,9 +508,9 @@ jobs:
 
   loongarch64-linux-musl-cmd:
     strategy:
-        fail-fast: false
-        matrix:
-          build-mode: [debug, release]
+      fail-fast: false
+      matrix:
+        build-mode: [debug, release]
 
     name: loongarch64-linux-musl (cmd/, ${{ matrix.build-mode }} mode)
     runs-on: ubuntu-latest
