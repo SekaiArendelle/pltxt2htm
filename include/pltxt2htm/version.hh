@@ -26,6 +26,6 @@ inline constexpr ::std::size_t minor{11};
  * @brief Patch version number - incremented for bug fixes without new features
  * @note Bug fixes and minor improvements increment this number
  */
-inline constexpr ::std::size_t patch{0};
+inline constexpr ::std::size_t patch{1};
 
 } // namespace pltxt2htm::version
