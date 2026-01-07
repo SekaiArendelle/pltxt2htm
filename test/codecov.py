@@ -20,18 +20,15 @@ BUILD_DIR = os.path.join(SCRIPT_DIR, "build")
 XMAKE_DIR = os.path.join(SCRIPT_DIR, ".xmake")
 LCOV_REPORT_DIR = os.path.join(SCRIPT_DIR, "lcov-report")
 
-if os.path.exists(BUILD_DIR):
-    if os.path.isdir(BUILD_DIR):
-        shutil.rmtree(BUILD_DIR)
-        print(f"removing {BUILD_DIR}")
-if os.path.exists(XMAKE_DIR):
-    if os.path.isdir(XMAKE_DIR):
-        shutil.rmtree(XMAKE_DIR)
-        print(f"removing {XMAKE_DIR}")
-if os.path.exists(LCOV_REPORT_DIR):
-    if os.path.isdir(LCOV_REPORT_DIR):
-        shutil.rmtree(LCOV_REPORT_DIR)
-        print(f"removing {LCOV_REPORT_DIR}")
+if os.path.exists(BUILD_DIR) and os.path.isdir(BUILD_DIR):
+    shutil.rmtree(BUILD_DIR)
+    print(f"removing {BUILD_DIR}")
+if os.path.exists(XMAKE_DIR) and os.path.isdir(XMAKE_DIR):
+    shutil.rmtree(XMAKE_DIR)
+    print(f"removing {XMAKE_DIR}")
+if os.path.exists(LCOV_REPORT_DIR) and os.path.isdir(LCOV_REPORT_DIR):
+    shutil.rmtree(LCOV_REPORT_DIR)
+    print(f"removing {LCOV_REPORT_DIR}")
 
 os.chdir(SCRIPT_DIR)
 print(f"entering {SCRIPT_DIR}")
