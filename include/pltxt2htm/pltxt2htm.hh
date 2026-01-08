@@ -22,14 +22,13 @@
 #include "parser.hh"
 #include "optimizer.hh"
 #include "details/backend/for_plweb_text.hh"
-#include "details/backend/for_unittest.hh"
 #include "details/backend/for_plweb_title.hh"
 #include "version.hh"
 
 namespace pltxt2htm {
 
 /**
- * @brief Convert Physics-Lab (pl) text to advanced HTML with full feature support
+ * @brief Convert Physics-Lab (pl) text to advanced HTML with full feature support, just for unittest
  * @details This function provides the most comprehensive HTML generation with support for:
  *          - Physics-Lab specific tags (color, experiment, discussion, user, size)
  *          - Full Markdown syntax (headers, lists, emphasis, links, code blocks, etc.)
@@ -54,14 +53,11 @@ constexpr auto pltxt2advanced_html(::fast_io::u8string_view pltext) noexcept {
     if constexpr (optimize) {
         ::pltxt2htm::optimize_ast<ndebug>(ast);
     }
-    return ::pltxt2htm::details::unittest_backend<ndebug>(ast);
+    return ::pltxt2htm::details::plweb_text_backend<ndebug>(ast, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
 }
 
 /**
- * @brief Convert Physics-Lab text to advanced HTML without escaping less-than symbols
- * @details This function is similar to pltxt2advanced_html but does not escape
- *          less-than (<) characters in the output. This allows for embedding
- *          raw HTML within Physics-Lab text, but comes with security implications.
+ * @brief Convert Physics-Lab text to advanced HTML
  * @tparam ndebug Debug mode flag - false enables debug checks and assertions, true for release mode
  * @tparam optimize Whether to optimize the AST before HTML generation (default: true)
  * @param[in] pltext The Physics-Lab text content to convert
@@ -70,11 +66,6 @@ constexpr auto pltxt2advanced_html(::fast_io::u8string_view pltext) noexcept {
  * @param[in] visitor Visitor identifier for Physics-Lab context
  * @param[in] author Author identifier for Physics-Lab context
  * @param[in] coauthors Co-authors identifier for Physics-Lab context
- * @return Generated HTML string with full formatting but unescaped < characters
- * @retval fast_io::u8string UTF-8 string containing the generated HTML with unescaped <
- * @warning Only use this function if you understand the security implications
- *          of unescaped HTML output. Unescaped < can lead to XSS vulnerabilities.
- * @warning This function should only be used with trusted input sources
  * @note The host parameter is used for generating proper internal links to experiments and discussions
  */
 template<bool ndebug = false, bool optimize = true>
