@@ -2,6 +2,7 @@ set_policy("check.auto_ignore_flags", false)
 
 includes("../xmake/*.lua")
 
+set_allowedmodes("debug", "release")
 add_rules("mode.debug", "mode.release")
 set_languages("c++23")
 set_encodings("utf-8")
