@@ -8,6 +8,7 @@
 #include "../../astnode/node_type.hh"
 #include "../../astnode/html_node.hh"
 #include "../../astnode/markdown_node.hh"
+#include "../push_macro.hh"
 
 namespace pltxt2htm::details {
 
@@ -848,45 +849,50 @@ constexpr auto try_parse_md_block_quotes(::fast_io::u8string_view pltext) noexce
     for (; current_index < pltext_size; ++current_index) {
         ::std::size_t temp_index{current_index};
         while (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, temp_index) == u8' ' ||
-        ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, temp_index) == u8'\t') {
+               ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, temp_index) == u8'\t') {
             ++temp_index;
-            [[assume(temp_index <= pltext_size)]];
+            pltxt2htm_assert(temp_index <= pltext_size, u8"temp_index out of range");
             if (temp_index == pltext_size) { // equals to `temp_index >= pltext_size`
                 return ::exception::nullopt_t{};
             }
         }
         if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, temp_index) != u8'>') {
-            if (subpltext.empty()) {
-                return ::exception::nullopt_t{};
-            } else {
-                return ::pltxt2htm::details::TryParseMdBlockQuotesResult{.forward_index = current_index,
-                                                                         .subpltext = ::std::move(subpltext)};
-            }
+            goto done;
         } else {
             current_index = temp_index + 1;
         }
         while (current_index < pltext_size &&
                (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) == u8' ' ||
-               ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) == u8'\t')) {
+                ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) == u8'\t')) {
             ++current_index;
         }
         if (current_index == pltext_size) {
             break;
         }
-        do {
+        while (true) {
             subpltext.push_back(::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index));
             ++current_index;
-        } while (current_index < pltext_size &&
-                 ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8'\n');
+            pltxt2htm_assert(current_index <= pltext_size, u8"current_index exceeds pltext_size");
+            if (current_index == pltext_size) {
+                break;
+            }
+            else if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) == u8'\n') {
+                break;
+            }
+        }
         if (current_index == pltext_size) {
             break;
         } else {
             subpltext.push_back(u8'\n');
         }
     }
+done:
     if (subpltext.empty()) {
         return ::exception::nullopt_t{};
     } else {
+        if (subpltext.back_unchecked() == u8'\n') {
+            subpltext.pop_back();
+        }
         return ::pltxt2htm::details::TryParseMdBlockQuotesResult{.forward_index = current_index,
                                                                  .subpltext = ::std::move(subpltext)};
     }
@@ -1076,3 +1082,5 @@ constexpr auto try_parse_md_link(::fast_io::u8string_view pltext) noexcept
 }
 
 } // namespace pltxt2htm::details
+
+#include "../pop_macro.hh"
