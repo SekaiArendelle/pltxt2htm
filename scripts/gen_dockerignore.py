@@ -3,7 +3,7 @@ if __name__ != "__main__":
 
 import os
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+SCRIPT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 with open(os.path.join(SCRIPT_DIR, ".gitignore")) as f:
     context = f.read()

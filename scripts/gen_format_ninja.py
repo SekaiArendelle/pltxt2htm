@@ -31,7 +31,7 @@ def find_cpp_files(root_dirs):
     return sorted(files)
 
 
-def generate_ninja_file(files, output_path="format_cpp.ninja"):
+def generate_ninja_file(files, output_path: str):
     """Generate a Ninja build file for parallel formatting."""
     command = "clang-format -i $in"
 
@@ -53,6 +53,8 @@ def generate_ninja_file(files, output_path="format_cpp.ninja"):
 
 
 def main():
+    SCRIPT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
     search_dirs = [
         "test",
         "include/pltxt2htm",
@@ -73,7 +75,8 @@ def main():
 
     print(f"Found {len(source_files)} files")
 
-    generate_ninja_file(source_files)
+    output_path = os.path.join(SCRIPT_DIR, "format_cpp.ninja")
+    generate_ninja_file(source_files, output_path)
     print(f"Generated format_cpp.ninja")
     print("Run: ninja -f format_cpp.ninja")
 

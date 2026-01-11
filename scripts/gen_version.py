@@ -6,7 +6,7 @@ if __name__ != "__main__":
 
 __version__ = (0, 12, 0)
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+SCRIPT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Generate include/pltxt2htm/version.hh
 INCLUDE_VERSION_PATH = os.path.join(SCRIPT_DIR, "include", "pltxt2htm", "version.hh")
