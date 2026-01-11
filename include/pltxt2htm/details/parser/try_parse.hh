@@ -847,9 +847,13 @@ constexpr auto try_parse_md_block_quotes(::fast_io::u8string_view pltext) noexce
     ::std::size_t current_index{};
     for (; current_index < pltext_size; ++current_index) {
         ::std::size_t temp_index{current_index};
-        while (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, temp_index) == u8' ' &&
-               temp_index + 1 < pltext_size) {
+        while (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, temp_index) == u8' ' ||
+        ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, temp_index) == u8'\t') {
             ++temp_index;
+            [[assume(temp_index <= pltext_size)]];
+            if (temp_index == pltext_size) { // equals to `temp_index >= pltext_size`
+                return ::exception::nullopt_t{};
+            }
         }
         if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, temp_index) != u8'>') {
             if (subpltext.empty()) {
@@ -862,7 +866,8 @@ constexpr auto try_parse_md_block_quotes(::fast_io::u8string_view pltext) noexce
             current_index = temp_index + 1;
         }
         while (current_index < pltext_size &&
-               ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) == u8' ') {
+               (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) == u8' ' ||
+               ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) == u8'\t')) {
             ++current_index;
         }
         if (current_index == pltext_size) {
