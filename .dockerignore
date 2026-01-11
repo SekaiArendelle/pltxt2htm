@@ -16,7 +16,7 @@ dist/
 **/*-pltxt2htm*/
 
 # lcov
-test/lcov-report/
+tests/lcov-report/
 
 # archive
 *.7z
@@ -67,3 +67,5 @@ csharp/bin/
 # Visual Studio
 **/vs2026/
 
+# ninja
+**/.ninja_log
