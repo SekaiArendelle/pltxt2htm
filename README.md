@@ -47,7 +47,7 @@ markdown extension based on [commonmark](https://spec.commonmark.org/0.31.2/)
 * Rough support for markdown [lists](https://spec.commonmark.org/0.31.2/#lists) but common usage is well tested.
 * `Checkbox`, `markdown table` and `mermaid` is not planed yet.
 
-Show all supported features in [test](./test/)
+Show all supported features in [tests](./tests/)
 
 ## Setup development environment
 Easy to setup development environment by my [Dockerfile](./Dockerfile)

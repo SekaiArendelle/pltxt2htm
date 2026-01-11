@@ -56,7 +56,7 @@ def main():
     SCRIPT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     search_dirs = [
-        "test",
+        "tests",
         "include/pltxt2htm",
         "wasm",
         "cmd",
