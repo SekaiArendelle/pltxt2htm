@@ -5,7 +5,7 @@ exclude_patterns = [
 ]
 
 test_patterns = [
-  "test/*.cc"
+  "tests/*.cc"
 ]
 
 [[analyzers]]

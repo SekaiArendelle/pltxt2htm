@@ -12,7 +12,7 @@ on:
 
 jobs:
   x86_64-windows-msvc-test:
-    name: x86_64-windows-msvc (test/)
+    name: x86_64-windows-msvc (tests/)
     runs-on: windows-latest
 
     steps:
@@ -37,13 +37,13 @@ jobs:
 
       - name: Configure and build
         shell: powershell
-        working-directory: test
+        working-directory: tests
         run: |
           xmake config -p windows -a x64 --toolchain=x86_64-windows-msvc-clang
           xmake test -v
 
   aarch64-apple-darwin24-test-asan:
-    name: aarch64-apple-darwin24 (test/, asan)
+    name: aarch64-apple-darwin24 (tests/, asan)
     runs-on: macos-latest
 
     steps:
@@ -59,13 +59,13 @@ jobs:
         run: echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
 
       - name: Configure and build
-        working-directory: test
+        working-directory: tests
         run: |
           xmake config --toolchain=clang --policies=build.sanitizer.address
           xmake test -v
 
   aarch64-apple-darwin24-test-ubsan:
-    name: aarch64-apple-darwin24 (test/, ubsan)
+    name: aarch64-apple-darwin24 (tests/, ubsan)
     runs-on: macos-latest
 
     steps:
@@ -81,7 +81,7 @@ jobs:
         run: echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
 
       - name: Configure and build
-        working-directory: test
+        working-directory: tests
         env:
           UBSAN_OPTIONS: "halt_on_error=1:abort_on_error=1:print_stacktrace=1"
         run: |
@@ -92,7 +92,7 @@ jobs:
     strategy:
       fail-fast: false
 
-    name: x86_64-linux-gnu (test/, asan)
+    name: x86_64-linux-gnu (tests/, asan)
     runs-on: ubuntu-latest
 
     steps:
@@ -101,7 +101,7 @@ jobs:
 
       - name: Build docker image
         run: |
-          docker build -f test/docker/x86_64-linux-gnu-asan/Dockerfile -t x86_64-linux-gnu-test-asan .
+          docker build -f tests/docker/x86_64-linux-gnu-asan/Dockerfile -t x86_64-linux-gnu-test-asan .
 
       - name: Run all tests
         run: |
@@ -111,7 +111,7 @@ jobs:
     strategy:
       fail-fast: false
 
-    name: x86_64-linux-gnu (test/, msan)
+    name: x86_64-linux-gnu (tests/, msan)
     runs-on: ubuntu-latest
 
     steps:
@@ -120,7 +120,7 @@ jobs:
 
       - name: Build docker image
         run: |
-          docker build -f test/docker/x86_64-linux-gnu-msan/Dockerfile -t x86_64-linux-gnu-test-msan .
+          docker build -f tests/docker/x86_64-linux-gnu-msan/Dockerfile -t x86_64-linux-gnu-test-msan .
 
       - name: Run all tests
         run: |
