@@ -54,7 +54,7 @@ def generate_ninja_file(files, output_path="format_cpp.ninja"):
 
 def main():
     search_dirs = [
-        "test",
+        "tests",
         "include/pltxt2htm",
         "wasm",
         "cmd",

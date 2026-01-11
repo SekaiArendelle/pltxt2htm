@@ -16,7 +16,7 @@ dist/
 **/*-pltxt2htm*/
 
 # lcov
-test/lcov-report/
+tests/lcov-report/
 
 # archive
 *.7z
