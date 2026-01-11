@@ -59,7 +59,7 @@ jobs:
         run: echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
 
       - name: Configure and build
-        working-directory: test
+        working-directory: tests
         run: |
           xmake config --toolchain=clang --policies=build.sanitizer.address
           xmake test -v
@@ -81,7 +81,7 @@ jobs:
         run: echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
 
       - name: Configure and build
-        working-directory: test
+        working-directory: tests
         env:
           UBSAN_OPTIONS: "halt_on_error=1:abort_on_error=1:print_stacktrace=1"
         run: |
