@@ -180,7 +180,8 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
         // normal utf-8 characters
         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{chr});
         return 0;
-    } else if ((chr & 0xE0) == 0xC0) {
+    }
+    else if ((chr & 0xE0) == 0xC0) {
         if (1 >= pltext_size) {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
             return 0;
@@ -199,7 +200,8 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{chr});
         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{next_char});
         return 1;
-    } else if ((chr & 0xF0) == 0xE0) {
+    }
+    else if ((chr & 0xF0) == 0xE0) {
         if (2 >= pltext_size) {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
             return 0;
@@ -229,7 +231,8 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{next_char});
         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{next_char2});
         return 2;
-    } else if ((chr & 0xF8) == 0xF0) {
+    }
+    else if ((chr & 0xF8) == 0xF0) {
         if (3 >= pltext_size) {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
             return 0;
@@ -265,7 +268,8 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{next_char2});
         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{next_char3});
         return 3;
-    } else {
+    }
+    else {
         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
         return 0;
     }
@@ -290,7 +294,8 @@ template<bool ndebug, ::pltxt2htm::details::LiteralString tag_name = ::pltxt2htm
         auto forward_chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i);
         if (forward_chr == u8'>') {
             return i;
-        } else if (forward_chr != ' ') {
+        }
+        else if (forward_chr != ' ') {
             return ::exception::nullopt_t{};
         }
     }
@@ -338,7 +343,8 @@ constexpr auto try_parse_equal_sign_tag(::fast_io::u8string_view pltext, Func&& 
                 return ::exception::nullopt_t{};
             }
             return ::pltxt2htm::details::TryParseEqualSignTagResult{forward_index, ::std::move(substr)};
-        } else if (forward_chr == u8' ') {
+        }
+        else if (forward_chr == u8' ') {
             while (true) {
                 if (forward_index + 1 >= pltext.size()) {
                     return ::exception::nullopt_t{};
@@ -346,20 +352,24 @@ constexpr auto try_parse_equal_sign_tag(::fast_io::u8string_view pltext, Func&& 
 
                 if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index + 1) == u8' ') {
                     ++forward_index;
-                } else if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index + 1) == u8'>') {
+                }
+                else if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index + 1) == u8'>') {
                     if (substr.empty()) {
                         // test/0030.fuzzing-crassh1.cc
                         // <size= >text
                         return ::exception::nullopt_t{};
                     }
                     return ::pltxt2htm::details::TryParseEqualSignTagResult{forward_index + 1, ::std::move(substr)};
-                } else {
+                }
+                else {
                     return ::exception::nullopt_t{};
                 }
             }
-        } else if (func(forward_chr)) {
+        }
+        else if (func(forward_chr)) {
             substr.push_back(forward_chr);
-        } else {
+        }
+        else {
             return ::exception::nullopt_t{};
         }
     }
@@ -382,10 +392,12 @@ constexpr auto try_parse_self_closing_tag(::fast_io::u8string_view pltext) noexc
         char8_t const forward_chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index)};
         if (forward_chr == u8'>') {
             return forward_index;
-        } else if (forward_chr == u8'/' && forward_index + 1 < pltext.size() &&
-                   ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index + 1) == u8'>') {
+        }
+        else if (forward_chr == u8'/' && forward_index + 1 < pltext.size() &&
+                 ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index + 1) == u8'>') {
             return forward_index + 1;
-        } else if (forward_chr != u8' ') {
+        }
+        else if (forward_chr != u8' ') {
             return ::exception::nullopt_t{};
         }
     }
@@ -405,10 +417,12 @@ constexpr auto try_parse_self_closing_tag(::fast_io::u8string_view pltext) noexc
         char8_t const forward_chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index)};
         if (forward_chr == u8'>') {
             return forward_index;
-        } else if (forward_chr == u8'/' && forward_index + 1 < pltext.size() &&
-                   ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index + 1) == u8'>') {
+        }
+        else if (forward_chr == u8'/' && forward_index + 1 < pltext.size() &&
+                 ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index + 1) == u8'>') {
             return forward_index + 1;
-        } else if (forward_chr != u8' ') {
+        }
+        else if (forward_chr != u8' ') {
             return ::exception::nullopt_t{};
         }
     }
@@ -454,7 +468,8 @@ constexpr auto try_parse_md_atx_heading(::fast_io::u8string_view pltext) noexcep
                 md_atx_heading_type <= static_cast<::std::size_t>(::pltxt2htm::NodeType::md_atx_h6)) {
                 return ::pltxt2htm::details::TryParseMdAtxHeadingResult{
                     start_index, 0, start_index, static_cast<::pltxt2htm::NodeType>(md_atx_heading_type)};
-            } else {
+            }
+            else {
                 return ::exception::nullopt_t{};
             }
         }
@@ -490,11 +505,12 @@ constexpr auto try_parse_md_atx_heading(::fast_io::u8string_view pltext) noexcep
         if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, end_index) == u8'\n') {
             extra_length = 1;
             break;
-        } else if (auto opt =
-                       ::pltxt2htm::details::try_parse_self_closing_tag<ndebug,
-                                                                        ::pltxt2htm::details::LiteralString{u8"<br"}>(
-                           ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, end_index));
-                   opt.has_value()) {
+        }
+        else if (auto opt =
+                     ::pltxt2htm::details::try_parse_self_closing_tag<ndebug,
+                                                                      ::pltxt2htm::details::LiteralString{u8"<br"}>(
+                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, end_index));
+                 opt.has_value()) {
             extra_length = opt.template value<ndebug>() + 1;
             break;
         }
@@ -537,47 +553,61 @@ constexpr auto try_parse_md_thematic_break(::fast_io::u8string_view text) noexce
             if (thematic_break_type == ::pltxt2htm::details::ThematicBreakType::none) {
                 thematic_break_type = ::pltxt2htm::details::ThematicBreakType::asterisk;
                 continue;
-            } else if (thematic_break_type == ::pltxt2htm::details::ThematicBreakType::asterisk) {
+            }
+            else if (thematic_break_type == ::pltxt2htm::details::ThematicBreakType::asterisk) {
                 continue;
-            } else {
+            }
+            else {
                 return ::exception::nullopt_t{};
             }
-        } else if (chr == u8'-') {
+        }
+        else if (chr == u8'-') {
             if (thematic_break_type == ::pltxt2htm::details::ThematicBreakType::none) {
                 thematic_break_type = ::pltxt2htm::details::ThematicBreakType::hyphen;
                 continue;
-            } else if (thematic_break_type == ::pltxt2htm::details::ThematicBreakType::hyphen) {
+            }
+            else if (thematic_break_type == ::pltxt2htm::details::ThematicBreakType::hyphen) {
                 continue;
-            } else {
+            }
+            else {
                 return ::exception::nullopt_t{};
             }
-        } else if (chr == u8'_') {
+        }
+        else if (chr == u8'_') {
             if (thematic_break_type == ::pltxt2htm::details::ThematicBreakType::none) {
                 thematic_break_type = ::pltxt2htm::details::ThematicBreakType::underscore;
                 continue;
-            } else if (thematic_break_type == ::pltxt2htm::details::ThematicBreakType::underscore) {
+            }
+            else if (thematic_break_type == ::pltxt2htm::details::ThematicBreakType::underscore) {
                 continue;
-            } else {
+            }
+            else {
                 return ::exception::nullopt_t{};
             }
-        } else if (thematic_break_type != ::pltxt2htm::details::ThematicBreakType::none) {
+        }
+        else if (thematic_break_type != ::pltxt2htm::details::ThematicBreakType::none) {
             if (chr == u8'\n') {
                 return i + 1;
-            } else if (auto opt_tag_len = ::pltxt2htm::details::try_parse_self_closing_tag<
-                           ndebug, ::pltxt2htm::details::LiteralString{u8"<br"}>(
-                           ::pltxt2htm::details::u8string_view_subview<ndebug>(text, i));
-                       opt_tag_len.has_value()) {
+            }
+            else if (auto opt_tag_len =
+                         ::pltxt2htm::details::try_parse_self_closing_tag<ndebug,
+                                                                          ::pltxt2htm::details::LiteralString{u8"<br"}>(
+                             ::pltxt2htm::details::u8string_view_subview<ndebug>(text, i));
+                     opt_tag_len.has_value()) {
                 return i + opt_tag_len.template value<ndebug>() + 1;
-            } else {
+            }
+            else {
                 return ::exception::nullopt_t{};
             }
-        } else {
+        }
+        else {
             return ::exception::nullopt_t{};
         }
     }
     if (thematic_break_type == ::pltxt2htm::details::ThematicBreakType::none) {
         return ::exception::nullopt_t{};
-    } else {
+    }
+    else {
         return i;
     }
 }
@@ -614,25 +644,32 @@ constexpr auto simply_parse_pltext(::fast_io::u8string_view pltext) noexcept
 
         if (chr == u8'\n') {
             ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LineBreak>{});
-        } else if (chr == u8' ') {
+        }
+        else if (chr == u8' ') {
             ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Space>{});
             continue;
-        } else if (chr == u8'&') {
+        }
+        else if (chr == u8'&') {
             ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Ampersand>{});
             continue;
-        } else if (chr == u8'\'') {
+        }
+        else if (chr == u8'\'') {
             ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::SingleQuotationMark>{});
             continue;
-        } else if (chr == u8'\"') {
+        }
+        else if (chr == u8'\"') {
             ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::DoubleQuotationMark>{});
             continue;
-        } else if (chr == u8'>') {
+        }
+        else if (chr == u8'>') {
             ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::GreaterThan>{});
             continue;
-        } else if (chr == u8'\t') {
+        }
+        else if (chr == u8'\t') {
             ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Tab>{});
             continue;
-        } else if (chr == u8'\\') {
+        }
+        else if (chr == u8'\\') {
             if (current_index + 1 == pltext_size) {
                 ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{u8'\\'});
                 continue;
@@ -642,13 +679,16 @@ constexpr auto simply_parse_pltext(::fast_io::u8string_view pltext) noexcept
             if (escape_node.has_value()) {
                 ast.push_back(::std::move(escape_node.template value<ndebug>()));
                 ++current_index;
-            } else {
+            }
+            else {
                 ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{u8'\\'});
             }
             continue;
-        } else if (chr == u8'<') {
+        }
+        else if (chr == u8'<') {
             ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
-        } else {
+        }
+        else {
             auto forward_index = ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), ast);
             current_index += forward_index;
@@ -681,7 +721,8 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
     constexpr auto fence = []() static constexpr noexcept {
         if constexpr (is_backtick) {
             return ::pltxt2htm::details::LiteralString{u8"```"};
-        } else {
+        }
+        else {
             return ::pltxt2htm::details::LiteralString{u8"~~~"};
         }
     }();
@@ -708,7 +749,8 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
         if (chr == u8'\n') {
             ++current_index;
             break;
-        } else if (chr == u8' ') {
+        }
+        else if (chr == u8' ') {
             ++current_index;
             if (current_index == pltext_size) {
                 // 0042.fuzzing-crash3
@@ -724,7 +766,8 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
             }
             ++current_index;
             break;
-        } else {
+        }
+        else {
             if constexpr (is_backtick) {
                 if (::pltxt2htm::details::is_prefix_match<ndebug, fence>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) {
@@ -743,7 +786,8 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
         ast = ::std::move(ast_);
         current_index += forward_index;
-    } else {
+    }
+    else {
         constexpr auto end_string = ::pltxt2htm::details::concat(::pltxt2htm::details::LiteralString{u8"\n"}, fence);
         auto&& [forward_index, ast_] = ::pltxt2htm::details::simply_parse_pltext<ndebug, end_string>(
             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
@@ -759,7 +803,8 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
         return ::pltxt2htm::details::TryParseMdCodeFenceResult{
             .node = ::pltxt2htm::HeapGuard<::pltxt2htm::MdCodeFenceBacktick>{::std::move(ast), ::std::move(opt_lang)},
             .forward_index = current_index};
-    } else {
+    }
+    else {
         return ::pltxt2htm::details::TryParseMdCodeFenceResult{
             .node = ::pltxt2htm::HeapGuard<::pltxt2htm::MdCodeFenceTilde>{::std::move(ast), ::std::move(opt_lang)},
             .forward_index = current_index};
@@ -789,7 +834,8 @@ constexpr auto try_parse_md_code_fence(::fast_io::u8string_view pltext) noexcept
     else if (auto opt_code_fence_tilde = ::pltxt2htm::details::try_parse_md_code_fence_<ndebug, false>(pltext);
              opt_code_fence_tilde.has_value()) {
         return opt_code_fence_tilde;
-    } else {
+    }
+    else {
         return ::exception::nullopt_t{};
     }
 #endif
@@ -819,7 +865,8 @@ constexpr auto try_parse_md_inlines(::fast_io::u8string_view pltext) noexcept ->
             ::std::size_t result{current_index - embraced_size};
             if (result == 0) {
                 return ::exception::nullopt_t{};
-            } else {
+            }
+            else {
                 return result;
             }
         }
@@ -858,7 +905,8 @@ constexpr auto try_parse_md_block_quotes(::fast_io::u8string_view pltext) noexce
         }
         if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, temp_index) != u8'>') {
             goto done;
-        } else {
+        }
+        else {
             current_index = temp_index + 1;
         }
         while (current_index < pltext_size &&
@@ -882,14 +930,16 @@ constexpr auto try_parse_md_block_quotes(::fast_io::u8string_view pltext) noexce
         }
         if (current_index == pltext_size) {
             break;
-        } else {
+        }
+        else {
             subpltext.push_back(u8'\n');
         }
     }
 done:
     if (subpltext.empty()) {
         return ::exception::nullopt_t{};
-    } else {
+    }
+    else {
         if (subpltext.back_unchecked() == u8'\n') {
             subpltext.pop_back();
         }
@@ -925,13 +975,16 @@ constexpr auto try_parse_md_code_span(::fast_io::u8string_view pltext) noexcept
     if constexpr (embraced_size == 1) {
         return ::pltxt2htm::details::TryParseMdCodeSpanResult{.forward_index = forward_index + embraced_size,
                                                               .subast = ::std::move(ast)};
-    } else if constexpr (embraced_size == 2) {
+    }
+    else if constexpr (embraced_size == 2) {
         return ::pltxt2htm::details::TryParseMdCodeSpanResult{.forward_index = forward_index + embraced_size,
                                                               .subast = ::std::move(ast)};
-    } else if constexpr (embraced_size == 3) {
+    }
+    else if constexpr (embraced_size == 3) {
         return ::pltxt2htm::details::TryParseMdCodeSpanResult{.forward_index = forward_index + embraced_size,
                                                               .subast = ::std::move(ast)};
-    } else {
+    }
+    else {
         ::exception::unreachable();
     }
 }
@@ -972,7 +1025,8 @@ constexpr auto try_parse_md_latex_block_dollar(::fast_io::u8string_view pltext) 
         if (::pltxt2htm::details::u8string_view_index<ndebug>(body, idx) == u8'\n') {
             ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{u8'\n'});
             ++idx;
-        } else {
+        }
+        else {
             auto forward = ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(body, idx), ast);
             idx += forward + 1;
@@ -1000,7 +1054,8 @@ constexpr auto try_parse_md_latex_inline(::fast_io::u8string_view pltext) noexce
         auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(body, i);
         if (chr == u8'\n') {
             return ::exception::nullopt_t{};
-        } else if (chr == u8'$') {
+        }
+        else if (chr == u8'$') {
             close_pos = i;
             break;
         }

@@ -254,7 +254,8 @@ entry:
                     ::std::addressof(subast), ::pltxt2htm::NodeType::pl_color, subast.begin(),
                     ::fast_io::mnp::os_c_str(color->get_color())));
                 goto entry;
-            } else {
+            }
+            else {
                 // Optimization: If the color is the same as the parent node, then ignore the nested tag.
                 node = static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::Text>(::std::move(color->get_subast())));
@@ -292,7 +293,8 @@ entry:
                     ::std::addressof(subast), ::pltxt2htm::NodeType::pl_experiment, subast.begin(),
                     ::fast_io::mnp::os_c_str(experiment->get_id())));
                 goto entry;
-            } else {
+            }
+            else {
                 node = static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::Text>(::std::move(experiment->get_subast())));
                 ++current_iter;
@@ -331,7 +333,8 @@ entry:
                     ::std::addressof(subast), ::pltxt2htm::NodeType::pl_discussion, subast.begin(),
                     ::fast_io::mnp::os_c_str(discussion->get_id())));
                 goto entry;
-            } else {
+            }
+            else {
                 node = static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::Text>(::std::move(discussion->get_subast())));
                 ++current_iter;
@@ -366,7 +369,8 @@ entry:
                     ::std::addressof(subast), ::pltxt2htm::NodeType::pl_user, subast.begin(),
                     ::fast_io::mnp::os_c_str(user->get_id())));
                 goto entry;
-            } else {
+            }
+            else {
                 node = static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::Text>(::std::move(user->get_subast())));
                 ++current_iter;
@@ -400,7 +404,8 @@ entry:
                     ::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerPlSizeTagContext<::pltxt2htm::Ast::iterator>>(
                         ::std::addressof(subast), ::pltxt2htm::NodeType::pl_size, subast.begin(), size->get_id()));
                 goto entry;
-            } else {
+            }
+            else {
                 node = static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::Text>(::std::move(size->get_subast())));
                 ++current_iter;
@@ -426,7 +431,8 @@ entry:
                     ::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                         ::std::addressof(subast), ::pltxt2htm::NodeType::html_strong, subast.begin()));
                 goto entry;
-            } else {
+            }
+            else {
                 node = static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::Text>(::std::move(b->get_subast())));
                 ++current_iter;
@@ -522,7 +528,8 @@ entry:
                     ::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                         ::std::addressof(subast), ::pltxt2htm::NodeType::html_del, subast.begin()));
                 goto entry;
-            } else {
+            }
+            else {
                 node = static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::Text>(::std::move(del->get_subast())));
                 ++current_iter;
@@ -547,7 +554,8 @@ entry:
                 call_stack.push(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                         ::std::addressof(subast), ::pltxt2htm::NodeType::html_em, subast.begin()));
-            } else {
+            }
+            else {
                 node = static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::Text>(::std::move(em->get_subast())));
                 ++current_iter;
@@ -723,7 +731,8 @@ entry:
                 ast.erase(current_iter);
             }
             return;
-        } else {
+        }
+        else {
             switch (top_frame->nested_tag_type) {
             case ::pltxt2htm::NodeType::pl_a:
                 [[fallthrough]];
@@ -751,7 +760,8 @@ entry:
                 if (top_frame->ast->empty()) {
                     // Optimization: if the tag is empty, we can skip it
                     call_stack.top()->ast->erase(call_stack.top()->iter);
-                } else {
+                }
+                else {
                     ++(call_stack.top()->iter);
                 }
                 goto entry;

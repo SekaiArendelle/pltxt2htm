@@ -60,7 +60,8 @@ constexpr auto u8string_view_subview(::fast_io::u8string_view pltext, ::std::siz
     -> ::fast_io::u8string_view {
     if constexpr (ndebug) {
         return pltext.subview_unchecked(i, count);
-    } else {
+    }
+    else {
         return pltext.subview(i, count);
     }
 }
@@ -136,13 +137,16 @@ constexpr bool is_prefix_match(::fast_io::u8string_view str) noexcept {
             // (expect != str[I] && expect != str[I] + diff) <=> (expect != (str[I] | diff))
             if (expect != (::pltxt2htm::details::u8string_view_index<ndebug>(str, I) | diff)) {
                 return false;
-            } else {
+            }
+            else {
                 return true;
             }
-        } else {
+        }
+        else {
             if (expect != ::pltxt2htm::details::u8string_view_index<ndebug>(str, I)) {
                 return false;
-            } else {
+            }
+            else {
                 return true;
             }
         }

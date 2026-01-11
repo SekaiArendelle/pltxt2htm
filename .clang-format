@@ -3,7 +3,16 @@ Language: Cpp
 BasedOnStyle: Google
 IndentWidth: 4
 ColumnLimit: 120
-BreakBeforeBraces: Attach
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterControlStatement: false
+  AfterFunction: false
+  AfterStruct: false
+  AfterUnion: false
+  AfterClass: false
+  AfterNamespace: false
+  AfterExternBlock: false
+  BeforeElse: true
 AllowShortIfStatementsOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: None

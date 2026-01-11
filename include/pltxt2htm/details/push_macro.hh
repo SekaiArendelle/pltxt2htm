@@ -38,7 +38,8 @@
                     ::pltxt2htm::details::LiteralString{#condition}, ::pltxt2htm::details::LiteralString{__FILE__}, \
                     source_location.line(), source_location.column(), ::pltxt2htm::details::LiteralString{message}>(); \
             } \
-        } else { \
+        } \
+        else { \
             [[assume(condition)]]; \
         } \
     } while (0)

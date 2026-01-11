@@ -402,7 +402,8 @@ entry:
         call_stack.pop();
         if (call_stack.empty()) {
             return result;
-        } else {
+        }
+        else {
             switch (top_frame.nested_tag_type_) {
             case ::pltxt2htm::NodeType::md_double_emphasis_asterisk:
                 [[fallthrough]];

@@ -81,23 +81,28 @@ int main(int argc, char const* const* const argv) noexcept {
             }
             host = reinterpret_cast<char8_t const*>(argv[++i]);
             continue;
-        } else if (::std::strcmp(argv[i], "--target") == 0) {
+        }
+        else if (::std::strcmp(argv[i], "--target") == 0) {
             if (i == static_cast<::std::size_t>(argc) - 1) [[unlikely]] {
                 ::fast_io::perrln("Missing target");
                 return 1;
             }
             if (::std::strcmp(argv[i + 1], "advanced_html") == 0) {
                 target_type = ::TargetType::advanced_html;
-            } else if (::std::strcmp(argv[i + 1], "common_html") == 0) {
+            }
+            else if (::std::strcmp(argv[i + 1], "common_html") == 0) {
                 target_type = ::TargetType::common_html;
-            } else if (::std::strcmp(argv[i + 1], "fixedadv_html") == 0) {
+            }
+            else if (::std::strcmp(argv[i + 1], "fixedadv_html") == 0) {
                 target_type = ::TargetType::fixedadv_html;
-            } else {
+            }
+            else {
                 ::fast_io::perrln("Invalid target: ", ::fast_io::mnp::os_c_str(argv[i + 1]));
                 return 1;
             }
             ++i;
-        } else if (::std::strcmp(argv[i], "-o") == 0) {
+        }
+        else if (::std::strcmp(argv[i], "-o") == 0) {
             if (i == static_cast<::std::size_t>(argc) - 1) [[unlikely]] {
                 ::fast_io::perrln("You must specify output file after `-o`");
                 return 1;
@@ -108,7 +113,8 @@ int main(int argc, char const* const* const argv) noexcept {
             }
             output_file_path = argv[++i];
             continue;
-        } else if (::std::strcmp(argv[i], "--project") == 0) {
+        }
+        else if (::std::strcmp(argv[i], "--project") == 0) {
             if (i == static_cast<::std::size_t>(argc) - 1) [[unlikely]] {
                 ::fast_io::perrln("You must specify project name after `--project`");
                 return 1;
@@ -119,7 +125,8 @@ int main(int argc, char const* const* const argv) noexcept {
             }
             project = reinterpret_cast<char8_t const*>(argv[++i]);
             continue;
-        } else if (::std::strcmp(argv[i], "--visitor") == 0) {
+        }
+        else if (::std::strcmp(argv[i], "--visitor") == 0) {
             if (i == static_cast<::std::size_t>(argc) - 1) [[unlikely]] {
                 ::fast_io::perrln("You must specify visitor name after `--visitor`");
                 return 1;
@@ -130,7 +137,8 @@ int main(int argc, char const* const* const argv) noexcept {
             }
             visitor = reinterpret_cast<char8_t const*>(argv[++i]);
             continue;
-        } else if (::std::strcmp(argv[i], "--author") == 0) {
+        }
+        else if (::std::strcmp(argv[i], "--author") == 0) {
             if (i == static_cast<::std::size_t>(argc) - 1) [[unlikely]] {
                 ::fast_io::perrln("You must specify author name after `--author`");
                 return 1;
@@ -141,7 +149,8 @@ int main(int argc, char const* const* const argv) noexcept {
             }
             author = reinterpret_cast<char8_t const*>(argv[++i]);
             continue;
-        } else if (::std::strcmp(argv[i], "--coauthors") == 0) {
+        }
+        else if (::std::strcmp(argv[i], "--coauthors") == 0) {
             if (i == static_cast<::std::size_t>(argc) - 1) [[unlikely]] {
                 ::fast_io::perrln("You must specify coauthors string after `--coauthors`");
                 return 1;
@@ -152,7 +161,8 @@ int main(int argc, char const* const* const argv) noexcept {
             }
             coauthors = reinterpret_cast<char8_t const*>(argv[++i]);
             continue;
-        } else if (::std::strcmp(argv[i], "-h") == 0 || ::std::strcmp(argv[i], "--help") == 0) {
+        }
+        else if (::std::strcmp(argv[i], "-h") == 0 || ::std::strcmp(argv[i], "--help") == 0) {
             if (i != 1) [[unlikely]] {
                 ::fast_io::perrln(
                     "You can only use `pltxt2htm [-h|--help]` without another options to show "
@@ -161,7 +171,8 @@ int main(int argc, char const* const* const argv) noexcept {
             }
             ::fast_io::println(::fast_io::u8c_stdout(), usage);
             return 0;
-        } else if (::std::strcmp(argv[i], "-v") == 0 || ::std::strcmp(argv[i], "--version") == 0) {
+        }
+        else if (::std::strcmp(argv[i], "-v") == 0 || ::std::strcmp(argv[i], "--version") == 0) {
             if (i != 1) [[unlikely]] {
                 ::fast_io::perrln(
                     "You can only use `pltxt2htm [--version|-v]` without another options to show "
@@ -172,7 +183,8 @@ int main(int argc, char const* const* const argv) noexcept {
                                                          ::pltxt2htm::version::minor, ".",
                                                          ::pltxt2htm::version::patch));
             return 0;
-        } else [[unlikely]] {
+        }
+        else [[unlikely]] {
             ::fast_io::perrln("Unknown option: ", ::fast_io::mnp::os_c_str(argv[i]));
             return 1;
         }
@@ -251,7 +263,8 @@ int main(int argc, char const* const* const argv) noexcept {
                 false
 #endif
                 >(::fast_io::mnp::os_c_str(input_text));
-        } else if (target_type == ::TargetType::common_html) {
+        }
+        else if (target_type == ::TargetType::common_html) {
             html = ::pltxt2htm::pltxt2common_html<
 #ifdef NDEBUG
                 true
@@ -259,7 +272,8 @@ int main(int argc, char const* const* const argv) noexcept {
                 false
 #endif
                 >(::fast_io::mnp::os_c_str(input_text));
-        } else if (target_type == ::TargetType::fixedadv_html) {
+        }
+        else if (target_type == ::TargetType::fixedadv_html) {
             html = ::pltxt2htm::pltxt2fixedadv_html<
 #ifdef NDEBUG
                 true
@@ -269,7 +283,8 @@ int main(int argc, char const* const* const argv) noexcept {
                 >(::fast_io::mnp::os_c_str(input_text), ::fast_io::mnp::os_c_str(host),
                   ::fast_io::mnp::os_c_str(project), ::fast_io::mnp::os_c_str(visitor),
                   ::fast_io::mnp::os_c_str(author), ::fast_io::mnp::os_c_str(coauthors));
-        } else [[unlikely]] {
+        }
+        else [[unlikely]] {
             ::exception::unreachable<
 #ifdef NDEBUG
                 true
@@ -280,7 +295,8 @@ int main(int argc, char const* const* const argv) noexcept {
         }
         if (output_file_path == nullptr) {
             ::fast_io::println(::fast_io::u8c_stdout(), html);
-        } else {
+        }
+        else {
             auto output_file =
                 ::fast_io::native_file{::fast_io::mnp::os_c_str(output_file_path), ::fast_io::open_mode::out};
             auto output_file_handle = ::fast_io::u8native_io_observer{output_file.native_handle()};

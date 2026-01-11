@@ -131,7 +131,8 @@ public:
     constexpr auto operator==(this Self const& self, ::pltxt2htm::details::LiteralString<M> const& other) noexcept {
         if constexpr (N != M) {
             return false;
-        } else {
+        }
+        else {
             return ::std::equal(self.cbegin(), self.cend(), other.data());
         }
     }
@@ -299,11 +300,13 @@ template<::pltxt2htm::details::LiteralString str, ::std::size_t M = 0>
 consteval auto shrink_string_literal_() noexcept {
     if constexpr (M >= str.size()) {
         return str;
-    } else if constexpr (str[M] == 0) {
+    }
+    else if constexpr (str[M] == 0) {
         char result[M + 1]{};
         ::std::reverse_copy(str.cbegin(), str.cbegin() + M, result);
         return ::pltxt2htm::details::LiteralString{result};
-    } else {
+    }
+    else {
         return ::pltxt2htm::details::shrink_string_literal_<str, M + 1>();
     }
 }

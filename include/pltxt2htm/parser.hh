@@ -60,53 +60,52 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
         auto&& [forward_index, has_new_frame] = ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(
             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index), call_stack, result);
         start_index += forward_index;
-        if (has_new_frame) {
-            ::pltxt2htm::NodeType type_of_subast{call_stack.top()->nested_tag_type};
-            auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
-            switch (type_of_subast) {
-            case ::pltxt2htm::NodeType::md_atx_h1: {
-                result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH1>(::std::move(subast)));
-                break;
-            }
-            case ::pltxt2htm::NodeType::md_atx_h2: {
-                result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH2>(::std::move(subast)));
-                break;
-            }
-            case ::pltxt2htm::NodeType::md_atx_h3: {
-                result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH3>(::std::move(subast)));
-                break;
-            }
-            case ::pltxt2htm::NodeType::md_atx_h4: {
-                result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH4>(::std::move(subast)));
-                break;
-            }
-            case ::pltxt2htm::NodeType::md_atx_h5: {
-                result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH5>(::std::move(subast)));
-                break;
-            }
-            case ::pltxt2htm::NodeType::md_atx_h6: {
-                result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH6>(::std::move(subast)));
-                break;
-            }
-            case ::pltxt2htm::NodeType::md_block_quotes: {
-                result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdBlockQuotes>(::std::move(subast)));
-                break;
-            }
-            case ::pltxt2htm::NodeType::md_ul: {
-                result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdUl>(::std::move(subast)));
-                break;
-            }
-            case ::pltxt2htm::NodeType::md_ol: {
-                result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdOl>(::std::move(subast)));
-                break;
-            }
-            default:
-                [[unlikely]] {
-                    ::exception::unreachable<ndebug>();
-                }
-            }
-        } else {
+        if (has_new_frame == false) {
             break;
+        }
+        ::pltxt2htm::NodeType type_of_subast{call_stack.top()->nested_tag_type};
+        auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
+        switch (type_of_subast) {
+        case ::pltxt2htm::NodeType::md_atx_h1: {
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH1>(::std::move(subast)));
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_atx_h2: {
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH2>(::std::move(subast)));
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_atx_h3: {
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH3>(::std::move(subast)));
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_atx_h4: {
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH4>(::std::move(subast)));
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_atx_h5: {
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH5>(::std::move(subast)));
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_atx_h6: {
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH6>(::std::move(subast)));
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_block_quotes: {
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdBlockQuotes>(::std::move(subast)));
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_ul: {
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdUl>(::std::move(subast)));
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_ol: {
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdOl>(::std::move(subast)));
+            continue;
+        }
+        default:
+            [[unlikely]] {
+                ::exception::unreachable<ndebug>();
+            }
         }
     }
 

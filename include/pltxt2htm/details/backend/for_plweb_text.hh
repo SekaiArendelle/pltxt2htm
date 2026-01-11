@@ -222,7 +222,8 @@ entry:
             if (nested_tag_type == ::pltxt2htm::NodeType::md_code_fence_backtick ||
                 nested_tag_type == ::pltxt2htm::NodeType::md_code_fence_tilde) {
                 result.push_back('\n');
-            } else {
+            }
+            else {
                 auto const start_tag = ::fast_io::array{u8'<', u8'b', u8'r', u8'>'};
                 result.append(::fast_io::u8string_view{start_tag.data(), start_tag.size()});
             }
@@ -569,7 +570,8 @@ entry:
                 result.append(language);
                 auto const start_tag2 = ::fast_io::array{u8'\"', u8'>'};
                 result.append(::fast_io::u8string_view(start_tag2.begin(), start_tag2.size()));
-            } else {
+            }
+            else {
                 auto const start_tag =
                     ::fast_io::array{u8'<', u8'p', u8'r', u8'e', u8'>', u8'<', u8'c', u8'o', u8'd', u8'e', u8'>'};
                 result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
@@ -611,7 +613,8 @@ entry:
         call_stack.pop();
         if (call_stack.empty()) {
             return result;
-        } else {
+        }
+        else {
             switch (top_frame.nested_tag_type_) {
             case ::pltxt2htm::NodeType::text: {
                 goto entry;
