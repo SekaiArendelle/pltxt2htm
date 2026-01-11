@@ -13,10 +13,16 @@
 namespace pltxt2htm::details {
 
 /**
- * @brief Switch to a markdown punctuation character.
+ * @brief Switch to a markdown punctuation character for escape sequences.
  *
- * @param[in] u8char The UTF-8 character to switch.
- * @return An optional HeapGuard containing the corresponding PlTxtNode, or nullopt if no match is found.
+ * This function maps escape character sequences (prefixed with backslash) to their corresponding
+ * AST node types. It handles all common markdown punctuation characters that can be escaped.
+ *
+ * @param[in] u8char The UTF-8 character following the backslash in an escape sequence.
+ * @return An optional HeapGuard containing the corresponding escape PlTxtNode, or nullopt if the character
+ *         is not a valid escapable character in markdown.
+ * @note Supported escape characters include: \\ \! \" \# \$ \% \& \' \( \) \* \+ \, \- \. \/ \: \; \< \= \> \? \@ \[ \] \^ \_ \` \{ \| \} \~
+ * @see https://spec.commonmark.org/0.31.2/#backslash-escapes
  */
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
@@ -161,10 +167,18 @@ constexpr ::exception::optional<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>> 
 /**
  * @brief Parse a single UTF-8 code point and append the corresponding AST node(s).
  *
- * @tparam ndebug When `true`, runtime assertions are disabled.
- * @param[in] pltext The complete input text being parsed.
- * @param[out] result The AST to which parsed nodes are appended.
- * @return The number of UTF-8 code units consumed.
+ * This function processes UTF-8 encoded characters and creates appropriate AST nodes.
+ * It handles multi-byte UTF-8 sequences (2, 3, or 4 bytes) and validates their correctness
+ * according to UTF-8 encoding rules. Invalid sequences are converted to InvalidU8Char nodes.
+ *
+ * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @param[in] pltext The complete input text being parsed, starting at the current position.
+ * @param[out] result The AST to which parsed character nodes are appended.
+ * @return The number of UTF-8 code units (bytes) consumed from the input. Returns 0 for
+ *         invalid sequences or control characters, 1-3 for valid multi-byte sequences.
+ * @note Control characters (0x00-0x1F and 0x7F-0x9F) are ignored and return 0.
+ * @note Invalid UTF-8 sequences result in an InvalidU8Char node being added to the AST.
+ * @see https://en.wikipedia.org/wiki/UTF-8
  */
 template<bool ndebug>
 [[nodiscard]]
@@ -276,11 +290,19 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
 }
 
 /**
- * @brief Check if the input matches a bare tag pattern.
+ * @brief Parse a bare HTML tag without attributes (e.g., `<tag>`).
  *
- * @tparam tag_name The prefix string representing the tag name.
- * @param[in] pltext The string to be checked.
- * @return The length of the matched tag, or nullopt if no match is found.
+ * This template function attempts to match and parse simple HTML tags that consist only of
+ * the tag name without any attributes. The tag name is specified as a template parameter.
+ *
+ * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @tparam tag_name The exact tag name to match as a compile-time string literal.
+ * @param[in] pltext The input text to parse, starting at the current position.
+ * @return The length of the matched tag including the closing `>`, or nullopt if no match is found
+ *         or if the tag contains non-space characters before the closing `>`.
+ * @note The function allows optional whitespace between the tag name and the closing `>`.
+ * @note Only accepts alphabetic characters and digits in the tag name.
+ * @example `<div>`, `<span>`, `<p>` are valid bare tags
  */
 template<bool ndebug, ::pltxt2htm::details::LiteralString tag_name = ::pltxt2htm::details::LiteralString<0>{}>
 [[nodiscard]] constexpr auto try_parse_bare_tag(::fast_io::u8string_view pltext) noexcept
@@ -308,14 +330,22 @@ struct TryParseEqualSignTagResult {
 };
 
 /**
- * @brief Parse a tag with an equal sign, e.g., `<tag=value>`.
+ * @brief Parse an HTML tag with a single attribute value (e.g., `<tag=value>`).
  *
- * @tparam ndebug When `true`, runtime assertions are disabled.
- * @tparam prefix_str The prefix string before the equal sign.
- * @tparam Func A callable to validate characters in the tag value.
- * @param[in] pltext The input text to parse.
- * @param[in] func The validation function for tag value characters.
- * @return The parsed result, or nullopt if parsing fails.
+ * This function parses HTML tags that have a simple attribute with an equals sign and a value.
+ * It uses a validation function to determine which characters are valid in the attribute value.
+ *
+ * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @tparam prefix_str The complete tag prefix including the attribute name and equals sign
+ *                    (e.g., "size=" for `<size=value>`).
+ * @tparam Func A callable type that validates characters in the tag value.
+ * @param[in] pltext The input text to parse, starting at the current position.
+ * @param[in] func A validation function that returns true for valid characters in the value.
+ * @return The parsed result containing the tag length and extracted substring, or nullopt if parsing fails.
+ * @note The function stops parsing at the first invalid character, space, or the closing `>`.
+ * @note Empty values (e.g., `<size=>`) are considered invalid.
+ * @note Leading/trailing spaces in the value are trimmed.
+ * @requires The validation function must be callable with a char8_t and return a boolean.
  */
 template<bool ndebug, ::pltxt2htm::details::LiteralString prefix_str, typename Func>
     requires requires(Func&& func, char8_t chr) {
@@ -377,11 +407,19 @@ constexpr auto try_parse_equal_sign_tag(::fast_io::u8string_view pltext, Func&& 
 }
 
 /**
- * @brief Try to parse a self-closing tag, e.g., `<tag/>`.
+ * @brief Parse a self-closing HTML tag without a specific tag name (e.g., `<tag/>`).
  *
- * @tparam tag_name The tag name to match.
- * @param[in] pltext The input text to parse.
- * @return The length of the matched tag, or nullopt if no match is found.
+ * This function attempts to parse any self-closing HTML tag by looking for the pattern
+ * of tag content followed by optional whitespace and then `/>`. It doesn't validate
+ * the tag name itself, only the structural pattern.
+ *
+ * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @param[in] pltext The input text to parse, starting at the current position.
+ * @return The length of the matched self-closing tag, or nullopt if no match is found.
+ * @note The function allows any content between the opening `<` and closing `/>`,
+ *       but stops at the first non-space character that isn't part of the `/>` pattern.
+ * @note Returns the position of the closing `>` in `/>` on success.
+ * @warning This function does not validate the tag name or syntax - it only matches the pattern.
  */
 
 template<bool ndebug>
@@ -437,10 +475,20 @@ struct TryParseMdAtxHeadingResult {
 };
 
 /**
- * @brief Parse Markdown ATX headings (e.g., `# Heading`).
+ * @brief Parse Markdown ATX headings (e.g., `# Heading`, `## Subheading`).
  *
- * @param pltext The input text to parse.
- * @return The parsed result, or nullopt if parsing fails.
+ * This function parses ATX-style markdown headings according to the CommonMark specification.
+ * It supports headings from level 1 (`#`) to level 6 (`######`) with optional leading/trailing spaces.
+ *
+ * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @param[in] pltext The input text to parse, starting at the current position.
+ * @return The parsed result containing heading level, content boundaries, and continuation index,
+ *         or nullopt if the input doesn't represent a valid ATX heading.
+ * @note Leading spaces are allowed before the hash characters.
+ * @note Exactly one space is required after the hash characters before the heading content.
+ * @note Trailing spaces and hash characters are allowed but not included in the content.
+ * @note Empty headings (only hash characters) are valid according to CommonMark spec.
+ * @see https://spec.commonmark.org/0.31.2/#atx-headings
  */
 template<bool ndebug>
 [[nodiscard]]
@@ -530,10 +578,21 @@ enum class ThematicBreakType : ::std::uint_least32_t {
 };
 
 /**
- * @brief Parse Markdown thematic breaks (e.g., `---`, `___`, `***`).
+ * @brief Parse Markdown thematic breaks (horizontal rules).
  *
- * @param[in] text The input text to parse.
- * @return The length of the parsed thematic break, or nullopt if parsing fails.
+ * This function parses thematic breaks using three different character types:
+ * hyphens (`---`), underscores (`___`), or asterisks (`***`). The break must
+ * contain at least three consecutive identical characters, with optional spaces
+ * between them, and must be terminated by a newline or line break tag.
+ *
+ * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @param[in] text The input text to parse, starting at the current position.
+ * @return The length of the parsed thematic break including terminator, or nullopt if parsing fails.
+ * @note Only one type of character (hyphen, underscore, or asterisk) is allowed in a single break.
+ * @note Spaces between the characters are allowed and ignored.
+ * @note The break must be terminated by a newline character or `<br/>` tag.
+ * @note Mixed character types (e.g., `-*-`) result in parsing failure.
+ * @see https://spec.commonmark.org/0.31.2/#thematic-breaks
  */
 template<bool ndebug>
 [[nodiscard]]
@@ -618,11 +677,20 @@ struct SimplyParsePLtextResult {
 };
 
 /**
- * @brief Parse plain text into an AST.
+ * @brief Parse plain text content into an AST until a termination string is encountered.
  *
- * @tparam end_string The string that marks the end of parsing.
- * @param pltext The input text to parse.
- * @return The parsed result.
+ * This function processes plain text content character by character, converting special
+ * characters and escape sequences into appropriate AST nodes. It stops parsing when it
+ * encounters the specified termination string.
+ *
+ * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @tparam end_string The exact string that marks the end of parsing (e.g., "```" for code fences).
+ * @param[in] pltext The input text to parse.
+ * @return A structure containing the parsed AST and the index to continue parsing from.
+ * @note Special characters like `\n`, space, `&`, `'`, `"`, `>`, `\t` are converted to specific AST nodes.
+ * @note Backslash escape sequences are processed and converted to their escaped equivalents.
+ * @note UTF-8 multi-byte characters are properly handled and converted to U8Char nodes.
+ * @note The function consumes the termination string and stops parsing immediately after it.
  */
 template<bool ndebug, ::pltxt2htm::details::LiteralString end_string>
 [[nodiscard]]
@@ -704,11 +772,20 @@ struct TryParseMdCodeFenceResult {
 };
 
 /**
- * @brief Parse Markdown code fences (e.g., ````` or `~~~`).
+ * @brief Parse Markdown code fences with language specification.
  *
- * @tparam is_backtick Whether the code fence uses backticks.
- * @param pltext The input text to parse.
- * @return The parsed result, or nullopt if parsing fails.
+ * This function parses fenced code blocks using either backticks (```) or tildes (~~~)
+ * as delimiters. It extracts the language identifier and the code content between the fences.
+ *
+ * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @tparam is_backtick When `true`, uses backtick delimiters (```), otherwise uses tilde delimiters (~~~).
+ * @param[in] pltext The input text to parse, starting at the opening fence.
+ * @return The parsed result containing the code fence node and continuation index, or nullopt if parsing fails.
+ * @note The opening fence must be at least 3 characters long (e.g., ``` or ~~~).
+ * @note An optional language identifier can follow the opening fence, separated by spaces.
+ * @note The content ends at the first occurrence of the matching closing fence on its own line.
+ * @note Empty language identifiers are allowed and result in no language specification.
+ * @see https://spec.commonmark.org/0.31.2/#fenced-code-blocks
  */
 template<bool ndebug, bool is_backtick>
 [[nodiscard]]
@@ -812,10 +889,19 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
 }
 
 /**
- * @brief Parse Markdown code fences (both backticks and tildes).
+ * @brief Parse Markdown code fences with automatic delimiter detection.
  *
- * @param pltext The input text to parse.
- * @return The parsed result, or nullopt if parsing fails.
+ * This function attempts to parse a fenced code block by first trying backtick delimiters (```),
+ * and if that fails, trying tilde delimiters (~~~). It automatically determines which type of
+ * fence is being used.
+ *
+ * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @param[in] pltext The input text to parse, starting at the opening fence.
+ * @return The parsed result containing the code fence node and continuation index, or nullopt if parsing fails.
+ * @note First attempts to parse with backtick delimiters, then falls back to tilde delimiters.
+ * @note Returns nullopt only if neither backtick nor tilde fences match at the current position.
+ * @see try_parse_md_code_fence_ for detailed fence parsing logic
+ * @see https://spec.commonmark.org/0.31.2/#fenced-code-blocks
  */
 template<bool ndebug>
 [[nodiscard]]
@@ -842,11 +928,22 @@ constexpr auto try_parse_md_code_fence(::fast_io::u8string_view pltext) noexcept
 }
 
 /**
- * @brief Parse Markdown inline elements enclosed by specific characters.
+ * @brief Parse Markdown inline elements enclosed by matching delimiter characters.
  *
- * @tparam embraced_chars The characters enclosing the inline elements.
- * @param pltext The input text to parse.
- * @return The length of the parsed inline element, or nullopt if parsing fails.
+ * This function parses inline markdown elements that are wrapped by pairs of identical
+ * delimiter characters, such as emphasis (`*text*`) or code spans (`` `code` ``).
+ *
+ * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @tparam embraced_chars The delimiter string that encloses the inline element (e.g., "*" for emphasis, "`" for code).
+ * @param[in] pltext The input text to parse, starting at the opening delimiter.
+ * @return The length of the content between the delimiters (excluding the delimiters themselves),
+ *         or nullopt if no valid enclosed element is found.
+ * @note The function looks for the first occurrence of the closing delimiter after the opening one.
+ * @note Empty content between delimiters (e.g., `**`) is considered invalid and returns nullopt.
+ * @note Newline characters within the enclosed content cause parsing to fail.
+ * @note The returned length is the size of the content only, not including the delimiters.
+ * @see https://spec.commonmark.org/0.31.2/#emphasis-and-strong-emphasis
+ * @see https://spec.commonmark.org/0.31.2/#code-spans
  */
 template<bool ndebug, ::pltxt2htm::details::LiteralString embraced_chars>
 [[nodiscard]]
@@ -880,10 +977,21 @@ struct TryParseMdBlockQuotesResult {
 };
 
 /**
- * @brief Parse Markdown block quotes (e.g., `> Block quote`).
+ * @brief Parse Markdown block quotes with continuation lines.
  *
- * @param pltext The input text to parse.
- * @return The parsed result, or nullopt if parsing fails.
+ * This function parses block quote lines that start with `>` and can span multiple lines.
+ * It handles optional whitespace after the quote marker and supports lazy continuation lines
+ * (lines without explicit quote markers that continue the quote context).
+ *
+ * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @param[in] pltext The input text to parse, starting at the block quote marker.
+ * @return The parsed result containing the quote content and continuation index, or nullopt if parsing fails.
+ * @note Each line must start with optional whitespace followed by `>` (the quote marker).
+ * @note Additional whitespace after the quote marker is consumed but not included in the content.
+ * @note Lines are joined with newline characters in the resulting content.
+ * @note The final newline is removed from the content if present.
+ * @note Empty quotes (no content after markers) are considered invalid.
+ * @see https://spec.commonmark.org/0.31.2/#block-quotes
  */
 template<bool ndebug>
 [[nodiscard]]
@@ -954,11 +1062,21 @@ struct TryParseMdCodeSpanResult {
 };
 
 /**
- * @brief Parse Markdown code spans (e.g., `` `code` ``).
+ * @brief Parse Markdown code spans with configurable delimiter length.
  *
- * @tparam embraced_string The string enclosing the code span.
- * @param pltext The input text to parse.
- * @return The parsed result, or nullopt if parsing fails.
+ * This function parses inline code spans that can use varying numbers of backticks as delimiters,
+ * allowing for code content that itself contains backticks. It supports 1, 2, or 3 backtick delimiters.
+ *
+ * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @tparam embraced_string The delimiter string (1-3 backticks) enclosing the code span.
+ * @param[in] pltext The input text to parse, starting at the opening delimiter.
+ * @return The parsed result containing the code content AST and continuation index, or nullopt if parsing fails.
+ * @note The delimiter length determines the minimum number of consecutive backticks that can appear
+ *       in the code content without prematurely ending the span.
+ * @note The content is parsed as plain text and converted to appropriate AST nodes.
+ * @note Code spans cannot contain newline characters - they must be single-line.
+ * @note Empty code spans (e.g., `` `` ``) are valid and will be parsed.
+ * @see https://spec.commonmark.org/0.31.2/#code-spans
  */
 template<bool ndebug, ::pltxt2htm::details::LiteralString embraced_string>
 [[nodiscard]]
@@ -995,7 +1113,21 @@ struct TryParseMdLatexResult {
 };
 
 /**
- * @brief Parse block LaTeX with $$...$$
+ * @brief Parse block LaTeX math expressions delimited by double dollar signs.
+ *
+ * This function parses display math LaTeX expressions that are enclosed in `$$` delimiters
+ * on both sides. It extracts the mathematical content and converts it to appropriate AST nodes,
+ * preserving newlines within the expression.
+ *
+ * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @param[in] pltext The input text to parse, starting at the opening `$$`.
+ * @return The parsed result containing the LaTeX content AST and continuation index, or nullopt if parsing fails.
+ * @note The opening `$$` must be at the very beginning of the input text.
+ * @note The expression must be terminated by a matching `$$` delimiter.
+ * @note Newlines within the LaTeX expression are preserved as U8Char nodes.
+ * @note Empty expressions (e.g., `$$$$`) are considered invalid and return nullopt.
+ * @note The function returns the position after the closing `$$` on success.
+ * @see https://github.com/cben/mathdown/wiki/math-in-markdown
  */
 template<bool ndebug>
 [[nodiscard]]
@@ -1037,7 +1169,21 @@ constexpr auto try_parse_md_latex_block_dollar(::fast_io::u8string_view pltext) 
 }
 
 /**
- * @brief Parse inline LaTeX with $...$
+ * @brief Parse inline LaTeX math expressions delimited by single dollar signs.
+ *
+ * This function parses inline math LaTeX expressions that are enclosed in single `$` delimiters.
+ * It extracts the mathematical content and converts it to appropriate AST nodes, stopping at
+ * the first closing `$` delimiter.
+ *
+ * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @param[in] pltext The input text to parse, starting at the opening `$`.
+ * @return The parsed result containing the LaTeX content AST and continuation index, or nullopt if parsing fails.
+ * @note The opening `$` must be at the very beginning of the input text.
+ * @note The expression must be terminated by a matching `$` delimiter on the same line.
+ * @note Newlines within the LaTeX expression cause parsing to fail (inline math must be single-line).
+ * @note Empty expressions (e.g., `$$`) are considered invalid and return nullopt.
+ * @note The function returns the position after the closing `$` on success.
+ * @see https://github.com/cben/mathdown/wiki/math-in-markdown
  */
 template<bool ndebug>
 [[nodiscard]]
@@ -1083,6 +1229,23 @@ struct TryParseMdLinkResult {
     ::fast_io::u8string link_url;
 };
 
+/**
+ * @brief Parse Markdown inline links with text and URL components.
+ *
+ * This function parses standard markdown links in the format `[link text](URL)`. It extracts
+ * both the link text (displayed to users) and the link URL (the destination), handling
+ * escaped characters within the link text portion.
+ *
+ * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @param[in] pltext The input text to parse, starting at the opening `[`.
+ * @return The parsed result containing the link text, URL, and continuation index, or nullopt if parsing fails.
+ * @note The link text is contained in square brackets `[...]` and can include escaped characters.
+ * @note The URL is contained in parentheses `(...)` immediately following the link text.
+ * @note Backslash escapes in the link text are properly handled and consumed.
+ * @note Empty link text is allowed, but empty URLs are not validated (left as-is).
+ * @note The function requires both opening and closing brackets and parentheses to be present.
+ * @see https://spec.commonmark.org/0.31.2/#links
+ */
 template<bool ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_link(::fast_io::u8string_view pltext) noexcept
