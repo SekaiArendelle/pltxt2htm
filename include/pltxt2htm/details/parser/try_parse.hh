@@ -21,7 +21,8 @@ namespace pltxt2htm::details {
  * @param[in] u8char The UTF-8 character following the backslash in an escape sequence.
  * @return An optional HeapGuard containing the corresponding escape PlTxtNode, or nullopt if the character
  *         is not a valid escapable character in markdown.
- * @note Supported escape characters include: \\ \! \" \# \$ \% \& \' \( \) \* \+ \, \- \. \/ \: \; \< \= \> \? \@ \[ \] \^ \_ \` \{ \| \} \~
+ * @note Supported escape characters include: \\ \! \" \# \$ \% \& \' \( \) \* \+ \, \- \. \/ \: \; \< \= \> \? \@ \[ \]
+ * \^ \_ \` \{ \| \} \~
  * @see https://spec.commonmark.org/0.31.2/#backslash-escapes
  */
 [[nodiscard]]
