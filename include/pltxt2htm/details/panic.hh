@@ -21,8 +21,7 @@ namespace pltxt2htm::details {
  * @details These direct bindings to C library functions help optimize error reporting
  *          by avoiding C++ wrapper overhead during panic situations
  */
-#if (defined(__GNUC__) || defined(__clang__)) && \
-    (defined(_WIN32) || defined(__linux__) || defined(__APPLE__) || (defined(__wasm32__) && defined(__EMSCRIPTEN__)))
+#if (defined(__GNUC__) || defined(__clang__)) && (defined(_WIN32) || defined(__linux__) || defined(__APPLE__))
 
     #pragma push_macro("PLTXT2HTM_HAS_NOEXCEPT_LIBC_SYMBOLS")
     #undef PLTXT2HTM_HAS_NOEXCEPT_LIBC_SYMBOLS
@@ -31,7 +30,7 @@ namespace pltxt2htm::details {
 int c_fputs(char const* __restrict _Str, FILE* __restrict) noexcept
     #if defined(_WIN32) || defined(__linux__)
     __asm__("fputs")
-    #elif defined(__APPLE__) || (defined(__wasm32__) && defined(__EMSCRIPTEN__))
+    #elif defined(__APPLE__)
     __asm__("_fputs")
     #endif
         ;
@@ -39,7 +38,7 @@ int c_fputs(char const* __restrict _Str, FILE* __restrict) noexcept
 int c_fflush(FILE* __restrict) noexcept
     #if defined(_WIN32) || defined(__linux__)
     __asm__("fflush")
-    #elif defined(__APPLE__) || (defined(__wasm32__) && defined(__EMSCRIPTEN__))
+    #elif defined(__APPLE__)
     __asm__("_fflush")
     #endif
         ;
@@ -83,9 +82,8 @@ inline void panic() noexcept {
     ::pltxt2htm::details::c_fputs(to_be_printed.cdata(), stderr);
     ::pltxt2htm::details::c_fflush(stderr);
 #else
-    #error "Test"
-    // ::std::fputs(to_be_printed.cdata(), stderr);
-    // ::std::fflush(stderr);
+    ::std::fputs(to_be_printed.cdata(), stderr);
+    ::std::fflush(stderr);
 #endif
     ::exception::terminate();
 }
