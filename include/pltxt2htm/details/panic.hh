@@ -21,18 +21,29 @@ namespace pltxt2htm::details {
  * @details These direct bindings to C library functions help optimize error reporting
  *          by avoiding C++ wrapper overhead during panic situations
  */
-#if defined(__linux__) || (defined(_WIN32) && (defined(__GNUC__) || defined(__clang__)))
+#if (defined(__GNUC__) || defined(__clang__)) && \
+    (defined(_WIN32) || defined(__linux__) || defined(__APPLE__) || (defined(__wasm32__) && defined(__EMSCRIPTEN__)))
+
     #pragma push_macro("PLTXT2HTM_HAS_NOEXCEPT_LIBC_SYMBOLS")
     #undef PLTXT2HTM_HAS_NOEXCEPT_LIBC_SYMBOLS
     #define PLTXT2HTM_HAS_NOEXCEPT_LIBC_SYMBOLS
-int c_fputs(char const* __restrict _Str, FILE* __restrict) noexcept __asm__("fputs");
-int c_fflush(FILE* __restrict) noexcept __asm__("fflush");
-#elif defined(__APPLE__)
-    #pragma push_macro("PLTXT2HTM_HAS_NOEXCEPT_LIBC_SYMBOLS")
-    #undef PLTXT2HTM_HAS_NOEXCEPT_LIBC_SYMBOLS
-    #define PLTXT2HTM_HAS_NOEXCEPT_LIBC_SYMBOLS
-int c_fputs(char const* __restrict _Str, FILE* __restrict) noexcept __asm__("_fputs");
-int c_fflush(FILE* __restrict) noexcept __asm__("_fflush");
+
+int c_fputs(char const* __restrict _Str, FILE* __restrict) noexcept
+    #if defined(_WIN32) || defined(__linux__)
+    __asm__("fputs")
+    #elif defined(__APPLE__) || (defined(__wasm32__) && defined(__EMSCRIPTEN__))
+    __asm__("_fputs")
+    #endif
+        ;
+
+int c_fflush(FILE* __restrict) noexcept
+    #if defined(_WIN32) || defined(__linux__)
+    __asm__("fflush")
+    #elif defined(__APPLE__) || (defined(__wasm32__) && defined(__EMSCRIPTEN__))
+    __asm__("_fflush")
+    #endif
+        ;
+
 #endif
 
 /**
