@@ -17,35 +17,6 @@
 namespace pltxt2htm::details {
 
 /**
- * @brief Direct C function bindings to minimize clang's __clang_call_terminate generation
- * @details These direct bindings to C library functions help optimize error reporting
- *          by avoiding C++ wrapper overhead during panic situations
- */
-#if (defined(__GNUC__) || defined(__clang__)) && (defined(_WIN32) || defined(__linux__) || defined(__APPLE__))
-
-    #pragma push_macro("PLTXT2HTM_HAS_NOEXCEPT_LIBC_SYMBOLS")
-    #undef PLTXT2HTM_HAS_NOEXCEPT_LIBC_SYMBOLS
-    #define PLTXT2HTM_HAS_NOEXCEPT_LIBC_SYMBOLS
-
-int c_fputs(char const* __restrict _Str, FILE* __restrict) noexcept
-    #if defined(_WIN32) || defined(__linux__)
-    __asm__("fputs")
-    #elif defined(__APPLE__)
-    __asm__("_fputs")
-    #endif
-        ;
-
-int c_fflush(FILE* __restrict) noexcept
-    #if defined(_WIN32) || defined(__linux__)
-    __asm__("fflush")
-    #elif defined(__APPLE__)
-    __asm__("_fflush")
-    #endif
-        ;
-
-#endif
-
-/**
  * @brief Panic function that reports assertion failures and terminates the program
  * @tparam expression The assertion expression that failed
  * @tparam file_name The source file where the assertion failed
@@ -78,13 +49,10 @@ inline void panic() noexcept {
         ::pltxt2htm::details::LiteralString{"\n"
                                             "* with message: \""},
         msg, ::pltxt2htm::details::LiteralString{"\"\n\0"});
-#if defined(PLTXT2HTM_HAS_NOEXCEPT_LIBC_SYMBOLS)
-    ::pltxt2htm::details::c_fputs(to_be_printed.cdata(), stderr);
-    ::pltxt2htm::details::c_fflush(stderr);
-#else
+
     ::std::fputs(to_be_printed.cdata(), stderr);
     ::std::fflush(stderr);
-#endif
+
     ::exception::terminate();
 }
 
