@@ -57,5 +57,3 @@ inline void panic() noexcept {
 }
 
 } // namespace pltxt2htm::details
-
-#pragma pop_macro("PLTXT2HTM_HAS_NOEXCEPT_LIBC_SYMBOLS")
