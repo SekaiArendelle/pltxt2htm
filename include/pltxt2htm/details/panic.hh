@@ -48,7 +48,7 @@ inline void panic() noexcept {
         ::pltxt2htm::details::uint_to_literal_string<column>(),
         ::pltxt2htm::details::LiteralString{"\n"
                                             "* with message: \""},
-        msg, ::pltxt2htm::details::LiteralString{"\""}, ::pltxt2htm::details::LiteralString{"\n\0"});
+        msg, ::pltxt2htm::details::LiteralString{"\"\n\0"});
 
     ::std::fputs(to_be_printed.cdata(), stderr);
 
