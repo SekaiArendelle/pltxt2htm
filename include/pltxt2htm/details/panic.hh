@@ -6,10 +6,13 @@
 
 #pragma once
 
-// Stack trace support is currently disabled as libc++ doesn't support <stacktrace>
-// #if __has_include(<stacktrace>)
-//     #include <stacktrace>
-// #endif
+// Currently, only STL supports <stacktrace>
+// libstdc++ do supports <stacktrace>, but it's experimental
+// libc++ does not supports <stacktrace> currently
+#if __cpp_lib_stacktrace >= 202011L && defined(PLTXT2HTM_EXPERIMENTAL_ENABLE_STACKTRACE)
+    #include <stacktrace>
+    #include <fast_io/fast_io.h>
+#endif
 #include <cstdio>
 #include <exception/exception.hh>
 #include "literal_string.hh"
@@ -51,6 +54,33 @@ inline void panic() noexcept {
         msg, ::pltxt2htm::details::LiteralString{"\"\n\0"});
 
     ::std::fputs(to_be_printed.cdata(), stderr);
+
+#if __cpp_lib_stacktrace >= 202011L && defined(PLTXT2HTM_EXPERIMENTAL_ENABLE_STACKTRACE)
+    ::std::fputs("* stack trace:\n", stderr);
+    auto stacktrace = ::std::stacktrace::current();
+    for (::std::size_t i = 0; i < stacktrace.size(); ++i) {
+        const auto& entry = stacktrace[i];
+
+        // Print frame number and function description
+        if (entry.description().size() > 0) {
+            ::fast_io::io::perr("[", i, "] ", ::fast_io::mnp::os_c_str(entry.description().c_str()));
+        }
+        else {
+            ::fast_io::io::perr("[", i, "] <unknown function>");
+        }
+
+        // Print source file and line if available
+        if (entry.source_file().size() > 0) {
+            ::fast_io::io::perr(" at ", ::fast_io::mnp::os_c_str(entry.source_file().c_str()));
+
+            if (entry.source_line() > 0) {
+                ::fast_io::io::perr(":", entry.source_line());
+            }
+        }
+
+        ::fast_io::io::perr("\n");
+    }
+#endif
     ::std::fflush(stderr);
 
     ::exception::terminate();
