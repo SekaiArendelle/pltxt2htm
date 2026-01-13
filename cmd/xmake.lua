@@ -7,6 +7,15 @@ add_rules("mode.debug", "mode.release")
 set_languages("c++23")
 set_encodings("utf-8")
 
+option("enable-stacktrace", function()
+    set_default(false)
+    set_description("Whether using C++23 <stacktrace>")
+end)
+
+if has_config("enable-stacktrace") then
+    add_defines("PLTXT2HTM_EXPERIMENTAL_ENABLE_STACKTRACE")
+end
+
 target("pltxt2htm", function()
     set_kind("binary")
     add_files("pltxt2htm.cc")

@@ -6,7 +6,10 @@
 
 #pragma once
 
-#if __cpp_lib_stacktrace >= 202011L // && defined(PLTXT2HTM_EXPERIMENTAL_ENABLE_STACKTRACE)
+// Currently, only STL supports <stacktrace>
+// libstdc++ do supports <stacktrace>, but it's experimental
+// libc++ does not supports <stacktrace> currently
+#if __cpp_lib_stacktrace >= 202011L && defined(PLTXT2HTM_EXPERIMENTAL_ENABLE_STACKTRACE)
     #include <stacktrace>
     #include <fast_io/fast_io.h>
 #endif
@@ -52,7 +55,7 @@ inline void panic() noexcept {
 
     ::std::fputs(to_be_printed.cdata(), stderr);
 
-#if __cpp_lib_stacktrace >= 202011L // && defined(PLTXT2HTM_EXPERIMENTAL_ENABLE_STACKTRACE)
+#if __cpp_lib_stacktrace >= 202011L && defined(PLTXT2HTM_EXPERIMENTAL_ENABLE_STACKTRACE)
     ::std::fputs("* stack trace:\n", stderr);
     auto stacktrace = ::std::stacktrace::current();
     for (::std::size_t i = 0; i < stacktrace.size(); ++i) {

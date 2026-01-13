@@ -2,6 +2,14 @@ set_allowedmodes("debug", "coverage")
 add_rules("mode.debug", "mode.coverage")
 set_defaultmode("debug")
 
+option("enable-stacktrace", function()
+    set_default(false)
+    set_description("Whether using C++23 <stacktrace>")
+end)
+
+if has_config("enable-stacktrace") then
+    add_defines("PLTXT2HTM_EXPERIMENTAL_ENABLE_STACKTRACE")
+end
 includes("../xmake/*.lua")
 set_languages("c++23")
 set_encodings("utf-8")
@@ -56,7 +64,6 @@ for _, file in ipairs(os.files("*.cc")) do
             end
 
             if compiler == "cl" then
-                -- TODO Whether the latest MSVC ture on this flag by dafault?
                 target:add("cxxflags", "/Zc:u8EscapeEncoding")
             end
         end)

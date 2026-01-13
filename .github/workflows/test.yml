@@ -39,7 +39,7 @@ jobs:
         shell: powershell
         working-directory: tests
         run: |
-          xmake config -p windows -a x64 --toolchain=x86_64-windows-msvc-clang
+          xmake config -p windows -a x64 --toolchain=x86_64-windows-msvc-clang --enable-stacktrace=y
           xmake test -v
 
   aarch64-apple-darwin24-test-asan:
