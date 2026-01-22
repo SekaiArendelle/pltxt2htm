@@ -62,50 +62,41 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::space: {
-            auto const escape_str = ::fast_io::array{u8'&', u8'n', u8'b', u8's', u8'p', u8';'};
-            result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
+            result.push_back(u8' ');
             continue;
         }
         case ::pltxt2htm::NodeType::md_escape_ampersand:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::ampersand: {
-            auto const escape_str = ::fast_io::array{u8'&', u8'a', u8'm', u8'p', u8';'};
-            result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
+            result.push_back(u8'&');
             continue;
         }
         case ::pltxt2htm::NodeType::md_escape_single_quote:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::single_quote: {
-            auto const escape_str = ::fast_io::array{u8'&', u8'a', u8'p', u8'o', u8's', u8';'};
-            result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
+            result.push_back(u8'\'');
             continue;
         }
         case ::pltxt2htm::NodeType::md_escape_double_quote:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::double_quote: {
-            auto const escape_str = ::fast_io::array{u8'&', u8'q', u8'u', u8'o', u8't', u8';'};
-            result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
+            result.push_back(u8'\"');
             continue;
         }
         case ::pltxt2htm::NodeType::md_escape_less_than:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::less_than: {
-            auto const escape_str = ::fast_io::array{u8'&', u8'l', u8't', u8';'};
-            result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
+            result.push_back(u8'<');
             continue;
         }
         case ::pltxt2htm::NodeType::md_escape_greater_than:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::greater_than: {
-            auto const escape_str = ::fast_io::array{u8'&', u8'g', u8't', u8';'};
-            result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
+            result.push_back(u8'>');
             continue;
         }
         case ::pltxt2htm::NodeType::tab: {
-            auto const escape_str =
-                ::fast_io::array{u8'&', u8'n', u8'b', u8's', u8'p', u8';', u8'&', u8'n', u8'b', u8's', u8'p', u8';',
-                                 u8'&', u8'n', u8'b', u8's', u8'p', u8';', u8'&', u8'n', u8'b', u8's', u8'p', u8';'};
-            result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
+            result.push_back(u8'\t');
             continue;
         }
         case ::pltxt2htm::NodeType::pl_color:
