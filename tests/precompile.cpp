@@ -23,7 +23,7 @@ namespace pltxt2htm_test {
 #if __has_attribute(visibility)
 __attribute__((visibility("default")))
 #endif
-::fast_io::u8string pltxt2common_htmld(::fast_io::u8string_view pltext) noexcept {
+auto pltxt2common_htmld(::fast_io::u8string_view pltext) noexcept -> ::fast_io::u8string {
     return ::pltxt2htm::pltxt2common_html<false>(pltext);
 }
 
@@ -36,7 +36,7 @@ __attribute__((visibility("default")))
 #if __has_attribute(visibility)
 __attribute__((visibility("default")))
 #endif
-::fast_io::u8string pltxt2common_html(::fast_io::u8string_view pltext) noexcept {
+auto pltxt2common_html(::fast_io::u8string_view pltext) noexcept -> ::fast_io::u8string {
     return ::pltxt2htm::pltxt2common_html<false, true>(pltext);
 }
 
@@ -49,7 +49,7 @@ __attribute__((visibility("default")))
 #if __has_attribute(visibility)
 __attribute__((visibility("default")))
 #endif
-::fast_io::u8string pltxt2advanced_htmld(::fast_io::u8string_view pltext) noexcept {
+auto pltxt2advanced_htmld(::fast_io::u8string_view pltext) noexcept -> ::fast_io::u8string {
     return ::pltxt2htm::pltxt2advanced_html<false>(pltext);
 }
 
@@ -62,7 +62,7 @@ __attribute__((visibility("default")))
 #if __has_attribute(visibility)
 __attribute__((visibility("default")))
 #endif
-::fast_io::u8string pltxt2fixedadv_htmld(::fast_io::u8string_view pltext) noexcept {
+auto pltxt2fixedadv_htmld(::fast_io::u8string_view pltext) noexcept -> ::fast_io::u8string {
     return ::pltxt2htm::pltxt2fixedadv_html<false>(pltext, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR",
                                                    u8"$CO_AUTHORS");
 }
@@ -72,6 +72,17 @@ __attribute__((visibility("default")))
 #endif
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
+#endif
+#if __has_attribute(visibility)
+__attribute__((visibility("default")))
+#endif
+auto to_plunity_introduction(::fast_io::u8string_view pltext) noexcept -> ::fast_io::u8string {
+    return ::pltxt2htm::to_plunity_introduction<false>(pltext, u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR",
+                                                   u8"$CO_AUTHORS");
+}
+
+#if __has_cpp_attribute(__gnu__::__used__)
+[[__gnu__::__used__]]
 #endif
 #if __has_attribute(visibility)
 __attribute__((visibility("default")))
