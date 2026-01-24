@@ -7,7 +7,7 @@ RUN wget https://dl-cdn.alpinelinux.org/alpine/v3.23/releases/aarch64/alpine-min
     && tar xf alpine-minirootfs-3.23.0-aarch64.tar.gz \
     && rm alpine-minirootfs-3.23.0-aarch64.tar.gz
 
-RUN apk add --no-cache \
+RUN apk add --no-cache --no-scripts \
     --repository https://dl-cdn.alpinelinux.org/alpine/v3.23/main \
     --repository https://dl-cdn.alpinelinux.org/alpine/v3.23/community \
     --arch aarch64 \
@@ -16,7 +16,7 @@ RUN apk add --no-cache \
 
 FROM alpine:3.23 AS builder
 
-RUN apk update && apk add --no-cache git xz xmake clang
+RUN apk update && apk add --no-cache git xz xmake clang lld
 
 WORKDIR /pltxt2htm
 COPY ../../../ /pltxt2htm/
