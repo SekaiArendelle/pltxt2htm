@@ -1,42 +1,33 @@
-FROM ubuntu:26.04 AS toolchain
+FROM alpine:3.23 AS sysroot
 
-RUN apt update && apt install -y --no-install-recommends wget ca-certificates xz-utils
+ENV SYSROOT=/sysroots/aarch64-linux-musl
+WORKDIR ${SYSROOT}
 
-WORKDIR /llvm
-RUN wget https://github.com/trcrsired/llvm-releases/releases/download/llvm22-20251125/x86_64-linux-gnu.tar.xz \
-    && tar xJf x86_64-linux-gnu.tar.xz \
-    && wget https://github.com/trcrsired/llvm-releases/releases/download/llvm22-20251125/aarch64-linux-musl.tar.xz \
-    && tar xJf aarch64-linux-musl.tar.xz \
-    && cp -r aarch64-linux-musl/builtins/lib /llvm/x86_64-linux-gnu/llvm/lib/clang/22/ \
-    && mkdir /sysroots \
-    && cp -r aarch64-linux-musl/aarch64-linux-musl /sysroots/ \
-    && rm -rf /llvm/aarch64-linux-musl \
-    && rm -rf /llvm/x86_64-linux-gnu/x86_64-linux-gnu \
-    && rm /llvm/x86_64-linux-gnu.tar.xz aarch64-linux-musl.tar.xz
+RUN wget https://dl-cdn.alpinelinux.org/alpine/v3.23/releases/aarch64/alpine-minirootfs-3.23.0-aarch64.tar.gz \
+    && tar xf alpine-minirootfs-3.23.0-aarch64.tar.gz \
+    && rm alpine-minirootfs-3.23.0-aarch64.tar.gz
 
-FROM ubuntu:26.04 AS builder
+RUN apk add --no-cache \
+    --repository https://dl-cdn.alpinelinux.org/alpine/v3.23/main \
+    --repository https://dl-cdn.alpinelinux.org/alpine/v3.23/community \
+    --arch aarch64 \
+    --root "${SYSROOT}" \
+    linux-headers musl-dev libstdc++-dev gcc compiler-rt
 
-RUN apt update && apt install -y --no-install-recommends binutils xmake git xz-utils
+FROM alpine:3.23 AS builder
+
+RUN apk update && apk add --no-cache git xz xmake clang
 
 WORKDIR /pltxt2htm
 COPY ../../../ /pltxt2htm/
 
-COPY --from=toolchain /llvm /llvm
-COPY --from=toolchain /sysroots /sysroots
-
-ENV PATH=/llvm/x86_64-linux-gnu/llvm/bin:$PATH
-ENV LD_LIBRARY_PATH=/llvm/x86_64-linux-gnu/runtimes/lib:/clang/x86_64-linux-gnu/llvm/lib
+COPY --from=sysroot /sysroots /sysroots
 
 ENV XMAKE_ROOT=y
 
 WORKDIR /pltxt2htm/cmd
 ARG mode=debug
-RUN xmake config --toolchain=clang --arch=arm64 --plat=linux -m ${mode} --cxxflags='--target=aarch64-linux-musl --sysroot=/sysroots/aarch64-linux-musl -stdlib=libc++ -rtlib=compiler-rt -unwindlib=libunwind' --ldflags='-static --target=aarch64-linux-musl --sysroot=/sysroots/aarch64-linux-musl/ -stdlib=libc++ -rtlib=compiler-rt -unwindlib=libunwind -lunwind -lc++abi'
+RUN xmake config --toolchain=clang --arch=arm64 --plat=linux -m ${mode} --cxxflags='--target=aarch64-alpine-linux-musl --sysroot=/sysroots/aarch64-linux-musl' --ldflags='-static --target=aarch64-alpine-linux-musl --sysroot=/sysroots/aarch64-linux-musl/'
 RUN xmake build -v
 RUN xmake install -o aarch64-linux-musl-pltxt2htm-cmd-${mode}
 RUN tar cJf aarch64-linux-musl-pltxt2htm-cmd-${mode}.tar.xz aarch64-linux-musl-pltxt2htm-cmd-${mode}/
-
-FROM ubuntu:26.04
-
-WORKDIR /pltxt2htm
-COPY --from=builder /pltxt2htm /pltxt2htm
