@@ -12,7 +12,7 @@ RUN apk add --no-cache --no-scripts \
     --repository https://dl-cdn.alpinelinux.org/alpine/v3.23/community \
     --arch loongarch64 \
     --root "${SYSROOT}" \
-    linux-headers musl-dev libstdc++-dev gcc compiler-rt
+    linux-headers musl-dev libstdc++-dev gcc
 
 FROM alpine:3.23 AS builder
 
