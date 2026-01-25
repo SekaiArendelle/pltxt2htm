@@ -49,7 +49,7 @@ for _, file in ipairs(os.files("*.cc")) do
 
         on_config(function(target)
             local compiler = path.basename(target:tool("cxx"))
-        local linker = path.basename(target:tool("ld"))
+            local linker = path.basename(target:tool("ld"))
 
             if compiler:endswith("gcc") or compiler:endswith("g++") or
                 compiler:endswith("clang++") or compiler:endswith("clang") then
@@ -63,12 +63,12 @@ for _, file in ipairs(os.files("*.cc")) do
                     os.exit(1)
                 end
             end
-        import("lib.detect.find_tool")
-        if find_tool("ld.lld") and
-            (linker == "clang" or linker == "clang++" or linker == "gcc" or
-                linker == "g++") then
-            target:add("ldflags", "-fuse-ld=lld")
-        end
+            import("lib.detect.find_tool")
+            if find_tool("ld.lld") and
+                (linker == "clang" or linker == "clang++" or linker == "gcc" or
+                    linker == "g++") then
+                target:add("ldflags", "-fuse-ld=lld")
+            end
 
             if compiler == "cl" then
                 target:add("cxxflags", "/Zc:u8EscapeEncoding")
