@@ -203,6 +203,8 @@ constexpr auto get_pltext_from_parser_frame_context(
     case ::pltxt2htm::NodeType::md_single_emphasis_underscore: {
         return static_cast<::pltxt2htm::details::BareTagContext const*>(top_frame.release_imul())->pltext;
     }
+    case ::pltxt2htm::NodeType::pl_external:
+        [[fallthrough]];
     case ::pltxt2htm::NodeType::pl_color:
         [[fallthrough]];
     case ::pltxt2htm::NodeType::pl_a:
@@ -868,7 +870,6 @@ entry:
             case u8'e':
                 [[fallthrough]];
             case u8'E': {
-                // parsing: <experiment=$1>$2</experiment>
                 if (auto opt_experiment_tag = ::pltxt2htm::details::try_parse_equal_sign_tag<
                         ndebug, ::pltxt2htm::details::LiteralString{u8"xperiment"}>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
@@ -876,11 +877,24 @@ entry:
                             return (u8'a' <= u8chr && u8chr <= u8'z') || (u8'0' <= u8chr && u8chr <= u8'9');
                         });
                     opt_experiment_tag.has_value()) {
+                    // parsing: <experiment=$1>$2</experiment>
                     auto&& [tag_len, id] = opt_experiment_tag.template value<ndebug>();
                     current_index += tag_len + 3;
                     call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::EqualSignTagContext>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
                         ::pltxt2htm::NodeType::pl_experiment, ::std::move(id)));
+                    goto entry;
+                }
+                else if (auto opt_external_tag = ::pltxt2htm::details::try_parse_equal_sign_tag<
+                             ndebug, ::pltxt2htm::details::LiteralString{u8"xternal"}>(
+                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
+                             [](char8_t u8chr) static constexpr noexcept { return u8'!' <= u8chr && u8chr <= u8'~'; });
+                         opt_external_tag.has_value()) {
+                    auto&& [tag_len, url] = opt_external_tag.template value<ndebug>();
+                    current_index += tag_len + 3;
+                    call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::EqualSignTagContext>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                        ::pltxt2htm::NodeType::pl_external, ::std::move(url)));
                     goto entry;
                 }
                 else if (auto opt_tag_len =
@@ -1287,6 +1301,29 @@ entry:
                         call_stack.pop();
                         call_stack.top()->subast.push_back(
                             ::pltxt2htm::HeapGuard<::pltxt2htm::Discussion>(::std::move(staged_node)));
+                        call_stack.top()->current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
+                        goto entry;
+                    }
+                    else {
+                        result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                        ++current_index;
+                        continue;
+                    }
+                }
+                case ::pltxt2htm::NodeType::pl_external: {
+                    // parsing </external>
+                    if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<
+                            ndebug, ::pltxt2htm::details::LiteralString{u8"external"}>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                        opt_tag_len.has_value()) {
+                        // Whether or not extern_index is out of range, extern for loop will handle it correctly.
+                        auto frame =
+                            static_cast<::pltxt2htm::details::EqualSignTagContext*>(call_stack.top().get_unsafe());
+                        ::std::size_t const staged_index{current_index};
+                        ::pltxt2htm::External staged_node(::std::move(result), ::std::move(frame->id));
+                        call_stack.pop();
+                        call_stack.top()->subast.push_back(
+                            ::pltxt2htm::HeapGuard<::pltxt2htm::External>(::std::move(staged_node)));
                         call_stack.top()->current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                         goto entry;
                     }
@@ -1953,6 +1990,13 @@ entry:
             case ::pltxt2htm::NodeType::pl_user: {
                 auto&& id = static_cast<::pltxt2htm::details::EqualSignTagContext*>(frame.get_unsafe())->id;
                 super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::User>(::std::move(subast), ::std::move(id)));
+                super_index += staged_index;
+                goto entry;
+            }
+            case ::pltxt2htm::NodeType::pl_external: {
+                auto&& url = static_cast<::pltxt2htm::details::EqualSignTagContext*>(frame.get_unsafe())->id;
+                super_ast.push_back(
+                    ::pltxt2htm::HeapGuard<::pltxt2htm::External>(::std::move(subast), ::std::move(url)));
                 super_index += staged_index;
                 goto entry;
             }

@@ -377,6 +377,12 @@ entry:
                 continue;
             }
         }
+        case ::pltxt2htm::NodeType::pl_external: {
+            // TODO
+            // <external=123></external> can be omitted
+            ++current_iter;
+            continue;
+        }
         case ::pltxt2htm::NodeType::pl_size: {
             auto size = static_cast<::pltxt2htm::Size*>(node.get_unsafe());
             {

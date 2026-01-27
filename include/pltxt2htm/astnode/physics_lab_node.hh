@@ -249,6 +249,36 @@ public:
     }
 };
 
+class External : public ::pltxt2htm::details::PairedTagBase {
+    ::fast_io::u8string url_{};
+
+public:
+    constexpr External() noexcept = delete;
+
+    constexpr External(::pltxt2htm::Ast&& subast, ::fast_io::u8string&& url) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_external, ::std::move(subast)},
+          url_(::std::move(url)) {
+    }
+
+    constexpr External(::pltxt2htm::External const&) noexcept = delete;
+
+    constexpr External(::pltxt2htm::External&&) noexcept = default;
+
+    constexpr ~External() noexcept = default;
+
+    constexpr ::pltxt2htm::External& operator=(::pltxt2htm::External const&) noexcept = delete;
+
+    constexpr ::pltxt2htm::External& operator=(::pltxt2htm::External&&) noexcept = default;
+
+    [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
+    constexpr auto&& get_url(this auto&& self) noexcept {
+        return ::std::forward_like<decltype(self)>(self.url_);
+    }
+};
+
 /**
  * @brief Font size node for Physics-Lab
  * @details Represents text with specific font size using <size=value> syntax

@@ -304,6 +304,8 @@ entry:
         case ::pltxt2htm::NodeType::html_note: {
             continue;
         }
+        case ::pltxt2htm::NodeType::pl_external:
+            [[fallthrough]];
         case ::pltxt2htm::NodeType::text:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::pl_experiment:

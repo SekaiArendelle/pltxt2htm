@@ -44,6 +44,7 @@ enum class NodeType : ::std::size_t {
     pl_discussion, ///< Physics-Lab discussion reference: <discussion=id>...</discussion>
     pl_user, ///< Physics-Lab user reference: <user=id>...</user>
     pl_size, ///< Physics-Lab font size: <size=value>...</size>
+    pl_external, ///< Physics-Lab external link: <external=url>...</external>
 
     // Text formatting (shared across Physics-Lab, HTML, and Markdown)
     pl_b, ///< Bold text: <b>...</b>, **text** (Markdown), <strong> (HTML)

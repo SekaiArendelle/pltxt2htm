@@ -436,6 +436,8 @@ entry:
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
             goto entry;
         }
+        case ::pltxt2htm::NodeType::pl_external:
+            [[fallthrough]];
         case ::pltxt2htm::NodeType::md_link: {
             auto a_link = static_cast<::pltxt2htm::MdLink const*>(node.release_imul());
             auto const start_tag = ::fast_io::array{u8'<', u8'a', u8' ', u8'h', u8'r', u8'e', u8'f', u8'=', u8'\"'};
