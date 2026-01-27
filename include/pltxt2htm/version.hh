@@ -20,7 +20,7 @@ inline constexpr ::std::size_t major{0};
  * @brief Minor version number - incremented for new features without breaking changes
  * @note New features that are backward compatible increment this number
  */
-inline constexpr ::std::size_t minor{12};
+inline constexpr ::std::size_t minor{13};
 
 /**
  * @brief Patch version number - incremented for bug fixes without new features
