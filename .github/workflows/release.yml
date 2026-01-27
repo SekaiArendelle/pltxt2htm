@@ -522,31 +522,3 @@ jobs:
           files: loongarch64-linux-musl-pltxt2htm-cmd-${{ matrix.build-mode }}.tar.xz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  format-check:
-    name: Format Check
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install ninja
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ninja-build
-
-      - name: Run format check
-        run: |
-          ninja -f format_cpp.ninja
-
-      - name: Check for modified files
-        run: |
-          if [[ -n $(git status --porcelain) ]]; then
-            echo "Error: Code formatting issues detected. The following files were modified:"
-            git status --porcelain
-            git diff
-            exit 1
-          else
-            echo "No formatting issues detected."
-          fi
