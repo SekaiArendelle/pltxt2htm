@@ -436,6 +436,35 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  i586-linux-musl-cmd:
+    strategy:
+      fail-fast: false
+      matrix:
+        build-mode: [debug, release]
+
+    name: i586-linux-musl (cmd/, ${{ matrix.build-mode }} mode)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build docker image
+        run: |
+          docker build -f cmd/docker/i586-linux-musl/Dockerfile --build-arg mode=${{ matrix.build-mode }} -t i586-linux-musl-pltxt2htm-cmd-${{ matrix.build-mode }} .
+
+      - name: Copy binary
+        run: |
+          docker run -d --name i586-linux-musl-pltxt2htm-cmd-${{ matrix.build-mode }} i586-linux-musl-pltxt2htm-cmd-${{ matrix.build-mode }}
+          docker cp i586-linux-musl-pltxt2htm-cmd-${{ matrix.build-mode }}:/pltxt2htm/cmd/i586-linux-musl-pltxt2htm-cmd-${{ matrix.build-mode }}.tar.xz .
+
+      - name: Upload binary
+        uses: softprops/action-gh-release@v2
+        with:
+          files: i586-linux-musl-pltxt2htm-cmd-${{ matrix.build-mode }}.tar.xz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   aarch64-linux-musl-cmd:
     strategy:
       fail-fast: false

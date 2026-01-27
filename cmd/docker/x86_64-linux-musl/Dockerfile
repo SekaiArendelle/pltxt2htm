@@ -27,7 +27,7 @@ ENV XMAKE_ROOT=y
 
 WORKDIR /pltxt2htm/cmd
 ARG mode=debug
-RUN xmake config --toolchain=clang --arch=x64 --plat=linux -m ${mode} --cxxflags='--target=x86_64-alpine-linux-musl --sysroot=/sysroots/x86_64-linux-musl' --ldflags='-static --target=x86_64-linux-musl --sysroot=/sysroots/x86_64-linux-musl/'
+RUN xmake config --toolchain=clang --arch=x64 --plat=linux -m ${mode} --cxxflags='--target=x86_64-alpine-linux-musl --sysroot=/sysroots/x86_64-linux-musl' --ldflags='-static --target=x86_64-alpine-linux-musl --sysroot=/sysroots/x86_64-linux-musl/'
 RUN xmake build -v
 RUN xmake install -o x86_64-linux-musl-pltxt2htm-cmd-${mode}
 RUN tar cJf x86_64-linux-musl-pltxt2htm-cmd-${mode}.tar.xz x86_64-linux-musl-pltxt2htm-cmd-${mode}/
