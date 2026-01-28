@@ -59,6 +59,19 @@ PLTXT2HTM_C_NAME_MANGLING(fixedadv_parser)(char8_t const* const pltext, char8_t 
 }
 
 PLTXT2HTM_C_SRC_EXPORT_FUNCTION
+PLTXT2HTM_C_NAME_MANGLING(plrichtext_parser)(char8_t const* const text, char8_t const* const project,
+                                                   char8_t const* const visitor, char8_t const* const author,
+                                                   char8_t const* const coauthors) noexcept -> char8_t const* {
+    return ::pltxt2htm::plrichtext_parser<
+#if defined(NDEBUG)
+        true
+#else
+        false
+#endif
+        >(text, project, visitor, author, coauthors);
+}
+
+PLTXT2HTM_C_SRC_EXPORT_FUNCTION
 pltxt2htm_version_major() noexcept -> ::std::size_t {
     return ::pltxt2htm::version::major;
 }
