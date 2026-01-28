@@ -409,7 +409,7 @@ constexpr auto try_parse_equal_sign_tag(::fast_io::u8string_view pltext, Func&& 
     return ::exception::nullopt_t{};
 }
 
-template<bool ndebug, ::pltxt2htm::details::LiteralString prefix_str, typename Func>
+template<bool ndebug, ::pltxt2htm::details::LiteralString prefix_str, ::pltxt2htm::NodeType tag_type, typename Func>
     requires requires(Func&& func, char8_t chr) {
         { func(chr) } -> ::std::same_as<bool>;
     }
@@ -428,7 +428,7 @@ constexpr auto try_parse_experiment_tag(
         // skip
         // e.g. <experiment><experiment>test</experiment>text</experiment>
         // e.g. <experiment><a><experiment>test</experiment>text</a>text</experiment>
-        if (v.release_imul()->nested_tag_type == ::pltxt2htm::NodeType::pl_experiment) {
+        if (v.release_imul()->nested_tag_type == tag_type) {
             return ::exception::nullopt_t{};
         }
     }

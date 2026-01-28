@@ -15,6 +15,7 @@
 #include "../../astnode/physics_lab_node.hh"
 #include "md_list.hh"
 #include "frame_concext.hh"
+#include "pltxt2htm/astnode/node_type.hh"
 #include "pltxt2htm/heap_guard.hh"
 #include "try_parse.hh"
 #include "../push_macro.hh"
@@ -871,7 +872,8 @@ entry:
                 [[fallthrough]];
             case u8'E': {
                 if (auto opt_experiment_tag = ::pltxt2htm::details::try_parse_experiment_tag<
-                        ndebug, ::pltxt2htm::details::LiteralString{u8"xperiment"}>(
+                        ndebug, ::pltxt2htm::details::LiteralString{u8"xperiment"},
+                        ::pltxt2htm::NodeType::pl_experiment>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
                         [](char8_t u8chr) static constexpr noexcept {
                             return (u8'a' <= u8chr && u8chr <= u8'z') || (u8'0' <= u8chr && u8chr <= u8'9');
@@ -886,10 +888,12 @@ entry:
                         ::pltxt2htm::NodeType::pl_experiment, ::std::move(id)));
                     goto entry;
                 }
-                else if (auto opt_external_tag = ::pltxt2htm::details::try_parse_equal_sign_tag<
-                             ndebug, ::pltxt2htm::details::LiteralString{u8"xternal"}>(
+                else if (auto opt_external_tag = ::pltxt2htm::details::try_parse_experiment_tag<
+                             ndebug, ::pltxt2htm::details::LiteralString{u8"xternal"},
+                             ::pltxt2htm::NodeType::pl_external>(
                              ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                             [](char8_t u8chr) static constexpr noexcept { return u8'!' <= u8chr && u8chr <= u8'~'; });
+                             [](char8_t u8chr) static constexpr noexcept { return u8'!' <= u8chr && u8chr <= u8'~'; },
+                             call_stack);
                          opt_external_tag.has_value()) {
                     auto&& [tag_len, url] = opt_external_tag.template value<ndebug>();
                     current_index += tag_len + 3;

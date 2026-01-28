@@ -354,10 +354,18 @@ entry:
             }
         }
         case ::pltxt2htm::NodeType::pl_external: {
-            // TODO
-            // <external=123></external> can be omitted
-            ++current_iter;
-            continue;
+            auto external = static_cast<::pltxt2htm::External*>(node.get_unsafe());
+            auto&& subast = external->get_subast();
+            if (subast.empty()) {
+                // <external=123></external> can be omitted
+                ast.erase(current_iter);
+                continue;
+            }
+            call_stack.push(
+                ::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator>>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeType::pl_external, subast.begin(),
+                    ::fast_io::mnp::os_c_str(external->get_url())));
+            goto entry;
         }
         case ::pltxt2htm::NodeType::pl_size: {
             auto size = static_cast<::pltxt2htm::Size*>(node.get_unsafe());
@@ -724,6 +732,8 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::pl_discussion:
                 [[fallthrough]];
+            case ::pltxt2htm::NodeType::pl_external:
+                [[fallthrough]];
             case ::pltxt2htm::NodeType::pl_user:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::pl_size:
@@ -740,6 +750,8 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::html_del: {
                 if (top_frame->ast->empty()) {
+                    // TODO remove this if branch
+                    // it should be done in above switch block
                     // Optimization: if the tag is empty, we can skip it
                     call_stack.top()->ast->erase(call_stack.top()->iter);
                 }
