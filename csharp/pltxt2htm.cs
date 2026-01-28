@@ -5,7 +5,11 @@ using System.Runtime.InteropServices;
 public static class Pltxt2Htm
 {
 #if DEBUG
+#if WINDOWS
     private const string DllName = "pltxt2htmd";
+#else
+    private const string DllName = "pltxt2htm";
+#endif
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr pltxt2htm_common_parserd(string text);
