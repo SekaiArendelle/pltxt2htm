@@ -5,7 +5,19 @@ using System.Runtime.InteropServices;
 public static class Pltxt2Htm
 {
     private const string DllName = "pltxt2htm";
+#if DEBUG
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+    public static extern IntPtr pltxt2htm_common_parserd(string text);
 
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+    public static extern IntPtr pltxt2htm_advanced_parserd(string text);
+
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+    public static extern IntPtr pltxt2htm_fixedadv_parserd(string text, string host, string project, string visitor, string author, string coauthors);
+
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+    public static extern IntPtr pltxt2htm_plrichtext_parserd(string text, string project, string visitor, string author, string coauthors);
+#else
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr pltxt2htm_common_parser(string text);
 
@@ -17,7 +29,7 @@ public static class Pltxt2Htm
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr pltxt2htm_plrichtext_parser(string text, string project, string visitor, string author, string coauthors);
-
+#endif
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
     public static extern UIntPtr pltxt2htm_version_major();
 
