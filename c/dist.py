@@ -86,7 +86,12 @@ if err_code != 0:
     raise Exception("xmake install failed")
 
 if plat_flag == "-p windows":
-    shutil.move(os.path.join(INSTALL_DIR, "lib", "pltxt2htm.lib"), os.path.join(INSTALL_DIR, "bin"))
+    if args.mode == "release":
+        shutil.move(os.path.join(INSTALL_DIR, "lib", "pltxt2htm.lib"), os.path.join(INSTALL_DIR, "bin"))
+    elif args.mode == "debug":
+        shutil.move(os.path.join(INSTALL_DIR, "lib", "pltxt2htmd.lib"), os.path.join(INSTALL_DIR, "bin"))
+    else:
+        raise Exception("Unknown mode")
 elif plat_flag == "-p mingw":
     shutil.move(os.path.join(INSTALL_DIR, "lib", "pltxt2htm.dll.a"), os.path.join(INSTALL_DIR, "bin"))
 
