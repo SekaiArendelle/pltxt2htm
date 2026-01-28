@@ -283,43 +283,17 @@ entry:
         }
         case ::pltxt2htm::NodeType::pl_discussion: {
             auto discussion = static_cast<::pltxt2htm::Discussion*>(node.get_unsafe());
-            {
-                auto&& subast = discussion->get_subast();
-                if (subast.size() == 1) {
-                    // <Discussion=123><discussion=642cf37a494746375aae306a>physicsLab</discussion></Discussion>
-                    // can be
-                    // optimized as <a
-                    // href=\"localhost:5173/ExperimentSummary/Discussion/642cf37a494746375aae306a\"
-                    // internal>physicsLab</a>
-                    auto psubnode = ::pltxt2htm::details::vector_front<ndebug>(subast).get_unsafe();
-                    if (psubnode->node_type() == ::pltxt2htm::NodeType::pl_discussion) {
-                        auto subnode = ::std::move(*static_cast<::pltxt2htm::Discussion*>(psubnode));
-                        (*discussion) = ::std::move(subnode);
-                    }
-                }
-            }
-            auto&& nested_tag_type = call_stack.top()->nested_tag_type;
-            // Optimization: If the discussion is the same as the parent node, then ignore the nested tag.
-            bool const is_not_same_tag =
-                nested_tag_type != ::pltxt2htm::NodeType::pl_discussion ||
-                discussion->get_id() !=
-                    static_cast<::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator> const*>(
-                        call_stack.top().release_imul())
-                        ->id_;
-            if (is_not_same_tag) {
-                auto&& subast = discussion->get_subast();
-                call_stack.push(::pltxt2htm::HeapGuard<
-                                ::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator>>(
-                    ::std::addressof(subast), ::pltxt2htm::NodeType::pl_discussion, subast.begin(),
-                    ::fast_io::mnp::os_c_str(discussion->get_id())));
-                goto entry;
-            }
-            else {
-                node = static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-                    ::pltxt2htm::HeapGuard<::pltxt2htm::Text>(::std::move(discussion->get_subast())));
-                ++current_iter;
+            auto&& subast = discussion->get_subast();
+            if (subast.empty()) {
+                // <discussion=123></discussion> can be omitted
+                ast.erase(current_iter);
                 continue;
             }
+            call_stack.push(
+                ::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator>>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeType::pl_discussion, subast.begin(),
+                    ::fast_io::mnp::os_c_str(discussion->get_id())));
+            goto entry;
         }
         case ::pltxt2htm::NodeType::pl_user: {
             auto user = static_cast<::pltxt2htm::User*>(node.get_unsafe());
@@ -750,94 +724,8 @@ entry:
             return;
         }
         else {
-            switch (top_frame->nested_tag_type) {
-            case ::pltxt2htm::NodeType::pl_discussion: {
-                if (top_frame->ast->empty()) {
-                    // TODO remove this if branch
-                    // it should be done in above switch block
-                    // Optimization: if the tag is empty, we can skip it
-                    call_stack.top()->ast->erase(call_stack.top()->iter);
-                }
-                else {
-                    ++(call_stack.top()->iter);
-                }
-                goto entry;
-            }
-            case ::pltxt2htm::NodeType::html_em:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::pl_i:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::pl_size:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_del:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::pl_user:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::pl_experiment:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::pl_external:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_strong:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::pl_b:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::pl_a:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::pl_color:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_blockquote:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_code_fence_backtick:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_code_fence_tilde:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_code_span_1_backtick:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_code_span_2_backtick:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_code_span_3_backtick:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_code:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_latex_inline:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_latex_block:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_pre:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_li:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_ul:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_ol:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_li:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_ul:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_p:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_h1:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_h2:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_h3:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_h4:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_h5:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_h6: {
-                // Above tag can't be optimized
-                ++(call_stack.top()->iter);
-                goto entry;
-            }
-            default:
-                // Rest of tags will never hit this branch
-                [[unlikely]] {
-                    ::exception::unreachable<ndebug>();
-                }
-            }
+            ++(call_stack.top()->iter);
+            goto entry;
         }
     }
 }

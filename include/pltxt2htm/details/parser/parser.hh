@@ -847,13 +847,15 @@ entry:
                     goto entry;
                 }
                 // parsing: <discussion=$1>$2</discussion>
-                if (auto opt_discussion_tag = ::pltxt2htm::details::try_parse_equal_sign_tag<
-                        ndebug, ::pltxt2htm::details::LiteralString{u8"iscussion"}>(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                        [](char8_t u8chr) static constexpr noexcept {
-                            return (u8'a' <= u8chr && u8chr <= u8'z') || (u8'0' <= u8chr && u8chr <= u8'9');
-                        });
-                    opt_discussion_tag.has_value()) {
+                else if (auto opt_discussion_tag = ::pltxt2htm::details::try_parse_experiment_tag<
+                             ndebug, ::pltxt2htm::details::LiteralString{u8"iscussion"},
+                             ::pltxt2htm::NodeType::pl_discussion>(
+                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
+                             [](char8_t u8chr) static constexpr noexcept {
+                                 return (u8'a' <= u8chr && u8chr <= u8'z') || (u8'0' <= u8chr && u8chr <= u8'9');
+                             },
+                             call_stack);
+                         opt_discussion_tag.has_value()) {
                     auto&& [tag_len, id] = opt_discussion_tag.template value<ndebug>();
                     current_index += tag_len + 3;
                     call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::EqualSignTagContext>(
