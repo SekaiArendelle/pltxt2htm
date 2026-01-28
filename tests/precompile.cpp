@@ -78,7 +78,7 @@ __attribute__((visibility("default")))
 #endif
 auto to_plunity_introduction(::fast_io::u8string_view pltext) noexcept -> ::fast_io::u8string {
     return ::pltxt2htm::to_plunity_introduction<false>(pltext, u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR",
-                                                   u8"$CO_AUTHORS");
+                                                       u8"$CO_AUTHORS");
 }
 
 #if __has_cpp_attribute(__gnu__::__used__)
