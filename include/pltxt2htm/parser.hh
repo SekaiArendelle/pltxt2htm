@@ -50,7 +50,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
     // fast_io::deque contains bug about RAII, use fast_io::list instead
     // This stack is used to track nested tag contexts during parsing
     ::fast_io::stack<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>,
-                     ::fast_io::list<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>>>
+                     ::fast_io::vector<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>>>
         call_stack{};
     ::pltxt2htm::Ast result{};
 

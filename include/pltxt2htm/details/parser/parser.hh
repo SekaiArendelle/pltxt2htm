@@ -31,7 +31,7 @@ template<bool ndebug>
 constexpr auto devil_stuff_after_line_break(
     ::fast_io::u8string_view pltext,
     ::fast_io::stack<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>,
-                     ::fast_io::list<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>>>& call_stack,
+                     ::fast_io::vector<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>>>& call_stack,
     ::pltxt2htm::Ast& result) noexcept -> ::pltxt2htm::details::DevilStuffAfterLineBreakResult {
     ::std::size_t current_index{};
     while (true) {
@@ -366,7 +366,7 @@ template<bool ndebug>
 #endif
 constexpr auto parse_pltxt(
     ::fast_io::stack<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>,
-                     ::fast_io::list<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>>>&
+                     ::fast_io::vector<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>>>&
         call_stack) noexcept -> ::pltxt2htm::Ast {
 entry:
     if (call_stack.top()->nested_tag_type == ::pltxt2htm::NodeType::md_ul) {
@@ -870,12 +870,13 @@ entry:
             case u8'e':
                 [[fallthrough]];
             case u8'E': {
-                if (auto opt_experiment_tag = ::pltxt2htm::details::try_parse_equal_sign_tag<
+                if (auto opt_experiment_tag = ::pltxt2htm::details::try_parse_experiment_tag<
                         ndebug, ::pltxt2htm::details::LiteralString{u8"xperiment"}>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
                         [](char8_t u8chr) static constexpr noexcept {
                             return (u8'a' <= u8chr && u8chr <= u8'z') || (u8'0' <= u8chr && u8chr <= u8'9');
-                        });
+                        },
+                        call_stack);
                     opt_experiment_tag.has_value()) {
                     // parsing: <experiment=$1>$2</experiment>
                     auto&& [tag_len, id] = opt_experiment_tag.template value<ndebug>();
@@ -1312,9 +1313,10 @@ entry:
                 }
                 case ::pltxt2htm::NodeType::pl_external: {
                     // parsing </external>
-                    if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<
-                            ndebug, ::pltxt2htm::details::LiteralString{u8"external"}>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                    if (auto opt_tag_len =
+                            ::pltxt2htm::details::try_parse_bare_tag<ndebug,
+                                                                     ::pltxt2htm::details::LiteralString{u8"external"}>(
+                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
                         // Whether or not extern_index is out of range, extern for loop will handle it correctly.
                         auto frame =

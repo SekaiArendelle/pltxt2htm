@@ -1,7 +1,9 @@
 #pragma once
 
 #include <exception/exception.hh>
+#include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/string_view.h>
+#include "frame_concext.hh"
 #include "../utils.hh"
 #include "../../heap_guard.hh"
 #include "../../astnode/basic.hh"
@@ -405,6 +407,32 @@ constexpr auto try_parse_equal_sign_tag(::fast_io::u8string_view pltext, Func&& 
         }
     }
     return ::exception::nullopt_t{};
+}
+
+template<bool ndebug, ::pltxt2htm::details::LiteralString prefix_str, typename Func>
+    requires requires(Func&& func, char8_t chr) {
+        { func(chr) } -> ::std::same_as<bool>;
+    }
+[[nodiscard]]
+constexpr auto try_parse_experiment_tag(
+    ::fast_io::u8string_view pltext, Func&& func,
+    ::fast_io::stack<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>,
+                     ::fast_io::vector<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>>> const&
+        call_stack) noexcept -> ::exception::optional<TryParseEqualSignTagResult> {
+    auto result =
+        ::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, prefix_str>(pltext, ::std::forward<Func>(func));
+    if (result.has_value() == false) {
+        return ::exception::nullopt_t{};
+    }
+    for (auto const& v : call_stack.container) {
+        // skip
+        // e.g. <experiment><experiment>test</experiment>text</experiment>
+        // e.g. <experiment><a><experiment>test</experiment>text</a>text</experiment>
+        if (v.release_imul()->nested_tag_type == ::pltxt2htm::NodeType::pl_experiment) {
+            return ::exception::nullopt_t{};
+        }
+    }
+    return result;
 }
 
 /**

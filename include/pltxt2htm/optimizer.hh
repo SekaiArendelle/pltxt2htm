@@ -265,41 +265,17 @@ entry:
         }
         case ::pltxt2htm::NodeType::pl_experiment: {
             auto experiment = static_cast<::pltxt2htm::Experiment*>(node.get_unsafe());
-            {
-                auto&& subast = experiment->get_subast();
-                if (subast.size() == 1) {
-                    // <Experiment=123><experiment=642cf37a494746375aae306a>physicsLab</experiment></Experiment> can be
-                    // optimized as <a href=\"localhost:5173/ExperimentSummary/Experiment/642cf37a494746375aae306a\"
-                    // internal>physicsLab</a>
-                    auto psubnode = ::pltxt2htm::details::vector_front<ndebug>(subast).get_unsafe();
-                    if (psubnode->node_type() == ::pltxt2htm::NodeType::pl_experiment) {
-                        auto subnode = ::std::move(*static_cast<::pltxt2htm::Experiment*>(psubnode));
-                        (*experiment) = ::std::move(subnode);
-                    }
-                }
-            }
-            auto&& nested_tag_type = call_stack.top()->nested_tag_type;
-            // Optimization: If the experiment is the same as the parent node, then ignore the nested tag.
-            bool const is_not_same_tag =
-                nested_tag_type != ::pltxt2htm::NodeType::pl_experiment ||
-                experiment->get_id() !=
-                    static_cast<::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator> const*>(
-                        call_stack.top().release_imul())
-                        ->id_;
-            if (is_not_same_tag) {
-                auto&& subast = experiment->get_subast();
-                call_stack.push(::pltxt2htm::HeapGuard<
-                                ::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator>>(
-                    ::std::addressof(subast), ::pltxt2htm::NodeType::pl_experiment, subast.begin(),
-                    ::fast_io::mnp::os_c_str(experiment->get_id())));
-                goto entry;
-            }
-            else {
-                node = static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-                    ::pltxt2htm::HeapGuard<::pltxt2htm::Text>(::std::move(experiment->get_subast())));
-                ++current_iter;
+            auto&& subast = experiment->get_subast();
+            if (subast.empty()) {
+                // <experiment=123></experiment> can be omitted
+                ast.erase(current_iter);
                 continue;
             }
+            call_stack.push(
+                ::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator>>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeType::pl_experiment, subast.begin(),
+                    ::fast_io::mnp::os_c_str(experiment->get_id())));
+            goto entry;
         }
         case ::pltxt2htm::NodeType::pl_discussion: {
             auto discussion = static_cast<::pltxt2htm::Discussion*>(node.get_unsafe());
