@@ -249,6 +249,10 @@ entry:
                         ->id_;
             if (is_not_same_tag) {
                 auto&& subast = color->get_subast();
+                if (subast.empty()) {
+                    ast.erase(current_iter);
+                    continue;
+                }
                 call_stack.push(::pltxt2htm::HeapGuard<
                                 ::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator>>(
                     ::std::addressof(subast), ::pltxt2htm::NodeType::pl_color, subast.begin(),
@@ -321,7 +325,12 @@ entry:
             auto user = static_cast<::pltxt2htm::User*>(node.get_unsafe());
             {
                 auto&& subast = user->get_subast();
-                if (subast.size() == 1) {
+                if (subast.empty()) {
+                    // <user=123></user> can be omitted
+                    ast.erase(current_iter);
+                    continue;
+                }
+                else if (subast.size() == 1) {
                     // <User=123><user=642cf37a494746375aae306a>physicsLab</user></User> can be
                     auto psubnode = ::pltxt2htm::details::vector_front<ndebug>(subast).get_unsafe();
                     if (psubnode->node_type() == ::pltxt2htm::NodeType::pl_user) {
@@ -371,7 +380,12 @@ entry:
             auto size = static_cast<::pltxt2htm::Size*>(node.get_unsafe());
             {
                 auto&& subast = size->get_subast();
-                if (subast.size() == 1) {
+                if (subast.empty()) {
+                    // <size=123></size> can be omitted
+                    ast.erase(current_iter);
+                    continue;
+                }
+                else if (subast.size() == 1) {
                     // <size=12><size=3>physicsLab</size></size> can be
                     auto psubnode = ::pltxt2htm::details::vector_front<ndebug>(subast).get_unsafe();
                     if (psubnode->node_type() == ::pltxt2htm::NodeType::pl_size) {
@@ -417,6 +431,11 @@ entry:
                                        nested_tag_type != ::pltxt2htm::NodeType::md_double_emphasis_underscore};
             if (is_not_same_tag) {
                 auto&& subast = b->get_subast();
+                if (subast.empty()) {
+                    // <b></b> can be omitted
+                    ast.erase(current_iter);
+                    continue;
+                }
                 call_stack.push(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                         ::std::addressof(subast), ::pltxt2htm::NodeType::html_strong, subast.begin()));
@@ -514,6 +533,10 @@ entry:
                                        nested_tag_type != ::pltxt2htm::NodeType::md_del};
             if (is_not_same_tag) {
                 auto&& subast = del->get_subast();
+                if (subast.empty()) {
+                    ast.erase(current_iter);
+                    continue;
+                }
                 call_stack.push(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                         ::std::addressof(subast), ::pltxt2htm::NodeType::html_del, subast.begin()));
@@ -541,6 +564,10 @@ entry:
                                        nested_tag_type != ::pltxt2htm::NodeType::md_single_emphasis_underscore};
             if (is_not_same_tag) {
                 auto&& subast = em->get_subast();
+                if (subast.empty()) {
+                    ast.erase(current_iter);
+                    continue;
+                }
                 call_stack.push(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                         ::std::addressof(subast), ::pltxt2htm::NodeType::html_em, subast.begin()));
@@ -724,31 +751,7 @@ entry:
         }
         else {
             switch (top_frame->nested_tag_type) {
-            case ::pltxt2htm::NodeType::pl_a:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::pl_color:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::pl_experiment:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::pl_discussion:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::pl_external:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::pl_user:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::pl_size:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_strong:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::pl_b:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_em:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::pl_i:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_del:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_del: {
+            case ::pltxt2htm::NodeType::pl_discussion: {
                 if (top_frame->ast->empty()) {
                     // TODO remove this if branch
                     // it should be done in above switch block
@@ -760,6 +763,28 @@ entry:
                 }
                 goto entry;
             }
+            case ::pltxt2htm::NodeType::html_em:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::pl_i:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::pl_size:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::html_del:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::pl_user:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::pl_experiment:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::pl_external:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::html_strong:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::pl_b:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::pl_a:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::pl_color:
+                [[fallthrough]];
             case ::pltxt2htm::NodeType::html_blockquote:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::md_code_fence_backtick:
@@ -804,7 +829,8 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::html_h6: {
                 // Above tag can't be optimized
-                break;
+                ++(call_stack.top()->iter);
+                goto entry;
             }
             default:
                 // Rest of tags will never hit this branch
