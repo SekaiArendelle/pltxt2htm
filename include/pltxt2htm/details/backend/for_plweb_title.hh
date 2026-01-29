@@ -1,11 +1,3 @@
-/**
- * @file common_html.hh
- * @brief Common HTML backend for pltxt2htm
- * @details Generates basic HTML output with minimal formatting support.
- *          Only supports color, bold (b), and italic (i) tags.
- *          Typically used for rendering headers and simple text.
- */
-
 #pragma once
 
 #include <fast_io/fast_io_dsal/list.h>
@@ -18,9 +10,8 @@
 #include "frame_context.hh"
 #include "../../details/utils.hh"
 #include "../../astnode/basic.hh"
-#include "../../astnode/markdown_node.hh"
+#include "../../astnode/node_type.hh"
 #include "../../astnode/physics_lab_node.hh"
-#include "pltxt2htm/astnode/node_type.hh"
 
 namespace pltxt2htm::details {
 
@@ -406,7 +397,7 @@ entry:
             return result;
         }
         else {
-            switch (top_frame.nested_tag_type_) {
+            switch (top_frame.get_nested_tag_type()) {
             case ::pltxt2htm::NodeType::md_double_emphasis_asterisk:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::html_strong:

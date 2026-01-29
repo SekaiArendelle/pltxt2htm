@@ -22,12 +22,14 @@ namespace pltxt2htm::details {
 class BackendBasicFrameContext {
 public:
     ::pltxt2htm::Ast const& ast_; ///< Reference to the AST being processed
-    ::pltxt2htm::NodeType const nested_tag_type_; ///< Type of the current nested tag context
+private:
+    ::pltxt2htm::NodeType nested_tag_type_; ///< Type of the current nested tag context
+public:
     // TODO How about store iterator?
     ::std::size_t current_index_; ///< Current index position in the AST
 
-    BackendBasicFrameContext(::pltxt2htm::Ast const& ast, ::pltxt2htm::NodeType const nested_tag_type,
-                             ::std::size_t current_index) noexcept
+    constexpr BackendBasicFrameContext(::pltxt2htm::Ast const& ast, ::pltxt2htm::NodeType const nested_tag_type,
+                                       ::std::size_t current_index) noexcept
         : ast_(ast),
           nested_tag_type_{nested_tag_type},
           current_index_{current_index} {
@@ -43,6 +45,10 @@ public:
         ::pltxt2htm::details::BackendBasicFrameContext const&) noexcept = delete;
     constexpr ::pltxt2htm::details::BackendBasicFrameContext& operator=(
         ::pltxt2htm::details::BackendBasicFrameContext&&) noexcept = delete;
+
+    constexpr auto get_nested_tag_type(this BackendBasicFrameContext const& self) noexcept {
+        return self.nested_tag_type_;
+    }
 };
 
 } // namespace pltxt2htm::details
