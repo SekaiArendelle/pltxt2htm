@@ -4,16 +4,14 @@ int main() {
     {
         auto html =
             ::pltxt2htm_test::pltxt2advanced_htmld(u8"<external=https://example.com/discussion>physicsLab</external>");
-        auto answer = ::fast_io::u8string_view{
-            u8"<a href=\"https://example.com/discussion\">physicsLab</a>"};
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"https://example.com/discussion\">physicsLab</a>"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2advanced_htmld(
             u8"<eXtErNaL=https://another-example.org/path      >physicsLab</EXTERNAL      >");
-        auto answer = ::fast_io::u8string_view{
-            u8"<a href=\"https://another-example.org/path\">physicsLab</a>"};
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"https://another-example.org/path\">physicsLab</a>"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
@@ -23,8 +21,7 @@ int main() {
 <EXTERNAL=https://site.com/item      >te
  xt</external      >
 )");
-        auto answer = ::fast_io::u8string_view{
-            u8"<br><a href=\"https://site.com/item\">te<br>&nbsp;xt</a><br>"};
+        auto answer = ::fast_io::u8string_view{u8"<br><a href=\"https://site.com/item\">te<br>&nbsp;xt</a><br>"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
@@ -41,7 +38,8 @@ int main() {
         auto html = ::pltxt2htm_test::pltxt2advanced_htmld(
             u8"ab<External=https://first.com>te<external=https://second.com>physicsLab</external>st</External>cd");
         auto answer = ::fast_io::u8string_view{
-            u8"ab<a href=\"https://first.com\">te&lt;external=https://second.com&gt;physicsLab</a>st&lt;/External&gt;cd"};
+            u8"ab<a "
+            u8"href=\"https://first.com\">te&lt;external=https://second.com&gt;physicsLab</a>st&lt;/External&gt;cd"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
@@ -69,7 +67,8 @@ int main() {
             u8"<external=https://example.com>text<external=https://another-example.com>text</external></"
             u8"external>");
         auto answer = ::fast_io::u8string_view{
-            u8"<a href=\"https://example.com\">text&lt;external=https://another-example.com&gt;text</a>&lt;/external&gt;"};
+            u8"<a "
+            u8"href=\"https://example.com\">text&lt;external=https://another-example.com&gt;text</a>&lt;/external&gt;"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
@@ -84,8 +83,7 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<external=https://example.com>physicsLab");
-        auto answer = ::fast_io::u8string_view{
-            u8"<a href=\"https://example.com\">physicsLab</a>"};
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"https://example.com\">physicsLab</a>"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
@@ -103,14 +101,13 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<external=https://example.com></external");
-        auto answer = ::fast_io::u8string_view{
-            u8"<a href=\"https://example.com\">&lt;/external</a>"};
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"https://example.com\">&lt;/external</a>"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
     {
-        auto html =
-            ::pltxt2htm_test::pltxt2advanced_htmld(u8"<external=https://main.com><i><external=https://nested.com>c</external></i></external>");
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(
+            u8"<external=https://main.com><i><external=https://nested.com>c</external></i></external>");
         auto answer = ::fast_io::u8string_view{
             u8"<a href=\"https://main.com\"><em>&lt;external=https://nested.com&gt;c&lt;/external&gt;</em></a>"};
         ::pltxt2htm_test::assert_true(html == answer);
