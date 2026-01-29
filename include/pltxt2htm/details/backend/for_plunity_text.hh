@@ -321,8 +321,7 @@ entry:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_ol: {
             auto ol = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
-            call_stack.push(
-                ::pltxt2htm::HeapGuard<::pltxt2htm::details::OlFrameContext>(ol->get_subast()));
+            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OlFrameContext>(ol->get_subast()));
             ++current_index;
             goto entry;
         }
@@ -354,9 +353,8 @@ entry:
             ::pltxt2htm::details::BackendBasicFrameContext* the_second_to_last_frame{(++reverse_iter)->get_unsafe()};
             auto const nested_tag_type = the_second_to_last_frame->get_nested_tag_type();
             if (nested_tag_type == ::pltxt2htm::NodeType::html_ol || nested_tag_type == ::pltxt2htm::NodeType::md_ol) {
-                ::std::size_t& ol_li_count = static_cast<::pltxt2htm::details::OlFrameContext *>(
-                                                 the_second_to_last_frame)
-                                               ->ol_li_count;
+                ::std::size_t& ol_li_count =
+                    static_cast<::pltxt2htm::details::OlFrameContext*>(the_second_to_last_frame)->ol_li_count;
                 result.append(::pltxt2htm::details::size_t2str(ol_li_count));
                 result.append(u8". ");
                 ++ol_li_count;
