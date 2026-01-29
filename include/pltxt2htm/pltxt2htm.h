@@ -150,7 +150,7 @@ template<bool ndebug = false>
 constexpr char8_t const* plrichtext_parser(char8_t const* const text, char8_t const* const project,
                                            char8_t const* const visitor, char8_t const* const author,
                                            char8_t const* const coauthors) noexcept {
-    return ::pltxt2htm::details::c_ptr_style_wrapper<::pltxt2htm::to_plunity_introduction<ndebug>>(
+    return ::pltxt2htm::details::c_ptr_style_wrapper<::pltxt2htm::pltxt2plunity_introduction<ndebug>>(
         ::fast_io::mnp::os_c_str(text), ::fast_io::mnp::os_c_str(project), ::fast_io::mnp::os_c_str(visitor),
         ::fast_io::mnp::os_c_str(author), ::fast_io::mnp::os_c_str(coauthors));
 }
