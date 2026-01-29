@@ -29,7 +29,7 @@ public:
     ::std::size_t current_index_; ///< Current index position in the AST
 
     constexpr BackendBasicFrameContext(::pltxt2htm::Ast const& ast, ::pltxt2htm::NodeType const nested_tag_type,
-                             ::std::size_t current_index) noexcept
+                                       ::std::size_t current_index) noexcept
         : ast_(ast),
           nested_tag_type_{nested_tag_type},
           current_index_{current_index} {

@@ -90,8 +90,8 @@ int main() {
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"1. test\n  1. test");
-        auto answer = ::fast_io::u8string_view{u8"1. test\n  1. text\n"};
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"1. test\n2. text\n  1. test\n  2. text");
+        auto answer = ::fast_io::u8string_view{u8"1. test\n2. text\n  1. test\n  2. text\n"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 

@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <cstddef>
 #include <fast_io/fast_io_dsal/list.h>
 #include <fast_io/fast_io_dsal/array.h>
 #include <fast_io/fast_io_dsal/stack.h>
@@ -15,15 +16,32 @@
 #include <fast_io/fast_io_dsal/string_view.h>
 #include <exception/exception.hh>
 #include "frame_context.hh"
+#include "../../heap_guard.hh"
 #include "../../details/utils.hh"
 #include "../../astnode/basic.hh"
 #include "../../astnode/node_type.hh"
 #include "../../astnode/markdown_node.hh"
 #include "../../astnode/physics_lab_node.hh"
 #include "../push_macro.hh"
-#include "pltxt2htm/details/utils.hh"
 
 namespace pltxt2htm::details {
+
+class OlFrameContext : public ::pltxt2htm::details::BackendBasicFrameContext {
+public:
+    ::std::size_t ol_li_count{1};
+
+    constexpr OlFrameContext(::pltxt2htm::Ast const& ast) noexcept
+        : BackendBasicFrameContext(ast, ::pltxt2htm::NodeType::html_ol, 0) {
+    }
+
+    constexpr OlFrameContext(::pltxt2htm::details::OlFrameContext const&) noexcept = default;
+    constexpr OlFrameContext(::pltxt2htm::details::OlFrameContext&&) noexcept = default;
+    constexpr ~OlFrameContext() noexcept = default;
+    constexpr auto operator=(::pltxt2htm::details::OlFrameContext const&) noexcept
+        -> ::pltxt2htm::details::OlFrameContext& = delete;
+    constexpr auto operator=(::pltxt2htm::details::OlFrameContext&&) noexcept
+        -> ::pltxt2htm::details::OlFrameContext& = delete;
+};
 
 template<bool ndebug>
 [[nodiscard]]
@@ -33,17 +51,16 @@ template<bool ndebug>
 constexpr auto plunity_text_backend(::pltxt2htm::Ast const& ast_init, ::fast_io::u8string_view project,
                                     ::fast_io::u8string_view visitor, ::fast_io::u8string_view author,
                                     ::fast_io::u8string_view coauthors) noexcept -> ::fast_io::u8string {
-    ::std::size_t ol_li_count{1};
     ::fast_io::u8string result{};
-    ::fast_io::stack<::pltxt2htm::details::BackendBasicFrameContext,
-                     ::fast_io::list<::pltxt2htm::details::BackendBasicFrameContext>>
+    ::fast_io::stack<::pltxt2htm::HeapGuard<::pltxt2htm::details::BackendBasicFrameContext>,
+                     ::fast_io::list<::pltxt2htm::HeapGuard<::pltxt2htm::details::BackendBasicFrameContext>>>
         call_stack{};
     call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(ast_init, ::pltxt2htm::NodeType::base, 0));
 
 entry:
-    auto const& ast = call_stack.top().ast_;
+    auto const& ast = call_stack.top()->ast_;
     // auto const& nested_tag_type = call_stack.top().nested_tag_type_;
-    auto&& current_index = call_stack.top().current_index_;
+    auto&& current_index = call_stack.top()->current_index_;
     for (; current_index < ast.size(); ++current_index) {
         auto&& node = ::pltxt2htm::details::vector_index<ndebug>(ast, current_index);
 
@@ -305,12 +322,12 @@ entry:
         case ::pltxt2htm::NodeType::html_ol: {
             auto ol = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(
-                ::pltxt2htm::details::BackendBasicFrameContext(ol->get_subast(), ::pltxt2htm::NodeType::html_ol, 0));
+                ::pltxt2htm::HeapGuard<::pltxt2htm::details::OlFrameContext>(ol->get_subast()));
             ++current_index;
             goto entry;
         }
         case ::pltxt2htm::NodeType::html_li: {
-            auto const nested_tag_type = call_stack.top().get_nested_tag_type();
+            auto const nested_tag_type = call_stack.top()->get_nested_tag_type();
             pltxt2htm_assert(
                 nested_tag_type == ::pltxt2htm::NodeType::html_ol || nested_tag_type == ::pltxt2htm::NodeType::html_ul,
                 u8"Invalid tag type");
@@ -323,10 +340,10 @@ entry:
             ++current_index;
             ::std::size_t indent_level{};
             for (auto const& frame : call_stack.container) {
-                if (frame.get_nested_tag_type() == ::pltxt2htm::NodeType::html_ol ||
-                    frame.get_nested_tag_type() == ::pltxt2htm::NodeType::html_ul ||
-                    frame.get_nested_tag_type() == ::pltxt2htm::NodeType::md_ol ||
-                    frame.get_nested_tag_type() == ::pltxt2htm::NodeType::md_ul) {
+                if (frame->get_nested_tag_type() == ::pltxt2htm::NodeType::html_ol ||
+                    frame->get_nested_tag_type() == ::pltxt2htm::NodeType::html_ul ||
+                    frame->get_nested_tag_type() == ::pltxt2htm::NodeType::md_ol ||
+                    frame->get_nested_tag_type() == ::pltxt2htm::NodeType::md_ul) {
                     if (indent_level > 0) {
                         result.append(u8"  ");
                     }
@@ -334,8 +351,12 @@ entry:
                 }
             }
             auto reverse_iter = call_stack.container.crbegin();
-            auto const nested_tag_type = (++reverse_iter)->get_nested_tag_type();
+            ::pltxt2htm::details::BackendBasicFrameContext* the_second_to_last_frame{(++reverse_iter)->get_unsafe()};
+            auto const nested_tag_type = the_second_to_last_frame->get_nested_tag_type();
             if (nested_tag_type == ::pltxt2htm::NodeType::html_ol || nested_tag_type == ::pltxt2htm::NodeType::md_ol) {
+                ::std::size_t& ol_li_count = static_cast<::pltxt2htm::details::OlFrameContext *>(
+                                                 the_second_to_last_frame)
+                                               ->ol_li_count;
                 result.append(::pltxt2htm::details::size_t2str(ol_li_count));
                 result.append(u8". ");
                 ++ol_li_count;
@@ -602,7 +623,7 @@ entry:
             return result;
         }
         else {
-            switch (top_frame.get_nested_tag_type()) {
+            switch (top_frame->get_nested_tag_type()) {
             case ::pltxt2htm::NodeType::text: {
                 goto entry;
             }
@@ -701,7 +722,6 @@ entry:
             case ::pltxt2htm::NodeType::md_ol:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::html_ol: {
-                ol_li_count = 1;
                 goto entry;
             }
             case ::pltxt2htm::NodeType::md_li:
