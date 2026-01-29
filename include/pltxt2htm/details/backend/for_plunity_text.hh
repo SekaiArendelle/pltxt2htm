@@ -319,23 +319,37 @@ entry:
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(li->get_subast(), ::pltxt2htm::NodeType::html_li, 0));
             ++current_index;
-            // ::std::size_t indent_level{};
+            ::std::size_t indent_level{};
             for (auto const& frame : call_stack.container) {
                 if (frame.nested_tag_type_ == ::pltxt2htm::NodeType::html_ol ||
                     frame.nested_tag_type_ == ::pltxt2htm::NodeType::html_ul ||
                     frame.nested_tag_type_ == ::pltxt2htm::NodeType::md_ol ||
                     frame.nested_tag_type_ == ::pltxt2htm::NodeType::md_ul) {
-                    // ++indent_level;
-                    result.append(u8"  ");
+                    if (indent_level > 0) {
+                        result.append(u8"  ");
+                    }
+                    ++indent_level;
                 }
             }
-            auto const nested_tag_type = call_stack.top().nested_tag_type_;
+            auto reverse_iter = call_stack.container.crbegin();
+            auto const nested_tag_type = (++reverse_iter)->nested_tag_type_;
             if (nested_tag_type == ::pltxt2htm::NodeType::html_ol || nested_tag_type == ::pltxt2htm::NodeType::md_ol) {
                 result.append(u8"1. ");
             }
             else if (nested_tag_type == ::pltxt2htm::NodeType::html_ul ||
                      nested_tag_type == ::pltxt2htm::NodeType::md_ul) {
-                result.append(u8"· ");
+                if (indent_level % 3 == 1) {
+                    result.append(u8"\u25cf ");
+                }
+                else if (indent_level % 3 == 2) {
+                    result.append(u8"\u25cc ");
+                }
+                else if (indent_level % 3 == 0) {
+                    result.append(u8"\u25a1 ");
+                }
+                else {
+                    ::exception::unreachable<ndebug>();
+                }
             }
             else {
                 ::exception::unreachable<ndebug>();
@@ -682,9 +696,13 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::md_ol:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_ol:
+            case ::pltxt2htm::NodeType::html_ol: {
+                goto entry;
+            }
+            case ::pltxt2htm::NodeType::md_li:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::html_li: {
+                result.push_back(u8'\n');
                 goto entry;
             }
             case ::pltxt2htm::NodeType::md_code_span_1_backtick:
