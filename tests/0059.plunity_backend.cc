@@ -66,14 +66,14 @@ int main() {
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"- test\n- text");
         // TODO maybe the tail linebreak should be removed
-        auto answer = ::fast_io::u8string_view{u8"● test\n● text\n"};
+        auto answer = ::fast_io::u8string_view{u8"• test\n• text\n"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"* test\n  - text\n    + test");
         // TODO maybe the tail linebreak should be removed
-        auto answer = ::fast_io::u8string_view{u8"● test\n  ◌ text\n    □ test\n"};
+        auto answer = ::fast_io::u8string_view{u8"• test\n  ∘ text\n    ▫ test\n"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 

@@ -364,13 +364,13 @@ entry:
             else if (nested_tag_type == ::pltxt2htm::NodeType::html_ul ||
                      nested_tag_type == ::pltxt2htm::NodeType::md_ul) {
                 if (indent_level % 3 == 1) {
-                    result.append(u8"\u25cf ");
+                    result.append(u8"\u2022 ");
                 }
                 else if (indent_level % 3 == 2) {
-                    result.append(u8"\u25cc ");
+                    result.append(u8"\u2218 ");
                 }
                 else if (indent_level % 3 == 0) {
-                    result.append(u8"\u25a1 ");
+                    result.append(u8"\u25ab ");
                 }
                 else {
                     ::exception::unreachable<ndebug>();
