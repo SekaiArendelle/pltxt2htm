@@ -90,7 +90,7 @@ template<bool ndebug = false, bool optimize = true>
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-constexpr auto to_plunity_introduction(::fast_io::u8string_view pltext, ::fast_io::u8string_view project,
+constexpr auto pltxt2plunity_introduction(::fast_io::u8string_view pltext, ::fast_io::u8string_view project,
                                        ::fast_io::u8string_view visitor, ::fast_io::u8string_view author,
                                        ::fast_io::u8string_view coauthors) noexcept {
     auto ast = ::pltxt2htm::parse_pltxt<ndebug>(pltext);
