@@ -23,6 +23,7 @@
 #include "optimizer.hh"
 #include "details/backend/for_plweb_text.hh"
 #include "details/backend/for_plweb_title.hh"
+#include "details/backend/for_plunity_text.hh"
 #include "version.hh"
 
 namespace pltxt2htm {
@@ -82,6 +83,21 @@ constexpr auto pltxt2fixedadv_html(::fast_io::u8string_view pltext, ::fast_io::u
         ::pltxt2htm::optimize_ast<ndebug>(ast);
     }
     return ::pltxt2htm::details::plweb_text_backend<ndebug>(ast, host, project, visitor, author, coauthors);
+}
+
+template<bool ndebug = false, bool optimize = true>
+[[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
+constexpr auto pltxt2plunity_introduction(::fast_io::u8string_view pltext, ::fast_io::u8string_view project,
+                                          ::fast_io::u8string_view visitor, ::fast_io::u8string_view author,
+                                          ::fast_io::u8string_view coauthors) noexcept {
+    auto ast = ::pltxt2htm::parse_pltxt<ndebug>(pltext);
+    if constexpr (optimize) {
+        ::pltxt2htm::optimize_ast<ndebug>(ast);
+    }
+    return ::pltxt2htm::details::plunity_text_backend<ndebug>(ast, project, visitor, author, coauthors);
 }
 
 /**
