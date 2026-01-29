@@ -717,7 +717,8 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeType::md_link: {
-                ::exception::unreachable<ndebug>();
+                result.append(u8"</external>");
+                goto entry;
             }
             case ::pltxt2htm::NodeType::base:
                 [[fallthrough]];
