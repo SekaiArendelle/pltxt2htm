@@ -3,78 +3,96 @@
 
 int main() {
     {
-        auto text = ::pltxt2htm_test::pltxt2plunity_introduction(u8"text");
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"text");
         auto answer = ::fast_io::u8string_view{u8"text"};
-        ::pltxt2htm_test::assert_true(text == answer);
+        ::pltxt2htm_test::assert_true(html == answer);
     }
 
     {
-        auto text = ::pltxt2htm_test::pltxt2plunity_introduction(u8"text \ntext ");
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"text \ntext ");
         auto answer = ::fast_io::u8string_view{u8"text\ntext"};
-        ::pltxt2htm_test::assert_true(text == answer);
+        ::pltxt2htm_test::assert_true(html == answer);
     }
 
     {
-        auto text = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab<b>test</b>cd");
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab<b>test</b>cd");
         auto answer = ::fast_io::u8string_view{u8"ab<b>test</b>cd"};
-        ::pltxt2htm_test::assert_true(text == answer);
+        ::pltxt2htm_test::assert_true(html == answer);
     }
 
     {
-        auto text = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab<strong>test</strong>cd");
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab<strong>test</strong>cd");
         auto answer = ::fast_io::u8string_view{u8"ab<b>test</b>cd"};
-        ::pltxt2htm_test::assert_true(text == answer);
+        ::pltxt2htm_test::assert_true(html == answer);
     }
 
     {
-        auto text = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab**test**cd");
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab**test**cd");
         auto answer = ::fast_io::u8string_view{u8"ab<b>test</b>cd"};
-        ::pltxt2htm_test::assert_true(text == answer);
+        ::pltxt2htm_test::assert_true(html == answer);
     }
 
     {
-        auto text = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab<i>test</i>cd");
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab<i>test</i>cd");
         auto answer = ::fast_io::u8string_view{u8"ab<i>test</i>cd"};
-        ::pltxt2htm_test::assert_true(text == answer);
+        ::pltxt2htm_test::assert_true(html == answer);
     }
 
     {
-        auto text = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab<em>test</em>cd");
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab<em>test</em>cd");
         auto answer = ::fast_io::u8string_view{u8"ab<i>test</i>cd"};
-        ::pltxt2htm_test::assert_true(text == answer);
+        ::pltxt2htm_test::assert_true(html == answer);
     }
 
     {
-        auto text = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab*test*cd");
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab*test*cd");
         auto answer = ::fast_io::u8string_view{u8"ab<i>test</i>cd"};
-        ::pltxt2htm_test::assert_true(text == answer);
+        ::pltxt2htm_test::assert_true(html == answer);
     }
 
     {
-        auto text =
+        auto html =
             ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab<external=https://example.com>example</external>cd");
         auto answer = ::fast_io::u8string_view{u8"ab<external=https://example.com>example</external>cd"};
-        ::pltxt2htm_test::assert_true(text == answer);
+        ::pltxt2htm_test::assert_true(html == answer);
     }
 
     {
-        auto text = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab[example](https://example.com)cd");
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab[example](https://example.com)cd");
         auto answer = ::fast_io::u8string_view{u8"ab<external=https://example.com>example</external>cd"};
-        ::pltxt2htm_test::assert_true(text == answer);
+        ::pltxt2htm_test::assert_true(html == answer);
     }
 
     {
-        auto text = ::pltxt2htm_test::pltxt2plunity_introduction(u8"- test\n- text");
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"- test\n- text");
         // TODO maybe the tail linebreak should be removed
         auto answer = ::fast_io::u8string_view{u8"● test\n● text\n"};
-        ::pltxt2htm_test::assert_true(text == answer);
+        ::pltxt2htm_test::assert_true(html == answer);
     }
 
     {
-        auto text = ::pltxt2htm_test::pltxt2plunity_introduction(u8"* test\n  - text\n    + test");
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"* test\n  - text\n    + test");
         // TODO maybe the tail linebreak should be removed
         auto answer = ::fast_io::u8string_view{u8"● test\n  ◌ text\n    □ test\n"};
-        ::pltxt2htm_test::assert_true(text == answer);
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"1. test\n2. text\n3. test");
+        auto answer = ::fast_io::u8string_view{u8"1. test\n2. text\n3. test\n"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"1. test\n1. text\n1. test");
+        auto answer = ::fast_io::u8string_view{u8"1. test\n2. text\n3. test\n"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"1. test\n1. text\n1. test\n\n1. test\n1. text\n1. test\n");
+        auto answer = ::fast_io::u8string_view{u8"1. test\n2. text\n3. test\n\n1. test\n2. text\n3. test\n"};
+        ::pltxt2htm_test::assert_true(html == answer);
     }
 
     return 0;

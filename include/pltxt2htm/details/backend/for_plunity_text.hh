@@ -21,6 +21,7 @@
 #include "../../astnode/markdown_node.hh"
 #include "../../astnode/physics_lab_node.hh"
 #include "../push_macro.hh"
+#include "pltxt2htm/details/utils.hh"
 
 namespace pltxt2htm::details {
 
@@ -32,7 +33,8 @@ template<bool ndebug>
 constexpr auto plunity_text_backend(::pltxt2htm::Ast const& ast_init, ::fast_io::u8string_view project,
                                     ::fast_io::u8string_view visitor, ::fast_io::u8string_view author,
                                     ::fast_io::u8string_view coauthors) noexcept -> ::fast_io::u8string {
-    ::fast_io::u8string result{};
+    ::std::size_t ol_li_count{1};
+                                        ::fast_io::u8string result{};
     ::fast_io::stack<::pltxt2htm::details::BackendBasicFrameContext,
                      ::fast_io::list<::pltxt2htm::details::BackendBasicFrameContext>>
         call_stack{};
@@ -334,7 +336,9 @@ entry:
             auto reverse_iter = call_stack.container.crbegin();
             auto const nested_tag_type = (++reverse_iter)->nested_tag_type_;
             if (nested_tag_type == ::pltxt2htm::NodeType::html_ol || nested_tag_type == ::pltxt2htm::NodeType::md_ol) {
-                result.append(u8"1. ");
+                result.append(::pltxt2htm::details::size_t2str(ol_li_count));
+                result.append(u8". ");
+                ++ol_li_count;
             }
             else if (nested_tag_type == ::pltxt2htm::NodeType::html_ul ||
                      nested_tag_type == ::pltxt2htm::NodeType::md_ul) {
@@ -697,6 +701,7 @@ entry:
             case ::pltxt2htm::NodeType::md_ol:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::html_ol: {
+                ol_li_count = 1;
                 goto entry;
             }
             case ::pltxt2htm::NodeType::md_li:
