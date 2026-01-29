@@ -46,3 +46,7 @@ target("fixedadv_parser",
 
 target("common_parser",
        function() add_files("$(projectdir)/src/common_parser.cc") end)
+
+target("plrichtext_parser",
+       function() add_files("$(projectdir)/src/plrichtext_parser.cc") end)
+

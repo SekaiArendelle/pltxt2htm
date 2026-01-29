@@ -139,4 +139,20 @@ constexpr char8_t const* common_parser(char8_t const* const text) noexcept {
         ::fast_io::mnp::os_c_str(text));
 }
 
+template<bool ndebug = false>
+[[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
+#if __has_cpp_attribute(__gnu__::__nonnull__)
+[[__gnu__::__nonnull__]]
+#endif
+constexpr char8_t const* plrichtext_parser(char8_t const* const text, char8_t const* const project,
+                                           char8_t const* const visitor, char8_t const* const author,
+                                           char8_t const* const coauthors) noexcept {
+    return ::pltxt2htm::details::c_ptr_style_wrapper<::pltxt2htm::pltxt2plunity_introduction<ndebug>>(
+        ::fast_io::mnp::os_c_str(text), ::fast_io::mnp::os_c_str(project), ::fast_io::mnp::os_c_str(visitor),
+        ::fast_io::mnp::os_c_str(author), ::fast_io::mnp::os_c_str(coauthors));
+}
+
 } // namespace pltxt2htm
