@@ -20,6 +20,7 @@
 #include "../../astnode/node_type.hh"
 #include "../../astnode/markdown_node.hh"
 #include "../../astnode/physics_lab_node.hh"
+#include "../push_macro.hh"
 
 namespace pltxt2htm::details {
 
@@ -295,8 +296,6 @@ entry:
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(ul->get_subast(), ::pltxt2htm::NodeType::html_ul, 0));
             ++current_index;
-            auto const start_tag = ::fast_io::array{u8'<', u8'u', u8'l', u8'>'};
-            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
             goto entry;
         }
         case ::pltxt2htm::NodeType::md_ol:
@@ -306,19 +305,41 @@ entry:
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(ol->get_subast(), ::pltxt2htm::NodeType::html_ol, 0));
             ++current_index;
-            auto const start_tag = ::fast_io::array{u8'<', u8'o', u8'l', u8'>'};
-            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
             goto entry;
         }
-        case ::pltxt2htm::NodeType::md_li:
-            [[fallthrough]];
         case ::pltxt2htm::NodeType::html_li: {
+            auto const nested_tag_type = call_stack.top().nested_tag_type_;
+            pltxt2htm_assert(
+                nested_tag_type == ::pltxt2htm::NodeType::html_ol || nested_tag_type == ::pltxt2htm::NodeType::html_ul,
+                u8"Invalid tag type");
+            [[fallthrough]];
+        }
+        case ::pltxt2htm::NodeType::md_li: {
             auto li = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(li->get_subast(), ::pltxt2htm::NodeType::html_li, 0));
             ++current_index;
-            auto const start_tag = ::fast_io::array{u8'<', u8'l', u8'i', u8'>'};
-            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            // ::std::size_t indent_level{};
+            for (auto const& frame : call_stack.container) {
+                if (frame.nested_tag_type_ == ::pltxt2htm::NodeType::html_ol ||
+                    frame.nested_tag_type_ == ::pltxt2htm::NodeType::html_ul ||
+                    frame.nested_tag_type_ == ::pltxt2htm::NodeType::md_ol ||
+                    frame.nested_tag_type_ == ::pltxt2htm::NodeType::md_ul) {
+                    // ++indent_level;
+                    result.append(u8"  ");
+                }
+            }
+            auto const nested_tag_type = call_stack.top().nested_tag_type_;
+            if (nested_tag_type == ::pltxt2htm::NodeType::html_ol || nested_tag_type == ::pltxt2htm::NodeType::md_ol) {
+                result.append(u8"1. ");
+            }
+            else if (nested_tag_type == ::pltxt2htm::NodeType::html_ul ||
+                     nested_tag_type == ::pltxt2htm::NodeType::md_ul) {
+                result.append(u8"· ");
+            }
+            else {
+                ::exception::unreachable<ndebug>();
+            }
             goto entry;
         }
         case ::pltxt2htm::NodeType::md_code_span_1_backtick:
@@ -657,21 +678,13 @@ entry:
             }
             case ::pltxt2htm::NodeType::md_ul:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_ul: {
-                auto const close_tag = ::fast_io::array{u8'<', u8'/', u8'u', u8'l', u8'>'};
-                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
-                goto entry;
-            }
+            case ::pltxt2htm::NodeType::html_ul:
+                [[fallthrough]];
             case ::pltxt2htm::NodeType::md_ol:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_ol: {
-                auto const close_tag = ::fast_io::array{u8'<', u8'/', u8'o', u8'l', u8'>'};
-                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
-                goto entry;
-            }
+            case ::pltxt2htm::NodeType::html_ol:
+                [[fallthrough]];
             case ::pltxt2htm::NodeType::html_li: {
-                auto const close_tag = ::fast_io::array{u8'<', u8'/', u8'l', u8'i', u8'>'};
-                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
                 goto entry;
             }
             case ::pltxt2htm::NodeType::md_code_span_1_backtick:
@@ -730,3 +743,5 @@ entry:
 }
 
 } // namespace pltxt2htm::details
+
+#include "../pop_macro.hh"
