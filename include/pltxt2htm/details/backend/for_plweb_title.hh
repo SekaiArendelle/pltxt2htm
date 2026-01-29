@@ -10,9 +10,8 @@
 #include "frame_context.hh"
 #include "../../details/utils.hh"
 #include "../../astnode/basic.hh"
-#include "../../astnode/markdown_node.hh"
+#include "../../astnode/node_type.hh"
 #include "../../astnode/physics_lab_node.hh"
-#include "pltxt2htm/astnode/node_type.hh"
 
 namespace pltxt2htm::details {
 
