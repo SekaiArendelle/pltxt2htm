@@ -34,7 +34,7 @@ constexpr auto plunity_text_backend(::pltxt2htm::Ast const& ast_init, ::fast_io:
                                     ::fast_io::u8string_view visitor, ::fast_io::u8string_view author,
                                     ::fast_io::u8string_view coauthors) noexcept -> ::fast_io::u8string {
     ::std::size_t ol_li_count{1};
-                                        ::fast_io::u8string result{};
+    ::fast_io::u8string result{};
     ::fast_io::stack<::pltxt2htm::details::BackendBasicFrameContext,
                      ::fast_io::list<::pltxt2htm::details::BackendBasicFrameContext>>
         call_stack{};
