@@ -406,7 +406,7 @@ entry:
             return result;
         }
         else {
-            switch (top_frame.nested_tag_type_) {
+            switch (top_frame.get_nested_tag_type()) {
             case ::pltxt2htm::NodeType::md_double_emphasis_asterisk:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::html_strong:

@@ -310,7 +310,7 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::html_li: {
-            auto const nested_tag_type = call_stack.top().nested_tag_type_;
+            auto const nested_tag_type = call_stack.top().get_nested_tag_type();
             pltxt2htm_assert(
                 nested_tag_type == ::pltxt2htm::NodeType::html_ol || nested_tag_type == ::pltxt2htm::NodeType::html_ul,
                 u8"Invalid tag type");
@@ -323,10 +323,10 @@ entry:
             ++current_index;
             ::std::size_t indent_level{};
             for (auto const& frame : call_stack.container) {
-                if (frame.nested_tag_type_ == ::pltxt2htm::NodeType::html_ol ||
-                    frame.nested_tag_type_ == ::pltxt2htm::NodeType::html_ul ||
-                    frame.nested_tag_type_ == ::pltxt2htm::NodeType::md_ol ||
-                    frame.nested_tag_type_ == ::pltxt2htm::NodeType::md_ul) {
+                if (frame.get_nested_tag_type() == ::pltxt2htm::NodeType::html_ol ||
+                    frame.get_nested_tag_type() == ::pltxt2htm::NodeType::html_ul ||
+                    frame.get_nested_tag_type() == ::pltxt2htm::NodeType::md_ol ||
+                    frame.get_nested_tag_type() == ::pltxt2htm::NodeType::md_ul) {
                     if (indent_level > 0) {
                         result.append(u8"  ");
                     }
@@ -334,7 +334,7 @@ entry:
                 }
             }
             auto reverse_iter = call_stack.container.crbegin();
-            auto const nested_tag_type = (++reverse_iter)->nested_tag_type_;
+            auto const nested_tag_type = (++reverse_iter)->get_nested_tag_type();
             if (nested_tag_type == ::pltxt2htm::NodeType::html_ol || nested_tag_type == ::pltxt2htm::NodeType::md_ol) {
                 result.append(::pltxt2htm::details::size_t2str(ol_li_count));
                 result.append(u8". ");
@@ -602,7 +602,7 @@ entry:
             return result;
         }
         else {
-            switch (top_frame.nested_tag_type_) {
+            switch (top_frame.get_nested_tag_type()) {
             case ::pltxt2htm::NodeType::text: {
                 goto entry;
             }

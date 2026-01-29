@@ -54,7 +54,7 @@ constexpr auto plweb_text_backend(::pltxt2htm::Ast const& ast_init, ::fast_io::u
 
 entry:
     auto const& ast = call_stack.top().ast_;
-    auto const& nested_tag_type = call_stack.top().nested_tag_type_;
+    auto const& nested_tag_type = call_stack.top().get_nested_tag_type();
     auto&& current_index = call_stack.top().current_index_;
     for (; current_index < ast.size(); ++current_index) {
         auto&& node = ::pltxt2htm::details::vector_index<ndebug>(ast, current_index);
@@ -617,7 +617,7 @@ entry:
             return result;
         }
         else {
-            switch (top_frame.nested_tag_type_) {
+            switch (top_frame.get_nested_tag_type()) {
             case ::pltxt2htm::NodeType::text: {
                 goto entry;
             }
