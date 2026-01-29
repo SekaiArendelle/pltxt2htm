@@ -1,11 +1,3 @@
-/**
- * @file common_html.hh
- * @brief Common HTML backend for pltxt2htm
- * @details Generates basic HTML output with minimal formatting support.
- *          Only supports color, bold (b), and italic (i) tags.
- *          Typically used for rendering headers and simple text.
- */
-
 #pragma once
 
 #include <fast_io/fast_io_dsal/list.h>
