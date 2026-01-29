@@ -20,8 +20,6 @@
 #include "../../astnode/node_type.hh"
 #include "../../astnode/markdown_node.hh"
 #include "../../astnode/physics_lab_node.hh"
-#include "pltxt2htm/astnode/node_type.hh"
-#include "pltxt2htm/astnode/physics_lab_node.hh"
 
 namespace pltxt2htm::details {
 
