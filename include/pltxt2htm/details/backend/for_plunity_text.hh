@@ -383,8 +383,13 @@ entry:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_code_span_2_backtick:
             [[fallthrough]];
-        case ::pltxt2htm::NodeType::md_code_span_3_backtick:
-            [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_code_span_3_backtick: {
+            auto md_code_span = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(
+                md_code_span->get_subast(), ::pltxt2htm::NodeType::md_code_span_1_backtick, 0));
+            ++current_index;
+            goto entry;
+        }
         case ::pltxt2htm::NodeType::html_code: {
             auto code = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             // Note: Despite `<code></code>` is empty, we still need to handle it
@@ -732,8 +737,9 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::md_code_span_2_backtick:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_code_span_3_backtick:
-                [[fallthrough]];
+            case ::pltxt2htm::NodeType::md_code_span_3_backtick: {
+                goto entry;
+            }
             case ::pltxt2htm::NodeType::html_code: {
                 auto const close_tag = ::fast_io::array{u8'<', u8'/', u8'c', u8'o', u8'd', u8'e', u8'>'};
                 result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
