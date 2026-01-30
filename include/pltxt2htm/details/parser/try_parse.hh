@@ -327,6 +327,21 @@ template<bool ndebug, ::pltxt2htm::details::LiteralString tag_name = ::pltxt2htm
     return ::exception::nullopt_t{};
 }
 
+template<bool ndebug>
+[[nodiscard]] constexpr auto try_parse_li_tag(::fast_io::u8string_view pltext,
+                                              ::pltxt2htm::NodeType const nested_tag_type) noexcept
+    -> ::exception::optional<::std::size_t> {
+    auto opt_tag_len =
+        ::pltxt2htm::details::try_parse_bare_tag<ndebug, ::pltxt2htm::details::LiteralString{u8"i"}>(pltext);
+    if (!opt_tag_len.has_value()) {
+        return ::exception::nullopt_t{};
+    }
+    if (nested_tag_type != ::pltxt2htm::NodeType::html_ul && nested_tag_type != ::pltxt2htm::NodeType::html_ol) {
+        return ::exception::nullopt_t{};
+    }
+    return opt_tag_len;
+}
+
 struct TryParseEqualSignTagResult {
     ::std::size_t tag_len; ///< Length of the tag.
     ::fast_io::u8string substr; ///< Substring extracted from the tag.

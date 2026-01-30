@@ -1035,9 +1035,9 @@ entry:
             case u8'l':
                 [[fallthrough]];
             case u8'L': {
-                if (auto opt_tag_len =
-                        ::pltxt2htm::details::try_parse_bare_tag<ndebug, ::pltxt2htm::details::LiteralString{u8"i"}>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                if (auto opt_tag_len = ::pltxt2htm::details::try_parse_li_tag<ndebug>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
+                        ::pltxt2htm::details::stack_top<ndebug>(call_stack)->nested_tag_type);
                     opt_tag_len.has_value()) {
                     current_index += opt_tag_len.template value<ndebug>() + 3;
                     call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(

@@ -9,6 +9,7 @@
 
 #include <cstddef>
 #include <ranges>
+#include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
@@ -33,7 +34,7 @@ template<bool ndebug>
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-constexpr auto u8string_view_index(::fast_io::u8string_view pltext, ::std::size_t i) noexcept {
+constexpr auto u8string_view_index(::fast_io::u8string_view pltext, ::std::size_t i) noexcept -> char8_t {
     ::std::size_t const pltext_size{pltext.size()};
     pltxt2htm_assert(i < pltext_size, u8"Index of u8string_view out of bound");
 
@@ -71,7 +72,7 @@ template<bool ndebug, typename T>
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-constexpr auto vector_front(::fast_io::vector<T> const& vec) noexcept -> T const& {
+constexpr auto const& vector_front(::fast_io::vector<T> const& vec) noexcept {
     bool const vec_is_not_empty{!vec.empty()};
     pltxt2htm_assert(vec_is_not_empty, u8"Indexing front but vector is empty");
 
@@ -86,11 +87,25 @@ template<bool ndebug, typename T>
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-constexpr auto vector_index(::fast_io::vector<T> const& vec, ::std::size_t i) noexcept -> T const& {
+constexpr auto const& vector_index(::fast_io::vector<T> const& vec, ::std::size_t i) noexcept {
     bool const is_not_out_of_bound{i < vec.size()};
     pltxt2htm_assert(is_not_out_of_bound, u8"Index of vector out of bound");
 
     return vec.index_unchecked(i);
+}
+
+template<bool ndebug, typename T>
+[[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
+constexpr auto const& stack_top(::fast_io::containers::stack<T> const& stack) {
+    if constexpr (ndebug) {
+        return stack.top_unchecked();
+    }
+    else {
+        return stack.top();
+    }
 }
 
 /**
