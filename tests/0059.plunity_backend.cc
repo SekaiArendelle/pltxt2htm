@@ -162,5 +162,29 @@ int main() {
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"```\ntest\n```");
+        auto answer = ::fast_io::u8string_view{u8"```\ntest\n```"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"```py\ntest\n```");
+        auto answer = ::fast_io::u8string_view{u8"```py\ntest\n```"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"~~~\ntest\n~~~");
+        auto answer = ::fast_io::u8string_view{u8"```\ntest\n```"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"~~~py\ntest\n~~~");
+        auto answer = ::fast_io::u8string_view{u8"```py\ntest\n```"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
     return 0;
 }
