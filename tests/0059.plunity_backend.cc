@@ -122,19 +122,31 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab`test`cd");
-        auto answer = ::fast_io::u8string_view{u8"abtestcd"};
+        auto answer = ::fast_io::u8string_view{u8"ab test cd"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab``test``cd");
-        auto answer = ::fast_io::u8string_view{u8"abtestcd"};
+        auto answer = ::fast_io::u8string_view{u8"ab test cd"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab```test```cd");
-        auto answer = ::fast_io::u8string_view{u8"abtestcd"};
+        auto answer = ::fast_io::u8string_view{u8"ab test cd"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab<del>test</del>cd");
+        auto answer = ::fast_io::u8string_view{u8"ab<del>test</del>cd"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab~~test~~cd");
+        auto answer = ::fast_io::u8string_view{u8"ab~~test~~cd"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
