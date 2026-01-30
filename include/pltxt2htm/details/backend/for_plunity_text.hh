@@ -272,15 +272,14 @@ entry:
             result.append(u8"<b>");
             goto entry;
         }
-        case ::pltxt2htm::NodeType::md_del:
-            {
-                auto del = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
-                call_stack.push(
-                    ::pltxt2htm::details::BackendBasicFrameContext(del->get_subast(), ::pltxt2htm::NodeType::md_del, 0));
-                    ++current_index;
-                    result.append(u8"~~");
-                    goto entry;
-            }
+        case ::pltxt2htm::NodeType::md_del: {
+            auto del = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            call_stack.push(
+                ::pltxt2htm::details::BackendBasicFrameContext(del->get_subast(), ::pltxt2htm::NodeType::md_del, 0));
+            ++current_index;
+            result.append(u8"~~");
+            goto entry;
+        }
         case ::pltxt2htm::NodeType::html_del: {
             auto del = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(
@@ -434,8 +433,13 @@ entry:
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
             goto entry;
         }
-        case ::pltxt2htm::NodeType::md_block_quotes:
-            [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_block_quotes: {
+            auto md_block_quotes = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
+            call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(md_block_quotes->get_subast(),
+                                                                           ::pltxt2htm::NodeType::md_block_quotes, 0));
+            ++current_index;
+            goto entry;
+        }
         case ::pltxt2htm::NodeType::html_blockquote: {
             auto blockquote = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             // Note: Despite `<blockquote></blockquote>` is empty, we still need to handle it
@@ -719,11 +723,10 @@ entry:
                 result.append(u8"</b>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::md_del:
-                {
-                    result.append(u8"~~");
-                    goto entry;
-                }
+            case ::pltxt2htm::NodeType::md_del: {
+                result.append(u8"~~");
+                goto entry;
+            }
             case ::pltxt2htm::NodeType::html_del: {
                 auto const close_tag = ::fast_io::array{u8'<', u8'/', u8'd', u8'e', u8'l', u8'>'};
                 result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
@@ -770,8 +773,9 @@ entry:
                 result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::md_block_quotes:
-                [[fallthrough]];
+            case ::pltxt2htm::NodeType::md_block_quotes: {
+                goto entry;
+            }
             case ::pltxt2htm::NodeType::html_blockquote: {
                 auto const close_tag = ::fast_io::array{u8'<', u8'/', u8'b', u8'l', u8'o', u8'c', u8'k',
                                                         u8'q', u8'u', u8'o', u8't', u8'e', u8'>'};

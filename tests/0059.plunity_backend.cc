@@ -150,5 +150,17 @@ int main() {
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab<blockquote>test</blockquote>cd");
+        auto answer = ::fast_io::u8string_view{u8"ab<blockquote>test</blockquote>cd"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"> test");
+        auto answer = ::fast_io::u8string_view{u8"test"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
     return 0;
 }
