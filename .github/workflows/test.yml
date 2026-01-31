@@ -50,18 +50,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install clang and xmake
+      - name: Install xmake
         run: |
           brew update
-          brew install llvm lld xmake
-
-      - name: Set PATH for LLVM clang
-        run: echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
+          brew install xmake
 
       - name: Configure and build
         working-directory: tests
         run: |
-          xmake config --toolchain=clang --policies=build.sanitizer.address
+          xmake config --policies=build.sanitizer.address
           xmake test -v
 
   aarch64-apple-darwin24-test-ubsan:
