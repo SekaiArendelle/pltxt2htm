@@ -325,6 +325,28 @@ jobs:
         run: |
           docker build -f c/docker/aarch64-linux-android30/Dockerfile -t aarch64-linux-android30-pltxt2htm-c-debug .
 
+  aarch64-apple-ios-c-release:
+    name: aarch64-apple-ios (c/, release mode)
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install clang and xmake
+        run: |
+          brew update
+          brew install llvm lld xmake
+
+      - name: Set PATH for LLVM clang
+        run: echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
+
+      - name: Configure and build
+        working-directory: c
+        run: |
+          xmake config -m release -k static --toolchain=clang --cxxflags="--target=aarch64-apple-ios -isysroot $(xcrun --sdk iphoneos --show-sdk-path)"
+          xmake build -v
+
   x86_64-linux-gnu-cxxmodule:
     name: x86_64-linux-gnu (cxxmodule/)
     runs-on: ubuntu-latest
