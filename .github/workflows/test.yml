@@ -325,6 +325,18 @@ jobs:
         run: |
           docker build -f c/docker/aarch64-linux-android30/Dockerfile -t aarch64-linux-android30-pltxt2htm-c-debug .
 
+  aarch64-apple-ios-c-release:
+    name: aarch64-apple-ios (c/, release mode)
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: checking clang version
+      run: |
+        clang -v
+
   x86_64-linux-gnu-cxxmodule:
     name: x86_64-linux-gnu (cxxmodule/)
     runs-on: ubuntu-latest
