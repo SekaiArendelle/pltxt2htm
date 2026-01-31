@@ -31,5 +31,3 @@ RUN xmake config --toolchain=clang --arch=x86 --plat=linux -m ${mode} --cxxflags
 RUN xmake build -v
 RUN xmake install -o i586-linux-musl-pltxt2htm-cmd-${mode}
 RUN tar cJf i586-linux-musl-pltxt2htm-cmd-${mode}.tar.xz i586-linux-musl-pltxt2htm-cmd-${mode}/
-
-CMD [ "sleep", "infinity" ]
