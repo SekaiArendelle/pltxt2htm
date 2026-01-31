@@ -344,7 +344,7 @@ jobs:
       - name: Configure and build
         working-directory: c
         run: |
-          xmake config --toolchain=clang --cxxflags="--target=aarch64-apple-ios -isysroot $(scrun --sdk iphoneos --show-sdk-path)"
+          xmake config -m release --toolchain=clang --cxxflags="--target=aarch64-apple-ios -isysroot $(xcrun --sdk iphoneos --show-sdk-path)"
           xmake build -v
 
   x86_64-linux-gnu-cxxmodule:
