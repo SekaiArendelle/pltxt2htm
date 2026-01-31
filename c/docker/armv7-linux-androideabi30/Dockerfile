@@ -15,11 +15,11 @@ WORKDIR /pltxt2htm
 COPY ../../../ .
 
 WORKDIR /pltxt2htm/c
-RUN xmake config -m ${mode} -k static --toolchain=clang --cxxflags='--target=armv7-linux-androideabi30'
+RUN xmake config -p android -m ${mode} -k static --toolchain=clang --cxxflags='--target=armv7-linux-androideabi30'
 RUN xmake build -v
 RUN xmake install -o armv7-linux-androideabi30-pltxt2htm-c-${mode}
 RUN rm -rf .xmake build
-RUN xmake config -m ${mode} -k shared --toolchain=clang --cxxflags='--target=armv7-linux-androideabi30'
+RUN xmake config -p android -m ${mode} -k shared --toolchain=clang --cxxflags='--target=armv7-linux-androideabi30'
 RUN xmake build -v
 RUN xmake install -o armv7-linux-androideabi30-pltxt2htm-c-${mode}
 RUN tar cJf armv7-linux-androideabi30-pltxt2htm-c-${mode}.tar.xz armv7-linux-androideabi30-pltxt2htm-c-${mode}/
