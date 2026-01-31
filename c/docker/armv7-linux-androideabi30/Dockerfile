@@ -24,5 +24,3 @@ RUN xmake build -v
 RUN xmake install -o armv7-linux-androideabi30-pltxt2htm-c-${mode}
 RUN cp -r include armv7-linux-androideabi30-pltxt2htm-c-${mode}/
 RUN tar cJf armv7-linux-androideabi30-pltxt2htm-c-${mode}.tar.xz armv7-linux-androideabi30-pltxt2htm-c-${mode}/
-
-CMD [ "sleep", "infinity" ]

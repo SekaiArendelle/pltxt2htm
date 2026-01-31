@@ -301,7 +301,7 @@ jobs:
           xmake f --toolchain=clang -m ${{ matrix.build-mode }}
           xmake build -v
 
-  armv7-linux-androideabi30-c-debug:
+  armv7-linux-androideabi30-c-release:
     name: armv7-linux-androideabi30 (c/, release mode)
     runs-on: ubuntu-latest
 
@@ -311,7 +311,19 @@ jobs:
 
       - name: Build docker image
         run: |
-          docker build -f c/docker/armv7-linux-androideabi30/Dockerfile --build-arg mode=release -t armv7-linux-androideabi30-pltxt2htm-c-debug .
+          docker build -f c/docker/armv7-linux-androideabi30/Dockerfile -t armv7-linux-androideabi30-pltxt2htm-c-debug .
+
+  aarch64-linux-android30-c-release:
+    name: aarch64-linux-android30 (c/, release mode)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build docker image
+        run: |
+          docker build -f c/docker/aarch64-linux-android30/Dockerfile -t aarch64-linux-android30-pltxt2htm-c-debug .
 
   x86_64-linux-gnu-cxxmodule:
     name: x86_64-linux-gnu (cxxmodule/)
