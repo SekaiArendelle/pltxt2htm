@@ -1,6 +1,6 @@
 FROM ubuntu:26.04
 
-ARG mode=debug
+ENV mode=release
 
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates wget unzip xmake xz-utils
 
@@ -19,7 +19,7 @@ RUN xmake config -p android -m ${mode} -k static --toolchain=clang --cxxflags='-
 RUN xmake build -v
 RUN xmake install -o armv7-linux-androideabi30-pltxt2htm-c-${mode}
 RUN rm -rf .xmake build
-RUN xmake config -p android -m ${mode} -k shared --toolchain=clang --cxxflags='--target=armv7-linux-androideabi30'
+RUN xmake config -p android -m ${mode} -k shared --toolchain=clang --cxxflags='--target=armv7-linux-androideabi30 -stdlib=libc++ -rtlib=compiler-rt -unwindlib=libunwind'
 RUN xmake build -v
 RUN xmake install -o armv7-linux-androideabi30-pltxt2htm-c-${mode}
 RUN tar cJf armv7-linux-androideabi30-pltxt2htm-c-${mode}.tar.xz armv7-linux-androideabi30-pltxt2htm-c-${mode}/
