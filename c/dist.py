@@ -20,6 +20,7 @@ parser.add_argument("--sysroot", help="sysroot to use")
 parser.add_argument("--mode", required=True, choices=("release", "debug"), help="build mode")
 parser.add_argument("--cxxflags", help="additional C++ flags")
 parser.add_argument("--arflags", help="additional archive library flags")
+parser.add_argument("--shflags", help="additional shared library flags")
 args = parser.parse_args()
 
 if args.toolchain == "gcc" and not shutil.which("g++"):
@@ -85,7 +86,12 @@ if args.arflags:
 else:
     arflags = ""
 
-shared_config_cmd = f"xmake config -m {args.mode} -k shared --toolchain={args.toolchain} {args.sysroot} {plat_flag} {arch_flag} {cxxflags} {arflags}"
+if args.shflags:
+    shflags = f"--shflags=\"{args.shflags}\""
+else:
+    shflags = ""
+
+shared_config_cmd = f"xmake config -m {args.mode} -k shared --toolchain={args.toolchain} {args.sysroot} {plat_flag} {arch_flag} {cxxflags} {arflags} {shflags}"
 print(">> ", shared_config_cmd)
 err_code = os.system(shared_config_cmd)
 if err_code != 0:
@@ -110,7 +116,7 @@ elif plat_flag == "-p mingw":
 shutil.rmtree(XMAKE_DIR)
 shutil.rmtree(BUILD_DIR)
 
-static_config_cmd = f"xmake config -m {args.mode} -k static --toolchain={args.toolchain} {args.sysroot} {plat_flag} {arch_flag} {cxxflags} {arflags}"
+static_config_cmd = f"xmake config -m {args.mode} -k static --toolchain={args.toolchain} {args.sysroot} {plat_flag} {arch_flag} {cxxflags} {arflags} {shflags}"
 print(">> ", static_config_cmd)
 err_code = os.system(static_config_cmd)
 if err_code != 0:
