@@ -2,7 +2,7 @@ FROM ubuntu:26.04
 
 ARG mode=debug
 
-RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates wget xz-utils xmake llvm clang lld python3
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates wget zip xz-utils xmake llvm clang lld python3
 
 WORKDIR /sysroots
 RUN wget https://github.com/trcrsired/windows-msvc-sysroot/releases/download/2026-01-16/windows-msvc-sysroot.tar.xz \
