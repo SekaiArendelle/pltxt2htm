@@ -563,26 +563,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  x86_64-windows-msvc-c-release:
-    name: x86_64-windows-msvc (c/, release mode)
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Build docker image
-        run: |
-          docker build -f c/docker/x86_64-windows-msvc/Dockerfile --build-arg mode=release -t x86_64-windows-msvc-pltxt2htm-c-debug .
-          docker run --rm x86_64-windows-msvc-pltxt2htm-c-release cat /pltxt2htm/c/x86_64-windows-msvc-pltxt2htm-c-release.zip > x86_64-windows-msvc-pltxt2htm-c-release.zip
-
-      - name: Upload binary
-        uses: softprops/action-gh-release@v2
-        with:
-          files: x86_64-windows-msvc-pltxt2htm-c-release.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   aarch64-apple-ios-c-release:
     name: aarch64-apple-ios (c/, release mode)
     runs-on: macos-latest
