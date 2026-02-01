@@ -326,7 +326,7 @@ jobs:
           docker build -f c/docker/aarch64-linux-android30/Dockerfile -t aarch64-linux-android30-pltxt2htm-c-release .
 
   x86_64-windows-msvc-c-release:
-    name: aarch64-linux-android30 (c/, release mode)
+    name: x86_64-windows-msvc (c/, release mode)
     runs-on: ubuntu-latest
 
     steps:
@@ -335,7 +335,7 @@ jobs:
 
       - name: Build docker image
         run: |
-          docker build -f c/docker/x86_64-windows-msvc/Dockerfile --build-arg mode=debug -t x86_64-windows-msvc-pltxt2htm-c-debug .
+          docker build -f c/docker/x86_64-windows-msvc/Dockerfile --build-arg mode=release -t x86_64-windows-msvc-pltxt2htm-c-debug .
 
   aarch64-apple-ios-c-release:
     name: aarch64-apple-ios (c/, release mode)
