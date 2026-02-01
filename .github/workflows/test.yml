@@ -311,7 +311,7 @@ jobs:
 
       - name: Build docker image
         run: |
-          docker build -f c/docker/armv7-linux-androideabi30/Dockerfile -t armv7-linux-androideabi30-pltxt2htm-c-debug .
+          docker build -f c/docker/armv7-linux-androideabi30/Dockerfile -t armv7-linux-androideabi30-pltxt2htm-c-release .
 
   aarch64-linux-android30-c-release:
     name: aarch64-linux-android30 (c/, release mode)
@@ -323,7 +323,7 @@ jobs:
 
       - name: Build docker image
         run: |
-          docker build -f c/docker/aarch64-linux-android30/Dockerfile -t aarch64-linux-android30-pltxt2htm-c-debug .
+          docker build -f c/docker/aarch64-linux-android30/Dockerfile -t aarch64-linux-android30-pltxt2htm-c-release .
 
   aarch64-apple-ios-c-release:
     name: aarch64-apple-ios (c/, release mode)

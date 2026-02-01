@@ -522,3 +522,78 @@ jobs:
           files: loongarch64-linux-musl-pltxt2htm-cmd-${{ matrix.build-mode }}.tar.xz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  armv7-linux-androideabi30-c-release:
+    name: armv7-linux-androideabi30 (c/, release mode)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build docker image
+        run: |
+          docker build -f c/docker/armv7-linux-androideabi30/Dockerfile -t armv7-linux-androideabi30-pltxt2htm-c-release .
+          docker run --rm armv7-linux-androideabi30-pltxt2htm-c-release cat /pltxt2htm/c/armv7-linux-androideabi30-pltxt2htm-c-release.tar.xz > armv7-linux-androideabi30-pltxt2htm-c-release.tar.xz
+
+      - name: Upload binary
+        uses: softprops/action-gh-release@v2
+        with:
+          files: armv7-linux-androideabi30-pltxt2htm-c-release.tar.xz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  aarch64-linux-android30-c-release:
+    name: aarch64-linux-android30 (c/, release mode)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build docker image
+        run: |
+          docker build -f c/docker/aarch64-linux-android30/Dockerfile -t aarch64-linux-android30-pltxt2htm-c-release .
+          docker run --rm aarch64-linux-android30-pltxt2htm-c-release cat /pltxt2htm/c/aarch64-linux-android30-pltxt2htm-c-release.tar.xz > aarch64-linux-android30-pltxt2htm-c-release.tar.xz
+
+      - name: Upload binary
+        uses: softprops/action-gh-release@v2
+        with:
+          files: aarch64-linux-android30-pltxt2htm-c-release.tar.xz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  aarch64-apple-ios-c-release:
+    name: aarch64-apple-ios (c/, release mode)
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install clang and xmake
+        run: |
+          brew update
+          brew install llvm lld xmake
+
+      - name: Set PATH for LLVM clang
+        run: echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
+
+      - name: Configure and build
+        working-directory: c
+        run: |
+          xmake config -m release -k static --toolchain=clang --cxxflags="--target=aarch64-apple-ios -isysroot $(xcrun --sdk iphoneos --show-sdk-path)"
+          xmake build -v
+
+      - name: Install and package
+        working-directory: c
+        run: |
+          xmake install -o aarch64-apple-ios-pltxt2htm-c-release
+          tar cJf aarch64-apple-ios-pltxt2htm-c-release.tar.xz aarch64-apple-ios-pltxt2htm-c-release
+
+      - name: Upload binary
+        uses: softprops/action-gh-release@v2
+        with:
+          files: c/aarch64-apple-ios-pltxt2htm-c-release.tar.xz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
