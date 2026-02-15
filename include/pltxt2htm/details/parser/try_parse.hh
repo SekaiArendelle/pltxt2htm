@@ -894,7 +894,7 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
                     };
                 }
             }
-                break;
+            break;
         }
         else if (chr == u8' ') {
             ++current_index;
