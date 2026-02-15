@@ -835,7 +835,7 @@ template<bool ndebug, bool is_backtick>
 [[nodiscard]]
 constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseMdCodeFenceResult> {
-    if (pltext.size() <= 7) {
+    if (pltext.size() < 7) {
         return ::exception::nullopt_t{};
     }
 
@@ -869,7 +869,32 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
         auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
         if (chr == u8'\n') {
             ++current_index;
-            break;
+            if (::pltxt2htm::details::is_prefix_match<ndebug, fence>(
+                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) {
+                // https://github.com/SekaiArendelle/pltxt2htm/issues/137
+                // e.g.
+                // ```py
+                // ```
+                ::exception::optional<::fast_io::u8string> opt_lang{::exception::nullopt_t{}};
+                if (!lang.empty()) {
+                    opt_lang = ::std::move(lang);
+                }
+                if constexpr (is_backtick) {
+                    return ::pltxt2htm::details::TryParseMdCodeFenceResult{
+                        .node = ::pltxt2htm::HeapGuard<::pltxt2htm::MdCodeFenceBacktick>{::pltxt2htm::Ast{},
+                                                                                         ::std::move(opt_lang)},
+                        .forward_index = current_index + 3,
+                    };
+                }
+                else {
+                    return ::pltxt2htm::details::TryParseMdCodeFenceResult{
+                        .node = ::pltxt2htm::HeapGuard<::pltxt2htm::MdCodeFenceTilde>{::pltxt2htm::Ast{},
+                                                                                      ::std::move(opt_lang)},
+                        .forward_index = current_index + 3,
+                    };
+                }
+            }
+                break;
         }
         else if (chr == u8' ') {
             ++current_index;
