@@ -51,7 +51,17 @@ int main(int argc, char const* const* const argv) noexcept {
 #endif
             "* build time: " __TIMESTAMP__
             "\n"
+#if defined(__clang__)
             "* compiler: " __VERSION__ "\n"
+#elif defined(__GNUC__)
+            "* compiler: GCC " __VERSION__ "\n"
+#elif defined(_MSC_VER) && !defined(__clang__)
+    #pragma push_macro("PLTXT2HTM_DETAILS_TO_STR")
+    #define PLTXT2HTM_DETAILS_TO_STR(x) #x
+    #pragma push_macro("PLTXT2HTM_TO_STR")
+    #define PLTXT2HTM_TO_STR(x) PLTXT2HTM_DETAILS_TO_STR(x)
+            "* compiler: MSVC " PLTXT2HTM_TO_STR(_MSC_FULL_VER) "\n"
+#endif
 #if __has_include("repo_info.ignore")
     #include "repo_info.ignore"
 #endif
