@@ -20,17 +20,17 @@ target("pltxt2htm", function()
     set_prefixname("")
     add_files("pltxt2htm.cc")
     add_includedirs("$(projectdir)/../include")
-    add_cxxflags("-fPIC")
     set_exceptions("no-cxx")
     if is_plat("windows", "mingw") then add_links("ntdll") end
 
     local python = nil
     on_config(function(target)
-        local toolchains = target:tool("cxx")
-        if path.basename(toolchains) == "clang++" or path.basename(toolchains) ==
-            "clang" or path.basename(toolchains) == "gcc" or
-            path.basename(toolchains) == "g++" then
+        local compiler = path.basename(target:tool("cxx"))
+        local linker = path.basename(target:tool("ld"))
+        if compiler == "clang++" or compiler == "clang" or compiler == "gcc" or
+            compiler == "g++" then
             target:add("cxxflags", "-fno-rtti")
+            target:add("cxxflags", "-fPIC")
             target:add("cxxflags", "-fno-unwind-tables")
             target:add("cxxflags", "-fno-asynchronous-unwind-tables")
             target:add("cxxflags", "-fvisibility=hidden")
@@ -39,8 +39,10 @@ target("pltxt2htm", function()
                 target:add("cxxflags", "-fno-ident")
             end
         end
-        if path.basename(toolchains) == "clang++" or path.basename(toolchains) ==
-            "clang" then
+        import("lib.detect.find_tool")
+        if find_tool("ld.lld") and
+            (linker == "gcc" or linker == "g++" or linker == "clang++" or linker ==
+                "clang") then
             target:add("shflags", "-fuse-ld=lld")
             if is_mode("release") then target:add("shflags", "-flto") end
         end

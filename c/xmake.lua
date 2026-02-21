@@ -26,9 +26,7 @@ target("pltxt2htm", function()
     if is_plat("windows") or is_plat("mingw") then add_syslinks("ntdll") end
 
     if is_plat("mingw") then set_prefixname("") end
-    if is_plat("windows") and is_mode("debug") then
-        set_suffixname("d")
-    end
+    if is_plat("windows") and is_mode("debug") then set_suffixname("d") end
 
     on_config(function(target)
         if not target:get("kind") == "static" and not target:get("kind") ==
