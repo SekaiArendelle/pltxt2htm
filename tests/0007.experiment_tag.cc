@@ -125,5 +125,11 @@ int main() {
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<experiment=<>test</experiment>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;experiment=&lt;&gt;test&lt;/experiment&gt;"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
     return 0;
 }
