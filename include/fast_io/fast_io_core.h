@@ -64,8 +64,6 @@
 // #include"fast_io_core_impl/manip/impl.h"
 #include "fast_io_core_impl/mode.h"
 #include "fast_io_core_impl/perms.h"
-#include "fast_io_dsal/impl/common.h"
-#include "fast_io_dsal/impl/span.h"
 #include "fast_io_core_impl/operations/impl.h"
 
 // This should provide an option macro to disable any generation for table in freestanding environments.
@@ -85,6 +83,7 @@
 
 #include "fast_io_core_impl/integers/chrono.h"
 #include "fast_io_core_impl/iso/isos.h"
+#include "fast_io_core_impl/linux_statx_definitions/impl.h"
 #include "fast_io_core_impl/enums/impl.h"
 
 #ifndef FAST_IO_DISABLE_CODECVT
