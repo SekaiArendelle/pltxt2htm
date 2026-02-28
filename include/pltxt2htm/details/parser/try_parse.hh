@@ -1081,7 +1081,7 @@ constexpr auto try_parse_md_block_quotes(::fast_io::u8string_view pltext) noexce
             }
         }
         if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, temp_index) != u8'>') {
-            goto done;
+            break;
         }
         else {
             current_index = temp_index + 1;
@@ -1112,7 +1112,7 @@ constexpr auto try_parse_md_block_quotes(::fast_io::u8string_view pltext) noexce
             subpltext.push_back(u8'\n');
         }
     }
-done:
+
     if (subpltext.empty()) {
         return ::exception::nullopt_t{};
     }
