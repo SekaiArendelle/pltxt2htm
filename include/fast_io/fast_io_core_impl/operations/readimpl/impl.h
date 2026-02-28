@@ -7,5 +7,4 @@
 #include "scatterp.h"
 #include "scatterpbytes.h"
 #include "decay.h"
-#include "spanops.h"
 #include "ptrops.h"

@@ -72,8 +72,9 @@ struct ip_flags
 	bool v6shorten{true};
 	bool v6uppercase{};
 	bool v6bracket{true};
-	bool v6full{false};
+	bool v6full{};
 	bool showport{};
+	bool ipv4_mapped_ipv6{true};
 };
 
 inline constexpr ip_flags ip_default_flags{.showport = true};
@@ -104,9 +105,11 @@ struct ip_scan_flags
 	bool allowv6bracket{true};
 	bool requirev6full{false};
 	bool requireport{false};
+	bool ipv4_mapped_ipv6{true};
 };
 
 inline constexpr ip_scan_flags ip_scan_default_flags{.requireport = true};
+inline constexpr ip_scan_flags ip_scan_no_ipv4_mapped_ipv6{.requireport = true, .ipv4_mapped_ipv6 = false};
 inline constexpr ip_scan_flags ip_scan_default_inaddr_flags{};
 
 template <ip_scan_flags flags, typename T>
@@ -615,11 +618,46 @@ inline constexpr auto pointervw(scalar_type t) noexcept
 }
 
 template <bool uppercase = false, typename scalar_type>
+	requires((::std::is_pointer_v<scalar_type> || ::std::contiguous_iterator<scalar_type>) &&
+			 (!::std::is_function_v<::std::remove_cvref_t<scalar_type>>))
+inline constexpr auto itervw(scalar_type t) noexcept
+{
+	return ::fast_io::details::scalar_flags_int_cache<
+		::fast_io::details::base_mani_flags_cache<16, uppercase, true, true, false>>(t);
+}
+
+template <bool uppercase = false, typename scalar_type>
 	requires(::std::is_function_v<scalar_type>)
 inline constexpr auto funcvw(scalar_type *t) noexcept
 {
 	return ::fast_io::details::scalar_flags_int_cache<
 		::fast_io::details::base_mani_flags_cache<16, uppercase, true, true, false>>(::std::bit_cast<::std::size_t>(t));
+}
+
+template <bool uppercase = false, typename scalar_type>
+	requires(::std::is_member_object_pointer_v<scalar_type>)
+inline constexpr auto fieldptrvw(scalar_type t) noexcept
+{
+	if constexpr (sizeof(t) == sizeof(::fast_io::manipulators::member_function_pointer_holder_t))
+	{
+		return ::fast_io::details::scalar_flags_int_cache<
+			::fast_io::details::base_mani_flags_cache<16, uppercase, true, true, false>>(
+			::std::bit_cast<::fast_io::manipulators::member_function_pointer_holder_t>(t));
+	}
+	else
+	{
+		using equivalentsizetype = ::std::conditional_t<
+			sizeof(scalar_type) == sizeof(::std::size_t), ::std::size_t,
+			::std::conditional_t<sizeof(scalar_type) == sizeof(::std::uint_least64_t),
+								 ::std::uint_least64_t,
+								 ::std::conditional_t<sizeof(scalar_type) == sizeof(::std::uint_least32_t),
+													  ::std::uint_least32_t,
+													  ::std::conditional_t<sizeof(scalar_type) == sizeof(::std::uint_least16_t),
+																		   ::std::uint_least16_t,
+																		   ::std::uint_least8_t>>>>;
+		return ::fast_io::details::scalar_flags_int_cache<
+			::fast_io::details::base_mani_flags_cache<16, uppercase, true, true, false>>(::std::bit_cast<equivalentsizetype>(t));
+	}
 }
 
 template <bool uppercase = false, typename scalar_type>
