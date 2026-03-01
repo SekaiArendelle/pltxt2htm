@@ -1300,7 +1300,7 @@ struct TryParseMdLinkResult {
     ::fast_io::u8string link_url;
 };
 
-template<bool ndebug>
+template<bool ndebug, bool regard_right_parent_as_end_of_url = false>
 [[nodiscard]]
 constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept -> ::exception::optional<::std::size_t> {
     ::std::size_t current_index{[pltext] constexpr noexcept -> ::std::size_t {
@@ -1349,13 +1349,23 @@ constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept -> ::exce
             break;
         }
         else {
+            if constexpr (regard_right_parent_as_end_of_url) {
+                if (chr == u8')') {
+                    return current_index;
+                }
+            }
             return ::exception::nullopt_t{};
         }
     }
     for (; current_index < pltext.size(); ++current_index) {
         auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
         if (chr < u8'!' || chr > u8'~' || chr == u8'<' || chr == u8'>' || chr == u8'\"') {
-            return ::exception::nullopt_t{};
+            return current_index;
+        }
+        if constexpr (regard_right_parent_as_end_of_url) {
+            if (chr == u8')') {
+                return current_index;
+            }
         }
     }
     return current_index;
@@ -1412,20 +1422,20 @@ constexpr auto try_parse_md_link(::fast_io::u8string_view pltext) noexcept
     ++current_index;
     ::std::size_t link_url_start = current_index;
 
-    // Parse link URL
-    while (current_index < pltext.size() &&
-           ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8')') {
-        ++current_index;
+    auto opt_link_url = ::pltxt2htm::details::try_parse_url<ndebug, true>(
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+    if (opt_link_url.has_value() == false) {
+        return ::exception::nullopt_t{};
     }
-
+    ::std::size_t link_url_size{opt_link_url.template value<ndebug>()};
+    current_index += link_url_size;
     if (current_index >= pltext.size() ||
         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8')') {
         return ::exception::nullopt_t{};
     }
-    ::std::size_t link_url_end = current_index;
     ++current_index;
-    auto link_url_view = pltext.subview(link_url_start, link_url_end - link_url_start);
-    auto link_url = ::fast_io::u8string(link_url_view.begin(), link_url_view.end());
+    ::fast_io::u8string link_url{
+        pltxt2htm::details::u8string_view_subview<ndebug>(pltext, link_url_start, link_url_size)};
     return ::pltxt2htm::details::TryParseMdLinkResult{.forward_index = current_index,
                                                       .link_text = pltext.subview(1, link_text_end - 1),
                                                       .link_url = ::std::move(link_url)};

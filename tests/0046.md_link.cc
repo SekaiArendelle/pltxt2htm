@@ -2,6 +2,12 @@
 
 int main() {
     {
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"[text](https://example.com)");
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"https://example.com\">text</a>"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
         auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"[text](url)");
         auto answer = ::fast_io::u8string_view{u8"<a href=\"url\">text</a>"};
         ::pltxt2htm_test::assert_true(html == answer);
@@ -15,7 +21,7 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"[link](#anchor)");
-        auto answer = ::fast_io::u8string_view{u8"<a href=\"#anchor\">link</a>"};
+        auto answer = ::fast_io::u8string_view{u8"[link](#anchor)"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 

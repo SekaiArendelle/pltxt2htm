@@ -28,7 +28,8 @@ int main() {
     }
     {
         auto url = ::fast_io::u8string_view{u8"https://www.bilibili.com/\"alert(1)"};
-        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value() == false);
+        auto result = ::pltxt2htm::details::try_parse_url<false>(url).value();
+        ::pltxt2htm_test::assert_true(result == 25);
     }
     {
         auto url = ::fast_io::u8string_view{u8"https://www.bilibili.com/\'hello\'"};
@@ -36,11 +37,13 @@ int main() {
     }
     {
         auto url = ::fast_io::u8string_view{u8"https://www.bilibili.com/test<script"};
-        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value() == false);
+        auto result = ::pltxt2htm::details::try_parse_url<false>(url).value();
+        ::pltxt2htm_test::assert_true(result == 29);
     }
     {
         auto url = ::fast_io::u8string_view{u8"https://www.bilibili.com/script>test"};
-        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value() == false);
+        auto result = ::pltxt2htm::details::try_parse_url<false>(url).value();
+        ::pltxt2htm_test::assert_true(result == 31);
     }
     {
         auto url = ::fast_io::u8string_view{
