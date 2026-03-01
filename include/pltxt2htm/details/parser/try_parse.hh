@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+#include <cstdint>
 #include <exception/exception.hh>
 #include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/string_view.h>
@@ -1298,6 +1300,77 @@ struct TryParseMdLinkResult {
     ::fast_io::u8string link_url;
 };
 
+template<bool ndebug, bool regard_right_parent_as_end_of_url = false>
+[[nodiscard]]
+constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept -> ::exception::optional<::std::size_t> {
+    ::std::size_t current_index{[pltext] constexpr noexcept -> ::std::size_t {
+        if (constexpr auto http = ::pltxt2htm::details::LiteralString{u8"http://"};
+            ::pltxt2htm::details::is_prefix_match<ndebug, http>(pltext)) {
+            return http.size();
+        }
+        else if (constexpr auto https = ::pltxt2htm::details::LiteralString{u8"https://"};
+                 ::pltxt2htm::details::is_prefix_match<ndebug, https>(pltext)) {
+            return https.size();
+        }
+        else {
+            return 0;
+        }
+    }()};
+    // parsing domain name
+    while (true) {
+        if (current_index >= pltext.size()) {
+            break;
+        }
+        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
+        if ((u8'A' <= chr && chr <= u8'Z') || (u8'a' <= chr && chr <= u8'z') || (u8'0' <= chr && chr <= u8'9') ||
+            chr == u8'.') {
+            ++current_index;
+            continue;
+        }
+        else if (chr == u8'/') {
+            ++current_index;
+            break;
+        }
+        else if (chr == u8':') {
+            ::std::uint32_t port{};
+            ::std::size_t port_index{};
+            for (char8_t c : ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1)) {
+                if (c < u8'0' || c > u8'9') {
+                    break;
+                }
+                // TODO what if port is too large and overflows?
+                port = port * 10 + (c - '0');
+                ++port_index;
+            }
+            if (port > 65535) {
+                return ::exception::nullopt_t{};
+            }
+            current_index += port_index + 1;
+            break;
+        }
+        else {
+            if constexpr (regard_right_parent_as_end_of_url) {
+                if (chr == u8')') {
+                    return current_index;
+                }
+            }
+            return ::exception::nullopt_t{};
+        }
+    }
+    for (; current_index < pltext.size(); ++current_index) {
+        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
+        if (chr < u8'!' || chr > u8'~' || chr == u8'<' || chr == u8'>' || chr == u8'\"') {
+            return current_index;
+        }
+        if constexpr (regard_right_parent_as_end_of_url) {
+            if (chr == u8')') {
+                return current_index;
+            }
+        }
+    }
+    return current_index;
+}
+
 /**
  * @brief Parse Markdown inline links with text and URL components.
  *
@@ -1349,20 +1422,20 @@ constexpr auto try_parse_md_link(::fast_io::u8string_view pltext) noexcept
     ++current_index;
     ::std::size_t link_url_start = current_index;
 
-    // Parse link URL
-    while (current_index < pltext.size() &&
-           ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8')') {
-        ++current_index;
+    auto opt_link_url = ::pltxt2htm::details::try_parse_url<ndebug, true>(
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+    if (opt_link_url.has_value() == false) {
+        return ::exception::nullopt_t{};
     }
-
+    ::std::size_t link_url_size{opt_link_url.template value<ndebug>()};
+    current_index += link_url_size;
     if (current_index >= pltext.size() ||
         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8')') {
         return ::exception::nullopt_t{};
     }
-    ::std::size_t link_url_end = current_index;
     ++current_index;
-    auto link_url_view = pltext.subview(link_url_start, link_url_end - link_url_start);
-    auto link_url = ::fast_io::u8string(link_url_view.begin(), link_url_view.end());
+    ::fast_io::u8string link_url{
+        pltxt2htm::details::u8string_view_subview<ndebug>(pltext, link_url_start, link_url_size)};
     return ::pltxt2htm::details::TryParseMdLinkResult{.forward_index = current_index,
                                                       .link_text = pltext.subview(1, link_text_end - 1),
                                                       .link_url = ::std::move(link_url)};
