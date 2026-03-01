@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+#include <cstdint>
 #include <exception/exception.hh>
 #include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/string_view.h>
@@ -1297,6 +1299,67 @@ struct TryParseMdLinkResult {
     ::fast_io::u8string_view link_text;
     ::fast_io::u8string link_url;
 };
+
+template<bool ndebug>
+[[nodiscard]]
+constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept -> ::exception::optional<::std::size_t> {
+    ::std::size_t current_index{[pltext] constexpr noexcept -> ::std::size_t {
+        if (constexpr auto http = ::pltxt2htm::details::LiteralString{u8"http://"};
+            ::pltxt2htm::details::is_prefix_match<ndebug, http>(pltext)) {
+            return http.size();
+        }
+        else if (constexpr auto https = ::pltxt2htm::details::LiteralString{u8"https://"};
+                 ::pltxt2htm::details::is_prefix_match<ndebug, https>(pltext)) {
+            return https.size();
+        }
+        else {
+            return 0;
+        }
+    }()};
+    // parsing domain name
+    while (true) {
+        if (current_index >= pltext.size()) {
+            break;
+        }
+        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
+        if ((u8'A' <= chr && chr <= u8'Z') || (u8'a' <= chr && chr <= u8'z') || (u8'0' <= chr && chr <= u8'9') ||
+            chr == u8'.') {
+            ++current_index;
+            continue;
+        }
+        else if (chr == u8'/') {
+            ++current_index;
+            break;
+        }
+        else if (chr == u8':') {
+            ::std::uint32_t port{};
+            ::std::size_t port_index{};
+            for (char8_t c : ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1)) {
+                if (c < u8'0' || c > u8'9') {
+                    break;
+                }
+                // TODO what if port is too large and overflows?
+                port = port * 10 + (c - '0');
+                ++port_index;
+            }
+            if (port > 65535) {
+                return ::exception::nullopt_t{};
+            }
+            current_index += port_index + 1;
+            break;
+        }
+        else {
+            return ::exception::nullopt_t{};
+        }
+    }
+    for (; current_index < pltext.size(); ++current_index) {
+        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
+        if (chr < u8'!' || chr > u8'~' || chr == u8'<' || chr == u8'>' || chr == u8'\"') {
+            return ::exception::nullopt_t{};
+        }
+    }
+    return current_index;
+}
 
 /**
  * @brief Parse Markdown inline links with text and URL components.
