@@ -50,5 +50,11 @@ int main() {
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<b></b");
+        auto answer = ::fast_io::u8string_view{u8"<strong>&lt;/b</strong>"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
     return 0;
 }

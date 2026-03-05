@@ -94,5 +94,12 @@ int main() {
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<discussion=123></discussion");
+        auto answer = ::fast_io::u8string_view{
+            u8"<a href=\"localhost:5173/ExperimentSummary/Discussion/123\" internal>&lt;/discussion</a>"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
     return 0;
 }

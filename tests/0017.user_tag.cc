@@ -87,5 +87,12 @@ int main() {
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<user=642cf37a494746375aae306a></user");
+        auto answer =
+            ::fast_io::u8string_view{u8"<span class=\'RUser\' data-user=\'642cf37a494746375aae306a\'>&lt;/user</span>"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
     return 0;
 }

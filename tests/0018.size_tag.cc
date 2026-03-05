@@ -56,5 +56,11 @@ int main() {
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<size=10></size");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:5px\">&lt;/size</span>"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
     return 0;
 }

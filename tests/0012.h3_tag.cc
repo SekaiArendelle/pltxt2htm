@@ -37,5 +37,11 @@ int main() {
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<h3></h3");
+        auto answer = ::fast_io::u8string_view{u8"<h3>&lt;/h3</h3>"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
     return 0;
 }
