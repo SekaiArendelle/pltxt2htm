@@ -135,11 +135,7 @@ public:
         }
     }
 
-    constexpr T* operator->(this ::pltxt2htm::HeapGuard<T>& self) noexcept {
-        return self.ptr_;
-    }
-
-    constexpr T const* operator->(this ::pltxt2htm::HeapGuard<T> const& self) noexcept {
+    constexpr auto operator->(this ::pltxt2htm::is_heap_guard auto&& self) noexcept -> T* {
         return self.ptr_;
     }
 
@@ -148,7 +144,8 @@ public:
     [[__gnu__::__pure__]]
 #endif
     constexpr auto operator==(this ::pltxt2htm::HeapGuard<T> const& self,
-                              ::pltxt2htm::HeapGuard<T> const& other) noexcept(noexcept(*self.ptr_ == *other.ptr_)) {
+                              ::pltxt2htm::HeapGuard<T> const& other) noexcept(noexcept(*self.ptr_ == *other.ptr_))
+        -> bool {
         return *self.ptr_ == *other.ptr_;
     }
 
@@ -156,7 +153,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__pure__)
     [[__gnu__::__pure__]]
 #endif
-    constexpr T const* release_imul(this ::pltxt2htm::HeapGuard<T> const& self) noexcept {
+    constexpr auto release_imul(this ::pltxt2htm::HeapGuard<T> const& self) noexcept -> T const* {
         return self.ptr_;
     }
 
@@ -175,7 +172,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__pure__)
     [[__gnu__::__pure__]]
 #endif
-    constexpr T* get_unsafe(this auto&& self) noexcept {
+    constexpr T* get_unsafe(this ::pltxt2htm::is_heap_guard auto&& self) noexcept {
         return self.ptr_;
     }
 
@@ -190,7 +187,7 @@ public:
      * @warning The returned pointer must be properly deleted using the original deleter
      */
     [[nodiscard]]
-    constexpr T* release(this auto&& self) noexcept {
+    constexpr auto release(this ::pltxt2htm::is_heap_guard auto&& self) noexcept -> T* {
         T* ptr = self.ptr_;
         self.ptr_ = nullptr;
         return ptr;
