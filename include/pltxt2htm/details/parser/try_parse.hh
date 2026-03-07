@@ -1294,6 +1294,20 @@ constexpr auto try_parse_md_latex_inline(::fast_io::u8string_view pltext) noexce
     return ::pltxt2htm::details::TryParseMdLatexResult{.forward_index = close_pos + 2, .subast = ::std::move(ast)};
 }
 
+[[nodiscard]]
+constexpr auto is_valid_domain(::fast_io::u8string_view pltext) noexcept -> bool {
+    if (pltext.ends_with(u8".com") || pltext.ends_with(u8".net") || pltext.ends_with(u8".org") ||
+        pltext.ends_with(u8".cn") || pltext.ends_with(u8".edu") || pltext.ends_with(u8".gov") ||
+        pltext.ends_with(u8".io") || pltext.ends_with(u8".ai") || pltext.ends_with(u8".co") ||
+        pltext.ends_with(u8".me") || pltext.ends_with(u8".cc") || pltext.ends_with(u8".tv") ||
+        pltext.ends_with(u8".info") || pltext.ends_with(u8".biz") || pltext.ends_with(u8".us") ||
+        pltext.ends_with(u8".uk") || pltext.ends_with(u8".jp") || pltext.ends_with(u8".hk") ||
+        pltext.ends_with(u8".tw") || pltext.ends_with(u8".xyz") || pltext.ends_with(u8".top")) {
+        return true;
+    }
+    return false;
+}
+
 template<bool ndebug, bool regard_right_parent_as_end_of_url = false>
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
@@ -1316,6 +1330,10 @@ constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept -> ::exce
     // parsing domain name
     while (true) {
         if (current_index >= pltext.size()) {
+            if (::pltxt2htm::details::is_valid_domain(
+                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 0, current_index)) == false) {
+                return ::exception::nullopt_t{};
+            }
             break;
         }
         auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
@@ -1325,10 +1343,18 @@ constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept -> ::exce
             continue;
         }
         else if (chr == u8'/') {
+            if (::pltxt2htm::details::is_valid_domain(
+                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 0, current_index)) == false) {
+                return ::exception::nullopt_t{};
+            }
             ++current_index;
             break;
         }
         else if (chr == u8':') {
+            if (::pltxt2htm::details::is_valid_domain(
+                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 0, current_index)) == false) {
+                return ::exception::nullopt_t{};
+            }
             ::std::uint_least32_t port{};
             ::std::size_t port_index{};
             for (char8_t c : ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1)) {
