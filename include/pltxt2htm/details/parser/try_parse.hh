@@ -1294,14 +1294,11 @@ constexpr auto try_parse_md_latex_inline(::fast_io::u8string_view pltext) noexce
     return ::pltxt2htm::details::TryParseMdLatexResult{.forward_index = close_pos + 2, .subast = ::std::move(ast)};
 }
 
-struct TryParseMdLinkResult {
-    ::std::size_t forward_index;
-    ::fast_io::u8string_view link_text;
-    ::fast_io::u8string link_url;
-};
-
 template<bool ndebug, bool regard_right_parent_as_end_of_url = false>
 [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
 constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept -> ::exception::optional<::std::size_t> {
     ::std::size_t current_index{[pltext] constexpr noexcept -> ::std::size_t {
         if (constexpr auto http = ::pltxt2htm::details::LiteralString{u8"http://"};
@@ -1332,15 +1329,17 @@ constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept -> ::exce
             break;
         }
         else if (chr == u8':') {
-            ::std::uint32_t port{};
+            ::std::uint_least32_t port{};
             ::std::size_t port_index{};
             for (char8_t c : ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1)) {
                 if (c < u8'0' || c > u8'9') {
                     break;
                 }
-                // TODO what if port is too large and overflows?
                 port = port * 10 + (c - '0');
                 ++port_index;
+                if (port_index > 5) {
+                    return ::exception::nullopt_t{};
+                }
             }
             if (port > 65535) {
                 return ::exception::nullopt_t{};
@@ -1370,6 +1369,12 @@ constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept -> ::exce
     }
     return current_index;
 }
+
+struct TryParseMdLinkResult {
+    ::std::size_t forward_index;
+    ::fast_io::u8string_view link_text;
+    ::fast_io::u8string link_url;
+};
 
 /**
  * @brief Parse Markdown inline links with text and URL components.

@@ -52,6 +52,22 @@ int main() {
             u8"trackid=web_related_0.router-related-2481894-wjgx7.1772331167937.864"};
         ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<true>(url).has_value());
     }
+    {
+        auto url = ::fast_io::u8string_view{u8"https://www.example.com:65535"};
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value());
+    }
+    {
+        auto url = ::fast_io::u8string_view{u8"https://www.example.com:65536"};
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value() == false);
+    }
+    {
+        auto url = ::fast_io::u8string_view{u8"https://www.example.com:123456"};
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value() == false);
+    }
+    {
+        auto url = ::fast_io::u8string_view{u8"https://www.example.com:2147483648"};
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value() == false);
+    }
 
     return 0;
 }
