@@ -1026,6 +1026,7 @@ public:
 
 class MdLink : public ::pltxt2htm::details::PairedTagBase {
 public:
+    // Can not be stored in string_view, otherwise tests/0048.pltext_maybe_destructed.cc will fail
     ::fast_io::u8string url_;
 
     constexpr MdLink(::pltxt2htm::Ast&& subast, ::fast_io::u8string&& url) noexcept
