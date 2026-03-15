@@ -20,6 +20,7 @@ tests/lcov-report/
 
 # archive
 *.7z
+*.gz
 *.xz
 *.tar
 *.zip
