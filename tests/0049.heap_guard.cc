@@ -29,11 +29,4 @@ int main() {
         ::pltxt2htm::HeapGuard<Derived> derived{};
         ::pltxt2htm::HeapGuard<Base> base(::std::move(derived));
     }
-    {
-        constexpr auto _ = [] static constexpr {
-            auto a = ::pltxt2htm::HeapGuard<int>{};
-            auto b = ::pltxt2htm::HeapGuard<int>{1};
-            return a == b;
-        }();
-    }
 }

@@ -80,18 +80,13 @@ public:
     template<typename... Args>
         requires (((!::pltxt2htm::is_heap_guard<Args>) && ...) && ::std::constructible_from<T, Args...>)
     constexpr HeapGuard(Args&&... args) noexcept {
-        if consteval {
-            this->ptr_ = new value_type(::std::forward<Args>(args)...);
+        this->deleter_ = [](void* self) static constexpr noexcept { static_cast<T*>(self)->~T(); };
+        this->ptr_ = static_cast<T*>(::std::malloc(sizeof(T)));
+        if (this->ptr_ == nullptr) [[unlikely]] {
+            // bad alloc should never be an exception or err_code
+            ::exception::terminate();
         }
-        else {
-            this->deleter_ = [](void* self) static constexpr noexcept { static_cast<T*>(self)->~T(); };
-            this->ptr_ = static_cast<T*>(::std::malloc(sizeof(T)));
-            if (this->ptr_ == nullptr) [[unlikely]] {
-                // bad alloc should never be an exception or err_code
-                ::exception::terminate();
-            }
-            ::new (this->ptr_) T(::std::forward<Args>(args)...);
-        }
+        ::new (this->ptr_) T(::std::forward<Args>(args)...);
     }
 
     constexpr HeapGuard(::pltxt2htm::HeapGuard<T> const& other) noexcept
@@ -135,13 +130,8 @@ public:
 
     constexpr ~HeapGuard() noexcept {
         if (ptr_ != nullptr) {
-            if consteval {
-                delete this->ptr_;
-            }
-            else {
-                this->deleter_(this->ptr_);
-                ::std::free(this->ptr_);
-            }
+            this->deleter_(this->ptr_);
+            ::std::free(this->ptr_);
         }
     }
 
