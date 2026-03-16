@@ -698,15 +698,13 @@ entry:
             ++current_iter;
             continue;
         }
-        case ::pltxt2htm::NodeType::base:
 #if 0
-            [[unlikely]] [[fallthrough]];
         default:
-#endif
-            [[unlikely]] {
-                ::exception::unreachable<ndebug>();
-            }
+        [[unlikely]] {
+            ::exception::unreachable<ndebug>();
         }
+    }
+#endif
     }
 
     {
