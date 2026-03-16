@@ -32,7 +32,7 @@ public:
     constexpr Color() noexcept = delete;
 
     constexpr Color(::pltxt2htm::Ast&& text, ::fast_io::u8string&& color) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_color, ::std::move(text)},
+        : ::pltxt2htm::details::PairedTagBase{::std::move(text)},
           color_(::std::move(color)) {
     }
 
@@ -80,7 +80,7 @@ public:
      * @retval A New anchor node instance with blue color
      */
     constexpr A(::pltxt2htm::Ast&& text) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_a, ::std::move(text)},
+        : ::pltxt2htm::details::PairedTagBase{::std::move(text)},
           color_{u8"#0000AA"} {
     }
 
@@ -127,7 +127,7 @@ public:
     constexpr Experiment() noexcept = delete;
 
     constexpr Experiment(::pltxt2htm::Ast&& subast, ::fast_io::u8string&& id) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_experiment, ::std::move(subast)},
+        : ::pltxt2htm::details::PairedTagBase{::std::move(subast)},
           id_(::std::move(id)) {
     }
 
@@ -187,7 +187,7 @@ public:
     constexpr Discussion() noexcept = delete;
 
     constexpr Discussion(::pltxt2htm::Ast&& subast, ::fast_io::u8string&& id) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_discussion, ::std::move(subast)},
+        : ::pltxt2htm::details::PairedTagBase{::std::move(subast)},
           id_(::std::move(id)) {
     }
 
@@ -226,7 +226,7 @@ public:
     constexpr User() noexcept = delete;
 
     constexpr User(::pltxt2htm::Ast&& subast, ::fast_io::u8string&& id) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_user, ::std::move(subast)},
+        : ::pltxt2htm::details::PairedTagBase{::std::move(subast)},
           id_(::std::move(id)) {
     }
 
@@ -256,7 +256,7 @@ public:
     constexpr External() noexcept = delete;
 
     constexpr External(::pltxt2htm::Ast&& subast, ::fast_io::u8string&& url) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_external, ::std::move(subast)},
+        : ::pltxt2htm::details::PairedTagBase{::std::move(subast)},
           url_(::std::move(url)) {
     }
 
@@ -295,7 +295,7 @@ public:
     constexpr Size() noexcept = delete;
 
     constexpr Size(::pltxt2htm::Ast&& subast, ::std::size_t id) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_size, ::std::move(subast)},
+        : ::pltxt2htm::details::PairedTagBase{::std::move(subast)},
           id_(::std::move(id)) {
     }
 
@@ -335,7 +335,7 @@ public:
      * @retval I New italic node instance
      */
     constexpr I(::pltxt2htm::Ast&& subast) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_i, ::std::move(subast)} {
+        : ::pltxt2htm::details::PairedTagBase{::std::move(subast)} {
     }
 
     constexpr I(::pltxt2htm::I const&) noexcept = delete;
@@ -366,7 +366,7 @@ public:
      * @retval B New bold node instance
      */
     constexpr B(::pltxt2htm::Ast&& subast) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_b, ::std::move(subast)} {
+        : ::pltxt2htm::details::PairedTagBase{::std::move(subast)} {
     }
 
     constexpr B(::pltxt2htm::B const&) noexcept = delete;

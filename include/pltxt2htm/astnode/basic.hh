@@ -81,13 +81,12 @@ public:
     constexpr PairedTagBase() noexcept = delete;
 
     /**
-     * @brief Construct a paired tag with specified node type and sub-AST
-     * @param[in] node_type The type of this node (from NodeType enum)
+     * @brief Construct a paired tag with sub-AST
      * @param[in] subast The sub-AST that represents the content inside this tag
      * @return New PairedTagBase instance
      * @retval PairedTagBase New paired tag base instance with specified properties
      */
-    constexpr PairedTagBase(::pltxt2htm::NodeType node_type, ::pltxt2htm::Ast&& subast) noexcept
+    constexpr PairedTagBase(::pltxt2htm::Ast&& subast) noexcept
         : subast_(::std::move(subast)) {
     }
 
@@ -159,7 +158,7 @@ public:
      * @retval Text New text node instance with specified sub-AST content
      */
     constexpr Text(::pltxt2htm::Ast&& subast) noexcept
-        : ::pltxt2htm::details::PairedTagBase(::pltxt2htm::NodeType::text, ::std::move(subast)) {
+        : ::pltxt2htm::details::PairedTagBase(::std::move(subast)) {
     }
 
     constexpr Text(::pltxt2htm::Text const& other) noexcept = delete;

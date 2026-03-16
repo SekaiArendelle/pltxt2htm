@@ -26,7 +26,7 @@ public:
     constexpr MdAtxH1() noexcept = delete;
 
     constexpr MdAtxH1(::pltxt2htm::Ast&& subast) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_atx_h1, ::std::move(subast)} {
+        : ::pltxt2htm::details::PairedTagBase{::std::move(subast)} {
     }
 
     constexpr MdAtxH1(::pltxt2htm::MdAtxH1 const&) noexcept = delete;
@@ -49,7 +49,7 @@ public:
     constexpr MdAtxH2() noexcept = delete;
 
     constexpr MdAtxH2(::pltxt2htm::Ast&& subast) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_atx_h2, ::std::move(subast)} {
+        : ::pltxt2htm::details::PairedTagBase{::std::move(subast)} {
     }
 
     constexpr MdAtxH2(::pltxt2htm::MdAtxH2 const&) noexcept = delete;
@@ -72,7 +72,7 @@ public:
     constexpr MdAtxH3() noexcept = delete;
 
     constexpr MdAtxH3(::pltxt2htm::Ast&& subast) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_atx_h3, ::std::move(subast)} {
+        : ::pltxt2htm::details::PairedTagBase{::std::move(subast)} {
     }
 
     constexpr MdAtxH3(::pltxt2htm::MdAtxH3 const&) noexcept = delete;
@@ -95,7 +95,7 @@ public:
     constexpr MdAtxH4() noexcept = delete;
 
     constexpr MdAtxH4(::pltxt2htm::Ast&& subast) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_atx_h4, ::std::move(subast)} {
+        : ::pltxt2htm::details::PairedTagBase{::std::move(subast)} {
     }
 
     constexpr MdAtxH4(::pltxt2htm::MdAtxH4 const&) noexcept = delete;
@@ -118,7 +118,7 @@ public:
     constexpr MdAtxH5() noexcept = delete;
 
     constexpr MdAtxH5(::pltxt2htm::Ast&& subast) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_atx_h5, ::std::move(subast)} {
+        : ::pltxt2htm::details::PairedTagBase{::std::move(subast)} {
     }
 
     constexpr MdAtxH5(::pltxt2htm::MdAtxH5 const&) noexcept = delete;
@@ -141,7 +141,7 @@ public:
     constexpr MdAtxH6() noexcept = delete;
 
     constexpr MdAtxH6(::pltxt2htm::Ast&& subast) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_atx_h6, ::std::move(subast)} {
+        : ::pltxt2htm::details::PairedTagBase{::std::move(subast)} {
     }
 
     constexpr MdAtxH6(::pltxt2htm::MdAtxH6 const&) noexcept = delete;
@@ -693,7 +693,7 @@ class MdCodeFenceBacktick : public ::pltxt2htm::details::PairedTagBase {
 
 public:
     constexpr MdCodeFenceBacktick(::pltxt2htm::Ast&& ast, ::exception::optional<::fast_io::u8string>&& lang_) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_code_fence_backtick, ::std::move(ast)},
+        : ::pltxt2htm::details::PairedTagBase{::std::move(ast)},
           lang(::std::move(lang_)) {
     }
 
@@ -723,7 +723,7 @@ class MdCodeFenceTilde : public ::pltxt2htm::details::PairedTagBase {
 
 public:
     constexpr MdCodeFenceTilde(::pltxt2htm::Ast&& ast, ::exception::optional<::fast_io::u8string>&& lang_) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_code_fence_tilde, ::std::move(ast)},
+        : ::pltxt2htm::details::PairedTagBase{::std::move(ast)},
           lang(::std::move(lang_)) {
     }
 
@@ -749,7 +749,7 @@ public:
     constexpr MdCodeSpan1Backtick() noexcept = delete;
 
     constexpr MdCodeSpan1Backtick(::pltxt2htm::Ast&& ast) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_code_span_1_backtick, ::std::move(ast)} {
+        : ::pltxt2htm::details::PairedTagBase{::std::move(ast)} {
     }
 
     constexpr MdCodeSpan1Backtick(::pltxt2htm::MdCodeSpan1Backtick const&) noexcept = delete;
@@ -770,7 +770,7 @@ public:
     constexpr MdCodeSpan2Backtick() noexcept = delete;
 
     constexpr MdCodeSpan2Backtick(::pltxt2htm::Ast&& ast) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_code_span_2_backtick, ::std::move(ast)} {
+        : ::pltxt2htm::details::PairedTagBase{::std::move(ast)} {
     }
 
     constexpr MdCodeSpan2Backtick(::pltxt2htm::MdCodeSpan2Backtick const&) noexcept = delete;
@@ -791,7 +791,7 @@ public:
     constexpr MdCodeSpan3Backtick() noexcept = delete;
 
     constexpr MdCodeSpan3Backtick(::pltxt2htm::Ast&& ast) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_code_span_3_backtick, ::std::move(ast)} {
+        : ::pltxt2htm::details::PairedTagBase{::std::move(ast)} {
     }
 
     constexpr MdCodeSpan3Backtick(::pltxt2htm::MdCodeSpan3Backtick const&) noexcept = delete;
@@ -812,7 +812,7 @@ public:
     constexpr MdSingleEmphasisAsterisk() noexcept = delete;
 
     constexpr MdSingleEmphasisAsterisk(::pltxt2htm::Ast&& ast) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_single_emphasis_asterisk, ::std::move(ast)} {
+        : ::pltxt2htm::details::PairedTagBase{::std::move(ast)} {
     }
 
     constexpr MdSingleEmphasisAsterisk(::pltxt2htm::MdSingleEmphasisAsterisk const&) noexcept = delete;
@@ -835,7 +835,7 @@ public:
     constexpr MdDoubleEmphasisAsterisk() noexcept = delete;
 
     constexpr MdDoubleEmphasisAsterisk(::pltxt2htm::Ast&& ast) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_double_emphasis_asterisk, ::std::move(ast)} {
+        : ::pltxt2htm::details::PairedTagBase{::std::move(ast)} {
     }
 
     constexpr MdDoubleEmphasisAsterisk(::pltxt2htm::MdDoubleEmphasisAsterisk const&) noexcept = delete;
@@ -858,7 +858,7 @@ public:
     constexpr MdTripleEmphasisAsterisk() noexcept = delete;
 
     constexpr MdTripleEmphasisAsterisk(::pltxt2htm::Ast&& ast) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_triple_emphasis_asterisk, ::std::move(ast)} {
+        : ::pltxt2htm::details::PairedTagBase{::std::move(ast)} {
     }
 
     constexpr MdTripleEmphasisAsterisk(::pltxt2htm::MdTripleEmphasisAsterisk const&) noexcept = delete;
@@ -881,7 +881,7 @@ public:
     constexpr MdSingleEmphasisUnderscore() noexcept = delete;
 
     constexpr MdSingleEmphasisUnderscore(::pltxt2htm::Ast&& ast) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_single_emphasis_underscore, ::std::move(ast)} {
+        : ::pltxt2htm::details::PairedTagBase{::std::move(ast)} {
     }
 
     constexpr MdSingleEmphasisUnderscore(::pltxt2htm::MdSingleEmphasisUnderscore const&) noexcept = delete;
@@ -904,7 +904,7 @@ public:
     constexpr MdDoubleEmphasisUnderscore() noexcept = delete;
 
     constexpr MdDoubleEmphasisUnderscore(::pltxt2htm::Ast&& ast) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_double_emphasis_underscore, ::std::move(ast)} {
+        : ::pltxt2htm::details::PairedTagBase{::std::move(ast)} {
     }
 
     constexpr MdDoubleEmphasisUnderscore(::pltxt2htm::MdDoubleEmphasisUnderscore const&) noexcept = delete;
@@ -927,7 +927,7 @@ public:
     constexpr MdTripleEmphasisUnderscore() noexcept = delete;
 
     constexpr MdTripleEmphasisUnderscore(::pltxt2htm::Ast&& ast) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_triple_emphasis_underscore, ::std::move(ast)} {
+        : ::pltxt2htm::details::PairedTagBase{::std::move(ast)} {
     }
 
     constexpr MdTripleEmphasisUnderscore(::pltxt2htm::MdTripleEmphasisUnderscore const&) noexcept = delete;
@@ -946,7 +946,7 @@ public:
     constexpr MdDel() noexcept = delete;
 
     constexpr MdDel(::pltxt2htm::Ast&& ast) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_del, ::std::move(ast)} {
+        : ::pltxt2htm::details::PairedTagBase{::std::move(ast)} {
     }
 
     constexpr MdDel(::pltxt2htm::MdDel const&) noexcept = delete;
@@ -964,7 +964,7 @@ public:
     ::fast_io::u8string url_;
 
     constexpr MdLink(::pltxt2htm::Ast&& subast, ::fast_io::u8string&& url) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_link, ::std::move(subast)},
+        : ::pltxt2htm::details::PairedTagBase{::std::move(subast)},
           url_(::std::move(url)) {
     }
 
@@ -987,7 +987,7 @@ public:
     constexpr MdBlockQuotes() noexcept = delete;
 
     constexpr MdBlockQuotes(::pltxt2htm::Ast&& ast) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_block_quotes, ::std::move(ast)} {
+        : ::pltxt2htm::details::PairedTagBase{::std::move(ast)} {
     }
 
     constexpr MdBlockQuotes(::pltxt2htm::MdBlockQuotes const&) noexcept = delete;
@@ -1004,7 +1004,7 @@ public:
     constexpr MdUl() noexcept = delete;
 
     constexpr MdUl(::pltxt2htm::Ast&& ast) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_ul, ::std::move(ast)} {
+        : ::pltxt2htm::details::PairedTagBase{::std::move(ast)} {
     }
 
     constexpr MdUl(::pltxt2htm::MdUl const&) noexcept = delete;
@@ -1021,7 +1021,7 @@ public:
     constexpr MdOl() noexcept = delete;
 
     constexpr MdOl(::pltxt2htm::Ast&& ast) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_ol, ::std::move(ast)} {
+        : ::pltxt2htm::details::PairedTagBase{::std::move(ast)} {
     }
 
     constexpr MdOl(::pltxt2htm::MdOl const&) noexcept = delete;
@@ -1038,7 +1038,7 @@ public:
     constexpr MdLi() noexcept = delete;
 
     constexpr MdLi(::pltxt2htm::Ast&& ast) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_li, ::std::move(ast)} {
+        : ::pltxt2htm::details::PairedTagBase{::std::move(ast)} {
     }
 
     constexpr MdLi(::pltxt2htm::MdLi const&) noexcept = delete;
@@ -1058,7 +1058,7 @@ public:
     constexpr MdLatexInline() noexcept = delete;
 
     constexpr MdLatexInline(::pltxt2htm::Ast&& ast) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_latex_inline, ::std::move(ast)} {
+        : ::pltxt2htm::details::PairedTagBase{::std::move(ast)} {
     }
 
     constexpr MdLatexInline(::pltxt2htm::MdLatexInline const&) noexcept = delete;
@@ -1078,7 +1078,7 @@ public:
     constexpr MdLatexBlock() noexcept = delete;
 
     constexpr MdLatexBlock(::pltxt2htm::Ast&& ast) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_latex_block, ::std::move(ast)} {
+        : ::pltxt2htm::details::PairedTagBase{::std::move(ast)} {
     }
 
     constexpr MdLatexBlock(::pltxt2htm::MdLatexBlock const&) noexcept = delete;
