@@ -29,4 +29,6 @@ int main() {
             u8"<blockquote><a href=\"https://example.com/discussion\">physicsLab</a></blockquote>"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
+
+    return 0;
 }
