@@ -21,9 +21,8 @@ namespace pltxt2htm {
  *       tags, HTML tags, Markdown syntax, and finally escape sequences.
  */
 enum class NodeType : ::std::size_t {
-    base = 0, ///< Base node type (should not appear in final AST)
     // Character and basic text nodes
-    u8char, ///< Valid UTF-8 character
+    u8char = 0, ///< Valid UTF-8 character
     invalid_u8char, ///< Invalid UTF-8 character (replacement character)
     text, ///< Text container node (groups characters and inline elements)
 

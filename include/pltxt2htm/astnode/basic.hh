@@ -8,8 +8,6 @@
 
 #include <utility>
 #include <fast_io/fast_io_dsal/vector.h>
-#include "node_type.hh"
-#include "../heap_guard.hh"
 
 /**
  * @note Quantum-Physics's tag do not case upper / lower
@@ -18,7 +16,56 @@
 
 namespace pltxt2htm {
 
-// using Ast = ::fast_io::vector<::pltxt2htm::PlTxtNode>;
+class PlTxtNode;
+
+// TODO wirte why I don't use fast_io::vector
+// suck forward declaration
+class Ast {
+    ::pltxt2htm::PlTxtNode* begin_ptr{nullptr};
+    ::pltxt2htm::PlTxtNode* curr_ptr{nullptr};
+    ::std::size_t capacity{};
+
+public:
+    constexpr Ast() noexcept = default;
+
+    constexpr Ast(::pltxt2htm::Ast const& other) noexcept = delete;
+
+    constexpr Ast(::pltxt2htm::Ast&& other) noexcept
+        : begin_ptr{other.begin_ptr},
+          curr_ptr{other.curr_ptr},
+          capacity{other.capacity} {
+        other.begin_ptr = nullptr;
+        other.curr_ptr = nullptr;
+        other.capacity = 0;
+    }
+
+    constexpr auto operator=(::pltxt2htm::Ast const& other) noexcept = delete;
+
+    constexpr auto operator=(this ::pltxt2htm::Ast& self, ::pltxt2htm::Ast&& other) noexcept -> ::pltxt2htm::Ast& {
+        self.swap(other);
+        return self;
+    }
+
+    constexpr void swap(this ::pltxt2htm::Ast& self, ::pltxt2htm::Ast& other) noexcept {
+        auto tmp_begin_ptr = self.begin_ptr;
+        auto tmp_curr_ptr = self.curr_ptr;
+        auto tmp_capacity = self.capacity;
+        self.begin_ptr = other.begin_ptr;
+        self.curr_ptr = other.curr_ptr;
+        self.capacity = other.capacity;
+        other.begin_ptr = tmp_begin_ptr;
+        other.curr_ptr = tmp_curr_ptr;
+        self.capacity = tmp_capacity;
+    }
+
+    constexpr auto empty(this ::pltxt2htm::Ast const& self) noexcept -> bool {
+        return self.begin_ptr == self.curr_ptr;
+    }
+
+    constexpr auto is_empty(this ::pltxt2htm::Ast const& self) noexcept -> bool {
+        return self.begin_ptr == self.curr_ptr;
+    }
+};
 
 /**
  * @brief UTF-8 character node
