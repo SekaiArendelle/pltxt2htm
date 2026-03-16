@@ -18,55 +18,21 @@
 
 namespace pltxt2htm {
 
-/**
- * @brief Base node class for all AST nodes
- * @details This is the fundamental base class for all nodes in the Abstract Syntax Tree.
- *          Every AST node inherits from this class and has a NodeType that identifies
- *          what kind of node it is.
- * @note The copy constructor is deleted to prevent accidental copying which could be expensive
- */
-class PlTxtNode {
-protected:
-    ::pltxt2htm::NodeType runtime_node_type_info{::pltxt2htm::NodeType::base};
-
-public:
-    constexpr PlTxtNode() noexcept = default;
-
-    constexpr PlTxtNode(::pltxt2htm::NodeType type) noexcept
-        : runtime_node_type_info{type} {
-    }
-
-    constexpr PlTxtNode(PlTxtNode const&) noexcept = delete; // copy construct costs
-    constexpr PlTxtNode(PlTxtNode&&) noexcept = default;
-    constexpr auto operator=(PlTxtNode const&) noexcept -> PlTxtNode& = default;
-    constexpr auto operator=(PlTxtNode&&) noexcept -> PlTxtNode& = default;
-    constexpr ~PlTxtNode() noexcept = default;
-
-    [[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-    [[__gnu__::__pure__]]
-#endif
-    constexpr auto node_type(this PlTxtNode const& self) noexcept {
-        return self.runtime_node_type_info;
-    }
-};
-
-using Ast = ::fast_io::vector<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>;
+// using Ast = ::fast_io::vector<::pltxt2htm::PlTxtNode>;
 
 /**
  * @brief UTF-8 character node
  * @details Represents a single UTF-8 character in the AST
  * @note This is a leaf node that contains actual text content
  */
-class U8Char : public ::pltxt2htm::PlTxtNode {
+class U8Char {
     char8_t data_;
 
 public:
     constexpr U8Char() noexcept = delete;
 
     constexpr U8Char(char8_t const& chr) noexcept
-        : PlTxtNode{::pltxt2htm::NodeType::u8char},
-          data_{chr} {
+        : data_{chr} {
     }
 
     constexpr U8Char(U8Char const& other) noexcept = delete;
@@ -89,11 +55,9 @@ public:
     }
 };
 
-class InvalidU8Char : public ::pltxt2htm::PlTxtNode {
+class InvalidU8Char {
 public:
-    constexpr InvalidU8Char() noexcept
-        : PlTxtNode(::pltxt2htm::NodeType::invalid_u8char) {
-    }
+    constexpr InvalidU8Char() noexcept = default;
 
     constexpr InvalidU8Char(InvalidU8Char const& other) noexcept = delete;
     constexpr InvalidU8Char(InvalidU8Char&& other) noexcept = default;
@@ -109,7 +73,7 @@ namespace details {
  *          and contain sub-content (sub-AST). Examples include <color>, <b>, <i>, etc.
  * @note The copy constructor and assignment operator are deleted to prevent expensive copies
  */
-class PairedTagBase : public ::pltxt2htm::PlTxtNode {
+class PairedTagBase {
 protected:
     ::pltxt2htm::Ast subast_;
 
@@ -124,8 +88,7 @@ public:
      * @retval PairedTagBase New paired tag base instance with specified properties
      */
     constexpr PairedTagBase(::pltxt2htm::NodeType node_type, ::pltxt2htm::Ast&& subast) noexcept
-        : ::pltxt2htm::PlTxtNode{node_type},
-          subast_(::std::move(subast)) {
+        : subast_(::std::move(subast)) {
     }
 
     constexpr PairedTagBase(PairedTagBase const&) noexcept = delete;

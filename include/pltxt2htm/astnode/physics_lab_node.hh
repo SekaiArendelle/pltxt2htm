@@ -380,11 +380,9 @@ public:
     constexpr ::pltxt2htm::B& operator=(::pltxt2htm::B&&) noexcept = default;
 };
 
-class PlMacroProject : public ::pltxt2htm::PlTxtNode {
+class PlMacroProject {
 public:
-    constexpr PlMacroProject() noexcept
-        : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::pl_macro_project} {
-    }
+    constexpr PlMacroProject() noexcept = default;
 
     constexpr PlMacroProject(::pltxt2htm::PlMacroProject const&) noexcept = delete;
 
@@ -397,11 +395,9 @@ public:
     constexpr ::pltxt2htm::PlMacroProject& operator=(::pltxt2htm::PlMacroProject&&) noexcept = default;
 };
 
-class PlMacroVisitor : public ::pltxt2htm::PlTxtNode {
+class PlMacroVisitor {
 public:
-    constexpr PlMacroVisitor() noexcept
-        : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::pl_macro_visitor} {
-    }
+    constexpr PlMacroVisitor() noexcept = default;
 
     constexpr PlMacroVisitor(::pltxt2htm::PlMacroVisitor const&) noexcept = delete;
 
@@ -414,11 +410,9 @@ public:
     constexpr ::pltxt2htm::PlMacroVisitor& operator=(::pltxt2htm::PlMacroVisitor&&) noexcept = default;
 };
 
-class PlMacroAuthor : public ::pltxt2htm::PlTxtNode {
+class PlMacroAuthor {
 public:
-    constexpr PlMacroAuthor() noexcept
-        : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::pl_macro_author} {
-    }
+    constexpr PlMacroAuthor() noexcept = default;
 
     constexpr PlMacroAuthor(::pltxt2htm::PlMacroAuthor const&) noexcept = delete;
 
@@ -431,11 +425,9 @@ public:
     constexpr ::pltxt2htm::PlMacroAuthor& operator=(::pltxt2htm::PlMacroAuthor&&) noexcept = default;
 };
 
-class PlMacroCoauthors : public ::pltxt2htm::PlTxtNode {
+class PlMacroCoauthors {
 public:
-    constexpr PlMacroCoauthors() noexcept
-        : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::pl_macro_coauthors} {
-    }
+    constexpr PlMacroCoauthors() noexcept = default;
 
     constexpr PlMacroCoauthors(::pltxt2htm::PlMacroCoauthors const&) noexcept = delete;
 

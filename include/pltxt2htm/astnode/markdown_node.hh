@@ -158,11 +158,9 @@ public:
 /**
  * @brief Represents \.
  */
-class EscapeBackslash : public ::pltxt2htm::PlTxtNode {
+class EscapeBackslash {
 public:
-    constexpr EscapeBackslash() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_backslash) {
-    }
+    constexpr EscapeBackslash() noexcept = default;
 
     constexpr EscapeBackslash(::pltxt2htm::EscapeBackslash const&) noexcept = delete;
 
@@ -176,11 +174,9 @@ public:
 /**
  * @brief Represents !.
  */
-class EscapeExclamation : public ::pltxt2htm::PlTxtNode {
+class EscapeExclamation {
 public:
-    constexpr EscapeExclamation() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_exclamation) {
-    }
+    constexpr EscapeExclamation() noexcept = default;
 
     constexpr EscapeExclamation(::pltxt2htm::EscapeExclamation const&) noexcept = delete;
 
@@ -194,11 +190,9 @@ public:
 /**
  * @brief Represents ".
  */
-class EscapeDoubleQuote : public ::pltxt2htm::PlTxtNode {
+class EscapeDoubleQuote {
 public:
-    constexpr EscapeDoubleQuote() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_double_quote) {
-    }
+    constexpr EscapeDoubleQuote() noexcept = default;
 
     constexpr EscapeDoubleQuote(::pltxt2htm::EscapeDoubleQuote const&) noexcept = delete;
 
@@ -212,11 +206,9 @@ public:
 /**
  * @brief Represents #.
  */
-class EscapeHash : public ::pltxt2htm::PlTxtNode {
+class EscapeHash {
 public:
-    constexpr EscapeHash() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_hash) {
-    }
+    constexpr EscapeHash() noexcept = default;
 
     constexpr EscapeHash(::pltxt2htm::EscapeHash const&) noexcept = delete;
 
@@ -230,11 +222,9 @@ public:
 /**
  * @brief Represents $.
  */
-class EscapeDollar : public ::pltxt2htm::PlTxtNode {
+class EscapeDollar {
 public:
-    constexpr EscapeDollar() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_dollar) {
-    }
+    constexpr EscapeDollar() noexcept = default;
 
     constexpr EscapeDollar(::pltxt2htm::EscapeDollar const&) noexcept = delete;
 
@@ -248,11 +238,9 @@ public:
 /**
  * @brief Represents %.
  */
-class EscapePercent : public ::pltxt2htm::PlTxtNode {
+class EscapePercent {
 public:
-    constexpr EscapePercent() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_percent) {
-    }
+    constexpr EscapePercent() noexcept = default;
 
     constexpr EscapePercent(::pltxt2htm::EscapePercent const&) noexcept = delete;
 
@@ -266,11 +254,9 @@ public:
 /**
  * @brief Represents &.
  */
-class EscapeAmpersand : public ::pltxt2htm::PlTxtNode {
+class EscapeAmpersand {
 public:
-    constexpr EscapeAmpersand() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_ampersand) {
-    }
+    constexpr EscapeAmpersand() noexcept = default;
 
     constexpr EscapeAmpersand(::pltxt2htm::EscapeAmpersand const&) noexcept = delete;
 
@@ -284,11 +270,9 @@ public:
 /**
  * @brief Represents '.
  */
-class EscapeSingleQuote : public ::pltxt2htm::PlTxtNode {
+class EscapeSingleQuote {
 public:
-    constexpr EscapeSingleQuote() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_single_quote) {
-    }
+    constexpr EscapeSingleQuote() noexcept = default;
 
     constexpr EscapeSingleQuote(::pltxt2htm::EscapeSingleQuote const&) noexcept = delete;
 
@@ -302,11 +286,9 @@ public:
 /**
  * @brief Represents (.
  */
-class EscapeLeftParen : public ::pltxt2htm::PlTxtNode {
+class EscapeLeftParen {
 public:
-    constexpr EscapeLeftParen() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_left_paren) {
-    }
+    constexpr EscapeLeftParen() noexcept = default;
 
     constexpr EscapeLeftParen(::pltxt2htm::EscapeLeftParen const&) noexcept = delete;
 
@@ -320,11 +302,9 @@ public:
 /**
  * @brief Represents ).
  */
-class EscapeRightParen : public ::pltxt2htm::PlTxtNode {
+class EscapeRightParen {
 public:
-    constexpr EscapeRightParen() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_right_paren) {
-    }
+    constexpr EscapeRightParen() noexcept = default;
 
     constexpr EscapeRightParen(::pltxt2htm::EscapeRightParen const&) noexcept = delete;
 
@@ -338,11 +318,9 @@ public:
 /**
  * @brief Represents *.
  */
-class EscapeAsterisk : public ::pltxt2htm::PlTxtNode {
+class EscapeAsterisk {
 public:
-    constexpr EscapeAsterisk() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_asterisk) {
-    }
+    constexpr EscapeAsterisk() noexcept = default;
 
     constexpr EscapeAsterisk(::pltxt2htm::EscapeAsterisk const&) noexcept = delete;
 
@@ -356,11 +334,9 @@ public:
 /**
  * @brief Represents +.
  */
-class EscapePlus : public ::pltxt2htm::PlTxtNode {
+class EscapePlus {
 public:
-    constexpr EscapePlus() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_plus) {
-    }
+    constexpr EscapePlus() noexcept = default;
 
     constexpr EscapePlus(::pltxt2htm::EscapePlus const&) noexcept = delete;
 
@@ -374,11 +350,9 @@ public:
 /**
  * @brief Represents ,.
  */
-class EscapeComma : public ::pltxt2htm::PlTxtNode {
+class EscapeComma {
 public:
-    constexpr EscapeComma() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_comma) {
-    }
+    constexpr EscapeComma() noexcept = default;
 
     constexpr EscapeComma(::pltxt2htm::EscapeComma const&) noexcept = delete;
 
@@ -392,11 +366,9 @@ public:
 /**
  * @brief Represents -.
  */
-class EscapeHyphen : public ::pltxt2htm::PlTxtNode {
+class EscapeHyphen {
 public:
-    constexpr EscapeHyphen() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_hyphen) {
-    }
+    constexpr EscapeHyphen() noexcept = default;
 
     constexpr EscapeHyphen(::pltxt2htm::EscapeHyphen const&) noexcept = delete;
 
@@ -410,11 +382,9 @@ public:
 /**
  * @brief Represents ..
  */
-class EscapeDot : public ::pltxt2htm::PlTxtNode {
+class EscapeDot {
 public:
-    constexpr EscapeDot() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_dot) {
-    }
+    constexpr EscapeDot() noexcept = default;
 
     constexpr EscapeDot(::pltxt2htm::EscapeDot const&) noexcept = delete;
 
@@ -428,11 +398,9 @@ public:
 /**
  * @brief Represents /.
  */
-class EscapeSlash : public ::pltxt2htm::PlTxtNode {
+class EscapeSlash {
 public:
-    constexpr EscapeSlash() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_slash) {
-    }
+    constexpr EscapeSlash() noexcept = default;
 
     constexpr EscapeSlash(::pltxt2htm::EscapeSlash const&) noexcept = delete;
 
@@ -446,11 +414,9 @@ public:
 /**
  * @brief Represents :.
  */
-class EscapeColon : public ::pltxt2htm::PlTxtNode {
+class EscapeColon {
 public:
-    constexpr EscapeColon() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_colon) {
-    }
+    constexpr EscapeColon() noexcept = default;
 
     constexpr EscapeColon(::pltxt2htm::EscapeColon const&) noexcept = delete;
 
@@ -464,11 +430,9 @@ public:
 /**
  * @brief Represents ;.
  */
-class EscapeSemicolon : public ::pltxt2htm::PlTxtNode {
+class EscapeSemicolon {
 public:
-    constexpr EscapeSemicolon() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_semicolon) {
-    }
+    constexpr EscapeSemicolon() noexcept = default;
 
     constexpr EscapeSemicolon(::pltxt2htm::EscapeSemicolon const&) noexcept = delete;
 
@@ -482,11 +446,9 @@ public:
 /**
  * @brief Represents <.
  */
-class EscapeLessThan : public ::pltxt2htm::PlTxtNode {
+class EscapeLessThan {
 public:
-    constexpr EscapeLessThan() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_less_than) {
-    }
+    constexpr EscapeLessThan() noexcept = default;
 
     constexpr EscapeLessThan(::pltxt2htm::EscapeLessThan const&) noexcept = delete;
 
@@ -500,11 +462,9 @@ public:
 /**
  * @brief Represents =.
  */
-class EscapeEquals : public ::pltxt2htm::PlTxtNode {
+class EscapeEquals {
 public:
-    constexpr EscapeEquals() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_equals) {
-    }
+    constexpr EscapeEquals() noexcept = default;
 
     constexpr EscapeEquals(::pltxt2htm::EscapeEquals const&) noexcept = delete;
 
@@ -518,11 +478,9 @@ public:
 /**
  * @brief Represents >.
  */
-class EscapeGreaterThan : public ::pltxt2htm::PlTxtNode {
+class EscapeGreaterThan {
 public:
-    constexpr EscapeGreaterThan() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_greater_than) {
-    }
+    constexpr EscapeGreaterThan() noexcept = default;
 
     constexpr EscapeGreaterThan(::pltxt2htm::EscapeGreaterThan const&) noexcept = delete;
 
@@ -536,11 +494,9 @@ public:
 /**
  * @brief Represents ?.
  */
-class EscapeQuestion : public ::pltxt2htm::PlTxtNode {
+class EscapeQuestion {
 public:
-    constexpr EscapeQuestion() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_question) {
-    }
+    constexpr EscapeQuestion() noexcept = default;
 
     constexpr EscapeQuestion(::pltxt2htm::EscapeQuestion const&) noexcept = delete;
 
@@ -554,11 +510,9 @@ public:
 /**
  * @brief Represents @.
  */
-class EscapeAt : public ::pltxt2htm::PlTxtNode {
+class EscapeAt {
 public:
-    constexpr EscapeAt() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_at) {
-    }
+    constexpr EscapeAt() noexcept = default;
 
     constexpr EscapeAt(::pltxt2htm::EscapeAt const&) noexcept = delete;
 
@@ -572,11 +526,9 @@ public:
 /**
  * @brief Represents [.
  */
-class EscapeLeftBracket : public ::pltxt2htm::PlTxtNode {
+class EscapeLeftBracket {
 public:
-    constexpr EscapeLeftBracket() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_left_bracket) {
-    }
+    constexpr EscapeLeftBracket() noexcept = default;
 
     constexpr EscapeLeftBracket(::pltxt2htm::EscapeLeftBracket const&) noexcept = delete;
 
@@ -590,11 +542,9 @@ public:
 /**
  * @brief Represents ].
  */
-class EscapeRightBracket : public ::pltxt2htm::PlTxtNode {
+class EscapeRightBracket {
 public:
-    constexpr EscapeRightBracket() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_right_bracket) {
-    }
+    constexpr EscapeRightBracket() noexcept = default;
 
     constexpr EscapeRightBracket(::pltxt2htm::EscapeRightBracket const&) noexcept = delete;
 
@@ -608,11 +558,9 @@ public:
 /**
  * @brief Represents ^.
  */
-class EscapeCaret : public ::pltxt2htm::PlTxtNode {
+class EscapeCaret {
 public:
-    constexpr EscapeCaret() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_caret) {
-    }
+    constexpr EscapeCaret() noexcept = default;
 
     constexpr EscapeCaret(::pltxt2htm::EscapeCaret const&) noexcept = delete;
 
@@ -626,11 +574,9 @@ public:
 /**
  * @brief Represents _.
  */
-class EscapeUnderscore : public ::pltxt2htm::PlTxtNode {
+class EscapeUnderscore {
 public:
-    constexpr EscapeUnderscore() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_underscore) {
-    }
+    constexpr EscapeUnderscore() noexcept = default;
 
     constexpr EscapeUnderscore(::pltxt2htm::EscapeUnderscore const&) noexcept = delete;
 
@@ -644,11 +590,9 @@ public:
 /**
  * @brief Represents `.
  */
-class EscapeBacktick : public ::pltxt2htm::PlTxtNode {
+class EscapeBacktick {
 public:
-    constexpr EscapeBacktick() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_backtick) {
-    }
+    constexpr EscapeBacktick() noexcept = default;
 
     constexpr EscapeBacktick(::pltxt2htm::EscapeBacktick const&) noexcept = delete;
 
@@ -662,11 +606,9 @@ public:
 /**
  * @brief Represents {.
  */
-class EscapeLeftBrace : public ::pltxt2htm::PlTxtNode {
+class EscapeLeftBrace {
 public:
-    constexpr EscapeLeftBrace() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_left_brace) {
-    }
+    constexpr EscapeLeftBrace() noexcept = default;
 
     constexpr EscapeLeftBrace(::pltxt2htm::EscapeLeftBrace const&) noexcept = delete;
 
@@ -680,11 +622,9 @@ public:
 /**
  * @brief Represents |.
  */
-class EscapePipe : public ::pltxt2htm::PlTxtNode {
+class EscapePipe {
 public:
-    constexpr EscapePipe() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_pipe) {
-    }
+    constexpr EscapePipe() noexcept = default;
 
     constexpr EscapePipe(::pltxt2htm::EscapePipe const&) noexcept = delete;
 
@@ -698,11 +638,9 @@ public:
 /**
  * @brief Represents }.
  */
-class EscapeRightBrace : public ::pltxt2htm::PlTxtNode {
+class EscapeRightBrace {
 public:
-    constexpr EscapeRightBrace() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_right_brace) {
-    }
+    constexpr EscapeRightBrace() noexcept = default;
 
     constexpr EscapeRightBrace(::pltxt2htm::EscapeRightBrace const&) noexcept = delete;
 
@@ -716,11 +654,9 @@ public:
 /**
  * @brief Represents ~.
  */
-class EscapeTilde : public ::pltxt2htm::PlTxtNode {
+class EscapeTilde {
 public:
-    constexpr EscapeTilde() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_tilde) {
-    }
+    constexpr EscapeTilde() noexcept = default;
 
     constexpr EscapeTilde(::pltxt2htm::EscapeTilde const&) noexcept = delete;
 
@@ -735,11 +671,9 @@ public:
  * @brief Represents markdown horizontal rule (`---`, `***`, `___`).
  * @details https://spec.commonmark.org/0.31.2/#thematic-breaks
  */
-class MdHr : public ::pltxt2htm::PlTxtNode {
+class MdHr {
 public:
-    constexpr MdHr() noexcept
-        : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_hr) {
-    }
+    constexpr MdHr() noexcept = default;
 
     constexpr MdHr(::pltxt2htm::MdHr const&) noexcept = delete;
 

@@ -29,7 +29,6 @@ using ::pltxt2htm::version::patch;
 using ::pltxt2htm::NodeType;
 
 // basic
-using ::pltxt2htm::PlTxtNode;
 using ::pltxt2htm::U8Char;
 using ::pltxt2htm::InvalidU8Char;
 using ::pltxt2htm::Text;

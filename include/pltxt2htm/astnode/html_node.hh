@@ -18,11 +18,9 @@ namespace pltxt2htm {
  * @brief Represents '\n'.
  * @details This node represents a line break character in the AST
  */
-class LineBreak : public ::pltxt2htm::PlTxtNode {
+class LineBreak {
 public:
-    constexpr LineBreak() noexcept
-        : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::line_break} {
-    }
+    constexpr LineBreak() noexcept = default;
 
     constexpr LineBreak(::pltxt2htm::LineBreak const&) noexcept = delete;
     constexpr LineBreak(::pltxt2htm::LineBreak&& other) noexcept = default;
@@ -35,11 +33,9 @@ public:
  * @brief Represents a <br> tag.
  * @details This node represents an HTML line break element in the AST
  */
-class Br : public ::pltxt2htm::PlTxtNode {
+class Br {
 public:
-    constexpr Br() noexcept
-        : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::html_br} {
-    }
+    constexpr Br() noexcept = default;
 
     constexpr Br(::pltxt2htm::Br const&) noexcept = delete;
     constexpr Br(::pltxt2htm::Br&& other) noexcept = default;
@@ -52,11 +48,9 @@ public:
  * @brief Represents ` `.
  * @details This node represents a space character in the AST
  */
-class Space : public ::pltxt2htm::PlTxtNode {
+class Space {
 public:
-    constexpr Space() noexcept
-        : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::space} {
-    }
+    constexpr Space() noexcept = default;
 
     constexpr Space(::pltxt2htm::Space const&) noexcept = delete;
     constexpr Space(::pltxt2htm::Space&& other) noexcept = default;
@@ -69,11 +63,9 @@ public:
  * @brief Represents `<`.
  * @details This node represents a less-than character in the AST
  */
-class LessThan : public ::pltxt2htm::PlTxtNode {
+class LessThan {
 public:
-    constexpr LessThan() noexcept
-        : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::less_than} {
-    }
+    constexpr LessThan() noexcept = default;
 
     constexpr LessThan(::pltxt2htm::LessThan const&) noexcept = delete;
     constexpr LessThan(::pltxt2htm::LessThan&& other) noexcept = default;
@@ -86,11 +78,9 @@ public:
  * @brief Represents `>`.
  * @details This node represents a greater-than character in the AST
  */
-class GreaterThan : public ::pltxt2htm::PlTxtNode {
+class GreaterThan {
 public:
-    constexpr GreaterThan() noexcept
-        : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::greater_than} {
-    }
+    constexpr GreaterThan() noexcept = default;
 
     constexpr GreaterThan(::pltxt2htm::GreaterThan const&) noexcept = delete;
     constexpr GreaterThan(::pltxt2htm::GreaterThan&& other) noexcept = default;
@@ -103,11 +93,9 @@ public:
  * @brief Represents `\t`
  * @details This node represents a tab character in the AST
  */
-class Tab : public ::pltxt2htm::PlTxtNode {
+class Tab {
 public:
-    constexpr Tab() noexcept
-        : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::tab} {
-    }
+    constexpr Tab() noexcept = default;
 
     constexpr Tab(::pltxt2htm::Tab const&) noexcept = delete;
     constexpr Tab(::pltxt2htm::Tab&& other) noexcept = default;
@@ -120,11 +108,9 @@ public:
  * @brief Represents `&`.
  * @details This node represents an ampersand character in the AST
  */
-class Ampersand : public ::pltxt2htm::PlTxtNode {
+class Ampersand {
 public:
-    constexpr Ampersand() noexcept
-        : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::ampersand} {
-    }
+    constexpr Ampersand() noexcept = default;
 
     constexpr Ampersand(::pltxt2htm::Ampersand const&) noexcept = delete;
     constexpr Ampersand(::pltxt2htm::Ampersand&& other) noexcept = default;
@@ -136,11 +122,9 @@ public:
 /**
  * @brief Represents `'`.
  */
-class SingleQuotationMark : public ::pltxt2htm::PlTxtNode {
+class SingleQuotationMark {
 public:
-    constexpr SingleQuotationMark() noexcept
-        : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::single_quote} {
-    }
+    constexpr SingleQuotationMark() noexcept = default;
 
     constexpr SingleQuotationMark(::pltxt2htm::SingleQuotationMark const&) noexcept = delete;
     constexpr SingleQuotationMark(::pltxt2htm::SingleQuotationMark&& other) noexcept = default;
@@ -153,11 +137,9 @@ public:
  * @brief Represents `"`.
  * @details This node represents a double quotation mark character in the AST
  */
-class DoubleQuotationMark : public ::pltxt2htm::PlTxtNode {
+class DoubleQuotationMark {
 public:
-    constexpr DoubleQuotationMark() noexcept
-        : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::double_quote} {
-    }
+    constexpr DoubleQuotationMark() noexcept = default;
 
     constexpr DoubleQuotationMark(::pltxt2htm::DoubleQuotationMark const&) noexcept = delete;
     constexpr DoubleQuotationMark(::pltxt2htm::DoubleQuotationMark&&) noexcept = default;
@@ -345,11 +327,9 @@ public:
 /**
  * @brief Represents a <hr> tag.
  */
-class Hr : public ::pltxt2htm::PlTxtNode {
+class Hr {
 public:
-    constexpr Hr() noexcept
-        : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::html_hr} {
-    }
+    constexpr Hr() noexcept = default;
 
     constexpr Hr(::pltxt2htm::Hr const&) noexcept = delete;
     constexpr Hr(::pltxt2htm::Hr&& other) noexcept = default;
