@@ -47,9 +47,7 @@ constexpr auto plweb_text_backend(::pltxt2htm::Ast const& ast_init, ::fast_io::u
                                   ::fast_io::u8string_view author, ::fast_io::u8string_view coauthors) noexcept
     -> ::fast_io::u8string {
     ::fast_io::u8string result{};
-    ::fast_io::stack<::pltxt2htm::details::BackendBasicFrameContext,
-                     ::fast_io::list<::pltxt2htm::details::BackendBasicFrameContext>>
-        call_stack{};
+    ::fast_io::stack<::pltxt2htm::details::BackendBasicFrameContext> call_stack{};
     call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(ast_init, ::pltxt2htm::NodeType::base, 0));
 
 entry:

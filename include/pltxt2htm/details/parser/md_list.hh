@@ -466,9 +466,7 @@ template<bool ndebug>
 [[nodiscard]]
 constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::ToMdListAstResult> {
-    ::fast_io::stack<::pltxt2htm::details::MdListFrameContext,
-                     ::fast_io::vector<::pltxt2htm::details::MdListFrameContext>>
-        call_stack{};
+    ::fast_io::stack<::pltxt2htm::details::MdListFrameContext> call_stack{};
 
     // manually managing stack to avoid stack-overflow
     {

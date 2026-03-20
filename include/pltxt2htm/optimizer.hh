@@ -159,9 +159,7 @@ public:
  */
 template<bool ndebug>
 constexpr void optimize_ast(::pltxt2htm::Ast& ast_init) noexcept {
-    ::fast_io::stack<
-        ::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>,
-        ::fast_io::list<::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>>>
+    ::fast_io::stack<::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>>
         call_stack{};
     call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>{
         ::std::addressof(ast_init), ::pltxt2htm::NodeType::base, ast_init.begin()});

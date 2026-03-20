@@ -433,9 +433,8 @@ template<bool ndebug, ::pltxt2htm::details::LiteralString prefix_str, ::pltxt2ht
 [[nodiscard]]
 constexpr auto try_parse_experiment_tag(
     ::fast_io::u8string_view pltext, Func&& func,
-    ::fast_io::stack<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>,
-                     ::fast_io::vector<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>>> const&
-        call_stack) noexcept -> ::exception::optional<TryParseEqualSignTagResult> {
+    ::fast_io::stack<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>> const& call_stack) noexcept
+    -> ::exception::optional<TryParseEqualSignTagResult> {
     auto result =
         ::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, prefix_str>(pltext, ::std::forward<Func>(func));
     if (result.has_value() == false) {

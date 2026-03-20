@@ -31,8 +31,7 @@ template<bool ndebug>
 [[nodiscard]]
 constexpr auto devil_stuff_after_line_break(
     ::fast_io::u8string_view pltext,
-    ::fast_io::stack<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>,
-                     ::fast_io::vector<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>>>& call_stack,
+    ::fast_io::stack<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>>& call_stack,
     ::pltxt2htm::Ast& result) noexcept -> ::pltxt2htm::details::DevilStuffAfterLineBreakResult {
     ::std::size_t current_index{};
     while (true) {
@@ -366,9 +365,8 @@ template<bool ndebug>
 [[__gnu__::__pure__]]
 #endif
 constexpr auto parse_pltxt(
-    ::fast_io::stack<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>,
-                     ::fast_io::vector<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>>>&
-        call_stack) noexcept -> ::pltxt2htm::Ast {
+    ::fast_io::stack<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>>& call_stack) noexcept
+    -> ::pltxt2htm::Ast {
 entry:
     if (call_stack.top()->nested_tag_type == ::pltxt2htm::NodeType::md_ul) {
         // ::pltxt2htm::details::MdListAst to ::pltxt2htm::Ast
