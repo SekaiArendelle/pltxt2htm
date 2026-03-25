@@ -121,14 +121,26 @@ entry:
             result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
             continue;
         }
-        case ::pltxt2htm::NodeType::pl_color:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeType::pl_a: {
-            // <a> and <color> is the same tag&struct in fact
+        case ::pltxt2htm::NodeType::pl_color: {
             auto color = static_cast<::pltxt2htm::Color const*>(node.release_imul());
 
             call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(color->get_subast(),
                                                                            ::pltxt2htm::NodeType::pl_color, 0));
+            ++current_index;
+            auto const close_tag1 =
+                ::fast_io::array{u8'<', u8's', u8'p',  u8'a', u8'n', u8' ', u8's', u8't', u8'y', u8'l',
+                                 u8'e', u8'=', u8'\"', u8'c', u8'o', u8'l', u8'o', u8'r', u8':'};
+            result.append(::fast_io::u8string_view{close_tag1.data(), close_tag1.size()});
+            result.append(color->get_color());
+            auto const close_tag2 = ::fast_io::array{u8';', u8'\"', u8'>'};
+            result.append(::fast_io::u8string_view{close_tag2.data(), close_tag2.size()});
+            goto entry;
+        }
+        case ::pltxt2htm::NodeType::pl_a: {
+            auto color = static_cast<::pltxt2htm::A const*>(node.release_imul());
+
+            call_stack.push(
+                ::pltxt2htm::details::BackendBasicFrameContext(color->get_subast(), ::pltxt2htm::NodeType::pl_a, 0));
             ++current_index;
             auto const close_tag1 =
                 ::fast_io::array{u8'<', u8's', u8'p',  u8'a', u8'n', u8' ', u8's', u8't', u8'y', u8'l',
