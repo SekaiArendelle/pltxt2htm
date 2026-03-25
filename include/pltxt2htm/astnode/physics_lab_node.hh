@@ -11,6 +11,7 @@
 
 #include <utility>
 #include <fast_io/fast_io_dsal/string.h>
+#include <fast_io/fast_io_dsal/string_view.h>
 #include <exception/exception.hh>
 #include "basic.hh"
 
@@ -68,7 +69,7 @@ public:
  * @details Represents a hyperlink using <a> syntax with default blue color
  */
 class A : public ::pltxt2htm::details::PairedTagBase {
-    ::fast_io::u8string color_; ///< The color of the link text
+    static constexpr ::fast_io::u8string_view color_{u8"#0000AA"}; ///< The color of the link text
 
 public:
     constexpr A() noexcept = delete;
@@ -80,8 +81,7 @@ public:
      * @retval A New anchor node instance with blue color
      */
     constexpr A(::pltxt2htm::Ast&& text) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_a, ::std::move(text)},
-          color_{u8"#0000AA"} {
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_a, ::std::move(text)} {
     }
 
     constexpr A(::pltxt2htm::A const&) noexcept = delete;

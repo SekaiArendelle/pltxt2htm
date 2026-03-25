@@ -37,6 +37,18 @@ int main() {
     }
 
     {
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<A><color=red>text</color></A>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"color:red;\">text</span>"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<A>t<a>ex</a>t</A>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"color:#0000AA;\">text</span>"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
         // test invalid tag
         auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"test<a  $");
         auto answer = ::fast_io::u8string_view{u8"test&lt;a&nbsp;&nbsp;$"};

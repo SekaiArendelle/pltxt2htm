@@ -117,14 +117,22 @@ entry:
             result.push_back(u8'\t');
             continue;
         }
-        case ::pltxt2htm::NodeType::pl_color:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeType::pl_a: {
-            // <a> and <color> is the same tag&struct in fact
+        case ::pltxt2htm::NodeType::pl_color: {
             auto color = static_cast<::pltxt2htm::Color const*>(node.release_imul());
 
             call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(color->get_subast(),
                                                                            ::pltxt2htm::NodeType::pl_color, 0));
+            ++current_index;
+            result.append(u8"<color=");
+            result.append(color->get_color());
+            result.push_back(u8'>');
+            goto entry;
+        }
+        case ::pltxt2htm::NodeType::pl_a: {
+            auto color = static_cast<::pltxt2htm::A const*>(node.release_imul());
+
+            call_stack.push(
+                ::pltxt2htm::details::BackendBasicFrameContext(color->get_subast(), ::pltxt2htm::NodeType::pl_a, 0));
             ++current_index;
             result.append(u8"<color=");
             result.append(color->get_color());
