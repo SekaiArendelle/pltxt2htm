@@ -61,6 +61,12 @@ int main() {
     }
 
     {
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<color=red>t<Color=red>ex</color>t</color>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"color:red;\">text</span>"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
         auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<color=red>text<Color=#66ccff>text</color></color>");
         auto answer = ::fast_io::u8string_view{
             u8"<span style=\"color:red;\">text<span style=\"color:#66ccff;\">text</span></span>"};
@@ -95,6 +101,12 @@ int main() {
         // https://github.com/SekaiArendelle/pltxt2htm/issues/20
         auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<color=red>test</a>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:red;\">test</span>"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<color=red><a>test</a></color>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"color:#0000AA;\">test</span>"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 

@@ -217,25 +217,30 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_color: {
-            // <a> and <color> share the same underlying structure (Color class)
-            // Both are equal-sign tags with string attributes
             auto color = static_cast<::pltxt2htm::Color*>(node.get_unsafe());
             {
                 // Optimization: <color=red><color=blue>text</color></color>
-                // can be simplified to <color=blue>text</color>
-                // The inner color takes precedence over the outer color
+                // simplifies to <color=blue>text</color>.
+                // The inner color attribute overrides the outer one.
+                //
+                // Optimization: <color=red><a>text</a></color>
+                // simplifies to <a>text</a>.
+                // The inner anchor tag's styling takes precedence over the outer color.
                 auto&& subast = color->get_subast();
                 if (subast.size() == 1) {
-                    ::pltxt2htm::PlTxtNode* psubnode{::pltxt2htm::details::vector_front<ndebug>(subast).get_unsafe()};
-                    if (psubnode->node_type() == ::pltxt2htm::NodeType::pl_color) {
-                        auto subnode = ::std::move(*static_cast<::pltxt2htm::Color*>(psubnode));
-                        (*color) = ::std::move(subnode);
+                    ::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>& psubnode =
+                        ::pltxt2htm::details::vector_front<ndebug>(subast);
+                    if (psubnode->node_type() == ::pltxt2htm::NodeType::pl_color ||
+                        psubnode->node_type() == ::pltxt2htm::NodeType::pl_a) {
+                        auto subnode = ::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>{::std::move(psubnode)};
+                        (*current_iter) = ::std::move(subnode);
+                        continue;
                     }
                 }
             }
             auto&& nested_tag_type = call_stack.top()->nested_tag_type;
             // Optimization: If this color matches the parent color, flatten the nesting
-            // <color=red><color=red>text</color></color> -> <color=red>text</color>
+            // <color=red>text<color=red>text</color>test</color> -> <color=red>texttexttext</color>
             bool const is_not_same_tag =
                 (nested_tag_type != ::pltxt2htm::NodeType::pl_color &&
                  nested_tag_type != ::pltxt2htm::NodeType::pl_a) ||
@@ -264,25 +269,25 @@ entry:
             }
         }
         case ::pltxt2htm::NodeType::pl_a: {
-            // <a> and <color> share the same underlying structure (Color class)
-            // Both are equal-sign tags with string attributes
             auto color = static_cast<::pltxt2htm::A*>(node.get_unsafe());
             {
-                // Optimization: <color=red><color=blue>text</color></color>
+                // Optimization: <a><color=blue>text</color></a>
                 // can be simplified to <color=blue>text</color>
                 // The inner color takes precedence over the outer color
                 auto&& subast = color->get_subast();
                 if (subast.size() == 1) {
-                    ::pltxt2htm::PlTxtNode* psubnode{::pltxt2htm::details::vector_front<ndebug>(subast).get_unsafe()};
+                    ::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>& psubnode =
+                        ::pltxt2htm::details::vector_front<ndebug>(subast);
                     if (psubnode->node_type() == ::pltxt2htm::NodeType::pl_color) {
-                        auto subnode = ::std::move(*static_cast<::pltxt2htm::A*>(psubnode));
-                        (*color) = ::std::move(subnode);
+                        auto subnode = ::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>{::std::move(psubnode)};
+                        (*current_iter) = ::std::move(subnode);
+                        continue;
                     }
                 }
             }
             auto&& nested_tag_type = call_stack.top()->nested_tag_type;
             // Optimization: If this color matches the parent color, flatten the nesting
-            // <color=red><color=red>text</color></color> -> <color=red>text</color>
+            // <a>text<a>text</a>text</a> -> <a>texttexttext</a>
             bool const is_not_same_tag =
                 (nested_tag_type != ::pltxt2htm::NodeType::pl_color &&
                  nested_tag_type != ::pltxt2htm::NodeType::pl_a) ||

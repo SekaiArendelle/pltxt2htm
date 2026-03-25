@@ -72,6 +72,18 @@ template<bool ndebug, typename T>
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
+constexpr auto& vector_front(::fast_io::vector<T>& vec) noexcept {
+    bool const vec_is_not_empty{!vec.empty()};
+    pltxt2htm_assert(vec_is_not_empty, u8"Indexing front but vector is empty");
+
+    return vec.front_unchecked();
+}
+
+template<bool ndebug, typename T>
+[[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
 constexpr auto const& vector_front(::fast_io::vector<T> const& vec) noexcept {
     bool const vec_is_not_empty{!vec.empty()};
     pltxt2htm_assert(vec_is_not_empty, u8"Indexing front but vector is empty");
