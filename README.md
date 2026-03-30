@@ -50,20 +50,6 @@ markdown extension based on [commonmark](https://spec.commonmark.org/0.31.2/)
 
 Show all supported features in [tests](./tests/)
 
-## Setup development environment
-Easy to setup development environment by my [Dockerfile](./Dockerfile)
-
-### Setup docker image and container
-```sh
-docker build -t pltxt2htm .
-docker run -d --name pltxt2htm-dev pltxt2htm
-```
-
-### Enter container
-```sh
-docker exec -it pltxt2htm-dev bash
-```
-
 ## distribution
 All distributions share the same version of `pltxt2htm::version`
 
