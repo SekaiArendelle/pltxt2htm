@@ -74,7 +74,7 @@ A: I appreciate Rust but not for its "safety". Basically, safety should always b
 At the same time, `pltxt2htm` is absolutely safe:
 * Lots of assertions are enabled in debug mode to assure memory safety and logic correctness.
 * Over 90% (with a future target of 95%) test coverage.
-* Every commit in master undergose testing with asan under both clang and gcc in ci.
+* Every commit in main undergose testing with asan under both clang and gcc in ci.
 * Every release undergose at least 6 hours of fuzzing with clang, with asan or ubsan enabled.
 
 > Q: Why use C++ instead of a language with VM?
