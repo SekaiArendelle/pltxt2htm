@@ -19,10 +19,11 @@ dist/
 tests/lcov-report/
 
 # archive
-*.7z
-*.xz
-*.tar
-*.zip
+**/*.7z
+**/*.gz
+**/*.xz
+**/*.tar
+**/*.zip
 
 # my temporary file
 *.ignore*
@@ -40,6 +41,7 @@ compile_commands.json
 # clang fuzzer crashing file
 **/crash-*
 **/oom-*
+**/slow-unit-*
 
 # library
 *.lib

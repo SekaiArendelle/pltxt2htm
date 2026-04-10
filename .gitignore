@@ -19,11 +19,11 @@ dist/
 tests/lcov-report/
 
 # archive
-*.7z
-*.gz
-*.xz
-*.tar
-*.zip
+**/*.7z
+**/*.gz
+**/*.xz
+**/*.tar
+**/*.zip
 
 # my temporary file
 *.ignore*
