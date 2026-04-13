@@ -1444,7 +1444,7 @@ constexpr auto try_parse_md_link(::fast_io::u8string_view pltext) noexcept
         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8']') {
         return ::exception::nullopt_t{};
     }
-    ::std::size_t link_text_end = current_index;
+    ::std::size_t link_text_end {current_index};
     ++current_index;
 
     // Ensure the next character is '('
@@ -1453,7 +1453,7 @@ constexpr auto try_parse_md_link(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt_t{};
     }
     ++current_index;
-    ::std::size_t link_url_start = current_index;
+    ::std::size_t link_url_start{current_index};
 
     auto opt_link_url = ::pltxt2htm::details::try_parse_url<ndebug, true>(
         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
@@ -1507,7 +1507,7 @@ constexpr auto try_parse_md_image(::fast_io::u8string_view pltext) noexcept
         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8']') {
         return ::exception::nullopt_t{};
     }
-    ::std::size_t link_text_end = current_index;
+    ::std::size_t link_text_end{current_index};
     ++current_index;
 
     // Ensure the next character is '('
@@ -1530,15 +1530,9 @@ constexpr auto try_parse_md_image(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt_t{};
     }
     auto link_url_view = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, link_url_start, link_url_size);
-    if (!link_url_view.ends_with(u8".jpg") && !link_url_view.ends_with(u8".jpeg") &&
-        !link_url_view.ends_with(u8".png") && !link_url_view.ends_with(u8".gif") &&
-        !link_url_view.ends_with(u8".bmp") && !link_url_view.ends_with(u8".webp") &&
-        !link_url_view.ends_with(u8".svg")) {
-        return ::exception::nullopt_t{};
-    }
     ::fast_io::u8string link_url{link_url_view};
     return ::pltxt2htm::details::TryParseMdImageResult{.forward_index = current_index + 1,
-                                                       .link_text = pltext.subview(1, link_text_end - 1),
+                                                       .link_text = pltext.subview(2, link_text_end - 2),
                                                        .link_url = ::std::move(link_url)};
 }
 
