@@ -460,8 +460,8 @@ entry:
             ++current_index;
             goto entry;
         }
-        case ::pltxt2htm::Nodetype::md_image: {
-            auto a_image = static_cast<::pltxt2htm::NodeType::MdImage const*>(node.release_imul());
+        case ::pltxt2htm::NodeType::md_image: {
+            auto a_image = static_cast<::pltxt2htm::MdImage const*>(node.release_imul());
 
             auto const start_tag =
                 ::fast_io::array{u8'<', u8'i', u8'm', u8'g', u8' ', u8's', u8'r', u8'c', u8'=', u8'\"'};

@@ -226,6 +226,8 @@ constexpr auto get_pltext_from_parser_frame_context(
     case ::pltxt2htm::NodeType::md_link: {
         return static_cast<::pltxt2htm::details::MdLinkContext const*>(top_frame.release_imul())->pltext;
     }
+    case ::pltxt2htm::NodeType::md_image:
+        [[fallthrough]];
     case ::pltxt2htm::NodeType::pl_macro_project:
         [[fallthrough]];
     case ::pltxt2htm::NodeType::pl_macro_visitor:
@@ -697,6 +699,14 @@ entry:
             call_stack.push(
                 ::pltxt2htm::HeapGuard<::pltxt2htm::details::MdLinkContext>(url_text, ::std::move(url_link)));
             goto entry;
+        }
+        else if (auto opt_md_link = ::pltxt2htm::details::try_parse_md_image<ndebug>(
+            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                opt_md_link.has_value()) {
+        auto&& [forward_index, text, link] = opt_md_link.template value<ndebug>();
+        current_index += forward_index;
+        result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdImage>(::fast_io::u8string{text}, ::std::move(link)));
+        continue;
         }
         else if (chr == u8'<') {
             // if i is a valid value, i always less than pltext_size
@@ -1819,6 +1829,8 @@ entry:
                     ++current_index;
                     continue;
                 }
+                case ::pltxt2htm::NodeType::md_image:
+                    [[fallthrough]];
                 case ::pltxt2htm::NodeType::pl_macro_project:
                     [[fallthrough]];
                 case ::pltxt2htm::NodeType::pl_macro_visitor:
@@ -2237,6 +2249,8 @@ entry:
             case ::pltxt2htm::NodeType::md_code_fence_tilde:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::html_note:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeType::md_image:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::pl_macro_project:
                 [[fallthrough]];

@@ -1054,7 +1054,7 @@ public:
     ::fast_io::u8string url_;
 
     constexpr MdImage(::fast_io::u8string&& text, ::fast_io::u8string&& url) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_image},
+        : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::md_image},
           text_(::std::move(text)),
           url_(::std::move(url)) {
     }
