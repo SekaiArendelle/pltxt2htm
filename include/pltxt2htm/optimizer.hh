@@ -676,6 +676,8 @@ entry:
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_blockquote, subast.begin()));
             goto entry;
         }
+        case ::pltxt2htm::NodeType::md_image:
+            [[fallthrough]];
         case ::pltxt2htm::NodeType::md_link: {
             ++current_iter;
             continue;
