@@ -1048,13 +1048,14 @@ public:
     }
 };
 
-class MdImage : public ::pltxt2htm::details::PairedTagBase {
+class MdImage : public ::pltxt2htm::PlTxtNode {
 public:
-    // Can not be stored in string_view, otherwise tests/0048.pltext_maybe_destructed.cc will fail
+    ::fast_io::u8string text_;
     ::fast_io::u8string url_;
 
-    constexpr MdImage(::pltxt2htm::Ast&& subast, ::fast_io::u8string&& url) noexcept
-        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_image, ::std::move(subast)},
+    constexpr MdImage(::fast_io::u8string&& text, ::fast_io::u8string&& url) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_image},
+          text_(::std::move(text)),
           url_(::std::move(url)) {
     }
 
@@ -1065,11 +1066,6 @@ public:
     constexpr ::pltxt2htm::MdImage& operator=(::pltxt2htm::MdImage const&) noexcept = delete;
 
     constexpr ::pltxt2htm::MdImage& operator=(::pltxt2htm::MdImage&&) noexcept = default;
-
-    [[nodiscard]]
-    constexpr auto&& get_subast(this auto&& self) noexcept {
-        return ::std::forward_like<decltype(self)>(self.subast_);
-    }
 };
 
 class MdBlockQuotes : public ::pltxt2htm::details::PairedTagBase {

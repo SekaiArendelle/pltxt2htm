@@ -460,6 +460,21 @@ entry:
             ++current_index;
             goto entry;
         }
+        case ::pltxt2htm::Nodetype::md_image: {
+            auto a_image = static_cast<::pltxt2htm::NodeType::MdImage const*>(node.release_imul());
+
+            auto const start_tag =
+                ::fast_io::array{u8'<', u8'i', u8'm', u8'g', u8' ', u8's', u8'r', u8'c', u8'=', u8'\"'};
+            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            result.append(a_image->url_);
+            auto const mid_tag = ::fast_io::array{u8'\"', u8' ', u8'a', u8'l', u8't', u8'=', u8'\"'};
+            result.append(::fast_io::u8string_view(mid_tag.begin(), mid_tag.size()));
+            result.append(a_image->text_);
+            auto const end_tag = ::fast_io::array{u8'\"', u8'/', u8'>'};
+            result.append(::fast_io::u8string_view(end_tag.begin(), end_tag.size()));
+            ++current_index;
+            continue;
+        }
         case ::pltxt2htm::NodeType::md_escape_backslash: {
             result.push_back(u8'\\');
             continue;

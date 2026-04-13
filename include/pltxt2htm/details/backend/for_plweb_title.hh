@@ -392,6 +392,10 @@ entry:
             ++current_index;
             goto entry;
         }
+        case ::pltxt2htm::NodeType::md_image: {
+            ++current_index;
+            goto entry;
+        }
         case ::pltxt2htm::NodeType::base:
             [[unlikely]] {
                 ::exception::unreachable<ndebug>();
