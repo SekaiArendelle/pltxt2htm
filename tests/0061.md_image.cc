@@ -27,7 +27,7 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"![text with spaces](image.gif)");
-        auto answer = ::fast_io::u8string_view{u8"<img src=\"image.gif\" alt=\"text with spaces\">"};
+        auto answer = ::fast_io::u8string_view{u8"![text&nbsp;with&nbsp;spaces](image.gif)"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
@@ -59,7 +59,7 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"![]()");
-        auto answer = ::fast_io::u8string_view{u8"<img src=\"\" alt=\"\">"};
+        auto answer = ::fast_io::u8string_view{u8"![]()"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 

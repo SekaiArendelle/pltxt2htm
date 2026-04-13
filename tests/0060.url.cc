@@ -117,7 +117,12 @@ int main() {
         ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value() == false);
     }
     {
-        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(u8"image.gif)").has_value() == false);
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false, true>(u8"image.gif)").has_value() ==
+                                      false);
+    }
+    {
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false, true>(u8"example.com)").has_value() ==
+                                      true);
     }
 
     return 0;

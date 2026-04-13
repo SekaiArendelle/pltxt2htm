@@ -1374,9 +1374,14 @@ constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept -> ::exce
         }
         else {
             if constexpr (regard_right_parent_as_end_of_url) {
-                if (chr == u8')') {
-                    return current_index;
+                if (chr != u8')') {
+                    return ::exception::nullopt_t{};
                 }
+                if (::pltxt2htm::details::is_valid_domain(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 0, current_index)) == false) {
+                    return ::exception::nullopt_t{};
+                }
+                return current_index;
             }
             return ::exception::nullopt_t{};
         }
