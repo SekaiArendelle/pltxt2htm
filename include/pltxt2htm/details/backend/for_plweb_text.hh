@@ -470,7 +470,7 @@ entry:
             auto const mid_tag = ::fast_io::array{u8'\"', u8' ', u8'a', u8'l', u8't', u8'=', u8'\"'};
             result.append(::fast_io::u8string_view(mid_tag.begin(), mid_tag.size()));
             result.append(a_image->text_);
-            auto const end_tag = ::fast_io::array{u8'\"', u8'/', u8'>'};
+            auto const end_tag = ::fast_io::array{u8'\"', u8'>'};
             result.append(::fast_io::u8string_view(end_tag.begin(), end_tag.size()));
             ++current_index;
             continue;

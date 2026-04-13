@@ -1494,9 +1494,9 @@ constexpr auto try_parse_md_image(::fast_io::u8string_view pltext) noexcept
     // Parse link text
     while (current_index < pltext.size() &&
            ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8']') {
-            // No need to handle escape here
-            // Because the result of `link_text` is string_view
-            // `::pltxt2htm::details::parse_pltxt` will handle the escape when converting to ast
+        // No need to handle escape here
+        // Because the result of `link_text` is string_view
+        // `::pltxt2htm::details::parse_pltxt` will handle the escape when converting to ast
         if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) == u8'\\') {
             ++current_index;
         }
@@ -1530,15 +1530,16 @@ constexpr auto try_parse_md_image(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt_t{};
     }
     auto link_url_view = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, link_url_start, link_url_size);
-    if (!link_url_view.ends_with(u8".jpg") && !link_url_view.ends_with(u8".jpeg") && !link_url_view.ends_with(u8".png") &&
-        !link_url_view.ends_with(u8".gif") && !link_url_view.ends_with(u8".bmp") &&
-        !link_url_view.ends_with(u8".webp") && !link_url_view.ends_with(u8".svg")) {
+    if (!link_url_view.ends_with(u8".jpg") && !link_url_view.ends_with(u8".jpeg") &&
+        !link_url_view.ends_with(u8".png") && !link_url_view.ends_with(u8".gif") &&
+        !link_url_view.ends_with(u8".bmp") && !link_url_view.ends_with(u8".webp") &&
+        !link_url_view.ends_with(u8".svg")) {
         return ::exception::nullopt_t{};
     }
     ::fast_io::u8string link_url{link_url_view};
     return ::pltxt2htm::details::TryParseMdImageResult{.forward_index = current_index + 1,
-                                                      .link_text = pltext.subview(1, link_text_end - 1),
-                                                      .link_url = ::std::move(link_url)};
+                                                       .link_text = pltext.subview(1, link_text_end - 1),
+                                                       .link_url = ::std::move(link_url)};
 }
 
 } // namespace pltxt2htm::details
