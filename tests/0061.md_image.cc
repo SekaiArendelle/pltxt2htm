@@ -33,13 +33,13 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"![special](https://example.com/path with spaces.jpg)");
-        auto answer =
-            ::fast_io::u8string_view{u8"![special](https://example.com/path&nbsp;with&nbsp;spaces.jpg)"};
+        auto answer = ::fast_io::u8string_view{u8"![special](https://example.com/path&nbsp;with&nbsp;spaces.jpg)"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"![special](https://example.com/path%20with%20spaces.jpg)");
+        auto html =
+            ::pltxt2htm_test::pltxt2advanced_htmld(u8"![special](https://example.com/path%20with%20spaces.jpg)");
         auto answer =
             ::fast_io::u8string_view{u8"<img src=\"https://example.com/path%20with%20spaces.jpg\" alt=\"special\">"};
         ::pltxt2htm_test::assert_true(html == answer);

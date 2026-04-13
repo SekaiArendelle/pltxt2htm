@@ -1444,7 +1444,7 @@ constexpr auto try_parse_md_link(::fast_io::u8string_view pltext) noexcept
         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8']') {
         return ::exception::nullopt_t{};
     }
-    ::std::size_t link_text_end {current_index};
+    ::std::size_t link_text_end{current_index};
     ++current_index;
 
     // Ensure the next character is '('
