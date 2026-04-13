@@ -479,6 +479,19 @@ entry:
             result.push_back(u8'>');
             goto entry;
         }
+        case ::pltxt2htm::Nodetype::md_image: {
+            auto a_image = static_cast<::pltxt2htm::NodeType::MdImage const*>(node.release_imul());
+
+            auto const start_tag = ::fast_io::array{u8'!', u8'['};
+            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            result.append(a_image->url_);
+            auto const mid_tag = ::fast_io::array{u8']', u8'('};
+            result.append(::fast_io::u8string_view(mid_tag.begin(), mid_tag.size()));
+            result.append(a_image->text_);
+            result.push_back(u8')');
+            ++current_index;
+            continue;
+        }
         case ::pltxt2htm::NodeType::md_escape_backslash: {
             result.push_back(u8'\\');
             continue;
