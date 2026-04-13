@@ -151,6 +151,8 @@ enum class NodeType : ::std::size_t {
 
     // Markdown links and references
     md_link, ///< Markdown link: [text](url)
+    // Markdown images
+    md_image, ///< Markdown image: ![text](url)
 
     // Markdown block quotes and lists
     md_block_quotes, ///< Block quote: > quote text
