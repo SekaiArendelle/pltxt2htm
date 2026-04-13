@@ -116,6 +116,9 @@ int main() {
         auto url = ::fast_io::u8string_view{u8"https://www.example.wtf:8080/a/path"};
         ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value() == false);
     }
+    {
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(u8"image.gif)").has_value() == false);
+    }
 
     return 0;
 }
