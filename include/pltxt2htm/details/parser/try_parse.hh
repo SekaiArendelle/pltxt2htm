@@ -1481,7 +1481,7 @@ constexpr auto try_parse_md_link(::fast_io::u8string_view pltext) noexcept
 
 struct TryParseMdImageResult {
     ::std::size_t forward_index;
-    ::fast_io::u8string_view link_text;
+    ::pltxt2htm::Ast link_text;
     ::fast_io::u8string link_url;
 };
 
@@ -1536,9 +1536,10 @@ constexpr auto try_parse_md_image(::fast_io::u8string_view pltext) noexcept
     }
     auto link_url_view = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, link_url_start, link_url_size);
     ::fast_io::u8string link_url{link_url_view};
-    return ::pltxt2htm::details::TryParseMdImageResult{.forward_index = current_index + 1,
-                                                       .link_text = pltext.subview(2, link_text_end - 2),
-                                                       .link_url = ::std::move(link_url)};
+    auto&& [_, link_text_ast] =
+        ::pltxt2htm::details::simply_parse_pltext<ndebug, u8"">(pltext.subview(2, link_text_end - 2));
+    return ::pltxt2htm::details::TryParseMdImageResult{
+        .forward_index = current_index + 1, .link_text = ::std::move(link_text_ast), .link_url = ::std::move(link_url)};
 }
 
 } // namespace pltxt2htm::details

@@ -63,5 +63,12 @@ int main() {
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
+    {
+        // Avoid XSS Attack
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"![x\" onerror=\"alert('XSS')](example.com/image.jpg)");
+        auto answer = ::fast_io::u8string_view{u8"![]()"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
     return 0;
 }

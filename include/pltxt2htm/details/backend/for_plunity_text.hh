@@ -484,7 +484,7 @@ entry:
 
             auto const start_tag = ::fast_io::array{u8'!', u8'['};
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
-            result.append(a_image->text_);
+            // result.append(a_image->text_);
             auto const mid_tag = ::fast_io::array{u8']', u8'('};
             result.append(::fast_io::u8string_view(mid_tag.begin(), mid_tag.size()));
             result.append(a_image->url_);

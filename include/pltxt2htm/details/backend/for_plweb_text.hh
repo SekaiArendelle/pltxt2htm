@@ -15,6 +15,7 @@
 #include <fast_io/fast_io_dsal/string_view.h>
 #include <exception/exception.hh>
 #include "frame_context.hh"
+#include "convert_simple_pltxt_ast_to_string.hh"
 #include "../../details/utils.hh"
 #include "../../astnode/basic.hh"
 #include "../../astnode/node_type.hh"
@@ -469,7 +470,7 @@ entry:
             result.append(a_image->url_);
             auto const mid_tag = ::fast_io::array{u8'\"', u8' ', u8'a', u8'l', u8't', u8'=', u8'\"'};
             result.append(::fast_io::u8string_view(mid_tag.begin(), mid_tag.size()));
-            result.append(a_image->text_);
+            result.append(::pltxt2htm::details::convert_simple_pltxt_ast_to_string<ndebug>(a_image->get_subast()));
             auto const end_tag = ::fast_io::array{u8'\"', u8'>'};
             result.append(::fast_io::u8string_view(end_tag.begin(), end_tag.size()));
             ++current_index;

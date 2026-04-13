@@ -1041,21 +1041,17 @@ public:
     constexpr ::pltxt2htm::MdLink& operator=(::pltxt2htm::MdLink const&) noexcept = delete;
 
     constexpr ::pltxt2htm::MdLink& operator=(::pltxt2htm::MdLink&&) noexcept = default;
-
-    [[nodiscard]]
-    constexpr auto&& get_subast(this auto&& self) noexcept {
-        return ::std::forward_like<decltype(self)>(self.subast_);
-    }
 };
 
-class MdImage : public ::pltxt2htm::PlTxtNode {
+/**
+ * @note subast here should only contains NodeType::(u8char + invalid_u8char + md_escape_*)
+ */
+class MdImage : public ::pltxt2htm::details::PairedTagBase {
 public:
-    ::fast_io::u8string text_;
     ::fast_io::u8string url_;
 
-    constexpr MdImage(::fast_io::u8string&& text, ::fast_io::u8string&& url) noexcept
-        : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::md_image},
-          text_(::std::move(text)),
+    constexpr MdImage(::pltxt2htm::Ast&& subast, ::fast_io::u8string&& url) noexcept
+        : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_image, ::std::move(subast)},
           url_(::std::move(url)) {
     }
 

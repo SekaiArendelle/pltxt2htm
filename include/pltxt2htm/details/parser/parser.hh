@@ -705,8 +705,7 @@ entry:
                  opt_md_image.has_value()) {
             auto&& [forward_index, text, link] = opt_md_image.template value<ndebug>();
             current_index += forward_index;
-            result.push_back(
-                ::pltxt2htm::HeapGuard<::pltxt2htm::MdImage>(::fast_io::u8string{text}, ::std::move(link)));
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdImage>(::std::move(text), ::std::move(link)));
             continue;
         }
         else if (chr == u8'<') {
