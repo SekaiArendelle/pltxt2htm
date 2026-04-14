@@ -113,6 +113,30 @@ int main() {
         ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value());
     }
     {
+        auto url = ::fast_io::u8string_view{u8"https://www.example.com:/a/path"};
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value() == false);
+    }
+    {
+        auto url = ::fast_io::u8string_view{u8"https://www.example.com:abc/a/path"};
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value() == false);
+    }
+    {
+        auto url = ::fast_io::u8string_view{u8"https://www.example.com:80abc/a/path"};
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value() == false);
+    }
+    {
+        auto url = ::fast_io::u8string_view{u8"https://www.example.com:80javascript:alert(1)"};
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value() == false);
+    }
+    {
+        auto url = ::fast_io::u8string_view{u8"https://www.example.com:80?safe=query"};
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value());
+    }
+    {
+        auto url = ::fast_io::u8string_view{u8"javascript:alert(1)"};
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value() == false);
+    }
+    {
         auto url = ::fast_io::u8string_view{u8"https://www.example.wtf"};
         ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value() == false);
     }
