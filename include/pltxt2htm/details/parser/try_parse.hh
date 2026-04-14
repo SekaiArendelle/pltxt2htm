@@ -1410,10 +1410,24 @@ constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept -> ::exce
                     return ::exception::nullopt_t{};
                 }
             }
+            if (port_index == 0) {
+                return ::exception::nullopt_t{};
+            }
             if (port > 65535) {
                 return ::exception::nullopt_t{};
             }
             current_index += port_index + 1;
+            if (current_index < pltext.size()) {
+                auto const next_chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
+                if (next_chr != u8'/' && next_chr != u8'?' && next_chr != u8'#') {
+                    if constexpr (regard_right_parent_as_end_of_url) {
+                        if (next_chr == u8')') {
+                            return current_index;
+                        }
+                    }
+                    return ::exception::nullopt_t{};
+                }
+            }
             break;
         }
         else {
