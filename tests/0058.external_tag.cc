@@ -127,5 +127,21 @@ int main() {
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(
+            u8"<external=https://main.com><i><experiment=a>c</experiment></i></external>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<a href=\"https://main.com\"><em>&lt;experiment=a&gt;c&lt;/experiment&gt;</em></a>"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(
+            u8"<external=https://main.com><i><discussion=a>c</discussion></i></external>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<a href=\"https://main.com\"><em>&lt;discussion=a&gt;c&lt;/discussion&gt;</em></a>"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
     return 0;
 }

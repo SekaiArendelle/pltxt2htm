@@ -426,12 +426,12 @@ constexpr auto try_parse_equal_sign_tag(::fast_io::u8string_view pltext, Func&& 
     return ::exception::nullopt_t{};
 }
 
-template<bool ndebug, ::pltxt2htm::details::LiteralString prefix_str, ::pltxt2htm::NodeType tag_type, typename Func>
+template<bool ndebug, ::pltxt2htm::details::LiteralString prefix_str, typename Func>
     requires requires(Func&& func, char8_t chr) {
         { func(chr) } -> ::std::same_as<bool>;
     }
 [[nodiscard]]
-constexpr auto try_parse_experiment_tag(
+constexpr auto try_parse_non_nestable_equal_sign_tag(
     ::fast_io::u8string_view pltext, Func&& func,
     ::fast_io::stack<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>> const& call_stack) noexcept
     -> ::exception::optional<TryParseEqualSignTagResult> {
@@ -444,7 +444,10 @@ constexpr auto try_parse_experiment_tag(
         // skip
         // e.g. <experiment><experiment>test</experiment>text</experiment>
         // e.g. <experiment><a><experiment>test</experiment>text</a>text</experiment>
-        if (v.release_imul()->nested_tag_type == tag_type) {
+        auto const& nested_tag_type = v.release_imul()->nested_tag_type;
+        if (nested_tag_type == ::pltxt2htm::NodeType::pl_experiment ||
+            nested_tag_type == ::pltxt2htm::NodeType::pl_discussion ||
+            nested_tag_type == ::pltxt2htm::NodeType::pl_external) {
             return ::exception::nullopt_t{};
         }
     }
@@ -1447,7 +1450,7 @@ constexpr auto try_parse_external_tag(
     ::fast_io::stack<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>> const& call_stack) noexcept
     -> ::exception::optional<TryParseEqualSignTagResult> {
     auto result =
-        ::pltxt2htm::details::try_parse_experiment_tag<ndebug, u8"xternal", ::pltxt2htm::NodeType::pl_external>(
+        ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<ndebug, u8"xternal">(
             pltext, [](char8_t u8chr) static constexpr noexcept { return u8'!' <= u8chr && u8chr <= u8'~'; },
             call_stack);
     if (result.has_value() == false) {

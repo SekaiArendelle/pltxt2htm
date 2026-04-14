@@ -118,6 +118,15 @@ int main() {
 
     {
         auto html =
+            ::pltxt2htm_test::pltxt2advanced_htmld(u8"<experiment=a>t<experiment=b>ex</experiment>t</experiment>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/a\" "
+            u8"internal>t&lt;experiment=b&gt;ex</a>t&lt;/experiment&gt;"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html =
             ::pltxt2htm_test::pltxt2advanced_htmld(u8"<experiment=a><i><experiment=b>c</experiment></i></experiment>");
         auto answer = ::fast_io::u8string_view{
             u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/a\" "
@@ -128,6 +137,42 @@ int main() {
     {
         auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<experiment=<>test</experiment>");
         auto answer = ::fast_io::u8string_view{u8"&lt;experiment=&lt;&gt;test&lt;/experiment&gt;"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html =
+            ::pltxt2htm_test::pltxt2advanced_htmld(u8"<experiment=a>t<discussion=b>ex</discussion>t</experiment>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/a\" "
+            u8"internal>t&lt;discussion=b&gt;ex&lt;/discussion&gt;t</a>"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(
+            u8"<experiment=a><i>t<discussion=b>ex</discussion>t</i></experiment>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/a\" "
+            u8"internal><em>t&lt;discussion=b&gt;ex&lt;/discussion&gt;t</em></a>"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html =
+            ::pltxt2htm_test::pltxt2advanced_htmld(u8"<discussion=a>t<experiment=b>ex</experiment>t</discussion>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<a href=\"localhost:5173/ExperimentSummary/Discussion/a\" "
+            u8"internal>t&lt;experiment=b&gt;ex&lt;/experiment&gt;t</a>"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(
+            u8"<discussion=a><i>t<experiment=b>ex</experiment>t</i></discussion>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<a href=\"localhost:5173/ExperimentSummary/Discussion/a\" "
+            u8"internal><em>t&lt;experiment=b&gt;ex&lt;/experiment&gt;t</em></a>"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 

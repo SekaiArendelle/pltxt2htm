@@ -839,11 +839,10 @@ entry:
                 }
                 // parsing: <discussion=$1>$2</discussion>
                 else if (auto opt_discussion_tag =
-                             ::pltxt2htm::details::try_parse_experiment_tag<ndebug, u8"iscussion",
-                                                                            ::pltxt2htm::NodeType::pl_discussion>(
-                                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                                 [](char8_t u8chr) static constexpr noexcept {
-                                     return (u8'a' <= u8chr && u8chr <= u8'z') || (u8'0' <= u8chr && u8chr <= u8'9');
+                             ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<ndebug, u8"iscussion">(
+                                  ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
+                                  [](char8_t u8chr) static constexpr noexcept {
+                                      return (u8'a' <= u8chr && u8chr <= u8'z') || (u8'0' <= u8chr && u8chr <= u8'9');
                                  },
                                  call_stack);
                          opt_discussion_tag.has_value()) {
@@ -865,8 +864,7 @@ entry:
                 [[fallthrough]];
             case u8'E': {
                 if (auto opt_experiment_tag =
-                        ::pltxt2htm::details::try_parse_experiment_tag<ndebug, u8"xperiment",
-                                                                       ::pltxt2htm::NodeType::pl_experiment>(
+                        ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<ndebug, u8"xperiment">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
                             [](char8_t u8chr) static constexpr noexcept {
                                 return (u8'a' <= u8chr && u8chr <= u8'z') || (u8'0' <= u8chr && u8chr <= u8'9');
