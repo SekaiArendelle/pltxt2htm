@@ -94,7 +94,7 @@ public:
      */
     template<::std::size_t M>
     constexpr LiteralString(char const (&str)[M]) noexcept {
-        static_assert(N >= 0 && N + 1 == M);
+        static_assert(N > 0 && N + 1 == M);
         // Assume the end of the string is '\0'
         for (::std::size_t i{}; i < N; ++i) {
             this->data_[i] = str[i];
@@ -108,7 +108,7 @@ public:
      */
     template<::std::size_t M>
     constexpr LiteralString(char8_t const (&str)[M]) noexcept {
-        static_assert(N >= 0 && N + 1 == M);
+        static_assert(N > 0 && N + 1 == M);
         // Assume the end of the string is '\0'
         for (::std::size_t i{}; i < N; ++i) {
             this->data_[i] = str[i];

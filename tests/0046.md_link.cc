@@ -8,8 +8,14 @@ int main() {
     }
 
     {
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"[text](https://example.wtf)");
+        auto answer = ::fast_io::u8string_view{u8"[text](https://example.wtf)"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
         auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"[text](url)");
-        auto answer = ::fast_io::u8string_view{u8"<a href=\"url\">text</a>"};
+        auto answer = ::fast_io::u8string_view{u8"[text](url)"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
@@ -32,8 +38,8 @@ int main() {
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"[escaped \\[brackets\\]](url)");
-        auto answer = ::fast_io::u8string_view{u8"<a href=\"url\">escaped&nbsp;[brackets]</a>"};
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"[escaped \\[brackets\\]](example.com)");
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"example.com\">escaped&nbsp;[brackets]</a>"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
@@ -44,14 +50,26 @@ int main() {
     }
 
     {
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"[nested [link]](example.com)");
+        auto answer = ::fast_io::u8string_view{u8"[nested&nbsp;[link]](example.com)"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
         auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"[t**ex**t](example.com)");
         auto answer = ::fast_io::u8string_view{u8"<a href=\"example.com\">t<strong>ex</strong>t</a>"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
     {
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"[text](example.com)");
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"example.com\">text</a>"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
         auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"[text](url)");
-        auto answer = ::fast_io::u8string_view{u8"<a href=\"url\">text</a>"};
+        auto answer = ::fast_io::u8string_view{u8"[text](url)"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
@@ -69,13 +87,19 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"[]()");
-        auto answer = ::fast_io::u8string_view{u8"<a href=\"\"></a>"};
+        auto answer = ::fast_io::u8string_view{u8"[]()"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"[](test)");
-        auto answer = ::fast_io::u8string_view{u8"<a href=\"test\"></a>"};
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"[](example.com)");
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"example.com\"></a>"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"[te\nxt](example.com)");
+        auto answer = ::fast_io::u8string_view{u8"[te<br>xt](example.com)"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
