@@ -24,7 +24,7 @@
 namespace pltxt2htm::details {
 
 template<bool ndebug>
-constexpr auto convert_simple_pltxt_ast_to_string(::pltxt2htm::Ast const& ast) noexcept -> ::fast_io::u8string {
+constexpr auto convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast const& ast) noexcept -> ::fast_io::u8string {
     ::fast_io::u8string result{};
     for (auto&& node : ast) {
         switch (node->node_type()) {
@@ -648,7 +648,7 @@ entry:
             result.append(a_image->url_);
             auto const mid_tag = ::fast_io::array{u8'\"', u8' ', u8'a', u8'l', u8't', u8'=', u8'\"'};
             result.append(::fast_io::u8string_view(mid_tag.begin(), mid_tag.size()));
-            result.append(::pltxt2htm::details::convert_simple_pltxt_ast_to_string<ndebug>(a_image->get_subast()));
+            result.append(::pltxt2htm::details::convert_simple_pltxt_ast_to_plweb_text<ndebug>(a_image->get_subast()));
             auto const end_tag = ::fast_io::array{u8'\"', u8'>'};
             result.append(::fast_io::u8string_view(end_tag.begin(), end_tag.size()));
             ++current_index;

@@ -44,6 +44,177 @@ public:
 };
 
 template<bool ndebug>
+constexpr auto convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast const& ast) noexcept
+    -> ::fast_io::u8string {
+    ::fast_io::u8string result{};
+    for (auto&& node : ast) {
+        switch (node->node_type()) {
+        case ::pltxt2htm::NodeType::u8char: {
+            result.push_back(static_cast<::pltxt2htm::U8Char const*>(node.release_imul())->get_u8char());
+            continue;
+        }
+        case ::pltxt2htm::NodeType::invalid_u8char: {
+            auto const escape_str = ::fast_io::array{char8_t{0xef}, 0xbf, 0xbd};
+            result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
+            continue;
+        }
+        case ::pltxt2htm::NodeType::space: {
+            result.push_back(u8' ');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_escape_ampersand:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::ampersand: {
+            result.push_back(u8'&');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_escape_single_quote:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::single_quote: {
+            result.push_back(u8'\'');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_escape_double_quote:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::double_quote: {
+            result.push_back(u8'\"');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_escape_less_than:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::less_than: {
+            result.push_back(u8'<');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_escape_greater_than:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::greater_than: {
+            result.push_back(u8'>');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::tab: {
+            result.push_back(u8'\t');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_escape_backslash: {
+            result.push_back(u8'\\');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_escape_exclamation: {
+            result.push_back(u8'!');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_escape_hash: {
+            result.push_back(u8'#');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_escape_dollar: {
+            result.push_back(u8'$');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_escape_percent: {
+            result.push_back(u8'%');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_escape_left_paren: {
+            result.push_back(u8'(');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_escape_right_paren: {
+            result.push_back(u8')');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_escape_asterisk: {
+            result.push_back(u8'*');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_escape_plus: {
+            result.push_back(u8'+');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_escape_comma: {
+            result.push_back(u8',');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_escape_hyphen: {
+            result.push_back(u8'-');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_escape_dot: {
+            result.push_back(u8'.');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_escape_slash: {
+            result.push_back(u8'/');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_escape_colon: {
+            result.push_back(u8':');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_escape_semicolon: {
+            result.push_back(u8';');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_escape_equals: {
+            result.push_back(u8'=');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_escape_question: {
+            result.push_back(u8'?');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_escape_at: {
+            result.push_back(u8'@');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_escape_left_bracket: {
+            result.push_back(u8'[');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_escape_right_bracket: {
+            result.push_back(u8']');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_escape_caret: {
+            result.push_back(u8'^');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_escape_underscore: {
+            result.push_back(u8'_');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_escape_backtick: {
+            result.push_back(u8'`');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_escape_left_brace: {
+            result.push_back(u8'{');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_escape_pipe: {
+            result.push_back(u8'|');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_escape_right_brace: {
+            result.push_back(u8'}');
+            continue;
+        }
+        case ::pltxt2htm::NodeType::md_escape_tilde: {
+            result.push_back(u8'~');
+            continue;
+        }
+        default:
+            [[unlikely]] {
+                ::exception::unreachable<ndebug>();
+            }
+        }
+    }
+
+    return result;
+}
+
+template<bool ndebug>
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
@@ -484,7 +655,8 @@ entry:
 
             auto const start_tag = ::fast_io::array{u8'!', u8'['};
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
-            // result.append(a_image->text_);
+            result.append(
+                ::pltxt2htm::details::convert_simple_pltxt_ast_to_plunity_richtext<ndebug>(a_image->get_subast()));
             auto const mid_tag = ::fast_io::array{u8']', u8'('};
             result.append(::fast_io::u8string_view(mid_tag.begin(), mid_tag.size()));
             result.append(a_image->url_);
