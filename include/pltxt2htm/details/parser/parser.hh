@@ -881,10 +881,8 @@ entry:
                         ::pltxt2htm::NodeType::pl_experiment, ::std::move(id)));
                     goto entry;
                 }
-                else if (auto opt_external_tag = ::pltxt2htm::details::try_parse_experiment_tag<
-                             ndebug, u8"xternal", ::pltxt2htm::NodeType::pl_external>(
+                else if (auto opt_external_tag = ::pltxt2htm::details::try_parse_external_tag<ndebug>(
                              ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                             [](char8_t u8chr) static constexpr noexcept { return u8'!' <= u8chr && u8chr <= u8'~'; },
                              call_stack);
                          opt_external_tag.has_value()) {
                     auto&& [tag_len, url] = opt_external_tag.template value<ndebug>();

@@ -97,6 +97,18 @@ int main() {
         ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value());
     }
     {
+        auto url = ::fast_io::u8string_view{u8"https://another-example.com/a/path"};
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value());
+    }
+    {
+        auto url = ::fast_io::u8string_view{u8"https://-example.com/a/path"};
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value() == false);
+    }
+    {
+        auto url = ::fast_io::u8string_view{u8"https://example-.com/a/path"};
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value() == false);
+    }
+    {
         auto url = ::fast_io::u8string_view{u8"https://www.example.com:8080/a/path"};
         ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value());
     }

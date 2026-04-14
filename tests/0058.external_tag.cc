@@ -113,5 +113,19 @@ int main() {
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<external=javascript:alert(1)>x</external>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;external=javascript:alert(1)&gt;x&lt;/external&gt;"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html =
+            ::pltxt2htm_test::pltxt2advanced_htmld(u8"<external=https://a.com\"onclick=\"alert(1)>x</external>");
+        auto answer =
+            ::fast_io::u8string_view{u8"&lt;external=https://a.com&quot;onclick=&quot;alert(1)&gt;x&lt;/external&gt;"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
     return 0;
 }

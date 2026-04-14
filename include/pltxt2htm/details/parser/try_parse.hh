@@ -1293,18 +1293,60 @@ constexpr auto try_parse_md_latex_inline(::fast_io::u8string_view pltext) noexce
     return ::pltxt2htm::details::TryParseMdLatexResult{.forward_index = close_pos + 2, .subast = ::std::move(ast)};
 }
 
+template<bool ndebug>
 [[nodiscard]]
-constexpr auto is_valid_domain(::fast_io::u8string_view pltext) noexcept -> bool {
-    if (pltext.ends_with(u8".com") || pltext.ends_with(u8".net") || pltext.ends_with(u8".org") ||
-        pltext.ends_with(u8".cn") || pltext.ends_with(u8".edu") || pltext.ends_with(u8".gov") ||
-        pltext.ends_with(u8".io") || pltext.ends_with(u8".ai") || pltext.ends_with(u8".co") ||
-        pltext.ends_with(u8".me") || pltext.ends_with(u8".cc") || pltext.ends_with(u8".tv") ||
-        pltext.ends_with(u8".info") || pltext.ends_with(u8".biz") || pltext.ends_with(u8".us") ||
-        pltext.ends_with(u8".uk") || pltext.ends_with(u8".jp") || pltext.ends_with(u8".hk") ||
-        pltext.ends_with(u8".tw") || pltext.ends_with(u8".xyz") || pltext.ends_with(u8".top")) {
-        return true;
+constexpr auto validate_url_domain(::fast_io::u8string_view pltext, ::std::size_t domain_start,
+                                   ::std::size_t domain_end) noexcept -> bool {
+    if (domain_end > pltext.size() || domain_end <= domain_start) {
+        return false;
     }
-    return false;
+    auto domain_vw = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 0, domain_end);
+    if (domain_vw.ends_with(u8".com") == false && domain_vw.ends_with(u8".net") == false &&
+        domain_vw.ends_with(u8".org") == false && domain_vw.ends_with(u8".cn") == false &&
+        domain_vw.ends_with(u8".edu") == false && domain_vw.ends_with(u8".gov") == false &&
+        domain_vw.ends_with(u8".io") == false && domain_vw.ends_with(u8".ai") == false &&
+        domain_vw.ends_with(u8".co") == false && domain_vw.ends_with(u8".me") == false &&
+        domain_vw.ends_with(u8".cc") == false && domain_vw.ends_with(u8".tv") == false &&
+        domain_vw.ends_with(u8".info") == false && domain_vw.ends_with(u8".biz") == false &&
+        domain_vw.ends_with(u8".us") == false && domain_vw.ends_with(u8".uk") == false &&
+        domain_vw.ends_with(u8".jp") == false && domain_vw.ends_with(u8".hk") == false &&
+        domain_vw.ends_with(u8".tw") == false && domain_vw.ends_with(u8".xyz") == false &&
+        domain_vw.ends_with(u8".top") == false) {
+        return false;
+    }
+
+    auto const domain =
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, domain_start, domain_end - domain_start);
+    bool label_has_char{};
+    bool label_ended_with_hyphen{};
+    for (auto chr : domain) {
+        if (chr == u8'.') {
+            if (label_has_char == false || label_ended_with_hyphen) {
+                return false;
+            }
+            label_has_char = false;
+            label_ended_with_hyphen = false;
+            continue;
+        }
+
+        if ((u8'A' <= chr && chr <= u8'Z') || (u8'a' <= chr && chr <= u8'z') || (u8'0' <= chr && chr <= u8'9')) {
+            label_has_char = true;
+            label_ended_with_hyphen = false;
+            continue;
+        }
+
+        if (chr == u8'-') {
+            if (label_has_char == false) {
+                return false;
+            }
+            label_ended_with_hyphen = true;
+            continue;
+        }
+
+        return false;
+    }
+
+    return label_has_char && !label_ended_with_hyphen;
 }
 
 template<bool ndebug, bool regard_right_parent_as_end_of_url = false>
@@ -1326,32 +1368,31 @@ constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept -> ::exce
             return 0;
         }
     }()};
+    auto const domain_start = current_index;
+
     // parsing domain name
     while (true) {
         if (current_index >= pltext.size()) {
-            if (::pltxt2htm::details::is_valid_domain(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 0, current_index)) == false) {
+            if (::pltxt2htm::details::validate_url_domain<ndebug>(pltext, domain_start, current_index) == false) {
                 return ::exception::nullopt_t{};
             }
             break;
         }
         auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
         if ((u8'A' <= chr && chr <= u8'Z') || (u8'a' <= chr && chr <= u8'z') || (u8'0' <= chr && chr <= u8'9') ||
-            chr == u8'.') {
+            chr == u8'.' || chr == u8'-') {
             ++current_index;
             continue;
         }
         else if (chr == u8'/') {
-            if (::pltxt2htm::details::is_valid_domain(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 0, current_index)) == false) {
+            if (::pltxt2htm::details::validate_url_domain<ndebug>(pltext, domain_start, current_index) == false) {
                 return ::exception::nullopt_t{};
             }
             ++current_index;
             break;
         }
         else if (chr == u8':') {
-            if (::pltxt2htm::details::is_valid_domain(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 0, current_index)) == false) {
+            if (::pltxt2htm::details::validate_url_domain<ndebug>(pltext, domain_start, current_index) == false) {
                 return ::exception::nullopt_t{};
             }
             ::std::uint_least32_t port{};
@@ -1377,8 +1418,7 @@ constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept -> ::exce
                 if (chr != u8')') {
                     return ::exception::nullopt_t{};
                 }
-                if (::pltxt2htm::details::is_valid_domain(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 0, current_index)) == false) {
+                if (::pltxt2htm::details::validate_url_domain<ndebug>(pltext, domain_start, current_index) == false) {
                     return ::exception::nullopt_t{};
                 }
                 return current_index;
@@ -1398,6 +1438,29 @@ constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept -> ::exce
         }
     }
     return current_index;
+}
+
+template<bool ndebug>
+[[nodiscard]]
+constexpr auto try_parse_external_tag(
+    ::fast_io::u8string_view pltext,
+    ::fast_io::stack<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>> const& call_stack) noexcept
+    -> ::exception::optional<TryParseEqualSignTagResult> {
+    auto result =
+        ::pltxt2htm::details::try_parse_experiment_tag<ndebug, u8"xternal", ::pltxt2htm::NodeType::pl_external>(
+            pltext, [](char8_t u8chr) static constexpr noexcept { return u8'!' <= u8chr && u8chr <= u8'~'; },
+            call_stack);
+    if (result.has_value() == false) {
+        return ::exception::nullopt_t{};
+    }
+
+    auto&& [_, url] = result.template value<ndebug>();
+    auto opt_url_size = ::pltxt2htm::details::try_parse_url<ndebug>(::fast_io::u8string_view{url.data(), url.size()});
+    if (opt_url_size.has_value() == false || opt_url_size.template value<ndebug>() != url.size()) {
+        return ::exception::nullopt_t{};
+    }
+
+    return result;
 }
 
 struct TryParseMdLinkResult {
