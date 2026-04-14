@@ -66,7 +66,8 @@ int main() {
     {
         // Avoid XSS Attack
         auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"![x\" onerror=\"alert('XSS')](example.com/image.jpg)");
-        auto answer = ::fast_io::u8string_view{u8"<img src=\"example.com/image.jpg\" alt=\"x&quot;&nbsp;onerror=&quot;alert(&apos;XSS&apos;)\">"};
+        auto answer = ::fast_io::u8string_view{
+            u8"<img src=\"example.com/image.jpg\" alt=\"x&quot;&nbsp;onerror=&quot;alert(&apos;XSS&apos;)\">"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
