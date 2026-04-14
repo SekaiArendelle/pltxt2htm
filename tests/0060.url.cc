@@ -117,6 +117,10 @@ int main() {
         ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value() == false);
     }
     {
+        auto url = ::fast_io::u8string_view{u8"https://www.example.com:"};
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value() == false);
+    }
+    {
         auto url = ::fast_io::u8string_view{u8"https://www.example.com:abc/a/path"};
         ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value() == false);
     }
