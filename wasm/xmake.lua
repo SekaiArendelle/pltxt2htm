@@ -40,14 +40,6 @@ target("pltxt2htm", function()
 
     on_install(function(target)
         local install_dir = target:installdir()
-        local infer_out_dir = false
-        if not install_dir or install_dir == "auto" then
-            infer_out_dir = true
-        end
-        if infer_out_dir then
-            install_dir = "wasm32-unknown-emscripten-pltxt2htm-wasm-" ..
-                              get_config("mode")
-        end
         if not os.exists(install_dir) or not os.isdir(install_dir) then
             os.mkdir(install_dir)
         end

@@ -83,50 +83,7 @@ target("pltxt2htm", function()
     end)
 
     on_install(function(target)
-        import("utility.utility", {rootdir = target:scriptdir() .. "/../xmake"})
-        local toolchain = get_config("toolchain")
-        local triplet = nil
-        local modifier = nil
-        -- On Windows, the default toolchain is MSVC, which is not supported in this project
-        -- On Linux, the default toolchain is GCC
-        -- On MacOS, the default toolchain is AppleClang, which is also not supported in the project
-        -- For other OS, I don't care.
-        -- But which toolchain is the default is not important
-        -- Following code just to get the build triplet
-        if toolchain == nil or toolchain:endswith("clang") or toolchain ==
-            "clang-cl" then
-            if toolchain == nil or toolchain == "clang" or toolchain ==
-                "clang-cl" then
-                triplet, modifier = utility.get_target_modifier("target",
-                                                                "clang")
-            else
-                triplet, modifier = utility.get_target_modifier(string.sub(
-                                                                    toolchain,
-                                                                    0, -7),
-                                                                "clang")
-            end
-        elseif toolchain:endswith("gcc") then
-            if toolchain == "gcc" then
-                triplet, modifier = utility.get_target_modifier("target", "gcc")
-            else
-                triplet, modifier = utility.get_target_modifier(string.sub(
-                                                                    toolchain,
-                                                                    0, -5),
-                                                                "gcc")
-            end
-        else
-            print("unknown toolchain: " .. toolchain)
-            os.exit(1)
-        end
         local install_dir = target:installdir()
-        local infer_out_dir = false
-        if not install_dir or install_dir == "auto" then
-            infer_out_dir = true
-        end
-        if infer_out_dir then
-            install_dir = triplet .. "-" .. "pltxt2htm-cmd-" ..
-                              get_config("mode")
-        end
         if not os.exists(install_dir) or not os.isdir(install_dir) then
             os.mkdir(install_dir)
         end
