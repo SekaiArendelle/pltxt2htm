@@ -1044,12 +1044,24 @@ public:
 };
 
 /**
- * @note subast here should only contains NodeType::(u8char + invalid_u8char + md_escape_*)
+ * @brief Represents a Markdown image node (`![alt](url)`).
+ * @details This node stores both the image destination URL and the inline AST
+ *          used as the image alternative text (`alt` part in Markdown syntax).
+ * @note The `subast` argument should only contain
+ *       NodeType::(u8char + invalid_u8char + md_escape_* + Space + Ampersand
+ *       + SingleQuotationMark + DoubleQuotationMark + LessThan + GreaterThan
+ *       + Tab), matching the parser constraints for image alt text.
  */
 class MdImage : public ::pltxt2htm::details::PairedTagBase {
 public:
+    /// Image destination URL in Markdown syntax.
     ::fast_io::u8string url_;
 
+    /**
+     * @brief Constructs a Markdown image node.
+     * @param subast Inline AST used as image alternative text.
+     * @param url Image destination URL.
+     */
     constexpr MdImage(::pltxt2htm::Ast&& subast, ::fast_io::u8string&& url) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_image, ::std::move(subast)},
           url_(::std::move(url)) {
