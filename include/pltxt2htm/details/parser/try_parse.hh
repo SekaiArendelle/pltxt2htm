@@ -1434,13 +1434,19 @@ constexpr auto try_parse_md_link(::fast_io::u8string_view pltext) noexcept
     ::std::size_t current_index{1};
 
     // Parse link text
-    while (current_index < pltext.size() &&
-           ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8']') {
-        if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) == u8'\\') {
+    while (current_index < pltext.size()) {
+        char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index)};
+        if (chr == u8'\\') {
             // No need to handle escape here
             // Because the result of `link_text` is string_view
             // `::pltxt2htm::details::parse_pltxt` will handle the escape when converting to ast
             ++current_index;
+        }
+        else if (chr == u8'\n') {
+            return ::exception::nullopt_t{};
+        }
+        else if (chr == u8']') {
+            break;
         }
         ++current_index;
     }
@@ -1504,7 +1510,7 @@ constexpr auto try_parse_md_image(::fast_io::u8string_view pltext) noexcept
         char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index)};
 
         if (chr == u8'\n') {
-            link_text_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LineBreak>{});
+            return ::exception::nullopt_t{};
         }
         else if (chr == u8' ') {
             link_text_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Space>{});
