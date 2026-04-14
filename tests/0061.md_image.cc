@@ -3,7 +3,7 @@
 int main() {
     {
         auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"![alt text](https://example.com/image.png)");
-        auto answer = ::fast_io::u8string_view{u8"<img src=\"https://example.com/image.png\" alt=\"alt text\">"};
+        auto answer = ::fast_io::u8string_view{u8"<img src=\"https://example.com/image.png\" alt=\"alt&nbsp;text\">"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
@@ -14,8 +14,8 @@ int main() {
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"![alt text](https://example.com/image.wtf)");
-        auto answer = ::fast_io::u8string_view{u8"<img src=\"https://example.com/image.wtf\" alt=\"alt text\">"};
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"![alt](https://example.com/image.wtf)");
+        auto answer = ::fast_io::u8string_view{u8"<img src=\"https://example.com/image.wtf\" alt=\"alt\">"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
@@ -66,7 +66,7 @@ int main() {
     {
         // Avoid XSS Attack
         auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"![x\" onerror=\"alert('XSS')](example.com/image.jpg)");
-        auto answer = ::fast_io::u8string_view{u8"![]()"};
+        auto answer = ::fast_io::u8string_view{u8"<img src=\"example.com/image.jpg\" alt=\"x&quot;&nbsp;onerror=&quot;alert(&apos;XSS&apos;)\">"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
