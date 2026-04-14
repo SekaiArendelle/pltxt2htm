@@ -651,7 +651,6 @@ entry:
             result.append(::pltxt2htm::details::convert_simple_pltxt_ast_to_plweb_text<ndebug>(a_image->get_subast()));
             auto const end_tag = ::fast_io::array{u8'\"', u8'>'};
             result.append(::fast_io::u8string_view(end_tag.begin(), end_tag.size()));
-            ++current_index;
             continue;
         }
         case ::pltxt2htm::NodeType::md_escape_backslash: {

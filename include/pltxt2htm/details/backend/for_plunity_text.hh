@@ -661,7 +661,6 @@ entry:
             result.append(::fast_io::u8string_view(mid_tag.begin(), mid_tag.size()));
             result.append(a_image->url_);
             result.push_back(u8')');
-            ++current_index;
             continue;
         }
         case ::pltxt2htm::NodeType::md_escape_backslash: {

@@ -114,5 +114,16 @@ int main() {
         ::pltxt2htm_test::assert_true(plunity_richtext == plunity_richtext_answer);
     }
 
+    {
+        auto pltext = ::fast_io::u8string_view{u8"text![text](example.com/image.jpg)text"};
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(pltext);
+        auto answer = ::fast_io::u8string_view{
+            u8"text<img src=\"example.com/image.jpg\" alt=\"text\">text"};
+        ::pltxt2htm_test::assert_true(html == answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = pltext;
+        ::pltxt2htm_test::assert_true(plunity_richtext == plunity_richtext_answer);
+    }
+
     return 0;
 }
