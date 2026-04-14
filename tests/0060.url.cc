@@ -74,7 +74,7 @@ int main() {
             u8"https://www.bilibili.com/video/"
             u8"BV1df421f7WB?spm_id_from=333.788.player.player_end_recommend&vd_source=70bf7fea64a1877f5dd6b019915b25a1&"
             u8"trackid=web_related_0.router-related-2481894-wjgx7.1772331167937.864"};
-        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<true>(url).has_value());
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value());
     }
     {
         auto url = ::fast_io::u8string_view{u8"https://www.example.com:65535"};
@@ -94,27 +94,27 @@ int main() {
     }
     {
         auto url = ::fast_io::u8string_view{u8"https://www.example.com/a/path"};
-        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<true>(url).has_value());
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value());
     }
     {
         auto url = ::fast_io::u8string_view{u8"https://www.example.com:8080/a/path"};
-        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<true>(url).has_value());
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value());
     }
     {
         auto url = ::fast_io::u8string_view{u8"https://www.example.wtf"};
-        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<true>(url).has_value() == false);
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value() == false);
     }
     {
         auto url = ::fast_io::u8string_view{u8"https://www.example.wtf:8765"};
-        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<true>(url).has_value() == false);
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value() == false);
     }
     {
         auto url = ::fast_io::u8string_view{u8"https://www.example.wtf/a/path"};
-        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<true>(url).has_value() == false);
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value() == false);
     }
     {
         auto url = ::fast_io::u8string_view{u8"https://www.example.wtf:8080/a/path"};
-        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<true>(url).has_value() == false);
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value() == false);
     }
 
     return 0;
