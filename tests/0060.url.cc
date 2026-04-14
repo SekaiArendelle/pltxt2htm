@@ -121,16 +121,42 @@ int main() {
         ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value() == false);
     }
     {
+        auto url = ::fast_io::u8string_view{u8"https://www.example.com:"};
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false, true>(url).has_value() == false);
+    }
+    {
         auto url = ::fast_io::u8string_view{u8"https://www.example.com:abc/a/path"};
         ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value() == false);
+    }
+    {
+        auto url = ::fast_io::u8string_view{u8"https://www.example.com:abc/a/path"};
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false, true>(url).has_value() == false);
     }
     {
         auto url = ::fast_io::u8string_view{u8"https://www.example.com:80abc/a/path"};
         ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value() == false);
     }
     {
+        auto url = ::fast_io::u8string_view{u8"https://www.example.com:80abc/a/path"};
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false, true>(url).has_value() == false);
+    }
+    {
         auto url = ::fast_io::u8string_view{u8"https://www.example.com:80javascript:alert(1)"};
         ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value() == false);
+    }
+    {
+        auto url = ::fast_io::u8string_view{u8"https://www.example.com:80javascript:alert(1)"};
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false, true>(url).has_value() == false);
+    }
+    {
+        // TODO partial of this URL is valid, has_value should be true
+        // related to https://github.com/SekaiArendelle/pltxt2htm/issues/105
+        auto url = ::fast_io::u8string_view{u8"https://www.example.com:80)"};
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false>(url).has_value() == false);
+    }
+    {
+        auto url = ::fast_io::u8string_view{u8"https://www.example.com:80)"};
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::try_parse_url<false, true>(url).has_value() == true);
     }
     {
         auto url = ::fast_io::u8string_view{u8"https://www.example.com:80?safe=query"};
