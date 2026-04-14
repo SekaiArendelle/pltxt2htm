@@ -120,6 +120,24 @@ Please follow the existing low-runtime, cross-platform style used in core header
 - Avoid mutable global state:
   - Do not add global variables or other shared mutable state that can create hidden side effects.
   - Compile-time constants (`constexpr`/`consteval`, including class static constants) are acceptable.
+- Keep side effects separated from algorithms:
+  - Put pure algorithmic logic in headers under `include/` whenever practical.
+  - Keep I/O and other side-effectful operations (file access, console output, process exits, etc.) in implementation files in module directories.
+- Prefer `constexpr` function definitions by default:
+  - Prefix function/method definitions with `constexpr` whenever the language permits (the entrypoint `main` is the exception).
+  - Do not write `inline constexpr`; use `constexpr` directly (it is already inline).
+- Use fully qualified namespace style:
+  - Prefer `::ns::fn_or_cls` for function/class references to avoid ADL-based calls.
+- Prefer unambiguous initialization:
+  - Prefer brace initialization (`T x{...}`) when constructing typed instances.
+  - Avoid copy/equal-sign initialization (`T x = ...`) when it can hide implicit narrowing conversions.
+  - Avoid initialization forms that look like declarations but actually construct objects (the "most vexing parse" style).
+- Mark terminal error branches as cold paths:
+  - For branches that call `exit`/`terminate`, mark the branch with `[[unlikely]]`.
+- Prefer guard-clause error handling:
+  - Return early on failure (for example, `if (!ok) { return err; }`) and keep the normal path unindented below.
+- Require `[[nodiscard]]` on meaningful return values:
+  - For all non-`void`, non-`[[noreturn]]` functions/methods, add `[[nodiscard]]` to the declaration/definition (except `operator=`).
 
 ## Commit and Pull Request Guidelines
 
