@@ -135,7 +135,7 @@ int main() {
             u8"<img src=\"example.com/image.jpg\" alt=\"\\!&quot;#$%&amp;&apos;()*+,-./:;&lt;=&gt;?@[]^_`{|}~\">"};
         ::pltxt2htm_test::assert_true(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = pltext;
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"![\\!\"#$%&'()*+,-./:;<=>?@[]^_`{|}~](example.com/image.jpg)"};
         ::pltxt2htm_test::assert_true(plunity_richtext == plunity_richtext_answer);
     }
 
