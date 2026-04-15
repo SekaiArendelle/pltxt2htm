@@ -275,13 +275,13 @@ entry:
         case ::pltxt2htm::NodeType::md_escape_less_than:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::less_than: {
-            result.push_back(u8'<');
+            result.append(u8"<size=20>\uff1c</size>");
             continue;
         }
         case ::pltxt2htm::NodeType::md_escape_greater_than:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::greater_than: {
-            result.push_back(u8'>');
+            result.append(u8"<size=20>\uff1e</size>");
             continue;
         }
         case ::pltxt2htm::NodeType::tab: {

@@ -109,9 +109,9 @@ int main() {
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<li>test</li>");
-        auto answer = ::fast_io::u8string_view{u8"<li>test</li>"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        auto plrichtext = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<li>test</li>");
+        auto answer = ::fast_io::u8string_view{u8"<size=20>＜</size>li<size=20>＞</size>test<size=20>＜</size>/li<size=20>＞</size>"};
+        ::pltxt2htm_test::assert_true(plrichtext == answer);
     }
 
     {
