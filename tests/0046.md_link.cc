@@ -62,6 +62,13 @@ int main() {
     }
 
     {
+        // Escape HTML-sensitive characters in link text.
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"[a&\"'<>](example.com)");
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"example.com\">a&amp;&quot;&apos;&lt;&gt;</a>"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
         auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"[text](example.com)");
         auto answer = ::fast_io::u8string_view{u8"<a href=\"example.com\">text</a>"};
         ::pltxt2htm_test::assert_true(html == answer);
