@@ -38,9 +38,13 @@ int main() {
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"~~~py\nprint(1)\n~~~");
+        auto pltext = ::fast_io::u8string_view{u8"~~~py\nprint(1)\n~~~"};
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(pltext);
         auto answer = ::fast_io::u8string_view{u8"<pre><code class=\"language-py\">print(1)</code></pre>"};
         ::pltxt2htm_test::assert_true(html == answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"```py\nprint(1)\n```"};
+        ::pltxt2htm_test::assert_true(plunity_richtext == plunity_richtext_answer);
     }
 
     {
