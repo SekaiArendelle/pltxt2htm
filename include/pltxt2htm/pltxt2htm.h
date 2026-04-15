@@ -81,7 +81,7 @@ constexpr char8_t const* advanced_parser(char8_t const* const text) noexcept {
 
 /**
  * @brief C-style interface for fixed advanced HTML conversion
- * @details Converts Physics-Lab text to advanced HTML without escaping < characters.
+ * @details Converts Physics-Lab text to advanced HTML with caller-provided link context.
  *          This is the C wrapper around pltxt2htm::pltxt2fixedadv_html.
  * @tparam ndebug Debug mode flag - false enables debug checks, true for release mode
  * @param[in] text The Physics-Lab text to convert (null-terminated UTF-8 string)
@@ -93,7 +93,7 @@ constexpr char8_t const* advanced_parser(char8_t const* const text) noexcept {
  * @return Heap-allocated UTF-8 string containing the HTML output
  * @retval char8_t const* Pointer to heap-allocated UTF-8 string containing HTML
  * @note The returned pointer must be freed using std::free() to avoid memory leaks
- * @warning The HTML output contains unescaped < characters which may pose security risks
+ * @note Use this function when host/project/visitor/author/coauthors values are known at runtime
  * @warning The returned string must be freed by the caller using std::free()
  * @see pltxt2htm::pltxt2fixedadv_html for the underlying C++ implementation
  */
@@ -139,6 +139,22 @@ constexpr char8_t const* common_parser(char8_t const* const text) noexcept {
         ::fast_io::mnp::os_c_str(text));
 }
 
+/**
+ * @brief C-style interface for PLUnity introduction conversion
+ * @details Converts Physics-Lab text into the PLUnity introduction HTML format.
+ *          This is the C wrapper around pltxt2htm::pltxt2plunity_introduction.
+ * @tparam ndebug Debug mode flag - false enables debug checks, true for release mode
+ * @param[in] text The Physics-Lab text to convert (null-terminated UTF-8 string)
+ * @param[in] project Project identifier for Physics-Lab context
+ * @param[in] visitor Visitor identifier for Physics-Lab context
+ * @param[in] author Author identifier for Physics-Lab context
+ * @param[in] coauthors Co-authors identifier for Physics-Lab context
+ * @return Heap-allocated UTF-8 string containing the HTML output
+ * @retval char8_t const* Pointer to heap-allocated UTF-8 string containing HTML
+ * @note The returned pointer must be freed using std::free() to avoid memory leaks
+ * @warning The returned string must be freed by the caller using std::free()
+ * @see pltxt2htm::pltxt2plunity_introduction for the underlying C++ implementation
+ */
 template<bool ndebug = false>
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)

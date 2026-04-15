@@ -29,7 +29,7 @@
 namespace pltxt2htm {
 
 /**
- * @brief Convert Physics-Lab (pl) text to advanced HTML with full feature support, just for unittest
+ * @brief Convert Physics-Lab (pl) text to advanced HTML with full feature support
  * @details This function provides the most comprehensive HTML generation with support for:
  *          - Physics-Lab specific tags (color, experiment, discussion, user, size)
  *          - Full Markdown syntax (headers, lists, emphasis, links, code blocks, etc.)
@@ -42,7 +42,8 @@ namespace pltxt2htm {
  * @retval fast_io::u8string UTF-8 string containing the generated HTML
  * @note This is the recommended function for most use cases requiring full feature support
  * @note The function automatically optimizes the AST by default for better performance
- * @warning This function does not support the host parameter - use pltxt2fixedadv_html for that
+ * @warning This function uses built-in placeholder link context values
+ * @warning Use pltxt2fixedadv_html when host/project/visitor/author/coauthors must be customized
  */
 template<bool ndebug = false, bool optimize = true>
 [[nodiscard]]
@@ -85,6 +86,20 @@ constexpr auto pltxt2fixedadv_html(::fast_io::u8string_view pltext, ::fast_io::u
     return ::pltxt2htm::details::plweb_text_backend<ndebug>(ast, host, project, visitor, author, coauthors);
 }
 
+/**
+ * @brief Convert Physics-Lab text to PLUnity introduction HTML
+ * @details Generates HTML using the PLUnity introduction backend with caller-provided
+ *          project and user context values for link/text rendering.
+ * @tparam ndebug Debug mode flag - false enables debug checks and assertions, true for release mode
+ * @tparam optimize Whether to optimize the AST before HTML generation (default: true)
+ * @param[in] pltext The Physics-Lab text content to convert
+ * @param[in] project Project identifier for Physics-Lab context
+ * @param[in] visitor Visitor identifier for Physics-Lab context
+ * @param[in] author Author identifier for Physics-Lab context
+ * @param[in] coauthors Co-authors identifier for Physics-Lab context
+ * @return Generated HTML string for PLUnity introduction rendering
+ * @retval fast_io::u8string UTF-8 string containing the generated HTML
+ */
 template<bool ndebug = false, bool optimize = true>
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)

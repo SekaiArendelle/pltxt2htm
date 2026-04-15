@@ -1,3 +1,8 @@
+/**
+ * @file try_parse.hh
+ * @brief Low-level parser helpers for probing specific Physics-Lab / Markdown token patterns.
+ */
+
 #pragma once
 
 #include <cstddef>
@@ -329,6 +334,13 @@ template<bool ndebug, ::pltxt2htm::details::LiteralString tag_name = ::pltxt2htm
     return ::exception::nullopt_t{};
 }
 
+/**
+ * @brief Parse `<li>` payload in the parser's compact tag form and validate parent container type.
+ * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @param[in] pltext The input text to parse, starting after `<l`.
+ * @param[in] nested_tag_type Current parent tag type from parsing context.
+ * @return Matched tag length when valid under `<ul>`/`<ol>`; otherwise nullopt.
+ */
 template<bool ndebug>
 [[nodiscard]] constexpr auto try_parse_li_tag(::fast_io::u8string_view pltext,
                                               ::pltxt2htm::NodeType const nested_tag_type) noexcept
@@ -426,6 +438,16 @@ constexpr auto try_parse_equal_sign_tag(::fast_io::u8string_view pltext, Func&& 
     return ::exception::nullopt_t{};
 }
 
+/**
+ * @brief Parse `<tag=value>` and reject it when nested inside non-nestable PL tags.
+ * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @tparam prefix_str Tag-name prefix used by `try_parse_equal_sign_tag`.
+ * @tparam Func Character validator for the `value` part.
+ * @param[in] pltext The input text to parse at current position.
+ * @param[in] func Predicate that validates each value character.
+ * @param[in] call_stack Active parser stack used to detect forbidden nesting.
+ * @return Parsed tag result on success, otherwise nullopt.
+ */
 template<bool ndebug, ::pltxt2htm::details::LiteralString prefix_str, typename Func>
     requires requires(Func&& func, char8_t chr) {
         { func(chr) } -> ::std::same_as<bool>;
@@ -490,6 +512,13 @@ constexpr auto try_parse_self_closing_tag(::fast_io::u8string_view pltext) noexc
     return ::exception::nullopt_t{};
 }
 
+/**
+ * @brief Parse a named self-closing tag form like `<br/>` with optional spaces before closure.
+ * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @tparam tag_name Compile-time tag prefix (e.g., `"<br"`).
+ * @param[in] pltext The input text to parse from current position.
+ * @return Position of closing `>` on success, otherwise nullopt.
+ */
 template<bool ndebug, ::pltxt2htm::details::LiteralString tag_name>
 [[nodiscard]]
 constexpr auto try_parse_self_closing_tag(::fast_io::u8string_view pltext) noexcept
@@ -1296,6 +1325,14 @@ constexpr auto try_parse_md_latex_inline(::fast_io::u8string_view pltext) noexce
     return ::pltxt2htm::details::TryParseMdLatexResult{.forward_index = close_pos + 2, .subast = ::std::move(ast)};
 }
 
+/**
+ * @brief Validate URL domain and top-level domain portion.
+ * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @param[in] pltext Original URL text.
+ * @param[in] domain_start Start index (inclusive) of the domain segment.
+ * @param[in] domain_end End index (exclusive) of the domain segment.
+ * @return `true` if domain labels and TLD are accepted by project rules; otherwise `false`.
+ */
 template<bool ndebug>
 [[nodiscard]]
 constexpr auto validate_url_domain(::fast_io::u8string_view pltext, ::std::size_t domain_start,
@@ -1352,6 +1389,13 @@ constexpr auto validate_url_domain(::fast_io::u8string_view pltext, ::std::size_
     return label_has_char && !label_ended_with_hyphen;
 }
 
+/**
+ * @brief Parse and validate an URL starting with optional `http://` or `https://`.
+ * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @tparam regard_right_parent_as_end_of_url Whether `)` is treated as a hard URL terminator.
+ * @param[in] pltext The input text that begins at a URL candidate.
+ * @return Parsed URL length on success; nullopt when domain/port/path validation fails.
+ */
 template<bool ndebug, bool regard_right_parent_as_end_of_url = false>
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
@@ -1457,6 +1501,13 @@ constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept -> ::exce
     return current_index;
 }
 
+/**
+ * @brief Parse `<external=...>` tag and validate its URL payload.
+ * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @param[in] pltext The input text starting at the `external` tag payload.
+ * @param[in] call_stack Active parser frames used to reject invalid nested contexts.
+ * @return Parsed tag length and extracted URL on success; nullopt if invalid or disallowed nesting.
+ */
 template<bool ndebug>
 [[nodiscard]]
 constexpr auto try_parse_external_tag(
@@ -1571,6 +1622,12 @@ struct TryParseMdImageResult {
     ::fast_io::u8string link_url;
 };
 
+/**
+ * @brief Parse Markdown image syntax (`![alt](url)`).
+ * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @param[in] pltext The input text beginning with `![`.
+ * @return Parsed image payload (alt text AST + URL + continuation index), or nullopt if invalid.
+ */
 template<bool ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_image(::fast_io::u8string_view pltext) noexcept

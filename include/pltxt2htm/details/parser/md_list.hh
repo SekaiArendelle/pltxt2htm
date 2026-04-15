@@ -1,3 +1,8 @@
+/**
+ * @file md_list.hh
+ * @brief Markdown list parser utilities for nested unordered/ordered list AST construction.
+ */
+
 #pragma once
 
 #include <concepts>
@@ -14,12 +19,18 @@
 
 namespace pltxt2htm::details {
 
+/**
+ * @brief Internal markdown-list AST node discriminator.
+ */
 enum class MdListNodeType : ::std::uint_least32_t {
     text = 0,
     md_ul,
     md_ol,
 };
 
+/**
+ * @brief Shared base type for all internal markdown-list nodes.
+ */
 class MdListBaseNode {
     ::pltxt2htm::details::MdListNodeType md_list_node_type;
 
@@ -48,6 +59,9 @@ public:
     }
 };
 
+/**
+ * @brief Leaf markdown-list node that stores a single list-item text payload.
+ */
 class MdListTextNode : public ::pltxt2htm::details::MdListBaseNode {
     ::fast_io::u8string text;
 
@@ -97,6 +111,9 @@ public:
 
 using MdListAst = ::fast_io::vector<::pltxt2htm::HeapGuard<::pltxt2htm::details::MdListBaseNode>>;
 
+/**
+ * @brief Internal unordered-list node containing nested list items.
+ */
 class MdListUlNode : public ::pltxt2htm::details::MdListBaseNode {
     ::pltxt2htm::details::MdListAst sublist;
 
@@ -134,6 +151,9 @@ public:
     }
 };
 
+/**
+ * @brief Internal ordered-list node containing nested list items.
+ */
 class MdListOlNode : public ::pltxt2htm::details::MdListBaseNode {
     ::pltxt2htm::details::MdListAst sublist;
 
@@ -213,6 +233,9 @@ constexpr auto MdListOlNode::operator==(this ::pltxt2htm::details::MdListOlNode 
 template<typename T>
 concept is_md_list_node = ::std::derived_from<::std::remove_cvref_t<T>, ::pltxt2htm::details::MdListBaseNode>;
 
+/**
+ * @brief Marker describing parsed markdown list item style.
+ */
 enum class MdUlListItemKind : char8_t {
     hyphen = u8'-',
     plus = u8'+',
@@ -220,6 +243,9 @@ enum class MdUlListItemKind : char8_t {
     ordered_item = u8',',
 };
 
+/**
+ * @brief Stack frame used by the iterative markdown-list parser.
+ */
 class MdListFrameContext {
     ::pltxt2htm::details::MdUlListItemKind item_kind;
 
@@ -257,6 +283,9 @@ public:
     }
 };
 
+/**
+ * @brief Summary of the previously parsed item, used for hierarchy validation.
+ */
 struct PreviousItemInfo {
     ::std::size_t space_hierarchy;
     bool call_stack_is_single;
@@ -366,6 +395,9 @@ constexpr auto is_valid_md_ol_list_hierarchy(
     return ::exception::nullopt_t{};
 }
 
+/**
+ * @brief Parsed representation for a single markdown-list item candidate.
+ */
 struct TryParseItemResult {
     ::std::size_t space_hierarchy;
     ::std::size_t forward_index;
@@ -456,6 +488,9 @@ constexpr auto try_parse_item(
     };
 }
 
+/**
+ * @brief Result of markdown-list AST conversion attempt.
+ */
 struct ToMdListAstResult {
     ::pltxt2htm::details::MdListAst ast;
     ::std::size_t forward_index;
