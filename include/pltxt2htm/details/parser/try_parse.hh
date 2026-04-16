@@ -177,17 +177,18 @@ constexpr ::exception::optional<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>> 
 /**
  * @brief Parse a single UTF-8 code point and append the corresponding AST node(s).
  *
- * This function processes UTF-8 encoded characters and creates appropriate AST nodes.
- * It handles multi-byte UTF-8 sequences (2, 3, or 4 bytes) and validates their correctness
- * according to UTF-8 encoding rules. Invalid sequences are converted to InvalidU8Char nodes.
+ * This function inspects the first byte of `pltext` and appends either UTF-8 bytes
+ * (as U8Char nodes) or one InvalidU8Char node to `result`.
  *
  * @tparam ndebug When `true`, runtime assertions are disabled for performance.
- * @param[in] pltext The complete input text being parsed, starting at the current position.
+ * @param[in] pltext Input view starting at the current parser position.
  * @param[out] result The AST to which parsed character nodes are appended.
- * @return The number of UTF-8 code units (bytes) consumed from the input. Returns 0 for
- *         invalid sequences or control characters, 1-3 for valid multi-byte sequences.
- * @note Control characters (0x00-0x1F and 0x7F-0x9F) are ignored and return 0.
- * @note Invalid UTF-8 sequences result in an InvalidU8Char node being added to the AST.
+ * @return Number of additional bytes consumed after the first byte (0..3).
+ *         The caller should advance by `return_value + 1`.
+ * @note ASCII bytes append one U8Char and return 0.
+ * @note Control characters 0x00-0x1F and 0x7F are ignored (no node appended, return 0).
+ * @note Invalid sequences append one InvalidU8Char. The return value may be non-zero when
+ *       continuation bytes are consumed as part of one invalid sequence.
  * @see https://en.wikipedia.org/wiki/UTF-8
  */
 template<bool ndebug>
