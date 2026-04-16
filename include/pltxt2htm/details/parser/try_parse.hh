@@ -228,11 +228,12 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
     else if ((chr & 0xF0) == 0xE0) {
         if (2 >= pltext_size) {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
-            if (pltext_size == 2) {
-                auto next_char = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 1);
-                if ((next_char & 0xC0) == 0x80) {
-                    return 1;
-                }
+            if (pltext_size != 2) {
+                return 0;
+            }
+            auto next_char = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 1);
+            if ((next_char & 0xC0) == 0x80) {
+                return 1;
             }
             return 0;
         }
@@ -265,19 +266,21 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
     else if ((chr & 0xF8) == 0xF0) {
         if (3 >= pltext_size) {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
-            if (pltext_size >= 2) {
-                auto next_char = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 1);
-                if ((next_char & 0xC0) == 0x80) {
-                    if (pltext_size >= 3) {
-                        auto next_char2 = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 2);
-                        if ((next_char2 & 0xC0) == 0x80) {
-                            return 2;
-                        }
-                    }
-                    return 1;
-                }
+            if (pltext_size < 2) {
+                return 0;
             }
-            return 0;
+            auto next_char = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 1);
+            if ((next_char & 0xC0) != 0x80) {
+                return 0;
+            }
+            if (pltext_size < 3) {
+                return 1;
+            }
+            auto next_char2 = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 2);
+            if ((next_char2 & 0xC0) == 0x80) {
+                return 2;
+            }
+            return 1;
         }
         auto next_char = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 1);
         if ((next_char & 0xC0) != 0x80) {

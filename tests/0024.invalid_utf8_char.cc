@@ -102,6 +102,12 @@ int main() {
     }
 
     {
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"\xe2");
+        auto answer = ::fast_io::u8string_view{u8"�"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
         auto html = ::pltxt2htm_test::pltxt2common_htmld(
             u8"\xe2"
             u8"A");
@@ -134,6 +140,14 @@ int main() {
     {
         auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"\xf0\x90");
         auto answer = ::fast_io::u8string_view{u8"�"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(
+            u8"\xf0\x90"
+            u8"A");
+        auto answer = ::fast_io::u8string_view{u8"�A"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
