@@ -86,8 +86,76 @@ int main() {
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"A\x80" u8"B");
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(
+            u8"A\x80"
+            u8"B");
         auto answer = ::fast_io::u8string_view{u8"A�B"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(
+            u8"A\x1f"
+            u8"B");
+        auto answer = ::fast_io::u8string_view{u8"AB"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(
+            u8"\xe2"
+            u8"A");
+        auto answer = ::fast_io::u8string_view{u8"�A"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(
+            u8"\xe2\x82"
+            u8"A");
+        auto answer = ::fast_io::u8string_view{u8"�A"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"\xf0");
+        auto answer = ::fast_io::u8string_view{u8"�"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(
+            u8"\xf0"
+            u8"A");
+        auto answer = ::fast_io::u8string_view{u8"�A"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"\xf0\x90");
+        auto answer = ::fast_io::u8string_view{u8"�"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"\xf0\x90\x80");
+        auto answer = ::fast_io::u8string_view{u8"�"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(
+            u8"\xf0"
+            u8"A\x80\x80");
+        auto answer = ::fast_io::u8string_view{u8"�A��"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(
+            u8"\xf0\x90\x80"
+            u8"A");
+        auto answer = ::fast_io::u8string_view{u8"�A"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 

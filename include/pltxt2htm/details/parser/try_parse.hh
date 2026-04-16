@@ -300,11 +300,6 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
             return 3;
         }
-        if (0xd800 <= combine && combine <= 0xdfff) {
-            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
-            return 3;
-        }
-
         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{chr});
         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{next_char});
         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{next_char2});
@@ -1532,10 +1527,8 @@ constexpr auto try_parse_external_tag(
     ::fast_io::u8string_view pltext,
     ::fast_io::stack<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>> const& call_stack) noexcept
     -> ::exception::optional<TryParseEqualSignTagResult> {
-    auto result =
-        ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<ndebug, u8"xternal">(
-            pltext, [](char8_t u8chr) static constexpr noexcept { return u8'!' <= u8chr && u8chr <= u8'~'; },
-            call_stack);
+    auto result = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<ndebug, u8"xternal">(
+        pltext, [](char8_t u8chr) static constexpr noexcept { return u8'!' <= u8chr && u8chr <= u8'~'; }, call_stack);
     if (result.has_value() == false) {
         return ::exception::nullopt_t{};
     }
