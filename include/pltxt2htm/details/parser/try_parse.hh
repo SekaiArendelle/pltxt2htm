@@ -177,17 +177,18 @@ constexpr ::exception::optional<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>> 
 /**
  * @brief Parse a single UTF-8 code point and append the corresponding AST node(s).
  *
- * This function processes UTF-8 encoded characters and creates appropriate AST nodes.
- * It handles multi-byte UTF-8 sequences (2, 3, or 4 bytes) and validates their correctness
- * according to UTF-8 encoding rules. Invalid sequences are converted to InvalidU8Char nodes.
+ * This function inspects the first byte of `pltext` and appends either UTF-8 bytes
+ * (as U8Char nodes) or one InvalidU8Char node to `result`.
  *
  * @tparam ndebug When `true`, runtime assertions are disabled for performance.
- * @param[in] pltext The complete input text being parsed, starting at the current position.
+ * @param[in] pltext Input view starting at the current parser position.
  * @param[out] result The AST to which parsed character nodes are appended.
- * @return The number of UTF-8 code units (bytes) consumed from the input. Returns 0 for
- *         invalid sequences or control characters, 1-3 for valid multi-byte sequences.
- * @note Control characters (0x00-0x1F and 0x7F-0x9F) are ignored and return 0.
- * @note Invalid UTF-8 sequences result in an InvalidU8Char node being added to the AST.
+ * @return Number of additional bytes consumed after the first byte (0..3).
+ *         The caller should advance by `return_value + 1`.
+ * @note ASCII bytes append one U8Char and return 0.
+ * @note Control characters 0x00-0x1F and 0x7F are ignored (no node appended, return 0).
+ * @note Invalid sequences append one InvalidU8Char. The return value may be non-zero when
+ *       continuation bytes are consumed as part of one invalid sequence.
  * @see https://en.wikipedia.org/wiki/UTF-8
  */
 template<bool ndebug>
@@ -197,7 +198,7 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
     ::std::size_t const pltext_size{pltext.size()};
     char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 0)};
 
-    if (chr <= 0x1f || (0x7f <= chr && chr <= 0x9f)) {
+    if (chr <= 0x1f || chr == 0x7f) {
         return 0;
     }
     if ((chr & 0x80) == 0) {
@@ -218,7 +219,7 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
         char32_t combine{static_cast<char32_t>(chr & 0x1F) << 6 | static_cast<char32_t>(next_char & 0x3F)};
         if (combine < 0x80 || combine > 0x7FF) {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
-            return 0;
+            return 1;
         }
 
         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{chr});
@@ -228,6 +229,13 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
     else if ((chr & 0xF0) == 0xE0) {
         if (2 >= pltext_size) {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
+            if (pltext_size != 2) {
+                return 0;
+            }
+            auto next_char = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 1);
+            if ((next_char & 0xC0) == 0x80) {
+                return 1;
+            }
             return 0;
         }
         auto next_char = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 1);
@@ -238,17 +246,17 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
         auto next_char2 = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 2);
         if ((next_char2 & 0xC0) != 0x80) {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
-            return 0;
+            return 1;
         }
         char32_t combine{static_cast<char32_t>(chr & 0x0f) << 12 | static_cast<char32_t>(next_char & 0x3f) << 6 |
                          static_cast<char32_t>(next_char2 & 0x3f)};
         if (combine < 0x800 || combine > 0xffff) {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
-            return 0;
+            return 2;
         }
         if (0xd800 <= combine && combine <= 0xdfff) {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
-            return 0;
+            return 2;
         }
 
         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{chr});
@@ -259,7 +267,21 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
     else if ((chr & 0xF8) == 0xF0) {
         if (3 >= pltext_size) {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
-            return 0;
+            if (pltext_size < 2) {
+                return 0;
+            }
+            auto next_char = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 1);
+            if ((next_char & 0xC0) != 0x80) {
+                return 0;
+            }
+            if (pltext_size < 3) {
+                return 1;
+            }
+            auto next_char2 = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 2);
+            if ((next_char2 & 0xC0) == 0x80) {
+                return 2;
+            }
+            return 1;
         }
         auto next_char = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 1);
         if ((next_char & 0xC0) != 0x80) {
@@ -269,24 +291,19 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
         auto next_char2 = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 2);
         if ((next_char2 & 0xC0) != 0x80) {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
-            return 0;
+            return 1;
         }
         auto next_char3 = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 3);
         if ((next_char3 & 0xC0) != 0x80) {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
-            return 0;
+            return 2;
         }
         char32_t combine{static_cast<char32_t>(chr & 0x07) << 18 | static_cast<char32_t>(next_char & 0x3F) << 12 |
                          static_cast<char32_t>(next_char2 & 0x3F) << 6 | static_cast<char32_t>(next_char3 & 0x3F)};
         if (combine < 0x10000 || combine > 0x10FFFF) {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
-            return 0;
+            return 3;
         }
-        if (0xd800 <= combine && combine <= 0xdfff) {
-            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
-            return 0;
-        }
-
         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{chr});
         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{next_char});
         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{next_char2});
@@ -1514,10 +1531,8 @@ constexpr auto try_parse_external_tag(
     ::fast_io::u8string_view pltext,
     ::fast_io::stack<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>> const& call_stack) noexcept
     -> ::exception::optional<TryParseEqualSignTagResult> {
-    auto result =
-        ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<ndebug, u8"xternal">(
-            pltext, [](char8_t u8chr) static constexpr noexcept { return u8'!' <= u8chr && u8chr <= u8'~'; },
-            call_stack);
+    auto result = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<ndebug, u8"xternal">(
+        pltext, [](char8_t u8chr) static constexpr noexcept { return u8'!' <= u8chr && u8chr <= u8'~'; }, call_stack);
     if (result.has_value() == false) {
         return ::exception::nullopt_t{};
     }

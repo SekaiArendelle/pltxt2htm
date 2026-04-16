@@ -69,7 +69,8 @@ int main() {
         auto answer = ::fast_io::u8string_view{u8"<a href=\"example.com\">escaped&nbsp;[brackets]</a>"};
         ::pltxt2htm_test::assert_true(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<external=example.com>escaped [brackets]</external>"};
+        auto plunity_richtext_answer =
+            ::fast_io::u8string_view{u8"<external=example.com>escaped [brackets]</external>"};
         ::pltxt2htm_test::assert_true(plunity_richtext == plunity_richtext_answer);
     }
 
@@ -110,7 +111,8 @@ int main() {
         auto answer = ::fast_io::u8string_view{u8"<a href=\"example.com\">a&amp;&quot;&apos;&lt;&gt;</a>"};
         ::pltxt2htm_test::assert_true(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<external=example.com>a&\"'<size=20>＜</size><size=20>＞</size></external>"};
+        auto plunity_richtext_answer =
+            ::fast_io::u8string_view{u8"<external=example.com>a&\"'<size=20>＜</size><size=20>＞</size></external>"};
         ::pltxt2htm_test::assert_true(plunity_richtext == plunity_richtext_answer);
     }
 
