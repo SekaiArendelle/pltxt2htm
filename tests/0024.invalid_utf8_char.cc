@@ -63,7 +63,7 @@ int main() {
     {
         // invalid 4-byte sequence: 3rd byte is not a continuation byte (0x28)
         auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"\xf0\x90\x28\x80");
-        auto answer = ::fast_io::u8string_view{u8"("};
+        auto answer = ::fast_io::u8string_view{u8"�("};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
