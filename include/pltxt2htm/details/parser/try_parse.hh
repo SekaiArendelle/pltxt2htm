@@ -267,7 +267,7 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
             return 0;
         }
         auto next_char2 = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 2);
-        if ((next_char & 0xC0) != 0x80) {
+        if ((next_char2 & 0xC0) != 0x80) {
             result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
             return 0;
         }
