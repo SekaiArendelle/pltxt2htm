@@ -415,7 +415,7 @@ constexpr auto try_parse_item(
     // parsing spaces before - or + or *
     for (; current_index < pltext.size(); ++current_index) {
         auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
-        if (chr != u8' ') {
+        if (chr != u8' ' && chr != u8'\t') {
             break;
         }
     }
@@ -459,14 +459,17 @@ constexpr auto try_parse_item(
     }
 
     // - or + or * must be followed by space
-    if (current_index == pltext.size() ||
-        ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8' ') {
+    if (current_index == pltext.size()) {
+        return ::exception::nullopt_t{};
+    }
+    if (char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index)};
+        chr != u8' ' && chr != u8'\t') {
         return ::exception::nullopt_t{};
     }
     // parsing spaces after - or + or *
     for (; current_index < pltext.size(); ++current_index) {
         auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
-        if (chr != u8' ') {
+        if (chr != u8' ' && chr != u8'\t') {
             break;
         }
     }
