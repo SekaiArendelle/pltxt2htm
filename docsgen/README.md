@@ -3,7 +3,7 @@
 Use Docker to generate docs from repository root:
 
 ```sh
-docker build -t pltxt2htm-docs -f docsgen/Dockerfile .
+docker build -f docsgen/Dockerfile -t pltxt2htm-docs .
 mkdir docs
 docker run --rm -v "docs/:/src/docsgen/docs" pltxt2htm-docs
 ```
