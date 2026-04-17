@@ -36,7 +36,9 @@ namespace pltxt2htm {
  *          - Full Markdown syntax (headers, lists, emphasis, links, code blocks, etc.)
  *          - HTML elements with proper escaping and formatting
  *          - Internal linking to experiments and discussions
- * @tparam ndebug Debug mode flag - false enables debug checks and assertions, true for release mode
+ * @tparam ndebug Contract checking mode. Supported values are ::pltxt2htm::Contracts
+ *                 enumerators such as ::pltxt2htm::Contracts::quick_enforce and
+ *                 ::pltxt2htm::Contracts::ignore
  * @tparam optimize Whether to optimize the AST before HTML generation (default: true)
  * @param[in] pltext The Physics-Lab text content to convert
  * @return Generated HTML string with full formatting support
@@ -59,7 +61,9 @@ constexpr auto pltxt2advanced_html(::fast_io::u8string_view pltext) noexcept {
 
 /**
  * @brief Convert Physics-Lab text to advanced HTML
- * @tparam ndebug Debug mode flag - false enables debug checks and assertions, true for release mode
+ * @tparam ndebug Contract checking mode. Supported values are ::pltxt2htm::Contracts
+ *                 enumerators such as ::pltxt2htm::Contracts::quick_enforce and
+ *                 ::pltxt2htm::Contracts::ignore
  * @tparam optimize Whether to optimize the AST before HTML generation (default: true)
  * @param[in] pltext The Physics-Lab text content to convert
  * @param[in] host Host URL for generating internal links (e.g., "https://physicslab.example.com")
@@ -85,7 +89,9 @@ constexpr auto pltxt2fixedadv_html(::fast_io::u8string_view pltext, ::fast_io::u
  * @brief Convert Physics-Lab text to PLUnity introduction HTML
  * @details Generates HTML using the PLUnity introduction backend with caller-provided
  *          project and user context values for link/text rendering.
- * @tparam ndebug Debug mode flag - false enables debug checks and assertions, true for release mode
+ * @tparam ndebug Contract checking mode. Supported values are ::pltxt2htm::Contracts
+ *                 enumerators such as ::pltxt2htm::Contracts::quick_enforce and
+ *                 ::pltxt2htm::Contracts::ignore
  * @tparam optimize Whether to optimize the AST before HTML generation (default: true)
  * @param[in] pltext The Physics-Lab text content to convert
  * @param[in] project Project identifier for Physics-Lab context
