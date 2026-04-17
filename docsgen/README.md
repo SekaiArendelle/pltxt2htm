@@ -4,8 +4,8 @@ Use Docker to generate docs from repository root:
 
 ```sh
 docker build -f docsgen/Dockerfile -t pltxt2htm-docs .
-mkdir docs
-docker run --rm -v "docs/:/src/docsgen/docs" pltxt2htm-docs
+docker create --name pltxt2htm-docs-container pltxt2htm-docs
+docker cp pltxt2htm-docs-container:/src/docsgen/docs ./docs
 ```
 
 Then open:

@@ -370,15 +370,3 @@ jobs:
       - name: Build docker image
         run: |
           docker build -f cxxmodule/docker/x86_64-linux-gnu/Dockerfile -t pltxt2htm-cxxmodule .
-
-  x86_64-linux-gnu-docsgen:
-    name: x86_64-linux-gnu (docsgen/)
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Build docker image
-        run: |
-          docker build -f docsgen/Dockerfile -t pltxt2htm-docs .
