@@ -24,6 +24,7 @@
 namespace pltxt2htm::details {
 
 template<bool ndebug>
+[[nodiscard]]
 constexpr auto convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast const& ast) noexcept -> ::fast_io::u8string {
     ::fast_io::u8string result{};
     for (auto&& node : ast) {
@@ -218,9 +219,6 @@ constexpr auto convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast const& as
  */
 template<bool ndebug>
 [[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
 constexpr auto plweb_text_backend(::pltxt2htm::Ast const& ast_init, ::fast_io::u8string_view host,
                                   ::fast_io::u8string_view project, ::fast_io::u8string_view visitor,
                                   ::fast_io::u8string_view author, ::fast_io::u8string_view coauthors) noexcept

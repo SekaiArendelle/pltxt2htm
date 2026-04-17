@@ -256,6 +256,7 @@ public:
      * @param self This object
      * @return Const pointer to the string data
      */
+    [[nodiscard]]
     constexpr auto data(this ::pltxt2htm::details::LiteralString<N> const& self) noexcept {
         return ::std::as_const(self.data_);
     }

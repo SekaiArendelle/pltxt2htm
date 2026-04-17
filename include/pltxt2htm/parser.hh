@@ -43,9 +43,6 @@ namespace pltxt2htm {
  */
 template<bool ndebug>
 [[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
 constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2htm::Ast {
     // fast_io::deque contains bug about RAII, use fast_io::list instead
     // This stack is used to track nested tag contexts during parsing

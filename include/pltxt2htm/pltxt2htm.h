@@ -32,9 +32,6 @@ namespace details {
  */
 template<auto Func, typename... Args>
 [[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
 #if __has_cpp_attribute(__gnu__::__nonnull__)
 [[__gnu__::__nonnull__]]
 #endif
@@ -68,9 +65,6 @@ constexpr char8_t const* c_ptr_style_wrapper(Args&&... args) noexcept(
  */
 template<bool ndebug = false>
 [[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
 #if __has_cpp_attribute(__gnu__::__nonnull__)
 [[__gnu__::__nonnull__]]
 #endif
@@ -99,9 +93,6 @@ constexpr char8_t const* advanced_parser(char8_t const* const text) noexcept {
  */
 template<bool ndebug = false>
 [[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
 #if __has_cpp_attribute(__gnu__::__nonnull__)
 [[__gnu__::__nonnull__]]
 #endif
@@ -128,9 +119,6 @@ constexpr char8_t const* fixedadv_parser(char8_t const* const text, char8_t cons
  */
 template<bool ndebug = false>
 [[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
 #if __has_cpp_attribute(__gnu__::__nonnull__)
 [[__gnu__::__nonnull__]]
 #endif
@@ -157,9 +145,6 @@ constexpr char8_t const* common_parser(char8_t const* const text) noexcept {
  */
 template<bool ndebug = false>
 [[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
 #if __has_cpp_attribute(__gnu__::__nonnull__)
 [[__gnu__::__nonnull__]]
 #endif
