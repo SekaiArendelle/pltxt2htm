@@ -14,8 +14,9 @@
 #include <fast_io/fast_io_dsal/list.h>
 #include <fast_io/fast_io_dsal/stack.h>
 #include "pltxt2htm/astnode/node_type.hh"
-#include "details/utils.hh"
+#include "contracts.hh"
 #include "heap_guard.hh"
+#include "details/utils.hh"
 #include "astnode/basic.hh"
 #include "astnode/node_type.hh"
 #include "astnode/physics_lab_node.hh"
@@ -149,7 +150,8 @@ public:
  *
  *          The optimization uses a manual stack-based approach to handle deeply nested
  *          structures without risking stack overflow.
- * @tparam ndebug Debug mode flag - false enables debug checks and assertions, true for release mode
+ * @tparam ndebug Contract checking mode. Use `::pltxt2htm::Contracts::quick_enforce` to enforce checks or
+ * `::pltxt2htm::Contracts::ignore` to skip them.
  * @param[in,out] ast_init The AST to optimize (modified in-place)
  * @note This function modifies the input AST directly - the original structure is lost
  * @warning The optimization process is recursive and uses manual stack management

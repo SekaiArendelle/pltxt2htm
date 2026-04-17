@@ -12,6 +12,7 @@
 #include <fast_io/fast_io_dsal/string_view.h>
 #include "frame_concext.hh"
 #include "../utils.hh"
+#include "../../contracts.hh"
 #include "../../heap_guard.hh"
 #include "../../astnode/basic.hh"
 #include "../../astnode/node_type.hh"
@@ -177,7 +178,7 @@ constexpr ::exception::optional<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>> 
  * This function inspects the first byte of `pltext` and appends either UTF-8 bytes
  * (as U8Char nodes) or one InvalidU8Char node to `result`.
  *
- * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @param[in] pltext Input view starting at the current parser position.
  * @param[out] result The AST to which parsed character nodes are appended.
  * @return Number of additional bytes consumed after the first byte (0..3).
@@ -319,7 +320,7 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
  * This template function attempts to match and parse simple HTML tags that consist only of
  * the tag name without any attributes. The tag name is specified as a template parameter.
  *
- * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @tparam tag_name The exact tag name to match as a compile-time string literal.
  * @param[in] pltext The input text to parse, starting at the current position.
  * @return The length of the matched tag including the closing `>`, or nullopt if no match is found
@@ -328,7 +329,8 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
  * @note Only accepts alphabetic characters and digits in the tag name.
  * @example `<div>`, `<span>`, `<p>` are valid bare tags
  */
-template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::LiteralString tag_name = ::pltxt2htm::details::LiteralString<0>{}>
+template<::pltxt2htm::Contracts ndebug,
+         ::pltxt2htm::details::LiteralString tag_name = ::pltxt2htm::details::LiteralString<0>{}>
 [[nodiscard]] constexpr auto try_parse_bare_tag(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::std::size_t> {
     constexpr ::std::size_t tag_name_size{tag_name.size()};
@@ -350,7 +352,7 @@ template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::LiteralString tag_
 
 /**
  * @brief Parse `<li>` payload in the parser's compact tag form and validate parent container type.
- * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @param[in] pltext The input text to parse, starting after `<l`.
  * @param[in] nested_tag_type Current parent tag type from parsing context.
  * @return Matched tag length when valid under `<ul>`/`<ol>`; otherwise nullopt.
@@ -381,7 +383,7 @@ struct TryParseEqualSignTagResult {
  * This function parses HTML tags that have a simple attribute with an equals sign and a value.
  * It uses a validation function to determine which characters are valid in the attribute value.
  *
- * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @tparam prefix_str The complete tag prefix including the attribute name and equals sign
  *                    (e.g., "size=" for `<size=value>`).
  * @tparam Func A callable type that validates characters in the tag value.
@@ -455,7 +457,7 @@ constexpr auto try_parse_equal_sign_tag(::fast_io::u8string_view pltext, Func&& 
 
 /**
  * @brief Parse `<tag=value>` and reject it when nested inside non-nestable PL tags.
- * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @tparam prefix_str Tag-name prefix used by `try_parse_equal_sign_tag`.
  * @tparam Func Character validator for the `value` part.
  * @param[in] pltext The input text to parse at current position.
@@ -498,7 +500,7 @@ constexpr auto try_parse_non_nestable_equal_sign_tag(
  * of tag content followed by optional whitespace and then `/>`. It doesn't validate
  * the tag name itself, only the structural pattern.
  *
- * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @param[in] pltext The input text to parse, starting at the current position.
  * @return The length of the matched self-closing tag, or nullopt if no match is found.
  * @note The function allows any content between the opening `<` and closing `/>`,
@@ -529,7 +531,7 @@ constexpr auto try_parse_self_closing_tag(::fast_io::u8string_view pltext) noexc
 
 /**
  * @brief Parse a named self-closing tag form like `<br/>` with optional spaces before closure.
- * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @tparam tag_name Compile-time tag prefix (e.g., `"<br"`).
  * @param[in] pltext The input text to parse from current position.
  * @return Position of closing `>` on success, otherwise nullopt.
@@ -572,7 +574,7 @@ struct TryParseMdAtxHeadingResult {
  * This function parses ATX-style markdown headings according to the CommonMark specification.
  * It supports headings from level 1 (`#`) to level 6 (`######`) with optional leading/trailing spaces.
  *
- * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @param[in] pltext The input text to parse, starting at the current position.
  * @return The parsed result containing heading level, content boundaries, and continuation index,
  *         or nullopt if the input doesn't represent a valid ATX heading.
@@ -680,7 +682,7 @@ enum class ThematicBreakType : ::std::uint_least32_t {
  * contain at least three consecutive identical characters, with optional spaces
  * between them, and must be terminated by a newline or line break tag.
  *
- * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @param[in] text The input text to parse, starting at the current position.
  * @return The length of the parsed thematic break including terminator, or nullopt if parsing fails.
  * @note Only one type of character (hyphen, underscore, or asterisk) is allowed in a single break.
@@ -778,7 +780,7 @@ struct SimplyParsePLtextResult {
  * characters and escape sequences into appropriate AST nodes. It stops parsing when it
  * encounters the specified termination string.
  *
- * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @tparam end_string The exact string that marks the end of parsing (e.g., "```" for code fences).
  * @param[in] pltext The input text to parse.
  * @return A structure containing the parsed AST and the index to continue parsing from.
@@ -872,7 +874,7 @@ struct TryParseMdCodeFenceResult {
  * This function parses fenced code blocks using either backticks (```) or tildes (~~~)
  * as delimiters. It extracts the language identifier and the code content between the fences.
  *
- * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @tparam is_backtick When `true`, uses backtick delimiters (```), otherwise uses tilde delimiters (~~~).
  * @param[in] pltext The input text to parse, starting at the opening fence.
  * @return The parsed result containing the code fence node and continuation index, or nullopt if parsing fails.
@@ -1016,7 +1018,7 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
  * and if that fails, trying tilde delimiters (~~~). It automatically determines which type of
  * fence is being used.
  *
- * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @param[in] pltext The input text to parse, starting at the opening fence.
  * @return The parsed result containing the code fence node and continuation index, or nullopt if parsing fails.
  * @note First attempts to parse with backtick delimiters, then falls back to tilde delimiters.
@@ -1054,7 +1056,7 @@ constexpr auto try_parse_md_code_fence(::fast_io::u8string_view pltext) noexcept
  * This function parses inline markdown elements that are wrapped by pairs of identical
  * delimiter characters, such as emphasis (`*text*`) or code spans (`` `code` ``).
  *
- * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @tparam embraced_chars The delimiter string that encloses the inline element (e.g., "*" for emphasis, "`" for code).
  * @param[in] pltext The input text to parse, starting at the opening delimiter.
  * @return The length of the content between the delimiters (excluding the delimiters themselves),
@@ -1104,7 +1106,7 @@ struct TryParseMdBlockQuotesResult {
  * It handles optional whitespace after the quote marker and supports lazy continuation lines
  * (lines without explicit quote markers that continue the quote context).
  *
- * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @param[in] pltext The input text to parse, starting at the block quote marker.
  * @return The parsed result containing the quote content and continuation index, or nullopt if parsing fails.
  * @note Each line must start with optional whitespace followed by `>` (the quote marker).
@@ -1188,7 +1190,7 @@ struct TryParseMdCodeSpanResult {
  * This function parses inline code spans that can use varying numbers of backticks as delimiters,
  * allowing for code content that itself contains backticks. It supports 1, 2, or 3 backtick delimiters.
  *
- * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @tparam embraced_string The delimiter string (1-3 backticks) enclosing the code span.
  * @param[in] pltext The input text to parse, starting at the opening delimiter.
  * @return The parsed result containing the code content AST and continuation index, or nullopt if parsing fails.
@@ -1240,7 +1242,7 @@ struct TryParseMdLatexResult {
  * on both sides. It extracts the mathematical content and converts it to appropriate AST nodes,
  * preserving newlines within the expression.
  *
- * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @param[in] pltext The input text to parse, starting at the opening `$$`.
  * @return The parsed result containing the LaTeX content AST and continuation index, or nullopt if parsing fails.
  * @note The opening `$$` must be at the very beginning of the input text.
@@ -1296,7 +1298,7 @@ constexpr auto try_parse_md_latex_block_dollar(::fast_io::u8string_view pltext) 
  * It extracts the mathematical content and converts it to appropriate AST nodes, stopping at
  * the first closing `$` delimiter.
  *
- * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @param[in] pltext The input text to parse, starting at the opening `$`.
  * @return The parsed result containing the LaTeX content AST and continuation index, or nullopt if parsing fails.
  * @note The opening `$` must be at the very beginning of the input text.
@@ -1346,7 +1348,7 @@ constexpr auto try_parse_md_latex_inline(::fast_io::u8string_view pltext) noexce
 
 /**
  * @brief Validate URL domain and top-level domain portion.
- * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @param[in] pltext Original URL text.
  * @param[in] domain_start Start index (inclusive) of the domain segment.
  * @param[in] domain_end End index (exclusive) of the domain segment.
@@ -1410,7 +1412,7 @@ constexpr auto validate_url_domain(::fast_io::u8string_view pltext, ::std::size_
 
 /**
  * @brief Parse and validate an URL starting with optional `http://` or `https://`.
- * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @tparam regard_right_parent_as_end_of_url Whether `)` is treated as a hard URL terminator.
  * @param[in] pltext The input text that begins at a URL candidate.
  * @return Parsed URL length on success; nullopt when domain/port/path validation fails.
@@ -1522,7 +1524,7 @@ constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept -> ::exce
 
 /**
  * @brief Parse `<external=...>` tag and validate its URL payload.
- * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @param[in] pltext The input text starting at the `external` tag payload.
  * @param[in] call_stack Active parser frames used to reject invalid nested contexts.
  * @return Parsed tag length and extracted URL on success; nullopt if invalid or disallowed nesting.
@@ -1541,7 +1543,8 @@ constexpr auto try_parse_external_tag(
 
     auto&& [_, url] = result.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
     auto opt_url_size = ::pltxt2htm::details::try_parse_url<ndebug>(::fast_io::u8string_view{url.data(), url.size()});
-    if (opt_url_size.has_value() == false || opt_url_size.template value<ndebug == ::pltxt2htm::Contracts::ignore>() != url.size()) {
+    if (opt_url_size.has_value() == false ||
+        opt_url_size.template value<ndebug == ::pltxt2htm::Contracts::ignore>() != url.size()) {
         return ::exception::nullopt_t{};
     }
 
@@ -1561,7 +1564,7 @@ struct TryParseMdLinkResult {
  * both the link text (displayed to users) and the link URL (the destination), handling
  * escaped characters within the link text portion.
  *
- * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @param[in] pltext The input text to parse, starting at the opening `[`.
  * @return The parsed result containing the link text, URL, and continuation index, or nullopt if parsing fails.
  * @note The link text is contained in square brackets `[...]` and can include escaped characters.
@@ -1641,7 +1644,7 @@ struct TryParseMdImageResult {
 
 /**
  * @brief Parse Markdown image syntax (`![alt](url)`).
- * @tparam ndebug When `true`, runtime assertions are disabled for performance.
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @param[in] pltext The input text beginning with `![`.
  * @return Parsed image payload (alt text AST + URL + continuation index), or nullopt if invalid.
  */
@@ -1698,7 +1701,8 @@ constexpr auto try_parse_md_image(::fast_io::u8string_view pltext) noexcept
             auto escape_node = ::pltxt2htm::details::switch_escape_char(
                 ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index + 1));
             if (escape_node.has_value()) {
-                link_text_ast.push_back(::std::move(escape_node.template value<ndebug == ::pltxt2htm::Contracts::ignore>()));
+                link_text_ast.push_back(
+                    ::std::move(escape_node.template value<ndebug == ::pltxt2htm::Contracts::ignore>()));
                 ++current_index;
             }
             else {

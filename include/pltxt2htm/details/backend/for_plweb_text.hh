@@ -15,6 +15,7 @@
 #include <fast_io/fast_io_dsal/string_view.h>
 #include <exception/exception.hh>
 #include "frame_context.hh"
+#include "../../contracts.hh"
 #include "../../details/utils.hh"
 #include "../../astnode/basic.hh"
 #include "../../astnode/node_type.hh"
@@ -210,7 +211,7 @@ constexpr auto convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast const& as
  *          - Markdown syntax (headers, lists, emphasis, links, etc.)
  *          - HTML elements (paragraphs, line breaks, etc.)
  *          - Proper HTML escaping and encoding
- * @tparam ndebug Debug mode flag - true for release mode (faster, fewer checks),
+ * @tparam ndebug Contract checking mode - `::pltxt2htm::Contracts::ignore` is faster with fewer checks,
  *                false for debug mode (slower, more safety checks)
  * @param[in] ast_init The AST to convert to HTML
  * @param[in] host Host URL for generating internal links (used for experiment/discussion links)

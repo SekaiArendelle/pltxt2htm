@@ -23,7 +23,7 @@ namespace pltxt2htm::details {
 
 /**
  * @brief Get character at specific index from u8string_view with bounds checking
- * @tparam ndebug Debug mode flag - controls assertion behavior
+ * @tparam ndebug Contract checking mode controlling assertion behavior.
  * @param[in] pltext The string view to index into
  * @param[in] i The index to access
  * @return The character at the specified index
@@ -44,7 +44,7 @@ constexpr auto u8string_view_index(::fast_io::u8string_view pltext, ::std::size_
 
 /**
  * @brief Get a substring view from u8string_view
- * @tparam ndebug Debug mode flag - controls bounds checking
+ * @tparam ndebug Contract checking mode controlling bounds-check behavior.
  * @param[in] pltext The original string view
  * @param[in] i Starting index of the substring
  * @param[in] count Number of characters in the substring (npos for remainder)
@@ -125,7 +125,7 @@ constexpr auto const& stack_top(::fast_io::containers::stack<T> const& stack) {
  * @brief Check if a string is a case-insensitive prefix match
  * @details This function performs compile-time prefix matching that is case-insensitive.
  *          It generates efficient if-expressions at compile time for optimal runtime performance.
- * @tparam ndebug Debug mode flag - controls bounds checking
+ * @tparam ndebug Contract checking mode controlling bounds-check behavior.
  * @tparam prefix_str The prefix to match (must be lowercase compile-time string)
  * @param[in] str The string to check against
  * @return true if str starts with prefix_str (case-insensitive), false otherwise

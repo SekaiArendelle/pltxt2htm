@@ -14,6 +14,7 @@
 #include <fast_io/fast_io_dsal/string_view.h>
 #include <exception/exception.hh>
 #include "../utils.hh"
+#include "../../contracts.hh"
 #include "../../heap_guard.hh"
 #include "../../astnode/node_type.hh"
 
@@ -400,7 +401,8 @@ constexpr auto is_valid_md_ol_list_hierarchy(
             // - test
             // 1. test <== here, this line is invalid markdown list
             (expect.template value<ndebug == ::pltxt2htm::Contracts::ignore>().call_stack_is_single &&
-             expect.template value<ndebug == ::pltxt2htm::Contracts::ignore>().item_kind == ::pltxt2htm::details::MdUlListItemKind::ordered_item)) {
+             expect.template value<ndebug == ::pltxt2htm::Contracts::ignore>().item_kind ==
+                 ::pltxt2htm::details::MdUlListItemKind::ordered_item)) {
             return i;
         }
     }
@@ -521,7 +523,8 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
     // manually managing stack to avoid stack-overflow
     {
         if (auto opt_item = ::pltxt2htm::details::try_parse_item<ndebug>(pltext); opt_item.has_value()) {
-            auto&& [space_hierarchy, forward_index, text, item_kind] = opt_item.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            auto&& [space_hierarchy, forward_index, text, item_kind] =
+                opt_item.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             ::pltxt2htm::details::MdListFrameContext current_frame{item_kind, space_hierarchy, pltext, forward_index};
             current_frame.md_list_ast.emplace_back(
                 ::pltxt2htm::HeapGuard<::pltxt2htm::details::MdListTextNode>(::std::move(text)));
@@ -586,7 +589,8 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
                 continue;
             }
         }
-        auto&& [space_hierarchy, forward_index, text, item_kind] = opt_list_item.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        auto&& [space_hierarchy, forward_index, text, item_kind] =
+            opt_list_item.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
         current_index += forward_index;
         if (space_hierarchy > call_stack.top().space_hierarchy + 1) {
             call_stack.push(::pltxt2htm::details::MdListFrameContext{

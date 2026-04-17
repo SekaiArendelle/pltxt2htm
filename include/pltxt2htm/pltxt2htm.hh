@@ -124,7 +124,8 @@ constexpr auto pltxt2plunity_introduction(::fast_io::u8string_view pltext, ::fas
  *          - Simple text formatting needs
  *          - Header rendering where complex formatting isn't needed
  *          - Performance-critical applications that don't need full features
- * @tparam ndebug Debug mode flag - false enables debug checks and assertions, true for release mode
+ * @tparam ndebug Contract checking mode. Use `::pltxt2htm::Contracts::quick_enforce` to enforce checks or
+ * `::pltxt2htm::Contracts::ignore` to skip them.
  * @tparam optimize Whether to optimize the AST before HTML generation (default: false)
  * @param[in] pltext The Physics-Lab text content to convert
  * @return Generated HTML string with basic formatting support

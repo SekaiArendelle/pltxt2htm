@@ -12,6 +12,7 @@
 #include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/string_view.h>
 #include "astnode/node_type.hh"
+#include "contracts.hh"
 #include "heap_guard.hh"
 #include "details/utils.hh"
 #include "details/parser/frame_concext.hh"

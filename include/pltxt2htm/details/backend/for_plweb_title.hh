@@ -8,6 +8,7 @@
 #include <fast_io/fast_io_dsal/string_view.h>
 #include "exception/exception.hh"
 #include "frame_context.hh"
+#include "../../contracts.hh"
 #include "../../details/utils.hh"
 #include "../../astnode/basic.hh"
 #include "../../astnode/node_type.hh"
@@ -21,7 +22,7 @@ namespace pltxt2htm::details {
  *          It only processes color tags, bold tags, and italic tags, ignoring
  *          more complex formatting like Markdown syntax or advanced HTML elements.
  *          This is typically used for rendering headers or simple text content.
- * @tparam ndebug Debug mode flag - controls assertion behavior
+ * @tparam ndebug Contract checking mode controlling assertion behavior.
  * @param[in] ast_init The AST to convert to HTML
  * @return A string containing the generated HTML
  */
