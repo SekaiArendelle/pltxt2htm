@@ -12,6 +12,7 @@
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
 #include "md_list.hh"
+#include "../../contracts.hh"
 #include "../../astnode/basic.hh"
 #include "../push_macro.hh"
 
@@ -149,11 +150,11 @@ public:
 
 /**
  * @brief Context for parsing Markdown lists (ordered and unordered)
- * @tparam ndebug Debug mode flag - controls assertion behavior
+ * @tparam ndebug Contract checking mode controlling assertion behavior.
  * @details Specialized context for handling Markdown list syntax including
  *          both ordered lists (1. 2. 3.) and unordered lists (- * +)
  */
-template<bool ndebug>
+template<::pltxt2htm::Contracts ndebug>
 class MdListContext : public ::pltxt2htm::details::BasicFrameContext {
 public:
     ::pltxt2htm::details::MdListAst md_list_ast; ///< The parsed list structure

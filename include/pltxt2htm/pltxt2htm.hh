@@ -19,6 +19,7 @@
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
 #include <exception/exception.hh>
+#include "contracts.hh"
 #include "parser.hh"
 #include "optimizer.hh"
 #include "details/backend/for_plweb_text.hh"
@@ -35,7 +36,9 @@ namespace pltxt2htm {
  *          - Full Markdown syntax (headers, lists, emphasis, links, code blocks, etc.)
  *          - HTML elements with proper escaping and formatting
  *          - Internal linking to experiments and discussions
- * @tparam ndebug Debug mode flag - false enables debug checks and assertions, true for release mode
+ * @tparam ndebug Contract checking mode. Supported values are ::pltxt2htm::Contracts
+ *                 enumerators such as ::pltxt2htm::Contracts::quick_enforce and
+ *                 ::pltxt2htm::Contracts::ignore
  * @tparam optimize Whether to optimize the AST before HTML generation (default: true)
  * @param[in] pltext The Physics-Lab text content to convert
  * @return Generated HTML string with full formatting support
@@ -45,7 +48,7 @@ namespace pltxt2htm {
  * @warning This function uses built-in placeholder link context values
  * @warning Use pltxt2fixedadv_html when host/project/visitor/author/coauthors must be customized
  */
-template<bool ndebug = false, bool optimize = true>
+template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, bool optimize = true>
 [[nodiscard]]
 constexpr auto pltxt2advanced_html(::fast_io::u8string_view pltext) noexcept {
     auto ast = ::pltxt2htm::parse_pltxt<ndebug>(pltext);
@@ -58,7 +61,9 @@ constexpr auto pltxt2advanced_html(::fast_io::u8string_view pltext) noexcept {
 
 /**
  * @brief Convert Physics-Lab text to advanced HTML
- * @tparam ndebug Debug mode flag - false enables debug checks and assertions, true for release mode
+ * @tparam ndebug Contract checking mode. Supported values are ::pltxt2htm::Contracts
+ *                 enumerators such as ::pltxt2htm::Contracts::quick_enforce and
+ *                 ::pltxt2htm::Contracts::ignore
  * @tparam optimize Whether to optimize the AST before HTML generation (default: true)
  * @param[in] pltext The Physics-Lab text content to convert
  * @param[in] host Host URL for generating internal links (e.g., "https://physicslab.example.com")
@@ -68,7 +73,7 @@ constexpr auto pltxt2advanced_html(::fast_io::u8string_view pltext) noexcept {
  * @param[in] coauthors Co-authors identifier for Physics-Lab context
  * @note The host parameter is used for generating proper internal links to experiments and discussions
  */
-template<bool ndebug = false, bool optimize = true>
+template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, bool optimize = true>
 [[nodiscard]]
 constexpr auto pltxt2fixedadv_html(::fast_io::u8string_view pltext, ::fast_io::u8string_view host,
                                    ::fast_io::u8string_view project, ::fast_io::u8string_view visitor,
@@ -84,7 +89,9 @@ constexpr auto pltxt2fixedadv_html(::fast_io::u8string_view pltext, ::fast_io::u
  * @brief Convert Physics-Lab text to PLUnity introduction HTML
  * @details Generates HTML using the PLUnity introduction backend with caller-provided
  *          project and user context values for link/text rendering.
- * @tparam ndebug Debug mode flag - false enables debug checks and assertions, true for release mode
+ * @tparam ndebug Contract checking mode. Supported values are ::pltxt2htm::Contracts
+ *                 enumerators such as ::pltxt2htm::Contracts::quick_enforce and
+ *                 ::pltxt2htm::Contracts::ignore
  * @tparam optimize Whether to optimize the AST before HTML generation (default: true)
  * @param[in] pltext The Physics-Lab text content to convert
  * @param[in] project Project identifier for Physics-Lab context
@@ -94,7 +101,7 @@ constexpr auto pltxt2fixedadv_html(::fast_io::u8string_view pltext, ::fast_io::u
  * @return Generated HTML string for PLUnity introduction rendering
  * @retval fast_io::u8string UTF-8 string containing the generated HTML
  */
-template<bool ndebug = false, bool optimize = true>
+template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, bool optimize = true>
 [[nodiscard]]
 constexpr auto pltxt2plunity_introduction(::fast_io::u8string_view pltext, ::fast_io::u8string_view project,
                                           ::fast_io::u8string_view visitor, ::fast_io::u8string_view author,
@@ -117,7 +124,8 @@ constexpr auto pltxt2plunity_introduction(::fast_io::u8string_view pltext, ::fas
  *          - Simple text formatting needs
  *          - Header rendering where complex formatting isn't needed
  *          - Performance-critical applications that don't need full features
- * @tparam ndebug Debug mode flag - false enables debug checks and assertions, true for release mode
+ * @tparam ndebug Contract checking mode. Use `::pltxt2htm::Contracts::quick_enforce` to enforce checks or
+ * `::pltxt2htm::Contracts::ignore` to skip them.
  * @tparam optimize Whether to optimize the AST before HTML generation (default: false)
  * @param[in] pltext The Physics-Lab text content to convert
  * @return Generated HTML string with basic formatting support
@@ -127,7 +135,7 @@ constexpr auto pltxt2plunity_introduction(::fast_io::u8string_view pltext, ::fas
  * @warning AST optimization is disabled by default for this function
  * @see pltxt2advanced_html for full feature support
  */
-template<bool ndebug = false, bool optimize = false>
+template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, bool optimize = false>
 [[nodiscard]]
 constexpr auto pltxt2common_html(::fast_io::u8string_view pltext) noexcept {
     auto ast = ::pltxt2htm::parse_pltxt<ndebug>(pltext);

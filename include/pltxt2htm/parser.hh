@@ -12,6 +12,7 @@
 #include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/string_view.h>
 #include "astnode/node_type.hh"
+#include "contracts.hh"
 #include "heap_guard.hh"
 #include "details/utils.hh"
 #include "details/parser/frame_concext.hh"
@@ -32,7 +33,9 @@ namespace pltxt2htm {
  *          - Markdown syntax parsing (headers, lists, emphasis, etc.)
  *          - HTML tag recognition and processing
  *          - Building a hierarchical AST structure
- * @tparam ndebug Debug mode flag - false enables debug checks and assertions, true for release mode
+ * @tparam ndebug Contract-checking mode for parsing, using `::pltxt2htm::Contracts`
+ *                 values such as `::pltxt2htm::Contracts::quick_enforce` or
+ *                 `::pltxt2htm::Contracts::ignore`
  * @param[in] pltext The Physics-Lab text content to parse
  * @return An AST representing the parsed structure of the input text
  * @retval pltxt2htm::Ast Abstract Syntax Tree containing the parsed structure
@@ -41,7 +44,7 @@ namespace pltxt2htm {
  * @warning This function uses manual memory management via HeapGuard
  * @see pltxt2htm::details::parse_pltxt for the internal implementation
  */
-template<bool ndebug>
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2htm::Ast {
     // fast_io::deque contains bug about RAII, use fast_io::list instead
@@ -99,7 +102,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
         }
         default:
             [[unlikely]] {
-                ::exception::unreachable<ndebug>();
+                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
             }
         }
     }

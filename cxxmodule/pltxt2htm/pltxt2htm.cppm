@@ -14,6 +14,9 @@ using ::pltxt2htm::pltxt2plunity_introduction;
 using ::pltxt2htm::parse_pltxt;
 using ::pltxt2htm::optimize_ast;
 
+// contracts
+using ::pltxt2htm::Contracts;
+
 // heap_guard
 using ::pltxt2htm::HeapGuard;
 

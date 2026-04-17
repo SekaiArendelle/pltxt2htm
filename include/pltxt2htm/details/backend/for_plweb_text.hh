@@ -15,6 +15,7 @@
 #include <fast_io/fast_io_dsal/string_view.h>
 #include <exception/exception.hh>
 #include "frame_context.hh"
+#include "../../contracts.hh"
 #include "../../details/utils.hh"
 #include "../../astnode/basic.hh"
 #include "../../astnode/node_type.hh"
@@ -23,7 +24,7 @@
 
 namespace pltxt2htm::details {
 
-template<bool ndebug>
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast const& ast) noexcept -> ::fast_io::u8string {
     ::fast_io::u8string result{};
@@ -195,7 +196,7 @@ constexpr auto convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast const& as
         }
         default:
             [[unlikely]] {
-                ::exception::unreachable<ndebug>();
+                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
             }
         }
     }
@@ -210,14 +211,14 @@ constexpr auto convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast const& as
  *          - Markdown syntax (headers, lists, emphasis, links, etc.)
  *          - HTML elements (paragraphs, line breaks, etc.)
  *          - Proper HTML escaping and encoding
- * @tparam ndebug Debug mode flag - true for release mode (faster, fewer checks),
- *                false for debug mode (slower, more safety checks)
+ * @tparam ndebug Contract checking mode - `::pltxt2htm::Contracts::ignore` is faster with fewer checks,
+ *                while `::pltxt2htm::Contracts::quick_enforce` enables more safety checks at higher cost
  * @param[in] ast_init The AST to convert to HTML
  * @param[in] host Host URL for generating internal links (used for experiment/discussion links)
  * @return A string containing the generated HTML
  * @note To avoid stack overflow, this function manages call_stack manually using goto-based state machine
  */
-template<bool ndebug>
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto plweb_text_backend(::pltxt2htm::Ast const& ast_init, ::fast_io::u8string_view host,
                                   ::fast_io::u8string_view project, ::fast_io::u8string_view visitor,
@@ -765,7 +766,7 @@ entry:
             auto code_fence = static_cast<::pltxt2htm::MdCodeFenceBacktick const*>(node.release_imul());
             auto const& opt_language = code_fence->get_language();
             if (opt_language.has_value()) {
-                auto const& language = opt_language.template value<ndebug>();
+                auto const& language = opt_language.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                 auto const start_tag = ::fast_io::array{u8'<', u8'p', u8'r', u8'e', u8'>', u8'<', u8'c', u8'o', u8'd',
                                                         u8'e', u8' ', u8'c', u8'l', u8'a', u8's', u8's', u8'=', u8'\"',
                                                         u8'l', u8'a', u8'n', u8'g', u8'u', u8'a', u8'g', u8'e', u8'-'};
@@ -806,7 +807,7 @@ entry:
      default:
 #endif
             [[unlikely]] {
-                ::exception::unreachable<ndebug>();
+                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
             }
         }
     }
@@ -989,7 +990,7 @@ entry:
                 [[fallthrough]];
             default:
                 [[unlikely]] {
-                    ::exception::unreachable<ndebug>();
+                    ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
                 }
             }
         }

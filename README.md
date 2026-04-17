@@ -68,7 +68,7 @@ A: Not exactly. Despite clang, gcc and msvc all support C++20 module, but the co
 
 > Q: Why not use NDEBUG macro in include/pltxt2htm
 
-A: Conditional compilation in function body will cause [ODR violation](https://en.cppreference.com/w/cpp/language/definition) and [C++26 Contracts](https://en.cppreference.com/w/cpp/language/contracts) has the same problem. Therefore, to make function has different symbols in debug / release mode, I use `template<bool ndebug>` to achieve it.
+A: Conditional compilation in function body will cause [ODR violation](https://en.cppreference.com/w/cpp/language/definition) and [C++26 Contracts](https://en.cppreference.com/w/cpp/language/contracts) has the same problem. Therefore, to make function has different symbols in debug / release mode, I use `template<pltxt2htm::Contracts ndebug>` to achieve it.
 
 > Q: Why use C++ instead of a "memory safe" language like Rust?
 
