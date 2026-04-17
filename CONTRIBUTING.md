@@ -134,6 +134,7 @@ Please follow the existing low-runtime, cross-platform style used in core header
   - Avoid initialization forms that look like declarations but actually construct objects (the "most vexing parse" style).
 - Mark terminal error branches as cold paths:
   - For branches that call `exit`/`terminate`, mark the branch with `[[unlikely]]`.
+  - For branches that end in `unreachable`, mark the branch with `[[unlikely]]` as well.
 - Prefer guard-clause error handling:
   - Return early on failure (for example, `if (!ok) { return err; }`) and keep the normal path unindented below.
 - Require `[[nodiscard]]` on meaningful return values:
