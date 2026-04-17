@@ -63,7 +63,7 @@ constexpr char8_t const* c_ptr_style_wrapper(Args&&... args) noexcept(
  * @warning The returned string must be freed by the caller using std::free()
  * @see pltxt2htm::pltxt2advanced_html for the underlying C++ implementation
  */
-template<bool ndebug = false>
+template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__nonnull__)
 [[__gnu__::__nonnull__]]
@@ -91,7 +91,7 @@ constexpr char8_t const* advanced_parser(char8_t const* const text) noexcept {
  * @warning The returned string must be freed by the caller using std::free()
  * @see pltxt2htm::pltxt2fixedadv_html for the underlying C++ implementation
  */
-template<bool ndebug = false>
+template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__nonnull__)
 [[__gnu__::__nonnull__]]
@@ -117,7 +117,7 @@ constexpr char8_t const* fixedadv_parser(char8_t const* const text, char8_t cons
  * @warning The returned string must be freed by the caller using std::free()
  * @see pltxt2htm::pltxt2common_html for the underlying C++ implementation
  */
-template<bool ndebug = false>
+template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__nonnull__)
 [[__gnu__::__nonnull__]]
@@ -143,7 +143,7 @@ constexpr char8_t const* common_parser(char8_t const* const text) noexcept {
  * @warning The returned string must be freed by the caller using std::free()
  * @see pltxt2htm::pltxt2plunity_introduction for the underlying C++ implementation
  */
-template<bool ndebug = false>
+template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__nonnull__)
 [[__gnu__::__nonnull__]]

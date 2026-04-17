@@ -41,29 +41,29 @@ int main() noexcept {
     {
         constexpr auto str = ::pltxt2htm::details::LiteralString{u8"test"};
         ::pltxt2htm_test::assert_true(
-            ::pltxt2htm::details::is_prefix_match<false, str>(::fast_io::u8string_view{u8"test"}));
+            ::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(::fast_io::u8string_view{u8"test"}));
         ::pltxt2htm_test::assert_true(
-            ::pltxt2htm::details::is_prefix_match<false, str>(::fast_io::u8string_view{u8"TEST"}));
+            ::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(::fast_io::u8string_view{u8"TEST"}));
         ::pltxt2htm_test::assert_true(
-            ::pltxt2htm::details::is_prefix_match<false, str>(::fast_io::u8string_view{u8"kksk"}) == false);
+            ::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(::fast_io::u8string_view{u8"kksk"}) == false);
     }
 
     {
         constexpr auto str = ::pltxt2htm::details::LiteralString{u8"te-1"};
-        ::pltxt2htm_test::assert_true(::pltxt2htm::details::is_prefix_match<false, str>(u8"TE-1"));
-        ::pltxt2htm_test::assert_true(::pltxt2htm::details::is_prefix_match<false, str>(u8"TE_1") == false);
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(u8"TE-1"));
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(u8"TE_1") == false);
     }
     {
         constexpr auto str = ::pltxt2htm::details::LiteralString{u8"a"};
-        ::pltxt2htm_test::assert_true(::pltxt2htm::details::is_prefix_match<false, str>(u8"b") == false);
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(u8"b") == false);
     }
     {
         constexpr auto str = ::pltxt2htm::details::LiteralString{u8"-"};
-        ::pltxt2htm_test::assert_true(::pltxt2htm::details::is_prefix_match<false, str>(u8"_") == false);
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(u8"_") == false);
     }
     {
         constexpr auto str = ::pltxt2htm::details::LiteralString{u8"-"};
-        ::pltxt2htm_test::assert_true(::pltxt2htm::details::is_prefix_match<false, str>(u8"-"));
+        ::pltxt2htm_test::assert_true(::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(u8"-"));
     }
 
     {

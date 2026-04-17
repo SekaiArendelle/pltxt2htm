@@ -68,40 +68,40 @@ int main() {
         ::exception::assert_true<false>(ast1 == ast3);
     }
     {
-        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8"- text").value().ast;
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(u8"- text").value().ast;
         auto answer = md_list(text_item(u8"text"));
         ::exception::assert_true<false>(ast == answer);
     }
     {
-        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8"- text\n - text").value().ast;
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(u8"- text\n - text").value().ast;
         auto answer = md_list(text_item(u8"text"), text_item(u8"text"));
         ::exception::assert_true<false>(ast == answer);
     }
     {
-        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8"   - text\n - text").value().ast;
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(u8"   - text\n - text").value().ast;
         auto answer = md_list(text_item(u8"text"), text_item(u8"text"));
         ::exception::assert_true<false>(ast == answer);
     }
     {
-        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" - text\n   - text").value().ast;
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(u8" - text\n   - text").value().ast;
         auto answer = md_list(text_item(u8"text"), ul_item(text_item(u8"text")));
         ::exception::assert_true<false>(ast == answer);
     }
     {
-        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" - text\n  - text\n   - text\n    - text")
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(u8" - text\n  - text\n   - text\n    - text")
                        .value()
                        .ast;
         auto answer = md_list(text_item(u8"text"), text_item(u8"text"), text_item(u8"text"), text_item(u8"text"));
         ::exception::assert_true<false>(ast == answer);
     }
     {
-        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" - text\n   - text\n - test").value().ast;
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(u8" - text\n   - text\n - test").value().ast;
         auto answer = md_list(text_item(u8"text"), ul_item(text_item(u8"text")), text_item(u8"test"));
         ::exception::assert_true<false>(ast == answer);
     }
     {
         auto ast =
-            ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" - text\n   - text\n     - text\n   - test\n")
+            ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(u8" - text\n   - text\n     - text\n   - test\n")
                 .value()
                 .ast;
         auto answer = md_list(text_item(u8"text"),
@@ -110,7 +110,7 @@ int main() {
     }
     {
         auto ast =
-            ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" + text\n   + text\n     + text\n   + test\n")
+            ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(u8" + text\n   + text\n     + text\n   + test\n")
                 .value()
                 .ast;
         auto answer = md_list(text_item(u8"text"),
@@ -118,7 +118,7 @@ int main() {
         ::exception::assert_true<false>(ast == answer);
     }
     {
-        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(
                        u8" - text\n   - text\n     - text\n   - test\n - test")
                        .value()
                        .ast;
@@ -128,39 +128,39 @@ int main() {
         ::exception::assert_true<false>(ast == answer);
     }
     {
-        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" ");
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(u8" ");
         ::exception::assert_false<false>(ast.has_value());
     }
     {
-        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" -");
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(u8" -");
         ::exception::assert_false<false>(ast.has_value());
     }
     {
-        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" - ");
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(u8" - ");
         ::exception::assert_true<false>(ast.has_value());
     }
     {
-        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8"   ");
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(u8"   ");
         ::exception::assert_false<false>(ast.has_value());
     }
     {
-        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8"This is not a md list.");
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(u8"This is not a md list.");
         ::exception::assert_false<false>(ast.has_value());
     }
     {
-        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8"1x test");
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(u8"1x test");
         ::exception::assert_false<false>(ast.has_value());
     }
     {
-        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8"1.");
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(u8"1.");
         ::exception::assert_false<false>(ast.has_value());
     }
     {
-        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8"  1.");
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(u8"  1.");
         ::exception::assert_false<false>(ast.has_value());
     }
     {
-        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(
                        u8" * text\n   * text\n     * text\n   * test\n * test")
                        .value()
                        .ast;
@@ -170,27 +170,27 @@ int main() {
         ::exception::assert_true<false>(ast == answer);
     }
     {
-        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" - test\n - ");
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(u8" - test\n - ");
         auto answer = md_list(text_item(u8"test"), text_item(u8""));
         ::exception::assert_true<false>(ast.value().ast == answer);
     }
     {
-        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" - ");
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(u8" - ");
         auto answer = md_list(text_item(u8""));
         ::exception::assert_true<false>(ast.value().ast == answer);
     }
     {
-        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8"  - ");
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(u8"  - ");
         auto answer = md_list(text_item(u8""));
         ::exception::assert_true<false>(ast.value().ast == answer);
     }
     {
-        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" - text\n   - text\n * text").value().ast;
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(u8" - text\n   - text\n * text").value().ast;
         auto answer = md_list(text_item(u8"text"), ul_item(text_item(u8"text")));
         ::exception::assert_true<false>(ast == answer);
     }
     {
-        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" - text\n   - text\n     - text\n * text")
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(u8" - text\n   - text\n     - text\n * text")
                        .value()
                        .ast;
         auto answer = md_list(text_item(u8"text"), ul_item(text_item(u8"text"), ul_item(text_item(u8"text"))));
@@ -198,7 +198,7 @@ int main() {
     }
     {
         auto ast =
-            ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" - text\n   - text\n     - text\n   * text")
+            ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(u8" - text\n   - text\n     - text\n   * text")
                 .value()
                 .ast;
         auto answer = md_list(text_item(u8"text"),
@@ -206,35 +206,35 @@ int main() {
         ::exception::assert_true<false>(ast == answer);
     }
     {
-        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" - text\n - text\n * text").value().ast;
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(u8" - text\n - text\n * text").value().ast;
         auto answer = md_list(text_item(u8"text"), text_item(u8"text"));
         ::exception::assert_true<false>(ast == answer);
     }
     {
         auto ast =
-            ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" - text\n   - text\n   * text").value().ast;
+            ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(u8" - text\n   - text\n   * text").value().ast;
         // TODO can this be fixed?
         auto answer = md_list(text_item(u8"text"), ul_item(text_item(u8"text"), text_item(u8"text")));
         ::exception::assert_true<false>(ast == answer);
     }
     {
-        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" - text\n   - text\n * text").value().ast;
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(u8" - text\n   - text\n * text").value().ast;
         auto answer = md_list(text_item(u8"text"), ul_item(text_item(u8"text")));
         ::exception::assert_true<false>(ast == answer);
     }
     {
-        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8" - text\n + test").value().ast;
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(u8" - text\n + test").value().ast;
         auto answer = md_list(text_item(u8"text"));
         ::exception::assert_true<false>(ast == answer);
     }
     {
-        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8"- test\n - test\n   + text").value().ast;
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(u8"- test\n - test\n   + text").value().ast;
         auto answer = md_list(text_item(u8"test"), text_item(u8"test"), ul_item(text_item(u8"text")));
         ::exception::assert_true<false>(ast == answer);
     }
     {
         auto html =
-            ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8"1. test\n 2. test\n   1. text").value().ast;
+            ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(u8"1. test\n 2. test\n   1. text").value().ast;
         auto answer = md_list(text_item(u8"test"), text_item(u8"test"), ol_item(text_item(u8"text")));
         ::exception::assert_true<false>(html == answer);
     }

@@ -43,7 +43,7 @@ public:
         -> ::pltxt2htm::details::OlFrameContext& = delete;
 };
 
-template<bool ndebug>
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast const& ast) noexcept
     -> ::fast_io::u8string {
@@ -207,7 +207,7 @@ constexpr auto convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast con
         }
         default:
             [[unlikely]] {
-                ::exception::unreachable<ndebug>();
+                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
             }
         }
     }
@@ -215,7 +215,7 @@ constexpr auto convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast con
     return result;
 }
 
-template<bool ndebug>
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto plunity_text_backend(::pltxt2htm::Ast const& ast_init, ::fast_io::u8string_view project,
                                     ::fast_io::u8string_view visitor, ::fast_io::u8string_view author,
@@ -554,11 +554,11 @@ entry:
                     result.append(u8"\u25ab ");
                 }
                 else {
-                    ::exception::unreachable<ndebug>();
+                    ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
                 }
             }
             else {
-                ::exception::unreachable<ndebug>();
+                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
             }
             goto entry;
         }
@@ -776,7 +776,7 @@ entry:
             result.append(u8"```");
             auto const& opt_language = code_fence->get_language();
             if (opt_language.has_value()) {
-                result.append(opt_language.template value<ndebug>());
+                result.append(opt_language.template value<ndebug == ::pltxt2htm::Contracts::ignore>());
             }
             result.push_back(u8'\n');
             call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(
@@ -806,7 +806,7 @@ entry:
      default:
 #endif
             [[unlikely]] {
-                ::exception::unreachable<ndebug>();
+                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
             }
         }
     }
@@ -976,7 +976,7 @@ entry:
                 [[fallthrough]];
             default:
                 [[unlikely]] {
-                    ::exception::unreachable<ndebug>();
+                    ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
                 }
             }
         }

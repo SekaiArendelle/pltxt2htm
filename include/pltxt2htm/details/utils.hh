@@ -14,6 +14,7 @@
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
 #include <exception/exception.hh>
+#include "../contracts.hh"
 #include "literal_string.hh"
 
 #include "push_macro.hh"
@@ -29,7 +30,7 @@ namespace pltxt2htm::details {
  * @retval char8_t The UTF-8 character at the specified index
  * @note This function performs bounds checking in debug mode for safety
  */
-template<bool ndebug>
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
@@ -51,7 +52,7 @@ constexpr auto u8string_view_index(::fast_io::u8string_view pltext, ::std::size_
  * @retval fast_io::u8string_view New string view representing the substring
  * @note In debug mode, performs bounds checking; in release mode, uses unchecked access
  */
-template<bool ndebug>
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
@@ -59,7 +60,7 @@ template<bool ndebug>
 constexpr auto u8string_view_subview(::fast_io::u8string_view pltext, ::std::size_t i,
                                      ::std::size_t count = ::fast_io::containers::npos) noexcept
     -> ::fast_io::u8string_view {
-    if constexpr (ndebug) {
+    if constexpr (ndebug == ::pltxt2htm::Contracts::ignore) {
         return pltext.subview_unchecked(i, count);
     }
     else {
@@ -67,7 +68,7 @@ constexpr auto u8string_view_subview(::fast_io::u8string_view pltext, ::std::siz
     }
 }
 
-template<bool ndebug, typename T>
+template<::pltxt2htm::Contracts ndebug, typename T>
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
@@ -79,7 +80,7 @@ constexpr auto& vector_front(::fast_io::vector<T>& vec) noexcept {
     return vec.front_unchecked();
 }
 
-template<bool ndebug, typename T>
+template<::pltxt2htm::Contracts ndebug, typename T>
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
@@ -94,7 +95,7 @@ constexpr auto const& vector_front(::fast_io::vector<T> const& vec) noexcept {
 /**
  * @return index of ::fast_io::u8string_view
  */
-template<bool ndebug, typename T>
+template<::pltxt2htm::Contracts ndebug, typename T>
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
@@ -106,13 +107,13 @@ constexpr auto const& vector_index(::fast_io::vector<T> const& vec, ::std::size_
     return vec.index_unchecked(i);
 }
 
-template<bool ndebug, typename T>
+template<::pltxt2htm::Contracts ndebug, typename T>
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
 constexpr auto const& stack_top(::fast_io::containers::stack<T> const& stack) {
-    if constexpr (ndebug) {
+    if constexpr (ndebug == ::pltxt2htm::Contracts::ignore) {
         return stack.top_unchecked();
     }
     else {
@@ -132,7 +133,7 @@ constexpr auto const& stack_top(::fast_io::containers::stack<T> const& stack) {
  * @note prefix_str must contain only lowercase characters due to compile-time constraints
  * @warning This is a compile-time function that generates optimized matching code
  */
-template<bool ndebug, ::pltxt2htm::details::LiteralString prefix_str>
+template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::LiteralString prefix_str>
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]

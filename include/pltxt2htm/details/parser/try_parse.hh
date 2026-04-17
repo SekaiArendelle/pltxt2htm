@@ -188,7 +188,7 @@ constexpr ::exception::optional<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>> 
  *       continuation bytes are consumed as part of one invalid sequence.
  * @see https://en.wikipedia.org/wiki/UTF-8
  */
-template<bool ndebug>
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::pltxt2htm::Ast& result) noexcept
     -> ::std::size_t {
@@ -328,7 +328,7 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
  * @note Only accepts alphabetic characters and digits in the tag name.
  * @example `<div>`, `<span>`, `<p>` are valid bare tags
  */
-template<bool ndebug, ::pltxt2htm::details::LiteralString tag_name = ::pltxt2htm::details::LiteralString<0>{}>
+template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::LiteralString tag_name = ::pltxt2htm::details::LiteralString<0>{}>
 [[nodiscard]] constexpr auto try_parse_bare_tag(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::std::size_t> {
     constexpr ::std::size_t tag_name_size{tag_name.size()};
@@ -355,7 +355,7 @@ template<bool ndebug, ::pltxt2htm::details::LiteralString tag_name = ::pltxt2htm
  * @param[in] nested_tag_type Current parent tag type from parsing context.
  * @return Matched tag length when valid under `<ul>`/`<ol>`; otherwise nullopt.
  */
-template<bool ndebug>
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]] constexpr auto try_parse_li_tag(::fast_io::u8string_view pltext,
                                               ::pltxt2htm::NodeType const nested_tag_type) noexcept
     -> ::exception::optional<::std::size_t> {
@@ -393,7 +393,7 @@ struct TryParseEqualSignTagResult {
  * @note Leading/trailing spaces in the value are trimmed.
  * @requires The validation function must be callable with a char8_t and return a boolean.
  */
-template<bool ndebug, ::pltxt2htm::details::LiteralString prefix_str, typename Func>
+template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::LiteralString prefix_str, typename Func>
     requires requires(Func&& func, char8_t chr) {
         { func(chr) } -> ::std::same_as<bool>;
     }
@@ -463,7 +463,7 @@ constexpr auto try_parse_equal_sign_tag(::fast_io::u8string_view pltext, Func&& 
  * @param[in] call_stack Active parser stack used to detect forbidden nesting.
  * @return Parsed tag result on success, otherwise nullopt.
  */
-template<bool ndebug, ::pltxt2htm::details::LiteralString prefix_str, typename Func>
+template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::LiteralString prefix_str, typename Func>
     requires requires(Func&& func, char8_t chr) {
         { func(chr) } -> ::std::same_as<bool>;
     }
@@ -507,7 +507,7 @@ constexpr auto try_parse_non_nestable_equal_sign_tag(
  * @warning This function does not validate the tag name or syntax - it only matches the pattern.
  */
 
-template<bool ndebug>
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_self_closing_tag(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::std::size_t> {
@@ -534,7 +534,7 @@ constexpr auto try_parse_self_closing_tag(::fast_io::u8string_view pltext) noexc
  * @param[in] pltext The input text to parse from current position.
  * @return Position of closing `>` on success, otherwise nullopt.
  */
-template<bool ndebug, ::pltxt2htm::details::LiteralString tag_name>
+template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::LiteralString tag_name>
 [[nodiscard]]
 constexpr auto try_parse_self_closing_tag(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::std::size_t> {
@@ -582,7 +582,7 @@ struct TryParseMdAtxHeadingResult {
  * @note Empty headings (only hash characters) are valid according to CommonMark spec.
  * @see https://spec.commonmark.org/0.31.2/#atx-headings
  */
-template<bool ndebug>
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_atx_heading(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseMdAtxHeadingResult> {
@@ -654,7 +654,7 @@ constexpr auto try_parse_md_atx_heading(::fast_io::u8string_view pltext) noexcep
                                                                       ::pltxt2htm::details::LiteralString{u8"<br"}>(
                          ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, end_index));
                  opt.has_value()) {
-            extra_length = opt.template value<ndebug>() + 1;
+            extra_length = opt.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1;
             break;
         }
     }
@@ -689,7 +689,7 @@ enum class ThematicBreakType : ::std::uint_least32_t {
  * @note Mixed character types (e.g., `-*-`) result in parsing failure.
  * @see https://spec.commonmark.org/0.31.2/#thematic-breaks
  */
-template<bool ndebug>
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_thematic_break(::fast_io::u8string_view text) noexcept
     -> ::exception::optional<::std::size_t> {
@@ -748,7 +748,7 @@ constexpr auto try_parse_md_thematic_break(::fast_io::u8string_view text) noexce
                                                                           ::pltxt2htm::details::LiteralString{u8"<br"}>(
                              ::pltxt2htm::details::u8string_view_subview<ndebug>(text, i));
                      opt_tag_len.has_value()) {
-                return i + opt_tag_len.template value<ndebug>() + 1;
+                return i + opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1;
             }
             else {
                 return ::exception::nullopt_t{};
@@ -787,7 +787,7 @@ struct SimplyParsePLtextResult {
  * @note UTF-8 multi-byte characters are properly handled and converted to U8Char nodes.
  * @note The function consumes the termination string and stops parsing immediately after it.
  */
-template<bool ndebug, ::pltxt2htm::details::LiteralString end_string>
+template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::LiteralString end_string>
 [[nodiscard]]
 constexpr auto simply_parse_pltext(::fast_io::u8string_view pltext) noexcept
     -> ::pltxt2htm::details::SimplyParsePLtextResult {
@@ -840,7 +840,7 @@ constexpr auto simply_parse_pltext(::fast_io::u8string_view pltext) noexcept
             auto escape_node = ::pltxt2htm::details::switch_escape_char(
                 ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index + 1));
             if (escape_node.has_value()) {
-                ast.push_back(::std::move(escape_node.template value<ndebug>()));
+                ast.push_back(::std::move(escape_node.template value<ndebug == ::pltxt2htm::Contracts::ignore>()));
                 ++current_index;
             }
             else {
@@ -882,7 +882,7 @@ struct TryParseMdCodeFenceResult {
  * @note Empty language identifiers are allowed and result in no language specification.
  * @see https://spec.commonmark.org/0.31.2/#fenced-code-blocks
  */
-template<bool ndebug, bool is_backtick>
+template<::pltxt2htm::Contracts ndebug, bool is_backtick>
 [[nodiscard]]
 constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseMdCodeFenceResult> {
@@ -1024,7 +1024,7 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
  * @see try_parse_md_code_fence_ for detailed fence parsing logic
  * @see https://spec.commonmark.org/0.31.2/#fenced-code-blocks
  */
-template<bool ndebug>
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_code_fence(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseMdCodeFenceResult> {
@@ -1066,7 +1066,7 @@ constexpr auto try_parse_md_code_fence(::fast_io::u8string_view pltext) noexcept
  * @see https://spec.commonmark.org/0.31.2/#emphasis-and-strong-emphasis
  * @see https://spec.commonmark.org/0.31.2/#code-spans
  */
-template<bool ndebug, ::pltxt2htm::details::LiteralString embraced_chars>
+template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::LiteralString embraced_chars>
 [[nodiscard]]
 constexpr auto try_parse_md_inlines(::fast_io::u8string_view pltext) noexcept -> ::exception::optional<::std::size_t> {
     constexpr ::std::size_t embraced_size{embraced_chars.size()};
@@ -1114,7 +1114,7 @@ struct TryParseMdBlockQuotesResult {
  * @note Empty quotes (no content after markers) are considered invalid.
  * @see https://spec.commonmark.org/0.31.2/#block-quotes
  */
-template<bool ndebug>
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_block_quotes(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseMdBlockQuotesResult> {
@@ -1199,7 +1199,7 @@ struct TryParseMdCodeSpanResult {
  * @note Empty code spans (e.g., `` `` ``) are valid and will be parsed.
  * @see https://spec.commonmark.org/0.31.2/#code-spans
  */
-template<bool ndebug, ::pltxt2htm::details::LiteralString embraced_string>
+template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::LiteralString embraced_string>
 [[nodiscard]]
 constexpr auto try_parse_md_code_span(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseMdCodeSpanResult> {
@@ -1250,7 +1250,7 @@ struct TryParseMdLatexResult {
  * @note The function returns the position after the closing `$$` on success.
  * @see https://github.com/cben/mathdown/wiki/math-in-markdown
  */
-template<bool ndebug>
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_latex_block_dollar(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseMdLatexResult> {
@@ -1306,7 +1306,7 @@ constexpr auto try_parse_md_latex_block_dollar(::fast_io::u8string_view pltext) 
  * @note The function returns the position after the closing `$` on success.
  * @see https://github.com/cben/mathdown/wiki/math-in-markdown
  */
-template<bool ndebug>
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_latex_inline(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseMdLatexResult> {
@@ -1352,7 +1352,7 @@ constexpr auto try_parse_md_latex_inline(::fast_io::u8string_view pltext) noexce
  * @param[in] domain_end End index (exclusive) of the domain segment.
  * @return `true` if domain labels and TLD are accepted by project rules; otherwise `false`.
  */
-template<bool ndebug>
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto validate_url_domain(::fast_io::u8string_view pltext, ::std::size_t domain_start,
                                    ::std::size_t domain_end) noexcept -> bool {
@@ -1415,7 +1415,7 @@ constexpr auto validate_url_domain(::fast_io::u8string_view pltext, ::std::size_
  * @param[in] pltext The input text that begins at a URL candidate.
  * @return Parsed URL length on success; nullopt when domain/port/path validation fails.
  */
-template<bool ndebug, bool regard_right_parent_as_end_of_url = false>
+template<::pltxt2htm::Contracts ndebug, bool regard_right_parent_as_end_of_url = false>
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
@@ -1527,7 +1527,7 @@ constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept -> ::exce
  * @param[in] call_stack Active parser frames used to reject invalid nested contexts.
  * @return Parsed tag length and extracted URL on success; nullopt if invalid or disallowed nesting.
  */
-template<bool ndebug>
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_external_tag(
     ::fast_io::u8string_view pltext,
@@ -1539,9 +1539,9 @@ constexpr auto try_parse_external_tag(
         return ::exception::nullopt_t{};
     }
 
-    auto&& [_, url] = result.template value<ndebug>();
+    auto&& [_, url] = result.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
     auto opt_url_size = ::pltxt2htm::details::try_parse_url<ndebug>(::fast_io::u8string_view{url.data(), url.size()});
-    if (opt_url_size.has_value() == false || opt_url_size.template value<ndebug>() != url.size()) {
+    if (opt_url_size.has_value() == false || opt_url_size.template value<ndebug == ::pltxt2htm::Contracts::ignore>() != url.size()) {
         return ::exception::nullopt_t{};
     }
 
@@ -1571,7 +1571,7 @@ struct TryParseMdLinkResult {
  * @note The function requires both opening and closing brackets and parentheses to be present.
  * @see https://spec.commonmark.org/0.31.2/#links
  */
-template<bool ndebug>
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_link(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseMdLinkResult> {
@@ -1619,7 +1619,7 @@ constexpr auto try_parse_md_link(::fast_io::u8string_view pltext) noexcept
     if (opt_link_url.has_value() == false) {
         return ::exception::nullopt_t{};
     }
-    ::std::size_t link_url_size{opt_link_url.template value<ndebug>()};
+    ::std::size_t link_url_size{opt_link_url.template value<ndebug == ::pltxt2htm::Contracts::ignore>()};
     current_index += link_url_size;
     if (current_index >= pltext.size() ||
         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8')') {
@@ -1645,7 +1645,7 @@ struct TryParseMdImageResult {
  * @param[in] pltext The input text beginning with `![`.
  * @return Parsed image payload (alt text AST + URL + continuation index), or nullopt if invalid.
  */
-template<bool ndebug>
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_image(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseMdImageResult> {
@@ -1698,7 +1698,7 @@ constexpr auto try_parse_md_image(::fast_io::u8string_view pltext) noexcept
             auto escape_node = ::pltxt2htm::details::switch_escape_char(
                 ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index + 1));
             if (escape_node.has_value()) {
-                link_text_ast.push_back(::std::move(escape_node.template value<ndebug>()));
+                link_text_ast.push_back(::std::move(escape_node.template value<ndebug == ::pltxt2htm::Contracts::ignore>()));
                 ++current_index;
             }
             else {
@@ -1736,7 +1736,7 @@ constexpr auto try_parse_md_image(::fast_io::u8string_view pltext) noexcept
     if (opt_link_url.has_value() == false) {
         return ::exception::nullopt_t{};
     }
-    ::std::size_t link_url_size{opt_link_url.template value<ndebug>()};
+    ::std::size_t link_url_size{opt_link_url.template value<ndebug == ::pltxt2htm::Contracts::ignore>()};
     current_index += link_url_size;
     if (current_index >= pltext.size() ||
         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8')') {

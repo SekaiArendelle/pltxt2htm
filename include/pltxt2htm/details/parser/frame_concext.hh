@@ -153,7 +153,7 @@ public:
  * @details Specialized context for handling Markdown list syntax including
  *          both ordered lists (1. 2. 3.) and unordered lists (- * +)
  */
-template<bool ndebug>
+template<::pltxt2htm::Contracts ndebug>
 class MdListContext : public ::pltxt2htm::details::BasicFrameContext {
 public:
     ::pltxt2htm::details::MdListAst md_list_ast; ///< The parsed list structure

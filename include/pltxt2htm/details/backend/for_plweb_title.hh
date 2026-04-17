@@ -25,7 +25,7 @@ namespace pltxt2htm::details {
  * @param[in] ast_init The AST to convert to HTML
  * @return A string containing the generated HTML
  */
-template<bool ndebug>
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto plweb_title_backend(::pltxt2htm::Ast const& ast_init) noexcept -> ::fast_io::u8string {
     ::fast_io::u8string result{};
@@ -395,7 +395,7 @@ entry:
         }
         case ::pltxt2htm::NodeType::base:
             [[unlikely]] {
-                ::exception::unreachable<ndebug>();
+                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
             }
         }
     }
@@ -444,7 +444,7 @@ entry:
             }
             default:
                 [[unlikely]] {
-                    ::exception::unreachable<ndebug>();
+                    ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
                 }
             }
         }

@@ -23,7 +23,7 @@
 
 namespace pltxt2htm::details {
 
-template<bool ndebug>
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast const& ast) noexcept -> ::fast_io::u8string {
     ::fast_io::u8string result{};
@@ -195,7 +195,7 @@ constexpr auto convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast const& as
         }
         default:
             [[unlikely]] {
-                ::exception::unreachable<ndebug>();
+                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
             }
         }
     }
@@ -217,7 +217,7 @@ constexpr auto convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast const& as
  * @return A string containing the generated HTML
  * @note To avoid stack overflow, this function manages call_stack manually using goto-based state machine
  */
-template<bool ndebug>
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto plweb_text_backend(::pltxt2htm::Ast const& ast_init, ::fast_io::u8string_view host,
                                   ::fast_io::u8string_view project, ::fast_io::u8string_view visitor,
@@ -765,7 +765,7 @@ entry:
             auto code_fence = static_cast<::pltxt2htm::MdCodeFenceBacktick const*>(node.release_imul());
             auto const& opt_language = code_fence->get_language();
             if (opt_language.has_value()) {
-                auto const& language = opt_language.template value<ndebug>();
+                auto const& language = opt_language.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                 auto const start_tag = ::fast_io::array{u8'<', u8'p', u8'r', u8'e', u8'>', u8'<', u8'c', u8'o', u8'd',
                                                         u8'e', u8' ', u8'c', u8'l', u8'a', u8's', u8's', u8'=', u8'\"',
                                                         u8'l', u8'a', u8'n', u8'g', u8'u', u8'a', u8'g', u8'e', u8'-'};
@@ -806,7 +806,7 @@ entry:
      default:
 #endif
             [[unlikely]] {
-                ::exception::unreachable<ndebug>();
+                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
             }
         }
     }
@@ -989,7 +989,7 @@ entry:
                 [[fallthrough]];
             default:
                 [[unlikely]] {
-                    ::exception::unreachable<ndebug>();
+                    ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
                 }
             }
         }

@@ -24,7 +24,7 @@ namespace pltxt2htm_test {
 __attribute__((visibility("default")))
 #endif
 auto pltxt2common_htmld(::fast_io::u8string_view pltext) noexcept -> ::fast_io::u8string {
-    return ::pltxt2htm::pltxt2common_html<false>(pltext);
+    return ::pltxt2htm::pltxt2common_html<::pltxt2htm::Contracts::quick_enforce>(pltext);
 }
 
 #if __has_cpp_attribute(__gnu__::__used__)
@@ -37,7 +37,7 @@ auto pltxt2common_htmld(::fast_io::u8string_view pltext) noexcept -> ::fast_io::
 __attribute__((visibility("default")))
 #endif
 auto pltxt2common_html(::fast_io::u8string_view pltext) noexcept -> ::fast_io::u8string {
-    return ::pltxt2htm::pltxt2common_html<false, true>(pltext);
+    return ::pltxt2htm::pltxt2common_html<::pltxt2htm::Contracts::quick_enforce, true>(pltext);
 }
 
 #if __has_cpp_attribute(__gnu__::__used__)
@@ -50,7 +50,7 @@ auto pltxt2common_html(::fast_io::u8string_view pltext) noexcept -> ::fast_io::u
 __attribute__((visibility("default")))
 #endif
 auto pltxt2advanced_htmld(::fast_io::u8string_view pltext) noexcept -> ::fast_io::u8string {
-    return ::pltxt2htm::pltxt2advanced_html<false>(pltext);
+    return ::pltxt2htm::pltxt2advanced_html<::pltxt2htm::Contracts::quick_enforce>(pltext);
 }
 
 #if __has_cpp_attribute(__gnu__::__used__)
@@ -63,8 +63,8 @@ auto pltxt2advanced_htmld(::fast_io::u8string_view pltext) noexcept -> ::fast_io
 __attribute__((visibility("default")))
 #endif
 auto pltxt2fixedadv_htmld(::fast_io::u8string_view pltext) noexcept -> ::fast_io::u8string {
-    return ::pltxt2htm::pltxt2fixedadv_html<false>(pltext, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR",
-                                                   u8"$CO_AUTHORS");
+    return ::pltxt2htm::pltxt2fixedadv_html<::pltxt2htm::Contracts::quick_enforce>(
+        pltext, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
 }
 
 #if __has_cpp_attribute(__gnu__::__used__)
@@ -77,8 +77,8 @@ auto pltxt2fixedadv_htmld(::fast_io::u8string_view pltext) noexcept -> ::fast_io
 __attribute__((visibility("default")))
 #endif
 auto pltxt2plunity_introduction(::fast_io::u8string_view pltext) noexcept -> ::fast_io::u8string {
-    return ::pltxt2htm::pltxt2plunity_introduction<false>(pltext, u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR",
-                                                          u8"$CO_AUTHORS");
+    return ::pltxt2htm::pltxt2plunity_introduction<::pltxt2htm::Contracts::quick_enforce>(
+        pltext, u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
 }
 
 #if __has_cpp_attribute(__gnu__::__used__)

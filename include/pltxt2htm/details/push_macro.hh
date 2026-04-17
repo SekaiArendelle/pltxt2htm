@@ -9,6 +9,7 @@
  */
 
 #include <source_location>
+#include "../contracts.hh"
 #include "panic.hh"
 
 #pragma push_macro("pltxt2htm_assert")
@@ -31,7 +32,7 @@
  */
 #define pltxt2htm_assert(condition, message) \
     do { \
-        if constexpr (ndebug == false) { \
+        if constexpr (ndebug != ::pltxt2htm::Contracts::ignore) { \
             if ((condition) == false) [[unlikely]] { \
                 constexpr auto source_location = ::std::source_location::current(); \
                 ::pltxt2htm::details::panic< \

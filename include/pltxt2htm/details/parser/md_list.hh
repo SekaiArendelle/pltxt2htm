@@ -304,7 +304,7 @@ struct PreviousItemInfo {
     ::pltxt2htm::details::MdUlListItemKind item_kind;
 };
 
-template<bool ndebug, ::pltxt2htm::details::MdUlListItemKind item_kind>
+template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::MdUlListItemKind item_kind>
 [[nodiscard]]
 constexpr auto is_valid_md_ul_list_hierarchy(
     ::fast_io::u8string_view pltext, ::std::size_t const space_hierarchy,
@@ -319,13 +319,13 @@ constexpr auto is_valid_md_ul_list_hierarchy(
         // - test
         // - test
         //   - text <== here
-        space_hierarchy > expect.template value<ndebug>().space_hierarchy + 1 ||
+        space_hierarchy > expect.template value<ndebug == ::pltxt2htm::Contracts::ignore>().space_hierarchy + 1 ||
         // e.g.
         // - test
         //   - test
         //   + test <== here
-        (!expect.template value<ndebug>().call_stack_is_single &&
-         space_hierarchy >= expect.template value<ndebug>().space_hierarchy) ||
+        (!expect.template value<ndebug == ::pltxt2htm::Contracts::ignore>().call_stack_is_single &&
+         space_hierarchy >= expect.template value<ndebug == ::pltxt2htm::Contracts::ignore>().space_hierarchy) ||
         // e.g.
         // - test
         // - test
@@ -335,8 +335,8 @@ constexpr auto is_valid_md_ul_list_hierarchy(
         // - test
         //   - test
         //   + test <== here, this is allowed
-        (expect.template value<ndebug>().call_stack_is_single &&
-         expect.template value<ndebug>().item_kind == item_kind)) {
+        (expect.template value<ndebug == ::pltxt2htm::Contracts::ignore>().call_stack_is_single &&
+         expect.template value<ndebug == ::pltxt2htm::Contracts::ignore>().item_kind == item_kind)) {
         return true;
     }
 
@@ -351,7 +351,7 @@ constexpr auto is_valid_md_ul_list_hierarchy(
     return false;
 }
 
-template<bool ndebug>
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto is_valid_md_ol_list_hierarchy(
     ::fast_io::u8string_view pltext, ::std::size_t const space_hierarchy,
@@ -388,19 +388,19 @@ constexpr auto is_valid_md_ol_list_hierarchy(
             // - test
             // - test
             //   1. text <== here
-            space_hierarchy > expect.template value<ndebug>().space_hierarchy + 1 ||
+            space_hierarchy > expect.template value<ndebug == ::pltxt2htm::Contracts::ignore>().space_hierarchy + 1 ||
             // e.g.
             // - test
             //   1. test
             //   2. test <== here
-            (!expect.template value<ndebug>().call_stack_is_single &&
-             space_hierarchy >= expect.template value<ndebug>().space_hierarchy) ||
+            (!expect.template value<ndebug == ::pltxt2htm::Contracts::ignore>().call_stack_is_single &&
+             space_hierarchy >= expect.template value<ndebug == ::pltxt2htm::Contracts::ignore>().space_hierarchy) ||
             // e.g.
             // - test
             // - test
             // 1. test <== here, this line is invalid markdown list
-            (expect.template value<ndebug>().call_stack_is_single &&
-             expect.template value<ndebug>().item_kind == ::pltxt2htm::details::MdUlListItemKind::ordered_item)) {
+            (expect.template value<ndebug == ::pltxt2htm::Contracts::ignore>().call_stack_is_single &&
+             expect.template value<ndebug == ::pltxt2htm::Contracts::ignore>().item_kind == ::pltxt2htm::details::MdUlListItemKind::ordered_item)) {
             return i;
         }
     }
@@ -417,7 +417,7 @@ struct TryParseItemResult {
     ::pltxt2htm::details::MdUlListItemKind item_kind;
 };
 
-template<bool ndebug>
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_item(
     ::fast_io::u8string_view pltext,
@@ -464,7 +464,7 @@ constexpr auto try_parse_item(
                  ::pltxt2htm::details::is_valid_md_ol_list_hierarchy<ndebug>(pltext, space_hierarchy, expect);
              opt_size.has_value()) {
         item_kind = ::pltxt2htm::details::MdUlListItemKind::ordered_item;
-        current_index = opt_size.template value<ndebug>();
+        current_index = opt_size.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
     }
     else {
         return ::exception::nullopt_t{};
@@ -512,7 +512,7 @@ struct ToMdListAstResult {
     ::pltxt2htm::NodeType item_kind;
 };
 
-template<bool ndebug>
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::ToMdListAstResult> {
@@ -521,7 +521,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
     // manually managing stack to avoid stack-overflow
     {
         if (auto opt_item = ::pltxt2htm::details::try_parse_item<ndebug>(pltext); opt_item.has_value()) {
-            auto&& [space_hierarchy, forward_index, text, item_kind] = opt_item.template value<ndebug>();
+            auto&& [space_hierarchy, forward_index, text, item_kind] = opt_item.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             ::pltxt2htm::details::MdListFrameContext current_frame{item_kind, space_hierarchy, pltext, forward_index};
             current_frame.md_list_ast.emplace_back(
                 ::pltxt2htm::HeapGuard<::pltxt2htm::details::MdListTextNode>(::std::move(text)));
@@ -578,7 +578,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
 #if 0
                 default:
                     [[unlikely]] {
-                        ::exception::unreachable<ndebug>();
+                        ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
                     }
 #endif
                 }
@@ -586,7 +586,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
                 continue;
             }
         }
-        auto&& [space_hierarchy, forward_index, text, item_kind] = opt_list_item.template value<ndebug>();
+        auto&& [space_hierarchy, forward_index, text, item_kind] = opt_list_item.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
         current_index += forward_index;
         if (space_hierarchy > call_stack.top().space_hierarchy + 1) {
             call_stack.push(::pltxt2htm::details::MdListFrameContext{
@@ -632,7 +632,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
 #if 0
                 default:
                     [[unlikely]] {
-                        ::exception::unreachable<ndebug>();
+                        ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
                     }
 #endif
                 }

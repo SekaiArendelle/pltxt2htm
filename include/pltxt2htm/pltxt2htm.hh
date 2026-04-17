@@ -45,7 +45,7 @@ namespace pltxt2htm {
  * @warning This function uses built-in placeholder link context values
  * @warning Use pltxt2fixedadv_html when host/project/visitor/author/coauthors must be customized
  */
-template<bool ndebug = false, bool optimize = true>
+template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, bool optimize = true>
 [[nodiscard]]
 constexpr auto pltxt2advanced_html(::fast_io::u8string_view pltext) noexcept {
     auto ast = ::pltxt2htm::parse_pltxt<ndebug>(pltext);
@@ -68,7 +68,7 @@ constexpr auto pltxt2advanced_html(::fast_io::u8string_view pltext) noexcept {
  * @param[in] coauthors Co-authors identifier for Physics-Lab context
  * @note The host parameter is used for generating proper internal links to experiments and discussions
  */
-template<bool ndebug = false, bool optimize = true>
+template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, bool optimize = true>
 [[nodiscard]]
 constexpr auto pltxt2fixedadv_html(::fast_io::u8string_view pltext, ::fast_io::u8string_view host,
                                    ::fast_io::u8string_view project, ::fast_io::u8string_view visitor,
@@ -94,7 +94,7 @@ constexpr auto pltxt2fixedadv_html(::fast_io::u8string_view pltext, ::fast_io::u
  * @return Generated HTML string for PLUnity introduction rendering
  * @retval fast_io::u8string UTF-8 string containing the generated HTML
  */
-template<bool ndebug = false, bool optimize = true>
+template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, bool optimize = true>
 [[nodiscard]]
 constexpr auto pltxt2plunity_introduction(::fast_io::u8string_view pltext, ::fast_io::u8string_view project,
                                           ::fast_io::u8string_view visitor, ::fast_io::u8string_view author,
@@ -127,7 +127,7 @@ constexpr auto pltxt2plunity_introduction(::fast_io::u8string_view pltext, ::fas
  * @warning AST optimization is disabled by default for this function
  * @see pltxt2advanced_html for full feature support
  */
-template<bool ndebug = false, bool optimize = false>
+template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, bool optimize = false>
 [[nodiscard]]
 constexpr auto pltxt2common_html(::fast_io::u8string_view pltext) noexcept {
     auto ast = ::pltxt2htm::parse_pltxt<ndebug>(pltext);

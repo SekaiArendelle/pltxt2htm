@@ -41,7 +41,7 @@ namespace pltxt2htm {
  * @warning This function uses manual memory management via HeapGuard
  * @see pltxt2htm::details::parse_pltxt for the internal implementation
  */
-template<bool ndebug>
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2htm::Ast {
     // fast_io::deque contains bug about RAII, use fast_io::list instead
@@ -99,7 +99,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
         }
         default:
             [[unlikely]] {
-                ::exception::unreachable<ndebug>();
+                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
             }
         }
     }

@@ -157,7 +157,7 @@ public:
  * @warning Some optimizations may change the semantic meaning of the output
  * @see pltxt2htm::details::OptimizerContext for the optimization context structure
  */
-template<bool ndebug>
+template<::pltxt2htm::Contracts ndebug>
 constexpr void optimize_ast(::pltxt2htm::Ast& ast_init) noexcept {
     ::fast_io::stack<::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>>
         call_stack{};
@@ -754,7 +754,7 @@ entry:
         default:
 #endif
             [[unlikely]] {
-                ::exception::unreachable<ndebug>();
+                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
             }
         }
     }
