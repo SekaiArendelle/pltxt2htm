@@ -11,5 +11,5 @@ docker cp pltxt2htm-docs-container:/src/docsgen/docs ./docs
 Then open:
 
 ```text
-docsgen/build/doxygen/html/index.html
+docs/html/index.html
 ```
