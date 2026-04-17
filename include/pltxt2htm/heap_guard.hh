@@ -135,6 +135,7 @@ public:
         }
     }
 
+    [[nodiscard]]
     constexpr auto operator->(this ::pltxt2htm::is_heap_guard auto&& self) noexcept -> T* {
         return self.ptr_;
     }

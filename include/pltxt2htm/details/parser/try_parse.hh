@@ -35,9 +35,6 @@ namespace pltxt2htm::details {
  * @see https://spec.commonmark.org/0.31.2/#backslash-escapes
  */
 [[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
 constexpr ::exception::optional<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>> switch_escape_char(
     char8_t u8char) noexcept {
     switch (u8char) {

@@ -44,6 +44,7 @@ public:
 };
 
 template<bool ndebug>
+[[nodiscard]]
 constexpr auto convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast const& ast) noexcept
     -> ::fast_io::u8string {
     ::fast_io::u8string result{};
@@ -216,9 +217,6 @@ constexpr auto convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast con
 
 template<bool ndebug>
 [[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
 constexpr auto plunity_text_backend(::pltxt2htm::Ast const& ast_init, ::fast_io::u8string_view project,
                                     ::fast_io::u8string_view visitor, ::fast_io::u8string_view author,
                                     ::fast_io::u8string_view coauthors) noexcept -> ::fast_io::u8string {

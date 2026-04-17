@@ -135,17 +135,21 @@ public:
     constexpr auto operator=(::pltxt2htm::details::MdListUlNode&&) & noexcept
         -> ::pltxt2htm::details::MdListUlNode& = default;
 
+    [[nodiscard]]
     constexpr auto operator==(this ::pltxt2htm::details::MdListUlNode const& self,
                               ::pltxt2htm::details::MdListUlNode const& other) noexcept -> bool;
 
+    [[nodiscard]]
     constexpr auto&& get_sublist(this ::pltxt2htm::details::MdListUlNode& self) noexcept {
         return self.sublist;
     }
 
+    [[nodiscard]]
     constexpr auto&& get_sublist(this ::pltxt2htm::details::MdListUlNode const& self) noexcept {
         return ::std::as_const(self.sublist);
     }
 
+    [[nodiscard]]
     constexpr auto&& get_sublist(this ::pltxt2htm::details::MdListUlNode&& self) noexcept {
         return ::std::move(self.sublist);
     }
@@ -175,22 +179,27 @@ public:
     constexpr auto operator=(::pltxt2htm::details::MdListOlNode&&) & noexcept
         -> ::pltxt2htm::details::MdListOlNode& = default;
 
+    [[nodiscard]]
     constexpr auto operator==(this ::pltxt2htm::details::MdListOlNode const& self,
                               ::pltxt2htm::details::MdListOlNode const& other) noexcept -> bool;
 
+    [[nodiscard]]
     constexpr auto&& get_sublist(this ::pltxt2htm::details::MdListOlNode& self) noexcept {
         return self.sublist;
     }
 
+    [[nodiscard]]
     constexpr auto&& get_sublist(this ::pltxt2htm::details::MdListOlNode const& self) noexcept {
         return ::std::as_const(self.sublist);
     }
 
+    [[nodiscard]]
     constexpr auto&& get_sublist(this ::pltxt2htm::details::MdListOlNode&& self) noexcept {
         return ::std::move(self.sublist);
     }
 };
 
+[[nodiscard]]
 constexpr auto operator==(::pltxt2htm::details::MdListBaseNode const& self,
                           ::pltxt2htm::details::MdListBaseNode const& other) noexcept -> bool {
     if (self.get_type() != other.get_type()) {
@@ -220,11 +229,13 @@ constexpr auto operator==(::pltxt2htm::details::MdListBaseNode const& self,
     ::exception::unreachable<false>();
 }
 
+[[nodiscard]]
 constexpr auto MdListUlNode::operator==(this ::pltxt2htm::details::MdListUlNode const& self,
                                         ::pltxt2htm::details::MdListUlNode const& other) noexcept -> bool {
     return self.sublist == other.sublist;
 }
 
+[[nodiscard]]
 constexpr auto MdListOlNode::operator==(this ::pltxt2htm::details::MdListOlNode const& self,
                                         ::pltxt2htm::details::MdListOlNode const& other) noexcept -> bool {
     return self.sublist == other.sublist;
@@ -278,6 +289,7 @@ public:
                              ::pltxt2htm::details::MdListFrameContext&&) noexcept
         -> ::pltxt2htm::details::MdListFrameContext& = default;
 
+    [[nodiscard]]
     constexpr auto&& get_item_kind(this ::pltxt2htm::details::MdListFrameContext const& self) noexcept {
         return ::std::as_const(self.item_kind);
     }

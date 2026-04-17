@@ -363,9 +363,6 @@ constexpr auto get_pltext_from_parser_frame_context(
  */
 template<bool ndebug>
 [[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
 constexpr auto parse_pltxt(
     ::fast_io::stack<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>>& call_stack) noexcept
     -> ::pltxt2htm::Ast {
