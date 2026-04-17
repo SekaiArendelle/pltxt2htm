@@ -1,6 +1,6 @@
 FROM ubuntu:26.04
 
-RUN apt update && apt install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     doxygen ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
