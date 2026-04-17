@@ -27,6 +27,22 @@
 
 namespace pltxt2htm::details {
 
+constexpr void append_plunity_runtime_text_escaped(::fast_io::u8string& result, ::fast_io::u8string_view value) noexcept {
+    for (auto const chr : value) {
+        switch (chr) {
+        case u8'<':
+            result.append(u8"<size=20>\uff1c</size>");
+            break;
+        case u8'>':
+            result.append(u8"<size=20>\uff1e</size>");
+            break;
+        default:
+            result.push_back(chr);
+            break;
+        }
+    }
+}
+
 class OlFrameContext : public ::pltxt2htm::details::BackendBasicFrameContext {
 public:
     ::std::size_t ol_li_count{1};
@@ -786,19 +802,19 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_macro_project: {
-            result.append(project);
+            ::pltxt2htm::details::append_plunity_runtime_text_escaped(result, project);
             continue;
         }
         case ::pltxt2htm::NodeType::pl_macro_visitor: {
-            result.append(visitor);
+            ::pltxt2htm::details::append_plunity_runtime_text_escaped(result, visitor);
             continue;
         }
         case ::pltxt2htm::NodeType::pl_macro_author: {
-            result.append(author);
+            ::pltxt2htm::details::append_plunity_runtime_text_escaped(result, author);
             continue;
         }
         case ::pltxt2htm::NodeType::pl_macro_coauthors: {
-            result.append(coauthors);
+            ::pltxt2htm::details::append_plunity_runtime_text_escaped(result, coauthors);
             continue;
         }
         case ::pltxt2htm::NodeType::base:
