@@ -20,7 +20,9 @@
  *
  * This macro evaluates the given condition and if it evaluates to false,
  * it will call panic() to terminate the program with diagnostic information.
- * The assertion is only active when ndebug is set to false.
+ * The assertion is active for contract modes other than
+ * `::pltxt2htm::Contracts::ignore` (for example, `quick_enforce`) and is
+ * disabled when `ndebug == ::pltxt2htm::Contracts::ignore`.
  *
  * @param condition The condition expression to evaluate
  * @param message A descriptive error message to display if the assertion fails
