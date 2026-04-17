@@ -54,7 +54,10 @@ constexpr char8_t const* c_ptr_style_wrapper(Args&&... args) noexcept(
  * @brief C-style interface for advanced HTML conversion
  * @details Converts Physics-Lab text to advanced HTML with full feature support.
  *          This is the C wrapper around pltxt2htm::pltxt2advanced_html.
- * @tparam ndebug Debug mode flag - false enables debug checks, true for release mode
+ * @tparam ndebug Contract mode for the underlying parser, selected from
+ *                ::pltxt2htm::Contracts. The default is
+ *                ::pltxt2htm::Contracts::quick_enforce; specify another
+ *                ::pltxt2htm::Contracts value to use a different contract mode.
  * @param[in] text The Physics-Lab text to convert (null-terminated UTF-8 string)
  * @return Heap-allocated UTF-8 string containing the HTML output
  * @retval char8_t const* Pointer to heap-allocated UTF-8 string containing HTML
@@ -77,7 +80,10 @@ constexpr char8_t const* advanced_parser(char8_t const* const text) noexcept {
  * @brief C-style interface for fixed advanced HTML conversion
  * @details Converts Physics-Lab text to advanced HTML with caller-provided link context.
  *          This is the C wrapper around pltxt2htm::pltxt2fixedadv_html.
- * @tparam ndebug Debug mode flag - false enables debug checks, true for release mode
+ * @tparam ndebug Contract mode for the underlying parser, selected from
+ *                ::pltxt2htm::Contracts. The default is
+ *                ::pltxt2htm::Contracts::quick_enforce; specify another
+ *                ::pltxt2htm::Contracts value to use a different contract mode.
  * @param[in] text The Physics-Lab text to convert (null-terminated UTF-8 string)
  * @param[in] host Host URL for internal links (null-terminated UTF-8 string)
  * @param[in] project Project identifier for Physics-Lab context
