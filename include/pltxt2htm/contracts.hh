@@ -9,4 +9,4 @@ enum class Contracts : ::std::size_t {
     ignore,
 };
 
-}
+} // namespace pltxt2htm

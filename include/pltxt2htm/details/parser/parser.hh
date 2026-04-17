@@ -223,7 +223,8 @@ constexpr auto get_pltext_from_parser_frame_context(
         return static_cast<::pltxt2htm::details::PlSizeTagContext const*>(top_frame.release_imul())->pltext;
     }
     case ::pltxt2htm::NodeType::md_block_quotes: {
-        auto const& pltext = static_cast<::pltxt2htm::details::MdBlockQuotesContext const*>(top_frame.release_imul())->pltext;
+        auto const& pltext =
+            static_cast<::pltxt2htm::details::MdBlockQuotesContext const*>(top_frame.release_imul())->pltext;
         return ::fast_io::u8string_view{pltext.data(), pltext.size()};
     }
     case ::pltxt2htm::NodeType::md_link: {

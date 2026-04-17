@@ -334,7 +334,7 @@ entry:
                 ast.erase(current_iter);
                 continue;
             }
-            auto const&id = discussion->get_id();
+            auto const& id = discussion->get_id();
             call_stack.push(
                 ::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator>>(
                     ::std::addressof(subast), ::pltxt2htm::NodeType::pl_discussion, subast.begin(),
