@@ -15,7 +15,6 @@
 #include <fast_io/fast_io_dsal/string_view.h>
 #include <exception/exception.hh>
 #include "frame_context.hh"
-#include "purify_markdown.hh"
 #include "../../contracts.hh"
 #include "../../details/utils.hh"
 #include "../../astnode/basic.hh"
@@ -203,6 +202,31 @@ constexpr auto convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast const& as
     }
 
     return result;
+}
+
+constexpr void append_html_attr_escaped(::fast_io::u8string& result, ::fast_io::u8string_view value) noexcept {
+    for (auto const chr : value) {
+        switch (chr) {
+        case u8'&':
+            result.append(u8"&amp;");
+            break;
+        case u8'\"':
+            result.append(u8"&quot;");
+            break;
+        case u8'\'':
+            result.append(u8"&apos;");
+            break;
+        case u8'<':
+            result.append(u8"&lt;");
+            break;
+        case u8'>':
+            result.append(u8"&gt;");
+            break;
+        default:
+            result.push_back(chr);
+            break;
+        }
+    }
 }
 
 /**
@@ -776,8 +800,8 @@ entry:
                                                         u8'e', u8' ', u8'c', u8'l', u8'a', u8's', u8's', u8'=', u8'\"',
                                                         u8'l', u8'a', u8'n', u8'g', u8'u', u8'a', u8'g', u8'e', u8'-'};
                 result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
-                ::pltxt2htm::details::append_pltext_escaped(result,
-                                                            ::fast_io::u8string_view{language.data(), language.size()});
+                ::pltxt2htm::details::append_html_attr_escaped(
+                    result, ::fast_io::u8string_view{language.data(), language.size()});
                 auto const start_tag2 = ::fast_io::array{u8'\"', u8'>'};
                 result.append(::fast_io::u8string_view(start_tag2.begin(), start_tag2.size()));
             }
