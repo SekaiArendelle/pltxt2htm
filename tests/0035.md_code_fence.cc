@@ -144,5 +144,19 @@ print("Hello World")
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"```foo\"onmouseover=\"alert(1)\nprint(1)\n```");
+        auto answer = ::fast_io::u8string_view{
+            u8"<pre><code class=\"language-foo&quot;onmouseover=&quot;alert(1)\">print(1)</code></pre>"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"```<svg/onload=alert(1)>\nprint(1)\n```");
+        auto answer = ::fast_io::u8string_view{
+            u8"<pre><code class=\"language-&lt;svg/onload=alert(1)&gt;\">print(1)</code></pre>"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
     return 0;
 }
