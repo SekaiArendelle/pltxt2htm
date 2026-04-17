@@ -16,6 +16,18 @@ You can also use `pltxt2htm` in [console](cmd/README.md), [browser](wasm/README.
 
 C++20 module example is in [cxxmodule/example.cc](cxxmodule/example.cc)
 
+## Documentation
+
+Generate API docs with Doxygen via Docker:
+
+```sh
+docker build -t pltxt2htm-docs -f ./docsgen/Dockerfile .
+mkdir -p ./docsgen/build/doxygen
+docker run --rm -v "$(pwd)/docsgen/build/doxygen:/out" pltxt2htm-docs
+```
+
+See [docsgen/README.md](docsgen/README.md) for details.
+
 ## Exported API
 All C++ APIs have been listed in [pltxt2htm.cppm](cxxmodule/pltxt2htm/pltxt2htm.cppm)
 
