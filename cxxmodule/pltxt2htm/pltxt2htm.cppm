@@ -10,6 +10,7 @@ export namespace pltxt2htm {
 using ::pltxt2htm::pltxt2common_html;
 using ::pltxt2htm::pltxt2advanced_html;
 using ::pltxt2htm::pltxt2fixedadv_html;
+using ::pltxt2htm::pltxt2plunity_introduction;
 using ::pltxt2htm::parse_pltxt;
 using ::pltxt2htm::optimize_ast;
 
@@ -121,6 +122,7 @@ using ::pltxt2htm::MdDoubleEmphasisUnderscore;
 using ::pltxt2htm::MdTripleEmphasisUnderscore;
 using ::pltxt2htm::MdDel;
 using ::pltxt2htm::MdLink;
+using ::pltxt2htm::MdImage;
 using ::pltxt2htm::MdBlockQuotes;
 using ::pltxt2htm::MdUl;
 using ::pltxt2htm::MdOl;
@@ -135,6 +137,7 @@ using ::pltxt2htm::Experiment;
 using ::pltxt2htm::Discussion;
 using ::pltxt2htm::User;
 using ::pltxt2htm::Size;
+using ::pltxt2htm::External;
 using ::pltxt2htm::I;
 using ::pltxt2htm::B;
 using ::pltxt2htm::PlMacroProject;
