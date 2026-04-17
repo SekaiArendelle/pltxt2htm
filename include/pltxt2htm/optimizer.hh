@@ -334,10 +334,11 @@ entry:
                 ast.erase(current_iter);
                 continue;
             }
+            auto const&id = discussion->get_id();
             call_stack.push(
                 ::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator>>(
                     ::std::addressof(subast), ::pltxt2htm::NodeType::pl_discussion, subast.begin(),
-                    ::fast_io::mnp::os_c_str(discussion->get_id())));
+                    ::fast_io::u8string_view{id.data(), id.size()}));
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_user: {
