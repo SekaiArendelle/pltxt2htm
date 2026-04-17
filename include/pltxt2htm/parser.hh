@@ -61,7 +61,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
         if (has_new_frame == false) {
             break;
         }
-        ::pltxt2htm::NodeType type_of_subast{call_stack.top()->nested_tag_type};
+        ::pltxt2htm::NodeType const type_of_subast{call_stack.top()->nested_tag_type};
         auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
         switch (type_of_subast) {
         case ::pltxt2htm::NodeType::md_atx_h1: {

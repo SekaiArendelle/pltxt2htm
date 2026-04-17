@@ -194,8 +194,8 @@ public:
     }
 
     constexpr void swap(this HeapGuard<T>& self, HeapGuard<T>& other) noexcept {
-        auto tmp_ptr = self.ptr_;
-        auto tmp_deleter = self.deleter_;
+        auto const tmp_ptr = self.ptr_;
+        auto const tmp_deleter = self.deleter_;
         self.ptr_ = other.ptr_;
         self.deleter_ = other.deleter_;
         other.ptr_ = tmp_ptr;

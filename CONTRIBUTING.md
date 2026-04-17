@@ -138,6 +138,9 @@ Please follow the existing low-runtime, cross-platform style used in core header
   - Return early on failure (for example, `if (!ok) { return err; }`) and keep the normal path unindented below.
 - Require `[[nodiscard]]` on meaningful return values:
   - For all non-`void`, non-`[[noreturn]]` functions/methods, add `[[nodiscard]]` to the declaration/definition (except `operator=`).
+- Prefer `const` for non-mutating locals:
+  - For local variables that are not reassigned after initialization, declare them as `const`.
+  - In particular, when reviewing `include/pltxt2htm`, add missing `const` qualifiers whenever semantics allow.
 
 ## Commit and Pull Request Guidelines
 

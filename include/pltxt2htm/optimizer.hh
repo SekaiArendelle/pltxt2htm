@@ -210,14 +210,14 @@ entry:
             continue;
         }
         case ::pltxt2htm::NodeType::text: {
-            auto text = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
+            auto const text = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& subast = text->get_subast();
             call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::text, subast.begin()));
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_color: {
-            auto color = static_cast<::pltxt2htm::Color*>(node.get_unsafe());
+            auto const color = static_cast<::pltxt2htm::Color*>(node.get_unsafe());
             {
                 // Optimization: <color=red><color=blue>text</color></color>
                 // simplifies to <color=blue>text</color>.
@@ -269,7 +269,7 @@ entry:
             }
         }
         case ::pltxt2htm::NodeType::pl_a: {
-            auto color = static_cast<::pltxt2htm::A*>(node.get_unsafe());
+            auto const color = static_cast<::pltxt2htm::A*>(node.get_unsafe());
             {
                 // Optimization: <a><color=blue>text</color></a>
                 // can be simplified to <color=blue>text</color>
@@ -316,7 +316,7 @@ entry:
             }
         }
         case ::pltxt2htm::NodeType::pl_experiment: {
-            auto experiment = static_cast<::pltxt2htm::Experiment*>(node.get_unsafe());
+            auto const experiment = static_cast<::pltxt2htm::Experiment*>(node.get_unsafe());
             auto&& subast = experiment->get_subast();
             if (subast.empty()) {
                 // <experiment=123></experiment> can be omitted
@@ -330,7 +330,7 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_discussion: {
-            auto discussion = static_cast<::pltxt2htm::Discussion*>(node.get_unsafe());
+            auto const discussion = static_cast<::pltxt2htm::Discussion*>(node.get_unsafe());
             auto&& subast = discussion->get_subast();
             if (subast.empty()) {
                 // <discussion=123></discussion> can be omitted
@@ -344,7 +344,7 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_user: {
-            auto user = static_cast<::pltxt2htm::User*>(node.get_unsafe());
+            auto const user = static_cast<::pltxt2htm::User*>(node.get_unsafe());
             {
                 auto&& subast = user->get_subast();
                 if (subast.empty()) {
@@ -354,7 +354,7 @@ entry:
                 }
                 else if (subast.size() == 1) {
                     // <User=123><user=642cf37a494746375aae306a>physicsLab</user></User> can be
-                    auto psubnode = ::pltxt2htm::details::vector_front<ndebug>(subast).get_unsafe();
+                    auto const psubnode = ::pltxt2htm::details::vector_front<ndebug>(subast).get_unsafe();
                     if (psubnode->node_type() == ::pltxt2htm::NodeType::pl_user) {
                         auto subnode = ::std::move(*static_cast<::pltxt2htm::User*>(psubnode));
                         (*user) = ::std::move(subnode);
@@ -385,7 +385,7 @@ entry:
             }
         }
         case ::pltxt2htm::NodeType::pl_external: {
-            auto external = static_cast<::pltxt2htm::External*>(node.get_unsafe());
+            auto const external = static_cast<::pltxt2htm::External*>(node.get_unsafe());
             auto&& subast = external->get_subast();
             if (subast.empty()) {
                 // <external=123></external> can be omitted
@@ -399,7 +399,7 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_size: {
-            auto size = static_cast<::pltxt2htm::Size*>(node.get_unsafe());
+            auto const size = static_cast<::pltxt2htm::Size*>(node.get_unsafe());
             {
                 auto&& subast = size->get_subast();
                 if (subast.empty()) {
@@ -409,7 +409,7 @@ entry:
                 }
                 else if (subast.size() == 1) {
                     // <size=12><size=3>physicsLab</size></size> can be
-                    auto psubnode = ::pltxt2htm::details::vector_front<ndebug>(subast).get_unsafe();
+                    auto const psubnode = ::pltxt2htm::details::vector_front<ndebug>(subast).get_unsafe();
                     if (psubnode->node_type() == ::pltxt2htm::NodeType::pl_size) {
                         auto subnode = ::std::move(*static_cast<::pltxt2htm::Size*>(psubnode));
                         (*size) = ::std::move(subnode);
@@ -445,7 +445,7 @@ entry:
         case ::pltxt2htm::NodeType::html_strong:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::pl_b: {
-            auto b = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
+            auto const b = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& nested_tag_type = call_stack.top()->nested_tag_type;
             bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::pl_b &&
                                        nested_tag_type != ::pltxt2htm::NodeType::html_strong &&
@@ -471,7 +471,7 @@ entry:
             }
         }
         case ::pltxt2htm::NodeType::html_p: {
-            auto p = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
+            auto const p = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& subast = p->get_subast();
             call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_p, subast.begin()));
@@ -481,7 +481,7 @@ entry:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_br: {
             while (current_iter != ast.begin()) {
-                auto node_type = (*(current_iter - 1))->node_type();
+                auto const node_type = (*(current_iter - 1))->node_type();
                 if (node_type != ::pltxt2htm::NodeType::space && node_type != ::pltxt2htm::NodeType::tab) {
                     break;
                 }
@@ -494,7 +494,7 @@ entry:
         case ::pltxt2htm::NodeType::html_h1:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_atx_h1: {
-            auto h1 = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
+            auto const h1 = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             // NOTE: All optimization to h1 has side effect
             auto&& subast = h1->get_subast();
             call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
@@ -504,7 +504,7 @@ entry:
         case ::pltxt2htm::NodeType::html_h2:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_atx_h2: {
-            auto h2 = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
+            auto const h2 = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& subast = h2->get_subast();
             call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_h2, subast.begin()));
@@ -513,7 +513,7 @@ entry:
         case ::pltxt2htm::NodeType::html_h3:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_atx_h3: {
-            auto h3 = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
+            auto const h3 = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& subast = h3->get_subast();
             call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_h3, subast.begin()));
@@ -522,7 +522,7 @@ entry:
         case ::pltxt2htm::NodeType::html_h4:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_atx_h4: {
-            auto h4 = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
+            auto const h4 = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& subast = h4->get_subast();
             call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_h4, subast.begin()));
@@ -531,7 +531,7 @@ entry:
         case ::pltxt2htm::NodeType::html_h5:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_atx_h5: {
-            auto h5 = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
+            auto const h5 = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& subast = h5->get_subast();
             call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_h5, subast.begin()));
@@ -540,7 +540,7 @@ entry:
         case ::pltxt2htm::NodeType::html_h6:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_atx_h6: {
-            auto h6 = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
+            auto const h6 = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& subast = h6->get_subast();
             call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_h6, subast.begin()));
@@ -549,7 +549,7 @@ entry:
         case ::pltxt2htm::NodeType::md_del:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_del: {
-            auto del = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
+            auto const del = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& nested_tag_type = call_stack.top()->nested_tag_type;
             bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_del &&
                                        nested_tag_type != ::pltxt2htm::NodeType::md_del};
@@ -578,7 +578,7 @@ entry:
         case ::pltxt2htm::NodeType::pl_i:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_em: {
-            auto em = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
+            auto const em = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& nested_tag_type = call_stack.top()->nested_tag_type;
             bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_em &&
                                        nested_tag_type != ::pltxt2htm::NodeType::pl_i &&
@@ -620,7 +620,7 @@ entry:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_ul: {
             // ul tag can't impl nested tag erasing
-            auto ul = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
+            auto const ul = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& subast = ul->get_subast();
             call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_ul, subast.begin()));
@@ -630,7 +630,7 @@ entry:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_ol: {
             // ol tag can't impl nested tag erasing
-            auto ol = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
+            auto const ol = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& subast = ol->get_subast();
             call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_ol, subast.begin()));
@@ -640,7 +640,7 @@ entry:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_li: {
             // li tag can't impl nested tag erasing
-            auto li = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
+            auto const li = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& subast = li->get_subast();
             call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_li, subast.begin()));
@@ -654,7 +654,7 @@ entry:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_code: {
             // code tag can't impl nested tag erasing
-            auto code = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
+            auto const code = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& subast = code->get_subast();
             call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_code, subast.begin()));
@@ -662,7 +662,7 @@ entry:
         }
         case ::pltxt2htm::NodeType::html_pre: {
             // pre tag can't impl nested tag erasing
-            auto pre = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
+            auto const pre = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& subast = pre->get_subast();
             call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_pre, subast.begin()));
@@ -670,7 +670,7 @@ entry:
         }
         case ::pltxt2htm::NodeType::html_blockquote: {
             // pre tag can't impl nested tag erasing
-            auto blockquote = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
+            auto const blockquote = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& subast = blockquote->get_subast();
             call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_blockquote, subast.begin()));
@@ -760,12 +760,12 @@ entry:
     }
 
     {
-        auto top_frame = ::std::move(call_stack.top());
+        auto const top_frame = ::std::move(call_stack.top());
         call_stack.pop();
         if (call_stack.empty()) {
             while (current_iter != ast.begin()) {
                 --current_iter;
-                auto node_type = (*current_iter)->node_type();
+                auto const node_type = (*current_iter)->node_type();
                 if (node_type != ::pltxt2htm::NodeType::space && node_type != ::pltxt2htm::NodeType::tab) {
                     break;
                 }
