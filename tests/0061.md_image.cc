@@ -161,5 +161,12 @@ int main() {
         ::pltxt2htm_test::assert_true(plunity_richtext == plunity_richtext_answer);
     }
 
+    {
+        auto pltext = ::fast_io::u8string_view{u8"![img](example.com/a.png?x=1&y=2)"};
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(pltext);
+        auto answer = ::fast_io::u8string_view{u8"<img src=\"example.com/a.png?x=1&amp;y=2\" alt=\"img\">"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
     return 0;
 }
