@@ -19,6 +19,7 @@
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
 #include <exception/exception.hh>
+#include "contracts.hh"
 #include "parser.hh"
 #include "optimizer.hh"
 #include "details/backend/for_plweb_text.hh"
