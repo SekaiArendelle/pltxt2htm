@@ -6,10 +6,11 @@ Use Docker to generate docs from repository root:
 docker build -f docsgen/Dockerfile -t pltxt2htm-docs .
 docker create --name pltxt2htm-docs-container pltxt2htm-docs
 docker cp pltxt2htm-docs-container:/src/docsgen/docs ./docs
+docker rm pltxt2htm-docs-container
 ```
 
 Then open:
 
 ```text
-docsgen/build/doxygen/html/index.html
+docs/html/index.html
 ```
