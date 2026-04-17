@@ -597,3 +597,28 @@ jobs:
           files: c/aarch64-apple-ios-pltxt2htm-c-release.tar.xz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  docsgen:
+    name: docsgen
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build docker image
+        run: |
+          docker build -f docsgen/Dockerfile -t pltxt2htm-docs .
+
+      - name: Package generated docs
+        run: |
+          docker create --name pltxt2htm-docs-container pltxt2htm-docs
+          docker cp pltxt2htm-docs-container:/src/docsgen/docs ./pltxt2htm-docs
+          tar -cJvf pltxt2htm-docs.tar.xz pltxt2htm-docs
+
+      - name: Upload docs
+        uses: softprops/action-gh-release@v2
+        with:
+          files: pltxt2htm-docs.tar.xz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

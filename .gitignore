@@ -71,3 +71,6 @@ csharp/bin/
 
 # ninja
 **/.ninja_log
+
+# docsgen
+**/docs/

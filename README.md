@@ -16,6 +16,9 @@ You can also use `pltxt2htm` in [console](cmd/README.md), [browser](wasm/README.
 
 C++20 module example is in [cxxmodule/example.cc](cxxmodule/example.cc)
 
+## Documentation
+See [docsgen/README.md](docsgen/README.md).
+
 ## Exported API
 All C++ APIs have been listed in [pltxt2htm.cppm](cxxmodule/pltxt2htm/pltxt2htm.cppm)
 
