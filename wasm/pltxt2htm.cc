@@ -35,9 +35,9 @@ extern "C"
     char8_t const* advanced_parser(char8_t const* const text) noexcept {
     return ::pltxt2htm::advanced_parser<
 #ifdef NDEBUG
-        true
+        ::pltxt2htm::Contracts::ignore
 #else
-        false
+        ::pltxt2htm::Contracts::quick_enforce
 #endif
         >(text);
 }
@@ -51,9 +51,9 @@ extern "C"
                                    char8_t const* const coauthors) noexcept {
     return ::pltxt2htm::fixedadv_parser<
 #ifdef NDEBUG
-        true
+        ::pltxt2htm::Contracts::ignore
 #else
-        false
+        ::pltxt2htm::Contracts::quick_enforce
 #endif
         >(text, host, project, visitor, author, coauthors);
 }
@@ -65,9 +65,9 @@ extern "C"
     char8_t const* common_parser(char8_t const* text) noexcept {
     return ::pltxt2htm::common_parser<
 #ifdef NDEBUG
-        true
+        ::pltxt2htm::Contracts::ignore
 #else
-        false
+        ::pltxt2htm::Contracts::quick_enforce
 #endif
         >(text);
 }

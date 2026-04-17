@@ -268,27 +268,27 @@ int main(int argc, char const* const* const argv) noexcept {
         if (target_type == ::TargetType::advanced_html) {
             html = ::pltxt2htm::pltxt2advanced_html<
 #ifdef NDEBUG
-                true
+                ::pltxt2htm::Contracts::ignore
 #else
-                false
+                ::pltxt2htm::Contracts::quick_enforce
 #endif
                 >(::fast_io::mnp::os_c_str(input_text));
         }
         else if (target_type == ::TargetType::common_html) {
             html = ::pltxt2htm::pltxt2common_html<
 #ifdef NDEBUG
-                true
+                ::pltxt2htm::Contracts::ignore
 #else
-                false
+                ::pltxt2htm::Contracts::quick_enforce
 #endif
                 >(::fast_io::mnp::os_c_str(input_text));
         }
         else if (target_type == ::TargetType::fixedadv_html) {
             html = ::pltxt2htm::pltxt2fixedadv_html<
 #ifdef NDEBUG
-                true
+                ::pltxt2htm::Contracts::ignore
 #else
-                false
+                ::pltxt2htm::Contracts::quick_enforce
 #endif
                 >(::fast_io::mnp::os_c_str(input_text), ::fast_io::mnp::os_c_str(host),
                   ::fast_io::mnp::os_c_str(project), ::fast_io::mnp::os_c_str(visitor),

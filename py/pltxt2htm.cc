@@ -27,9 +27,9 @@ static ::PyObject* common_parser([[maybe_unused]] ::PyObject* self, ::PyObject* 
     }
     char8_t const* html = ::pltxt2htm::common_parser<
 #ifdef NDEBUG
-        true
+        ::pltxt2htm::Contracts::ignore
 #else
-        false
+        ::pltxt2htm::Contracts::quick_enforce
 #endif
         >(text);
     ::PyObject* result = ::PyUnicode_FromString(reinterpret_cast<char const*>(html));
@@ -60,9 +60,9 @@ static ::PyObject* advanced_parser([[maybe_unused]] ::PyObject* self, ::PyObject
     }
     char8_t const* html = ::pltxt2htm::advanced_parser<
 #ifdef NDEBUG
-        true
+        ::pltxt2htm::Contracts::ignore
 #else
-        false
+        ::pltxt2htm::Contracts::quick_enforce
 #endif
         >(text);
     ::PyObject* result = ::PyUnicode_FromString(reinterpret_cast<char const*>(html));
@@ -110,9 +110,9 @@ static ::PyObject* fixedadv_parser([[maybe_unused]] ::PyObject* self, ::PyObject
     }
     char8_t const* html = ::pltxt2htm::fixedadv_parser<
 #ifdef NDEBUG
-        true
+        ::pltxt2htm::Contracts::ignore
 #else
-        false
+        ::pltxt2htm::Contracts::quick_enforce
 #endif
         >(text, host, project, visitor, author, coauthors);
     ::PyObject* result = ::PyUnicode_FromString(reinterpret_cast<char const*>(html));
