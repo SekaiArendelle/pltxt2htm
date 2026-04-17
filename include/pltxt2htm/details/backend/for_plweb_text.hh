@@ -212,7 +212,7 @@ constexpr auto convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast const& as
  *          - HTML elements (paragraphs, line breaks, etc.)
  *          - Proper HTML escaping and encoding
  * @tparam ndebug Contract checking mode - `::pltxt2htm::Contracts::ignore` is faster with fewer checks,
- *                false for debug mode (slower, more safety checks)
+ *                while `::pltxt2htm::Contracts::quick_enforce` enables more safety checks at higher cost
  * @param[in] ast_init The AST to convert to HTML
  * @param[in] host Host URL for generating internal links (used for experiment/discussion links)
  * @return A string containing the generated HTML
