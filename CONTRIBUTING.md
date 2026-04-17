@@ -114,6 +114,8 @@ Please follow the existing low-runtime, cross-platform style used in core header
   - Do not introduce new macros for regular logic, constants, or API design.
   - Prefer `constexpr`/`consteval`, templates, and inline functions.
   - Keep macro usage only for tightly scoped compatibility/assertion infrastructure when unavoidable.
+- Forbid `volatile` and `register`:
+  - Do not introduce `volatile` or `register` in new code.
 - Prefer C++23 deducing-this:
   - For member functions, prefer explicit object parameters (deducing-`this`) over implicit `this` pointer style when practical.
   - Keep const/ref-qualified overload behavior explicit via the object parameter form.

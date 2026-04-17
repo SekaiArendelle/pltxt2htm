@@ -43,5 +43,35 @@ int main() {
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"***test***");
+        auto answer = ::fast_io::u8string_view{u8"<em><strong>test</strong></em>"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"___test___");
+        auto answer = ::fast_io::u8string_view{u8"<em><strong>test</strong></em>"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"{Project}{Visitor}{Author}{CoAuthors}");
+        auto answer = ::fast_io::u8string_view{u8"{Project}{Visitor}{Author}{CoAuthors}"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"[text](https://example.com)");
+        auto answer = ::fast_io::u8string_view{u8""};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"![alt](https://example.com/image.png)");
+        auto answer = ::fast_io::u8string_view{u8""};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
     return 0;
 }

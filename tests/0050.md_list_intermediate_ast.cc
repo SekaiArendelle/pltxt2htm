@@ -40,6 +40,12 @@ int main() {
         ::exception::assert_true<false>(node1 == node2);
     }
     {
+        ::pltxt2htm::details::MdListTextNode text_node{::fast_io::u8string{u8"test"}};
+        ::pltxt2htm::details::MdListUlNode ul_node{::pltxt2htm::details::MdListAst{}};
+        ::exception::assert_false<false>(static_cast<::pltxt2htm::details::MdListBaseNode const&>(text_node) ==
+                                         static_cast<::pltxt2htm::details::MdListBaseNode const&>(ul_node));
+    }
+    {
         ::pltxt2htm::details::MdListAst ast1{};
         ::pltxt2htm::details::MdListAst ast2{};
         ::exception::assert_true<false>(ast1 == ast2);
@@ -139,6 +145,18 @@ int main() {
     }
     {
         auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8"This is not a md list.");
+        ::exception::assert_false<false>(ast.has_value());
+    }
+    {
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8"1x test");
+        ::exception::assert_false<false>(ast.has_value());
+    }
+    {
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8"1.");
+        ::exception::assert_false<false>(ast.has_value());
+    }
+    {
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<false>(u8"  1.");
         ::exception::assert_false<false>(ast.has_value());
     }
     {
