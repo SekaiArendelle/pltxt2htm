@@ -32,7 +32,9 @@ namespace pltxt2htm {
  *          - Markdown syntax parsing (headers, lists, emphasis, etc.)
  *          - HTML tag recognition and processing
  *          - Building a hierarchical AST structure
- * @tparam ndebug Debug mode flag - false enables debug checks and assertions, true for release mode
+ * @tparam ndebug Contract-checking mode for parsing, using `::pltxt2htm::Contracts`
+ *                 values such as `::pltxt2htm::Contracts::quick_enforce` or
+ *                 `::pltxt2htm::Contracts::ignore`
  * @param[in] pltext The Physics-Lab text content to parse
  * @return An AST representing the parsed structure of the input text
  * @retval pltxt2htm::Ast Abstract Syntax Tree containing the parsed structure
