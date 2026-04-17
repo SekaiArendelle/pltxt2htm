@@ -364,7 +364,7 @@ entry:
                                                                            ::pltxt2htm::NodeType::pl_experiment, 0));
             ++current_index;
             result.append(u8"<a href=\"");
-            result.append(host);
+            ::pltxt2htm::details::append_html_attr_escaped(result, host);
             result.append(u8"/ExperimentSummary/Experiment/");
             result.append(experiment->get_id());
             result.append(u8"\" internal>");
@@ -376,7 +376,7 @@ entry:
                                                                            ::pltxt2htm::NodeType::pl_discussion, 0));
             ++current_index;
             result.append(u8"<a href=\"");
-            result.append(host);
+            ::pltxt2htm::details::append_html_attr_escaped(result, host);
             result.append(u8"/ExperimentSummary/Discussion/");
             result.append(discussion->get_id());
             result.append(u8"\" internal>");
@@ -816,19 +816,19 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_macro_project: {
-            result.append(project);
+            ::pltxt2htm::details::append_html_attr_escaped(result, project);
             continue;
         }
         case ::pltxt2htm::NodeType::pl_macro_visitor: {
-            result.append(visitor);
+            ::pltxt2htm::details::append_html_attr_escaped(result, visitor);
             continue;
         }
         case ::pltxt2htm::NodeType::pl_macro_author: {
-            result.append(author);
+            ::pltxt2htm::details::append_html_attr_escaped(result, author);
             continue;
         }
         case ::pltxt2htm::NodeType::pl_macro_coauthors: {
-            result.append(coauthors);
+            ::pltxt2htm::details::append_html_attr_escaped(result, coauthors);
             continue;
         }
         case ::pltxt2htm::NodeType::base:
