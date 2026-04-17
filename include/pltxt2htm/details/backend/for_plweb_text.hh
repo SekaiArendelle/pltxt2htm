@@ -1,5 +1,5 @@
 /**
- * @file advanced_html.hh
+ * @file for_plweb_text.hh
  * @brief Advanced HTML backend for pltxt2htm
  * @details Generates full-featured HTML output with comprehensive support for
  *          Physics-Lab tags, Markdown syntax, and HTML elements.
@@ -240,6 +240,10 @@ constexpr void append_html_attr_escaped(::fast_io::u8string& result, ::fast_io::
  *                while `::pltxt2htm::Contracts::quick_enforce` enables more safety checks at higher cost
  * @param[in] ast_init The AST to convert to HTML
  * @param[in] host Host URL for generating internal links (used for experiment/discussion links)
+ * @param[in] project Project identifier for Physics-Lab context
+ * @param[in] visitor Visitor identifier for Physics-Lab context
+ * @param[in] author Author identifier for Physics-Lab context
+ * @param[in] coauthors Co-authors identifier for Physics-Lab context
  * @return A string containing the generated HTML
  * @note To avoid stack overflow, this function manages call_stack manually using goto-based state machine
  */
@@ -796,7 +800,8 @@ entry:
                                                         u8'e', u8' ', u8'c', u8'l', u8'a', u8's', u8's', u8'=', u8'\"',
                                                         u8'l', u8'a', u8'n', u8'g', u8'u', u8'a', u8'g', u8'e', u8'-'};
                 result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
-                ::pltxt2htm::details::append_html_attr_escaped(result, ::fast_io::u8string_view{language.data(), language.size()});
+                ::pltxt2htm::details::append_html_attr_escaped(
+                    result, ::fast_io::u8string_view{language.data(), language.size()});
                 auto const start_tag2 = ::fast_io::array{u8'\"', u8'>'};
                 result.append(::fast_io::u8string_view(start_tag2.begin(), start_tag2.size()));
             }
@@ -828,8 +833,8 @@ entry:
         }
         case ::pltxt2htm::NodeType::base:
 #if 0
-     [[unlikely]] [[fallthrough]];
-     default:
+            [[unlikely]] [[fallthrough]];
+        default:
 #endif
             [[unlikely]] {
                 ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();

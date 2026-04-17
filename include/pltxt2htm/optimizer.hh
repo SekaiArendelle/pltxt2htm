@@ -30,10 +30,7 @@ namespace details {
  * @tparam Iter Iterator type for traversing the AST
  * @details This context maintains the state during AST optimization,
  *          tracking the current AST being processed, the type of nested tag,
- *          and the current iterator position
- * @var ast Pointer to the AST being optimized (input/output parameter)
- * @var nested_tag_type Type of the current nested tag context (input parameter)
- * @var iter Iterator pointing to the current position in the AST (input/output parameter)
+ *          and the current iterator position.
  */
 template<::std::forward_iterator Iter>
 class OptimizerContext {
@@ -70,8 +67,7 @@ public:
  * @brief Optimization context for tags with equal-sign attributes
  * @tparam Iter Iterator type for traversing the AST
  * @details Specialized context for optimizing tags that have attributes
- *          in the format key=value, such as <color=red> or <experiment=123>
- * @var id_ The value part of the attribute (e.g., "red" in color=red) (input parameter)
+ *          in the format key=value, such as &lt;color=red&gt; or &lt;experiment=123&gt;.
  */
 template<::std::forward_iterator Iter>
 class OptimizerEqualSignTagContext : public ::pltxt2htm::details::OptimizerContext<Iter> {
@@ -102,8 +98,7 @@ public:
  * @brief Optimization context for size tags with numeric values
  * @tparam Iter Iterator type for traversing the AST
  * @details Specialized context for optimizing size tags that have
- *          numeric values like <size=12> where the value is a std::size_t
- * @var id_ Numeric size value (e.g., 12 in size=12) (input parameter)
+ *          numeric values like &lt;size=12&gt; where the value is a std::size_t.
  */
 template<::std::forward_iterator Iter>
 class OptimizerPlSizeTagContext : public ::pltxt2htm::details::OptimizerContext<Iter> {
@@ -141,8 +136,8 @@ public:
  *
  *          Key optimizations performed:
  *          - **Redundant tag removal**: Nested tags of the same type with identical
- *            attributes are merged (e.g., <color=red><color=blue>text</color></color>
- *            becomes <color=blue>text</color>)
+ *            attributes are merged (e.g., &lt;color=red&gt;&lt;color=blue&gt;text&lt;/color&gt;&lt;/color&gt;
+ *            becomes &lt;color=blue&gt;text&lt;/color&gt;)
  *          - **Empty tag elimination**: Tags with empty content are removed entirely
  *          - **Text node merging**: Adjacent text nodes are combined when possible
  *          - **Nested tag flattening**: Deeply nested structures are simplified

@@ -1,5 +1,5 @@
 /**
- * @file advanced_html.hh
+ * @file for_plunity_text.hh
  * @brief Advanced HTML backend for pltxt2htm
  * @details Generates full-featured HTML output with comprehensive support for
  *          Physics-Lab tags, Markdown syntax, and HTML elements.

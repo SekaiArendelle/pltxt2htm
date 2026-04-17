@@ -642,7 +642,7 @@ public:
 };
 
 /**
- * @brief Represents `.
+ * @brief Represents a backtick character.
  */
 class EscapeBacktick : public ::pltxt2htm::PlTxtNode {
 public:

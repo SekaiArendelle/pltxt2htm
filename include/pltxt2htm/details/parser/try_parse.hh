@@ -327,7 +327,8 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
  *         or if the tag contains non-space characters before the closing `>`.
  * @note The function allows optional whitespace between the tag name and the closing `>`.
  * @note Only accepts alphabetic characters and digits in the tag name.
- * @example `<div>`, `<span>`, `<p>` are valid bare tags
+ * @par Example
+ * &lt;div&gt;, &lt;span&gt;, and &lt;p&gt; are valid bare tags.
  */
 template<::pltxt2htm::Contracts ndebug,
          ::pltxt2htm::details::LiteralString tag_name = ::pltxt2htm::details::LiteralString<0>{}>
@@ -351,11 +352,11 @@ template<::pltxt2htm::Contracts ndebug,
 }
 
 /**
- * @brief Parse `<li>` payload in the parser's compact tag form and validate parent container type.
+ * @brief Parse &lt;li&gt; payload in the parser's compact tag form and validate parent container type.
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @param[in] pltext The input text to parse, starting after `<l`.
  * @param[in] nested_tag_type Current parent tag type from parsing context.
- * @return Matched tag length when valid under `<ul>`/`<ol>`; otherwise nullopt.
+ * @return Matched tag length when valid under &lt;ul&gt;/&lt;ol&gt;; otherwise nullopt.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]] constexpr auto try_parse_li_tag(::fast_io::u8string_view pltext,
@@ -393,7 +394,7 @@ struct TryParseEqualSignTagResult {
  * @note The function stops parsing at the first invalid character, space, or the closing `>`.
  * @note Empty values (e.g., `<size=>`) are considered invalid.
  * @note Leading/trailing spaces in the value are trimmed.
- * @requires The validation function must be callable with a char8_t and return a boolean.
+ * @note The validation function must be callable with a char8_t and return a boolean.
  */
 template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::LiteralString prefix_str, typename Func>
     requires requires(Func&& func, char8_t chr) {
@@ -781,10 +782,11 @@ struct SimplyParsePLtextResult {
  * encounters the specified termination string.
  *
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
- * @tparam end_string The exact string that marks the end of parsing (e.g., "```" for code fences).
+ * @tparam end_string The exact string that marks the end of parsing.
  * @param[in] pltext The input text to parse.
  * @return A structure containing the parsed AST and the index to continue parsing from.
- * @note Special characters like `\n`, space, `&`, `'`, `"`, `>`, `\t` are converted to specific AST nodes.
+ * @note Special characters such as newline, space, ampersand, quotes,
+ *       greater-than, and tab are converted to specific AST nodes.
  * @note Backslash escape sequences are processed and converted to their escaped equivalents.
  * @note UTF-8 multi-byte characters are properly handled and converted to U8Char nodes.
  * @note The function consumes the termination string and stops parsing immediately after it.
@@ -871,14 +873,14 @@ struct TryParseMdCodeFenceResult {
 /**
  * @brief Parse Markdown code fences with language specification.
  *
- * This function parses fenced code blocks using either backticks (```) or tildes (~~~)
- * as delimiters. It extracts the language identifier and the code content between the fences.
+ * This function parses fenced code blocks using either backticks or tildes
+ * as delimiters. It extracts the language identifier and code content between the fences.
  *
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
- * @tparam is_backtick When `true`, uses backtick delimiters (```), otherwise uses tilde delimiters (~~~).
+ * @tparam is_backtick When true, uses backtick delimiters; otherwise uses tilde delimiters.
  * @param[in] pltext The input text to parse, starting at the opening fence.
  * @return The parsed result containing the code fence node and continuation index, or nullopt if parsing fails.
- * @note The opening fence must be at least 3 characters long (e.g., ``` or ~~~).
+ * @note The opening fence must be at least three delimiter characters long.
  * @note An optional language identifier can follow the opening fence, separated by spaces.
  * @note The content ends at the first occurrence of the matching closing fence on its own line.
  * @note Empty language identifiers are allowed and result in no language specification.
@@ -1014,8 +1016,8 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
 /**
  * @brief Parse Markdown code fences with automatic delimiter detection.
  *
- * This function attempts to parse a fenced code block by first trying backtick delimiters (```),
- * and if that fails, trying tilde delimiters (~~~). It automatically determines which type of
+ * This function attempts to parse a fenced code block by first trying backtick delimiters,
+ * and if that fails, trying tilde delimiters. It automatically determines which type of
  * fence is being used.
  *
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
@@ -1054,15 +1056,15 @@ constexpr auto try_parse_md_code_fence(::fast_io::u8string_view pltext) noexcept
  * @brief Parse Markdown inline elements enclosed by matching delimiter characters.
  *
  * This function parses inline markdown elements that are wrapped by pairs of identical
- * delimiter characters, such as emphasis (`*text*`) or code spans (`` `code` ``).
+ * delimiter characters, such as emphasis and inline code spans.
  *
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
- * @tparam embraced_chars The delimiter string that encloses the inline element (e.g., "*" for emphasis, "`" for code).
+ * @tparam embraced_chars The delimiter string that encloses the inline element.
  * @param[in] pltext The input text to parse, starting at the opening delimiter.
  * @return The length of the content between the delimiters (excluding the delimiters themselves),
  *         or nullopt if no valid enclosed element is found.
  * @note The function looks for the first occurrence of the closing delimiter after the opening one.
- * @note Empty content between delimiters (e.g., `**`) is considered invalid and returns nullopt.
+ * @note Empty content between delimiters is considered invalid and returns nullopt.
  * @note Newline characters within the enclosed content cause parsing to fail.
  * @note The returned length is the size of the content only, not including the delimiters.
  * @see https://spec.commonmark.org/0.31.2/#emphasis-and-strong-emphasis
@@ -1187,18 +1189,19 @@ struct TryParseMdCodeSpanResult {
 /**
  * @brief Parse Markdown code spans with configurable delimiter length.
  *
- * This function parses inline code spans that can use varying numbers of backticks as delimiters,
- * allowing for code content that itself contains backticks. It supports 1, 2, or 3 backtick delimiters.
+ * This function parses inline code spans that can use varying numbers of delimiters,
+ * allowing code content that itself contains delimiter characters. It supports
+ * one, two, or three backticks as delimiters.
  *
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
- * @tparam embraced_string The delimiter string (1-3 backticks) enclosing the code span.
+ * @tparam embraced_string The delimiter string enclosing the code span.
  * @param[in] pltext The input text to parse, starting at the opening delimiter.
  * @return The parsed result containing the code content AST and continuation index, or nullopt if parsing fails.
  * @note The delimiter length determines the minimum number of consecutive backticks that can appear
  *       in the code content without prematurely ending the span.
  * @note The content is parsed as plain text and converted to appropriate AST nodes.
  * @note Code spans cannot contain newline characters - they must be single-line.
- * @note Empty code spans (e.g., `` `` ``) are valid and will be parsed.
+ * @note Empty code spans are valid and will be parsed.
  * @see https://spec.commonmark.org/0.31.2/#code-spans
  */
 template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::LiteralString embraced_string>
@@ -1643,9 +1646,9 @@ struct TryParseMdImageResult {
 };
 
 /**
- * @brief Parse Markdown image syntax (`![alt](url)`).
+ * @brief Parse Markdown image syntax.
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
- * @param[in] pltext The input text beginning with `![`.
+ * @param[in] pltext The input text beginning with an exclamation mark and an opening bracket.
  * @return Parsed image payload (alt text AST + URL + continuation index), or nullopt if invalid.
  */
 template<::pltxt2htm::Contracts ndebug>

@@ -117,7 +117,7 @@ constexpr auto pltxt2plunity_introduction(::fast_io::u8string_view pltext, ::fas
  * @brief Convert Physics-Lab text to common HTML with basic formatting
  * @details This function provides basic HTML generation with limited feature support:
  *          - Physics-Lab color tags only
- *          - Bold (<b>) and italic (<i>) tags only
+ *          - Bold (&lt;b&gt;) and italic (&lt;i&gt;) tags only
  *          - Basic HTML escaping and formatting
  *
  *          This function is suitable for:

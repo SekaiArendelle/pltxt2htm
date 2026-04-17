@@ -50,7 +50,8 @@ public:
 
 /**
  * @brief Context for parsing bare tags (tags without attributes)
- * @details Used when parsing simple tags that don't have attributes like <b>, <i>, etc.
+ * @details Used when parsing simple tags that don't have attributes like
+ *          &lt;b&gt;, &lt;i&gt;, etc.
  */
 class BareTagContext : public ::pltxt2htm::details::BasicFrameContext {
 public:

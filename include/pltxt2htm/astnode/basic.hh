@@ -13,7 +13,7 @@
 
 /**
  * @note Quantum-Physics's tag do not case upper / lower
- *       This means that tags like <color>, <Color>, and <COLOR> are treated the same
+ *       This means that tags like &lt;color&gt;, &lt;Color&gt;, and &lt;COLOR&gt; are treated the same.
  */
 
 namespace pltxt2htm {
@@ -106,7 +106,8 @@ namespace details {
 /**
  * @brief Base class for paired HTML-like tags
  * @details This class serves as a base for nodes that have opening and closing tags
- *          and contain sub-content (sub-AST). Examples include <color>, <b>, <i>, etc.
+ *          and contain sub-content (sub-AST). Examples include
+ *          &lt;color&gt;, &lt;b&gt;, &lt;i&gt;, etc.
  * @note The copy constructor and assignment operator are deleted to prevent expensive copies
  */
 class PairedTagBase : public ::pltxt2htm::PlTxtNode {
@@ -120,8 +121,6 @@ public:
      * @brief Construct a paired tag with specified node type and sub-AST
      * @param[in] node_type The type of this node (from NodeType enum)
      * @param[in] subast The sub-AST that represents the content inside this tag
-     * @return New PairedTagBase instance
-     * @retval PairedTagBase New paired tag base instance with specified properties
      */
     constexpr PairedTagBase(::pltxt2htm::NodeType node_type, ::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::PlTxtNode{node_type},
@@ -192,8 +191,6 @@ public:
     /**
      * @brief Construct a text node with sub-AST content
      * @param[in] subast The sub-AST representing the text content and inline formatting
-     * @return New Text instance
-     * @retval Text New text node instance with specified sub-AST content
      */
     constexpr Text(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase(::pltxt2htm::NodeType::text, ::std::move(subast)) {

@@ -19,11 +19,11 @@ namespace pltxt2htm {
 
 /**
  * @brief Color formatting node for Physics-Lab text
- * @details Represents text with color formatting using <color=value> syntax
- * @example Examples of valid color syntax:
- *          - <color=red>Red text</color>
- *          - <Color=#FF0000>Hex color</Color>
- *          - <COLOR=blue>Blue text</COLOR>
+ * @details Represents text with color formatting using &lt;color=value&gt; syntax.
+ * @par Examples
+ * - &lt;color=red&gt;Red text&lt;/color&gt;
+ * - &lt;Color=&#35;FF0000&gt;Hex color&lt;/Color&gt;
+ * - &lt;COLOR=blue&gt;Blue text&lt;/COLOR&gt;
  * @note Color values can be CSS color names or hex values
  */
 class Color : public ::pltxt2htm::details::PairedTagBase {
@@ -77,8 +77,6 @@ public:
     /**
      * @brief Construct an anchor node with text content
      * @param[in] text The text content of the anchor
-     * @return New A instance
-     * @retval A New anchor node instance with blue color
      */
     constexpr A(::pltxt2htm::Ast&& text) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_a, ::std::move(text)} {
@@ -92,14 +90,6 @@ public:
 
     constexpr ::pltxt2htm::A& operator=(::pltxt2htm::A const&) noexcept = delete;
 
-    /**
-     * @brief Move assignment operator
-     * @param[in] other The A instance to move from
-     * @return Reference to this A instance
-     * @retval A& Reference to this anchor node instance
-     * @note Assignment to an rvalue is not allowed
-     * @warning After move assignment, the other instance is left in a moved-from state
-     */
     constexpr ::pltxt2htm::A& operator=(::pltxt2htm::A&&) noexcept = default;
 
     [[nodiscard]]
@@ -113,11 +103,11 @@ public:
 
 /**
  * @brief Experiment reference node for Physics-Lab
- * @details Represents a reference to an experiment using <experiment=id> syntax
- * @example Examples of valid experiment syntax:
- *          - <experiment=12345>Experiment 12345</experiment>
- *          - <Experiment=642cf37a494746375aae306a>My Experiment</Experiment>
- *          - <EXPERIMENT=abc123>Test Experiment</EXPERIMENT>
+ * @details Represents a reference to an experiment using &lt;experiment=id&gt; syntax.
+ * @par Examples
+ * - &lt;experiment=12345&gt;Experiment 12345&lt;/experiment&gt;
+ * - &lt;Experiment=642cf37a494746375aae306a&gt;My Experiment&lt;/Experiment&gt;
+ * - &lt;EXPERIMENT=abc123&gt;Test Experiment&lt;/EXPERIMENT&gt;
  * @note The experiment ID is used to generate links to experiment pages
  */
 class Experiment : public ::pltxt2htm::details::PairedTagBase {
@@ -148,20 +138,6 @@ public:
      * @retval fast_io::u8string const& Const reference to the ID string
      * @retval fast_io::u8string& Reference to the ID string (modifiable)
      */
-    /**
-     * @brief Get the ID of this discussion node
-     * @param[in] self This Discussion instance
-     * @return The ID string of this discussion
-     * @retval fast_io::u8string const& Const reference to the ID string
-     * @retval fast_io::u8string& Reference to the ID string (modifiable)
-     */
-    /**
-     * @brief Get the ID of this user node
-     * @param[in] self This User instance
-     * @return The ID string of this user
-     * @retval fast_io::u8string const& Const reference to the ID string
-     * @retval fast_io::u8string& Reference to the ID string (modifiable)
-     */
     [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
     [[__gnu__::__pure__]]
@@ -173,11 +149,11 @@ public:
 
 /**
  * @brief Discussion reference node for Physics-Lab
- * @details Represents a reference to a discussion using <discussion=id> syntax
- * @example Examples of valid discussion syntax:
- *          - <discussion=12345>Discussion 12345</discussion>
- *          - <Discussion=642cf37a494746375aae306a>My Discussion</Discussion>
- *          - <DISCUSSION=abc123>Test Discussion</DISCUSSION>
+ * @details Represents a reference to a discussion using &lt;discussion=id&gt; syntax.
+ * @par Examples
+ * - &lt;discussion=12345&gt;Discussion 12345&lt;/discussion&gt;
+ * - &lt;Discussion=642cf37a494746375aae306a&gt;My Discussion&lt;/Discussion&gt;
+ * - &lt;DISCUSSION=abc123&gt;Test Discussion&lt;/DISCUSSION&gt;
  * @note The discussion ID is used to generate links to discussion pages
  */
 class Discussion : public ::pltxt2htm::details::PairedTagBase {
@@ -212,11 +188,11 @@ public:
 
 /**
  * @brief User reference node for Physics-Lab
- * @details Represents a reference to a user using <user=id> syntax
- * @example Examples of valid user syntax:
- *          - <user=12345>User 12345</user>
- *          - <User=642cf37a494746375aae306a>John Doe</User>
- *          - <USER=abc123>Test User</USER>
+ * @details Represents a reference to a user using &lt;user=id&gt; syntax.
+ * @par Examples
+ * - &lt;user=12345&gt;User 12345&lt;/user&gt;
+ * - &lt;User=642cf37a494746375aae306a&gt;John Doe&lt;/User&gt;
+ * - &lt;USER=abc123&gt;Test User&lt;/USER&gt;
  * @note The user ID is used to generate links to user profiles
  */
 class User : public ::pltxt2htm::details::PairedTagBase {
@@ -281,11 +257,11 @@ public:
 
 /**
  * @brief Font size node for Physics-Lab
- * @details Represents text with specific font size using <size=value> syntax
- * @example Examples of valid size syntax:
- *          - <size=12>12pt text</size>
- *          - <Size=16>Larger text</Size>
- *          - <SIZE=24>Large text</SIZE>
+ * @details Represents text with specific font size using &lt;size=value&gt; syntax.
+ * @par Examples
+ * - &lt;size=12&gt;12pt text&lt;/size&gt;
+ * - &lt;Size=16&gt;Larger text&lt;/Size&gt;
+ * - &lt;SIZE=24&gt;Large text&lt;/SIZE&gt;
  * @note Size values are numeric and represent the font size in points
  */
 class Size : public ::pltxt2htm::details::PairedTagBase {
@@ -320,9 +296,10 @@ public:
 
 /**
  * @brief Italic formatting node for Physics-Lab
- * @details Represents italic text using <i> syntax
- * @example <i>This text will be italic</i>
- * @note This is equivalent to Markdown single emphasis (*text*) and HTML <em>
+ * @details Represents italic text using &lt;i&gt; syntax.
+ * @par Example
+ * &lt;i&gt;This text will be italic&lt;/i&gt;
+ * @note This is equivalent to Markdown single emphasis (*text*) and HTML &lt;em&gt;.
  */
 class I : public ::pltxt2htm::details::PairedTagBase {
 public:
@@ -331,8 +308,6 @@ public:
     /**
      * @brief Construct an italic node with text content
      * @param[in] subast The text content to be displayed in italic
-     * @return New I instance
-     * @retval I New italic node instance
      */
     constexpr I(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_i, ::std::move(subast)} {
@@ -351,9 +326,10 @@ public:
 
 /**
  * @brief Bold formatting node for Physics-Lab
- * @details Represents bold text using <b> syntax
- * @example <b>This text will be bold</b>
- * @note This is equivalent to Markdown double emphasis (**text**) and HTML <strong>
+ * @details Represents bold text using &lt;b&gt; syntax.
+ * @par Example
+ * &lt;b&gt;This text will be bold&lt;/b&gt;
+ * @note This is equivalent to Markdown double emphasis (**text**) and HTML &lt;strong&gt;.
  */
 class B : public ::pltxt2htm::details::PairedTagBase {
 public:
@@ -362,8 +338,6 @@ public:
     /**
      * @brief Construct a bold node with text content
      * @param[in] subast The text content to be displayed in bold
-     * @return New B instance
-     * @retval B New bold node instance
      */
     constexpr B(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_b, ::std::move(subast)} {

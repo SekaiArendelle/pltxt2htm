@@ -29,7 +29,7 @@ namespace pltxt2htm {
  *
  *          The parsing process involves:
  *          - Tokenization of the input text
- *          - Recognition of Physics-Lab specific tags (<color>, <experiment>, etc.)
+ *          - Recognition of Physics-Lab specific tags (&lt;color&gt;, &lt;experiment&gt;, etc.)
  *          - Markdown syntax parsing (headers, lists, emphasis, etc.)
  *          - HTML tag recognition and processing
  *          - Building a hierarchical AST structure

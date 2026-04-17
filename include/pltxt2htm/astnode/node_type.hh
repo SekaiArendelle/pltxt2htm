@@ -35,20 +35,20 @@ enum class NodeType : ::std::size_t {
     single_quote, ///< Single quote character (') - escaped to &apos;
     less_than, ///< Less-than character (<) - escaped to &lt;
     greater_than, ///< Greater-than character (>) - escaped to &gt;
-    tab, ///< Tab character (\t) - rendered as multiple &nbsp; entities
+    tab, ///< Tab character - rendered as multiple &nbsp; entities
 
     // Physics-Lab specific formatting tags
-    pl_color, ///< Physics-Lab color tag: <color=value>...</color>
-    pl_a, ///< Physics-Lab anchor tag: <a>...</a> (styled like a link)
-    pl_experiment, ///< Physics-Lab experiment reference: <experiment=id>...</experiment>
-    pl_discussion, ///< Physics-Lab discussion reference: <discussion=id>...</discussion>
-    pl_user, ///< Physics-Lab user reference: <user=id>...</user>
-    pl_size, ///< Physics-Lab font size: <size=value>...</size>
-    pl_external, ///< Physics-Lab external link: <external=url>...</external>
+    pl_color, ///< Physics-Lab color tag: &lt;color=value&gt;...&lt;/color&gt;
+    pl_a, ///< Physics-Lab anchor tag: &lt;a&gt;...&lt;/a&gt; (styled like a link)
+    pl_experiment, ///< Physics-Lab experiment reference: &lt;experiment=id&gt;...&lt;/experiment&gt;
+    pl_discussion, ///< Physics-Lab discussion reference: &lt;discussion=id&gt;...&lt;/discussion&gt;
+    pl_user, ///< Physics-Lab user reference: &lt;user=id&gt;...&lt;/user&gt;
+    pl_size, ///< Physics-Lab font size: &lt;size=value&gt;...&lt;/size&gt;
+    pl_external, ///< Physics-Lab external link: &lt;external=url&gt;...&lt;/external&gt;
 
     // Text formatting (shared across Physics-Lab, HTML, and Markdown)
-    pl_b, ///< Bold text: <b>...</b>, **text** (Markdown), <strong> (HTML)
-    pl_i, ///< Italic text: <i>...</i>, *text* (Markdown), <em> (HTML)
+    pl_b, ///< Bold text: &lt;b&gt;...&lt;/b&gt;, Markdown double emphasis, &lt;strong&gt; in HTML
+    pl_i, ///< Italic text: &lt;i&gt;...&lt;/i&gt;, Markdown single emphasis, &lt;em&gt; in HTML
 
     // Physics-Lab specific macros
     pl_macro_project, // {Project}
@@ -57,33 +57,33 @@ enum class NodeType : ::std::size_t {
     pl_macro_coauthors, // {CoAuthors}
 
     // HTML structural elements
-    html_p, ///< Paragraph: <p>...</p> (HTML), created by double newline (Markdown)
-    html_br, ///< Line break: <br> (HTML)
+    html_p, ///< Paragraph: &lt;p&gt;...&lt;/p&gt; (HTML), created by double newline (Markdown)
+    html_br, ///< Line break: &lt;br&gt; (HTML)
 
     // HTML heading elements
-    html_h1, ///< Level 1 heading: <h1>...</h1>
-    html_h2, ///< Level 2 heading: <h2>...</h2>
-    html_h3, ///< Level 3 heading: <h3>...</h3>
-    html_h4, ///< Level 4 heading: <h4>...</h4>
-    html_h5, ///< Level 5 heading: <h5>...</h5>
-    html_h6, ///< Level 6 heading: <h6>...</h6>
+    html_h1, ///< Level 1 heading: &lt;h1&gt;...&lt;/h1&gt;
+    html_h2, ///< Level 2 heading: &lt;h2&gt;...&lt;/h2&gt;
+    html_h3, ///< Level 3 heading: &lt;h3&gt;...&lt;/h3&gt;
+    html_h4, ///< Level 4 heading: &lt;h4&gt;...&lt;/h4&gt;
+    html_h5, ///< Level 5 heading: &lt;h5&gt;...&lt;/h5&gt;
+    html_h6, ///< Level 6 heading: &lt;h6&gt;...&lt;/h6&gt;
 
     // HTML formatting elements
-    html_del, ///< Deleted/strikethrough text: <del>...</del>
-    html_hr, ///< Horizontal rule: <hr> (HTML), --- (Markdown)
+    html_del, ///< Deleted/strikethrough text: &lt;del&gt;...&lt;/del&gt;
+    html_hr, ///< Horizontal rule: &lt;hr&gt; (HTML), --- (Markdown)
     html_note, ///< HTML comment/note (not rendered in output)
-    html_em, ///< Emphasis: <em>...</em> (HTML equivalent of <i>)
-    html_strong, ///< Strong emphasis: <strong>...</strong> (HTML equivalent of <b>)
+    html_em, ///< Emphasis: &lt;em&gt;...&lt;/em&gt; (HTML equivalent of &lt;i&gt;)
+    html_strong, ///< Strong emphasis: &lt;strong&gt;...&lt;/strong&gt; (HTML equivalent of &lt;b&gt;)
 
     // HTML list elements
-    html_ul, ///< Unordered list: <ul>...</ul>
-    html_ol, ///< Ordered list: <ol>...</ol>
-    html_li, ///< List item: <li>...</li>
+    html_ul, ///< Unordered list: &lt;ul&gt;...&lt;/ul&gt;
+    html_ol, ///< Ordered list: &lt;ol&gt;...&lt;/ol&gt;
+    html_li, ///< List item: &lt;li&gt;...&lt;/li&gt;
 
     // HTML code and quote elements
-    html_code, ///< Inline code: <code>...</code>
-    html_pre, ///< Preformatted text: <pre>...</pre>
-    html_blockquote, ///< Block quote: <blockquote>...</blockquote>
+    html_code, ///< Inline code: &lt;code&gt;...&lt;/code&gt;
+    html_pre, ///< Preformatted text: &lt;pre&gt;...&lt;/pre&gt;
+    html_blockquote, ///< Block quote: &lt;blockquote&gt;...&lt;/blockquote&gt;
 
     // Markdown ATX-style headers (# ## ### #### ##### ######)
     md_atx_h1, ///< Markdown level 1 heading: # Heading

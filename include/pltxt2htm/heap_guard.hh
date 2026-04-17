@@ -72,8 +72,6 @@ public:
      * @brief Construct a HeapGuard by constructing the managed object in-place
      * @tparam Args Types of arguments to forward to the constructor
      * @param[in] args Arguments to forward to the constructor of T
-     * @return New HeapGuard instance managing the constructed object
-     * @retval HeapGuard<T> RAII smart pointer managing the heap-allocated object
      * @note This function allocates memory on the heap and constructs the object in-place
      * @warning If allocation fails, the program terminates via exception::terminate()
      */

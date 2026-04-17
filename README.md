@@ -5,19 +5,19 @@
 
 This repository is a sub-project of [Physics-Lab-Web2](https://github.com/NetLogo-Mobile/plweb2)
 
-**header-only** C++23 library for converting Quantum-Physics(aka. Physics-Lab)'s text format to HTML, with supports for markdown and latex [as much as possible](#features). Requires g++ >= 14, clang++ >= 20 or MSVC >= VS2026. Build without C++ rtti and exceptions for maximum cross-platform compatibility.
+**header-only** C++23 library for converting Quantum-Physics(aka. Physics-Lab)'s text format to HTML, with supports for markdown and latex as much as possible (see the Features section below). Requires g++ >= 14, clang++ >= 20 or MSVC >= VS2026. Build without C++ rtti and exceptions for maximum cross-platform compatibility.
 
 > Note: MSVC support is still experimental
 
 ## Usage
 C++ APIs is in [include/pltxt2htm](include/pltxt2htm/), [Click here](examples/example.cc) to see a simple example.
 
-You can also use `pltxt2htm` in [console](cmd/README.md), [browser](wasm/README.md), [python](py/README.md), [c](c/README.md), [rust](rust/README.md) and [csharp](csharp/README.md).
+You can also use `pltxt2htm` in console (cmd/README.md), browser (wasm/README.md), python (py/README.md), c (c/README.md), rust (rust/README.md) and csharp (csharp/README.md).
 
 C++20 module example is in [cxxmodule/example.cc](cxxmodule/example.cc)
 
 ## Documentation
-See [docsgen/README.md](docsgen/README.md).
+See docsgen/README.md.
 
 ## Exported API
 All C++ APIs have been listed in [pltxt2htm.cppm](cxxmodule/pltxt2htm/pltxt2htm.cppm)
