@@ -229,6 +229,10 @@ constexpr void append_html_attr_escaped(::fast_io::u8string& result, ::fast_io::
     }
 }
 
+constexpr void append_html_attr_escaped(::fast_io::u8string& result, ::fast_io::u8string const& value) noexcept {
+    ::pltxt2htm::details::append_html_attr_escaped(result, ::fast_io::u8string_view{value.data(), value.size()});
+}
+
 /**
  * @brief Convert AST nodes to advanced HTML with full feature support
  * @details This backend generates comprehensive HTML output supporting:
@@ -338,7 +342,7 @@ entry:
                 ::fast_io::array{u8'<', u8's', u8'p',  u8'a', u8'n', u8' ', u8's', u8't', u8'y', u8'l',
                                  u8'e', u8'=', u8'\"', u8'c', u8'o', u8'l', u8'o', u8'r', u8':'};
             result.append(::fast_io::u8string_view{close_tag1.data(), close_tag1.size()});
-            result.append(color->get_color());
+            ::pltxt2htm::details::append_html_attr_escaped(result, color->get_color());
             auto const close_tag2 = ::fast_io::array{u8';', u8'\"', u8'>'};
             result.append(::fast_io::u8string_view{close_tag2.data(), close_tag2.size()});
             goto entry;
@@ -353,7 +357,7 @@ entry:
                 ::fast_io::array{u8'<', u8's', u8'p',  u8'a', u8'n', u8' ', u8's', u8't', u8'y', u8'l',
                                  u8'e', u8'=', u8'\"', u8'c', u8'o', u8'l', u8'o', u8'r', u8':'};
             result.append(::fast_io::u8string_view{close_tag1.data(), close_tag1.size()});
-            result.append(color->get_color());
+            ::pltxt2htm::details::append_html_attr_escaped(result, color->get_color());
             auto const close_tag2 = ::fast_io::array{u8';', u8'\"', u8'>'};
             result.append(::fast_io::u8string_view{close_tag2.data(), close_tag2.size()});
             goto entry;
@@ -364,7 +368,7 @@ entry:
                                                                            ::pltxt2htm::NodeType::pl_experiment, 0));
             ++current_index;
             result.append(u8"<a href=\"");
-            result.append(host);
+            ::pltxt2htm::details::append_html_attr_escaped(result, host);
             result.append(u8"/ExperimentSummary/Experiment/");
             result.append(experiment->get_id());
             result.append(u8"\" internal>");
@@ -376,7 +380,7 @@ entry:
                                                                            ::pltxt2htm::NodeType::pl_discussion, 0));
             ++current_index;
             result.append(u8"<a href=\"");
-            result.append(host);
+            ::pltxt2htm::details::append_html_attr_escaped(result, host);
             result.append(u8"/ExperimentSummary/Discussion/");
             result.append(discussion->get_id());
             result.append(u8"\" internal>");
@@ -392,7 +396,7 @@ entry:
                                  u8'=', u8'\'', u8'R', u8'U', u8's', u8'e', u8'r', u8'\'', u8' ', u8'd', u8'a',
                                  u8't', u8'a',  u8'-', u8'u', u8's', u8'e', u8'r', u8'=',  u8'\''};
             result.append(::fast_io::u8string_view{open_tag1.data(), open_tag1.size()});
-            result.append(user->get_id());
+            ::pltxt2htm::details::append_html_attr_escaped(result, user->get_id());
             auto const open_tag2 = ::fast_io::array{u8'\'', u8'>'};
             result.append(::fast_io::u8string_view{open_tag2.data(), open_tag2.size()});
             goto entry;
@@ -659,7 +663,7 @@ entry:
             auto a_link = static_cast<::pltxt2htm::MdLink const*>(node.release_imul());
             auto const start_tag = ::fast_io::array{u8'<', u8'a', u8' ', u8'h', u8'r', u8'e', u8'f', u8'=', u8'\"'};
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
-            result.append(a_link->url_);
+            ::pltxt2htm::details::append_html_attr_escaped(result, a_link->url_);
             auto const mid_tag = ::fast_io::array{u8'\"', u8'>'};
             result.append(::fast_io::u8string_view(mid_tag.begin(), mid_tag.size()));
             call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(a_link->get_subast(),
@@ -673,7 +677,7 @@ entry:
             auto const start_tag =
                 ::fast_io::array{u8'<', u8'i', u8'm', u8'g', u8' ', u8's', u8'r', u8'c', u8'=', u8'\"'};
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
-            result.append(a_image->url_);
+            ::pltxt2htm::details::append_html_attr_escaped(result, a_image->url_);
             auto const mid_tag = ::fast_io::array{u8'\"', u8' ', u8'a', u8'l', u8't', u8'=', u8'\"'};
             result.append(::fast_io::u8string_view(mid_tag.begin(), mid_tag.size()));
             result.append(::pltxt2htm::details::convert_simple_pltxt_ast_to_plweb_text<ndebug>(a_image->get_subast()));
@@ -816,19 +820,19 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_macro_project: {
-            result.append(project);
+            ::pltxt2htm::details::append_html_attr_escaped(result, project);
             continue;
         }
         case ::pltxt2htm::NodeType::pl_macro_visitor: {
-            result.append(visitor);
+            ::pltxt2htm::details::append_html_attr_escaped(result, visitor);
             continue;
         }
         case ::pltxt2htm::NodeType::pl_macro_author: {
-            result.append(author);
+            ::pltxt2htm::details::append_html_attr_escaped(result, author);
             continue;
         }
         case ::pltxt2htm::NodeType::pl_macro_coauthors: {
-            result.append(coauthors);
+            ::pltxt2htm::details::append_html_attr_escaped(result, coauthors);
             continue;
         }
         case ::pltxt2htm::NodeType::base:
