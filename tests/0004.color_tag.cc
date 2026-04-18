@@ -119,10 +119,8 @@ int main() {
 
     {
         // block style injection / XSS payload in color value
-        auto html =
-            ::pltxt2htm_test::pltxt2advanced_htmld(u8"<color=red;background:urljavascriptalert1>test</color>");
-        auto answer =
-            ::fast_io::u8string_view{u8"&lt;color=red;background:urljavascriptalert1&gt;test&lt;/color&gt;"};
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<color=red;background:urljavascriptalert1>test</color>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;color=red;background:urljavascriptalert1&gt;test&lt;/color&gt;"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 

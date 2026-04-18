@@ -364,7 +364,18 @@ entry:
                 ::fast_io::array{u8'<', u8's', u8'p',  u8'a', u8'n', u8' ', u8's', u8't', u8'y', u8'l',
                                  u8'e', u8'=', u8'\"', u8'c', u8'o', u8'l', u8'o', u8'r', u8':'};
             result.append(::fast_io::u8string_view{close_tag1.data(), close_tag1.size()});
-            result.append(color->get_color());
+            auto const& color_value = color->get_color();
+            if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
+                ::fast_io::u8string purified_color_value{};
+                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                    purified_color_value, ::fast_io::u8string_view{color_value.data(), color_value.size()});
+                bool const is_valid_color_value{purified_color_value == color_value};
+                pltxt2htm_assert(
+                    is_valid_color_value,
+                    "Color value contains characters that cannot be directly used in HTML attributes. Please "
+                    "check the color value or use a different backend that supports escaping.");
+            }
+            result.append(color_value);
             auto const close_tag2 = ::fast_io::array{u8';', u8'\"', u8'>'};
             result.append(::fast_io::u8string_view{close_tag2.data(), close_tag2.size()});
             goto entry;

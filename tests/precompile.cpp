@@ -76,14 +76,12 @@ auto pltxt2fixedadv_htmld(::fast_io::u8string_view pltext) noexcept -> ::fast_io
 #if __has_attribute(visibility)
 __attribute__((visibility("default")))
 #endif
-auto pltxt2fixedadv_htmld(::fast_io::u8string_view pltext,
-                            ::fast_io::u8string_view host,
-                            ::fast_io::u8string_view project,
-                            ::fast_io::u8string_view visitor,
-                            ::fast_io::u8string_view author,
-                            ::fast_io::u8string_view coauthors) noexcept -> ::fast_io::u8string {
-    return ::pltxt2htm::pltxt2fixedadv_html<::pltxt2htm::Contracts::quick_enforce>(
-        pltext, host, project, visitor, author, coauthors);
+auto pltxt2fixedadv_htmld(::fast_io::u8string_view pltext, ::fast_io::u8string_view host,
+                          ::fast_io::u8string_view project, ::fast_io::u8string_view visitor,
+                          ::fast_io::u8string_view author, ::fast_io::u8string_view coauthors) noexcept
+    -> ::fast_io::u8string {
+    return ::pltxt2htm::pltxt2fixedadv_html<::pltxt2htm::Contracts::quick_enforce>(pltext, host, project, visitor,
+                                                                                   author, coauthors);
 }
 
 #if __has_cpp_attribute(__gnu__::__used__)
@@ -112,8 +110,8 @@ __attribute__((visibility("default")))
 auto pltxt2plunity_introduction(::fast_io::u8string_view pltext, ::fast_io::u8string_view project,
                                 ::fast_io::u8string_view visitor, ::fast_io::u8string_view author,
                                 ::fast_io::u8string_view coauthors) noexcept -> ::fast_io::u8string {
-    return ::pltxt2htm::pltxt2plunity_introduction<::pltxt2htm::Contracts::quick_enforce>(
-        pltext, project, visitor, author, coauthors);
+    return ::pltxt2htm::pltxt2plunity_introduction<::pltxt2htm::Contracts::quick_enforce>(pltext, project, visitor,
+                                                                                          author, coauthors);
 }
 
 #if __has_cpp_attribute(__gnu__::__used__)
