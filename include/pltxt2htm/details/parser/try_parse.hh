@@ -1428,7 +1428,15 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr auto make_try_parse_url_result(::fast_io::u8string_view const parsed_url) noexcept
     -> ::exception::optional<::pltxt2htm::MdUrl> {
     ::pltxt2htm::Ast ast{};
-    for (auto const chr : parsed_url) {
+    for (::std::size_t index{}; index < parsed_url.size(); ++index) {
+        auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(parsed_url, index);
+        if (chr == u8'&') {
+            if (index + 5 <= parsed_url.size() &&
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(parsed_url, index, 5) == u8"&amp;") {
+                chr = u8'&';
+                index += 4;
+            }
+        }
         switch (chr) {
         case u8'&':
             ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Ampersand>{});
@@ -1455,10 +1463,8 @@ constexpr auto make_try_parse_url_result(::fast_io::u8string_view const parsed_u
 
 template<::pltxt2htm::Contracts ndebug, bool regard_right_parent_as_end_of_url = false>
 [[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
-constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept -> ::exception::optional<::pltxt2htm::MdUrl> {
+constexpr auto try_parse_url(::fast_io::u8string_view pltext, ::std::size_t* consumed_size = nullptr) noexcept
+    -> ::exception::optional<::pltxt2htm::MdUrl> {
     ::std::size_t current_index{[pltext] constexpr noexcept -> ::std::size_t {
         if (constexpr auto http = ::pltxt2htm::details::LiteralString{u8"http://"};
             ::pltxt2htm::details::is_prefix_match<ndebug, http>(pltext)) {
@@ -1523,6 +1529,9 @@ constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept -> ::exce
                 if (next_chr != u8'/' && next_chr != u8'?' && next_chr != u8'#') {
                     if constexpr (regard_right_parent_as_end_of_url) {
                         if (next_chr == u8')') {
+                            if (consumed_size != nullptr) {
+                                *consumed_size = current_index;
+                            }
                             return ::pltxt2htm::details::make_try_parse_url_result<ndebug>(
                                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 0, current_index));
                         }
@@ -1540,6 +1549,9 @@ constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept -> ::exce
                 if (::pltxt2htm::details::validate_url_domain<ndebug>(pltext, domain_start, current_index) == false) {
                     return ::exception::nullopt_t{};
                 }
+                if (consumed_size != nullptr) {
+                    *consumed_size = current_index;
+                }
                 return ::pltxt2htm::details::make_try_parse_url_result<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 0, current_index));
             }
@@ -1549,15 +1561,24 @@ constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept -> ::exce
     for (; current_index < pltext.size(); ++current_index) {
         auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
         if (chr < u8'!' || chr > u8'~' || chr == u8'<' || chr == u8'>' || chr == u8'\"') {
+            if (consumed_size != nullptr) {
+                *consumed_size = current_index;
+            }
             return ::pltxt2htm::details::make_try_parse_url_result<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 0, current_index));
         }
         if constexpr (regard_right_parent_as_end_of_url) {
             if (chr == u8')') {
+                if (consumed_size != nullptr) {
+                    *consumed_size = current_index;
+                }
                 return ::pltxt2htm::details::make_try_parse_url_result<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 0, current_index));
             }
         }
+    }
+    if (consumed_size != nullptr) {
+        *consumed_size = current_index;
     }
     return ::pltxt2htm::details::make_try_parse_url_result<ndebug>(
         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 0, current_index));
@@ -1588,12 +1609,14 @@ constexpr auto try_parse_external_tag(
     }
 
     auto&& [_, url] = result.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    auto opt_url = ::pltxt2htm::details::try_parse_url<ndebug>(::fast_io::u8string_view{url.data(), url.size()});
+    ::std::size_t parsed_url_size{};
+    auto opt_url =
+        ::pltxt2htm::details::try_parse_url<ndebug>(::fast_io::u8string_view{url.data(), url.size()}, &parsed_url_size);
     if (opt_url.has_value() == false) {
         return ::exception::nullopt_t{};
     }
     auto&& parsed_url = opt_url.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    if (parsed_url.get_url_ast_().size() != url.size()) {
+    if (parsed_url_size != url.size()) {
         return ::exception::nullopt_t{};
     }
 
@@ -1665,13 +1688,13 @@ constexpr auto try_parse_md_link(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt_t{};
     }
     ++current_index;
+    ::std::size_t link_url_size{};
     auto opt_link_url = ::pltxt2htm::details::try_parse_url<ndebug, true>(
-        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), &link_url_size);
     if (opt_link_url.has_value() == false) {
         return ::exception::nullopt_t{};
     }
     auto&& link_url = opt_link_url.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    ::std::size_t link_url_size{link_url.get_url_ast_().size()};
     current_index += link_url_size;
     if (current_index >= pltext.size() ||
         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8')') {
@@ -1780,13 +1803,13 @@ constexpr auto try_parse_md_image(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt_t{};
     }
     ++current_index;
+    ::std::size_t link_url_size{};
     auto opt_link_url = ::pltxt2htm::details::try_parse_url<ndebug, true>(
-        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), &link_url_size);
     if (opt_link_url.has_value() == false) {
         return ::exception::nullopt_t{};
     }
     auto&& link_url = opt_link_url.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    ::std::size_t link_url_size{link_url.get_url_ast_().size()};
     current_index += link_url_size;
     if (current_index >= pltext.size() ||
         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8')') {
