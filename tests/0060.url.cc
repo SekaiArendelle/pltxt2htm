@@ -64,8 +64,8 @@ int main() {
     }
     {
         auto url = ::fast_io::u8string_view{u8"https://www.bilibili.com/\"alert(1)"};
-        auto result = ::pltxt2htm::details::try_parse_url<::pltxt2htm::Contracts::quick_enforce>(url).value();
-        ::pltxt2htm_test::assert_true(result == 25);
+        auto [_, urlobj] = ::pltxt2htm::details::try_parse_url<::pltxt2htm::Contracts::quick_enforce>(url).value();
+        ::pltxt2htm_test::assert_true(urlobj.get_url_ast().size() == 25);
     }
     {
         auto url = ::fast_io::u8string_view{u8"https://www.bilibili.com/\'hello\'"};
@@ -74,13 +74,13 @@ int main() {
     }
     {
         auto url = ::fast_io::u8string_view{u8"https://www.bilibili.com/test<script"};
-        auto result = ::pltxt2htm::details::try_parse_url<::pltxt2htm::Contracts::quick_enforce>(url).value();
-        ::pltxt2htm_test::assert_true(result == 29);
+        auto [_, urlobj] = ::pltxt2htm::details::try_parse_url<::pltxt2htm::Contracts::quick_enforce>(url).value();
+        ::pltxt2htm_test::assert_true(urlobj.get_url_ast().size() == 29);
     }
     {
         auto url = ::fast_io::u8string_view{u8"https://www.bilibili.com/script>test"};
-        auto result = ::pltxt2htm::details::try_parse_url<::pltxt2htm::Contracts::quick_enforce>(url).value();
-        ::pltxt2htm_test::assert_true(result == 31);
+        auto [_, urlobj] = ::pltxt2htm::details::try_parse_url<::pltxt2htm::Contracts::quick_enforce>(url).value();
+        ::pltxt2htm_test::assert_true(urlobj.get_url_ast().size() == 31);
     }
     {
         auto url = ::fast_io::u8string_view{
@@ -231,6 +231,12 @@ int main() {
         ::pltxt2htm_test::assert_true(
             ::pltxt2htm::details::try_parse_url<::pltxt2htm::Contracts::quick_enforce, true>(u8"example.com)")
                 .has_value() == true);
+    }
+    {
+        auto constexpr input = ::fast_io::u8string_view{u8"example.com/?a=1&amp;b=2"};
+        auto [_, urlobj] =
+            ::pltxt2htm::details::try_parse_url<::pltxt2htm::Contracts::quick_enforce, true>(input).value();
+        ::pltxt2htm_test::assert_true(urlobj.get_url_ast().size() == input.size() - 4);
     }
 
     return 0;

@@ -126,6 +126,34 @@ public:
         ::pltxt2htm::details::OptimizerPlSizeTagContext<Iter>&&) noexcept = delete;
 };
 
+/**
+ * @brief Optimization context for external tags with URL payloads
+ * @tparam Iter Iterator type for traversing the AST
+ * @details Specialized context for `<external=...>` tags to carry pltxt2htm::Url data.
+ */
+template<::std::forward_iterator Iter>
+class OptimizerExternalTagContext : public ::pltxt2htm::details::OptimizerContext<Iter> {
+public:
+    ::pltxt2htm::Url const* url_;
+
+    OptimizerExternalTagContext(::pltxt2htm::Ast* ast, ::pltxt2htm::NodeType const nested_tag_type, Iter&& iter,
+                                ::pltxt2htm::Url const& url) noexcept
+        : ::pltxt2htm::details::OptimizerContext<Iter>(ast, nested_tag_type, ::std::move(iter)),
+          url_{::std::addressof(url)} {
+    }
+
+    constexpr OptimizerExternalTagContext(::pltxt2htm::details::OptimizerExternalTagContext<Iter> const&) noexcept =
+        default;
+    constexpr OptimizerExternalTagContext(::pltxt2htm::details::OptimizerExternalTagContext<Iter>&&) noexcept = default;
+
+    constexpr ~OptimizerExternalTagContext() noexcept = default;
+
+    constexpr ::pltxt2htm::details::OptimizerExternalTagContext<Iter>& operator=(
+        ::pltxt2htm::details::OptimizerExternalTagContext<Iter> const&) noexcept = delete;
+    constexpr ::pltxt2htm::details::OptimizerExternalTagContext<Iter>& operator=(
+        ::pltxt2htm::details::OptimizerExternalTagContext<Iter>&&) noexcept = delete;
+};
+
 } // namespace details
 
 /**
@@ -391,9 +419,8 @@ entry:
                 continue;
             }
             call_stack.push(
-                ::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator>>(
-                    ::std::addressof(subast), ::pltxt2htm::NodeType::pl_external, subast.begin(),
-                    ::fast_io::mnp::os_c_str(external->get_url())));
+                ::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerExternalTagContext<::pltxt2htm::Ast::iterator>>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeType::pl_external, subast.begin(), external->get_url()));
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_size: {

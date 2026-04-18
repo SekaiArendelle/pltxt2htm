@@ -94,6 +94,27 @@ public:
 };
 
 /**
+ * @brief Context for parsing external tags with URL payloads
+ * @details Specialized context for `<external=...>` tags where the payload is
+ *          stored as pltxt2htm::Url instead of a plain string id.
+ */
+class ExternalTagContext : public ::pltxt2htm::details::BasicFrameContext {
+public:
+    ::fast_io::u8string_view pltext; ///< The text being parsed in this context
+    ::pltxt2htm::Url url; ///< Parsed URL payload for External node
+
+    constexpr explicit ExternalTagContext(::fast_io::u8string_view pltext_,
+                                          ::pltxt2htm::NodeType const nested_tag_type_,
+                                          ::pltxt2htm::Url&& url_) noexcept
+        : ::pltxt2htm::details::BasicFrameContext{nested_tag_type_},
+          pltext(pltext_),
+          url(::std::move(url_)) {
+    }
+
+    constexpr ~ExternalTagContext() noexcept = default;
+};
+
+/**
  * @brief Context for parsing size tags with numeric values
  * @details Specialized context for size tags that expect numeric values
  *          like <size=12> where the value should be converted to std::size_t
@@ -138,9 +159,9 @@ public:
 class MdLinkContext : public ::pltxt2htm::details::BasicFrameContext {
 public:
     ::fast_io::u8string_view pltext; ///< The link text (inside [])
-    ::fast_io::u8string link; ///< The URL (inside ())
+    ::pltxt2htm::Url link; ///< The URL (inside ())
 
-    constexpr explicit MdLinkContext(::fast_io::u8string_view pltext_, ::fast_io::u8string&& link_) noexcept
+    constexpr explicit MdLinkContext(::fast_io::u8string_view pltext_, ::pltxt2htm::Url&& link_) noexcept
         : ::pltxt2htm::details::BasicFrameContext{::pltxt2htm::NodeType::md_link},
           pltext(::std::move(pltext_)),
           link(::std::move(link_)) {
