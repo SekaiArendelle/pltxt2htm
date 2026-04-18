@@ -21,6 +21,30 @@
 
 namespace pltxt2htm::details {
 
+[[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
+constexpr bool is_ascii_alpha(char8_t const chr) noexcept {
+    return (u8'a' <= chr && chr <= u8'z') || (u8'A' <= chr && chr <= u8'Z');
+}
+
+[[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
+constexpr bool is_ascii_digit(char8_t const chr) noexcept {
+    return u8'0' <= chr && chr <= u8'9';
+}
+
+[[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
+constexpr bool is_ascii_hexdigit(char8_t const chr) noexcept {
+    return ::pltxt2htm::details::is_ascii_digit(chr) || ::pltxt2htm::details::is_ascii_alpha(chr);
+}
+
 /**
  * @brief Get character at specific index from u8string_view with bounds checking
  * @tparam ndebug Contract checking mode controlling assertion behavior.

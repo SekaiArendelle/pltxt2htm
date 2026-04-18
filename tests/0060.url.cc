@@ -234,8 +234,7 @@ int main() {
     }
     {
         auto constexpr input = ::fast_io::u8string_view{u8"example.com/?a=1&amp;b=2"};
-        auto result =
-            ::pltxt2htm::details::try_parse_url<::pltxt2htm::Contracts::quick_enforce, true>(input).value();
+        auto result = ::pltxt2htm::details::try_parse_url<::pltxt2htm::Contracts::quick_enforce, true>(input).value();
         ::pltxt2htm_test::assert_true(result.get_url_ast_().size() == input.size() - 4);
     }
 

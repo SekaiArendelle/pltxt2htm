@@ -205,74 +205,66 @@ constexpr auto convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast const& as
     return result;
 }
 
-constexpr void append_html_attr_escaped(::fast_io::u8string& result, ::fast_io::u8string_view value) noexcept {
-    auto const is_ascii_alpha = [](char8_t chr) noexcept {
-        return (u8'a' <= chr && chr <= u8'z') || (u8'A' <= chr && chr <= u8'Z');
-    };
-    auto const is_ascii_digit = [](char8_t chr) noexcept { return u8'0' <= chr && chr <= u8'9'; };
-    auto const is_ascii_hexdigit = [](char8_t chr) noexcept {
-        auto const is_ascii_digit_inner = [](char8_t num) noexcept { return u8'0' <= num && num <= u8'9'; };
-        return is_ascii_digit_inner(chr) || (u8'a' <= chr && chr <= u8'f') || (u8'A' <= chr && chr <= u8'F');
-    };
-
-    auto const html_entity_length = [&is_ascii_alpha, &is_ascii_digit, &is_ascii_hexdigit](::fast_io::u8string_view text,
-                                                                                             ::std::size_t start) noexcept {
-        if (start >= text.size() || text[start] != u8'&') {
-            return ::std::size_t{};
-        }
-        auto const max = text.size();
-        auto index = start + 1;
+[[nodiscard]]
+constexpr auto html_entity_length(::fast_io::u8string_view text, ::std::size_t start) noexcept -> ::std::size_t {
+    if (start >= text.size() || text[start] != u8'&') {
+        return ::std::size_t{};
+    }
+    auto const max = text.size();
+    auto index = start + 1;
+    if (index >= max) {
+        return ::std::size_t{};
+    }
+    if (text[index] == u8'#') {
+        ++index;
         if (index >= max) {
             return ::std::size_t{};
         }
-        if (text[index] == u8'#') {
+        bool hex{};
+        if (text[index] == u8'x' || text[index] == u8'X') {
+            hex = true;
             ++index;
-            if (index >= max) {
-                return ::std::size_t{};
-            }
-            bool hex{};
-            if (text[index] == u8'x' || text[index] == u8'X') {
-                hex = true;
-                ++index;
-            }
-            if (index >= max) {
-                return ::std::size_t{};
-            }
-            auto const begin = index;
-            for (; index < max; ++index) {
-                if (text[index] == u8';') {
-                    break;
-                }
-                if (hex ? !is_ascii_hexdigit(text[index]) : !is_ascii_digit(text[index])) {
-                    return ::std::size_t{};
-                }
-            }
-            if (index == begin || index >= max || text[index] != u8';') {
-                return ::std::size_t{};
-            }
-            return index + 1 - start;
         }
-
-        if (!is_ascii_alpha(text[index])) {
+        if (index >= max) {
             return ::std::size_t{};
         }
-        ++index;
+        auto const begin = index;
         for (; index < max; ++index) {
             if (text[index] == u8';') {
-                return index + 1 - start;
+                break;
             }
-            if (!(is_ascii_alpha(text[index]) || is_ascii_digit(text[index]))) {
+            if (hex ? !::pltxt2htm::details::is_ascii_hexdigit(text[index])
+                    : !::pltxt2htm::details::is_ascii_digit(text[index])) {
                 return ::std::size_t{};
             }
         }
-        return ::std::size_t{};
-    };
+        if (index == begin || index >= max || text[index] != u8';') {
+            return ::std::size_t{};
+        }
+        return index + 1 - start;
+    }
 
+    if (!::pltxt2htm::details::is_ascii_alpha(text[index])) {
+        return ::std::size_t{};
+    }
+    ++index;
+    for (; index < max; ++index) {
+        if (text[index] == u8';') {
+            return index + 1 - start;
+        }
+        if (!(::pltxt2htm::details::is_ascii_alpha(text[index]) || ::pltxt2htm::details::is_ascii_digit(text[index]))) {
+            return ::std::size_t{};
+        }
+    }
+    return ::std::size_t{};
+}
+
+constexpr void append_html_attr_escaped(::fast_io::u8string& result, ::fast_io::u8string_view value) noexcept {
     for (::std::size_t index{}; index < value.size(); ++index) {
         auto const chr = value[index];
         switch (chr) {
         case u8'&':
-            if (auto const entity_len = html_entity_length(value, index); entity_len != 0) {
+            if (auto const entity_len = ::pltxt2htm::details::html_entity_length(value, index); entity_len != 0) {
                 result.append(::fast_io::u8string_view{value.data() + index, entity_len});
                 index += entity_len - 1;
                 break;
@@ -728,13 +720,14 @@ entry:
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
             auto const& url_ast = a_link->url_.get_url_ast_();
             auto const& url_str = ::pltxt2htm::details::convert_simple_pltxt_ast_to_plweb_text<ndebug>(url_ast);
-            // if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
-            //     ::fast_io::u8string purified_url{};
-            //     ::pltxt2htm::details::append_html_attr_escaped(purified_url, ::fast_io::u8string_view{url_str.data(),
-            //     url_str.size()}); pltxt2htm_assert(purified_url == url_str, "URL contains characters that cannot be
-            //     directly used in HTML attributes. Please check the URL or use a different backend that supports
-            //     escaping.");
-            // }
+            if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
+                ::fast_io::u8string purified_url{};
+                ::pltxt2htm::details::append_html_attr_escaped(
+                    purified_url, ::fast_io::u8string_view{url_str.data(), url_str.size()});
+                pltxt2htm_assert(purified_url == url_str,
+                                 "URL contains characters that cannot be directly used in HTML attributes. Please "
+                                 "check the URL or use a different backend that supports escaping.");
+            }
             result.append(url_str);
             auto const mid_tag = ::fast_io::array{u8'\"', u8'>'};
             result.append(::fast_io::u8string_view(mid_tag.begin(), mid_tag.size()));
