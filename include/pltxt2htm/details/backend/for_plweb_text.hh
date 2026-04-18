@@ -366,6 +366,7 @@ entry:
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(color->get_subast(), ::pltxt2htm::NodeType::pl_a, 0));
             ++current_index;
+            // TODO this can be concat at compile time
             auto const close_tag1 =
                 ::fast_io::array{u8'<', u8's', u8'p',  u8'a', u8'n', u8' ', u8's', u8't', u8'y', u8'l',
                                  u8'e', u8'=', u8'\"', u8'c', u8'o', u8'l', u8'o', u8'r', u8':'};
@@ -383,7 +384,18 @@ entry:
             result.append(u8"<a href=\"");
             ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result, host);
             result.append(u8"/ExperimentSummary/Experiment/");
-            result.append(experiment->get_id());
+            auto const& experiment_id = experiment->get_id();
+            if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
+                ::fast_io::u8string purified_experiment_id{};
+                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                    purified_experiment_id, ::fast_io::u8string_view{experiment_id.data(), experiment_id.size()});
+                bool const is_valid_experiment_id{purified_experiment_id == experiment_id};
+                pltxt2htm_assert(
+                    is_valid_experiment_id,
+                    "Experiment ID contains characters that cannot be directly used in HTML attributes. Please check "
+                    "the experiment ID or use a different backend that supports escaping.");
+            }
+            result.append(experiment_id);
             result.append(u8"\" internal>");
             goto entry;
         }
@@ -395,7 +407,18 @@ entry:
             result.append(u8"<a href=\"");
             ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result, host);
             result.append(u8"/ExperimentSummary/Discussion/");
-            result.append(discussion->get_id());
+            auto const& discussion_id = discussion->get_id();
+            if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
+                ::fast_io::u8string purified_discussion_id{};
+                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                    purified_discussion_id, ::fast_io::u8string_view{discussion_id.data(), discussion_id.size()});
+                bool const is_valid_discussion_id{purified_discussion_id == discussion_id};
+                pltxt2htm_assert(
+                    is_valid_discussion_id,
+                    "Discussion ID contains characters that cannot be directly used in HTML attributes. Please check "
+                    "the discussion ID or use a different backend that supports escaping.");
+            }
+            result.append(discussion_id);
             result.append(u8"\" internal>");
             goto entry;
         }
@@ -409,7 +432,18 @@ entry:
                                  u8'=', u8'\'', u8'R', u8'U', u8's', u8'e', u8'r', u8'\'', u8' ', u8'd', u8'a',
                                  u8't', u8'a',  u8'-', u8'u', u8's', u8'e', u8'r', u8'=',  u8'\''};
             result.append(::fast_io::u8string_view{open_tag1.data(), open_tag1.size()});
-            result.append(user->get_id());
+            auto const& user_id = user->get_id();
+            if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
+                ::fast_io::u8string purified_user_id{};
+                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                    purified_user_id, ::fast_io::u8string_view{user_id.data(), user_id.size()});
+                bool const is_valid_user_id{purified_user_id == user_id};
+                pltxt2htm_assert(
+                    is_valid_user_id,
+                    "User ID contains characters that cannot be directly used in HTML attributes. Please check the "
+                    "user ID or use a different backend that supports escaping.");
+            }
+            result.append(user_id);
             auto const open_tag2 = ::fast_io::array{u8'\'', u8'>'};
             result.append(::fast_io::u8string_view{open_tag2.data(), open_tag2.size()});
             goto entry;
