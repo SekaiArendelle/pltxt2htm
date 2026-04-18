@@ -228,7 +228,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__pure__)
     [[__gnu__::__pure__]]
 #endif
-    constexpr auto&& get_url_ast_(this auto&& self) noexcept {
+    constexpr auto&& get_url_ast(this auto&& self) noexcept {
         return ::std::forward_like<decltype(self)>(self.url_ast_);
     }
 };

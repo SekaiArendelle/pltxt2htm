@@ -246,8 +246,8 @@ constexpr void append_url_attr_from_ast(::fast_io::u8string& result, ::pltxt2htm
     auto const url_str = ::pltxt2htm::details::convert_simple_pltxt_ast_to_plweb_text<ndebug>(url_ast);
     if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
         ::fast_io::u8string purified_url{};
-        ::pltxt2htm::details::append_html_attr_escaped<ndebug>(purified_url,
-                                                               ::fast_io::u8string_view{url_str.data(), url_str.size()});
+        ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+            purified_url, ::fast_io::u8string_view{url_str.data(), url_str.size()});
         pltxt2htm_assert(purified_url == url_str,
                          "URL contains characters that cannot be directly used in HTML attributes. Please "
                          "check the URL or use a different backend that supports escaping.");
@@ -683,7 +683,7 @@ entry:
             auto a_link = static_cast<::pltxt2htm::MdLink const*>(node.release_imul());
             auto const start_tag = ::fast_io::array{u8'<', u8'a', u8' ', u8'h', u8'r', u8'e', u8'f', u8'=', u8'\"'};
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
-            ::pltxt2htm::details::append_url_attr_from_ast<ndebug>(result, a_link->url_.get_url_ast_());
+            ::pltxt2htm::details::append_url_attr_from_ast<ndebug>(result, a_link->url_.get_url_ast());
             auto const mid_tag = ::fast_io::array{u8'\"', u8'>'};
             result.append(::fast_io::u8string_view(mid_tag.begin(), mid_tag.size()));
             call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(a_link->get_subast(),
@@ -695,7 +695,7 @@ entry:
             auto external = static_cast<::pltxt2htm::External const*>(node.release_imul());
             auto const start_tag = ::fast_io::array{u8'<', u8'a', u8' ', u8'h', u8'r', u8'e', u8'f', u8'=', u8'\"'};
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
-            ::pltxt2htm::details::append_url_attr_from_ast<ndebug>(result, external->get_url().get_url_ast_());
+            ::pltxt2htm::details::append_url_attr_from_ast<ndebug>(result, external->get_url().get_url_ast());
             auto const mid_tag = ::fast_io::array{u8'\"', u8'>'};
             result.append(::fast_io::u8string_view(mid_tag.begin(), mid_tag.size()));
             call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(external->get_subast(),
@@ -709,7 +709,7 @@ entry:
             auto const start_tag =
                 ::fast_io::array{u8'<', u8'i', u8'm', u8'g', u8' ', u8's', u8'r', u8'c', u8'=', u8'\"'};
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
-            ::pltxt2htm::details::append_url_attr_from_ast<ndebug>(result, a_image->url_.get_url_ast_());
+            ::pltxt2htm::details::append_url_attr_from_ast<ndebug>(result, a_image->url_.get_url_ast());
             auto const mid_tag = ::fast_io::array{u8'\"', u8' ', u8'a', u8'l', u8't', u8'=', u8'\"'};
             result.append(::fast_io::u8string_view(mid_tag.begin(), mid_tag.size()));
             result.append(::pltxt2htm::details::convert_simple_pltxt_ast_to_plweb_text<ndebug>(a_image->get_subast()));

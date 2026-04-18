@@ -1427,7 +1427,8 @@ struct TryParseUrlResult {
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto make_try_parse_url_result(::fast_io::u8string_view const parsed_url, ::std::size_t consumed_size) noexcept
+constexpr auto make_try_parse_url_result(::fast_io::u8string_view const parsed_url,
+                                         ::std::size_t consumed_size) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseUrlResult> {
     ::pltxt2htm::Ast ast{};
     for (::std::size_t index{}; index < parsed_url.size(); ++index) {
@@ -1460,8 +1461,8 @@ constexpr auto make_try_parse_url_result(::fast_io::u8string_view const parsed_u
             break;
         }
     }
-    return ::pltxt2htm::details::TryParseUrlResult{
-        .consumed_size = consumed_size, .url = ::pltxt2htm::Url{::std::move(ast)}};
+    return ::pltxt2htm::details::TryParseUrlResult{.consumed_size = consumed_size,
+                                                   .url = ::pltxt2htm::Url{::std::move(ast)}};
 }
 
 template<::pltxt2htm::Contracts ndebug, bool regard_right_parent_as_end_of_url = false>
@@ -1800,15 +1801,15 @@ constexpr auto try_parse_md_image(::fast_io::u8string_view pltext) noexcept
         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8')') {
         return ::exception::nullopt_t{};
     }
-    return ::pltxt2htm::details::TryParseMdImageResult{
-        .forward_index = current_index + 1,
-        .link_text = ::std::move(link_text_ast),
-        .link_url = ::std::move(link_url_result.url)};
+    return ::pltxt2htm::details::TryParseMdImageResult{.forward_index = current_index + 1,
+                                                       .link_text = ::std::move(link_text_ast),
+                                                       .link_url = ::std::move(link_url_result.url)};
 }
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_entity_reference(::fast_io::u8string_view text) noexcept -> ::exception::optional<::std::size_t> {
+constexpr auto try_parse_entity_reference(::fast_io::u8string_view text) noexcept
+    -> ::exception::optional<::std::size_t> {
     if (text.empty() || ::pltxt2htm::details::u8string_view_index<ndebug>(text, 0) != u8'&') {
         return ::exception::nullopt_t{};
     }
