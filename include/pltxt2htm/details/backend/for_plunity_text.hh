@@ -56,8 +56,7 @@ constexpr auto convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast con
             continue;
         }
         case ::pltxt2htm::NodeType::invalid_u8char: {
-            auto const escape_str = ::fast_io::array{char8_t{0xef}, 0xbf, 0xbd};
-            result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
+            result.append(u8"\uFFFD");
             continue;
         }
         case ::pltxt2htm::NodeType::space: {
@@ -238,8 +237,7 @@ entry:
             continue;
         }
         case ::pltxt2htm::NodeType::invalid_u8char: {
-            auto const escape_str = ::fast_io::array{char8_t{0xef}, 0xbf, 0xbd};
-            result.append(::fast_io::u8string_view{escape_str.data(), escape_str.size()});
+            result.append(u8"\uFFFD");
             continue;
         }
         case ::pltxt2htm::NodeType::text: {
