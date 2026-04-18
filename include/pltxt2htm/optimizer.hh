@@ -144,8 +144,7 @@ public:
 
     constexpr OptimizerExternalTagContext(::pltxt2htm::details::OptimizerExternalTagContext<Iter> const&) noexcept =
         default;
-    constexpr OptimizerExternalTagContext(::pltxt2htm::details::OptimizerExternalTagContext<Iter>&&) noexcept =
-        default;
+    constexpr OptimizerExternalTagContext(::pltxt2htm::details::OptimizerExternalTagContext<Iter>&&) noexcept = default;
 
     constexpr ~OptimizerExternalTagContext() noexcept = default;
 
@@ -421,8 +420,7 @@ entry:
             }
             call_stack.push(
                 ::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerExternalTagContext<::pltxt2htm::Ast::iterator>>(
-                    ::std::addressof(subast), ::pltxt2htm::NodeType::pl_external, subast.begin(),
-                    external->get_url()));
+                    ::std::addressof(subast), ::pltxt2htm::NodeType::pl_external, subast.begin(), external->get_url()));
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_size: {
