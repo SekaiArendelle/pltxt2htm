@@ -110,5 +110,21 @@ int main() {
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
+    {
+        // invalid hex length should be rejected
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<color=#12345>test</color>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;color=#12345&gt;test&lt;/color&gt;"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        // block style injection / XSS payload in color value
+        auto html =
+            ::pltxt2htm_test::pltxt2advanced_htmld(u8"<color=red;background:urljavascriptalert1>test</color>");
+        auto answer =
+            ::fast_io::u8string_view{u8"&lt;color=red;background:urljavascriptalert1&gt;test&lt;/color&gt;"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
     return 0;
 }

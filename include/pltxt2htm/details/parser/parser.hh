@@ -807,12 +807,8 @@ entry:
                 [[fallthrough]];
             case u8'C': {
                 // parsing: <color=$1>$2</color>
-                if (auto opt_color_tag = ::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, u8"olor">(
-                        u8string_view_subview<ndebug>(pltext, current_index + 2),
-                        [](char8_t u8chr) static constexpr noexcept {
-                            return (u8'0' <= u8chr && u8chr <= u8'9') || (u8'a' <= u8chr && u8chr <= u8'z') ||
-                                   (u8'A' <= u8chr && u8chr <= u8'Z') || u8chr == u8'#';
-                        });
+                if (auto opt_color_tag = ::pltxt2htm::details::try_parse_color_tag<ndebug>(
+                        u8string_view_subview<ndebug>(pltext, current_index + 2));
                     opt_color_tag.has_value()) {
                     auto&& [tag_len, color] = opt_color_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                     current_index += tag_len + 3;
