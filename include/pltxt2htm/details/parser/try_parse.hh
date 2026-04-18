@@ -1590,7 +1590,7 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr auto try_parse_external_tag(
     ::fast_io::u8string_view pltext,
     ::fast_io::stack<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>> const& call_stack) noexcept
-    -> ::exception::optional<TryParseExternalTagResult> {
+    -> ::exception::optional<::pltxt2htm::details::TryParseExternalTagResult> {
     auto result = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<ndebug, u8"xternal">(
         pltext, [](char8_t u8chr) static constexpr noexcept { return u8'!' <= u8chr && u8chr <= u8'~'; }, call_stack);
     if (result.has_value() == false) {
@@ -1680,8 +1680,8 @@ constexpr auto try_parse_md_link(::fast_io::u8string_view pltext) noexcept
     if (opt_link_url.has_value() == false) {
         return ::exception::nullopt_t{};
     }
-    auto&& link_url_result = opt_link_url.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    current_index += link_url_result.consumed_size;
+    auto [consumed_size, urlobj] = opt_link_url.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+    current_index += consumed_size;
     if (current_index >= pltext.size() ||
         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8')') {
         return ::exception::nullopt_t{};
@@ -1689,7 +1689,7 @@ constexpr auto try_parse_md_link(::fast_io::u8string_view pltext) noexcept
     ++current_index;
     return ::pltxt2htm::details::TryParseMdLinkResult{.forward_index = current_index,
                                                       .link_text = pltext.subview(1, link_text_end - 1),
-                                                      .link_url = ::std::move(link_url_result.url)};
+                                                      .link_url = ::std::move(urlobj)};
 }
 
 struct TryParseMdImageResult {
