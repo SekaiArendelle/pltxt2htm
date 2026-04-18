@@ -1027,9 +1027,9 @@ public:
 class MdLink : public ::pltxt2htm::details::PairedTagBase {
 public:
     // Can not be stored in string_view, otherwise tests/0048.pltext_maybe_destructed.cc will fail
-    ::fast_io::u8string url_;
+    ::pltxt2htm::MdUrl url_;
 
-    constexpr MdLink(::pltxt2htm::Ast&& subast, ::fast_io::u8string&& url) noexcept
+    constexpr MdLink(::pltxt2htm::Ast&& subast, ::pltxt2htm::MdUrl&& url) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_link, ::std::move(subast)},
           url_(::std::move(url)) {
     }
@@ -1055,14 +1055,14 @@ public:
 class MdImage : public ::pltxt2htm::details::PairedTagBase {
 public:
     /// Image destination URL in Markdown syntax.
-    ::fast_io::u8string url_;
+    ::pltxt2htm::MdUrl url_;
 
     /**
      * @brief Constructs a Markdown image node.
      * @param subast Inline AST used as image alternative text.
      * @param url Image destination URL.
      */
-    constexpr MdImage(::pltxt2htm::Ast&& subast, ::fast_io::u8string&& url) noexcept
+    constexpr MdImage(::pltxt2htm::Ast&& subast, ::pltxt2htm::MdUrl&& url) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_image, ::std::move(subast)},
           url_(::std::move(url)) {
     }

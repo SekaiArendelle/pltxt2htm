@@ -65,7 +65,7 @@ int main() {
     {
         auto url = ::fast_io::u8string_view{u8"https://www.bilibili.com/\"alert(1)"};
         auto result = ::pltxt2htm::details::try_parse_url<::pltxt2htm::Contracts::quick_enforce>(url).value();
-        ::pltxt2htm_test::assert_true(result == 25);
+        ::pltxt2htm_test::assert_true(result.get_url_ast_().size() == 25);
     }
     {
         auto url = ::fast_io::u8string_view{u8"https://www.bilibili.com/\'hello\'"};
@@ -75,12 +75,12 @@ int main() {
     {
         auto url = ::fast_io::u8string_view{u8"https://www.bilibili.com/test<script"};
         auto result = ::pltxt2htm::details::try_parse_url<::pltxt2htm::Contracts::quick_enforce>(url).value();
-        ::pltxt2htm_test::assert_true(result == 29);
+        ::pltxt2htm_test::assert_true(result.get_url_ast_().size() == 29);
     }
     {
         auto url = ::fast_io::u8string_view{u8"https://www.bilibili.com/script>test"};
         auto result = ::pltxt2htm::details::try_parse_url<::pltxt2htm::Contracts::quick_enforce>(url).value();
-        ::pltxt2htm_test::assert_true(result == 31);
+        ::pltxt2htm_test::assert_true(result.get_url_ast_().size() == 31);
     }
     {
         auto url = ::fast_io::u8string_view{

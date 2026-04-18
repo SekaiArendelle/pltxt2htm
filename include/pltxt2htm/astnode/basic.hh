@@ -204,4 +204,33 @@ public:
     constexpr Text& operator=(::pltxt2htm::Text&&) noexcept = default;
 };
 
+class MdUrl {
+    ::pltxt2htm::Ast url_ast_{};
+
+public:
+    constexpr MdUrl() noexcept = default;
+
+    constexpr explicit MdUrl(::pltxt2htm::Ast&& attr) noexcept
+        : url_ast_(::std::move(attr)) {
+    }
+
+    constexpr MdUrl(::pltxt2htm::MdUrl const&) noexcept = delete;
+
+    constexpr MdUrl(::pltxt2htm::MdUrl&&) noexcept = default;
+
+    constexpr ~MdUrl() noexcept = default;
+
+    constexpr ::pltxt2htm::MdUrl& operator=(::pltxt2htm::MdUrl const&) noexcept = delete;
+
+    constexpr ::pltxt2htm::MdUrl& operator=(::pltxt2htm::MdUrl&&) noexcept = default;
+
+    [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
+    constexpr auto&& get_url_ast_(this auto&& self) noexcept {
+        return ::std::forward_like<decltype(self)>(self.url_ast_);
+    }
+};
+
 } // namespace pltxt2htm
