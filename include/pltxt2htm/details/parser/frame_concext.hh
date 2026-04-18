@@ -14,7 +14,6 @@
 #include "md_list.hh"
 #include "../../contracts.hh"
 #include "../../astnode/basic.hh"
-#include "../../astnode/markdown_node.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::details {
