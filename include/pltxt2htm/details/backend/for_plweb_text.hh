@@ -17,6 +17,7 @@
 #include "frame_context.hh"
 #include "../../contracts.hh"
 #include "../../details/utils.hh"
+#include "../../details/parser/try_parse.hh"
 #include "../../astnode/basic.hh"
 #include "../../astnode/node_type.hh"
 #include "../../astnode/markdown_node.hh"
@@ -205,66 +206,16 @@ constexpr auto convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast const& as
     return result;
 }
 
-[[nodiscard]]
-constexpr auto html_entity_length(::fast_io::u8string_view text, ::std::size_t start) noexcept -> ::std::size_t {
-    if (start >= text.size() || text[start] != u8'&') {
-        return ::std::size_t{};
-    }
-    auto const max = text.size();
-    auto index = start + 1;
-    if (index >= max) {
-        return ::std::size_t{};
-    }
-    if (text[index] == u8'#') {
-        ++index;
-        if (index >= max) {
-            return ::std::size_t{};
-        }
-        bool hex{};
-        if (text[index] == u8'x' || text[index] == u8'X') {
-            hex = true;
-            ++index;
-        }
-        if (index >= max) {
-            return ::std::size_t{};
-        }
-        auto const begin = index;
-        for (; index < max; ++index) {
-            if (text[index] == u8';') {
-                break;
-            }
-            if (hex ? !::pltxt2htm::details::is_ascii_hexdigit(text[index])
-                    : !::pltxt2htm::details::is_ascii_digit(text[index])) {
-                return ::std::size_t{};
-            }
-        }
-        if (index == begin || index >= max || text[index] != u8';') {
-            return ::std::size_t{};
-        }
-        return index + 1 - start;
-    }
-
-    if (!::pltxt2htm::details::is_ascii_alpha(text[index])) {
-        return ::std::size_t{};
-    }
-    ++index;
-    for (; index < max; ++index) {
-        if (text[index] == u8';') {
-            return index + 1 - start;
-        }
-        if (!(::pltxt2htm::details::is_ascii_alpha(text[index]) || ::pltxt2htm::details::is_ascii_digit(text[index]))) {
-            return ::std::size_t{};
-        }
-    }
-    return ::std::size_t{};
-}
-
+template<::pltxt2htm::Contracts ndebug>
 constexpr void append_html_attr_escaped(::fast_io::u8string& result, ::fast_io::u8string_view value) noexcept {
     for (::std::size_t index{}; index < value.size(); ++index) {
-        auto const chr = value[index];
+        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(value, index);
         switch (chr) {
         case u8'&':
-            if (auto const entity_len = ::pltxt2htm::details::html_entity_length(value, index); entity_len != 0) {
+            if (auto const opt_entity_len = ::pltxt2htm::details::try_parse_entity_reference<ndebug>(
+                    ::pltxt2htm::details::u8string_view_subview<ndebug>(value, index));
+                opt_entity_len.has_value()) {
+                auto const entity_len = opt_entity_len.value();
                 result.append(::fast_io::u8string_view{value.data() + index, entity_len});
                 index += entity_len - 1;
                 break;
@@ -288,6 +239,20 @@ constexpr void append_html_attr_escaped(::fast_io::u8string& result, ::fast_io::
             break;
         }
     }
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr void append_url_attr_from_ast(::fast_io::u8string& result, ::pltxt2htm::Ast const& url_ast) noexcept {
+    auto const url_str = ::pltxt2htm::details::convert_simple_pltxt_ast_to_plweb_text<ndebug>(url_ast);
+    if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
+        ::fast_io::u8string purified_url{};
+        ::pltxt2htm::details::append_html_attr_escaped<ndebug>(purified_url,
+                                                               ::fast_io::u8string_view{url_str.data(), url_str.size()});
+        pltxt2htm_assert(purified_url == url_str,
+                         "URL contains characters that cannot be directly used in HTML attributes. Please "
+                         "check the URL or use a different backend that supports escaping.");
+    }
+    result.append(url_str);
 }
 
 /**
@@ -718,17 +683,7 @@ entry:
             auto a_link = static_cast<::pltxt2htm::MdLink const*>(node.release_imul());
             auto const start_tag = ::fast_io::array{u8'<', u8'a', u8' ', u8'h', u8'r', u8'e', u8'f', u8'=', u8'\"'};
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
-            auto const& url_ast = a_link->url_.get_url_ast_();
-            auto const& url_str = ::pltxt2htm::details::convert_simple_pltxt_ast_to_plweb_text<ndebug>(url_ast);
-            if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
-                ::fast_io::u8string purified_url{};
-                ::pltxt2htm::details::append_html_attr_escaped(
-                    purified_url, ::fast_io::u8string_view{url_str.data(), url_str.size()});
-                pltxt2htm_assert(purified_url == url_str,
-                                 "URL contains characters that cannot be directly used in HTML attributes. Please "
-                                 "check the URL or use a different backend that supports escaping.");
-            }
-            result.append(url_str);
+            ::pltxt2htm::details::append_url_attr_from_ast<ndebug>(result, a_link->url_.get_url_ast_());
             auto const mid_tag = ::fast_io::array{u8'\"', u8'>'};
             result.append(::fast_io::u8string_view(mid_tag.begin(), mid_tag.size()));
             call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(a_link->get_subast(),
@@ -740,8 +695,7 @@ entry:
             auto external = static_cast<::pltxt2htm::External const*>(node.release_imul());
             auto const start_tag = ::fast_io::array{u8'<', u8'a', u8' ', u8'h', u8'r', u8'e', u8'f', u8'=', u8'\"'};
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
-            result.append(::pltxt2htm::details::convert_simple_pltxt_ast_to_plweb_text<ndebug>(
-                external->get_url().get_url_ast_()));
+            ::pltxt2htm::details::append_url_attr_from_ast<ndebug>(result, external->get_url().get_url_ast_());
             auto const mid_tag = ::fast_io::array{u8'\"', u8'>'};
             result.append(::fast_io::u8string_view(mid_tag.begin(), mid_tag.size()));
             call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(external->get_subast(),
@@ -755,8 +709,7 @@ entry:
             auto const start_tag =
                 ::fast_io::array{u8'<', u8'i', u8'm', u8'g', u8' ', u8's', u8'r', u8'c', u8'=', u8'\"'};
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
-            result.append(
-                ::pltxt2htm::details::convert_simple_pltxt_ast_to_plweb_text<ndebug>(a_image->url_.get_url_ast_()));
+            ::pltxt2htm::details::append_url_attr_from_ast<ndebug>(result, a_image->url_.get_url_ast_());
             auto const mid_tag = ::fast_io::array{u8'\"', u8' ', u8'a', u8'l', u8't', u8'=', u8'\"'};
             result.append(::fast_io::u8string_view(mid_tag.begin(), mid_tag.size()));
             result.append(::pltxt2htm::details::convert_simple_pltxt_ast_to_plweb_text<ndebug>(a_image->get_subast()));
@@ -883,7 +836,7 @@ entry:
                                                         u8'e', u8' ', u8'c', u8'l', u8'a', u8's', u8's', u8'=', u8'\"',
                                                         u8'l', u8'a', u8'n', u8'g', u8'u', u8'a', u8'g', u8'e', u8'-'};
                 result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
-                ::pltxt2htm::details::append_html_attr_escaped(
+                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
                     result, ::fast_io::u8string_view{language.data(), language.size()});
                 auto const start_tag2 = ::fast_io::array{u8'\"', u8'>'};
                 result.append(::fast_io::u8string_view(start_tag2.begin(), start_tag2.size()));
@@ -899,19 +852,19 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_macro_project: {
-            ::pltxt2htm::details::append_html_attr_escaped(result, project);
+            ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result, project);
             continue;
         }
         case ::pltxt2htm::NodeType::pl_macro_visitor: {
-            ::pltxt2htm::details::append_html_attr_escaped(result, visitor);
+            ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result, visitor);
             continue;
         }
         case ::pltxt2htm::NodeType::pl_macro_author: {
-            ::pltxt2htm::details::append_html_attr_escaped(result, author);
+            ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result, author);
             continue;
         }
         case ::pltxt2htm::NodeType::pl_macro_coauthors: {
-            ::pltxt2htm::details::append_html_attr_escaped(result, coauthors);
+            ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result, coauthors);
             continue;
         }
         case ::pltxt2htm::NodeType::base:

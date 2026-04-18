@@ -1819,6 +1819,63 @@ constexpr auto try_parse_md_image(::fast_io::u8string_view pltext) noexcept
         .forward_index = current_index + 1, .link_text = ::std::move(link_text_ast), .link_url = ::std::move(link_url)};
 }
 
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_entity_reference(::fast_io::u8string_view text) noexcept -> ::exception::optional<::std::size_t> {
+    if (text.empty() || ::pltxt2htm::details::u8string_view_index<ndebug>(text, 0) != u8'&') {
+        return ::exception::nullopt_t{};
+    }
+    auto const max = text.size();
+    auto index = ::std::size_t{1};
+    if (index >= max) {
+        return ::exception::nullopt_t{};
+    }
+    if (::pltxt2htm::details::u8string_view_index<ndebug>(text, index) == u8'#') {
+        ++index;
+        if (index >= max) {
+            return ::exception::nullopt_t{};
+        }
+        bool hex{};
+        auto const prefix = ::pltxt2htm::details::u8string_view_index<ndebug>(text, index);
+        if (prefix == u8'x' || prefix == u8'X') {
+            hex = true;
+            ++index;
+        }
+        if (index >= max) {
+            return ::exception::nullopt_t{};
+        }
+        auto const begin = index;
+        for (; index < max; ++index) {
+            auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(text, index);
+            if (chr == u8';') {
+                break;
+            }
+            if (hex ? !::pltxt2htm::details::is_ascii_hexdigit(chr) : !::pltxt2htm::details::is_ascii_digit(chr)) {
+                return ::exception::nullopt_t{};
+            }
+        }
+        if (index == begin || index >= max || ::pltxt2htm::details::u8string_view_index<ndebug>(text, index) != u8';') {
+            return ::exception::nullopt_t{};
+        }
+        return index + 1;
+    }
+
+    if (!::pltxt2htm::details::is_ascii_alpha(::pltxt2htm::details::u8string_view_index<ndebug>(text, index))) {
+        return ::exception::nullopt_t{};
+    }
+    ++index;
+    for (; index < max; ++index) {
+        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(text, index);
+        if (chr == u8';') {
+            return index + 1;
+        }
+        if (!::pltxt2htm::details::is_ascii_alpha(chr) && !::pltxt2htm::details::is_ascii_digit(chr)) {
+            return ::exception::nullopt_t{};
+        }
+    }
+    return ::exception::nullopt_t{};
+}
+
 } // namespace pltxt2htm::details
 
 #include "../pop_macro.hh"

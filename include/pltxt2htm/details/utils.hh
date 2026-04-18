@@ -42,7 +42,8 @@ constexpr bool is_ascii_digit(char8_t const chr) noexcept {
 [[__gnu__::__pure__]]
 #endif
 constexpr bool is_ascii_hexdigit(char8_t const chr) noexcept {
-    return ::pltxt2htm::details::is_ascii_digit(chr) || ::pltxt2htm::details::is_ascii_alpha(chr);
+    return ::pltxt2htm::details::is_ascii_digit(chr) || (u8'a' <= chr && chr <= u8'f') ||
+           (u8'A' <= chr && chr <= u8'F');
 }
 
 /**
