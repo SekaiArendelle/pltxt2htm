@@ -102,11 +102,11 @@ public:
 class ExternalTagContext : public ::pltxt2htm::details::BasicFrameContext {
 public:
     ::fast_io::u8string_view pltext; ///< The text being parsed in this context
-    ::pltxt2htm::MdUrl url; ///< Parsed URL payload for External node
+    ::pltxt2htm::Url url; ///< Parsed URL payload for External node
 
     constexpr explicit ExternalTagContext(::fast_io::u8string_view pltext_,
                                           ::pltxt2htm::NodeType const nested_tag_type_,
-                                          ::pltxt2htm::MdUrl&& url_) noexcept
+                                          ::pltxt2htm::Url&& url_) noexcept
         : ::pltxt2htm::details::BasicFrameContext{nested_tag_type_},
           pltext(pltext_),
           url(::std::move(url_)) {
@@ -160,9 +160,9 @@ public:
 class MdLinkContext : public ::pltxt2htm::details::BasicFrameContext {
 public:
     ::fast_io::u8string_view pltext; ///< The link text (inside [])
-    ::pltxt2htm::MdUrl link; ///< The URL (inside ())
+    ::pltxt2htm::Url link; ///< The URL (inside ())
 
-    constexpr explicit MdLinkContext(::fast_io::u8string_view pltext_, ::pltxt2htm::MdUrl&& link_) noexcept
+    constexpr explicit MdLinkContext(::fast_io::u8string_view pltext_, ::pltxt2htm::Url&& link_) noexcept
         : ::pltxt2htm::details::BasicFrameContext{::pltxt2htm::NodeType::md_link},
           pltext(::std::move(pltext_)),
           link(::std::move(link_)) {

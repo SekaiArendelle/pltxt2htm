@@ -134,10 +134,10 @@ public:
 template<::std::forward_iterator Iter>
 class OptimizerExternalTagContext : public ::pltxt2htm::details::OptimizerContext<Iter> {
 public:
-    ::pltxt2htm::MdUrl const* url_;
+    ::pltxt2htm::Url const* url_;
 
     OptimizerExternalTagContext(::pltxt2htm::Ast* ast, ::pltxt2htm::NodeType const nested_tag_type, Iter&& iter,
-                                ::pltxt2htm::MdUrl const& url) noexcept
+                                ::pltxt2htm::Url const& url) noexcept
         : ::pltxt2htm::details::OptimizerContext<Iter>(ast, nested_tag_type, ::std::move(iter)),
           url_{::std::addressof(url)} {
     }

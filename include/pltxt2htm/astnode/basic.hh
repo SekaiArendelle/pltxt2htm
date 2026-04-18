@@ -204,25 +204,25 @@ public:
     constexpr Text& operator=(::pltxt2htm::Text&&) noexcept = default;
 };
 
-class MdUrl {
+class Url {
     ::pltxt2htm::Ast url_ast_{};
 
 public:
-    constexpr MdUrl() noexcept = default;
+    constexpr Url() noexcept = default;
 
-    constexpr explicit MdUrl(::pltxt2htm::Ast&& attr) noexcept
+    constexpr explicit Url(::pltxt2htm::Ast&& attr) noexcept
         : url_ast_(::std::move(attr)) {
     }
 
-    constexpr MdUrl(::pltxt2htm::MdUrl const&) noexcept = delete;
+    constexpr Url(::pltxt2htm::Url const&) noexcept = delete;
 
-    constexpr MdUrl(::pltxt2htm::MdUrl&&) noexcept = default;
+    constexpr Url(::pltxt2htm::Url&&) noexcept = default;
 
-    constexpr ~MdUrl() noexcept = default;
+    constexpr ~Url() noexcept = default;
 
-    constexpr ::pltxt2htm::MdUrl& operator=(::pltxt2htm::MdUrl const&) noexcept = delete;
+    constexpr ::pltxt2htm::Url& operator=(::pltxt2htm::Url const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::MdUrl& operator=(::pltxt2htm::MdUrl&&) noexcept = default;
+    constexpr ::pltxt2htm::Url& operator=(::pltxt2htm::Url&&) noexcept = default;
 
     [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)

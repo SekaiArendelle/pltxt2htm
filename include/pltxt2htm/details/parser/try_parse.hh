@@ -1426,7 +1426,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[__gnu__::__pure__]]
 #endif
 constexpr auto make_try_parse_url_result(::fast_io::u8string_view const parsed_url) noexcept
-    -> ::exception::optional<::pltxt2htm::MdUrl> {
+    -> ::exception::optional<::pltxt2htm::Url> {
     ::pltxt2htm::Ast ast{};
     for (::std::size_t index{}; index < parsed_url.size(); ++index) {
         auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(parsed_url, index);
@@ -1458,13 +1458,13 @@ constexpr auto make_try_parse_url_result(::fast_io::u8string_view const parsed_u
             break;
         }
     }
-    return ::pltxt2htm::MdUrl{::std::move(ast)};
+    return ::pltxt2htm::Url{::std::move(ast)};
 }
 
 template<::pltxt2htm::Contracts ndebug, bool regard_right_parent_as_end_of_url = false>
 [[nodiscard]]
 constexpr auto try_parse_url(::fast_io::u8string_view pltext, ::std::size_t* consumed_size = nullptr) noexcept
-    -> ::exception::optional<::pltxt2htm::MdUrl> {
+    -> ::exception::optional<::pltxt2htm::Url> {
     ::std::size_t current_index{[pltext] constexpr noexcept -> ::std::size_t {
         if (constexpr auto http = ::pltxt2htm::details::LiteralString{u8"http://"};
             ::pltxt2htm::details::is_prefix_match<ndebug, http>(pltext)) {
@@ -1593,7 +1593,7 @@ constexpr auto try_parse_url(::fast_io::u8string_view pltext, ::std::size_t* con
  */
 struct TryParseExternalTagResult {
     ::std::size_t tag_len;
-    ::pltxt2htm::MdUrl url;
+    ::pltxt2htm::Url url;
 };
 
 template<::pltxt2htm::Contracts ndebug>
@@ -1627,7 +1627,7 @@ constexpr auto try_parse_external_tag(
 struct TryParseMdLinkResult {
     ::std::size_t forward_index;
     ::fast_io::u8string_view link_text;
-    ::pltxt2htm::MdUrl link_url;
+    ::pltxt2htm::Url link_url;
 };
 
 /**
@@ -1709,7 +1709,7 @@ constexpr auto try_parse_md_link(::fast_io::u8string_view pltext) noexcept
 struct TryParseMdImageResult {
     ::std::size_t forward_index;
     ::pltxt2htm::Ast link_text;
-    ::pltxt2htm::MdUrl link_url;
+    ::pltxt2htm::Url link_url;
 };
 
 /**

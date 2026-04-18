@@ -226,12 +226,12 @@ public:
 };
 
 class External : public ::pltxt2htm::details::PairedTagBase {
-    ::pltxt2htm::MdUrl url_{};
+    ::pltxt2htm::Url url_{};
 
 public:
     constexpr External() noexcept = delete;
 
-    constexpr External(::pltxt2htm::Ast&& subast, ::pltxt2htm::MdUrl&& url) noexcept
+    constexpr External(::pltxt2htm::Ast&& subast, ::pltxt2htm::Url&& url) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_external, ::std::move(subast)},
           url_(::std::move(url)) {
     }
