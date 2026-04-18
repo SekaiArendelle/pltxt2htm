@@ -390,7 +390,7 @@ entry:
                                                                            ::pltxt2htm::NodeType::pl_experiment, 0));
             ++current_index;
             result.append(u8"<a href=\"");
-            result.append(host);
+            ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result, host);
             result.append(u8"/ExperimentSummary/Experiment/");
             result.append(experiment->get_id());
             result.append(u8"\" internal>");
@@ -402,7 +402,7 @@ entry:
                                                                            ::pltxt2htm::NodeType::pl_discussion, 0));
             ++current_index;
             result.append(u8"<a href=\"");
-            result.append(host);
+            ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result, host);
             result.append(u8"/ExperimentSummary/Discussion/");
             result.append(discussion->get_id());
             result.append(u8"\" internal>");

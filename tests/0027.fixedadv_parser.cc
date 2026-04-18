@@ -45,6 +45,19 @@ int main() {
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
+            u8"<experiment=expid>exp</experiment><discussion=discid>dis</discussion>",
+            u8"localhost:5173\" onclick=\"alert(1)<img src=x onerror=alert(2)>",
+            u8"project",
+            u8"visitor",
+            u8"author",
+            u8"coauthors");
+        auto answer = ::fast_io::u8string_view{
+            u8"<a href=\"localhost:5173&quot; onclick=&quot;alert(1)&lt;img src=x onerror=alert(2)&gt;/ExperimentSummary/Experiment/expid\" internal>exp</a><a href=\"localhost:5173&quot; onclick=&quot;alert(1)&lt;img src=x onerror=alert(2)&gt;/ExperimentSummary/Discussion/discid\" internal>dis</a>"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
 
     return 0;
 }
