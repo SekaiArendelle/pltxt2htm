@@ -379,6 +379,52 @@ struct TryParseEqualSignTagResult {
 };
 
 /**
+ * @brief Validate a parsed color token for `<color=...>` tags.
+ *
+ * Accepted forms:
+ * - CSS named color (ASCII letters only), e.g. `red`, `LightBlue`.
+ * - Hex colors prefixed by `#` with 3/4/6/8 hex digits, e.g. `#fff`, `#66CcFf`, `#11223344`.
+ *
+ * Rejected forms include punctuation-rich payloads (e.g. `red;...`, `url(...)`)
+ * and malformed hex strings to reduce style-injection/XSS risks.
+ *
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
+ * @param[in] color Parsed color value from tag payload.
+ * @return true if the color token is valid; otherwise false.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr bool is_valid_color(::fast_io::u8string_view color) noexcept {
+    if (color.empty()) {
+        return false;
+    }
+
+    auto const color_size{color.size()};
+    auto const first_chr{::pltxt2htm::details::u8string_view_index<ndebug>(color, 0)};
+    if (first_chr == u8'#') {
+        auto const hex_len{color_size - 1};
+        if (hex_len != 3 && hex_len != 4 && hex_len != 6 && hex_len != 8) {
+            return false;
+        }
+        for (::std::size_t i{1}; i < color_size; ++i) {
+            auto const chr{::pltxt2htm::details::u8string_view_index<ndebug>(color, i)};
+            if (!((u8'0' <= chr && chr <= u8'9') || (u8'a' <= chr && chr <= u8'f') || (u8'A' <= chr && chr <= u8'F'))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    for (::std::size_t i{}; i < color_size; ++i) {
+        auto const chr{::pltxt2htm::details::u8string_view_index<ndebug>(color, i)};
+        if (!((u8'a' <= chr && chr <= u8'z') || (u8'A' <= chr && chr <= u8'Z'))) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
  * @brief Parse an HTML tag with a single attribute value (e.g., `<tag=value>`).
  *
  * This function parses HTML tags that have a simple attribute with an equals sign and a value.
@@ -490,6 +536,32 @@ constexpr auto try_parse_non_nestable_equal_sign_tag(
             nested_tag_type == ::pltxt2htm::NodeType::pl_external) {
             return ::exception::nullopt_t{};
         }
+    }
+    return result;
+}
+
+/**
+ * @brief Parse `<color=...>` and validate value against a strict color grammar.
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
+ * @param[in] pltext Input text starting at `olor=...`.
+ * @return Parsed tag result when valid; otherwise nullopt.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_color_tag(::fast_io::u8string_view pltext) noexcept
+    -> ::exception::optional<TryParseEqualSignTagResult> {
+    auto result = ::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, u8"olor">(
+        pltext, [](char8_t u8chr) static constexpr noexcept {
+            return (u8'0' <= u8chr && u8chr <= u8'9') || (u8'a' <= u8chr && u8chr <= u8'z') ||
+                   (u8'A' <= u8chr && u8chr <= u8'Z') || u8chr == u8'#';
+        });
+    if (!result.has_value()) {
+        return ::exception::nullopt_t{};
+    }
+
+    auto const& color{result.template value<ndebug == ::pltxt2htm::Contracts::ignore>().substr};
+    if (!::pltxt2htm::details::is_valid_color<ndebug>(::fast_io::u8string_view{color.data(), color.size()})) {
+        return ::exception::nullopt_t{};
     }
     return result;
 }
