@@ -21,6 +21,7 @@
 #include "../../astnode/node_type.hh"
 #include "../../astnode/markdown_node.hh"
 #include "../../astnode/physics_lab_node.hh"
+#include "../push_macro.hh"
 
 namespace pltxt2htm::details {
 
@@ -816,19 +817,19 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_macro_project: {
-            result.append(project);
+            ::pltxt2htm::details::append_html_attr_escaped(result, project);
             continue;
         }
         case ::pltxt2htm::NodeType::pl_macro_visitor: {
-            result.append(visitor);
+            ::pltxt2htm::details::append_html_attr_escaped(result, visitor);
             continue;
         }
         case ::pltxt2htm::NodeType::pl_macro_author: {
-            result.append(author);
+            ::pltxt2htm::details::append_html_attr_escaped(result, author);
             continue;
         }
         case ::pltxt2htm::NodeType::pl_macro_coauthors: {
-            result.append(coauthors);
+            ::pltxt2htm::details::append_html_attr_escaped(result, coauthors);
             continue;
         }
         case ::pltxt2htm::NodeType::base:
@@ -1011,6 +1012,8 @@ entry:
                 result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
                 goto entry;
             }
+            case ::pltxt2htm::NodeType::pl_external:
+                [[fallthrough]];
             case ::pltxt2htm::NodeType::md_link: {
                 auto const end_tag = ::fast_io::array{u8'<', u8'/', u8'a', u8'>'};
                 result.append(::fast_io::u8string_view(end_tag.begin(), end_tag.size()));
@@ -1028,3 +1031,5 @@ entry:
 }
 
 } // namespace pltxt2htm::details
+
+#include "../pop_macro.hh"
