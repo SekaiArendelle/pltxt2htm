@@ -1427,9 +1427,6 @@ struct TryParseUrlResult {
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
 constexpr auto make_try_parse_url_result(::fast_io::u8string_view const parsed_url, ::std::size_t consumed_size) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseUrlResult> {
     ::pltxt2htm::Ast ast{};
