@@ -1680,7 +1680,7 @@ constexpr auto try_parse_md_link(::fast_io::u8string_view pltext) noexcept
     if (opt_link_url.has_value() == false) {
         return ::exception::nullopt_t{};
     }
-    auto [consumed_size, urlobj] = opt_link_url.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+    auto&& [consumed_size, urlobj] = opt_link_url.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
     current_index += consumed_size;
     if (current_index >= pltext.size() ||
         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8')') {

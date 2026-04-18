@@ -96,7 +96,7 @@ public:
 /**
  * @brief Context for parsing external tags with URL payloads
  * @details Specialized context for `<external=...>` tags where the payload is
- *          stored as MdUrl instead of a plain string id.
+ *          stored as pltxt2htm::Url instead of a plain string id.
  */
 class ExternalTagContext : public ::pltxt2htm::details::BasicFrameContext {
 public:

@@ -129,7 +129,7 @@ public:
 /**
  * @brief Optimization context for external tags with URL payloads
  * @tparam Iter Iterator type for traversing the AST
- * @details Specialized context for `<external=...>` tags to carry MdUrl data.
+ * @details Specialized context for `<external=...>` tags to carry pltxt2htm::Url data.
  */
 template<::std::forward_iterator Iter>
 class OptimizerExternalTagContext : public ::pltxt2htm::details::OptimizerContext<Iter> {
