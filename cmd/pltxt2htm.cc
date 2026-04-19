@@ -89,7 +89,7 @@ int main(int argc, char const* const* const argv) noexcept {
                 ::fast_io::perrln("You can only specify one host name");
                 return 1;
             }
-            host = reinterpret_cast<char8_t const*>(argv[++i]);
+            host = static_cast<char8_t const*>(static_cast<void const*>(argv[++i]));
             continue;
         }
         else if (::std::strcmp(argv[i], "--target") == 0) {
@@ -133,7 +133,7 @@ int main(int argc, char const* const* const argv) noexcept {
                 ::fast_io::perrln("You can only specify one project name");
                 return 1;
             }
-            project = reinterpret_cast<char8_t const*>(argv[++i]);
+            project = static_cast<char8_t const*>(static_cast<void const*>(argv[++i]));
             continue;
         }
         else if (::std::strcmp(argv[i], "--visitor") == 0) {
@@ -145,7 +145,7 @@ int main(int argc, char const* const* const argv) noexcept {
                 ::fast_io::perrln("You can only specify one visitor name");
                 return 1;
             }
-            visitor = reinterpret_cast<char8_t const*>(argv[++i]);
+            visitor = static_cast<char8_t const*>(static_cast<void const*>(argv[++i]));
             continue;
         }
         else if (::std::strcmp(argv[i], "--author") == 0) {
@@ -157,7 +157,7 @@ int main(int argc, char const* const* const argv) noexcept {
                 ::fast_io::perrln("You can only specify one author name");
                 return 1;
             }
-            author = reinterpret_cast<char8_t const*>(argv[++i]);
+            author = static_cast<char8_t const*>(static_cast<void const*>(argv[++i]));
             continue;
         }
         else if (::std::strcmp(argv[i], "--coauthors") == 0) {
@@ -169,7 +169,7 @@ int main(int argc, char const* const* const argv) noexcept {
                 ::fast_io::perrln("You can only specify one coauthors string");
                 return 1;
             }
-            coauthors = reinterpret_cast<char8_t const*>(argv[++i]);
+            coauthors = static_cast<char8_t const*>(static_cast<void const*>(argv[++i]));
             continue;
         }
         else if (::std::strcmp(argv[i], "-h") == 0 || ::std::strcmp(argv[i], "--help") == 0) {
