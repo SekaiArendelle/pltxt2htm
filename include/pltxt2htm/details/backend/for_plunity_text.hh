@@ -297,14 +297,16 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_a: {
-            auto color = static_cast<::pltxt2htm::A const*>(node.release_imul());
+            auto anchor = static_cast<::pltxt2htm::A const*>(node.release_imul());
 
             call_stack.push(
-                ::pltxt2htm::details::BackendBasicFrameContext(color->get_subast(), ::pltxt2htm::NodeType::pl_a, 0));
+                ::pltxt2htm::details::BackendBasicFrameContext(anchor->get_subast(), ::pltxt2htm::NodeType::pl_a, 0));
             ++current_index;
-            result.append(u8"<color=");
-            result.append(color->get_color());
-            result.push_back(u8'>');
+            constexpr auto open_tag =
+                ::pltxt2htm::details::concat(::pltxt2htm::details::LiteralString{u8"<color="},
+                                             ::pltxt2htm::A::get_color_literal(),
+                                             ::pltxt2htm::details::LiteralString{u8">"});
+            result.append(::fast_io::u8string_view{reinterpret_cast<char8_t const*>(open_tag.data()), open_tag.size()});
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_experiment: {
