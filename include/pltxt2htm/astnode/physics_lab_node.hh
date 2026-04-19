@@ -97,7 +97,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__pure__)
     [[__gnu__::__pure__]]
 #endif
-    static constexpr auto get_color_literal() noexcept -> ::pltxt2htm::details::LiteralString<7> const& {
+    static constexpr auto get_color_literal() noexcept -> decltype(color_) const& {
         return color_;
     }
 };
