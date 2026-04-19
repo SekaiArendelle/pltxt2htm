@@ -367,18 +367,16 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_a: {
-            auto color = static_cast<::pltxt2htm::A const*>(node.release_imul());
+            auto anchor = static_cast<::pltxt2htm::A const*>(node.release_imul());
 
             call_stack.push(
-                ::pltxt2htm::details::BackendBasicFrameContext(color->get_subast(), ::pltxt2htm::NodeType::pl_a, 0));
+                ::pltxt2htm::details::BackendBasicFrameContext(anchor->get_subast(), ::pltxt2htm::NodeType::pl_a, 0));
             ++current_index;
-            // TODO this can be concat at compile time
-            constexpr ::fast_io::u8string_view close_tag1 =
-                u8"<span style=\"color:";
-            result.append(::fast_io::u8string_view{close_tag1.data(), close_tag1.size()});
-            result.append(color->get_color());
-            constexpr ::fast_io::u8string_view close_tag2 = u8";\">";
-            result.append(::fast_io::u8string_view{close_tag2.data(), close_tag2.size()});
+            constexpr auto open_tag =
+                ::pltxt2htm::details::concat(::pltxt2htm::details::LiteralString{u8"<span style=\"color:"},
+                                             ::pltxt2htm::A::get_color_literal(),
+                                             ::pltxt2htm::details::LiteralString{u8";\">"});
+            result.append(::fast_io::u8string_view{reinterpret_cast<char8_t const*>(open_tag.data()), open_tag.size()});
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_experiment: {

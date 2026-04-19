@@ -13,6 +13,7 @@
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
 #include <exception/exception.hh>
+#include "../details/literal_string.hh"
 #include "basic.hh"
 
 namespace pltxt2htm {
@@ -69,7 +70,7 @@ public:
  * @details Represents a hyperlink using <a> syntax with default blue color
  */
 class A : public ::pltxt2htm::details::PairedTagBase {
-    static constexpr ::fast_io::u8string_view color_{u8"#0000AA"}; ///< The color of the link text
+    static constexpr ::pltxt2htm::details::LiteralString color_{u8"#0000AA"}; ///< The color of the link text
 
 public:
     constexpr A() noexcept = delete;
@@ -91,6 +92,14 @@ public:
     constexpr ::pltxt2htm::A& operator=(::pltxt2htm::A const&) noexcept = delete;
 
     constexpr ::pltxt2htm::A& operator=(::pltxt2htm::A&&) noexcept = default;
+
+    [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+    [[__gnu__::__pure__]]
+#endif
+    static constexpr auto get_color_literal() noexcept -> ::pltxt2htm::details::LiteralString<7> const& {
+        return color_;
+    }
 
     [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
