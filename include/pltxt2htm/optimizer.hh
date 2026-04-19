@@ -332,7 +332,7 @@ entry:
                 call_stack.push(::pltxt2htm::HeapGuard<
                                 ::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator>>(
                     ::std::addressof(subast), ::pltxt2htm::NodeType::pl_a, subast.begin(),
-                    ::fast_io::mnp::os_c_str(u8"#0000AA")));
+                    anchor_color));
                 goto entry;
             }
             else {
