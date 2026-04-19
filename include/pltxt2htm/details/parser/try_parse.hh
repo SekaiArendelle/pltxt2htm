@@ -41,131 +41,131 @@ constexpr ::exception::optional<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>> 
     switch (u8char) {
     case u8'\\': {
         return static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::HeapGuard<::pltxt2htm::EscapeBackslash>{});
+            ::pltxt2htm::HeapGuard<::pltxt2htm::MdEscapeBackslash>{});
     }
     case u8'!': {
         return static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::HeapGuard<::pltxt2htm::EscapeExclamation>{});
+            ::pltxt2htm::HeapGuard<::pltxt2htm::MdEscapeExclamation>{});
     }
     case u8'\"': {
         return static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::HeapGuard<::pltxt2htm::EscapeDoubleQuote>{});
+            ::pltxt2htm::HeapGuard<::pltxt2htm::MdEscapeDoubleQuote>{});
     }
     case u8'#': {
         return static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::HeapGuard<::pltxt2htm::EscapeHash>{});
+            ::pltxt2htm::HeapGuard<::pltxt2htm::MdEscapeHash>{});
     }
     case u8'$': {
         return static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::HeapGuard<::pltxt2htm::EscapeDollar>{});
+            ::pltxt2htm::HeapGuard<::pltxt2htm::MdEscapeDollar>{});
     }
     case u8'%': {
         return static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::HeapGuard<::pltxt2htm::EscapePercent>{});
+            ::pltxt2htm::HeapGuard<::pltxt2htm::MdEscapePercent>{});
     }
     case u8'&': {
         return static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::HeapGuard<::pltxt2htm::EscapeAmpersand>{});
+            ::pltxt2htm::HeapGuard<::pltxt2htm::MdEscapeAmpersand>{});
     }
     case u8'\'': {
         return static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::HeapGuard<::pltxt2htm::EscapeSingleQuote>{});
+            ::pltxt2htm::HeapGuard<::pltxt2htm::MdEscapeSingleQuote>{});
     }
     case u8'(': {
         return static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::HeapGuard<::pltxt2htm::EscapeLeftParen>{});
+            ::pltxt2htm::HeapGuard<::pltxt2htm::MdEscapeLeftParen>{});
     }
     case u8')': {
         return static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::HeapGuard<::pltxt2htm::EscapeRightParen>{});
+            ::pltxt2htm::HeapGuard<::pltxt2htm::MdEscapeRightParen>{});
     }
     case u8'*': {
         return static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::HeapGuard<::pltxt2htm::EscapeAsterisk>{});
+            ::pltxt2htm::HeapGuard<::pltxt2htm::MdEscapeAsterisk>{});
     }
     case u8'+': {
         return static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::HeapGuard<::pltxt2htm::EscapePlus>{});
+            ::pltxt2htm::HeapGuard<::pltxt2htm::MdEscapePlus>{});
     }
     case u8',': {
         return static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::HeapGuard<::pltxt2htm::EscapeComma>{});
+            ::pltxt2htm::HeapGuard<::pltxt2htm::MdEscapeComma>{});
     }
     case u8'-': {
         return static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::HeapGuard<::pltxt2htm::EscapeHyphen>{});
+            ::pltxt2htm::HeapGuard<::pltxt2htm::MdEscapeHyphen>{});
     }
     case u8'.': {
         return static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::HeapGuard<::pltxt2htm::EscapeDot>{});
+            ::pltxt2htm::HeapGuard<::pltxt2htm::MdEscapeDot>{});
     }
     case u8'/': {
         return static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::HeapGuard<::pltxt2htm::EscapeSlash>{});
+            ::pltxt2htm::HeapGuard<::pltxt2htm::MdEscapeSlash>{});
     }
     case u8':': {
         return static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::HeapGuard<::pltxt2htm::EscapeColon>{});
+            ::pltxt2htm::HeapGuard<::pltxt2htm::MdEscapeColon>{});
     }
     case u8';': {
         return static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::HeapGuard<::pltxt2htm::EscapeSemicolon>{});
+            ::pltxt2htm::HeapGuard<::pltxt2htm::MdEscapeSemicolon>{});
     }
     case u8'<': {
         return static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::HeapGuard<::pltxt2htm::EscapeLessThan>{});
+            ::pltxt2htm::HeapGuard<::pltxt2htm::MdEscapeLessThan>{});
     }
     case u8'=': {
         return static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::HeapGuard<::pltxt2htm::EscapeEquals>{});
+            ::pltxt2htm::HeapGuard<::pltxt2htm::MdEscapeEquals>{});
     }
     case u8'>': {
         return static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::HeapGuard<::pltxt2htm::EscapeGreaterThan>{});
+            ::pltxt2htm::HeapGuard<::pltxt2htm::MdEscapeGreaterThan>{});
     }
     case u8'?': {
         return static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::HeapGuard<::pltxt2htm::EscapeQuestion>{});
+            ::pltxt2htm::HeapGuard<::pltxt2htm::MdEscapeQuestion>{});
     }
     case u8'@': {
         return static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::HeapGuard<::pltxt2htm::EscapeAt>{});
+            ::pltxt2htm::HeapGuard<::pltxt2htm::MdEscapeAt>{});
     }
     case u8'[': {
         return static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::HeapGuard<::pltxt2htm::EscapeLeftBracket>{});
+            ::pltxt2htm::HeapGuard<::pltxt2htm::MdEscapeLeftBracket>{});
     }
     case u8']': {
         return static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::HeapGuard<::pltxt2htm::EscapeRightBracket>{});
+            ::pltxt2htm::HeapGuard<::pltxt2htm::MdEscapeRightBracket>{});
     }
     case u8'^': {
         return static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::HeapGuard<::pltxt2htm::EscapeCaret>{});
+            ::pltxt2htm::HeapGuard<::pltxt2htm::MdEscapeCaret>{});
     }
     case u8'_': {
         return static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::HeapGuard<::pltxt2htm::EscapeUnderscore>{});
+            ::pltxt2htm::HeapGuard<::pltxt2htm::MdEscapeUnderscore>{});
     }
     case u8'`': {
         return static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::HeapGuard<::pltxt2htm::EscapeBacktick>{});
+            ::pltxt2htm::HeapGuard<::pltxt2htm::MdEscapeBacktick>{});
     }
     case u8'{': {
         return static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::HeapGuard<::pltxt2htm::EscapeLeftBrace>{});
+            ::pltxt2htm::HeapGuard<::pltxt2htm::MdEscapeLeftBrace>{});
     }
     case u8'|': {
         return static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::HeapGuard<::pltxt2htm::EscapePipe>{});
+            ::pltxt2htm::HeapGuard<::pltxt2htm::MdEscapePipe>{});
     }
     case u8'}': {
         return static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::HeapGuard<::pltxt2htm::EscapeRightBrace>{});
+            ::pltxt2htm::HeapGuard<::pltxt2htm::MdEscapeRightBrace>{});
     }
     case u8'~': {
         return static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-            ::pltxt2htm::HeapGuard<::pltxt2htm::EscapeTilde>{});
+            ::pltxt2htm::HeapGuard<::pltxt2htm::MdEscapeTilde>{});
     }
     default:
         return ::exception::nullopt_t{};

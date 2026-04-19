@@ -158,577 +158,577 @@ public:
 /**
  * @brief Represents \.
  */
-class EscapeBackslash : public ::pltxt2htm::PlTxtNode {
+class MdEscapeBackslash : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr EscapeBackslash() noexcept
+    constexpr MdEscapeBackslash() noexcept
         : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_backslash) {
     }
 
-    constexpr EscapeBackslash(::pltxt2htm::EscapeBackslash const&) noexcept = delete;
+    constexpr MdEscapeBackslash(::pltxt2htm::MdEscapeBackslash const&) noexcept = delete;
 
-    constexpr EscapeBackslash(::pltxt2htm::EscapeBackslash&&) noexcept = default;
+    constexpr MdEscapeBackslash(::pltxt2htm::MdEscapeBackslash&&) noexcept = default;
 
-    constexpr ::pltxt2htm::EscapeBackslash& operator=(::pltxt2htm::EscapeBackslash const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdEscapeBackslash& operator=(::pltxt2htm::MdEscapeBackslash const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::EscapeBackslash& operator=(::pltxt2htm::EscapeBackslash&&) noexcept = default;
+    constexpr ::pltxt2htm::MdEscapeBackslash& operator=(::pltxt2htm::MdEscapeBackslash&&) noexcept = default;
 };
 
 /**
  * @brief Represents !.
  */
-class EscapeExclamation : public ::pltxt2htm::PlTxtNode {
+class MdEscapeExclamation : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr EscapeExclamation() noexcept
+    constexpr MdEscapeExclamation() noexcept
         : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_exclamation) {
     }
 
-    constexpr EscapeExclamation(::pltxt2htm::EscapeExclamation const&) noexcept = delete;
+    constexpr MdEscapeExclamation(::pltxt2htm::MdEscapeExclamation const&) noexcept = delete;
 
-    constexpr EscapeExclamation(::pltxt2htm::EscapeExclamation&&) noexcept = default;
+    constexpr MdEscapeExclamation(::pltxt2htm::MdEscapeExclamation&&) noexcept = default;
 
-    constexpr ::pltxt2htm::EscapeExclamation& operator=(::pltxt2htm::EscapeExclamation const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdEscapeExclamation& operator=(::pltxt2htm::MdEscapeExclamation const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::EscapeExclamation& operator=(::pltxt2htm::EscapeExclamation&&) noexcept = default;
+    constexpr ::pltxt2htm::MdEscapeExclamation& operator=(::pltxt2htm::MdEscapeExclamation&&) noexcept = default;
 };
 
 /**
  * @brief Represents ".
  */
-class EscapeDoubleQuote : public ::pltxt2htm::PlTxtNode {
+class MdEscapeDoubleQuote : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr EscapeDoubleQuote() noexcept
+    constexpr MdEscapeDoubleQuote() noexcept
         : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_double_quote) {
     }
 
-    constexpr EscapeDoubleQuote(::pltxt2htm::EscapeDoubleQuote const&) noexcept = delete;
+    constexpr MdEscapeDoubleQuote(::pltxt2htm::MdEscapeDoubleQuote const&) noexcept = delete;
 
-    constexpr EscapeDoubleQuote(::pltxt2htm::EscapeDoubleQuote&&) noexcept = default;
+    constexpr MdEscapeDoubleQuote(::pltxt2htm::MdEscapeDoubleQuote&&) noexcept = default;
 
-    constexpr ::pltxt2htm::EscapeDoubleQuote& operator=(::pltxt2htm::EscapeDoubleQuote const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdEscapeDoubleQuote& operator=(::pltxt2htm::MdEscapeDoubleQuote const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::EscapeDoubleQuote& operator=(::pltxt2htm::EscapeDoubleQuote&&) noexcept = default;
+    constexpr ::pltxt2htm::MdEscapeDoubleQuote& operator=(::pltxt2htm::MdEscapeDoubleQuote&&) noexcept = default;
 };
 
 /**
  * @brief Represents #.
  */
-class EscapeHash : public ::pltxt2htm::PlTxtNode {
+class MdEscapeHash : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr EscapeHash() noexcept
+    constexpr MdEscapeHash() noexcept
         : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_hash) {
     }
 
-    constexpr EscapeHash(::pltxt2htm::EscapeHash const&) noexcept = delete;
+    constexpr MdEscapeHash(::pltxt2htm::MdEscapeHash const&) noexcept = delete;
 
-    constexpr EscapeHash(::pltxt2htm::EscapeHash&&) noexcept = default;
+    constexpr MdEscapeHash(::pltxt2htm::MdEscapeHash&&) noexcept = default;
 
-    constexpr ::pltxt2htm::EscapeHash& operator=(::pltxt2htm::EscapeHash const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdEscapeHash& operator=(::pltxt2htm::MdEscapeHash const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::EscapeHash& operator=(::pltxt2htm::EscapeHash&&) noexcept = default;
+    constexpr ::pltxt2htm::MdEscapeHash& operator=(::pltxt2htm::MdEscapeHash&&) noexcept = default;
 };
 
 /**
  * @brief Represents $.
  */
-class EscapeDollar : public ::pltxt2htm::PlTxtNode {
+class MdEscapeDollar : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr EscapeDollar() noexcept
+    constexpr MdEscapeDollar() noexcept
         : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_dollar) {
     }
 
-    constexpr EscapeDollar(::pltxt2htm::EscapeDollar const&) noexcept = delete;
+    constexpr MdEscapeDollar(::pltxt2htm::MdEscapeDollar const&) noexcept = delete;
 
-    constexpr EscapeDollar(::pltxt2htm::EscapeDollar&&) noexcept = default;
+    constexpr MdEscapeDollar(::pltxt2htm::MdEscapeDollar&&) noexcept = default;
 
-    constexpr ::pltxt2htm::EscapeDollar& operator=(::pltxt2htm::EscapeDollar const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdEscapeDollar& operator=(::pltxt2htm::MdEscapeDollar const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::EscapeDollar& operator=(::pltxt2htm::EscapeDollar&&) noexcept = default;
+    constexpr ::pltxt2htm::MdEscapeDollar& operator=(::pltxt2htm::MdEscapeDollar&&) noexcept = default;
 };
 
 /**
  * @brief Represents %.
  */
-class EscapePercent : public ::pltxt2htm::PlTxtNode {
+class MdEscapePercent : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr EscapePercent() noexcept
+    constexpr MdEscapePercent() noexcept
         : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_percent) {
     }
 
-    constexpr EscapePercent(::pltxt2htm::EscapePercent const&) noexcept = delete;
+    constexpr MdEscapePercent(::pltxt2htm::MdEscapePercent const&) noexcept = delete;
 
-    constexpr EscapePercent(::pltxt2htm::EscapePercent&&) noexcept = default;
+    constexpr MdEscapePercent(::pltxt2htm::MdEscapePercent&&) noexcept = default;
 
-    constexpr ::pltxt2htm::EscapePercent& operator=(::pltxt2htm::EscapePercent const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdEscapePercent& operator=(::pltxt2htm::MdEscapePercent const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::EscapePercent& operator=(::pltxt2htm::EscapePercent&&) noexcept = default;
+    constexpr ::pltxt2htm::MdEscapePercent& operator=(::pltxt2htm::MdEscapePercent&&) noexcept = default;
 };
 
 /**
  * @brief Represents &.
  */
-class EscapeAmpersand : public ::pltxt2htm::PlTxtNode {
+class MdEscapeAmpersand : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr EscapeAmpersand() noexcept
+    constexpr MdEscapeAmpersand() noexcept
         : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_ampersand) {
     }
 
-    constexpr EscapeAmpersand(::pltxt2htm::EscapeAmpersand const&) noexcept = delete;
+    constexpr MdEscapeAmpersand(::pltxt2htm::MdEscapeAmpersand const&) noexcept = delete;
 
-    constexpr EscapeAmpersand(::pltxt2htm::EscapeAmpersand&&) noexcept = default;
+    constexpr MdEscapeAmpersand(::pltxt2htm::MdEscapeAmpersand&&) noexcept = default;
 
-    constexpr ::pltxt2htm::EscapeAmpersand& operator=(::pltxt2htm::EscapeAmpersand const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdEscapeAmpersand& operator=(::pltxt2htm::MdEscapeAmpersand const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::EscapeAmpersand& operator=(::pltxt2htm::EscapeAmpersand&&) noexcept = default;
+    constexpr ::pltxt2htm::MdEscapeAmpersand& operator=(::pltxt2htm::MdEscapeAmpersand&&) noexcept = default;
 };
 
 /**
  * @brief Represents '.
  */
-class EscapeSingleQuote : public ::pltxt2htm::PlTxtNode {
+class MdEscapeSingleQuote : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr EscapeSingleQuote() noexcept
+    constexpr MdEscapeSingleQuote() noexcept
         : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_single_quote) {
     }
 
-    constexpr EscapeSingleQuote(::pltxt2htm::EscapeSingleQuote const&) noexcept = delete;
+    constexpr MdEscapeSingleQuote(::pltxt2htm::MdEscapeSingleQuote const&) noexcept = delete;
 
-    constexpr EscapeSingleQuote(::pltxt2htm::EscapeSingleQuote&&) noexcept = default;
+    constexpr MdEscapeSingleQuote(::pltxt2htm::MdEscapeSingleQuote&&) noexcept = default;
 
-    constexpr ::pltxt2htm::EscapeSingleQuote& operator=(::pltxt2htm::EscapeSingleQuote const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdEscapeSingleQuote& operator=(::pltxt2htm::MdEscapeSingleQuote const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::EscapeSingleQuote& operator=(::pltxt2htm::EscapeSingleQuote&&) noexcept = default;
+    constexpr ::pltxt2htm::MdEscapeSingleQuote& operator=(::pltxt2htm::MdEscapeSingleQuote&&) noexcept = default;
 };
 
 /**
  * @brief Represents (.
  */
-class EscapeLeftParen : public ::pltxt2htm::PlTxtNode {
+class MdEscapeLeftParen : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr EscapeLeftParen() noexcept
+    constexpr MdEscapeLeftParen() noexcept
         : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_left_paren) {
     }
 
-    constexpr EscapeLeftParen(::pltxt2htm::EscapeLeftParen const&) noexcept = delete;
+    constexpr MdEscapeLeftParen(::pltxt2htm::MdEscapeLeftParen const&) noexcept = delete;
 
-    constexpr EscapeLeftParen(::pltxt2htm::EscapeLeftParen&&) noexcept = default;
+    constexpr MdEscapeLeftParen(::pltxt2htm::MdEscapeLeftParen&&) noexcept = default;
 
-    constexpr ::pltxt2htm::EscapeLeftParen& operator=(::pltxt2htm::EscapeLeftParen const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdEscapeLeftParen& operator=(::pltxt2htm::MdEscapeLeftParen const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::EscapeLeftParen& operator=(::pltxt2htm::EscapeLeftParen&&) noexcept = default;
+    constexpr ::pltxt2htm::MdEscapeLeftParen& operator=(::pltxt2htm::MdEscapeLeftParen&&) noexcept = default;
 };
 
 /**
  * @brief Represents ).
  */
-class EscapeRightParen : public ::pltxt2htm::PlTxtNode {
+class MdEscapeRightParen : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr EscapeRightParen() noexcept
+    constexpr MdEscapeRightParen() noexcept
         : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_right_paren) {
     }
 
-    constexpr EscapeRightParen(::pltxt2htm::EscapeRightParen const&) noexcept = delete;
+    constexpr MdEscapeRightParen(::pltxt2htm::MdEscapeRightParen const&) noexcept = delete;
 
-    constexpr EscapeRightParen(::pltxt2htm::EscapeRightParen&&) noexcept = default;
+    constexpr MdEscapeRightParen(::pltxt2htm::MdEscapeRightParen&&) noexcept = default;
 
-    constexpr ::pltxt2htm::EscapeRightParen& operator=(::pltxt2htm::EscapeRightParen const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdEscapeRightParen& operator=(::pltxt2htm::MdEscapeRightParen const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::EscapeRightParen& operator=(::pltxt2htm::EscapeRightParen&&) noexcept = default;
+    constexpr ::pltxt2htm::MdEscapeRightParen& operator=(::pltxt2htm::MdEscapeRightParen&&) noexcept = default;
 };
 
 /**
  * @brief Represents *.
  */
-class EscapeAsterisk : public ::pltxt2htm::PlTxtNode {
+class MdEscapeAsterisk : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr EscapeAsterisk() noexcept
+    constexpr MdEscapeAsterisk() noexcept
         : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_asterisk) {
     }
 
-    constexpr EscapeAsterisk(::pltxt2htm::EscapeAsterisk const&) noexcept = delete;
+    constexpr MdEscapeAsterisk(::pltxt2htm::MdEscapeAsterisk const&) noexcept = delete;
 
-    constexpr EscapeAsterisk(::pltxt2htm::EscapeAsterisk&&) noexcept = default;
+    constexpr MdEscapeAsterisk(::pltxt2htm::MdEscapeAsterisk&&) noexcept = default;
 
-    constexpr ::pltxt2htm::EscapeAsterisk& operator=(::pltxt2htm::EscapeAsterisk const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdEscapeAsterisk& operator=(::pltxt2htm::MdEscapeAsterisk const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::EscapeAsterisk& operator=(::pltxt2htm::EscapeAsterisk&&) noexcept = default;
+    constexpr ::pltxt2htm::MdEscapeAsterisk& operator=(::pltxt2htm::MdEscapeAsterisk&&) noexcept = default;
 };
 
 /**
  * @brief Represents +.
  */
-class EscapePlus : public ::pltxt2htm::PlTxtNode {
+class MdEscapePlus : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr EscapePlus() noexcept
+    constexpr MdEscapePlus() noexcept
         : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_plus) {
     }
 
-    constexpr EscapePlus(::pltxt2htm::EscapePlus const&) noexcept = delete;
+    constexpr MdEscapePlus(::pltxt2htm::MdEscapePlus const&) noexcept = delete;
 
-    constexpr EscapePlus(::pltxt2htm::EscapePlus&&) noexcept = default;
+    constexpr MdEscapePlus(::pltxt2htm::MdEscapePlus&&) noexcept = default;
 
-    constexpr ::pltxt2htm::EscapePlus& operator=(::pltxt2htm::EscapePlus const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdEscapePlus& operator=(::pltxt2htm::MdEscapePlus const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::EscapePlus& operator=(::pltxt2htm::EscapePlus&&) noexcept = default;
+    constexpr ::pltxt2htm::MdEscapePlus& operator=(::pltxt2htm::MdEscapePlus&&) noexcept = default;
 };
 
 /**
  * @brief Represents ,.
  */
-class EscapeComma : public ::pltxt2htm::PlTxtNode {
+class MdEscapeComma : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr EscapeComma() noexcept
+    constexpr MdEscapeComma() noexcept
         : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_comma) {
     }
 
-    constexpr EscapeComma(::pltxt2htm::EscapeComma const&) noexcept = delete;
+    constexpr MdEscapeComma(::pltxt2htm::MdEscapeComma const&) noexcept = delete;
 
-    constexpr EscapeComma(::pltxt2htm::EscapeComma&&) noexcept = default;
+    constexpr MdEscapeComma(::pltxt2htm::MdEscapeComma&&) noexcept = default;
 
-    constexpr ::pltxt2htm::EscapeComma& operator=(::pltxt2htm::EscapeComma const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdEscapeComma& operator=(::pltxt2htm::MdEscapeComma const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::EscapeComma& operator=(::pltxt2htm::EscapeComma&&) noexcept = default;
+    constexpr ::pltxt2htm::MdEscapeComma& operator=(::pltxt2htm::MdEscapeComma&&) noexcept = default;
 };
 
 /**
  * @brief Represents -.
  */
-class EscapeHyphen : public ::pltxt2htm::PlTxtNode {
+class MdEscapeHyphen : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr EscapeHyphen() noexcept
+    constexpr MdEscapeHyphen() noexcept
         : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_hyphen) {
     }
 
-    constexpr EscapeHyphen(::pltxt2htm::EscapeHyphen const&) noexcept = delete;
+    constexpr MdEscapeHyphen(::pltxt2htm::MdEscapeHyphen const&) noexcept = delete;
 
-    constexpr EscapeHyphen(::pltxt2htm::EscapeHyphen&&) noexcept = default;
+    constexpr MdEscapeHyphen(::pltxt2htm::MdEscapeHyphen&&) noexcept = default;
 
-    constexpr ::pltxt2htm::EscapeHyphen& operator=(::pltxt2htm::EscapeHyphen const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdEscapeHyphen& operator=(::pltxt2htm::MdEscapeHyphen const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::EscapeHyphen& operator=(::pltxt2htm::EscapeHyphen&&) noexcept = default;
+    constexpr ::pltxt2htm::MdEscapeHyphen& operator=(::pltxt2htm::MdEscapeHyphen&&) noexcept = default;
 };
 
 /**
  * @brief Represents ..
  */
-class EscapeDot : public ::pltxt2htm::PlTxtNode {
+class MdEscapeDot : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr EscapeDot() noexcept
+    constexpr MdEscapeDot() noexcept
         : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_dot) {
     }
 
-    constexpr EscapeDot(::pltxt2htm::EscapeDot const&) noexcept = delete;
+    constexpr MdEscapeDot(::pltxt2htm::MdEscapeDot const&) noexcept = delete;
 
-    constexpr EscapeDot(::pltxt2htm::EscapeDot&&) noexcept = default;
+    constexpr MdEscapeDot(::pltxt2htm::MdEscapeDot&&) noexcept = default;
 
-    constexpr ::pltxt2htm::EscapeDot& operator=(::pltxt2htm::EscapeDot const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdEscapeDot& operator=(::pltxt2htm::MdEscapeDot const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::EscapeDot& operator=(::pltxt2htm::EscapeDot&&) noexcept = default;
+    constexpr ::pltxt2htm::MdEscapeDot& operator=(::pltxt2htm::MdEscapeDot&&) noexcept = default;
 };
 
 /**
  * @brief Represents /.
  */
-class EscapeSlash : public ::pltxt2htm::PlTxtNode {
+class MdEscapeSlash : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr EscapeSlash() noexcept
+    constexpr MdEscapeSlash() noexcept
         : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_slash) {
     }
 
-    constexpr EscapeSlash(::pltxt2htm::EscapeSlash const&) noexcept = delete;
+    constexpr MdEscapeSlash(::pltxt2htm::MdEscapeSlash const&) noexcept = delete;
 
-    constexpr EscapeSlash(::pltxt2htm::EscapeSlash&&) noexcept = default;
+    constexpr MdEscapeSlash(::pltxt2htm::MdEscapeSlash&&) noexcept = default;
 
-    constexpr ::pltxt2htm::EscapeSlash& operator=(::pltxt2htm::EscapeSlash const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdEscapeSlash& operator=(::pltxt2htm::MdEscapeSlash const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::EscapeSlash& operator=(::pltxt2htm::EscapeSlash&&) noexcept = default;
+    constexpr ::pltxt2htm::MdEscapeSlash& operator=(::pltxt2htm::MdEscapeSlash&&) noexcept = default;
 };
 
 /**
  * @brief Represents :.
  */
-class EscapeColon : public ::pltxt2htm::PlTxtNode {
+class MdEscapeColon : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr EscapeColon() noexcept
+    constexpr MdEscapeColon() noexcept
         : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_colon) {
     }
 
-    constexpr EscapeColon(::pltxt2htm::EscapeColon const&) noexcept = delete;
+    constexpr MdEscapeColon(::pltxt2htm::MdEscapeColon const&) noexcept = delete;
 
-    constexpr EscapeColon(::pltxt2htm::EscapeColon&&) noexcept = default;
+    constexpr MdEscapeColon(::pltxt2htm::MdEscapeColon&&) noexcept = default;
 
-    constexpr ::pltxt2htm::EscapeColon& operator=(::pltxt2htm::EscapeColon const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdEscapeColon& operator=(::pltxt2htm::MdEscapeColon const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::EscapeColon& operator=(::pltxt2htm::EscapeColon&&) noexcept = default;
+    constexpr ::pltxt2htm::MdEscapeColon& operator=(::pltxt2htm::MdEscapeColon&&) noexcept = default;
 };
 
 /**
  * @brief Represents ;.
  */
-class EscapeSemicolon : public ::pltxt2htm::PlTxtNode {
+class MdEscapeSemicolon : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr EscapeSemicolon() noexcept
+    constexpr MdEscapeSemicolon() noexcept
         : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_semicolon) {
     }
 
-    constexpr EscapeSemicolon(::pltxt2htm::EscapeSemicolon const&) noexcept = delete;
+    constexpr MdEscapeSemicolon(::pltxt2htm::MdEscapeSemicolon const&) noexcept = delete;
 
-    constexpr EscapeSemicolon(::pltxt2htm::EscapeSemicolon&&) noexcept = default;
+    constexpr MdEscapeSemicolon(::pltxt2htm::MdEscapeSemicolon&&) noexcept = default;
 
-    constexpr ::pltxt2htm::EscapeSemicolon& operator=(::pltxt2htm::EscapeSemicolon const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdEscapeSemicolon& operator=(::pltxt2htm::MdEscapeSemicolon const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::EscapeSemicolon& operator=(::pltxt2htm::EscapeSemicolon&&) noexcept = default;
+    constexpr ::pltxt2htm::MdEscapeSemicolon& operator=(::pltxt2htm::MdEscapeSemicolon&&) noexcept = default;
 };
 
 /**
  * @brief Represents <.
  */
-class EscapeLessThan : public ::pltxt2htm::PlTxtNode {
+class MdEscapeLessThan : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr EscapeLessThan() noexcept
+    constexpr MdEscapeLessThan() noexcept
         : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_less_than) {
     }
 
-    constexpr EscapeLessThan(::pltxt2htm::EscapeLessThan const&) noexcept = delete;
+    constexpr MdEscapeLessThan(::pltxt2htm::MdEscapeLessThan const&) noexcept = delete;
 
-    constexpr EscapeLessThan(::pltxt2htm::EscapeLessThan&&) noexcept = default;
+    constexpr MdEscapeLessThan(::pltxt2htm::MdEscapeLessThan&&) noexcept = default;
 
-    constexpr ::pltxt2htm::EscapeLessThan& operator=(::pltxt2htm::EscapeLessThan const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdEscapeLessThan& operator=(::pltxt2htm::MdEscapeLessThan const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::EscapeLessThan& operator=(::pltxt2htm::EscapeLessThan&&) noexcept = default;
+    constexpr ::pltxt2htm::MdEscapeLessThan& operator=(::pltxt2htm::MdEscapeLessThan&&) noexcept = default;
 };
 
 /**
  * @brief Represents =.
  */
-class EscapeEquals : public ::pltxt2htm::PlTxtNode {
+class MdEscapeEquals : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr EscapeEquals() noexcept
+    constexpr MdEscapeEquals() noexcept
         : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_equals) {
     }
 
-    constexpr EscapeEquals(::pltxt2htm::EscapeEquals const&) noexcept = delete;
+    constexpr MdEscapeEquals(::pltxt2htm::MdEscapeEquals const&) noexcept = delete;
 
-    constexpr EscapeEquals(::pltxt2htm::EscapeEquals&&) noexcept = default;
+    constexpr MdEscapeEquals(::pltxt2htm::MdEscapeEquals&&) noexcept = default;
 
-    constexpr ::pltxt2htm::EscapeEquals& operator=(::pltxt2htm::EscapeEquals const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdEscapeEquals& operator=(::pltxt2htm::MdEscapeEquals const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::EscapeEquals& operator=(::pltxt2htm::EscapeEquals&&) noexcept = default;
+    constexpr ::pltxt2htm::MdEscapeEquals& operator=(::pltxt2htm::MdEscapeEquals&&) noexcept = default;
 };
 
 /**
  * @brief Represents >.
  */
-class EscapeGreaterThan : public ::pltxt2htm::PlTxtNode {
+class MdEscapeGreaterThan : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr EscapeGreaterThan() noexcept
+    constexpr MdEscapeGreaterThan() noexcept
         : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_greater_than) {
     }
 
-    constexpr EscapeGreaterThan(::pltxt2htm::EscapeGreaterThan const&) noexcept = delete;
+    constexpr MdEscapeGreaterThan(::pltxt2htm::MdEscapeGreaterThan const&) noexcept = delete;
 
-    constexpr EscapeGreaterThan(::pltxt2htm::EscapeGreaterThan&&) noexcept = default;
+    constexpr MdEscapeGreaterThan(::pltxt2htm::MdEscapeGreaterThan&&) noexcept = default;
 
-    constexpr ::pltxt2htm::EscapeGreaterThan& operator=(::pltxt2htm::EscapeGreaterThan const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdEscapeGreaterThan& operator=(::pltxt2htm::MdEscapeGreaterThan const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::EscapeGreaterThan& operator=(::pltxt2htm::EscapeGreaterThan&&) noexcept = default;
+    constexpr ::pltxt2htm::MdEscapeGreaterThan& operator=(::pltxt2htm::MdEscapeGreaterThan&&) noexcept = default;
 };
 
 /**
  * @brief Represents ?.
  */
-class EscapeQuestion : public ::pltxt2htm::PlTxtNode {
+class MdEscapeQuestion : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr EscapeQuestion() noexcept
+    constexpr MdEscapeQuestion() noexcept
         : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_question) {
     }
 
-    constexpr EscapeQuestion(::pltxt2htm::EscapeQuestion const&) noexcept = delete;
+    constexpr MdEscapeQuestion(::pltxt2htm::MdEscapeQuestion const&) noexcept = delete;
 
-    constexpr EscapeQuestion(::pltxt2htm::EscapeQuestion&&) noexcept = default;
+    constexpr MdEscapeQuestion(::pltxt2htm::MdEscapeQuestion&&) noexcept = default;
 
-    constexpr ::pltxt2htm::EscapeQuestion& operator=(::pltxt2htm::EscapeQuestion const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdEscapeQuestion& operator=(::pltxt2htm::MdEscapeQuestion const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::EscapeQuestion& operator=(::pltxt2htm::EscapeQuestion&&) noexcept = default;
+    constexpr ::pltxt2htm::MdEscapeQuestion& operator=(::pltxt2htm::MdEscapeQuestion&&) noexcept = default;
 };
 
 /**
  * @brief Represents @.
  */
-class EscapeAt : public ::pltxt2htm::PlTxtNode {
+class MdEscapeAt : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr EscapeAt() noexcept
+    constexpr MdEscapeAt() noexcept
         : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_at) {
     }
 
-    constexpr EscapeAt(::pltxt2htm::EscapeAt const&) noexcept = delete;
+    constexpr MdEscapeAt(::pltxt2htm::MdEscapeAt const&) noexcept = delete;
 
-    constexpr EscapeAt(::pltxt2htm::EscapeAt&&) noexcept = default;
+    constexpr MdEscapeAt(::pltxt2htm::MdEscapeAt&&) noexcept = default;
 
-    constexpr ::pltxt2htm::EscapeAt& operator=(::pltxt2htm::EscapeAt const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdEscapeAt& operator=(::pltxt2htm::MdEscapeAt const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::EscapeAt& operator=(::pltxt2htm::EscapeAt&&) noexcept = default;
+    constexpr ::pltxt2htm::MdEscapeAt& operator=(::pltxt2htm::MdEscapeAt&&) noexcept = default;
 };
 
 /**
  * @brief Represents [.
  */
-class EscapeLeftBracket : public ::pltxt2htm::PlTxtNode {
+class MdEscapeLeftBracket : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr EscapeLeftBracket() noexcept
+    constexpr MdEscapeLeftBracket() noexcept
         : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_left_bracket) {
     }
 
-    constexpr EscapeLeftBracket(::pltxt2htm::EscapeLeftBracket const&) noexcept = delete;
+    constexpr MdEscapeLeftBracket(::pltxt2htm::MdEscapeLeftBracket const&) noexcept = delete;
 
-    constexpr EscapeLeftBracket(::pltxt2htm::EscapeLeftBracket&&) noexcept = default;
+    constexpr MdEscapeLeftBracket(::pltxt2htm::MdEscapeLeftBracket&&) noexcept = default;
 
-    constexpr ::pltxt2htm::EscapeLeftBracket& operator=(::pltxt2htm::EscapeLeftBracket const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdEscapeLeftBracket& operator=(::pltxt2htm::MdEscapeLeftBracket const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::EscapeLeftBracket& operator=(::pltxt2htm::EscapeLeftBracket&&) noexcept = default;
+    constexpr ::pltxt2htm::MdEscapeLeftBracket& operator=(::pltxt2htm::MdEscapeLeftBracket&&) noexcept = default;
 };
 
 /**
  * @brief Represents ].
  */
-class EscapeRightBracket : public ::pltxt2htm::PlTxtNode {
+class MdEscapeRightBracket : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr EscapeRightBracket() noexcept
+    constexpr MdEscapeRightBracket() noexcept
         : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_right_bracket) {
     }
 
-    constexpr EscapeRightBracket(::pltxt2htm::EscapeRightBracket const&) noexcept = delete;
+    constexpr MdEscapeRightBracket(::pltxt2htm::MdEscapeRightBracket const&) noexcept = delete;
 
-    constexpr EscapeRightBracket(::pltxt2htm::EscapeRightBracket&&) noexcept = default;
+    constexpr MdEscapeRightBracket(::pltxt2htm::MdEscapeRightBracket&&) noexcept = default;
 
-    constexpr ::pltxt2htm::EscapeRightBracket& operator=(::pltxt2htm::EscapeRightBracket const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdEscapeRightBracket& operator=(::pltxt2htm::MdEscapeRightBracket const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::EscapeRightBracket& operator=(::pltxt2htm::EscapeRightBracket&&) noexcept = default;
+    constexpr ::pltxt2htm::MdEscapeRightBracket& operator=(::pltxt2htm::MdEscapeRightBracket&&) noexcept = default;
 };
 
 /**
  * @brief Represents ^.
  */
-class EscapeCaret : public ::pltxt2htm::PlTxtNode {
+class MdEscapeCaret : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr EscapeCaret() noexcept
+    constexpr MdEscapeCaret() noexcept
         : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_caret) {
     }
 
-    constexpr EscapeCaret(::pltxt2htm::EscapeCaret const&) noexcept = delete;
+    constexpr MdEscapeCaret(::pltxt2htm::MdEscapeCaret const&) noexcept = delete;
 
-    constexpr EscapeCaret(::pltxt2htm::EscapeCaret&&) noexcept = default;
+    constexpr MdEscapeCaret(::pltxt2htm::MdEscapeCaret&&) noexcept = default;
 
-    constexpr ::pltxt2htm::EscapeCaret& operator=(::pltxt2htm::EscapeCaret const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdEscapeCaret& operator=(::pltxt2htm::MdEscapeCaret const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::EscapeCaret& operator=(::pltxt2htm::EscapeCaret&&) noexcept = default;
+    constexpr ::pltxt2htm::MdEscapeCaret& operator=(::pltxt2htm::MdEscapeCaret&&) noexcept = default;
 };
 
 /**
  * @brief Represents _.
  */
-class EscapeUnderscore : public ::pltxt2htm::PlTxtNode {
+class MdEscapeUnderscore : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr EscapeUnderscore() noexcept
+    constexpr MdEscapeUnderscore() noexcept
         : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_underscore) {
     }
 
-    constexpr EscapeUnderscore(::pltxt2htm::EscapeUnderscore const&) noexcept = delete;
+    constexpr MdEscapeUnderscore(::pltxt2htm::MdEscapeUnderscore const&) noexcept = delete;
 
-    constexpr EscapeUnderscore(::pltxt2htm::EscapeUnderscore&&) noexcept = default;
+    constexpr MdEscapeUnderscore(::pltxt2htm::MdEscapeUnderscore&&) noexcept = default;
 
-    constexpr ::pltxt2htm::EscapeUnderscore& operator=(::pltxt2htm::EscapeUnderscore const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdEscapeUnderscore& operator=(::pltxt2htm::MdEscapeUnderscore const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::EscapeUnderscore& operator=(::pltxt2htm::EscapeUnderscore&&) noexcept = default;
+    constexpr ::pltxt2htm::MdEscapeUnderscore& operator=(::pltxt2htm::MdEscapeUnderscore&&) noexcept = default;
 };
 
 /**
  * @brief Represents a backtick character.
  */
-class EscapeBacktick : public ::pltxt2htm::PlTxtNode {
+class MdEscapeBacktick : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr EscapeBacktick() noexcept
+    constexpr MdEscapeBacktick() noexcept
         : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_backtick) {
     }
 
-    constexpr EscapeBacktick(::pltxt2htm::EscapeBacktick const&) noexcept = delete;
+    constexpr MdEscapeBacktick(::pltxt2htm::MdEscapeBacktick const&) noexcept = delete;
 
-    constexpr EscapeBacktick(::pltxt2htm::EscapeBacktick&&) noexcept = default;
+    constexpr MdEscapeBacktick(::pltxt2htm::MdEscapeBacktick&&) noexcept = default;
 
-    constexpr ::pltxt2htm::EscapeBacktick& operator=(::pltxt2htm::EscapeBacktick const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdEscapeBacktick& operator=(::pltxt2htm::MdEscapeBacktick const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::EscapeBacktick& operator=(::pltxt2htm::EscapeBacktick&&) noexcept = default;
+    constexpr ::pltxt2htm::MdEscapeBacktick& operator=(::pltxt2htm::MdEscapeBacktick&&) noexcept = default;
 };
 
 /**
  * @brief Represents {.
  */
-class EscapeLeftBrace : public ::pltxt2htm::PlTxtNode {
+class MdEscapeLeftBrace : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr EscapeLeftBrace() noexcept
+    constexpr MdEscapeLeftBrace() noexcept
         : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_left_brace) {
     }
 
-    constexpr EscapeLeftBrace(::pltxt2htm::EscapeLeftBrace const&) noexcept = delete;
+    constexpr MdEscapeLeftBrace(::pltxt2htm::MdEscapeLeftBrace const&) noexcept = delete;
 
-    constexpr EscapeLeftBrace(::pltxt2htm::EscapeLeftBrace&&) noexcept = default;
+    constexpr MdEscapeLeftBrace(::pltxt2htm::MdEscapeLeftBrace&&) noexcept = default;
 
-    constexpr ::pltxt2htm::EscapeLeftBrace& operator=(::pltxt2htm::EscapeLeftBrace const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdEscapeLeftBrace& operator=(::pltxt2htm::MdEscapeLeftBrace const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::EscapeLeftBrace& operator=(::pltxt2htm::EscapeLeftBrace&&) noexcept = default;
+    constexpr ::pltxt2htm::MdEscapeLeftBrace& operator=(::pltxt2htm::MdEscapeLeftBrace&&) noexcept = default;
 };
 
 /**
  * @brief Represents |.
  */
-class EscapePipe : public ::pltxt2htm::PlTxtNode {
+class MdEscapePipe : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr EscapePipe() noexcept
+    constexpr MdEscapePipe() noexcept
         : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_pipe) {
     }
 
-    constexpr EscapePipe(::pltxt2htm::EscapePipe const&) noexcept = delete;
+    constexpr MdEscapePipe(::pltxt2htm::MdEscapePipe const&) noexcept = delete;
 
-    constexpr EscapePipe(::pltxt2htm::EscapePipe&&) noexcept = default;
+    constexpr MdEscapePipe(::pltxt2htm::MdEscapePipe&&) noexcept = default;
 
-    constexpr ::pltxt2htm::EscapePipe& operator=(::pltxt2htm::EscapePipe const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdEscapePipe& operator=(::pltxt2htm::MdEscapePipe const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::EscapePipe& operator=(::pltxt2htm::EscapePipe&&) noexcept = default;
+    constexpr ::pltxt2htm::MdEscapePipe& operator=(::pltxt2htm::MdEscapePipe&&) noexcept = default;
 };
 
 /**
  * @brief Represents }.
  */
-class EscapeRightBrace : public ::pltxt2htm::PlTxtNode {
+class MdEscapeRightBrace : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr EscapeRightBrace() noexcept
+    constexpr MdEscapeRightBrace() noexcept
         : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_right_brace) {
     }
 
-    constexpr EscapeRightBrace(::pltxt2htm::EscapeRightBrace const&) noexcept = delete;
+    constexpr MdEscapeRightBrace(::pltxt2htm::MdEscapeRightBrace const&) noexcept = delete;
 
-    constexpr EscapeRightBrace(::pltxt2htm::EscapeRightBrace&&) noexcept = default;
+    constexpr MdEscapeRightBrace(::pltxt2htm::MdEscapeRightBrace&&) noexcept = default;
 
-    constexpr ::pltxt2htm::EscapeRightBrace& operator=(::pltxt2htm::EscapeRightBrace const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdEscapeRightBrace& operator=(::pltxt2htm::MdEscapeRightBrace const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::EscapeRightBrace& operator=(::pltxt2htm::EscapeRightBrace&&) noexcept = default;
+    constexpr ::pltxt2htm::MdEscapeRightBrace& operator=(::pltxt2htm::MdEscapeRightBrace&&) noexcept = default;
 };
 
 /**
  * @brief Represents ~.
  */
-class EscapeTilde : public ::pltxt2htm::PlTxtNode {
+class MdEscapeTilde : public ::pltxt2htm::PlTxtNode {
 public:
-    constexpr EscapeTilde() noexcept
+    constexpr MdEscapeTilde() noexcept
         : ::pltxt2htm::PlTxtNode(::pltxt2htm::NodeType::md_escape_tilde) {
     }
 
-    constexpr EscapeTilde(::pltxt2htm::EscapeTilde const&) noexcept = delete;
+    constexpr MdEscapeTilde(::pltxt2htm::MdEscapeTilde const&) noexcept = delete;
 
-    constexpr EscapeTilde(::pltxt2htm::EscapeTilde&&) noexcept = default;
+    constexpr MdEscapeTilde(::pltxt2htm::MdEscapeTilde&&) noexcept = default;
 
-    constexpr ::pltxt2htm::EscapeTilde& operator=(::pltxt2htm::EscapeTilde const&) noexcept = delete;
+    constexpr ::pltxt2htm::MdEscapeTilde& operator=(::pltxt2htm::MdEscapeTilde const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::EscapeTilde& operator=(::pltxt2htm::EscapeTilde&&) noexcept = default;
+    constexpr ::pltxt2htm::MdEscapeTilde& operator=(::pltxt2htm::MdEscapeTilde&&) noexcept = default;
 };
 
 /**
