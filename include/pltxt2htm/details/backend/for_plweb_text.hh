@@ -234,6 +234,9 @@ constexpr void append_html_attr_escaped(::fast_io::u8string& result, ::fast_io::
 template<::pltxt2htm::Contracts ndebug>
 constexpr void append_url_attr_from_ast(::fast_io::u8string& result, ::pltxt2htm::Ast const& url_ast) noexcept {
     auto const url_str = ::pltxt2htm::details::convert_simple_pltxt_ast_to_plweb_text<ndebug>(url_ast);
+    // Under normal circumstances, `url_str` should never contain characters that could enable XSS in HTML attributes.
+    // To avoid masking upstream bugs (and to keep release-path performance), we only assert this in debug mode.
+    // Do not try to hide such errors by routing output through `append_html_attr_escaped`.
     if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
         ::fast_io::u8string purified_url{};
         ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
@@ -344,6 +347,10 @@ entry:
                 u8"<span style=\"color:";
             result.append(::fast_io::u8string_view{close_tag1.data(), close_tag1.size()});
             auto const& color_value = color->get_color();
+            // Under normal circumstances, `color_value` should never contain characters that could enable XSS in
+            // HTML attributes. To avoid masking upstream bugs (and to keep release-path performance), we only
+            // assert this in debug mode. Do not try to hide such errors by routing output through
+            // `append_html_attr_escaped`.
             if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
                 ::fast_io::u8string purified_color_value{};
                 ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
@@ -383,6 +390,10 @@ entry:
             ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result, host);
             result.append(u8"/ExperimentSummary/Experiment/");
             auto const& experiment_id = experiment->get_id();
+            // Under normal circumstances, `experiment_id` should never contain characters that could enable XSS in
+            // HTML attributes. To avoid masking upstream bugs (and to keep release-path performance), we only
+            // assert this in debug mode. Do not try to hide such errors by routing output through
+            // `append_html_attr_escaped`.
             if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
                 ::fast_io::u8string purified_experiment_id{};
                 ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
@@ -406,6 +417,10 @@ entry:
             ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result, host);
             result.append(u8"/ExperimentSummary/Discussion/");
             auto const& discussion_id = discussion->get_id();
+            // Under normal circumstances, `discussion_id` should never contain characters that could enable XSS in
+            // HTML attributes. To avoid masking upstream bugs (and to keep release-path performance), we only
+            // assert this in debug mode. Do not try to hide such errors by routing output through
+            // `append_html_attr_escaped`.
             if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
                 ::fast_io::u8string purified_discussion_id{};
                 ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
@@ -429,6 +444,10 @@ entry:
                 u8"<span class='RUser' data-user='";
             result.append(::fast_io::u8string_view{open_tag1.data(), open_tag1.size()});
             auto const& user_id = user->get_id();
+            // Under normal circumstances, `user_id` should never contain characters that could enable XSS in HTML
+            // attributes. To avoid masking upstream bugs (and to keep release-path performance), we only assert
+            // this in debug mode. Do not try to hide such errors by routing output through
+            // `append_html_attr_escaped`.
             if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
                 ::fast_io::u8string purified_user_id{};
                 ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
