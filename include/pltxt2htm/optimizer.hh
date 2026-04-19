@@ -294,12 +294,15 @@ entry:
             }
         }
         case ::pltxt2htm::NodeType::pl_a: {
-            auto const color = static_cast<::pltxt2htm::A*>(node.get_unsafe());
+            auto const anchor = static_cast<::pltxt2htm::A*>(node.get_unsafe());
+            constexpr auto anchor_color_literal = ::pltxt2htm::A::get_color_literal();
+            auto const anchor_color = ::fast_io::u8string_view{
+                reinterpret_cast<char8_t const*>(anchor_color_literal.data()), anchor_color_literal.size()};
             {
                 // Optimization: <a><color=blue>text</color></a>
                 // can be simplified to <color=blue>text</color>
                 // The inner color takes precedence over the outer color
-                auto&& subast = color->get_subast();
+                auto&& subast = anchor->get_subast();
                 if (subast.size() == 1) {
                     ::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>& psubnode =
                         ::pltxt2htm::details::vector_front<ndebug>(subast);
@@ -316,12 +319,12 @@ entry:
             bool const is_not_same_tag =
                 (nested_tag_type != ::pltxt2htm::NodeType::pl_color &&
                  nested_tag_type != ::pltxt2htm::NodeType::pl_a) ||
-                color->get_color() !=
+                anchor_color !=
                     static_cast<::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator> const*>(
                         call_stack.top().release_imul())
                         ->id_;
             if (is_not_same_tag) {
-                auto&& subast = color->get_subast();
+                auto&& subast = anchor->get_subast();
                 if (subast.empty()) {
                     ast.erase(current_iter);
                     continue;
@@ -329,13 +332,13 @@ entry:
                 call_stack.push(::pltxt2htm::HeapGuard<
                                 ::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator>>(
                     ::std::addressof(subast), ::pltxt2htm::NodeType::pl_a, subast.begin(),
-                    ::fast_io::mnp::os_c_str(color->get_color())));
+                    ::fast_io::mnp::os_c_str(u8"#0000AA")));
                 goto entry;
             }
             else {
                 // Optimization: If the color is the same as the parent node, then ignore the nested tag.
                 node = static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
-                    ::pltxt2htm::HeapGuard<::pltxt2htm::Text>(::std::move(color->get_subast())));
+                    ::pltxt2htm::HeapGuard<::pltxt2htm::Text>(::std::move(anchor->get_subast())));
                 ++current_iter;
                 continue;
             }
