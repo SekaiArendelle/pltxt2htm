@@ -100,14 +100,6 @@ public:
     static constexpr auto get_color_literal() noexcept -> ::pltxt2htm::details::LiteralString<7> const& {
         return color_;
     }
-
-    [[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-    [[__gnu__::__pure__]]
-#endif
-    constexpr auto&& get_color(this auto&& self) noexcept {
-        return ::std::forward_like<decltype(self)>(self.color_);
-    }
 };
 
 /**
