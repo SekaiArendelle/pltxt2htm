@@ -11,7 +11,6 @@
 #include <limits>
 #include <type_traits>
 #include <utility>
-#include <tuple>
 
 #include <exception/exception.hh>
 
@@ -179,11 +178,21 @@ consteval auto uint_to_literal_string() noexcept {
     return ::pltxt2htm::details::shrink_string_literal_<result>();
 }
 
-template<::pltxt2htm::details::is_leteral_string... Args>
-consteval auto concat(Args const&... args) noexcept {
-    using ch_type = typename ::std::tuple_element_t<0, ::std::tuple<Args...>>::value_type;
-    ::pltxt2htm::details::BasicLiteralString<ch_type, (args.size() + ...)> result{};
+/**
+ * @brief Concatenate multiple LiteralStrings into one
+ * @tparam Args Types of the input strings
+ * @param[in] args The strings to concatenate
+ * @return A new LiteralString containing all input strings concatenated
+ */
+template<::pltxt2htm::details::is_leteral_string Arg, ::pltxt2htm::details::is_leteral_string... Args>
+    requires (::std::is_same_v<typename Arg::value_type, typename Args::value_type> && ...)
+consteval auto concat(Arg const& arg, Args const&... args) noexcept {
+    // TODO impl template-for version
+    ::pltxt2htm::details::BasicLiteralString<typename Arg::value_type, arg.size() + (args.size() + ...)> result{};
     ::std::size_t index{};
+    for (; index < arg.size(); ++index) {
+        result[index] = arg[index];
+    }
     (((
          [args, index, &result]() constexpr noexcept {
              for (::std::size_t i{}; i < args.size(); ++i) {

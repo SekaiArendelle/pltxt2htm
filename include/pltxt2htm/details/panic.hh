@@ -1,7 +1,9 @@
 /**
  * @file panic.hh
  * @brief Panic and error handling utilities for pltxt2htm
- * @details Provides panic functionality for assertion failures and critical errors
+ * @details Provides a compile-time string class that stores string data
+ *          as part of the type, enabling efficient compile-time string operations
+ * @note This is used for compile-time error messages and static string processing
  */
 
 #pragma once
@@ -29,7 +31,7 @@ namespace pltxt2htm::details {
  * @note This function is marked as [[noreturn]] - it never returns and always terminates the program
  * @warning This function should only be called when a critical assertion failure occurs
  */
-template<::pltxt2htm::details::LiteralString expression, ::pltxt2htm::details::LiteralString file_name,
+template<::pltxt2htm::details::U8LiteralString expression, ::pltxt2htm::details::U8LiteralString file_name,
          ::std::uint_least32_t line, ::std::uint_least32_t column, pltxt2htm::details::U8LiteralString msg>
 #if __has_cpp_attribute(__gnu__::__cold__)
 [[__gnu__::__cold__]] // Mark as cold path for compiler optimization
