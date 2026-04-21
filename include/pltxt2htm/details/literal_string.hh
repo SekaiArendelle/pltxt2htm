@@ -20,14 +20,11 @@ namespace pltxt2htm {
 template<typename ch_type, ::std::size_t>
 class BasicLiteralString;
 
-template<typename ch_type, ::std::size_t N>
-using LiteralString = ::pltxt2htm::BasicLiteralString<ch_type, N>;
+template<::std::size_t N>
+using LiteralString = ::pltxt2htm::BasicLiteralString<char, N>;
 
 template<::std::size_t N>
-using U8LiteralString = ::pltxt2htm::LiteralString<char8_t, N>;
-
-template<::std::size_t N>
-using AsciiLiteralString = ::pltxt2htm::LiteralString<char, N>;
+using U8LiteralString = ::pltxt2htm::BasicLiteralString<char8_t, N>;
 
 template<typename ch_type, ::std::size_t N>
 BasicLiteralString(ch_type const (&str)[N]) -> BasicLiteralString<ch_type, N - 1>;
@@ -191,7 +188,7 @@ consteval auto uint_to_literal_string() noexcept {
 template<::pltxt2htm::details::is_leteral_string... Args>
 consteval auto concat(Args const&... args) noexcept {
     using ch_type = typename ::std::tuple_element_t<0, ::std::tuple<Args...>>::value_type;
-    ::pltxt2htm::LiteralString<ch_type, (args.size() + ...)> result{};
+    ::pltxt2htm::BasicLiteralString<ch_type, (args.size() + ...)> result{};
     ::std::size_t index{};
     (((
          [args, index, &result]() constexpr noexcept {
