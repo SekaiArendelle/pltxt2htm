@@ -19,7 +19,7 @@
 
 namespace pltxt2htm::details {
 
-template<typename ch_type, ::std::size_t>
+template<typename, ::std::size_t>
 class BasicLiteralString;
 
 template<::std::size_t N>
@@ -28,22 +28,26 @@ using LiteralString = ::pltxt2htm::details::BasicLiteralString<char, N>;
 template<::std::size_t N>
 using U8LiteralString = ::pltxt2htm::details::BasicLiteralString<char8_t, N>;
 
-template<typename ch_type, ::std::size_t N>
-BasicLiteralString(ch_type const (&str)[N]) -> BasicLiteralString<ch_type, N - 1>;
+template<typename CharType, ::std::size_t N>
+BasicLiteralString(CharType const (&str)[N]) -> BasicLiteralString<CharType, N - 1>;
+
+namespace details {
 
 template<typename T>
 constexpr bool is_literal_string_ = false;
 
-template<typename ch_type, ::std::size_t N>
-constexpr bool is_literal_string_<::pltxt2htm::details::BasicLiteralString<ch_type, N>> = true;
+template<typename CharType, ::std::size_t N>
+constexpr bool is_literal_string_<::pltxt2htm::details::BasicLiteralString<CharType, N>> = true;
+
+}
 
 template<typename T>
-concept is_leteral_string = ::pltxt2htm::details::is_literal_string_<::std::remove_cvref_t<T>>;
+concept is_leteral_string = ::pltxt2htm::details::details::is_literal_string_<::std::remove_cvref_t<T>>;
 
-template<typename ch_type, ::std::size_t N>
+template<typename CharType, ::std::size_t N>
 class BasicLiteralString {
 public:
-    using value_type = ch_type;
+    using value_type = CharType;
     using size_type = ::std::size_t;
     using diffrence_type = ::std::ptrdiff_t;
     using iterator = value_type*;
@@ -53,18 +57,18 @@ public:
 
     constexpr BasicLiteralString() noexcept = default;
 
-    template<typename source_char_type, ::std::size_t M>
-    constexpr BasicLiteralString(source_char_type const (&str)[M]) noexcept {
+    template<::std::size_t M>
+    constexpr BasicLiteralString(CharType const (&str)[M]) noexcept {
         static_assert(N > 0 && N + 1 == M);
         for (::std::size_t i{}; i < N; ++i) {
             this->data_[i] = static_cast<value_type>(str[i]);
         }
     }
 
-    template<::pltxt2htm::details::is_leteral_string Self, ::std::size_t M>
+    template<::std::size_t M>
     [[nodiscard]]
-    constexpr auto operator==(this Self const& self,
-                              ::pltxt2htm::details::BasicLiteralString<typename Self::value_type, M> const& other) noexcept {
+    constexpr auto operator==(this ::pltxt2htm::details::is_leteral_string auto const& self,
+                              ::pltxt2htm::details::BasicLiteralString<value_type, M> const& other) noexcept {
         if constexpr (N != M) {
             return false;
         }
