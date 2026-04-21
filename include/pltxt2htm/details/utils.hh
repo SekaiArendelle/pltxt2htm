@@ -158,7 +158,7 @@ constexpr auto const& stack_top(::fast_io::containers::stack<T> const& stack) {
  * @note prefix_str must contain only lowercase characters due to compile-time constraints
  * @warning This is a compile-time function that generates optimized matching code
  */
-template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::U8LiteralString prefix_str>
+template<::pltxt2htm::Contracts ndebug, pltxt2htm::details::U8LiteralString prefix_str>
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]

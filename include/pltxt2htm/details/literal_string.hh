@@ -15,32 +15,28 @@
 
 #include <exception/exception.hh>
 
-namespace pltxt2htm {
+namespace pltxt2htm::details {
 
 template<typename ch_type, ::std::size_t>
 class BasicLiteralString;
 
 template<::std::size_t N>
-using LiteralString = ::pltxt2htm::BasicLiteralString<char, N>;
+using LiteralString = ::pltxt2htm::details::BasicLiteralString<char, N>;
 
 template<::std::size_t N>
-using U8LiteralString = ::pltxt2htm::BasicLiteralString<char8_t, N>;
+using U8LiteralString = ::pltxt2htm::details::BasicLiteralString<char8_t, N>;
 
 template<typename ch_type, ::std::size_t N>
 BasicLiteralString(ch_type const (&str)[N]) -> BasicLiteralString<ch_type, N - 1>;
-
-namespace details {
 
 template<typename T>
 constexpr bool is_literal_string_ = false;
 
 template<typename ch_type, ::std::size_t N>
-constexpr bool is_literal_string_<::pltxt2htm::BasicLiteralString<ch_type, N>> = true;
+constexpr bool is_literal_string_<::pltxt2htm::details::BasicLiteralString<ch_type, N>> = true;
 
 template<typename T>
 concept is_leteral_string = ::pltxt2htm::details::is_literal_string_<::std::remove_cvref_t<T>>;
-
-} // namespace details
 
 template<typename ch_type, ::std::size_t N>
 class BasicLiteralString {
@@ -66,7 +62,7 @@ public:
     template<::pltxt2htm::details::is_leteral_string Self, ::std::size_t M>
     [[nodiscard]]
     constexpr auto operator==(this Self const& self,
-                              ::pltxt2htm::BasicLiteralString<typename Self::value_type, M> const& other) noexcept {
+                              ::pltxt2htm::details::BasicLiteralString<typename Self::value_type, M> const& other) noexcept {
         if constexpr (N != M) {
             return false;
         }
@@ -104,12 +100,12 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto begin(this ::pltxt2htm::BasicLiteralString<value_type, N> const& self) noexcept {
+    constexpr auto begin(this ::pltxt2htm::details::BasicLiteralString<value_type, N> const& self) noexcept {
         return const_iterator(self.data_);
     }
 
     [[nodiscard]]
-    constexpr auto cbegin(this ::pltxt2htm::BasicLiteralString<value_type, N> const& self) noexcept {
+    constexpr auto cbegin(this ::pltxt2htm::details::BasicLiteralString<value_type, N> const& self) noexcept {
         return const_iterator(self.data_);
     }
 
@@ -120,27 +116,27 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto end(this ::pltxt2htm::BasicLiteralString<value_type, N> const& self) noexcept {
+    constexpr auto end(this ::pltxt2htm::details::BasicLiteralString<value_type, N> const& self) noexcept {
         return const_iterator(self.data_ + N);
     }
 
     [[nodiscard]]
-    constexpr auto cend(this ::pltxt2htm::BasicLiteralString<value_type, N> const& self) noexcept {
+    constexpr auto cend(this ::pltxt2htm::details::BasicLiteralString<value_type, N> const& self) noexcept {
         return const_iterator(self.data_ + N);
     }
 
     [[nodiscard]]
-    constexpr auto data(this ::pltxt2htm::BasicLiteralString<value_type, N>& self) noexcept {
+    constexpr auto data(this ::pltxt2htm::details::BasicLiteralString<value_type, N>& self) noexcept {
         return self.data_;
     }
 
     [[nodiscard]]
-    constexpr auto data(this ::pltxt2htm::BasicLiteralString<value_type, N> const& self) noexcept {
+    constexpr auto data(this ::pltxt2htm::details::BasicLiteralString<value_type, N> const& self) noexcept {
         return ::std::as_const(self.data_);
     }
 
     [[nodiscard]]
-    constexpr auto data(this ::pltxt2htm::BasicLiteralString<value_type, N>&& self) noexcept {
+    constexpr auto data(this ::pltxt2htm::details::BasicLiteralString<value_type, N>&& self) noexcept {
         return ::std::move(self.data_);
     }
 
@@ -151,9 +147,7 @@ public:
     }
 };
 
-namespace details {
-
-template<::pltxt2htm::U8LiteralString str, ::std::size_t M = 0>
+template<::pltxt2htm::details::U8LiteralString str, ::std::size_t M = 0>
 consteval auto shrink_string_literal_() noexcept {
     if constexpr (M >= str.size()) {
         return str;
@@ -161,7 +155,7 @@ consteval auto shrink_string_literal_() noexcept {
     else if constexpr (str[M] == 0) {
         char8_t result[M + 1]{};
         ::std::reverse_copy(str.cbegin(), str.cbegin() + M, result);
-        return ::pltxt2htm::U8LiteralString{result};
+        return ::pltxt2htm::details::U8LiteralString{result};
     }
     else {
         return ::pltxt2htm::details::shrink_string_literal_<str, M + 1>();
@@ -169,7 +163,7 @@ consteval auto shrink_string_literal_() noexcept {
 }
 
 consteval auto uint_to_literal_string_(::std::uint_least32_t number) noexcept {
-    using result_type = ::pltxt2htm::U8LiteralString<::std::numeric_limits<decltype(number)>::digits10 + 2>;
+    using result_type = ::pltxt2htm::details::U8LiteralString<::std::numeric_limits<decltype(number)>::digits10 + 2>;
     auto result = result_type{};
     ::std::size_t index{};
     while (number) {
@@ -188,7 +182,7 @@ consteval auto uint_to_literal_string() noexcept {
 template<::pltxt2htm::details::is_leteral_string... Args>
 consteval auto concat(Args const&... args) noexcept {
     using ch_type = typename ::std::tuple_element_t<0, ::std::tuple<Args...>>::value_type;
-    ::pltxt2htm::BasicLiteralString<ch_type, (args.size() + ...)> result{};
+    ::pltxt2htm::details::BasicLiteralString<ch_type, (args.size() + ...)> result{};
     ::std::size_t index{};
     (((
          [args, index, &result]() constexpr noexcept {
@@ -201,7 +195,5 @@ consteval auto concat(Args const&... args) noexcept {
 
     return result;
 }
-
-} // namespace details
 
 } // namespace pltxt2htm
