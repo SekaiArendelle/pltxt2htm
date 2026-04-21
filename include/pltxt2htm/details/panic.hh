@@ -29,31 +29,28 @@ namespace pltxt2htm::details {
  * @note This function is marked as [[noreturn]] - it never returns and always terminates the program
  * @warning This function should only be called when a critical assertion failure occurs
  */
-template<::pltxt2htm::details::LiteralString expression, ::pltxt2htm::details::LiteralString file_name,
-         ::std::uint_least32_t line, ::std::uint_least32_t column, ::pltxt2htm::details::LiteralString msg>
+template<::pltxt2htm::details::U8LiteralString expression, ::pltxt2htm::details::U8LiteralString file_name,
+         ::std::uint_least32_t line, ::std::uint_least32_t column, pltxt2htm::details::U8LiteralString msg>
 #if __has_cpp_attribute(__gnu__::__cold__)
 [[__gnu__::__cold__]] // Mark as cold path for compiler optimization
 #endif
 [[noreturn]]
 inline void panic() noexcept {
     auto to_be_printed = ::pltxt2htm::details::concat(
-        ::pltxt2htm::details::LiteralString{"Program panicked because \"assert("}, expression,
-        ::pltxt2htm::details::LiteralString{
-            ")\" failed, please file a bug at \"https://github.com/SekaiArendelle/pltxt2htm/issues\" and attach the "
-            "crash info along with the source text\n"
-            "* in file: "},
+        pltxt2htm::details::U8LiteralString{u8"Program panicked because \"assert("}, expression,
+        pltxt2htm::details::U8LiteralString{u8")\" failed, please file a bug at \"https://github.com/SekaiArendelle/pltxt2htm/issues\" and attach the crash info along with the source text\n* in file: "},
         file_name,
-        ::pltxt2htm::details::LiteralString{"\n"
+        pltxt2htm::details::U8LiteralString{u8"\n"
                                             "* in line: "},
         ::pltxt2htm::details::uint_to_literal_string<line>(),
-        ::pltxt2htm::details::LiteralString{"\n"
+        pltxt2htm::details::U8LiteralString{u8"\n"
                                             "* in column: "},
         ::pltxt2htm::details::uint_to_literal_string<column>(),
-        ::pltxt2htm::details::LiteralString{"\n"
+        pltxt2htm::details::U8LiteralString{u8"\n"
                                             "* with message: \""},
-        msg, ::pltxt2htm::details::LiteralString{"\"\n\0"});
+        msg, pltxt2htm::details::U8LiteralString{u8"\"\n\0"});
 
-    ::std::fputs(to_be_printed.cdata(), stderr);
+    ::std::fwrite(to_be_printed.cdata(), sizeof(typename decltype(to_be_printed)::value_type), to_be_printed.size(), stderr);
 
 #if __cpp_lib_stacktrace >= 202011L && defined(PLTXT2HTM_EXPERIMENTAL_ENABLE_STACKTRACE)
     ::std::fputs("* stack trace:\n", stderr);

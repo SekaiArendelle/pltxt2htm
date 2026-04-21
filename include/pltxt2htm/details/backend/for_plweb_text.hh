@@ -242,8 +242,8 @@ constexpr void append_url_attr_from_ast(::fast_io::u8string& result, ::pltxt2htm
         ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
             purified_url, ::fast_io::u8string_view{url_str.data(), url_str.size()});
         pltxt2htm_assert(purified_url == url_str,
-                         "URL contains characters that cannot be directly used in HTML attributes. Please "
-                         "check the URL or use a different backend that supports escaping.");
+                         u8"URL contains characters that cannot be directly used in HTML attributes. Please "
+                         u8"check the URL or use a different backend that supports escaping.");
     }
     result.append(url_str);
 }
@@ -358,8 +358,8 @@ entry:
                 bool const is_valid_color_value{purified_color_value == color_value};
                 pltxt2htm_assert(
                     is_valid_color_value,
-                    "Color value contains characters that cannot be directly used in HTML attributes. Please "
-                    "check the color value or use a different backend that supports escaping.");
+                    u8"Color value contains characters that cannot be directly used in HTML attributes. Please "
+                    u8"check the color value or use a different backend that supports escaping.");
             }
             result.append(color_value);
             constexpr ::fast_io::u8string_view close_tag2 = u8";\">";
@@ -373,10 +373,10 @@ entry:
                 ::pltxt2htm::details::BackendBasicFrameContext(anchor->get_subast(), ::pltxt2htm::NodeType::pl_a, 0));
             ++current_index;
             constexpr auto open_tag =
-                ::pltxt2htm::details::concat(::pltxt2htm::details::LiteralString{u8"<span style=\"color:"},
+                ::pltxt2htm::details::concat(::pltxt2htm::details::U8LiteralString{u8"<span style=\"color:"},
                                              ::pltxt2htm::A::get_color_literal(),
-                                             ::pltxt2htm::details::LiteralString{u8";\">"});
-            result.append(::fast_io::u8string_view{reinterpret_cast<char8_t const*>(open_tag.data()), open_tag.size()});
+                                             ::pltxt2htm::details::U8LiteralString{u8";\">"});
+            result.append(::fast_io::u8string_view{open_tag.data(), open_tag.size()});
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_experiment: {
@@ -399,8 +399,8 @@ entry:
                 bool const is_valid_experiment_id{purified_experiment_id == experiment_id};
                 pltxt2htm_assert(
                     is_valid_experiment_id,
-                    "Experiment ID contains characters that cannot be directly used in HTML attributes. Please check "
-                    "the experiment ID or use a different backend that supports escaping.");
+                    u8"Experiment ID contains characters that cannot be directly used in HTML attributes. Please check "
+                    u8"the experiment ID or use a different backend that supports escaping.");
             }
             result.append(experiment_id);
             result.append(u8"\" internal>");
@@ -426,8 +426,8 @@ entry:
                 bool const is_valid_discussion_id{purified_discussion_id == discussion_id};
                 pltxt2htm_assert(
                     is_valid_discussion_id,
-                    "Discussion ID contains characters that cannot be directly used in HTML attributes. Please check "
-                    "the discussion ID or use a different backend that supports escaping.");
+                    u8"Discussion ID contains characters that cannot be directly used in HTML attributes. Please check "
+                    u8"the discussion ID or use a different backend that supports escaping.");
             }
             result.append(discussion_id);
             result.append(u8"\" internal>");
@@ -453,8 +453,8 @@ entry:
                 bool const is_valid_user_id{purified_user_id == user_id};
                 pltxt2htm_assert(
                     is_valid_user_id,
-                    "User ID contains characters that cannot be directly used in HTML attributes. Please check the "
-                    "user ID or use a different backend that supports escaping.");
+                    u8"User ID contains characters that cannot be directly used in HTML attributes. Please check the "
+                    u8"user ID or use a different backend that supports escaping.");
             }
             result.append(user_id);
             constexpr ::fast_io::u8string_view open_tag2 = u8"'>";

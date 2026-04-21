@@ -12,8 +12,15 @@
 #include "../contracts.hh"
 #include "panic.hh"
 
-#pragma push_macro("pltxt2htm_assert")
-#undef pltxt2htm_assert
+
+#pragma push_macro("PLTXT2HTM_U8_CONSTANT_STR_HELPER_")
+#undef PLTXT2HTM_U8_CONSTANT_STR_HELPER_
+#define PLTXT2HTM_U8_CONSTANT_STR_HELPER_(str) u8 ## str
+
+#pragma push_macro("PLTXT2HTM_U8_CONSTANT_STR_")
+#undef PLTXT2HTM_U8_CONSTANT_STR_
+#define PLTXT2HTM_U8_CONSTANT_STR_(str) PLTXT2HTM_U8_CONSTANT_STR_HELPER_(str)
+
 /**
  * @brief Assert whether the condition expression is true, if not, print
  *        the message and terminate the program.
@@ -32,14 +39,16 @@
  *
  * @see pltxt2htm::details::panic()
  */
+#pragma push_macro("pltxt2htm_assert")
+#undef pltxt2htm_assert
 #define pltxt2htm_assert(condition, message) \
     do { \
         if constexpr (ndebug != ::pltxt2htm::Contracts::ignore) { \
             if ((condition) == false) [[unlikely]] { \
                 constexpr auto source_location = ::std::source_location::current(); \
                 ::pltxt2htm::details::panic< \
-                    ::pltxt2htm::details::LiteralString{#condition}, ::pltxt2htm::details::LiteralString{__FILE__}, \
-                    source_location.line(), source_location.column(), ::pltxt2htm::details::LiteralString{message}>(); \
+                    ::pltxt2htm::details::U8LiteralString{PLTXT2HTM_U8_CONSTANT_STR_(#condition)}, ::pltxt2htm::details::U8LiteralString{PLTXT2HTM_U8_CONSTANT_STR_(__FILE__)}, \
+                    source_location.line(), source_location.column(), pltxt2htm::details::U8LiteralString{message}>(); \
             } \
         } \
         else { \

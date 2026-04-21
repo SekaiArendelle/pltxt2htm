@@ -297,7 +297,7 @@ entry:
             auto const anchor = static_cast<::pltxt2htm::A*>(node.get_unsafe());
             constexpr auto anchor_color_literal = ::pltxt2htm::A::get_color_literal();
             auto const anchor_color = ::fast_io::u8string_view{
-                reinterpret_cast<char8_t const*>(anchor_color_literal.data()), anchor_color_literal.size()};
+                anchor_color_literal.data(), anchor_color_literal.size()};
             {
                 // Optimization: <a><color=blue>text</color></a>
                 // can be simplified to <color=blue>text</color>

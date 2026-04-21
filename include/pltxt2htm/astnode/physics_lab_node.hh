@@ -70,7 +70,7 @@ public:
  * @details Represents a hyperlink using <a> syntax with default blue color
  */
 class A : public ::pltxt2htm::details::PairedTagBase {
-    static constexpr ::pltxt2htm::details::LiteralString color_{u8"#0000AA"}; ///< The color of the link text
+    static constexpr ::pltxt2htm::details::U8LiteralString color_{u8"#0000AA"}; ///< The color of the link text
 
 public:
     constexpr A() noexcept = delete;
