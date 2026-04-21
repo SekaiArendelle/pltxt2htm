@@ -210,6 +210,7 @@ constexpr bool is_prefix_match(::fast_io::u8string_view str) noexcept {
                 ...);
     }(::std::make_index_sequence<prefix_str.size()>{});
 #endif
+    ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
 }
 
 /**
