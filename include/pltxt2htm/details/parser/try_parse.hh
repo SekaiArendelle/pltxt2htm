@@ -331,7 +331,7 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
  * &lt;div&gt;, &lt;span&gt;, and &lt;p&gt; are valid bare tags.
  */
 template<::pltxt2htm::Contracts ndebug,
-         pltxt2htm::details::U8LiteralString tag_name = pltxt2htm::details::U8LiteralString<0>{}>
+         ::pltxt2htm::details::U8LiteralString tag_name = ::pltxt2htm::details::U8LiteralString<0>{}>
 [[nodiscard]] constexpr auto try_parse_bare_tag(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::std::size_t> {
     constexpr ::std::size_t tag_name_size{tag_name.size()};
@@ -363,7 +363,7 @@ template<::pltxt2htm::Contracts ndebug>
                                               ::pltxt2htm::NodeType const nested_tag_type) noexcept
     -> ::exception::optional<::std::size_t> {
     auto opt_tag_len =
-        ::pltxt2htm::details::try_parse_bare_tag<ndebug, pltxt2htm::details::U8LiteralString{u8"i"}>(pltext);
+        ::pltxt2htm::details::try_parse_bare_tag<ndebug, ::pltxt2htm::details::U8LiteralString{u8"i"}>(pltext);
     if (!opt_tag_len.has_value()) {
         return ::exception::nullopt_t{};
     }
@@ -442,7 +442,7 @@ constexpr bool is_valid_color(::fast_io::u8string_view color) noexcept {
  * @note Leading/trailing spaces in the value are trimmed.
  * @note The validation function must be callable with a char8_t and return a boolean.
  */
-template<::pltxt2htm::Contracts ndebug, pltxt2htm::details::U8LiteralString prefix_str, typename Func>
+template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::U8LiteralString prefix_str, typename Func>
     requires requires(Func&& func, char8_t chr) {
         { func(chr) } -> ::std::same_as<bool>;
     }
@@ -451,7 +451,7 @@ constexpr auto try_parse_equal_sign_tag(::fast_io::u8string_view pltext, Func&& 
     -> ::exception::optional<TryParseEqualSignTagResult> {
     ::std::size_t prefix_size{prefix_str.size()};
     constexpr auto prefix_with_equal =
-        ::pltxt2htm::details::concat(prefix_str, pltxt2htm::details::U8LiteralString{u8"="});
+        ::pltxt2htm::details::concat(prefix_str, ::pltxt2htm::details::U8LiteralString{u8"="});
     if (::pltxt2htm::details::is_prefix_match<ndebug, prefix_with_equal>(pltext) == false) {
         return ::exception::nullopt_t{};
     }
@@ -512,7 +512,7 @@ constexpr auto try_parse_equal_sign_tag(::fast_io::u8string_view pltext, Func&& 
  * @param[in] call_stack Active parser stack used to detect forbidden nesting.
  * @return Parsed tag result on success, otherwise nullopt.
  */
-template<::pltxt2htm::Contracts ndebug, pltxt2htm::details::U8LiteralString prefix_str, typename Func>
+template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::U8LiteralString prefix_str, typename Func>
     requires requires(Func&& func, char8_t chr) {
         { func(chr) } -> ::std::same_as<bool>;
     }
@@ -609,7 +609,7 @@ constexpr auto try_parse_self_closing_tag(::fast_io::u8string_view pltext) noexc
  * @param[in] pltext The input text to parse from current position.
  * @return Position of closing `>` on success, otherwise nullopt.
  */
-template<::pltxt2htm::Contracts ndebug, pltxt2htm::details::U8LiteralString tag_name>
+template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::U8LiteralString tag_name>
 [[nodiscard]]
 constexpr auto try_parse_self_closing_tag(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::std::size_t> {
@@ -726,7 +726,7 @@ constexpr auto try_parse_md_atx_heading(::fast_io::u8string_view pltext) noexcep
         }
         else if (auto opt =
                      ::pltxt2htm::details::try_parse_self_closing_tag<ndebug,
-                                                                      pltxt2htm::details::U8LiteralString{u8"<br"}>(
+                                                                      ::pltxt2htm::details::U8LiteralString{u8"<br"}>(
                          ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, end_index));
                  opt.has_value()) {
             extra_length = opt.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1;
@@ -820,7 +820,7 @@ constexpr auto try_parse_md_thematic_break(::fast_io::u8string_view text) noexce
             }
             else if (auto opt_tag_len =
                          ::pltxt2htm::details::try_parse_self_closing_tag<ndebug,
-                                                                          pltxt2htm::details::U8LiteralString{u8"<br"}>(
+                                                                          ::pltxt2htm::details::U8LiteralString{u8"<br"}>(
                              ::pltxt2htm::details::u8string_view_subview<ndebug>(text, i));
                      opt_tag_len.has_value()) {
                 return i + opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1;
@@ -863,7 +863,7 @@ struct SimplyParsePLtextResult {
  * @note UTF-8 multi-byte characters are properly handled and converted to U8Char nodes.
  * @note The function consumes the termination string and stops parsing immediately after it.
  */
-template<::pltxt2htm::Contracts ndebug, pltxt2htm::details::U8LiteralString end_string>
+template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::U8LiteralString end_string>
 [[nodiscard]]
 constexpr auto simply_parse_pltext(::fast_io::u8string_view pltext) noexcept
     -> ::pltxt2htm::details::SimplyParsePLtextResult {
@@ -968,10 +968,10 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
 
     constexpr auto fence = []() static constexpr noexcept {
         if constexpr (is_backtick) {
-            return pltxt2htm::details::U8LiteralString{u8"```"};
+            return ::pltxt2htm::details::U8LiteralString{u8"```"};
         }
         else {
-            return pltxt2htm::details::U8LiteralString{u8"~~~"};
+            return ::pltxt2htm::details::U8LiteralString{u8"~~~"};
         }
     }();
     constexpr ::std::size_t fence_size{fence.size()};
@@ -1055,14 +1055,14 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
     // parsing context of code fence
     ::pltxt2htm::Ast ast{};
     if constexpr (is_backtick) {
-        constexpr auto end_string = ::pltxt2htm::details::concat(pltxt2htm::details::U8LiteralString{u8"\n"}, fence);
+        constexpr auto end_string = ::pltxt2htm::details::concat(::pltxt2htm::details::U8LiteralString{u8"\n"}, fence);
         auto&& [forward_index, ast_] = ::pltxt2htm::details::simply_parse_pltext<ndebug, end_string>(
             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
         ast = ::std::move(ast_);
         current_index += forward_index;
     }
     else {
-        constexpr auto end_string = ::pltxt2htm::details::concat(pltxt2htm::details::U8LiteralString{u8"\n"}, fence);
+        constexpr auto end_string = ::pltxt2htm::details::concat(::pltxt2htm::details::U8LiteralString{u8"\n"}, fence);
         auto&& [forward_index, ast_] = ::pltxt2htm::details::simply_parse_pltext<ndebug, end_string>(
             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
         ast = ::std::move(ast_);
@@ -1142,7 +1142,7 @@ constexpr auto try_parse_md_code_fence(::fast_io::u8string_view pltext) noexcept
  * @see https://spec.commonmark.org/0.31.2/#emphasis-and-strong-emphasis
  * @see https://spec.commonmark.org/0.31.2/#code-spans
  */
-template<::pltxt2htm::Contracts ndebug, pltxt2htm::details::U8LiteralString embraced_chars>
+template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::U8LiteralString embraced_chars>
 [[nodiscard]]
 constexpr auto try_parse_md_inlines(::fast_io::u8string_view pltext) noexcept -> ::exception::optional<::std::size_t> {
     constexpr ::std::size_t embraced_size{embraced_chars.size()};
@@ -1276,7 +1276,7 @@ struct TryParseMdCodeSpanResult {
  * @note Empty code spans are valid and will be parsed.
  * @see https://spec.commonmark.org/0.31.2/#code-spans
  */
-template<::pltxt2htm::Contracts ndebug, pltxt2htm::details::U8LiteralString embraced_string>
+template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::U8LiteralString embraced_string>
 [[nodiscard]]
 constexpr auto try_parse_md_code_span(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseMdCodeSpanResult> {
@@ -1331,7 +1331,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_latex_block_dollar(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseMdLatexResult> {
-    constexpr auto double_dollar = pltxt2htm::details::U8LiteralString{u8"$$"};
+    constexpr auto double_dollar = ::pltxt2htm::details::U8LiteralString{u8"$$"};
     if (pltext.size() < 4 || ::pltxt2htm::details::is_prefix_match<ndebug, double_dollar>(pltext) == false) {
         return ::exception::nullopt_t{};
     }
@@ -1542,11 +1542,11 @@ template<::pltxt2htm::Contracts ndebug, bool regard_right_parent_as_end_of_url =
 constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseUrlResult> {
     ::std::size_t current_index{[pltext] constexpr noexcept -> ::std::size_t {
-        if (constexpr auto http = pltxt2htm::details::U8LiteralString{u8"http://"};
+        if (constexpr auto http = ::pltxt2htm::details::U8LiteralString{u8"http://"};
             ::pltxt2htm::details::is_prefix_match<ndebug, http>(pltext)) {
             return http.size();
         }
-        else if (constexpr auto https = pltxt2htm::details::U8LiteralString{u8"https://"};
+        else if (constexpr auto https = ::pltxt2htm::details::U8LiteralString{u8"https://"};
                  ::pltxt2htm::details::is_prefix_match<ndebug, https>(pltext)) {
             return https.size();
         }

@@ -1,9 +1,7 @@
 /**
  * @file panic.hh
  * @brief Panic and error handling utilities for pltxt2htm
- * @details Provides a compile-time string class that stores string data
- *          as part of the type, enabling efficient compile-time string operations
- * @note This is used for compile-time error messages and static string processing
+ * @details Provides panic functionality for assertion failures and critical errors
  */
 
 #pragma once
