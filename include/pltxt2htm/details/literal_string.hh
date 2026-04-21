@@ -173,11 +173,12 @@ consteval auto uint_to_literal_string() noexcept {
 }
 
 template<typename result_type>
-constexpr void concat_memcpy(::pltxt2htm::details::is_leteral_string auto const& args, ::std::size_t& index,
+consteval void concat_memcpy(::pltxt2htm::details::is_leteral_string auto const& args, ::std::size_t& index,
                              result_type& result) noexcept {
     for (::std::size_t i{}; i < args.size(); ++i) {
         result[i + index] = args[i];
     }
+    index += args.size();
 }
 
 /**
@@ -189,12 +190,10 @@ constexpr void concat_memcpy(::pltxt2htm::details::is_leteral_string auto const&
 template<::pltxt2htm::details::is_leteral_string Arg, ::pltxt2htm::details::is_leteral_string... Args>
     requires (::std::is_same_v<typename Arg::value_type, typename Args::value_type> && ...)
 consteval auto concat(Arg const& arg, Args const&... args) noexcept {
-    ::pltxt2htm::details::BasicLiteralString<typename Arg::value_type, arg.size() + (args.size() + ...)> result{};
+    auto result = ::pltxt2htm::details::BasicLiteralString<typename Arg::value_type, arg.size() + (args.size() + ...)>{};
     ::std::size_t index{};
-    for (; index < arg.size(); ++index) {
-        result[index] = arg[index];
-    }
-    ((::pltxt2htm::details::concat_memcpy(args, index, result), index += args.size()), ...);
+    ::pltxt2htm::details::concat_memcpy(arg, index, result);
+    (::pltxt2htm::details::concat_memcpy(args, index, result), ...);
 
     return result;
 }

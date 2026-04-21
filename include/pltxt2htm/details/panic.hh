@@ -50,7 +50,7 @@ inline void panic() noexcept {
                                             "* with message: \""},
         msg, pltxt2htm::details::U8LiteralString{u8"\"\n\0"});
 
-    ::std::fwrite(to_be_printed.cdata(), 1, to_be_printed.size(), stderr);
+    ::std::fwrite(to_be_printed.cdata(), sizeof(typename decltype(to_be_printed)::value_type), to_be_printed.size(), stderr);
 
 #if __cpp_lib_stacktrace >= 202011L && defined(PLTXT2HTM_EXPERIMENTAL_ENABLE_STACKTRACE)
     ::std::fputs("* stack trace:\n", stderr);
