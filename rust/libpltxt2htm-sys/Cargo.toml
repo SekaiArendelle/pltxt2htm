@@ -1,6 +1,11 @@
 [package]
 name = "libpltxt2htm-sys"
 edition = "2021"
+build = "build.rs"
+links = "pltxt2htm"
 
 [dependencies]
 libc = "0.2"
+
+[build-dependencies]
+cc = "1"
