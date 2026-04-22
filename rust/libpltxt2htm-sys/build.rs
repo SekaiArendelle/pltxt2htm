@@ -9,6 +9,14 @@ fn profile_mode() -> &'static str {
     }
 }
 
+fn static_lib_name(target: &str) -> &'static str {
+    if target.contains("windows") && profile_mode() == "debug" {
+        "pltxt2htmd"
+    } else {
+        "pltxt2htm"
+    }
+}
+
 fn try_run_xmake(c_root: &Path, out_dir: &Path) -> Result<(), String> {
     let install_dir = out_dir.join("pltxt2htm-install");
 
@@ -90,9 +98,9 @@ fn main() {
         }
     }
 
-    println!("cargo:rustc-link-lib=static=pltxt2htm");
-
     let target = std::env::var("TARGET").unwrap_or_default();
+    println!("cargo:rustc-link-lib=static={}", static_lib_name(&target));
+
     if target.contains("msvc") {
         return;
     }
