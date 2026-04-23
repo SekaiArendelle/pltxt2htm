@@ -5,8 +5,24 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+find_package(ZLIB REQUIRED)
+find_package(LibXml2 REQUIRED)
+find_package(zstd CONFIG REQUIRED)
 find_package(LLVM REQUIRED CONFIG)
 find_package(Clang REQUIRED CONFIG)
+
+# Conda-forge LLVM on Windows may export a VSINSTALLDIR DIA path that is
+# unavailable in pixi non-VS environments.
+if(WIN32 AND TARGET LLVMDebugInfoCodeView)
+    set_property(TARGET LLVMDebugInfoCodeView PROPERTY
+        INTERFACE_LINK_LIBRARIES "LLVMBinaryFormat;LLVMObject;LLVMSupport;LLVMDebugInfoMSF"
+    )
+endif()
+if(WIN32 AND TARGET LLVMDebugInfoPDB)
+    set_property(TARGET LLVMDebugInfoPDB PROPERTY
+        INTERFACE_LINK_LIBRARIES "LLVMBinaryFormat;LLVMObject;LLVMSupport;LLVMDebugInfoCodeView;LLVMDebugInfoMSF"
+    )
+endif()
 
 add_executable(pltxt2htm_csharp_translator src/main.cc)
 
@@ -21,24 +37,14 @@ target_link_libraries(pltxt2htm_csharp_translator PRIVATE
     clangAST
     clangBasic
     clangFrontend
+    clangFrontendTool
     clangLex
     clangSerialization
     clangTooling
+    clangToolingCore
     LLVMCore
     LLVMSupport
-)
-
-set(PLTXT2HTM_HEADER "${CMAKE_CURRENT_LIST_DIR}/../../include/pltxt2htm/pltxt2htm.hh")
-set(OUTPUT_CS "${CMAKE_CURRENT_LIST_DIR}/dist/Pltxt2htm.Generated.cs")
-set(INCLUDE_DIR "${CMAKE_CURRENT_LIST_DIR}/../../include")
-
-add_custom_target(translate
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_LIST_DIR}/dist"
-    COMMAND $<TARGET_FILE:pltxt2htm_csharp_translator>
-        --header "${PLTXT2HTM_HEADER}"
-        --output "${OUTPUT_CS}"
-        --include "${INCLUDE_DIR}"
-    DEPENDS pltxt2htm_csharp_translator
-    WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}"
-    COMMENT "Translating include/pltxt2htm to C# with clang/LLVM C++ API"
+    ZLIB::ZLIB
+    LibXml2::LibXml2
+    zstd::libzstd
 )
