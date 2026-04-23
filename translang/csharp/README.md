@@ -11,16 +11,19 @@ Install `pixi` first.
 From `translang/csharp`:
 
 ```powershell
-pixi install
-pixi run build
+pixi run install
 ```
+
+(`pixi run build` is still available if you only want to run the build step.)
 
 ## Generate translated C# output
 
-```sh
-./build/pltxt2htm_csharp_translator
+`--output-dir` is required.
+
+```powershell
+.\dist\pltxt2htm_csharp_translator.exe --output-dir .\generated
 ```
 
 Generated file:
 
-`dist/Pltxt2htm.Generated.cs`
+`generated/Pltxt2htm.Generated.cs`

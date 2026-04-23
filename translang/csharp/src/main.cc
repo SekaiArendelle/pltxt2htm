@@ -24,6 +24,10 @@ struct Paths {
     std::filesystem::path include_dir{};
 };
 
+struct CliOptions {
+    std::filesystem::path output_dir{};
+};
+
 enum class ContractValue : int {
     quick_enforce = 0,
     ignore = 1,
@@ -46,13 +50,35 @@ struct ApiInstantiationSet {
 };
 
 [[nodiscard]]
-auto hardcoded_paths() -> Paths {
+auto hardcoded_paths(std::filesystem::path const& output_dir) -> Paths {
     // Paths are intentionally hardcoded from translang/csharp working directory.
     return Paths{
         .header_path = "..\\..\\include\\pltxt2htm\\pltxt2htm.hh",
-        .output_path = "dist\\Pltxt2htm.Generated.cs",
+        .output_path = output_dir / "Pltxt2htm.Generated.cs",
         .include_dir = "..\\..\\include",
     };
+}
+
+[[nodiscard]]
+auto parse_cli_options(int argc, char const* const* argv) -> CliOptions {
+    CliOptions options{};
+    bool has_output_dir = false;
+    for (int i = 1; i < argc; ++i) {
+        std::string_view arg{argv[i]};
+        if (arg == "--output-dir") {
+            if (i + 1 >= argc) {
+                throw std::runtime_error("missing value for --output-dir");
+            }
+            options.output_dir = argv[++i];
+            has_output_dir = true;
+            continue;
+        }
+        throw std::runtime_error("unknown argument: " + std::string(arg));
+    }
+    if (!has_output_dir) {
+        throw std::runtime_error("missing required argument: --output-dir <directory>");
+    }
+    return options;
 }
 
 [[nodiscard]]
@@ -394,9 +420,10 @@ void write_text_file(std::filesystem::path const& path, std::string const& conte
 
 } // namespace
 
-int main() {
+int main(int argc, char const* const* argv) {
     try {
-        auto paths = hardcoded_paths();
+        auto const cli = parse_cli_options(argc, argv);
+        auto paths = hardcoded_paths(cli.output_dir);
 
         auto header_text = read_text_file(paths.header_path);
         if (header_text.find("pltxt2advanced_html") == std::string::npos) {

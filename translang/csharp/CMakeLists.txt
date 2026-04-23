@@ -48,3 +48,26 @@ target_link_libraries(pltxt2htm_csharp_translator PRIVATE
     LibXml2::LibXml2
     zstd::libzstd
 )
+
+install(TARGETS pltxt2htm_csharp_translator
+    RUNTIME DESTINATION dist
+)
+
+if(WIN32)
+    install(FILES $<TARGET_RUNTIME_DLLS:pltxt2htm_csharp_translator>
+        DESTINATION dist
+    )
+
+    if(DEFINED ENV{CONDA_PREFIX})
+        set(_conda_prefix "$ENV{CONDA_PREFIX}")
+        file(TO_CMAKE_PATH "${_conda_prefix}" _conda_prefix)
+        set(_conda_bin "${_conda_prefix}/Library/bin")
+        install(FILES
+            "${_conda_bin}/zlib.dll"
+            "${_conda_bin}/zstd.dll"
+            "${_conda_bin}/libzstd.dll"
+            DESTINATION dist
+            OPTIONAL
+        )
+    endif()
+endif()
