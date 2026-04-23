@@ -71,7 +71,7 @@ fn fallback_build_by_cc(c_root: &Path) {
         .warnings(false);
 
     if std::env::var_os("CXX").is_none() {
-        for cxx in ["clang++", "g++", "c++", "clang++-20", "clang++-19", "g++-14", "g++-13"] {
+        for cxx in ["clang++", "g++", "c++", "clang++-22", "clang++-21", "clang++-20", "g++-16", "g++-15", "g++-14"] {
             if Command::new(cxx).arg("--version").status().is_ok() {
                 build.compiler(cxx);
                 println!("cargo:warning=Using C++ compiler fallback: {cxx}");
