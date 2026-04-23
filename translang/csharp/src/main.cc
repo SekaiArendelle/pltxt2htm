@@ -53,9 +53,9 @@ struct ApiInstantiationSet {
 auto hardcoded_paths(std::filesystem::path const& output_dir) -> Paths {
     // Paths are intentionally hardcoded from translang/csharp working directory.
     return Paths{
-        .header_path = "..\\..\\include\\pltxt2htm\\pltxt2htm.hh",
+        .header_path = "../../include/pltxt2htm/pltxt2htm.hh",
         .output_path = output_dir / "Pltxt2htm.Generated.cs",
-        .include_dir = "..\\..\\include",
+        .include_dir = "../../include",
     };
 }
 
