@@ -70,8 +70,14 @@ fn fallback_build_by_cc(c_root: &Path) {
         .include("../../include")
         .warnings(false);
 
-    if Command::new("clang++-20").arg("--version").status().is_ok() {
-        build.compiler("clang++-20");
+    if std::env::var_os("CXX").is_none() {
+        for cxx in ["clang++", "g++", "c++", "clang++-20", "clang++-19", "g++-14", "g++-13"] {
+            if Command::new(cxx).arg("--version").status().is_ok() {
+                build.compiler(cxx);
+                println!("cargo:warning=Using C++ compiler fallback: {cxx}");
+                break;
+            }
+        }
     }
 
     if profile_mode() == "release" {
