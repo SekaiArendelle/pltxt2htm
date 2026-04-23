@@ -12,6 +12,9 @@ dist/
 # xmake
 **/.xmake/
 
+# pixi
+**/.pixi/
+
 # vscode
 .vscode/
 
