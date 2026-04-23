@@ -1,0 +1,6 @@
+build/
+.pixi/
+__pycache__/
+*.pyc
+generated/*.cs
+!generated/.gitkeep
