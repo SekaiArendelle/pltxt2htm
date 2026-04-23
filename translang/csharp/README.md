@@ -1,11 +1,10 @@
 # translang/csharp
 
-这个目录是 `include/pltxt2htm` -> C# 的自动翻译实验管线。
+这个目录是 `include/pltxt2htm` -> C# 的自动翻译实验管线（基于 Python + uv）。
 
 ## 设计目标
 
-- 使用 **pixi** 管理依赖（Python/libclang/cmake/ninja）。
-- 使用 **CMake** 驱动翻译步骤，方便后续接入 CI。
+- 使用 **uv** 管理 Python 依赖与执行环境。
 - 使用 **LLVM/Clang**（`clang++` + `clang.cindex`）先做 C++ 预处理，再抽取函数声明并生成 C# 文件。
 - 翻译策略对齐你的要求：
   - `fast_io::vector<T>` / `std::vector<T>` -> `List<T>`
@@ -15,8 +14,7 @@
 
 ## 目录结构
 
-- `pixi.toml`: pixi 环境和任务定义。
-- `CMakeLists.txt`: 构建入口，默认执行翻译并生成 C# 文件。
+- `pyproject.toml`: Python 依赖定义（由 uv 管理）。
 - `src/translate.py`: 翻译脚本（预处理 + libclang 抽取 + 代码生成）。
 - `generated/`: 输出目录，默认生成 `Pltxt2htm.Generated.cs`。
 
@@ -24,16 +22,16 @@
 
 ```bash
 cd translang/csharp
-pixi run configure
-pixi run build
-# 或者仅执行翻译
-pixi run translate
+uv sync
+uv run python src/translate.py \
+  --header ../../include/pltxt2htm/pltxt2htm.hh \
+  --output generated/Pltxt2htm.Generated.cs
 ```
 
 ## 手动执行脚本
 
 ```bash
-python src/translate.py \
+uv run python src/translate.py \
   --header ../../include/pltxt2htm/pltxt2htm.hh \
   --output generated/Pltxt2htm.Generated.cs
 ```

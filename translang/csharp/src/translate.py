@@ -7,7 +7,6 @@ import argparse
 import os
 import re
 import subprocess
-import sys
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
@@ -91,6 +90,7 @@ def preprocess_header(header: Path, include_root: Path, clangpp: str) -> Path:
     cmd = [
         clangpp,
         "-std=c++23",
+        "-D__cpp_explicit_this_parameter=202110L",
         "-E",
         "-P",
         str(header),
@@ -117,7 +117,7 @@ def collect_functions(source: Path, include_root: Path) -> list[FunctionDecl]:
     index = cindex.Index.create()
     tu = index.parse(
         str(source),
-        args=["-std=c++23", f"-I{include_root}"],
+        args=["-std=c++23", "-D__cpp_explicit_this_parameter=202110L", f"-I{include_root}"],
         options=cindex.TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD,
     )
 
@@ -202,7 +202,7 @@ def main() -> int:
     args = parser.parse_args()
 
     header = args.header.resolve()
-    include_root = (args.include or header.parents[2]).resolve()
+    include_root = (args.include or header.parents[1]).resolve()
 
     preprocessed = preprocess_header(header, include_root, args.clangpp)
     try:
