@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """Translate pltxt2htm C++ API into C# (experimental)."""
 
-from __future__ import annotations
-
 import argparse
 import os
 import re
@@ -11,14 +9,7 @@ import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
-
-try:
-    from clang import cindex
-except Exception as exc:  # pragma: no cover
-    raise SystemExit(
-        "Unable to import clang.cindex. Install libclang Python bindings first."
-    ) from exc
-
+from clang import cindex
 
 TYPE_MAP = {
     "bool": "bool",
@@ -90,7 +81,6 @@ def preprocess_header(header: Path, include_root: Path, clangpp: str) -> Path:
     cmd = [
         clangpp,
         "-std=c++23",
-        "-D__cpp_explicit_this_parameter=202110L",
         "-E",
         "-P",
         str(header),
@@ -117,7 +107,7 @@ def collect_functions(source: Path, include_root: Path) -> list[FunctionDecl]:
     index = cindex.Index.create()
     tu = index.parse(
         str(source),
-        args=["-std=c++23", "-D__cpp_explicit_this_parameter=202110L", f"-I{include_root}"],
+        args=["-std=c++23", f"-I{include_root}"],
         options=cindex.TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD,
     )
 
