@@ -1,3 +1,6 @@
+#include <cstdlib>
+#include <exception>
+#include <expected>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -5,7 +8,6 @@
 #include <optional>
 #include <set>
 #include <sstream>
-#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -59,35 +61,56 @@ auto hardcoded_paths(std::filesystem::path const& output_dir) -> Paths {
     };
 }
 
+[[noreturn]]
+void exit_with_error(std::string const& message) {
+    std::cerr << "translator error: " << message << '\n';
+    std::exit(1);
+}
+
+[[noreturn]]
+void terminate_internal_error(std::string const& message) {
+    std::cerr << "translator internal error: " << message << '\n';
+    std::terminate();
+}
+
 [[nodiscard]]
-auto parse_cli_options(int argc, char const* const* argv) -> CliOptions {
+auto parse_cli_options(int argc, char const* const* argv) -> std::expected<CliOptions, std::string> {
     CliOptions options{};
     bool has_output_dir = false;
     for (int i = 1; i < argc; ++i) {
         std::string_view arg{argv[i]};
         if (arg == "--output-dir") {
             if (i + 1 >= argc) {
-                throw std::runtime_error("missing value for --output-dir");
+                return std::unexpected("missing value for --output-dir");
             }
             options.output_dir = argv[++i];
             has_output_dir = true;
             continue;
         }
-        throw std::runtime_error("unknown argument: " + std::string(arg));
+        return std::unexpected("unknown argument: " + std::string(arg));
     }
     if (!has_output_dir) {
-        throw std::runtime_error("missing required argument: --output-dir <directory>");
+        return std::unexpected("missing required argument: --output-dir <directory>");
     }
     return options;
 }
 
 [[nodiscard]]
-auto read_text_file(std::filesystem::path const& path) -> std::string {
+auto read_text_file(std::filesystem::path const& path) -> std::expected<std::string, std::string> {
     std::ifstream ifs(path, std::ios::binary);
     if (!ifs.is_open()) {
-        throw std::runtime_error("failed to open file: " + path.string());
+        return std::unexpected("failed to open file: " + path.string());
     }
-    return {std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>()};
+    std::string content{std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>()};
+    return content;
+}
+
+[[nodiscard]]
+auto validate_header(std::string const& header_text) -> std::expected<void, std::string> {
+    if (header_text.find("pltxt2advanced_html") == std::string::npos) {
+        return std::unexpected("invalid header: pltxt2xxx APIs were not found");
+    }
+    return {};
 }
 
 [[nodiscard]]
@@ -381,19 +404,19 @@ void validate_required_instantiations(std::map<std::string, ApiInstantiationSet>
     for (auto const api : apis) {
         auto it = instantiated.find(std::string(api));
         if (it == instantiated.end()) {
-            throw std::runtime_error("missing template instantiations for: " + std::string(api));
+            terminate_internal_error("missing template instantiations for: " + std::string(api));
         }
         for (auto contract : {ContractValue::quick_enforce, ContractValue::ignore}) {
             for (auto optimize : {false, true}) {
                 if (!it->second.variants.contains(VariantKey{.contract = contract, .optimize = optimize})) {
-                    throw std::runtime_error("missing specialization for " + std::string(api));
+                    terminate_internal_error("missing specialization for " + std::string(api));
                 }
             }
         }
     }
 }
 
-void collect_instantiations(Paths const& paths) {
+auto collect_instantiations(Paths const& paths) -> std::expected<void, std::string> {
     auto tu = make_instantiation_tu(paths.header_path);
 
     std::vector<std::string> args;
@@ -403,41 +426,61 @@ void collect_instantiations(Paths const& paths) {
 
     auto ast = clang::tooling::buildASTFromCodeWithArgs(tu, args, "pltxt2htm_instantiations.cc");
     if (!ast) {
-        throw std::runtime_error("clang failed to preprocess/template-instantiate the header");
+        return std::unexpected("clang failed to preprocess/template-instantiate the header");
     }
 
     // buildASTFromCodeWithArgs performs preprocessing and template instantiation.
+    return {};
 }
 
-void write_text_file(std::filesystem::path const& path, std::string const& content) {
-    std::filesystem::create_directories(path.parent_path());
+auto write_text_file(std::filesystem::path const& path, std::string const& content) -> std::expected<void, std::string> {
+    std::error_code ec;
+    std::filesystem::create_directories(path.parent_path(), ec);
+    if (ec) {
+        return std::unexpected("failed to create output directory: " + path.parent_path().string() + " (" + ec.message() + ")");
+    }
     std::ofstream ofs(path, std::ios::binary | std::ios::trunc);
     if (!ofs.is_open()) {
-        throw std::runtime_error("failed to open output file: " + path.string());
+        return std::unexpected("failed to open output file: " + path.string());
     }
     ofs.write(content.data(), static_cast<std::streamsize>(content.size()));
+    if (!ofs.good()) {
+        return std::unexpected("failed to write output file: " + path.string());
+    }
+    return {};
 }
 
 } // namespace
 
 int main(int argc, char const* const* argv) {
-    try {
-        auto const cli = parse_cli_options(argc, argv);
-        auto paths = hardcoded_paths(cli.output_dir);
-
-        auto header_text = read_text_file(paths.header_path);
-        if (header_text.find("pltxt2advanced_html") == std::string::npos) {
-            throw std::runtime_error("invalid header: pltxt2xxx APIs were not found");
-        }
-
-        collect_instantiations(paths);
-        auto generated = generate_csharp();
-        write_text_file(paths.output_path, generated);
-
-        std::cout << "Generated C# translation to " << paths.output_path.string() << '\n';
-        return 0;
-    } catch (std::exception const& ex) {
-        std::cerr << "translator error: " << ex.what() << '\n';
-        return 1;
+    auto cli = parse_cli_options(argc, argv);
+    if (!cli.has_value()) {
+        exit_with_error(cli.error());
     }
+
+    auto paths = hardcoded_paths(cli->output_dir);
+
+    auto header_text = read_text_file(paths.header_path);
+    if (!header_text.has_value()) {
+        exit_with_error(header_text.error());
+    }
+
+    auto header_validation = validate_header(*header_text);
+    if (!header_validation.has_value()) {
+        exit_with_error(header_validation.error());
+    }
+
+    auto collect_result = collect_instantiations(paths);
+    if (!collect_result.has_value()) {
+        exit_with_error(collect_result.error());
+    }
+
+    auto generated = generate_csharp();
+    auto write_result = write_text_file(paths.output_path, generated);
+    if (!write_result.has_value()) {
+        exit_with_error(write_result.error());
+    }
+
+    std::cout << "Generated C# translation to " << paths.output_path.string() << '\n';
+    return 0;
 }

@@ -6,3 +6,7 @@ This directory provides a Docker-based workflow to generate translated C# code f
 docker build -f ./translang/csharp/Dockerfile -t pltxt2htm-csharp-translator .
 docker run --rm pltxt2htm-csharp-translator cat /pltxt2htm-translang-csharp.tar.xz > pltxt2htm-translang-csharp.tar.xz
 ```
+
+```sh
+docker rmi pltxt2htm-csharp-translator
+```
