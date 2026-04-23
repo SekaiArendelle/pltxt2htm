@@ -1,10 +1,13 @@
 ### Please run `python gen_dockerignore.py` after change this file ###
+
 # Python
-**/venv*/
+**/venv/
+**/.venv/
 dist/
 **/build/
 *.egg-info/
 **/__pycache__/
+**/*.pyc
 
 # xmake
 **/.xmake/

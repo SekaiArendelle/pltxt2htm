@@ -1,7 +1,0 @@
-build/
-.venv/
-__pycache__/
-*.pyc
-uv.lock
-generated/*.cs
-!generated/.gitkeep
