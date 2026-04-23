@@ -1,0 +1,19 @@
+[project]
+name = "pltxt2htm-csharp-translator"
+version = "0.1.0"
+description = "Translate include/pltxt2htm C++ APIs to C# with clang/LLVM C++ API"
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-64", "win-64"]
+
+[tasks]
+configure = "cmake -S . -B build -G Ninja"
+build = "cmake --build build"
+translate = "cmake --build build --target translate"
+
+[dependencies]
+cmake = ">=3.29"
+ninja = ">=1.12"
+clang = "21.*"
+clangdev = "21.*"
+llvmdev = "21.*"
+cxx-compiler = ">=1.9"
