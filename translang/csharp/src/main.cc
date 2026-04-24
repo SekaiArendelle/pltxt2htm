@@ -14,6 +14,7 @@
 #include <clang/AST/DeclTemplate.h>
 #include <clang/AST/Expr.h>
 #include <clang/AST/RecursiveASTVisitor.h>
+#include <clang/AST/Stmt.h>
 #include <clang/Tooling/Tooling.h>
 
 #include <llvm/ADT/ArrayRef.h>
@@ -82,9 +83,14 @@ struct AstNodeModel {
     ::std::vector<AstNodeClassSpec> classes{};
 };
 
+struct ParsePltxtModel {
+    ::std::vector<::std::string> switch_node_types{};
+};
+
 struct TranslationModel {
     ApiInstantiationMap api_instantiations{};
     AstNodeModel astnodes{};
+    ParsePltxtModel parse_pltxt{};
 };
 
 [[nodiscard]]
@@ -602,6 +608,79 @@ private:
     ::std::set<::std::string> seen_classes_{};
 };
 
+[[nodiscard]]
+constexpr auto is_public_parse_pltxt_decl(::clang::FunctionDecl const* fd) -> bool {
+    if (fd == nullptr) {
+        return false;
+    }
+    if (fd->getQualifiedNameAsString() != "pltxt2htm::parse_pltxt") {
+        return false;
+    }
+    if (fd->getNumParams() != 1) {
+        return false;
+    }
+    auto const param_text = fd->getParamDecl(0)->getType().getAsString();
+    return param_text.find("u8string_view") != ::std::string::npos;
+}
+
+constexpr void collect_parse_pltxt_case_labels(::clang::Stmt const* stmt, ::std::vector<::std::string>& out,
+                                               ::std::set<::std::string>& seen) {
+    if (stmt == nullptr) {
+        return;
+    }
+    if (auto const* case_stmt = ::llvm::dyn_cast<::clang::CaseStmt>(stmt)) {
+        if (auto node_type = extract_enum_constant_name(case_stmt->getLHS())) {
+            if (seen.insert(*node_type).second) {
+                out.push_back(*node_type);
+            }
+        }
+    }
+    for (auto const* child : stmt->children()) {
+        collect_parse_pltxt_case_labels(child, out, seen);
+    }
+}
+
+constexpr void maybe_collect_parse_pltxt_from_function(::clang::FunctionDecl const* fd, ParsePltxtModel& out,
+                                                       bool& collected) {
+    if (collected || !is_public_parse_pltxt_decl(fd)) {
+        return;
+    }
+    auto const* body = fd->getBody();
+    if (body == nullptr) {
+        return;
+    }
+    ::std::set<::std::string> seen{};
+    collect_parse_pltxt_case_labels(body, out.switch_node_types, seen);
+    collected = !out.switch_node_types.empty();
+}
+
+constexpr void collect_parse_pltxt_from_decl_context(::clang::DeclContext const* decl_context, ParsePltxtModel& out,
+                                                     bool& collected) {
+    for (auto const* decl : decl_context->decls()) {
+        if (collected) {
+            return;
+        }
+        if (auto const* nested = ::llvm::dyn_cast<::clang::DeclContext>(decl); nested != nullptr) {
+            collect_parse_pltxt_from_decl_context(nested, out, collected);
+            if (collected) {
+                return;
+            }
+        }
+        if (auto const* fd = ::llvm::dyn_cast<::clang::FunctionDecl>(decl); fd != nullptr) {
+            maybe_collect_parse_pltxt_from_function(fd, out, collected);
+            if (collected) {
+                return;
+            }
+        }
+        if (auto const* ftd = ::llvm::dyn_cast<::clang::FunctionTemplateDecl>(decl); ftd != nullptr) {
+            maybe_collect_parse_pltxt_from_function(ftd->getTemplatedDecl(), out, collected);
+            if (collected) {
+                return;
+            }
+        }
+    }
+}
+
 constexpr void emit_astnode_enum(::llvm::raw_string_ostream& out, AstNodeModel const& astnode_model) {
     out << "public enum NodeType\n";
     out << "{\n";
@@ -746,6 +825,104 @@ constexpr void emit_astnode_translation(::llvm::raw_string_ostream& out, AstNode
     }
 }
 
+[[nodiscard]]
+constexpr auto find_paired_tag_class_for_node_type(AstNodeModel const& astnode_model, ::llvm::StringRef node_type)
+    -> ::std::optional<::std::string> {
+    for (auto const& cls : astnode_model.classes) {
+        if (cls.base_kind != AstNodeBaseKind::paired_tag || !cls.node_type.has_value()) {
+            continue;
+        }
+        if (*cls.node_type == node_type.str()) {
+            return cls.name;
+        }
+    }
+    return ::std::nullopt;
+}
+
+constexpr void emit_parse_pltxt_translation(::llvm::raw_string_ostream& out, TranslationModel const& model) {
+    out << "    internal static Ast ParsePltxt(string pltext)\n";
+    out << "    {\n";
+    out << "        var callStack = new Stack<BasicFrameContext>();\n";
+    out << "        var result = new Ast();\n\n";
+    out << "        ulong startIndex = 0;\n\n";
+    out << "        while (true)\n";
+    out << "        {\n";
+    out << "            var (forwardIndex, hasNewFrame) = DevilStuffAfterLineBreak(U8StringViewSubview(pltext, "
+           "startIndex), callStack, result);\n";
+    out << "            startIndex += forwardIndex;\n";
+    out << "            if (!hasNewFrame)\n";
+    out << "            {\n";
+    out << "                break;\n";
+    out << "            }\n";
+    out << "            var typeOfSubast = callStack.Peek().NestedTagType;\n";
+    out << "            var subast = ParsePltxtDetails(callStack);\n";
+    out << "            switch (typeOfSubast)\n";
+    out << "            {\n";
+    for (auto const& node_type : model.parse_pltxt.switch_node_types) {
+        auto class_name = find_paired_tag_class_for_node_type(model.astnodes, node_type);
+        if (!class_name.has_value()) {
+            terminate_internal_error("failed to map parse_pltxt switch node type to paired tag class: " + node_type);
+        }
+        out << "            case NodeType." << node_type << ":\n";
+        out << "                result.Nodes.Add(HeapGuard(new " << *class_name << "(subast)));\n";
+        out << "                continue;\n";
+    }
+    out << "            default:\n";
+    out << "                Terminate(\"unexpected nested tag type in parse_pltxt\");\n";
+    out << "                break;\n";
+    out << "            }\n";
+    out << "        }\n\n";
+    out << "        if (startIndex < (ulong)pltext.Length)\n";
+    out << "        {\n";
+    out << "            callStack.Push(HeapGuard(new BareTagContext(U8StringViewSubview(pltext, startIndex), "
+           "NodeType.base, result)));\n";
+    out << "            result = ParsePltxtDetails(callStack);\n";
+    out << "        }\n\n";
+    out << "        var callStackIsEmpty = callStack.Count == 0;\n";
+    out << "        Pltxt2Assert(callStackIsEmpty, \"call_stack is not empty\");\n\n";
+    out << "        return result;\n";
+    out << "    }\n\n";
+    out << "    private static string U8StringViewSubview(string text, ulong startIndex)\n";
+    out << "    {\n";
+    out << "        if (startIndex >= (ulong)text.Length)\n";
+    out << "        {\n";
+    out << "            return string.Empty;\n";
+    out << "        }\n";
+    out << "        return text[(int)startIndex..];\n";
+    out << "    }\n\n";
+    out << "    private static (ulong forwardIndex, bool hasNewFrame) DevilStuffAfterLineBreak(string pltextView, "
+           "Stack<BasicFrameContext> callStack, Ast result) => throw new NotImplementedException(\"Translate "
+           "details::devil_stuff_after_line_break from parser.hh.\");\n";
+    out << "    private static Ast ParsePltxtDetails(Stack<BasicFrameContext> callStack) => throw new "
+           "NotImplementedException(\"Translate details::parse_pltxt from details/parser/parser.hh.\");\n";
+    out << "    private static void Pltxt2Assert(bool condition, string message)\n";
+    out << "    {\n";
+    out << "        if (!condition)\n";
+    out << "        {\n";
+    out << "            Terminate(message);\n";
+    out << "        }\n";
+    out << "    }\n\n";
+    out << "    private class BasicFrameContext\n";
+    out << "    {\n";
+    out << "        internal BasicFrameContext(NodeType nestedTagType, Ast subast)\n";
+    out << "        {\n";
+    out << "            NestedTagType = nestedTagType;\n";
+    out << "            Subast = subast;\n";
+    out << "        }\n\n";
+    out << "        internal NodeType NestedTagType { get; }\n";
+    out << "        internal Ast Subast { get; }\n";
+    out << "    }\n\n";
+    out << "    private sealed class BareTagContext : BasicFrameContext\n";
+    out << "    {\n";
+    out << "        internal BareTagContext(string sourceText, NodeType nestedTagType, Ast subast)\n";
+    out << "            : base(nestedTagType, subast)\n";
+    out << "        {\n";
+    out << "            SourceText = sourceText;\n";
+    out << "        }\n\n";
+    out << "        internal string SourceText { get; }\n";
+    out << "    }\n\n";
+}
+
 constexpr void emit_wrapper_signature(::llvm::raw_string_ostream& out, ::llvm::StringRef method,
                                       ::llvm::StringRef args) {
     out << "    public static string " << method << "(" << args << ")\n";
@@ -813,8 +990,7 @@ constexpr auto generate_csharp(TranslationModel const& model) -> ::std::string {
     out << "    // exception::terminate / exception::unreachable -> throw\n";
     out << "    internal static void Terminate(string message) => throw new InvalidOperationException(message);\n";
     out << "    internal static T Unreachable<T>(string message) => throw new InvalidOperationException(message);\n\n";
-    out << "    internal static Ast ParsePltxt(string pltext) => throw new NotImplementedException(\"Translate "
-           "parser.hh to fill this.\");\n";
+    emit_parse_pltxt_translation(out, model);
     out << "    internal static void OptimizeAst(Ast ast) => throw new NotImplementedException(\"Translate "
            "optimizer.hh to fill this.\");\n";
     out << "    internal static string PlwebTextBackend(Ast ast, string host, string project, string visitor, string "
@@ -915,6 +1091,27 @@ constexpr auto collect_astnode_model(Paths const& paths) -> ::llvm::Expected<Ast
     return astnode_model;
 }
 
+[[nodiscard]]
+constexpr auto collect_parse_pltxt_model(Paths const& paths) -> ::llvm::Expected<ParsePltxtModel> {
+    auto args = build_clang_args(paths);
+    if (!args) {
+        return args.takeError();
+    }
+    constexpr ::llvm::StringLiteral parser_probe_source = "#include <pltxt2htm/parser.hh>\n";
+    auto ast = ::clang::tooling::buildASTFromCodeWithArgs(parser_probe_source.str(), *args, "parser_probe.cc");
+    if (!ast) {
+        return ::llvm::createStringError(::std::errc::invalid_argument, "clang failed to parse include/pltxt2htm/parser.hh");
+    }
+    ParsePltxtModel model{};
+    bool collected{};
+    collect_parse_pltxt_from_decl_context(ast->getASTContext().getTranslationUnitDecl(), model, collected);
+    if (!collected) {
+        return ::llvm::createStringError(::std::errc::invalid_argument,
+                                         "failed to derive parse_pltxt switch cases from include/pltxt2htm/parser.hh");
+    }
+    return model;
+}
+
 constexpr auto collect_translation_model(Paths const& paths) -> ::llvm::Expected<TranslationModel> {
     ::llvm::SmallString<260> source_abs{paths.source_path};
     if (auto ec = ::llvm::sys::fs::make_absolute(source_abs)) {
@@ -948,7 +1145,12 @@ constexpr auto collect_translation_model(Paths const& paths) -> ::llvm::Expected
     if (!astnode_model) {
         return astnode_model.takeError();
     }
+    auto parse_pltxt_model = collect_parse_pltxt_model(paths);
+    if (!parse_pltxt_model) {
+        return parse_pltxt_model.takeError();
+    }
     model.astnodes = ::std::move(*astnode_model);
+    model.parse_pltxt = ::std::move(*parse_pltxt_model);
     return model;
 }
 
