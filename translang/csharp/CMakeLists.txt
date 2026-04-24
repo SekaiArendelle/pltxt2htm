@@ -45,9 +45,12 @@ target_link_libraries(pltxt2htm_csharp_translator PRIVATE
     LLVMCore
     LLVMSupport
     ZLIB::ZLIB
-    LibXml2::LibXml2
     zstd::libzstd
 )
+
+if(NOT WIN32)
+    target_link_libraries(pltxt2htm_csharp_translator PRIVATE LibXml2::LibXml2)
+endif()
 
 install(TARGETS pltxt2htm_csharp_translator
     RUNTIME DESTINATION dist
