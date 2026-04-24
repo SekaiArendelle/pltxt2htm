@@ -735,9 +735,9 @@ constexpr void emit_wrapper_signature(::llvm::raw_string_ostream& out, ::llvm::S
     out << "    public static string " << method << "(" << args << ")\n";
 }
 
-constexpr void emit_variant_body(::llvm::raw_string_ostream& out, ::llvm::StringRef method,
-                                 ::llvm::StringRef inner_args, bool optimize, ::llvm::StringRef backend_expr) {
-    out << "    private static string " << method << "_Impl(" << inner_args << ")\n";
+constexpr void emit_method_definition(::llvm::raw_string_ostream& out, ::llvm::StringRef method, ::llvm::StringRef args,
+                                      bool optimize, ::llvm::StringRef backend_expr) {
+    emit_wrapper_signature(out, method, args);
     out << "    {\n";
     out << "        var ast = Pltxt2Internal.ParsePltxt(pltext);\n";
     if (optimize) {
@@ -745,11 +745,6 @@ constexpr void emit_variant_body(::llvm::raw_string_ostream& out, ::llvm::String
     }
     out << "        return " << backend_expr << ";\n";
     out << "    }\n\n";
-}
-
-constexpr void emit_dispatch_case(::llvm::raw_string_ostream& out, ::llvm::StringRef method,
-                                  ::llvm::StringRef passthrough_args) {
-    out << "        return " << method << "_Impl(" << passthrough_args << ");\n";
 }
 
 [[nodiscard]]
@@ -784,32 +779,17 @@ constexpr auto generate_csharp(TranslationModel const& model) -> ::std::string {
     auto const plunity = get_single_variant(instantiated, "pltxt2plunity_introduction");
     auto const common = get_single_variant(instantiated, "pltxt2common_html");
 
-    emit_wrapper_signature(out, "Pltxt2AdvancedHtml", "string pltext");
-    out << "    {\n";
-    emit_dispatch_case(out, "Pltxt2AdvancedHtml", "pltext");
-    out << "    }\n\n";
+    emit_method_definition(out, "Pltxt2AdvancedHtml", "string pltext", advanced.optimize,
+                           "Pltxt2Internal.PlwebTextBackend(ast, \"localhost:5173\", \"$PROJECT\", \"$VISITOR\", "
+                           "\"$AUTHOR\", \"$CO_AUTHORS\")");
 
-    emit_wrapper_signature(out, "Pltxt2PlunityIntroduction",
-                           "string pltext, string project, string visitor, string author, string coauthors");
-    out << "    {\n";
-    emit_dispatch_case(out, "Pltxt2PlunityIntroduction", "pltext, project, visitor, author, coauthors");
-    out << "    }\n\n";
+    emit_method_definition(out, "Pltxt2PlunityIntroduction",
+                           "string pltext, string project, string visitor, string author, string coauthors",
+                           plunity.optimize,
+                           "Pltxt2Internal.PlunityTextBackend(ast, project, visitor, author, coauthors)");
 
-    emit_wrapper_signature(out, "Pltxt2CommonHtml", "string pltext");
-    out << "    {\n";
-    emit_dispatch_case(out, "Pltxt2CommonHtml", "pltext");
-    out << "    }\n\n";
-
-    emit_variant_body(out, "Pltxt2AdvancedHtml", "string pltext", advanced.optimize,
-                      "Pltxt2Internal.PlwebTextBackend(ast, \"localhost:5173\", \"$PROJECT\", \"$VISITOR\", "
-                      "\"$AUTHOR\", \"$CO_AUTHORS\")");
-
-    emit_variant_body(out, "Pltxt2PlunityIntroduction",
-                      "string pltext, string project, string visitor, string author, string coauthors",
-                      plunity.optimize, "Pltxt2Internal.PlunityTextBackend(ast, project, visitor, author, coauthors)");
-
-    emit_variant_body(out, "Pltxt2CommonHtml", "string pltext", common.optimize,
-                      "Pltxt2Internal.PlwebTitleBackend(ast)");
+    emit_method_definition(out, "Pltxt2CommonHtml", "string pltext", common.optimize,
+                           "Pltxt2Internal.PlwebTitleBackend(ast)");
 
     out << "}\n\n";
     out << "internal static class Pltxt2Internal\n";
