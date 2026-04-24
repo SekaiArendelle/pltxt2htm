@@ -39,13 +39,9 @@ struct CliOptions {
 
 struct VariantKey {
     ::pltxt2htm::Contracts contract{};
-    bool optimize{};
 
     constexpr auto operator<(VariantKey const& other) const noexcept -> bool {
-        if (contract != other.contract) {
-            return static_cast<int>(contract) < static_cast<int>(other.contract);
-        }
-        return optimize < other.optimize;
+        return static_cast<int>(contract) < static_cast<int>(other.contract);
     }
 };
 
@@ -54,6 +50,7 @@ struct ApiInstantiationSet {
 };
 
 using ApiInstantiationMap = ::llvm::StringMap<ApiInstantiationSet>;
+using ApiOptimizeMap = ::llvm::StringMap<bool>;
 
 struct AstNodeField {
     ::std::string cpp_name{};
@@ -87,6 +84,7 @@ struct ParsePltxtModel {
 
 struct TranslationModel {
     ApiInstantiationMap api_instantiations{};
+    ApiOptimizeMap api_optimize{};
     AstNodeModel astnodes{};
     ParsePltxtModel parse_pltxt{};
 };
@@ -171,35 +169,27 @@ constexpr auto parse_contract_arg(::clang::TemplateArgument const& arg) noexcept
 }
 
 [[nodiscard]]
-constexpr auto parse_bool_arg(::clang::TemplateArgument const& arg) noexcept -> ::std::optional<bool> {
-    if (arg.getKind() != ::clang::TemplateArgument::Integral) {
-        return ::std::nullopt;
-    }
-    auto value = arg.getAsIntegral().getExtValue();
-    if (value == 0) {
+constexpr auto contains_optimize_ast_call(::clang::Stmt const* stmt) noexcept -> bool {
+    if (stmt == nullptr) {
         return false;
     }
-    if (value == 1) {
-        return true;
+    if (auto const* call = ::llvm::dyn_cast<::clang::CallExpr>(stmt)) {
+        if (auto const* callee = call->getDirectCallee(); callee != nullptr && callee->getName() == "optimize_ast") {
+            return true;
+        }
     }
-    return ::std::nullopt;
-}
-
-[[nodiscard]]
-constexpr auto default_optimize_for_api(::llvm::StringRef name) noexcept -> ::std::optional<bool> {
-    if (name == "pltxt2advanced_html" || name == "pltxt2fixedadv_html" || name == "pltxt2plunity_introduction") {
-        return true;
+    for (auto const* child : stmt->children()) {
+        if (contains_optimize_ast_call(child)) {
+            return true;
+        }
     }
-    if (name == "pltxt2common_html") {
-        return false;
-    }
-    return ::std::nullopt;
+    return false;
 }
 
 class ApiInstantiationVisitor : public ::clang::RecursiveASTVisitor<ApiInstantiationVisitor> {
 public:
-    constexpr explicit ApiInstantiationVisitor(ApiInstantiationMap& out) noexcept
-        : out_(out) {
+    constexpr explicit ApiInstantiationVisitor(ApiInstantiationMap& out, ApiOptimizeMap& optimize_out) noexcept
+        : out_(out), optimize_out_(optimize_out) {
     }
 
     constexpr auto VisitFunctionDecl(::clang::FunctionDecl* fd) -> bool {
@@ -214,6 +204,7 @@ public:
             return true;
         }
         add_variant(name, tsi->TemplateArguments->asArray());
+        maybe_capture_optimization_behavior(name, fd);
         return true;
     }
 
@@ -229,6 +220,7 @@ public:
         }
         if (auto const* targs{callee->getTemplateSpecializationArgs()}; targs != nullptr) {
             add_variant(name, targs->asArray());
+            maybe_capture_optimization_behavior(name, callee);
             return true;
         }
         auto* tsi = callee->getTemplateSpecializationInfo();
@@ -236,6 +228,7 @@ public:
             return true;
         }
         add_variant(name, tsi->TemplateArguments->asArray());
+        maybe_capture_optimization_behavior(name, callee);
         return true;
     }
 
@@ -253,22 +246,22 @@ private:
         if (!contract.has_value()) {
             return;
         }
+        out_[name].variants.insert(VariantKey{.contract = *contract});
+    }
 
-        ::std::optional<bool> optimize;
-        if (targs.size() >= 2) {
-            optimize = parse_bool_arg(targs[1]);
-        }
-        else {
-            optimize = default_optimize_for_api(name);
-        }
-        if (!optimize.has_value()) {
+    constexpr void maybe_capture_optimization_behavior(::llvm::StringRef name, ::clang::FunctionDecl const* fd) {
+        if (fd == nullptr || !fd->hasBody() || !fd->isTemplateInstantiation()) {
             return;
         }
-
-        out_[name].variants.insert(VariantKey{.contract = *contract, .optimize = *optimize});
+        bool const has_optimize_call = contains_optimize_ast_call(fd->getBody());
+        auto [it, inserted] = optimize_out_.try_emplace(name, has_optimize_call);
+        if (!inserted && it->second != has_optimize_call) {
+            terminate_internal_error("inconsistent optimize_ast call behavior for " + name.str());
+        }
     }
 
     ApiInstantiationMap& out_;
+    ApiOptimizeMap& optimize_out_;
 };
 
 [[nodiscard]]
@@ -913,32 +906,27 @@ constexpr void emit_wrapper_signature(::llvm::raw_string_ostream& out, ::llvm::S
 }
 
 constexpr void emit_method_definition(::llvm::raw_string_ostream& out, ::llvm::StringRef method, ::llvm::StringRef args,
-                                      bool optimize, ::llvm::StringRef backend_expr) {
+                                      bool should_call_optimize_ast, ::llvm::StringRef backend_expr) {
     emit_wrapper_signature(out, method, args);
     out << "    {\n";
     out << "        var ast = Pltxt2Internal.ParsePltxt(pltext);\n";
-    if (optimize) {
+    if (should_call_optimize_ast) {
         out << "        Pltxt2Internal.OptimizeAst(ast);\n";
     }
     out << "        return " << backend_expr << ";\n";
     out << "    }\n\n";
 }
 
-[[nodiscard]]
-constexpr auto get_single_variant(ApiInstantiationMap const& instantiated, ::llvm::StringRef api_name) -> VariantKey {
-    auto it = instantiated.find(api_name);
-    if (it == instantiated.end()) {
-        terminate_internal_error("missing specialization for " + api_name.str());
+constexpr auto get_api_optimize(ApiOptimizeMap const& api_optimize, ::llvm::StringRef api_name) -> bool {
+    auto it = api_optimize.find(api_name);
+    if (it == api_optimize.end()) {
+        terminate_internal_error("missing optimization behavior for " + api_name.str());
     }
-    if (it->second.variants.size() != 1) {
-        terminate_internal_error("expected exactly one instantiated specialization for " + api_name.str());
-    }
-    return *it->second.variants.begin();
+    return it->second;
 }
 
 [[nodiscard]]
 constexpr auto generate_csharp(TranslationModel const& model) -> ::std::string {
-    auto const& instantiated = model.api_instantiations;
     ::std::string generated;
     ::llvm::raw_string_ostream out(generated);
     out << "// <auto-generated />\n"
@@ -952,20 +940,20 @@ constexpr auto generate_csharp(TranslationModel const& model) -> ::std::string {
     out << "public static class Pltxt2Htm\n";
     out << "{\n";
 
-    auto const advanced = get_single_variant(instantiated, "pltxt2advanced_html");
-    auto const plunity = get_single_variant(instantiated, "pltxt2plunity_introduction");
-    auto const common = get_single_variant(instantiated, "pltxt2common_html");
+    auto const advanced_optimize = get_api_optimize(model.api_optimize, "pltxt2advanced_html");
+    auto const plunity_optimize = get_api_optimize(model.api_optimize, "pltxt2plunity_introduction");
+    auto const common_optimize = get_api_optimize(model.api_optimize, "pltxt2common_html");
 
-    emit_method_definition(out, "Pltxt2AdvancedHtml", "string pltext", advanced.optimize,
+    emit_method_definition(out, "Pltxt2AdvancedHtml", "string pltext", advanced_optimize,
                            "Pltxt2Internal.PlwebTextBackend(ast, \"localhost:5173\", \"$PROJECT\", \"$VISITOR\", "
                            "\"$AUTHOR\", \"$CO_AUTHORS\")");
 
     emit_method_definition(out, "Pltxt2PlunityIntroduction",
                            "string pltext, string project, string visitor, string author, string coauthors",
-                           plunity.optimize,
+                           plunity_optimize,
                            "Pltxt2Internal.PlunityTextBackend(ast, project, visitor, author, coauthors)");
 
-    emit_method_definition(out, "Pltxt2CommonHtml", "string pltext", common.optimize,
+    emit_method_definition(out, "Pltxt2CommonHtml", "string pltext", common_optimize,
                            "Pltxt2Internal.PlwebTitleBackend(ast)");
 
     out << "}\n\n";
@@ -1007,6 +995,21 @@ constexpr auto validate_required_instantiations(ApiInstantiationMap const& insta
         if (it->second.variants.size() != 1) {
             return ::llvm::createStringError(::std::errc::invalid_argument,
                                              "expected exactly one specialization for: %s", api.data());
+        }
+    }
+    return ::llvm::Error::success();
+}
+
+constexpr auto validate_required_optimization_behaviors(ApiOptimizeMap const& api_optimize) -> ::llvm::Error {
+    constexpr ::llvm::StringLiteral apis[]{
+        "pltxt2advanced_html",
+        "pltxt2plunity_introduction",
+        "pltxt2common_html",
+    };
+    for (auto const api : apis) {
+        if (!api_optimize.contains(api)) {
+            return ::llvm::createStringError(::std::errc::invalid_argument,
+                                             "failed to derive optimize_ast behavior for: %s", api.data());
         }
     }
     return ::llvm::Error::success();
@@ -1132,9 +1135,12 @@ constexpr auto collect_translation_model(Paths const& paths) -> ::llvm::Expected
 
     TranslationModel model{};
     auto* translation_unit = ast->getASTContext().getTranslationUnitDecl();
-    ApiInstantiationVisitor api_visitor(model.api_instantiations);
+    ApiInstantiationVisitor api_visitor(model.api_instantiations, model.api_optimize);
     api_visitor.TraverseDecl(translation_unit);
     if (auto err = validate_required_instantiations(model.api_instantiations)) {
+        return ::std::move(err);
+    }
+    if (auto err = validate_required_optimization_behaviors(model.api_optimize)) {
         return ::std::move(err);
     }
     auto astnode_model = collect_astnode_model(paths);
