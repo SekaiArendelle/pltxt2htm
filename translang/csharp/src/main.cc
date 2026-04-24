@@ -1,7 +1,5 @@
 #include <cstdlib>
 #include <exception>
-#include <filesystem>
-#include <fstream>
 #include <optional>
 #include <set>
 #include <string>
@@ -15,9 +13,13 @@
 #include <clang/Tooling/Tooling.h>
 
 #include <llvm/ADT/ArrayRef.h>
+#include <llvm/ADT/SmallString.h>
 #include <llvm/ADT/StringMap.h>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/Error.h>
+#include <llvm/Support/FileSystem.h>
+#include <llvm/Support/MemoryBuffer.h>
+#include <llvm/Support/Path.h>
 #include <llvm/Support/raw_ostream.h>
 
 #include <pltxt2htm/contracts.hh>
@@ -25,13 +27,13 @@
 namespace {
 
 struct Paths {
-    ::std::filesystem::path source_path{};
-    ::std::filesystem::path output_path{};
-    ::std::filesystem::path include_dir{};
+    ::llvm::SmallString<260> source_path{};
+    ::llvm::SmallString<260> output_path{};
+    ::llvm::SmallString<260> include_dir{};
 };
 
 struct CliOptions {
-    ::std::filesystem::path output_dir{};
+    ::llvm::SmallString<260> output_dir{};
 };
 
 struct VariantKey {
@@ -53,34 +55,38 @@ struct ApiInstantiationSet {
 using ApiInstantiationMap = ::llvm::StringMap<ApiInstantiationSet>;
 
 [[nodiscard]]
-auto hardcoded_paths(::std::filesystem::path const& output_dir) -> Paths {
+constexpr auto hardcoded_paths(::llvm::StringRef output_dir) -> Paths {
     // Paths are intentionally hardcoded from translang/csharp working directory.
+    ::llvm::SmallString<260> source_path{"./pltxt2htm.cc"};
+    ::llvm::SmallString<260> include_dir{"../../include"};
+    ::llvm::SmallString<260> output_path{output_dir};
+    ::llvm::sys::path::append(output_path, "Pltxt2htm.Generated.cs");
     return Paths{
-        .source_path = "./pltxt2htm.cc",
-        .output_path = output_dir / "Pltxt2htm.Generated.cs",
-        .include_dir = "../../include",
+        .source_path = source_path,
+        .output_path = output_path,
+        .include_dir = include_dir,
     };
 }
 
 [[noreturn]]
-void exit_with_error(::std::string const& message) noexcept {
+constexpr void exit_with_error(::std::string const& message) noexcept {
     ::llvm::errs() << "translator error: " << message << '\n';
     ::std::exit(1);
 }
 
 [[noreturn]]
-void exit_with_error(::llvm::Error error) noexcept {
+constexpr void exit_with_error(::llvm::Error error) noexcept {
     exit_with_error(::llvm::toString(::std::move(error)));
 }
 
 [[noreturn]]
-void terminate_internal_error(::std::string const& message) noexcept {
+constexpr void terminate_internal_error(::std::string const& message) noexcept {
     ::llvm::errs() << "translator internal error: " << message << '\n';
     ::std::terminate();
 }
 
 [[nodiscard]]
-auto parse_cli_options(int argc, char const* const* argv) -> ::llvm::Expected<CliOptions> {
+constexpr auto parse_cli_options(int argc, char const* const* argv) -> ::llvm::Expected<CliOptions> {
     CliOptions options{};
     bool has_output_dir = false;
     for (int i = 1; i < argc; ++i) {
@@ -89,7 +95,7 @@ auto parse_cli_options(int argc, char const* const* argv) -> ::llvm::Expected<Cl
             if (i + 1 >= argc) {
                 return ::llvm::createStringError(::std::errc::invalid_argument, "missing value for --output-dir");
             }
-            options.output_dir = argv[++i];
+            options.output_dir = ::llvm::SmallString<260>{argv[++i]};
             has_output_dir = true;
             continue;
         }
@@ -102,19 +108,20 @@ auto parse_cli_options(int argc, char const* const* argv) -> ::llvm::Expected<Cl
 }
 
 [[nodiscard]]
-auto read_text_file(::std::filesystem::path const& path) -> ::llvm::Expected<::std::string> {
-    ::std::ifstream ifs(path, ::std::ios::binary);
-    if (!ifs.is_open()) {
-        return ::llvm::createStringError(::std::errc::no_such_file_or_directory, "failed to open file: %s", path.string().c_str());
+constexpr auto read_text_file(::llvm::StringRef path) -> ::llvm::Expected<::std::string> {
+    auto buffer_or_error = ::llvm::MemoryBuffer::getFile(path, /*IsText=*/false);
+    if (!buffer_or_error) {
+        auto const ec = buffer_or_error.getError();
+        return ::llvm::createStringError(ec, "failed to open file: %s (%s)", path.data(), ec.message().c_str());
     }
-    ::std::string content{::std::istreambuf_iterator<char>(ifs), ::std::istreambuf_iterator<char>()};
+    auto& buffer = *buffer_or_error.get();
+    ::std::string content{buffer.getBufferStart(), buffer.getBufferEnd()};
     return content;
 }
 
 [[nodiscard]]
-auto normalized_include(::std::filesystem::path path) -> ::std::string {
-    path.make_preferred();
-    auto text = path.string();
+constexpr auto normalized_include(::llvm::StringRef path) -> ::std::string {
+    auto text = path.str();
     for (auto& ch : text) {
         if (ch == '\\') {
             ch = '/';
@@ -124,7 +131,7 @@ auto normalized_include(::std::filesystem::path path) -> ::std::string {
 }
 
 [[nodiscard]]
-auto parse_contract_arg(::clang::TemplateArgument const& arg) -> ::std::optional<::pltxt2htm::Contracts> {
+constexpr auto parse_contract_arg(::clang::TemplateArgument const& arg) noexcept -> ::std::optional<::pltxt2htm::Contracts> {
     if (arg.getKind() != ::clang::TemplateArgument::Integral) {
         return ::std::nullopt;
     }
@@ -139,7 +146,7 @@ auto parse_contract_arg(::clang::TemplateArgument const& arg) -> ::std::optional
 }
 
 [[nodiscard]]
-auto parse_bool_arg(::clang::TemplateArgument const& arg) -> ::std::optional<bool> {
+constexpr auto parse_bool_arg(::clang::TemplateArgument const& arg) noexcept -> ::std::optional<bool> {
     if (arg.getKind() != ::clang::TemplateArgument::Integral) {
         return ::std::nullopt;
     }
@@ -166,9 +173,9 @@ constexpr auto default_optimize_for_api(::llvm::StringRef name) noexcept -> ::st
 
 class ApiInstantiationVisitor : public ::clang::RecursiveASTVisitor<ApiInstantiationVisitor> {
 public:
-    explicit ApiInstantiationVisitor(ApiInstantiationMap& out) noexcept : out_(out) {}
+    constexpr explicit ApiInstantiationVisitor(ApiInstantiationMap& out) noexcept : out_(out) {}
 
-    auto VisitFunctionDecl(::clang::FunctionDecl* fd) -> bool {
+    constexpr auto VisitFunctionDecl(::clang::FunctionDecl* fd) -> bool {
         auto const name_storage = fd->getNameAsString();
         auto const name = ::llvm::StringRef{name_storage};
         if (!is_target(name)) {
@@ -183,7 +190,7 @@ public:
         return true;
     }
 
-    auto VisitCallExpr(::clang::CallExpr* ce) -> bool {
+    constexpr auto VisitCallExpr(::clang::CallExpr* ce) -> bool {
         auto* callee{ce->getDirectCallee()};
         if (callee == nullptr) {
             return true;
@@ -211,7 +218,7 @@ private:
                name == "pltxt2common_html";
     }
 
-    void add_variant(::llvm::StringRef name, ::llvm::ArrayRef<::clang::TemplateArgument> targs) {
+    constexpr void add_variant(::llvm::StringRef name, ::llvm::ArrayRef<::clang::TemplateArgument> targs) {
         if (targs.empty()) {
             return;
         }
@@ -236,11 +243,11 @@ private:
     ApiInstantiationMap& out_;
 };
 
-void emit_wrapper_signature(::llvm::raw_string_ostream& out, ::llvm::StringRef method, ::llvm::StringRef args) {
+constexpr void emit_wrapper_signature(::llvm::raw_string_ostream& out, ::llvm::StringRef method, ::llvm::StringRef args) {
     out << "    public static string " << method << "(" << args << ")\n";
 }
 
-void emit_variant_body(::llvm::raw_string_ostream& out, ::llvm::StringRef method, ::llvm::StringRef inner_args, bool optimize,
+constexpr void emit_variant_body(::llvm::raw_string_ostream& out, ::llvm::StringRef method, ::llvm::StringRef inner_args, bool optimize,
                        ::llvm::StringRef backend_expr) {
     out << "    private static string " << method << "_Impl(" << inner_args << ")\n";
     out << "    {\n";
@@ -252,12 +259,12 @@ void emit_variant_body(::llvm::raw_string_ostream& out, ::llvm::StringRef method
     out << "    }\n\n";
 }
 
-void emit_dispatch_case(::llvm::raw_string_ostream& out, ::llvm::StringRef method, ::llvm::StringRef passthrough_args) {
+constexpr void emit_dispatch_case(::llvm::raw_string_ostream& out, ::llvm::StringRef method, ::llvm::StringRef passthrough_args) {
     out << "        return " << method << "_Impl(" << passthrough_args << ");\n";
 }
 
 [[nodiscard]]
-auto get_single_variant(ApiInstantiationMap const& instantiated, ::llvm::StringRef api_name) -> VariantKey {
+constexpr auto get_single_variant(ApiInstantiationMap const& instantiated, ::llvm::StringRef api_name) -> VariantKey {
     auto it = instantiated.find(api_name);
     if (it == instantiated.end()) {
         terminate_internal_error("missing specialization for " + api_name.str());
@@ -269,7 +276,7 @@ auto get_single_variant(ApiInstantiationMap const& instantiated, ::llvm::StringR
 }
 
 [[nodiscard]]
-auto generate_csharp(ApiInstantiationMap const& instantiated) -> ::std::string {
+constexpr auto generate_csharp(ApiInstantiationMap const& instantiated) -> ::std::string {
     ::std::string generated;
     ::llvm::raw_string_ostream out(generated);
     out << "// <auto-generated />\n";
@@ -331,7 +338,7 @@ auto generate_csharp(ApiInstantiationMap const& instantiated) -> ::std::string {
     return generated;
 }
 
-auto validate_required_instantiations(ApiInstantiationMap const& instantiated) -> ::llvm::Error {
+constexpr auto validate_required_instantiations(ApiInstantiationMap const& instantiated) -> ::llvm::Error {
     constexpr ::llvm::StringLiteral apis[]{
         "pltxt2advanced_html",
         "pltxt2plunity_introduction",
@@ -349,8 +356,14 @@ auto validate_required_instantiations(ApiInstantiationMap const& instantiated) -
     return ::llvm::Error::success();
 }
 
-auto collect_instantiations(Paths const& paths) -> ::llvm::Expected<ApiInstantiationMap> {
-    auto source_text = read_text_file(paths.source_path);
+constexpr auto collect_instantiations(Paths const& paths) -> ::llvm::Expected<ApiInstantiationMap> {
+    ::llvm::SmallString<260> source_abs{paths.source_path};
+    if (auto ec = ::llvm::sys::fs::make_absolute(source_abs)) {
+        auto const source_path_text = paths.source_path.str().str();
+        return ::llvm::createStringError(ec, "failed to resolve absolute path: %s", source_path_text.c_str());
+    }
+
+    auto source_text = read_text_file(source_abs);
     if (!source_text) {
         return source_text.takeError();
     }
@@ -358,12 +371,17 @@ auto collect_instantiations(Paths const& paths) -> ::llvm::Expected<ApiInstantia
     args.emplace_back("-std=c++23");
     args.emplace_back("-fsyntax-only");
     args.emplace_back("-fno-delayed-template-parsing");
-    args.emplace_back("-I" + normalized_include(::std::filesystem::absolute(paths.include_dir)));
+    ::llvm::SmallString<260> include_abs{paths.include_dir};
+    if (auto ec = ::llvm::sys::fs::make_absolute(include_abs)) {
+        auto const include_path_text = paths.include_dir.str().str();
+        return ::llvm::createStringError(ec, "failed to resolve absolute path: %s", include_path_text.c_str());
+    }
+    args.emplace_back("-I" + normalized_include(include_abs));
 #if defined(NDEBUG)
     args.emplace_back("-DNDEBUG");
 #endif
 
-    auto ast = ::clang::tooling::buildASTFromCodeWithArgs(*source_text, args, normalized_include(::std::filesystem::absolute(paths.source_path)));
+    auto ast = ::clang::tooling::buildASTFromCodeWithArgs(*source_text, args, normalized_include(source_abs));
     if (!ast) {
         return ::llvm::createStringError(::std::errc::invalid_argument,
                                        "clang failed to compile/template-instantiate translang/csharp/pltxt2htm.cc");
@@ -378,20 +396,25 @@ auto collect_instantiations(Paths const& paths) -> ::llvm::Expected<ApiInstantia
     return instantiated;
 }
 
-auto write_text_file(::std::filesystem::path const& path, ::std::string const& content) -> ::llvm::Error {
+constexpr auto write_text_file(::llvm::StringRef path, ::std::string const& content) -> ::llvm::Error {
     ::std::error_code ec;
-    ::std::filesystem::create_directories(path.parent_path(), ec);
+    auto const parent = ::llvm::sys::path::parent_path(path);
+    if (!parent.empty()) {
+        ec = ::llvm::sys::fs::create_directories(parent, /*IgnoreExisting=*/true);
+    }
     if (ec) {
+        auto const parent_text = parent.str();
         return ::llvm::createStringError(::std::errc::io_error, "failed to create output directory: %s (%s)",
-                                       path.parent_path().string().c_str(), ec.message().c_str());
+                                          parent_text.c_str(), ec.message().c_str());
     }
-    ::std::ofstream ofs(path, ::std::ios::binary | ::std::ios::trunc);
-    if (!ofs.is_open()) {
-        return ::llvm::createStringError(::std::errc::io_error, "failed to open output file: %s", path.string().c_str());
+    ::llvm::raw_fd_ostream ofs(path, ec, ::llvm::sys::fs::OF_None);
+    if (ec) {
+        return ::llvm::createStringError(::std::errc::io_error, "failed to open output file: %s", path.data());
     }
-    ofs.write(content.data(), static_cast<::std::streamsize>(content.size()));
-    if (!ofs.good()) {
-        return ::llvm::createStringError(::std::errc::io_error, "failed to write output file: %s", path.string().c_str());
+    ofs.write(content.data(), content.size());
+    ofs.flush();
+    if (ofs.has_error()) {
+        return ::llvm::createStringError(::std::errc::io_error, "failed to write output file: %s", path.data());
     }
     return ::llvm::Error::success();
 }
@@ -417,6 +440,6 @@ int main(int argc, char const* const* argv) {
         exit_with_error(::std::move(write_result));
     }
 
-    ::llvm::outs() << "Generated C# translation to " << paths.output_path.string() << '\n';
+    ::llvm::outs() << "Generated C# translation to " << paths.output_path.str() << '\n';
     return 0;
 }
