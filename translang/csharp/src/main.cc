@@ -15,13 +15,14 @@
 
 #include <clang/AST/ASTContext.h>
 #include <clang/AST/DeclTemplate.h>
+#include <clang/AST/Expr.h>
 #include <clang/AST/RecursiveASTVisitor.h>
 #include <clang/Tooling/Tooling.h>
 
 namespace {
 
 struct Paths {
-    std::filesystem::path header_path{};
+    std::filesystem::path source_path{};
     std::filesystem::path output_path{};
     std::filesystem::path include_dir{};
 };
@@ -55,7 +56,7 @@ struct ApiInstantiationSet {
 auto hardcoded_paths(std::filesystem::path const& output_dir) -> Paths {
     // Paths are intentionally hardcoded from translang/csharp working directory.
     return Paths{
-        .header_path = "../../include/pltxt2htm/pltxt2htm.hh",
+        .source_path = "./pltxt2htm.cc",
         .output_path = output_dir / "Pltxt2htm.Generated.cs",
         .include_dir = "../../include",
     };
@@ -106,14 +107,6 @@ auto read_text_file(std::filesystem::path const& path) -> std::expected<std::str
 }
 
 [[nodiscard]]
-auto validate_header(std::string const& header_text) -> std::expected<void, std::string> {
-    if (header_text.find("pltxt2advanced_html") == std::string::npos) {
-        return std::unexpected("invalid header: pltxt2xxx APIs were not found");
-    }
-    return {};
-}
-
-[[nodiscard]]
 auto normalized_include(std::filesystem::path path) -> std::string {
     path.make_preferred();
     auto text = path.string();
@@ -123,31 +116,6 @@ auto normalized_include(std::filesystem::path path) -> std::string {
         }
     }
     return text;
-}
-
-[[nodiscard]]
-auto make_instantiation_tu(std::filesystem::path const& header_path) -> std::string {
-    auto header = normalized_include(std::filesystem::absolute(header_path));
-    std::ostringstream oss;
-    oss << "#include \"" << header << "\"\n";
-    oss << "using c = ::pltxt2htm::Contracts;\n";
-    oss << "auto* p0 = &::pltxt2htm::pltxt2advanced_html<c::quick_enforce, true>;\n";
-    oss << "auto* p1 = &::pltxt2htm::pltxt2advanced_html<c::quick_enforce, false>;\n";
-    oss << "auto* p2 = &::pltxt2htm::pltxt2advanced_html<c::ignore, true>;\n";
-    oss << "auto* p3 = &::pltxt2htm::pltxt2advanced_html<c::ignore, false>;\n";
-    oss << "auto* p4 = &::pltxt2htm::pltxt2fixedadv_html<c::quick_enforce, true>;\n";
-    oss << "auto* p5 = &::pltxt2htm::pltxt2fixedadv_html<c::quick_enforce, false>;\n";
-    oss << "auto* p6 = &::pltxt2htm::pltxt2fixedadv_html<c::ignore, true>;\n";
-    oss << "auto* p7 = &::pltxt2htm::pltxt2fixedadv_html<c::ignore, false>;\n";
-    oss << "auto* p8 = &::pltxt2htm::pltxt2plunity_introduction<c::quick_enforce, true>;\n";
-    oss << "auto* p9 = &::pltxt2htm::pltxt2plunity_introduction<c::quick_enforce, false>;\n";
-    oss << "auto* p10 = &::pltxt2htm::pltxt2plunity_introduction<c::ignore, true>;\n";
-    oss << "auto* p11 = &::pltxt2htm::pltxt2plunity_introduction<c::ignore, false>;\n";
-    oss << "auto* p12 = &::pltxt2htm::pltxt2common_html<c::quick_enforce, true>;\n";
-    oss << "auto* p13 = &::pltxt2htm::pltxt2common_html<c::quick_enforce, false>;\n";
-    oss << "auto* p14 = &::pltxt2htm::pltxt2common_html<c::ignore, true>;\n";
-    oss << "auto* p15 = &::pltxt2htm::pltxt2common_html<c::ignore, false>;\n";
-    return oss.str();
 }
 
 [[nodiscard]]
@@ -180,18 +148,22 @@ auto parse_bool_arg(clang::TemplateArgument const& arg) -> std::optional<bool> {
     return std::nullopt;
 }
 
+[[nodiscard]]
+auto default_optimize_for_api(std::string const& name) -> std::optional<bool> {
+    if (name == "pltxt2advanced_html" || name == "pltxt2fixedadv_html" || name == "pltxt2plunity_introduction") {
+        return true;
+    }
+    if (name == "pltxt2common_html") {
+        return false;
+    }
+    return std::nullopt;
+}
+
 class ApiInstantiationVisitor : public clang::RecursiveASTVisitor<ApiInstantiationVisitor> {
 public:
     explicit ApiInstantiationVisitor(std::map<std::string, ApiInstantiationSet>& out) noexcept : out_(out) {}
 
     auto VisitFunctionDecl(clang::FunctionDecl* fd) -> bool {
-        if (!fd->hasBody()) {
-            return true;
-        }
-        if (!fd->isTemplateInstantiation()) {
-            return true;
-        }
-
         auto const name = fd->getNameAsString();
         if (!is_target(name)) {
             return true;
@@ -201,18 +173,28 @@ public:
         if (tsi == nullptr || tsi->TemplateArguments == nullptr) {
             return true;
         }
-        auto const targs = tsi->TemplateArguments->asArray();
-        if (targs.size() < 2) {
+        add_variant(name, tsi->TemplateArguments->asArray());
+        return true;
+    }
+
+    auto VisitCallExpr(clang::CallExpr* ce) -> bool {
+        auto* callee = ce->getDirectCallee();
+        if (callee == nullptr) {
             return true;
         }
-
-        auto contract = parse_contract_arg(targs[0]);
-        auto optimize = parse_bool_arg(targs[1]);
-        if (!contract.has_value() || !optimize.has_value()) {
+        auto const name = callee->getNameAsString();
+        if (!is_target(name)) {
             return true;
         }
-
-        out_[name].variants.insert(VariantKey{.contract = *contract, .optimize = *optimize});
+        if (auto const* targs = callee->getTemplateSpecializationArgs(); targs != nullptr) {
+            add_variant(name, targs->asArray());
+            return true;
+        }
+        auto* tsi = callee->getTemplateSpecializationInfo();
+        if (tsi == nullptr || tsi->TemplateArguments == nullptr) {
+            return true;
+        }
+        add_variant(name, tsi->TemplateArguments->asArray());
         return true;
     }
 
@@ -220,6 +202,28 @@ private:
     static auto is_target(std::string const& name) noexcept -> bool {
         return name == "pltxt2advanced_html" || name == "pltxt2fixedadv_html" || name == "pltxt2plunity_introduction" ||
                name == "pltxt2common_html";
+    }
+
+    void add_variant(std::string const& name, llvm::ArrayRef<clang::TemplateArgument> targs) {
+        if (targs.empty()) {
+            return;
+        }
+        auto contract = parse_contract_arg(targs[0]);
+        if (!contract.has_value()) {
+            return;
+        }
+
+        std::optional<bool> optimize;
+        if (targs.size() >= 2) {
+            optimize = parse_bool_arg(targs[1]);
+        } else {
+            optimize = default_optimize_for_api(name);
+        }
+        if (!optimize.has_value()) {
+            return;
+        }
+
+        out_[name].variants.insert(VariantKey{.contract = *contract, .optimize = *optimize});
     }
 
     std::map<std::string, ApiInstantiationSet>& out_;
@@ -233,23 +237,13 @@ auto contract_cs_name(ContractValue contract) -> std::string {
     return "Contracts.Ignore";
 }
 
-[[nodiscard]]
-auto variant_suffix(ContractValue contract, bool optimize) -> std::string {
-    std::string suffix;
-    suffix += (contract == ContractValue::quick_enforce) ? "QuickEnforce" : "Ignore";
-    suffix += optimize ? "OptimizeTrue" : "OptimizeFalse";
-    return suffix;
-}
-
-void emit_wrapper_signature(std::ostringstream& out, std::string const& method, std::string const& args, bool default_optimize) {
-    out << "    public static string " << method << "(" << args
-        << ", Contracts ndebug = Contracts.QuickEnforce, bool optimize = " << (default_optimize ? "true" : "false")
-        << ")\n";
+void emit_wrapper_signature(std::ostringstream& out, std::string const& method, std::string const& args) {
+    out << "    public static string " << method << "(" << args << ")\n";
 }
 
 void emit_variant_body(std::ostringstream& out, std::string const& method, std::string const& inner_args, std::string const& call_args,
                        ContractValue contract, bool optimize, std::string const& backend_expr) {
-    out << "    private static string " << method << "_" << variant_suffix(contract, optimize) << "(" << inner_args << ")\n";
+    out << "    private static string " << method << "_Impl(" << inner_args << ")\n";
     out << "    {\n";
     out << "        var ast = Pltxt2Internal.ParsePltxt(pltext, " << contract_cs_name(contract) << ");\n";
     if (optimize) {
@@ -259,18 +253,28 @@ void emit_variant_body(std::ostringstream& out, std::string const& method, std::
     out << "    }\n\n";
 }
 
-void emit_dispatch_case(std::ostringstream& out, std::string const& method, std::string const& passthrough_args, ContractValue contract) {
-    out << "            case " << contract_cs_name(contract) << ":\n";
-    out << "                return optimize ? " << method << "_" << variant_suffix(contract, true) << "(" << passthrough_args << ") : "
-        << method << "_" << variant_suffix(contract, false) << "(" << passthrough_args << ");\n";
+void emit_dispatch_case(std::ostringstream& out, std::string const& method, std::string const& passthrough_args) {
+    out << "        return " << method << "_Impl(" << passthrough_args << ");\n";
 }
 
 [[nodiscard]]
-auto generate_csharp() -> std::string {
+auto get_single_variant(std::map<std::string, ApiInstantiationSet> const& instantiated, std::string const& api_name) -> VariantKey {
+    auto it = instantiated.find(api_name);
+    if (it == instantiated.end()) {
+        terminate_internal_error("missing specialization for " + api_name);
+    }
+    if (it->second.variants.size() != 1) {
+        terminate_internal_error("expected exactly one instantiated specialization for " + api_name);
+    }
+    return *it->second.variants.begin();
+}
+
+[[nodiscard]]
+auto generate_csharp(std::map<std::string, ApiInstantiationSet> const& instantiated) -> std::string {
     std::ostringstream out;
     out << "// <auto-generated />\n";
-    out << "// Generated by translang/csharp using clang preprocessor + template instantiation.\n";
-    out << "// Source: include/pltxt2htm/pltxt2htm.hh (pltxt2xxx APIs)\n";
+    out << "// Generated by translang/csharp using clang template instantiation from compiled source.\n";
+    out << "// Source: translang/csharp/pltxt2htm.cc\n";
     out << "using System;\n";
     out << "using System.Collections.Generic;\n\n";
     out << "namespace Pltxt2htm.Generated;\n\n";
@@ -287,95 +291,39 @@ auto generate_csharp() -> std::string {
     out << "public static class Pltxt2xxxApi\n";
     out << "{\n";
 
-    emit_wrapper_signature(out, "Pltxt2AdvancedHtml", "string pltext", true);
+    auto const advanced = get_single_variant(instantiated, "pltxt2advanced_html");
+    auto const plunity = get_single_variant(instantiated, "pltxt2plunity_introduction");
+    auto const common = get_single_variant(instantiated, "pltxt2common_html");
+
+    emit_wrapper_signature(out, "Pltxt2AdvancedHtml", "string pltext");
     out << "    {\n";
-    out << "        switch (ndebug)\n";
-    out << "        {\n";
-    emit_dispatch_case(out, "Pltxt2AdvancedHtml", "pltext", ContractValue::quick_enforce);
-    emit_dispatch_case(out, "Pltxt2AdvancedHtml", "pltext", ContractValue::ignore);
-    out << "            default:\n";
-    out << "                throw new ArgumentOutOfRangeException(nameof(ndebug), ndebug, \"Unsupported contract value\");\n";
-    out << "        }\n";
+    emit_dispatch_case(out, "Pltxt2AdvancedHtml", "pltext");
     out << "    }\n\n";
 
-    emit_wrapper_signature(out, "Pltxt2FixedadvHtml", "string pltext, string host, string project, string visitor, string author, string coauthors",
-                           true);
+    emit_wrapper_signature(out, "Pltxt2PlunityIntroduction", "string pltext, string project, string visitor, string author, string coauthors");
     out << "    {\n";
-    out << "        switch (ndebug)\n";
-    out << "        {\n";
-    emit_dispatch_case(out, "Pltxt2FixedadvHtml", "pltext, host, project, visitor, author, coauthors", ContractValue::quick_enforce);
-    emit_dispatch_case(out, "Pltxt2FixedadvHtml", "pltext, host, project, visitor, author, coauthors", ContractValue::ignore);
-    out << "            default:\n";
-    out << "                throw new ArgumentOutOfRangeException(nameof(ndebug), ndebug, \"Unsupported contract value\");\n";
-    out << "        }\n";
+    emit_dispatch_case(out, "Pltxt2PlunityIntroduction", "pltext, project, visitor, author, coauthors");
     out << "    }\n\n";
 
-    emit_wrapper_signature(out, "Pltxt2PlunityIntroduction", "string pltext, string project, string visitor, string author, string coauthors",
-                           true);
+    emit_wrapper_signature(out, "Pltxt2CommonHtml", "string pltext");
     out << "    {\n";
-    out << "        switch (ndebug)\n";
-    out << "        {\n";
-    emit_dispatch_case(out, "Pltxt2PlunityIntroduction", "pltext, project, visitor, author, coauthors", ContractValue::quick_enforce);
-    emit_dispatch_case(out, "Pltxt2PlunityIntroduction", "pltext, project, visitor, author, coauthors", ContractValue::ignore);
-    out << "            default:\n";
-    out << "                throw new ArgumentOutOfRangeException(nameof(ndebug), ndebug, \"Unsupported contract value\");\n";
-    out << "        }\n";
+    emit_dispatch_case(out, "Pltxt2CommonHtml", "pltext");
     out << "    }\n\n";
 
-    emit_wrapper_signature(out, "Pltxt2CommonHtml", "string pltext", false);
-    out << "    {\n";
-    out << "        switch (ndebug)\n";
-    out << "        {\n";
-    emit_dispatch_case(out, "Pltxt2CommonHtml", "pltext", ContractValue::quick_enforce);
-    emit_dispatch_case(out, "Pltxt2CommonHtml", "pltext", ContractValue::ignore);
-    out << "            default:\n";
-    out << "                throw new ArgumentOutOfRangeException(nameof(ndebug), ndebug, \"Unsupported contract value\");\n";
-    out << "        }\n";
-    out << "    }\n\n";
+    auto const advanced_backend_contract = contract_cs_name(advanced.contract);
+    auto const plunity_backend_contract = contract_cs_name(plunity.contract);
+    auto const common_backend_contract = contract_cs_name(common.contract);
 
-    emit_variant_body(out, "Pltxt2AdvancedHtml", "string pltext", "pltext", ContractValue::quick_enforce, true,
-                      "Pltxt2Internal.PlwebTextBackend(ast, \"localhost:5173\", \"$PROJECT\", \"$VISITOR\", \"$AUTHOR\", \"$CO_AUTHORS\", Contracts.QuickEnforce)");
-    emit_variant_body(out, "Pltxt2AdvancedHtml", "string pltext", "pltext", ContractValue::quick_enforce, false,
-                      "Pltxt2Internal.PlwebTextBackend(ast, \"localhost:5173\", \"$PROJECT\", \"$VISITOR\", \"$AUTHOR\", \"$CO_AUTHORS\", Contracts.QuickEnforce)");
-    emit_variant_body(out, "Pltxt2AdvancedHtml", "string pltext", "pltext", ContractValue::ignore, true,
-                      "Pltxt2Internal.PlwebTextBackend(ast, \"localhost:5173\", \"$PROJECT\", \"$VISITOR\", \"$AUTHOR\", \"$CO_AUTHORS\", Contracts.Ignore)");
-    emit_variant_body(out, "Pltxt2AdvancedHtml", "string pltext", "pltext", ContractValue::ignore, false,
-                      "Pltxt2Internal.PlwebTextBackend(ast, \"localhost:5173\", \"$PROJECT\", \"$VISITOR\", \"$AUTHOR\", \"$CO_AUTHORS\", Contracts.Ignore)");
-
-    emit_variant_body(out, "Pltxt2FixedadvHtml", "string pltext, string host, string project, string visitor, string author, string coauthors",
-                      "pltext, host, project, visitor, author, coauthors", ContractValue::quick_enforce, true,
-                      "Pltxt2Internal.PlwebTextBackend(ast, host, project, visitor, author, coauthors, Contracts.QuickEnforce)");
-    emit_variant_body(out, "Pltxt2FixedadvHtml", "string pltext, string host, string project, string visitor, string author, string coauthors",
-                      "pltext, host, project, visitor, author, coauthors", ContractValue::quick_enforce, false,
-                      "Pltxt2Internal.PlwebTextBackend(ast, host, project, visitor, author, coauthors, Contracts.QuickEnforce)");
-    emit_variant_body(out, "Pltxt2FixedadvHtml", "string pltext, string host, string project, string visitor, string author, string coauthors",
-                      "pltext, host, project, visitor, author, coauthors", ContractValue::ignore, true,
-                      "Pltxt2Internal.PlwebTextBackend(ast, host, project, visitor, author, coauthors, Contracts.Ignore)");
-    emit_variant_body(out, "Pltxt2FixedadvHtml", "string pltext, string host, string project, string visitor, string author, string coauthors",
-                      "pltext, host, project, visitor, author, coauthors", ContractValue::ignore, false,
-                      "Pltxt2Internal.PlwebTextBackend(ast, host, project, visitor, author, coauthors, Contracts.Ignore)");
+    emit_variant_body(out, "Pltxt2AdvancedHtml", "string pltext", "pltext", advanced.contract, advanced.optimize,
+                      "Pltxt2Internal.PlwebTextBackend(ast, \"localhost:5173\", \"$PROJECT\", \"$VISITOR\", \"$AUTHOR\", \"$CO_AUTHORS\", " +
+                          advanced_backend_contract + ")");
 
     emit_variant_body(out, "Pltxt2PlunityIntroduction", "string pltext, string project, string visitor, string author, string coauthors",
-                      "pltext, project, visitor, author, coauthors", ContractValue::quick_enforce, true,
-                      "Pltxt2Internal.PlunityTextBackend(ast, project, visitor, author, coauthors, Contracts.QuickEnforce)");
-    emit_variant_body(out, "Pltxt2PlunityIntroduction", "string pltext, string project, string visitor, string author, string coauthors",
-                      "pltext, project, visitor, author, coauthors", ContractValue::quick_enforce, false,
-                      "Pltxt2Internal.PlunityTextBackend(ast, project, visitor, author, coauthors, Contracts.QuickEnforce)");
-    emit_variant_body(out, "Pltxt2PlunityIntroduction", "string pltext, string project, string visitor, string author, string coauthors",
-                      "pltext, project, visitor, author, coauthors", ContractValue::ignore, true,
-                      "Pltxt2Internal.PlunityTextBackend(ast, project, visitor, author, coauthors, Contracts.Ignore)");
-    emit_variant_body(out, "Pltxt2PlunityIntroduction", "string pltext, string project, string visitor, string author, string coauthors",
-                      "pltext, project, visitor, author, coauthors", ContractValue::ignore, false,
-                      "Pltxt2Internal.PlunityTextBackend(ast, project, visitor, author, coauthors, Contracts.Ignore)");
+                      "pltext, project, visitor, author, coauthors", plunity.contract, plunity.optimize,
+                      "Pltxt2Internal.PlunityTextBackend(ast, project, visitor, author, coauthors, " + plunity_backend_contract + ")");
 
-    emit_variant_body(out, "Pltxt2CommonHtml", "string pltext", "pltext", ContractValue::quick_enforce, true,
-                      "Pltxt2Internal.PlwebTitleBackend(ast, Contracts.QuickEnforce)");
-    emit_variant_body(out, "Pltxt2CommonHtml", "string pltext", "pltext", ContractValue::quick_enforce, false,
-                      "Pltxt2Internal.PlwebTitleBackend(ast, Contracts.QuickEnforce)");
-    emit_variant_body(out, "Pltxt2CommonHtml", "string pltext", "pltext", ContractValue::ignore, true,
-                      "Pltxt2Internal.PlwebTitleBackend(ast, Contracts.Ignore)");
-    emit_variant_body(out, "Pltxt2CommonHtml", "string pltext", "pltext", ContractValue::ignore, false,
-                      "Pltxt2Internal.PlwebTitleBackend(ast, Contracts.Ignore)");
+    emit_variant_body(out, "Pltxt2CommonHtml", "string pltext", "pltext", common.contract, common.optimize,
+                      "Pltxt2Internal.PlwebTitleBackend(ast, " + common_backend_contract + ")");
 
     out << "}\n\n";
     out << "internal static class Pltxt2Internal\n";
@@ -397,7 +345,6 @@ auto generate_csharp() -> std::string {
 void validate_required_instantiations(std::map<std::string, ApiInstantiationSet> const& instantiated) {
     constexpr std::string_view apis[]{
         "pltxt2advanced_html",
-        "pltxt2fixedadv_html",
         "pltxt2plunity_introduction",
         "pltxt2common_html",
     };
@@ -406,31 +353,36 @@ void validate_required_instantiations(std::map<std::string, ApiInstantiationSet>
         if (it == instantiated.end()) {
             terminate_internal_error("missing template instantiations for: " + std::string(api));
         }
-        for (auto contract : {ContractValue::quick_enforce, ContractValue::ignore}) {
-            for (auto optimize : {false, true}) {
-                if (!it->second.variants.contains(VariantKey{.contract = contract, .optimize = optimize})) {
-                    terminate_internal_error("missing specialization for " + std::string(api));
-                }
-            }
+        if (it->second.variants.size() != 1) {
+            terminate_internal_error("expected exactly one specialization for " + std::string(api));
         }
     }
 }
 
-auto collect_instantiations(Paths const& paths) -> std::expected<void, std::string> {
-    auto tu = make_instantiation_tu(paths.header_path);
-
+auto collect_instantiations(Paths const& paths) -> std::expected<std::map<std::string, ApiInstantiationSet>, std::string> {
+    auto source_text = read_text_file(paths.source_path);
+    if (!source_text.has_value()) {
+        return std::unexpected(source_text.error());
+    }
     std::vector<std::string> args;
     args.emplace_back("-std=c++23");
     args.emplace_back("-fsyntax-only");
+    args.emplace_back("-fno-delayed-template-parsing");
     args.emplace_back("-I" + normalized_include(std::filesystem::absolute(paths.include_dir)));
+#if defined(NDEBUG)
+    args.emplace_back("-DNDEBUG");
+#endif
 
-    auto ast = clang::tooling::buildASTFromCodeWithArgs(tu, args, "pltxt2htm_instantiations.cc");
+    auto ast = clang::tooling::buildASTFromCodeWithArgs(*source_text, args, normalized_include(std::filesystem::absolute(paths.source_path)));
     if (!ast) {
-        return std::unexpected("clang failed to preprocess/template-instantiate the header");
+        return std::unexpected("clang failed to compile/template-instantiate translang/csharp/pltxt2htm.cc");
     }
 
-    // buildASTFromCodeWithArgs performs preprocessing and template instantiation.
-    return {};
+    std::map<std::string, ApiInstantiationSet> instantiated{};
+    ApiInstantiationVisitor visitor(instantiated);
+    visitor.TraverseDecl(ast->getASTContext().getTranslationUnitDecl());
+    validate_required_instantiations(instantiated);
+    return instantiated;
 }
 
 auto write_text_file(std::filesystem::path const& path, std::string const& content) -> std::expected<void, std::string> {
@@ -460,22 +412,12 @@ int main(int argc, char const* const* argv) {
 
     auto paths = hardcoded_paths(cli->output_dir);
 
-    auto header_text = read_text_file(paths.header_path);
-    if (!header_text.has_value()) {
-        exit_with_error(header_text.error());
-    }
-
-    auto header_validation = validate_header(*header_text);
-    if (!header_validation.has_value()) {
-        exit_with_error(header_validation.error());
-    }
-
     auto collect_result = collect_instantiations(paths);
     if (!collect_result.has_value()) {
         exit_with_error(collect_result.error());
     }
 
-    auto generated = generate_csharp();
+    auto generated = generate_csharp(*collect_result);
     auto write_result = write_text_file(paths.output_path, generated);
     if (!write_result.has_value()) {
         exit_with_error(write_result.error());
