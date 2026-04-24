@@ -88,6 +88,8 @@ struct ParsePltxtModel {
         ::std::string node_type{};
     };
     ::std::vector<CsharpSwitchCase> nested_tag_switch_cases{};
+    ::std::string stack_var_name_csharp{"callStack"};
+    ::std::string stack_var_csharp_type{"Stack<BasicFrameContext>"};
 };
 
 struct TranslationModel {
@@ -398,6 +400,41 @@ constexpr auto extract_enum_constant_name(::clang::Expr const* expr) -> ::std::o
 }
 
 [[nodiscard]]
+constexpr auto csharp_type_for_parse_pltxt_local(::clang::QualType type) -> ::std::string {
+    type = type.getCanonicalType().getUnqualifiedType();
+    auto const* type_ptr = type.getTypePtrOrNull();
+    if (type_ptr == nullptr) {
+        return "object";
+    }
+    if (auto const* tst = ::llvm::dyn_cast<::clang::TemplateSpecializationType>(type_ptr)) {
+        if (auto const* template_decl = tst->getTemplateName().getAsTemplateDecl()) {
+            auto const qualified_name = template_decl->getQualifiedNameAsString();
+            if (qualified_name == "fast_io::stack" || qualified_name == "::fast_io::stack") {
+                if (tst->getNumArgs() == 1U && tst->getArg(0).getKind() == ::clang::TemplateArgument::Type) {
+                    return "Stack<" + csharp_type_for_parse_pltxt_local(tst->getArg(0).getAsType()) + ">";
+                }
+            }
+            if (qualified_name == "pltxt2htm::HeapGuard" || qualified_name == "::pltxt2htm::HeapGuard") {
+                if (tst->getNumArgs() == 1U && tst->getArg(0).getKind() == ::clang::TemplateArgument::Type) {
+                    return csharp_type_for_parse_pltxt_local(tst->getArg(0).getAsType());
+                }
+            }
+        }
+    }
+    if (auto const* record_type = type->getAs<::clang::RecordType>()) {
+        if (auto const* decl = record_type->getDecl()) {
+            auto const qualified_name = decl->getQualifiedNameAsString();
+            if (qualified_name == "pltxt2htm::details::BasicFrameContext" ||
+                qualified_name == "::pltxt2htm::details::BasicFrameContext") {
+                return "BasicFrameContext";
+            }
+            return decl->getNameAsString();
+        }
+    }
+    return csharp_type_for_field(type);
+}
+
+[[nodiscard]]
 constexpr auto is_derived_from(::clang::CXXRecordDecl const* decl, ::llvm::StringRef qualified_name) -> bool {
     for (auto const& base : decl->bases()) {
         auto const* base_decl = base.getType()->getAsCXXRecordDecl();
@@ -672,6 +709,20 @@ public:
         return true;
     }
 
+    constexpr auto VisitVarDecl(::clang::VarDecl* var_decl) -> bool {
+        if (!in_target_function_ || var_decl == nullptr || captured_stack_decl_) {
+            return true;
+        }
+        auto const mapped_type = csharp_type_for_parse_pltxt_local(var_decl->getType());
+        if (!::llvm::StringRef{mapped_type}.starts_with("Stack<")) {
+            return true;
+        }
+        out_.stack_var_name_csharp = to_camel_case(var_decl->getNameAsString());
+        out_.stack_var_csharp_type = mapped_type;
+        captured_stack_decl_ = true;
+        return true;
+    }
+
     [[nodiscard]]
     constexpr auto collected() const noexcept -> bool {
         return collected_ || !out_.nested_tag_switch_cases.empty();
@@ -686,6 +737,7 @@ private:
     bool in_target_function_{};
     bool in_target_switch_{};
     bool collected_{};
+    bool captured_stack_decl_{};
     ::std::set<::std::string> seen_case_labels_{};
 };
 
@@ -848,22 +900,30 @@ constexpr auto find_paired_tag_class_for_node_type(AstNodeModel const& astnode_m
 }
 
 constexpr void emit_parse_pltxt_translation(::llvm::raw_string_ostream& out, TranslationModel const& model) {
+    auto const stack_var_name = model.parse_pltxt.stack_var_name_csharp.empty() ? ::llvm::StringRef{"callStack"}
+                                                                                 : ::llvm::StringRef{
+                                                                                       model.parse_pltxt
+                                                                                           .stack_var_name_csharp};
+    auto const stack_var_type =
+        model.parse_pltxt.stack_var_csharp_type.empty() ? ::llvm::StringRef{"Stack<BasicFrameContext>"}
+                                                        : ::llvm::StringRef{model.parse_pltxt.stack_var_csharp_type};
     out << "    internal static Ast ParsePltxt(string pltext)\n";
     out << "    {\n";
-    out << "        var callStack = new Stack<BasicFrameContext>();\n";
+    out << "        var " << stack_var_name << " = new " << stack_var_type << "();\n";
     out << "        var result = new Ast();\n\n";
     out << "        ulong startIndex = 0;\n\n";
     out << "        while (true)\n";
     out << "        {\n";
     out << "            var (forwardIndex, hasNewFrame) = DevilStuffAfterLineBreak(U8StringViewSubview(pltext, "
-           "startIndex), callStack, result);\n";
+           "startIndex), "
+        << stack_var_name << ", result);\n";
     out << "            startIndex += forwardIndex;\n";
     out << "            if (!hasNewFrame)\n";
     out << "            {\n";
     out << "                break;\n";
     out << "            }\n";
-    out << "            var typeOfSubast = callStack.Peek().NestedTagType;\n";
-    out << "            var subast = ParsePltxtDetails(callStack);\n";
+    out << "            var typeOfSubast = " << stack_var_name << ".Peek().NestedTagType;\n";
+    out << "            var subast = ParsePltxtDetails(" << stack_var_name << ");\n";
     out << "            switch (typeOfSubast)\n";
     out << "            {\n";
     for (auto const& switch_case : model.parse_pltxt.nested_tag_switch_cases) {
@@ -883,11 +943,12 @@ constexpr void emit_parse_pltxt_translation(::llvm::raw_string_ostream& out, Tra
     out << "        }\n\n";
     out << "        if (startIndex < (ulong)pltext.Length)\n";
     out << "        {\n";
-    out << "            callStack.Push(HeapGuard(new BareTagContext(U8StringViewSubview(pltext, startIndex), "
+    out << "            " << stack_var_name
+        << ".Push(HeapGuard(new BareTagContext(U8StringViewSubview(pltext, startIndex), "
            "NodeType.base, result)));\n";
-    out << "            result = ParsePltxtDetails(callStack);\n";
+    out << "            result = ParsePltxtDetails(" << stack_var_name << ");\n";
     out << "        }\n\n";
-    out << "        var callStackIsEmpty = callStack.Count == 0;\n";
+    out << "        var callStackIsEmpty = " << stack_var_name << ".Count == 0;\n";
     out << "        Pltxt2Assert(callStackIsEmpty, \"call_stack is not empty\");\n\n";
     out << "        return result;\n";
     out << "    }\n\n";
@@ -900,9 +961,9 @@ constexpr void emit_parse_pltxt_translation(::llvm::raw_string_ostream& out, Tra
     out << "        return text[(int)startIndex..];\n";
     out << "    }\n\n";
     out << "    private static (ulong forwardIndex, bool hasNewFrame) DevilStuffAfterLineBreak(string pltextView, "
-           "Stack<BasicFrameContext> callStack, Ast result) => throw new NotImplementedException(\"Translate "
+        << stack_var_type << " " << stack_var_name << ", Ast result) => throw new NotImplementedException(\"Translate "
            "details::devil_stuff_after_line_break from parser.hh.\");\n";
-    out << "    private static Ast ParsePltxtDetails(Stack<BasicFrameContext> callStack) => throw new "
+    out << "    private static Ast ParsePltxtDetails(" << stack_var_type << " " << stack_var_name << ") => throw new "
            "NotImplementedException(\"Translate details::parse_pltxt from details/parser/parser.hh.\");\n";
     out << "    private static void Pltxt2Assert(bool condition, string message)\n";
     out << "    {\n";
