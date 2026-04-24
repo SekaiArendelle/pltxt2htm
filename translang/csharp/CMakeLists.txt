@@ -29,6 +29,7 @@ add_executable(pltxt2htm_csharp_translator src/main.cc)
 target_include_directories(pltxt2htm_csharp_translator PRIVATE
     ${LLVM_INCLUDE_DIRS}
     ${CLANG_INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../include
 )
 
 add_definitions(${LLVM_DEFINITIONS})

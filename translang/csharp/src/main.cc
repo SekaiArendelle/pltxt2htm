@@ -19,6 +19,8 @@
 #include <clang/AST/RecursiveASTVisitor.h>
 #include <clang/Tooling/Tooling.h>
 
+#include <pltxt2htm/contracts.hh>
+
 namespace {
 
 struct Paths {
@@ -31,13 +33,8 @@ struct CliOptions {
     std::filesystem::path output_dir{};
 };
 
-enum class ContractValue : int {
-    quick_enforce = 0,
-    ignore = 1,
-};
-
 struct VariantKey {
-    ContractValue contract{};
+    ::pltxt2htm::Contracts contract{};
     bool optimize{};
 
     auto operator<(VariantKey const& other) const noexcept -> bool {
@@ -119,16 +116,16 @@ auto normalized_include(std::filesystem::path path) -> std::string {
 }
 
 [[nodiscard]]
-auto parse_contract_arg(clang::TemplateArgument const& arg) -> std::optional<ContractValue> {
+auto parse_contract_arg(clang::TemplateArgument const& arg) -> std::optional<::pltxt2htm::Contracts> {
     if (arg.getKind() != clang::TemplateArgument::Integral) {
         return std::nullopt;
     }
     auto value = arg.getAsIntegral().getExtValue();
     if (value == 0) {
-        return ContractValue::quick_enforce;
+        return ::pltxt2htm::Contracts::quick_enforce;
     }
     if (value == 1) {
-        return ContractValue::ignore;
+        return ::pltxt2htm::Contracts::ignore;
     }
     return std::nullopt;
 }
@@ -229,25 +226,17 @@ private:
     std::map<std::string, ApiInstantiationSet>& out_;
 };
 
-[[nodiscard]]
-auto contract_cs_name(ContractValue contract) -> std::string {
-    if (contract == ContractValue::quick_enforce) {
-        return "Contracts.QuickEnforce";
-    }
-    return "Contracts.Ignore";
-}
-
 void emit_wrapper_signature(std::ostringstream& out, std::string const& method, std::string const& args) {
     out << "    public static string " << method << "(" << args << ")\n";
 }
 
-void emit_variant_body(std::ostringstream& out, std::string const& method, std::string const& inner_args, std::string const& call_args,
-                       ContractValue contract, bool optimize, std::string const& backend_expr) {
+void emit_variant_body(std::ostringstream& out, std::string const& method, std::string const& inner_args, bool optimize,
+                       std::string const& backend_expr) {
     out << "    private static string " << method << "_Impl(" << inner_args << ")\n";
     out << "    {\n";
-    out << "        var ast = Pltxt2Internal.ParsePltxt(pltext, " << contract_cs_name(contract) << ");\n";
+    out << "        var ast = Pltxt2Internal.ParsePltxt(pltext);\n";
     if (optimize) {
-        out << "        Pltxt2Internal.OptimizeAst(ast, " << contract_cs_name(contract) << ");\n";
+        out << "        Pltxt2Internal.OptimizeAst(ast);\n";
     }
     out << "        return " << backend_expr << ";\n";
     out << "    }\n\n";
@@ -278,11 +267,6 @@ auto generate_csharp(std::map<std::string, ApiInstantiationSet> const& instantia
     out << "using System;\n";
     out << "using System.Collections.Generic;\n\n";
     out << "namespace Pltxt2htm.Generated;\n\n";
-    out << "public enum Contracts\n";
-    out << "{\n";
-    out << "    QuickEnforce = 0,\n";
-    out << "    Ignore = 1\n";
-    out << "}\n\n";
     out << "public sealed class Ast\n";
     out << "{\n";
     out << "    // fast_io::vector -> List<T>\n";
@@ -310,20 +294,13 @@ auto generate_csharp(std::map<std::string, ApiInstantiationSet> const& instantia
     emit_dispatch_case(out, "Pltxt2CommonHtml", "pltext");
     out << "    }\n\n";
 
-    auto const advanced_backend_contract = contract_cs_name(advanced.contract);
-    auto const plunity_backend_contract = contract_cs_name(plunity.contract);
-    auto const common_backend_contract = contract_cs_name(common.contract);
-
-    emit_variant_body(out, "Pltxt2AdvancedHtml", "string pltext", "pltext", advanced.contract, advanced.optimize,
-                      "Pltxt2Internal.PlwebTextBackend(ast, \"localhost:5173\", \"$PROJECT\", \"$VISITOR\", \"$AUTHOR\", \"$CO_AUTHORS\", " +
-                          advanced_backend_contract + ")");
+    emit_variant_body(out, "Pltxt2AdvancedHtml", "string pltext", advanced.optimize,
+                      "Pltxt2Internal.PlwebTextBackend(ast, \"localhost:5173\", \"$PROJECT\", \"$VISITOR\", \"$AUTHOR\", \"$CO_AUTHORS\")");
 
     emit_variant_body(out, "Pltxt2PlunityIntroduction", "string pltext, string project, string visitor, string author, string coauthors",
-                      "pltext, project, visitor, author, coauthors", plunity.contract, plunity.optimize,
-                      "Pltxt2Internal.PlunityTextBackend(ast, project, visitor, author, coauthors, " + plunity_backend_contract + ")");
+                      plunity.optimize, "Pltxt2Internal.PlunityTextBackend(ast, project, visitor, author, coauthors)");
 
-    emit_variant_body(out, "Pltxt2CommonHtml", "string pltext", "pltext", common.contract, common.optimize,
-                      "Pltxt2Internal.PlwebTitleBackend(ast, " + common_backend_contract + ")");
+    emit_variant_body(out, "Pltxt2CommonHtml", "string pltext", common.optimize, "Pltxt2Internal.PlwebTitleBackend(ast)");
 
     out << "}\n\n";
     out << "internal static class Pltxt2Internal\n";
@@ -331,11 +308,11 @@ auto generate_csharp(std::map<std::string, ApiInstantiationSet> const& instantia
     out << "    // exception::terminate / exception::unreachable -> throw\n";
     out << "    internal static void Terminate(string message) => throw new InvalidOperationException(message);\n";
     out << "    internal static T Unreachable<T>(string message) => throw new InvalidOperationException(message);\n\n";
-    out << "    internal static Ast ParsePltxt(string pltext, Contracts ndebug) => throw new NotImplementedException(\"Translate parser.hh to fill this.\");\n";
-    out << "    internal static void OptimizeAst(Ast ast, Contracts ndebug) => throw new NotImplementedException(\"Translate optimizer.hh to fill this.\");\n";
-    out << "    internal static string PlwebTextBackend(Ast ast, string host, string project, string visitor, string author, string coauthors, Contracts ndebug) => throw new NotImplementedException(\"Translate details/backend/for_plweb_text.hh to fill this.\");\n";
-    out << "    internal static string PlunityTextBackend(Ast ast, string project, string visitor, string author, string coauthors, Contracts ndebug) => throw new NotImplementedException(\"Translate details/backend/for_plunity_text.hh to fill this.\");\n";
-    out << "    internal static string PlwebTitleBackend(Ast ast, Contracts ndebug) => throw new NotImplementedException(\"Translate details/backend/for_plweb_title.hh to fill this.\");\n\n";
+    out << "    internal static Ast ParsePltxt(string pltext) => throw new NotImplementedException(\"Translate parser.hh to fill this.\");\n";
+    out << "    internal static void OptimizeAst(Ast ast) => throw new NotImplementedException(\"Translate optimizer.hh to fill this.\");\n";
+    out << "    internal static string PlwebTextBackend(Ast ast, string host, string project, string visitor, string author, string coauthors) => throw new NotImplementedException(\"Translate details/backend/for_plweb_text.hh to fill this.\");\n";
+    out << "    internal static string PlunityTextBackend(Ast ast, string project, string visitor, string author, string coauthors) => throw new NotImplementedException(\"Translate details/backend/for_plunity_text.hh to fill this.\");\n";
+    out << "    internal static string PlwebTitleBackend(Ast ast) => throw new NotImplementedException(\"Translate details/backend/for_plweb_title.hh to fill this.\");\n\n";
     out << "    // HeapGuard in C++ is only heap object lifetime guard; in C# use normal variable.\n";
     out << "    internal static T HeapGuard<T>(T value) => value;\n";
     out << "}\n";
