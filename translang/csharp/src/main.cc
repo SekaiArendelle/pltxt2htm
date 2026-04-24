@@ -84,7 +84,10 @@ struct AstNodeModel {
 };
 
 struct ParsePltxtModel {
-    ::std::vector<::std::string> switch_node_types{};
+    struct CsharpSwitchCase {
+        ::std::string node_type{};
+    };
+    ::std::vector<CsharpSwitchCase> nested_tag_switch_cases{};
 };
 
 struct TranslationModel {
@@ -623,63 +626,68 @@ constexpr auto is_public_parse_pltxt_decl(::clang::FunctionDecl const* fd) -> bo
     return param_text.find("u8string_view") != ::std::string::npos;
 }
 
-constexpr void collect_parse_pltxt_case_labels(::clang::Stmt const* stmt, ::std::vector<::std::string>& out,
-                                               ::std::set<::std::string>& seen) {
-    if (stmt == nullptr) {
-        return;
+class ParsePltxtToCsharpAstVisitor : public ::clang::RecursiveASTVisitor<ParsePltxtToCsharpAstVisitor> {
+public:
+    constexpr explicit ParsePltxtToCsharpAstVisitor(ParsePltxtModel& out) noexcept
+        : out_(out) {
     }
-    if (auto const* case_stmt = ::llvm::dyn_cast<::clang::CaseStmt>(stmt)) {
-        if (auto node_type = extract_enum_constant_name(case_stmt->getLHS())) {
-            if (seen.insert(*node_type).second) {
-                out.push_back(*node_type);
-            }
-        }
-    }
-    for (auto const* child : stmt->children()) {
-        collect_parse_pltxt_case_labels(child, out, seen);
-    }
-}
 
-constexpr void maybe_collect_parse_pltxt_from_function(::clang::FunctionDecl const* fd, ParsePltxtModel& out,
-                                                       bool& collected) {
-    if (collected || !is_public_parse_pltxt_decl(fd)) {
-        return;
+    constexpr auto TraverseFunctionDecl(::clang::FunctionDecl* fd) -> bool {
+        if (fd == nullptr) {
+            return true;
+        }
+        auto const previous_in_target_function = in_target_function_;
+        if (!collected_ && is_public_parse_pltxt_decl(fd)) {
+            in_target_function_ = true;
+        }
+        auto const ok = ::clang::RecursiveASTVisitor<ParsePltxtToCsharpAstVisitor>::TraverseFunctionDecl(fd);
+        in_target_function_ = previous_in_target_function;
+        return ok;
     }
-    auto const* body = fd->getBody();
-    if (body == nullptr) {
-        return;
-    }
-    ::std::set<::std::string> seen{};
-    collect_parse_pltxt_case_labels(body, out.switch_node_types, seen);
-    collected = !out.switch_node_types.empty();
-}
 
-constexpr void collect_parse_pltxt_from_decl_context(::clang::DeclContext const* decl_context, ParsePltxtModel& out,
-                                                     bool& collected) {
-    for (auto const* decl : decl_context->decls()) {
-        if (collected) {
-            return;
+    constexpr auto TraverseSwitchStmt(::clang::SwitchStmt* switch_stmt) -> bool {
+        if (switch_stmt == nullptr) {
+            return true;
         }
-        if (auto const* nested = ::llvm::dyn_cast<::clang::DeclContext>(decl); nested != nullptr) {
-            collect_parse_pltxt_from_decl_context(nested, out, collected);
-            if (collected) {
-                return;
-            }
+        auto const previous_in_switch = in_target_switch_;
+        if (in_target_function_) {
+            in_target_switch_ = true;
         }
-        if (auto const* fd = ::llvm::dyn_cast<::clang::FunctionDecl>(decl); fd != nullptr) {
-            maybe_collect_parse_pltxt_from_function(fd, out, collected);
-            if (collected) {
-                return;
-            }
-        }
-        if (auto const* ftd = ::llvm::dyn_cast<::clang::FunctionTemplateDecl>(decl); ftd != nullptr) {
-            maybe_collect_parse_pltxt_from_function(ftd->getTemplatedDecl(), out, collected);
-            if (collected) {
-                return;
-            }
-        }
+        auto const ok = ::clang::RecursiveASTVisitor<ParsePltxtToCsharpAstVisitor>::TraverseSwitchStmt(switch_stmt);
+        in_target_switch_ = previous_in_switch;
+        return ok;
     }
-}
+
+    constexpr auto VisitCaseStmt(::clang::CaseStmt* case_stmt) -> bool {
+        if (!in_target_function_ || !in_target_switch_ || case_stmt == nullptr) {
+            return true;
+        }
+        if (auto node_type = extract_enum_constant_name(case_stmt->getLHS()); node_type.has_value()) {
+            if (seen_case_labels_.insert(*node_type).second) {
+                out_.nested_tag_switch_cases.push_back(ParsePltxtModel::CsharpSwitchCase{
+                    .node_type = *node_type,
+                });
+            }
+        }
+        return true;
+    }
+
+    [[nodiscard]]
+    constexpr auto collected() const noexcept -> bool {
+        return collected_ || !out_.nested_tag_switch_cases.empty();
+    }
+
+    constexpr void finalize() noexcept {
+        collected_ = !out_.nested_tag_switch_cases.empty();
+    }
+
+private:
+    ParsePltxtModel& out_;
+    bool in_target_function_{};
+    bool in_target_switch_{};
+    bool collected_{};
+    ::std::set<::std::string> seen_case_labels_{};
+};
 
 constexpr void emit_astnode_enum(::llvm::raw_string_ostream& out, AstNodeModel const& astnode_model) {
     out << "public enum NodeType\n";
@@ -858,12 +866,13 @@ constexpr void emit_parse_pltxt_translation(::llvm::raw_string_ostream& out, Tra
     out << "            var subast = ParsePltxtDetails(callStack);\n";
     out << "            switch (typeOfSubast)\n";
     out << "            {\n";
-    for (auto const& node_type : model.parse_pltxt.switch_node_types) {
-        auto class_name = find_paired_tag_class_for_node_type(model.astnodes, node_type);
+    for (auto const& switch_case : model.parse_pltxt.nested_tag_switch_cases) {
+        auto class_name = find_paired_tag_class_for_node_type(model.astnodes, switch_case.node_type);
         if (!class_name.has_value()) {
-            terminate_internal_error("failed to map parse_pltxt switch node type to paired tag class: " + node_type);
+            terminate_internal_error("failed to map parse_pltxt switch node type to paired tag class: " +
+                                     switch_case.node_type);
         }
-        out << "            case NodeType." << node_type << ":\n";
+        out << "            case NodeType." << switch_case.node_type << ":\n";
         out << "                result.Nodes.Add(HeapGuard(new " << *class_name << "(subast)));\n";
         out << "                continue;\n";
     }
@@ -1103,9 +1112,10 @@ constexpr auto collect_parse_pltxt_model(Paths const& paths) -> ::llvm::Expected
         return ::llvm::createStringError(::std::errc::invalid_argument, "clang failed to parse include/pltxt2htm/parser.hh");
     }
     ParsePltxtModel model{};
-    bool collected{};
-    collect_parse_pltxt_from_decl_context(ast->getASTContext().getTranslationUnitDecl(), model, collected);
-    if (!collected) {
+    ParsePltxtToCsharpAstVisitor visitor(model);
+    visitor.TraverseDecl(ast->getASTContext().getTranslationUnitDecl());
+    visitor.finalize();
+    if (!visitor.collected()) {
         return ::llvm::createStringError(::std::errc::invalid_argument,
                                          "failed to derive parse_pltxt switch cases from include/pltxt2htm/parser.hh");
     }
