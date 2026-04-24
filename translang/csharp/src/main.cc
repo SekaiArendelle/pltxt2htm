@@ -649,8 +649,15 @@ constexpr void emit_astnode_class(::llvm::raw_string_ostream& out, AstNodeClassS
         out << "\n";
     }
 
+    bool emitted_parameterless_ctor = false;
     if (cls.has_default_ctor) {
-        if (cls.fields.empty()) {
+        if (cls.base_kind == AstNodeBaseKind::paired_tag && cls.fields.empty()) {
+            out << "    public " << cls.name << "() : this(new Ast())\n";
+            out << "    {\n";
+            out << "    }\n\n";
+            emitted_parameterless_ctor = true;
+        }
+        else if (cls.fields.empty()) {
             out << "    public " << cls.name << "()";
             if (cls.base_kind == AstNodeBaseKind::pltxt_node && cls.node_type.has_value()) {
                 out << " : base(NodeType." << *cls.node_type << ")";
@@ -658,17 +665,26 @@ constexpr void emit_astnode_class(::llvm::raw_string_ostream& out, AstNodeClassS
             out << "\n";
             out << "    {\n";
             out << "    }\n\n";
+            emitted_parameterless_ctor = true;
         }
-        else if (cls.fields.size() == 1 && cls.fields.front().csharp_type == "Ast") {
+        else if (cls.base_kind == AstNodeBaseKind::plain && cls.fields.size() == 1 &&
+                 cls.fields.front().csharp_type == "Ast") {
             out << "    public " << cls.name << "() : this(new Ast())\n";
             out << "    {\n";
             out << "    }\n\n";
         }
     }
 
-    out << "    public " << cls.name << "(";
+    bool needs_subast_param = cls.base_kind == AstNodeBaseKind::paired_tag;
+    bool has_field_params = !cls.fields.empty();
+    if (emitted_parameterless_ctor && !needs_subast_param && !has_field_params) {
+        out << "}\n\n";
+        return;
+    }
+
     bool need_comma = false;
-    if (cls.base_kind == AstNodeBaseKind::paired_tag) {
+    out << "    public " << cls.name << "(";
+    if (needs_subast_param) {
         out << "Ast subast";
         need_comma = true;
     }
