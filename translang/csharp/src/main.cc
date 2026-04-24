@@ -135,7 +135,8 @@ constexpr auto parse_cli_options(int argc, char const* const* argv) -> ::llvm::E
         return ::llvm::createStringError(::std::errc::invalid_argument, "unknown argument: %s", argv[i]);
     }
     if (!has_output_dir) {
-        return ::llvm::createStringError(::std::errc::invalid_argument, "missing required argument: --output-dir <directory>");
+        return ::llvm::createStringError(::std::errc::invalid_argument,
+                                         "missing required argument: --output-dir <directory>");
     }
     return options;
 }
@@ -164,7 +165,8 @@ constexpr auto normalized_include(::llvm::StringRef path) -> ::std::string {
 }
 
 [[nodiscard]]
-constexpr auto parse_contract_arg(::clang::TemplateArgument const& arg) noexcept -> ::std::optional<::pltxt2htm::Contracts> {
+constexpr auto parse_contract_arg(::clang::TemplateArgument const& arg) noexcept
+    -> ::std::optional<::pltxt2htm::Contracts> {
     if (arg.getKind() != ::clang::TemplateArgument::Integral) {
         return ::std::nullopt;
     }
@@ -206,7 +208,9 @@ constexpr auto default_optimize_for_api(::llvm::StringRef name) noexcept -> ::st
 
 class ApiInstantiationVisitor : public ::clang::RecursiveASTVisitor<ApiInstantiationVisitor> {
 public:
-    constexpr explicit ApiInstantiationVisitor(ApiInstantiationMap& out) noexcept : out_(out) {}
+    constexpr explicit ApiInstantiationVisitor(ApiInstantiationMap& out) noexcept
+        : out_(out) {
+    }
 
     constexpr auto VisitFunctionDecl(::clang::FunctionDecl* fd) -> bool {
         auto const name_storage = fd->getNameAsString();
@@ -263,7 +267,8 @@ private:
         ::std::optional<bool> optimize;
         if (targs.size() >= 2) {
             optimize = parse_bool_arg(targs[1]);
-        } else {
+        }
+        else {
             optimize = default_optimize_for_api(name);
         }
         if (!optimize.has_value()) {
@@ -295,7 +300,8 @@ constexpr auto to_pascal_case(::llvm::StringRef text) -> ::std::string {
         if (capitalize) {
             out.push_back(static_cast<char>(::std::toupper(static_cast<unsigned char>(ch))));
             capitalize = false;
-        } else {
+        }
+        else {
             out.push_back(ch);
         }
     }
@@ -320,10 +326,12 @@ constexpr auto to_camel_case(::llvm::StringRef text) -> ::std::string {
 [[nodiscard]]
 constexpr auto csharp_type_for_field(::clang::QualType type) -> ::std::string {
     auto const type_text = type.getAsString();
-    if (type_text.find("exception::optional") != ::std::string::npos && type_text.find("u8string") != ::std::string::npos) {
+    if (type_text.find("exception::optional") != ::std::string::npos &&
+        type_text.find("u8string") != ::std::string::npos) {
         return "string?";
     }
-    if (type_text.find("fast_io::u8string") != ::std::string::npos || type_text.find("basic_string<char8_t") != ::std::string::npos) {
+    if (type_text.find("fast_io::u8string") != ::std::string::npos ||
+        type_text.find("basic_string<char8_t") != ::std::string::npos) {
         return "string";
     }
     if (type_text.find("pltxt2htm::Ast") != ::std::string::npos) {
@@ -424,8 +432,9 @@ constexpr auto extract_node_type_for_record(::clang::CXXRecordDecl const* decl) 
     return ::std::nullopt;
 }
 
-constexpr void collect_astnode_from_decl_context(::clang::DeclContext const* decl_context, ::clang::SourceManager& source_manager,
-                                                 AstNodeModel& out, ::std::set<::std::string>& seen_classes,
+constexpr void collect_astnode_from_decl_context(::clang::DeclContext const* decl_context,
+                                                 ::clang::SourceManager& source_manager, AstNodeModel& out,
+                                                 ::std::set<::std::string>& seen_classes,
                                                  bool& captured_node_type_enum) {
     for (auto const* decl : decl_context->decls()) {
         if (auto const* nested = ::llvm::dyn_cast<::clang::DeclContext>(decl); nested != nullptr) {
@@ -433,7 +442,8 @@ constexpr void collect_astnode_from_decl_context(::clang::DeclContext const* dec
         }
         if (!captured_node_type_enum) {
             if (auto const* ed = ::llvm::dyn_cast<::clang::EnumDecl>(decl);
-                ed != nullptr && ed->isCompleteDefinition() && ed->getQualifiedNameAsString() == "pltxt2htm::NodeType") {
+                ed != nullptr && ed->isCompleteDefinition() &&
+                ed->getQualifiedNameAsString() == "pltxt2htm::NodeType") {
                 auto const enum_loc = source_manager.getFileLoc(ed->getLocation());
                 if (!is_astnode_header_path(source_manager.getFilename(enum_loc))) {
                     continue;
@@ -475,7 +485,8 @@ constexpr void collect_astnode_from_decl_context(::clang::DeclContext const* dec
         cls.source_line = loc.isValid() ? source_manager.getSpellingLineNumber(loc) : 0U;
         if (derived_from_paired) {
             cls.base_kind = AstNodeBaseKind::paired_tag;
-        } else if (derived_from_node) {
+        }
+        else if (derived_from_node) {
             cls.base_kind = AstNodeBaseKind::pltxt_node;
         }
         cls.node_type = extract_node_type_for_record(rd);
@@ -560,7 +571,8 @@ public:
         cls.source_line = loc.isValid() ? source_manager_.getSpellingLineNumber(loc) : 0U;
         if (derived_from_paired) {
             cls.base_kind = AstNodeBaseKind::paired_tag;
-        } else if (derived_from_node) {
+        }
+        else if (derived_from_node) {
             cls.base_kind = AstNodeBaseKind::pltxt_node;
         }
         cls.node_type = extract_node_type_for_record(rd);
@@ -625,7 +637,8 @@ constexpr void emit_astnode_class(::llvm::raw_string_ostream& out, AstNodeClassS
     out << "public sealed class " << cls.name;
     if (cls.base_kind == AstNodeBaseKind::pltxt_node) {
         out << " : PlTxtNode";
-    } else if (cls.base_kind == AstNodeBaseKind::paired_tag) {
+    }
+    else if (cls.base_kind == AstNodeBaseKind::paired_tag) {
         out << " : PairedTagBase";
     }
     out << "\n{\n";
@@ -645,7 +658,8 @@ constexpr void emit_astnode_class(::llvm::raw_string_ostream& out, AstNodeClassS
             out << "\n";
             out << "    {\n";
             out << "    }\n\n";
-        } else if (cls.fields.size() == 1 && cls.fields.front().csharp_type == "Ast") {
+        }
+        else if (cls.fields.size() == 1 && cls.fields.front().csharp_type == "Ast") {
             out << "    public " << cls.name << "() : this(new Ast())\n";
             out << "    {\n";
             out << "    }\n\n";
@@ -668,7 +682,8 @@ constexpr void emit_astnode_class(::llvm::raw_string_ostream& out, AstNodeClassS
     out << ")";
     if (cls.base_kind == AstNodeBaseKind::pltxt_node && cls.node_type.has_value()) {
         out << " : base(NodeType." << *cls.node_type << ")";
-    } else if (cls.base_kind == AstNodeBaseKind::paired_tag && cls.node_type.has_value()) {
+    }
+    else if (cls.base_kind == AstNodeBaseKind::paired_tag && cls.node_type.has_value()) {
         out << " : base(NodeType." << *cls.node_type << ", subast)";
     }
     out << "\n";
@@ -715,12 +730,13 @@ constexpr void emit_astnode_translation(::llvm::raw_string_ostream& out, AstNode
     }
 }
 
-constexpr void emit_wrapper_signature(::llvm::raw_string_ostream& out, ::llvm::StringRef method, ::llvm::StringRef args) {
+constexpr void emit_wrapper_signature(::llvm::raw_string_ostream& out, ::llvm::StringRef method,
+                                      ::llvm::StringRef args) {
     out << "    public static string " << method << "(" << args << ")\n";
 }
 
-constexpr void emit_variant_body(::llvm::raw_string_ostream& out, ::llvm::StringRef method, ::llvm::StringRef inner_args, bool optimize,
-                       ::llvm::StringRef backend_expr) {
+constexpr void emit_variant_body(::llvm::raw_string_ostream& out, ::llvm::StringRef method,
+                                 ::llvm::StringRef inner_args, bool optimize, ::llvm::StringRef backend_expr) {
     out << "    private static string " << method << "_Impl(" << inner_args << ")\n";
     out << "    {\n";
     out << "        var ast = Pltxt2Internal.ParsePltxt(pltext);\n";
@@ -731,7 +747,8 @@ constexpr void emit_variant_body(::llvm::raw_string_ostream& out, ::llvm::String
     out << "    }\n\n";
 }
 
-constexpr void emit_dispatch_case(::llvm::raw_string_ostream& out, ::llvm::StringRef method, ::llvm::StringRef passthrough_args) {
+constexpr void emit_dispatch_case(::llvm::raw_string_ostream& out, ::llvm::StringRef method,
+                                  ::llvm::StringRef passthrough_args) {
     out << "        return " << method << "_Impl(" << passthrough_args << ");\n";
 }
 
@@ -752,14 +769,15 @@ constexpr auto generate_csharp(TranslationModel const& model) -> ::std::string {
     auto const& instantiated = model.api_instantiations;
     ::std::string generated;
     ::llvm::raw_string_ostream out(generated);
-    out << "// <auto-generated />\n";
-    out << "// Generated by translang/csharp using clang template instantiation from compiled source.\n";
-    out << "// Source: translang/csharp/pltxt2htm.cc\n";
-    out << "using System;\n";
-    out << "using System.Collections.Generic;\n\n";
-    out << "namespace Pltxt2htm.Generated;\n\n";
+    out << "// <auto-generated />\n"
+           "// Generated by translang/csharp using clang template instantiation from compiled source.\n"
+           "// Source: translang/csharp/pltxt2htm.cc\n"
+           "// repo: https://github.com/SekaiArendelle/pltxt2htm\n\n"
+           "using System;\n"
+           "using System.Collections.Generic;\n\n"
+           "namespace Pltxt2htm.Generated;\n\n";
     emit_astnode_translation(out, model.astnodes);
-    out << "public static class Pltxt2xxxApi\n";
+    out << "public static class Pltxt2Htm\n";
     out << "{\n";
 
     auto const advanced = get_single_variant(instantiated, "pltxt2advanced_html");
@@ -771,7 +789,8 @@ constexpr auto generate_csharp(TranslationModel const& model) -> ::std::string {
     emit_dispatch_case(out, "Pltxt2AdvancedHtml", "pltext");
     out << "    }\n\n";
 
-    emit_wrapper_signature(out, "Pltxt2PlunityIntroduction", "string pltext, string project, string visitor, string author, string coauthors");
+    emit_wrapper_signature(out, "Pltxt2PlunityIntroduction",
+                           "string pltext, string project, string visitor, string author, string coauthors");
     out << "    {\n";
     emit_dispatch_case(out, "Pltxt2PlunityIntroduction", "pltext, project, visitor, author, coauthors");
     out << "    }\n\n";
@@ -782,12 +801,15 @@ constexpr auto generate_csharp(TranslationModel const& model) -> ::std::string {
     out << "    }\n\n";
 
     emit_variant_body(out, "Pltxt2AdvancedHtml", "string pltext", advanced.optimize,
-                      "Pltxt2Internal.PlwebTextBackend(ast, \"localhost:5173\", \"$PROJECT\", \"$VISITOR\", \"$AUTHOR\", \"$CO_AUTHORS\")");
+                      "Pltxt2Internal.PlwebTextBackend(ast, \"localhost:5173\", \"$PROJECT\", \"$VISITOR\", "
+                      "\"$AUTHOR\", \"$CO_AUTHORS\")");
 
-    emit_variant_body(out, "Pltxt2PlunityIntroduction", "string pltext, string project, string visitor, string author, string coauthors",
+    emit_variant_body(out, "Pltxt2PlunityIntroduction",
+                      "string pltext, string project, string visitor, string author, string coauthors",
                       plunity.optimize, "Pltxt2Internal.PlunityTextBackend(ast, project, visitor, author, coauthors)");
 
-    emit_variant_body(out, "Pltxt2CommonHtml", "string pltext", common.optimize, "Pltxt2Internal.PlwebTitleBackend(ast)");
+    emit_variant_body(out, "Pltxt2CommonHtml", "string pltext", common.optimize,
+                      "Pltxt2Internal.PlwebTitleBackend(ast)");
 
     out << "}\n\n";
     out << "internal static class Pltxt2Internal\n";
@@ -795,11 +817,18 @@ constexpr auto generate_csharp(TranslationModel const& model) -> ::std::string {
     out << "    // exception::terminate / exception::unreachable -> throw\n";
     out << "    internal static void Terminate(string message) => throw new InvalidOperationException(message);\n";
     out << "    internal static T Unreachable<T>(string message) => throw new InvalidOperationException(message);\n\n";
-    out << "    internal static Ast ParsePltxt(string pltext) => throw new NotImplementedException(\"Translate parser.hh to fill this.\");\n";
-    out << "    internal static void OptimizeAst(Ast ast) => throw new NotImplementedException(\"Translate optimizer.hh to fill this.\");\n";
-    out << "    internal static string PlwebTextBackend(Ast ast, string host, string project, string visitor, string author, string coauthors) => throw new NotImplementedException(\"Translate details/backend/for_plweb_text.hh to fill this.\");\n";
-    out << "    internal static string PlunityTextBackend(Ast ast, string project, string visitor, string author, string coauthors) => throw new NotImplementedException(\"Translate details/backend/for_plunity_text.hh to fill this.\");\n";
-    out << "    internal static string PlwebTitleBackend(Ast ast) => throw new NotImplementedException(\"Translate details/backend/for_plweb_title.hh to fill this.\");\n\n";
+    out << "    internal static Ast ParsePltxt(string pltext) => throw new NotImplementedException(\"Translate "
+           "parser.hh to fill this.\");\n";
+    out << "    internal static void OptimizeAst(Ast ast) => throw new NotImplementedException(\"Translate "
+           "optimizer.hh to fill this.\");\n";
+    out << "    internal static string PlwebTextBackend(Ast ast, string host, string project, string visitor, string "
+           "author, string coauthors) => throw new NotImplementedException(\"Translate "
+           "details/backend/for_plweb_text.hh to fill this.\");\n";
+    out << "    internal static string PlunityTextBackend(Ast ast, string project, string visitor, string author, "
+           "string coauthors) => throw new NotImplementedException(\"Translate details/backend/for_plunity_text.hh to "
+           "fill this.\");\n";
+    out << "    internal static string PlwebTitleBackend(Ast ast) => throw new NotImplementedException(\"Translate "
+           "details/backend/for_plweb_title.hh to fill this.\");\n\n";
     out << "    // HeapGuard in C++ is only heap object lifetime guard; in C# use normal variable.\n";
     out << "    internal static T HeapGuard<T>(T value) => value;\n";
     out << "}\n";
@@ -816,10 +845,12 @@ constexpr auto validate_required_instantiations(ApiInstantiationMap const& insta
     for (auto const api : apis) {
         auto it = instantiated.find(api);
         if (it == instantiated.end()) {
-            return ::llvm::createStringError(::std::errc::invalid_argument, "missing template instantiations for: %s", api.data());
+            return ::llvm::createStringError(::std::errc::invalid_argument, "missing template instantiations for: %s",
+                                             api.data());
         }
         if (it->second.variants.size() != 1) {
-            return ::llvm::createStringError(::std::errc::invalid_argument, "expected exactly one specialization for: %s", api.data());
+            return ::llvm::createStringError(::std::errc::invalid_argument,
+                                             "expected exactly one specialization for: %s", api.data());
         }
     }
     return ::llvm::Error::success();
@@ -864,13 +895,16 @@ constexpr auto collect_astnode_model(Paths const& paths) -> ::llvm::Expected<Ast
     AstNodeModel astnode_model{};
     ::std::set<::std::string> seen_classes{};
     bool captured_node_type_enum{};
-    collect_astnode_from_decl_context(ast->getASTContext().getTranslationUnitDecl(), ast->getASTContext().getSourceManager(),
-                                      astnode_model, seen_classes, captured_node_type_enum);
+    collect_astnode_from_decl_context(ast->getASTContext().getTranslationUnitDecl(),
+                                      ast->getASTContext().getSourceManager(), astnode_model, seen_classes,
+                                      captured_node_type_enum);
     if (astnode_model.node_types.empty()) {
-        return ::llvm::createStringError(::std::errc::invalid_argument, "failed to parse NodeType from include/pltxt2htm/astnode");
+        return ::llvm::createStringError(::std::errc::invalid_argument,
+                                         "failed to parse NodeType from include/pltxt2htm/astnode");
     }
     if (astnode_model.classes.empty()) {
-        return ::llvm::createStringError(::std::errc::invalid_argument, "failed to parse astnode classes from include/pltxt2htm/astnode");
+        return ::llvm::createStringError(::std::errc::invalid_argument,
+                                         "failed to parse astnode classes from include/pltxt2htm/astnode");
     }
     ::std::sort(astnode_model.classes.begin(), astnode_model.classes.end(),
                 [](::AstNodeClassSpec const& lhs, ::AstNodeClassSpec const& rhs) {
@@ -904,7 +938,7 @@ constexpr auto collect_translation_model(Paths const& paths) -> ::llvm::Expected
     auto ast = ::clang::tooling::buildASTFromCodeWithArgs(*source_text, *args, normalized_include(source_abs));
     if (!ast) {
         return ::llvm::createStringError(::std::errc::invalid_argument,
-                                        "clang failed to compile/template-instantiate translang/csharp/pltxt2htm.cc");
+                                         "clang failed to compile/template-instantiate translang/csharp/pltxt2htm.cc");
     }
 
     TranslationModel model{};
@@ -931,7 +965,7 @@ constexpr auto write_text_file(::llvm::StringRef path, ::std::string const& cont
     if (ec) {
         auto const parent_text = parent.str();
         return ::llvm::createStringError(::std::errc::io_error, "failed to create output directory: %s (%s)",
-                                          parent_text.c_str(), ec.message().c_str());
+                                         parent_text.c_str(), ec.message().c_str());
     }
     ::llvm::raw_fd_ostream ofs(path, ec, ::llvm::sys::fs::OF_None);
     if (ec) {
