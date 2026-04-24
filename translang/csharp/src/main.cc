@@ -905,24 +905,26 @@ constexpr void emit_wrapper_signature(::llvm::raw_string_ostream& out, ::llvm::S
     out << "    public static string " << method << "(" << args << ")\n";
 }
 
-constexpr void emit_method_definition(::llvm::raw_string_ostream& out, ::llvm::StringRef method, ::llvm::StringRef args,
-                                      bool should_call_optimize_ast, ::llvm::StringRef backend_expr) {
-    emit_wrapper_signature(out, method, args);
-    out << "    {\n";
-    out << "        var ast = Pltxt2Internal.ParsePltxt(pltext);\n";
-    if (should_call_optimize_ast) {
-        out << "        Pltxt2Internal.OptimizeAst(ast);\n";
-    }
-    out << "        return " << backend_expr << ";\n";
-    out << "    }\n\n";
-}
-
 constexpr auto get_api_optimize(ApiOptimizeMap const& api_optimize, ::llvm::StringRef api_name) -> bool {
     auto it = api_optimize.find(api_name);
     if (it == api_optimize.end()) {
         terminate_internal_error("missing optimization behavior for " + api_name.str());
     }
     return it->second;
+}
+
+constexpr void emit_method_definition(::llvm::raw_string_ostream& out, ::llvm::StringRef method, ::llvm::StringRef args,
+                                      ::llvm::StringRef api_name, ApiOptimizeMap const& api_optimize,
+                                      ::llvm::StringRef backend_expr) {
+    emit_wrapper_signature(out, method, args);
+    out << "    {\n";
+    out << "        var ast = Pltxt2Internal.ParsePltxt(pltext);\n";
+    auto const should_call_optimize_ast = get_api_optimize(api_optimize, api_name);
+    if (should_call_optimize_ast) {
+        out << "        Pltxt2Internal.OptimizeAst(ast);\n";
+    }
+    out << "        return " << backend_expr << ";\n";
+    out << "    }\n\n";
 }
 
 [[nodiscard]]
@@ -940,20 +942,17 @@ constexpr auto generate_csharp(TranslationModel const& model) -> ::std::string {
     out << "public static class Pltxt2Htm\n";
     out << "{\n";
 
-    auto const advanced_optimize = get_api_optimize(model.api_optimize, "pltxt2advanced_html");
-    auto const plunity_optimize = get_api_optimize(model.api_optimize, "pltxt2plunity_introduction");
-    auto const common_optimize = get_api_optimize(model.api_optimize, "pltxt2common_html");
-
-    emit_method_definition(out, "Pltxt2AdvancedHtml", "string pltext", advanced_optimize,
+    emit_method_definition(out, "Pltxt2AdvancedHtml", "string pltext", "pltxt2advanced_html", model.api_optimize,
                            "Pltxt2Internal.PlwebTextBackend(ast, \"localhost:5173\", \"$PROJECT\", \"$VISITOR\", "
                            "\"$AUTHOR\", \"$CO_AUTHORS\")");
 
     emit_method_definition(out, "Pltxt2PlunityIntroduction",
                            "string pltext, string project, string visitor, string author, string coauthors",
-                           plunity_optimize,
+                           "pltxt2plunity_introduction",
+                           model.api_optimize,
                            "Pltxt2Internal.PlunityTextBackend(ast, project, visitor, author, coauthors)");
 
-    emit_method_definition(out, "Pltxt2CommonHtml", "string pltext", common_optimize,
+    emit_method_definition(out, "Pltxt2CommonHtml", "string pltext", "pltxt2common_html", model.api_optimize,
                            "Pltxt2Internal.PlwebTitleBackend(ast)");
 
     out << "}\n\n";
