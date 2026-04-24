@@ -1022,18 +1022,14 @@ constexpr auto selected_contract = ::pltxt2htm::Contracts::ignore;
 constexpr auto selected_contract = ::pltxt2htm::Contracts::quick_enforce;
 #endif
 
-template auto ::pltxt2htm::pltxt2advanced_html<selected_contract, true>(::fast_io::u8string_view) noexcept
-    -> ::fast_io::u8string;
-
-template auto ::pltxt2htm::pltxt2plunity_introduction<selected_contract, true>(::fast_io::u8string_view,
-                                                                                 ::fast_io::u8string_view,
-                                                                                 ::fast_io::u8string_view,
-                                                                                 ::fast_io::u8string_view,
-                                                                                 ::fast_io::u8string_view) noexcept
-    -> ::fast_io::u8string;
-
-template auto ::pltxt2htm::pltxt2common_html<selected_contract, false>(::fast_io::u8string_view) noexcept
-    -> ::fast_io::u8string;
+constexpr void instantiate_template_apis() {
+    auto const empty = ::fast_io::u8string_view{};
+    [[maybe_unused]] auto advanced =
+        ::pltxt2htm::pltxt2advanced_html<selected_contract, true>(empty);
+    [[maybe_unused]] auto plunity = ::pltxt2htm::pltxt2plunity_introduction<selected_contract, true>(
+        empty, empty, empty, empty, empty);
+    [[maybe_unused]] auto common = ::pltxt2htm::pltxt2common_html<selected_contract, false>(empty);
+}
 )";
 }
 
