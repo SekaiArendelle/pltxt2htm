@@ -143,5 +143,21 @@ int main() {
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(
+            u8"<external=https://main.com\" onmouseover=\"alert('XSS')\">content</external>");
+        auto answer = ::fast_io::u8string_view{
+            u8"&lt;external=https://main.com&quot;&nbsp;onmouseover=&quot;alert(&apos;XSS&apos;)&quot;&gt;content&lt;/external&gt;"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(
+            u8"<external=javascript:alert('XSS')>clickme</external>");
+        auto answer = ::fast_io::u8string_view{
+            u8"&lt;external=javascript:alert(&apos;XSS&apos;)&gt;clickme&lt;/external&gt;"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
     return 0;
 }
