@@ -25,10 +25,11 @@
 #include <llvm/Support/raw_ostream.h>
 
 #include <pltxt2htm/contracts.hh>
+#include <pltxt2htm/details/literal_string.hh>
+#include "../include/pltxt2htm_header_path.hh"
 
 struct Paths {
     ::llvm::SmallString<260> output_path{};
-    ::llvm::SmallString<260> include_dir{};
 };
 
 struct CliOptions {
@@ -87,12 +88,10 @@ struct TranslationModel {
 [[nodiscard]]
 constexpr auto hardcoded_paths(::llvm::StringRef output_dir) -> Paths {
     // Paths are intentionally hardcoded from translang/csharp working directory.
-    ::llvm::SmallString<260> include_dir{"../../include"};
     ::llvm::SmallString<260> output_path{output_dir};
     ::llvm::sys::path::append(output_path, "Pltxt2htm.Generated.cs");
     return Paths{
         .output_path = output_path,
-        .include_dir = include_dir,
     };
 }
 
@@ -832,36 +831,31 @@ constexpr auto validate_required_instantiations(ApiInstantiationMap const& insta
 }
 
 [[nodiscard]]
-constexpr auto build_clang_args(Paths const& paths) -> ::llvm::Expected<::std::vector<::std::string>> {
-    ::std::vector<::std::string> args;
-    args.emplace_back("-std=c++23");
-    args.emplace_back("-fsyntax-only");
-    args.emplace_back("-fno-delayed-template-parsing");
-    ::llvm::SmallString<260> include_abs{paths.include_dir};
-    if (auto ec = ::llvm::sys::fs::make_absolute(include_abs)) {
-        auto const include_path_text = paths.include_dir.str().str();
-        return ::llvm::createStringError(ec, "failed to resolve absolute path: %s", include_path_text.c_str());
-    }
-    args.emplace_back("-I" + normalized_include(include_abs));
+constexpr auto build_clang_args(Paths const& paths) -> ::std::vector<::std::string> {
+    ::std::vector<::std::string> args{
+    "-std=c++23",
+    "-fsyntax-only",
+    "-fno-delayed-template-parsing",
 #if defined(NDEBUG)
-    args.emplace_back("-DNDEBUG");
+    "-DNDEBUG",
 #endif
+    };
+    constexpr auto include_arg = ::pltxt2htm::details::concat(::pltxt2htm::details::LiteralString{"-I"}, ::pltxt2htm::translang::csharp::pltxt2htm_header_path);
+    args.emplace_back(::llvm::StringRef{include_arg.data(), include_arg.size()});
     return args;
 }
 
 [[nodiscard]]
 constexpr auto collect_astnode_model(Paths const& paths) -> ::llvm::Expected<AstNodeModel> {
     auto args = build_clang_args(paths);
-    if (!args) {
-        return args.takeError();
-    }
-    constexpr ::llvm::StringLiteral astnode_probe_source =
+
+    constexpr auto astnode_probe_source = ::llvm::StringLiteral{
         "#include <pltxt2htm/astnode/node_type.hh>\n"
         "#include <pltxt2htm/astnode/basic.hh>\n"
         "#include <pltxt2htm/astnode/html_node.hh>\n"
         "#include <pltxt2htm/astnode/markdown_node.hh>\n"
-        "#include <pltxt2htm/astnode/physics_lab_node.hh>\n";
-    auto ast = ::clang::tooling::buildASTFromCodeWithArgs(astnode_probe_source.str(), *args, "astnode_probe.cc");
+        "#include <pltxt2htm/astnode/physics_lab_node.hh>\n"};
+    auto ast = ::clang::tooling::buildASTFromCodeWithArgs(astnode_probe_source.str(), args, "astnode_probe.cc");
     if (!ast) {
         return ::llvm::createStringError(::std::errc::invalid_argument,
                                          "clang failed to parse include/pltxt2htm/astnode headers");
@@ -896,9 +890,6 @@ constexpr auto collect_astnode_model(Paths const& paths) -> ::llvm::Expected<Ast
 
 constexpr auto collect_translation_model(Paths const& paths) -> ::llvm::Expected<TranslationModel> {
     auto args = build_clang_args(paths);
-    if (!args) {
-        return args.takeError();
-    }
 
     constexpr auto template_instantiation_source = ::llvm::StringLiteral{R"(#include <pltxt2htm/pltxt2htm.h>
 #if defined(NDEBUG)
@@ -916,7 +907,7 @@ constexpr void instantiate_template_apis() {
 }
 )"};
 
-    auto ast = ::clang::tooling::buildASTFromCodeWithArgs(template_instantiation_source.str(), *args,
+    auto ast = ::clang::tooling::buildASTFromCodeWithArgs(template_instantiation_source.str(), args,
                                                            "pltxt2htm_template_instantiations.cc");
     if (!ast) {
         return ::llvm::createStringError(::std::errc::invalid_argument,
