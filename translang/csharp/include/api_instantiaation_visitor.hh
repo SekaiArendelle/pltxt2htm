@@ -16,6 +16,7 @@
 #include <llvm/Support/raw_ostream.h>
 
 #include <cctype>
+#include <set>
 #include <string>
 
 #include <pltxt2htm/contracts.hh>
@@ -24,6 +25,7 @@
 
 class ApiInstantiationVisitor : public ::clang::RecursiveASTVisitor<ApiInstantiationVisitor> {
     ::std::string csharp_code_{};
+    ::std::set<::std::string> emitted_stub_keys_{};
 
 public:
     ApiInstantiationVisitor() = default;
@@ -35,17 +37,18 @@ public:
 
     auto VisitFunctionDecl(::clang::FunctionDecl* fd) -> bool {
         append_function_stub(fd);
+        return true;
+    }
 
-        auto const name_storage = fd->getNameAsString();
-        auto const name = ::llvm::StringRef{name_storage};
-        if (!is_target(name)) {
+    auto VisitFunctionTemplateDecl(::clang::FunctionTemplateDecl* ftd) -> bool {
+        if (ftd == nullptr) {
             return true;
         }
-
-        auto* tsi = fd->getTemplateSpecializationInfo();
-        if (tsi == nullptr || tsi->TemplateArguments == nullptr) {
+        auto* templated_decl = ftd->getTemplatedDecl();
+        if (templated_decl == nullptr) {
             return true;
         }
+        append_function_stub(templated_decl);
         return true;
     }
 
@@ -125,6 +128,58 @@ private:
         return "object";
     }
 
+    static auto map_csharp_type(::clang::QualType type) -> ::std::string {
+        if (type.isNull()) {
+            return "object";
+        }
+        auto canonical = type.getCanonicalType();
+        while (canonical->isReferenceType()) {
+            canonical = canonical->getPointeeType();
+        }
+        canonical = canonical.getUnqualifiedType();
+        if (canonical->isVoidType()) {
+            return "void";
+        }
+        if (canonical->isBooleanType()) {
+            return "bool";
+        }
+        if (canonical->isSpecificBuiltinType(::clang::BuiltinType::Char_S) ||
+            canonical->isSpecificBuiltinType(::clang::BuiltinType::UChar) ||
+            canonical->isSpecificBuiltinType(::clang::BuiltinType::SChar)) {
+            return "byte";
+        }
+        if (canonical->isSpecificBuiltinType(::clang::BuiltinType::Short) ||
+            canonical->isSpecificBuiltinType(::clang::BuiltinType::UShort)) {
+            return "short";
+        }
+        if (canonical->isSpecificBuiltinType(::clang::BuiltinType::Int) ||
+            canonical->isSpecificBuiltinType(::clang::BuiltinType::UInt)) {
+            return "int";
+        }
+        if (canonical->isSpecificBuiltinType(::clang::BuiltinType::Long) ||
+            canonical->isSpecificBuiltinType(::clang::BuiltinType::ULong) ||
+            canonical->isSpecificBuiltinType(::clang::BuiltinType::LongLong) ||
+            canonical->isSpecificBuiltinType(::clang::BuiltinType::ULongLong)) {
+            return "long";
+        }
+        if (canonical->isSpecificBuiltinType(::clang::BuiltinType::Float)) {
+            return "float";
+        }
+        if (canonical->isSpecificBuiltinType(::clang::BuiltinType::Double)) {
+            return "double";
+        }
+
+        auto const type_text = canonical.getAsString();
+        auto const mapped_text = map_csharp_type(type_text);
+        if (mapped_text != "object") {
+            return mapped_text.str();
+        }
+        if (type_text.find("string") != ::std::string::npos || type_text.find("u8string_view") != ::std::string::npos) {
+            return "string";
+        }
+        return "object";
+    }
+
     static auto to_pascal_case(::llvm::StringRef name) -> ::std::string {
         ::std::string out{};
         out.reserve(name.size());
@@ -154,9 +209,35 @@ private:
         if (!is_target(name)) {
             return;
         }
+        if (fd->isTemplateInstantiation() == false && fd->getTemplateSpecializationInfo() == nullptr &&
+            fd->getPrimaryTemplate() == nullptr) {
+            return;
+        }
+
+        ::std::string stub_key{};
+        stub_key.reserve(64);
+        stub_key.append(fd->getQualifiedNameAsString());
+        stub_key.push_back('(');
+        for (unsigned i = 0; i < fd->getNumParams(); ++i) {
+            if (i != 0) {
+                stub_key.push_back(',');
+            }
+            auto const* param = fd->getParamDecl(i);
+            if (param == nullptr) {
+                stub_key.append("object");
+                continue;
+            }
+            stub_key.append(map_csharp_type(param->getType()));
+        }
+        stub_key.push_back(')');
+        stub_key.append("->");
+        stub_key.append(map_csharp_type(fd->getReturnType()));
+        if (!emitted_stub_keys_.insert(stub_key).second) {
+            return;
+        }
 
         csharp_code_ += "    public static ";
-        csharp_code_ += map_csharp_type(fd->getReturnType().getAsString()).str();
+        csharp_code_ += map_csharp_type(fd->getReturnType());
         csharp_code_ += " ";
         csharp_code_ += to_pascal_case(name);
         csharp_code_ += "(";
@@ -170,7 +251,7 @@ private:
             if (need_comma) {
                 csharp_code_ += ", ";
             }
-            csharp_code_ += map_csharp_type(param->getType().getAsString()).str();
+            csharp_code_ += map_csharp_type(param->getType());
             csharp_code_ += " arg";
             csharp_code_ += ::std::to_string(i);
             need_comma = true;
@@ -182,4 +263,3 @@ private:
         csharp_code_ += "    }\n\n";
     }
 };
-
