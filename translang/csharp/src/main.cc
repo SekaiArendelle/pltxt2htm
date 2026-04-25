@@ -832,27 +832,6 @@ constexpr auto validate_required_instantiations(ApiInstantiationMap const& insta
 }
 
 [[nodiscard]]
-constexpr auto manual_template_instantiation_source() -> ::llvm::StringLiteral {
-    return R"(#include <pltxt2htm/pltxt2htm.h>
-
-#if defined(NDEBUG)
-constexpr auto selected_contract = ::pltxt2htm::Contracts::ignore;
-#else
-constexpr auto selected_contract = ::pltxt2htm::Contracts::quick_enforce;
-#endif
-
-constexpr void instantiate_template_apis() {
-    auto const empty = ::fast_io::u8string_view{};
-    [[maybe_unused]] auto advanced =
-        ::pltxt2htm::pltxt2advanced_html<selected_contract, true>(empty);
-    [[maybe_unused]] auto plunity = ::pltxt2htm::pltxt2plunity_introduction<selected_contract, true>(
-        empty, empty, empty, empty, empty);
-    [[maybe_unused]] auto common = ::pltxt2htm::pltxt2common_html<selected_contract, false>(empty);
-}
-)";
-}
-
-[[nodiscard]]
 constexpr auto build_clang_args(Paths const& paths) -> ::llvm::Expected<::std::vector<::std::string>> {
     ::std::vector<::std::string> args;
     args.emplace_back("-std=c++23");
@@ -921,7 +900,23 @@ constexpr auto collect_translation_model(Paths const& paths) -> ::llvm::Expected
         return args.takeError();
     }
 
-    auto ast = ::clang::tooling::buildASTFromCodeWithArgs(manual_template_instantiation_source().str(), *args,
+    constexpr auto template_instantiation_source = ::llvm::StringLiteral{R"(#include <pltxt2htm/pltxt2htm.h>
+#if defined(NDEBUG)
+constexpr auto selected_contract = ::pltxt2htm::Contracts::ignore;
+#else
+constexpr auto selected_contract = ::pltxt2htm::Contracts::quick_enforce;
+#endif
+constexpr void instantiate_template_apis() {
+    auto const empty = ::fast_io::u8string_view{};
+    [[maybe_unused]] auto advanced =
+        ::pltxt2htm::pltxt2advanced_html<selected_contract, true>(empty);
+    [[maybe_unused]] auto plunity = ::pltxt2htm::pltxt2plunity_introduction<selected_contract, true>(
+        empty, empty, empty, empty, empty);
+    [[maybe_unused]] auto common = ::pltxt2htm::pltxt2common_html<selected_contract, false>(empty);
+}
+)"};
+
+    auto ast = ::clang::tooling::buildASTFromCodeWithArgs(template_instantiation_source.str(), *args,
                                                            "pltxt2htm_template_instantiations.cc");
     if (!ast) {
         return ::llvm::createStringError(::std::errc::invalid_argument,
