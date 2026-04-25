@@ -24,6 +24,8 @@
 #include <vector>
 
 #include <pltxt2htm/contracts.hh>
+#include <pltxt2htm/details/literal_string.hh>
+
 /**
  * @brief Collects template-instantiated pltxt2htm APIs and emits C# stubs.
  *
@@ -80,7 +82,7 @@ public:
         if (!in_target_function_ || if_stmt == nullptr) {
             return true;
         }
-        collect_control_flow_hint("if", if_stmt->getCond());
+        collect_control_flow_hint<"if">(if_stmt->getCond());
         return true;
     }
 
@@ -88,7 +90,7 @@ public:
         if (!in_target_function_ || switch_stmt == nullptr) {
             return true;
         }
-        collect_control_flow_hint("switch", switch_stmt->getCond());
+        collect_control_flow_hint<"switch">(switch_stmt->getCond());
         return true;
     }
 
@@ -96,7 +98,7 @@ public:
         if (!in_target_function_ || while_stmt == nullptr) {
             return true;
         }
-        collect_control_flow_hint("while", while_stmt->getCond());
+        collect_control_flow_hint<"while">(while_stmt->getCond());
         return true;
     }
 
@@ -304,7 +306,8 @@ private:
 
     // Collect lightweight per-function hints from control-flow statements.
     // These hints are comments only; they are not converted to executable C# logic.
-    void collect_control_flow_hint(::llvm::StringRef keyword, ::clang::Expr const* condition_expr) {
+    template<::pltxt2htm::details::LiteralString keyword>
+    void collect_control_flow_hint(::clang::Expr const* condition_expr) {
         if (current_function_key_.empty()) {
             return;
         }
@@ -316,12 +319,7 @@ private:
         key.append(keyword.data(), keyword.size());
         key.push_back(':');
         key.append(summarize_condition(condition_expr));
-        if (!emitted_control_flow_keys_.insert(key).second) {
-            return;
-        }
 
-        auto& snippets = function_body_snippets_[current_function_key_];
-        snippets.emplace_back(::std::string{"        // from C++ "} + keyword.str() + ": " + summarize_condition(condition_expr));
     }
 
     static auto extract_optimize_template_arg(::clang::FunctionDecl const* fd) -> ::std::optional<bool> {
@@ -427,9 +425,6 @@ private:
         }
         else {
             csharp_code_ += "        // TODO: translate C++ body.\n";
-        }
-        if (return_type != "void" && !has_explicit_return) {
-            csharp_code_ += "        return default!;\n";
         }
         csharp_code_ += "    }\n\n";
     }
