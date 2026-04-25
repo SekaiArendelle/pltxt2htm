@@ -24,9 +24,14 @@
 #include <vector>
 
 #include <pltxt2htm/contracts.hh>
-
-
-
+/**
+ * @brief Collects template-instantiated pltxt2htm APIs and emits C# stubs.
+ *
+ * Design notes:
+ * - We traverse template instantiations so we can inspect concrete signatures.
+ * - Stubs are emitted after function traversal (post-order), so body hints collected
+ *   by statement visitors are available when the method body is rendered.
+ */
 class ApiInstantiationVisitor : public ::clang::RecursiveASTVisitor<ApiInstantiationVisitor> {
     using Base = ::clang::RecursiveASTVisitor<ApiInstantiationVisitor>;
 
@@ -50,23 +55,20 @@ public:
         return csharp_code_;
     }
 
-    auto VisitFunctionDecl(::clang::FunctionDecl* fd) -> bool {
-        static_cast<void>(fd);
-        return true;
-    }
-
+    // Traverse function first, emit stub later (post-order).
     auto TraverseFunctionDecl(::clang::FunctionDecl* fd) -> bool {
         auto const previous = in_target_function_;
         auto const previous_function_key = current_function_key_;
-        in_target_function_ = previous || is_target_function(fd);
-        if (is_target_function(fd) && has_template_context(fd)) {
+        auto const target_function = is_target_function(fd);
+        in_target_function_ = previous || target_function;
+        if (target_function && has_template_context(fd)) {
             current_function_key_ = build_stub_key(fd);
         }
         else {
             current_function_key_.clear();
         }
         auto const result = Base::TraverseFunctionDecl(fd);
-        if (is_target_function(fd)) {
+        if (target_function) {
             append_function_stub(fd);
         }
         in_target_function_ = previous;
@@ -78,7 +80,7 @@ public:
         if (!in_target_function_ || if_stmt == nullptr) {
             return true;
         }
-        append_control_flow_hint("if", if_stmt->getCond());
+        collect_control_flow_hint("if", if_stmt->getCond());
         return true;
     }
 
@@ -86,7 +88,7 @@ public:
         if (!in_target_function_ || switch_stmt == nullptr) {
             return true;
         }
-        append_control_flow_hint("switch", switch_stmt->getCond());
+        collect_control_flow_hint("switch", switch_stmt->getCond());
         return true;
     }
 
@@ -94,7 +96,7 @@ public:
         if (!in_target_function_ || while_stmt == nullptr) {
             return true;
         }
-        append_control_flow_hint("while", while_stmt->getCond());
+        collect_control_flow_hint("while", while_stmt->getCond());
         return true;
     }
 
@@ -136,6 +138,7 @@ public:
     }
 
 private:
+    // Filters only the four public API entry points we want to project to C#.
     static constexpr auto is_target(::llvm::StringRef name) noexcept -> bool {
         return name == "pltxt2advanced_html" || name == "pltxt2fixedadv_html" || name == "pltxt2plunity_introduction" ||
                name == "pltxt2common_html";
@@ -178,6 +181,7 @@ private:
         if (type.isNull()) {
             return "object";
         }
+        // Canonical + unqualified gives a stable mapping surface across redecls.
         auto canonical = type.getCanonicalType();
         while (canonical->isReferenceType()) {
             canonical = canonical->getPointeeType();
@@ -298,7 +302,9 @@ private:
         return key;
     }
 
-    void append_control_flow_hint(::llvm::StringRef keyword, ::clang::Expr const* condition_expr) {
+    // Collect lightweight per-function hints from control-flow statements.
+    // These hints are comments only; they are not converted to executable C# logic.
+    void collect_control_flow_hint(::llvm::StringRef keyword, ::clang::Expr const* condition_expr) {
         if (current_function_key_.empty()) {
             return;
         }
@@ -338,6 +344,8 @@ private:
             return false;
         }
         auto const name = ::llvm::StringRef{fd->getName()};
+        // In the source API this is `if constexpr (optimize)`.
+        // For concrete template instantiations we emit the already-decided path.
         auto const optimize = extract_optimize_template_arg(fd);
         csharp_code_ += "        // TODO: translate parse_pltxt<...>(arg0)\n";
         csharp_code_ += "        var ast = new Ast();\n";
