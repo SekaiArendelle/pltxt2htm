@@ -4,6 +4,7 @@
 #include <clang/AST/DeclCXX.h>
 #include <clang/AST/Expr.h>
 #include <clang/AST/RecursiveASTVisitor.h>
+#include <clang/AST/Stmt.h>
 #include <clang/Tooling/Tooling.h>
 
 #include <llvm/ADT/ArrayRef.h>
@@ -16,36 +17,88 @@
 #include <llvm/Support/raw_ostream.h>
 
 #include <cctype>
+#include <map>
+#include <optional>
+#include <set>
 #include <string>
+#include <vector>
 
 #include <pltxt2htm/contracts.hh>
+#include <pltxt2htm/details/literal_string.hh>
 
-
-
+/**
+ * @brief Collects template-instantiated pltxt2htm APIs and emits C# stubs.
+ *
+ * Design notes:
+ * - We traverse template instantiations so we can inspect concrete signatures.
+ * - Stubs are emitted after function traversal (post-order), so body hints collected
+ *   by statement visitors are available when the method body is rendered.
+ */
 class ApiInstantiationVisitor : public ::clang::RecursiveASTVisitor<ApiInstantiationVisitor> {
+    using Base = ::clang::RecursiveASTVisitor<ApiInstantiationVisitor>;
+
     ::std::string csharp_code_{};
+    ::std::set<::std::string> emitted_stub_keys_{};
+    ::std::set<::std::string> emitted_control_flow_keys_{};
+    ::std::map<::std::string, ::std::vector<::std::string>> function_body_snippets_{};
+    ::std::string current_function_key_{};
+    bool in_target_function_{};
 
 public:
     ApiInstantiationVisitor() = default;
+
+    [[nodiscard]]
+    constexpr auto shouldVisitTemplateInstantiations() const noexcept -> bool {
+        return true;
+    }
 
     [[nodiscard]]
     constexpr auto csharp_code() const noexcept -> ::std::string const& {
         return csharp_code_;
     }
 
-    auto VisitFunctionDecl(::clang::FunctionDecl* fd) -> bool {
-        append_function_stub(fd);
+    // Traverse function first, emit stub later (post-order).
+    auto TraverseFunctionDecl(::clang::FunctionDecl* fd) -> bool {
+        auto const previous = in_target_function_;
+        auto const previous_function_key = current_function_key_;
+        auto const target_function = is_target_function(fd);
+        in_target_function_ = previous || target_function;
+        if (target_function && has_template_context(fd)) {
+            current_function_key_ = build_stub_key(fd);
+        }
+        else {
+            current_function_key_.clear();
+        }
+        auto const result = Base::TraverseFunctionDecl(fd);
+        if (target_function) {
+            append_function_stub(fd);
+        }
+        in_target_function_ = previous;
+        current_function_key_ = previous_function_key;
+        return result;
+    }
 
-        auto const name_storage = fd->getNameAsString();
-        auto const name = ::llvm::StringRef{name_storage};
-        if (!is_target(name)) {
+    auto VisitIfStmt(::clang::IfStmt* if_stmt) -> bool {
+        if (!in_target_function_ || if_stmt == nullptr) {
             return true;
         }
+        collect_control_flow_hint<"if">(if_stmt->getCond());
+        return true;
+    }
 
-        auto* tsi = fd->getTemplateSpecializationInfo();
-        if (tsi == nullptr || tsi->TemplateArguments == nullptr) {
+    auto VisitSwitchStmt(::clang::SwitchStmt* switch_stmt) -> bool {
+        if (!in_target_function_ || switch_stmt == nullptr) {
             return true;
         }
+        collect_control_flow_hint<"switch">(switch_stmt->getCond());
+        return true;
+    }
+
+    auto VisitWhileStmt(::clang::WhileStmt* while_stmt) -> bool {
+        if (!in_target_function_ || while_stmt == nullptr) {
+            return true;
+        }
+        collect_control_flow_hint<"while">(while_stmt->getCond());
         return true;
     }
 
@@ -87,6 +140,7 @@ public:
     }
 
 private:
+    // Filters only the four public API entry points we want to project to C#.
     static constexpr auto is_target(::llvm::StringRef name) noexcept -> bool {
         return name == "pltxt2advanced_html" || name == "pltxt2fixedadv_html" || name == "pltxt2plunity_introduction" ||
                name == "pltxt2common_html";
@@ -125,6 +179,59 @@ private:
         return "object";
     }
 
+    static auto map_csharp_type(::clang::QualType type) -> ::std::string {
+        if (type.isNull()) {
+            return "object";
+        }
+        // Canonical + unqualified gives a stable mapping surface across redecls.
+        auto canonical = type.getCanonicalType();
+        while (canonical->isReferenceType()) {
+            canonical = canonical->getPointeeType();
+        }
+        canonical = canonical.getUnqualifiedType();
+        if (canonical->isVoidType()) {
+            return "void";
+        }
+        if (canonical->isBooleanType()) {
+            return "bool";
+        }
+        if (canonical->isSpecificBuiltinType(::clang::BuiltinType::Char_S) ||
+            canonical->isSpecificBuiltinType(::clang::BuiltinType::UChar) ||
+            canonical->isSpecificBuiltinType(::clang::BuiltinType::SChar)) {
+            return "byte";
+        }
+        if (canonical->isSpecificBuiltinType(::clang::BuiltinType::Short) ||
+            canonical->isSpecificBuiltinType(::clang::BuiltinType::UShort)) {
+            return "short";
+        }
+        if (canonical->isSpecificBuiltinType(::clang::BuiltinType::Int) ||
+            canonical->isSpecificBuiltinType(::clang::BuiltinType::UInt)) {
+            return "int";
+        }
+        if (canonical->isSpecificBuiltinType(::clang::BuiltinType::Long) ||
+            canonical->isSpecificBuiltinType(::clang::BuiltinType::ULong) ||
+            canonical->isSpecificBuiltinType(::clang::BuiltinType::LongLong) ||
+            canonical->isSpecificBuiltinType(::clang::BuiltinType::ULongLong)) {
+            return "long";
+        }
+        if (canonical->isSpecificBuiltinType(::clang::BuiltinType::Float)) {
+            return "float";
+        }
+        if (canonical->isSpecificBuiltinType(::clang::BuiltinType::Double)) {
+            return "double";
+        }
+
+        auto const type_text = canonical.getAsString();
+        auto const mapped_text = map_csharp_type(type_text);
+        if (mapped_text != "object") {
+            return mapped_text.str();
+        }
+        if (type_text.find("string") != ::std::string::npos || type_text.find("u8string_view") != ::std::string::npos) {
+            return "string";
+        }
+        return "object";
+    }
+
     static auto to_pascal_case(::llvm::StringRef name) -> ::std::string {
         ::std::string out{};
         out.reserve(name.size());
@@ -145,6 +252,124 @@ private:
         return out;
     }
 
+    static auto is_target_function(::clang::FunctionDecl const* fd) -> bool {
+        if (fd == nullptr || !fd->getIdentifier()) {
+            return false;
+        }
+        return is_target(::llvm::StringRef{fd->getName()});
+    }
+
+    static auto summarize_condition(::clang::Expr const* expr) -> ::std::string {
+        if (expr == nullptr) {
+            return "condition: <null>";
+        }
+        auto const* normalized = expr->IgnoreParenImpCasts();
+        ::std::string summary{"condition type: "};
+        summary.append(normalized->getType().getAsString());
+        return summary;
+    }
+
+    static auto has_template_context(::clang::FunctionDecl const* fd) -> bool {
+        if (fd == nullptr) {
+            return false;
+        }
+        auto const template_specialization_kind = fd->getTemplateSpecializationKind();
+        return fd->isTemplateInstantiation() || fd->getTemplateSpecializationInfo() != nullptr ||
+               fd->getTemplateSpecializationArgs() != nullptr ||
+               template_specialization_kind != ::clang::TSK_Undeclared;
+    }
+
+    static auto build_stub_key(::clang::FunctionDecl const* fd) -> ::std::string {
+        if (fd == nullptr) {
+            return {};
+        }
+        ::std::string key{};
+        key.reserve(64);
+        key.append(fd->getQualifiedNameAsString());
+        key.push_back('(');
+        for (unsigned i = 0; i < fd->getNumParams(); ++i) {
+            if (i != 0) {
+                key.push_back(',');
+            }
+            auto const* param = fd->getParamDecl(i);
+            if (param == nullptr) {
+                key.append("object");
+                continue;
+            }
+            key.append(map_csharp_type(param->getType()));
+        }
+        key.push_back(')');
+        key.append("->");
+        key.append(map_csharp_type(fd->getReturnType()));
+        return key;
+    }
+
+    // Collect lightweight per-function hints from control-flow statements.
+    // These hints are comments only; they are not converted to executable C# logic.
+    template<::pltxt2htm::details::LiteralString keyword>
+    void collect_control_flow_hint(::clang::Expr const* condition_expr) {
+        if (current_function_key_.empty()) {
+            return;
+        }
+
+        ::std::string key{};
+        key.reserve(128);
+        key.append(current_function_key_);
+        key.push_back('|');
+        key.append(keyword.data(), keyword.size());
+        key.push_back(':');
+        key.append(summarize_condition(condition_expr));
+
+    }
+
+    static auto extract_optimize_template_arg(::clang::FunctionDecl const* fd) -> ::std::optional<bool> {
+        if (fd == nullptr) {
+            return ::std::nullopt;
+        }
+        auto const* targs = fd->getTemplateSpecializationArgs();
+        if (targs == nullptr || targs->size() < 2) {
+            return ::std::nullopt;
+        }
+        auto const& arg = targs->get(1);
+        if (arg.getKind() != ::clang::TemplateArgument::Integral) {
+            return ::std::nullopt;
+        }
+        return arg.getAsIntegral().getBoolValue();
+    }
+
+    auto append_target_api_body(::clang::FunctionDecl const* fd) -> bool {
+        if (fd == nullptr) {
+            return false;
+        }
+        auto const name = ::llvm::StringRef{fd->getName()};
+        // In the source API this is `if constexpr (optimize)`.
+        // For concrete template instantiations we emit the already-decided path.
+        auto const optimize = extract_optimize_template_arg(fd);
+        csharp_code_ += "        // TODO: translate parse_pltxt<...>(arg0)\n";
+        csharp_code_ += "        var ast = new Ast();\n";
+        if (optimize.value_or(false)) {
+            csharp_code_ += "        Pltxt2Internal.OptimizeAst(ast);\n";
+        }
+
+        if (name == "pltxt2advanced_html") {
+            csharp_code_ += "        return Pltxt2Internal.PlwebTextBackend(ast, \"localhost:5173\", \"$PROJECT\", \"$VISITOR\", \"$AUTHOR\", \"$CO_AUTHORS\");\n";
+            return true;
+        }
+        if (name == "pltxt2fixedadv_html") {
+            csharp_code_ += "        return Pltxt2Internal.PlwebTextBackend(ast, arg1, arg2, arg3, arg4, arg5);\n";
+            return true;
+        }
+        if (name == "pltxt2plunity_introduction") {
+            csharp_code_ += "        return Pltxt2Internal.PlunityTextBackend(ast, arg1, arg2, arg3, arg4);\n";
+            return true;
+        }
+        if (name == "pltxt2common_html") {
+            csharp_code_ += "        return Pltxt2Internal.PlwebTitleBackend(ast);\n";
+            return true;
+        }
+        return false;
+    }
+
     void append_function_stub(::clang::FunctionDecl const* fd) {
         if (fd == nullptr || !fd->getIdentifier()) {
             return;
@@ -154,9 +379,18 @@ private:
         if (!is_target(name)) {
             return;
         }
+        if (!has_template_context(fd)) {
+            return;
+        }
 
+        auto const stub_key = build_stub_key(fd);
+        if (!emitted_stub_keys_.insert(stub_key).second) {
+            return;
+        }
+
+        auto const return_type = map_csharp_type(fd->getReturnType());
         csharp_code_ += "    public static ";
-        csharp_code_ += map_csharp_type(fd->getReturnType().getAsString()).str();
+        csharp_code_ += return_type;
         csharp_code_ += " ";
         csharp_code_ += to_pascal_case(name);
         csharp_code_ += "(";
@@ -170,7 +404,7 @@ private:
             if (need_comma) {
                 csharp_code_ += ", ";
             }
-            csharp_code_ += map_csharp_type(param->getType().getAsString()).str();
+            csharp_code_ += map_csharp_type(param->getType());
             csharp_code_ += " arg";
             csharp_code_ += ::std::to_string(i);
             need_comma = true;
@@ -178,8 +412,20 @@ private:
 
         csharp_code_ += ")\n";
         csharp_code_ += "    {\n";
-        csharp_code_ += "        throw new NotImplementedException(\"Generated from template instantiation AST.\");\n";
+        bool has_explicit_return{};
+        if (append_target_api_body(fd)) {
+            // Body assembled from API semantics + template args.
+            has_explicit_return = true;
+        }
+        else if (auto it = function_body_snippets_.find(stub_key); it != function_body_snippets_.end() && !it->second.empty()) {
+            for (auto const& line : it->second) {
+                csharp_code_ += line;
+                csharp_code_ += "\n";
+            }
+        }
+        else {
+            csharp_code_ += "        // TODO: translate C++ body.\n";
+        }
         csharp_code_ += "    }\n\n";
     }
 };
-
