@@ -275,8 +275,6 @@ private:
         }
         auto const template_specialization_kind = fd->getTemplateSpecializationKind();
         auto const has_template_context = fd->isTemplateInstantiation() || fd->getTemplateSpecializationInfo() != nullptr ||
-                                          fd->getPrimaryTemplate() != nullptr ||
-                                          fd->getDescribedFunctionTemplate() != nullptr ||
                                           fd->getTemplateSpecializationArgs() != nullptr ||
                                           template_specialization_kind != ::clang::TSK_Undeclared;
         if (!has_template_context) {
