@@ -50,7 +50,19 @@ public:
     }
 
     auto VisitVarDecl(::clang::VarDecl* vd) -> bool {
-        append_var_stub(vd);
+        if (vd == nullptr || !vd->getIdentifier()) {
+            return true;
+        }
+
+        ::clang::DeclContext *parentContext = vd->getDeclContext();
+
+        if (parentContext->isFunctionOrMethod() == false) {
+            // if it is not a variable inside a function (that is, if it is global, namespace, or a class static member, etc.), then skip it
+            // Continue traversing the other nodes, but do not process this one
+            return true;
+        }
+
+        // TODO
         return true;
     }
 
@@ -168,23 +180,6 @@ private:
         csharp_code_ += "    {\n";
         csharp_code_ += "        throw new NotImplementedException(\"Generated from template instantiation AST.\");\n";
         csharp_code_ += "    }\n\n";
-    }
-
-    void append_var_stub(::clang::VarDecl const* vd) {
-        if (vd == nullptr || !vd->getIdentifier()) {
-            return;
-        }
-
-        auto const name = ::llvm::StringRef{vd->getName()};
-        if (name != "selected_contract" && name != "advanced" && name != "plunity" && name != "common") {
-            return;
-        }
-
-        csharp_code_ += "    private static ";
-        csharp_code_ += map_csharp_type(vd->getType().getAsString()).str();
-        csharp_code_ += " ";
-        csharp_code_ += to_pascal_case(name);
-        csharp_code_ += ";\n";
     }
 };
 
