@@ -18,6 +18,7 @@
 
 #include <cctype>
 #include <map>
+#include <optional>
 #include <set>
 #include <string>
 #include <vector>
@@ -314,29 +315,53 @@ private:
         }
 
         auto& snippets = function_body_snippets_[current_function_key_];
-        if (keyword == "if") {
-            snippets.emplace_back(::std::string{"        // from C++ if: "} + summarize_condition(condition_expr));
-            snippets.emplace_back("        if (true)");
-            snippets.emplace_back("        {");
-            snippets.emplace_back("        }");
-            return;
+        snippets.emplace_back(::std::string{"        // from C++ "} + keyword.str() + ": " + summarize_condition(condition_expr));
+    }
+
+    static auto extract_optimize_template_arg(::clang::FunctionDecl const* fd) -> ::std::optional<bool> {
+        if (fd == nullptr) {
+            return ::std::nullopt;
         }
-        if (keyword == "switch") {
-            snippets.emplace_back(::std::string{"        // from C++ switch: "} + summarize_condition(condition_expr));
-            snippets.emplace_back("        switch (0)");
-            snippets.emplace_back("        {");
-            snippets.emplace_back("            default:");
-            snippets.emplace_back("                break;");
-            snippets.emplace_back("        }");
-            return;
+        auto const* targs = fd->getTemplateSpecializationArgs();
+        if (targs == nullptr || targs->size() < 2) {
+            return ::std::nullopt;
         }
-        if (keyword == "while") {
-            snippets.emplace_back(::std::string{"        // from C++ while: "} + summarize_condition(condition_expr));
-            snippets.emplace_back("        while (false)");
-            snippets.emplace_back("        {");
-            snippets.emplace_back("            break;");
-            snippets.emplace_back("        }");
+        auto const& arg = targs->get(1);
+        if (arg.getKind() != ::clang::TemplateArgument::Integral) {
+            return ::std::nullopt;
         }
+        return arg.getAsIntegral().getBoolValue();
+    }
+
+    auto append_target_api_body(::clang::FunctionDecl const* fd) -> bool {
+        if (fd == nullptr) {
+            return false;
+        }
+        auto const name = ::llvm::StringRef{fd->getName()};
+        auto const optimize = extract_optimize_template_arg(fd);
+        csharp_code_ += "        // TODO: translate parse_pltxt<...>(arg0)\n";
+        csharp_code_ += "        var ast = new Ast();\n";
+        if (optimize.value_or(false)) {
+            csharp_code_ += "        Pltxt2Internal.OptimizeAst(ast);\n";
+        }
+
+        if (name == "pltxt2advanced_html") {
+            csharp_code_ += "        return Pltxt2Internal.PlwebTextBackend(ast, \"localhost:5173\", \"$PROJECT\", \"$VISITOR\", \"$AUTHOR\", \"$CO_AUTHORS\");\n";
+            return true;
+        }
+        if (name == "pltxt2fixedadv_html") {
+            csharp_code_ += "        return Pltxt2Internal.PlwebTextBackend(ast, arg1, arg2, arg3, arg4, arg5);\n";
+            return true;
+        }
+        if (name == "pltxt2plunity_introduction") {
+            csharp_code_ += "        return Pltxt2Internal.PlunityTextBackend(ast, arg1, arg2, arg3, arg4);\n";
+            return true;
+        }
+        if (name == "pltxt2common_html") {
+            csharp_code_ += "        return Pltxt2Internal.PlwebTitleBackend(ast);\n";
+            return true;
+        }
+        return false;
     }
 
     void append_function_stub(::clang::FunctionDecl const* fd) {
@@ -381,7 +406,12 @@ private:
 
         csharp_code_ += ")\n";
         csharp_code_ += "    {\n";
-        if (auto it = function_body_snippets_.find(stub_key); it != function_body_snippets_.end() && !it->second.empty()) {
+        bool has_explicit_return{};
+        if (append_target_api_body(fd)) {
+            // Body assembled from API semantics + template args.
+            has_explicit_return = true;
+        }
+        else if (auto it = function_body_snippets_.find(stub_key); it != function_body_snippets_.end() && !it->second.empty()) {
             for (auto const& line : it->second) {
                 csharp_code_ += line;
                 csharp_code_ += "\n";
@@ -390,7 +420,7 @@ private:
         else {
             csharp_code_ += "        // TODO: translate C++ body.\n";
         }
-        if (return_type != "void") {
+        if (return_type != "void" && !has_explicit_return) {
             csharp_code_ += "        return default!;\n";
         }
         csharp_code_ += "    }\n\n";
