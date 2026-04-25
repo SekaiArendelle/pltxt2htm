@@ -50,7 +50,7 @@ public:
     }
 
     auto VisitFunctionDecl(::clang::FunctionDecl* fd) -> bool {
-        append_function_stub(fd);
+        static_cast<void>(fd);
         return true;
     }
 
@@ -65,6 +65,9 @@ public:
             current_function_key_.clear();
         }
         auto const result = Base::TraverseFunctionDecl(fd);
+        if (is_target_function(fd)) {
+            append_function_stub(fd);
+        }
         in_target_function_ = previous;
         current_function_key_ = previous_function_key;
         return result;
