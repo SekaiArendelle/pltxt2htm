@@ -58,18 +58,6 @@ public:
         return result;
     }
 
-    auto VisitFunctionTemplateDecl(::clang::FunctionTemplateDecl* ftd) -> bool {
-        if (ftd == nullptr) {
-            return true;
-        }
-        auto* templated_decl = ftd->getTemplatedDecl();
-        if (templated_decl == nullptr) {
-            return true;
-        }
-        append_function_stub(templated_decl);
-        return true;
-    }
-
     auto VisitIfStmt(::clang::IfStmt* if_stmt) -> bool {
         if (!in_target_function_ || if_stmt == nullptr) {
             return true;
