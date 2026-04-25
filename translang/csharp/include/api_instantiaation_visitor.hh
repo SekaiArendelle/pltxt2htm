@@ -31,6 +31,11 @@ public:
     ApiInstantiationVisitor() = default;
 
     [[nodiscard]]
+    constexpr auto shouldVisitTemplateInstantiations() const noexcept -> bool {
+        return true;
+    }
+
+    [[nodiscard]]
     constexpr auto csharp_code() const noexcept -> ::std::string const& {
         return csharp_code_;
     }
@@ -212,6 +217,8 @@ private:
         auto const template_specialization_kind = fd->getTemplateSpecializationKind();
         auto const has_template_context = fd->isTemplateInstantiation() || fd->getTemplateSpecializationInfo() != nullptr ||
                                           fd->getPrimaryTemplate() != nullptr ||
+                                          fd->getDescribedFunctionTemplate() != nullptr ||
+                                          fd->getTemplateSpecializationArgs() != nullptr ||
                                           template_specialization_kind != ::clang::TSK_Undeclared;
         if (!has_template_context) {
             return;
