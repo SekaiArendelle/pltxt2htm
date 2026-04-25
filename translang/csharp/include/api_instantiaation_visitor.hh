@@ -15,81 +15,27 @@
 #include <llvm/Support/Path.h>
 #include <llvm/Support/raw_ostream.h>
 
+#include <cctype>
+#include <string>
+
 #include <pltxt2htm/contracts.hh>
-
-struct VariantKey {
-    ::pltxt2htm::Contracts contract{};
-    bool optimize{};
-
-    constexpr auto operator<(VariantKey const& other) const noexcept -> bool {
-        if (contract != other.contract) {
-            return static_cast<int>(contract) < static_cast<int>(other.contract);
-        }
-        return optimize < other.optimize;
-    }
-};
-
-
-struct ApiInstantiationSet {
-    ::std::set<VariantKey> variants{};
-};
-
-using ApiInstantiationMap = ::llvm::StringMap<ApiInstantiationSet>;
-
-
-[[nodiscard]]
-constexpr auto parse_contract_arg(::clang::TemplateArgument const& arg) noexcept
-    -> ::std::optional<::pltxt2htm::Contracts> {
-    if (arg.getKind() != ::clang::TemplateArgument::Integral) {
-        return ::std::nullopt;
-    }
-    auto value = arg.getAsIntegral().getExtValue();
-    if (value == 0) {
-        return ::pltxt2htm::Contracts::quick_enforce;
-    }
-    if (value == 1) {
-        return ::pltxt2htm::Contracts::ignore;
-    }
-    return ::std::nullopt;
-}
-
-[[nodiscard]]
-constexpr auto parse_bool_arg(::clang::TemplateArgument const& arg) noexcept -> ::std::optional<bool> {
-    if (arg.getKind() != ::clang::TemplateArgument::Integral) {
-        return ::std::nullopt;
-    }
-    auto value = arg.getAsIntegral().getExtValue();
-    if (value == 0) {
-        return false;
-    }
-    if (value == 1) {
-        return true;
-    }
-    return ::std::nullopt;
-}
-
-[[nodiscard]]
-constexpr auto default_optimize_for_api(::llvm::StringRef name) noexcept -> ::std::optional<bool> {
-    if (name == "pltxt2advanced_html" || name == "pltxt2fixedadv_html" || name == "pltxt2plunity_introduction") {
-        return true;
-    }
-    if (name == "pltxt2common_html") {
-        return false;
-    }
-    return ::std::nullopt;
-}
 
 
 
 class ApiInstantiationVisitor : public ::clang::RecursiveASTVisitor<ApiInstantiationVisitor> {
-    ApiInstantiationMap& out_;
+    ::std::string csharp_code_{};
 
 public:
-    constexpr explicit ApiInstantiationVisitor(ApiInstantiationMap& out) noexcept
-        : out_(out) {
+    ApiInstantiationVisitor() = default;
+
+    [[nodiscard]]
+    constexpr auto csharp_code() const noexcept -> ::std::string const& {
+        return csharp_code_;
     }
 
-    constexpr auto VisitFunctionDecl(::clang::FunctionDecl* fd) -> bool {
+    auto VisitFunctionDecl(::clang::FunctionDecl* fd) -> bool {
+        append_function_stub(fd);
+
         auto const name_storage = fd->getNameAsString();
         auto const name = ::llvm::StringRef{name_storage};
         if (!is_target(name)) {
@@ -100,7 +46,11 @@ public:
         if (tsi == nullptr || tsi->TemplateArguments == nullptr) {
             return true;
         }
-        add_variant(name, tsi->TemplateArguments->asArray());
+        return true;
+    }
+
+    auto VisitVarDecl(::clang::VarDecl* vd) -> bool {
+        append_var_stub(vd);
         return true;
     }
 
@@ -115,14 +65,12 @@ public:
             return true;
         }
         if (auto const* targs{callee->getTemplateSpecializationArgs()}; targs != nullptr) {
-            add_variant(name, targs->asArray());
             return true;
         }
         auto* tsi = callee->getTemplateSpecializationInfo();
         if (tsi == nullptr || tsi->TemplateArguments == nullptr) {
             return true;
         }
-        add_variant(name, tsi->TemplateArguments->asArray());
         return true;
     }
 
@@ -132,27 +80,111 @@ private:
                name == "pltxt2common_html";
     }
 
-    constexpr void add_variant(::llvm::StringRef name, ::llvm::ArrayRef<::clang::TemplateArgument> targs) {
-        if (targs.empty()) {
-            return;
+    static constexpr auto map_csharp_type(::llvm::StringRef cpp_type) noexcept -> ::llvm::StringRef {
+        if (cpp_type == "void") {
+            return "void";
         }
-        auto contract = parse_contract_arg(targs[0]);
-        if (!contract.has_value()) {
+        if (cpp_type == "bool") {
+            return "bool";
+        }
+        if (cpp_type == "char" || cpp_type == "signed char" || cpp_type == "unsigned char") {
+            return "byte";
+        }
+        if (cpp_type == "short" || cpp_type == "unsigned short") {
+            return "short";
+        }
+        if (cpp_type == "int" || cpp_type == "unsigned int") {
+            return "int";
+        }
+        if (cpp_type == "long" || cpp_type == "unsigned long" || cpp_type == "long long" ||
+            cpp_type == "unsigned long long") {
+            return "long";
+        }
+        if (cpp_type == "float") {
+            return "float";
+        }
+        if (cpp_type == "double") {
+            return "double";
+        }
+        if (cpp_type == "std::string" || cpp_type == "::std::string" || cpp_type == "fast_io::u8string_view" ||
+            cpp_type == "::fast_io::u8string_view") {
+            return "string";
+        }
+        return "object";
+    }
+
+    static auto to_pascal_case(::llvm::StringRef name) -> ::std::string {
+        ::std::string out{};
+        out.reserve(name.size());
+        bool upper_next = true;
+        for (auto const ch : name) {
+            if (ch == '_' || ch == '-') {
+                upper_next = true;
+                continue;
+            }
+            if (upper_next) {
+                out.push_back(static_cast<char>(::std::toupper(static_cast<unsigned char>(ch))));
+                upper_next = false;
+            }
+            else {
+                out.push_back(ch);
+            }
+        }
+        return out;
+    }
+
+    void append_function_stub(::clang::FunctionDecl const* fd) {
+        if (fd == nullptr || !fd->getIdentifier()) {
             return;
         }
 
-        ::std::optional<bool> optimize;
-        if (targs.size() >= 2) {
-            optimize = parse_bool_arg(targs[1]);
-        }
-        else {
-            optimize = default_optimize_for_api(name);
-        }
-        if (!optimize.has_value()) {
+        auto const name = ::llvm::StringRef{fd->getName()};
+        if (!is_target(name)) {
             return;
         }
 
-        out_[name].variants.insert(VariantKey{.contract = *contract, .optimize = *optimize});
+        csharp_code_ += "    public static ";
+        csharp_code_ += map_csharp_type(fd->getReturnType().getAsString()).str();
+        csharp_code_ += " ";
+        csharp_code_ += to_pascal_case(name);
+        csharp_code_ += "(";
+
+        bool need_comma = false;
+        for (unsigned i = 0; i < fd->getNumParams(); ++i) {
+            auto const* param = fd->getParamDecl(i);
+            if (param == nullptr) {
+                continue;
+            }
+            if (need_comma) {
+                csharp_code_ += ", ";
+            }
+            csharp_code_ += map_csharp_type(param->getType().getAsString()).str();
+            csharp_code_ += " arg";
+            csharp_code_ += ::std::to_string(i);
+            need_comma = true;
+        }
+
+        csharp_code_ += ")\n";
+        csharp_code_ += "    {\n";
+        csharp_code_ += "        throw new NotImplementedException(\"Generated from template instantiation AST.\");\n";
+        csharp_code_ += "    }\n\n";
+    }
+
+    void append_var_stub(::clang::VarDecl const* vd) {
+        if (vd == nullptr || !vd->getIdentifier()) {
+            return;
+        }
+
+        auto const name = ::llvm::StringRef{vd->getName()};
+        if (name != "selected_contract" && name != "advanced" && name != "plunity" && name != "common") {
+            return;
+        }
+
+        csharp_code_ += "    private static ";
+        csharp_code_ += map_csharp_type(vd->getType().getAsString()).str();
+        csharp_code_ += " ";
+        csharp_code_ += to_pascal_case(name);
+        csharp_code_ += ";\n";
     }
 };
 
