@@ -4,6 +4,7 @@
 #include <clang/AST/DeclCXX.h>
 #include <clang/AST/Expr.h>
 #include <clang/AST/RecursiveASTVisitor.h>
+#include <clang/AST/Stmt.h>
 #include <clang/Tooling/Tooling.h>
 
 #include <llvm/ADT/ArrayRef.h>
@@ -24,8 +25,12 @@
 
 
 class ApiInstantiationVisitor : public ::clang::RecursiveASTVisitor<ApiInstantiationVisitor> {
+    using Base = ::clang::RecursiveASTVisitor<ApiInstantiationVisitor>;
+
     ::std::string csharp_code_{};
     ::std::set<::std::string> emitted_stub_keys_{};
+    ::std::set<::std::string> emitted_control_flow_keys_{};
+    bool in_target_function_{};
 
 public:
     ApiInstantiationVisitor() = default;
@@ -45,6 +50,14 @@ public:
         return true;
     }
 
+    auto TraverseFunctionDecl(::clang::FunctionDecl* fd) -> bool {
+        auto const previous = in_target_function_;
+        in_target_function_ = previous || is_target_function(fd);
+        auto const result = Base::TraverseFunctionDecl(fd);
+        in_target_function_ = previous;
+        return result;
+    }
+
     auto VisitFunctionTemplateDecl(::clang::FunctionTemplateDecl* ftd) -> bool {
         if (ftd == nullptr) {
             return true;
@@ -54,6 +67,30 @@ public:
             return true;
         }
         append_function_stub(templated_decl);
+        return true;
+    }
+
+    auto VisitIfStmt(::clang::IfStmt* if_stmt) -> bool {
+        if (!in_target_function_ || if_stmt == nullptr) {
+            return true;
+        }
+        append_control_flow_hint("if", if_stmt->getCond());
+        return true;
+    }
+
+    auto VisitSwitchStmt(::clang::SwitchStmt* switch_stmt) -> bool {
+        if (!in_target_function_ || switch_stmt == nullptr) {
+            return true;
+        }
+        append_control_flow_hint("switch", switch_stmt->getCond());
+        return true;
+    }
+
+    auto VisitWhileStmt(::clang::WhileStmt* while_stmt) -> bool {
+        if (!in_target_function_ || while_stmt == nullptr) {
+            return true;
+        }
+        append_control_flow_hint("while", while_stmt->getCond());
         return true;
     }
 
@@ -203,6 +240,40 @@ private:
             }
         }
         return out;
+    }
+
+    static auto is_target_function(::clang::FunctionDecl const* fd) -> bool {
+        if (fd == nullptr || !fd->getIdentifier()) {
+            return false;
+        }
+        return is_target(::llvm::StringRef{fd->getName()});
+    }
+
+    static auto summarize_condition(::clang::Expr const* expr) -> ::std::string {
+        if (expr == nullptr) {
+            return "condition: <null>";
+        }
+        auto const* normalized = expr->IgnoreParenImpCasts();
+        ::std::string summary{"condition type: "};
+        summary.append(normalized->getType().getAsString());
+        return summary;
+    }
+
+    void append_control_flow_hint(::llvm::StringRef keyword, ::clang::Expr const* condition_expr) {
+        ::std::string key{};
+        key.reserve(128);
+        key.append(keyword.data(), keyword.size());
+        key.push_back(':');
+        key.append(summarize_condition(condition_expr));
+        if (!emitted_control_flow_keys_.insert(key).second) {
+            return;
+        }
+
+        csharp_code_ += "    // Control-flow from C++ AST: ";
+        csharp_code_ += keyword.str();
+        csharp_code_ += " (";
+        csharp_code_ += summarize_condition(condition_expr);
+        csharp_code_ += ")\n";
     }
 
     void append_function_stub(::clang::FunctionDecl const* fd) {
