@@ -17,8 +17,10 @@
 #include <llvm/Support/raw_ostream.h>
 
 #include <cctype>
+#include <map>
 #include <set>
 #include <string>
+#include <vector>
 
 #include <pltxt2htm/contracts.hh>
 
@@ -30,6 +32,8 @@ class ApiInstantiationVisitor : public ::clang::RecursiveASTVisitor<ApiInstantia
     ::std::string csharp_code_{};
     ::std::set<::std::string> emitted_stub_keys_{};
     ::std::set<::std::string> emitted_control_flow_keys_{};
+    ::std::map<::std::string, ::std::vector<::std::string>> function_body_snippets_{};
+    ::std::string current_function_key_{};
     bool in_target_function_{};
 
 public:
@@ -52,9 +56,17 @@ public:
 
     auto TraverseFunctionDecl(::clang::FunctionDecl* fd) -> bool {
         auto const previous = in_target_function_;
+        auto const previous_function_key = current_function_key_;
         in_target_function_ = previous || is_target_function(fd);
+        if (is_target_function(fd) && has_template_context(fd)) {
+            current_function_key_ = build_stub_key(fd);
+        }
+        else {
+            current_function_key_.clear();
+        }
         auto const result = Base::TraverseFunctionDecl(fd);
         in_target_function_ = previous;
+        current_function_key_ = previous_function_key;
         return result;
     }
 
@@ -247,9 +259,50 @@ private:
         return summary;
     }
 
+    static auto has_template_context(::clang::FunctionDecl const* fd) -> bool {
+        if (fd == nullptr) {
+            return false;
+        }
+        auto const template_specialization_kind = fd->getTemplateSpecializationKind();
+        return fd->isTemplateInstantiation() || fd->getTemplateSpecializationInfo() != nullptr ||
+               fd->getTemplateSpecializationArgs() != nullptr ||
+               template_specialization_kind != ::clang::TSK_Undeclared;
+    }
+
+    static auto build_stub_key(::clang::FunctionDecl const* fd) -> ::std::string {
+        if (fd == nullptr) {
+            return {};
+        }
+        ::std::string key{};
+        key.reserve(64);
+        key.append(fd->getQualifiedNameAsString());
+        key.push_back('(');
+        for (unsigned i = 0; i < fd->getNumParams(); ++i) {
+            if (i != 0) {
+                key.push_back(',');
+            }
+            auto const* param = fd->getParamDecl(i);
+            if (param == nullptr) {
+                key.append("object");
+                continue;
+            }
+            key.append(map_csharp_type(param->getType()));
+        }
+        key.push_back(')');
+        key.append("->");
+        key.append(map_csharp_type(fd->getReturnType()));
+        return key;
+    }
+
     void append_control_flow_hint(::llvm::StringRef keyword, ::clang::Expr const* condition_expr) {
+        if (current_function_key_.empty()) {
+            return;
+        }
+
         ::std::string key{};
         key.reserve(128);
+        key.append(current_function_key_);
+        key.push_back('|');
         key.append(keyword.data(), keyword.size());
         key.push_back(':');
         key.append(summarize_condition(condition_expr));
@@ -257,11 +310,30 @@ private:
             return;
         }
 
-        csharp_code_ += "    // Control-flow from C++ AST: ";
-        csharp_code_ += keyword.str();
-        csharp_code_ += " (";
-        csharp_code_ += summarize_condition(condition_expr);
-        csharp_code_ += ")\n";
+        auto& snippets = function_body_snippets_[current_function_key_];
+        if (keyword == "if") {
+            snippets.emplace_back(::std::string{"        // from C++ if: "} + summarize_condition(condition_expr));
+            snippets.emplace_back("        if (true)");
+            snippets.emplace_back("        {");
+            snippets.emplace_back("        }");
+            return;
+        }
+        if (keyword == "switch") {
+            snippets.emplace_back(::std::string{"        // from C++ switch: "} + summarize_condition(condition_expr));
+            snippets.emplace_back("        switch (0)");
+            snippets.emplace_back("        {");
+            snippets.emplace_back("            default:");
+            snippets.emplace_back("                break;");
+            snippets.emplace_back("        }");
+            return;
+        }
+        if (keyword == "while") {
+            snippets.emplace_back(::std::string{"        // from C++ while: "} + summarize_condition(condition_expr));
+            snippets.emplace_back("        while (false)");
+            snippets.emplace_back("        {");
+            snippets.emplace_back("            break;");
+            snippets.emplace_back("        }");
+        }
     }
 
     void append_function_stub(::clang::FunctionDecl const* fd) {
@@ -273,38 +345,18 @@ private:
         if (!is_target(name)) {
             return;
         }
-        auto const template_specialization_kind = fd->getTemplateSpecializationKind();
-        auto const has_template_context = fd->isTemplateInstantiation() || fd->getTemplateSpecializationInfo() != nullptr ||
-                                          fd->getTemplateSpecializationArgs() != nullptr ||
-                                          template_specialization_kind != ::clang::TSK_Undeclared;
-        if (!has_template_context) {
+        if (!has_template_context(fd)) {
             return;
         }
 
-        ::std::string stub_key{};
-        stub_key.reserve(64);
-        stub_key.append(fd->getQualifiedNameAsString());
-        stub_key.push_back('(');
-        for (unsigned i = 0; i < fd->getNumParams(); ++i) {
-            if (i != 0) {
-                stub_key.push_back(',');
-            }
-            auto const* param = fd->getParamDecl(i);
-            if (param == nullptr) {
-                stub_key.append("object");
-                continue;
-            }
-            stub_key.append(map_csharp_type(param->getType()));
-        }
-        stub_key.push_back(')');
-        stub_key.append("->");
-        stub_key.append(map_csharp_type(fd->getReturnType()));
+        auto const stub_key = build_stub_key(fd);
         if (!emitted_stub_keys_.insert(stub_key).second) {
             return;
         }
 
+        auto const return_type = map_csharp_type(fd->getReturnType());
         csharp_code_ += "    public static ";
-        csharp_code_ += map_csharp_type(fd->getReturnType());
+        csharp_code_ += return_type;
         csharp_code_ += " ";
         csharp_code_ += to_pascal_case(name);
         csharp_code_ += "(";
@@ -326,7 +378,18 @@ private:
 
         csharp_code_ += ")\n";
         csharp_code_ += "    {\n";
-        csharp_code_ += "        throw new NotImplementedException(\"Generated from template instantiation AST.\");\n";
+        if (auto it = function_body_snippets_.find(stub_key); it != function_body_snippets_.end() && !it->second.empty()) {
+            for (auto const& line : it->second) {
+                csharp_code_ += line;
+                csharp_code_ += "\n";
+            }
+        }
+        else {
+            csharp_code_ += "        // TODO: translate C++ body.\n";
+        }
+        if (return_type != "void") {
+            csharp_code_ += "        return default!;\n";
+        }
         csharp_code_ += "    }\n\n";
     }
 };
