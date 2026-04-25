@@ -209,8 +209,11 @@ private:
         if (!is_target(name)) {
             return;
         }
-        if (fd->isTemplateInstantiation() == false && fd->getTemplateSpecializationInfo() == nullptr &&
-            fd->getPrimaryTemplate() == nullptr) {
+        auto const template_specialization_kind = fd->getTemplateSpecializationKind();
+        auto const has_template_context = fd->isTemplateInstantiation() || fd->getTemplateSpecializationInfo() != nullptr ||
+                                          fd->getPrimaryTemplate() != nullptr ||
+                                          template_specialization_kind != ::clang::TSK_Undeclared;
+        if (!has_template_context) {
             return;
         }
 
