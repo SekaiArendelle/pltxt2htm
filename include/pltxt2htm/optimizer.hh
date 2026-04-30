@@ -74,30 +74,30 @@ public:
     }
 
     OptimizerContext(::pltxt2htm::Ast* ast_, ::pltxt2htm::NodeType const nested_tag_type_, Iter&& iter_,
-                     ::fast_io::u8string_view id_) noexcept
+                     ::pltxt2htm::details::OptimizerEqualSignTagContext equal_sign_tag_context_) noexcept
         : ast(ast_),
           nested_tag_type{nested_tag_type_},
           context_data{},
           iter{iter_} {
-        this->context_data.equal_sign_tag.id_ = id_;
+        this->context_data.equal_sign_tag = equal_sign_tag_context_;
     }
 
     OptimizerContext(::pltxt2htm::Ast* ast_, ::pltxt2htm::NodeType const nested_tag_type_, Iter&& iter_,
-                     ::std::size_t id_) noexcept
+                     ::pltxt2htm::details::OptimizerPlSizeTagContext pl_size_tag_context_) noexcept
         : ast(ast_),
           nested_tag_type{nested_tag_type_},
           context_data{},
           iter{iter_} {
-        this->context_data.pl_size_tag.id_ = id_;
+        this->context_data.pl_size_tag = pl_size_tag_context_;
     }
 
     OptimizerContext(::pltxt2htm::Ast* ast_, ::pltxt2htm::NodeType const nested_tag_type_, Iter&& iter_,
-                     ::pltxt2htm::Url const& url) noexcept
+                     ::pltxt2htm::details::OptimizerExternalTagContext external_tag_context_) noexcept
         : ast(ast_),
           nested_tag_type{nested_tag_type_},
           context_data{},
           iter{iter_} {
-        this->context_data.external_tag.url_ = ::std::addressof(url);
+        this->context_data.external_tag = external_tag_context_;
     }
 
     constexpr OptimizerContext(::pltxt2htm::details::OptimizerContext<Iter> const&) noexcept = default;
@@ -237,7 +237,7 @@ entry:
                 }
                 call_stack.push(::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeType::pl_color, subast.begin(),
-                    ::fast_io::mnp::os_c_str(color->get_color())));
+                    ::pltxt2htm::details::OptimizerEqualSignTagContext{::fast_io::mnp::os_c_str(color->get_color())}));
                 goto entry;
             }
             else {
@@ -284,7 +284,7 @@ entry:
                 }
                 call_stack.push(::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeType::pl_a, subast.begin(),
-                    anchor_color));
+                    ::pltxt2htm::details::OptimizerEqualSignTagContext{anchor_color}));
                 goto entry;
             }
             else {
@@ -305,7 +305,7 @@ entry:
             }
             call_stack.push(::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::pl_experiment, subast.begin(),
-                ::fast_io::mnp::os_c_str(experiment->get_id())));
+                ::pltxt2htm::details::OptimizerEqualSignTagContext{::fast_io::mnp::os_c_str(experiment->get_id())}));
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_discussion: {
@@ -319,7 +319,7 @@ entry:
             auto const& id = discussion->get_id();
             call_stack.push(::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::pl_discussion, subast.begin(),
-                ::fast_io::u8string_view{id.data(), id.size()}));
+                ::pltxt2htm::details::OptimizerEqualSignTagContext{::fast_io::u8string_view{id.data(), id.size()}}));
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_user: {
@@ -350,7 +350,7 @@ entry:
                 auto&& subast = user->get_subast();
                 call_stack.push(::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeType::pl_user, subast.begin(),
-                    ::fast_io::mnp::os_c_str(user->get_id())));
+                    ::pltxt2htm::details::OptimizerEqualSignTagContext{::fast_io::mnp::os_c_str(user->get_id())}));
                 goto entry;
             }
             else {
@@ -370,7 +370,7 @@ entry:
             }
             call_stack.push(
                 ::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>(
-                    ::std::addressof(subast), ::pltxt2htm::NodeType::pl_external, subast.begin(), external->get_url()));
+                    ::std::addressof(subast), ::pltxt2htm::NodeType::pl_external, subast.begin(), ::pltxt2htm::details::OptimizerExternalTagContext{::std::addressof(external->get_url())}));
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_size: {
@@ -401,7 +401,7 @@ entry:
                 auto&& subast = size->get_subast();
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeType::pl_size, subast.begin(), size->get_id()));
+                        ::std::addressof(subast), ::pltxt2htm::NodeType::pl_size, subast.begin(), ::pltxt2htm::details::OptimizerPlSizeTagContext{size->get_id()}));
                 goto entry;
             }
             else {
