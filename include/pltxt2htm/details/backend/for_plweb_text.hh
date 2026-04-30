@@ -343,8 +343,7 @@ entry:
             call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(color->get_subast(),
                                                                            ::pltxt2htm::NodeType::pl_color, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view close_tag1 =
-                u8"<span style=\"color:";
+            constexpr ::fast_io::u8string_view close_tag1 = u8"<span style=\"color:";
             result.append(::fast_io::u8string_view{close_tag1.data(), close_tag1.size()});
             auto const& color_value = color->get_color();
             // Under normal circumstances, `color_value` should never contain characters that could enable XSS in
@@ -372,10 +371,9 @@ entry:
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(anchor->get_subast(), ::pltxt2htm::NodeType::pl_a, 0));
             ++current_index;
-            constexpr auto open_tag =
-                ::pltxt2htm::details::concat(::pltxt2htm::details::U8LiteralString{u8"<span style=\"color:"},
-                                             ::pltxt2htm::A::get_color_literal(),
-                                             ::pltxt2htm::details::U8LiteralString{u8";\">"});
+            constexpr auto open_tag = ::pltxt2htm::details::concat(
+                ::pltxt2htm::details::U8LiteralString{u8"<span style=\"color:"}, ::pltxt2htm::A::get_color_literal(),
+                ::pltxt2htm::details::U8LiteralString{u8";\">"});
             result.append(::fast_io::u8string_view{open_tag.data(), open_tag.size()});
             goto entry;
         }
@@ -438,8 +436,7 @@ entry:
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(user->get_subast(), ::pltxt2htm::NodeType::pl_user, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view open_tag1 =
-                u8"<span class='RUser' data-user='";
+            constexpr ::fast_io::u8string_view open_tag1 = u8"<span class='RUser' data-user='";
             result.append(::fast_io::u8string_view{open_tag1.data(), open_tag1.size()});
             auto const& user_id = user->get_id();
             // Under normal circumstances, `user_id` should never contain characters that could enable XSS in HTML
@@ -466,8 +463,7 @@ entry:
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(size->get_subast(), ::pltxt2htm::NodeType::pl_size, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view open_tag1 =
-                u8"<span style=\"font-size:";
+            constexpr ::fast_io::u8string_view open_tag1 = u8"<span style=\"font-size:";
             result.append(::fast_io::u8string_view{open_tag1.data(), open_tag1.size()});
             result.append(::pltxt2htm::details::size_t2str(size->get_id() / 2));
             constexpr ::fast_io::u8string_view open_tag2 = u8"px\">";
@@ -699,8 +695,7 @@ entry:
             call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(blockquote->get_subast(),
                                                                            ::pltxt2htm::NodeType::html_blockquote, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view start_tag =
-                u8"<blockquote>";
+            constexpr ::fast_io::u8string_view start_tag = u8"<blockquote>";
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
             goto entry;
         }
@@ -711,8 +706,7 @@ entry:
             call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(
                 triple_emphasis->get_subast(), ::pltxt2htm::NodeType::md_triple_emphasis_asterisk, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view start_tag =
-                u8"<em><strong>";
+            constexpr ::fast_io::u8string_view start_tag = u8"<em><strong>";
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
             goto entry;
         }
@@ -743,8 +737,7 @@ entry:
         case ::pltxt2htm::NodeType::md_image: {
             auto a_image = static_cast<::pltxt2htm::MdImage const*>(node.release_imul());
 
-            constexpr ::fast_io::u8string_view start_tag =
-                u8"<img src=\"";
+            constexpr ::fast_io::u8string_view start_tag = u8"<img src=\"";
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
             ::pltxt2htm::details::append_url_attr_from_ast<ndebug>(result, a_image->url_.get_url_ast());
             constexpr ::fast_io::u8string_view mid_tag = u8"\" alt=\"";
@@ -877,8 +870,7 @@ entry:
                 result.append(::fast_io::u8string_view(start_tag2.begin(), start_tag2.size()));
             }
             else {
-                constexpr ::fast_io::u8string_view start_tag =
-                    u8"<pre><code>";
+                constexpr ::fast_io::u8string_view start_tag = u8"<pre><code>";
                 result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
             }
             call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(

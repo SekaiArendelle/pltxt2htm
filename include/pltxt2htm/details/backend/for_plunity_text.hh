@@ -302,10 +302,9 @@ entry:
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(anchor->get_subast(), ::pltxt2htm::NodeType::pl_a, 0));
             ++current_index;
-            constexpr auto open_tag =
-                ::pltxt2htm::details::concat(::pltxt2htm::details::U8LiteralString{u8"<color="},
-                                             ::pltxt2htm::A::get_color_literal(),
-                                             ::pltxt2htm::details::U8LiteralString{u8">"});
+            constexpr auto open_tag = ::pltxt2htm::details::concat(::pltxt2htm::details::U8LiteralString{u8"<color="},
+                                                                   ::pltxt2htm::A::get_color_literal(),
+                                                                   ::pltxt2htm::details::U8LiteralString{u8">"});
             result.append(::fast_io::u8string_view{open_tag.data(), open_tag.size()});
             goto entry;
         }
@@ -625,8 +624,7 @@ entry:
             call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(blockquote->get_subast(),
                                                                            ::pltxt2htm::NodeType::html_blockquote, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view start_tag =
-                u8"<blockquote>";
+            constexpr ::fast_io::u8string_view start_tag = u8"<blockquote>";
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
             goto entry;
         }

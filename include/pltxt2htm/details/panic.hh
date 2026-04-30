@@ -38,7 +38,9 @@ template<::pltxt2htm::details::U8LiteralString expression, ::pltxt2htm::details:
 inline void panic() noexcept {
     auto to_be_printed = ::pltxt2htm::details::concat(
         pltxt2htm::details::U8LiteralString{u8"Program panicked because \"assert("}, expression,
-        pltxt2htm::details::U8LiteralString{u8")\" failed, please file a bug at \"https://github.com/SekaiArendelle/pltxt2htm/issues\" and attach the crash info along with the source text\n* in file: "},
+        pltxt2htm::details::U8LiteralString{
+            u8")\" failed, please file a bug at \"https://github.com/SekaiArendelle/pltxt2htm/issues\" and attach the "
+            u8"crash info along with the source text\n* in file: "},
         file_name,
         pltxt2htm::details::U8LiteralString{u8"\n"
                                             "* in line: "},
@@ -50,7 +52,8 @@ inline void panic() noexcept {
                                             "* with message: \""},
         msg, pltxt2htm::details::U8LiteralString{u8"\"\n\0"});
 
-    ::std::fwrite(to_be_printed.cdata(), sizeof(typename decltype(to_be_printed)::value_type), to_be_printed.size(), stderr);
+    ::std::fwrite(to_be_printed.cdata(), sizeof(typename decltype(to_be_printed)::value_type), to_be_printed.size(),
+                  stderr);
 
 #if __cpp_lib_stacktrace >= 202011L && defined(PLTXT2HTM_EXPERIMENTAL_ENABLE_STACKTRACE)
     ::std::fputs("* stack trace:\n", stderr);

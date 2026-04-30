@@ -96,8 +96,7 @@ entry:
             call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(color->get_subast(),
                                                                            ::pltxt2htm::NodeType::pl_color, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view close_tag1 =
-                u8"<span style=\"color:";
+            constexpr ::fast_io::u8string_view close_tag1 = u8"<span style=\"color:";
             result.append(::fast_io::u8string_view{close_tag1.data(), close_tag1.size()});
             result.append(color->get_color());
             constexpr ::fast_io::u8string_view close_tag2 = u8";\">";
@@ -109,10 +108,9 @@ entry:
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(anchor->get_subast(), ::pltxt2htm::NodeType::pl_a, 0));
             ++current_index;
-            constexpr auto open_tag =
-                ::pltxt2htm::details::concat(::pltxt2htm::details::U8LiteralString{u8"<span style=\"color:"},
-                                             ::pltxt2htm::A::get_color_literal(),
-                                             ::pltxt2htm::details::U8LiteralString{u8";\">"});
+            constexpr auto open_tag = ::pltxt2htm::details::concat(
+                ::pltxt2htm::details::U8LiteralString{u8"<span style=\"color:"}, ::pltxt2htm::A::get_color_literal(),
+                ::pltxt2htm::details::U8LiteralString{u8";\">"});
             result.append(::fast_io::u8string_view{open_tag.data(), open_tag.size()});
             goto entry;
         }
@@ -153,8 +151,7 @@ entry:
             call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(
                 triple_emphasis->get_subast(), ::pltxt2htm::NodeType::md_triple_emphasis_asterisk, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view start_tag =
-                u8"<em><strong>";
+            constexpr ::fast_io::u8string_view start_tag = u8"<em><strong>";
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
             goto entry;
         }

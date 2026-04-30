@@ -190,7 +190,8 @@ consteval void concat_memcpy(::pltxt2htm::details::is_leteral_string auto const&
 template<::pltxt2htm::details::is_leteral_string Arg, ::pltxt2htm::details::is_leteral_string... Args>
     requires (::std::is_same_v<typename Arg::value_type, typename Args::value_type> && ...)
 consteval auto concat(Arg const& arg, Args const&... args) noexcept {
-    auto result = ::pltxt2htm::details::BasicLiteralString<typename Arg::value_type, arg.size() + (args.size() + ...)>{};
+    auto result =
+        ::pltxt2htm::details::BasicLiteralString<typename Arg::value_type, arg.size() + (args.size() + ...)>{};
     ::std::size_t index{};
     ::pltxt2htm::details::concat_memcpy(arg, index, result);
     (::pltxt2htm::details::concat_memcpy(args, index, result), ...);

@@ -818,10 +818,9 @@ constexpr auto try_parse_md_thematic_break(::fast_io::u8string_view text) noexce
             if (chr == u8'\n') {
                 return i + 1;
             }
-            else if (auto opt_tag_len =
-                         ::pltxt2htm::details::try_parse_self_closing_tag<ndebug,
-                                                                          ::pltxt2htm::details::U8LiteralString{u8"<br"}>(
-                             ::pltxt2htm::details::u8string_view_subview<ndebug>(text, i));
+            else if (auto opt_tag_len = ::pltxt2htm::details::try_parse_self_closing_tag<
+                         ndebug, ::pltxt2htm::details::U8LiteralString{u8"<br"}>(
+                         ::pltxt2htm::details::u8string_view_subview<ndebug>(text, i));
                      opt_tag_len.has_value()) {
                 return i + opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1;
             }

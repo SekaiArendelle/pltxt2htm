@@ -74,6 +74,7 @@ csharp/bin/
 
 # ninja
 **/.ninja_log
+**/.ninja_lock
 
 # docsgen
 **/docs/

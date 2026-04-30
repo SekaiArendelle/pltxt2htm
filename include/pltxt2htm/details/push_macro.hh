@@ -12,10 +12,9 @@
 #include "../contracts.hh"
 #include "panic.hh"
 
-
 #pragma push_macro("PLTXT2HTM_U8_CONSTANT_STR_HELPER_")
 #undef PLTXT2HTM_U8_CONSTANT_STR_HELPER_
-#define PLTXT2HTM_U8_CONSTANT_STR_HELPER_(str) u8 ## str
+#define PLTXT2HTM_U8_CONSTANT_STR_HELPER_(str) u8##str
 
 #pragma push_macro("PLTXT2HTM_U8_CONSTANT_STR_")
 #undef PLTXT2HTM_U8_CONSTANT_STR_
@@ -47,7 +46,8 @@
             if ((condition) == false) [[unlikely]] { \
                 constexpr auto source_location = ::std::source_location::current(); \
                 ::pltxt2htm::details::panic< \
-                    ::pltxt2htm::details::U8LiteralString{PLTXT2HTM_U8_CONSTANT_STR_(#condition)}, ::pltxt2htm::details::U8LiteralString{PLTXT2HTM_U8_CONSTANT_STR_(__FILE__)}, \
+                    ::pltxt2htm::details::U8LiteralString{PLTXT2HTM_U8_CONSTANT_STR_(#condition)}, \
+                    ::pltxt2htm::details::U8LiteralString{PLTXT2HTM_U8_CONSTANT_STR_(__FILE__)}, \
                     source_location.line(), source_location.column(), pltxt2htm::details::U8LiteralString{message}>(); \
             } \
         } \
