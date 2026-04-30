@@ -32,19 +32,16 @@ namespace details {
  *          tracking the current AST being processed, the type of nested tag,
  *          and the current iterator position.
  */
-template<::std::forward_iterator Iter>
 class OptimizerEqualSignTagContext {
 public:
     ::fast_io::u8string_view id_; ///< The value part of the attribute (e.g., "red" in color=red)
 };
 
-template<::std::forward_iterator Iter>
 class OptimizerPlSizeTagContext {
 public:
     ::std::size_t id_; ///< Numeric size value (e.g., 12 in size=12)
 };
 
-template<::std::forward_iterator Iter>
 class OptimizerExternalTagContext {
 public:
     ::pltxt2htm::Url const* url_;
@@ -56,9 +53,9 @@ public:
     ::pltxt2htm::Ast* ast;                       ///< Pointer to the AST being optimized
     ::pltxt2htm::NodeType const nested_tag_type; ///< Type of the current nested tag context
     union ContextUnion {
-        ::pltxt2htm::details::OptimizerEqualSignTagContext<Iter> equal_sign_tag;
-        ::pltxt2htm::details::OptimizerPlSizeTagContext<Iter> pl_size_tag;
-        ::pltxt2htm::details::OptimizerExternalTagContext<Iter> external_tag;
+        ::pltxt2htm::details::OptimizerEqualSignTagContext equal_sign_tag;
+        ::pltxt2htm::details::OptimizerPlSizeTagContext pl_size_tag;
+        ::pltxt2htm::details::OptimizerExternalTagContext external_tag;
 
         constexpr ContextUnion() noexcept : pl_size_tag{} {
         }
