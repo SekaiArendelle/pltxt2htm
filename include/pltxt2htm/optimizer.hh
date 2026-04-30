@@ -11,6 +11,7 @@
 
 #include <cstddef>
 #include <iterator>
+#include <type_traits>
 #include <fast_io/fast_io_dsal/list.h>
 #include <fast_io/fast_io_dsal/stack.h>
 #include "pltxt2htm/astnode/node_type.hh"
@@ -25,6 +26,8 @@ namespace pltxt2htm {
 
 namespace details {
 
+class OptimizerContextWithoutInfo {};
+
 /**
  * @brief Base context for AST optimization operations
  * @tparam Iter Iterator type for traversing the AST
@@ -32,11 +35,51 @@ namespace details {
  *          tracking the current AST being processed, the type of nested tag,
  *          and the current iterator position.
  */
+class OptimizerContextWithEqualSignTagInfo {
+public:
+    ::fast_io::u8string_view id_; ///< The value part of the attribute (e.g., "red" in color=red)
+};
+
+class OptimizerContextWithPlSizeTagInfo {
+public:
+    ::std::size_t id_; ///< Numeric size value (e.g., 12 in size=12)
+};
+
+class OptimizerContextWithExternalTagInfo {
+public:
+    ::pltxt2htm::Url const* url_;
+};
+
 template<::std::forward_iterator Iter>
 class OptimizerContext {
 public:
     ::pltxt2htm::Ast* ast; ///< Pointer to the AST being optimized
     ::pltxt2htm::NodeType const nested_tag_type; ///< Type of the current nested tag context
+
+    union ContextVariant {
+        ::pltxt2htm::details::OptimizerContextWithoutInfo without_info;
+        ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo equal_sign_tag;
+        ::pltxt2htm::details::OptimizerContextWithPlSizeTagInfo pl_size_tag;
+        ::pltxt2htm::details::OptimizerContextWithExternalTagInfo external_tag;
+
+        constexpr ContextVariant() noexcept
+            : without_info{} {
+        }
+
+        constexpr ContextVariant(
+            ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo&& equal_sign_tag_context) noexcept
+            : equal_sign_tag{::std::move(equal_sign_tag_context)} {
+        }
+
+        constexpr ContextVariant(::pltxt2htm::details::OptimizerContextWithPlSizeTagInfo&& pl_size_tag_context) noexcept
+            : pl_size_tag{::std::move(pl_size_tag_context)} {
+        }
+
+        constexpr ContextVariant(
+            ::pltxt2htm::details::OptimizerContextWithExternalTagInfo&& external_tag_context) noexcept
+            : external_tag{::std::move(external_tag_context)} {
+        }
+    } context_data;
 #if __has_cpp_attribute(no_unique_address)
     [[no_unique_address]]
 #elif __has_cpp_attribute(msvc::no_unique_address)
@@ -47,13 +90,45 @@ public:
     OptimizerContext(::pltxt2htm::Ast* ast_, ::pltxt2htm::NodeType const nested_tag_type_, Iter&& iter_) noexcept
         : ast(ast_),
           nested_tag_type{nested_tag_type_},
+          context_data{},
           iter{iter_} {
+    }
+
+    OptimizerContext(::pltxt2htm::Ast* ast_, ::pltxt2htm::NodeType const nested_tag_type_, Iter&& iter_,
+                     ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo&& equal_sign_tag_context_) noexcept
+        : ast(ast_),
+          nested_tag_type{nested_tag_type_},
+          context_data{::std::move(equal_sign_tag_context_)},
+          iter{iter_} {
+        this->context_data.equal_sign_tag = equal_sign_tag_context_;
+    }
+
+    OptimizerContext(::pltxt2htm::Ast* ast_, Iter&& iter_,
+                     ::pltxt2htm::details::OptimizerContextWithPlSizeTagInfo&& pl_size_tag_context_) noexcept
+        : ast(ast_),
+          nested_tag_type{::pltxt2htm::NodeType::pl_size},
+          context_data{::std::move(pl_size_tag_context_)},
+          iter{iter_} {
+        this->context_data.pl_size_tag = pl_size_tag_context_;
+    }
+
+    OptimizerContext(::pltxt2htm::Ast* ast_, Iter&& iter_,
+                     ::pltxt2htm::details::OptimizerContextWithExternalTagInfo&& external_tag_context_) noexcept
+        : ast(ast_),
+          nested_tag_type{::pltxt2htm::NodeType::pl_external},
+          context_data{::std::move(external_tag_context_)},
+          iter{iter_} {
+        this->context_data.external_tag = external_tag_context_;
     }
 
     constexpr OptimizerContext(::pltxt2htm::details::OptimizerContext<Iter> const&) noexcept = default;
 
     constexpr OptimizerContext(::pltxt2htm::details::OptimizerContext<Iter>&&) noexcept = default;
 
+    static_assert(::std::is_trivially_destructible_v<decltype(context_data.without_info)>);
+    static_assert(::std::is_trivially_destructible_v<decltype(context_data.equal_sign_tag)>);
+    static_assert(::std::is_trivially_destructible_v<decltype(context_data.pl_size_tag)>);
+    static_assert(::std::is_trivially_destructible_v<decltype(context_data.external_tag)>);
     constexpr ~OptimizerContext() noexcept = default;
 
     constexpr ::pltxt2htm::details::OptimizerContext<Iter>& operator=(
@@ -61,97 +136,15 @@ public:
 
     constexpr ::pltxt2htm::details::OptimizerContext<Iter>& operator=(
         ::pltxt2htm::details::OptimizerContext<Iter>&&) noexcept = default;
-};
 
-/**
- * @brief Optimization context for tags with equal-sign attributes
- * @tparam Iter Iterator type for traversing the AST
- * @details Specialized context for optimizing tags that have attributes
- *          in the format key=value, such as &lt;color=red&gt; or &lt;experiment=123&gt;.
- */
-template<::std::forward_iterator Iter>
-class OptimizerEqualSignTagContext : public ::pltxt2htm::details::OptimizerContext<Iter> {
-public:
-    ::fast_io::u8string_view id_; ///< The value part of the attribute (e.g., "red" in color=red)
-
-    OptimizerEqualSignTagContext(::pltxt2htm::Ast* ast, ::pltxt2htm::NodeType const nested_tag_type, Iter&& iter,
-                                 ::fast_io::u8string_view id) noexcept
-        : ::pltxt2htm::details::OptimizerContext<Iter>(ast, nested_tag_type, ::std::move(iter)),
-          id_{id} {
-    }
-
-    constexpr OptimizerEqualSignTagContext(::pltxt2htm::details::OptimizerEqualSignTagContext<Iter> const&) noexcept =
-        default;
-    constexpr OptimizerEqualSignTagContext(::pltxt2htm::details::OptimizerEqualSignTagContext<Iter>&&) noexcept =
-        default;
-
-    constexpr ~OptimizerEqualSignTagContext() noexcept = default;
-
-    // const reference do not support operator=
-    constexpr ::pltxt2htm::details::OptimizerEqualSignTagContext<Iter>& operator=(
-        ::pltxt2htm::details::OptimizerEqualSignTagContext<Iter> const&) noexcept = delete;
-    constexpr ::pltxt2htm::details::OptimizerEqualSignTagContext<Iter>& operator=(
-        ::pltxt2htm::details::OptimizerEqualSignTagContext<Iter>&&) noexcept = delete;
-};
-
-/**
- * @brief Optimization context for size tags with numeric values
- * @tparam Iter Iterator type for traversing the AST
- * @details Specialized context for optimizing size tags that have
- *          numeric values like &lt;size=12&gt; where the value is a std::size_t.
- */
-template<::std::forward_iterator Iter>
-class OptimizerPlSizeTagContext : public ::pltxt2htm::details::OptimizerContext<Iter> {
-public:
-    ::std::size_t id_; ///< Numeric size value (e.g., 12 in size=12)
-
-    OptimizerPlSizeTagContext(::pltxt2htm::Ast* ast, ::pltxt2htm::NodeType const nested_tag_type, Iter&& iter,
-                              ::std::size_t id) noexcept
-        : ::pltxt2htm::details::OptimizerContext<Iter>(ast, nested_tag_type, ::std::move(iter)),
-          id_{id} {
-    }
-
-    constexpr OptimizerPlSizeTagContext(::pltxt2htm::details::OptimizerPlSizeTagContext<Iter> const&) noexcept =
-        default;
-
-    constexpr OptimizerPlSizeTagContext(::pltxt2htm::details::OptimizerPlSizeTagContext<Iter>&&) noexcept = default;
-
-    constexpr ~OptimizerPlSizeTagContext() noexcept = default;
-
-    // const reference do not support operator=
-    constexpr ::pltxt2htm::details::OptimizerPlSizeTagContext<Iter>& operator=(
-        ::pltxt2htm::details::OptimizerPlSizeTagContext<Iter> const&) noexcept = delete;
-
-    constexpr ::pltxt2htm::details::OptimizerPlSizeTagContext<Iter>& operator=(
-        ::pltxt2htm::details::OptimizerPlSizeTagContext<Iter>&&) noexcept = delete;
-};
-
-/**
- * @brief Optimization context for external tags with URL payloads
- * @tparam Iter Iterator type for traversing the AST
- * @details Specialized context for `<external=...>` tags to carry pltxt2htm::Url data.
- */
-template<::std::forward_iterator Iter>
-class OptimizerExternalTagContext : public ::pltxt2htm::details::OptimizerContext<Iter> {
-public:
-    ::pltxt2htm::Url const* url_;
-
-    OptimizerExternalTagContext(::pltxt2htm::Ast* ast, ::pltxt2htm::NodeType const nested_tag_type, Iter&& iter,
-                                ::pltxt2htm::Url const& url) noexcept
-        : ::pltxt2htm::details::OptimizerContext<Iter>(ast, nested_tag_type, ::std::move(iter)),
-          url_{::std::addressof(url)} {
-    }
-
-    constexpr OptimizerExternalTagContext(::pltxt2htm::details::OptimizerExternalTagContext<Iter> const&) noexcept =
-        default;
-    constexpr OptimizerExternalTagContext(::pltxt2htm::details::OptimizerExternalTagContext<Iter>&&) noexcept = default;
-
-    constexpr ~OptimizerExternalTagContext() noexcept = default;
-
-    constexpr ::pltxt2htm::details::OptimizerExternalTagContext<Iter>& operator=(
-        ::pltxt2htm::details::OptimizerExternalTagContext<Iter> const&) noexcept = delete;
-    constexpr ::pltxt2htm::details::OptimizerExternalTagContext<Iter>& operator=(
-        ::pltxt2htm::details::OptimizerExternalTagContext<Iter>&&) noexcept = delete;
+    // TODO:
+    // constexpr get_equal_sign_tag_info(this auto&& self) {
+    //   pltxt2htm_assert(self.nested_tag_type == ::pltxt2htm::NodeType::pl_color || ...);
+    //   return self.context_data.equal_sign_tag;
+    // }
+    //
+    // constexpr get_pl_size_tag_info(this auto&& self) {
+    // .e.t.c
 };
 
 } // namespace details
@@ -184,14 +177,13 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 constexpr void optimize_ast(::pltxt2htm::Ast& ast_init) noexcept {
-    ::fast_io::stack<::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>>
-        call_stack{};
-    call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>{
+    ::fast_io::stack<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>> call_stack{};
+    call_stack.push(::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>{
         ::std::addressof(ast_init), ::pltxt2htm::NodeType::base, ast_init.begin()});
 
 entry:
-    auto&& ast = *(call_stack.top()->ast);
-    auto&& current_iter = call_stack.top()->iter;
+    auto&& ast = *(call_stack.top().ast);
+    auto&& current_iter = call_stack.top().iter;
     while (current_iter != ast.end()) {
         auto&& node = *current_iter;
 
@@ -237,7 +229,7 @@ entry:
         case ::pltxt2htm::NodeType::text: {
             auto const text = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& subast = text->get_subast();
-            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+            call_stack.push(::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::text, subast.begin()));
             goto entry;
         }
@@ -263,26 +255,22 @@ entry:
                     }
                 }
             }
-            auto&& nested_tag_type = call_stack.top()->nested_tag_type;
+            auto&& nested_tag_type = call_stack.top().nested_tag_type;
             // Optimization: If this color matches the parent color, flatten the nesting
             // <color=red>text<color=red>text</color>test</color> -> <color=red>texttexttext</color>
-            bool const is_not_same_tag =
-                (nested_tag_type != ::pltxt2htm::NodeType::pl_color &&
-                 nested_tag_type != ::pltxt2htm::NodeType::pl_a) ||
-                color->get_color() !=
-                    static_cast<::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator> const*>(
-                        call_stack.top().release_imul())
-                        ->id_;
+            bool const is_not_same_tag = (nested_tag_type != ::pltxt2htm::NodeType::pl_color &&
+                                          nested_tag_type != ::pltxt2htm::NodeType::pl_a) ||
+                                         color->get_color() != call_stack.top().context_data.equal_sign_tag.id_;
             if (is_not_same_tag) {
                 auto&& subast = color->get_subast();
                 if (subast.empty()) {
                     ast.erase(current_iter);
                     continue;
                 }
-                call_stack.push(::pltxt2htm::HeapGuard<
-                                ::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator>>(
+                call_stack.push(::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeType::pl_color, subast.begin(),
-                    ::fast_io::mnp::os_c_str(color->get_color())));
+                    ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{
+                        ::fast_io::mnp::os_c_str(color->get_color())}));
                 goto entry;
             }
             else {
@@ -296,8 +284,8 @@ entry:
         case ::pltxt2htm::NodeType::pl_a: {
             auto const anchor = static_cast<::pltxt2htm::A*>(node.get_unsafe());
             constexpr auto anchor_color_literal = ::pltxt2htm::A::get_color_literal();
-            auto const anchor_color = ::fast_io::u8string_view{
-                anchor_color_literal.data(), anchor_color_literal.size()};
+            auto const anchor_color =
+                ::fast_io::u8string_view{anchor_color_literal.data(), anchor_color_literal.size()};
             {
                 // Optimization: <a><color=blue>text</color></a>
                 // can be simplified to <color=blue>text</color>
@@ -313,26 +301,21 @@ entry:
                     }
                 }
             }
-            auto&& nested_tag_type = call_stack.top()->nested_tag_type;
+            auto&& nested_tag_type = call_stack.top().nested_tag_type;
             // Optimization: If this color matches the parent color, flatten the nesting
             // <a>text<a>text</a>text</a> -> <a>texttexttext</a>
-            bool const is_not_same_tag =
-                (nested_tag_type != ::pltxt2htm::NodeType::pl_color &&
-                 nested_tag_type != ::pltxt2htm::NodeType::pl_a) ||
-                anchor_color !=
-                    static_cast<::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator> const*>(
-                        call_stack.top().release_imul())
-                        ->id_;
+            bool const is_not_same_tag = (nested_tag_type != ::pltxt2htm::NodeType::pl_color &&
+                                          nested_tag_type != ::pltxt2htm::NodeType::pl_a) ||
+                                         anchor_color != call_stack.top().context_data.equal_sign_tag.id_;
             if (is_not_same_tag) {
                 auto&& subast = anchor->get_subast();
                 if (subast.empty()) {
                     ast.erase(current_iter);
                     continue;
                 }
-                call_stack.push(::pltxt2htm::HeapGuard<
-                                ::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator>>(
+                call_stack.push(::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeType::pl_a, subast.begin(),
-                    anchor_color));
+                    ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{anchor_color}));
                 goto entry;
             }
             else {
@@ -351,10 +334,10 @@ entry:
                 ast.erase(current_iter);
                 continue;
             }
-            call_stack.push(
-                ::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator>>(
-                    ::std::addressof(subast), ::pltxt2htm::NodeType::pl_experiment, subast.begin(),
-                    ::fast_io::mnp::os_c_str(experiment->get_id())));
+            call_stack.push(::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>(
+                ::std::addressof(subast), ::pltxt2htm::NodeType::pl_experiment, subast.begin(),
+                ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{
+                    ::fast_io::mnp::os_c_str(experiment->get_id())}));
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_discussion: {
@@ -366,10 +349,10 @@ entry:
                 continue;
             }
             auto const& id = discussion->get_id();
-            call_stack.push(
-                ::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator>>(
-                    ::std::addressof(subast), ::pltxt2htm::NodeType::pl_discussion, subast.begin(),
-                    ::fast_io::u8string_view{id.data(), id.size()}));
+            call_stack.push(::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>(
+                ::std::addressof(subast), ::pltxt2htm::NodeType::pl_discussion, subast.begin(),
+                ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{
+                    ::fast_io::u8string_view{id.data(), id.size()}}));
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_user: {
@@ -390,20 +373,16 @@ entry:
                     }
                 }
             }
-            auto&& nested_tag_type = call_stack.top()->nested_tag_type;
+            auto&& nested_tag_type = call_stack.top().nested_tag_type;
             // Optimization: If the user is the same as the parent node, then ignore the nested tag.
-            bool const is_not_same_tag =
-                nested_tag_type != ::pltxt2htm::NodeType::pl_user ||
-                user->get_id() !=
-                    static_cast<::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator> const*>(
-                        call_stack.top().get_unsafe())
-                        ->id_;
+            bool const is_not_same_tag = nested_tag_type != ::pltxt2htm::NodeType::pl_user ||
+                                         user->get_id() != call_stack.top().context_data.equal_sign_tag.id_;
             if (is_not_same_tag) {
                 auto&& subast = user->get_subast();
-                call_stack.push(::pltxt2htm::HeapGuard<
-                                ::pltxt2htm::details::OptimizerEqualSignTagContext<::pltxt2htm::Ast::iterator>>(
+                call_stack.push(::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeType::pl_user, subast.begin(),
-                    ::fast_io::mnp::os_c_str(user->get_id())));
+                    ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{
+                        ::fast_io::mnp::os_c_str(user->get_id())}));
                 goto entry;
             }
             else {
@@ -421,9 +400,9 @@ entry:
                 ast.erase(current_iter);
                 continue;
             }
-            call_stack.push(
-                ::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerExternalTagContext<::pltxt2htm::Ast::iterator>>(
-                    ::std::addressof(subast), ::pltxt2htm::NodeType::pl_external, subast.begin(), external->get_url()));
+            call_stack.push(::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>(
+                ::std::addressof(subast), subast.begin(),
+                ::pltxt2htm::details::OptimizerContextWithExternalTagInfo{::std::addressof(external->get_url())}));
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_size: {
@@ -444,19 +423,15 @@ entry:
                     }
                 }
             }
-            auto&& nested_tag_type = call_stack.top()->nested_tag_type;
+            auto&& nested_tag_type = call_stack.top().nested_tag_type;
             // Optimization: If the size is the same as the parent node, then ignore the nested tag.
-            bool const is_not_same_tag =
-                nested_tag_type != ::pltxt2htm::NodeType::pl_size ||
-                size->get_id() !=
-                    static_cast<::pltxt2htm::details::OptimizerPlSizeTagContext<::pltxt2htm::Ast::iterator> const*>(
-                        call_stack.top().release_imul())
-                        ->id_;
+            bool const is_not_same_tag = nested_tag_type != ::pltxt2htm::NodeType::pl_size ||
+                                         size->get_id() != call_stack.top().context_data.pl_size_tag.id_;
             if (is_not_same_tag) {
                 auto&& subast = size->get_subast();
-                call_stack.push(
-                    ::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerPlSizeTagContext<::pltxt2htm::Ast::iterator>>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeType::pl_size, subast.begin(), size->get_id()));
+                call_stack.push(::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), subast.begin(),
+                    ::pltxt2htm::details::OptimizerContextWithPlSizeTagInfo{size->get_id()}));
                 goto entry;
             }
             else {
@@ -474,7 +449,7 @@ entry:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::pl_b: {
             auto const b = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
-            auto&& nested_tag_type = call_stack.top()->nested_tag_type;
+            auto&& nested_tag_type = call_stack.top().nested_tag_type;
             bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::pl_b &&
                                        nested_tag_type != ::pltxt2htm::NodeType::html_strong &&
                                        nested_tag_type != ::pltxt2htm::NodeType::md_double_emphasis_asterisk &&
@@ -486,9 +461,8 @@ entry:
                     ast.erase(current_iter);
                     continue;
                 }
-                call_stack.push(
-                    ::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeType::html_strong, subast.begin()));
+                call_stack.push(::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeType::html_strong, subast.begin()));
                 goto entry;
             }
             else {
@@ -501,7 +475,7 @@ entry:
         case ::pltxt2htm::NodeType::html_p: {
             auto const p = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& subast = p->get_subast();
-            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+            call_stack.push(::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_p, subast.begin()));
             goto entry;
         }
@@ -525,7 +499,7 @@ entry:
             auto const h1 = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             // NOTE: All optimization to h1 has side effect
             auto&& subast = h1->get_subast();
-            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+            call_stack.push(::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_h1, subast.begin()));
             goto entry;
         }
@@ -534,7 +508,7 @@ entry:
         case ::pltxt2htm::NodeType::md_atx_h2: {
             auto const h2 = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& subast = h2->get_subast();
-            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+            call_stack.push(::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_h2, subast.begin()));
             goto entry;
         }
@@ -543,7 +517,7 @@ entry:
         case ::pltxt2htm::NodeType::md_atx_h3: {
             auto const h3 = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& subast = h3->get_subast();
-            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+            call_stack.push(::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_h3, subast.begin()));
             goto entry;
         }
@@ -552,7 +526,7 @@ entry:
         case ::pltxt2htm::NodeType::md_atx_h4: {
             auto const h4 = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& subast = h4->get_subast();
-            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+            call_stack.push(::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_h4, subast.begin()));
             goto entry;
         }
@@ -561,7 +535,7 @@ entry:
         case ::pltxt2htm::NodeType::md_atx_h5: {
             auto const h5 = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& subast = h5->get_subast();
-            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+            call_stack.push(::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_h5, subast.begin()));
             goto entry;
         }
@@ -570,7 +544,7 @@ entry:
         case ::pltxt2htm::NodeType::md_atx_h6: {
             auto const h6 = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& subast = h6->get_subast();
-            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+            call_stack.push(::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_h6, subast.begin()));
             goto entry;
         }
@@ -578,7 +552,7 @@ entry:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_del: {
             auto const del = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
-            auto&& nested_tag_type = call_stack.top()->nested_tag_type;
+            auto&& nested_tag_type = call_stack.top().nested_tag_type;
             bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_del &&
                                        nested_tag_type != ::pltxt2htm::NodeType::md_del};
             if (is_not_same_tag) {
@@ -587,9 +561,8 @@ entry:
                     ast.erase(current_iter);
                     continue;
                 }
-                call_stack.push(
-                    ::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeType::html_del, subast.begin()));
+                call_stack.push(::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeType::html_del, subast.begin()));
                 goto entry;
             }
             else {
@@ -607,7 +580,7 @@ entry:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_em: {
             auto const em = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
-            auto&& nested_tag_type = call_stack.top()->nested_tag_type;
+            auto&& nested_tag_type = call_stack.top().nested_tag_type;
             bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeType::html_em &&
                                        nested_tag_type != ::pltxt2htm::NodeType::pl_i &&
                                        nested_tag_type != ::pltxt2htm::NodeType::md_single_emphasis_asterisk &&
@@ -618,9 +591,8 @@ entry:
                     ast.erase(current_iter);
                     continue;
                 }
-                call_stack.push(
-                    ::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeType::html_em, subast.begin()));
+                call_stack.push(::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeType::html_em, subast.begin()));
             }
             else {
                 node = static_cast<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>(
@@ -650,7 +622,7 @@ entry:
             // ul tag can't impl nested tag erasing
             auto const ul = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& subast = ul->get_subast();
-            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+            call_stack.push(::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_ul, subast.begin()));
             goto entry;
         }
@@ -660,7 +632,7 @@ entry:
             // ol tag can't impl nested tag erasing
             auto const ol = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& subast = ol->get_subast();
-            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+            call_stack.push(::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_ol, subast.begin()));
             goto entry;
         }
@@ -670,7 +642,7 @@ entry:
             // li tag can't impl nested tag erasing
             auto const li = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& subast = li->get_subast();
-            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+            call_stack.push(::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_li, subast.begin()));
             goto entry;
         }
@@ -684,7 +656,7 @@ entry:
             // code tag can't impl nested tag erasing
             auto const code = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& subast = code->get_subast();
-            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+            call_stack.push(::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_code, subast.begin()));
             goto entry;
         }
@@ -692,7 +664,7 @@ entry:
             // pre tag can't impl nested tag erasing
             auto const pre = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& subast = pre->get_subast();
-            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+            call_stack.push(::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_pre, subast.begin()));
             goto entry;
         }
@@ -700,7 +672,7 @@ entry:
             // pre tag can't impl nested tag erasing
             auto const blockquote = static_cast<::pltxt2htm::details::PairedTagBase*>(node.get_unsafe());
             auto&& subast = blockquote->get_subast();
-            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>>(
+            call_stack.push(::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>(
                 ::std::addressof(subast), ::pltxt2htm::NodeType::html_blockquote, subast.begin()));
             goto entry;
         }
@@ -788,7 +760,6 @@ entry:
     }
 
     {
-        auto const top_frame = ::std::move(call_stack.top());
         call_stack.pop();
         if (call_stack.empty()) {
             while (current_iter != ast.begin()) {
@@ -802,7 +773,7 @@ entry:
             return;
         }
         else {
-            ++(call_stack.top()->iter);
+            ++(call_stack.top().iter);
             goto entry;
         }
     }
