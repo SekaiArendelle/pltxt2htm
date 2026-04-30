@@ -759,24 +759,22 @@ entry:
         }
     }
 
-    {
-        call_stack.pop();
-        if (call_stack.empty()) {
-            while (current_iter != ast.begin()) {
-                --current_iter;
-                auto const node_type = (*current_iter)->node_type();
-                if (node_type != ::pltxt2htm::NodeType::space && node_type != ::pltxt2htm::NodeType::tab) {
-                    break;
-                }
-                ast.erase(current_iter);
-            }
-            return;
+    while (current_iter != ast.begin()) {
+        --current_iter;
+        auto const node_type = (*current_iter)->node_type();
+        if (node_type != ::pltxt2htm::NodeType::space && node_type != ::pltxt2htm::NodeType::tab) {
+            break;
         }
-        else {
-            ++(call_stack.top().iter);
-            goto entry;
-        }
+        ast.erase(current_iter);
     }
+
+    call_stack.pop();
+    if (call_stack.empty() == false) {
+        ++(call_stack.top().iter);
+        goto entry;
+    }
+
+    return;
 }
 
 } // namespace pltxt2htm
