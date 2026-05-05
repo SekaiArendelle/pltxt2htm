@@ -32,7 +32,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto devil_stuff_after_line_break(
     ::fast_io::u8string_view pltext,
-    ::fast_io::stack<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>>& call_stack,
+    ::fast_io::stack<::pltxt2htm::details::BasicFrameContext>& call_stack,
     ::pltxt2htm::Ast& result) noexcept -> ::pltxt2htm::details::DevilStuffAfterLineBreakResult {
     ::std::size_t current_index{};
     while (true) {
@@ -50,7 +50,7 @@ constexpr auto devil_stuff_after_line_break(
                 auto subtext =
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + start_index, sublength);
                 call_stack.push(
-                    ::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(subtext, md_atx_heading_type));
+                    ::pltxt2htm::details::BasicFrameContext(subtext, md_atx_heading_type));
                 current_index += forward_index;
                 return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{
                     .forward_index = current_index, .new_frame_been_pushed_into_call_stack = true};
@@ -109,7 +109,7 @@ constexpr auto devil_stuff_after_line_break(
                  opt_block_quote.has_value()) {
             auto&& [forward_index, subpltext] =
                 opt_block_quote.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::MdBlockQuotesContext>(::std::move(subpltext)));
+            call_stack.push(::pltxt2htm::details::BasicFrameContext(::std::move(subpltext)));
             return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{.forward_index = current_index + forward_index,
                                                                         .new_frame_been_pushed_into_call_stack = true};
         }
@@ -118,7 +118,7 @@ constexpr auto devil_stuff_after_line_break(
                  opt_md_list_ast.has_value()) {
             auto&& [md_list_ast, forward_index, item_kind] =
                 opt_md_list_ast.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::MdListContext<ndebug>>(
+            call_stack.push(::pltxt2htm::details::BasicFrameContext(
                 item_kind, ::std::move(md_list_ast)));
             return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{.forward_index = current_index + forward_index,
                                                                         .new_frame_been_pushed_into_call_stack = true};
@@ -136,228 +136,9 @@ template<::pltxt2htm::Contracts ndebug>
 [[__gnu__::__pure__]]
 #endif
 constexpr auto get_pltext_from_parser_frame_context(
-    ::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext> const& top_frame) noexcept
+    ::pltxt2htm::details::BasicFrameContext const& top_frame) noexcept
     -> ::fast_io::u8string_view {
-    switch (top_frame->nested_tag_type) {
-    case ::pltxt2htm::NodeType::base:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::pl_b:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::pl_i:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::html_p:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::html_h1:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::html_h2:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::html_h3:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::html_h4:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::html_h5:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::html_h6:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::html_del:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_del:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::html_em:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::html_strong:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::html_ul:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::html_ol:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::html_li:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_li:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::html_code:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::html_pre:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::html_blockquote:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_atx_h1:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_atx_h2:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_atx_h3:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_atx_h4:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_atx_h5:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_atx_h6:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_triple_emphasis_asterisk:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_double_emphasis_asterisk:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_single_emphasis_asterisk:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_triple_emphasis_underscore:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_double_emphasis_underscore:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_single_emphasis_underscore: {
-        return static_cast<::pltxt2htm::details::BareTagContext const*>(top_frame.release_imul())->pltext;
-    }
-    case ::pltxt2htm::NodeType::pl_color:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::pl_a:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::pl_experiment:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::pl_discussion:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::pl_user: {
-        return static_cast<::pltxt2htm::details::EqualSignTagContext const*>(top_frame.release_imul())->pltext;
-    }
-    case ::pltxt2htm::NodeType::pl_external: {
-        return static_cast<::pltxt2htm::details::ExternalTagContext const*>(top_frame.release_imul())->pltext;
-    }
-    case ::pltxt2htm::NodeType::pl_size: {
-        return static_cast<::pltxt2htm::details::PlSizeTagContext const*>(top_frame.release_imul())->pltext;
-    }
-    case ::pltxt2htm::NodeType::md_block_quotes: {
-        auto const& pltext =
-            static_cast<::pltxt2htm::details::MdBlockQuotesContext const*>(top_frame.release_imul())->pltext;
-        return ::fast_io::u8string_view{pltext.data(), pltext.size()};
-    }
-    case ::pltxt2htm::NodeType::md_link: {
-        return static_cast<::pltxt2htm::details::MdLinkContext const*>(top_frame.release_imul())->pltext;
-    }
-    case ::pltxt2htm::NodeType::md_image:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::pl_macro_project:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::pl_macro_visitor:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::pl_macro_author:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::pl_macro_coauthors:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_code_span_1_backtick:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_code_span_2_backtick:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_code_span_3_backtick:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_code_fence_backtick:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_code_fence_tilde:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::html_br:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::html_hr:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_hr:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::html_note:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_latex_inline:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_latex_block:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::u8char:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::invalid_u8char:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::text:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::line_break:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::space:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::ampersand:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::double_quote:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::single_quote:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::less_than:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::greater_than:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::tab:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_escape_backslash:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_escape_exclamation:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_escape_double_quote:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_escape_hash:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_escape_dollar:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_escape_percent:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_escape_ampersand:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_escape_single_quote:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_escape_left_paren:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_escape_right_paren:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_escape_asterisk:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_escape_plus:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_escape_comma:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_escape_hyphen:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_escape_dot:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_escape_slash:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_escape_colon:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_escape_semicolon:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_escape_less_than:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_escape_equals:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_escape_greater_than:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_escape_question:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_escape_at:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_escape_left_bracket:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_escape_right_bracket:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_escape_caret:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_escape_underscore:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_escape_backtick:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_escape_left_brace:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_escape_pipe:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_escape_right_brace:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_escape_tilde:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_ul:
-        [[fallthrough]];
-    case ::pltxt2htm::NodeType::md_ol:
-        [[unlikely]] {
-            ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
-        }
-    }
-    // suppress GCC -Wreturn-type warning
-    ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+    return top_frame.get_pltext();
 }
 
 /**
@@ -369,14 +150,16 @@ constexpr auto get_pltext_from_parser_frame_context(
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto parse_pltxt(
-    ::fast_io::stack<::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext>>& call_stack) noexcept
+    ::fast_io::stack<::pltxt2htm::details::BasicFrameContext>& call_stack) noexcept
     -> ::pltxt2htm::Ast {
 entry:
     if (call_stack.top()->nested_tag_type == ::pltxt2htm::NodeType::md_ul) {
         // ::pltxt2htm::details::MdListAst to ::pltxt2htm::Ast
-        auto frame = static_cast<::pltxt2htm::details::MdListContext<ndebug>*>(call_stack.top().get_unsafe());
-        if (frame->iter == frame->md_list_ast.end()) {
-            ::pltxt2htm::details::MdListContext previous_frame(::std::move(*frame));
+        auto frame = call_stack.top().get_unsafe();
+        auto& frame_md_list_ast = frame->get_md_list_ast<ndebug>();
+        auto& frame_iter = frame->get_md_list_iter<ndebug>();
+        if (frame_iter == frame_md_list_ast.end()) {
+            ::pltxt2htm::details::BasicFrameContext previous_frame(::std::move(*frame));
             call_stack.pop();
             if (call_stack.empty()) {
                 return ::std::move(previous_frame.subast);
@@ -388,22 +171,22 @@ entry:
             }
         }
         else {
-            switch ((*frame->iter)->get_type()) {
+            switch ((*frame_iter)->get_type()) {
             case ::pltxt2htm::details::MdListNodeType::text: {
-                auto text_node = static_cast<::pltxt2htm::details::MdListTextNode const*>(frame->iter->release_imul());
-                call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                auto text_node = static_cast<::pltxt2htm::details::MdListTextNode const*>(frame_iter->release_imul());
+                call_stack.push(::pltxt2htm::details::BasicFrameContext(
                     text_node->get_text_view(), ::pltxt2htm::NodeType::md_li));
                 break;
             }
             case ::pltxt2htm::details::MdListNodeType::md_ul: {
-                auto sublist_node = static_cast<::pltxt2htm::details::MdListUlNode*>(frame->iter->get_unsafe());
-                call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::MdListContext<ndebug>>(
+                auto sublist_node = static_cast<::pltxt2htm::details::MdListUlNode*>(frame_iter->get_unsafe());
+                call_stack.push(::pltxt2htm::details::BasicFrameContext(
                     ::pltxt2htm::NodeType::md_ul, ::std::move(sublist_node->get_sublist())));
                 break;
             }
             case ::pltxt2htm::details::MdListNodeType::md_ol: {
-                auto sublist_node = static_cast<::pltxt2htm::details::MdListOlNode*>(frame->iter->get_unsafe());
-                call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::MdListContext<ndebug>>(
+                auto sublist_node = static_cast<::pltxt2htm::details::MdListOlNode*>(frame_iter->get_unsafe());
+                call_stack.push(::pltxt2htm::details::BasicFrameContext(
                     ::pltxt2htm::NodeType::md_ol, ::std::move(sublist_node->get_sublist())));
                 break;
             }
@@ -415,14 +198,16 @@ entry:
 #endif
             }
         }
-        ++(frame->iter);
+        ++frame_iter;
         goto entry;
     }
     else if (call_stack.top()->nested_tag_type == ::pltxt2htm::NodeType::md_ol) {
         // ::pltxt2htm::details::MdListAst to ::pltxt2htm::Ast
-        auto frame = static_cast<::pltxt2htm::details::MdListContext<ndebug>*>(call_stack.top().get_unsafe());
-        if (frame->iter == frame->md_list_ast.end()) {
-            ::pltxt2htm::details::MdListContext previous_frame(::std::move(*frame));
+        auto frame = call_stack.top().get_unsafe();
+        auto& frame_md_list_ast = frame->get_md_list_ast<ndebug>();
+        auto& frame_iter = frame->get_md_list_iter<ndebug>();
+        if (frame_iter == frame_md_list_ast.end()) {
+            ::pltxt2htm::details::BasicFrameContext previous_frame(::std::move(*frame));
             call_stack.pop();
             if (call_stack.empty()) {
                 return ::std::move(previous_frame.subast);
@@ -434,22 +219,22 @@ entry:
             }
         }
         else {
-            switch ((*frame->iter)->get_type()) {
+            switch ((*frame_iter)->get_type()) {
             case ::pltxt2htm::details::MdListNodeType::text: {
-                auto text_node = static_cast<::pltxt2htm::details::MdListTextNode const*>(frame->iter->release_imul());
-                call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                auto text_node = static_cast<::pltxt2htm::details::MdListTextNode const*>(frame_iter->release_imul());
+                call_stack.push(::pltxt2htm::details::BasicFrameContext(
                     text_node->get_text_view(), ::pltxt2htm::NodeType::md_li));
                 break;
             }
             case ::pltxt2htm::details::MdListNodeType::md_ul: {
-                auto sublist_node = static_cast<::pltxt2htm::details::MdListUlNode*>(frame->iter->get_unsafe());
-                call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::MdListContext<ndebug>>(
+                auto sublist_node = static_cast<::pltxt2htm::details::MdListUlNode*>(frame_iter->get_unsafe());
+                call_stack.push(::pltxt2htm::details::BasicFrameContext(
                     ::pltxt2htm::NodeType::md_ul, ::std::move(sublist_node->get_sublist())));
                 break;
             }
             case ::pltxt2htm::details::MdListNodeType::md_ol: {
-                auto sublist_node = static_cast<::pltxt2htm::details::MdListOlNode*>(frame->iter->get_unsafe());
-                call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::MdListContext<ndebug>>(
+                auto sublist_node = static_cast<::pltxt2htm::details::MdListOlNode*>(frame_iter->get_unsafe());
+                call_stack.push(::pltxt2htm::details::BasicFrameContext(
                     ::pltxt2htm::NodeType::md_ol, ::std::move(sublist_node->get_sublist())));
                 break;
             }
@@ -461,7 +246,7 @@ entry:
 #endif
             }
         }
-        ++(frame->iter);
+        ++frame_iter;
         goto entry;
     }
 
@@ -579,7 +364,7 @@ entry:
             // parsing markdown ***example***
             ::std::size_t const forward_index{
                 opt_triple_emphasis_asterisk.template value<ndebug == ::pltxt2htm::Contracts::ignore>()};
-            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
+            call_stack.push(::pltxt2htm::details::BasicFrameContext(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 3, forward_index),
                 ::pltxt2htm::NodeType::md_triple_emphasis_asterisk));
             current_index += forward_index + 6;
@@ -591,7 +376,7 @@ entry:
             // parsing markdown **example**
             ::std::size_t const forward_index{
                 opt_double_emphasis_asterisk.template value<ndebug == ::pltxt2htm::Contracts::ignore>()};
-            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
+            call_stack.push(::pltxt2htm::details::BasicFrameContext(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2, forward_index),
                 ::pltxt2htm::NodeType::md_double_emphasis_asterisk));
             current_index += forward_index + 4;
@@ -603,7 +388,7 @@ entry:
             // parsing markdown *example*
             ::std::size_t const forward_index{
                 opt_single_emphasis_asterisk.template value<ndebug == ::pltxt2htm::Contracts::ignore>()};
-            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
+            call_stack.push(::pltxt2htm::details::BasicFrameContext(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1, forward_index),
                 ::pltxt2htm::NodeType::md_single_emphasis_asterisk));
             current_index += forward_index + 2;
@@ -615,7 +400,7 @@ entry:
             // parsing markdown ___example___
             ::std::size_t const forward_index{
                 opt_triple_emphasis_underscore.template value<ndebug == ::pltxt2htm::Contracts::ignore>()};
-            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
+            call_stack.push(::pltxt2htm::details::BasicFrameContext(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 3, forward_index),
                 ::pltxt2htm::NodeType::md_triple_emphasis_underscore));
             current_index += forward_index + 6;
@@ -627,7 +412,7 @@ entry:
             // parsing markdown __example__
             ::std::size_t const forward_index{
                 opt_double_emphasis_undersore.template value<ndebug == ::pltxt2htm::Contracts::ignore>()};
-            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
+            call_stack.push(::pltxt2htm::details::BasicFrameContext(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2, forward_index),
                 ::pltxt2htm::NodeType::md_double_emphasis_underscore));
             current_index += forward_index + 4;
@@ -639,7 +424,7 @@ entry:
             // parsing markdown _example_
             ::std::size_t const forward_index{
                 opt_single_emphasis_undersore.template value<ndebug == ::pltxt2htm::Contracts::ignore>()};
-            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
+            call_stack.push(::pltxt2htm::details::BasicFrameContext(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1, forward_index),
                 ::pltxt2htm::NodeType::md_single_emphasis_underscore));
             current_index += forward_index + 2;
@@ -650,7 +435,7 @@ entry:
                  opt_md_del.has_value()) {
             // parsing markdown ~~example~~
             ::std::size_t const forward_index{opt_md_del.template value<ndebug == ::pltxt2htm::Contracts::ignore>()};
-            call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
+            call_stack.push(::pltxt2htm::details::BasicFrameContext(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2, forward_index),
                 ::pltxt2htm::NodeType::md_del));
             current_index += forward_index + 4;
@@ -711,7 +496,7 @@ entry:
                 opt_md_link.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             current_index += forward_index;
             call_stack.push(
-                ::pltxt2htm::HeapGuard<::pltxt2htm::details::MdLinkContext>(url_text, ::std::move(url_link)));
+                ::pltxt2htm::details::BasicFrameContext(url_text, ::std::move(url_link)));
             goto entry;
         }
         else if (auto opt_md_image = ::pltxt2htm::details::try_parse_md_image<ndebug>(
@@ -743,7 +528,7 @@ entry:
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                     opt_tag_len.has_value()) {
                     current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-                    call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                    call_stack.push(::pltxt2htm::details::BasicFrameContext(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
                         ::pltxt2htm::NodeType::pl_a));
                     goto entry;
@@ -763,7 +548,7 @@ entry:
                     opt_tag_len.has_value()) {
                     // parsing pl&html <b> tag
                     current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-                    call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                    call_stack.push(::pltxt2htm::details::BasicFrameContext(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
                         ::pltxt2htm::NodeType::pl_b));
                     goto entry;
@@ -791,7 +576,7 @@ entry:
                          opt_blockquote_tag.has_value()) {
                     // parsing pl&html <b> tag
                     current_index += opt_blockquote_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-                    call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                    call_stack.push(::pltxt2htm::details::BasicFrameContext(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
                         ::pltxt2htm::NodeType::html_blockquote));
                     goto entry;
@@ -813,7 +598,7 @@ entry:
                     auto&& [tag_len, color] = opt_color_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                     current_index += tag_len + 3;
                     // parsing start tag <color> successed
-                    call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::EqualSignTagContext>(
+                    call_stack.push(::pltxt2htm::details::BasicFrameContext(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
                         ::pltxt2htm::NodeType::pl_color, ::std::move(color)));
                     goto entry;
@@ -823,7 +608,7 @@ entry:
                          opt_code_tag.has_value()) {
                     // parsing html <code> tag
                     current_index += opt_code_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-                    call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                    call_stack.push(::pltxt2htm::details::BasicFrameContext(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
                         ::pltxt2htm::NodeType::html_code));
                     goto entry;
@@ -843,7 +628,7 @@ entry:
                     opt_tag_len.has_value()) {
                     // parsing <del>$1</del>
                     current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-                    call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                    call_stack.push(::pltxt2htm::details::BasicFrameContext(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
                         ::pltxt2htm::NodeType::html_del));
                     goto entry;
@@ -860,7 +645,7 @@ entry:
                     auto&& [tag_len, id] =
                         opt_discussion_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                     current_index += tag_len + 3;
-                    call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::EqualSignTagContext>(
+                    call_stack.push(::pltxt2htm::details::BasicFrameContext(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
                         ::pltxt2htm::NodeType::pl_discussion, ::std::move(id)));
                     goto entry;
@@ -887,7 +672,7 @@ entry:
                     auto&& [tag_len, id] =
                         opt_experiment_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                     current_index += tag_len + 3;
-                    call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::EqualSignTagContext>(
+                    call_stack.push(::pltxt2htm::details::BasicFrameContext(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
                         ::pltxt2htm::NodeType::pl_experiment, ::std::move(id)));
                     goto entry;
@@ -898,7 +683,7 @@ entry:
                          opt_external_tag.has_value()) {
                     auto&& [tag_len, url] = opt_external_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                     current_index += tag_len + 3;
-                    call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::ExternalTagContext>(
+                    call_stack.push(::pltxt2htm::details::BasicFrameContext(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
                         ::pltxt2htm::NodeType::pl_external, ::std::move(url)));
                     goto entry;
@@ -907,7 +692,7 @@ entry:
                              ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                          opt_tag_len.has_value()) {
                     current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-                    call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                    call_stack.push(::pltxt2htm::details::BasicFrameContext(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
                         ::pltxt2htm::NodeType::html_em));
                     goto entry;
@@ -927,7 +712,7 @@ entry:
                     opt_h1_tag_len.has_value()) {
                     // parsing html <h1> tag
                     current_index += opt_h1_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-                    call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                    call_stack.push(::pltxt2htm::details::BasicFrameContext(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
                         ::pltxt2htm::NodeType::html_h1));
                     goto entry;
@@ -937,7 +722,7 @@ entry:
                          opt_h2_tag_len.has_value()) {
                     // parsing html <h2> tag
                     current_index += opt_h2_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-                    call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                    call_stack.push(::pltxt2htm::details::BasicFrameContext(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
                         ::pltxt2htm::NodeType::html_h2));
                     goto entry;
@@ -947,7 +732,7 @@ entry:
                          opt_h3_tag_len.has_value()) {
                     // parsing html <h3> tag
                     current_index += opt_h3_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-                    call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                    call_stack.push(::pltxt2htm::details::BasicFrameContext(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
                         ::pltxt2htm::NodeType::html_h3));
                     goto entry;
@@ -957,7 +742,7 @@ entry:
                          opt_h4_tag_len.has_value()) {
                     // parsing html <h4> tag
                     current_index += opt_h4_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-                    call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                    call_stack.push(::pltxt2htm::details::BasicFrameContext(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
                         ::pltxt2htm::NodeType::html_h4));
                     goto entry;
@@ -967,7 +752,7 @@ entry:
                          opt_h5_tag_len.has_value()) {
                     // parsing html <h5> tag
                     current_index += opt_h5_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-                    call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                    call_stack.push(::pltxt2htm::details::BasicFrameContext(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
                         ::pltxt2htm::NodeType::html_h5));
                     goto entry;
@@ -977,7 +762,7 @@ entry:
                          opt_h6_tag_len.has_value()) {
                     // parsing html <h6> tag
                     current_index += opt_h6_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-                    call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                    call_stack.push(::pltxt2htm::details::BasicFrameContext(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
                         ::pltxt2htm::NodeType::html_h6));
                     goto entry;
@@ -1005,7 +790,7 @@ entry:
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                     opt_tag_len.has_value()) {
                     current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-                    call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                    call_stack.push(::pltxt2htm::details::BasicFrameContext(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
                         ::pltxt2htm::NodeType::pl_i));
                     goto entry;
@@ -1025,7 +810,7 @@ entry:
                         ::pltxt2htm::details::stack_top<ndebug>(call_stack)->nested_tag_type);
                     opt_tag_len.has_value()) {
                     current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-                    call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                    call_stack.push(::pltxt2htm::details::BasicFrameContext(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
                         ::pltxt2htm::NodeType::html_li));
                     goto entry;
@@ -1044,7 +829,7 @@ entry:
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                     opt_tag_len.has_value()) {
                     current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-                    call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                    call_stack.push(::pltxt2htm::details::BasicFrameContext(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
                         ::pltxt2htm::NodeType::html_ol));
                     goto entry;
@@ -1064,7 +849,7 @@ entry:
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                     opt_p_tag_len.has_value()) {
                     current_index += opt_p_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-                    call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                    call_stack.push(::pltxt2htm::details::BasicFrameContext(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
                         ::pltxt2htm::NodeType::html_p));
                     goto entry;
@@ -1073,7 +858,7 @@ entry:
                              ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                          opt_pre_tag_len.has_value()) {
                     current_index += opt_pre_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-                    call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                    call_stack.push(::pltxt2htm::details::BasicFrameContext(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
                         ::pltxt2htm::NodeType::html_pre));
                     goto entry;
@@ -1101,7 +886,7 @@ entry:
                     }
 
                     current_index += tag_len + 3;
-                    call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::PlSizeTagContext>(
+                    call_stack.push(::pltxt2htm::details::BasicFrameContext(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
                         ::pltxt2htm::NodeType::pl_size, id.template value<ndebug == ::pltxt2htm::Contracts::ignore>()));
                     goto entry;
@@ -1111,7 +896,7 @@ entry:
                          opt_tag_len.has_value()) {
                     // HTML <strong> tag
                     current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-                    call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                    call_stack.push(::pltxt2htm::details::BasicFrameContext(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
                         ::pltxt2htm::NodeType::html_strong));
                     goto entry;
@@ -1135,7 +920,7 @@ entry:
                     opt_user_tag.has_value()) {
                     auto&& [tag_len, id] = opt_user_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                     current_index += tag_len + 3;
-                    call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::EqualSignTagContext>(
+                    call_stack.push(::pltxt2htm::details::BasicFrameContext(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
                         ::pltxt2htm::NodeType::pl_user, ::std::move(id)));
                     goto entry;
@@ -1144,7 +929,7 @@ entry:
                              ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                          opt_tag_len.has_value()) {
                     current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-                    call_stack.push(::pltxt2htm::HeapGuard<::pltxt2htm::details::BareTagContext>(
+                    call_stack.push(::pltxt2htm::details::BasicFrameContext(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
                         ::pltxt2htm::NodeType::html_ul));
                     goto entry;
@@ -1198,10 +983,9 @@ entry:
                     }
                     if (opt_tag_len.has_value()) {
                         // parsing end tag </color> successed
-                        auto frame =
-                            static_cast<::pltxt2htm::details::EqualSignTagContext*>(call_stack.top().get_unsafe());
                         ::std::size_t const staged_index{current_index};
-                        ::pltxt2htm::Color staged_node(::std::move(result), ::std::move(frame->id));
+                        ::pltxt2htm::Color staged_node(::std::move(result),
+                                                       ::std::move(call_stack.top().get_equal_sign_tag_id<ndebug>()));
                         call_stack.pop();
                         call_stack.top()->subast.push_back(
                             ::pltxt2htm::HeapGuard<::pltxt2htm::Color>(::std::move(staged_node)));
@@ -1247,10 +1031,9 @@ entry:
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
                         // Whether or not extern_index is out of range, extern for loop will handle it correctly.
-                        auto frame =
-                            static_cast<::pltxt2htm::details::EqualSignTagContext*>(call_stack.top().get_unsafe());
                         ::std::size_t const staged_index{current_index};
-                        ::pltxt2htm::Experiment staged_node(::std::move(result), ::std::move(frame->id));
+                        ::pltxt2htm::Experiment staged_node(::std::move(result),
+                                                            ::std::move(call_stack.top().get_equal_sign_tag_id<ndebug>()));
                         call_stack.pop();
                         call_stack.top()->subast.push_back(
                             ::pltxt2htm::HeapGuard<::pltxt2htm::Experiment>(::std::move(staged_node)));
@@ -1270,10 +1053,9 @@ entry:
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
                         // Whether or not extern_index is out of range, extern for loop will handle it correctly.
-                        auto frame =
-                            static_cast<::pltxt2htm::details::EqualSignTagContext*>(call_stack.top().get_unsafe());
                         ::std::size_t const staged_index{current_index};
-                        ::pltxt2htm::Discussion staged_node(::std::move(result), ::std::move(frame->id));
+                        ::pltxt2htm::Discussion staged_node(::std::move(result),
+                                                            ::std::move(call_stack.top().get_equal_sign_tag_id<ndebug>()));
                         call_stack.pop();
                         call_stack.top()->subast.push_back(
                             ::pltxt2htm::HeapGuard<::pltxt2htm::Discussion>(::std::move(staged_node)));
@@ -1293,10 +1075,9 @@ entry:
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
                         // Whether or not extern_index is out of range, extern for loop will handle it correctly.
-                        auto frame =
-                            static_cast<::pltxt2htm::details::ExternalTagContext*>(call_stack.top().get_unsafe());
                         ::std::size_t const staged_index{current_index};
-                        ::pltxt2htm::External staged_node(::std::move(result), ::std::move(frame->url));
+                        ::pltxt2htm::External staged_node(::std::move(result),
+                                                          ::std::move(call_stack.top().get_external_tag_url<ndebug>()));
                         call_stack.pop();
                         call_stack.top()->subast.push_back(
                             ::pltxt2htm::HeapGuard<::pltxt2htm::External>(::std::move(staged_node)));
@@ -1315,10 +1096,9 @@ entry:
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"user">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
-                        auto frame =
-                            static_cast<::pltxt2htm::details::EqualSignTagContext*>(call_stack.top().get_unsafe());
                         ::std::size_t const staged_index{current_index};
-                        ::pltxt2htm::User staged_node(::std::move(result), ::std::move(frame->id));
+                        ::pltxt2htm::User staged_node(::std::move(result),
+                                                      ::std::move(call_stack.top().get_equal_sign_tag_id<ndebug>()));
                         call_stack.pop();
                         call_stack.top()->subast.push_back(
                             ::pltxt2htm::HeapGuard<::pltxt2htm::User>(::std::move(staged_node)));
@@ -1337,10 +1117,8 @@ entry:
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"size">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
-                        auto frame =
-                            static_cast<::pltxt2htm::details::PlSizeTagContext const*>(call_stack.top().release_imul());
                         ::std::size_t const staged_index{current_index};
-                        ::pltxt2htm::Size staged_node(::std::move(result), frame->id);
+                        ::pltxt2htm::Size staged_node(::std::move(result), call_stack.top().get_pl_size_tag_id<ndebug>());
                         call_stack.pop();
                         call_stack.top()->subast.push_back(
                             ::pltxt2htm::HeapGuard<::pltxt2htm::Size>(::std::move(staged_node)));
@@ -1902,7 +1680,7 @@ entry:
     }
 
     {
-        ::pltxt2htm::HeapGuard<::pltxt2htm::details::BasicFrameContext> frame(::std::move(call_stack.top()));
+        ::pltxt2htm::details::BasicFrameContext frame(::std::move(call_stack.top()));
         ::std::size_t const staged_index = pltext_size;
         call_stack.pop();
         if (call_stack.empty()) {
@@ -1924,7 +1702,7 @@ entry:
             auto&& super_index = call_stack.top()->current_index;
             switch (frame->nested_tag_type) {
             case ::pltxt2htm::NodeType::pl_color: {
-                auto&& id = static_cast<::pltxt2htm::details::EqualSignTagContext*>(frame.get_unsafe())->id;
+                auto&& id = frame.get_equal_sign_tag_id<ndebug>();
                 super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Color>(::std::move(subast), ::std::move(id)));
                 super_index += staged_index;
                 goto entry;
@@ -1935,34 +1713,34 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeType::pl_experiment: {
-                auto&& id = static_cast<::pltxt2htm::details::EqualSignTagContext*>(frame.get_unsafe())->id;
+                auto&& id = frame.get_equal_sign_tag_id<ndebug>();
                 super_ast.push_back(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::Experiment>(::std::move(subast), ::std::move(id)));
                 super_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeType::pl_discussion: {
-                auto&& id = static_cast<::pltxt2htm::details::EqualSignTagContext*>(frame.get_unsafe())->id;
+                auto&& id = frame.get_equal_sign_tag_id<ndebug>();
                 super_ast.push_back(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::Discussion>(::std::move(subast), ::std::move(id)));
                 super_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeType::pl_user: {
-                auto&& id = static_cast<::pltxt2htm::details::EqualSignTagContext*>(frame.get_unsafe())->id;
+                auto&& id = frame.get_equal_sign_tag_id<ndebug>();
                 super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::User>(::std::move(subast), ::std::move(id)));
                 super_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeType::pl_external: {
-                auto&& url = static_cast<::pltxt2htm::details::ExternalTagContext*>(frame.get_unsafe())->url;
+                auto&& url = frame.get_external_tag_url<ndebug>();
                 super_ast.push_back(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::External>(::std::move(subast), ::std::move(url)));
                 super_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeType::pl_size: {
-                auto&& id = static_cast<::pltxt2htm::details::PlSizeTagContext const*>(frame.release_imul())->id;
+                auto&& id = frame.get_pl_size_tag_id<ndebug>();
                 super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Size>(::std::move(subast), id));
                 super_index += staged_index;
                 goto entry;
@@ -2175,7 +1953,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeType::md_link: {
-                auto&& link_url = static_cast<::pltxt2htm::details::MdLinkContext*>(frame.get_unsafe())->link;
+                auto&& link_url = frame.get_md_link_url<ndebug>();
                 super_ast.push_back(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::MdLink>(::std::move(subast), ::std::move(link_url)));
                 goto entry;
