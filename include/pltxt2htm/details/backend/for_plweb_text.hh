@@ -266,7 +266,7 @@ constexpr void append_url_attr_from_ast(::fast_io::u8string& result, ::pltxt2htm
  * @return A string containing the generated HTML
  * @note To avoid stack overflow, this function manages call_stack manually using goto-based state machine
  */
-template<::pltxt2htm::Contracts ndebug, bool isfixed = false>
+template<::pltxt2htm::Contracts ndebug, bool isfixed>
 [[nodiscard]]
 constexpr auto plweb_text_backend(::pltxt2htm::Ast const& ast_init, ::fast_io::u8string_view host,
                                   ::fast_io::u8string_view project, ::fast_io::u8string_view visitor,
