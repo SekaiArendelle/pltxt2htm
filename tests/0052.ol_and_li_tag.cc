@@ -14,8 +14,7 @@ int main() {
     }
 
     {
-        auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<ol><li><color=red>item1</color></li><li>item2</li></ol>");
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ol><li><color=red>item1</color></li><li>item2</li></ol>");
         auto answer =
             ::fast_io::u8string_view{u8"<ol><li><span style=\"color:red;\">item1</span></li><li>item2</li></ol>"};
         ::pltxt2htm_test::assert_true(html == answer);

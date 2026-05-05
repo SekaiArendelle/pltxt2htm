@@ -2,8 +2,7 @@
 
 int main() {
     {
-        auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<discussion=642cf37a494746375aae306a>physicsLab</discussion>");
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<discussion=642cf37a494746375aae306a>physicsLab</discussion>");
         auto answer = ::fast_io::u8string_view{
             u8"<a href=\"localhost:5173/ExperimentSummary/Discussion/642cf37a494746375aae306a\" "
             u8"internal>physicsLab</a>"};

@@ -9,8 +9,7 @@ int main() {
     }
 
     {
-        auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<USER=642cf37a494746375aae306a      >physicsLab</USER      >");
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<USER=642cf37a494746375aae306a      >physicsLab</USER      >");
         auto answer = ::fast_io::u8string_view{
             u8"<span class=\'RUser\' data-user=\'642cf37a494746375aae306a\'>physicsLab</span>"};
         ::pltxt2htm_test::assert_true(html == answer);
@@ -37,8 +36,8 @@ int main() {
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
-            u8"<User=123><user=642cf37a494746375aae306a>physicsLab</user></User>");
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"<User=123><user=642cf37a494746375aae306a>physicsLab</user></User>");
         auto answer = ::fast_io::u8string_view{
             u8"<span class=\'RUser\' data-user=\'642cf37a494746375aae306a\'>physicsLab</span>"};
         ::pltxt2htm_test::assert_true(html == answer);
@@ -66,8 +65,8 @@ int main() {
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
-            u8"<user=642cf37a494746375aae306a>physics<user=123>L</user>ab</user>");
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"<user=642cf37a494746375aae306a>physics<user=123>L</user>ab</user>");
         auto answer = ::fast_io::u8string_view{
             u8"<span class=\'RUser\' data-user=\'642cf37a494746375aae306a\'>physics<span class=\'RUser\' "
             u8"data-user=\'123\'>L</span>ab</span>"};

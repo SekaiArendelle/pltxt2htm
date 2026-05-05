@@ -2,8 +2,7 @@
 
 int main() {
     {
-        auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<experiment=642cf37a494746375aae306a>physicsLab</experiment>");
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<experiment=642cf37a494746375aae306a>physicsLab</experiment>");
         auto answer = ::fast_io::u8string_view{
             u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/642cf37a494746375aae306a\" "
             u8"internal>physicsLab</a>"};
@@ -117,8 +116,7 @@ int main() {
     }
 
     {
-        auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<experiment=a>t<experiment=b>ex</experiment>t</experiment>");
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<experiment=a>t<experiment=b>ex</experiment>t</experiment>");
         auto answer = ::fast_io::u8string_view{
             u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/a\" "
             u8"internal>t&lt;experiment=b&gt;ex</a>t&lt;/experiment&gt;"};
@@ -141,8 +139,7 @@ int main() {
     }
 
     {
-        auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<experiment=a>t<discussion=b>ex</discussion>t</experiment>");
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<experiment=a>t<discussion=b>ex</discussion>t</experiment>");
         auto answer = ::fast_io::u8string_view{
             u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/a\" "
             u8"internal>t&lt;discussion=b&gt;ex&lt;/discussion&gt;t</a>"};
@@ -150,8 +147,8 @@ int main() {
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
-            u8"<experiment=a><i>t<discussion=b>ex</discussion>t</i></experiment>");
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"<experiment=a><i>t<discussion=b>ex</discussion>t</i></experiment>");
         auto answer = ::fast_io::u8string_view{
             u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/a\" "
             u8"internal><em>t&lt;discussion=b&gt;ex&lt;/discussion&gt;t</em></a>"};
@@ -159,8 +156,7 @@ int main() {
     }
 
     {
-        auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<discussion=a>t<experiment=b>ex</experiment>t</discussion>");
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<discussion=a>t<experiment=b>ex</experiment>t</discussion>");
         auto answer = ::fast_io::u8string_view{
             u8"<a href=\"localhost:5173/ExperimentSummary/Discussion/a\" "
             u8"internal>t&lt;experiment=b&gt;ex&lt;/experiment&gt;t</a>"};
@@ -168,8 +164,8 @@ int main() {
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
-            u8"<discussion=a><i>t<experiment=b>ex</experiment>t</i></discussion>");
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"<discussion=a><i>t<experiment=b>ex</experiment>t</i></discussion>");
         auto answer = ::fast_io::u8string_view{
             u8"<a href=\"localhost:5173/ExperimentSummary/Discussion/a\" "
             u8"internal><em>t&lt;experiment=b&gt;ex&lt;/experiment&gt;t</em></a>"};

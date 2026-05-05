@@ -5,8 +5,7 @@ int main() {
     ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt2common_htmld(u8"\\\\") == ::fast_io::u8string_view{u8"\\"});
     ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt4unittest(u8"\\!") == ::fast_io::u8string_view{u8"!"});
     ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt2common_htmld(u8"\\!") == ::fast_io::u8string_view{u8"!"});
-    ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt4unittest(u8"\\\"") ==
-                                  ::fast_io::u8string_view{u8"&quot;"});
+    ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt4unittest(u8"\\\"") == ::fast_io::u8string_view{u8"&quot;"});
     ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt2common_htmld(u8"\\\"") ==
                                   ::fast_io::u8string_view{u8"&quot;"});
     ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt4unittest(u8"\\#") == ::fast_io::u8string_view{u8"#"});
@@ -15,11 +14,9 @@ int main() {
     ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt2common_htmld(u8"\\$") == ::fast_io::u8string_view{u8"$"});
     ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt4unittest(u8"\\%") == ::fast_io::u8string_view{u8"%"});
     ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt2common_htmld(u8"\\%") == ::fast_io::u8string_view{u8"%"});
-    ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt4unittest(u8"\\&") ==
-                                  ::fast_io::u8string_view{u8"&amp;"});
+    ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt4unittest(u8"\\&") == ::fast_io::u8string_view{u8"&amp;"});
     ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt2common_htmld(u8"\\&") == ::fast_io::u8string_view{u8"&amp;"});
-    ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt4unittest(u8"\\\'") ==
-                                  ::fast_io::u8string_view{u8"&apos;"});
+    ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt4unittest(u8"\\\'") == ::fast_io::u8string_view{u8"&apos;"});
     ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt2common_htmld(u8"\\\'") ==
                                   ::fast_io::u8string_view{u8"&apos;"});
     ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt4unittest(u8"\\(") == ::fast_io::u8string_view{u8"("});
@@ -42,13 +39,11 @@ int main() {
     ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt2common_htmld(u8"\\:") == ::fast_io::u8string_view{u8":"});
     ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt4unittest(u8"\\;") == ::fast_io::u8string_view{u8";"});
     ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt2common_htmld(u8"\\;") == ::fast_io::u8string_view{u8";"});
-    ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt4unittest(u8"\\<") ==
-                                  ::fast_io::u8string_view{u8"&lt;"});
+    ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt4unittest(u8"\\<") == ::fast_io::u8string_view{u8"&lt;"});
     ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt2common_htmld(u8"\\<") == ::fast_io::u8string_view{u8"&lt;"});
     ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt4unittest(u8"\\=") == ::fast_io::u8string_view{u8"="});
     ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt2common_htmld(u8"\\=") == ::fast_io::u8string_view{u8"="});
-    ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt4unittest(u8"\\>") ==
-                                  ::fast_io::u8string_view{u8"&gt;"});
+    ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt4unittest(u8"\\>") == ::fast_io::u8string_view{u8"&gt;"});
     ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt2common_htmld(u8"\\>") == ::fast_io::u8string_view{u8"&gt;"});
     ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt4unittest(u8"\\?") == ::fast_io::u8string_view{u8"?"});
     ::pltxt2htm_test::assert_true(::pltxt2htm_test::pltxt2common_htmld(u8"\\?") == ::fast_io::u8string_view{u8"?"});

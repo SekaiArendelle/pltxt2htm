@@ -27,8 +27,7 @@ int main() {
     }
 
     {
-        auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<blockquote>text<blockquote>text</blockquote></blockquote>");
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<blockquote>text<blockquote>text</blockquote></blockquote>");
         auto answer = ::fast_io::u8string_view{u8"<blockquote>text<blockquote>text</blockquote></blockquote>"};
         ::pltxt2htm_test::assert_true(html == answer);
     }

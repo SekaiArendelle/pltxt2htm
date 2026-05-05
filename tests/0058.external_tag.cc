@@ -120,8 +120,7 @@ int main() {
     }
 
     {
-        auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<external=https://a.com\"onclick=\"alert(1)>x</external>");
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<external=https://a.com\"onclick=\"alert(1)>x</external>");
         auto answer =
             ::fast_io::u8string_view{u8"&lt;external=https://a.com&quot;onclick=&quot;alert(1)&gt;x&lt;/external&gt;"};
         ::pltxt2htm_test::assert_true(html == answer);
