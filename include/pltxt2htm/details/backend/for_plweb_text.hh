@@ -384,7 +384,11 @@ entry:
             ++current_index;
             result.append(u8"<a href=\"");
             ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result, host);
-            result.append(u8"/ExperimentSummary/Experiment/");
+            if constexpr (isfixed) {
+                result.append(u8"/p/Experiment/");
+            } else {
+                result.append(u8"/ExperimentSummary/Experiment/");
+            }
             auto const& experiment_id = experiment->get_id();
             // Under normal circumstances, `experiment_id` should never contain characters that could enable XSS in
             // HTML attributes. To avoid masking upstream bugs (and to keep release-path performance), we only
