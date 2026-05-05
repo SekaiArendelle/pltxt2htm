@@ -8,7 +8,6 @@ export namespace pltxt2htm {
 
 // exported functions
 using ::pltxt2htm::pltxt2common_html;
-using ::pltxt2htm::pltxt2advanced_html;
 using ::pltxt2htm::pltxt2fixedadv_html;
 using ::pltxt2htm::pltxt2plunity_introduction;
 using ::pltxt2htm::parse_pltxt;

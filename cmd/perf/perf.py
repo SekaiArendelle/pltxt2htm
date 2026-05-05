@@ -57,7 +57,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--source", required=True)
 args = parser.parse_args()
 
-os.system(f"perf record -F 99 -g -- sh -c 'echo \"{args.source * 10000}\" | {EXE_PATH} --target advanced_html > /dev/null'")
+os.system(f"perf record -F 99 -g -- sh -c 'echo \"{args.source * 10000}\" | {EXE_PATH} --target html4unittest > /dev/null'")
 os.system("perf script > out.perf")
 os.system("stackcollapse-perf.pl out.perf > out.folded")
 os.system("flamegraph.pl out.folded > flame.svg")

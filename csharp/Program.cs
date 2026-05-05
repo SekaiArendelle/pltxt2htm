@@ -8,7 +8,13 @@ class Program
 # Hello Quantum PhysicsLab
 With Markdown supports
 ";
-        string html = Pltxt2Htm.AdvancedParser(markdownText);
+        string html = Pltxt2Htm.PlRichTextParser(
+            markdownText,
+            "project",
+            "visitor",
+            "author",
+            "coauthors"
+        );
         Console.WriteLine(html);
     }
 }

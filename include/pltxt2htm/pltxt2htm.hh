@@ -50,13 +50,13 @@ namespace pltxt2htm {
  */
 template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, bool optimize = true>
 [[nodiscard]]
-constexpr auto pltxt2advanced_html(::fast_io::u8string_view pltext) noexcept {
+constexpr auto pltxt4unittest(::fast_io::u8string_view pltext) noexcept {
     auto ast = ::pltxt2htm::parse_pltxt<ndebug>(pltext);
     if constexpr (optimize) {
         ::pltxt2htm::optimize_ast<ndebug>(ast);
     }
     return ::pltxt2htm::details::plweb_text_backend<ndebug, false>(ast, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR",
-                                                            u8"$AUTHOR", u8"$CO_AUTHORS");
+                                                                   u8"$AUTHOR", u8"$CO_AUTHORS");
 }
 
 /**
@@ -82,8 +82,7 @@ constexpr auto pltxt2fixedadv_html(::fast_io::u8string_view pltext, ::fast_io::u
     if constexpr (optimize) {
         ::pltxt2htm::optimize_ast<ndebug>(ast);
     }
-    return ::pltxt2htm::details::plweb_text_backend<ndebug, true>(ast, host, project, visitor, author,
-                                                                  coauthors);
+    return ::pltxt2htm::details::plweb_text_backend<ndebug, true>(ast, host, project, visitor, author, coauthors);
 }
 
 /**

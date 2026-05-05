@@ -2,13 +2,13 @@
 
 int main() {
     {
-        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<a>text</a>");
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<a>text</a>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:#0000AA;\">text</span>"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(
+        auto html = ::pltxt2htm_test::pltxt4unittest(
             u8R"(
 <A      >text
 </Discussion   >)");
@@ -18,57 +18,57 @@ int main() {
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<A      >text</a   >");
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<A      >text</a   >");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:#0000AA;\">text</span>"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<a>text</a><color=red>text</color>");
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<a>text</a><color=red>text</color>");
         auto answer = ::fast_io::u8string_view{
             u8"<span style=\"color:#0000AA;\">text</span><span style=\"color:red;\">text</span>"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<A><a>text</a></A>");
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<A><a>text</a></A>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:#0000AA;\">text</span>"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<A><color=red>text</color></A>");
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<A><color=red>text</color></A>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:red;\">text</span>"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"<A>t<a>ex</a>t</A>");
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<A>t<a>ex</a>t</A>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:#0000AA;\">text</span>"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
     {
         // test invalid tag
-        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"test<a  $");
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"test<a  $");
         auto answer = ::fast_io::u8string_view{u8"test&lt;a&nbsp;&nbsp;$"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"test<a>text");
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"test<a>text");
         auto answer = ::fast_io::u8string_view{u8"test<span style=\"color:#0000AA;\">text</span>"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"t<a></a>t");
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<a></a>t");
         auto answer = ::fast_io::u8string_view{u8"tt"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(u8"t<a>es</color>t");
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<a>es</color>t");
         auto answer = ::fast_io::u8string_view{u8"t<span style=\"color:#0000AA;\">es</span>t"};
         ::pltxt2htm_test::assert_true(html == answer);
     }

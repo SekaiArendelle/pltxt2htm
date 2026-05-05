@@ -16,23 +16,17 @@ char const* PLTXT2HTM_C_NAME_MANGLING(common_parser)(char const* text)
 #endif
     ;
 
-char const* PLTXT2HTM_C_NAME_MANGLING(advanced_parser)(char const* text)
+char const* PLTXT2HTM_C_NAME_MANGLING(fixedadv_parser)(char const* const pltext, char const* const host,
+                                                       char const* const project, char const* const visitor,
+                                                       char const* const author, char const* const coauthors)
 #if __cpp_noexcept_function_type >= 201510L
     noexcept
 #endif
     ;
 
-char const* PLTXT2HTM_C_NAME_MANGLING(fixedadv_parser)(char8_t const* const pltext, char8_t const* const host,
-                                                       char8_t const* const project, char8_t const* const visitor,
-                                                       char8_t const* const author, char8_t const* const coauthors)
-#if __cpp_noexcept_function_type >= 201510L
-    noexcept
-#endif
-    ;
-
-char const* PLTXT2HTM_C_NAME_MANGLING(plrichtext_parser)(char8_t const* const text, char8_t const* const project,
-                                                         char8_t const* const visitor, char8_t const* const author,
-                                                         char8_t const* const coauthors)
+char const* PLTXT2HTM_C_NAME_MANGLING(plrichtext_parser)(char const* const text, char const* const project,
+                                                         char const* const visitor, char const* const author,
+                                                         char const* const coauthors)
 #if __cpp_noexcept_function_type >= 201510L
     noexcept
 #endif

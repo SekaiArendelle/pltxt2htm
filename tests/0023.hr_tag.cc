@@ -8,7 +8,7 @@ int main() {
 )"};
 
     {
-        auto html = ::pltxt2htm_test::pltxt2advanced_htmld(text);
+        auto html = ::pltxt2htm_test::pltxt4unittest(text);
         auto answer = ::fast_io::u8string_view{
             u8R"(<br>文本1<hr>文本2<hr>文本3<hr>文本4&lt;HR&nbsp;&nbsp;&nbsp;&nbsp;/<br>文本5&lt;hr<hr><br>)"};
         ::pltxt2htm_test::assert_true(html == answer);

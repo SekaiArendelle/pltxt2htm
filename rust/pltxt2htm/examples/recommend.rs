@@ -10,6 +10,13 @@ With Markdown supports
     )
     .unwrap();
 
-    let html = pltxt2htm::pltxt2advanced_html(pltext);
+    let html = pltxt2htm::pltxt2fixedadv_html(
+        pltext,
+        CString::new("127.0.0.1").unwrap(),
+        CString::new("project").unwrap(),
+        CString::new("visitor").unwrap(),
+        CString::new("author").unwrap(),
+        CString::new("coauthors").unwrap(),
+    );
     println!("{}", html.as_str());
 }

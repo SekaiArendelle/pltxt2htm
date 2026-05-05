@@ -32,20 +32,6 @@ extern "C"
 #if __has_cpp_attribute(__gnu__::__used__)
     [[__gnu__::__used__]]
 #endif
-    char8_t const* advanced_parser(char8_t const* const text) noexcept {
-    return ::pltxt2htm::advanced_parser<
-#ifdef NDEBUG
-        ::pltxt2htm::Contracts::ignore
-#else
-        ::pltxt2htm::Contracts::quick_enforce
-#endif
-        >(text);
-}
-
-extern "C"
-#if __has_cpp_attribute(__gnu__::__used__)
-    [[__gnu__::__used__]]
-#endif
     char8_t const* fixedadv_parser(char8_t const* const text, char8_t const* const host, char8_t const* const project,
                                    char8_t const* const visitor, char8_t const* const author,
                                    char8_t const* const coauthors) noexcept {

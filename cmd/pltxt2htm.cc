@@ -10,7 +10,7 @@
 
 enum class TargetType : ::std::uint_least32_t {
     indeterminate = 0,
-    advanced_html,
+    html4unittest,
     common_html,
     fixedadv_html
 };
@@ -21,8 +21,8 @@ constexpr ::fast_io::u8string_view usage{
     pltxt2htm [-h|help]
     echo "example" | pltxt2htm --target common_html
     echo "example" | pltxt2htm --target common_html -o <output file>
-    echo "example" | pltxt2htm --target advanced_html
-    echo "example" | pltxt2htm --target advanced_html -o <output file>
+    echo "example" | pltxt2htm --target html4unittest
+    echo "example" | pltxt2htm --target html4unittest -o <output file>
     echo "example" | pltxt2htm --target fixedadv_html --host <host name> --project <project name> --visitor <visitor name> --author <author name> --coauthors <coauthors string>
     echo "example" | pltxt2htm --target fixedadv_html --host <host name> --project <project name> --visitor <visitor name> --author <author name> --coauthors <coauthors string> -o <output file>
 )"};
@@ -97,8 +97,8 @@ int main(int argc, char const* const* const argv) noexcept {
                 ::fast_io::perrln("Missing target");
                 return 1;
             }
-            if (::std::strcmp(argv[i + 1], "advanced_html") == 0) {
-                target_type = ::TargetType::advanced_html;
+            if (::std::strcmp(argv[i + 1], "html4unittest") == 0) {
+                target_type = ::TargetType::html4unittest;
             }
             else if (::std::strcmp(argv[i + 1], "common_html") == 0) {
                 target_type = ::TargetType::common_html;
@@ -229,12 +229,12 @@ int main(int argc, char const* const* const argv) noexcept {
         }
         break;
     }
-    case ::TargetType::advanced_html: {
+    case ::TargetType::html4unittest: {
         if (host != nullptr || project != nullptr || visitor != nullptr || author != nullptr || coauthors != nullptr)
             [[unlikely]] {
             ::fast_io::perrln(
                 "** You can not specify host/project/visitor/author/coauthors when `--target` is "
-                "advanced_html");
+                "html4unittest");
             ::fast_io::println(::fast_io::u8c_stderr(), usage);
             return 1;
         }
@@ -265,8 +265,8 @@ int main(int argc, char const* const* const argv) noexcept {
         ::fast_io::io::scan(::fast_io::u8c_stdin(), ::fast_io::mnp::whole_get(input_text));
 
         ::fast_io::u8string html;
-        if (target_type == ::TargetType::advanced_html) {
-            html = ::pltxt2htm::pltxt2advanced_html<
+        if (target_type == ::TargetType::html4unittest) {
+            html = ::pltxt2htm::pltxt4unittest<
 #ifdef NDEBUG
                 ::pltxt2htm::Contracts::ignore
 #else

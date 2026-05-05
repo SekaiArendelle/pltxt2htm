@@ -386,7 +386,8 @@ entry:
             ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result, host);
             if constexpr (isfixed) {
                 result.append(u8"/p/Experiment/");
-            } else {
+            }
+            else {
                 result.append(u8"/ExperimentSummary/Experiment/");
             }
             auto const& experiment_id = experiment->get_id();
@@ -417,7 +418,8 @@ entry:
             ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result, host);
             if constexpr (isfixed) {
                 result.append(u8"/p/Discussion/");
-            } else {
+            }
+            else {
                 result.append(u8"/ExperimentSummary/Discussion/");
             }
             auto const& discussion_id = discussion->get_id();

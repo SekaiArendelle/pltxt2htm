@@ -49,8 +49,8 @@ auto pltxt2common_html(::fast_io::u8string_view pltext) noexcept -> ::fast_io::u
 #if __has_attribute(visibility)
 __attribute__((visibility("default")))
 #endif
-auto pltxt2advanced_htmld(::fast_io::u8string_view pltext) noexcept -> ::fast_io::u8string {
-    return ::pltxt2htm::pltxt2advanced_html<::pltxt2htm::Contracts::quick_enforce>(pltext);
+auto pltxt4unittest(::fast_io::u8string_view pltext) noexcept -> ::fast_io::u8string {
+    return ::pltxt2htm::pltxt4unittest<::pltxt2htm::Contracts::quick_enforce>(pltext);
 }
 
 #if __has_cpp_attribute(__gnu__::__used__)

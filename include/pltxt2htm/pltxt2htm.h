@@ -51,32 +51,6 @@ constexpr char8_t const* c_ptr_style_wrapper(Args&&... args) noexcept(
 } // namespace details
 
 /**
- * @brief C-style interface for advanced HTML conversion
- * @details Converts Physics-Lab text to advanced HTML with full feature support.
- *          This is the C wrapper around pltxt2htm::pltxt2advanced_html.
- * @tparam ndebug Contract mode for the underlying parser, selected from
- *                ::pltxt2htm::Contracts. The default is
- *                ::pltxt2htm::Contracts::quick_enforce; specify another
- *                ::pltxt2htm::Contracts value to use a different contract mode.
- * @param[in] text The Physics-Lab text to convert (null-terminated UTF-8 string)
- * @return Heap-allocated UTF-8 string containing the HTML output
- * @retval char8_t const* Pointer to heap-allocated UTF-8 string containing HTML
- * @note The returned pointer must be freed using std::free() to avoid memory leaks
- * @warning This function calls std::malloc() and std::memcpy() internally
- * @warning The returned string must be freed by the caller using std::free()
- * @see pltxt2htm::pltxt2advanced_html for the underlying C++ implementation
- */
-template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
-[[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__nonnull__)
-[[__gnu__::__nonnull__]]
-#endif
-constexpr char8_t const* advanced_parser(char8_t const* const text) noexcept {
-    return ::pltxt2htm::details::c_ptr_style_wrapper<::pltxt2htm::pltxt2advanced_html<ndebug>>(
-        ::fast_io::mnp::os_c_str(text));
-}
-
-/**
  * @brief C-style interface for fixed advanced HTML conversion
  * @details Converts Physics-Lab text to advanced HTML with caller-provided link context.
  *          This is the C wrapper around pltxt2htm::pltxt2fixedadv_html.

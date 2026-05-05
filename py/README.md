@@ -21,11 +21,15 @@ xmake build
 ```py
 import pltxt2htm
 
-html = pltxt2htm.advanced_parser('''
+html = pltxt2htm.fixedadv_parser('''
 # Hello Quantum PhysicsLab
 With markdown supports
 ''',
-    host="localhost"
+    host="localhost",
+    project="project",
+    visitor="visitor",
+    author="author",
+    coauthors="coauthors"
 )
 
 print(html)
