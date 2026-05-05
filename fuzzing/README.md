@@ -1,4 +1,4 @@
-Clang Fuzzer for `pltxt2htm::pltxt2advanced_html`, `pltxt2htm::pltxt2fixedadv_html` and `pltxt2htm::pltxt2common_html`
+Clang Fuzzer for exported APIs in pltxt2htm
 
 ## Launch fuzzing
 ```sh

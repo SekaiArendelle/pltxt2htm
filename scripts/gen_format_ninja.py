@@ -57,6 +57,7 @@ def main():
 
     search_dirs = [
         "tests",
+        "examples",
         "include/pltxt2htm",
         "wasm",
         "cmd",
