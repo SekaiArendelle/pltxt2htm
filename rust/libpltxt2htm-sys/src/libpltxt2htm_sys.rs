@@ -2,7 +2,6 @@ use libc::{c_char, size_t};
 
 unsafe extern "C" {
     pub unsafe fn pltxt2htm_common_parser(pltext: *const c_char) -> *const c_char;
-    pub unsafe fn pltxt2htm_advanced_parser(pltext: *const c_char) -> *const c_char;
     pub unsafe fn pltxt2htm_fixedadv_parser(
         pltext: *const c_char,
         host: *const c_char,

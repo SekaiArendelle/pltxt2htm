@@ -38,9 +38,6 @@ on_config(function(target)
     end
 end)
 
-target("advanced_parser",
-       function() add_files("$(projectdir)/src/advanced_parser.cc") end)
-
 target("fixedadv_parser",
        function() add_files("$(projectdir)/src/fixedadv_parser.cc") end)
 
@@ -49,4 +46,3 @@ target("common_parser",
 
 target("plrichtext_parser",
        function() add_files("$(projectdir)/src/plrichtext_parser.cc") end)
-

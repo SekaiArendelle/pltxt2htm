@@ -37,39 +37,6 @@ static ::PyObject* common_parser([[maybe_unused]] ::PyObject* self, ::PyObject* 
     return result;
 }
 
-static ::PyObject* advanced_parser([[maybe_unused]] ::PyObject* self, ::PyObject* args, ::PyObject* kwargs) noexcept {
-    constexpr auto kwlist = ::fast_io::array{"text", nullptr};
-#ifndef NDEBUG
-    char8_t const* text = nullptr;
-#else
-    #if __has_cpp_attribute(indeterminate)
-    char8_t const* text [[indeterminate]];
-    #else
-    char8_t const* text;
-    #endif
-#endif
-    // Before python3.13, argument `keywords` does not marked as const
-    if (!::PyArg_ParseTupleAndKeywords(args, kwargs, "s",
-#if PY_MINOR_VERSION < 13
-                                       const_cast<char**>(kwlist.data()),
-#else
-                                       kwlist.data(),
-#endif
-                                       ::std::addressof(text))) [[unlikely]] {
-        return nullptr;
-    }
-    char8_t const* html = ::pltxt2htm::advanced_parser<
-#ifdef NDEBUG
-        ::pltxt2htm::Contracts::ignore
-#else
-        ::pltxt2htm::Contracts::quick_enforce
-#endif
-        >(text);
-    ::PyObject* result = ::PyUnicode_FromString(reinterpret_cast<char const*>(html));
-    ::free(static_cast<void*>(const_cast<char8_t*>(html)));
-    return result;
-}
-
 static ::PyObject* fixedadv_parser([[maybe_unused]] ::PyObject* self, ::PyObject* args, ::PyObject* kwargs) noexcept {
     constexpr auto kwlist = ::fast_io::array{"text", "host", "project", "visitor", "author", "coauthors", nullptr};
 #ifndef NDEBUG
@@ -123,8 +90,6 @@ static ::PyObject* fixedadv_parser([[maybe_unused]] ::PyObject* self, ::PyObject
 static auto methods_ = ::fast_io::array{
     // It was a little weird that PyCFunction mismatch with PyCFunctionWithKeywords, which will cause compiler warning
     ::PyMethodDef{"common_parser", reinterpret_cast<::PyCFunction>(::common_parser), METH_VARARGS | METH_KEYWORDS,
-                  nullptr},
-    ::PyMethodDef{"advanced_parser", reinterpret_cast<::PyCFunction>(::advanced_parser), METH_VARARGS | METH_KEYWORDS,
                   nullptr},
     ::PyMethodDef{"fixedadv_parser", reinterpret_cast<::PyCFunction>(::fixedadv_parser), METH_VARARGS | METH_KEYWORDS,
                   nullptr},

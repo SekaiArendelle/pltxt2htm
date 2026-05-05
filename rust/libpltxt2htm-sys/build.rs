@@ -2,7 +2,10 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 fn profile_mode() -> &'static str {
-    if std::env::var("PROFILE").map(|v| v == "release").unwrap_or(false) {
+    if std::env::var("PROFILE")
+        .map(|v| v == "release")
+        .unwrap_or(false)
+    {
         "release"
     } else {
         "debug"
@@ -56,7 +59,10 @@ fn try_run_xmake(c_root: &Path, out_dir: &Path) -> Result<(), String> {
         return Err("xmake install failed".to_owned());
     }
 
-    println!("cargo:rustc-link-search=native={}", install_dir.join("lib").display());
+    println!(
+        "cargo:rustc-link-search=native={}",
+        install_dir.join("lib").display()
+    );
     Ok(())
 }
 
@@ -71,7 +77,17 @@ fn fallback_build_by_cc(c_root: &Path) {
         .warnings(false);
 
     if std::env::var_os("CXX").is_none() {
-        for cxx in ["clang++", "g++", "c++", "clang++-22", "clang++-21", "clang++-20", "g++-16", "g++-15", "g++-14"] {
+        for cxx in [
+            "clang++",
+            "g++",
+            "c++",
+            "clang++-22",
+            "clang++-21",
+            "clang++-20",
+            "g++-16",
+            "g++-15",
+            "g++-14",
+        ] {
             if Command::new(cxx).arg("--version").status().is_ok() {
                 build.compiler(cxx);
                 println!("cargo:warning=Using C++ compiler fallback: {cxx}");
@@ -89,9 +105,18 @@ fn fallback_build_by_cc(c_root: &Path) {
 
 fn main() {
     let c_root = PathBuf::from("..").join("..").join("c");
-    println!("cargo:rerun-if-changed={}", c_root.join("src/pltxt2htm.cc").display());
-    println!("cargo:rerun-if-changed={}", c_root.join("include/pltxt2htm.h").display());
-    println!("cargo:rerun-if-changed={}", c_root.join("include/push_macros.h").display());
+    println!(
+        "cargo:rerun-if-changed={}",
+        c_root.join("src/pltxt2htm.cc").display()
+    );
+    println!(
+        "cargo:rerun-if-changed={}",
+        c_root.join("include/pltxt2htm.h").display()
+    );
+    println!(
+        "cargo:rerun-if-changed={}",
+        c_root.join("include/push_macros.h").display()
+    );
     println!("cargo:rerun-if-changed=../../include/pltxt2htm");
 
     let out_dir = PathBuf::from(std::env::var("OUT_DIR").expect("OUT_DIR is not set"));
@@ -110,10 +135,11 @@ fn main() {
     if target.contains("msvc") {
         return;
     }
-    let stdlib = if target.contains("apple") || target.contains("freebsd") || target.contains("openbsd") {
-        "c++"
-    } else {
-        "stdc++"
-    };
+    let stdlib =
+        if target.contains("apple") || target.contains("freebsd") || target.contains("openbsd") {
+            "c++"
+        } else {
+            "stdc++"
+        };
     println!("cargo:rustc-link-lib={stdlib}");
 }
