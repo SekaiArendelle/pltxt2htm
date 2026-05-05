@@ -82,7 +82,8 @@ constexpr auto pltxt2fixedadv_html(::fast_io::u8string_view pltext, ::fast_io::u
     if constexpr (optimize) {
         ::pltxt2htm::optimize_ast<ndebug>(ast);
     }
-    return ::pltxt2htm::details::plweb_text_backend<ndebug>(ast, host, project, visitor, author, coauthors);
+    return ::pltxt2htm::details::plweb_text_backend<ndebug, true>(ast, host, project, visitor, author,
+                                                                  coauthors);
 }
 
 /**
