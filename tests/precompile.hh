@@ -9,7 +9,7 @@ namespace pltxt2htm_test {
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-auto pltxt2advanced_htmld(::fast_io::u8string_view) noexcept -> ::fast_io::u8string;
+auto pltxt4unittest(::fast_io::u8string_view) noexcept -> ::fast_io::u8string;
 
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
