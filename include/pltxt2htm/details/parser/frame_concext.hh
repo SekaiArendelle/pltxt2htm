@@ -73,7 +73,7 @@ template<::pltxt2htm::Contracts ndebug>
 class BasicFrameContext {
 public:
     enum class ContextDataKind : ::std::uint_least8_t {
-        without_info,
+        without_info = 0,
         pltext,
         equal_sign_tag,
         external_tag,
@@ -111,7 +111,8 @@ public:
             : external_tag{::std::move(external_tag_context)} {
         }
 
-        constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithPlSizeTagInfo&& pl_size_tag_context) noexcept
+        constexpr ContextVariant(
+            ::pltxt2htm::details::ParserFrameContextWithPlSizeTagInfo&& pl_size_tag_context) noexcept
             : pl_size_tag{::std::move(pl_size_tag_context)} {
         }
 
@@ -128,7 +129,8 @@ public:
             : md_list{::std::move(md_list_context)} {
         }
 
-        constexpr ~ContextVariant() noexcept {}
+        constexpr ~ContextVariant() noexcept {
+        }
     } context_data;
 
     ::pltxt2htm::NodeType const nested_tag_type;
@@ -157,20 +159,18 @@ public:
           context_data_kind{ContextDataKind::pltext} {
     }
 
-    constexpr explicit BasicFrameContext(::fast_io::u8string_view pltext_,
-                                         ::pltxt2htm::NodeType const nested_tag_type_,
+    constexpr explicit BasicFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
                                          ::fast_io::u8string&& id_) noexcept
-        : context_data{::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo{
-              .pltext = pltext_, .id = ::std::move(id_)}},
+        : context_data{
+              ::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo{.pltext = pltext_, .id = ::std::move(id_)}},
           nested_tag_type{nested_tag_type_},
           context_data_kind{ContextDataKind::equal_sign_tag} {
     }
 
-    constexpr explicit BasicFrameContext(::fast_io::u8string_view pltext_,
-                                         ::pltxt2htm::NodeType const nested_tag_type_,
+    constexpr explicit BasicFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
                                          ::pltxt2htm::Url&& url_) noexcept
-        : context_data{::pltxt2htm::details::ParserFrameContextWithExternalTagInfo{
-              .pltext = pltext_, .url = ::std::move(url_)}},
+        : context_data{
+              ::pltxt2htm::details::ParserFrameContextWithExternalTagInfo{.pltext = pltext_, .url = ::std::move(url_)}},
           nested_tag_type{nested_tag_type_},
           context_data_kind{ContextDataKind::external_tag} {
     }
@@ -197,15 +197,14 @@ public:
 
     constexpr explicit BasicFrameContext(::pltxt2htm::NodeType node_type,
                                          ::pltxt2htm::details::MdListAst&& md_list_ast_) noexcept
-        : context_data{
-              ::pltxt2htm::details::ParserFrameContextWithMdListInfo{::std::move(md_list_ast_)}},
+        : context_data{::pltxt2htm::details::ParserFrameContextWithMdListInfo{::std::move(md_list_ast_)}},
           nested_tag_type{node_type},
           context_data_kind{ContextDataKind::md_list} {
         pltxt2htm_assert(node_type == ::pltxt2htm::NodeType::md_ul || node_type == ::pltxt2htm::NodeType::md_ol,
                          u8"mismatch node type");
     }
 
-    constexpr BasicFrameContext(BasicFrameContext const&) noexcept = delete;
+    constexpr BasicFrameContext(::pltxt2htm::details::BasicFrameContext<ndebug> const&) noexcept = delete;
 
     constexpr BasicFrameContext(::pltxt2htm::details::BasicFrameContext<ndebug>&& other) noexcept
         : context_data{},
@@ -228,7 +227,8 @@ public:
                                 ::std::move(other.context_data.external_tag));
             break;
         case ContextDataKind::pl_size_tag:
-            ::std::construct_at(::std::addressof(this->context_data.pl_size_tag), ::std::move(other.context_data.pl_size_tag));
+            ::std::construct_at(::std::addressof(this->context_data.pl_size_tag),
+                                ::std::move(other.context_data.pl_size_tag));
             break;
         case ContextDataKind::md_block_quotes:
             ::std::construct_at(::std::addressof(this->context_data.md_block_quotes),
