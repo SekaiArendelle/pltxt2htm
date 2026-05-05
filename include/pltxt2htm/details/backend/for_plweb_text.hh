@@ -266,7 +266,7 @@ constexpr void append_url_attr_from_ast(::fast_io::u8string& result, ::pltxt2htm
  * @return A string containing the generated HTML
  * @note To avoid stack overflow, this function manages call_stack manually using goto-based state machine
  */
-template<::pltxt2htm::Contracts ndebug>
+template<::pltxt2htm::Contracts ndebug, bool isfixed>
 [[nodiscard]]
 constexpr auto plweb_text_backend(::pltxt2htm::Ast const& ast_init, ::fast_io::u8string_view host,
                                   ::fast_io::u8string_view project, ::fast_io::u8string_view visitor,
@@ -384,7 +384,11 @@ entry:
             ++current_index;
             result.append(u8"<a href=\"");
             ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result, host);
-            result.append(u8"/ExperimentSummary/Experiment/");
+            if constexpr (isfixed) {
+                result.append(u8"/p/Experiment/");
+            } else {
+                result.append(u8"/ExperimentSummary/Experiment/");
+            }
             auto const& experiment_id = experiment->get_id();
             // Under normal circumstances, `experiment_id` should never contain characters that could enable XSS in
             // HTML attributes. To avoid masking upstream bugs (and to keep release-path performance), we only
@@ -411,7 +415,11 @@ entry:
             ++current_index;
             result.append(u8"<a href=\"");
             ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result, host);
-            result.append(u8"/ExperimentSummary/Discussion/");
+            if constexpr (isfixed) {
+                result.append(u8"/p/Discussion/");
+            } else {
+                result.append(u8"/ExperimentSummary/Discussion/");
+            }
             auto const& discussion_id = discussion->get_id();
             // Under normal circumstances, `discussion_id` should never contain characters that could enable XSS in
             // HTML attributes. To avoid masking upstream bugs (and to keep release-path performance), we only

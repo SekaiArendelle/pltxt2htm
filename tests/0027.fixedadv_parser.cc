@@ -42,9 +42,9 @@ int main() {
             u8"coauthors");
         auto answer = ::fast_io::u8string_view{
             u8"<a href=\"localhost:5173&quot; onclick=&quot;alert(1)&lt;img src=x "
-            u8"onerror=alert(2)&gt;/ExperimentSummary/Experiment/expid\" internal>exp</a><a "
+            u8"onerror=alert(2)&gt;/p/Experiment/expid\" internal>exp</a><a "
             u8"href=\"localhost:5173&quot; onclick=&quot;alert(1)&lt;img src=x "
-            u8"onerror=alert(2)&gt;/ExperimentSummary/Discussion/discid\" internal>dis</a>"};
+            u8"onerror=alert(2)&gt;/p/Discussion/discid\" internal>dis</a>"};
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
