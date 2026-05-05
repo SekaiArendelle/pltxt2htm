@@ -49,7 +49,7 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2htm::Ast {
     // fast_io::deque contains bug about RAII, use fast_io::list instead
     // This stack is used to track nested tag contexts during parsing
-    ::fast_io::stack<::pltxt2htm::details::BasicFrameContext> call_stack{};
+    ::fast_io::stack<::pltxt2htm::details::BasicFrameContext<ndebug>> call_stack{};
     ::pltxt2htm::Ast result{};
 
     ::std::size_t start_index{};
@@ -109,7 +109,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
 
     if (start_index < pltext.size()) {
         // other common cases
-        call_stack.push(::pltxt2htm::details::BasicFrameContext(
+        call_stack.push(::pltxt2htm::details::BasicFrameContext<ndebug>(
             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index), ::pltxt2htm::NodeType::base,
             ::std::move(result)));
         result = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);

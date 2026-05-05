@@ -69,6 +69,7 @@ public:
     }
 };
 
+template<::pltxt2htm::Contracts ndebug>
 class BasicFrameContext {
 public:
     enum class ContextDataKind : ::std::uint_least8_t {
@@ -200,14 +201,13 @@ public:
               ::pltxt2htm::details::ParserFrameContextWithMdListInfo{::std::move(md_list_ast_)}},
           nested_tag_type{node_type},
           context_data_kind{ContextDataKind::md_list} {
-        if (node_type != ::pltxt2htm::NodeType::md_ul && node_type != ::pltxt2htm::NodeType::md_ol) [[unlikely]] {
-            ::exception::unreachable<true>();
-        }
+        pltxt2htm_assert(node_type == ::pltxt2htm::NodeType::md_ul || node_type == ::pltxt2htm::NodeType::md_ol,
+                         u8"mismatch node type");
     }
 
     constexpr BasicFrameContext(BasicFrameContext const&) noexcept = delete;
 
-    constexpr BasicFrameContext(::pltxt2htm::details::BasicFrameContext&& other) noexcept
+    constexpr BasicFrameContext(::pltxt2htm::details::BasicFrameContext<ndebug>&& other) noexcept
         : context_data{},
           nested_tag_type{other.nested_tag_type},
           current_index{other.current_index},
@@ -274,23 +274,23 @@ public:
         }
     }
 
-    constexpr auto operator->() noexcept -> ::pltxt2htm::details::BasicFrameContext* {
+    constexpr auto operator->() noexcept -> ::pltxt2htm::details::BasicFrameContext<ndebug>* {
         return this;
     }
 
-    constexpr auto operator->() const noexcept -> ::pltxt2htm::details::BasicFrameContext const* {
+    constexpr auto operator->() const noexcept -> ::pltxt2htm::details::BasicFrameContext<ndebug> const* {
         return this;
     }
 
-    constexpr auto get_unsafe() noexcept -> ::pltxt2htm::details::BasicFrameContext* {
+    constexpr auto get_unsafe() noexcept -> ::pltxt2htm::details::BasicFrameContext<ndebug>* {
         return this;
     }
 
-    constexpr auto get_unsafe() const noexcept -> ::pltxt2htm::details::BasicFrameContext const* {
+    constexpr auto get_unsafe() const noexcept -> ::pltxt2htm::details::BasicFrameContext<ndebug> const* {
         return this;
     }
 
-    constexpr auto release_imul() const noexcept -> ::pltxt2htm::details::BasicFrameContext const* {
+    constexpr auto release_imul() const noexcept -> ::pltxt2htm::details::BasicFrameContext<ndebug> const* {
         return this;
     }
 
@@ -320,37 +320,31 @@ public:
         ::exception::unreachable<true>();
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     constexpr auto get_equal_sign_tag_id() noexcept -> ::fast_io::u8string& {
         pltxt2htm_assert(this->context_data_kind == ContextDataKind::equal_sign_tag, u8"context kind mismatch");
         return this->context_data.equal_sign_tag.id;
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     constexpr auto get_external_tag_url() noexcept -> ::pltxt2htm::Url& {
         pltxt2htm_assert(this->context_data_kind == ContextDataKind::external_tag, u8"context kind mismatch");
         return this->context_data.external_tag.url;
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     constexpr auto get_pl_size_tag_id() const noexcept -> ::std::size_t {
         pltxt2htm_assert(this->context_data_kind == ContextDataKind::pl_size_tag, u8"context kind mismatch");
         return this->context_data.pl_size_tag.id;
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     constexpr auto get_md_link_url() noexcept -> ::pltxt2htm::Url& {
         pltxt2htm_assert(this->context_data_kind == ContextDataKind::md_link, u8"context kind mismatch");
         return this->context_data.md_link.link;
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     constexpr auto get_md_list_ast() noexcept -> ::pltxt2htm::details::MdListAst& {
         pltxt2htm_assert(this->context_data_kind == ContextDataKind::md_list, u8"context kind mismatch");
         return this->context_data.md_list.md_list_ast;
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     constexpr auto get_md_list_iter() noexcept -> ::pltxt2htm::details::MdListAst::iterator& {
         pltxt2htm_assert(this->context_data_kind == ContextDataKind::md_list, u8"context kind mismatch");
         return this->context_data.md_list.iter;

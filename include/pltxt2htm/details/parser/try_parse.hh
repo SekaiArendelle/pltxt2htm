@@ -519,7 +519,7 @@ template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::U8LiteralString pr
 [[nodiscard]]
 constexpr auto try_parse_non_nestable_equal_sign_tag(
     ::fast_io::u8string_view pltext, Func&& func,
-    ::fast_io::stack<::pltxt2htm::details::BasicFrameContext> const& call_stack) noexcept
+    ::fast_io::stack<::pltxt2htm::details::BasicFrameContext<ndebug>> const& call_stack) noexcept
     -> ::exception::optional<TryParseEqualSignTagResult> {
     auto result =
         ::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, prefix_str>(pltext, ::std::forward<Func>(func));
@@ -1661,7 +1661,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_external_tag(
     ::fast_io::u8string_view pltext,
-    ::fast_io::stack<::pltxt2htm::details::BasicFrameContext> const& call_stack) noexcept
+    ::fast_io::stack<::pltxt2htm::details::BasicFrameContext<ndebug>> const& call_stack) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseExternalTagResult> {
     auto result = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<ndebug, u8"xternal">(
         pltext, [](char8_t u8chr) static constexpr noexcept { return u8'!' <= u8chr && u8chr <= u8'~'; }, call_stack);
