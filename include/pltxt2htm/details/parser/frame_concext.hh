@@ -66,6 +66,7 @@ public:
     }
 };
 
+template<::pltxt2htm::Contracts ndebug>
 class ContextVariant {
 public:
     union {
@@ -122,259 +123,271 @@ public:
           kind{node_type} {
     }
 
-    constexpr ContextVariant(ContextVariant const&) noexcept = delete;
+    constexpr ContextVariant(::pltxt2htm::details::ContextVariant<ndebug> const&) noexcept = delete;
 
-    constexpr ContextVariant(ContextVariant&& other) noexcept
+    constexpr ContextVariant(::pltxt2htm::details::ContextVariant<ndebug>&& other) noexcept
         : kind{other.kind} {
         switch (this->kind) {
-            case ::pltxt2htm::NodeType::pl_color:
-            case ::pltxt2htm::NodeType::pl_experiment:
-            case ::pltxt2htm::NodeType::pl_discussion:
-            case ::pltxt2htm::NodeType::pl_user:
-                ::std::construct_at(::std::addressof(this->equal_sign_tag), ::std::move(other.equal_sign_tag));
-                return;
-            case ::pltxt2htm::NodeType::pl_external:
-                ::std::construct_at(::std::addressof(this->external_tag), ::std::move(other.external_tag));
-                return;
-            case ::pltxt2htm::NodeType::pl_size:
-                ::std::construct_at(::std::addressof(this->pl_size_tag), ::std::move(other.pl_size_tag));
-                return;
-            case ::pltxt2htm::NodeType::md_block_quotes:
-                ::std::construct_at(::std::addressof(this->md_block_quotes), ::std::move(other.md_block_quotes));
-                return;
-            case ::pltxt2htm::NodeType::md_link:
-                ::std::construct_at(::std::addressof(this->md_link), ::std::move(other.md_link));
-                return;
-            case ::pltxt2htm::NodeType::md_ul:
-            case ::pltxt2htm::NodeType::md_ol:
-                ::std::construct_at(::std::addressof(this->md_list), ::std::move(other.md_list));
-                return;
-            case ::pltxt2htm::NodeType::base:
-            case ::pltxt2htm::NodeType::u8char:
-            case ::pltxt2htm::NodeType::invalid_u8char:
-            case ::pltxt2htm::NodeType::text:
-            case ::pltxt2htm::NodeType::line_break:
-            case ::pltxt2htm::NodeType::space:
-            case ::pltxt2htm::NodeType::ampersand:
-            case ::pltxt2htm::NodeType::double_quote:
-            case ::pltxt2htm::NodeType::single_quote:
-            case ::pltxt2htm::NodeType::less_than:
-            case ::pltxt2htm::NodeType::greater_than:
-            case ::pltxt2htm::NodeType::tab:
-            case ::pltxt2htm::NodeType::pl_a:
-            case ::pltxt2htm::NodeType::pl_b:
-            case ::pltxt2htm::NodeType::pl_i:
-            case ::pltxt2htm::NodeType::pl_macro_project:
-            case ::pltxt2htm::NodeType::pl_macro_visitor:
-            case ::pltxt2htm::NodeType::pl_macro_author:
-            case ::pltxt2htm::NodeType::pl_macro_coauthors:
-            case ::pltxt2htm::NodeType::html_p:
-            case ::pltxt2htm::NodeType::html_br:
-            case ::pltxt2htm::NodeType::html_h1:
-            case ::pltxt2htm::NodeType::html_h2:
-            case ::pltxt2htm::NodeType::html_h3:
-            case ::pltxt2htm::NodeType::html_h4:
-            case ::pltxt2htm::NodeType::html_h5:
-            case ::pltxt2htm::NodeType::html_h6:
-            case ::pltxt2htm::NodeType::html_del:
-            case ::pltxt2htm::NodeType::html_hr:
-            case ::pltxt2htm::NodeType::html_note:
-            case ::pltxt2htm::NodeType::html_em:
-            case ::pltxt2htm::NodeType::html_strong:
-            case ::pltxt2htm::NodeType::html_ul:
-            case ::pltxt2htm::NodeType::html_ol:
-            case ::pltxt2htm::NodeType::html_li:
-            case ::pltxt2htm::NodeType::html_code:
-            case ::pltxt2htm::NodeType::html_pre:
-            case ::pltxt2htm::NodeType::html_blockquote:
-            case ::pltxt2htm::NodeType::md_atx_h1:
-            case ::pltxt2htm::NodeType::md_atx_h2:
-            case ::pltxt2htm::NodeType::md_atx_h3:
-            case ::pltxt2htm::NodeType::md_atx_h4:
-            case ::pltxt2htm::NodeType::md_atx_h5:
-            case ::pltxt2htm::NodeType::md_atx_h6:
-            case ::pltxt2htm::NodeType::md_escape_backslash:
-            case ::pltxt2htm::NodeType::md_escape_exclamation:
-            case ::pltxt2htm::NodeType::md_escape_double_quote:
-            case ::pltxt2htm::NodeType::md_escape_hash:
-            case ::pltxt2htm::NodeType::md_escape_dollar:
-            case ::pltxt2htm::NodeType::md_escape_percent:
-            case ::pltxt2htm::NodeType::md_escape_ampersand:
-            case ::pltxt2htm::NodeType::md_escape_single_quote:
-            case ::pltxt2htm::NodeType::md_escape_left_paren:
-            case ::pltxt2htm::NodeType::md_escape_right_paren:
-            case ::pltxt2htm::NodeType::md_escape_asterisk:
-            case ::pltxt2htm::NodeType::md_escape_plus:
-            case ::pltxt2htm::NodeType::md_escape_comma:
-            case ::pltxt2htm::NodeType::md_escape_hyphen:
-            case ::pltxt2htm::NodeType::md_escape_dot:
-            case ::pltxt2htm::NodeType::md_escape_slash:
-            case ::pltxt2htm::NodeType::md_escape_colon:
-            case ::pltxt2htm::NodeType::md_escape_semicolon:
-            case ::pltxt2htm::NodeType::md_escape_less_than:
-            case ::pltxt2htm::NodeType::md_escape_equals:
-            case ::pltxt2htm::NodeType::md_escape_greater_than:
-            case ::pltxt2htm::NodeType::md_escape_question:
-            case ::pltxt2htm::NodeType::md_escape_at:
-            case ::pltxt2htm::NodeType::md_escape_left_bracket:
-            case ::pltxt2htm::NodeType::md_escape_right_bracket:
-            case ::pltxt2htm::NodeType::md_escape_caret:
-            case ::pltxt2htm::NodeType::md_escape_underscore:
-            case ::pltxt2htm::NodeType::md_escape_backtick:
-            case ::pltxt2htm::NodeType::md_escape_left_brace:
-            case ::pltxt2htm::NodeType::md_escape_pipe:
-            case ::pltxt2htm::NodeType::md_escape_right_brace:
-            case ::pltxt2htm::NodeType::md_escape_tilde:
-            case ::pltxt2htm::NodeType::md_hr:
-            case ::pltxt2htm::NodeType::md_code_fence_backtick:
-            case ::pltxt2htm::NodeType::md_code_fence_tilde:
-            case ::pltxt2htm::NodeType::md_code_span_1_backtick:
-            case ::pltxt2htm::NodeType::md_code_span_2_backtick:
-            case ::pltxt2htm::NodeType::md_code_span_3_backtick:
-            case ::pltxt2htm::NodeType::md_single_emphasis_asterisk:
-            case ::pltxt2htm::NodeType::md_double_emphasis_asterisk:
-            case ::pltxt2htm::NodeType::md_triple_emphasis_asterisk:
-            case ::pltxt2htm::NodeType::md_single_emphasis_underscore:
-            case ::pltxt2htm::NodeType::md_double_emphasis_underscore:
-            case ::pltxt2htm::NodeType::md_triple_emphasis_underscore:
-            case ::pltxt2htm::NodeType::md_del:
-            case ::pltxt2htm::NodeType::md_image:
-            case ::pltxt2htm::NodeType::md_li:
-            case ::pltxt2htm::NodeType::md_latex_inline:
-            case ::pltxt2htm::NodeType::md_latex_block:
-                ::std::construct_at(::std::addressof(this->pltext), ::std::move(other.pltext));
-                return;
+        case ::pltxt2htm::NodeType::pl_color:
+        case ::pltxt2htm::NodeType::pl_experiment:
+        case ::pltxt2htm::NodeType::pl_discussion:
+        case ::pltxt2htm::NodeType::pl_user: {
+            ::std::construct_at(::std::addressof(this->equal_sign_tag), ::std::move(other.equal_sign_tag));
+            return;
         }
-        [[unlikely]] {
-            ::exception::unreachable<true>();
+        case ::pltxt2htm::NodeType::pl_external: {
+            ::std::construct_at(::std::addressof(this->external_tag), ::std::move(other.external_tag));
+            return;
+        }
+        case ::pltxt2htm::NodeType::pl_size: {
+            ::std::construct_at(::std::addressof(this->pl_size_tag), ::std::move(other.pl_size_tag));
+            return;
+        }
+        case ::pltxt2htm::NodeType::md_block_quotes: {
+            ::std::construct_at(::std::addressof(this->md_block_quotes), ::std::move(other.md_block_quotes));
+            return;
+        }
+        case ::pltxt2htm::NodeType::md_link: {
+            ::std::construct_at(::std::addressof(this->md_link), ::std::move(other.md_link));
+            return;
+        }
+        case ::pltxt2htm::NodeType::md_ul:
+        case ::pltxt2htm::NodeType::md_ol: {
+            ::std::construct_at(::std::addressof(this->md_list), ::std::move(other.md_list));
+            return;
+        }
+        case ::pltxt2htm::NodeType::base:
+        case ::pltxt2htm::NodeType::u8char:
+        case ::pltxt2htm::NodeType::invalid_u8char:
+        case ::pltxt2htm::NodeType::text:
+        case ::pltxt2htm::NodeType::line_break:
+        case ::pltxt2htm::NodeType::space:
+        case ::pltxt2htm::NodeType::ampersand:
+        case ::pltxt2htm::NodeType::double_quote:
+        case ::pltxt2htm::NodeType::single_quote:
+        case ::pltxt2htm::NodeType::less_than:
+        case ::pltxt2htm::NodeType::greater_than:
+        case ::pltxt2htm::NodeType::tab:
+        case ::pltxt2htm::NodeType::pl_a:
+        case ::pltxt2htm::NodeType::pl_b:
+        case ::pltxt2htm::NodeType::pl_i:
+        case ::pltxt2htm::NodeType::pl_macro_project:
+        case ::pltxt2htm::NodeType::pl_macro_visitor:
+        case ::pltxt2htm::NodeType::pl_macro_author:
+        case ::pltxt2htm::NodeType::pl_macro_coauthors:
+        case ::pltxt2htm::NodeType::html_p:
+        case ::pltxt2htm::NodeType::html_br:
+        case ::pltxt2htm::NodeType::html_h1:
+        case ::pltxt2htm::NodeType::html_h2:
+        case ::pltxt2htm::NodeType::html_h3:
+        case ::pltxt2htm::NodeType::html_h4:
+        case ::pltxt2htm::NodeType::html_h5:
+        case ::pltxt2htm::NodeType::html_h6:
+        case ::pltxt2htm::NodeType::html_del:
+        case ::pltxt2htm::NodeType::html_hr:
+        case ::pltxt2htm::NodeType::html_note:
+        case ::pltxt2htm::NodeType::html_em:
+        case ::pltxt2htm::NodeType::html_strong:
+        case ::pltxt2htm::NodeType::html_ul:
+        case ::pltxt2htm::NodeType::html_ol:
+        case ::pltxt2htm::NodeType::html_li:
+        case ::pltxt2htm::NodeType::html_code:
+        case ::pltxt2htm::NodeType::html_pre:
+        case ::pltxt2htm::NodeType::html_blockquote:
+        case ::pltxt2htm::NodeType::md_atx_h1:
+        case ::pltxt2htm::NodeType::md_atx_h2:
+        case ::pltxt2htm::NodeType::md_atx_h3:
+        case ::pltxt2htm::NodeType::md_atx_h4:
+        case ::pltxt2htm::NodeType::md_atx_h5:
+        case ::pltxt2htm::NodeType::md_atx_h6:
+        case ::pltxt2htm::NodeType::md_escape_backslash:
+        case ::pltxt2htm::NodeType::md_escape_exclamation:
+        case ::pltxt2htm::NodeType::md_escape_double_quote:
+        case ::pltxt2htm::NodeType::md_escape_hash:
+        case ::pltxt2htm::NodeType::md_escape_dollar:
+        case ::pltxt2htm::NodeType::md_escape_percent:
+        case ::pltxt2htm::NodeType::md_escape_ampersand:
+        case ::pltxt2htm::NodeType::md_escape_single_quote:
+        case ::pltxt2htm::NodeType::md_escape_left_paren:
+        case ::pltxt2htm::NodeType::md_escape_right_paren:
+        case ::pltxt2htm::NodeType::md_escape_asterisk:
+        case ::pltxt2htm::NodeType::md_escape_plus:
+        case ::pltxt2htm::NodeType::md_escape_comma:
+        case ::pltxt2htm::NodeType::md_escape_hyphen:
+        case ::pltxt2htm::NodeType::md_escape_dot:
+        case ::pltxt2htm::NodeType::md_escape_slash:
+        case ::pltxt2htm::NodeType::md_escape_colon:
+        case ::pltxt2htm::NodeType::md_escape_semicolon:
+        case ::pltxt2htm::NodeType::md_escape_less_than:
+        case ::pltxt2htm::NodeType::md_escape_equals:
+        case ::pltxt2htm::NodeType::md_escape_greater_than:
+        case ::pltxt2htm::NodeType::md_escape_question:
+        case ::pltxt2htm::NodeType::md_escape_at:
+        case ::pltxt2htm::NodeType::md_escape_left_bracket:
+        case ::pltxt2htm::NodeType::md_escape_right_bracket:
+        case ::pltxt2htm::NodeType::md_escape_caret:
+        case ::pltxt2htm::NodeType::md_escape_underscore:
+        case ::pltxt2htm::NodeType::md_escape_backtick:
+        case ::pltxt2htm::NodeType::md_escape_left_brace:
+        case ::pltxt2htm::NodeType::md_escape_pipe:
+        case ::pltxt2htm::NodeType::md_escape_right_brace:
+        case ::pltxt2htm::NodeType::md_escape_tilde:
+        case ::pltxt2htm::NodeType::md_hr:
+        case ::pltxt2htm::NodeType::md_code_fence_backtick:
+        case ::pltxt2htm::NodeType::md_code_fence_tilde:
+        case ::pltxt2htm::NodeType::md_code_span_1_backtick:
+        case ::pltxt2htm::NodeType::md_code_span_2_backtick:
+        case ::pltxt2htm::NodeType::md_code_span_3_backtick:
+        case ::pltxt2htm::NodeType::md_single_emphasis_asterisk:
+        case ::pltxt2htm::NodeType::md_double_emphasis_asterisk:
+        case ::pltxt2htm::NodeType::md_triple_emphasis_asterisk:
+        case ::pltxt2htm::NodeType::md_single_emphasis_underscore:
+        case ::pltxt2htm::NodeType::md_double_emphasis_underscore:
+        case ::pltxt2htm::NodeType::md_triple_emphasis_underscore:
+        case ::pltxt2htm::NodeType::md_del:
+        case ::pltxt2htm::NodeType::md_image:
+        case ::pltxt2htm::NodeType::md_li:
+        case ::pltxt2htm::NodeType::md_latex_inline:
+        case ::pltxt2htm::NodeType::md_latex_block:
+            ::std::construct_at(::std::addressof(this->pltext), ::std::move(other.pltext));
+            return;
         }
     }
 
-    constexpr auto operator=(ContextVariant const&) noexcept -> ContextVariant& = delete;
-    constexpr auto operator=(ContextVariant&&) noexcept -> ContextVariant& = delete;
+    constexpr auto operator=(::pltxt2htm::details::ContextVariant<ndebug> const&) noexcept
+        -> ::pltxt2htm::details::ContextVariant<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::details::ContextVariant<ndebug>&&) noexcept
+        -> ::pltxt2htm::details::ContextVariant<ndebug>& = delete;
 
     constexpr ~ContextVariant() noexcept {
         switch (this->kind) {
-            case ::pltxt2htm::NodeType::pl_color:
-            case ::pltxt2htm::NodeType::pl_experiment:
-            case ::pltxt2htm::NodeType::pl_discussion:
-            case ::pltxt2htm::NodeType::pl_user:
-                ::std::destroy_at(::std::addressof(this->equal_sign_tag));
-                return;
-            case ::pltxt2htm::NodeType::pl_external:
-                ::std::destroy_at(::std::addressof(this->external_tag));
-                return;
-            case ::pltxt2htm::NodeType::pl_size:
-                ::std::destroy_at(::std::addressof(this->pl_size_tag));
-                return;
-            case ::pltxt2htm::NodeType::md_block_quotes:
-                ::std::destroy_at(::std::addressof(this->md_block_quotes));
-                return;
-            case ::pltxt2htm::NodeType::md_link:
-                ::std::destroy_at(::std::addressof(this->md_link));
-                return;
-            case ::pltxt2htm::NodeType::md_ul:
-            case ::pltxt2htm::NodeType::md_ol:
-                ::std::destroy_at(::std::addressof(this->md_list));
-                return;
-            case ::pltxt2htm::NodeType::base:
-            case ::pltxt2htm::NodeType::u8char:
-            case ::pltxt2htm::NodeType::invalid_u8char:
-            case ::pltxt2htm::NodeType::text:
-            case ::pltxt2htm::NodeType::line_break:
-            case ::pltxt2htm::NodeType::space:
-            case ::pltxt2htm::NodeType::ampersand:
-            case ::pltxt2htm::NodeType::double_quote:
-            case ::pltxt2htm::NodeType::single_quote:
-            case ::pltxt2htm::NodeType::less_than:
-            case ::pltxt2htm::NodeType::greater_than:
-            case ::pltxt2htm::NodeType::tab:
-            case ::pltxt2htm::NodeType::pl_a:
-            case ::pltxt2htm::NodeType::pl_b:
-            case ::pltxt2htm::NodeType::pl_i:
-            case ::pltxt2htm::NodeType::pl_macro_project:
-            case ::pltxt2htm::NodeType::pl_macro_visitor:
-            case ::pltxt2htm::NodeType::pl_macro_author:
-            case ::pltxt2htm::NodeType::pl_macro_coauthors:
-            case ::pltxt2htm::NodeType::html_p:
-            case ::pltxt2htm::NodeType::html_br:
-            case ::pltxt2htm::NodeType::html_h1:
-            case ::pltxt2htm::NodeType::html_h2:
-            case ::pltxt2htm::NodeType::html_h3:
-            case ::pltxt2htm::NodeType::html_h4:
-            case ::pltxt2htm::NodeType::html_h5:
-            case ::pltxt2htm::NodeType::html_h6:
-            case ::pltxt2htm::NodeType::html_del:
-            case ::pltxt2htm::NodeType::html_hr:
-            case ::pltxt2htm::NodeType::html_note:
-            case ::pltxt2htm::NodeType::html_em:
-            case ::pltxt2htm::NodeType::html_strong:
-            case ::pltxt2htm::NodeType::html_ul:
-            case ::pltxt2htm::NodeType::html_ol:
-            case ::pltxt2htm::NodeType::html_li:
-            case ::pltxt2htm::NodeType::html_code:
-            case ::pltxt2htm::NodeType::html_pre:
-            case ::pltxt2htm::NodeType::html_blockquote:
-            case ::pltxt2htm::NodeType::md_atx_h1:
-            case ::pltxt2htm::NodeType::md_atx_h2:
-            case ::pltxt2htm::NodeType::md_atx_h3:
-            case ::pltxt2htm::NodeType::md_atx_h4:
-            case ::pltxt2htm::NodeType::md_atx_h5:
-            case ::pltxt2htm::NodeType::md_atx_h6:
-            case ::pltxt2htm::NodeType::md_escape_backslash:
-            case ::pltxt2htm::NodeType::md_escape_exclamation:
-            case ::pltxt2htm::NodeType::md_escape_double_quote:
-            case ::pltxt2htm::NodeType::md_escape_hash:
-            case ::pltxt2htm::NodeType::md_escape_dollar:
-            case ::pltxt2htm::NodeType::md_escape_percent:
-            case ::pltxt2htm::NodeType::md_escape_ampersand:
-            case ::pltxt2htm::NodeType::md_escape_single_quote:
-            case ::pltxt2htm::NodeType::md_escape_left_paren:
-            case ::pltxt2htm::NodeType::md_escape_right_paren:
-            case ::pltxt2htm::NodeType::md_escape_asterisk:
-            case ::pltxt2htm::NodeType::md_escape_plus:
-            case ::pltxt2htm::NodeType::md_escape_comma:
-            case ::pltxt2htm::NodeType::md_escape_hyphen:
-            case ::pltxt2htm::NodeType::md_escape_dot:
-            case ::pltxt2htm::NodeType::md_escape_slash:
-            case ::pltxt2htm::NodeType::md_escape_colon:
-            case ::pltxt2htm::NodeType::md_escape_semicolon:
-            case ::pltxt2htm::NodeType::md_escape_less_than:
-            case ::pltxt2htm::NodeType::md_escape_equals:
-            case ::pltxt2htm::NodeType::md_escape_greater_than:
-            case ::pltxt2htm::NodeType::md_escape_question:
-            case ::pltxt2htm::NodeType::md_escape_at:
-            case ::pltxt2htm::NodeType::md_escape_left_bracket:
-            case ::pltxt2htm::NodeType::md_escape_right_bracket:
-            case ::pltxt2htm::NodeType::md_escape_caret:
-            case ::pltxt2htm::NodeType::md_escape_underscore:
-            case ::pltxt2htm::NodeType::md_escape_backtick:
-            case ::pltxt2htm::NodeType::md_escape_left_brace:
-            case ::pltxt2htm::NodeType::md_escape_pipe:
-            case ::pltxt2htm::NodeType::md_escape_right_brace:
-            case ::pltxt2htm::NodeType::md_escape_tilde:
-            case ::pltxt2htm::NodeType::md_hr:
-            case ::pltxt2htm::NodeType::md_code_fence_backtick:
-            case ::pltxt2htm::NodeType::md_code_fence_tilde:
-            case ::pltxt2htm::NodeType::md_code_span_1_backtick:
-            case ::pltxt2htm::NodeType::md_code_span_2_backtick:
-            case ::pltxt2htm::NodeType::md_code_span_3_backtick:
-            case ::pltxt2htm::NodeType::md_single_emphasis_asterisk:
-            case ::pltxt2htm::NodeType::md_double_emphasis_asterisk:
-            case ::pltxt2htm::NodeType::md_triple_emphasis_asterisk:
-            case ::pltxt2htm::NodeType::md_single_emphasis_underscore:
-            case ::pltxt2htm::NodeType::md_double_emphasis_underscore:
-            case ::pltxt2htm::NodeType::md_triple_emphasis_underscore:
-            case ::pltxt2htm::NodeType::md_del:
-            case ::pltxt2htm::NodeType::md_image:
-            case ::pltxt2htm::NodeType::md_li:
-            case ::pltxt2htm::NodeType::md_latex_inline:
-            case ::pltxt2htm::NodeType::md_latex_block:
-                ::std::destroy_at(::std::addressof(this->pltext));
-                return;
+        case ::pltxt2htm::NodeType::pl_color:
+        case ::pltxt2htm::NodeType::pl_experiment:
+        case ::pltxt2htm::NodeType::pl_discussion:
+        case ::pltxt2htm::NodeType::pl_user: {
+            ::std::destroy_at(::std::addressof(this->equal_sign_tag));
+            return;
         }
-        [[unlikely]] {
-            ::exception::unreachable<true>();
+        case ::pltxt2htm::NodeType::pl_external: {
+            ::std::destroy_at(::std::addressof(this->external_tag));
+            return;
+        }
+        case ::pltxt2htm::NodeType::pl_size: {
+            ::std::destroy_at(::std::addressof(this->pl_size_tag));
+            return;
+        }
+        case ::pltxt2htm::NodeType::md_block_quotes: {
+            ::std::destroy_at(::std::addressof(this->md_block_quotes));
+            return;
+        }
+        case ::pltxt2htm::NodeType::md_link: {
+            ::std::destroy_at(::std::addressof(this->md_link));
+            return;
+        }
+        case ::pltxt2htm::NodeType::md_ul:
+        case ::pltxt2htm::NodeType::md_ol: {
+            ::std::destroy_at(::std::addressof(this->md_list));
+            return;
+        }
+        case ::pltxt2htm::NodeType::u8char:
+        case ::pltxt2htm::NodeType::invalid_u8char:
+        case ::pltxt2htm::NodeType::text:
+        case ::pltxt2htm::NodeType::line_break:
+        case ::pltxt2htm::NodeType::space:
+        case ::pltxt2htm::NodeType::ampersand:
+        case ::pltxt2htm::NodeType::double_quote:
+        case ::pltxt2htm::NodeType::single_quote:
+        case ::pltxt2htm::NodeType::less_than:
+        case ::pltxt2htm::NodeType::greater_than:
+        case ::pltxt2htm::NodeType::tab:
+        case ::pltxt2htm::NodeType::pl_a:
+        case ::pltxt2htm::NodeType::pl_b:
+        case ::pltxt2htm::NodeType::pl_i:
+        case ::pltxt2htm::NodeType::pl_macro_project:
+        case ::pltxt2htm::NodeType::pl_macro_visitor:
+        case ::pltxt2htm::NodeType::pl_macro_author:
+        case ::pltxt2htm::NodeType::pl_macro_coauthors:
+        case ::pltxt2htm::NodeType::html_p:
+        case ::pltxt2htm::NodeType::html_br:
+        case ::pltxt2htm::NodeType::html_h1:
+        case ::pltxt2htm::NodeType::html_h2:
+        case ::pltxt2htm::NodeType::html_h3:
+        case ::pltxt2htm::NodeType::html_h4:
+        case ::pltxt2htm::NodeType::html_h5:
+        case ::pltxt2htm::NodeType::html_h6:
+        case ::pltxt2htm::NodeType::html_del:
+        case ::pltxt2htm::NodeType::html_hr:
+        case ::pltxt2htm::NodeType::html_note:
+        case ::pltxt2htm::NodeType::html_em:
+        case ::pltxt2htm::NodeType::html_strong:
+        case ::pltxt2htm::NodeType::html_ul:
+        case ::pltxt2htm::NodeType::html_ol:
+        case ::pltxt2htm::NodeType::html_li:
+        case ::pltxt2htm::NodeType::html_code:
+        case ::pltxt2htm::NodeType::html_pre:
+        case ::pltxt2htm::NodeType::html_blockquote:
+        case ::pltxt2htm::NodeType::md_atx_h1:
+        case ::pltxt2htm::NodeType::md_atx_h2:
+        case ::pltxt2htm::NodeType::md_atx_h3:
+        case ::pltxt2htm::NodeType::md_atx_h4:
+        case ::pltxt2htm::NodeType::md_atx_h5:
+        case ::pltxt2htm::NodeType::md_atx_h6:
+        case ::pltxt2htm::NodeType::md_hr:
+        case ::pltxt2htm::NodeType::md_code_fence_backtick:
+        case ::pltxt2htm::NodeType::md_code_fence_tilde:
+        case ::pltxt2htm::NodeType::md_code_span_1_backtick:
+        case ::pltxt2htm::NodeType::md_code_span_2_backtick:
+        case ::pltxt2htm::NodeType::md_code_span_3_backtick:
+        case ::pltxt2htm::NodeType::md_single_emphasis_asterisk:
+        case ::pltxt2htm::NodeType::md_double_emphasis_asterisk:
+        case ::pltxt2htm::NodeType::md_triple_emphasis_asterisk:
+        case ::pltxt2htm::NodeType::md_single_emphasis_underscore:
+        case ::pltxt2htm::NodeType::md_double_emphasis_underscore:
+        case ::pltxt2htm::NodeType::md_triple_emphasis_underscore:
+        case ::pltxt2htm::NodeType::md_del:
+        case ::pltxt2htm::NodeType::md_image:
+        case ::pltxt2htm::NodeType::md_li:
+        case ::pltxt2htm::NodeType::md_latex_inline:
+        case ::pltxt2htm::NodeType::md_latex_block: {
+            ::std::destroy_at(::std::addressof(this->pltext));
+            return;
+        }
+        case ::pltxt2htm::NodeType::base:
+        case ::pltxt2htm::NodeType::md_escape_backslash:
+        case ::pltxt2htm::NodeType::md_escape_exclamation:
+        case ::pltxt2htm::NodeType::md_escape_double_quote:
+        case ::pltxt2htm::NodeType::md_escape_hash:
+        case ::pltxt2htm::NodeType::md_escape_dollar:
+        case ::pltxt2htm::NodeType::md_escape_percent:
+        case ::pltxt2htm::NodeType::md_escape_ampersand:
+        case ::pltxt2htm::NodeType::md_escape_single_quote:
+        case ::pltxt2htm::NodeType::md_escape_left_paren:
+        case ::pltxt2htm::NodeType::md_escape_right_paren:
+        case ::pltxt2htm::NodeType::md_escape_asterisk:
+        case ::pltxt2htm::NodeType::md_escape_plus:
+        case ::pltxt2htm::NodeType::md_escape_comma:
+        case ::pltxt2htm::NodeType::md_escape_hyphen:
+        case ::pltxt2htm::NodeType::md_escape_dot:
+        case ::pltxt2htm::NodeType::md_escape_slash:
+        case ::pltxt2htm::NodeType::md_escape_colon:
+        case ::pltxt2htm::NodeType::md_escape_semicolon:
+        case ::pltxt2htm::NodeType::md_escape_less_than:
+        case ::pltxt2htm::NodeType::md_escape_equals:
+        case ::pltxt2htm::NodeType::md_escape_greater_than:
+        case ::pltxt2htm::NodeType::md_escape_question:
+        case ::pltxt2htm::NodeType::md_escape_at:
+        case ::pltxt2htm::NodeType::md_escape_left_bracket:
+        case ::pltxt2htm::NodeType::md_escape_right_bracket:
+        case ::pltxt2htm::NodeType::md_escape_caret:
+        case ::pltxt2htm::NodeType::md_escape_underscore:
+        case ::pltxt2htm::NodeType::md_escape_backtick:
+        case ::pltxt2htm::NodeType::md_escape_left_brace:
+        case ::pltxt2htm::NodeType::md_escape_pipe:
+        case ::pltxt2htm::NodeType::md_escape_right_brace:
+        case ::pltxt2htm::NodeType::md_escape_tilde:
+            [[unlikely]] {
+                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+            }
         }
     }
 };
@@ -384,7 +397,7 @@ class BasicFrameContext {
 private:
     [[nodiscard]]
     static constexpr auto move_context_data_from(::pltxt2htm::details::BasicFrameContext<ndebug>& other) noexcept
-        -> ::exception::optional<ContextVariant> {
+        -> ::exception::optional<::pltxt2htm::details::ContextVariant<ndebug>> {
         if (!other.context_data.has_value()) {
             return ::exception::nullopt_t{};
         }
@@ -392,7 +405,7 @@ private:
     }
 
 public:
-    ::exception::optional<ContextVariant> context_data;
+    ::exception::optional<::pltxt2htm::details::ContextVariant<ndebug>> context_data;
 
     ::std::size_t current_index{};
     ::pltxt2htm::Ast subast{};
@@ -403,30 +416,30 @@ public:
 
     constexpr explicit BasicFrameContext(::fast_io::u8string_view pltext_,
                                          ::pltxt2htm::NodeType const nested_tag_type_) noexcept
-        : context_data{
-              ContextVariant{::pltxt2htm::details::ParserFrameContextWithPltextInfo{pltext_}, nested_tag_type_}} {
+        : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
+              ::pltxt2htm::details::ParserFrameContextWithPltextInfo{pltext_}, nested_tag_type_}} {
         bool const is_plain_pltext_type{::pltxt2htm::details::is_plain_pltext_type(nested_tag_type_)};
         pltxt2htm_assert(is_plain_pltext_type, u8"mismatch node type");
     }
 
     constexpr explicit BasicFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
                                          ::pltxt2htm::Ast&& subast_) noexcept
-        : context_data{
-              ContextVariant{::pltxt2htm::details::ParserFrameContextWithPltextInfo{pltext_}, nested_tag_type_}},
+        : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
+              ::pltxt2htm::details::ParserFrameContextWithPltextInfo{pltext_}, nested_tag_type_}},
           subast(::std::move(subast_)) {
         bool const is_plain_pltext_type{::pltxt2htm::details::is_plain_pltext_type(nested_tag_type_)};
         pltxt2htm_assert(is_plain_pltext_type, u8"mismatch node type");
     }
 
     constexpr explicit BasicFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::Ast&& subast_) noexcept
-        : context_data{ContextVariant{::pltxt2htm::details::ParserFrameContextWithPltextInfo{pltext_},
-                                      ::pltxt2htm::NodeType::text}},
+        : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
+              ::pltxt2htm::details::ParserFrameContextWithPltextInfo{pltext_}, ::pltxt2htm::NodeType::text}},
           subast(::std::move(subast_)) {
     }
 
     constexpr explicit BasicFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
                                          ::fast_io::u8string&& id_) noexcept
-        : context_data{ContextVariant{
+        : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
               ::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo{.pltext = pltext_, .id = ::std::move(id_)},
               nested_tag_type_}} {
         bool const is_equal_sign_tag_type{::pltxt2htm::details::is_equal_sign_tag_type(nested_tag_type_)};
@@ -435,7 +448,7 @@ public:
 
     constexpr explicit BasicFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
                                          ::pltxt2htm::Url&& url_) noexcept
-        : context_data{ContextVariant{
+        : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
               ::pltxt2htm::details::ParserFrameContextWithExternalTagInfo{.pltext = pltext_, .url = ::std::move(url_)},
               nested_tag_type_}} {
         bool const is_external_tag_type{::pltxt2htm::details::is_external_tag_type(nested_tag_type_)};
@@ -444,29 +457,29 @@ public:
 
     constexpr explicit BasicFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
                                          ::std::size_t id_) noexcept
-        : context_data{
-              ContextVariant{::pltxt2htm::details::ParserFrameContextWithPlSizeTagInfo{.pltext = pltext_, .id = id_},
-                             nested_tag_type_}} {
+        : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
+              ::pltxt2htm::details::ParserFrameContextWithPlSizeTagInfo{.pltext = pltext_, .id = id_},
+              nested_tag_type_}} {
         bool const is_pl_size_tag_type{::pltxt2htm::details::is_pl_size_tag_type(nested_tag_type_)};
         pltxt2htm_assert(is_pl_size_tag_type, u8"mismatch node type");
     }
 
     constexpr explicit BasicFrameContext(::fast_io::u8string&& pltext_) noexcept
-        : context_data{
-              ContextVariant{::pltxt2htm::details::ParserFrameContextWithMdBlockQuotesInfo{::std::move(pltext_)},
-                             ::pltxt2htm::NodeType::md_block_quotes}} {
+        : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
+              ::pltxt2htm::details::ParserFrameContextWithMdBlockQuotesInfo{::std::move(pltext_)},
+              ::pltxt2htm::NodeType::md_block_quotes}} {
     }
 
     constexpr explicit BasicFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::Url&& link_) noexcept
-        : context_data{ContextVariant{
+        : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
               ::pltxt2htm::details::ParserFrameContextWithMdLinkInfo{.pltext = pltext_, .link = ::std::move(link_)},
               ::pltxt2htm::NodeType::md_link}} {
     }
 
     constexpr explicit BasicFrameContext(::pltxt2htm::NodeType node_type,
                                          ::pltxt2htm::details::MdListAst&& md_list_ast_) noexcept
-        : context_data{ContextVariant{::pltxt2htm::details::ParserFrameContextWithMdListInfo{::std::move(md_list_ast_)},
-                                      node_type}} {
+        : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
+              ::pltxt2htm::details::ParserFrameContextWithMdListInfo{::std::move(md_list_ast_)}, node_type}} {
         pltxt2htm_assert(node_type == ::pltxt2htm::NodeType::md_ul || node_type == ::pltxt2htm::NodeType::md_ol,
                          u8"mismatch node type");
     }
@@ -548,12 +561,12 @@ public:
             return context_data_ref.md_link.pltext;
         }
         if (::pltxt2htm::details::is_md_list_type(context_data_ref.kind)) {
-            [[unlikely]] { ::exception::unreachable<true>(); }
+            [[unlikely]] { ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>(); }
         }
         return context_data_ref.pltext.pltext;
     }
 
-    constexpr auto get_equal_sign_tag_id() noexcept -> ::fast_io::u8string& {
+    constexpr auto&& get_equal_sign_tag_id() noexcept {
         bool const has_context_data{this->context_data.has_value()};
         pltxt2htm_assert(has_context_data, u8"context data is empty");
         auto& context_data_ref = this->context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
@@ -562,7 +575,7 @@ public:
         return context_data_ref.equal_sign_tag.id;
     }
 
-    constexpr auto get_external_tag_url() noexcept -> ::pltxt2htm::Url& {
+    constexpr auto&& get_external_tag_url() noexcept {
         bool const has_context_data{this->context_data.has_value()};
         pltxt2htm_assert(has_context_data, u8"context data is empty");
         auto& context_data_ref = this->context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
@@ -580,7 +593,7 @@ public:
         return context_data_ref.pl_size_tag.id;
     }
 
-    constexpr auto get_md_link_url() noexcept -> ::pltxt2htm::Url& {
+    constexpr auto&& get_md_link_url() noexcept {
         bool const has_context_data{this->context_data.has_value()};
         pltxt2htm_assert(has_context_data, u8"context data is empty");
         auto& context_data_ref = this->context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
@@ -589,7 +602,7 @@ public:
         return context_data_ref.md_link.link;
     }
 
-    constexpr auto get_md_list_ast() noexcept -> ::pltxt2htm::details::MdListAst& {
+    constexpr auto&& get_md_list_ast() noexcept {
         bool const has_context_data{this->context_data.has_value()};
         pltxt2htm_assert(has_context_data, u8"context data is empty");
         auto& context_data_ref = this->context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
