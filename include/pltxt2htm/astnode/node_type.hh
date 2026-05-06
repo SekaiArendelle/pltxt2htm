@@ -204,8 +204,7 @@ constexpr auto is_plain_pltext_type(::pltxt2htm::NodeType const node_type) noexc
              ::pltxt2htm::details::is_external_tag_type(node_type) ||
              ::pltxt2htm::details::is_pl_size_tag_type(node_type) ||
              ::pltxt2htm::details::is_md_block_quotes_type(node_type) ||
-             ::pltxt2htm::details::is_md_link_type(node_type) ||
-             ::pltxt2htm::details::is_md_list_type(node_type));
+             ::pltxt2htm::details::is_md_link_type(node_type) || ::pltxt2htm::details::is_md_list_type(node_type));
 }
 
 } // namespace details
