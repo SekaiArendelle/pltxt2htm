@@ -535,7 +535,7 @@ constexpr auto try_parse_non_nestable_equal_sign_tag(
         // skip
         // e.g. <experiment><experiment>test</experiment>text</experiment>
         // e.g. <experiment><a><experiment>test</experiment>text</a>text</experiment>
-        auto const& nested_tag_type_opt = v.release_imul()->get_nested_tag_type_optional();
+        auto const& nested_tag_type_opt = v.get_nested_tag_type_optional();
         if (!nested_tag_type_opt.has_value()) {
             continue;
         }

@@ -507,18 +507,6 @@ public:
         return this;
     }
 
-    constexpr auto get_unsafe() noexcept -> ::pltxt2htm::details::BasicFrameContext<ndebug>* {
-        return this;
-    }
-
-    constexpr auto get_unsafe() const noexcept -> ::pltxt2htm::details::BasicFrameContext<ndebug> const* {
-        return this;
-    }
-
-    constexpr auto release_imul() const noexcept -> ::pltxt2htm::details::BasicFrameContext<ndebug> const* {
-        return this;
-    }
-
     [[nodiscard]]
     constexpr auto has_nested_tag_type() const noexcept -> bool {
         return this->context_data.has_value();

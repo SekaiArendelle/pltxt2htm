@@ -151,17 +151,17 @@ entry:
     if (call_stack.top()->has_nested_tag_type() &&
         call_stack.top()->get_nested_tag_type() == ::pltxt2htm::NodeType::md_ul) {
         // ::pltxt2htm::details::MdListAst to ::pltxt2htm::Ast
-        auto frame = call_stack.top().get_unsafe();
-        auto& frame_md_list_ast = frame->get_md_list_ast();
-        auto& frame_iter = frame->get_md_list_iter();
+        auto&& frame = call_stack.top();
+        auto&& frame_md_list_ast = frame.get_md_list_ast();
+        auto&& frame_iter = frame.get_md_list_iter();
         if (frame_iter == frame_md_list_ast.end()) {
-            ::pltxt2htm::details::BasicFrameContext<ndebug> previous_frame(::std::move(*frame));
+            ::pltxt2htm::details::BasicFrameContext<ndebug> previous_frame(::std::move(frame));
             call_stack.pop();
             if (call_stack.empty()) {
                 return ::std::move(previous_frame.subast);
             }
             else {
-                call_stack.top().get_unsafe()->subast.emplace_back(
+                call_stack.top().subast.emplace_back(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::MdUl>(::std::move(previous_frame.subast)));
                 goto entry;
             }
@@ -200,17 +200,17 @@ entry:
     else if (call_stack.top()->has_nested_tag_type() &&
              call_stack.top()->get_nested_tag_type() == ::pltxt2htm::NodeType::md_ol) {
         // ::pltxt2htm::details::MdListAst to ::pltxt2htm::Ast
-        auto frame = call_stack.top().get_unsafe();
-        auto& frame_md_list_ast = frame->get_md_list_ast();
-        auto& frame_iter = frame->get_md_list_iter();
+        auto&& frame = call_stack.top();
+        auto&& frame_md_list_ast = frame.get_md_list_ast();
+        auto&& frame_iter = frame.get_md_list_iter();
         if (frame_iter == frame_md_list_ast.end()) {
-            ::pltxt2htm::details::BasicFrameContext<ndebug> previous_frame(::std::move(*frame));
+            ::pltxt2htm::details::BasicFrameContext<ndebug> previous_frame(::std::move(frame));
             call_stack.pop();
             if (call_stack.empty()) {
                 return ::std::move(previous_frame.subast);
             }
             else {
-                call_stack.top().get_unsafe()->subast.emplace_back(
+                call_stack.top().subast.emplace_back(
                     ::pltxt2htm::HeapGuard<::pltxt2htm::MdOl>(::std::move(previous_frame.subast)));
                 goto entry;
             }
