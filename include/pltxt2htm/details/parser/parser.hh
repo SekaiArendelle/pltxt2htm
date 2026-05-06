@@ -148,7 +148,8 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr auto parse_pltxt(::fast_io::stack<::pltxt2htm::details::BasicFrameContext<ndebug>>& call_stack) noexcept
     -> ::pltxt2htm::Ast {
 entry:
-    if (call_stack.top()->nested_tag_type == ::pltxt2htm::NodeType::md_ul) {
+    if (call_stack.top()->has_nested_tag_type() &&
+        call_stack.top()->get_nested_tag_type() == ::pltxt2htm::NodeType::md_ul) {
         // ::pltxt2htm::details::MdListAst to ::pltxt2htm::Ast
         auto frame = call_stack.top().get_unsafe();
         auto& frame_md_list_ast = frame->get_md_list_ast();
@@ -196,7 +197,8 @@ entry:
         ++frame_iter;
         goto entry;
     }
-    else if (call_stack.top()->nested_tag_type == ::pltxt2htm::NodeType::md_ol) {
+    else if (call_stack.top()->has_nested_tag_type() &&
+             call_stack.top()->get_nested_tag_type() == ::pltxt2htm::NodeType::md_ol) {
         // ::pltxt2htm::details::MdListAst to ::pltxt2htm::Ast
         auto frame = call_stack.top().get_unsafe();
         auto& frame_md_list_ast = frame->get_md_list_ast();
@@ -251,7 +253,8 @@ entry:
     auto&& result = call_stack.top()->subast;
     ::std::size_t const pltext_size{pltext.size()};
 
-    if (call_stack.top()->nested_tag_type == ::pltxt2htm::NodeType::md_block_quotes && current_index == 0) {
+    if (call_stack.top()->has_nested_tag_type() &&
+        call_stack.top()->get_nested_tag_type() == ::pltxt2htm::NodeType::md_block_quotes && current_index == 0) {
         // https://spec.commonmark.org/0.31.2/#example-228
         // to support parsing md-atx-heading e.t.c inside md-block-quotes
         auto&& [forward_index, require_restart] = ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(
@@ -801,7 +804,7 @@ entry:
             case u8'L': {
                 if (auto opt_tag_len = ::pltxt2htm::details::try_parse_li_tag<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                        ::pltxt2htm::details::stack_top<ndebug>(call_stack)->nested_tag_type);
+                        ::pltxt2htm::details::stack_top<ndebug>(call_stack)->get_nested_tag_type_optional());
                     opt_tag_len.has_value()) {
                     current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                     call_stack.push(::pltxt2htm::details::BasicFrameContext<ndebug>(
@@ -965,7 +968,13 @@ entry:
             }
 
             case u8'/': {
-                switch (call_stack.top()->nested_tag_type) {
+                auto const& top_nested_tag_type_opt = call_stack.top()->get_nested_tag_type_optional();
+                if (!top_nested_tag_type_opt.has_value()) {
+                    result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
+                    ++current_index;
+                    continue;
+                }
+                switch (top_nested_tag_type_opt.template value<ndebug == ::pltxt2htm::Contracts::ignore>()) {
                 case ::pltxt2htm::NodeType::pl_color: {
                     // parsing </color> or </a>
                     ::exception::optional<::std::size_t> opt_tag_len{
@@ -1694,7 +1703,7 @@ entry:
             auto&& subast = frame->subast;
             auto&& super_ast = call_stack.top()->subast;
             auto&& super_index = call_stack.top()->current_index;
-            switch (frame->nested_tag_type) {
+            switch (frame.get_nested_tag_type()) {
             case ::pltxt2htm::NodeType::pl_color: {
                 auto&& id = frame.get_equal_sign_tag_id();
                 super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Color>(::std::move(subast), ::std::move(id)));

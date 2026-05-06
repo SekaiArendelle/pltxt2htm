@@ -78,12 +78,7 @@ public:
         ::pltxt2htm::details::ParserFrameContextWithMdListInfo md_list;
     };
 
-    ::pltxt2htm::NodeType kind{::pltxt2htm::NodeType::base};
-
-    constexpr ContextVariant() noexcept
-        : pltext{},
-          kind{::pltxt2htm::NodeType::base} {
-    }
+    ::pltxt2htm::NodeType kind;
 
     constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithPltextInfo&& pltext_context,
                              ::pltxt2htm::NodeType node_type) noexcept
@@ -91,16 +86,14 @@ public:
           kind{node_type} {
     }
 
-    constexpr ContextVariant(
-        ::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo&& equal_sign_tag_context,
-        ::pltxt2htm::NodeType node_type) noexcept
+    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo&& equal_sign_tag_context,
+                             ::pltxt2htm::NodeType node_type) noexcept
         : equal_sign_tag{::std::move(equal_sign_tag_context)},
           kind{node_type} {
     }
 
-    constexpr ContextVariant(
-        ::pltxt2htm::details::ParserFrameContextWithExternalTagInfo&& external_tag_context,
-        ::pltxt2htm::NodeType node_type) noexcept
+    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithExternalTagInfo&& external_tag_context,
+                             ::pltxt2htm::NodeType node_type) noexcept
         : external_tag{::std::move(external_tag_context)},
           kind{node_type} {
     }
@@ -111,9 +104,8 @@ public:
           kind{node_type} {
     }
 
-    constexpr ContextVariant(
-        ::pltxt2htm::details::ParserFrameContextWithMdBlockQuotesInfo&& md_block_quotes_context,
-        ::pltxt2htm::NodeType node_type) noexcept
+    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithMdBlockQuotesInfo&& md_block_quotes_context,
+                             ::pltxt2htm::NodeType node_type) noexcept
         : md_block_quotes{::std::move(md_block_quotes_context)},
           kind{node_type} {
     }
@@ -208,50 +200,50 @@ private:
 public:
     ::exception::optional<ContextVariant> context_data;
 
-    ::pltxt2htm::NodeType nested_tag_type;
     ::std::size_t current_index{};
     ::pltxt2htm::Ast subast{};
 
-    constexpr explicit BasicFrameContext(::pltxt2htm::NodeType const nested_tag_type_) noexcept
-        : context_data{::exception::nullopt_t{}},
-          nested_tag_type{nested_tag_type_} {
-        bool const is_without_info_type{nested_tag_type_ == ::pltxt2htm::NodeType::base};
-        pltxt2htm_assert(is_without_info_type, u8"mismatch node type");
+    constexpr explicit BasicFrameContext() noexcept
+        : context_data{::exception::nullopt_t{}} {
     }
 
     constexpr explicit BasicFrameContext(::fast_io::u8string_view pltext_,
                                          ::pltxt2htm::NodeType const nested_tag_type_) noexcept
-        : context_data{ContextVariant{::pltxt2htm::details::ParserFrameContextWithPltextInfo{pltext_}, nested_tag_type_}},
-          nested_tag_type{nested_tag_type_} {
+        : context_data{
+              ContextVariant{::pltxt2htm::details::ParserFrameContextWithPltextInfo{pltext_}, nested_tag_type_}} {
         bool const is_plain_pltext_type{::pltxt2htm::details::is_plain_pltext_type(nested_tag_type_)};
         pltxt2htm_assert(is_plain_pltext_type, u8"mismatch node type");
     }
 
     constexpr explicit BasicFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
                                          ::pltxt2htm::Ast&& subast_) noexcept
-        : context_data{ContextVariant{::pltxt2htm::details::ParserFrameContextWithPltextInfo{pltext_}, nested_tag_type_}},
-          nested_tag_type{nested_tag_type_},
+        : context_data{
+              ContextVariant{::pltxt2htm::details::ParserFrameContextWithPltextInfo{pltext_}, nested_tag_type_}},
           subast(::std::move(subast_)) {
         bool const is_plain_pltext_type{::pltxt2htm::details::is_plain_pltext_type(nested_tag_type_)};
         pltxt2htm_assert(is_plain_pltext_type, u8"mismatch node type");
+    }
+
+    constexpr explicit BasicFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::Ast&& subast_) noexcept
+        : context_data{ContextVariant{::pltxt2htm::details::ParserFrameContextWithPltextInfo{pltext_},
+                                      ::pltxt2htm::NodeType::text}},
+          subast(::std::move(subast_)) {
     }
 
     constexpr explicit BasicFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
                                          ::fast_io::u8string&& id_) noexcept
         : context_data{ContextVariant{
               ::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo{.pltext = pltext_, .id = ::std::move(id_)},
-              nested_tag_type_}},
-          nested_tag_type{nested_tag_type_} {
+              nested_tag_type_}} {
         bool const is_equal_sign_tag_type{::pltxt2htm::details::is_equal_sign_tag_type(nested_tag_type_)};
         pltxt2htm_assert(is_equal_sign_tag_type, u8"mismatch node type");
     }
 
     constexpr explicit BasicFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
                                          ::pltxt2htm::Url&& url_) noexcept
-        : context_data{ContextVariant{::pltxt2htm::details::ParserFrameContextWithExternalTagInfo{
-              .pltext = pltext_, .url = ::std::move(url_)},
-              nested_tag_type_}},
-          nested_tag_type{nested_tag_type_} {
+        : context_data{ContextVariant{
+              ::pltxt2htm::details::ParserFrameContextWithExternalTagInfo{.pltext = pltext_, .url = ::std::move(url_)},
+              nested_tag_type_}} {
         bool const is_external_tag_type{::pltxt2htm::details::is_external_tag_type(nested_tag_type_)};
         pltxt2htm_assert(is_external_tag_type, u8"mismatch node type");
     }
@@ -260,8 +252,7 @@ public:
                                          ::std::size_t id_) noexcept
         : context_data{
               ContextVariant{::pltxt2htm::details::ParserFrameContextWithPlSizeTagInfo{.pltext = pltext_, .id = id_},
-                             nested_tag_type_}},
-          nested_tag_type{nested_tag_type_} {
+                             nested_tag_type_}} {
         bool const is_pl_size_tag_type{::pltxt2htm::details::is_pl_size_tag_type(nested_tag_type_)};
         pltxt2htm_assert(is_pl_size_tag_type, u8"mismatch node type");
     }
@@ -269,22 +260,19 @@ public:
     constexpr explicit BasicFrameContext(::fast_io::u8string&& pltext_) noexcept
         : context_data{
               ContextVariant{::pltxt2htm::details::ParserFrameContextWithMdBlockQuotesInfo{::std::move(pltext_)},
-                             ::pltxt2htm::NodeType::md_block_quotes}},
-          nested_tag_type{::pltxt2htm::NodeType::md_block_quotes} {
+                             ::pltxt2htm::NodeType::md_block_quotes}} {
     }
 
     constexpr explicit BasicFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::Url&& link_) noexcept
         : context_data{ContextVariant{
               ::pltxt2htm::details::ParserFrameContextWithMdLinkInfo{.pltext = pltext_, .link = ::std::move(link_)},
-              ::pltxt2htm::NodeType::md_link}},
-          nested_tag_type{::pltxt2htm::NodeType::md_link} {
+              ::pltxt2htm::NodeType::md_link}} {
     }
 
     constexpr explicit BasicFrameContext(::pltxt2htm::NodeType node_type,
                                          ::pltxt2htm::details::MdListAst&& md_list_ast_) noexcept
-        : context_data{
-              ContextVariant{::pltxt2htm::details::ParserFrameContextWithMdListInfo{::std::move(md_list_ast_)}, node_type}},
-          nested_tag_type{node_type} {
+        : context_data{ContextVariant{::pltxt2htm::details::ParserFrameContextWithMdListInfo{::std::move(md_list_ast_)},
+                                      node_type}} {
         pltxt2htm_assert(node_type == ::pltxt2htm::NodeType::md_ul || node_type == ::pltxt2htm::NodeType::md_ol,
                          u8"mismatch node type");
     }
@@ -293,7 +281,6 @@ public:
 
     constexpr BasicFrameContext(::pltxt2htm::details::BasicFrameContext<ndebug>&& other) noexcept
         : context_data{move_context_data_from(other)},
-          nested_tag_type{other.nested_tag_type},
           current_index{other.current_index},
           subast(::std::move(other.subast)) {
     }
@@ -326,27 +313,47 @@ public:
     }
 
     [[nodiscard]]
+    constexpr auto has_nested_tag_type() const noexcept -> bool {
+        return this->context_data.has_value();
+    }
+
+    [[nodiscard]]
+    constexpr auto get_nested_tag_type() const noexcept -> ::pltxt2htm::NodeType {
+        bool const has_nested_tag_type{this->context_data.has_value()};
+        pltxt2htm_assert(has_nested_tag_type, u8"nested tag type is empty");
+        return this->context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>().kind;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_nested_tag_type_optional() const noexcept -> ::exception::optional<::pltxt2htm::NodeType> {
+        if (!this->context_data.has_value()) {
+            return ::exception::nullopt_t{};
+        }
+        return this->context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>().kind;
+    }
+
+    [[nodiscard]]
     constexpr auto get_pltext() const noexcept -> ::fast_io::u8string_view {
         bool const has_context_data{this->context_data.has_value()};
         pltxt2htm_assert(has_context_data, u8"context data is empty");
         auto const& context_data_ref = this->context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-        if (::pltxt2htm::details::is_equal_sign_tag_type(this->nested_tag_type)) {
+        if (::pltxt2htm::details::is_equal_sign_tag_type(context_data_ref.kind)) {
             return context_data_ref.equal_sign_tag.pltext;
         }
-        if (::pltxt2htm::details::is_external_tag_type(this->nested_tag_type)) {
+        if (::pltxt2htm::details::is_external_tag_type(context_data_ref.kind)) {
             return context_data_ref.external_tag.pltext;
         }
-        if (::pltxt2htm::details::is_pl_size_tag_type(this->nested_tag_type)) {
+        if (::pltxt2htm::details::is_pl_size_tag_type(context_data_ref.kind)) {
             return context_data_ref.pl_size_tag.pltext;
         }
-        if (::pltxt2htm::details::is_md_block_quotes_type(this->nested_tag_type)) {
+        if (::pltxt2htm::details::is_md_block_quotes_type(context_data_ref.kind)) {
             return ::fast_io::u8string_view{context_data_ref.md_block_quotes.pltext.data(),
                                             context_data_ref.md_block_quotes.pltext.size()};
         }
-        if (::pltxt2htm::details::is_md_link_type(this->nested_tag_type)) {
+        if (::pltxt2htm::details::is_md_link_type(context_data_ref.kind)) {
             return context_data_ref.md_link.pltext;
         }
-        if (::pltxt2htm::details::is_md_list_type(this->nested_tag_type)) {
+        if (::pltxt2htm::details::is_md_list_type(context_data_ref.kind)) {
             [[unlikely]] { ::exception::unreachable<true>(); }
         }
         return context_data_ref.pltext.pltext;
@@ -355,49 +362,55 @@ public:
     constexpr auto get_equal_sign_tag_id() noexcept -> ::fast_io::u8string& {
         bool const has_context_data{this->context_data.has_value()};
         pltxt2htm_assert(has_context_data, u8"context data is empty");
-        bool const is_equal_sign_tag_type{::pltxt2htm::details::is_equal_sign_tag_type(this->nested_tag_type)};
+        auto& context_data_ref = this->context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        bool const is_equal_sign_tag_type{::pltxt2htm::details::is_equal_sign_tag_type(context_data_ref.kind)};
         pltxt2htm_assert(is_equal_sign_tag_type, u8"context kind mismatch");
-        return this->context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>().equal_sign_tag.id;
+        return context_data_ref.equal_sign_tag.id;
     }
 
     constexpr auto get_external_tag_url() noexcept -> ::pltxt2htm::Url& {
         bool const has_context_data{this->context_data.has_value()};
         pltxt2htm_assert(has_context_data, u8"context data is empty");
-        bool const is_external_tag_type{::pltxt2htm::details::is_external_tag_type(this->nested_tag_type)};
+        auto& context_data_ref = this->context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        bool const is_external_tag_type{::pltxt2htm::details::is_external_tag_type(context_data_ref.kind)};
         pltxt2htm_assert(is_external_tag_type, u8"context kind mismatch");
-        return this->context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>().external_tag.url;
+        return context_data_ref.external_tag.url;
     }
 
     constexpr auto get_pl_size_tag_id() const noexcept -> ::std::size_t {
         bool const has_context_data{this->context_data.has_value()};
         pltxt2htm_assert(has_context_data, u8"context data is empty");
-        bool const is_pl_size_tag_type{::pltxt2htm::details::is_pl_size_tag_type(this->nested_tag_type)};
+        auto& context_data_ref = this->context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        bool const is_pl_size_tag_type{::pltxt2htm::details::is_pl_size_tag_type(context_data_ref.kind)};
         pltxt2htm_assert(is_pl_size_tag_type, u8"context kind mismatch");
-        return this->context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>().pl_size_tag.id;
+        return context_data_ref.pl_size_tag.id;
     }
 
     constexpr auto get_md_link_url() noexcept -> ::pltxt2htm::Url& {
         bool const has_context_data{this->context_data.has_value()};
         pltxt2htm_assert(has_context_data, u8"context data is empty");
-        bool const is_md_link_type{::pltxt2htm::details::is_md_link_type(this->nested_tag_type)};
+        auto& context_data_ref = this->context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        bool const is_md_link_type{::pltxt2htm::details::is_md_link_type(context_data_ref.kind)};
         pltxt2htm_assert(is_md_link_type, u8"context kind mismatch");
-        return this->context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>().md_link.link;
+        return context_data_ref.md_link.link;
     }
 
     constexpr auto get_md_list_ast() noexcept -> ::pltxt2htm::details::MdListAst& {
         bool const has_context_data{this->context_data.has_value()};
         pltxt2htm_assert(has_context_data, u8"context data is empty");
-        bool const is_md_list_type{::pltxt2htm::details::is_md_list_type(this->nested_tag_type)};
+        auto& context_data_ref = this->context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        bool const is_md_list_type{::pltxt2htm::details::is_md_list_type(context_data_ref.kind)};
         pltxt2htm_assert(is_md_list_type, u8"context kind mismatch");
-        return this->context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>().md_list.md_list_ast;
+        return context_data_ref.md_list.md_list_ast;
     }
 
     constexpr auto get_md_list_iter() noexcept -> ::pltxt2htm::details::MdListAst::iterator& {
         bool const has_context_data{this->context_data.has_value()};
         pltxt2htm_assert(has_context_data, u8"context data is empty");
-        bool const is_md_list_type{::pltxt2htm::details::is_md_list_type(this->nested_tag_type)};
+        auto& context_data_ref = this->context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        bool const is_md_list_type{::pltxt2htm::details::is_md_list_type(context_data_ref.kind)};
         pltxt2htm_assert(is_md_list_type, u8"context kind mismatch");
-        return this->context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>().md_list.iter;
+        return context_data_ref.md_list.iter;
     }
 };
 
