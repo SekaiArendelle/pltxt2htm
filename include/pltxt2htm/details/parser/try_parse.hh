@@ -535,11 +535,10 @@ constexpr auto try_parse_non_nestable_equal_sign_tag(
         // skip
         // e.g. <experiment><experiment>test</experiment>text</experiment>
         // e.g. <experiment><a><experiment>test</experiment>text</a>text</experiment>
-        auto const& nested_tag_type_opt = v.get_nested_tag_type_optional();
-        if (!nested_tag_type_opt.has_value()) {
+        if (v.has_nested_tag_type() == false) {
             continue;
         }
-        auto const nested_tag_type = nested_tag_type_opt.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        auto const nested_tag_type = v.get_nested_tag_type();
         if (nested_tag_type == ::pltxt2htm::NodeType::pl_experiment ||
             nested_tag_type == ::pltxt2htm::NodeType::pl_discussion ||
             nested_tag_type == ::pltxt2htm::NodeType::pl_external) {

@@ -968,13 +968,13 @@ entry:
             }
 
             case u8'/': {
-                auto const& top_nested_tag_type_opt = call_stack.top().get_nested_tag_type_optional();
-                if (!top_nested_tag_type_opt.has_value()) {
+                auto const& top_frame = call_stack.top();
+                if (top_frame.has_nested_tag_type() == false) {
                     result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::LessThan>{});
                     ++current_index;
                     continue;
                 }
-                switch (top_nested_tag_type_opt.template value<ndebug == ::pltxt2htm::Contracts::ignore>()) {
+                switch (top_frame.get_nested_tag_type()) {
                 case ::pltxt2htm::NodeType::pl_color: {
                     // parsing </color> or </a>
                     ::exception::optional<::std::size_t> opt_tag_len{
