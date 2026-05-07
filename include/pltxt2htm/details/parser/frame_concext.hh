@@ -394,16 +394,6 @@ public:
 
 template<::pltxt2htm::Contracts ndebug>
 class BasicFrameContext {
-private:
-    [[nodiscard]]
-    static constexpr auto move_context_data_from(::pltxt2htm::details::BasicFrameContext<ndebug>& other) noexcept
-        -> ::exception::optional<::pltxt2htm::details::ContextVariant<ndebug>> {
-        if (!other.context_data.has_value()) {
-            return ::exception::nullopt_t{};
-        }
-        return ::std::move(other.context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>());
-    }
-
 public:
     ::exception::optional<::pltxt2htm::details::ContextVariant<ndebug>> context_data;
 
@@ -487,7 +477,7 @@ public:
     constexpr BasicFrameContext(::pltxt2htm::details::BasicFrameContext<ndebug> const&) noexcept = delete;
 
     constexpr BasicFrameContext(::pltxt2htm::details::BasicFrameContext<ndebug>&& other) noexcept
-        : context_data{move_context_data_from(other)},
+        : context_data{::std::move(other.context_data)},
           current_index{other.current_index},
           subast(::std::move(other.subast)) {
     }
