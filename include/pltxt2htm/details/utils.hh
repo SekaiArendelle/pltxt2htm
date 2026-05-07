@@ -132,20 +132,19 @@ constexpr auto const& vector_index(::fast_io::vector<T> const& vec, ::std::size_
     return vec.index_unchecked(i);
 }
 
-// TODO whether use this?
-// template<::pltxt2htm::Contracts ndebug, typename T>
-// [[nodiscard]]
-// #if __has_cpp_attribute(__gnu__::__pure__)
-// [[__gnu__::__pure__]]
-// #endif
-// constexpr auto const& stack_top(::fast_io::containers::stack<T> const& stack) {
-//     if constexpr (ndebug == ::pltxt2htm::Contracts::ignore) {
-//         return stack.top_unchecked();
-//     }
-//     else {
-//         return stack.top();
-//     }
-// }
+template<::pltxt2htm::Contracts ndebug, typename T>
+[[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
+constexpr auto const& stack_top(::fast_io::containers::stack<T> const& stack) {
+    if constexpr (ndebug == ::pltxt2htm::Contracts::ignore) {
+        return stack.top_unchecked();
+    }
+    else {
+        return stack.top();
+    }
+}
 
 /**
  * @brief Check if a string is a case-insensitive prefix match
