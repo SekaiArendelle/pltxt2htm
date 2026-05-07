@@ -489,10 +489,6 @@ public:
 
     constexpr ~BasicFrameContext() noexcept = default;
 
-    constexpr auto operator->(this auto&& self) noexcept -> decltype(auto) {
-        return &self;
-    }
-
     [[nodiscard]]
     constexpr auto has_nested_tag_type(this auto&& self) noexcept -> bool {
         return self.context_data.has_value();
