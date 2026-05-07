@@ -359,8 +359,8 @@ template<::pltxt2htm::Contracts ndebug,
  * @return Matched tag length when valid under &lt;ul&gt;/&lt;ol&gt;; otherwise nullopt.
  */
 template<::pltxt2htm::Contracts ndebug>
-[[nodiscard]] constexpr auto try_parse_li_tag(
-    ::fast_io::u8string_view pltext, ::pltxt2htm::NodeType const nested_tag_type) noexcept
+[[nodiscard]] constexpr auto try_parse_li_tag(::fast_io::u8string_view pltext,
+                                              ::pltxt2htm::NodeType const nested_tag_type) noexcept
     -> ::exception::optional<::std::size_t> {
     auto opt_tag_len =
         ::pltxt2htm::details::try_parse_bare_tag<ndebug, ::pltxt2htm::details::U8LiteralString{u8"i"}>(pltext);
