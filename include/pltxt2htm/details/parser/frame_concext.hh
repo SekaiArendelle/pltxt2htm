@@ -200,6 +200,25 @@ public:
         case ::pltxt2htm::NodeType::md_atx_h4:
         case ::pltxt2htm::NodeType::md_atx_h5:
         case ::pltxt2htm::NodeType::md_atx_h6:
+        case ::pltxt2htm::NodeType::md_code_fence_backtick:
+        case ::pltxt2htm::NodeType::md_code_fence_tilde:
+        case ::pltxt2htm::NodeType::md_code_span_1_backtick:
+        case ::pltxt2htm::NodeType::md_code_span_2_backtick:
+        case ::pltxt2htm::NodeType::md_code_span_3_backtick:
+        case ::pltxt2htm::NodeType::md_single_emphasis_asterisk:
+        case ::pltxt2htm::NodeType::md_double_emphasis_asterisk:
+        case ::pltxt2htm::NodeType::md_triple_emphasis_asterisk:
+        case ::pltxt2htm::NodeType::md_single_emphasis_underscore:
+        case ::pltxt2htm::NodeType::md_double_emphasis_underscore:
+        case ::pltxt2htm::NodeType::md_triple_emphasis_underscore:
+        case ::pltxt2htm::NodeType::md_del:
+        case ::pltxt2htm::NodeType::md_image:
+        case ::pltxt2htm::NodeType::md_li:
+        case ::pltxt2htm::NodeType::md_latex_inline:
+        case ::pltxt2htm::NodeType::md_latex_block: {
+            ::std::construct_at(::std::addressof(this->pltext), ::std::move(other.pltext));
+            return;
+        }
         case ::pltxt2htm::NodeType::md_escape_backslash:
         case ::pltxt2htm::NodeType::md_escape_exclamation:
         case ::pltxt2htm::NodeType::md_escape_double_quote:
@@ -233,24 +252,9 @@ public:
         case ::pltxt2htm::NodeType::md_escape_right_brace:
         case ::pltxt2htm::NodeType::md_escape_tilde:
         case ::pltxt2htm::NodeType::md_hr:
-        case ::pltxt2htm::NodeType::md_code_fence_backtick:
-        case ::pltxt2htm::NodeType::md_code_fence_tilde:
-        case ::pltxt2htm::NodeType::md_code_span_1_backtick:
-        case ::pltxt2htm::NodeType::md_code_span_2_backtick:
-        case ::pltxt2htm::NodeType::md_code_span_3_backtick:
-        case ::pltxt2htm::NodeType::md_single_emphasis_asterisk:
-        case ::pltxt2htm::NodeType::md_double_emphasis_asterisk:
-        case ::pltxt2htm::NodeType::md_triple_emphasis_asterisk:
-        case ::pltxt2htm::NodeType::md_single_emphasis_underscore:
-        case ::pltxt2htm::NodeType::md_double_emphasis_underscore:
-        case ::pltxt2htm::NodeType::md_triple_emphasis_underscore:
-        case ::pltxt2htm::NodeType::md_del:
-        case ::pltxt2htm::NodeType::md_image:
-        case ::pltxt2htm::NodeType::md_li:
-        case ::pltxt2htm::NodeType::md_latex_inline:
-        case ::pltxt2htm::NodeType::md_latex_block:
-            ::std::construct_at(::std::addressof(this->pltext), ::std::move(other.pltext));
-            return;
+            [[unlikely]] {
+                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+            }
         }
     }
 
@@ -421,12 +425,6 @@ public:
         pltxt2htm_assert(is_plain_pltext_type, u8"mismatch node type");
     }
 
-    constexpr explicit BasicFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::Ast&& subast_) noexcept
-        : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
-              ::pltxt2htm::details::ParserFrameContextWithPltextInfo{pltext_}, ::pltxt2htm::NodeType::text}},
-          subast(::std::move(subast_)) {
-    }
-
     constexpr explicit BasicFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
                                          ::fast_io::u8string&& id_) noexcept
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
@@ -502,7 +500,8 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_nested_tag_type_optional(this auto&& self) noexcept -> ::exception::optional<::pltxt2htm::NodeType> {
+    constexpr auto get_nested_tag_type_optional(this auto&& self) noexcept
+        -> ::exception::optional<::pltxt2htm::NodeType> {
         if (!self.context_data.has_value()) {
             return ::exception::nullopt_t{};
         }
@@ -542,7 +541,7 @@ public:
         auto&& context_data_ref = self.context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
         bool const is_equal_sign_tag_type{::pltxt2htm::details::is_equal_sign_tag_type(context_data_ref.kind)};
         pltxt2htm_assert(is_equal_sign_tag_type, u8"context kind mismatch");
-        return std::forward_like<decltype(self)>(context_data_ref.equal_sign_tag.id);
+        return ::std::forward_like<decltype(self)>(context_data_ref.equal_sign_tag.id);
     }
 
     constexpr auto&& get_external_tag_url(this auto&& self) noexcept {
@@ -551,7 +550,7 @@ public:
         auto&& context_data_ref = self.context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
         bool const is_external_tag_type{::pltxt2htm::details::is_external_tag_type(context_data_ref.kind)};
         pltxt2htm_assert(is_external_tag_type, u8"context kind mismatch");
-        return std::forward_like<decltype(self)>(context_data_ref.external_tag.url);
+        return ::std::forward_like<decltype(self)>(context_data_ref.external_tag.url);
     }
 
     constexpr auto get_pl_size_tag_id(this auto&& self) noexcept -> ::std::size_t {
@@ -569,7 +568,7 @@ public:
         auto&& context_data_ref = self.context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
         bool const is_md_link_type{::pltxt2htm::details::is_md_link_type(context_data_ref.kind)};
         pltxt2htm_assert(is_md_link_type, u8"context kind mismatch");
-        return std::forward_like<decltype(self)>(context_data_ref.md_link.link);
+        return ::std::forward_like<decltype(self)>(context_data_ref.md_link.link);
     }
 
     constexpr auto&& get_md_list_ast(this auto&& self) noexcept {
@@ -578,7 +577,7 @@ public:
         auto&& context_data_ref = self.context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
         bool const is_md_list_type{::pltxt2htm::details::is_md_list_type(context_data_ref.kind)};
         pltxt2htm_assert(is_md_list_type, u8"context kind mismatch");
-        return std::forward_like<decltype(self)>(context_data_ref.md_list.md_list_ast);
+        return ::std::forward_like<decltype(self)>(context_data_ref.md_list.md_list_ast);
     }
 
     constexpr auto&& get_md_list_iter(this auto&& self) noexcept {
@@ -587,7 +586,7 @@ public:
         auto&& context_data_ref = self.context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
         bool const is_md_list_type{::pltxt2htm::details::is_md_list_type(context_data_ref.kind)};
         pltxt2htm_assert(is_md_list_type, u8"context kind mismatch");
-        return std::forward_like<decltype(self)>(context_data_ref.md_list.iter);
+        return ::std::forward_like<decltype(self)>(context_data_ref.md_list.iter);
     }
 };
 
