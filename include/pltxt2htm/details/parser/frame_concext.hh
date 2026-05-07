@@ -489,39 +489,35 @@ public:
 
     constexpr ~BasicFrameContext() noexcept = default;
 
-    constexpr auto operator->() noexcept -> ::pltxt2htm::details::BasicFrameContext<ndebug>* {
-        return this;
-    }
-
-    constexpr auto operator->() const noexcept -> ::pltxt2htm::details::BasicFrameContext<ndebug> const* {
-        return this;
+    constexpr auto operator->(this auto&& self) noexcept -> decltype(auto) {
+        return &self;
     }
 
     [[nodiscard]]
-    constexpr auto has_nested_tag_type() const noexcept -> bool {
-        return this->context_data.has_value();
+    constexpr auto has_nested_tag_type(this auto&& self) noexcept -> bool {
+        return self.context_data.has_value();
     }
 
     [[nodiscard]]
-    constexpr auto get_nested_tag_type() const noexcept -> ::pltxt2htm::NodeType {
-        bool const has_nested_tag_type{this->context_data.has_value()};
+    constexpr auto get_nested_tag_type(this auto&& self) noexcept -> ::pltxt2htm::NodeType {
+        bool const has_nested_tag_type{self.context_data.has_value()};
         pltxt2htm_assert(has_nested_tag_type, u8"nested tag type is empty");
-        return this->context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>().kind;
+        return self.context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>().kind;
     }
 
     [[nodiscard]]
-    constexpr auto get_nested_tag_type_optional() const noexcept -> ::exception::optional<::pltxt2htm::NodeType> {
-        if (!this->context_data.has_value()) {
+    constexpr auto get_nested_tag_type_optional(this auto&& self) noexcept -> ::exception::optional<::pltxt2htm::NodeType> {
+        if (!self.context_data.has_value()) {
             return ::exception::nullopt_t{};
         }
-        return this->context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>().kind;
+        return self.context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>().kind;
     }
 
     [[nodiscard]]
-    constexpr auto get_pltext() const noexcept -> ::fast_io::u8string_view {
-        bool const has_context_data{this->context_data.has_value()};
+    constexpr auto get_pltext(this auto&& self) noexcept -> ::fast_io::u8string_view {
+        bool const has_context_data{self.context_data.has_value()};
         pltxt2htm_assert(has_context_data, u8"context data is empty");
-        auto const& context_data_ref = this->context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        auto const& context_data_ref = self.context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
         if (::pltxt2htm::details::is_equal_sign_tag_type(context_data_ref.kind)) {
             return context_data_ref.equal_sign_tag.pltext;
         }
@@ -544,58 +540,58 @@ public:
         return context_data_ref.pltext.pltext;
     }
 
-    constexpr auto&& get_equal_sign_tag_id() noexcept {
-        bool const has_context_data{this->context_data.has_value()};
+    constexpr auto&& get_equal_sign_tag_id(this auto&& self) noexcept {
+        bool const has_context_data{self.context_data.has_value()};
         pltxt2htm_assert(has_context_data, u8"context data is empty");
-        auto& context_data_ref = this->context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        auto&& context_data_ref = self.context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
         bool const is_equal_sign_tag_type{::pltxt2htm::details::is_equal_sign_tag_type(context_data_ref.kind)};
         pltxt2htm_assert(is_equal_sign_tag_type, u8"context kind mismatch");
-        return context_data_ref.equal_sign_tag.id;
+        return std::forward_like<decltype(self)>(context_data_ref.equal_sign_tag.id);
     }
 
-    constexpr auto&& get_external_tag_url() noexcept {
-        bool const has_context_data{this->context_data.has_value()};
+    constexpr auto&& get_external_tag_url(this auto&& self) noexcept {
+        bool const has_context_data{self.context_data.has_value()};
         pltxt2htm_assert(has_context_data, u8"context data is empty");
-        auto& context_data_ref = this->context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        auto&& context_data_ref = self.context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
         bool const is_external_tag_type{::pltxt2htm::details::is_external_tag_type(context_data_ref.kind)};
         pltxt2htm_assert(is_external_tag_type, u8"context kind mismatch");
-        return context_data_ref.external_tag.url;
+        return std::forward_like<decltype(self)>(context_data_ref.external_tag.url);
     }
 
-    constexpr auto get_pl_size_tag_id() const noexcept -> ::std::size_t {
-        bool const has_context_data{this->context_data.has_value()};
+    constexpr auto get_pl_size_tag_id(this auto&& self) noexcept -> ::std::size_t {
+        bool const has_context_data{self.context_data.has_value()};
         pltxt2htm_assert(has_context_data, u8"context data is empty");
-        auto& context_data_ref = this->context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        auto&& context_data_ref = self.context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
         bool const is_pl_size_tag_type{::pltxt2htm::details::is_pl_size_tag_type(context_data_ref.kind)};
         pltxt2htm_assert(is_pl_size_tag_type, u8"context kind mismatch");
         return context_data_ref.pl_size_tag.id;
     }
 
-    constexpr auto&& get_md_link_url() noexcept {
-        bool const has_context_data{this->context_data.has_value()};
+    constexpr auto&& get_md_link_url(this auto&& self) noexcept {
+        bool const has_context_data{self.context_data.has_value()};
         pltxt2htm_assert(has_context_data, u8"context data is empty");
-        auto& context_data_ref = this->context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        auto&& context_data_ref = self.context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
         bool const is_md_link_type{::pltxt2htm::details::is_md_link_type(context_data_ref.kind)};
         pltxt2htm_assert(is_md_link_type, u8"context kind mismatch");
-        return context_data_ref.md_link.link;
+        return std::forward_like<decltype(self)>(context_data_ref.md_link.link);
     }
 
-    constexpr auto&& get_md_list_ast() noexcept {
-        bool const has_context_data{this->context_data.has_value()};
+    constexpr auto&& get_md_list_ast(this auto&& self) noexcept {
+        bool const has_context_data{self.context_data.has_value()};
         pltxt2htm_assert(has_context_data, u8"context data is empty");
-        auto& context_data_ref = this->context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        auto&& context_data_ref = self.context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
         bool const is_md_list_type{::pltxt2htm::details::is_md_list_type(context_data_ref.kind)};
         pltxt2htm_assert(is_md_list_type, u8"context kind mismatch");
-        return context_data_ref.md_list.md_list_ast;
+        return std::forward_like<decltype(self)>(context_data_ref.md_list.md_list_ast);
     }
 
-    constexpr auto get_md_list_iter() noexcept -> ::pltxt2htm::details::MdListAst::iterator& {
-        bool const has_context_data{this->context_data.has_value()};
+    constexpr auto&& get_md_list_iter(this auto&& self) noexcept {
+        bool const has_context_data{self.context_data.has_value()};
         pltxt2htm_assert(has_context_data, u8"context data is empty");
-        auto& context_data_ref = this->context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        auto&& context_data_ref = self.context_data.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
         bool const is_md_list_type{::pltxt2htm::details::is_md_list_type(context_data_ref.kind)};
         pltxt2htm_assert(is_md_list_type, u8"context kind mismatch");
-        return context_data_ref.md_list.iter;
+        return std::forward_like<decltype(self)>(context_data_ref.md_list.iter);
     }
 };
 
