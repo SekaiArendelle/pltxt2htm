@@ -355,24 +355,19 @@ template<::pltxt2htm::Contracts ndebug,
  * @brief Parse &lt;li&gt; payload in the parser's compact tag form and validate parent container type.
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @param[in] pltext The input text to parse, starting after `<l`.
- * @param[in] nested_tag_type Current parent tag type from parsing context; nullopt means root context.
+ * @param[in] nested_tag_type Current parent tag type from parsing context.
  * @return Matched tag length when valid under &lt;ul&gt;/&lt;ol&gt;; otherwise nullopt.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]] constexpr auto try_parse_li_tag(
-    ::fast_io::u8string_view pltext, ::exception::optional<::pltxt2htm::NodeType> const nested_tag_type) noexcept
+    ::fast_io::u8string_view pltext, ::pltxt2htm::NodeType const nested_tag_type) noexcept
     -> ::exception::optional<::std::size_t> {
     auto opt_tag_len =
         ::pltxt2htm::details::try_parse_bare_tag<ndebug, ::pltxt2htm::details::U8LiteralString{u8"i"}>(pltext);
     if (!opt_tag_len.has_value()) {
         return ::exception::nullopt_t{};
     }
-    if (!nested_tag_type.has_value()) {
-        return ::exception::nullopt_t{};
-    }
-    auto const nested_tag_type_value = nested_tag_type.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    if (nested_tag_type_value != ::pltxt2htm::NodeType::html_ul &&
-        nested_tag_type_value != ::pltxt2htm::NodeType::html_ol) {
+    if (nested_tag_type != ::pltxt2htm::NodeType::html_ul && nested_tag_type != ::pltxt2htm::NodeType::html_ol) {
         return ::exception::nullopt_t{};
     }
     return opt_tag_len;
@@ -535,9 +530,6 @@ constexpr auto try_parse_non_nestable_equal_sign_tag(
         // skip
         // e.g. <experiment><experiment>test</experiment>text</experiment>
         // e.g. <experiment><a><experiment>test</experiment>text</a>text</experiment>
-        if (v.has_nested_tag_type() == false) {
-            continue;
-        }
         auto const nested_tag_type = v.get_nested_tag_type();
         if (nested_tag_type == ::pltxt2htm::NodeType::pl_experiment ||
             nested_tag_type == ::pltxt2htm::NodeType::pl_discussion ||
