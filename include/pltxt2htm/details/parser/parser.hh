@@ -127,16 +127,6 @@ constexpr auto devil_stuff_after_line_break(
     }
 }
 
-template<::pltxt2htm::Contracts ndebug>
-[[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
-constexpr auto get_pltext_from_parser_frame_context(
-    ::pltxt2htm::details::BasicFrameContext<ndebug> const& top_frame) noexcept -> ::fast_io::u8string_view {
-    return top_frame.get_pltext();
-}
-
 /**
  * @brief Parse pl-text to nodes.
  * @tparam ndebug Contract checking mode; `::pltxt2htm::Contracts::ignore` disables checks.
@@ -246,8 +236,7 @@ entry:
     }
 
     auto&& current_index = call_stack.top().current_index;
-    ::fast_io::u8string_view pltext{
-        ::pltxt2htm::details::get_pltext_from_parser_frame_context<ndebug>(call_stack.top())};
+    ::fast_io::u8string_view pltext{call_stack.top().get_pltext()};
     auto&& result = call_stack.top().subast;
     ::std::size_t const pltext_size{pltext.size()};
 
@@ -1833,8 +1822,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeType::md_atx_h1: {
-                ::fast_io::u8string_view super_pltext{
-                    ::pltxt2htm::details::get_pltext_from_parser_frame_context<ndebug>(call_stack.top())};
+                ::fast_io::u8string_view super_pltext{call_stack.top().get_pltext()};
                 super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH1>(::std::move(subast)));
                 auto&& [forward_index, _] = ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(super_pltext, super_index), call_stack,
@@ -1843,8 +1831,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeType::md_atx_h2: {
-                ::fast_io::u8string_view super_pltext{
-                    ::pltxt2htm::details::get_pltext_from_parser_frame_context<ndebug>(call_stack.top())};
+                ::fast_io::u8string_view super_pltext{call_stack.top().get_pltext()};
                 super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH2>(::std::move(subast)));
                 auto&& [forward_index, _] = ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(super_pltext, super_index), call_stack,
@@ -1853,8 +1840,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeType::md_atx_h3: {
-                ::fast_io::u8string_view super_pltext{
-                    ::pltxt2htm::details::get_pltext_from_parser_frame_context<ndebug>(call_stack.top())};
+                ::fast_io::u8string_view super_pltext{call_stack.top().get_pltext()};
                 super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH3>(::std::move(subast)));
                 auto&& [forward_index, _] = ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(super_pltext, super_index), call_stack,
@@ -1863,8 +1849,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeType::md_atx_h4: {
-                ::fast_io::u8string_view super_pltext{
-                    ::pltxt2htm::details::get_pltext_from_parser_frame_context<ndebug>(call_stack.top())};
+                ::fast_io::u8string_view super_pltext{call_stack.top().get_pltext()};
                 super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH4>(::std::move(subast)));
                 auto&& [forward_index, _] = ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(super_pltext, super_index), call_stack,
@@ -1873,8 +1858,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeType::md_atx_h5: {
-                ::fast_io::u8string_view super_pltext{
-                    ::pltxt2htm::details::get_pltext_from_parser_frame_context<ndebug>(call_stack.top())};
+                ::fast_io::u8string_view super_pltext{call_stack.top().get_pltext()};
                 super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH5>(::std::move(subast)));
                 auto&& [forward_index, _] = ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(super_pltext, super_index), call_stack,
@@ -1883,8 +1867,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeType::md_atx_h6: {
-                ::fast_io::u8string_view super_pltext{
-                    ::pltxt2htm::details::get_pltext_from_parser_frame_context<ndebug>(call_stack.top())};
+                ::fast_io::u8string_view super_pltext{call_stack.top().get_pltext()};
                 super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH6>(::std::move(subast)));
                 auto&& [forward_index, _] = ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(super_pltext, super_index), call_stack,
