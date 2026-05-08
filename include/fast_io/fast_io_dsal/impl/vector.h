@@ -397,8 +397,10 @@ public:
 	}
 
 	inline constexpr vector(vector const &vec)
-		requires(::std::is_copy_constructible_v<value_type>)
 	{
+		// Using static_assert instead of requires to delay the check
+		// related to tests/0026.container/0001.vector/recursive.cc
+		static_assert(::std::is_copy_constructible_v<value_type>, "vector's value type must be copy constructible to use copy constructor");
 		std::size_t const vecsize{static_cast<std::size_t>(vec.imp.curr_ptr - vec.imp.begin_ptr)};
 		if (vecsize == 0)
 		{
@@ -433,10 +435,12 @@ public:
 		}
 		des.thisvec = nullptr;
 	}
-	inline constexpr vector(vector const &vec) = delete;
+
 	inline constexpr vector &operator=(vector const &vec)
-		requires(::std::copyable<value_type>)
 	{
+		// Using static_assert instead of requires to delay the check
+		// related to tests/0026.container/0001.vector/recursive.cc
+		static_assert(::std::copyable<value_type>, "vector's value type must be copyable to use copy assignment operator");
 		if (__builtin_addressof(vec) == this) [[unlikely]]
 		{
 			return *this;
@@ -445,7 +449,7 @@ public:
 		this->operator=(::std::move(newvec));
 		return *this;
 	}
-	inline constexpr vector &operator=(vector const &vec) = delete;
+
 	inline constexpr vector(vector &&vec) noexcept
 		: imp(vec.imp)
 	{
@@ -897,6 +901,79 @@ public:
 		auto p{::std::construct_at(imp.curr_ptr, ::std::forward<Args>(args)...)};
 		++imp.curr_ptr;
 		return *p;
+	}
+
+private:
+	struct append_range_guard
+	{
+		vector *thisvec{};
+		size_type oldn{};
+		constexpr ~append_range_guard()
+		{
+			if (thisvec)
+			{
+				thisvec->erase(thisvec->cbegin() + oldn, thisvec->cend());
+			}
+		}
+	};
+
+public:
+	template <::std::ranges::range R>
+		requires ::std::constructible_from<value_type, ::std::ranges::range_value_t<R>>
+	inline constexpr void append_range(R &&rg) noexcept(::std::is_nothrow_constructible_v<value_type, ::std::ranges::range_value_t<R>>)
+	{
+		if constexpr (::std::ranges::sized_range<R>)
+		{
+			size_type const rgsize{::std::ranges::size(rg)};
+			if (!rgsize)
+			{
+				return;
+			}
+			size_type const old_size{static_cast<size_type>(imp.curr_ptr - imp.begin_ptr)};
+			size_type const new_size{old_size + rgsize};
+			size_type const cap{static_cast<size_type>(imp.end_ptr - imp.begin_ptr)};
+			if (new_size > cap)
+			{
+				this->grow_to_size_impl(new_size);
+			}
+			if constexpr (::std::is_nothrow_constructible_v<value_type, ::std::ranges::range_value_t<R>>)
+			{
+				for (auto &e : rg)
+				{
+					::std::construct_at(imp.curr_ptr, ::std::forward<decltype(e)>(e));
+					++imp.curr_ptr;
+				}
+			}
+			else
+			{
+				append_range_guard guard{this, old_size};
+				for (auto &e : rg)
+				{
+					::std::construct_at(imp.curr_ptr, ::std::forward<decltype(e)>(e));
+					++imp.curr_ptr;
+				}
+				guard.thisvec = nullptr;
+			}
+		}
+		else
+		{
+			if constexpr (::std::is_nothrow_constructible_v<value_type, ::std::ranges::range_value_t<R>>)
+			{
+				for (auto &e : rg)
+				{
+					this->emplace_back(::std::forward<decltype(e)>(e));
+				}
+			}
+			else
+			{
+				append_range_guard guard{this, this->size()};
+				for (auto &e : rg)
+				{
+					this->emplace_back(::std::forward<decltype(e)>(e));
+				}
+				guard.thisvec = nullptr;
+			}
+		}
 	}
 
 private:
