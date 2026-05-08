@@ -955,7 +955,7 @@ entry:
 
             case u8'/': {
                 auto const& top_frame = call_stack.top();
-                switch (top_frame.get_nested_tag_type()) {
+                switch (top_frame.get_nested_tag_type()) /* -Werror=switch */ {
                 case ::pltxt2htm::NodeType::pl_color: {
                     // parsing </color> or </a>
                     ::exception::optional<::std::size_t> opt_tag_len{
@@ -1684,7 +1684,7 @@ entry:
             auto&& subast = frame.subast;
             auto&& super_ast = call_stack.top().subast;
             auto&& super_index = call_stack.top().current_index;
-            switch (frame.get_nested_tag_type()) {
+            switch (frame.get_nested_tag_type()) /* -Werror=switch */ {
             case ::pltxt2htm::NodeType::pl_color: {
                 auto&& id = frame.get_equal_sign_tag_id();
                 super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Color>(::std::move(subast), ::std::move(id)));

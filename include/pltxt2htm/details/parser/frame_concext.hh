@@ -159,43 +159,13 @@ public:
             ::std::construct_at(::std::addressof(this->md_list), ::std::move(other.md_list));
             return;
         }
-        case ::pltxt2htm::NodeType::base:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeType::u8char:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeType::invalid_u8char:
-            [[fallthrough]];
         case ::pltxt2htm::NodeType::text:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeType::line_break:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeType::space:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeType::ampersand:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeType::double_quote:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeType::single_quote:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeType::less_than:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeType::greater_than:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeType::tab:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::pl_a:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::pl_b:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::pl_i:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeType::pl_macro_project:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeType::pl_macro_visitor:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeType::pl_macro_author:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeType::pl_macro_coauthors:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_p:
             [[fallthrough]];
@@ -281,6 +251,36 @@ public:
             ::std::construct_at(::std::addressof(this->pltext), ::std::move(other.pltext));
             return;
         }
+        case ::pltxt2htm::NodeType::base:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::u8char:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::invalid_u8char:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::line_break:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::space:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::ampersand:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::double_quote:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::single_quote:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::less_than:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::greater_than:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::tab:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::pl_macro_project:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::pl_macro_visitor:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::pl_macro_author:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::pl_macro_coauthors:
+            [[fallthrough]];
         case ::pltxt2htm::NodeType::md_escape_backslash:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_escape_exclamation:
@@ -391,41 +391,13 @@ public:
             ::std::destroy_at(::std::addressof(this->md_list));
             return;
         }
-        case ::pltxt2htm::NodeType::u8char:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeType::invalid_u8char:
-            [[fallthrough]];
         case ::pltxt2htm::NodeType::text:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeType::line_break:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeType::space:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeType::ampersand:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeType::double_quote:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeType::single_quote:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeType::less_than:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeType::greater_than:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeType::tab:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::pl_a:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::pl_b:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::pl_i:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeType::pl_macro_project:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeType::pl_macro_visitor:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeType::pl_macro_author:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeType::pl_macro_coauthors:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_p:
             [[fallthrough]];
@@ -477,8 +449,6 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_atx_h6:
             [[fallthrough]];
-        case ::pltxt2htm::NodeType::md_hr:
-            [[fallthrough]];
         case ::pltxt2htm::NodeType::md_code_fence_backtick:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_code_fence_tilde:
@@ -514,6 +484,34 @@ public:
             return;
         }
         case ::pltxt2htm::NodeType::base:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::u8char:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::invalid_u8char:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::line_break:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::space:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::ampersand:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::double_quote:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::single_quote:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::less_than:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::greater_than:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::tab:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::pl_macro_project:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::pl_macro_visitor:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::pl_macro_author:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::pl_macro_coauthors:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_escape_backslash:
             [[fallthrough]];
@@ -578,6 +576,8 @@ public:
         case ::pltxt2htm::NodeType::md_escape_right_brace:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_escape_tilde:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeType::md_hr:
             [[unlikely]] {
                 ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
             }
