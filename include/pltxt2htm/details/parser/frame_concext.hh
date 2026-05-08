@@ -588,8 +588,8 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class BasicFrameContext {
     ::pltxt2htm::details::ContextVariant<ndebug> context_data;
-public:
 
+public:
     ::std::size_t current_index{};
     ::pltxt2htm::Ast subast{};
 
