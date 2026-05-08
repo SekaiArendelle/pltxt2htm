@@ -274,7 +274,7 @@ constexpr auto plweb_text_backend(::pltxt2htm::Ast const& ast_init, ::fast_io::u
     -> ::fast_io::u8string {
     ::fast_io::u8string result{};
     ::fast_io::stack<::pltxt2htm::details::BackendBasicFrameContext> call_stack{};
-    call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(ast_init, ::pltxt2htm::NodeType::base, 0));
+    call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(ast_init, ::pltxt2htm::NodeType::text, 0));
 
 entry:
     auto const& ast = call_stack.top().ast_;

@@ -179,7 +179,7 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr void optimize_ast(::pltxt2htm::Ast& ast_init) noexcept {
     ::fast_io::stack<::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>> call_stack{};
     call_stack.push(::pltxt2htm::details::OptimizerContext<::pltxt2htm::Ast::iterator>{
-        ::std::addressof(ast_init), ::pltxt2htm::NodeType::base, ast_init.begin()});
+        ::std::addressof(ast_init), ::pltxt2htm::NodeType::text, ast_init.begin()});
 
 entry:
     auto&& ast = *(call_stack.top().ast);

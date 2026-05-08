@@ -31,7 +31,7 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr auto plweb_title_backend(::pltxt2htm::Ast const& ast_init) noexcept -> ::fast_io::u8string {
     ::fast_io::u8string result{};
     ::fast_io::stack<::pltxt2htm::details::BackendBasicFrameContext> call_stack{};
-    call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(ast_init, ::pltxt2htm::NodeType::base, 0));
+    call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(ast_init, ::pltxt2htm::NodeType::text, 0));
 
 entry:
     auto const& ast = call_stack.top().ast_;
@@ -365,7 +365,7 @@ entry:
             // We should recover the tag context
             auto a_paired_tag = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(a_paired_tag->get_subast(),
-                                                                           ::pltxt2htm::NodeType::base, 0));
+                                                                           ::pltxt2htm::NodeType::text, 0));
             ++current_index;
             goto entry;
         }
@@ -423,6 +423,8 @@ entry:
                 result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
                 goto entry;
             }
+            case ::pltxt2htm::NodeType::text:
+                [[fallthrough]];
             case ::pltxt2htm::NodeType::base: {
                 goto entry;
             }
