@@ -27,26 +27,26 @@ namespace pltxt2htm {
  * - &lt;COLOR=blue&gt;Blue text&lt;/COLOR&gt;
  * @note Color values can be CSS color names or hex values
  */
-class Color : public ::pltxt2htm::details::PairedTagBase {
+class PlColor : public ::pltxt2htm::details::PairedTagBase {
     ::fast_io::u8string color_;
 
 public:
-    constexpr Color() noexcept = delete;
+    constexpr PlColor() noexcept = delete;
 
-    constexpr Color(::pltxt2htm::Ast&& text, ::fast_io::u8string&& color) noexcept
+    constexpr PlColor(::pltxt2htm::Ast&& text, ::fast_io::u8string&& color) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_color, ::std::move(text)},
           color_(::std::move(color)) {
     }
 
-    constexpr Color(::pltxt2htm::Color const&) noexcept = delete;
+    constexpr PlColor(::pltxt2htm::PlColor const&) noexcept = delete;
 
-    constexpr Color(::pltxt2htm::Color&&) noexcept = default;
+    constexpr PlColor(::pltxt2htm::PlColor&&) noexcept = default;
 
-    constexpr ~Color() noexcept = default;
+    constexpr ~PlColor() noexcept = default;
 
-    constexpr ::pltxt2htm::Color& operator=(::pltxt2htm::Color const&) noexcept = delete;
+    constexpr ::pltxt2htm::PlColor& operator=(::pltxt2htm::PlColor const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::Color& operator=(::pltxt2htm::Color&&) noexcept = default;
+    constexpr ::pltxt2htm::PlColor& operator=(::pltxt2htm::PlColor&&) noexcept = default;
 
     /**
      * @brief Get the color of this color node
@@ -69,29 +69,29 @@ public:
  * @brief Anchor (link) node for Physics-Lab text
  * @details Represents a hyperlink using <a> syntax with default blue color
  */
-class A : public ::pltxt2htm::details::PairedTagBase {
+class PlA : public ::pltxt2htm::details::PairedTagBase {
     static constexpr ::pltxt2htm::details::U8LiteralString color_{u8"#0000AA"}; ///< The color of the link text
 
 public:
-    constexpr A() noexcept = delete;
+    constexpr PlA() noexcept = delete;
 
     /**
      * @brief Construct an anchor node with text content
      * @param[in] text The text content of the anchor
      */
-    constexpr A(::pltxt2htm::Ast&& text) noexcept
+    constexpr PlA(::pltxt2htm::Ast&& text) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_a, ::std::move(text)} {
     }
 
-    constexpr A(::pltxt2htm::A const&) noexcept = delete;
+    constexpr PlA(::pltxt2htm::PlA const&) noexcept = delete;
 
-    constexpr A(::pltxt2htm::A&&) noexcept = default;
+    constexpr PlA(::pltxt2htm::PlA&&) noexcept = default;
 
-    constexpr ~A() noexcept = default;
+    constexpr ~PlA() noexcept = default;
 
-    constexpr ::pltxt2htm::A& operator=(::pltxt2htm::A const&) noexcept = delete;
+    constexpr ::pltxt2htm::PlA& operator=(::pltxt2htm::PlA const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::A& operator=(::pltxt2htm::A&&) noexcept = default;
+    constexpr ::pltxt2htm::PlA& operator=(::pltxt2htm::PlA&&) noexcept = default;
 
     [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
@@ -111,26 +111,26 @@ public:
  * - &lt;EXPERIMENT=abc123&gt;Test Experiment&lt;/EXPERIMENT&gt;
  * @note The experiment ID is used to generate links to experiment pages
  */
-class Experiment : public ::pltxt2htm::details::PairedTagBase {
+class PlExperiment : public ::pltxt2htm::details::PairedTagBase {
     ::fast_io::u8string id_;
 
 public:
-    constexpr Experiment() noexcept = delete;
+    constexpr PlExperiment() noexcept = delete;
 
-    constexpr Experiment(::pltxt2htm::Ast&& subast, ::fast_io::u8string&& id) noexcept
+    constexpr PlExperiment(::pltxt2htm::Ast&& subast, ::fast_io::u8string&& id) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_experiment, ::std::move(subast)},
           id_(::std::move(id)) {
     }
 
-    constexpr Experiment(::pltxt2htm::Experiment const&) noexcept = delete;
+    constexpr PlExperiment(::pltxt2htm::PlExperiment const&) noexcept = delete;
 
-    constexpr Experiment(::pltxt2htm::Experiment&&) noexcept = default;
+    constexpr PlExperiment(::pltxt2htm::PlExperiment&&) noexcept = default;
 
-    constexpr ~Experiment() noexcept = default;
+    constexpr ~PlExperiment() noexcept = default;
 
-    constexpr ::pltxt2htm::Experiment& operator=(::pltxt2htm::Experiment const&) noexcept = delete;
+    constexpr ::pltxt2htm::PlExperiment& operator=(::pltxt2htm::PlExperiment const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::Experiment& operator=(::pltxt2htm::Experiment&&) noexcept = default;
+    constexpr ::pltxt2htm::PlExperiment& operator=(::pltxt2htm::PlExperiment&&) noexcept = default;
 
     /**
      * @brief Get the ID of this experiment node
@@ -157,26 +157,26 @@ public:
  * - &lt;DISCUSSION=abc123&gt;Test Discussion&lt;/DISCUSSION&gt;
  * @note The discussion ID is used to generate links to discussion pages
  */
-class Discussion : public ::pltxt2htm::details::PairedTagBase {
+class PlDiscussion : public ::pltxt2htm::details::PairedTagBase {
     ::fast_io::u8string id_{};
 
 public:
-    constexpr Discussion() noexcept = delete;
+    constexpr PlDiscussion() noexcept = delete;
 
-    constexpr Discussion(::pltxt2htm::Ast&& subast, ::fast_io::u8string&& id) noexcept
+    constexpr PlDiscussion(::pltxt2htm::Ast&& subast, ::fast_io::u8string&& id) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_discussion, ::std::move(subast)},
           id_(::std::move(id)) {
     }
 
-    constexpr Discussion(::pltxt2htm::Discussion const&) noexcept = delete;
+    constexpr PlDiscussion(::pltxt2htm::PlDiscussion const&) noexcept = delete;
 
-    constexpr Discussion(::pltxt2htm::Discussion&&) noexcept = default;
+    constexpr PlDiscussion(::pltxt2htm::PlDiscussion&&) noexcept = default;
 
-    constexpr ~Discussion() noexcept = default;
+    constexpr ~PlDiscussion() noexcept = default;
 
-    constexpr ::pltxt2htm::Discussion& operator=(::pltxt2htm::Discussion const&) noexcept = delete;
+    constexpr ::pltxt2htm::PlDiscussion& operator=(::pltxt2htm::PlDiscussion const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::Discussion& operator=(::pltxt2htm::Discussion&&) noexcept = default;
+    constexpr ::pltxt2htm::PlDiscussion& operator=(::pltxt2htm::PlDiscussion&&) noexcept = default;
 
     [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
@@ -196,26 +196,26 @@ public:
  * - &lt;USER=abc123&gt;Test User&lt;/USER&gt;
  * @note The user ID is used to generate links to user profiles
  */
-class User : public ::pltxt2htm::details::PairedTagBase {
+class PlUser : public ::pltxt2htm::details::PairedTagBase {
     ::fast_io::u8string id_{};
 
 public:
-    constexpr User() noexcept = delete;
+    constexpr PlUser() noexcept = delete;
 
-    constexpr User(::pltxt2htm::Ast&& subast, ::fast_io::u8string&& id) noexcept
+    constexpr PlUser(::pltxt2htm::Ast&& subast, ::fast_io::u8string&& id) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_user, ::std::move(subast)},
           id_(::std::move(id)) {
     }
 
-    constexpr User(::pltxt2htm::User const&) noexcept = delete;
+    constexpr PlUser(::pltxt2htm::PlUser const&) noexcept = delete;
 
-    constexpr User(::pltxt2htm::User&&) noexcept = default;
+    constexpr PlUser(::pltxt2htm::PlUser&&) noexcept = default;
 
-    constexpr ~User() noexcept = default;
+    constexpr ~PlUser() noexcept = default;
 
-    constexpr ::pltxt2htm::User& operator=(::pltxt2htm::User const&) noexcept = delete;
+    constexpr ::pltxt2htm::PlUser& operator=(::pltxt2htm::PlUser const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::User& operator=(::pltxt2htm::User&&) noexcept = default;
+    constexpr ::pltxt2htm::PlUser& operator=(::pltxt2htm::PlUser&&) noexcept = default;
 
     [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
@@ -226,26 +226,26 @@ public:
     }
 };
 
-class External : public ::pltxt2htm::details::PairedTagBase {
+class PlExternal : public ::pltxt2htm::details::PairedTagBase {
     ::pltxt2htm::Url url_{};
 
 public:
-    constexpr External() noexcept = delete;
+    constexpr PlExternal() noexcept = delete;
 
-    constexpr External(::pltxt2htm::Ast&& subast, ::pltxt2htm::Url&& url) noexcept
+    constexpr PlExternal(::pltxt2htm::Ast&& subast, ::pltxt2htm::Url&& url) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_external, ::std::move(subast)},
           url_(::std::move(url)) {
     }
 
-    constexpr External(::pltxt2htm::External const&) noexcept = delete;
+    constexpr PlExternal(::pltxt2htm::PlExternal const&) noexcept = delete;
 
-    constexpr External(::pltxt2htm::External&&) noexcept = default;
+    constexpr PlExternal(::pltxt2htm::PlExternal&&) noexcept = default;
 
-    constexpr ~External() noexcept = default;
+    constexpr ~PlExternal() noexcept = default;
 
-    constexpr ::pltxt2htm::External& operator=(::pltxt2htm::External const&) noexcept = delete;
+    constexpr ::pltxt2htm::PlExternal& operator=(::pltxt2htm::PlExternal const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::External& operator=(::pltxt2htm::External&&) noexcept = default;
+    constexpr ::pltxt2htm::PlExternal& operator=(::pltxt2htm::PlExternal&&) noexcept = default;
 
     [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
@@ -265,26 +265,26 @@ public:
  * - &lt;SIZE=24&gt;Large text&lt;/SIZE&gt;
  * @note Size values are numeric and represent the font size in points
  */
-class Size : public ::pltxt2htm::details::PairedTagBase {
+class PlSize : public ::pltxt2htm::details::PairedTagBase {
     ::std::size_t id_{};
 
 public:
-    constexpr Size() noexcept = delete;
+    constexpr PlSize() noexcept = delete;
 
-    constexpr Size(::pltxt2htm::Ast&& subast, ::std::size_t id) noexcept
+    constexpr PlSize(::pltxt2htm::Ast&& subast, ::std::size_t id) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_size, ::std::move(subast)},
           id_(::std::move(id)) {
     }
 
-    constexpr Size(::pltxt2htm::Size const&) noexcept = delete;
+    constexpr PlSize(::pltxt2htm::PlSize const&) noexcept = delete;
 
-    constexpr Size(::pltxt2htm::Size&&) noexcept = default;
+    constexpr PlSize(::pltxt2htm::PlSize&&) noexcept = default;
 
-    constexpr ~Size() noexcept = default;
+    constexpr ~PlSize() noexcept = default;
 
-    constexpr ::pltxt2htm::Size& operator=(::pltxt2htm::Size const&) noexcept = delete;
+    constexpr ::pltxt2htm::PlSize& operator=(::pltxt2htm::PlSize const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::Size& operator=(::pltxt2htm::Size&&) noexcept = default;
+    constexpr ::pltxt2htm::PlSize& operator=(::pltxt2htm::PlSize&&) noexcept = default;
 
     [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
@@ -302,27 +302,27 @@ public:
  * &lt;i&gt;This text will be italic&lt;/i&gt;
  * @note This is equivalent to Markdown single emphasis (*text*) and HTML &lt;em&gt;.
  */
-class I : public ::pltxt2htm::details::PairedTagBase {
+class PlI : public ::pltxt2htm::details::PairedTagBase {
 public:
-    constexpr I() noexcept = delete;
+    constexpr PlI() noexcept = delete;
 
     /**
      * @brief Construct an italic node with text content
      * @param[in] subast The text content to be displayed in italic
      */
-    constexpr I(::pltxt2htm::Ast&& subast) noexcept
+    constexpr PlI(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_i, ::std::move(subast)} {
     }
 
-    constexpr I(::pltxt2htm::I const&) noexcept = delete;
+    constexpr PlI(::pltxt2htm::PlI const&) noexcept = delete;
 
-    constexpr I(::pltxt2htm::I&&) noexcept = default;
+    constexpr PlI(::pltxt2htm::PlI&&) noexcept = default;
 
-    constexpr ~I() noexcept = default;
+    constexpr ~PlI() noexcept = default;
 
-    constexpr ::pltxt2htm::I& operator=(::pltxt2htm::I const&) noexcept = delete;
+    constexpr ::pltxt2htm::PlI& operator=(::pltxt2htm::PlI const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::I& operator=(::pltxt2htm::I&&) noexcept = default;
+    constexpr ::pltxt2htm::PlI& operator=(::pltxt2htm::PlI&&) noexcept = default;
 };
 
 /**
@@ -332,27 +332,27 @@ public:
  * &lt;b&gt;This text will be bold&lt;/b&gt;
  * @note This is equivalent to Markdown double emphasis (**text**) and HTML &lt;strong&gt;.
  */
-class B : public ::pltxt2htm::details::PairedTagBase {
+class PlB : public ::pltxt2htm::details::PairedTagBase {
 public:
-    constexpr B() noexcept = delete;
+    constexpr PlB() noexcept = delete;
 
     /**
      * @brief Construct a bold node with text content
      * @param[in] subast The text content to be displayed in bold
      */
-    constexpr B(::pltxt2htm::Ast&& subast) noexcept
+    constexpr PlB(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_b, ::std::move(subast)} {
     }
 
-    constexpr B(::pltxt2htm::B const&) noexcept = delete;
+    constexpr PlB(::pltxt2htm::PlB const&) noexcept = delete;
 
-    constexpr B(::pltxt2htm::B&&) noexcept = default;
+    constexpr PlB(::pltxt2htm::PlB&&) noexcept = default;
 
-    constexpr ~B() noexcept = default;
+    constexpr ~PlB() noexcept = default;
 
-    constexpr ::pltxt2htm::B& operator=(::pltxt2htm::B const&) noexcept = delete;
+    constexpr ::pltxt2htm::PlB& operator=(::pltxt2htm::PlB const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::B& operator=(::pltxt2htm::B&&) noexcept = default;
+    constexpr ::pltxt2htm::PlB& operator=(::pltxt2htm::PlB&&) noexcept = default;
 };
 
 class PlMacroProject : public ::pltxt2htm::PlTxtNode {
