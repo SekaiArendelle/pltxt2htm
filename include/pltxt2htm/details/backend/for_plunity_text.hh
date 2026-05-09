@@ -286,7 +286,7 @@ entry:
             continue;
         }
         case ::pltxt2htm::NodeType::pl_color: {
-            auto color = static_cast<::pltxt2htm::Color const*>(node.release_imul());
+            auto color = static_cast<::pltxt2htm::PlColor const*>(node.release_imul());
 
             call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(color->get_subast(),
                                                                            ::pltxt2htm::NodeType::pl_color, 0));
@@ -297,19 +297,19 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_a: {
-            auto anchor = static_cast<::pltxt2htm::A const*>(node.release_imul());
+            auto anchor = static_cast<::pltxt2htm::PlA const*>(node.release_imul());
 
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(anchor->get_subast(), ::pltxt2htm::NodeType::pl_a, 0));
             ++current_index;
             constexpr auto open_tag = ::pltxt2htm::details::concat(::pltxt2htm::details::U8LiteralString{u8"<color="},
-                                                                   ::pltxt2htm::A::get_color_literal(),
+                                                                   ::pltxt2htm::PlA::get_color_literal(),
                                                                    ::pltxt2htm::details::U8LiteralString{u8">"});
             result.append(::fast_io::u8string_view{open_tag.data(), open_tag.size()});
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_experiment: {
-            auto experiment = static_cast<::pltxt2htm::Experiment const*>(node.release_imul());
+            auto experiment = static_cast<::pltxt2htm::PlExperiment const*>(node.release_imul());
             call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(experiment->get_subast(),
                                                                            ::pltxt2htm::NodeType::pl_experiment, 0));
             ++current_index;
@@ -319,7 +319,7 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_discussion: {
-            auto discussion = static_cast<::pltxt2htm::Discussion const*>(node.release_imul());
+            auto discussion = static_cast<::pltxt2htm::PlDiscussion const*>(node.release_imul());
             call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(discussion->get_subast(),
                                                                            ::pltxt2htm::NodeType::pl_discussion, 0));
             ++current_index;
@@ -329,7 +329,7 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_external: {
-            auto external = static_cast<::pltxt2htm::External const*>(node.release_imul());
+            auto external = static_cast<::pltxt2htm::PlExternal const*>(node.release_imul());
             call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(external->get_subast(),
                                                                            ::pltxt2htm::NodeType::pl_external, 0));
             ++current_index;
@@ -340,7 +340,7 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_user: {
-            auto user = static_cast<::pltxt2htm::User const*>(node.release_imul());
+            auto user = static_cast<::pltxt2htm::PlUser const*>(node.release_imul());
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(user->get_subast(), ::pltxt2htm::NodeType::pl_user, 0));
             ++current_index;
@@ -350,7 +350,7 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_size: {
-            auto size = static_cast<::pltxt2htm::Size const*>(node.release_imul());
+            auto size = static_cast<::pltxt2htm::PlSize const*>(node.release_imul());
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(size->get_subast(), ::pltxt2htm::NodeType::pl_size, 0));
             ++current_index;

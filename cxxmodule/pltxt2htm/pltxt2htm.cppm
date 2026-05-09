@@ -133,15 +133,15 @@ using ::pltxt2htm::MdLatexInline;
 using ::pltxt2htm::MdLatexBlock;
 
 // physics_lab_node
-using ::pltxt2htm::Color;
-using ::pltxt2htm::A;
-using ::pltxt2htm::Experiment;
-using ::pltxt2htm::Discussion;
-using ::pltxt2htm::User;
-using ::pltxt2htm::Size;
-using ::pltxt2htm::External;
-using ::pltxt2htm::I;
-using ::pltxt2htm::B;
+using ::pltxt2htm::PlColor;
+using ::pltxt2htm::PlA;
+using ::pltxt2htm::PlExperiment;
+using ::pltxt2htm::PlDiscussion;
+using ::pltxt2htm::PlUser;
+using ::pltxt2htm::PlSize;
+using ::pltxt2htm::PlExternal;
+using ::pltxt2htm::PlI;
+using ::pltxt2htm::PlB;
 using ::pltxt2htm::PlMacroProject;
 using ::pltxt2htm::PlMacroVisitor;
 using ::pltxt2htm::PlMacroAuthor;

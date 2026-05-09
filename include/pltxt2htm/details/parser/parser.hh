@@ -968,11 +968,11 @@ entry:
                     if (opt_tag_len.has_value()) {
                         // parsing end tag </color> successed
                         ::std::size_t const staged_index{current_index};
-                        ::pltxt2htm::Color staged_node(::std::move(result),
+                        ::pltxt2htm::PlColor staged_node(::std::move(result),
                                                        ::std::move(call_stack.top().get_equal_sign_tag_id()));
                         call_stack.pop();
                         call_stack.top().subast.push_back(
-                            ::pltxt2htm::HeapGuard<::pltxt2htm::Color>(::std::move(staged_node)));
+                            ::pltxt2htm::HeapGuard<::pltxt2htm::PlColor>(::std::move(staged_node)));
                         call_stack.top().current_index +=
                             staged_index + opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         goto entry;
@@ -995,10 +995,10 @@ entry:
                     if (opt_tag_len.has_value()) {
                         // parsing end tag </a> successed
                         ::std::size_t const staged_index{current_index};
-                        ::pltxt2htm::A staged_node(::std::move(result));
+                        ::pltxt2htm::PlA staged_node(::std::move(result));
                         call_stack.pop();
                         call_stack.top().subast.push_back(
-                            ::pltxt2htm::HeapGuard<::pltxt2htm::A>(::std::move(staged_node)));
+                            ::pltxt2htm::HeapGuard<::pltxt2htm::PlA>(::std::move(staged_node)));
                         call_stack.top().current_index +=
                             staged_index + opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         goto entry;
@@ -1016,11 +1016,11 @@ entry:
                         opt_tag_len.has_value()) {
                         // Whether or not extern_index is out of range, extern for loop will handle it correctly.
                         ::std::size_t const staged_index{current_index};
-                        ::pltxt2htm::Experiment staged_node(::std::move(result),
+                        ::pltxt2htm::PlExperiment staged_node(::std::move(result),
                                                             ::std::move(call_stack.top().get_equal_sign_tag_id()));
                         call_stack.pop();
                         call_stack.top().subast.push_back(
-                            ::pltxt2htm::HeapGuard<::pltxt2htm::Experiment>(::std::move(staged_node)));
+                            ::pltxt2htm::HeapGuard<::pltxt2htm::PlExperiment>(::std::move(staged_node)));
                         call_stack.top().current_index +=
                             staged_index + opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         goto entry;
@@ -1038,11 +1038,11 @@ entry:
                         opt_tag_len.has_value()) {
                         // Whether or not extern_index is out of range, extern for loop will handle it correctly.
                         ::std::size_t const staged_index{current_index};
-                        ::pltxt2htm::Discussion staged_node(::std::move(result),
+                        ::pltxt2htm::PlDiscussion staged_node(::std::move(result),
                                                             ::std::move(call_stack.top().get_equal_sign_tag_id()));
                         call_stack.pop();
                         call_stack.top().subast.push_back(
-                            ::pltxt2htm::HeapGuard<::pltxt2htm::Discussion>(::std::move(staged_node)));
+                            ::pltxt2htm::HeapGuard<::pltxt2htm::PlDiscussion>(::std::move(staged_node)));
                         call_stack.top().current_index +=
                             staged_index + opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         goto entry;
@@ -1060,11 +1060,11 @@ entry:
                         opt_tag_len.has_value()) {
                         // Whether or not extern_index is out of range, extern for loop will handle it correctly.
                         ::std::size_t const staged_index{current_index};
-                        ::pltxt2htm::External staged_node(::std::move(result),
+                        ::pltxt2htm::PlExternal staged_node(::std::move(result),
                                                           ::std::move(call_stack.top().get_external_tag_url()));
                         call_stack.pop();
                         call_stack.top().subast.push_back(
-                            ::pltxt2htm::HeapGuard<::pltxt2htm::External>(::std::move(staged_node)));
+                            ::pltxt2htm::HeapGuard<::pltxt2htm::PlExternal>(::std::move(staged_node)));
                         call_stack.top().current_index +=
                             staged_index + opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         goto entry;
@@ -1081,11 +1081,11 @@ entry:
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
                         ::std::size_t const staged_index{current_index};
-                        ::pltxt2htm::User staged_node(::std::move(result),
+                        ::pltxt2htm::PlUser staged_node(::std::move(result),
                                                       ::std::move(call_stack.top().get_equal_sign_tag_id()));
                         call_stack.pop();
                         call_stack.top().subast.push_back(
-                            ::pltxt2htm::HeapGuard<::pltxt2htm::User>(::std::move(staged_node)));
+                            ::pltxt2htm::HeapGuard<::pltxt2htm::PlUser>(::std::move(staged_node)));
                         call_stack.top().current_index +=
                             staged_index + opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         goto entry;
@@ -1102,10 +1102,10 @@ entry:
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
                         ::std::size_t const staged_index{current_index};
-                        ::pltxt2htm::Size staged_node(::std::move(result), call_stack.top().get_pl_size_tag_id());
+                        ::pltxt2htm::PlSize staged_node(::std::move(result), call_stack.top().get_pl_size_tag_id());
                         call_stack.pop();
                         call_stack.top().subast.push_back(
-                            ::pltxt2htm::HeapGuard<::pltxt2htm::Size>(::std::move(staged_node)));
+                            ::pltxt2htm::HeapGuard<::pltxt2htm::PlSize>(::std::move(staged_node)));
                         call_stack.top().current_index +=
                             staged_index + opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         goto entry;
@@ -1122,10 +1122,10 @@ entry:
                         opt_tag_len.has_value()) {
                         // parsing end tag </b> successed
                         ::std::size_t const staged_index{current_index};
-                        ::pltxt2htm::B staged_node(::std::move(result));
+                        ::pltxt2htm::PlB staged_node(::std::move(result));
                         call_stack.pop();
                         call_stack.top().subast.push_back(
-                            ::pltxt2htm::HeapGuard<::pltxt2htm::B>(::std::move(staged_node)));
+                            ::pltxt2htm::HeapGuard<::pltxt2htm::PlB>(::std::move(staged_node)));
                         call_stack.top().current_index +=
                             staged_index + opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         goto entry;
@@ -1142,10 +1142,10 @@ entry:
                         opt_tag_len.has_value()) {
                         // parsing end tag </a> successed
                         ::std::size_t const staged_index{current_index};
-                        ::pltxt2htm::I staged_node(::std::move(result));
+                        ::pltxt2htm::PlI staged_node(::std::move(result));
                         call_stack.pop();
                         call_stack.top().subast.push_back(
-                            ::pltxt2htm::HeapGuard<::pltxt2htm::I>(::std::move(staged_node)));
+                            ::pltxt2htm::HeapGuard<::pltxt2htm::PlI>(::std::move(staged_node)));
                         call_stack.top().current_index +=
                             staged_index + opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         goto entry;
@@ -1687,57 +1687,57 @@ entry:
             switch (frame.get_nested_tag_type()) /* -Werror=switch */ {
             case ::pltxt2htm::NodeType::pl_color: {
                 auto&& id = frame.get_equal_sign_tag_id();
-                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Color>(::std::move(subast), ::std::move(id)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::PlColor>(::std::move(subast), ::std::move(id)));
                 super_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeType::pl_a: {
-                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::A>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::PlA>(::std::move(subast)));
                 super_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeType::pl_experiment: {
                 auto&& id = frame.get_equal_sign_tag_id();
                 super_ast.push_back(
-                    ::pltxt2htm::HeapGuard<::pltxt2htm::Experiment>(::std::move(subast), ::std::move(id)));
+                    ::pltxt2htm::HeapGuard<::pltxt2htm::PlExperiment>(::std::move(subast), ::std::move(id)));
                 super_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeType::pl_discussion: {
                 auto&& id = frame.get_equal_sign_tag_id();
                 super_ast.push_back(
-                    ::pltxt2htm::HeapGuard<::pltxt2htm::Discussion>(::std::move(subast), ::std::move(id)));
+                    ::pltxt2htm::HeapGuard<::pltxt2htm::PlDiscussion>(::std::move(subast), ::std::move(id)));
                 super_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeType::pl_user: {
                 auto&& id = frame.get_equal_sign_tag_id();
-                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::User>(::std::move(subast), ::std::move(id)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::PlUser>(::std::move(subast), ::std::move(id)));
                 super_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeType::pl_external: {
                 auto&& url = frame.get_external_tag_url();
                 super_ast.push_back(
-                    ::pltxt2htm::HeapGuard<::pltxt2htm::External>(::std::move(subast), ::std::move(url)));
+                    ::pltxt2htm::HeapGuard<::pltxt2htm::PlExternal>(::std::move(subast), ::std::move(url)));
                 super_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeType::pl_size: {
                 auto&& id = frame.get_pl_size_tag_id();
-                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Size>(::std::move(subast), id));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::PlSize>(::std::move(subast), id));
                 super_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeType::html_strong:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::pl_b: {
-                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::B>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::PlB>(::std::move(subast)));
                 super_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeType::pl_i: {
-                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::I>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::PlI>(::std::move(subast)));
                 super_index += staged_index;
                 goto entry;
             }

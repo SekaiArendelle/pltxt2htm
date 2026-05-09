@@ -10,9 +10,9 @@ int main() {
 
     ::fast_io::vector<::pltxt2htm::PlTxtNode> arr{
         ::pltxt2htm::U8Char{u8'a'},
-        ::pltxt2htm::Color{::pltxt2htm::Ast{}, ::fast_io::u8string{u8"red"}},
-        ::pltxt2htm::Experiment{::pltxt2htm::Ast{}, ::fast_io::u8string{u8"123"}},
-        ::pltxt2htm::Discussion{::pltxt2htm::Ast{}, ::fast_io::u8string{u8"123"}},
+        ::pltxt2htm::PlColor{::pltxt2htm::Ast{}, ::fast_io::u8string{u8"red"}},
+        ::pltxt2htm::PlExperiment{::pltxt2htm::Ast{}, ::fast_io::u8string{u8"123"}},
+        ::pltxt2htm::PlDiscussion{::pltxt2htm::Ast{}, ::fast_io::u8string{u8"123"}},
     };
 
     ::exception::assert_true(arr[0].node_type() == ::pltxt2htm::NodeType::u8char);

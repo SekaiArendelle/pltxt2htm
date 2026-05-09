@@ -234,7 +234,7 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_color: {
-            auto const color = static_cast<::pltxt2htm::Color*>(node.get_unsafe());
+            auto const color = static_cast<::pltxt2htm::PlColor*>(node.get_unsafe());
             {
                 // Optimization: <color=red><color=blue>text</color></color>
                 // simplifies to <color=blue>text</color>.
@@ -282,8 +282,8 @@ entry:
             }
         }
         case ::pltxt2htm::NodeType::pl_a: {
-            auto const anchor = static_cast<::pltxt2htm::A*>(node.get_unsafe());
-            constexpr auto anchor_color_literal = ::pltxt2htm::A::get_color_literal();
+            auto const anchor = static_cast<::pltxt2htm::PlA*>(node.get_unsafe());
+            constexpr auto anchor_color_literal = ::pltxt2htm::PlA::get_color_literal();
             auto const anchor_color =
                 ::fast_io::u8string_view{anchor_color_literal.data(), anchor_color_literal.size()};
             {
@@ -327,7 +327,7 @@ entry:
             }
         }
         case ::pltxt2htm::NodeType::pl_experiment: {
-            auto const experiment = static_cast<::pltxt2htm::Experiment*>(node.get_unsafe());
+            auto const experiment = static_cast<::pltxt2htm::PlExperiment*>(node.get_unsafe());
             auto&& subast = experiment->get_subast();
             if (subast.empty()) {
                 // <experiment=123></experiment> can be omitted
@@ -341,7 +341,7 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_discussion: {
-            auto const discussion = static_cast<::pltxt2htm::Discussion*>(node.get_unsafe());
+            auto const discussion = static_cast<::pltxt2htm::PlDiscussion*>(node.get_unsafe());
             auto&& subast = discussion->get_subast();
             if (subast.empty()) {
                 // <discussion=123></discussion> can be omitted
@@ -356,7 +356,7 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_user: {
-            auto const user = static_cast<::pltxt2htm::User*>(node.get_unsafe());
+            auto const user = static_cast<::pltxt2htm::PlUser*>(node.get_unsafe());
             {
                 auto&& subast = user->get_subast();
                 if (subast.empty()) {
@@ -368,7 +368,7 @@ entry:
                     // <User=123><user=642cf37a494746375aae306a>physicsLab</user></User> can be
                     auto const psubnode = ::pltxt2htm::details::vector_front<ndebug>(subast).get_unsafe();
                     if (psubnode->node_type() == ::pltxt2htm::NodeType::pl_user) {
-                        auto subnode = ::std::move(*static_cast<::pltxt2htm::User*>(psubnode));
+                        auto subnode = ::std::move(*static_cast<::pltxt2htm::PlUser*>(psubnode));
                         (*user) = ::std::move(subnode);
                     }
                 }
@@ -393,7 +393,7 @@ entry:
             }
         }
         case ::pltxt2htm::NodeType::pl_external: {
-            auto const external = static_cast<::pltxt2htm::External*>(node.get_unsafe());
+            auto const external = static_cast<::pltxt2htm::PlExternal*>(node.get_unsafe());
             auto&& subast = external->get_subast();
             if (subast.empty()) {
                 // <external=123></external> can be omitted
@@ -406,7 +406,7 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_size: {
-            auto const size = static_cast<::pltxt2htm::Size*>(node.get_unsafe());
+            auto const size = static_cast<::pltxt2htm::PlSize*>(node.get_unsafe());
             {
                 auto&& subast = size->get_subast();
                 if (subast.empty()) {
@@ -418,7 +418,7 @@ entry:
                     // <size=12><size=3>physicsLab</size></size> can be
                     auto const psubnode = ::pltxt2htm::details::vector_front<ndebug>(subast).get_unsafe();
                     if (psubnode->node_type() == ::pltxt2htm::NodeType::pl_size) {
-                        auto subnode = ::std::move(*static_cast<::pltxt2htm::Size*>(psubnode));
+                        auto subnode = ::std::move(*static_cast<::pltxt2htm::PlSize*>(psubnode));
                         (*size) = ::std::move(subnode);
                     }
                 }
