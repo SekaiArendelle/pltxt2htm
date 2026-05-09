@@ -1540,7 +1540,7 @@ template<::pltxt2htm::Contracts ndebug, bool regard_right_parent_as_end_of_url =
 [[nodiscard]]
 constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseUrlResult> {
-    ::std::size_t current_index{[pltext] constexpr noexcept -> ::std::size_t {
+    auto current_index = ::std::size_t{[pltext] constexpr noexcept -> ::std::size_t {
         if (constexpr auto http = ::pltxt2htm::details::U8LiteralString{u8"http://"};
             ::pltxt2htm::details::is_prefix_match<ndebug, http>(pltext)) {
             return http.size();
