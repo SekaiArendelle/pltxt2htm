@@ -586,14 +586,14 @@ public:
 };
 
 template<::pltxt2htm::Contracts ndebug>
-class BasicFrameContext {
+class ParserFrameContext {
     ::pltxt2htm::details::ContextVariant<ndebug> context_data;
 
 public:
     ::std::size_t current_index{};
     ::pltxt2htm::Ast subast{};
 
-    constexpr explicit BasicFrameContext(::fast_io::u8string_view pltext_,
+    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_,
                                          ::pltxt2htm::NodeType const nested_tag_type_) noexcept
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
               ::pltxt2htm::details::ParserFrameContextWithPltextInfo{pltext_}, nested_tag_type_}},
@@ -602,7 +602,7 @@ public:
         pltxt2htm_assert(is_plain_pltext_type, u8"mismatch node type");
     }
 
-    constexpr explicit BasicFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
+    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
                                          ::pltxt2htm::Ast&& subast_) noexcept
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
               ::pltxt2htm::details::ParserFrameContextWithPltextInfo{pltext_}, nested_tag_type_}},
@@ -611,7 +611,7 @@ public:
         pltxt2htm_assert(is_plain_pltext_type, u8"mismatch node type");
     }
 
-    constexpr explicit BasicFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
+    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
                                          ::fast_io::u8string&& id_) noexcept
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
               ::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo{.pltext = pltext_, .id = ::std::move(id_)},
@@ -620,7 +620,7 @@ public:
         pltxt2htm_assert(is_equal_sign_tag_type, u8"mismatch node type");
     }
 
-    constexpr explicit BasicFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
+    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
                                          ::pltxt2htm::Url&& url_) noexcept
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
               ::pltxt2htm::details::ParserFrameContextWithExternalTagInfo{.pltext = pltext_, .url = ::std::move(url_)},
@@ -629,7 +629,7 @@ public:
         pltxt2htm_assert(is_external_tag_type, u8"mismatch node type");
     }
 
-    constexpr explicit BasicFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
+    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
                                          ::std::size_t id_) noexcept
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
               ::pltxt2htm::details::ParserFrameContextWithPlSizeTagInfo{.pltext = pltext_, .id = id_},
@@ -638,19 +638,19 @@ public:
         pltxt2htm_assert(is_pl_size_tag_type, u8"mismatch node type");
     }
 
-    constexpr explicit BasicFrameContext(::fast_io::u8string&& pltext_) noexcept
+    constexpr explicit ParserFrameContext(::fast_io::u8string&& pltext_) noexcept
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
               ::pltxt2htm::details::ParserFrameContextWithMdBlockQuotesInfo{::std::move(pltext_)},
               ::pltxt2htm::NodeType::md_block_quotes}} {
     }
 
-    constexpr explicit BasicFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::Url&& link_) noexcept
+    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::Url&& link_) noexcept
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
               ::pltxt2htm::details::ParserFrameContextWithMdLinkInfo{.pltext = pltext_, .link = ::std::move(link_)},
               ::pltxt2htm::NodeType::md_link}} {
     }
 
-    constexpr explicit BasicFrameContext(::pltxt2htm::NodeType node_type,
+    constexpr explicit ParserFrameContext(::pltxt2htm::NodeType node_type,
                                          ::pltxt2htm::details::MdListAst&& md_list_ast_) noexcept
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
               ::pltxt2htm::details::ParserFrameContextWithMdListInfo{::std::move(md_list_ast_)}, node_type}} {
@@ -658,20 +658,20 @@ public:
                          u8"mismatch node type");
     }
 
-    constexpr BasicFrameContext(::pltxt2htm::details::BasicFrameContext<ndebug> const&) noexcept = delete;
+    constexpr ParserFrameContext(::pltxt2htm::details::ParserFrameContext<ndebug> const&) noexcept = delete;
 
-    constexpr BasicFrameContext(::pltxt2htm::details::BasicFrameContext<ndebug>&& other) noexcept
+    constexpr ParserFrameContext(::pltxt2htm::details::ParserFrameContext<ndebug>&& other) noexcept
         : context_data{::std::move(other.context_data)},
           current_index{other.current_index},
           subast(::std::move(other.subast)) {
     }
 
-    constexpr auto operator=(::pltxt2htm::details::BasicFrameContext<ndebug> const&) noexcept
-        -> ::pltxt2htm::details::BasicFrameContext<ndebug>& = delete;
-    constexpr auto operator=(::pltxt2htm::details::BasicFrameContext<ndebug>&&) noexcept
-        -> ::pltxt2htm::details::BasicFrameContext<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::details::ParserFrameContext<ndebug> const&) noexcept
+        -> ::pltxt2htm::details::ParserFrameContext<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::details::ParserFrameContext<ndebug>&&) noexcept
+        -> ::pltxt2htm::details::ParserFrameContext<ndebug>& = delete;
 
-    constexpr ~BasicFrameContext() noexcept = default;
+    constexpr ~ParserFrameContext() noexcept = default;
 
     [[nodiscard]]
     constexpr auto get_nested_tag_type(this auto&& self) noexcept -> ::pltxt2htm::NodeType {

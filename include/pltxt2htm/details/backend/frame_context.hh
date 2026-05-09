@@ -19,7 +19,7 @@ namespace pltxt2htm::details {
  *          the type of nested tag, and the current index position
  * @note This is used during the recursive AST traversal for HTML generation
  */
-class BackendBasicFrameContext {
+class BackendFrameContext {
 public:
     ::pltxt2htm::Ast const& ast_; ///< Reference to the AST being processed
 private:
@@ -28,25 +28,25 @@ public:
     // TODO How about store iterator?
     ::std::size_t current_index_; ///< Current index position in the AST
 
-    constexpr BackendBasicFrameContext(::pltxt2htm::Ast const& ast, ::pltxt2htm::NodeType const nested_tag_type,
+    constexpr BackendFrameContext(::pltxt2htm::Ast const& ast, ::pltxt2htm::NodeType const nested_tag_type,
                                        ::std::size_t current_index) noexcept
         : ast_(ast),
           nested_tag_type_{nested_tag_type},
           current_index_{current_index} {
     }
 
-    constexpr BackendBasicFrameContext(::pltxt2htm::details::BackendBasicFrameContext const&) noexcept = default;
-    constexpr BackendBasicFrameContext(::pltxt2htm::details::BackendBasicFrameContext&&) noexcept = default;
+    constexpr BackendFrameContext(::pltxt2htm::details::BackendFrameContext const&) noexcept = default;
+    constexpr BackendFrameContext(::pltxt2htm::details::BackendFrameContext&&) noexcept = default;
 
-    constexpr ~BackendBasicFrameContext() noexcept = default;
+    constexpr ~BackendFrameContext() noexcept = default;
 
     // const reference do not support operator=
-    constexpr ::pltxt2htm::details::BackendBasicFrameContext& operator=(
-        ::pltxt2htm::details::BackendBasicFrameContext const&) noexcept = delete;
-    constexpr ::pltxt2htm::details::BackendBasicFrameContext& operator=(
-        ::pltxt2htm::details::BackendBasicFrameContext&&) noexcept = delete;
+    constexpr ::pltxt2htm::details::BackendFrameContext& operator=(
+        ::pltxt2htm::details::BackendFrameContext const&) noexcept = delete;
+    constexpr ::pltxt2htm::details::BackendFrameContext& operator=(
+        ::pltxt2htm::details::BackendFrameContext&&) noexcept = delete;
 
-    constexpr auto get_nested_tag_type(this BackendBasicFrameContext const& self) noexcept {
+    constexpr auto get_nested_tag_type(this BackendFrameContext const& self) noexcept {
         return self.nested_tag_type_;
     }
 };
