@@ -969,7 +969,7 @@ entry:
                         // parsing end tag </color> successed
                         ::std::size_t const staged_index{current_index};
                         ::pltxt2htm::PlColor staged_node(::std::move(result),
-                                                       ::std::move(call_stack.top().get_equal_sign_tag_id()));
+                                                         ::std::move(call_stack.top().get_equal_sign_tag_id()));
                         call_stack.pop();
                         call_stack.top().subast.push_back(
                             ::pltxt2htm::HeapGuard<::pltxt2htm::PlColor>(::std::move(staged_node)));
@@ -1017,7 +1017,7 @@ entry:
                         // Whether or not extern_index is out of range, extern for loop will handle it correctly.
                         ::std::size_t const staged_index{current_index};
                         ::pltxt2htm::PlExperiment staged_node(::std::move(result),
-                                                            ::std::move(call_stack.top().get_equal_sign_tag_id()));
+                                                              ::std::move(call_stack.top().get_equal_sign_tag_id()));
                         call_stack.pop();
                         call_stack.top().subast.push_back(
                             ::pltxt2htm::HeapGuard<::pltxt2htm::PlExperiment>(::std::move(staged_node)));
@@ -1039,7 +1039,7 @@ entry:
                         // Whether or not extern_index is out of range, extern for loop will handle it correctly.
                         ::std::size_t const staged_index{current_index};
                         ::pltxt2htm::PlDiscussion staged_node(::std::move(result),
-                                                            ::std::move(call_stack.top().get_equal_sign_tag_id()));
+                                                              ::std::move(call_stack.top().get_equal_sign_tag_id()));
                         call_stack.pop();
                         call_stack.top().subast.push_back(
                             ::pltxt2htm::HeapGuard<::pltxt2htm::PlDiscussion>(::std::move(staged_node)));
@@ -1061,7 +1061,7 @@ entry:
                         // Whether or not extern_index is out of range, extern for loop will handle it correctly.
                         ::std::size_t const staged_index{current_index};
                         ::pltxt2htm::PlExternal staged_node(::std::move(result),
-                                                          ::std::move(call_stack.top().get_external_tag_url()));
+                                                            ::std::move(call_stack.top().get_external_tag_url()));
                         call_stack.pop();
                         call_stack.top().subast.push_back(
                             ::pltxt2htm::HeapGuard<::pltxt2htm::PlExternal>(::std::move(staged_node)));
@@ -1082,7 +1082,7 @@ entry:
                         opt_tag_len.has_value()) {
                         ::std::size_t const staged_index{current_index};
                         ::pltxt2htm::PlUser staged_node(::std::move(result),
-                                                      ::std::move(call_stack.top().get_equal_sign_tag_id()));
+                                                        ::std::move(call_stack.top().get_equal_sign_tag_id()));
                         call_stack.pop();
                         call_stack.top().subast.push_back(
                             ::pltxt2htm::HeapGuard<::pltxt2htm::PlUser>(::std::move(staged_node)));

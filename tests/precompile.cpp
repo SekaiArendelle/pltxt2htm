@@ -12,6 +12,16 @@
     #error "Test fail: pltxt2htm_assert is defined"
 #endif
 
+#if defined __GNUC__ || defined __clang__
+    #if __has_attribute(visibility)
+        #define PLTXT2HTM_VISIBILITY_DEFAULT __attribute__((visibility("default")))
+    #else
+        #define PLTXT2HTM_VISIBILITY_DEFAULT
+    #endif
+#else
+    #define PLTXT2HTM_VISIBILITY_DEFAULT
+#endif
+
 namespace pltxt2htm_test {
 
 #if __has_cpp_attribute(__gnu__::__used__)
@@ -20,10 +30,7 @@ namespace pltxt2htm_test {
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-#if __has_attribute(visibility)
-__attribute__((visibility("default")))
-#endif
-auto pltxt2common_htmld(::fast_io::u8string_view pltext) noexcept -> ::fast_io::u8string {
+PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2common_htmld(::fast_io::u8string_view pltext) noexcept -> ::fast_io::u8string {
     return ::pltxt2htm::pltxt2common_html<::pltxt2htm::Contracts::quick_enforce>(pltext);
 }
 
@@ -33,10 +40,7 @@ auto pltxt2common_htmld(::fast_io::u8string_view pltext) noexcept -> ::fast_io::
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-#if __has_attribute(visibility)
-__attribute__((visibility("default")))
-#endif
-auto pltxt2common_html(::fast_io::u8string_view pltext) noexcept -> ::fast_io::u8string {
+PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2common_html(::fast_io::u8string_view pltext) noexcept -> ::fast_io::u8string {
     return ::pltxt2htm::pltxt2common_html<::pltxt2htm::Contracts::quick_enforce, true>(pltext);
 }
 
@@ -46,10 +50,7 @@ auto pltxt2common_html(::fast_io::u8string_view pltext) noexcept -> ::fast_io::u
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-#if __has_attribute(visibility)
-__attribute__((visibility("default")))
-#endif
-auto pltxt4unittest(::fast_io::u8string_view pltext) noexcept -> ::fast_io::u8string {
+PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt4unittest(::fast_io::u8string_view pltext) noexcept -> ::fast_io::u8string {
     return ::pltxt2htm::pltxt4unittest<::pltxt2htm::Contracts::quick_enforce>(pltext);
 }
 
@@ -59,10 +60,8 @@ auto pltxt4unittest(::fast_io::u8string_view pltext) noexcept -> ::fast_io::u8st
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-#if __has_attribute(visibility)
-__attribute__((visibility("default")))
-#endif
-auto pltxt2fixedadv_htmld(::fast_io::u8string_view pltext) noexcept -> ::fast_io::u8string {
+PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2fixedadv_htmld(::fast_io::u8string_view pltext) noexcept
+    -> ::fast_io::u8string {
     return ::pltxt2htm::pltxt2fixedadv_html<::pltxt2htm::Contracts::quick_enforce>(
         pltext, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
 }
@@ -73,12 +72,11 @@ auto pltxt2fixedadv_htmld(::fast_io::u8string_view pltext) noexcept -> ::fast_io
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-#if __has_attribute(visibility)
-__attribute__((visibility("default")))
-#endif
-auto pltxt2fixedadv_htmld(::fast_io::u8string_view pltext, ::fast_io::u8string_view host,
-                          ::fast_io::u8string_view project, ::fast_io::u8string_view visitor,
-                          ::fast_io::u8string_view author, ::fast_io::u8string_view coauthors) noexcept
+PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2fixedadv_htmld(::fast_io::u8string_view pltext, ::fast_io::u8string_view host,
+                                                       ::fast_io::u8string_view project,
+                                                       ::fast_io::u8string_view visitor,
+                                                       ::fast_io::u8string_view author,
+                                                       ::fast_io::u8string_view coauthors) noexcept
     -> ::fast_io::u8string {
     return ::pltxt2htm::pltxt2fixedadv_html<::pltxt2htm::Contracts::quick_enforce>(pltext, host, project, visitor,
                                                                                    author, coauthors);
@@ -90,10 +88,8 @@ auto pltxt2fixedadv_htmld(::fast_io::u8string_view pltext, ::fast_io::u8string_v
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-#if __has_attribute(visibility)
-__attribute__((visibility("default")))
-#endif
-auto pltxt2plunity_introduction(::fast_io::u8string_view pltext) noexcept -> ::fast_io::u8string {
+PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2plunity_introduction(::fast_io::u8string_view pltext) noexcept
+    -> ::fast_io::u8string {
     return ::pltxt2htm::pltxt2plunity_introduction<::pltxt2htm::Contracts::quick_enforce>(
         pltext, u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
 }
@@ -104,12 +100,12 @@ auto pltxt2plunity_introduction(::fast_io::u8string_view pltext) noexcept -> ::f
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-#if __has_attribute(visibility)
-__attribute__((visibility("default")))
-#endif
-auto pltxt2plunity_introduction(::fast_io::u8string_view pltext, ::fast_io::u8string_view project,
-                                ::fast_io::u8string_view visitor, ::fast_io::u8string_view author,
-                                ::fast_io::u8string_view coauthors) noexcept -> ::fast_io::u8string {
+PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2plunity_introduction(::fast_io::u8string_view pltext,
+                                                             ::fast_io::u8string_view project,
+                                                             ::fast_io::u8string_view visitor,
+                                                             ::fast_io::u8string_view author,
+                                                             ::fast_io::u8string_view coauthors) noexcept
+    -> ::fast_io::u8string {
     return ::pltxt2htm::pltxt2plunity_introduction<::pltxt2htm::Contracts::quick_enforce>(pltext, project, visitor,
                                                                                           author, coauthors);
 }
@@ -117,10 +113,7 @@ auto pltxt2plunity_introduction(::fast_io::u8string_view pltext, ::fast_io::u8st
 #if __has_cpp_attribute(__gnu__::__used__)
 [[__gnu__::__used__]]
 #endif
-#if __has_attribute(visibility)
-__attribute__((visibility("default")))
-#endif
-void assert_true(bool cond) noexcept {
+PLTXT2HTM_VISIBILITY_DEFAULT void assert_true(bool cond) noexcept {
     ::exception::assert_true<false>(cond);
 }
 
