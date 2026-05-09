@@ -288,8 +288,8 @@ entry:
         case ::pltxt2htm::NodeType::pl_color: {
             auto color = static_cast<::pltxt2htm::PlColor const*>(node.release_imul());
 
-            call_stack.push(::pltxt2htm::details::BackendFrameContext(color->get_subast(),
-                                                                           ::pltxt2htm::NodeType::pl_color, 0));
+            call_stack.push(
+                ::pltxt2htm::details::BackendFrameContext(color->get_subast(), ::pltxt2htm::NodeType::pl_color, 0));
             ++current_index;
             result.append(u8"<color=");
             result.append(color->get_color());
@@ -311,7 +311,7 @@ entry:
         case ::pltxt2htm::NodeType::pl_experiment: {
             auto experiment = static_cast<::pltxt2htm::PlExperiment const*>(node.release_imul());
             call_stack.push(::pltxt2htm::details::BackendFrameContext(experiment->get_subast(),
-                                                                           ::pltxt2htm::NodeType::pl_experiment, 0));
+                                                                      ::pltxt2htm::NodeType::pl_experiment, 0));
             ++current_index;
             result.append(u8"<experiment=");
             result.append(experiment->get_id());
@@ -321,7 +321,7 @@ entry:
         case ::pltxt2htm::NodeType::pl_discussion: {
             auto discussion = static_cast<::pltxt2htm::PlDiscussion const*>(node.release_imul());
             call_stack.push(::pltxt2htm::details::BackendFrameContext(discussion->get_subast(),
-                                                                           ::pltxt2htm::NodeType::pl_discussion, 0));
+                                                                      ::pltxt2htm::NodeType::pl_discussion, 0));
             ++current_index;
             result.append(u8"<discussion=");
             result.append(discussion->get_id());
@@ -331,7 +331,7 @@ entry:
         case ::pltxt2htm::NodeType::pl_external: {
             auto external = static_cast<::pltxt2htm::PlExternal const*>(node.release_imul());
             call_stack.push(::pltxt2htm::details::BackendFrameContext(external->get_subast(),
-                                                                           ::pltxt2htm::NodeType::pl_external, 0));
+                                                                      ::pltxt2htm::NodeType::pl_external, 0));
             ++current_index;
             result.append(u8"<external=");
             result.append(::pltxt2htm::details::convert_simple_pltxt_ast_to_plunity_richtext<ndebug>(
@@ -578,8 +578,8 @@ entry:
         case ::pltxt2htm::NodeType::html_code: {
             auto code = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             // Note: Despite `<code></code>` is empty, we still need to handle it
-            call_stack.push(::pltxt2htm::details::BackendFrameContext(code->get_subast(),
-                                                                           ::pltxt2htm::NodeType::html_code, 0));
+            call_stack.push(
+                ::pltxt2htm::details::BackendFrameContext(code->get_subast(), ::pltxt2htm::NodeType::html_code, 0));
             ++current_index;
             constexpr ::fast_io::u8string_view start_tag = u8"<code>";
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
@@ -588,7 +588,7 @@ entry:
         case ::pltxt2htm::NodeType::md_latex_inline: {
             auto latex_inline = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(::pltxt2htm::details::BackendFrameContext(latex_inline->get_subast(),
-                                                                           ::pltxt2htm::NodeType::md_latex_inline, 0));
+                                                                      ::pltxt2htm::NodeType::md_latex_inline, 0));
             ++current_index;
             result.append(u8"$");
             goto entry;
@@ -596,7 +596,7 @@ entry:
         case ::pltxt2htm::NodeType::md_latex_block: {
             auto latex_block = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(::pltxt2htm::details::BackendFrameContext(latex_block->get_subast(),
-                                                                           ::pltxt2htm::NodeType::md_latex_block, 0));
+                                                                      ::pltxt2htm::NodeType::md_latex_block, 0));
             ++current_index;
             result.append(u8"$$");
             goto entry;
@@ -614,7 +614,7 @@ entry:
         case ::pltxt2htm::NodeType::md_block_quotes: {
             auto md_block_quotes = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(::pltxt2htm::details::BackendFrameContext(md_block_quotes->get_subast(),
-                                                                           ::pltxt2htm::NodeType::md_block_quotes, 0));
+                                                                      ::pltxt2htm::NodeType::md_block_quotes, 0));
             ++current_index;
             goto entry;
         }
@@ -622,7 +622,7 @@ entry:
             auto blockquote = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             // Note: Despite `<blockquote></blockquote>` is empty, we still need to handle it
             call_stack.push(::pltxt2htm::details::BackendFrameContext(blockquote->get_subast(),
-                                                                           ::pltxt2htm::NodeType::html_blockquote, 0));
+                                                                      ::pltxt2htm::NodeType::html_blockquote, 0));
             ++current_index;
             constexpr ::fast_io::u8string_view start_tag = u8"<blockquote>";
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
@@ -640,8 +640,8 @@ entry:
         }
         case ::pltxt2htm::NodeType::md_link: {
             auto a_link = static_cast<::pltxt2htm::MdLink const*>(node.release_imul());
-            call_stack.push(::pltxt2htm::details::BackendFrameContext(a_link->get_subast(),
-                                                                           ::pltxt2htm::NodeType::md_link, 0));
+            call_stack.push(
+                ::pltxt2htm::details::BackendFrameContext(a_link->get_subast(), ::pltxt2htm::NodeType::md_link, 0));
             ++current_index;
             result.append(u8"<external=");
             result.append(

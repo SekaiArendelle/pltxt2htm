@@ -160,7 +160,7 @@ entry:
             case ::pltxt2htm::details::MdListNodeType::text: {
                 auto text_node = static_cast<::pltxt2htm::details::MdListTextNode const*>(frame_iter->release_imul());
                 call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(text_node->get_text_view(),
-                                                                                ::pltxt2htm::NodeType::md_li));
+                                                                                 ::pltxt2htm::NodeType::md_li));
                 break;
             }
             case ::pltxt2htm::details::MdListNodeType::md_ul: {
@@ -208,7 +208,7 @@ entry:
             case ::pltxt2htm::details::MdListNodeType::text: {
                 auto text_node = static_cast<::pltxt2htm::details::MdListTextNode const*>(frame_iter->release_imul());
                 call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(text_node->get_text_view(),
-                                                                                ::pltxt2htm::NodeType::md_li));
+                                                                                 ::pltxt2htm::NodeType::md_li));
                 break;
             }
             case ::pltxt2htm::details::MdListNodeType::md_ul: {

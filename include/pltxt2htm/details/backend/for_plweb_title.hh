@@ -93,8 +93,8 @@ entry:
         }
         case ::pltxt2htm::NodeType::pl_color: {
             auto color = static_cast<::pltxt2htm::PlColor const*>(node.release_imul());
-            call_stack.push(::pltxt2htm::details::BackendFrameContext(color->get_subast(),
-                                                                           ::pltxt2htm::NodeType::pl_color, 0));
+            call_stack.push(
+                ::pltxt2htm::details::BackendFrameContext(color->get_subast(), ::pltxt2htm::NodeType::pl_color, 0));
             ++current_index;
             constexpr ::fast_io::u8string_view close_tag1 = u8"<span style=\"color:";
             result.append(::fast_io::u8string_view{close_tag1.data(), close_tag1.size()});
@@ -364,8 +364,8 @@ entry:
             // TODO common_html should not ignore the tag context
             // We should recover the tag context
             auto a_paired_tag = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
-            call_stack.push(::pltxt2htm::details::BackendFrameContext(a_paired_tag->get_subast(),
-                                                                           ::pltxt2htm::NodeType::text, 0));
+            call_stack.push(
+                ::pltxt2htm::details::BackendFrameContext(a_paired_tag->get_subast(), ::pltxt2htm::NodeType::text, 0));
             ++current_index;
             goto entry;
         }

@@ -340,8 +340,8 @@ entry:
         case ::pltxt2htm::NodeType::pl_color: {
             auto color = static_cast<::pltxt2htm::PlColor const*>(node.release_imul());
 
-            call_stack.push(::pltxt2htm::details::BackendFrameContext(color->get_subast(),
-                                                                           ::pltxt2htm::NodeType::pl_color, 0));
+            call_stack.push(
+                ::pltxt2htm::details::BackendFrameContext(color->get_subast(), ::pltxt2htm::NodeType::pl_color, 0));
             ++current_index;
             constexpr ::fast_io::u8string_view close_tag1 = u8"<span style=\"color:";
             result.append(::fast_io::u8string_view{close_tag1.data(), close_tag1.size()});
@@ -380,7 +380,7 @@ entry:
         case ::pltxt2htm::NodeType::pl_experiment: {
             auto experiment = static_cast<::pltxt2htm::PlExperiment const*>(node.release_imul());
             call_stack.push(::pltxt2htm::details::BackendFrameContext(experiment->get_subast(),
-                                                                           ::pltxt2htm::NodeType::pl_experiment, 0));
+                                                                      ::pltxt2htm::NodeType::pl_experiment, 0));
             ++current_index;
             result.append(u8"<a href=\"");
             ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result, host);
@@ -412,7 +412,7 @@ entry:
         case ::pltxt2htm::NodeType::pl_discussion: {
             auto discussion = static_cast<::pltxt2htm::PlDiscussion const*>(node.release_imul());
             call_stack.push(::pltxt2htm::details::BackendFrameContext(discussion->get_subast(),
-                                                                           ::pltxt2htm::NodeType::pl_discussion, 0));
+                                                                      ::pltxt2htm::NodeType::pl_discussion, 0));
             ++current_index;
             result.append(u8"<a href=\"");
             ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result, host);
@@ -664,8 +664,8 @@ entry:
         case ::pltxt2htm::NodeType::html_code: {
             auto code = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             // Note: Despite `<code></code>` is empty, we still need to handle it
-            call_stack.push(::pltxt2htm::details::BackendFrameContext(code->get_subast(),
-                                                                           ::pltxt2htm::NodeType::html_code, 0));
+            call_stack.push(
+                ::pltxt2htm::details::BackendFrameContext(code->get_subast(), ::pltxt2htm::NodeType::html_code, 0));
             ++current_index;
             constexpr ::fast_io::u8string_view start_tag = u8"<code>";
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
@@ -674,7 +674,7 @@ entry:
         case ::pltxt2htm::NodeType::md_latex_inline: {
             auto latex_inline = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(::pltxt2htm::details::BackendFrameContext(latex_inline->get_subast(),
-                                                                           ::pltxt2htm::NodeType::md_latex_inline, 0));
+                                                                      ::pltxt2htm::NodeType::md_latex_inline, 0));
             ++current_index;
             result.append(u8"$");
             goto entry;
@@ -682,7 +682,7 @@ entry:
         case ::pltxt2htm::NodeType::md_latex_block: {
             auto latex_block = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(::pltxt2htm::details::BackendFrameContext(latex_block->get_subast(),
-                                                                           ::pltxt2htm::NodeType::md_latex_block, 0));
+                                                                      ::pltxt2htm::NodeType::md_latex_block, 0));
             ++current_index;
             result.append(u8"$$");
             goto entry;
@@ -703,7 +703,7 @@ entry:
             auto blockquote = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             // Note: Despite `<blockquote></blockquote>` is empty, we still need to handle it
             call_stack.push(::pltxt2htm::details::BackendFrameContext(blockquote->get_subast(),
-                                                                           ::pltxt2htm::NodeType::html_blockquote, 0));
+                                                                      ::pltxt2htm::NodeType::html_blockquote, 0));
             ++current_index;
             constexpr ::fast_io::u8string_view start_tag = u8"<blockquote>";
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
@@ -727,8 +727,8 @@ entry:
             ::pltxt2htm::details::append_url_attr_from_ast<ndebug>(result, a_link->url_.get_url_ast());
             constexpr ::fast_io::u8string_view mid_tag = u8"\">";
             result.append(::fast_io::u8string_view(mid_tag.begin(), mid_tag.size()));
-            call_stack.push(::pltxt2htm::details::BackendFrameContext(a_link->get_subast(),
-                                                                           ::pltxt2htm::NodeType::md_link, 0));
+            call_stack.push(
+                ::pltxt2htm::details::BackendFrameContext(a_link->get_subast(), ::pltxt2htm::NodeType::md_link, 0));
             ++current_index;
             goto entry;
         }
@@ -740,7 +740,7 @@ entry:
             constexpr ::fast_io::u8string_view mid_tag = u8"\">";
             result.append(::fast_io::u8string_view(mid_tag.begin(), mid_tag.size()));
             call_stack.push(::pltxt2htm::details::BackendFrameContext(external->get_subast(),
-                                                                           ::pltxt2htm::NodeType::pl_external, 0));
+                                                                      ::pltxt2htm::NodeType::pl_external, 0));
             ++current_index;
             goto entry;
         }

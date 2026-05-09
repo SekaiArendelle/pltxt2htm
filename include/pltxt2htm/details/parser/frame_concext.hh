@@ -594,7 +594,7 @@ public:
     ::pltxt2htm::Ast subast{};
 
     constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_,
-                                         ::pltxt2htm::NodeType const nested_tag_type_) noexcept
+                                          ::pltxt2htm::NodeType const nested_tag_type_) noexcept
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
               ::pltxt2htm::details::ParserFrameContextWithPltextInfo{pltext_}, nested_tag_type_}},
           subast{} {
@@ -602,8 +602,9 @@ public:
         pltxt2htm_assert(is_plain_pltext_type, u8"mismatch node type");
     }
 
-    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
-                                         ::pltxt2htm::Ast&& subast_) noexcept
+    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_,
+                                          ::pltxt2htm::NodeType const nested_tag_type_,
+                                          ::pltxt2htm::Ast&& subast_) noexcept
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
               ::pltxt2htm::details::ParserFrameContextWithPltextInfo{pltext_}, nested_tag_type_}},
           subast(::std::move(subast_)) {
@@ -611,8 +612,9 @@ public:
         pltxt2htm_assert(is_plain_pltext_type, u8"mismatch node type");
     }
 
-    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
-                                         ::fast_io::u8string&& id_) noexcept
+    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_,
+                                          ::pltxt2htm::NodeType const nested_tag_type_,
+                                          ::fast_io::u8string&& id_) noexcept
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
               ::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo{.pltext = pltext_, .id = ::std::move(id_)},
               nested_tag_type_}} {
@@ -620,8 +622,9 @@ public:
         pltxt2htm_assert(is_equal_sign_tag_type, u8"mismatch node type");
     }
 
-    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
-                                         ::pltxt2htm::Url&& url_) noexcept
+    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_,
+                                          ::pltxt2htm::NodeType const nested_tag_type_,
+                                          ::pltxt2htm::Url&& url_) noexcept
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
               ::pltxt2htm::details::ParserFrameContextWithExternalTagInfo{.pltext = pltext_, .url = ::std::move(url_)},
               nested_tag_type_}} {
@@ -629,8 +632,8 @@ public:
         pltxt2htm_assert(is_external_tag_type, u8"mismatch node type");
     }
 
-    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
-                                         ::std::size_t id_) noexcept
+    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_,
+                                          ::pltxt2htm::NodeType const nested_tag_type_, ::std::size_t id_) noexcept
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
               ::pltxt2htm::details::ParserFrameContextWithPlSizeTagInfo{.pltext = pltext_, .id = id_},
               nested_tag_type_}} {
@@ -651,7 +654,7 @@ public:
     }
 
     constexpr explicit ParserFrameContext(::pltxt2htm::NodeType node_type,
-                                         ::pltxt2htm::details::MdListAst&& md_list_ast_) noexcept
+                                          ::pltxt2htm::details::MdListAst&& md_list_ast_) noexcept
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
               ::pltxt2htm::details::ParserFrameContextWithMdListInfo{::std::move(md_list_ast_)}, node_type}} {
         pltxt2htm_assert(node_type == ::pltxt2htm::NodeType::md_ul || node_type == ::pltxt2htm::NodeType::md_ol,
