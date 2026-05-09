@@ -28,7 +28,7 @@ namespace pltxt2htm::details {
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto plweb_title_backend(::pltxt2htm::PlAst const& ast_init) noexcept -> ::fast_io::u8string {
+constexpr auto plweb_title_backend(::pltxt2htm::Ast const& ast_init) noexcept -> ::fast_io::u8string {
     ::fast_io::u8string result{};
     ::fast_io::stack<::pltxt2htm::details::BackendBasicFrameContext> call_stack{};
     call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(ast_init, ::pltxt2htm::NodeType::text, 0));

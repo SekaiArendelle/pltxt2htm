@@ -33,7 +33,7 @@ class PlColor : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr PlColor() noexcept = delete;
 
-    constexpr PlColor(::pltxt2htm::PlAst&& text, ::fast_io::u8string&& color) noexcept
+    constexpr PlColor(::pltxt2htm::Ast&& text, ::fast_io::u8string&& color) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_color, ::std::move(text)},
           color_(::std::move(color)) {
     }
@@ -79,7 +79,7 @@ public:
      * @brief Construct an anchor node with text content
      * @param[in] text The text content of the anchor
      */
-    constexpr PlA(::pltxt2htm::PlAst&& text) noexcept
+    constexpr PlA(::pltxt2htm::Ast&& text) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_a, ::std::move(text)} {
     }
 
@@ -117,7 +117,7 @@ class PlExperiment : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr PlExperiment() noexcept = delete;
 
-    constexpr PlExperiment(::pltxt2htm::PlAst&& subast, ::fast_io::u8string&& id) noexcept
+    constexpr PlExperiment(::pltxt2htm::Ast&& subast, ::fast_io::u8string&& id) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_experiment, ::std::move(subast)},
           id_(::std::move(id)) {
     }
@@ -163,7 +163,7 @@ class PlDiscussion : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr PlDiscussion() noexcept = delete;
 
-    constexpr PlDiscussion(::pltxt2htm::PlAst&& subast, ::fast_io::u8string&& id) noexcept
+    constexpr PlDiscussion(::pltxt2htm::Ast&& subast, ::fast_io::u8string&& id) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_discussion, ::std::move(subast)},
           id_(::std::move(id)) {
     }
@@ -202,7 +202,7 @@ class PlUser : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr PlUser() noexcept = delete;
 
-    constexpr PlUser(::pltxt2htm::PlAst&& subast, ::fast_io::u8string&& id) noexcept
+    constexpr PlUser(::pltxt2htm::Ast&& subast, ::fast_io::u8string&& id) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_user, ::std::move(subast)},
           id_(::std::move(id)) {
     }
@@ -232,7 +232,7 @@ class PlExternal : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr PlExternal() noexcept = delete;
 
-    constexpr PlExternal(::pltxt2htm::PlAst&& subast, ::pltxt2htm::Url&& url) noexcept
+    constexpr PlExternal(::pltxt2htm::Ast&& subast, ::pltxt2htm::Url&& url) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_external, ::std::move(subast)},
           url_(::std::move(url)) {
     }
@@ -271,7 +271,7 @@ class PlSize : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr PlSize() noexcept = delete;
 
-    constexpr PlSize(::pltxt2htm::PlAst&& subast, ::std::size_t id) noexcept
+    constexpr PlSize(::pltxt2htm::Ast&& subast, ::std::size_t id) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_size, ::std::move(subast)},
           id_(::std::move(id)) {
     }
@@ -310,7 +310,7 @@ public:
      * @brief Construct an italic node with text content
      * @param[in] subast The text content to be displayed in italic
      */
-    constexpr PlI(::pltxt2htm::PlAst&& subast) noexcept
+    constexpr PlI(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_i, ::std::move(subast)} {
     }
 
@@ -340,7 +340,7 @@ public:
      * @brief Construct a bold node with text content
      * @param[in] subast The text content to be displayed in bold
      */
-    constexpr PlB(::pltxt2htm::PlAst&& subast) noexcept
+    constexpr PlB(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::pl_b, ::std::move(subast)} {
     }
 

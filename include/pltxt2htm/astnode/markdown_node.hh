@@ -25,7 +25,7 @@ class MdAtxH1 : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr MdAtxH1() noexcept = delete;
 
-    constexpr MdAtxH1(::pltxt2htm::PlAst&& subast) noexcept
+    constexpr MdAtxH1(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_atx_h1, ::std::move(subast)} {
     }
 
@@ -48,7 +48,7 @@ class MdAtxH2 : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr MdAtxH2() noexcept = delete;
 
-    constexpr MdAtxH2(::pltxt2htm::PlAst&& subast) noexcept
+    constexpr MdAtxH2(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_atx_h2, ::std::move(subast)} {
     }
 
@@ -71,7 +71,7 @@ class MdAtxH3 : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr MdAtxH3() noexcept = delete;
 
-    constexpr MdAtxH3(::pltxt2htm::PlAst&& subast) noexcept
+    constexpr MdAtxH3(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_atx_h3, ::std::move(subast)} {
     }
 
@@ -94,7 +94,7 @@ class MdAtxH4 : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr MdAtxH4() noexcept = delete;
 
-    constexpr MdAtxH4(::pltxt2htm::PlAst&& subast) noexcept
+    constexpr MdAtxH4(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_atx_h4, ::std::move(subast)} {
     }
 
@@ -117,7 +117,7 @@ class MdAtxH5 : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr MdAtxH5() noexcept = delete;
 
-    constexpr MdAtxH5(::pltxt2htm::PlAst&& subast) noexcept
+    constexpr MdAtxH5(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_atx_h5, ::std::move(subast)} {
     }
 
@@ -140,7 +140,7 @@ class MdAtxH6 : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr MdAtxH6() noexcept = delete;
 
-    constexpr MdAtxH6(::pltxt2htm::PlAst&& subast) noexcept
+    constexpr MdAtxH6(::pltxt2htm::Ast&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_atx_h6, ::std::move(subast)} {
     }
 
@@ -758,7 +758,7 @@ class MdCodeFenceBacktick : public ::pltxt2htm::details::PairedTagBase {
     ::exception::optional<::fast_io::u8string> lang;
 
 public:
-    constexpr MdCodeFenceBacktick(::pltxt2htm::PlAst&& ast, ::exception::optional<::fast_io::u8string>&& lang_) noexcept
+    constexpr MdCodeFenceBacktick(::pltxt2htm::Ast&& ast, ::exception::optional<::fast_io::u8string>&& lang_) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_code_fence_backtick, ::std::move(ast)},
           lang(::std::move(lang_)) {
     }
@@ -788,7 +788,7 @@ class MdCodeFenceTilde : public ::pltxt2htm::details::PairedTagBase {
     ::exception::optional<::fast_io::u8string> lang;
 
 public:
-    constexpr MdCodeFenceTilde(::pltxt2htm::PlAst&& ast, ::exception::optional<::fast_io::u8string>&& lang_) noexcept
+    constexpr MdCodeFenceTilde(::pltxt2htm::Ast&& ast, ::exception::optional<::fast_io::u8string>&& lang_) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_code_fence_tilde, ::std::move(ast)},
           lang(::std::move(lang_)) {
     }
@@ -814,7 +814,7 @@ class MdCodeSpan1Backtick : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr MdCodeSpan1Backtick() noexcept = delete;
 
-    constexpr MdCodeSpan1Backtick(::pltxt2htm::PlAst&& ast) noexcept
+    constexpr MdCodeSpan1Backtick(::pltxt2htm::Ast&& ast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_code_span_1_backtick, ::std::move(ast)} {
     }
 
@@ -835,7 +835,7 @@ class MdCodeSpan2Backtick : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr MdCodeSpan2Backtick() noexcept = delete;
 
-    constexpr MdCodeSpan2Backtick(::pltxt2htm::PlAst&& ast) noexcept
+    constexpr MdCodeSpan2Backtick(::pltxt2htm::Ast&& ast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_code_span_2_backtick, ::std::move(ast)} {
     }
 
@@ -856,7 +856,7 @@ class MdCodeSpan3Backtick : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr MdCodeSpan3Backtick() noexcept = delete;
 
-    constexpr MdCodeSpan3Backtick(::pltxt2htm::PlAst&& ast) noexcept
+    constexpr MdCodeSpan3Backtick(::pltxt2htm::Ast&& ast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_code_span_3_backtick, ::std::move(ast)} {
     }
 
@@ -877,7 +877,7 @@ class MdSingleEmphasisAsterisk : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr MdSingleEmphasisAsterisk() noexcept = delete;
 
-    constexpr MdSingleEmphasisAsterisk(::pltxt2htm::PlAst&& ast) noexcept
+    constexpr MdSingleEmphasisAsterisk(::pltxt2htm::Ast&& ast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_single_emphasis_asterisk, ::std::move(ast)} {
     }
 
@@ -900,7 +900,7 @@ class MdDoubleEmphasisAsterisk : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr MdDoubleEmphasisAsterisk() noexcept = delete;
 
-    constexpr MdDoubleEmphasisAsterisk(::pltxt2htm::PlAst&& ast) noexcept
+    constexpr MdDoubleEmphasisAsterisk(::pltxt2htm::Ast&& ast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_double_emphasis_asterisk, ::std::move(ast)} {
     }
 
@@ -923,7 +923,7 @@ class MdTripleEmphasisAsterisk : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr MdTripleEmphasisAsterisk() noexcept = delete;
 
-    constexpr MdTripleEmphasisAsterisk(::pltxt2htm::PlAst&& ast) noexcept
+    constexpr MdTripleEmphasisAsterisk(::pltxt2htm::Ast&& ast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_triple_emphasis_asterisk, ::std::move(ast)} {
     }
 
@@ -946,7 +946,7 @@ class MdSingleEmphasisUnderscore : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr MdSingleEmphasisUnderscore() noexcept = delete;
 
-    constexpr MdSingleEmphasisUnderscore(::pltxt2htm::PlAst&& ast) noexcept
+    constexpr MdSingleEmphasisUnderscore(::pltxt2htm::Ast&& ast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_single_emphasis_underscore, ::std::move(ast)} {
     }
 
@@ -969,7 +969,7 @@ class MdDoubleEmphasisUnderscore : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr MdDoubleEmphasisUnderscore() noexcept = delete;
 
-    constexpr MdDoubleEmphasisUnderscore(::pltxt2htm::PlAst&& ast) noexcept
+    constexpr MdDoubleEmphasisUnderscore(::pltxt2htm::Ast&& ast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_double_emphasis_underscore, ::std::move(ast)} {
     }
 
@@ -992,7 +992,7 @@ class MdTripleEmphasisUnderscore : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr MdTripleEmphasisUnderscore() noexcept = delete;
 
-    constexpr MdTripleEmphasisUnderscore(::pltxt2htm::PlAst&& ast) noexcept
+    constexpr MdTripleEmphasisUnderscore(::pltxt2htm::Ast&& ast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_triple_emphasis_underscore, ::std::move(ast)} {
     }
 
@@ -1011,7 +1011,7 @@ class MdDel : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr MdDel() noexcept = delete;
 
-    constexpr MdDel(::pltxt2htm::PlAst&& ast) noexcept
+    constexpr MdDel(::pltxt2htm::Ast&& ast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_del, ::std::move(ast)} {
     }
 
@@ -1029,7 +1029,7 @@ public:
     // Can not be stored in string_view, otherwise tests/0048.pltext_maybe_destructed.cc will fail
     ::pltxt2htm::Url url_;
 
-    constexpr MdLink(::pltxt2htm::PlAst&& subast, ::pltxt2htm::Url&& url) noexcept
+    constexpr MdLink(::pltxt2htm::Ast&& subast, ::pltxt2htm::Url&& url) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_link, ::std::move(subast)},
           url_(::std::move(url)) {
     }
@@ -1062,7 +1062,7 @@ public:
      * @param subast Inline AST used as image alternative text.
      * @param url Image destination URL.
      */
-    constexpr MdImage(::pltxt2htm::PlAst&& subast, ::pltxt2htm::Url&& url) noexcept
+    constexpr MdImage(::pltxt2htm::Ast&& subast, ::pltxt2htm::Url&& url) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_image, ::std::move(subast)},
           url_(::std::move(url)) {
     }
@@ -1080,7 +1080,7 @@ class MdBlockQuotes : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr MdBlockQuotes() noexcept = delete;
 
-    constexpr MdBlockQuotes(::pltxt2htm::PlAst&& ast) noexcept
+    constexpr MdBlockQuotes(::pltxt2htm::Ast&& ast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_block_quotes, ::std::move(ast)} {
     }
 
@@ -1097,7 +1097,7 @@ class MdUl : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr MdUl() noexcept = delete;
 
-    constexpr MdUl(::pltxt2htm::PlAst&& ast) noexcept
+    constexpr MdUl(::pltxt2htm::Ast&& ast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_ul, ::std::move(ast)} {
     }
 
@@ -1114,7 +1114,7 @@ class MdOl : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr MdOl() noexcept = delete;
 
-    constexpr MdOl(::pltxt2htm::PlAst&& ast) noexcept
+    constexpr MdOl(::pltxt2htm::Ast&& ast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_ol, ::std::move(ast)} {
     }
 
@@ -1131,7 +1131,7 @@ class MdLi : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr MdLi() noexcept = delete;
 
-    constexpr MdLi(::pltxt2htm::PlAst&& ast) noexcept
+    constexpr MdLi(::pltxt2htm::Ast&& ast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_li, ::std::move(ast)} {
     }
 
@@ -1151,7 +1151,7 @@ class MdLatexInline : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr MdLatexInline() noexcept = delete;
 
-    constexpr MdLatexInline(::pltxt2htm::PlAst&& ast) noexcept
+    constexpr MdLatexInline(::pltxt2htm::Ast&& ast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_latex_inline, ::std::move(ast)} {
     }
 
@@ -1171,7 +1171,7 @@ class MdLatexBlock : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr MdLatexBlock() noexcept = delete;
 
-    constexpr MdLatexBlock(::pltxt2htm::PlAst&& ast) noexcept
+    constexpr MdLatexBlock(::pltxt2htm::Ast&& ast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::md_latex_block, ::std::move(ast)} {
     }
 

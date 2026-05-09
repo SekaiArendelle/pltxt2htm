@@ -34,17 +34,17 @@ using ::pltxt2htm::NodeType;
 // basic
 using ::pltxt2htm::PlTxtNode;
 using ::pltxt2htm::U8Char;
-using ::pltxt2htm::InvalidU8Char;
+using ::pltxt2htm::PlInvalidU8Char;
 using ::pltxt2htm::Text;
 
 // html_node
 using ::pltxt2htm::LineBreak;
-using ::pltxt2htm::Br;
+using ::pltxt2htm::PlBr;
 using ::pltxt2htm::Space;
 using ::pltxt2htm::LessThan;
 using ::pltxt2htm::GreaterThan;
 using ::pltxt2htm::Tab;
-using ::pltxt2htm::Ampersand;
+using ::pltxt2htm::PlAmpersand;
 using ::pltxt2htm::SingleQuotationMark;
 using ::pltxt2htm::DoubleQuotationMark;
 
@@ -69,7 +69,7 @@ using ::pltxt2htm::Li;
 
 using ::pltxt2htm::Code;
 using ::pltxt2htm::Pre;
-using ::pltxt2htm::Blockquote;
+using ::pltxt2htm::PlBlockquote;
 
 // markdown_node
 using ::pltxt2htm::MdAtxH1;
@@ -133,15 +133,15 @@ using ::pltxt2htm::MdLatexInline;
 using ::pltxt2htm::MdLatexBlock;
 
 // physics_lab_node
-using ::pltxt2htm::Color;
-using ::pltxt2htm::A;
-using ::pltxt2htm::Experiment;
-using ::pltxt2htm::Discussion;
-using ::pltxt2htm::User;
-using ::pltxt2htm::Size;
-using ::pltxt2htm::External;
-using ::pltxt2htm::I;
-using ::pltxt2htm::B;
+using ::pltxt2htm::PlColor;
+using ::pltxt2htm::PlA;
+using ::pltxt2htm::PlExperiment;
+using ::pltxt2htm::PlDiscussion;
+using ::pltxt2htm::PlUser;
+using ::pltxt2htm::PlSize;
+using ::pltxt2htm::PlExternal;
+using ::pltxt2htm::PlI;
+using ::pltxt2htm::PlB;
 using ::pltxt2htm::PlMacroProject;
 using ::pltxt2htm::PlMacroVisitor;
 using ::pltxt2htm::PlMacroAuthor;

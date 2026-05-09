@@ -32,7 +32,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto devil_stuff_after_line_break(
     ::fast_io::u8string_view pltext, ::fast_io::stack<::pltxt2htm::details::BasicFrameContext<ndebug>>& call_stack,
-    ::pltxt2htm::PlAst& result) noexcept -> ::pltxt2htm::details::DevilStuffAfterLineBreakResult {
+    ::pltxt2htm::Ast& result) noexcept -> ::pltxt2htm::details::DevilStuffAfterLineBreakResult {
     ::std::size_t current_index{};
     while (true) {
         if (current_index >= pltext.size()) {
@@ -56,27 +56,27 @@ constexpr auto devil_stuff_after_line_break(
             else {
                 switch (md_atx_heading_type) {
                 case ::pltxt2htm::NodeType::md_atx_h1: {
-                    result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH1>(::pltxt2htm::PlAst{}));
+                    result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH1>(::pltxt2htm::Ast{}));
                     break;
                 }
                 case ::pltxt2htm::NodeType::md_atx_h2: {
-                    result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH2>(::pltxt2htm::PlAst{}));
+                    result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH2>(::pltxt2htm::Ast{}));
                     break;
                 }
                 case ::pltxt2htm::NodeType::md_atx_h3: {
-                    result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH3>(::pltxt2htm::PlAst{}));
+                    result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH3>(::pltxt2htm::Ast{}));
                     break;
                 }
                 case ::pltxt2htm::NodeType::md_atx_h4: {
-                    result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH4>(::pltxt2htm::PlAst{}));
+                    result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH4>(::pltxt2htm::Ast{}));
                     break;
                 }
                 case ::pltxt2htm::NodeType::md_atx_h5: {
-                    result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH5>(::pltxt2htm::PlAst{}));
+                    result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH5>(::pltxt2htm::Ast{}));
                     break;
                 }
                 case ::pltxt2htm::NodeType::md_atx_h6: {
-                    result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH6>(::pltxt2htm::PlAst{}));
+                    result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH6>(::pltxt2htm::Ast{}));
                     break;
                 }
                 default:
@@ -136,10 +136,10 @@ constexpr auto devil_stuff_after_line_break(
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto parse_pltxt(::fast_io::stack<::pltxt2htm::details::BasicFrameContext<ndebug>>& call_stack) noexcept
-    -> ::pltxt2htm::PlAst {
+    -> ::pltxt2htm::Ast {
 entry:
     if (call_stack.top().get_nested_tag_type() == ::pltxt2htm::NodeType::md_ul) {
-        // ::pltxt2htm::details::MdListAst to ::pltxt2htm::PlAst
+        // ::pltxt2htm::details::MdListAst to ::pltxt2htm::Ast
         auto&& frame = call_stack.top();
         auto&& frame_md_list_ast = frame.get_md_list_ast();
         auto&& frame_iter = frame.get_md_list_iter();
@@ -187,7 +187,7 @@ entry:
         goto entry;
     }
     else if (call_stack.top().get_nested_tag_type() == ::pltxt2htm::NodeType::md_ol) {
-        // ::pltxt2htm::details::MdListAst to ::pltxt2htm::PlAst
+        // ::pltxt2htm::details::MdListAst to ::pltxt2htm::Ast
         auto&& frame = call_stack.top();
         auto&& frame_md_list_ast = frame.get_md_list_ast();
         auto&& frame_iter = frame.get_md_list_iter();
@@ -930,7 +930,7 @@ entry:
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2))) {
                     // Find the closing -->
                     ::std::size_t comment_end{current_index + 4}; // Position after <!--
-                    ::pltxt2htm::PlAst subast{};
+                    ::pltxt2htm::Ast subast{};
 
                     for (; comment_end < pltext_size; ++comment_end) {
                         if (::pltxt2htm::details::is_prefix_match<ndebug, u8"-->">(

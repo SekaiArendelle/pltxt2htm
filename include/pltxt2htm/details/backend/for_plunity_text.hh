@@ -31,7 +31,7 @@ class OlFrameContext : public ::pltxt2htm::details::BackendBasicFrameContext {
 public:
     ::std::size_t ol_li_count{1};
 
-    constexpr OlFrameContext(::pltxt2htm::PlAst const& ast) noexcept
+    constexpr OlFrameContext(::pltxt2htm::Ast const& ast) noexcept
         : BackendBasicFrameContext(ast, ::pltxt2htm::NodeType::html_ol, 0) {
     }
 
@@ -46,7 +46,7 @@ public:
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::PlAst const& ast) noexcept
+constexpr auto convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast const& ast) noexcept
     -> ::fast_io::u8string {
     ::fast_io::u8string result{};
     for (auto&& node : ast) {
@@ -217,7 +217,7 @@ constexpr auto convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::PlAst c
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto plunity_text_backend(::pltxt2htm::PlAst const& ast_init, ::fast_io::u8string_view project,
+constexpr auto plunity_text_backend(::pltxt2htm::Ast const& ast_init, ::fast_io::u8string_view project,
                                     ::fast_io::u8string_view visitor, ::fast_io::u8string_view author,
                                     ::fast_io::u8string_view coauthors) noexcept -> ::fast_io::u8string {
     ::fast_io::u8string result{};
