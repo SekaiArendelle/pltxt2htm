@@ -154,7 +154,6 @@ public:
         : context_data{::std::move(equal_sign_tag_context_), nested_tag_type_},
           ast(ast_),
           iter{iter_} {
-        this->context_data.equal_sign_tag = equal_sign_tag_context_;
     }
 
     // TODO pass an empty OptimizerContextWithATagInfo sucks, maybe `static constexpr auto construct_a(...) -> Self` is
@@ -164,7 +163,6 @@ public:
         : context_data{::std::move(a_tag_context_)},
           ast(ast_),
           iter{iter_} {
-        this->context_data.a_tag = a_tag_context_;
     }
 
     OptimizerFrameContext(::pltxt2htm::Ast* ast_, Iter&& iter_,
@@ -172,7 +170,6 @@ public:
         : context_data{::std::move(pl_size_tag_context_)},
           ast(ast_),
           iter{iter_} {
-        this->context_data.pl_size_tag = pl_size_tag_context_;
     }
 
     constexpr OptimizerFrameContext(::pltxt2htm::details::OptimizerFrameContext<Iter, ndebug> const&) noexcept = delete;
