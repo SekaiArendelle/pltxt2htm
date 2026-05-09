@@ -112,7 +112,7 @@ namespace details {
  */
 class PairedTagBase : public ::pltxt2htm::PlTxtNode {
 protected:
-    ::pltxt2htm::Ast subast_;
+    ::pltxt2htm::PlAst subast_;
 
 public:
     constexpr PairedTagBase() noexcept = delete;
@@ -122,7 +122,7 @@ public:
      * @param[in] node_type The type of this node (from NodeType enum)
      * @param[in] subast The sub-AST that represents the content inside this tag
      */
-    constexpr PairedTagBase(::pltxt2htm::NodeType node_type, ::pltxt2htm::Ast&& subast) noexcept
+    constexpr PairedTagBase(::pltxt2htm::NodeType node_type, ::pltxt2htm::PlAst&& subast) noexcept
         : ::pltxt2htm::PlTxtNode{node_type},
           subast_(::std::move(subast)) {
     }
@@ -192,7 +192,7 @@ public:
      * @brief Construct a text node with sub-AST content
      * @param[in] subast The sub-AST representing the text content and inline formatting
      */
-    constexpr Text(::pltxt2htm::Ast&& subast) noexcept
+    constexpr Text(::pltxt2htm::PlAst&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase(::pltxt2htm::NodeType::text, ::std::move(subast)) {
     }
 
@@ -205,12 +205,12 @@ public:
 };
 
 class Url {
-    ::pltxt2htm::Ast url_ast_{};
+    ::pltxt2htm::PlAst url_ast_{};
 
 public:
     constexpr Url() noexcept = default;
 
-    constexpr explicit Url(::pltxt2htm::Ast&& attr) noexcept
+    constexpr explicit Url(::pltxt2htm::PlAst&& attr) noexcept
         : url_ast_(::std::move(attr)) {
     }
 

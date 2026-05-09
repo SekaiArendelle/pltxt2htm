@@ -591,7 +591,7 @@ class BasicFrameContext {
 
 public:
     ::std::size_t current_index{};
-    ::pltxt2htm::Ast subast{};
+    ::pltxt2htm::PlAst subast{};
 
     constexpr explicit BasicFrameContext(::fast_io::u8string_view pltext_,
                                          ::pltxt2htm::NodeType const nested_tag_type_) noexcept
@@ -603,7 +603,7 @@ public:
     }
 
     constexpr explicit BasicFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::NodeType const nested_tag_type_,
-                                         ::pltxt2htm::Ast&& subast_) noexcept
+                                         ::pltxt2htm::PlAst&& subast_) noexcept
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
               ::pltxt2htm::details::ParserFrameContextWithPltextInfo{pltext_}, nested_tag_type_}},
           subast(::std::move(subast_)) {

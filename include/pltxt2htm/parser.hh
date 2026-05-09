@@ -46,11 +46,11 @@ namespace pltxt2htm {
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2htm::Ast {
+constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2htm::PlAst {
     // fast_io::deque contains bug about RAII, use fast_io::list instead
     // This stack is used to track nested tag contexts during parsing
     ::fast_io::stack<::pltxt2htm::details::BasicFrameContext<ndebug>> call_stack{};
-    ::pltxt2htm::Ast result{};
+    ::pltxt2htm::PlAst result{};
 
     ::std::size_t start_index{};
 

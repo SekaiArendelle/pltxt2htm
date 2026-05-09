@@ -41,11 +41,11 @@ public:
         : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::html_br} {
     }
 
-    constexpr Br(::pltxt2htm::Br const&) noexcept = delete;
-    constexpr Br(::pltxt2htm::Br&& other) noexcept = default;
+    constexpr Br(::pltxt2htm::PlBr const&) noexcept = delete;
+    constexpr Br(::pltxt2htm::PlBr&& other) noexcept = default;
     constexpr ~Br() noexcept = default;
-    constexpr ::pltxt2htm::Br& operator=(::pltxt2htm::Br const& other) noexcept = delete;
-    constexpr ::pltxt2htm::Br& operator=(::pltxt2htm::Br&& other) noexcept = delete;
+    constexpr ::pltxt2htm::PlBr& operator=(::pltxt2htm::PlBr const& other) noexcept = delete;
+    constexpr ::pltxt2htm::PlBr& operator=(::pltxt2htm::PlBr&& other) noexcept = delete;
 };
 
 /**
@@ -126,11 +126,11 @@ public:
         : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::ampersand} {
     }
 
-    constexpr Ampersand(::pltxt2htm::Ampersand const&) noexcept = delete;
-    constexpr Ampersand(::pltxt2htm::Ampersand&& other) noexcept = default;
+    constexpr Ampersand(::pltxt2htm::PlAmpersand const&) noexcept = delete;
+    constexpr Ampersand(::pltxt2htm::PlAmpersand&& other) noexcept = default;
     constexpr ~Ampersand() noexcept = default;
-    constexpr ::pltxt2htm::Ampersand& operator=(::pltxt2htm::Ampersand const& other) noexcept = delete;
-    constexpr ::pltxt2htm::Ampersand& operator=(::pltxt2htm::Ampersand&& other) noexcept = delete;
+    constexpr ::pltxt2htm::PlAmpersand& operator=(::pltxt2htm::PlAmpersand const& other) noexcept = delete;
+    constexpr ::pltxt2htm::PlAmpersand& operator=(::pltxt2htm::PlAmpersand&& other) noexcept = delete;
 };
 
 /**
@@ -173,7 +173,7 @@ class H1 : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr H1() noexcept = delete;
 
-    constexpr H1(::pltxt2htm::Ast&& subast) noexcept
+    constexpr H1(::pltxt2htm::PlAst&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_h1, ::std::move(subast)} {
     }
 
@@ -195,7 +195,7 @@ class H2 : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr H2() noexcept = delete;
 
-    constexpr H2(::pltxt2htm::Ast&& subast) noexcept
+    constexpr H2(::pltxt2htm::PlAst&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_h2, ::std::move(subast)} {
     }
 
@@ -217,7 +217,7 @@ class H3 : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr H3() noexcept = delete;
 
-    constexpr H3(::pltxt2htm::Ast&& subast) noexcept
+    constexpr H3(::pltxt2htm::PlAst&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_h3, ::std::move(subast)} {
     }
 
@@ -239,7 +239,7 @@ class H4 : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr H4() noexcept = delete;
 
-    constexpr H4(::pltxt2htm::Ast&& subast) noexcept
+    constexpr H4(::pltxt2htm::PlAst&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_h4, ::std::move(subast)} {
     }
 
@@ -261,7 +261,7 @@ class H5 : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr H5() noexcept = delete;
 
-    constexpr H5(::pltxt2htm::Ast&& subast) noexcept
+    constexpr H5(::pltxt2htm::PlAst&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_h5, ::std::move(subast)} {
     }
 
@@ -283,7 +283,7 @@ class H6 : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr H6() noexcept = delete;
 
-    constexpr H6(::pltxt2htm::Ast&& subast) noexcept
+    constexpr H6(::pltxt2htm::PlAst&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_h6, ::std::move(subast)} {
     }
 
@@ -305,7 +305,7 @@ class P : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr P() noexcept = delete;
 
-    constexpr P(::pltxt2htm::Ast&& subast) noexcept
+    constexpr P(::pltxt2htm::PlAst&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_p, ::std::move(subast)} {
     }
 
@@ -327,7 +327,7 @@ class Del : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr Del() noexcept = delete;
 
-    constexpr Del(::pltxt2htm::Ast&& subast) noexcept
+    constexpr Del(::pltxt2htm::PlAst&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_del, ::std::move(subast)} {
     }
 
@@ -365,7 +365,7 @@ class Note : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr Note() noexcept = delete;
 
-    constexpr Note(::pltxt2htm::Ast&& subast) noexcept
+    constexpr Note(::pltxt2htm::PlAst&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_note, ::std::move(subast)} {
     }
 
@@ -387,7 +387,7 @@ class Em : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr Em() noexcept = delete;
 
-    constexpr Em(::pltxt2htm::Ast&& subast) noexcept
+    constexpr Em(::pltxt2htm::PlAst&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_em, ::std::move(subast)} {
     }
 
@@ -409,7 +409,7 @@ class Strong : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr Strong() noexcept = delete;
 
-    constexpr Strong(::pltxt2htm::Ast&& subast) noexcept
+    constexpr Strong(::pltxt2htm::PlAst&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_strong, ::std::move(subast)} {
     }
 
@@ -431,7 +431,7 @@ class Ul : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr Ul() noexcept = delete;
 
-    constexpr Ul(::pltxt2htm::Ast&& subast) noexcept
+    constexpr Ul(::pltxt2htm::PlAst&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_ul, ::std::move(subast)} {
     }
 
@@ -453,7 +453,7 @@ class Ol : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr Ol() noexcept = delete;
 
-    constexpr Ol(::pltxt2htm::Ast&& subast) noexcept
+    constexpr Ol(::pltxt2htm::PlAst&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_ol, ::std::move(subast)} {
     }
 
@@ -475,7 +475,7 @@ class Li : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr Li() noexcept = delete;
 
-    constexpr Li(::pltxt2htm::Ast&& subast) noexcept
+    constexpr Li(::pltxt2htm::PlAst&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_li, ::std::move(subast)} {
     }
 
@@ -497,7 +497,7 @@ class Code : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr Code() noexcept = delete;
 
-    constexpr Code(::pltxt2htm::Ast&& subast) noexcept
+    constexpr Code(::pltxt2htm::PlAst&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_code, ::std::move(subast)} {
     }
 
@@ -519,7 +519,7 @@ class Pre : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr Pre() noexcept = delete;
 
-    constexpr Pre(::pltxt2htm::Ast&& subast) noexcept
+    constexpr Pre(::pltxt2htm::PlAst&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_pre, ::std::move(subast)} {
     }
 
@@ -541,19 +541,19 @@ class Blockquote : public ::pltxt2htm::details::PairedTagBase {
 public:
     constexpr Blockquote() noexcept = delete;
 
-    constexpr Blockquote(::pltxt2htm::Ast&& subast) noexcept
+    constexpr Blockquote(::pltxt2htm::PlAst&& subast) noexcept
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_blockquote, ::std::move(subast)} {
     }
 
-    constexpr Blockquote(::pltxt2htm::Blockquote const&) noexcept = delete;
+    constexpr Blockquote(::pltxt2htm::PlBlockquote const&) noexcept = delete;
 
-    constexpr Blockquote(::pltxt2htm::Blockquote&&) noexcept = default;
+    constexpr Blockquote(::pltxt2htm::PlBlockquote&&) noexcept = default;
 
     constexpr ~Blockquote() noexcept = default;
 
-    constexpr ::pltxt2htm::Blockquote& operator=(::pltxt2htm::Blockquote const&) noexcept = delete;
+    constexpr ::pltxt2htm::PlBlockquote& operator=(::pltxt2htm::PlBlockquote const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::Blockquote& operator=(::pltxt2htm::Blockquote&&) noexcept = default;
+    constexpr ::pltxt2htm::PlBlockquote& operator=(::pltxt2htm::PlBlockquote&&) noexcept = default;
 };
 
 } // namespace pltxt2htm

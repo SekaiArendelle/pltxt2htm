@@ -28,7 +28,7 @@ namespace pltxt2htm::details {
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast const& ast) noexcept -> ::fast_io::u8string {
+constexpr auto convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::PlAst const& ast) noexcept -> ::fast_io::u8string {
     ::fast_io::u8string result{};
     for (auto&& node : ast) {
         switch (node->node_type()) {
@@ -232,7 +232,7 @@ constexpr void append_html_attr_escaped(::fast_io::u8string& result, ::fast_io::
 }
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr void append_url_attr_from_ast(::fast_io::u8string& result, ::pltxt2htm::Ast const& url_ast) noexcept {
+constexpr void append_url_attr_from_ast(::fast_io::u8string& result, ::pltxt2htm::PlAst const& url_ast) noexcept {
     auto const url_str = ::pltxt2htm::details::convert_simple_pltxt_ast_to_plweb_text<ndebug>(url_ast);
     // Under normal circumstances, `url_str` should never contain characters that could enable XSS in HTML attributes.
     // To avoid masking upstream bugs (and to keep release-path performance), we only assert this in debug mode.
@@ -268,7 +268,7 @@ constexpr void append_url_attr_from_ast(::fast_io::u8string& result, ::pltxt2htm
  */
 template<::pltxt2htm::Contracts ndebug, bool isfixed>
 [[nodiscard]]
-constexpr auto plweb_text_backend(::pltxt2htm::Ast const& ast_init, ::fast_io::u8string_view host,
+constexpr auto plweb_text_backend(::pltxt2htm::PlAst const& ast_init, ::fast_io::u8string_view host,
                                   ::fast_io::u8string_view project, ::fast_io::u8string_view visitor,
                                   ::fast_io::u8string_view author, ::fast_io::u8string_view coauthors) noexcept
     -> ::fast_io::u8string {
@@ -338,7 +338,7 @@ entry:
             continue;
         }
         case ::pltxt2htm::NodeType::pl_color: {
-            auto color = static_cast<::pltxt2htm::Color const*>(node.release_imul());
+            auto color = static_cast<::pltxt2htm::PlColor const*>(node.release_imul());
 
             call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(color->get_subast(),
                                                                            ::pltxt2htm::NodeType::pl_color, 0));
@@ -366,19 +366,19 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_a: {
-            auto anchor = static_cast<::pltxt2htm::A const*>(node.release_imul());
+            auto anchor = static_cast<::pltxt2htm::PlA const*>(node.release_imul());
 
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(anchor->get_subast(), ::pltxt2htm::NodeType::pl_a, 0));
             ++current_index;
             constexpr auto open_tag = ::pltxt2htm::details::concat(
-                ::pltxt2htm::details::U8LiteralString{u8"<span style=\"color:"}, ::pltxt2htm::A::get_color_literal(),
+                ::pltxt2htm::details::U8LiteralString{u8"<span style=\"color:"}, ::pltxt2htm::PlA::get_color_literal(),
                 ::pltxt2htm::details::U8LiteralString{u8";\">"});
             result.append(::fast_io::u8string_view{open_tag.data(), open_tag.size()});
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_experiment: {
-            auto experiment = static_cast<::pltxt2htm::Experiment const*>(node.release_imul());
+            auto experiment = static_cast<::pltxt2htm::PlExperiment const*>(node.release_imul());
             call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(experiment->get_subast(),
                                                                            ::pltxt2htm::NodeType::pl_experiment, 0));
             ++current_index;
@@ -410,7 +410,7 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_discussion: {
-            auto discussion = static_cast<::pltxt2htm::Discussion const*>(node.release_imul());
+            auto discussion = static_cast<::pltxt2htm::PlDiscussion const*>(node.release_imul());
             call_stack.push(::pltxt2htm::details::BackendBasicFrameContext(discussion->get_subast(),
                                                                            ::pltxt2htm::NodeType::pl_discussion, 0));
             ++current_index;
@@ -442,7 +442,7 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_user: {
-            auto user = static_cast<::pltxt2htm::User const*>(node.release_imul());
+            auto user = static_cast<::pltxt2htm::PlUser const*>(node.release_imul());
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(user->get_subast(), ::pltxt2htm::NodeType::pl_user, 0));
             ++current_index;
@@ -469,7 +469,7 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_size: {
-            auto size = static_cast<::pltxt2htm::Size const*>(node.release_imul());
+            auto size = static_cast<::pltxt2htm::PlSize const*>(node.release_imul());
             call_stack.push(
                 ::pltxt2htm::details::BackendBasicFrameContext(size->get_subast(), ::pltxt2htm::NodeType::pl_size, 0));
             ++current_index;
@@ -733,7 +733,7 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_external: {
-            auto external = static_cast<::pltxt2htm::External const*>(node.release_imul());
+            auto external = static_cast<::pltxt2htm::PlExternal const*>(node.release_imul());
             constexpr ::fast_io::u8string_view start_tag = u8"<a href=\"";
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
             ::pltxt2htm::details::append_url_attr_from_ast<ndebug>(result, external->get_url().get_url_ast());
