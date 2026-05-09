@@ -315,12 +315,24 @@ entry:
                     }
                 }
             }
-            auto&& nested_tag_type = call_stack.top().get_nested_tag_type();
+            ::pltxt2htm::NodeType const nested_tag_type{call_stack.top().get_nested_tag_type()};
             // Optimization: If this color matches the parent color, flatten the nesting
             // <color=red>text<color=red>text</color>test</color> -> <color=red>texttexttext</color>
-            bool const is_not_same_tag = (nested_tag_type != ::pltxt2htm::NodeType::pl_color &&
-                                          nested_tag_type != ::pltxt2htm::NodeType::pl_a) ||
-                                         color->get_color() != call_stack.top().get_equal_sign_tag_id();
+            auto const is_not_same_tag = bool{[nested_tag_type, &call_stack, &color] constexpr noexcept {
+                if (nested_tag_type == ::pltxt2htm::NodeType::pl_color) {
+                    return color->get_color() != call_stack.top().get_equal_sign_tag_id();
+                }
+                else if (nested_tag_type == ::pltxt2htm::NodeType::pl_a) {
+                    constexpr auto anchor_color_literal = ::pltxt2htm::PlA::get_color_literal();
+                    // TODO Avoid constructing a temporary u8string_view on each comparison
+                    auto const anchor_color =
+                        ::fast_io::u8string_view{anchor_color_literal.data(), anchor_color_literal.size()};
+                    return color->get_color() != anchor_color;
+                }
+                else {
+                    return true; // Different tag types, so not the same
+                }
+            }()};
             if (is_not_same_tag) {
                 auto&& subast = color->get_subast();
                 if (subast.empty()) {
@@ -358,7 +370,7 @@ entry:
                     }
                 }
             }
-            auto nested_tag_type = call_stack.top().get_nested_tag_type();
+            ::pltxt2htm::NodeType const nested_tag_type{call_stack.top().get_nested_tag_type()};
             // Optimization: If this color matches the parent color, flatten the nesting
             // <a>text<a>text</a>text</a> -> <a>texttexttext</a>
             auto const is_not_same_tag = bool{[nested_tag_type, &call_stack] constexpr noexcept {
