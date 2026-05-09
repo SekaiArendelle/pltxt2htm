@@ -41,8 +41,6 @@ public:
     ::fast_io::u8string_view id_; ///< The value part of the attribute (e.g., "red" in color=red)
 };
 
-class OptimizerContextWithATagInfo {};
-
 class OptimizerContextWithPlSizeTagInfo {
 public:
     ::std::size_t id_; ///< Numeric size value (e.g., 12 in size=12)
@@ -53,7 +51,6 @@ public:
     union {
         ::pltxt2htm::details::OptimizerContextWithoutInfo without_info;
         ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo equal_sign_tag;
-        ::pltxt2htm::details::OptimizerContextWithATagInfo a_tag;
         ::pltxt2htm::details::OptimizerContextWithPlSizeTagInfo pl_size_tag;
     };
 
@@ -77,11 +74,6 @@ public:
           kind{::pltxt2htm::NodeType::pl_size} {
     }
 
-    constexpr OptimizerContextVariant(::pltxt2htm::details::OptimizerContextWithATagInfo&& a_tag_context) noexcept
-        : a_tag{::std::move(a_tag_context)},
-          kind{::pltxt2htm::NodeType::pl_a} {
-    }
-
     constexpr OptimizerContextVariant(OptimizerContextVariant const&) noexcept = delete;
 
     constexpr OptimizerContextVariant(OptimizerContextVariant&& other) noexcept
@@ -97,10 +89,6 @@ public:
             ::std::construct_at(::std::addressof(this->equal_sign_tag), ::std::move(other.equal_sign_tag));
             return;
         }
-        case ::pltxt2htm::NodeType::pl_a: {
-            ::std::construct_at(::std::addressof(this->a_tag), ::std::move(other.a_tag));
-            return;
-        }
         case ::pltxt2htm::NodeType::pl_size: {
             ::std::construct_at(::std::addressof(this->pl_size_tag), ::std::move(other.pl_size_tag));
             return;
@@ -113,7 +101,6 @@ public:
 
     static_assert(::std::is_trivially_destructible_v<decltype(without_info)>);
     static_assert(::std::is_trivially_destructible_v<decltype(equal_sign_tag)>);
-    static_assert(::std::is_trivially_destructible_v<decltype(a_tag)>);
     static_assert(::std::is_trivially_destructible_v<decltype(pl_size_tag)>);
 
     constexpr ~OptimizerContextVariant() noexcept = default;
@@ -152,15 +139,6 @@ public:
     OptimizerFrameContext(::pltxt2htm::Ast* ast_, ::pltxt2htm::NodeType const nested_tag_type_, Iter&& iter_,
                           ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo&& equal_sign_tag_context_) noexcept
         : context_data{::std::move(equal_sign_tag_context_), nested_tag_type_},
-          ast(ast_),
-          iter{iter_} {
-    }
-
-    // TODO pass an empty OptimizerContextWithATagInfo sucks, maybe `static constexpr auto construct_a(...) -> Self` is
-    // better?
-    OptimizerFrameContext(::pltxt2htm::Ast* ast_, Iter&& iter_,
-                          ::pltxt2htm::details::OptimizerContextWithATagInfo&& a_tag_context_) noexcept
-        : context_data{::std::move(a_tag_context_)},
           ast(ast_),
           iter{iter_} {
     }
@@ -391,8 +369,9 @@ entry:
                     ast.erase(current_iter);
                     continue;
                 }
-                call_stack.push(::pltxt2htm::details::OptimizerFrameContext<::pltxt2htm::Ast::iterator, ndebug>(
-                    ::std::addressof(subast), subast.begin(), ::pltxt2htm::details::OptimizerContextWithATagInfo{}));
+                call_stack.push(
+                    ::pltxt2htm::details::OptimizerFrameContext<::pltxt2htm::Ast::iterator, ndebug>(
+                        ::std::addressof(subast), ::pltxt2htm::NodeType::pl_a, subast.begin()));
                 goto entry;
             }
             else {
