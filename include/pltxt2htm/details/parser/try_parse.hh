@@ -206,17 +206,17 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
     }
     else if ((chr & 0xE0) == 0xC0) {
         if (1 >= pltext_size) {
-            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::PlInvalidU8Char>{});
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
             return 0;
         }
         auto next_char = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 1);
         if ((next_char & 0xC0) != 0x80) {
-            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::PlInvalidU8Char>{});
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
             return 0;
         }
         char32_t combine{static_cast<char32_t>(chr & 0x1F) << 6 | static_cast<char32_t>(next_char & 0x3F)};
         if (combine < 0x80 || combine > 0x7FF) {
-            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::PlInvalidU8Char>{});
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
             return 1;
         }
 
@@ -226,7 +226,7 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
     }
     else if ((chr & 0xF0) == 0xE0) {
         if (2 >= pltext_size) {
-            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::PlInvalidU8Char>{});
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
             if (pltext_size != 2) {
                 return 0;
             }
@@ -238,22 +238,22 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
         }
         auto next_char = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 1);
         if ((next_char & 0xC0) != 0x80) {
-            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::PlInvalidU8Char>{});
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
             return 0;
         }
         auto next_char2 = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 2);
         if ((next_char2 & 0xC0) != 0x80) {
-            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::PlInvalidU8Char>{});
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
             return 1;
         }
         char32_t combine{static_cast<char32_t>(chr & 0x0f) << 12 | static_cast<char32_t>(next_char & 0x3f) << 6 |
                          static_cast<char32_t>(next_char2 & 0x3f)};
         if (combine < 0x800 || combine > 0xffff) {
-            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::PlInvalidU8Char>{});
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
             return 2;
         }
         if (0xd800 <= combine && combine <= 0xdfff) {
-            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::PlInvalidU8Char>{});
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
             return 2;
         }
 
@@ -264,7 +264,7 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
     }
     else if ((chr & 0xF8) == 0xF0) {
         if (3 >= pltext_size) {
-            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::PlInvalidU8Char>{});
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
             if (pltext_size < 2) {
                 return 0;
             }
@@ -283,23 +283,23 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
         }
         auto next_char = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 1);
         if ((next_char & 0xC0) != 0x80) {
-            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::PlInvalidU8Char>{});
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
             return 0;
         }
         auto next_char2 = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 2);
         if ((next_char2 & 0xC0) != 0x80) {
-            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::PlInvalidU8Char>{});
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
             return 1;
         }
         auto next_char3 = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 3);
         if ((next_char3 & 0xC0) != 0x80) {
-            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::PlInvalidU8Char>{});
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
             return 2;
         }
         char32_t combine{static_cast<char32_t>(chr & 0x07) << 18 | static_cast<char32_t>(next_char & 0x3F) << 12 |
                          static_cast<char32_t>(next_char2 & 0x3F) << 6 | static_cast<char32_t>(next_char3 & 0x3F)};
         if (combine < 0x10000 || combine > 0x10FFFF) {
-            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::PlInvalidU8Char>{});
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
             return 3;
         }
         result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::U8Char>{chr});
@@ -309,7 +309,7 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
         return 3;
     }
     else {
-        result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::PlInvalidU8Char>{});
+        result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::InvalidU8Char>{});
         return 0;
     }
 }
@@ -888,7 +888,7 @@ constexpr auto simply_parse_pltext(::fast_io::u8string_view pltext) noexcept
             continue;
         }
         else if (chr == u8'&') {
-            ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::PlAmpersand>{});
+            ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Ampersand>{});
             continue;
         }
         else if (chr == u8'\'') {
@@ -1513,7 +1513,7 @@ constexpr auto make_try_parse_url_result(::fast_io::u8string_view const parsed_u
         }
         switch (chr) {
         case u8'&':
-            ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::PlAmpersand>{});
+            ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Ampersand>{});
             break;
         case u8'\'':
             ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::SingleQuotationMark>{});
@@ -1802,7 +1802,7 @@ constexpr auto try_parse_md_image(::fast_io::u8string_view pltext) noexcept
             continue;
         }
         else if (chr == u8'&') {
-            link_text_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::PlAmpersand>{});
+            link_text_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Ampersand>{});
             continue;
         }
         else if (chr == u8'\'') {

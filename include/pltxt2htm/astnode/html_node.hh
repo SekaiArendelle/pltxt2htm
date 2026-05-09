@@ -41,11 +41,11 @@ public:
         : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::html_br} {
     }
 
-    constexpr Br(::pltxt2htm::PlBr const&) noexcept = delete;
-    constexpr Br(::pltxt2htm::PlBr&& other) noexcept = default;
+    constexpr Br(::pltxt2htm::Br const&) noexcept = delete;
+    constexpr Br(::pltxt2htm::Br&& other) noexcept = default;
     constexpr ~Br() noexcept = default;
-    constexpr ::pltxt2htm::PlBr& operator=(::pltxt2htm::PlBr const& other) noexcept = delete;
-    constexpr ::pltxt2htm::PlBr& operator=(::pltxt2htm::PlBr&& other) noexcept = delete;
+    constexpr ::pltxt2htm::Br& operator=(::pltxt2htm::Br const& other) noexcept = delete;
+    constexpr ::pltxt2htm::Br& operator=(::pltxt2htm::Br&& other) noexcept = delete;
 };
 
 /**
@@ -126,11 +126,11 @@ public:
         : ::pltxt2htm::PlTxtNode{::pltxt2htm::NodeType::ampersand} {
     }
 
-    constexpr Ampersand(::pltxt2htm::PlAmpersand const&) noexcept = delete;
-    constexpr Ampersand(::pltxt2htm::PlAmpersand&& other) noexcept = default;
+    constexpr Ampersand(::pltxt2htm::Ampersand const&) noexcept = delete;
+    constexpr Ampersand(::pltxt2htm::Ampersand&& other) noexcept = default;
     constexpr ~Ampersand() noexcept = default;
-    constexpr ::pltxt2htm::PlAmpersand& operator=(::pltxt2htm::PlAmpersand const& other) noexcept = delete;
-    constexpr ::pltxt2htm::PlAmpersand& operator=(::pltxt2htm::PlAmpersand&& other) noexcept = delete;
+    constexpr ::pltxt2htm::Ampersand& operator=(::pltxt2htm::Ampersand const& other) noexcept = delete;
+    constexpr ::pltxt2htm::Ampersand& operator=(::pltxt2htm::Ampersand&& other) noexcept = delete;
 };
 
 /**
@@ -545,15 +545,15 @@ public:
         : ::pltxt2htm::details::PairedTagBase{::pltxt2htm::NodeType::html_blockquote, ::std::move(subast)} {
     }
 
-    constexpr Blockquote(::pltxt2htm::PlBlockquote const&) noexcept = delete;
+    constexpr Blockquote(::pltxt2htm::Blockquote const&) noexcept = delete;
 
-    constexpr Blockquote(::pltxt2htm::PlBlockquote&&) noexcept = default;
+    constexpr Blockquote(::pltxt2htm::Blockquote&&) noexcept = default;
 
     constexpr ~Blockquote() noexcept = default;
 
-    constexpr ::pltxt2htm::PlBlockquote& operator=(::pltxt2htm::PlBlockquote const&) noexcept = delete;
+    constexpr ::pltxt2htm::Blockquote& operator=(::pltxt2htm::Blockquote const&) noexcept = delete;
 
-    constexpr ::pltxt2htm::PlBlockquote& operator=(::pltxt2htm::PlBlockquote&&) noexcept = default;
+    constexpr ::pltxt2htm::Blockquote& operator=(::pltxt2htm::Blockquote&&) noexcept = default;
 };
 
 } // namespace pltxt2htm

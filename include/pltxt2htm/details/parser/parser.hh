@@ -273,7 +273,7 @@ entry:
             continue;
         }
         else if (chr == u8'&') {
-            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::PlAmpersand>{});
+            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Ampersand>{});
             ++current_index;
             continue;
         }
@@ -540,7 +540,7 @@ entry:
                              ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                          opt_br_tag_len.has_value()) {
                     current_index += opt_br_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 2;
-                    result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::PlBr>(::pltxt2htm::PlBr()));
+                    result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Br>(::pltxt2htm::Br()));
 
                     auto&& [forward_index, require_restart] =
                         ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(
@@ -1466,10 +1466,10 @@ entry:
                         opt_tag_len.has_value()) {
                         // parsing end tag </blockquote> successed
                         ::std::size_t const staged_index{current_index};
-                        ::pltxt2htm::PlBlockquote staged_node(::std::move(result));
+                        ::pltxt2htm::Blockquote staged_node(::std::move(result));
                         call_stack.pop();
                         call_stack.top().subast.push_back(
-                            ::pltxt2htm::HeapGuard<::pltxt2htm::PlBlockquote>(::std::move(staged_node)));
+                            ::pltxt2htm::HeapGuard<::pltxt2htm::Blockquote>(::std::move(staged_node)));
                         call_stack.top().current_index +=
                             staged_index + opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         goto entry;
@@ -1817,7 +1817,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeType::html_blockquote: {
-                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::PlBlockquote>(::std::move(subast)));
+                super_ast.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::Blockquote>(::std::move(subast)));
                 super_index += staged_index;
                 goto entry;
             }

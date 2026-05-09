@@ -34,17 +34,17 @@ using ::pltxt2htm::NodeType;
 // basic
 using ::pltxt2htm::PlTxtNode;
 using ::pltxt2htm::U8Char;
-using ::pltxt2htm::PlInvalidU8Char;
+using ::pltxt2htm::InvalidU8Char;
 using ::pltxt2htm::Text;
 
 // html_node
 using ::pltxt2htm::LineBreak;
-using ::pltxt2htm::PlBr;
+using ::pltxt2htm::Br;
 using ::pltxt2htm::Space;
 using ::pltxt2htm::LessThan;
 using ::pltxt2htm::GreaterThan;
 using ::pltxt2htm::Tab;
-using ::pltxt2htm::PlAmpersand;
+using ::pltxt2htm::Ampersand;
 using ::pltxt2htm::SingleQuotationMark;
 using ::pltxt2htm::DoubleQuotationMark;
 
@@ -69,7 +69,7 @@ using ::pltxt2htm::Li;
 
 using ::pltxt2htm::Code;
 using ::pltxt2htm::Pre;
-using ::pltxt2htm::PlBlockquote;
+using ::pltxt2htm::Blockquote;
 
 // markdown_node
 using ::pltxt2htm::MdAtxH1;
