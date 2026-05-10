@@ -489,7 +489,7 @@ entry:
         case ::pltxt2htm::NodeType::html_ol: {
             auto ol = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                ol->get_subast(), ::pltxt2htm::NodeType::html_ol, 0, ::pltxt2htm::details::BackendContextWithOlInfo{}));
+                ol->get_subast(), 0, ::pltxt2htm::details::BackendContextWithOlInfo{}));
             ++current_index;
             goto entry;
         }

@@ -12,6 +12,7 @@
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string_view.h>
 #include "../../astnode/basic.hh"
+#include "../../astnode/node_type.hh"
 #include "../../contracts.hh"
 #include "../push_macro.hh"
 
@@ -38,10 +39,9 @@ public:
           kind{kind_} {
     }
 
-    constexpr BackendContextVariant(::pltxt2htm::details::BackendContextWithOlInfo&& ol_info_context,
-                                    ::pltxt2htm::NodeType const kind_) noexcept
+    constexpr BackendContextVariant(::pltxt2htm::details::BackendContextWithOlInfo&& ol_info_context) noexcept
         : ol_info{::std::move(ol_info_context)},
-          kind{kind_} {
+          kind{::pltxt2htm::NodeType::html_ol} {
     }
 
     constexpr ~BackendContextVariant() noexcept = default;
@@ -68,10 +68,9 @@ public:
           current_index_{current_index} {
     }
 
-    constexpr BackendFrameContext(::pltxt2htm::Ast const& ast, ::pltxt2htm::NodeType const nested_tag_type,
-                                  ::std::size_t current_index,
+    constexpr BackendFrameContext(::pltxt2htm::Ast const& ast, ::std::size_t current_index,
                                   ::pltxt2htm::details::BackendContextWithOlInfo&& ol_info_context) noexcept
-        : context_data{::std::move(ol_info_context), nested_tag_type},
+        : context_data{::std::move(ol_info_context)},
           ast_(ast),
           current_index_{current_index} {
     }
