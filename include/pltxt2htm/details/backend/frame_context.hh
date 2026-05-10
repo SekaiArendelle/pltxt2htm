@@ -38,9 +38,8 @@ public:
           kind{kind_} {
     }
 
-    constexpr BackendContextVariant(
-        ::pltxt2htm::details::BackendContextWithOlInfo&& ol_info_context,
-        ::pltxt2htm::NodeType const kind_) noexcept
+    constexpr BackendContextVariant(::pltxt2htm::details::BackendContextWithOlInfo&& ol_info_context,
+                                    ::pltxt2htm::NodeType const kind_) noexcept
         : ol_info{::std::move(ol_info_context)},
           kind{kind_} {
     }
