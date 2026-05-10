@@ -78,7 +78,7 @@ public:
 
     constexpr OptimizerContextVariant(OptimizerContextVariant&& other) noexcept
         : kind{other.kind} {
-        switch (this->kind) /* -Werror=switch */ {
+        switch (this->kind) {
         case ::pltxt2htm::NodeType::pl_color:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::pl_experiment:
@@ -369,9 +369,8 @@ entry:
                     ast.erase(current_iter);
                     continue;
                 }
-                call_stack.push(
-                    ::pltxt2htm::details::OptimizerFrameContext<::pltxt2htm::Ast::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeType::pl_a, subast.begin()));
+                call_stack.push(::pltxt2htm::details::OptimizerFrameContext<::pltxt2htm::Ast::iterator, ndebug>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeType::pl_a, subast.begin()));
                 goto entry;
             }
             else {
