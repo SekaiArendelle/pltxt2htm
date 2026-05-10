@@ -277,7 +277,7 @@ constexpr auto plweb_text_backend(::pltxt2htm::Ast const& ast_init, ::fast_io::u
     call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(ast_init, ::pltxt2htm::NodeType::text, 0));
 
 entry:
-    auto const& ast = call_stack.top().ast_;
+    auto const& ast = call_stack.top().get_ast();
     auto const& nested_tag_type = call_stack.top().get_nested_tag_type();
     auto&& current_index = call_stack.top().current_index_;
     for (; current_index < ast.size(); ++current_index) {
