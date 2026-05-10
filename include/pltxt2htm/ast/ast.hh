@@ -1,13 +1,13 @@
 #pragma once
 
 #include <fast_io/fast_io_dsal/vector.h>
-#include "../../astnode/node_type.hh"
+#include "../astnode/node_type.hh"
 
-#include "node_decl.hh"
-#include "basic_node.hh"
-#include "html_node.hh"
-#include "markdown_node.hh"
-#include "physics_lab_node.hh"
+#include "impl/node_decl.hh"
+#include "impl/basic_node.hh"
+#include "impl/html_node.hh"
+#include "impl/markdown_node.hh"
+#include "impl/physics_lab_node.hh"
 
 namespace pltxt2htm::ast2 {
 
