@@ -1004,6 +1004,10 @@ public:
             new (::std::addressof(md_latex_block_node))::pltxt2htm::ast2::MdLatexBlock(
                 ::std::move(other.md_latex_block_node));
             break;
+        case ::pltxt2htm::NodeType::base:
+            [[unlikely]] {
+                ::exception::unreachable();
+            }
         }
     }
 
@@ -1333,10 +1337,10 @@ public:
         case ::pltxt2htm::NodeType::md_latex_block:
             md_latex_block_node.~MdLatexBlock();
             break;
-#if 1 // todo set as 0
-        default:
-            ::exception::unreachable();
-#endif
+        case ::pltxt2htm::NodeType::base:
+            [[unlikely]] {
+                ::exception::unreachable();
+            }
         }
     }
 };
