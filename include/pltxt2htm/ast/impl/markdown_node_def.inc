@@ -1,5 +1,3 @@
 #pragma once
 
-namespace pltxtt2htm::ast2 {
-
-}
+namespace pltxtt2htm::ast2 {}

@@ -12,6 +12,7 @@ class InvalidU8Char {};
 
 class Text {
     ::pltxt2htm::ast2::Ast subast;
+
 public:
     constexpr Text(::pltxt2htm::ast2::Ast&& subast) noexcept;
     constexpr Text(::pltxt2htm::ast2::Text const&) noexcept = delete;
