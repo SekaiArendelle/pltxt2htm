@@ -7,18 +7,28 @@ namespace pltxt2htm::ast2 {
 
 // 无任何数据成员的节点 – 编译器自动生成所有特殊成员函数
 class LineBreak {};
+
 class Br {};
+
 class Space {};
+
 class LessThan {};
+
 class GreaterThan {};
+
 class Tab {};
+
 class Ampersand {};
+
 class SingleQuotationMark {};
+
 class DoubleQuotationMark {};
+
 class Hr {};
 
 class H1 {
     ::pltxt2htm::ast2::Ast subast_{};
+
 public:
     constexpr H1() noexcept = delete;
     constexpr explicit H1(::pltxt2htm::ast2::Ast&& subast) noexcept;
@@ -36,6 +46,7 @@ public:
 
 class H2 {
     ::pltxt2htm::ast2::Ast subast_{};
+
 public:
     constexpr H2() noexcept = delete;
     constexpr explicit H2(::pltxt2htm::ast2::Ast&& subast) noexcept;
@@ -53,6 +64,7 @@ public:
 
 class H3 {
     ::pltxt2htm::ast2::Ast subast_{};
+
 public:
     constexpr H3() noexcept = delete;
     constexpr explicit H3(::pltxt2htm::ast2::Ast&& subast) noexcept;
@@ -70,6 +82,7 @@ public:
 
 class H4 {
     ::pltxt2htm::ast2::Ast subast_{};
+
 public:
     constexpr H4() noexcept = delete;
     constexpr explicit H4(::pltxt2htm::ast2::Ast&& subast) noexcept;
@@ -87,6 +100,7 @@ public:
 
 class H5 {
     ::pltxt2htm::ast2::Ast subast_{};
+
 public:
     constexpr H5() noexcept = delete;
     constexpr explicit H5(::pltxt2htm::ast2::Ast&& subast) noexcept;
@@ -104,6 +118,7 @@ public:
 
 class H6 {
     ::pltxt2htm::ast2::Ast subast_{};
+
 public:
     constexpr H6() noexcept = delete;
     constexpr explicit H6(::pltxt2htm::ast2::Ast&& subast) noexcept;
@@ -121,6 +136,7 @@ public:
 
 class P {
     ::pltxt2htm::ast2::Ast subast_{};
+
 public:
     constexpr P() noexcept = delete;
     constexpr explicit P(::pltxt2htm::ast2::Ast&& subast) noexcept;
@@ -138,6 +154,7 @@ public:
 
 class Del {
     ::pltxt2htm::ast2::Ast subast_{};
+
 public:
     constexpr Del() noexcept = delete;
     constexpr explicit Del(::pltxt2htm::ast2::Ast&& subast) noexcept;
@@ -155,6 +172,7 @@ public:
 
 class Note {
     ::pltxt2htm::ast2::Ast subast_{};
+
 public:
     constexpr Note() noexcept = delete;
     constexpr explicit Note(::pltxt2htm::ast2::Ast&& subast) noexcept;
@@ -172,6 +190,7 @@ public:
 
 class Em {
     ::pltxt2htm::ast2::Ast subast_{};
+
 public:
     constexpr Em() noexcept = delete;
     constexpr explicit Em(::pltxt2htm::ast2::Ast&& subast) noexcept;
@@ -189,6 +208,7 @@ public:
 
 class Strong {
     ::pltxt2htm::ast2::Ast subast_{};
+
 public:
     constexpr Strong() noexcept = delete;
     constexpr explicit Strong(::pltxt2htm::ast2::Ast&& subast) noexcept;
@@ -206,6 +226,7 @@ public:
 
 class Ul {
     ::pltxt2htm::ast2::Ast subast_{};
+
 public:
     constexpr Ul() noexcept = delete;
     constexpr explicit Ul(::pltxt2htm::ast2::Ast&& subast) noexcept;
@@ -223,6 +244,7 @@ public:
 
 class Ol {
     ::pltxt2htm::ast2::Ast subast_{};
+
 public:
     constexpr Ol() noexcept = delete;
     constexpr explicit Ol(::pltxt2htm::ast2::Ast&& subast) noexcept;
@@ -240,6 +262,7 @@ public:
 
 class Li {
     ::pltxt2htm::ast2::Ast subast_{};
+
 public:
     constexpr Li() noexcept = delete;
     constexpr explicit Li(::pltxt2htm::ast2::Ast&& subast) noexcept;
@@ -257,6 +280,7 @@ public:
 
 class Code {
     ::pltxt2htm::ast2::Ast subast_{};
+
 public:
     constexpr Code() noexcept = delete;
     constexpr explicit Code(::pltxt2htm::ast2::Ast&& subast) noexcept;
@@ -274,6 +298,7 @@ public:
 
 class Pre {
     ::pltxt2htm::ast2::Ast subast_{};
+
 public:
     constexpr Pre() noexcept = delete;
     constexpr explicit Pre(::pltxt2htm::ast2::Ast&& subast) noexcept;
@@ -291,6 +316,7 @@ public:
 
 class Blockquote {
     ::pltxt2htm::ast2::Ast subast_{};
+
 public:
     constexpr Blockquote() noexcept = delete;
     constexpr explicit Blockquote(::pltxt2htm::ast2::Ast&& subast) noexcept;
