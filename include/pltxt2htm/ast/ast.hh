@@ -84,6 +84,9 @@ public:
         ::pltxt2htm::ast2::MdEscapeAt md_escape_at_node;
         ::pltxt2htm::ast2::MdEscapeLeftBracket md_escape_left_bracket_node;
         ::pltxt2htm::ast2::MdEscapeRightBracket md_escape_right_bracket_node;
+        ::pltxt2htm::ast2::MdEscapeCaret md_escape_caret_node;
+        ::pltxt2htm::ast2::MdEscapeUnderscore md_escape_underscore_node;
+        ::pltxt2htm::ast2::MdEscapeBacktick md_escape_backtick_node;
         ::pltxt2htm::ast2::MdEscapeLeftBrace md_escape_left_brace_node;
         ::pltxt2htm::ast2::MdEscapePipe md_escape_pipe_node;
         ::pltxt2htm::ast2::MdEscapeRightBrace md_escape_right_brace_node;
@@ -500,6 +503,21 @@ public:
           node_kind{::pltxt2htm::NodeType::md_escape_right_bracket} {
     }
 
+    constexpr AstVariant(::pltxt2htm::ast2::MdEscapeCaret&& node)
+        : md_escape_caret_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeType::md_escape_caret} {
+    }
+
+    constexpr AstVariant(::pltxt2htm::ast2::MdEscapeUnderscore&& node)
+        : md_escape_underscore_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeType::md_escape_underscore} {
+    }
+
+    constexpr AstVariant(::pltxt2htm::ast2::MdEscapeBacktick&& node)
+        : md_escape_backtick_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeType::md_escape_backtick} {
+    }
+
     constexpr AstVariant(::pltxt2htm::ast2::MdEscapeLeftBrace&& node)
         : md_escape_left_brace_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::md_escape_left_brace} {
@@ -911,6 +929,18 @@ public:
             new (::std::addressof(md_escape_right_bracket_node))::pltxt2htm::ast2::MdEscapeRightBracket(
                 ::std::move(other.md_escape_right_bracket_node));
             break;
+        case ::pltxt2htm::NodeType::md_escape_caret:
+            new (::std::addressof(md_escape_caret_node))::pltxt2htm::ast2::MdEscapeCaret(
+                ::std::move(other.md_escape_caret_node));
+            break;
+        case ::pltxt2htm::NodeType::md_escape_underscore:
+            new (::std::addressof(md_escape_underscore_node))::pltxt2htm::ast2::MdEscapeUnderscore(
+                ::std::move(other.md_escape_underscore_node));
+            break;
+        case ::pltxt2htm::NodeType::md_escape_backtick:
+            new (::std::addressof(md_escape_backtick_node))::pltxt2htm::ast2::MdEscapeBacktick(
+                ::std::move(other.md_escape_backtick_node));
+            break;
         case ::pltxt2htm::NodeType::md_escape_left_brace:
             new (::std::addressof(md_escape_left_brace_node))::pltxt2htm::ast2::MdEscapeLeftBrace(
                 ::std::move(other.md_escape_left_brace_node));
@@ -1261,6 +1291,15 @@ public:
             break;
         case ::pltxt2htm::NodeType::md_escape_right_bracket:
             md_escape_right_bracket_node.~MdEscapeRightBracket();
+            break;
+        case ::pltxt2htm::NodeType::md_escape_caret:
+            md_escape_caret_node.~MdEscapeCaret();
+            break;
+        case ::pltxt2htm::NodeType::md_escape_underscore:
+            md_escape_underscore_node.~MdEscapeUnderscore();
+            break;
+        case ::pltxt2htm::NodeType::md_escape_backtick:
+            md_escape_backtick_node.~MdEscapeBacktick();
             break;
         case ::pltxt2htm::NodeType::md_escape_left_brace:
             md_escape_left_brace_node.~MdEscapeLeftBrace();

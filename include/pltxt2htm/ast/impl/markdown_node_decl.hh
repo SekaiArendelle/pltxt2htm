@@ -166,6 +166,12 @@ class MdEscapeLeftBracket {};
 
 class MdEscapeRightBracket {};
 
+class MdEscapeCaret {};
+
+class MdEscapeUnderscore {};
+
+class MdEscapeBacktick {};
+
 class MdEscapeLeftBrace {};
 
 class MdEscapePipe {};
