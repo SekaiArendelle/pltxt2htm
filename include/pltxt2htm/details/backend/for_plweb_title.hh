@@ -35,7 +35,7 @@ constexpr auto plweb_title_backend(::pltxt2htm::Ast const& ast_init) noexcept ->
 
 entry:
     auto const& ast = call_stack.top().get_ast();
-    auto&& current_index = call_stack.top().current_index_;
+    auto&& current_index = call_stack.top().current_index;
     for (; current_index < ast.size(); ++current_index) {
         auto&& node = ::pltxt2htm::details::vector_index<ndebug>(ast, current_index);
 

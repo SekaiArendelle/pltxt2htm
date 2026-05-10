@@ -56,26 +56,26 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class BackendFrameContext {
     ::pltxt2htm::details::BackendContextVariant context_data;
-    /* [[nonnull]] */ ::pltxt2htm::Ast const* ast_; ///< Reference to the AST being processed
+    /* [[nonnull]] */ ::pltxt2htm::Ast const* ast; ///< Reference to the AST being processed
 
 public:
-    ::std::size_t current_index_; ///< Current index position in the AST
+    ::std::size_t current_index; ///< Current index position in the AST
 
     /**
      * @note construct ast from reference to avoid nullptr issue
      */
-    constexpr BackendFrameContext(::pltxt2htm::Ast const& ast, ::pltxt2htm::NodeType const nested_tag_type,
-                                  ::std::size_t current_index) noexcept
+    constexpr BackendFrameContext(::pltxt2htm::Ast const& ast_, ::pltxt2htm::NodeType const nested_tag_type,
+                                  ::std::size_t current_index_) noexcept
         : context_data{nested_tag_type},
-          ast_(::std::addressof(ast)),
-          current_index_{current_index} {
+          ast(::std::addressof(ast_)),
+          current_index{current_index_} {
     }
 
-    constexpr BackendFrameContext(::pltxt2htm::Ast const& ast, ::std::size_t current_index,
+    constexpr BackendFrameContext(::pltxt2htm::Ast const& ast_, ::std::size_t current_index_,
                                   ::pltxt2htm::details::BackendContextWithOlInfo&& ol_info_context) noexcept
         : context_data{::std::move(ol_info_context)},
-          ast_(::std::addressof(ast)),
-          current_index_{current_index} {
+          ast(::std::addressof(ast_)),
+          current_index{current_index_} {
     }
 
     constexpr BackendFrameContext(::pltxt2htm::details::BackendFrameContext<ndebug> const&) noexcept = default;
@@ -95,7 +95,7 @@ public:
 
     constexpr auto get_ast(this ::pltxt2htm::details::BackendFrameContext<ndebug> const& self) noexcept
         -> ::pltxt2htm::Ast const& {
-        return *(self.ast_);
+        return *(self.ast);
     }
 
     constexpr auto get_ol_li_count(this auto&& self) noexcept -> ::std::size_t& {
