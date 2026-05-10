@@ -1,6 +1,6 @@
 #pragma once
 
-#include "node_decl.hh"
+#include "ast_decl.hh"
 
 namespace pltxt2htm::ast2 {
 

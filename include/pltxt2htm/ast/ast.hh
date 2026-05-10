@@ -6,7 +6,6 @@
 
 #include "../astnode/node_type.hh"
 
-#include "impl/node_decl.hh"
 #include "impl/basic_node_decl.hh"
 #include "impl/html_node_decl.hh"
 #include "impl/markdown_node_decl.hh"
