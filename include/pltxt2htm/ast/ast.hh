@@ -18,9 +18,18 @@ namespace details {
 class AstVariant {
 public:
     union {
+        // basic node
         ::pltxt2htm::ast2::U8Char u8char_node;
         ::pltxt2htm::ast2::InvalidU8Char invalid_u8char_node;
         ::pltxt2htm::ast2::Text text_node;
+
+        // html node
+
+
+        // markdown node
+
+
+        // physics lab node
         ::pltxt2htm::ast2::PlColor pl_color_node;
         ::pltxt2htm::ast2::PlA pl_a_node;
         ::pltxt2htm::ast2::PlExperiment pl_experiment_node;
