@@ -1,3 +1,11 @@
+/**
+ * @file markdown_node_decl.hh
+ * @brief Markdown-specific AST node declarations for pltxt2htm
+ * @details Defines nodes for Markdown syntax: ATX headings, escaped characters,
+ *          thematic breaks, code fences/spans, emphasis, strikethrough, links,
+ *          images, block quotes, lists, and LaTeX.
+ */
+
 #pragma once
 
 #include <utility>
@@ -8,6 +16,10 @@
 
 namespace pltxt2htm::ast2 {
 
+/**
+ * @brief Markdown ATX heading level 1
+ * @details Represents a heading started with '# '.
+ */
 class MdAtxH1 {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -26,6 +38,9 @@ public:
     }
 };
 
+/**
+ * @brief Markdown ATX heading level 2
+ */
 class MdAtxH2 {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -44,6 +59,9 @@ public:
     }
 };
 
+/**
+ * @brief Markdown ATX heading level 3
+ */
 class MdAtxH3 {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -62,6 +80,9 @@ public:
     }
 };
 
+/**
+ * @brief Markdown ATX heading level 4
+ */
 class MdAtxH4 {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -80,6 +101,9 @@ public:
     }
 };
 
+/**
+ * @brief Markdown ATX heading level 5
+ */
 class MdAtxH5 {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -98,6 +122,9 @@ public:
     }
 };
 
+/**
+ * @brief Markdown ATX heading level 6
+ */
 class MdAtxH6 {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -116,78 +143,92 @@ public:
     }
 };
 
-class MdEscapeBackslash {};
+// Markdown escaped characters (each represents a backslash-escaped character)
+/** @brief Escaped backslash '\\' */ class MdEscapeBackslash {};
 
-class MdEscapeExclamation {};
+/** @brief Escaped exclamation '!' */ class MdEscapeExclamation {};
 
-class MdEscapeDoubleQuote {};
+/** @brief Escaped double quote '"' */ class MdEscapeDoubleQuote {};
 
-class MdEscapeHash {};
+/** @brief Escaped hash '#' */ class MdEscapeHash {};
 
-class MdEscapeDollar {};
+/** @brief Escaped dollar '$' */ class MdEscapeDollar {};
 
-class MdEscapePercent {};
+/** @brief Escaped percent '%' */ class MdEscapePercent {};
 
-class MdEscapeAmpersand {};
+/** @brief Escaped ampersand '&' */ class MdEscapeAmpersand {};
 
-class MdEscapeSingleQuote {};
+/** @brief Escaped single quote '\'' */ class MdEscapeSingleQuote {};
 
-class MdEscapeLeftParen {};
+/** @brief Escaped left parenthesis '(' */ class MdEscapeLeftParen {};
 
-class MdEscapeRightParen {};
+/** @brief Escaped right parenthesis ')' */ class MdEscapeRightParen {};
 
-class MdEscapeAsterisk {};
+/** @brief Escaped asterisk '*' */ class MdEscapeAsterisk {};
 
-class MdEscapePlus {};
+/** @brief Escaped plus '+' */ class MdEscapePlus {};
 
-class MdEscapeComma {};
+/** @brief Escaped comma ',' */ class MdEscapeComma {};
 
-class MdEscapeHyphen {};
+/** @brief Escaped hyphen '-' */ class MdEscapeHyphen {};
 
-class MdEscapeDot {};
+/** @brief Escaped dot '.' */ class MdEscapeDot {};
 
-class MdEscapeSlash {};
+/** @brief Escaped slash '/' */ class MdEscapeSlash {};
 
-class MdEscapeColon {};
+/** @brief Escaped colon ':' */ class MdEscapeColon {};
 
-class MdEscapeSemicolon {};
+/** @brief Escaped semicolon ';' */ class MdEscapeSemicolon {};
 
-class MdEscapeLessThan {};
+/** @brief Escaped less-than '<' */ class MdEscapeLessThan {};
 
-class MdEscapeEquals {};
+/** @brief Escaped equals '=' */ class MdEscapeEquals {};
 
-class MdEscapeGreaterThan {};
+/** @brief Escaped greater-than '>' */ class MdEscapeGreaterThan {};
 
-class MdEscapeQuestion {};
+/** @brief Escaped question '?' */ class MdEscapeQuestion {};
 
-class MdEscapeAt {};
+/** @brief Escaped at '@' */ class MdEscapeAt {};
 
-class MdEscapeLeftBracket {};
+/** @brief Escaped left bracket '[' */ class MdEscapeLeftBracket {};
 
-class MdEscapeRightBracket {};
+/** @brief Escaped right bracket ']' */ class MdEscapeRightBracket {};
 
-class MdEscapeCaret {};
+/** @brief Escaped caret '^' */ class MdEscapeCaret {};
 
-class MdEscapeUnderscore {};
+/** @brief Escaped underscore '_' */ class MdEscapeUnderscore {};
 
-class MdEscapeBacktick {};
+/** @brief Escaped backtick '`' */ class MdEscapeBacktick {};
 
-class MdEscapeLeftBrace {};
+/** @brief Escaped left brace '{' */ class MdEscapeLeftBrace {};
 
-class MdEscapePipe {};
+/** @brief Escaped pipe '|' */ class MdEscapePipe {};
 
-class MdEscapeRightBrace {};
+/** @brief Escaped right brace '}' */ class MdEscapeRightBrace {};
 
-class MdEscapeTilde {};
+/** @brief Escaped tilde '~' */ class MdEscapeTilde {};
 
+/**
+ * @brief Markdown thematic break (horizontal rule)
+ * @details Represents '---', '***', or '___' lines.
+ */
 class MdHr {};
 
+/**
+ * @brief Markdown fenced code block using backticks
+ * @details Contains code content and an optional language identifier.
+ */
 class MdCodeFenceBacktick {
     ::pltxt2htm::ast2::Ast subast_{};
     ::exception::optional<::fast_io::u8string> lang_;
 
 public:
     constexpr MdCodeFenceBacktick() noexcept = delete;
+    /**
+     * @brief Construct a backtick fenced code block.
+     * @param subast The inner code content as an AST.
+     * @param lang Optional language string.
+     */
     constexpr explicit MdCodeFenceBacktick(::pltxt2htm::ast2::Ast&& subast,
                                            ::exception::optional<::fast_io::u8string>&& lang) noexcept;
     constexpr MdCodeFenceBacktick(MdCodeFenceBacktick const&) noexcept = delete;
@@ -207,12 +248,21 @@ public:
     }
 };
 
+/**
+ * @brief Markdown fenced code block using tildes
+ * @details Similar to backtick fence but using '~~~' delimiters.
+ */
 class MdCodeFenceTilde {
     ::pltxt2htm::ast2::Ast subast_{};
     ::exception::optional<::fast_io::u8string> lang_;
 
 public:
     constexpr MdCodeFenceTilde() noexcept = delete;
+    /**
+     * @brief Construct a tilde fenced code block.
+     * @param subast The code content AST.
+     * @param lang Optional language string.
+     */
     constexpr explicit MdCodeFenceTilde(::pltxt2htm::ast2::Ast&& subast,
                                         ::exception::optional<::fast_io::u8string>&& lang) noexcept;
     constexpr MdCodeFenceTilde(MdCodeFenceTilde const&) noexcept = delete;
@@ -232,6 +282,9 @@ public:
     }
 };
 
+/**
+ * @brief Markdown code span delimited by a single backtick
+ */
 class MdCodeSpan1Backtick {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -250,6 +303,9 @@ public:
     }
 };
 
+/**
+ * @brief Markdown code span delimited by two backticks
+ */
 class MdCodeSpan2Backtick {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -268,6 +324,9 @@ public:
     }
 };
 
+/**
+ * @brief Markdown code span delimited by three backticks
+ */
 class MdCodeSpan3Backtick {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -286,6 +345,9 @@ public:
     }
 };
 
+/**
+ * @brief Single asterisk emphasis (e.g., *italic*)
+ */
 class MdSingleEmphasisAsterisk {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -304,6 +366,9 @@ public:
     }
 };
 
+/**
+ * @brief Double asterisk emphasis (e.g., **bold**)
+ */
 class MdDoubleEmphasisAsterisk {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -322,6 +387,9 @@ public:
     }
 };
 
+/**
+ * @brief Triple asterisk emphasis (e.g., ***bold italic***)
+ */
 class MdTripleEmphasisAsterisk {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -340,6 +408,9 @@ public:
     }
 };
 
+/**
+ * @brief Single underscore emphasis (e.g., _italic_)
+ */
 class MdSingleEmphasisUnderscore {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -358,6 +429,9 @@ public:
     }
 };
 
+/**
+ * @brief Double underscore emphasis (e.g., __bold__)
+ */
 class MdDoubleEmphasisUnderscore {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -376,6 +450,9 @@ public:
     }
 };
 
+/**
+ * @brief Triple underscore emphasis (e.g., ___bold italic___)
+ */
 class MdTripleEmphasisUnderscore {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -394,6 +471,9 @@ public:
     }
 };
 
+/**
+ * @brief Markdown strikethrough (e.g., ~~deleted~~)
+ */
 class MdDel {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -412,12 +492,20 @@ public:
     }
 };
 
+/**
+ * @brief Markdown link (e.g., [text](url))
+ */
 class MdLink {
     ::pltxt2htm::ast2::Ast subast_{};
     ::pltxt2htm::ast2::Url url_;
 
 public:
     constexpr MdLink() noexcept = delete;
+    /**
+     * @brief Construct a link.
+     * @param subast The link text/content AST.
+     * @param url The target URL.
+     */
     constexpr explicit MdLink(::pltxt2htm::ast2::Ast&& subast, ::pltxt2htm::ast2::Url&& url) noexcept;
     constexpr MdLink(MdLink const&) noexcept = delete;
     constexpr MdLink(MdLink&&) noexcept;
@@ -436,12 +524,20 @@ public:
     }
 };
 
+/**
+ * @brief Markdown image (e.g., ![alt](src))
+ */
 class MdImage {
     ::pltxt2htm::ast2::Ast subast_{};
     ::pltxt2htm::ast2::Url url_;
 
 public:
     constexpr MdImage() noexcept = delete;
+    /**
+     * @brief Construct an image.
+     * @param subast The alt text/content AST.
+     * @param url The image source URL.
+     */
     constexpr explicit MdImage(::pltxt2htm::ast2::Ast&& subast, ::pltxt2htm::ast2::Url&& url) noexcept;
     constexpr MdImage(MdImage const&) noexcept = delete;
     constexpr MdImage(MdImage&&) noexcept;
@@ -460,6 +556,9 @@ public:
     }
 };
 
+/**
+ * @brief Markdown block quote (lines starting with '>')
+ */
 class MdBlockQuotes {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -478,6 +577,9 @@ public:
     }
 };
 
+/**
+ * @brief Markdown unordered list (items prefixed with '-', '+', or '*')
+ */
 class MdUl {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -496,6 +598,9 @@ public:
     }
 };
 
+/**
+ * @brief Markdown ordered list (items prefixed with numbers followed by '.')
+ */
 class MdOl {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -514,6 +619,9 @@ public:
     }
 };
 
+/**
+ * @brief Markdown list item
+ */
 class MdLi {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -532,6 +640,9 @@ public:
     }
 };
 
+/**
+ * @brief Inline LaTeX math (delimited by $...$)
+ */
 class MdLatexInline {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -550,6 +661,9 @@ public:
     }
 };
 
+/**
+ * @brief Block LaTeX math (delimited by $$...$$)
+ */
 class MdLatexBlock {
     ::pltxt2htm::ast2::Ast subast_{};
 

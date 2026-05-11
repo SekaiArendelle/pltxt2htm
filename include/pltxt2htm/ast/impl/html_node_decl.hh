@@ -1,3 +1,10 @@
+/**
+ * @file html_node_decl.hh
+ * @brief HTML-like AST node declarations for pltxt2htm
+ * @details Defines nodes corresponding to HTML tags and special characters
+ *          (line breaks, headings, lists, formatting, etc.)
+ */
+
 #pragma once
 
 #include <utility>
@@ -5,27 +12,70 @@
 
 namespace pltxt2htm::ast2 {
 
-// 无任何数据成员的节点 – 编译器自动生成所有特殊成员函数
+/**
+ * @brief Line break (newline) node
+ * @details Represents a line break character in the source text.
+ */
 class LineBreak {};
 
+/**
+ * @brief HTML &lt;br&gt; tag node
+ * @details Represents a forced line break in HTML output.
+ */
 class Br {};
 
+/**
+ * @brief Space character node
+ * @details Represents a whitespace character (space, tab, etc.).
+ */
 class Space {};
 
+/**
+ * @brief Less-than sign node
+ * @details Represents the '<' character, which may need escaping in HTML.
+ */
 class LessThan {};
 
+/**
+ * @brief Greater-than sign node
+ * @details Represents the '>' character.
+ */
 class GreaterThan {};
 
+/**
+ * @brief Tab character node
+ * @details Represents a tab character in the source text.
+ */
 class Tab {};
 
+/**
+ * @brief Ampersand node
+ * @details Represents the '&' character, which may be part of an HTML entity.
+ */
 class Ampersand {};
 
+/**
+ * @brief Single quotation mark node
+ * @details Represents the "'" character.
+ */
 class SingleQuotationMark {};
 
+/**
+ * @brief Double quotation mark node
+ * @details Represents the '"' character.
+ */
 class DoubleQuotationMark {};
 
+/**
+ * @brief HTML &lt;hr&gt; tag node
+ * @details Represents a horizontal rule.
+ */
 class Hr {};
 
+/**
+ * @brief HTML &lt;h1&gt; heading node
+ * @details Represents a level‑1 heading containing sub‑AST content.
+ */
 class H1 {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -38,12 +88,19 @@ public:
     constexpr auto operator=(H1 const&) noexcept -> H1& = delete;
     constexpr auto operator=(H1&&) noexcept -> H1&;
 
+    /**
+     * @brief Get the sub‑AST contained in this heading.
+     * @return Reference to the sub‑AST (modifiable if this is an lvalue).
+     */
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
         return ::std::forward_like<decltype(self)>(self.subast_);
     }
 };
 
+/**
+ * @brief HTML &lt;h2&gt; heading node
+ */
 class H2 {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -62,6 +119,9 @@ public:
     }
 };
 
+/**
+ * @brief HTML &lt;h3&gt; heading node
+ */
 class H3 {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -80,6 +140,9 @@ public:
     }
 };
 
+/**
+ * @brief HTML &lt;h4&gt; heading node
+ */
 class H4 {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -98,6 +161,9 @@ public:
     }
 };
 
+/**
+ * @brief HTML &lt;h5&gt; heading node
+ */
 class H5 {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -116,6 +182,9 @@ public:
     }
 };
 
+/**
+ * @brief HTML &lt;h6&gt; heading node
+ */
 class H6 {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -134,6 +203,9 @@ public:
     }
 };
 
+/**
+ * @brief HTML &lt;p&gt; paragraph node
+ */
 class P {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -152,6 +224,9 @@ public:
     }
 };
 
+/**
+ * @brief HTML &lt;del&gt; deleted text node
+ */
 class Del {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -170,6 +245,9 @@ public:
     }
 };
 
+/**
+ * @brief HTML &lt;note&gt; custom note node
+ */
 class Note {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -188,6 +266,9 @@ public:
     }
 };
 
+/**
+ * @brief HTML &lt;em&gt; emphasis node
+ */
 class Em {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -206,6 +287,9 @@ public:
     }
 };
 
+/**
+ * @brief HTML &lt;strong&gt; strong importance node
+ */
 class Strong {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -224,6 +308,9 @@ public:
     }
 };
 
+/**
+ * @brief HTML &lt;ul&gt; unordered list node
+ */
 class Ul {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -242,6 +329,9 @@ public:
     }
 };
 
+/**
+ * @brief HTML &lt;ol&gt; ordered list node
+ */
 class Ol {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -260,6 +350,9 @@ public:
     }
 };
 
+/**
+ * @brief HTML &lt;li&gt; list item node
+ */
 class Li {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -278,6 +371,9 @@ public:
     }
 };
 
+/**
+ * @brief HTML &lt;code&gt; inline code node
+ */
 class Code {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -296,6 +392,9 @@ public:
     }
 };
 
+/**
+ * @brief HTML &lt;pre&gt; preformatted text node
+ */
 class Pre {
     ::pltxt2htm::ast2::Ast subast_{};
 
@@ -314,6 +413,9 @@ public:
     }
 };
 
+/**
+ * @brief HTML &lt;blockquote&gt; block quotation node
+ */
 class Blockquote {
     ::pltxt2htm::ast2::Ast subast_{};
 

@@ -2,7 +2,6 @@
 
 namespace pltxt2htm::ast2 {
 
-// 有子AST的节点
 constexpr H1::H1(::pltxt2htm::ast2::Ast&& subast) noexcept
     : subast_(::std::move(subast)) {}
 constexpr H1::H1(H1&&) noexcept = default;
