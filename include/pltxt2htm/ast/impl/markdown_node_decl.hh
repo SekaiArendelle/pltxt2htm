@@ -20,12 +20,13 @@ namespace pltxt2htm::ast2 {
  * @brief Markdown ATX heading level 1
  * @details Represents a heading started with '# '.
  */
+template<::pltxt2htm::Contracts ndebug>
 class MdAtxH1 {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr MdAtxH1() noexcept = delete;
-    constexpr explicit MdAtxH1(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit MdAtxH1(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr MdAtxH1(MdAtxH1 const&) noexcept = delete;
     constexpr MdAtxH1(MdAtxH1&&) noexcept;
     constexpr ~MdAtxH1() noexcept;
@@ -41,12 +42,13 @@ public:
 /**
  * @brief Markdown ATX heading level 2
  */
+template<::pltxt2htm::Contracts ndebug>
 class MdAtxH2 {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr MdAtxH2() noexcept = delete;
-    constexpr explicit MdAtxH2(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit MdAtxH2(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr MdAtxH2(MdAtxH2 const&) noexcept = delete;
     constexpr MdAtxH2(MdAtxH2&&) noexcept;
     constexpr ~MdAtxH2() noexcept;
@@ -62,12 +64,13 @@ public:
 /**
  * @brief Markdown ATX heading level 3
  */
+template<::pltxt2htm::Contracts ndebug>
 class MdAtxH3 {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr MdAtxH3() noexcept = delete;
-    constexpr explicit MdAtxH3(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit MdAtxH3(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr MdAtxH3(MdAtxH3 const&) noexcept = delete;
     constexpr MdAtxH3(MdAtxH3&&) noexcept;
     constexpr ~MdAtxH3() noexcept;
@@ -83,12 +86,13 @@ public:
 /**
  * @brief Markdown ATX heading level 4
  */
+template<::pltxt2htm::Contracts ndebug>
 class MdAtxH4 {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr MdAtxH4() noexcept = delete;
-    constexpr explicit MdAtxH4(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit MdAtxH4(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr MdAtxH4(MdAtxH4 const&) noexcept = delete;
     constexpr MdAtxH4(MdAtxH4&&) noexcept;
     constexpr ~MdAtxH4() noexcept;
@@ -104,12 +108,13 @@ public:
 /**
  * @brief Markdown ATX heading level 5
  */
+template<::pltxt2htm::Contracts ndebug>
 class MdAtxH5 {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr MdAtxH5() noexcept = delete;
-    constexpr explicit MdAtxH5(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit MdAtxH5(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr MdAtxH5(MdAtxH5 const&) noexcept = delete;
     constexpr MdAtxH5(MdAtxH5&&) noexcept;
     constexpr ~MdAtxH5() noexcept;
@@ -125,12 +130,13 @@ public:
 /**
  * @brief Markdown ATX heading level 6
  */
+template<::pltxt2htm::Contracts ndebug>
 class MdAtxH6 {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr MdAtxH6() noexcept = delete;
-    constexpr explicit MdAtxH6(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit MdAtxH6(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr MdAtxH6(MdAtxH6 const&) noexcept = delete;
     constexpr MdAtxH6(MdAtxH6&&) noexcept;
     constexpr ~MdAtxH6() noexcept;
@@ -218,8 +224,9 @@ class MdHr {};
  * @brief Markdown fenced code block using backticks
  * @details Contains code content and an optional language identifier.
  */
+template<::pltxt2htm::Contracts ndebug>
 class MdCodeFenceBacktick {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
     ::exception::optional<::fast_io::u8string> lang_;
 
 public:
@@ -229,7 +236,7 @@ public:
      * @param subast The inner code content as an AST.
      * @param lang Optional language string.
      */
-    constexpr explicit MdCodeFenceBacktick(::pltxt2htm::ast2::Ast&& subast,
+    constexpr explicit MdCodeFenceBacktick(::pltxt2htm::ast2::Ast<ndebug>&& subast,
                                            ::exception::optional<::fast_io::u8string>&& lang) noexcept;
     constexpr MdCodeFenceBacktick(MdCodeFenceBacktick const&) noexcept = delete;
     constexpr MdCodeFenceBacktick(MdCodeFenceBacktick&&) noexcept;
@@ -252,8 +259,9 @@ public:
  * @brief Markdown fenced code block using tildes
  * @details Similar to backtick fence but using '~~~' delimiters.
  */
+template<::pltxt2htm::Contracts ndebug>
 class MdCodeFenceTilde {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
     ::exception::optional<::fast_io::u8string> lang_;
 
 public:
@@ -263,7 +271,7 @@ public:
      * @param subast The code content AST.
      * @param lang Optional language string.
      */
-    constexpr explicit MdCodeFenceTilde(::pltxt2htm::ast2::Ast&& subast,
+    constexpr explicit MdCodeFenceTilde(::pltxt2htm::ast2::Ast<ndebug>&& subast,
                                         ::exception::optional<::fast_io::u8string>&& lang) noexcept;
     constexpr MdCodeFenceTilde(MdCodeFenceTilde const&) noexcept = delete;
     constexpr MdCodeFenceTilde(MdCodeFenceTilde&&) noexcept;
@@ -285,12 +293,13 @@ public:
 /**
  * @brief Markdown code span delimited by a single backtick
  */
+template<::pltxt2htm::Contracts ndebug>
 class MdCodeSpan1Backtick {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr MdCodeSpan1Backtick() noexcept = delete;
-    constexpr explicit MdCodeSpan1Backtick(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit MdCodeSpan1Backtick(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr MdCodeSpan1Backtick(MdCodeSpan1Backtick const&) noexcept = delete;
     constexpr MdCodeSpan1Backtick(MdCodeSpan1Backtick&&) noexcept;
     constexpr ~MdCodeSpan1Backtick() noexcept;
@@ -306,12 +315,13 @@ public:
 /**
  * @brief Markdown code span delimited by two backticks
  */
+template<::pltxt2htm::Contracts ndebug>
 class MdCodeSpan2Backtick {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr MdCodeSpan2Backtick() noexcept = delete;
-    constexpr explicit MdCodeSpan2Backtick(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit MdCodeSpan2Backtick(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr MdCodeSpan2Backtick(MdCodeSpan2Backtick const&) noexcept = delete;
     constexpr MdCodeSpan2Backtick(MdCodeSpan2Backtick&&) noexcept;
     constexpr ~MdCodeSpan2Backtick() noexcept;
@@ -327,12 +337,13 @@ public:
 /**
  * @brief Markdown code span delimited by three backticks
  */
+template<::pltxt2htm::Contracts ndebug>
 class MdCodeSpan3Backtick {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr MdCodeSpan3Backtick() noexcept = delete;
-    constexpr explicit MdCodeSpan3Backtick(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit MdCodeSpan3Backtick(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr MdCodeSpan3Backtick(MdCodeSpan3Backtick const&) noexcept = delete;
     constexpr MdCodeSpan3Backtick(MdCodeSpan3Backtick&&) noexcept;
     constexpr ~MdCodeSpan3Backtick() noexcept;
@@ -348,12 +359,13 @@ public:
 /**
  * @brief Single asterisk emphasis (e.g., *italic*)
  */
+template<::pltxt2htm::Contracts ndebug>
 class MdSingleEmphasisAsterisk {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr MdSingleEmphasisAsterisk() noexcept = delete;
-    constexpr explicit MdSingleEmphasisAsterisk(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit MdSingleEmphasisAsterisk(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr MdSingleEmphasisAsterisk(MdSingleEmphasisAsterisk const&) noexcept = delete;
     constexpr MdSingleEmphasisAsterisk(MdSingleEmphasisAsterisk&&) noexcept;
     constexpr ~MdSingleEmphasisAsterisk() noexcept;
@@ -369,12 +381,13 @@ public:
 /**
  * @brief Double asterisk emphasis (e.g., **bold**)
  */
+template<::pltxt2htm::Contracts ndebug>
 class MdDoubleEmphasisAsterisk {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr MdDoubleEmphasisAsterisk() noexcept = delete;
-    constexpr explicit MdDoubleEmphasisAsterisk(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit MdDoubleEmphasisAsterisk(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr MdDoubleEmphasisAsterisk(MdDoubleEmphasisAsterisk const&) noexcept = delete;
     constexpr MdDoubleEmphasisAsterisk(MdDoubleEmphasisAsterisk&&) noexcept;
     constexpr ~MdDoubleEmphasisAsterisk() noexcept;
@@ -390,12 +403,13 @@ public:
 /**
  * @brief Triple asterisk emphasis (e.g., ***bold italic***)
  */
+template<::pltxt2htm::Contracts ndebug>
 class MdTripleEmphasisAsterisk {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr MdTripleEmphasisAsterisk() noexcept = delete;
-    constexpr explicit MdTripleEmphasisAsterisk(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit MdTripleEmphasisAsterisk(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr MdTripleEmphasisAsterisk(MdTripleEmphasisAsterisk const&) noexcept = delete;
     constexpr MdTripleEmphasisAsterisk(MdTripleEmphasisAsterisk&&) noexcept;
     constexpr ~MdTripleEmphasisAsterisk() noexcept;
@@ -411,12 +425,13 @@ public:
 /**
  * @brief Single underscore emphasis (e.g., _italic_)
  */
+template<::pltxt2htm::Contracts ndebug>
 class MdSingleEmphasisUnderscore {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr MdSingleEmphasisUnderscore() noexcept = delete;
-    constexpr explicit MdSingleEmphasisUnderscore(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit MdSingleEmphasisUnderscore(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr MdSingleEmphasisUnderscore(MdSingleEmphasisUnderscore const&) noexcept = delete;
     constexpr MdSingleEmphasisUnderscore(MdSingleEmphasisUnderscore&&) noexcept;
     constexpr ~MdSingleEmphasisUnderscore() noexcept;
@@ -432,12 +447,13 @@ public:
 /**
  * @brief Double underscore emphasis (e.g., __bold__)
  */
+template<::pltxt2htm::Contracts ndebug>
 class MdDoubleEmphasisUnderscore {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr MdDoubleEmphasisUnderscore() noexcept = delete;
-    constexpr explicit MdDoubleEmphasisUnderscore(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit MdDoubleEmphasisUnderscore(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr MdDoubleEmphasisUnderscore(MdDoubleEmphasisUnderscore const&) noexcept = delete;
     constexpr MdDoubleEmphasisUnderscore(MdDoubleEmphasisUnderscore&&) noexcept;
     constexpr ~MdDoubleEmphasisUnderscore() noexcept;
@@ -453,12 +469,13 @@ public:
 /**
  * @brief Triple underscore emphasis (e.g., ___bold italic___)
  */
+template<::pltxt2htm::Contracts ndebug>
 class MdTripleEmphasisUnderscore {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr MdTripleEmphasisUnderscore() noexcept = delete;
-    constexpr explicit MdTripleEmphasisUnderscore(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit MdTripleEmphasisUnderscore(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr MdTripleEmphasisUnderscore(MdTripleEmphasisUnderscore const&) noexcept = delete;
     constexpr MdTripleEmphasisUnderscore(MdTripleEmphasisUnderscore&&) noexcept;
     constexpr ~MdTripleEmphasisUnderscore() noexcept;
@@ -474,12 +491,13 @@ public:
 /**
  * @brief Markdown strikethrough (e.g., ~~deleted~~)
  */
+template<::pltxt2htm::Contracts ndebug>
 class MdDel {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr MdDel() noexcept = delete;
-    constexpr explicit MdDel(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit MdDel(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr MdDel(MdDel const&) noexcept = delete;
     constexpr MdDel(MdDel&&) noexcept;
     constexpr ~MdDel() noexcept;
@@ -495,9 +513,10 @@ public:
 /**
  * @brief Markdown link (e.g., [text](url))
  */
+template<::pltxt2htm::Contracts ndebug>
 class MdLink {
-    ::pltxt2htm::ast2::Ast subast_{};
-    ::pltxt2htm::ast2::Url url_;
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
+    ::pltxt2htm::ast2::Url<ndebug> url_;
 
 public:
     constexpr MdLink() noexcept = delete;
@@ -506,7 +525,7 @@ public:
      * @param subast The link text/content AST.
      * @param url The target URL.
      */
-    constexpr explicit MdLink(::pltxt2htm::ast2::Ast&& subast, ::pltxt2htm::ast2::Url&& url) noexcept;
+    constexpr explicit MdLink(::pltxt2htm::ast2::Ast<ndebug>&& subast, ::pltxt2htm::ast2::Url<ndebug>&& url) noexcept;
     constexpr MdLink(MdLink const&) noexcept = delete;
     constexpr MdLink(MdLink&&) noexcept;
     constexpr ~MdLink() noexcept;
@@ -527,9 +546,10 @@ public:
 /**
  * @brief Markdown image (e.g., ![alt](src))
  */
+template<::pltxt2htm::Contracts ndebug>
 class MdImage {
-    ::pltxt2htm::ast2::Ast subast_{};
-    ::pltxt2htm::ast2::Url url_;
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
+    ::pltxt2htm::ast2::Url<ndebug> url_;
 
 public:
     constexpr MdImage() noexcept = delete;
@@ -538,7 +558,7 @@ public:
      * @param subast The alt text/content AST.
      * @param url The image source URL.
      */
-    constexpr explicit MdImage(::pltxt2htm::ast2::Ast&& subast, ::pltxt2htm::ast2::Url&& url) noexcept;
+    constexpr explicit MdImage(::pltxt2htm::ast2::Ast<ndebug>&& subast, ::pltxt2htm::ast2::Url<ndebug>&& url) noexcept;
     constexpr MdImage(MdImage const&) noexcept = delete;
     constexpr MdImage(MdImage&&) noexcept;
     constexpr ~MdImage() noexcept;
@@ -559,12 +579,13 @@ public:
 /**
  * @brief Markdown block quote (lines starting with '>')
  */
+template<::pltxt2htm::Contracts ndebug>
 class MdBlockQuotes {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr MdBlockQuotes() noexcept = delete;
-    constexpr explicit MdBlockQuotes(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit MdBlockQuotes(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr MdBlockQuotes(MdBlockQuotes const&) noexcept = delete;
     constexpr MdBlockQuotes(MdBlockQuotes&&) noexcept;
     constexpr ~MdBlockQuotes() noexcept;
@@ -580,12 +601,13 @@ public:
 /**
  * @brief Markdown unordered list (items prefixed with '-', '+', or '*')
  */
+template<::pltxt2htm::Contracts ndebug>
 class MdUl {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr MdUl() noexcept = delete;
-    constexpr explicit MdUl(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit MdUl(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr MdUl(MdUl const&) noexcept = delete;
     constexpr MdUl(MdUl&&) noexcept;
     constexpr ~MdUl() noexcept;
@@ -601,12 +623,13 @@ public:
 /**
  * @brief Markdown ordered list (items prefixed with numbers followed by '.')
  */
+template<::pltxt2htm::Contracts ndebug>
 class MdOl {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr MdOl() noexcept = delete;
-    constexpr explicit MdOl(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit MdOl(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr MdOl(MdOl const&) noexcept = delete;
     constexpr MdOl(MdOl&&) noexcept;
     constexpr ~MdOl() noexcept;
@@ -622,12 +645,13 @@ public:
 /**
  * @brief Markdown list item
  */
+template<::pltxt2htm::Contracts ndebug>
 class MdLi {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr MdLi() noexcept = delete;
-    constexpr explicit MdLi(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit MdLi(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr MdLi(MdLi const&) noexcept = delete;
     constexpr MdLi(MdLi&&) noexcept;
     constexpr ~MdLi() noexcept;
@@ -643,12 +667,13 @@ public:
 /**
  * @brief Inline LaTeX math (delimited by $...$)
  */
+template<::pltxt2htm::Contracts ndebug>
 class MdLatexInline {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr MdLatexInline() noexcept = delete;
-    constexpr explicit MdLatexInline(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit MdLatexInline(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr MdLatexInline(MdLatexInline const&) noexcept = delete;
     constexpr MdLatexInline(MdLatexInline&&) noexcept;
     constexpr ~MdLatexInline() noexcept;
@@ -664,12 +689,13 @@ public:
 /**
  * @brief Block LaTeX math (delimited by $$...$$)
  */
+template<::pltxt2htm::Contracts ndebug>
 class MdLatexBlock {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr MdLatexBlock() noexcept = delete;
-    constexpr explicit MdLatexBlock(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit MdLatexBlock(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr MdLatexBlock(MdLatexBlock const&) noexcept = delete;
     constexpr MdLatexBlock(MdLatexBlock&&) noexcept;
     constexpr ~MdLatexBlock() noexcept;

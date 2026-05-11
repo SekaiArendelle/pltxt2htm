@@ -4,6 +4,7 @@
 #include <exception/exception.hh>
 #include <memory>
 
+#include "../contracts.hh"
 #include "../astnode/node_type.hh"
 
 #include "impl/basic_node_decl.hh"
@@ -13,12 +14,13 @@
 
 namespace pltxt2htm::ast2 {
 
+template<::pltxt2htm::Contracts ndebug>
 class PlTxtNode {
     union {
         // basic node
         ::pltxt2htm::ast2::U8Char u8char_node;
         ::pltxt2htm::ast2::InvalidU8Char invalid_u8char_node;
-        ::pltxt2htm::ast2::Text text_node;
+        ::pltxt2htm::ast2::Text<ndebug> text_node;
 
         // html node
         ::pltxt2htm::ast2::LineBreak linebreak_node;
@@ -31,31 +33,31 @@ class PlTxtNode {
         ::pltxt2htm::ast2::SingleQuotationMark singlequotationmark_node;
         ::pltxt2htm::ast2::DoubleQuotationMark doublequotationmark_node;
         ::pltxt2htm::ast2::Hr hr_node;
-        ::pltxt2htm::ast2::H1 h1_node;
-        ::pltxt2htm::ast2::H2 h2_node;
-        ::pltxt2htm::ast2::H3 h3_node;
-        ::pltxt2htm::ast2::H4 h4_node;
-        ::pltxt2htm::ast2::H5 h5_node;
-        ::pltxt2htm::ast2::H6 h6_node;
-        ::pltxt2htm::ast2::P p_node;
-        ::pltxt2htm::ast2::Del del_node;
-        ::pltxt2htm::ast2::Note note_node;
-        ::pltxt2htm::ast2::Em em_node;
-        ::pltxt2htm::ast2::Strong strong_node;
-        ::pltxt2htm::ast2::Ul ul_node;
-        ::pltxt2htm::ast2::Ol ol_node;
-        ::pltxt2htm::ast2::Li li_node;
-        ::pltxt2htm::ast2::Code code_node;
-        ::pltxt2htm::ast2::Pre pre_node;
-        ::pltxt2htm::ast2::Blockquote blockquote_node;
+        ::pltxt2htm::ast2::H1<ndebug> h1_node;
+        ::pltxt2htm::ast2::H2<ndebug> h2_node;
+        ::pltxt2htm::ast2::H3<ndebug> h3_node;
+        ::pltxt2htm::ast2::H4<ndebug> h4_node;
+        ::pltxt2htm::ast2::H5<ndebug> h5_node;
+        ::pltxt2htm::ast2::H6<ndebug> h6_node;
+        ::pltxt2htm::ast2::P<ndebug> p_node;
+        ::pltxt2htm::ast2::Del<ndebug> del_node;
+        ::pltxt2htm::ast2::Note<ndebug> note_node;
+        ::pltxt2htm::ast2::Em<ndebug> em_node;
+        ::pltxt2htm::ast2::Strong<ndebug> strong_node;
+        ::pltxt2htm::ast2::Ul<ndebug> ul_node;
+        ::pltxt2htm::ast2::Ol<ndebug> ol_node;
+        ::pltxt2htm::ast2::Li<ndebug> li_node;
+        ::pltxt2htm::ast2::Code<ndebug> code_node;
+        ::pltxt2htm::ast2::Pre<ndebug> pre_node;
+        ::pltxt2htm::ast2::Blockquote<ndebug> blockquote_node;
 
         // markdown node
-        ::pltxt2htm::ast2::MdAtxH1 md_atx_h1_node;
-        ::pltxt2htm::ast2::MdAtxH2 md_atx_h2_node;
-        ::pltxt2htm::ast2::MdAtxH3 md_atx_h3_node;
-        ::pltxt2htm::ast2::MdAtxH4 md_atx_h4_node;
-        ::pltxt2htm::ast2::MdAtxH5 md_atx_h5_node;
-        ::pltxt2htm::ast2::MdAtxH6 md_atx_h6_node;
+        ::pltxt2htm::ast2::MdAtxH1<ndebug> md_atx_h1_node;
+        ::pltxt2htm::ast2::MdAtxH2<ndebug> md_atx_h2_node;
+        ::pltxt2htm::ast2::MdAtxH3<ndebug> md_atx_h3_node;
+        ::pltxt2htm::ast2::MdAtxH4<ndebug> md_atx_h4_node;
+        ::pltxt2htm::ast2::MdAtxH5<ndebug> md_atx_h5_node;
+        ::pltxt2htm::ast2::MdAtxH6<ndebug> md_atx_h6_node;
         ::pltxt2htm::ast2::MdEscapeBackslash md_escape_backslash_node;
         ::pltxt2htm::ast2::MdEscapeExclamation md_escape_exclamation_node;
         ::pltxt2htm::ast2::MdEscapeDoubleQuote md_escape_double_quote_node;
@@ -89,37 +91,37 @@ class PlTxtNode {
         ::pltxt2htm::ast2::MdEscapeRightBrace md_escape_right_brace_node;
         ::pltxt2htm::ast2::MdEscapeTilde md_escape_tilde_node;
         ::pltxt2htm::ast2::MdHr md_hr_node;
-        ::pltxt2htm::ast2::MdCodeFenceBacktick md_code_fence_backtick_node;
-        ::pltxt2htm::ast2::MdCodeFenceTilde md_code_fence_tilde_node;
-        ::pltxt2htm::ast2::MdCodeSpan1Backtick md_code_span_1_backtick_node;
-        ::pltxt2htm::ast2::MdCodeSpan2Backtick md_code_span_2_backtick_node;
-        ::pltxt2htm::ast2::MdCodeSpan3Backtick md_code_span_3_backtick_node;
-        ::pltxt2htm::ast2::MdSingleEmphasisAsterisk md_single_emphasis_asterisk_node;
-        ::pltxt2htm::ast2::MdDoubleEmphasisAsterisk md_double_emphasis_asterisk_node;
-        ::pltxt2htm::ast2::MdTripleEmphasisAsterisk md_triple_emphasis_asterisk_node;
-        ::pltxt2htm::ast2::MdSingleEmphasisUnderscore md_single_emphasis_underscore_node;
-        ::pltxt2htm::ast2::MdDoubleEmphasisUnderscore md_double_emphasis_underscore_node;
-        ::pltxt2htm::ast2::MdTripleEmphasisUnderscore md_triple_emphasis_underscore_node;
-        ::pltxt2htm::ast2::MdDel md_del_node;
-        ::pltxt2htm::ast2::MdLink md_link_node;
-        ::pltxt2htm::ast2::MdImage md_image_node;
-        ::pltxt2htm::ast2::MdBlockQuotes md_block_quotes_node;
-        ::pltxt2htm::ast2::MdUl md_ul_node;
-        ::pltxt2htm::ast2::MdOl md_ol_node;
-        ::pltxt2htm::ast2::MdLi md_li_node;
-        ::pltxt2htm::ast2::MdLatexInline md_latex_inline_node;
-        ::pltxt2htm::ast2::MdLatexBlock md_latex_block_node;
+        ::pltxt2htm::ast2::MdCodeFenceBacktick<ndebug> md_code_fence_backtick_node;
+        ::pltxt2htm::ast2::MdCodeFenceTilde<ndebug> md_code_fence_tilde_node;
+        ::pltxt2htm::ast2::MdCodeSpan1Backtick<ndebug> md_code_span_1_backtick_node;
+        ::pltxt2htm::ast2::MdCodeSpan2Backtick<ndebug> md_code_span_2_backtick_node;
+        ::pltxt2htm::ast2::MdCodeSpan3Backtick<ndebug> md_code_span_3_backtick_node;
+        ::pltxt2htm::ast2::MdSingleEmphasisAsterisk<ndebug> md_single_emphasis_asterisk_node;
+        ::pltxt2htm::ast2::MdDoubleEmphasisAsterisk<ndebug> md_double_emphasis_asterisk_node;
+        ::pltxt2htm::ast2::MdTripleEmphasisAsterisk<ndebug> md_triple_emphasis_asterisk_node;
+        ::pltxt2htm::ast2::MdSingleEmphasisUnderscore<ndebug> md_single_emphasis_underscore_node;
+        ::pltxt2htm::ast2::MdDoubleEmphasisUnderscore<ndebug> md_double_emphasis_underscore_node;
+        ::pltxt2htm::ast2::MdTripleEmphasisUnderscore<ndebug> md_triple_emphasis_underscore_node;
+        ::pltxt2htm::ast2::MdDel<ndebug> md_del_node;
+        ::pltxt2htm::ast2::MdLink<ndebug> md_link_node;
+        ::pltxt2htm::ast2::MdImage<ndebug> md_image_node;
+        ::pltxt2htm::ast2::MdBlockQuotes<ndebug> md_block_quotes_node;
+        ::pltxt2htm::ast2::MdUl<ndebug> md_ul_node;
+        ::pltxt2htm::ast2::MdOl<ndebug> md_ol_node;
+        ::pltxt2htm::ast2::MdLi<ndebug> md_li_node;
+        ::pltxt2htm::ast2::MdLatexInline<ndebug> md_latex_inline_node;
+        ::pltxt2htm::ast2::MdLatexBlock<ndebug> md_latex_block_node;
 
         // physics lab node
-        ::pltxt2htm::ast2::PlColor pl_color_node;
-        ::pltxt2htm::ast2::PlA pl_a_node;
-        ::pltxt2htm::ast2::PlExperiment pl_experiment_node;
-        ::pltxt2htm::ast2::PlDiscussion pl_discussion_node;
-        ::pltxt2htm::ast2::PlUser pl_user_node;
-        ::pltxt2htm::ast2::PlExternal pl_external_node;
-        ::pltxt2htm::ast2::PlSize pl_size_node;
-        ::pltxt2htm::ast2::PlI pl_i_node;
-        ::pltxt2htm::ast2::PlB pl_b_node;
+        ::pltxt2htm::ast2::PlColor<ndebug> pl_color_node;
+        ::pltxt2htm::ast2::PlA<ndebug> pl_a_node;
+        ::pltxt2htm::ast2::PlExperiment<ndebug> pl_experiment_node;
+        ::pltxt2htm::ast2::PlDiscussion<ndebug> pl_discussion_node;
+        ::pltxt2htm::ast2::PlUser<ndebug> pl_user_node;
+        ::pltxt2htm::ast2::PlExternal<ndebug> pl_external_node;
+        ::pltxt2htm::ast2::PlSize<ndebug> pl_size_node;
+        ::pltxt2htm::ast2::PlI<ndebug> pl_i_node;
+        ::pltxt2htm::ast2::PlB<ndebug> pl_b_node;
         ::pltxt2htm::ast2::PlMacroProject pl_macro_project_node;
         ::pltxt2htm::ast2::PlMacroVisitor pl_macro_visitor_node;
         ::pltxt2htm::ast2::PlMacroAuthor pl_macro_author_node;
@@ -127,6 +129,7 @@ class PlTxtNode {
     };
 
     ::pltxt2htm::NodeType node_kind;
+
 public:
     constexpr PlTxtNode(::pltxt2htm::ast2::U8Char&& node) noexcept
         : u8char_node(::std::move(node)),
@@ -138,52 +141,52 @@ public:
           node_kind{::pltxt2htm::NodeType::invalid_u8char} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::Text&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::Text<ndebug>&& node) noexcept
         : text_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::text} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::PlColor&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::PlColor<ndebug>&& node) noexcept
         : pl_color_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::pl_color} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::PlA&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::PlA<ndebug>&& node) noexcept
         : pl_a_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::pl_a} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::PlExperiment&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::PlExperiment<ndebug>&& node) noexcept
         : pl_experiment_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::pl_experiment} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::PlDiscussion&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::PlDiscussion<ndebug>&& node) noexcept
         : pl_discussion_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::pl_discussion} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::PlUser&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::PlUser<ndebug>&& node) noexcept
         : pl_user_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::pl_user} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::PlExternal&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::PlExternal<ndebug>&& node) noexcept
         : pl_external_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::pl_external} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::PlSize&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::PlSize<ndebug>&& node) noexcept
         : pl_size_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::pl_size} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::PlI&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::PlI<ndebug>&& node) noexcept
         : pl_i_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::pl_i} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::PlB&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::PlB<ndebug>&& node) noexcept
         : pl_b_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::pl_b} {
     }
@@ -258,119 +261,117 @@ public:
           node_kind{::pltxt2htm::NodeType::html_hr} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::H1&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::H1<ndebug>&& node) noexcept
         : h1_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::html_h1} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::H2&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::H2<ndebug>&& node) noexcept
         : h2_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::html_h2} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::H3&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::H3<ndebug>&& node) noexcept
         : h3_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::html_h3} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::H4&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::H4<ndebug>&& node) noexcept
         : h4_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::html_h4} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::H5&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::H5<ndebug>&& node) noexcept
         : h5_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::html_h5} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::H6&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::H6<ndebug>&& node) noexcept
         : h6_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::html_h6} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::P&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::P<ndebug>&& node) noexcept
         : p_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::html_p} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::Del&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::Del<ndebug>&& node) noexcept
         : del_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::html_del} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::Note&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::Note<ndebug>&& node) noexcept
         : note_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::html_note} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::Em&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::Em<ndebug>&& node) noexcept
         : em_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::html_em} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::Strong&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::Strong<ndebug>&& node) noexcept
         : strong_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::html_strong} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::Ul&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::Ul<ndebug>&& node) noexcept
         : ul_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::html_ul} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::Ol&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::Ol<ndebug>&& node) noexcept
         : ol_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::html_ol} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::Li&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::Li<ndebug>&& node) noexcept
         : li_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::html_li} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::Code&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::Code<ndebug>&& node) noexcept
         : code_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::html_code} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::Pre&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::Pre<ndebug>&& node) noexcept
         : pre_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::html_pre} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::Blockquote&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::Blockquote<ndebug>&& node) noexcept
         : blockquote_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::html_blockquote} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::PlTxtNode const&) noexcept = delete;
-
-    constexpr PlTxtNode(::pltxt2htm::ast2::MdAtxH1&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::MdAtxH1<ndebug>&& node) noexcept
         : md_atx_h1_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::md_atx_h1} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::MdAtxH2&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::MdAtxH2<ndebug>&& node) noexcept
         : md_atx_h2_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::md_atx_h2} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::MdAtxH3&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::MdAtxH3<ndebug>&& node) noexcept
         : md_atx_h3_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::md_atx_h3} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::MdAtxH4&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::MdAtxH4<ndebug>&& node) noexcept
         : md_atx_h4_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::md_atx_h4} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::MdAtxH5&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::MdAtxH5<ndebug>&& node) noexcept
         : md_atx_h5_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::md_atx_h5} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::MdAtxH6&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::MdAtxH6<ndebug>&& node) noexcept
         : md_atx_h6_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::md_atx_h6} {
     }
@@ -540,107 +541,109 @@ public:
           node_kind{::pltxt2htm::NodeType::md_hr} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::MdCodeFenceBacktick&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::MdCodeFenceBacktick<ndebug>&& node) noexcept
         : md_code_fence_backtick_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::md_code_fence_backtick} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::MdCodeFenceTilde&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::MdCodeFenceTilde<ndebug>&& node) noexcept
         : md_code_fence_tilde_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::md_code_fence_tilde} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::MdCodeSpan1Backtick&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::MdCodeSpan1Backtick<ndebug>&& node) noexcept
         : md_code_span_1_backtick_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::md_code_span_1_backtick} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::MdCodeSpan2Backtick&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::MdCodeSpan2Backtick<ndebug>&& node) noexcept
         : md_code_span_2_backtick_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::md_code_span_2_backtick} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::MdCodeSpan3Backtick&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::MdCodeSpan3Backtick<ndebug>&& node) noexcept
         : md_code_span_3_backtick_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::md_code_span_3_backtick} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::MdSingleEmphasisAsterisk&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::MdSingleEmphasisAsterisk<ndebug>&& node) noexcept
         : md_single_emphasis_asterisk_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::md_single_emphasis_asterisk} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::MdDoubleEmphasisAsterisk&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::MdDoubleEmphasisAsterisk<ndebug>&& node) noexcept
         : md_double_emphasis_asterisk_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::md_double_emphasis_asterisk} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::MdTripleEmphasisAsterisk&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::MdTripleEmphasisAsterisk<ndebug>&& node) noexcept
         : md_triple_emphasis_asterisk_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::md_triple_emphasis_asterisk} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::MdSingleEmphasisUnderscore&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::MdSingleEmphasisUnderscore<ndebug>&& node) noexcept
         : md_single_emphasis_underscore_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::md_single_emphasis_underscore} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::MdDoubleEmphasisUnderscore&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::MdDoubleEmphasisUnderscore<ndebug>&& node) noexcept
         : md_double_emphasis_underscore_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::md_double_emphasis_underscore} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::MdTripleEmphasisUnderscore&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::MdTripleEmphasisUnderscore<ndebug>&& node) noexcept
         : md_triple_emphasis_underscore_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::md_triple_emphasis_underscore} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::MdDel&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::MdDel<ndebug>&& node) noexcept
         : md_del_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::md_del} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::MdLink&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::MdLink<ndebug>&& node) noexcept
         : md_link_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::md_link} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::MdImage&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::MdImage<ndebug>&& node) noexcept
         : md_image_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::md_image} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::MdBlockQuotes&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::MdBlockQuotes<ndebug>&& node) noexcept
         : md_block_quotes_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::md_block_quotes} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::MdUl&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::MdUl<ndebug>&& node) noexcept
         : md_ul_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::md_ul} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::MdOl&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::MdOl<ndebug>&& node) noexcept
         : md_ol_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::md_ol} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::MdLi&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::MdLi<ndebug>&& node) noexcept
         : md_li_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::md_li} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::MdLatexInline&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::MdLatexInline<ndebug>&& node) noexcept
         : md_latex_inline_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::md_latex_inline} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::MdLatexBlock&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::MdLatexBlock<ndebug>&& node) noexcept
         : md_latex_block_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeType::md_latex_block} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::ast2::PlTxtNode&& other) noexcept
+    constexpr PlTxtNode(::pltxt2htm::ast2::PlTxtNode<ndebug> const&) noexcept = delete;
+
+    constexpr PlTxtNode(::pltxt2htm::ast2::PlTxtNode<ndebug>&& other) noexcept
         : node_kind(other.node_kind) {
         switch (node_kind) {
         case ::pltxt2htm::NodeType::u8char: {
@@ -661,7 +664,7 @@ public:
             break;
         }
         case ::pltxt2htm::NodeType::pl_a: {
-            new (::std::addressof(pl_a_node))::pltxt2htm::ast2::PlA(::std::move(other.pl_a_node));
+            new (::std::addressof(pl_a_node))::pltxt2htm::ast2::PlA<ndebug>(::std::move(other.pl_a_node));
             break;
         }
         case ::pltxt2htm::NodeType::pl_experiment: {
@@ -1482,14 +1485,11 @@ public:
         }
     }
 
-    constexpr auto operator=(::pltxt2htm::ast2::PlTxtNode const&) noexcept = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::PlTxtNode<ndebug> const&) noexcept = delete;
 
-    constexpr auto operator=(this ::pltxt2htm::ast2::PlTxtNode* self, PlTxtNode&& other) noexcept -> PlTxtNode& {
-#if 1
-        if (self == ::std::addressof(other)) {
-            ::exception::terminate();
-        }
-#endif
+    constexpr auto operator=(this ::pltxt2htm::ast2::PlTxtNode<ndebug>* self, PlTxtNode&& other) noexcept
+        -> PlTxtNode& {
+        pltxt2htm_assert(self != ::std::addressof(other));
         self->~PlTxtNode();
         new (self) PlTxtNode(::std::move(other));
         return *self;

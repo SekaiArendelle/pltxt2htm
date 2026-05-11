@@ -2,24 +2,33 @@
 
 namespace pltxt2htm::ast2 {
 
-constexpr Text::Text(::pltxt2htm::ast2::Ast&& subast) noexcept
+template<::pltxt2htm::Contracts ndebug>
+constexpr Text<ndebug>::Text(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept
     : subast(::std::move(subast)) {
 }
 
-constexpr Text::Text(::pltxt2htm::ast2::Text&& other) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr Text<ndebug>::Text(::pltxt2htm::ast2::Text<ndebug>&& other) noexcept = default;
 
-constexpr Text::~Text() noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr Text<ndebug>::~Text() noexcept = default;
 
-constexpr auto Text::operator=(::pltxt2htm::ast2::Text&& other) noexcept -> ::pltxt2htm::ast2::Text& = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto Text<ndebug>::operator=(::pltxt2htm::ast2::Text<ndebug>&& other) noexcept
+    -> ::pltxt2htm::ast2::Text<ndebug>& = default;
 
-constexpr Url::Url(::pltxt2htm::ast2::Ast&& attr) noexcept
+template<::pltxt2htm::Contracts ndebug>
+constexpr Url<ndebug>::Url(::pltxt2htm::ast2::Ast<ndebug>&& attr) noexcept
     : url_ast_(::std::move(attr)) {
 }
 
-constexpr Url::Url(::pltxt2htm::ast2::Url&& other) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr Url<ndebug>::Url(::pltxt2htm::ast2::Url<ndebug>&& other) noexcept = default;
 
-constexpr Url::~Url() noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr Url<ndebug>::~Url() noexcept = default;
 
-constexpr auto Url::operator=(::pltxt2htm::ast2::Url&& other) noexcept -> Url& = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto Url<ndebug>::operator=(::pltxt2htm::ast2::Url<ndebug>&& other) noexcept -> Url<ndebug>& = default;
 
 } // namespace pltxt2htm::ast2

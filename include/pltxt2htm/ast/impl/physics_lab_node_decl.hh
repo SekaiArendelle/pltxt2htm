@@ -7,15 +7,17 @@
 #include "../../details/literal_string.hh"
 #include "ast_decl.hh"
 #include "basic_node_decl.hh"
+#include "pltxt2htm/contracts.hh"
 
 namespace pltxt2htm::ast2 {
 
+template<::pltxt2htm::Contracts ndebug>
 class PlColor {
-    ::pltxt2htm::ast2::Ast subast;
+    ::pltxt2htm::ast2::Ast<ndebug> subast;
     ::fast_io::u8string color_;
 
 public:
-    constexpr PlColor(::pltxt2htm::ast2::Ast&& subast, ::fast_io::u8string&& color) noexcept;
+    constexpr PlColor(::pltxt2htm::ast2::Ast<ndebug>&& subast, ::fast_io::u8string&& color) noexcept;
     constexpr PlColor(PlColor const&) noexcept = delete;
     constexpr PlColor(PlColor&&) noexcept;
     constexpr ~PlColor() noexcept;
@@ -28,12 +30,13 @@ public:
     }
 };
 
+template<::pltxt2htm::Contracts ndebug>
 class PlA {
-    ::pltxt2htm::ast2::Ast subast;
+    ::pltxt2htm::ast2::Ast<ndebug> subast;
     static constexpr ::pltxt2htm::details::U8LiteralString<7> color_{u8"#0000AA"};
 
 public:
-    constexpr PlA(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr PlA(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr PlA(PlA const&) noexcept = delete;
     constexpr PlA(PlA&&) noexcept;
     constexpr ~PlA() noexcept;
@@ -50,12 +53,13 @@ public:
     }
 };
 
+template<::pltxt2htm::Contracts ndebug>
 class PlExperiment {
-    ::pltxt2htm::ast2::Ast subast;
+    ::pltxt2htm::ast2::Ast<ndebug> subast;
     ::fast_io::u8string id_;
 
 public:
-    constexpr PlExperiment(::pltxt2htm::ast2::Ast&& subast, ::fast_io::u8string&& id) noexcept;
+    constexpr PlExperiment(::pltxt2htm::ast2::Ast<ndebug>&& subast, ::fast_io::u8string&& id) noexcept;
     constexpr PlExperiment(PlExperiment const&) noexcept = delete;
     constexpr PlExperiment(PlExperiment&&) noexcept;
     constexpr ~PlExperiment() noexcept;
@@ -68,12 +72,13 @@ public:
     }
 };
 
+template<::pltxt2htm::Contracts ndebug>
 class PlDiscussion {
-    ::pltxt2htm::ast2::Ast subast;
+    ::pltxt2htm::ast2::Ast<ndebug> subast;
     ::fast_io::u8string id_;
 
 public:
-    constexpr PlDiscussion(::pltxt2htm::ast2::Ast&& subast, ::fast_io::u8string&& id) noexcept;
+    constexpr PlDiscussion(::pltxt2htm::ast2::Ast<ndebug>&& subast, ::fast_io::u8string&& id) noexcept;
     constexpr PlDiscussion(PlDiscussion const&) noexcept = delete;
     constexpr PlDiscussion(PlDiscussion&&) noexcept;
     constexpr ~PlDiscussion() noexcept;
@@ -86,12 +91,13 @@ public:
     }
 };
 
+template<::pltxt2htm::Contracts ndebug>
 class PlUser {
-    ::pltxt2htm::ast2::Ast subast;
+    ::pltxt2htm::ast2::Ast<ndebug> subast;
     ::fast_io::u8string id_;
 
 public:
-    constexpr PlUser(::pltxt2htm::ast2::Ast&& subast, ::fast_io::u8string&& id) noexcept;
+    constexpr PlUser(::pltxt2htm::ast2::Ast<ndebug>&& subast, ::fast_io::u8string&& id) noexcept;
     constexpr PlUser(PlUser const&) noexcept = delete;
     constexpr PlUser(PlUser&&) noexcept;
     constexpr ~PlUser() noexcept;
@@ -104,12 +110,13 @@ public:
     }
 };
 
+template<::pltxt2htm::Contracts ndebug>
 class PlExternal {
-    ::pltxt2htm::ast2::Ast subast;
-    ::pltxt2htm::ast2::Url url_;
+    ::pltxt2htm::ast2::Ast<ndebug> subast;
+    ::pltxt2htm::ast2::Url<ndebug> url_;
 
 public:
-    constexpr PlExternal(::pltxt2htm::ast2::Ast&& subast, ::pltxt2htm::ast2::Url&& url) noexcept;
+    constexpr PlExternal(::pltxt2htm::ast2::Ast<ndebug>&& subast, ::pltxt2htm::ast2::Url<ndebug>&& url) noexcept;
     constexpr PlExternal(PlExternal const&) noexcept = delete;
     constexpr PlExternal(PlExternal&&) noexcept;
     constexpr ~PlExternal() noexcept;
@@ -122,12 +129,13 @@ public:
     }
 };
 
+template<::pltxt2htm::Contracts ndebug>
 class PlSize {
-    ::pltxt2htm::ast2::Ast subast;
+    ::pltxt2htm::ast2::Ast<ndebug> subast;
     ::std::size_t size_;
 
 public:
-    constexpr PlSize(::pltxt2htm::ast2::Ast&& subast, ::std::size_t size) noexcept;
+    constexpr PlSize(::pltxt2htm::ast2::Ast<ndebug>&& subast, ::std::size_t size) noexcept;
     constexpr PlSize(PlSize const&) noexcept = delete;
     constexpr PlSize(PlSize&&) noexcept;
     constexpr ~PlSize() noexcept;
@@ -140,11 +148,12 @@ public:
     }
 };
 
+template<::pltxt2htm::Contracts ndebug>
 class PlI {
-    ::pltxt2htm::ast2::Ast subast;
+    ::pltxt2htm::ast2::Ast<ndebug> subast;
 
 public:
-    constexpr PlI(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr PlI(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr PlI(PlI const&) noexcept = delete;
     constexpr PlI(PlI&&) noexcept;
     constexpr ~PlI() noexcept;
@@ -152,11 +161,12 @@ public:
     constexpr auto operator=(PlI&&) noexcept -> PlI&;
 };
 
+template<::pltxt2htm::Contracts ndebug>
 class PlB {
-    ::pltxt2htm::ast2::Ast subast;
+    ::pltxt2htm::ast2::Ast<ndebug> subast;
 
 public:
-    constexpr PlB(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr PlB(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr PlB(PlB const&) noexcept = delete;
     constexpr PlB(PlB&&) noexcept;
     constexpr ~PlB() noexcept;

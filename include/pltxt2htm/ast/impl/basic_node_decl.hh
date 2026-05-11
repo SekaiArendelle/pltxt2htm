@@ -30,28 +30,31 @@ class InvalidU8Char {};
  * @brief Text container node
  * @details Holds a sub-AST representing text content and inline formatting.
  */
+template<::pltxt2htm::Contracts ndebug>
 class Text {
-    ::pltxt2htm::ast2::Ast subast;
+    ::pltxt2htm::ast2::Ast<ndebug> subast;
 
 public:
     /**
      * @brief Construct a Text node with a sub-AST.
      * @param subast The sub-AST to be contained.
      */
-    constexpr Text(::pltxt2htm::ast2::Ast&& subast) noexcept;
-    constexpr Text(::pltxt2htm::ast2::Text const&) noexcept = delete;
-    constexpr Text(::pltxt2htm::ast2::Text&&) noexcept;
+    constexpr Text(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
+    constexpr Text(::pltxt2htm::ast2::Text<ndebug> const&) noexcept = delete;
+    constexpr Text(::pltxt2htm::ast2::Text<ndebug>&&) noexcept;
     constexpr ~Text() noexcept;
-    constexpr auto operator=(::pltxt2htm::ast2::Text const&) noexcept -> ::pltxt2htm::ast2::Text& = delete;
-    constexpr auto operator=(::pltxt2htm::ast2::Text&&) noexcept -> ::pltxt2htm::ast2::Text&;
+    constexpr auto operator=(::pltxt2htm::ast2::Text<ndebug> const&) noexcept
+        -> ::pltxt2htm::ast2::Text<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::Text<ndebug>&&) noexcept -> ::pltxt2htm::ast2::Text<ndebug>&;
 };
 
 /**
  * @brief URL node
  * @details Represents a URL stored as an AST of characters.
  */
+template<::pltxt2htm::Contracts ndebug>
 class Url {
-    ::pltxt2htm::ast2::Ast url_ast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> url_ast_{};
 
 public:
     constexpr Url() noexcept;
@@ -59,12 +62,13 @@ public:
      * @brief Construct a Url from an AST.
      * @param attr The AST representing the URL characters.
      */
-    constexpr explicit Url(::pltxt2htm::ast2::Ast&& attr) noexcept;
-    constexpr Url(Url const&) noexcept = delete;
-    constexpr Url(Url&&) noexcept;
+    constexpr explicit Url(::pltxt2htm::ast2::Ast<ndebug>&& attr) noexcept;
+    constexpr Url(::pltxt2htm::ast2::Url<ndebug> const&) noexcept = delete;
+    constexpr Url(::pltxt2htm::ast2::Url<ndebug>&&) noexcept;
     constexpr ~Url() noexcept;
-    constexpr auto operator=(Url const&) noexcept -> Url& = delete;
-    constexpr auto operator=(Url&&) noexcept -> Url&;
+    constexpr auto operator=(::pltxt2htm::ast2::Url<ndebug> const&) noexcept
+        -> ::pltxt2htm::ast2::Url<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::Url<ndebug>&&) noexcept -> ::pltxt2htm::ast2::Url<ndebug>&;
 
     /**
      * @brief Get the underlying URL AST.

@@ -76,12 +76,13 @@ class Hr {};
  * @brief HTML &lt;h1&gt; heading node
  * @details Represents a level‑1 heading containing sub‑AST content.
  */
+template<::pltxt2htm::Contracts ndebug>
 class H1 {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr H1() noexcept = delete;
-    constexpr explicit H1(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit H1(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr H1(H1 const&) noexcept = delete;
     constexpr H1(H1&&) noexcept;
     constexpr ~H1() noexcept;
@@ -101,12 +102,13 @@ public:
 /**
  * @brief HTML &lt;h2&gt; heading node
  */
+template<::pltxt2htm::Contracts ndebug>
 class H2 {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr H2() noexcept = delete;
-    constexpr explicit H2(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit H2(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr H2(H2 const&) noexcept = delete;
     constexpr H2(H2&&) noexcept;
     constexpr ~H2() noexcept;
@@ -122,12 +124,13 @@ public:
 /**
  * @brief HTML &lt;h3&gt; heading node
  */
+template<::pltxt2htm::Contracts ndebug>
 class H3 {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr H3() noexcept = delete;
-    constexpr explicit H3(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit H3(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr H3(H3 const&) noexcept = delete;
     constexpr H3(H3&&) noexcept;
     constexpr ~H3() noexcept;
@@ -143,12 +146,13 @@ public:
 /**
  * @brief HTML &lt;h4&gt; heading node
  */
+template<::pltxt2htm::Contracts ndebug>
 class H4 {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr H4() noexcept = delete;
-    constexpr explicit H4(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit H4(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr H4(H4 const&) noexcept = delete;
     constexpr H4(H4&&) noexcept;
     constexpr ~H4() noexcept;
@@ -164,12 +168,13 @@ public:
 /**
  * @brief HTML &lt;h5&gt; heading node
  */
+template<::pltxt2htm::Contracts ndebug>
 class H5 {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr H5() noexcept = delete;
-    constexpr explicit H5(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit H5(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr H5(H5 const&) noexcept = delete;
     constexpr H5(H5&&) noexcept;
     constexpr ~H5() noexcept;
@@ -185,12 +190,13 @@ public:
 /**
  * @brief HTML &lt;h6&gt; heading node
  */
+template<::pltxt2htm::Contracts ndebug>
 class H6 {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr H6() noexcept = delete;
-    constexpr explicit H6(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit H6(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr H6(H6 const&) noexcept = delete;
     constexpr H6(H6&&) noexcept;
     constexpr ~H6() noexcept;
@@ -206,12 +212,13 @@ public:
 /**
  * @brief HTML &lt;p&gt; paragraph node
  */
+template<::pltxt2htm::Contracts ndebug>
 class P {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr P() noexcept = delete;
-    constexpr explicit P(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit P(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr P(P const&) noexcept = delete;
     constexpr P(P&&) noexcept;
     constexpr ~P() noexcept;
@@ -227,12 +234,13 @@ public:
 /**
  * @brief HTML &lt;del&gt; deleted text node
  */
+template<::pltxt2htm::Contracts ndebug>
 class Del {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr Del() noexcept = delete;
-    constexpr explicit Del(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit Del(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr Del(Del const&) noexcept = delete;
     constexpr Del(Del&&) noexcept;
     constexpr ~Del() noexcept;
@@ -248,12 +256,13 @@ public:
 /**
  * @brief HTML &lt;note&gt; custom note node
  */
+template<::pltxt2htm::Contracts ndebug>
 class Note {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr Note() noexcept = delete;
-    constexpr explicit Note(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit Note(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr Note(Note const&) noexcept = delete;
     constexpr Note(Note&&) noexcept;
     constexpr ~Note() noexcept;
@@ -269,12 +278,13 @@ public:
 /**
  * @brief HTML &lt;em&gt; emphasis node
  */
+template<::pltxt2htm::Contracts ndebug>
 class Em {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr Em() noexcept = delete;
-    constexpr explicit Em(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit Em(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr Em(Em const&) noexcept = delete;
     constexpr Em(Em&&) noexcept;
     constexpr ~Em() noexcept;
@@ -290,12 +300,13 @@ public:
 /**
  * @brief HTML &lt;strong&gt; strong importance node
  */
+template<::pltxt2htm::Contracts ndebug>
 class Strong {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr Strong() noexcept = delete;
-    constexpr explicit Strong(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit Strong(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr Strong(Strong const&) noexcept = delete;
     constexpr Strong(Strong&&) noexcept;
     constexpr ~Strong() noexcept;
@@ -311,12 +322,13 @@ public:
 /**
  * @brief HTML &lt;ul&gt; unordered list node
  */
+template<::pltxt2htm::Contracts ndebug>
 class Ul {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr Ul() noexcept = delete;
-    constexpr explicit Ul(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit Ul(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr Ul(Ul const&) noexcept = delete;
     constexpr Ul(Ul&&) noexcept;
     constexpr ~Ul() noexcept;
@@ -332,12 +344,13 @@ public:
 /**
  * @brief HTML &lt;ol&gt; ordered list node
  */
+template<::pltxt2htm::Contracts ndebug>
 class Ol {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr Ol() noexcept = delete;
-    constexpr explicit Ol(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit Ol(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr Ol(Ol const&) noexcept = delete;
     constexpr Ol(Ol&&) noexcept;
     constexpr ~Ol() noexcept;
@@ -353,12 +366,13 @@ public:
 /**
  * @brief HTML &lt;li&gt; list item node
  */
+template<::pltxt2htm::Contracts ndebug>
 class Li {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr Li() noexcept = delete;
-    constexpr explicit Li(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit Li(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr Li(Li const&) noexcept = delete;
     constexpr Li(Li&&) noexcept;
     constexpr ~Li() noexcept;
@@ -374,12 +388,13 @@ public:
 /**
  * @brief HTML &lt;code&gt; inline code node
  */
+template<::pltxt2htm::Contracts ndebug>
 class Code {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr Code() noexcept = delete;
-    constexpr explicit Code(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit Code(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr Code(Code const&) noexcept = delete;
     constexpr Code(Code&&) noexcept;
     constexpr ~Code() noexcept;
@@ -395,12 +410,13 @@ public:
 /**
  * @brief HTML &lt;pre&gt; preformatted text node
  */
+template<::pltxt2htm::Contracts ndebug>
 class Pre {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr Pre() noexcept = delete;
-    constexpr explicit Pre(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit Pre(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr Pre(Pre const&) noexcept = delete;
     constexpr Pre(Pre&&) noexcept;
     constexpr ~Pre() noexcept;
@@ -416,12 +432,13 @@ public:
 /**
  * @brief HTML &lt;blockquote&gt; block quotation node
  */
+template<::pltxt2htm::Contracts ndebug>
 class Blockquote {
-    ::pltxt2htm::ast2::Ast subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
 
 public:
     constexpr Blockquote() noexcept = delete;
-    constexpr explicit Blockquote(::pltxt2htm::ast2::Ast&& subast) noexcept;
+    constexpr explicit Blockquote(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
     constexpr Blockquote(Blockquote const&) noexcept = delete;
     constexpr Blockquote(Blockquote&&) noexcept;
     constexpr ~Blockquote() noexcept;
