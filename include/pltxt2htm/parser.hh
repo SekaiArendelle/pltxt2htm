@@ -64,39 +64,48 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
         auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
         switch (type_of_subast) {
         case ::pltxt2htm::NodeType::md_atx_h1: {
-            result.push_back(::pltxt2htm::ast2::PlTxtNode<ndebug>(::pltxt2htm::ast2::MdAtxH1<ndebug>{::std::move(subast)}));
+            result.push_back(
+                ::pltxt2htm::ast2::PlTxtNode<ndebug>(::pltxt2htm::ast2::MdAtxH1<ndebug>{::std::move(subast)}));
             continue;
         }
         case ::pltxt2htm::NodeType::md_atx_h2: {
-            result.push_back(::pltxt2htm::ast2::PlTxtNode<ndebug>(::pltxt2htm::ast2::MdAtxH2<ndebug>{::std::move(subast)}));
+            result.push_back(
+                ::pltxt2htm::ast2::PlTxtNode<ndebug>(::pltxt2htm::ast2::MdAtxH2<ndebug>{::std::move(subast)}));
             continue;
         }
         case ::pltxt2htm::NodeType::md_atx_h3: {
-            result.push_back(::pltxt2htm::ast2::PlTxtNode<ndebug>(::pltxt2htm::ast2::MdAtxH3<ndebug>{::std::move(subast)}));
+            result.push_back(
+                ::pltxt2htm::ast2::PlTxtNode<ndebug>(::pltxt2htm::ast2::MdAtxH3<ndebug>{::std::move(subast)}));
             continue;
         }
         case ::pltxt2htm::NodeType::md_atx_h4: {
-            result.push_back(::pltxt2htm::ast2::PlTxtNode<ndebug>(::pltxt2htm::ast2::MdAtxH4<ndebug>{::std::move(subast)}));
+            result.push_back(
+                ::pltxt2htm::ast2::PlTxtNode<ndebug>(::pltxt2htm::ast2::MdAtxH4<ndebug>{::std::move(subast)}));
             continue;
         }
         case ::pltxt2htm::NodeType::md_atx_h5: {
-            result.push_back(::pltxt2htm::ast2::PlTxtNode<ndebug>(::pltxt2htm::ast2::MdAtxH5<ndebug>{::std::move(subast)}));
+            result.push_back(
+                ::pltxt2htm::ast2::PlTxtNode<ndebug>(::pltxt2htm::ast2::MdAtxH5<ndebug>{::std::move(subast)}));
             continue;
         }
         case ::pltxt2htm::NodeType::md_atx_h6: {
-            result.push_back(::pltxt2htm::ast2::PlTxtNode<ndebug>(::pltxt2htm::ast2::MdAtxH6<ndebug>{::std::move(subast)}));
+            result.push_back(
+                ::pltxt2htm::ast2::PlTxtNode<ndebug>(::pltxt2htm::ast2::MdAtxH6<ndebug>{::std::move(subast)}));
             continue;
         }
         case ::pltxt2htm::NodeType::md_block_quotes: {
-            result.push_back(::pltxt2htm::ast2::PlTxtNode<ndebug>(::pltxt2htm::ast2::MdBlockQuotes<ndebug>{::std::move(subast)}));
+            result.push_back(
+                ::pltxt2htm::ast2::PlTxtNode<ndebug>(::pltxt2htm::ast2::MdBlockQuotes<ndebug>{::std::move(subast)}));
             continue;
         }
         case ::pltxt2htm::NodeType::md_ul: {
-            result.push_back(::pltxt2htm::ast2::PlTxtNode<ndebug>(::pltxt2htm::ast2::MdUl<ndebug>{::std::move(subast)}));
+            result.push_back(
+                ::pltxt2htm::ast2::PlTxtNode<ndebug>(::pltxt2htm::ast2::MdUl<ndebug>{::std::move(subast)}));
             continue;
         }
         case ::pltxt2htm::NodeType::md_ol: {
-            result.push_back(::pltxt2htm::ast2::PlTxtNode<ndebug>(::pltxt2htm::ast2::MdOl<ndebug>{::std::move(subast)}));
+            result.push_back(
+                ::pltxt2htm::ast2::PlTxtNode<ndebug>(::pltxt2htm::ast2::MdOl<ndebug>{::std::move(subast)}));
             continue;
         }
         default:

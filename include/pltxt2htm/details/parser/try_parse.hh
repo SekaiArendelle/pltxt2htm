@@ -33,8 +33,7 @@ namespace pltxt2htm::details {
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr ::exception::optional<::pltxt2htm::ast2::PlTxtNode<ndebug>> switch_escape_char(
-    char8_t u8char) noexcept {
+constexpr ::exception::optional<::pltxt2htm::ast2::PlTxtNode<ndebug>> switch_escape_char(char8_t u8char) noexcept {
     switch (u8char) {
     case u8'\\': {
         return ::pltxt2htm::ast2::PlTxtNode<ndebug>(::pltxt2htm::ast2::MdEscapeBackslash{});
@@ -156,8 +155,8 @@ constexpr ::exception::optional<::pltxt2htm::ast2::PlTxtNode<ndebug>> switch_esc
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::pltxt2htm::ast2::Ast<ndebug>& result) noexcept
-    -> ::std::size_t {
+constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext,
+                                     ::pltxt2htm::ast2::Ast<ndebug>& result) noexcept -> ::std::size_t {
     ::std::size_t const pltext_size{pltext.size()};
     char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 0)};
 
@@ -1217,7 +1216,7 @@ constexpr auto try_parse_md_block_quotes(::fast_io::u8string_view pltext) noexce
             subpltext.pop_back();
         }
         return ::pltxt2htm::details::TryParseMdBlockQuotesResult<ndebug>{.forward_index = current_index,
-                                                                 .subpltext = ::std::move(subpltext)};
+                                                                         .subpltext = ::std::move(subpltext)};
     }
 }
 
@@ -1259,15 +1258,15 @@ constexpr auto try_parse_md_code_span(::fast_io::u8string_view pltext) noexcept
 
     if constexpr (embraced_size == 1) {
         return ::pltxt2htm::details::TryParseMdCodeSpanResult<ndebug>{.forward_index = forward_index + embraced_size,
-                                                              .subast = ::std::move(ast)};
+                                                                      .subast = ::std::move(ast)};
     }
     else if constexpr (embraced_size == 2) {
         return ::pltxt2htm::details::TryParseMdCodeSpanResult<ndebug>{.forward_index = forward_index + embraced_size,
-                                                              .subast = ::std::move(ast)};
+                                                                      .subast = ::std::move(ast)};
     }
     else if constexpr (embraced_size == 3) {
         return ::pltxt2htm::details::TryParseMdCodeSpanResult<ndebug>{.forward_index = forward_index + embraced_size,
-                                                              .subast = ::std::move(ast)};
+                                                                      .subast = ::std::move(ast)};
     }
     else {
         ::exception::unreachable();
@@ -1333,7 +1332,8 @@ constexpr auto try_parse_md_latex_block_dollar(::fast_io::u8string_view pltext) 
         }
     }
 
-    return ::pltxt2htm::details::TryParseMdLatexResult<ndebug>{.forward_index = close_pos + 4, .subast = ::std::move(ast)};
+    return ::pltxt2htm::details::TryParseMdLatexResult<ndebug>{.forward_index = close_pos + 4,
+                                                               .subast = ::std::move(ast)};
 }
 
 /**
@@ -1388,7 +1388,8 @@ constexpr auto try_parse_md_latex_inline(::fast_io::u8string_view pltext) noexce
         idx += forward + 1;
     }
 
-    return ::pltxt2htm::details::TryParseMdLatexResult<ndebug>{.forward_index = close_pos + 2, .subast = ::std::move(ast)};
+    return ::pltxt2htm::details::TryParseMdLatexResult<ndebug>{.forward_index = close_pos + 2,
+                                                               .subast = ::std::move(ast)};
 }
 
 /**
@@ -1505,7 +1506,7 @@ constexpr auto make_try_parse_url_result(::fast_io::u8string_view const parsed_u
         }
     }
     return ::pltxt2htm::details::TryParseUrlResult<ndebug>{.consumed_size = consumed_size,
-                                                   .url = ::pltxt2htm::ast2::Url<ndebug>{::std::move(ast)}};
+                                                           .url = ::pltxt2htm::ast2::Url<ndebug>{::std::move(ast)}};
 }
 
 template<::pltxt2htm::Contracts ndebug, bool regard_right_parent_as_end_of_url = false>
@@ -1734,8 +1735,8 @@ constexpr auto try_parse_md_link(::fast_io::u8string_view pltext) noexcept
     }
     ++current_index;
     return ::pltxt2htm::details::TryParseMdLinkResult<ndebug>{.forward_index = current_index,
-                                                      .link_text = pltext.subview(1, link_text_end - 1),
-                                                      .link_url = ::std::move(urlobj)};
+                                                              .link_text = pltext.subview(1, link_text_end - 1),
+                                                              .link_url = ::std::move(urlobj)};
 }
 
 template<::pltxt2htm::Contracts ndebug>
@@ -1847,7 +1848,9 @@ constexpr auto try_parse_md_image(::fast_io::u8string_view pltext) noexcept
         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8')') {
         return ::exception::nullopt_t{};
     }
-    return ::pltxt2htm::details::TryParseMdImageResult<ndebug>{.forward_index = current_index + 1, .link_text = ::std::move(link_text_ast), .link_url = ::std::move(link_url_result.url)};
+    return ::pltxt2htm::details::TryParseMdImageResult<ndebug>{.forward_index = current_index + 1,
+                                                               .link_text = ::std::move(link_text_ast),
+                                                               .link_url = ::std::move(link_url_result.url)};
 }
 
 template<::pltxt2htm::Contracts ndebug>

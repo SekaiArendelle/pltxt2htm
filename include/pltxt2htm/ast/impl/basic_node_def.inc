@@ -29,6 +29,7 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::ast2::Url<ndebug>::~Url() noexcept = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::ast2::Url<ndebug>::operator=(::pltxt2htm::ast2::Url<ndebug>&& other) noexcept -> ::pltxt2htm::ast2::Url<ndebug>& = default;
+constexpr auto ::pltxt2htm::ast2::Url<ndebug>::operator=(::pltxt2htm::ast2::Url<ndebug>&& other) noexcept
+    -> ::pltxt2htm::ast2::Url<ndebug>& = default;
 
 } // namespace pltxt2htm::ast2

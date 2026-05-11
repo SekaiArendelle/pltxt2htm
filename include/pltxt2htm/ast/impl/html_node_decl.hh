@@ -244,7 +244,8 @@ public:
     constexpr Del(::pltxt2htm::ast2::Del<ndebug> const&) noexcept = delete;
     constexpr Del(::pltxt2htm::ast2::Del<ndebug>&&) noexcept;
     constexpr ~Del() noexcept;
-    constexpr auto operator=(::pltxt2htm::ast2::Del<ndebug> const&) noexcept -> ::pltxt2htm::ast2::Del<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::Del<ndebug> const&) noexcept
+        -> ::pltxt2htm::ast2::Del<ndebug>& = delete;
     constexpr auto operator=(::pltxt2htm::ast2::Del<ndebug>&&) noexcept -> ::pltxt2htm::ast2::Del<ndebug>&;
 
     [[nodiscard]]
@@ -266,7 +267,8 @@ public:
     constexpr Note(::pltxt2htm::ast2::Note<ndebug> const&) noexcept = delete;
     constexpr Note(::pltxt2htm::ast2::Note<ndebug>&&) noexcept;
     constexpr ~Note() noexcept;
-    constexpr auto operator=(::pltxt2htm::ast2::Note<ndebug> const&) noexcept -> ::pltxt2htm::ast2::Note<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::Note<ndebug> const&) noexcept
+        -> ::pltxt2htm::ast2::Note<ndebug>& = delete;
     constexpr auto operator=(::pltxt2htm::ast2::Note<ndebug>&&) noexcept -> ::pltxt2htm::ast2::Note<ndebug>&;
 
     [[nodiscard]]
@@ -310,7 +312,8 @@ public:
     constexpr Strong(::pltxt2htm::ast2::Strong<ndebug> const&) noexcept = delete;
     constexpr Strong(::pltxt2htm::ast2::Strong<ndebug>&&) noexcept;
     constexpr ~Strong() noexcept;
-    constexpr auto operator=(::pltxt2htm::ast2::Strong<ndebug> const&) noexcept -> ::pltxt2htm::ast2::Strong<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::Strong<ndebug> const&) noexcept
+        -> ::pltxt2htm::ast2::Strong<ndebug>& = delete;
     constexpr auto operator=(::pltxt2htm::ast2::Strong<ndebug>&&) noexcept -> ::pltxt2htm::ast2::Strong<ndebug>&;
 
     [[nodiscard]]
@@ -398,7 +401,8 @@ public:
     constexpr Code(::pltxt2htm::ast2::Code<ndebug> const&) noexcept = delete;
     constexpr Code(::pltxt2htm::ast2::Code<ndebug>&&) noexcept;
     constexpr ~Code() noexcept;
-    constexpr auto operator=(::pltxt2htm::ast2::Code<ndebug> const&) noexcept -> ::pltxt2htm::ast2::Code<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::Code<ndebug> const&) noexcept
+        -> ::pltxt2htm::ast2::Code<ndebug>& = delete;
     constexpr auto operator=(::pltxt2htm::ast2::Code<ndebug>&&) noexcept -> ::pltxt2htm::ast2::Code<ndebug>&;
 
     [[nodiscard]]
@@ -420,7 +424,8 @@ public:
     constexpr Pre(::pltxt2htm::ast2::Pre<ndebug> const&) noexcept = delete;
     constexpr Pre(::pltxt2htm::ast2::Pre<ndebug>&&) noexcept;
     constexpr ~Pre() noexcept;
-    constexpr auto operator=(::pltxt2htm::ast2::Pre<ndebug> const&) noexcept -> ::pltxt2htm::ast2::Pre<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::Pre<ndebug> const&) noexcept
+        -> ::pltxt2htm::ast2::Pre<ndebug>& = delete;
     constexpr auto operator=(::pltxt2htm::ast2::Pre<ndebug>&&) noexcept -> ::pltxt2htm::ast2::Pre<ndebug>&;
 
     [[nodiscard]]
@@ -442,8 +447,10 @@ public:
     constexpr Blockquote(::pltxt2htm::ast2::Blockquote<ndebug> const&) noexcept = delete;
     constexpr Blockquote(::pltxt2htm::ast2::Blockquote<ndebug>&&) noexcept;
     constexpr ~Blockquote() noexcept;
-    constexpr auto operator=(::pltxt2htm::ast2::Blockquote<ndebug> const&) noexcept -> ::pltxt2htm::ast2::Blockquote<ndebug>& = delete;
-    constexpr auto operator=(::pltxt2htm::ast2::Blockquote<ndebug>&&) noexcept -> ::pltxt2htm::ast2::Blockquote<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::ast2::Blockquote<ndebug> const&) noexcept
+        -> ::pltxt2htm::ast2::Blockquote<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::Blockquote<ndebug>&&) noexcept
+        -> ::pltxt2htm::ast2::Blockquote<ndebug>&;
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
