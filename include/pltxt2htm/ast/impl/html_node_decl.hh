@@ -25,7 +25,7 @@ class LineBreak {};
 class Br {};
 
 /**
- * @brief Space character node
+ * @brief ::pltxt2htm::ast2::Space character node
  * @details Represents a whitespace character (space, tab, etc.).
  */
 class Space {};
@@ -43,13 +43,13 @@ class LessThan {};
 class GreaterThan {};
 
 /**
- * @brief Tab character node
+ * @brief ::pltxt2htm::ast2::Tab character node
  * @details Represents a tab character in the source text.
  */
 class Tab {};
 
 /**
- * @brief Ampersand node
+ * @brief ::pltxt2htm::ast2::Ampersand node
  * @details Represents the '&' character, which may be part of an HTML entity.
  */
 class Ampersand {};
@@ -83,11 +83,11 @@ class H1 {
 public:
     constexpr H1() noexcept = delete;
     constexpr explicit H1(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
-    constexpr H1(H1 const&) noexcept = delete;
-    constexpr H1(H1&&) noexcept;
+    constexpr H1(::pltxt2htm::ast2::H1<ndebug> const&) noexcept = delete;
+    constexpr H1(::pltxt2htm::ast2::H1<ndebug>&&) noexcept;
     constexpr ~H1() noexcept;
-    constexpr auto operator=(H1 const&) noexcept -> H1& = delete;
-    constexpr auto operator=(H1&&) noexcept -> H1&;
+    constexpr auto operator=(::pltxt2htm::ast2::H1<ndebug> const&) noexcept -> ::pltxt2htm::ast2::H1<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::H1<ndebug>&&) noexcept -> ::pltxt2htm::ast2::H1<ndebug>&;
 
     /**
      * @brief Get the sub‑AST contained in this heading.
@@ -109,11 +109,11 @@ class H2 {
 public:
     constexpr H2() noexcept = delete;
     constexpr explicit H2(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
-    constexpr H2(H2 const&) noexcept = delete;
-    constexpr H2(H2&&) noexcept;
+    constexpr H2(::pltxt2htm::ast2::H2<ndebug> const&) noexcept = delete;
+    constexpr H2(::pltxt2htm::ast2::H2<ndebug>&&) noexcept;
     constexpr ~H2() noexcept;
-    constexpr auto operator=(H2 const&) noexcept -> H2& = delete;
-    constexpr auto operator=(H2&&) noexcept -> H2&;
+    constexpr auto operator=(::pltxt2htm::ast2::H2<ndebug> const&) noexcept -> ::pltxt2htm::ast2::H2<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::H2<ndebug>&&) noexcept -> ::pltxt2htm::ast2::H2<ndebug>&;
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
@@ -131,11 +131,11 @@ class H3 {
 public:
     constexpr H3() noexcept = delete;
     constexpr explicit H3(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
-    constexpr H3(H3 const&) noexcept = delete;
-    constexpr H3(H3&&) noexcept;
+    constexpr H3(::pltxt2htm::ast2::H3<ndebug> const&) noexcept = delete;
+    constexpr H3(::pltxt2htm::ast2::H3<ndebug>&&) noexcept;
     constexpr ~H3() noexcept;
-    constexpr auto operator=(H3 const&) noexcept -> H3& = delete;
-    constexpr auto operator=(H3&&) noexcept -> H3&;
+    constexpr auto operator=(::pltxt2htm::ast2::H3<ndebug> const&) noexcept -> ::pltxt2htm::ast2::H3<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::H3<ndebug>&&) noexcept -> ::pltxt2htm::ast2::H3<ndebug>&;
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
@@ -153,11 +153,11 @@ class H4 {
 public:
     constexpr H4() noexcept = delete;
     constexpr explicit H4(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
-    constexpr H4(H4 const&) noexcept = delete;
-    constexpr H4(H4&&) noexcept;
+    constexpr H4(::pltxt2htm::ast2::H4<ndebug> const&) noexcept = delete;
+    constexpr H4(::pltxt2htm::ast2::H4<ndebug>&&) noexcept;
     constexpr ~H4() noexcept;
-    constexpr auto operator=(H4 const&) noexcept -> H4& = delete;
-    constexpr auto operator=(H4&&) noexcept -> H4&;
+    constexpr auto operator=(::pltxt2htm::ast2::H4<ndebug> const&) noexcept -> ::pltxt2htm::ast2::H4<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::H4<ndebug>&&) noexcept -> ::pltxt2htm::ast2::H4<ndebug>&;
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
@@ -175,11 +175,11 @@ class H5 {
 public:
     constexpr H5() noexcept = delete;
     constexpr explicit H5(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
-    constexpr H5(H5 const&) noexcept = delete;
-    constexpr H5(H5&&) noexcept;
+    constexpr H5(::pltxt2htm::ast2::H5<ndebug> const&) noexcept = delete;
+    constexpr H5(::pltxt2htm::ast2::H5<ndebug>&&) noexcept;
     constexpr ~H5() noexcept;
-    constexpr auto operator=(H5 const&) noexcept -> H5& = delete;
-    constexpr auto operator=(H5&&) noexcept -> H5&;
+    constexpr auto operator=(::pltxt2htm::ast2::H5<ndebug> const&) noexcept -> ::pltxt2htm::ast2::H5<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::H5<ndebug>&&) noexcept -> ::pltxt2htm::ast2::H5<ndebug>&;
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
@@ -197,11 +197,11 @@ class H6 {
 public:
     constexpr H6() noexcept = delete;
     constexpr explicit H6(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
-    constexpr H6(H6 const&) noexcept = delete;
-    constexpr H6(H6&&) noexcept;
+    constexpr H6(::pltxt2htm::ast2::H6<ndebug> const&) noexcept = delete;
+    constexpr H6(::pltxt2htm::ast2::H6<ndebug>&&) noexcept;
     constexpr ~H6() noexcept;
-    constexpr auto operator=(H6 const&) noexcept -> H6& = delete;
-    constexpr auto operator=(H6&&) noexcept -> H6&;
+    constexpr auto operator=(::pltxt2htm::ast2::H6<ndebug> const&) noexcept -> ::pltxt2htm::ast2::H6<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::H6<ndebug>&&) noexcept -> ::pltxt2htm::ast2::H6<ndebug>&;
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
@@ -219,11 +219,11 @@ class P {
 public:
     constexpr P() noexcept = delete;
     constexpr explicit P(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
-    constexpr P(P const&) noexcept = delete;
-    constexpr P(P&&) noexcept;
+    constexpr P(::pltxt2htm::ast2::P<ndebug> const&) noexcept = delete;
+    constexpr P(::pltxt2htm::ast2::P<ndebug>&&) noexcept;
     constexpr ~P() noexcept;
-    constexpr auto operator=(P const&) noexcept -> P& = delete;
-    constexpr auto operator=(P&&) noexcept -> P&;
+    constexpr auto operator=(::pltxt2htm::ast2::P<ndebug> const&) noexcept -> ::pltxt2htm::ast2::P<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::P<ndebug>&&) noexcept -> ::pltxt2htm::ast2::P<ndebug>&;
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
@@ -241,11 +241,11 @@ class Del {
 public:
     constexpr Del() noexcept = delete;
     constexpr explicit Del(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
-    constexpr Del(Del const&) noexcept = delete;
-    constexpr Del(Del&&) noexcept;
+    constexpr Del(::pltxt2htm::ast2::Del<ndebug> const&) noexcept = delete;
+    constexpr Del(::pltxt2htm::ast2::Del<ndebug>&&) noexcept;
     constexpr ~Del() noexcept;
-    constexpr auto operator=(Del const&) noexcept -> Del& = delete;
-    constexpr auto operator=(Del&&) noexcept -> Del&;
+    constexpr auto operator=(::pltxt2htm::ast2::Del<ndebug> const&) noexcept -> ::pltxt2htm::ast2::Del<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::Del<ndebug>&&) noexcept -> ::pltxt2htm::ast2::Del<ndebug>&;
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
@@ -263,11 +263,11 @@ class Note {
 public:
     constexpr Note() noexcept = delete;
     constexpr explicit Note(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
-    constexpr Note(Note const&) noexcept = delete;
-    constexpr Note(Note&&) noexcept;
+    constexpr Note(::pltxt2htm::ast2::Note<ndebug> const&) noexcept = delete;
+    constexpr Note(::pltxt2htm::ast2::Note<ndebug>&&) noexcept;
     constexpr ~Note() noexcept;
-    constexpr auto operator=(Note const&) noexcept -> Note& = delete;
-    constexpr auto operator=(Note&&) noexcept -> Note&;
+    constexpr auto operator=(::pltxt2htm::ast2::Note<ndebug> const&) noexcept -> ::pltxt2htm::ast2::Note<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::Note<ndebug>&&) noexcept -> ::pltxt2htm::ast2::Note<ndebug>&;
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
@@ -285,11 +285,11 @@ class Em {
 public:
     constexpr Em() noexcept = delete;
     constexpr explicit Em(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
-    constexpr Em(Em const&) noexcept = delete;
-    constexpr Em(Em&&) noexcept;
+    constexpr Em(::pltxt2htm::ast2::Em<ndebug> const&) noexcept = delete;
+    constexpr Em(::pltxt2htm::ast2::Em<ndebug>&&) noexcept;
     constexpr ~Em() noexcept;
-    constexpr auto operator=(Em const&) noexcept -> Em& = delete;
-    constexpr auto operator=(Em&&) noexcept -> Em&;
+    constexpr auto operator=(::pltxt2htm::ast2::Em<ndebug> const&) noexcept -> ::pltxt2htm::ast2::Em<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::Em<ndebug>&&) noexcept -> ::pltxt2htm::ast2::Em<ndebug>&;
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
@@ -307,11 +307,11 @@ class Strong {
 public:
     constexpr Strong() noexcept = delete;
     constexpr explicit Strong(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
-    constexpr Strong(Strong const&) noexcept = delete;
-    constexpr Strong(Strong&&) noexcept;
+    constexpr Strong(::pltxt2htm::ast2::Strong<ndebug> const&) noexcept = delete;
+    constexpr Strong(::pltxt2htm::ast2::Strong<ndebug>&&) noexcept;
     constexpr ~Strong() noexcept;
-    constexpr auto operator=(Strong const&) noexcept -> Strong& = delete;
-    constexpr auto operator=(Strong&&) noexcept -> Strong&;
+    constexpr auto operator=(::pltxt2htm::ast2::Strong<ndebug> const&) noexcept -> ::pltxt2htm::ast2::Strong<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::Strong<ndebug>&&) noexcept -> ::pltxt2htm::ast2::Strong<ndebug>&;
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
@@ -329,11 +329,11 @@ class Ul {
 public:
     constexpr Ul() noexcept = delete;
     constexpr explicit Ul(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
-    constexpr Ul(Ul const&) noexcept = delete;
-    constexpr Ul(Ul&&) noexcept;
+    constexpr Ul(::pltxt2htm::ast2::Ul<ndebug> const&) noexcept = delete;
+    constexpr Ul(::pltxt2htm::ast2::Ul<ndebug>&&) noexcept;
     constexpr ~Ul() noexcept;
-    constexpr auto operator=(Ul const&) noexcept -> Ul& = delete;
-    constexpr auto operator=(Ul&&) noexcept -> Ul&;
+    constexpr auto operator=(::pltxt2htm::ast2::Ul<ndebug> const&) noexcept -> ::pltxt2htm::ast2::Ul<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::Ul<ndebug>&&) noexcept -> ::pltxt2htm::ast2::Ul<ndebug>&;
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
@@ -351,11 +351,11 @@ class Ol {
 public:
     constexpr Ol() noexcept = delete;
     constexpr explicit Ol(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
-    constexpr Ol(Ol const&) noexcept = delete;
-    constexpr Ol(Ol&&) noexcept;
+    constexpr Ol(::pltxt2htm::ast2::Ol<ndebug> const&) noexcept = delete;
+    constexpr Ol(::pltxt2htm::ast2::Ol<ndebug>&&) noexcept;
     constexpr ~Ol() noexcept;
-    constexpr auto operator=(Ol const&) noexcept -> Ol& = delete;
-    constexpr auto operator=(Ol&&) noexcept -> Ol&;
+    constexpr auto operator=(::pltxt2htm::ast2::Ol<ndebug> const&) noexcept -> ::pltxt2htm::ast2::Ol<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::Ol<ndebug>&&) noexcept -> ::pltxt2htm::ast2::Ol<ndebug>&;
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
@@ -373,11 +373,11 @@ class Li {
 public:
     constexpr Li() noexcept = delete;
     constexpr explicit Li(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
-    constexpr Li(Li const&) noexcept = delete;
-    constexpr Li(Li&&) noexcept;
+    constexpr Li(::pltxt2htm::ast2::Li<ndebug> const&) noexcept = delete;
+    constexpr Li(::pltxt2htm::ast2::Li<ndebug>&&) noexcept;
     constexpr ~Li() noexcept;
-    constexpr auto operator=(Li const&) noexcept -> Li& = delete;
-    constexpr auto operator=(Li&&) noexcept -> Li&;
+    constexpr auto operator=(::pltxt2htm::ast2::Li<ndebug> const&) noexcept -> ::pltxt2htm::ast2::Li<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::Li<ndebug>&&) noexcept -> ::pltxt2htm::ast2::Li<ndebug>&;
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
@@ -395,11 +395,11 @@ class Code {
 public:
     constexpr Code() noexcept = delete;
     constexpr explicit Code(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
-    constexpr Code(Code const&) noexcept = delete;
-    constexpr Code(Code&&) noexcept;
+    constexpr Code(::pltxt2htm::ast2::Code<ndebug> const&) noexcept = delete;
+    constexpr Code(::pltxt2htm::ast2::Code<ndebug>&&) noexcept;
     constexpr ~Code() noexcept;
-    constexpr auto operator=(Code const&) noexcept -> Code& = delete;
-    constexpr auto operator=(Code&&) noexcept -> Code&;
+    constexpr auto operator=(::pltxt2htm::ast2::Code<ndebug> const&) noexcept -> ::pltxt2htm::ast2::Code<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::Code<ndebug>&&) noexcept -> ::pltxt2htm::ast2::Code<ndebug>&;
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
@@ -417,11 +417,11 @@ class Pre {
 public:
     constexpr Pre() noexcept = delete;
     constexpr explicit Pre(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
-    constexpr Pre(Pre const&) noexcept = delete;
-    constexpr Pre(Pre&&) noexcept;
+    constexpr Pre(::pltxt2htm::ast2::Pre<ndebug> const&) noexcept = delete;
+    constexpr Pre(::pltxt2htm::ast2::Pre<ndebug>&&) noexcept;
     constexpr ~Pre() noexcept;
-    constexpr auto operator=(Pre const&) noexcept -> Pre& = delete;
-    constexpr auto operator=(Pre&&) noexcept -> Pre&;
+    constexpr auto operator=(::pltxt2htm::ast2::Pre<ndebug> const&) noexcept -> ::pltxt2htm::ast2::Pre<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::Pre<ndebug>&&) noexcept -> ::pltxt2htm::ast2::Pre<ndebug>&;
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
@@ -439,11 +439,11 @@ class Blockquote {
 public:
     constexpr Blockquote() noexcept = delete;
     constexpr explicit Blockquote(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
-    constexpr Blockquote(Blockquote const&) noexcept = delete;
-    constexpr Blockquote(Blockquote&&) noexcept;
+    constexpr Blockquote(::pltxt2htm::ast2::Blockquote<ndebug> const&) noexcept = delete;
+    constexpr Blockquote(::pltxt2htm::ast2::Blockquote<ndebug>&&) noexcept;
     constexpr ~Blockquote() noexcept;
-    constexpr auto operator=(Blockquote const&) noexcept -> Blockquote& = delete;
-    constexpr auto operator=(Blockquote&&) noexcept -> Blockquote&;
+    constexpr auto operator=(::pltxt2htm::ast2::Blockquote<ndebug> const&) noexcept -> ::pltxt2htm::ast2::Blockquote<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::Blockquote<ndebug>&&) noexcept -> ::pltxt2htm::ast2::Blockquote<ndebug>&;
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {

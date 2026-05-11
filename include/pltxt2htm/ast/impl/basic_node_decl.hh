@@ -27,7 +27,7 @@ public:
 class InvalidU8Char {};
 
 /**
- * @brief Text container node
+ * @brief ::pltxt2htm::ast2::Text<ndebug> container node
  * @details Holds a sub-AST representing text content and inline formatting.
  */
 template<::pltxt2htm::Contracts ndebug>
@@ -36,7 +36,7 @@ class Text {
 
 public:
     /**
-     * @brief Construct a Text node with a sub-AST.
+     * @brief Construct a ::pltxt2htm::ast2::Text<ndebug> node with a sub-AST.
      * @param subast The sub-AST to be contained.
      */
     constexpr Text(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
@@ -59,7 +59,7 @@ class Url {
 public:
     constexpr Url() noexcept;
     /**
-     * @brief Construct a Url from an AST.
+     * @brief Construct a ::pltxt2htm::ast2::Url<ndebug> from an AST.
      * @param attr The AST representing the URL characters.
      */
     constexpr explicit Url(::pltxt2htm::ast2::Ast<ndebug>&& attr) noexcept;

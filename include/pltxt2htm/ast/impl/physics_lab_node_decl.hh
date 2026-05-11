@@ -18,11 +18,11 @@ class PlColor {
 
 public:
     constexpr PlColor(::pltxt2htm::ast2::Ast<ndebug>&& subast, ::fast_io::u8string&& color) noexcept;
-    constexpr PlColor(PlColor const&) noexcept = delete;
-    constexpr PlColor(PlColor&&) noexcept;
+    constexpr PlColor(::pltxt2htm::ast2::PlColor<ndebug> const&) noexcept = delete;
+    constexpr PlColor(::pltxt2htm::ast2::PlColor<ndebug>&&) noexcept;
     constexpr ~PlColor() noexcept;
-    constexpr auto operator=(PlColor const&) noexcept -> PlColor& = delete;
-    constexpr auto operator=(PlColor&&) noexcept -> PlColor&;
+    constexpr auto operator=(::pltxt2htm::ast2::PlColor<ndebug> const&) noexcept -> ::pltxt2htm::ast2::PlColor<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::PlColor<ndebug>&&) noexcept -> ::pltxt2htm::ast2::PlColor<ndebug>&;
 
     [[nodiscard]]
     constexpr auto&& get_color(this auto&& self) noexcept {
@@ -37,11 +37,11 @@ class PlA {
 
 public:
     constexpr PlA(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
-    constexpr PlA(PlA const&) noexcept = delete;
-    constexpr PlA(PlA&&) noexcept;
+    constexpr PlA(::pltxt2htm::ast2::PlA<ndebug> const&) noexcept = delete;
+    constexpr PlA(::pltxt2htm::ast2::PlA<ndebug>&&) noexcept;
     constexpr ~PlA() noexcept;
-    constexpr auto operator=(PlA const&) noexcept -> PlA& = delete;
-    constexpr auto operator=(PlA&&) noexcept -> PlA&;
+    constexpr auto operator=(::pltxt2htm::ast2::PlA<ndebug> const&) noexcept -> ::pltxt2htm::ast2::PlA<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::PlA<ndebug>&&) noexcept -> ::pltxt2htm::ast2::PlA<ndebug>&;
 
     [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
@@ -60,11 +60,11 @@ class PlExperiment {
 
 public:
     constexpr PlExperiment(::pltxt2htm::ast2::Ast<ndebug>&& subast, ::fast_io::u8string&& id) noexcept;
-    constexpr PlExperiment(PlExperiment const&) noexcept = delete;
-    constexpr PlExperiment(PlExperiment&&) noexcept;
+    constexpr PlExperiment(::pltxt2htm::ast2::PlExperiment<ndebug> const&) noexcept = delete;
+    constexpr PlExperiment(::pltxt2htm::ast2::PlExperiment<ndebug>&&) noexcept;
     constexpr ~PlExperiment() noexcept;
-    constexpr auto operator=(PlExperiment const&) noexcept -> PlExperiment& = delete;
-    constexpr auto operator=(PlExperiment&&) noexcept -> PlExperiment&;
+    constexpr auto operator=(::pltxt2htm::ast2::PlExperiment<ndebug> const&) noexcept -> ::pltxt2htm::ast2::PlExperiment<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::PlExperiment<ndebug>&&) noexcept -> ::pltxt2htm::ast2::PlExperiment<ndebug>&;
 
     [[nodiscard]]
     constexpr auto&& get_id(this auto&& self) noexcept {
@@ -79,11 +79,11 @@ class PlDiscussion {
 
 public:
     constexpr PlDiscussion(::pltxt2htm::ast2::Ast<ndebug>&& subast, ::fast_io::u8string&& id) noexcept;
-    constexpr PlDiscussion(PlDiscussion const&) noexcept = delete;
-    constexpr PlDiscussion(PlDiscussion&&) noexcept;
+    constexpr PlDiscussion(::pltxt2htm::ast2::PlDiscussion<ndebug> const&) noexcept = delete;
+    constexpr PlDiscussion(::pltxt2htm::ast2::PlDiscussion<ndebug>&&) noexcept;
     constexpr ~PlDiscussion() noexcept;
-    constexpr auto operator=(PlDiscussion const&) noexcept -> PlDiscussion& = delete;
-    constexpr auto operator=(PlDiscussion&&) noexcept -> PlDiscussion&;
+    constexpr auto operator=(::pltxt2htm::ast2::PlDiscussion<ndebug> const&) noexcept -> ::pltxt2htm::ast2::PlDiscussion<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::PlDiscussion<ndebug>&&) noexcept -> ::pltxt2htm::ast2::PlDiscussion<ndebug>&;
 
     [[nodiscard]]
     constexpr auto&& get_id(this auto&& self) noexcept {
@@ -98,11 +98,11 @@ class PlUser {
 
 public:
     constexpr PlUser(::pltxt2htm::ast2::Ast<ndebug>&& subast, ::fast_io::u8string&& id) noexcept;
-    constexpr PlUser(PlUser const&) noexcept = delete;
-    constexpr PlUser(PlUser&&) noexcept;
+    constexpr PlUser(::pltxt2htm::ast2::PlUser<ndebug> const&) noexcept = delete;
+    constexpr PlUser(::pltxt2htm::ast2::PlUser<ndebug>&&) noexcept;
     constexpr ~PlUser() noexcept;
-    constexpr auto operator=(PlUser const&) noexcept -> PlUser& = delete;
-    constexpr auto operator=(PlUser&&) noexcept -> PlUser&;
+    constexpr auto operator=(::pltxt2htm::ast2::PlUser<ndebug> const&) noexcept -> ::pltxt2htm::ast2::PlUser<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::PlUser<ndebug>&&) noexcept -> ::pltxt2htm::ast2::PlUser<ndebug>&;
 
     [[nodiscard]]
     constexpr auto&& get_id(this auto&& self) noexcept {
@@ -117,11 +117,11 @@ class PlExternal {
 
 public:
     constexpr PlExternal(::pltxt2htm::ast2::Ast<ndebug>&& subast, ::pltxt2htm::ast2::Url<ndebug>&& url) noexcept;
-    constexpr PlExternal(PlExternal const&) noexcept = delete;
-    constexpr PlExternal(PlExternal&&) noexcept;
+    constexpr PlExternal(::pltxt2htm::ast2::PlExternal<ndebug> const&) noexcept = delete;
+    constexpr PlExternal(::pltxt2htm::ast2::PlExternal<ndebug>&&) noexcept;
     constexpr ~PlExternal() noexcept;
-    constexpr auto operator=(PlExternal const&) noexcept -> PlExternal& = delete;
-    constexpr auto operator=(PlExternal&&) noexcept -> PlExternal&;
+    constexpr auto operator=(::pltxt2htm::ast2::PlExternal<ndebug> const&) noexcept -> ::pltxt2htm::ast2::PlExternal<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::PlExternal<ndebug>&&) noexcept -> ::pltxt2htm::ast2::PlExternal<ndebug>&;
 
     [[nodiscard]]
     constexpr auto&& get_url(this auto&& self) noexcept {
@@ -136,11 +136,11 @@ class PlSize {
 
 public:
     constexpr PlSize(::pltxt2htm::ast2::Ast<ndebug>&& subast, ::std::size_t size) noexcept;
-    constexpr PlSize(PlSize const&) noexcept = delete;
-    constexpr PlSize(PlSize&&) noexcept;
+    constexpr PlSize(::pltxt2htm::ast2::PlSize<ndebug> const&) noexcept = delete;
+    constexpr PlSize(::pltxt2htm::ast2::PlSize<ndebug>&&) noexcept;
     constexpr ~PlSize() noexcept;
-    constexpr auto operator=(PlSize const&) noexcept -> PlSize& = delete;
-    constexpr auto operator=(PlSize&&) noexcept -> PlSize&;
+    constexpr auto operator=(::pltxt2htm::ast2::PlSize<ndebug> const&) noexcept -> ::pltxt2htm::ast2::PlSize<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::PlSize<ndebug>&&) noexcept -> ::pltxt2htm::ast2::PlSize<ndebug>&;
 
     [[nodiscard]]
     constexpr auto&& get_size(this auto&& self) noexcept {
@@ -154,11 +154,11 @@ class PlI {
 
 public:
     constexpr PlI(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
-    constexpr PlI(PlI const&) noexcept = delete;
-    constexpr PlI(PlI&&) noexcept;
+    constexpr PlI(::pltxt2htm::ast2::PlI<ndebug> const&) noexcept = delete;
+    constexpr PlI(::pltxt2htm::ast2::PlI<ndebug>&&) noexcept;
     constexpr ~PlI() noexcept;
-    constexpr auto operator=(PlI const&) noexcept -> PlI& = delete;
-    constexpr auto operator=(PlI&&) noexcept -> PlI&;
+    constexpr auto operator=(::pltxt2htm::ast2::PlI<ndebug> const&) noexcept -> ::pltxt2htm::ast2::PlI<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::PlI<ndebug>&&) noexcept -> ::pltxt2htm::ast2::PlI<ndebug>&;
 };
 
 template<::pltxt2htm::Contracts ndebug>
@@ -167,11 +167,11 @@ class PlB {
 
 public:
     constexpr PlB(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
-    constexpr PlB(PlB const&) noexcept = delete;
-    constexpr PlB(PlB&&) noexcept;
+    constexpr PlB(::pltxt2htm::ast2::PlB<ndebug> const&) noexcept = delete;
+    constexpr PlB(::pltxt2htm::ast2::PlB<ndebug>&&) noexcept;
     constexpr ~PlB() noexcept;
-    constexpr auto operator=(PlB const&) noexcept -> PlB& = delete;
-    constexpr auto operator=(PlB&&) noexcept -> PlB&;
+    constexpr auto operator=(::pltxt2htm::ast2::PlB<ndebug> const&) noexcept -> ::pltxt2htm::ast2::PlB<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::ast2::PlB<ndebug>&&) noexcept -> ::pltxt2htm::ast2::PlB<ndebug>&;
 };
 
 class PlMacroProject {};

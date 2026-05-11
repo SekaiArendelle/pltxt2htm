@@ -16,7 +16,7 @@ class PlTxtNode;
 
 /**
  * @brief AST container type
- * @details A vector of PlTxtNode elements representing the Abstract Syntax Tree.
+ * @details A vector of ::pltxt2htm::ast2::PlTxtNode<ndebug> elements representing the Abstract Syntax Tree.
  *          This is the primary storage type for all AST nodes.
  */
 template<::pltxt2htm::Contracts ndebug>
