@@ -25,6 +25,11 @@ public:
     constexpr auto operator=(::pltxt2htm::ast2::PlColor<ndebug>&&) noexcept -> ::pltxt2htm::ast2::PlColor<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto&& get_subast(this auto&& self) noexcept {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+
+    [[nodiscard]]
     constexpr auto&& get_color(this auto&& self) noexcept {
         return ::std::forward_like<decltype(self)>(self.color_);
     }
@@ -42,6 +47,11 @@ public:
     constexpr ~PlA() noexcept;
     constexpr auto operator=(::pltxt2htm::ast2::PlA<ndebug> const&) noexcept -> ::pltxt2htm::ast2::PlA<ndebug>& = delete;
     constexpr auto operator=(::pltxt2htm::ast2::PlA<ndebug>&&) noexcept -> ::pltxt2htm::ast2::PlA<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto&& get_subast(this auto&& self) noexcept {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
 
     [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
@@ -67,6 +77,11 @@ public:
     constexpr auto operator=(::pltxt2htm::ast2::PlExperiment<ndebug>&&) noexcept -> ::pltxt2htm::ast2::PlExperiment<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto&& get_subast(this auto&& self) noexcept {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+
+    [[nodiscard]]
     constexpr auto&& get_id(this auto&& self) noexcept {
         return ::std::forward_like<decltype(self)>(self.id_);
     }
@@ -84,6 +99,11 @@ public:
     constexpr ~PlDiscussion() noexcept;
     constexpr auto operator=(::pltxt2htm::ast2::PlDiscussion<ndebug> const&) noexcept -> ::pltxt2htm::ast2::PlDiscussion<ndebug>& = delete;
     constexpr auto operator=(::pltxt2htm::ast2::PlDiscussion<ndebug>&&) noexcept -> ::pltxt2htm::ast2::PlDiscussion<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto&& get_subast(this auto&& self) noexcept {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
 
     [[nodiscard]]
     constexpr auto&& get_id(this auto&& self) noexcept {
@@ -105,6 +125,11 @@ public:
     constexpr auto operator=(::pltxt2htm::ast2::PlUser<ndebug>&&) noexcept -> ::pltxt2htm::ast2::PlUser<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto&& get_subast(this auto&& self) noexcept {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+
+    [[nodiscard]]
     constexpr auto&& get_id(this auto&& self) noexcept {
         return ::std::forward_like<decltype(self)>(self.id_);
     }
@@ -122,6 +147,11 @@ public:
     constexpr ~PlExternal() noexcept;
     constexpr auto operator=(::pltxt2htm::ast2::PlExternal<ndebug> const&) noexcept -> ::pltxt2htm::ast2::PlExternal<ndebug>& = delete;
     constexpr auto operator=(::pltxt2htm::ast2::PlExternal<ndebug>&&) noexcept -> ::pltxt2htm::ast2::PlExternal<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto&& get_subast(this auto&& self) noexcept {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
 
     [[nodiscard]]
     constexpr auto&& get_url(this auto&& self) noexcept {
@@ -143,6 +173,11 @@ public:
     constexpr auto operator=(::pltxt2htm::ast2::PlSize<ndebug>&&) noexcept -> ::pltxt2htm::ast2::PlSize<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto&& get_subast(this auto&& self) noexcept {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+
+    [[nodiscard]]
     constexpr auto&& get_size(this auto&& self) noexcept {
         return ::std::forward_like<decltype(self)>(self.size_);
     }
@@ -159,6 +194,11 @@ public:
     constexpr ~PlI() noexcept;
     constexpr auto operator=(::pltxt2htm::ast2::PlI<ndebug> const&) noexcept -> ::pltxt2htm::ast2::PlI<ndebug>& = delete;
     constexpr auto operator=(::pltxt2htm::ast2::PlI<ndebug>&&) noexcept -> ::pltxt2htm::ast2::PlI<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto&& get_subast(this auto&& self) noexcept {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
 };
 
 template<::pltxt2htm::Contracts ndebug>
@@ -172,6 +212,11 @@ public:
     constexpr ~PlB() noexcept;
     constexpr auto operator=(::pltxt2htm::ast2::PlB<ndebug> const&) noexcept -> ::pltxt2htm::ast2::PlB<ndebug>& = delete;
     constexpr auto operator=(::pltxt2htm::ast2::PlB<ndebug>&&) noexcept -> ::pltxt2htm::ast2::PlB<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto&& get_subast(this auto&& self) noexcept {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
 };
 
 class PlMacroProject {};

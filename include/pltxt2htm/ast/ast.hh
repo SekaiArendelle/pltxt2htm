@@ -11,6 +11,7 @@
 #include "impl/html_node_decl.hh"
 #include "impl/markdown_node_decl.hh"
 #include "impl/physics_lab_node_decl.hh"
+#include "../details/push_macro.hh"
 
 namespace pltxt2htm::ast2 {
 
@@ -1489,15 +1490,177 @@ public:
 
     constexpr auto operator=(this ::pltxt2htm::ast2::PlTxtNode<ndebug>* self, PlTxtNode&& other) noexcept
         -> PlTxtNode& {
-        pltxt2htm_assert(self != ::std::addressof(other));
+        pltxt2htm_assert(self != ::std::addressof(other), u8"self assignment is not allowed");
         self->~PlTxtNode();
         new (self) PlTxtNode(::std::move(other));
         return *self;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_node_kind(this auto&& self) noexcept -> ::pltxt2htm::NodeType {
+        return self.node_kind;
+    }
+
+    constexpr auto&& get_equal_sign_tag_id(this auto&& self) noexcept {
+        bool const is_equal_sign_tag_type{::pltxt2htm::details::is_equal_sign_tag_type(self.node_kind)};
+        pltxt2htm_assert(is_equal_sign_tag_type, u8"node kind mismatch");
+        switch (self.node_kind) {
+        case ::pltxt2htm::NodeType::pl_color:
+            return ::std::forward_like<decltype(self)>(self.pl_color_node).get_color();
+        case ::pltxt2htm::NodeType::pl_experiment:
+            return ::std::forward_like<decltype(self)>(self.pl_experiment_node).get_id();
+        case ::pltxt2htm::NodeType::pl_discussion:
+            return ::std::forward_like<decltype(self)>(self.pl_discussion_node).get_id();
+        case ::pltxt2htm::NodeType::pl_user:
+            return ::std::forward_like<decltype(self)>(self.pl_user_node).get_id();
+        default:
+            [[unlikely]] {
+                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+            }
+        }
+    }
+
+    constexpr auto&& get_external_tag_url(this auto&& self) noexcept {
+        bool const is_external_tag_type{::pltxt2htm::details::is_external_tag_type(self.node_kind)};
+        pltxt2htm_assert(is_external_tag_type, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.pl_external_node).get_url();
+    }
+
+    constexpr auto get_pl_size_tag_id(this auto&& self) noexcept -> ::std::size_t {
+        bool const is_pl_size_tag_type{::pltxt2htm::details::is_pl_size_tag_type(self.node_kind)};
+        pltxt2htm_assert(is_pl_size_tag_type, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.pl_size_node).get_size();
+    }
+
+    constexpr auto&& get_md_link_url(this auto&& self) noexcept {
+        bool const is_md_link_type{::pltxt2htm::details::is_md_link_type(self.node_kind)};
+        pltxt2htm_assert(is_md_link_type, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.md_link_node).get_url();
+    }
+
+    constexpr auto&& get_subast(this auto&& self) noexcept {
+        switch (self.node_kind) {
+        case ::pltxt2htm::NodeType::text:
+            return ::std::forward_like<decltype(self)>(self.text_node).get_subast();
+
+        case ::pltxt2htm::NodeType::html_h1:
+            return ::std::forward_like<decltype(self)>(self.h1_node).get_subast();
+        case ::pltxt2htm::NodeType::html_h2:
+            return ::std::forward_like<decltype(self)>(self.h2_node).get_subast();
+        case ::pltxt2htm::NodeType::html_h3:
+            return ::std::forward_like<decltype(self)>(self.h3_node).get_subast();
+        case ::pltxt2htm::NodeType::html_h4:
+            return ::std::forward_like<decltype(self)>(self.h4_node).get_subast();
+        case ::pltxt2htm::NodeType::html_h5:
+            return ::std::forward_like<decltype(self)>(self.h5_node).get_subast();
+        case ::pltxt2htm::NodeType::html_h6:
+            return ::std::forward_like<decltype(self)>(self.h6_node).get_subast();
+        case ::pltxt2htm::NodeType::html_p:
+            return ::std::forward_like<decltype(self)>(self.p_node).get_subast();
+        case ::pltxt2htm::NodeType::html_del:
+            return ::std::forward_like<decltype(self)>(self.del_node).get_subast();
+        case ::pltxt2htm::NodeType::html_note:
+            return ::std::forward_like<decltype(self)>(self.note_node).get_subast();
+        case ::pltxt2htm::NodeType::html_em:
+            return ::std::forward_like<decltype(self)>(self.em_node).get_subast();
+        case ::pltxt2htm::NodeType::html_strong:
+            return ::std::forward_like<decltype(self)>(self.strong_node).get_subast();
+        case ::pltxt2htm::NodeType::html_ul:
+            return ::std::forward_like<decltype(self)>(self.ul_node).get_subast();
+        case ::pltxt2htm::NodeType::html_ol:
+            return ::std::forward_like<decltype(self)>(self.ol_node).get_subast();
+        case ::pltxt2htm::NodeType::html_li:
+            return ::std::forward_like<decltype(self)>(self.li_node).get_subast();
+        case ::pltxt2htm::NodeType::html_code:
+            return ::std::forward_like<decltype(self)>(self.code_node).get_subast();
+        case ::pltxt2htm::NodeType::html_pre:
+            return ::std::forward_like<decltype(self)>(self.pre_node).get_subast();
+        case ::pltxt2htm::NodeType::html_blockquote:
+            return ::std::forward_like<decltype(self)>(self.blockquote_node).get_subast();
+
+        case ::pltxt2htm::NodeType::md_atx_h1:
+            return ::std::forward_like<decltype(self)>(self.md_atx_h1_node).get_subast();
+        case ::pltxt2htm::NodeType::md_atx_h2:
+            return ::std::forward_like<decltype(self)>(self.md_atx_h2_node).get_subast();
+        case ::pltxt2htm::NodeType::md_atx_h3:
+            return ::std::forward_like<decltype(self)>(self.md_atx_h3_node).get_subast();
+        case ::pltxt2htm::NodeType::md_atx_h4:
+            return ::std::forward_like<decltype(self)>(self.md_atx_h4_node).get_subast();
+        case ::pltxt2htm::NodeType::md_atx_h5:
+            return ::std::forward_like<decltype(self)>(self.md_atx_h5_node).get_subast();
+        case ::pltxt2htm::NodeType::md_atx_h6:
+            return ::std::forward_like<decltype(self)>(self.md_atx_h6_node).get_subast();
+        case ::pltxt2htm::NodeType::md_code_fence_backtick:
+            return ::std::forward_like<decltype(self)>(self.md_code_fence_backtick_node).get_subast();
+        case ::pltxt2htm::NodeType::md_code_fence_tilde:
+            return ::std::forward_like<decltype(self)>(self.md_code_fence_tilde_node).get_subast();
+        case ::pltxt2htm::NodeType::md_code_span_1_backtick:
+            return ::std::forward_like<decltype(self)>(self.md_code_span_1_backtick_node).get_subast();
+        case ::pltxt2htm::NodeType::md_code_span_2_backtick:
+            return ::std::forward_like<decltype(self)>(self.md_code_span_2_backtick_node).get_subast();
+        case ::pltxt2htm::NodeType::md_code_span_3_backtick:
+            return ::std::forward_like<decltype(self)>(self.md_code_span_3_backtick_node).get_subast();
+        case ::pltxt2htm::NodeType::md_single_emphasis_asterisk:
+            return ::std::forward_like<decltype(self)>(self.md_single_emphasis_asterisk_node).get_subast();
+        case ::pltxt2htm::NodeType::md_double_emphasis_asterisk:
+            return ::std::forward_like<decltype(self)>(self.md_double_emphasis_asterisk_node).get_subast();
+        case ::pltxt2htm::NodeType::md_triple_emphasis_asterisk:
+            return ::std::forward_like<decltype(self)>(self.md_triple_emphasis_asterisk_node).get_subast();
+        case ::pltxt2htm::NodeType::md_single_emphasis_underscore:
+            return ::std::forward_like<decltype(self)>(self.md_single_emphasis_underscore_node).get_subast();
+        case ::pltxt2htm::NodeType::md_double_emphasis_underscore:
+            return ::std::forward_like<decltype(self)>(self.md_double_emphasis_underscore_node).get_subast();
+        case ::pltxt2htm::NodeType::md_triple_emphasis_underscore:
+            return ::std::forward_like<decltype(self)>(self.md_triple_emphasis_underscore_node).get_subast();
+        case ::pltxt2htm::NodeType::md_del:
+            return ::std::forward_like<decltype(self)>(self.md_del_node).get_subast();
+        case ::pltxt2htm::NodeType::md_link:
+            return ::std::forward_like<decltype(self)>(self.md_link_node).get_subast();
+        case ::pltxt2htm::NodeType::md_image:
+            return ::std::forward_like<decltype(self)>(self.md_image_node).get_subast();
+        case ::pltxt2htm::NodeType::md_block_quotes:
+            return ::std::forward_like<decltype(self)>(self.md_block_quotes_node).get_subast();
+        case ::pltxt2htm::NodeType::md_ul:
+            return ::std::forward_like<decltype(self)>(self.md_ul_node).get_subast();
+        case ::pltxt2htm::NodeType::md_ol:
+            return ::std::forward_like<decltype(self)>(self.md_ol_node).get_subast();
+        case ::pltxt2htm::NodeType::md_li:
+            return ::std::forward_like<decltype(self)>(self.md_li_node).get_subast();
+        case ::pltxt2htm::NodeType::md_latex_inline:
+            return ::std::forward_like<decltype(self)>(self.md_latex_inline_node).get_subast();
+        case ::pltxt2htm::NodeType::md_latex_block:
+            return ::std::forward_like<decltype(self)>(self.md_latex_block_node).get_subast();
+
+        case ::pltxt2htm::NodeType::pl_color:
+            return ::std::forward_like<decltype(self)>(self.pl_color_node).get_subast();
+        case ::pltxt2htm::NodeType::pl_a:
+            return ::std::forward_like<decltype(self)>(self.pl_a_node).get_subast();
+        case ::pltxt2htm::NodeType::pl_experiment:
+            return ::std::forward_like<decltype(self)>(self.pl_experiment_node).get_subast();
+        case ::pltxt2htm::NodeType::pl_discussion:
+            return ::std::forward_like<decltype(self)>(self.pl_discussion_node).get_subast();
+        case ::pltxt2htm::NodeType::pl_user:
+            return ::std::forward_like<decltype(self)>(self.pl_user_node).get_subast();
+        case ::pltxt2htm::NodeType::pl_external:
+            return ::std::forward_like<decltype(self)>(self.pl_external_node).get_subast();
+        case ::pltxt2htm::NodeType::pl_size:
+            return ::std::forward_like<decltype(self)>(self.pl_size_node).get_subast();
+        case ::pltxt2htm::NodeType::pl_i:
+            return ::std::forward_like<decltype(self)>(self.pl_i_node).get_subast();
+        case ::pltxt2htm::NodeType::pl_b:
+            return ::std::forward_like<decltype(self)>(self.pl_b_node).get_subast();
+
+        default:
+            [[unlikely]] {
+                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+            }
+        }
     }
 };
 
 } // namespace pltxt2htm::ast2
 
+#include "../details/pop_macro.hh"
 #include "impl/basic_node_def.inc"
 #include "impl/html_node_def.inc"
 #include "impl/markdown_node_def.inc"

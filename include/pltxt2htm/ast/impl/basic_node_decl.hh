@@ -46,6 +46,11 @@ public:
     constexpr auto operator=(::pltxt2htm::ast2::Text<ndebug> const&) noexcept
         -> ::pltxt2htm::ast2::Text<ndebug>& = delete;
     constexpr auto operator=(::pltxt2htm::ast2::Text<ndebug>&&) noexcept -> ::pltxt2htm::ast2::Text<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto&& get_subast(this auto&& self) noexcept {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
 };
 
 /**
