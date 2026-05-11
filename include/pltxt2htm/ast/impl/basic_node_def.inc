@@ -13,7 +13,8 @@ constexpr Text::~Text() noexcept = default;
 constexpr auto Text::operator=(::pltxt2htm::ast2::Text&& other) noexcept -> ::pltxt2htm::ast2::Text& = default;
 
 constexpr Url::Url(::pltxt2htm::ast2::Ast&& attr) noexcept
-    : url_ast_(::std::move(attr)) {}
+    : url_ast_(::std::move(attr)) {
+}
 
 constexpr Url::Url(::pltxt2htm::ast2::Url&& other) noexcept = default;
 
