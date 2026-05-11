@@ -16,6 +16,7 @@ namespace pltxt2htm::ast2 {
  * @details Represents a single UTF-8 character in the AST. This is a leaf node.
  */
 class U8Char {
+public:
     char8_t chr;
 };
 
