@@ -16,7 +16,7 @@
 #include "../utils.hh"
 #include "../../contracts.hh"
 #include "../../heap_guard.hh"
-#include "../../astnode/node_type.hh"
+#include "../../ast/ast.hh"
 
 namespace pltxt2htm::details {
 

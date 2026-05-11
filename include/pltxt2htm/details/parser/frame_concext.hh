@@ -16,7 +16,7 @@
 #include <fast_io/fast_io_dsal/string_view.h>
 #include "md_list.hh"
 #include "../../contracts.hh"
-#include "../../astnode/basic.hh"
+#include "pltxt2htm/ast/ast.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::details {
@@ -32,10 +32,11 @@ public:
     ::fast_io::u8string id;
 };
 
+template<::pltxt2htm::Contracts ndebug>
 class ParserFrameContextWithExternalTagInfo {
 public:
     ::fast_io::u8string_view pltext;
-    ::pltxt2htm::Url url;
+    ::pltxt2htm::ast2::Url<ndebug> url;
 };
 
 class ParserFrameContextWithPlSizeTagInfo {
@@ -49,10 +50,11 @@ public:
     ::fast_io::u8string pltext;
 };
 
+template<::pltxt2htm::Contracts ndebug>
 class ParserFrameContextWithMdLinkInfo {
 public:
     ::fast_io::u8string_view pltext;
-    ::pltxt2htm::Url link;
+    ::pltxt2htm::ast2::Url<ndebug> link;
 };
 
 class ParserFrameContextWithMdListInfo {
@@ -72,10 +74,10 @@ public:
     union {
         ::pltxt2htm::details::ParserFrameContextWithPltextInfo pltext;
         ::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo equal_sign_tag;
-        ::pltxt2htm::details::ParserFrameContextWithExternalTagInfo external_tag;
+        ::pltxt2htm::details::ParserFrameContextWithExternalTagInfo<ndebug> external_tag;
         ::pltxt2htm::details::ParserFrameContextWithPlSizeTagInfo pl_size_tag;
         ::pltxt2htm::details::ParserFrameContextWithMdBlockQuotesInfo md_block_quotes;
-        ::pltxt2htm::details::ParserFrameContextWithMdLinkInfo md_link;
+        ::pltxt2htm::details::ParserFrameContextWithMdLinkInfo<ndebug> md_link;
         ::pltxt2htm::details::ParserFrameContextWithMdListInfo md_list;
     };
 
@@ -93,7 +95,7 @@ public:
           kind{node_type} {
     }
 
-    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithExternalTagInfo&& external_tag_context,
+    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithExternalTagInfo<ndebug>&& external_tag_context,
                              ::pltxt2htm::NodeType node_type) noexcept
         : external_tag{::std::move(external_tag_context)},
           kind{node_type} {
@@ -111,7 +113,7 @@ public:
           kind{node_type} {
     }
 
-    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithMdLinkInfo&& md_link_context,
+    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithMdLinkInfo<ndebug>&& md_link_context,
                              ::pltxt2htm::NodeType node_type) noexcept
         : md_link{::std::move(md_link_context)},
           kind{node_type} {
@@ -591,7 +593,7 @@ class ParserFrameContext {
 
 public:
     ::std::size_t current_index{};
-    ::pltxt2htm::Ast subast{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast{};
 
     constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_,
                                           ::pltxt2htm::NodeType const nested_tag_type_) noexcept
@@ -604,7 +606,7 @@ public:
 
     constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_,
                                           ::pltxt2htm::NodeType const nested_tag_type_,
-                                          ::pltxt2htm::Ast&& subast_) noexcept
+                                          ::pltxt2htm::ast2::Ast<ndebug>&& subast_) noexcept
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
               ::pltxt2htm::details::ParserFrameContextWithPltextInfo{pltext_}, nested_tag_type_}},
           subast(::std::move(subast_)) {
@@ -624,7 +626,7 @@ public:
 
     constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_,
                                           ::pltxt2htm::NodeType const nested_tag_type_,
-                                          ::pltxt2htm::Url&& url_) noexcept
+                                          ::pltxt2htm::ast2::Url<ndebug>&& url_) noexcept
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
               ::pltxt2htm::details::ParserFrameContextWithExternalTagInfo{.pltext = pltext_, .url = ::std::move(url_)},
               nested_tag_type_}} {
@@ -647,7 +649,7 @@ public:
               ::pltxt2htm::NodeType::md_block_quotes}} {
     }
 
-    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::Url&& link_) noexcept
+    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::ast2::Url<ndebug>&& link_) noexcept
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
               ::pltxt2htm::details::ParserFrameContextWithMdLinkInfo{.pltext = pltext_, .link = ::std::move(link_)},
               ::pltxt2htm::NodeType::md_link}} {
