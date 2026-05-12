@@ -43,6 +43,7 @@ public:
     ::std::size_t id_; ///< Numeric size value (e.g., 12 in size=12)
 };
 
+template<::pltxt2htm::Contracts ndebug>
 class OptimizerContextVariant {
 public:
     union {
@@ -71,9 +72,9 @@ public:
           kind{::pltxt2htm::NodeType::pl_size} {
     }
 
-    constexpr OptimizerContextVariant(OptimizerContextVariant const&) noexcept = delete;
+    constexpr OptimizerContextVariant(::pltxt2htm::details::OptimizerContextVariant<ndebug> const&) noexcept = delete;
 
-    constexpr OptimizerContextVariant(OptimizerContextVariant&& other) noexcept
+    constexpr OptimizerContextVariant(::pltxt2htm::details::OptimizerContextVariant<ndebug>&& other) noexcept
         : kind{other.kind} {
         switch (this->kind) {
         case ::pltxt2htm::NodeType::pl_color:
@@ -102,14 +103,12 @@ public:
 
     constexpr ~OptimizerContextVariant() noexcept = default;
 
-    constexpr auto operator=(OptimizerContextVariant const&) noexcept -> OptimizerContextVariant& = delete;
+    constexpr auto operator=(::pltxt2htm::details::OptimizerContextVariant<ndebug> const&) noexcept
+        -> ::pltxt2htm::details::OptimizerContextVariant<ndebug>& = delete;
 
-    constexpr auto operator=(OptimizerContextVariant&& other) noexcept -> OptimizerContextVariant& {
-#if 0
-        if (this == ::std::addressof(other)) {
-            ::exception::terminate();
-        }
-#endif
+    constexpr auto operator=(::pltxt2htm::details::OptimizerContextVariant<ndebug>&& other) noexcept
+        -> ::pltxt2htm::details::OptimizerContextVariant<ndebug>& {
+        pltxt2htm_assert(this != ::std::addressof(other), u8"can not assign to self");
         this->~OptimizerContextVariant();
         new (this) OptimizerContextVariant(::std::move(other));
         return *this;
@@ -118,7 +117,7 @@ public:
 
 template<::std::forward_iterator Iter, ::pltxt2htm::Contracts ndebug>
 class OptimizerFrameContext {
-    ::pltxt2htm::details::OptimizerContextVariant context_data;
+    ::pltxt2htm::details::OptimizerContextVariant<ndebug> context_data;
 
 public:
     ::pltxt2htm::Ast<ndebug>* ast; ///< Pointer to the AST being optimized
