@@ -9,7 +9,6 @@
 #include <utility>
 #include <fast_io/fast_io_dsal/vector.h>
 #include "node_type.hh"
-#include "../heap_guard.hh"
 
 /**
  * @note Quantum-Physics's tag do not case upper / lower
@@ -51,7 +50,7 @@ public:
     }
 };
 
-using Ast = ::fast_io::vector<::pltxt2htm::HeapGuard<::pltxt2htm::PlTxtNode>>;
+using Ast = ::fast_io::vector<::pltxt2htm::PlTxtNode>;
 
 /**
  * @brief UTF-8 character node

@@ -15,7 +15,6 @@
 #include <exception/exception.hh>
 #include "../utils.hh"
 #include "../../contracts.hh"
-#include "../../heap_guard.hh"
 #include "../../ast/ast.hh"
 
 namespace pltxt2htm::details {
