@@ -59,7 +59,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class Url {
-    ::pltxt2htm::ast2::Ast<ndebug> url_ast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> url_ast{};
 
 public:
     constexpr Url() noexcept;
@@ -81,7 +81,7 @@ public:
      */
     [[nodiscard]]
     constexpr auto&& get_url_ast(this auto&& self) noexcept {
-        return ::std::forward_like<decltype(self)>(self.url_ast_);
+        return ::std::forward_like<decltype(self)>(self.url_ast);
     }
 };
 

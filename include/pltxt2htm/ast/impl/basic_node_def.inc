@@ -19,7 +19,7 @@ constexpr auto ::pltxt2htm::ast2::Text<ndebug>::operator=(::pltxt2htm::ast2::Tex
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::ast2::Url<ndebug>::Url(::pltxt2htm::ast2::Ast<ndebug>&& attr) noexcept
-    : url_ast_(::std::move(attr)) {
+    : url_ast(::std::move(attr)) {
 }
 
 template<::pltxt2htm::Contracts ndebug>

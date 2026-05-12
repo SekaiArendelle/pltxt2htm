@@ -78,11 +78,11 @@ class Hr {};
  */
 template<::pltxt2htm::Contracts ndebug>
 class H1 {
-    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast{};
 
 public:
     constexpr H1() noexcept = delete;
-    constexpr explicit H1(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
+    constexpr explicit H1(::pltxt2htm::ast2::Ast<ndebug>&& subast_) noexcept;
     constexpr H1(::pltxt2htm::ast2::H1<ndebug> const&) noexcept = delete;
     constexpr H1(::pltxt2htm::ast2::H1<ndebug>&&) noexcept;
     constexpr ~H1() noexcept;
@@ -95,7 +95,7 @@ public:
      */
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
-        return ::std::forward_like<decltype(self)>(self.subast_);
+        return ::std::forward_like<decltype(self)>(self.subast);
     }
 };
 
@@ -104,11 +104,11 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class H2 {
-    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast{};
 
 public:
     constexpr H2() noexcept = delete;
-    constexpr explicit H2(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
+    constexpr explicit H2(::pltxt2htm::ast2::Ast<ndebug>&& subast_) noexcept;
     constexpr H2(::pltxt2htm::ast2::H2<ndebug> const&) noexcept = delete;
     constexpr H2(::pltxt2htm::ast2::H2<ndebug>&&) noexcept;
     constexpr ~H2() noexcept;
@@ -117,7 +117,7 @@ public:
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
-        return ::std::forward_like<decltype(self)>(self.subast_);
+        return ::std::forward_like<decltype(self)>(self.subast);
     }
 };
 
@@ -126,11 +126,11 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class H3 {
-    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast{};
 
 public:
     constexpr H3() noexcept = delete;
-    constexpr explicit H3(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
+    constexpr explicit H3(::pltxt2htm::ast2::Ast<ndebug>&& subast_) noexcept;
     constexpr H3(::pltxt2htm::ast2::H3<ndebug> const&) noexcept = delete;
     constexpr H3(::pltxt2htm::ast2::H3<ndebug>&&) noexcept;
     constexpr ~H3() noexcept;
@@ -139,7 +139,7 @@ public:
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
-        return ::std::forward_like<decltype(self)>(self.subast_);
+        return ::std::forward_like<decltype(self)>(self.subast);
     }
 };
 
@@ -148,11 +148,11 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class H4 {
-    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast{};
 
 public:
     constexpr H4() noexcept = delete;
-    constexpr explicit H4(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
+    constexpr explicit H4(::pltxt2htm::ast2::Ast<ndebug>&& subast_) noexcept;
     constexpr H4(::pltxt2htm::ast2::H4<ndebug> const&) noexcept = delete;
     constexpr H4(::pltxt2htm::ast2::H4<ndebug>&&) noexcept;
     constexpr ~H4() noexcept;
@@ -161,7 +161,7 @@ public:
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
-        return ::std::forward_like<decltype(self)>(self.subast_);
+        return ::std::forward_like<decltype(self)>(self.subast);
     }
 };
 
@@ -170,11 +170,11 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class H5 {
-    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast{};
 
 public:
     constexpr H5() noexcept = delete;
-    constexpr explicit H5(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
+    constexpr explicit H5(::pltxt2htm::ast2::Ast<ndebug>&& subast_) noexcept;
     constexpr H5(::pltxt2htm::ast2::H5<ndebug> const&) noexcept = delete;
     constexpr H5(::pltxt2htm::ast2::H5<ndebug>&&) noexcept;
     constexpr ~H5() noexcept;
@@ -183,7 +183,7 @@ public:
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
-        return ::std::forward_like<decltype(self)>(self.subast_);
+        return ::std::forward_like<decltype(self)>(self.subast);
     }
 };
 
@@ -192,11 +192,11 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class H6 {
-    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast{};
 
 public:
     constexpr H6() noexcept = delete;
-    constexpr explicit H6(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
+    constexpr explicit H6(::pltxt2htm::ast2::Ast<ndebug>&& subast_) noexcept;
     constexpr H6(::pltxt2htm::ast2::H6<ndebug> const&) noexcept = delete;
     constexpr H6(::pltxt2htm::ast2::H6<ndebug>&&) noexcept;
     constexpr ~H6() noexcept;
@@ -205,7 +205,7 @@ public:
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
-        return ::std::forward_like<decltype(self)>(self.subast_);
+        return ::std::forward_like<decltype(self)>(self.subast);
     }
 };
 
@@ -214,11 +214,11 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class P {
-    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast{};
 
 public:
     constexpr P() noexcept = delete;
-    constexpr explicit P(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
+    constexpr explicit P(::pltxt2htm::ast2::Ast<ndebug>&& subast_) noexcept;
     constexpr P(::pltxt2htm::ast2::P<ndebug> const&) noexcept = delete;
     constexpr P(::pltxt2htm::ast2::P<ndebug>&&) noexcept;
     constexpr ~P() noexcept;
@@ -227,7 +227,7 @@ public:
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
-        return ::std::forward_like<decltype(self)>(self.subast_);
+        return ::std::forward_like<decltype(self)>(self.subast);
     }
 };
 
@@ -236,11 +236,11 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class Del {
-    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast{};
 
 public:
     constexpr Del() noexcept = delete;
-    constexpr explicit Del(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
+    constexpr explicit Del(::pltxt2htm::ast2::Ast<ndebug>&& subast_) noexcept;
     constexpr Del(::pltxt2htm::ast2::Del<ndebug> const&) noexcept = delete;
     constexpr Del(::pltxt2htm::ast2::Del<ndebug>&&) noexcept;
     constexpr ~Del() noexcept;
@@ -250,7 +250,7 @@ public:
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
-        return ::std::forward_like<decltype(self)>(self.subast_);
+        return ::std::forward_like<decltype(self)>(self.subast);
     }
 };
 
@@ -259,11 +259,11 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class Note {
-    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast{};
 
 public:
     constexpr Note() noexcept = delete;
-    constexpr explicit Note(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
+    constexpr explicit Note(::pltxt2htm::ast2::Ast<ndebug>&& subast_) noexcept;
     constexpr Note(::pltxt2htm::ast2::Note<ndebug> const&) noexcept = delete;
     constexpr Note(::pltxt2htm::ast2::Note<ndebug>&&) noexcept;
     constexpr ~Note() noexcept;
@@ -273,7 +273,7 @@ public:
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
-        return ::std::forward_like<decltype(self)>(self.subast_);
+        return ::std::forward_like<decltype(self)>(self.subast);
     }
 };
 
@@ -282,11 +282,11 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class Em {
-    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast{};
 
 public:
     constexpr Em() noexcept = delete;
-    constexpr explicit Em(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
+    constexpr explicit Em(::pltxt2htm::ast2::Ast<ndebug>&& subast_) noexcept;
     constexpr Em(::pltxt2htm::ast2::Em<ndebug> const&) noexcept = delete;
     constexpr Em(::pltxt2htm::ast2::Em<ndebug>&&) noexcept;
     constexpr ~Em() noexcept;
@@ -295,7 +295,7 @@ public:
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
-        return ::std::forward_like<decltype(self)>(self.subast_);
+        return ::std::forward_like<decltype(self)>(self.subast);
     }
 };
 
@@ -304,11 +304,11 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class Strong {
-    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast{};
 
 public:
     constexpr Strong() noexcept = delete;
-    constexpr explicit Strong(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
+    constexpr explicit Strong(::pltxt2htm::ast2::Ast<ndebug>&& subast_) noexcept;
     constexpr Strong(::pltxt2htm::ast2::Strong<ndebug> const&) noexcept = delete;
     constexpr Strong(::pltxt2htm::ast2::Strong<ndebug>&&) noexcept;
     constexpr ~Strong() noexcept;
@@ -318,7 +318,7 @@ public:
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
-        return ::std::forward_like<decltype(self)>(self.subast_);
+        return ::std::forward_like<decltype(self)>(self.subast);
     }
 };
 
@@ -327,11 +327,11 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class Ul {
-    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast{};
 
 public:
     constexpr Ul() noexcept = delete;
-    constexpr explicit Ul(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
+    constexpr explicit Ul(::pltxt2htm::ast2::Ast<ndebug>&& subast_) noexcept;
     constexpr Ul(::pltxt2htm::ast2::Ul<ndebug> const&) noexcept = delete;
     constexpr Ul(::pltxt2htm::ast2::Ul<ndebug>&&) noexcept;
     constexpr ~Ul() noexcept;
@@ -340,7 +340,7 @@ public:
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
-        return ::std::forward_like<decltype(self)>(self.subast_);
+        return ::std::forward_like<decltype(self)>(self.subast);
     }
 };
 
@@ -349,11 +349,11 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class Ol {
-    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast{};
 
 public:
     constexpr Ol() noexcept = delete;
-    constexpr explicit Ol(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
+    constexpr explicit Ol(::pltxt2htm::ast2::Ast<ndebug>&& subast_) noexcept;
     constexpr Ol(::pltxt2htm::ast2::Ol<ndebug> const&) noexcept = delete;
     constexpr Ol(::pltxt2htm::ast2::Ol<ndebug>&&) noexcept;
     constexpr ~Ol() noexcept;
@@ -362,7 +362,7 @@ public:
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
-        return ::std::forward_like<decltype(self)>(self.subast_);
+        return ::std::forward_like<decltype(self)>(self.subast);
     }
 };
 
@@ -371,11 +371,11 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class Li {
-    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast{};
 
 public:
     constexpr Li() noexcept = delete;
-    constexpr explicit Li(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
+    constexpr explicit Li(::pltxt2htm::ast2::Ast<ndebug>&& subast_) noexcept;
     constexpr Li(::pltxt2htm::ast2::Li<ndebug> const&) noexcept = delete;
     constexpr Li(::pltxt2htm::ast2::Li<ndebug>&&) noexcept;
     constexpr ~Li() noexcept;
@@ -384,7 +384,7 @@ public:
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
-        return ::std::forward_like<decltype(self)>(self.subast_);
+        return ::std::forward_like<decltype(self)>(self.subast);
     }
 };
 
@@ -393,11 +393,11 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class Code {
-    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast{};
 
 public:
     constexpr Code() noexcept = delete;
-    constexpr explicit Code(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
+    constexpr explicit Code(::pltxt2htm::ast2::Ast<ndebug>&& subast_) noexcept;
     constexpr Code(::pltxt2htm::ast2::Code<ndebug> const&) noexcept = delete;
     constexpr Code(::pltxt2htm::ast2::Code<ndebug>&&) noexcept;
     constexpr ~Code() noexcept;
@@ -407,7 +407,7 @@ public:
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
-        return ::std::forward_like<decltype(self)>(self.subast_);
+        return ::std::forward_like<decltype(self)>(self.subast);
     }
 };
 
@@ -416,11 +416,11 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class Pre {
-    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast{};
 
 public:
     constexpr Pre() noexcept = delete;
-    constexpr explicit Pre(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
+    constexpr explicit Pre(::pltxt2htm::ast2::Ast<ndebug>&& subast_) noexcept;
     constexpr Pre(::pltxt2htm::ast2::Pre<ndebug> const&) noexcept = delete;
     constexpr Pre(::pltxt2htm::ast2::Pre<ndebug>&&) noexcept;
     constexpr ~Pre() noexcept;
@@ -430,7 +430,7 @@ public:
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
-        return ::std::forward_like<decltype(self)>(self.subast_);
+        return ::std::forward_like<decltype(self)>(self.subast);
     }
 };
 
@@ -439,11 +439,11 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class Blockquote {
-    ::pltxt2htm::ast2::Ast<ndebug> subast_{};
+    ::pltxt2htm::ast2::Ast<ndebug> subast{};
 
 public:
     constexpr Blockquote() noexcept = delete;
-    constexpr explicit Blockquote(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
+    constexpr explicit Blockquote(::pltxt2htm::ast2::Ast<ndebug>&& subast_) noexcept;
     constexpr Blockquote(::pltxt2htm::ast2::Blockquote<ndebug> const&) noexcept = delete;
     constexpr Blockquote(::pltxt2htm::ast2::Blockquote<ndebug>&&) noexcept;
     constexpr ~Blockquote() noexcept;
@@ -454,7 +454,7 @@ public:
 
     [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
-        return ::std::forward_like<decltype(self)>(self.subast_);
+        return ::std::forward_like<decltype(self)>(self.subast);
     }
 };
 

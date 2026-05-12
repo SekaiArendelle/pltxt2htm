@@ -1,3 +1,11 @@
+/**
+ * @file ast.hh
+ * @brief AST tagged union node definition for pltxt2htm
+ * @details Defines the main AST node class template ::pltxt2htm::ast2::PlTxtNode,
+ *          which is a tagged union (discriminated by ::pltxt2htm::NodeType) over
+ *          all concrete node types (basic, HTML, Markdown, Physics-Lab).
+ */
+
 #pragma once
 
 #include <fast_io/fast_io_dsal/vector.h>
@@ -1507,6 +1515,7 @@ public:
         return ::std::forward_like<decltype(self)>(self.u8char_node.chr);
     }
 
+    [[nodiscard]]
     constexpr auto&& get_equal_sign_tag_id(this auto&& self) noexcept {
         bool const is_equal_sign_tag_type{::pltxt2htm::details::is_equal_sign_tag_type(self.node_kind)};
         pltxt2htm_assert(is_equal_sign_tag_type, u8"node kind mismatch");
@@ -1526,12 +1535,14 @@ public:
         }
     }
 
+    [[nodiscard]]
     constexpr auto&& get_external_tag_url(this auto&& self) noexcept {
         bool const is_external_tag_type{::pltxt2htm::details::is_external_tag_type(self.node_kind)};
         pltxt2htm_assert(is_external_tag_type, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_external_node).get_url();
     }
 
+    [[nodiscard]]
     constexpr auto&& get_md_image_url(this auto&& self) noexcept {
         bool const is_md_image_type{self.node_kind == ::pltxt2htm::NodeType::md_image};
         pltxt2htm_assert(is_md_image_type, u8"node kind mismatch");
@@ -1544,12 +1555,14 @@ public:
         return ::std::forward_like<decltype(self)>(self.pl_size_node).get_size();
     }
 
+    [[nodiscard]]
     constexpr auto&& get_md_link_url(this auto&& self) noexcept {
         bool const is_md_link_type{::pltxt2htm::details::is_md_link_type(self.node_kind)};
         pltxt2htm_assert(is_md_link_type, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_link_node).get_url();
     }
 
+    [[nodiscard]]
     constexpr auto&& get_md_code_fence_language(this auto&& self) noexcept {
         switch (self.node_kind) {
         case ::pltxt2htm::NodeType::md_code_fence_backtick:
@@ -1563,6 +1576,7 @@ public:
         }
     }
 
+    [[nodiscard]]
     constexpr auto&& get_subast(this auto&& self) noexcept {
         switch (self.node_kind) {
         case ::pltxt2htm::NodeType::text:
