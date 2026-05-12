@@ -18,22 +18,19 @@
 #include "../../contracts.hh"
 #include "../../details/utils.hh"
 #include "../../details/parser/try_parse.hh"
-#include "../../astnode/basic.hh"
-#include "../../astnode/node_type.hh"
-#include "../../astnode/markdown_node.hh"
-#include "../../astnode/physics_lab_node.hh"
+#include "../../ast/ast.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::details {
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast const& ast) noexcept -> ::fast_io::u8string {
+constexpr auto convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::ast2::Ast<ndebug> const& ast) noexcept -> ::fast_io::u8string {
     ::fast_io::u8string result{};
     for (auto&& node : ast) {
-        switch (node->node_type()) {
+        switch (node.get_node_kind()) {
         case ::pltxt2htm::NodeType::u8char: {
-            result.push_back(static_cast<::pltxt2htm::U8Char const*>(node.release_imul())->get_u8char());
+            result.push_back(node.get_u8char());
             continue;
         }
         case ::pltxt2htm::NodeType::invalid_u8char: {
@@ -232,8 +229,8 @@ constexpr void append_html_attr_escaped(::fast_io::u8string& result, ::fast_io::
 }
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr void append_url_attr_from_ast(::fast_io::u8string& result, ::pltxt2htm::Ast const& url_ast) noexcept {
-    auto const url_str = ::pltxt2htm::details::convert_simple_pltxt_ast_to_plweb_text<ndebug>(url_ast);
+constexpr void append_url_attr_from_ast(::fast_io::u8string& result, ::pltxt2htm::ast2::Url<ndebug> const& url_ast) noexcept {
+    auto const url_str = ::pltxt2htm::details::convert_simple_pltxt_ast_to_plweb_text<ndebug>(url_ast.get_url_ast());
     // Under normal circumstances, `url_str` should never contain characters that could enable XSS in HTML attributes.
     // To avoid masking upstream bugs (and to keep release-path performance), we only assert this in debug mode.
     // Do not try to hide such errors by routing output through `append_html_attr_escaped`.
@@ -268,7 +265,7 @@ constexpr void append_url_attr_from_ast(::fast_io::u8string& result, ::pltxt2htm
  */
 template<::pltxt2htm::Contracts ndebug, bool isfixed>
 [[nodiscard]]
-constexpr auto plweb_text_backend(::pltxt2htm::Ast const& ast_init, ::fast_io::u8string_view host,
+constexpr auto plweb_text_backend(::pltxt2htm::ast2::Ast<ndebug> const& ast_init, ::fast_io::u8string_view host,
                                   ::fast_io::u8string_view project, ::fast_io::u8string_view visitor,
                                   ::fast_io::u8string_view author, ::fast_io::u8string_view coauthors) noexcept
     -> ::fast_io::u8string {
@@ -283,9 +280,9 @@ entry:
     for (; current_index < ast.size(); ++current_index) {
         auto&& node = ::pltxt2htm::details::vector_index<ndebug>(ast, current_index);
 
-        switch (node->node_type()) {
+        switch (node.get_node_kind()) {
         case ::pltxt2htm::NodeType::u8char: {
-            result.push_back(static_cast<::pltxt2htm::U8Char const*>(node.release_imul())->get_u8char());
+            result.push_back(node.get_u8char());
             continue;
         }
         case ::pltxt2htm::NodeType::invalid_u8char: {
@@ -293,9 +290,8 @@ entry:
             continue;
         }
         case ::pltxt2htm::NodeType::text: {
-            auto text = static_cast<::pltxt2htm::Text const*>(node.release_imul());
             call_stack.push(
-                ::pltxt2htm::details::BackendFrameContext<ndebug>(text->get_subast(), ::pltxt2htm::NodeType::text, 0));
+                ::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(), ::pltxt2htm::NodeType::text, 0));
             ++current_index;
             goto entry;
         }
@@ -338,14 +334,12 @@ entry:
             continue;
         }
         case ::pltxt2htm::NodeType::pl_color: {
-            auto color = static_cast<::pltxt2htm::PlColor const*>(node.release_imul());
-
-            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(color->get_subast(),
+            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeType::pl_color, 0));
             ++current_index;
             constexpr ::fast_io::u8string_view close_tag1 = u8"<span style=\"color:";
             result.append(::fast_io::u8string_view{close_tag1.data(), close_tag1.size()});
-            auto const& color_value = color->get_color();
+            auto const& color_value = node.get_equal_sign_tag_id();
             // Under normal circumstances, `color_value` should never contain characters that could enable XSS in
             // HTML attributes. To avoid masking upstream bugs (and to keep release-path performance), we only
             // assert this in debug mode. Do not try to hide such errors by routing output through
@@ -366,20 +360,17 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_a: {
-            auto anchor = static_cast<::pltxt2htm::PlA const*>(node.release_imul());
-
-            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(anchor->get_subast(),
+            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeType::pl_a, 0));
             ++current_index;
             constexpr auto open_tag = ::pltxt2htm::details::concat(
-                ::pltxt2htm::details::U8LiteralString{u8"<span style=\"color:"}, ::pltxt2htm::PlA::get_color_literal(),
+                ::pltxt2htm::details::U8LiteralString{u8"<span style=\"color:"}, ::pltxt2htm::ast2::PlA<ndebug>::get_color_literal(),
                 ::pltxt2htm::details::U8LiteralString{u8";\">"});
             result.append(::fast_io::u8string_view{open_tag.data(), open_tag.size()});
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_experiment: {
-            auto experiment = static_cast<::pltxt2htm::PlExperiment const*>(node.release_imul());
-            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(experiment->get_subast(),
+            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeType::pl_experiment, 0));
             ++current_index;
             result.append(u8"<a href=\"");
@@ -390,7 +381,7 @@ entry:
             else {
                 result.append(u8"/ExperimentSummary/Experiment/");
             }
-            auto const& experiment_id = experiment->get_id();
+            auto const& experiment_id = node.get_equal_sign_tag_id();
             // Under normal circumstances, `experiment_id` should never contain characters that could enable XSS in
             // HTML attributes. To avoid masking upstream bugs (and to keep release-path performance), we only
             // assert this in debug mode. Do not try to hide such errors by routing output through
@@ -410,8 +401,7 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_discussion: {
-            auto discussion = static_cast<::pltxt2htm::PlDiscussion const*>(node.release_imul());
-            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(discussion->get_subast(),
+            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeType::pl_discussion, 0));
             ++current_index;
             result.append(u8"<a href=\"");
@@ -422,7 +412,7 @@ entry:
             else {
                 result.append(u8"/ExperimentSummary/Discussion/");
             }
-            auto const& discussion_id = discussion->get_id();
+            auto const& discussion_id = node.get_equal_sign_tag_id();
             // Under normal circumstances, `discussion_id` should never contain characters that could enable XSS in
             // HTML attributes. To avoid masking upstream bugs (and to keep release-path performance), we only
             // assert this in debug mode. Do not try to hide such errors by routing output through
@@ -442,13 +432,12 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_user: {
-            auto user = static_cast<::pltxt2htm::PlUser const*>(node.release_imul());
-            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(user->get_subast(),
+            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeType::pl_user, 0));
             ++current_index;
             constexpr ::fast_io::u8string_view open_tag1 = u8"<span class='RUser' data-user='";
             result.append(::fast_io::u8string_view{open_tag1.data(), open_tag1.size()});
-            auto const& user_id = user->get_id();
+            auto const& user_id = node.get_equal_sign_tag_id();
             // Under normal circumstances, `user_id` should never contain characters that could enable XSS in HTML
             // attributes. To avoid masking upstream bugs (and to keep release-path performance), we only assert
             // this in debug mode. Do not try to hide such errors by routing output through
@@ -469,13 +458,12 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_size: {
-            auto size = static_cast<::pltxt2htm::PlSize const*>(node.release_imul());
-            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(size->get_subast(),
+            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeType::pl_size, 0));
             ++current_index;
             constexpr ::fast_io::u8string_view open_tag1 = u8"<span style=\"font-size:";
             result.append(::fast_io::u8string_view{open_tag1.data(), open_tag1.size()});
-            result.append(::pltxt2htm::details::size_t2str(size->get_id() / 2));
+            result.append(::pltxt2htm::details::size_t2str(node.get_pl_size_tag_id() / 2));
             constexpr ::fast_io::u8string_view open_tag2 = u8"px\">";
             result.append(::fast_io::u8string_view{open_tag2.data(), open_tag2.size()});
             goto entry;
@@ -487,8 +475,7 @@ entry:
         case ::pltxt2htm::NodeType::pl_b:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_strong: {
-            auto b = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
-            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(b->get_subast(),
+            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeType::html_strong, 0));
             ++current_index;
             constexpr ::fast_io::u8string_view start_tag = u8"<strong>";
@@ -496,9 +483,8 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::html_p: {
-            auto p = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(
-                ::pltxt2htm::details::BackendFrameContext<ndebug>(p->get_subast(), ::pltxt2htm::NodeType::html_p, 0));
+                ::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(), ::pltxt2htm::NodeType::html_p, 0));
             ++current_index;
             constexpr ::fast_io::u8string_view start_tag = u8"<p>";
             result.append(::fast_io::u8string_view{start_tag.data(), start_tag.size()});
@@ -523,9 +509,8 @@ entry:
         case ::pltxt2htm::NodeType::html_h1:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_atx_h1: {
-            auto h1 = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(
-                ::pltxt2htm::details::BackendFrameContext<ndebug>(h1->get_subast(), ::pltxt2htm::NodeType::html_h1, 0));
+                ::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(), ::pltxt2htm::NodeType::html_h1, 0));
             ++current_index;
             constexpr ::fast_io::u8string_view start_tag = u8"<h1>";
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
@@ -534,9 +519,8 @@ entry:
         case ::pltxt2htm::NodeType::html_h2:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_atx_h2: {
-            auto h2 = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(
-                ::pltxt2htm::details::BackendFrameContext<ndebug>(h2->get_subast(), ::pltxt2htm::NodeType::html_h2, 0));
+                ::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(), ::pltxt2htm::NodeType::html_h2, 0));
             ++current_index;
             constexpr ::fast_io::u8string_view start_tag = u8"<h2>";
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
@@ -545,9 +529,8 @@ entry:
         case ::pltxt2htm::NodeType::html_h3:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_atx_h3: {
-            auto h3 = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(
-                ::pltxt2htm::details::BackendFrameContext<ndebug>(h3->get_subast(), ::pltxt2htm::NodeType::html_h3, 0));
+                ::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(), ::pltxt2htm::NodeType::html_h3, 0));
             ++current_index;
             constexpr ::fast_io::u8string_view start_tag = u8"<h3>";
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
@@ -556,9 +539,8 @@ entry:
         case ::pltxt2htm::NodeType::html_h4:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_atx_h4: {
-            auto h4 = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(
-                ::pltxt2htm::details::BackendFrameContext<ndebug>(h4->get_subast(), ::pltxt2htm::NodeType::html_h4, 0));
+                ::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(), ::pltxt2htm::NodeType::html_h4, 0));
             ++current_index;
             constexpr ::fast_io::u8string_view start_tag = u8"<h4>";
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
@@ -567,9 +549,8 @@ entry:
         case ::pltxt2htm::NodeType::html_h5:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_atx_h5: {
-            auto h5 = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(
-                ::pltxt2htm::details::BackendFrameContext<ndebug>(h5->get_subast(), ::pltxt2htm::NodeType::html_h5, 0));
+                ::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(), ::pltxt2htm::NodeType::html_h5, 0));
             ++current_index;
             constexpr ::fast_io::u8string_view start_tag = u8"<h5>";
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
@@ -578,9 +559,8 @@ entry:
         case ::pltxt2htm::NodeType::html_h6:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_atx_h6: {
-            auto h6 = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(
-                ::pltxt2htm::details::BackendFrameContext<ndebug>(h6->get_subast(), ::pltxt2htm::NodeType::html_h6, 0));
+                ::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(), ::pltxt2htm::NodeType::html_h6, 0));
             ++current_index;
             constexpr ::fast_io::u8string_view start_tag = u8"<h6>";
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
@@ -589,8 +569,7 @@ entry:
         case ::pltxt2htm::NodeType::md_del:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_del: {
-            auto del = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
-            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(del->get_subast(),
+            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeType::html_del, 0));
             ++current_index;
             constexpr ::fast_io::u8string_view start_tag = u8"<del>";
@@ -604,9 +583,8 @@ entry:
         case ::pltxt2htm::NodeType::pl_i:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_em: {
-            auto em = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(
-                ::pltxt2htm::details::BackendFrameContext<ndebug>(em->get_subast(), ::pltxt2htm::NodeType::html_em, 0));
+                ::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(), ::pltxt2htm::NodeType::html_em, 0));
             ++current_index;
             constexpr ::fast_io::u8string_view start_tag = u8"<em>";
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
@@ -625,9 +603,8 @@ entry:
         case ::pltxt2htm::NodeType::md_ul:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_ul: {
-            auto ul = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(
-                ::pltxt2htm::details::BackendFrameContext<ndebug>(ul->get_subast(), ::pltxt2htm::NodeType::html_ul, 0));
+                ::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(), ::pltxt2htm::NodeType::html_ul, 0));
             ++current_index;
             constexpr ::fast_io::u8string_view start_tag = u8"<ul>";
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
@@ -636,9 +613,8 @@ entry:
         case ::pltxt2htm::NodeType::md_ol:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_ol: {
-            auto ol = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(
-                ::pltxt2htm::details::BackendFrameContext<ndebug>(ol->get_subast(), ::pltxt2htm::NodeType::html_ol, 0));
+                ::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(), ::pltxt2htm::NodeType::html_ol, 0));
             ++current_index;
             constexpr ::fast_io::u8string_view start_tag = u8"<ol>";
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
@@ -647,9 +623,8 @@ entry:
         case ::pltxt2htm::NodeType::md_li:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_li: {
-            auto li = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(
-                ::pltxt2htm::details::BackendFrameContext<ndebug>(li->get_subast(), ::pltxt2htm::NodeType::html_li, 0));
+                ::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(), ::pltxt2htm::NodeType::html_li, 0));
             ++current_index;
             constexpr ::fast_io::u8string_view start_tag = u8"<li>";
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
@@ -662,9 +637,8 @@ entry:
         case ::pltxt2htm::NodeType::md_code_span_3_backtick:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_code: {
-            auto code = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             // Note: Despite `<code></code>` is empty, we still need to handle it
-            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(code->get_subast(),
+            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeType::html_code, 0));
             ++current_index;
             constexpr ::fast_io::u8string_view start_tag = u8"<code>";
@@ -672,25 +646,22 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::md_latex_inline: {
-            auto latex_inline = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                latex_inline->get_subast(), ::pltxt2htm::NodeType::md_latex_inline, 0));
+                node.get_subast(), ::pltxt2htm::NodeType::md_latex_inline, 0));
             ++current_index;
             result.append(u8"$");
             goto entry;
         }
         case ::pltxt2htm::NodeType::md_latex_block: {
-            auto latex_block = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                latex_block->get_subast(), ::pltxt2htm::NodeType::md_latex_block, 0));
+                node.get_subast(), ::pltxt2htm::NodeType::md_latex_block, 0));
             ++current_index;
             result.append(u8"$$");
             goto entry;
         }
         case ::pltxt2htm::NodeType::html_pre: {
-            auto pre = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             // Note: Despite `<pre></pre>` is empty, we still need to handle it
-            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(pre->get_subast(),
+            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeType::html_pre, 0));
             ++current_index;
             constexpr ::fast_io::u8string_view start_tag = u8"<pre>";
@@ -700,10 +671,8 @@ entry:
         case ::pltxt2htm::NodeType::md_block_quotes:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_blockquote: {
-            auto blockquote = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
-            // Note: Despite `<blockquote></blockquote>` is empty, we still need to handle it
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                blockquote->get_subast(), ::pltxt2htm::NodeType::html_blockquote, 0));
+                node.get_subast(), ::pltxt2htm::NodeType::html_blockquote, 0));
             ++current_index;
             constexpr ::fast_io::u8string_view start_tag = u8"<blockquote>";
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
@@ -712,47 +681,42 @@ entry:
         case ::pltxt2htm::NodeType::md_triple_emphasis_underscore:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_triple_emphasis_asterisk: {
-            auto triple_emphasis = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                triple_emphasis->get_subast(), ::pltxt2htm::NodeType::md_triple_emphasis_asterisk, 0));
+                node.get_subast(), ::pltxt2htm::NodeType::md_triple_emphasis_asterisk, 0));
             ++current_index;
             constexpr ::fast_io::u8string_view start_tag = u8"<em><strong>";
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
             goto entry;
         }
         case ::pltxt2htm::NodeType::md_link: {
-            auto a_link = static_cast<::pltxt2htm::MdLink const*>(node.release_imul());
             constexpr ::fast_io::u8string_view start_tag = u8"<a href=\"";
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
-            ::pltxt2htm::details::append_url_attr_from_ast<ndebug>(result, a_link->url_.get_url_ast());
+            ::pltxt2htm::details::append_url_attr_from_ast<ndebug>(result, node.get_md_link_url());
             constexpr ::fast_io::u8string_view mid_tag = u8"\">";
             result.append(::fast_io::u8string_view(mid_tag.begin(), mid_tag.size()));
-            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(a_link->get_subast(),
+            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeType::md_link, 0));
             ++current_index;
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_external: {
-            auto external = static_cast<::pltxt2htm::PlExternal const*>(node.release_imul());
             constexpr ::fast_io::u8string_view start_tag = u8"<a href=\"";
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
-            ::pltxt2htm::details::append_url_attr_from_ast<ndebug>(result, external->get_url().get_url_ast());
+            ::pltxt2htm::details::append_url_attr_from_ast<ndebug>(result, node.get_external_tag_url());
             constexpr ::fast_io::u8string_view mid_tag = u8"\">";
             result.append(::fast_io::u8string_view(mid_tag.begin(), mid_tag.size()));
-            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(external->get_subast(),
+            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeType::pl_external, 0));
             ++current_index;
             goto entry;
         }
         case ::pltxt2htm::NodeType::md_image: {
-            auto a_image = static_cast<::pltxt2htm::MdImage const*>(node.release_imul());
-
             constexpr ::fast_io::u8string_view start_tag = u8"<img src=\"";
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
-            ::pltxt2htm::details::append_url_attr_from_ast<ndebug>(result, a_image->url_.get_url_ast());
+            ::pltxt2htm::details::append_url_attr_from_ast<ndebug>(result, node.get_md_image_url());
             constexpr ::fast_io::u8string_view mid_tag = u8"\" alt=\"";
             result.append(::fast_io::u8string_view(mid_tag.begin(), mid_tag.size()));
-            result.append(::pltxt2htm::details::convert_simple_pltxt_ast_to_plweb_text<ndebug>(a_image->get_subast()));
+            result.append(::pltxt2htm::details::convert_simple_pltxt_ast_to_plweb_text<ndebug>(node.get_subast()));
             constexpr ::fast_io::u8string_view end_tag = u8"\">";
             result.append(::fast_io::u8string_view(end_tag.begin(), end_tag.size()));
             continue;
@@ -868,8 +832,7 @@ entry:
         case ::pltxt2htm::NodeType::md_code_fence_backtick:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_code_fence_tilde: {
-            auto code_fence = static_cast<::pltxt2htm::MdCodeFenceBacktick const*>(node.release_imul());
-            auto const& opt_language = code_fence->get_language();
+            auto const& opt_language = node.get_md_code_fence_language();
             if (opt_language.has_value()) {
                 auto const& language = opt_language.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                 constexpr ::fast_io::u8string_view start_tag = u8"<pre><code class=\"language-";
@@ -884,7 +847,7 @@ entry:
                 result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
             }
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                code_fence->get_subast(), ::pltxt2htm::NodeType::md_code_fence_backtick, 0));
+                node.get_subast(), ::pltxt2htm::NodeType::md_code_fence_backtick, 0));
             ++current_index;
             goto entry;
         }

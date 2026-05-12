@@ -1533,6 +1533,12 @@ public:
         return ::std::forward_like<decltype(self)>(self.pl_external_node).get_url();
     }
 
+    constexpr auto&& get_md_image_url(this auto&& self) noexcept {
+        bool const is_md_image_type{self.node_kind == ::pltxt2htm::NodeType::md_image};
+        pltxt2htm_assert(is_md_image_type, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.md_image_node).get_url();
+    }
+
     constexpr auto get_pl_size_tag_id(this auto&& self) noexcept -> ::std::size_t {
         bool const is_pl_size_tag_type{::pltxt2htm::details::is_pl_size_tag_type(self.node_kind)};
         pltxt2htm_assert(is_pl_size_tag_type, u8"node kind mismatch");
@@ -1543,6 +1549,19 @@ public:
         bool const is_md_link_type{::pltxt2htm::details::is_md_link_type(self.node_kind)};
         pltxt2htm_assert(is_md_link_type, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_link_node).get_url();
+    }
+
+    constexpr auto&& get_md_code_fence_language(this auto&& self) noexcept {
+        switch (self.node_kind) {
+        case ::pltxt2htm::NodeType::md_code_fence_backtick:
+            return ::std::forward_like<decltype(self)>(self.md_code_fence_backtick_node).get_language();
+        case ::pltxt2htm::NodeType::md_code_fence_tilde:
+            return ::std::forward_like<decltype(self)>(self.md_code_fence_tilde_node).get_language();
+        default:
+            [[unlikely]] {
+                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+            }
+        }
     }
 
     constexpr auto&& get_subast(this auto&& self) noexcept {
