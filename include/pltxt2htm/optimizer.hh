@@ -11,6 +11,7 @@
 
 #include <cstddef>
 #include <iterator>
+#include <memory>
 #include <type_traits>
 #include <fast_io/fast_io_dsal/list.h>
 #include <fast_io/fast_io_dsal/stack.h>
@@ -104,10 +105,13 @@ public:
     constexpr auto operator=(OptimizerContextVariant const&) noexcept -> OptimizerContextVariant& = delete;
 
     constexpr auto operator=(OptimizerContextVariant&& other) noexcept -> OptimizerContextVariant& {
-        if (this != &other) {
-            this->~OptimizerContextVariant();
-            new (this) OptimizerContextVariant(::std::move(other));
+#if 0
+        if (this == ::std::addressof(other)) {
+            ::exception::terminate();
         }
+#endif
+        this->~OptimizerContextVariant();
+        new (this) OptimizerContextVariant(::std::move(other));
         return *this;
     }
 };

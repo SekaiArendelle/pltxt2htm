@@ -25,7 +25,7 @@ namespace pltxt2htm::details {
  * AST node types. It handles all common markdown punctuation characters that can be escaped.
  *
  * @param[in] u8char The UTF-8 character following the backslash in an escape sequence.
- * @return An optional HeapGuard containing the corresponding escape PlTxtNode, or nullopt if the character
+ * @return An optional PlTxtNode containing the corresponding escape node, or nullopt if the character
  *         is not a valid escapable character in markdown.
  * @note Supported escape characters include: \\ \! \" \# \$ \% \& \' \( \) \* \+ \, \- \. \/ \: \; \< \= \> \? \@ \[ \]
  * \^ \_ \` \{ \| \} \~

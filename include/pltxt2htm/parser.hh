@@ -40,7 +40,6 @@ namespace pltxt2htm {
  * @retval pltxt2htm::Ast Abstract Syntax Tree containing the parsed structure
  * @note This function uses a stack-based approach to handle nested tag structures
  * @warning The parsing process is recursive and handles complex nested structures
- * @warning This function uses manual memory management via HeapGuard
  * @see pltxt2htm::details::parse_pltxt for the internal implementation
  */
 template<::pltxt2htm::Contracts ndebug>

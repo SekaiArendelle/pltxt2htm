@@ -144,6 +144,9 @@ Please follow the existing low-runtime, cross-platform style used in core header
 - Prefer `const` for non-mutating locals:
   - For local variables that are not reassigned after initialization, declare them as `const`.
   - In particular, when reviewing `include/pltxt2htm`, add missing `const` qualifiers whenever semantics allow.
+- Prefer `::std::addressof` over `operator&`:
+  - Do not use the built-in `&` operator to obtain the address of an object, because `operator&` can be overloaded.
+  - Use `::std::addressof(...)` instead, which correctly returns the address even for types with overloaded `operator&`.
 
 ## Commit and Pull Request Guidelines
 
