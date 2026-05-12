@@ -25,11 +25,10 @@ namespace pltxt2htm::details {
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::ast2::Url<ndebug> const& url) noexcept
+constexpr auto convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::ast2::Ast<ndebug> const& url) noexcept
     -> ::fast_io::u8string {
     ::fast_io::u8string result{};
-    auto const& ast = url.get_url_ast();
-    for (auto&& node : ast) {
+    for (auto&& node : url) {
         switch (node.get_node_kind()) {
         case ::pltxt2htm::NodeType::u8char: {
             result.push_back(node.get_u8char());
@@ -306,7 +305,7 @@ entry:
             ++current_index;
             result.append(u8"<external=");
             result.append(::pltxt2htm::details::convert_simple_pltxt_ast_to_plunity_richtext<ndebug>(
-                node.get_external_tag_url()));
+                node.get_external_tag_url().get_url_ast()));
             result.append(u8">");
             goto entry;
         }
@@ -589,7 +588,7 @@ entry:
             ++current_index;
             result.append(u8"<external=");
             result.append(
-                ::pltxt2htm::details::convert_simple_pltxt_ast_to_plunity_richtext<ndebug>(node.get_md_link_url()));
+                ::pltxt2htm::details::convert_simple_pltxt_ast_to_plunity_richtext<ndebug>(node.get_md_link_url().get_url_ast()));
             result.push_back(u8'>');
             goto entry;
         }
@@ -597,11 +596,11 @@ entry:
             constexpr ::fast_io::u8string_view start_tag = u8"![";
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
             result.append(
-                ::pltxt2htm::details::convert_simple_pltxt_ast_to_plunity_richtext<ndebug>(node.get_md_image_url()));
+                ::pltxt2htm::details::convert_simple_pltxt_ast_to_plunity_richtext<ndebug>(node.get_subast()));
             constexpr ::fast_io::u8string_view mid_tag = u8"](";
             result.append(::fast_io::u8string_view(mid_tag.begin(), mid_tag.size()));
             result.append(::pltxt2htm::details::convert_simple_pltxt_ast_to_plunity_richtext<ndebug>(
-                node.get_md_image_url()));
+                node.get_md_image_url().get_url_ast()));
             result.push_back(u8')');
             continue;
         }

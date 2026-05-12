@@ -280,7 +280,15 @@ entry:
                     auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
                     if (subnode.get_node_kind() == ::pltxt2htm::NodeType::pl_color ||
                         subnode.get_node_kind() == ::pltxt2htm::NodeType::pl_a) {
-                        (*current_iter) = ::std::move(subnode);
+                        // SAFETY: We must NOT write `(*current_iter) = ::std::move(subnode);` directly.
+                        // `subnode` is a reference into `(*current_iter).get_subast()`. When the move-assignment
+                        // operator of the node runs, it first destructs the old value at `*current_iter`, which
+                        // in turn destructs `subnode` (since `subnode` lives inside that sub-AST). That means
+                        // `subnode` is destroyed *before* its contents are moved -- a use-after-free.
+                        // By moving `subnode` into a temporary first, we extract the value before the
+                        // destination is touched, breaking the aliasing.
+                        auto tmp = ::std::move(subnode);
+                        (*current_iter) = ::std::move(tmp);
                         continue;
                     }
                 }
@@ -333,7 +341,15 @@ entry:
                 if (subast.size() == 1) {
                     auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
                     if (subnode.get_node_kind() == ::pltxt2htm::NodeType::pl_color) {
-                        (*current_iter) = ::std::move(subnode);
+                        // SAFETY: We must NOT write `(*current_iter) = ::std::move(subnode);` directly.
+                        // `subnode` is a reference into `(*current_iter).get_subast()`. When the move-assignment
+                        // operator of the node runs, it first destructs the old value at `*current_iter`, which
+                        // in turn destructs `subnode` (since `subnode` lives inside that sub-AST). That means
+                        // `subnode` is destroyed *before* its contents are moved -- a use-after-free.
+                        // By moving `subnode` into a temporary first, we extract the value before the
+                        // destination is touched, breaking the aliasing.
+                        auto tmp = ::std::move(subnode);
+                        (*current_iter) = ::std::move(tmp);
                         continue;
                     }
                 }
@@ -414,9 +430,17 @@ entry:
                 }
                 else if (subast.size() == 1) {
                     // <User=123><user=642cf37a494746375aae306a>physicsLab</user></User> can be
-                    auto& psubnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
-                    if (psubnode.get_node_kind() == ::pltxt2htm::NodeType::pl_user) {
-                        node = ::std::move(psubnode);
+                    auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
+                    if (subnode.get_node_kind() == ::pltxt2htm::NodeType::pl_user) {
+                        // SAFETY: We must NOT write `node = ::std::move(subnode);` directly.
+                        // `subnode` is a reference into `node.get_subast()`. When the move-assignment
+                        // operator of the node runs, it first destructs the old value at `node`, which
+                        // in turn destructs `subnode` (since `subnode` lives inside that sub-AST). That means
+                        // `subnode` is destroyed *before* its contents are moved -- a use-after-free.
+                        // By moving `subnode` into a temporary first, we extract the value before the
+                        // destination is touched, breaking the aliasing.
+                        auto tmp = ::std::move(subnode);
+                        node = ::std::move(tmp);
                     }
                 }
             }
@@ -462,9 +486,17 @@ entry:
                 }
                 else if (subast.size() == 1) {
                     // <size=12><size=3>physicsLab</size></size> can be
-                    auto& psubnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
-                    if (psubnode.get_node_kind() == ::pltxt2htm::NodeType::pl_size) {
-                        node = ::std::move(psubnode);
+                    auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
+                    if (subnode.get_node_kind() == ::pltxt2htm::NodeType::pl_size) {
+                        // SAFETY: We must NOT write `node = ::std::move(subnode);` directly.
+                        // `subnode` is a reference into `node.get_subast()`. When the move-assignment
+                        // operator of the node runs, it first destructs the old value at `node`, which
+                        // in turn destructs `subnode` (since `subnode` lives inside that sub-AST). That means
+                        // `subnode` is destroyed *before* its contents are moved -- a use-after-free.
+                        // By moving `subnode` into a temporary first, we extract the value before the
+                        // destination is touched, breaking the aliasing.
+                        auto tmp = ::std::move(subnode);
+                        node = ::std::move(tmp);
                     }
                 }
             }
