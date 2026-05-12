@@ -155,23 +155,20 @@ entry:
             }
         }
         else {
-            switch ((*frame_iter)->get_type()) {
+            switch (frame_iter->get_type()) {
             case ::pltxt2htm::details::MdListNodeType::text: {
-                auto text_node = static_cast<::pltxt2htm::details::MdListTextNode const*>(frame_iter->release_imul());
-                call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(text_node->get_text_view(),
+                call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(frame_iter->get_text_view(),
                                                                                  ::pltxt2htm::NodeType::md_li));
                 break;
             }
             case ::pltxt2htm::details::MdListNodeType::md_ul: {
-                auto sublist_node = static_cast<::pltxt2htm::details::MdListUlNode*>(frame_iter->get_unsafe());
                 call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                    ::pltxt2htm::NodeType::md_ul, ::std::move(sublist_node->get_sublist())));
+                    ::pltxt2htm::NodeType::md_ul, ::std::move(frame_iter->get_sublist())));
                 break;
             }
             case ::pltxt2htm::details::MdListNodeType::md_ol: {
-                auto sublist_node = static_cast<::pltxt2htm::details::MdListOlNode*>(frame_iter->get_unsafe());
                 call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                    ::pltxt2htm::NodeType::md_ol, ::std::move(sublist_node->get_sublist())));
+                    ::pltxt2htm::NodeType::md_ol, ::std::move(frame_iter->get_sublist())));
                 break;
             }
 #if 0
@@ -203,23 +200,20 @@ entry:
             }
         }
         else {
-            switch ((*frame_iter)->get_type()) {
+            switch (frame_iter->get_type()) {
             case ::pltxt2htm::details::MdListNodeType::text: {
-                auto text_node = static_cast<::pltxt2htm::details::MdListTextNode const*>(frame_iter->release_imul());
-                call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(text_node->get_text_view(),
+                call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(frame_iter->get_text_view(),
                                                                                  ::pltxt2htm::NodeType::md_li));
                 break;
             }
             case ::pltxt2htm::details::MdListNodeType::md_ul: {
-                auto sublist_node = static_cast<::pltxt2htm::details::MdListUlNode*>(frame_iter->get_unsafe());
                 call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                    ::pltxt2htm::NodeType::md_ul, ::std::move(sublist_node->get_sublist())));
+                    ::pltxt2htm::NodeType::md_ul, ::std::move(frame_iter->get_sublist())));
                 break;
             }
             case ::pltxt2htm::details::MdListNodeType::md_ol: {
-                auto sublist_node = static_cast<::pltxt2htm::details::MdListOlNode*>(frame_iter->get_unsafe());
                 call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                    ::pltxt2htm::NodeType::md_ol, ::std::move(sublist_node->get_sublist())));
+                    ::pltxt2htm::NodeType::md_ol, ::std::move(frame_iter->get_sublist())));
                 break;
             }
 #if 0
