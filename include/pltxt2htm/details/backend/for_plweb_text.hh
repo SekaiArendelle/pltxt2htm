@@ -24,7 +24,7 @@ namespace pltxt2htm::details {
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::ast2::Ast<ndebug> const& ast) noexcept
+constexpr auto convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> const& ast) noexcept
     -> ::fast_io::u8string {
     ::fast_io::u8string result{};
     for (auto&& node : ast) {
@@ -230,7 +230,7 @@ constexpr void append_html_attr_escaped(::fast_io::u8string& result, ::fast_io::
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr void append_url_attr_from_ast(::fast_io::u8string& result,
-                                        ::pltxt2htm::ast2::Url<ndebug> const& url_ast) noexcept {
+                                        ::pltxt2htm::Url<ndebug> const& url_ast) noexcept {
     auto const url_str = ::pltxt2htm::details::convert_simple_pltxt_ast_to_plweb_text<ndebug>(url_ast.get_url_ast());
     // Under normal circumstances, `url_str` should never contain characters that could enable XSS in HTML attributes.
     // To avoid masking upstream bugs (and to keep release-path performance), we only assert this in debug mode.
@@ -266,7 +266,7 @@ constexpr void append_url_attr_from_ast(::fast_io::u8string& result,
  */
 template<::pltxt2htm::Contracts ndebug, bool isfixed>
 [[nodiscard]]
-constexpr auto plweb_text_backend(::pltxt2htm::ast2::Ast<ndebug> const& ast_init, ::fast_io::u8string_view host,
+constexpr auto plweb_text_backend(::pltxt2htm::Ast<ndebug> const& ast_init, ::fast_io::u8string_view host,
                                   ::fast_io::u8string_view project, ::fast_io::u8string_view visitor,
                                   ::fast_io::u8string_view author, ::fast_io::u8string_view coauthors) noexcept
     -> ::fast_io::u8string {
@@ -366,7 +366,7 @@ entry:
             ++current_index;
             constexpr auto open_tag = ::pltxt2htm::details::concat(
                 ::pltxt2htm::details::U8LiteralString{u8"<span style=\"color:"},
-                ::pltxt2htm::ast2::PlA<ndebug>::get_color_literal(), ::pltxt2htm::details::U8LiteralString{u8";\">"});
+                ::pltxt2htm::PlA<ndebug>::get_color_literal(), ::pltxt2htm::details::U8LiteralString{u8";\">"});
             result.append(::fast_io::u8string_view{open_tag.data(), open_tag.size()});
             goto entry;
         }

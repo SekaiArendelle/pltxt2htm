@@ -55,7 +55,7 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class BackendFrameContext {
     ::pltxt2htm::details::BackendContextVariant context_data;
-    /* [[nonnull]] */ ::pltxt2htm::ast2::Ast<ndebug> const* ast; ///< Reference to the AST being processed
+    /* [[nonnull]] */ ::pltxt2htm::Ast<ndebug> const* ast; ///< Reference to the AST being processed
 
 public:
     ::std::size_t current_index; ///< Current index position in the AST
@@ -63,14 +63,14 @@ public:
     /**
      * @note construct ast from reference to avoid nullptr issue
      */
-    constexpr BackendFrameContext(::pltxt2htm::ast2::Ast<ndebug> const& ast_,
+    constexpr BackendFrameContext(::pltxt2htm::Ast<ndebug> const& ast_,
                                   ::pltxt2htm::NodeType const nested_tag_type, ::std::size_t current_index_) noexcept
         : context_data{nested_tag_type},
           ast(::std::addressof(ast_)),
           current_index{current_index_} {
     }
 
-    constexpr BackendFrameContext(::pltxt2htm::ast2::Ast<ndebug> const& ast_, ::std::size_t current_index_,
+    constexpr BackendFrameContext(::pltxt2htm::Ast<ndebug> const& ast_, ::std::size_t current_index_,
                                   ::pltxt2htm::details::BackendContextWithOlInfo&& ol_info_context) noexcept
         : context_data{::std::move(ol_info_context)},
           ast(::std::addressof(ast_)),
@@ -93,7 +93,7 @@ public:
     }
 
     constexpr auto get_ast(this ::pltxt2htm::details::BackendFrameContext<ndebug> const& self) noexcept
-        -> ::pltxt2htm::ast2::Ast<ndebug> const& {
+        -> ::pltxt2htm::Ast<ndebug> const& {
         return *(self.ast);
     }
 

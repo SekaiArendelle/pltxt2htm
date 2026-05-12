@@ -1,35 +1,35 @@
 #pragma once
 
-namespace pltxt2htm::ast2 {
+namespace pltxt2htm {
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::ast2::Text<ndebug>::Text(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept
+constexpr ::pltxt2htm::Text<ndebug>::Text(::pltxt2htm::Ast<ndebug>&& subast) noexcept
     : subast(::std::move(subast)) {
 }
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::ast2::Text<ndebug>::Text(::pltxt2htm::ast2::Text<ndebug>&& other) noexcept = default;
+constexpr ::pltxt2htm::Text<ndebug>::Text(::pltxt2htm::Text<ndebug>&& other) noexcept = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::ast2::Text<ndebug>::~Text() noexcept = default;
+constexpr ::pltxt2htm::Text<ndebug>::~Text() noexcept = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::ast2::Text<ndebug>::operator=(::pltxt2htm::ast2::Text<ndebug>&& other) noexcept
-    -> ::pltxt2htm::ast2::Text<ndebug>& = default;
+constexpr auto ::pltxt2htm::Text<ndebug>::operator=(::pltxt2htm::Text<ndebug>&& other) noexcept
+    -> ::pltxt2htm::Text<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::ast2::Url<ndebug>::Url(::pltxt2htm::ast2::Ast<ndebug>&& attr) noexcept
+constexpr ::pltxt2htm::Url<ndebug>::Url(::pltxt2htm::Ast<ndebug>&& attr) noexcept
     : url_ast(::std::move(attr)) {
 }
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::ast2::Url<ndebug>::Url(::pltxt2htm::ast2::Url<ndebug>&& other) noexcept = default;
+constexpr ::pltxt2htm::Url<ndebug>::Url(::pltxt2htm::Url<ndebug>&& other) noexcept = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::ast2::Url<ndebug>::~Url() noexcept = default;
+constexpr ::pltxt2htm::Url<ndebug>::~Url() noexcept = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::ast2::Url<ndebug>::operator=(::pltxt2htm::ast2::Url<ndebug>&& other) noexcept
-    -> ::pltxt2htm::ast2::Url<ndebug>& = default;
+constexpr auto ::pltxt2htm::Url<ndebug>::operator=(::pltxt2htm::Url<ndebug>&& other) noexcept
+    -> ::pltxt2htm::Url<ndebug>& = default;
 
-} // namespace pltxt2htm::ast2
+} // namespace pltxt2htm

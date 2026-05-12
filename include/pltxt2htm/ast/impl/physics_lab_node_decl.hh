@@ -17,7 +17,7 @@
 #include "basic_node_decl.hh"
 #include "../../contracts.hh"
 
-namespace pltxt2htm::ast2 {
+namespace pltxt2htm {
 
 /**
  * @brief Physics-Lab color tag node
@@ -25,17 +25,17 @@ namespace pltxt2htm::ast2 {
  */
 template<::pltxt2htm::Contracts ndebug>
 class PlColor {
-    ::pltxt2htm::ast2::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast{};
     ::fast_io::u8string color;
 
 public:
-    constexpr PlColor(::pltxt2htm::ast2::Ast<ndebug>&& subast_, ::fast_io::u8string&& color_) noexcept;
-    constexpr PlColor(::pltxt2htm::ast2::PlColor<ndebug> const&) noexcept = delete;
-    constexpr PlColor(::pltxt2htm::ast2::PlColor<ndebug>&&) noexcept;
+    constexpr PlColor(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& color_) noexcept;
+    constexpr PlColor(::pltxt2htm::PlColor<ndebug> const&) noexcept = delete;
+    constexpr PlColor(::pltxt2htm::PlColor<ndebug>&&) noexcept;
     constexpr ~PlColor() noexcept;
-    constexpr auto operator=(::pltxt2htm::ast2::PlColor<ndebug> const&) noexcept
-        -> ::pltxt2htm::ast2::PlColor<ndebug>& = delete;
-    constexpr auto operator=(::pltxt2htm::ast2::PlColor<ndebug>&&) noexcept -> ::pltxt2htm::ast2::PlColor<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::PlColor<ndebug> const&) noexcept
+        -> ::pltxt2htm::PlColor<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::PlColor<ndebug>&&) noexcept -> ::pltxt2htm::PlColor<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -54,17 +54,17 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class PlA {
-    ::pltxt2htm::ast2::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast{};
     static constexpr ::pltxt2htm::details::U8LiteralString<7> color_{u8"#0000AA"};
 
 public:
-    constexpr PlA(::pltxt2htm::ast2::Ast<ndebug>&& subast_) noexcept;
-    constexpr PlA(::pltxt2htm::ast2::PlA<ndebug> const&) noexcept = delete;
-    constexpr PlA(::pltxt2htm::ast2::PlA<ndebug>&&) noexcept;
+    constexpr PlA(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr PlA(::pltxt2htm::PlA<ndebug> const&) noexcept = delete;
+    constexpr PlA(::pltxt2htm::PlA<ndebug>&&) noexcept;
     constexpr ~PlA() noexcept;
-    constexpr auto operator=(::pltxt2htm::ast2::PlA<ndebug> const&) noexcept
-        -> ::pltxt2htm::ast2::PlA<ndebug>& = delete;
-    constexpr auto operator=(::pltxt2htm::ast2::PlA<ndebug>&&) noexcept -> ::pltxt2htm::ast2::PlA<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::PlA<ndebug> const&) noexcept
+        -> ::pltxt2htm::PlA<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::PlA<ndebug>&&) noexcept -> ::pltxt2htm::PlA<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -83,18 +83,18 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class PlExperiment {
-    ::pltxt2htm::ast2::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast{};
     ::fast_io::u8string id;
 
 public:
-    constexpr PlExperiment(::pltxt2htm::ast2::Ast<ndebug>&& subast_, ::fast_io::u8string&& id_) noexcept;
-    constexpr PlExperiment(::pltxt2htm::ast2::PlExperiment<ndebug> const&) noexcept = delete;
-    constexpr PlExperiment(::pltxt2htm::ast2::PlExperiment<ndebug>&&) noexcept;
+    constexpr PlExperiment(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& id_) noexcept;
+    constexpr PlExperiment(::pltxt2htm::PlExperiment<ndebug> const&) noexcept = delete;
+    constexpr PlExperiment(::pltxt2htm::PlExperiment<ndebug>&&) noexcept;
     constexpr ~PlExperiment() noexcept;
-    constexpr auto operator=(::pltxt2htm::ast2::PlExperiment<ndebug> const&) noexcept
-        -> ::pltxt2htm::ast2::PlExperiment<ndebug>& = delete;
-    constexpr auto operator=(::pltxt2htm::ast2::PlExperiment<ndebug>&&) noexcept
-        -> ::pltxt2htm::ast2::PlExperiment<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::PlExperiment<ndebug> const&) noexcept
+        -> ::pltxt2htm::PlExperiment<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::PlExperiment<ndebug>&&) noexcept
+        -> ::pltxt2htm::PlExperiment<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -113,18 +113,18 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class PlDiscussion {
-    ::pltxt2htm::ast2::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast{};
     ::fast_io::u8string id;
 
 public:
-    constexpr PlDiscussion(::pltxt2htm::ast2::Ast<ndebug>&& subast_, ::fast_io::u8string&& id_) noexcept;
-    constexpr PlDiscussion(::pltxt2htm::ast2::PlDiscussion<ndebug> const&) noexcept = delete;
-    constexpr PlDiscussion(::pltxt2htm::ast2::PlDiscussion<ndebug>&&) noexcept;
+    constexpr PlDiscussion(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& id_) noexcept;
+    constexpr PlDiscussion(::pltxt2htm::PlDiscussion<ndebug> const&) noexcept = delete;
+    constexpr PlDiscussion(::pltxt2htm::PlDiscussion<ndebug>&&) noexcept;
     constexpr ~PlDiscussion() noexcept;
-    constexpr auto operator=(::pltxt2htm::ast2::PlDiscussion<ndebug> const&) noexcept
-        -> ::pltxt2htm::ast2::PlDiscussion<ndebug>& = delete;
-    constexpr auto operator=(::pltxt2htm::ast2::PlDiscussion<ndebug>&&) noexcept
-        -> ::pltxt2htm::ast2::PlDiscussion<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::PlDiscussion<ndebug> const&) noexcept
+        -> ::pltxt2htm::PlDiscussion<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::PlDiscussion<ndebug>&&) noexcept
+        -> ::pltxt2htm::PlDiscussion<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -143,17 +143,17 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class PlUser {
-    ::pltxt2htm::ast2::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast{};
     ::fast_io::u8string id;
 
 public:
-    constexpr PlUser(::pltxt2htm::ast2::Ast<ndebug>&& subast_, ::fast_io::u8string&& id_) noexcept;
-    constexpr PlUser(::pltxt2htm::ast2::PlUser<ndebug> const&) noexcept = delete;
-    constexpr PlUser(::pltxt2htm::ast2::PlUser<ndebug>&&) noexcept;
+    constexpr PlUser(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& id_) noexcept;
+    constexpr PlUser(::pltxt2htm::PlUser<ndebug> const&) noexcept = delete;
+    constexpr PlUser(::pltxt2htm::PlUser<ndebug>&&) noexcept;
     constexpr ~PlUser() noexcept;
-    constexpr auto operator=(::pltxt2htm::ast2::PlUser<ndebug> const&) noexcept
-        -> ::pltxt2htm::ast2::PlUser<ndebug>& = delete;
-    constexpr auto operator=(::pltxt2htm::ast2::PlUser<ndebug>&&) noexcept -> ::pltxt2htm::ast2::PlUser<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::PlUser<ndebug> const&) noexcept
+        -> ::pltxt2htm::PlUser<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::PlUser<ndebug>&&) noexcept -> ::pltxt2htm::PlUser<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -172,18 +172,18 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class PlExternal {
-    ::pltxt2htm::ast2::Ast<ndebug> subast{};
-    ::pltxt2htm::ast2::Url<ndebug> url;
+    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Url<ndebug> url;
 
 public:
-    constexpr PlExternal(::pltxt2htm::ast2::Ast<ndebug>&& subast_, ::pltxt2htm::ast2::Url<ndebug>&& url_) noexcept;
-    constexpr PlExternal(::pltxt2htm::ast2::PlExternal<ndebug> const&) noexcept = delete;
-    constexpr PlExternal(::pltxt2htm::ast2::PlExternal<ndebug>&&) noexcept;
+    constexpr PlExternal(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::Url<ndebug>&& url_) noexcept;
+    constexpr PlExternal(::pltxt2htm::PlExternal<ndebug> const&) noexcept = delete;
+    constexpr PlExternal(::pltxt2htm::PlExternal<ndebug>&&) noexcept;
     constexpr ~PlExternal() noexcept;
-    constexpr auto operator=(::pltxt2htm::ast2::PlExternal<ndebug> const&) noexcept
-        -> ::pltxt2htm::ast2::PlExternal<ndebug>& = delete;
-    constexpr auto operator=(::pltxt2htm::ast2::PlExternal<ndebug>&&) noexcept
-        -> ::pltxt2htm::ast2::PlExternal<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::PlExternal<ndebug> const&) noexcept
+        -> ::pltxt2htm::PlExternal<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::PlExternal<ndebug>&&) noexcept
+        -> ::pltxt2htm::PlExternal<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -202,17 +202,17 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class PlSize {
-    ::pltxt2htm::ast2::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast{};
     ::std::size_t size;
 
 public:
-    constexpr PlSize(::pltxt2htm::ast2::Ast<ndebug>&& subast_, ::std::size_t size_) noexcept;
-    constexpr PlSize(::pltxt2htm::ast2::PlSize<ndebug> const&) noexcept = delete;
-    constexpr PlSize(::pltxt2htm::ast2::PlSize<ndebug>&&) noexcept;
+    constexpr PlSize(::pltxt2htm::Ast<ndebug>&& subast_, ::std::size_t size_) noexcept;
+    constexpr PlSize(::pltxt2htm::PlSize<ndebug> const&) noexcept = delete;
+    constexpr PlSize(::pltxt2htm::PlSize<ndebug>&&) noexcept;
     constexpr ~PlSize() noexcept;
-    constexpr auto operator=(::pltxt2htm::ast2::PlSize<ndebug> const&) noexcept
-        -> ::pltxt2htm::ast2::PlSize<ndebug>& = delete;
-    constexpr auto operator=(::pltxt2htm::ast2::PlSize<ndebug>&&) noexcept -> ::pltxt2htm::ast2::PlSize<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::PlSize<ndebug> const&) noexcept
+        -> ::pltxt2htm::PlSize<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::PlSize<ndebug>&&) noexcept -> ::pltxt2htm::PlSize<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -231,16 +231,16 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class PlI {
-    ::pltxt2htm::ast2::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast{};
 
 public:
-    constexpr PlI(::pltxt2htm::ast2::Ast<ndebug>&& subast_) noexcept;
-    constexpr PlI(::pltxt2htm::ast2::PlI<ndebug> const&) noexcept = delete;
-    constexpr PlI(::pltxt2htm::ast2::PlI<ndebug>&&) noexcept;
+    constexpr PlI(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr PlI(::pltxt2htm::PlI<ndebug> const&) noexcept = delete;
+    constexpr PlI(::pltxt2htm::PlI<ndebug>&&) noexcept;
     constexpr ~PlI() noexcept;
-    constexpr auto operator=(::pltxt2htm::ast2::PlI<ndebug> const&) noexcept
-        -> ::pltxt2htm::ast2::PlI<ndebug>& = delete;
-    constexpr auto operator=(::pltxt2htm::ast2::PlI<ndebug>&&) noexcept -> ::pltxt2htm::ast2::PlI<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::PlI<ndebug> const&) noexcept
+        -> ::pltxt2htm::PlI<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::PlI<ndebug>&&) noexcept -> ::pltxt2htm::PlI<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -254,16 +254,16 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class PlB {
-    ::pltxt2htm::ast2::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast{};
 
 public:
-    constexpr PlB(::pltxt2htm::ast2::Ast<ndebug>&& subast_) noexcept;
-    constexpr PlB(::pltxt2htm::ast2::PlB<ndebug> const&) noexcept = delete;
-    constexpr PlB(::pltxt2htm::ast2::PlB<ndebug>&&) noexcept;
+    constexpr PlB(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr PlB(::pltxt2htm::PlB<ndebug> const&) noexcept = delete;
+    constexpr PlB(::pltxt2htm::PlB<ndebug>&&) noexcept;
     constexpr ~PlB() noexcept;
-    constexpr auto operator=(::pltxt2htm::ast2::PlB<ndebug> const&) noexcept
-        -> ::pltxt2htm::ast2::PlB<ndebug>& = delete;
-    constexpr auto operator=(::pltxt2htm::ast2::PlB<ndebug>&&) noexcept -> ::pltxt2htm::ast2::PlB<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::PlB<ndebug> const&) noexcept
+        -> ::pltxt2htm::PlB<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::PlB<ndebug>&&) noexcept -> ::pltxt2htm::PlB<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -295,4 +295,4 @@ class PlMacroAuthor {};
  */
 class PlMacroCoauthors {};
 
-} // namespace pltxt2htm::ast2
+} // namespace pltxt2htm

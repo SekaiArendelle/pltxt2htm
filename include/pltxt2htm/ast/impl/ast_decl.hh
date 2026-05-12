@@ -9,17 +9,17 @@
 #include <fast_io/fast_io_dsal/vector.h>
 #include "../../contracts.hh"
 
-namespace pltxt2htm::ast2 {
+namespace pltxt2htm {
 
 template<::pltxt2htm::Contracts>
 class PlTxtNode;
 
 /**
  * @brief AST container type
- * @details A vector of ::pltxt2htm::ast2::PlTxtNode<ndebug> elements representing the Abstract Syntax Tree.
+ * @details A vector of ::pltxt2htm::PlTxtNode<ndebug> elements representing the Abstract Syntax Tree.
  *          This is the primary storage type for all AST nodes.
  */
 template<::pltxt2htm::Contracts ndebug>
-using Ast = ::fast_io::vector<::pltxt2htm::ast2::PlTxtNode<ndebug>>;
+using Ast = ::fast_io::vector<::pltxt2htm::PlTxtNode<ndebug>>;
 
-} // namespace pltxt2htm::ast2
+} // namespace pltxt2htm

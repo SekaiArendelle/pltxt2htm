@@ -25,7 +25,7 @@ namespace pltxt2htm::details {
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::ast2::Ast<ndebug> const& url) noexcept
+constexpr auto convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast<ndebug> const& url) noexcept
     -> ::fast_io::u8string {
     ::fast_io::u8string result{};
     for (auto&& node : url) {
@@ -196,7 +196,7 @@ constexpr auto convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::ast2::A
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto plunity_text_backend(::pltxt2htm::ast2::Ast<ndebug> const& ast_init, ::fast_io::u8string_view project,
+constexpr auto plunity_text_backend(::pltxt2htm::Ast<ndebug> const& ast_init, ::fast_io::u8string_view project,
                                     ::fast_io::u8string_view visitor, ::fast_io::u8string_view author,
                                     ::fast_io::u8string_view coauthors) noexcept -> ::fast_io::u8string {
     ::fast_io::u8string result{};
@@ -276,7 +276,7 @@ entry:
                 ::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(), ::pltxt2htm::NodeType::pl_a, 0));
             ++current_index;
             constexpr auto open_tag = ::pltxt2htm::details::concat(::pltxt2htm::details::U8LiteralString{u8"<color="},
-                                                                   ::pltxt2htm::ast2::PlA<ndebug>::get_color_literal(),
+                                                                   ::pltxt2htm::PlA<ndebug>::get_color_literal(),
                                                                    ::pltxt2htm::details::U8LiteralString{u8">"});
             result.append(::fast_io::u8string_view{open_tag.data(), open_tag.size()});
             goto entry;

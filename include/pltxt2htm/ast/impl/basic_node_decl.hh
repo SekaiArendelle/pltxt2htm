@@ -9,7 +9,7 @@
 #include <utility>
 #include "ast_decl.hh"
 
-namespace pltxt2htm::ast2 {
+namespace pltxt2htm {
 
 /**
  * @brief UTF-8 character node
@@ -27,25 +27,25 @@ public:
 class InvalidU8Char {};
 
 /**
- * @brief ::pltxt2htm::ast2::Text<ndebug> container node
+ * @brief ::pltxt2htm::Text<ndebug> container node
  * @details Holds a sub-AST representing text content and inline formatting.
  */
 template<::pltxt2htm::Contracts ndebug>
 class Text {
-    ::pltxt2htm::ast2::Ast<ndebug> subast;
+    ::pltxt2htm::Ast<ndebug> subast;
 
 public:
     /**
-     * @brief Construct a ::pltxt2htm::ast2::Text<ndebug> node with a sub-AST.
+     * @brief Construct a ::pltxt2htm::Text<ndebug> node with a sub-AST.
      * @param subast The sub-AST to be contained.
      */
-    constexpr Text(::pltxt2htm::ast2::Ast<ndebug>&& subast) noexcept;
-    constexpr Text(::pltxt2htm::ast2::Text<ndebug> const&) noexcept = delete;
-    constexpr Text(::pltxt2htm::ast2::Text<ndebug>&&) noexcept;
+    constexpr Text(::pltxt2htm::Ast<ndebug>&& subast) noexcept;
+    constexpr Text(::pltxt2htm::Text<ndebug> const&) noexcept = delete;
+    constexpr Text(::pltxt2htm::Text<ndebug>&&) noexcept;
     constexpr ~Text() noexcept;
-    constexpr auto operator=(::pltxt2htm::ast2::Text<ndebug> const&) noexcept
-        -> ::pltxt2htm::ast2::Text<ndebug>& = delete;
-    constexpr auto operator=(::pltxt2htm::ast2::Text<ndebug>&&) noexcept -> ::pltxt2htm::ast2::Text<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::Text<ndebug> const&) noexcept
+        -> ::pltxt2htm::Text<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::Text<ndebug>&&) noexcept -> ::pltxt2htm::Text<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -59,20 +59,20 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class Url {
-    ::pltxt2htm::ast2::Ast<ndebug> url_ast{};
+    ::pltxt2htm::Ast<ndebug> url_ast{};
 
 public:
     /**
-     * @brief Construct a ::pltxt2htm::ast2::Url<ndebug> from an AST.
+     * @brief Construct a ::pltxt2htm::Url<ndebug> from an AST.
      * @param attr The AST representing the URL characters.
      */
-    constexpr explicit Url(::pltxt2htm::ast2::Ast<ndebug>&& attr) noexcept;
-    constexpr Url(::pltxt2htm::ast2::Url<ndebug> const&) noexcept = delete;
-    constexpr Url(::pltxt2htm::ast2::Url<ndebug>&&) noexcept;
+    constexpr explicit Url(::pltxt2htm::Ast<ndebug>&& attr) noexcept;
+    constexpr Url(::pltxt2htm::Url<ndebug> const&) noexcept = delete;
+    constexpr Url(::pltxt2htm::Url<ndebug>&&) noexcept;
     constexpr ~Url() noexcept;
-    constexpr auto operator=(::pltxt2htm::ast2::Url<ndebug> const&) noexcept
-        -> ::pltxt2htm::ast2::Url<ndebug>& = delete;
-    constexpr auto operator=(::pltxt2htm::ast2::Url<ndebug>&&) noexcept -> ::pltxt2htm::ast2::Url<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::Url<ndebug> const&) noexcept
+        -> ::pltxt2htm::Url<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::Url<ndebug>&&) noexcept -> ::pltxt2htm::Url<ndebug>&;
 
     /**
      * @brief Get the underlying URL AST.
@@ -84,4 +84,4 @@ public:
     }
 };
 
-} // namespace pltxt2htm::ast2
+} // namespace pltxt2htm
