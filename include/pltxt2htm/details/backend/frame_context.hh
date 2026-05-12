@@ -63,8 +63,8 @@ public:
     /**
      * @note construct ast from reference to avoid nullptr issue
      */
-    constexpr BackendFrameContext(::pltxt2htm::ast2::Ast<ndebug> const& ast_, ::pltxt2htm::NodeType const nested_tag_type,
-                                  ::std::size_t current_index_) noexcept
+    constexpr BackendFrameContext(::pltxt2htm::ast2::Ast<ndebug> const& ast_,
+                                  ::pltxt2htm::NodeType const nested_tag_type, ::std::size_t current_index_) noexcept
         : context_data{nested_tag_type},
           ast(::std::addressof(ast_)),
           current_index{current_index_} {

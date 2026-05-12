@@ -101,12 +101,12 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_a: {
-            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
-                                                                              ::pltxt2htm::NodeType::pl_a, 0));
+            call_stack.push(
+                ::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(), ::pltxt2htm::NodeType::pl_a, 0));
             ++current_index;
             constexpr auto open_tag = ::pltxt2htm::details::concat(
-                ::pltxt2htm::details::U8LiteralString{u8"<span style=\"color:"}, ::pltxt2htm::ast2::PlA<ndebug>::get_color_literal(),
-                ::pltxt2htm::details::U8LiteralString{u8";\">"});
+                ::pltxt2htm::details::U8LiteralString{u8"<span style=\"color:"},
+                ::pltxt2htm::ast2::PlA<ndebug>::get_color_literal(), ::pltxt2htm::details::U8LiteralString{u8";\">"});
             result.append(::fast_io::u8string_view{open_tag.data(), open_tag.size()});
             goto entry;
         }
@@ -131,8 +131,8 @@ entry:
         case ::pltxt2htm::NodeType::pl_i:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_em: {
-            call_stack.push(
-                ::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(), ::pltxt2htm::NodeType::html_em, 0));
+            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
+                                                                              ::pltxt2htm::NodeType::html_em, 0));
             ++current_index;
             constexpr ::fast_io::u8string_view start_tag = u8"<em>";
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
@@ -356,8 +356,8 @@ entry:
         case ::pltxt2htm::NodeType::md_code_span_3_backtick: {
             // TODO common_html should not ignore the tag context
             // We should recover the tag context
-            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
-                                                                              ::pltxt2htm::NodeType::text, 0));
+            call_stack.push(
+                ::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(), ::pltxt2htm::NodeType::text, 0));
             ++current_index;
             goto entry;
         }
