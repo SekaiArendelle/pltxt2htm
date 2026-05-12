@@ -917,7 +917,7 @@ public:
 
     constexpr auto&& get_external_tag_url(this auto&& self) noexcept {
         auto&& context_data_ref = self.context_data;
-        bool const is_external_tag_type{::pltxt2htm::details::is_external_tag_type(context_data_ref.kind)};
+        bool const is_external_tag_type{context_data_ref.kind == ::pltxt2htm::NodeType::pl_external};
         pltxt2htm_assert(is_external_tag_type, u8"context kind mismatch");
         return ::std::forward_like<decltype(self)>(context_data_ref.external_tag.url);
     }

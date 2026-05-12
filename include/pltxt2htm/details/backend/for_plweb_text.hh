@@ -8,7 +8,6 @@
 #pragma once
 
 #include <fast_io/fast_io_dsal/list.h>
-#include <fast_io/fast_io_dsal/array.h>
 #include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
