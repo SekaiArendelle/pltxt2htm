@@ -42,9 +42,8 @@ int main() {
     {
         ::pltxt2htm::details::MdListTextNode text_node{::fast_io::u8string{u8"test"}};
         ::pltxt2htm::details::MdListUlNode ul_node{::pltxt2htm::details::MdListAst{}};
-        ::exception::assert_false<false>(
-            ::pltxt2htm::details::MdListBaseNode(::std::move(text_node)) ==
-            ::pltxt2htm::details::MdListBaseNode(::std::move(ul_node)));
+        ::exception::assert_false<false>(::pltxt2htm::details::MdListBaseNode(::std::move(text_node)) ==
+                                         ::pltxt2htm::details::MdListBaseNode(::std::move(ul_node)));
     }
     {
         ::pltxt2htm::details::MdListAst ast1{};

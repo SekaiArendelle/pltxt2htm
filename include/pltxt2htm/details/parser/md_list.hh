@@ -99,8 +99,7 @@ public:
     constexpr auto operator=(::pltxt2htm::details::MdListUlNode const&) & noexcept
         -> ::pltxt2htm::details::MdListUlNode& = delete;
 
-    constexpr auto operator=(::pltxt2htm::details::MdListUlNode&&) & noexcept
-        -> ::pltxt2htm::details::MdListUlNode&;
+    constexpr auto operator=(::pltxt2htm::details::MdListUlNode&&) & noexcept -> ::pltxt2htm::details::MdListUlNode&;
 
     [[nodiscard]]
     constexpr auto operator==(::pltxt2htm::details::MdListUlNode const& other) const noexcept -> bool;
@@ -131,8 +130,7 @@ public:
     constexpr auto operator=(::pltxt2htm::details::MdListOlNode const&) & noexcept
         -> ::pltxt2htm::details::MdListOlNode& = delete;
 
-    constexpr auto operator=(::pltxt2htm::details::MdListOlNode&&) & noexcept
-        -> ::pltxt2htm::details::MdListOlNode&;
+    constexpr auto operator=(::pltxt2htm::details::MdListOlNode&&) & noexcept -> ::pltxt2htm::details::MdListOlNode&;
 
     [[nodiscard]]
     constexpr auto operator==(::pltxt2htm::details::MdListOlNode const& other) const noexcept -> bool;
@@ -154,6 +152,7 @@ class MdListBaseNode {
         ::pltxt2htm::details::MdListUlNode ul_node;
         ::pltxt2htm::details::MdListOlNode ol_node;
     };
+
     ::pltxt2htm::details::MdListNodeType type_;
 
 public:
@@ -180,15 +179,15 @@ public:
         : type_(other.type_) {
         switch (type_) {
         case ::pltxt2htm::details::MdListNodeType::text: {
-            new (::std::addressof(text_node)) ::pltxt2htm::details::MdListTextNode(::std::move(other.text_node));
+            new (::std::addressof(text_node))::pltxt2htm::details::MdListTextNode(::std::move(other.text_node));
             break;
         }
         case ::pltxt2htm::details::MdListNodeType::md_ul: {
-            new (::std::addressof(ul_node)) ::pltxt2htm::details::MdListUlNode(::std::move(other.ul_node));
+            new (::std::addressof(ul_node))::pltxt2htm::details::MdListUlNode(::std::move(other.ul_node));
             break;
         }
         case ::pltxt2htm::details::MdListNodeType::md_ol: {
-            new (::std::addressof(ol_node)) ::pltxt2htm::details::MdListOlNode(::std::move(other.ol_node));
+            new (::std::addressof(ol_node))::pltxt2htm::details::MdListOlNode(::std::move(other.ol_node));
             break;
         }
 #if 0
@@ -344,10 +343,9 @@ constexpr auto MdListOlNode::operator==(::pltxt2htm::details::MdListOlNode const
  * @brief Concept matching the concrete node types stored in MdListBaseNode.
  */
 template<typename T>
-concept is_md_list_node_type =
-    ::std::is_same_v<::std::remove_cvref_t<T>, ::pltxt2htm::details::MdListTextNode> ||
-    ::std::is_same_v<::std::remove_cvref_t<T>, ::pltxt2htm::details::MdListUlNode> ||
-    ::std::is_same_v<::std::remove_cvref_t<T>, ::pltxt2htm::details::MdListOlNode>;
+concept is_md_list_node_type = ::std::is_same_v<::std::remove_cvref_t<T>, ::pltxt2htm::details::MdListTextNode> ||
+                               ::std::is_same_v<::std::remove_cvref_t<T>, ::pltxt2htm::details::MdListUlNode> ||
+                               ::std::is_same_v<::std::remove_cvref_t<T>, ::pltxt2htm::details::MdListOlNode>;
 
 /**
  * @brief Marker describing parsed markdown list item style.
@@ -699,8 +697,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
             call_stack.push(::pltxt2htm::details::MdListFrameContext{
                 item_kind, space_hierarchy,
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(call_stack.top().pltext, current_index)});
-            call_stack.top().md_list_ast.emplace_back(
-                ::pltxt2htm::details::MdListTextNode(::std::move(text)));
+            call_stack.top().md_list_ast.emplace_back(::pltxt2htm::details::MdListTextNode(::std::move(text)));
             continue;
         }
         else {

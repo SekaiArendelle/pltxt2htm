@@ -591,7 +591,8 @@ public:
      * @param subast The alt text/content AST.
      * @param url The image source URL.
      */
-    constexpr explicit MdImage(::pltxt2htm::ast2::Ast<ndebug>&& subast_, ::pltxt2htm::ast2::Url<ndebug>&& url_) noexcept;
+    constexpr explicit MdImage(::pltxt2htm::ast2::Ast<ndebug>&& subast_,
+                               ::pltxt2htm::ast2::Url<ndebug>&& url_) noexcept;
     constexpr MdImage(::pltxt2htm::ast2::MdImage<ndebug> const&) noexcept = delete;
     constexpr MdImage(::pltxt2htm::ast2::MdImage<ndebug>&&) noexcept;
     constexpr ~MdImage() noexcept;
