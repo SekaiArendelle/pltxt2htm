@@ -213,8 +213,8 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_size(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.size);
+    constexpr auto get_size(this auto&& self) noexcept -> ::std::size_t {
+        return self.size;
     }
 };
 

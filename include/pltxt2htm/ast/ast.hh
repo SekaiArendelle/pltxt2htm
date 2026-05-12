@@ -1545,10 +1545,11 @@ public:
         return ::std::forward_like<decltype(self)>(self.md_image_node).get_url();
     }
 
+    [[nodiscard]]
     constexpr auto get_pl_size_tag_id(this auto&& self) noexcept -> ::std::size_t {
         bool const is_pl_size_tag_type{::pltxt2htm::details::is_pl_size_tag_type(self.node_kind)};
         pltxt2htm_assert(is_pl_size_tag_type, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.pl_size_node).get_size();
+        return self.pl_size_node.get_size();
     }
 
     [[nodiscard]]

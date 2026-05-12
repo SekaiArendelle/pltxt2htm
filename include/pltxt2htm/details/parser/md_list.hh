@@ -393,8 +393,8 @@ public:
         -> ::pltxt2htm::details::MdListFrameContext& = default;
 
     [[nodiscard]]
-    constexpr auto&& get_item_kind(this ::pltxt2htm::details::MdListFrameContext const& self) noexcept {
-        return ::std::as_const(self.item_kind);
+    constexpr auto get_item_kind(this ::pltxt2htm::details::MdListFrameContext const& self) noexcept -> ::pltxt2htm::details::MdUlListItemKind {
+        return self.item_kind;
     }
 };
 
