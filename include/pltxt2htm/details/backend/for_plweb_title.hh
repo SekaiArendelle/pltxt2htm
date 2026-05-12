@@ -10,9 +10,7 @@
 #include "frame_context.hh"
 #include "../../contracts.hh"
 #include "../../details/utils.hh"
-#include "../../astnode/basic.hh"
-#include "../../astnode/node_type.hh"
-#include "../../astnode/physics_lab_node.hh"
+#include "../../ast/ast.hh"
 
 namespace pltxt2htm::details {
 
@@ -28,7 +26,7 @@ namespace pltxt2htm::details {
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto plweb_title_backend(::pltxt2htm::Ast const& ast_init) noexcept -> ::fast_io::u8string {
+constexpr auto plweb_title_backend(::pltxt2htm::ast2::Ast<ndebug> const& ast_init) noexcept -> ::fast_io::u8string {
     ::fast_io::u8string result{};
     ::fast_io::stack<::pltxt2htm::details::BackendFrameContext<ndebug>> call_stack{};
     call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(ast_init, ::pltxt2htm::NodeType::text, 0));
@@ -39,9 +37,9 @@ entry:
     for (; current_index < ast.size(); ++current_index) {
         auto&& node = ::pltxt2htm::details::vector_index<ndebug>(ast, current_index);
 
-        switch (node->node_type()) {
+        switch (node.get_node_kind()) {
         case ::pltxt2htm::NodeType::u8char: {
-            result.push_back(static_cast<::pltxt2htm::U8Char const*>(node.release_imul())->get_u8char());
+            result.push_back(node.get_u8char());
             continue;
         }
         case ::pltxt2htm::NodeType::invalid_u8char: {
@@ -92,24 +90,22 @@ entry:
             continue;
         }
         case ::pltxt2htm::NodeType::pl_color: {
-            auto color = static_cast<::pltxt2htm::PlColor const*>(node.release_imul());
-            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(color->get_subast(),
+            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeType::pl_color, 0));
             ++current_index;
             constexpr ::fast_io::u8string_view close_tag1 = u8"<span style=\"color:";
             result.append(::fast_io::u8string_view{close_tag1.data(), close_tag1.size()});
-            result.append(color->get_color());
+            result.append(node.get_equal_sign_tag_id());
             constexpr ::fast_io::u8string_view close_tag2 = u8";\">";
             result.append(::fast_io::u8string_view{close_tag2.data(), close_tag2.size()});
             goto entry;
         }
         case ::pltxt2htm::NodeType::pl_a: {
-            auto anchor = static_cast<::pltxt2htm::PlA const*>(node.release_imul());
-            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(anchor->get_subast(),
+            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeType::pl_a, 0));
             ++current_index;
             constexpr auto open_tag = ::pltxt2htm::details::concat(
-                ::pltxt2htm::details::U8LiteralString{u8"<span style=\"color:"}, ::pltxt2htm::PlA::get_color_literal(),
+                ::pltxt2htm::details::U8LiteralString{u8"<span style=\"color:"}, ::pltxt2htm::ast2::PlA<ndebug>::get_color_literal(),
                 ::pltxt2htm::details::U8LiteralString{u8";\">"});
             result.append(::fast_io::u8string_view{open_tag.data(), open_tag.size()});
             goto entry;
@@ -121,8 +117,7 @@ entry:
         case ::pltxt2htm::NodeType::pl_b:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_strong: {
-            auto b = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
-            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(b->get_subast(),
+            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeType::html_strong, 0));
             ++current_index;
             constexpr ::fast_io::u8string_view start_tag = u8"<strong>";
@@ -136,9 +131,8 @@ entry:
         case ::pltxt2htm::NodeType::pl_i:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::html_em: {
-            auto em = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(
-                ::pltxt2htm::details::BackendFrameContext<ndebug>(em->get_subast(), ::pltxt2htm::NodeType::html_em, 0));
+                ::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(), ::pltxt2htm::NodeType::html_em, 0));
             ++current_index;
             constexpr ::fast_io::u8string_view start_tag = u8"<em>";
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
@@ -147,9 +141,8 @@ entry:
         case ::pltxt2htm::NodeType::md_triple_emphasis_underscore:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::md_triple_emphasis_asterisk: {
-            auto triple_emphasis = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                triple_emphasis->get_subast(), ::pltxt2htm::NodeType::md_triple_emphasis_asterisk, 0));
+                node.get_subast(), ::pltxt2htm::NodeType::md_triple_emphasis_asterisk, 0));
             ++current_index;
             constexpr ::fast_io::u8string_view start_tag = u8"<em><strong>";
             result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
@@ -363,8 +356,7 @@ entry:
         case ::pltxt2htm::NodeType::md_code_span_3_backtick: {
             // TODO common_html should not ignore the tag context
             // We should recover the tag context
-            auto a_paired_tag = static_cast<::pltxt2htm::details::PairedTagBase const*>(node.release_imul());
-            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(a_paired_tag->get_subast(),
+            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeType::text, 0));
             ++current_index;
             goto entry;

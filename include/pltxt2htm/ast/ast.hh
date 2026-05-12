@@ -1501,6 +1501,13 @@ public:
         return self.node_kind;
     }
 
+    [[nodiscard]]
+    constexpr auto get_u8char(this auto&& self) noexcept -> char8_t {
+        bool const is_u8char_type{self.node_kind == ::pltxt2htm::NodeType::u8char};
+        pltxt2htm_assert(is_u8char_type, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.u8char_node.chr);
+    }
+
     constexpr auto&& get_equal_sign_tag_id(this auto&& self) noexcept {
         bool const is_equal_sign_tag_type{::pltxt2htm::details::is_equal_sign_tag_type(self.node_kind)};
         pltxt2htm_assert(is_equal_sign_tag_type, u8"node kind mismatch");
