@@ -93,8 +93,7 @@ constexpr ::pltxt2htm::MdCodeFenceBacktick<ndebug>::MdCodeFenceBacktick(
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdCodeFenceBacktick<ndebug>::~MdCodeFenceBacktick() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::MdCodeFenceBacktick<ndebug>::operator=(
-    ::pltxt2htm::MdCodeFenceBacktick<ndebug>&&) noexcept
+constexpr auto ::pltxt2htm::MdCodeFenceBacktick<ndebug>::operator=(::pltxt2htm::MdCodeFenceBacktick<ndebug>&&) noexcept
     -> ::pltxt2htm::MdCodeFenceBacktick<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
@@ -105,17 +104,16 @@ constexpr ::pltxt2htm::MdCodeFenceTilde<ndebug>::MdCodeFenceTilde(
 }
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdCodeFenceTilde<ndebug>::MdCodeFenceTilde(
-    ::pltxt2htm::MdCodeFenceTilde<ndebug>&&) noexcept = default;
+constexpr ::pltxt2htm::MdCodeFenceTilde<ndebug>::MdCodeFenceTilde(::pltxt2htm::MdCodeFenceTilde<ndebug>&&) noexcept =
+    default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdCodeFenceTilde<ndebug>::~MdCodeFenceTilde() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::MdCodeFenceTilde<ndebug>::operator=(
-    ::pltxt2htm::MdCodeFenceTilde<ndebug>&&) noexcept -> ::pltxt2htm::MdCodeFenceTilde<ndebug>& = default;
+constexpr auto ::pltxt2htm::MdCodeFenceTilde<ndebug>::operator=(::pltxt2htm::MdCodeFenceTilde<ndebug>&&) noexcept
+    -> ::pltxt2htm::MdCodeFenceTilde<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdCodeSpan1Backtick<ndebug>::MdCodeSpan1Backtick(
-    ::pltxt2htm::Ast<ndebug>&& subast_) noexcept
+constexpr ::pltxt2htm::MdCodeSpan1Backtick<ndebug>::MdCodeSpan1Backtick(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
     : subast(::std::move(subast_)) {
 }
 
@@ -125,13 +123,11 @@ constexpr ::pltxt2htm::MdCodeSpan1Backtick<ndebug>::MdCodeSpan1Backtick(
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdCodeSpan1Backtick<ndebug>::~MdCodeSpan1Backtick() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::MdCodeSpan1Backtick<ndebug>::operator=(
-    ::pltxt2htm::MdCodeSpan1Backtick<ndebug>&&) noexcept
+constexpr auto ::pltxt2htm::MdCodeSpan1Backtick<ndebug>::operator=(::pltxt2htm::MdCodeSpan1Backtick<ndebug>&&) noexcept
     -> ::pltxt2htm::MdCodeSpan1Backtick<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdCodeSpan2Backtick<ndebug>::MdCodeSpan2Backtick(
-    ::pltxt2htm::Ast<ndebug>&& subast_) noexcept
+constexpr ::pltxt2htm::MdCodeSpan2Backtick<ndebug>::MdCodeSpan2Backtick(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
     : subast(::std::move(subast_)) {
 }
 
@@ -141,13 +137,11 @@ constexpr ::pltxt2htm::MdCodeSpan2Backtick<ndebug>::MdCodeSpan2Backtick(
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdCodeSpan2Backtick<ndebug>::~MdCodeSpan2Backtick() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::MdCodeSpan2Backtick<ndebug>::operator=(
-    ::pltxt2htm::MdCodeSpan2Backtick<ndebug>&&) noexcept
+constexpr auto ::pltxt2htm::MdCodeSpan2Backtick<ndebug>::operator=(::pltxt2htm::MdCodeSpan2Backtick<ndebug>&&) noexcept
     -> ::pltxt2htm::MdCodeSpan2Backtick<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdCodeSpan3Backtick<ndebug>::MdCodeSpan3Backtick(
-    ::pltxt2htm::Ast<ndebug>&& subast_) noexcept
+constexpr ::pltxt2htm::MdCodeSpan3Backtick<ndebug>::MdCodeSpan3Backtick(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
     : subast(::std::move(subast_)) {
 }
 
@@ -157,8 +151,7 @@ constexpr ::pltxt2htm::MdCodeSpan3Backtick<ndebug>::MdCodeSpan3Backtick(
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdCodeSpan3Backtick<ndebug>::~MdCodeSpan3Backtick() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::MdCodeSpan3Backtick<ndebug>::operator=(
-    ::pltxt2htm::MdCodeSpan3Backtick<ndebug>&&) noexcept
+constexpr auto ::pltxt2htm::MdCodeSpan3Backtick<ndebug>::operator=(::pltxt2htm::MdCodeSpan3Backtick<ndebug>&&) noexcept
     -> ::pltxt2htm::MdCodeSpan3Backtick<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
@@ -272,7 +265,7 @@ constexpr auto ::pltxt2htm::MdDel<ndebug>::operator=(::pltxt2htm::MdDel<ndebug>&
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdLink<ndebug>::MdLink(::pltxt2htm::Ast<ndebug>&& subast_,
-                                                    ::pltxt2htm::Url<ndebug>&& url_) noexcept
+                                              ::pltxt2htm::Url<ndebug>&& url_) noexcept
     : subast(::std::move(subast_)),
       url(::std::move(url_)) {
 }
@@ -287,7 +280,7 @@ constexpr auto ::pltxt2htm::MdLink<ndebug>::operator=(::pltxt2htm::MdLink<ndebug
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdImage<ndebug>::MdImage(::pltxt2htm::Ast<ndebug>&& subast_,
-                                                      ::pltxt2htm::Url<ndebug>&& url_) noexcept
+                                                ::pltxt2htm::Url<ndebug>&& url_) noexcept
     : subast(::std::move(subast_)),
       url(::std::move(url_)) {
 }
@@ -306,8 +299,7 @@ constexpr ::pltxt2htm::MdBlockQuotes<ndebug>::MdBlockQuotes(::pltxt2htm::Ast<nde
 }
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdBlockQuotes<ndebug>::MdBlockQuotes(::pltxt2htm::MdBlockQuotes<ndebug>&&) noexcept =
-    default;
+constexpr ::pltxt2htm::MdBlockQuotes<ndebug>::MdBlockQuotes(::pltxt2htm::MdBlockQuotes<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdBlockQuotes<ndebug>::~MdBlockQuotes() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
@@ -359,8 +351,7 @@ constexpr ::pltxt2htm::MdLatexInline<ndebug>::MdLatexInline(::pltxt2htm::Ast<nde
 }
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdLatexInline<ndebug>::MdLatexInline(::pltxt2htm::MdLatexInline<ndebug>&&) noexcept =
-    default;
+constexpr ::pltxt2htm::MdLatexInline<ndebug>::MdLatexInline(::pltxt2htm::MdLatexInline<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdLatexInline<ndebug>::~MdLatexInline() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
@@ -373,8 +364,7 @@ constexpr ::pltxt2htm::MdLatexBlock<ndebug>::MdLatexBlock(::pltxt2htm::Ast<ndebu
 }
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdLatexBlock<ndebug>::MdLatexBlock(::pltxt2htm::MdLatexBlock<ndebug>&&) noexcept =
-    default;
+constexpr ::pltxt2htm::MdLatexBlock<ndebug>::MdLatexBlock(::pltxt2htm::MdLatexBlock<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdLatexBlock<ndebug>::~MdLatexBlock() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>

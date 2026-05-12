@@ -4,7 +4,7 @@ namespace pltxt2htm {
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::PlColor<ndebug>::PlColor(::pltxt2htm::Ast<ndebug>&& subast_,
-                                                      ::fast_io::u8string&& color_) noexcept
+                                                ::fast_io::u8string&& color_) noexcept
     : subast(::std::move(subast_)),
       color(::std::move(color_)) {
 }
@@ -32,14 +32,13 @@ constexpr auto ::pltxt2htm::PlA<ndebug>::operator=(::pltxt2htm::PlA<ndebug>&&) n
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::PlExperiment<ndebug>::PlExperiment(::pltxt2htm::Ast<ndebug>&& subast_,
-                                                                ::fast_io::u8string&& id_) noexcept
+                                                          ::fast_io::u8string&& id_) noexcept
     : subast(::std::move(subast_)),
       id(::std::move(id_)) {
 }
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::PlExperiment<ndebug>::PlExperiment(::pltxt2htm::PlExperiment<ndebug>&&) noexcept =
-    default;
+constexpr ::pltxt2htm::PlExperiment<ndebug>::PlExperiment(::pltxt2htm::PlExperiment<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::PlExperiment<ndebug>::~PlExperiment() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
@@ -48,14 +47,13 @@ constexpr auto ::pltxt2htm::PlExperiment<ndebug>::operator=(::pltxt2htm::PlExper
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::PlDiscussion<ndebug>::PlDiscussion(::pltxt2htm::Ast<ndebug>&& subast_,
-                                                                ::fast_io::u8string&& id_) noexcept
+                                                          ::fast_io::u8string&& id_) noexcept
     : subast(::std::move(subast_)),
       id(::std::move(id_)) {
 }
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::PlDiscussion<ndebug>::PlDiscussion(::pltxt2htm::PlDiscussion<ndebug>&&) noexcept =
-    default;
+constexpr ::pltxt2htm::PlDiscussion<ndebug>::PlDiscussion(::pltxt2htm::PlDiscussion<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::PlDiscussion<ndebug>::~PlDiscussion() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
@@ -63,8 +61,7 @@ constexpr auto ::pltxt2htm::PlDiscussion<ndebug>::operator=(::pltxt2htm::PlDiscu
     -> ::pltxt2htm::PlDiscussion<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::PlUser<ndebug>::PlUser(::pltxt2htm::Ast<ndebug>&& subast_,
-                                                    ::fast_io::u8string&& id_) noexcept
+constexpr ::pltxt2htm::PlUser<ndebug>::PlUser(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& id_) noexcept
     : subast(::std::move(subast_)),
       id(::std::move(id_)) {
 }
@@ -79,7 +76,7 @@ constexpr auto ::pltxt2htm::PlUser<ndebug>::operator=(::pltxt2htm::PlUser<ndebug
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::PlExternal<ndebug>::PlExternal(::pltxt2htm::Ast<ndebug>&& subast_,
-                                                            ::pltxt2htm::Url<ndebug>&& url_) noexcept
+                                                      ::pltxt2htm::Url<ndebug>&& url_) noexcept
     : subast(::std::move(subast_)),
       url(::std::move(url_)) {
 }
@@ -93,8 +90,7 @@ constexpr auto ::pltxt2htm::PlExternal<ndebug>::operator=(::pltxt2htm::PlExterna
     -> ::pltxt2htm::PlExternal<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::PlSize<ndebug>::PlSize(::pltxt2htm::Ast<ndebug>&& subast_,
-                                                    ::std::size_t size_) noexcept
+constexpr ::pltxt2htm::PlSize<ndebug>::PlSize(::pltxt2htm::Ast<ndebug>&& subast_, ::std::size_t size_) noexcept
     : subast(::std::move(subast_)),
       size(size_) {
 }

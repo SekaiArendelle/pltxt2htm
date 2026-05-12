@@ -229,8 +229,7 @@ constexpr void append_html_attr_escaped(::fast_io::u8string& result, ::fast_io::
 }
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr void append_url_attr_from_ast(::fast_io::u8string& result,
-                                        ::pltxt2htm::Url<ndebug> const& url_ast) noexcept {
+constexpr void append_url_attr_from_ast(::fast_io::u8string& result, ::pltxt2htm::Url<ndebug> const& url_ast) noexcept {
     auto const url_str = ::pltxt2htm::details::convert_simple_pltxt_ast_to_plweb_text<ndebug>(url_ast.get_url_ast());
     // Under normal circumstances, `url_str` should never contain characters that could enable XSS in HTML attributes.
     // To avoid masking upstream bugs (and to keep release-path performance), we only assert this in debug mode.

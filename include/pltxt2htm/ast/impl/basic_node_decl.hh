@@ -43,8 +43,7 @@ public:
     constexpr Text(::pltxt2htm::Text<ndebug> const&) noexcept = delete;
     constexpr Text(::pltxt2htm::Text<ndebug>&&) noexcept;
     constexpr ~Text() noexcept;
-    constexpr auto operator=(::pltxt2htm::Text<ndebug> const&) noexcept
-        -> ::pltxt2htm::Text<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::Text<ndebug> const&) noexcept -> ::pltxt2htm::Text<ndebug>& = delete;
     constexpr auto operator=(::pltxt2htm::Text<ndebug>&&) noexcept -> ::pltxt2htm::Text<ndebug>&;
 
     [[nodiscard]]
@@ -70,8 +69,7 @@ public:
     constexpr Url(::pltxt2htm::Url<ndebug> const&) noexcept = delete;
     constexpr Url(::pltxt2htm::Url<ndebug>&&) noexcept;
     constexpr ~Url() noexcept;
-    constexpr auto operator=(::pltxt2htm::Url<ndebug> const&) noexcept
-        -> ::pltxt2htm::Url<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::Url<ndebug> const&) noexcept -> ::pltxt2htm::Url<ndebug>& = delete;
     constexpr auto operator=(::pltxt2htm::Url<ndebug>&&) noexcept -> ::pltxt2htm::Url<ndebug>&;
 
     /**

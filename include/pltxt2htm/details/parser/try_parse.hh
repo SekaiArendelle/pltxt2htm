@@ -155,8 +155,8 @@ constexpr ::exception::optional<::pltxt2htm::PlTxtNode<ndebug>> switch_escape_ch
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext,
-                                     ::pltxt2htm::Ast<ndebug>& result) noexcept -> ::std::size_t {
+constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::pltxt2htm::Ast<ndebug>& result) noexcept
+    -> ::std::size_t {
     ::std::size_t const pltext_size{pltext.size()};
     char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 0)};
 
@@ -975,15 +975,15 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
                 }
                 if constexpr (is_backtick) {
                     return ::pltxt2htm::details::TryParseMdCodeFenceResult<ndebug>{
-                        .node = ::pltxt2htm::MdCodeFenceBacktick<ndebug>{::pltxt2htm::Ast<ndebug>{},
-                                                                               ::std::move(opt_lang)},
+                        .node =
+                            ::pltxt2htm::MdCodeFenceBacktick<ndebug>{::pltxt2htm::Ast<ndebug>{}, ::std::move(opt_lang)},
                         .forward_index = current_index + 3,
                     };
                 }
                 else {
                     return ::pltxt2htm::details::TryParseMdCodeFenceResult<ndebug>{
-                        .node = ::pltxt2htm::MdCodeFenceTilde<ndebug>{::pltxt2htm::Ast<ndebug>{},
-                                                                            ::std::move(opt_lang)},
+                        .node =
+                            ::pltxt2htm::MdCodeFenceTilde<ndebug>{::pltxt2htm::Ast<ndebug>{}, ::std::move(opt_lang)},
                         .forward_index = current_index + 3,
                     };
                 }

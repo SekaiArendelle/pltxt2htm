@@ -649,8 +649,7 @@ public:
               ::pltxt2htm::NodeType::md_block_quotes}} {
     }
 
-    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_,
-                                          ::pltxt2htm::Url<ndebug>&& link_) noexcept
+    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::Url<ndebug>&& link_) noexcept
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
               ::pltxt2htm::details::ParserFrameContextWithMdLinkInfo{.pltext = pltext_, .link = ::std::move(link_)},
               ::pltxt2htm::NodeType::md_link}} {

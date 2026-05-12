@@ -677,13 +677,11 @@ public:
             break;
         }
         case ::pltxt2htm::NodeType::pl_experiment: {
-            new (::std::addressof(pl_experiment_node))::pltxt2htm::PlExperiment(
-                ::std::move(other.pl_experiment_node));
+            new (::std::addressof(pl_experiment_node))::pltxt2htm::PlExperiment(::std::move(other.pl_experiment_node));
             break;
         }
         case ::pltxt2htm::NodeType::pl_discussion: {
-            new (::std::addressof(pl_discussion_node))::pltxt2htm::PlDiscussion(
-                ::std::move(other.pl_discussion_node));
+            new (::std::addressof(pl_discussion_node))::pltxt2htm::PlDiscussion(::std::move(other.pl_discussion_node));
             break;
         }
         case ::pltxt2htm::NodeType::pl_user: {
@@ -958,8 +956,7 @@ public:
             break;
         }
         case ::pltxt2htm::NodeType::md_escape_dot: {
-            new (::std::addressof(md_escape_dot_node))::pltxt2htm::MdEscapeDot(
-                ::std::move(other.md_escape_dot_node));
+            new (::std::addressof(md_escape_dot_node))::pltxt2htm::MdEscapeDot(::std::move(other.md_escape_dot_node));
             break;
         }
         case ::pltxt2htm::NodeType::md_escape_slash: {
@@ -998,8 +995,7 @@ public:
             break;
         }
         case ::pltxt2htm::NodeType::md_escape_at: {
-            new (::std::addressof(md_escape_at_node))::pltxt2htm::MdEscapeAt(
-                ::std::move(other.md_escape_at_node));
+            new (::std::addressof(md_escape_at_node))::pltxt2htm::MdEscapeAt(::std::move(other.md_escape_at_node));
             break;
         }
         case ::pltxt2htm::NodeType::md_escape_left_bracket: {

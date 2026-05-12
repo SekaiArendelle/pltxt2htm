@@ -30,8 +30,7 @@ public:
     constexpr MdAtxH1(::pltxt2htm::MdAtxH1<ndebug> const&) noexcept = delete;
     constexpr MdAtxH1(::pltxt2htm::MdAtxH1<ndebug>&&) noexcept;
     constexpr ~MdAtxH1() noexcept;
-    constexpr auto operator=(::pltxt2htm::MdAtxH1<ndebug> const&) noexcept
-        -> ::pltxt2htm::MdAtxH1<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::MdAtxH1<ndebug> const&) noexcept -> ::pltxt2htm::MdAtxH1<ndebug>& = delete;
     constexpr auto operator=(::pltxt2htm::MdAtxH1<ndebug>&&) noexcept -> ::pltxt2htm::MdAtxH1<ndebug>&;
 
     [[nodiscard]]
@@ -53,8 +52,7 @@ public:
     constexpr MdAtxH2(::pltxt2htm::MdAtxH2<ndebug> const&) noexcept = delete;
     constexpr MdAtxH2(::pltxt2htm::MdAtxH2<ndebug>&&) noexcept;
     constexpr ~MdAtxH2() noexcept;
-    constexpr auto operator=(::pltxt2htm::MdAtxH2<ndebug> const&) noexcept
-        -> ::pltxt2htm::MdAtxH2<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::MdAtxH2<ndebug> const&) noexcept -> ::pltxt2htm::MdAtxH2<ndebug>& = delete;
     constexpr auto operator=(::pltxt2htm::MdAtxH2<ndebug>&&) noexcept -> ::pltxt2htm::MdAtxH2<ndebug>&;
 
     [[nodiscard]]
@@ -76,8 +74,7 @@ public:
     constexpr MdAtxH3(::pltxt2htm::MdAtxH3<ndebug> const&) noexcept = delete;
     constexpr MdAtxH3(::pltxt2htm::MdAtxH3<ndebug>&&) noexcept;
     constexpr ~MdAtxH3() noexcept;
-    constexpr auto operator=(::pltxt2htm::MdAtxH3<ndebug> const&) noexcept
-        -> ::pltxt2htm::MdAtxH3<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::MdAtxH3<ndebug> const&) noexcept -> ::pltxt2htm::MdAtxH3<ndebug>& = delete;
     constexpr auto operator=(::pltxt2htm::MdAtxH3<ndebug>&&) noexcept -> ::pltxt2htm::MdAtxH3<ndebug>&;
 
     [[nodiscard]]
@@ -99,8 +96,7 @@ public:
     constexpr MdAtxH4(::pltxt2htm::MdAtxH4<ndebug> const&) noexcept = delete;
     constexpr MdAtxH4(::pltxt2htm::MdAtxH4<ndebug>&&) noexcept;
     constexpr ~MdAtxH4() noexcept;
-    constexpr auto operator=(::pltxt2htm::MdAtxH4<ndebug> const&) noexcept
-        -> ::pltxt2htm::MdAtxH4<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::MdAtxH4<ndebug> const&) noexcept -> ::pltxt2htm::MdAtxH4<ndebug>& = delete;
     constexpr auto operator=(::pltxt2htm::MdAtxH4<ndebug>&&) noexcept -> ::pltxt2htm::MdAtxH4<ndebug>&;
 
     [[nodiscard]]
@@ -122,8 +118,7 @@ public:
     constexpr MdAtxH5(::pltxt2htm::MdAtxH5<ndebug> const&) noexcept = delete;
     constexpr MdAtxH5(::pltxt2htm::MdAtxH5<ndebug>&&) noexcept;
     constexpr ~MdAtxH5() noexcept;
-    constexpr auto operator=(::pltxt2htm::MdAtxH5<ndebug> const&) noexcept
-        -> ::pltxt2htm::MdAtxH5<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::MdAtxH5<ndebug> const&) noexcept -> ::pltxt2htm::MdAtxH5<ndebug>& = delete;
     constexpr auto operator=(::pltxt2htm::MdAtxH5<ndebug>&&) noexcept -> ::pltxt2htm::MdAtxH5<ndebug>&;
 
     [[nodiscard]]
@@ -145,8 +140,7 @@ public:
     constexpr MdAtxH6(::pltxt2htm::MdAtxH6<ndebug> const&) noexcept = delete;
     constexpr MdAtxH6(::pltxt2htm::MdAtxH6<ndebug>&&) noexcept;
     constexpr ~MdAtxH6() noexcept;
-    constexpr auto operator=(::pltxt2htm::MdAtxH6<ndebug> const&) noexcept
-        -> ::pltxt2htm::MdAtxH6<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::MdAtxH6<ndebug> const&) noexcept -> ::pltxt2htm::MdAtxH6<ndebug>& = delete;
     constexpr auto operator=(::pltxt2htm::MdAtxH6<ndebug>&&) noexcept -> ::pltxt2htm::MdAtxH6<ndebug>&;
 
     [[nodiscard]]
@@ -454,8 +448,7 @@ class MdSingleEmphasisUnderscore {
 public:
     constexpr MdSingleEmphasisUnderscore() noexcept = delete;
     constexpr explicit MdSingleEmphasisUnderscore(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr MdSingleEmphasisUnderscore(::pltxt2htm::MdSingleEmphasisUnderscore<ndebug> const&) noexcept =
-        delete;
+    constexpr MdSingleEmphasisUnderscore(::pltxt2htm::MdSingleEmphasisUnderscore<ndebug> const&) noexcept = delete;
     constexpr MdSingleEmphasisUnderscore(::pltxt2htm::MdSingleEmphasisUnderscore<ndebug>&&) noexcept;
     constexpr ~MdSingleEmphasisUnderscore() noexcept;
     constexpr auto operator=(::pltxt2htm::MdSingleEmphasisUnderscore<ndebug> const&) noexcept
@@ -479,8 +472,7 @@ class MdDoubleEmphasisUnderscore {
 public:
     constexpr MdDoubleEmphasisUnderscore() noexcept = delete;
     constexpr explicit MdDoubleEmphasisUnderscore(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr MdDoubleEmphasisUnderscore(::pltxt2htm::MdDoubleEmphasisUnderscore<ndebug> const&) noexcept =
-        delete;
+    constexpr MdDoubleEmphasisUnderscore(::pltxt2htm::MdDoubleEmphasisUnderscore<ndebug> const&) noexcept = delete;
     constexpr MdDoubleEmphasisUnderscore(::pltxt2htm::MdDoubleEmphasisUnderscore<ndebug>&&) noexcept;
     constexpr ~MdDoubleEmphasisUnderscore() noexcept;
     constexpr auto operator=(::pltxt2htm::MdDoubleEmphasisUnderscore<ndebug> const&) noexcept
@@ -504,8 +496,7 @@ class MdTripleEmphasisUnderscore {
 public:
     constexpr MdTripleEmphasisUnderscore() noexcept = delete;
     constexpr explicit MdTripleEmphasisUnderscore(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr MdTripleEmphasisUnderscore(::pltxt2htm::MdTripleEmphasisUnderscore<ndebug> const&) noexcept =
-        delete;
+    constexpr MdTripleEmphasisUnderscore(::pltxt2htm::MdTripleEmphasisUnderscore<ndebug> const&) noexcept = delete;
     constexpr MdTripleEmphasisUnderscore(::pltxt2htm::MdTripleEmphasisUnderscore<ndebug>&&) noexcept;
     constexpr ~MdTripleEmphasisUnderscore() noexcept;
     constexpr auto operator=(::pltxt2htm::MdTripleEmphasisUnderscore<ndebug> const&) noexcept
@@ -532,8 +523,7 @@ public:
     constexpr MdDel(::pltxt2htm::MdDel<ndebug> const&) noexcept = delete;
     constexpr MdDel(::pltxt2htm::MdDel<ndebug>&&) noexcept;
     constexpr ~MdDel() noexcept;
-    constexpr auto operator=(::pltxt2htm::MdDel<ndebug> const&) noexcept
-        -> ::pltxt2htm::MdDel<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::MdDel<ndebug> const&) noexcept -> ::pltxt2htm::MdDel<ndebug>& = delete;
     constexpr auto operator=(::pltxt2htm::MdDel<ndebug>&&) noexcept -> ::pltxt2htm::MdDel<ndebug>&;
 
     [[nodiscard]]
@@ -561,8 +551,7 @@ public:
     constexpr MdLink(::pltxt2htm::MdLink<ndebug> const&) noexcept = delete;
     constexpr MdLink(::pltxt2htm::MdLink<ndebug>&&) noexcept;
     constexpr ~MdLink() noexcept;
-    constexpr auto operator=(::pltxt2htm::MdLink<ndebug> const&) noexcept
-        -> ::pltxt2htm::MdLink<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::MdLink<ndebug> const&) noexcept -> ::pltxt2htm::MdLink<ndebug>& = delete;
     constexpr auto operator=(::pltxt2htm::MdLink<ndebug>&&) noexcept -> ::pltxt2htm::MdLink<ndebug>&;
 
     [[nodiscard]]
@@ -591,13 +580,11 @@ public:
      * @param subast The alt text/content AST.
      * @param url The image source URL.
      */
-    constexpr explicit MdImage(::pltxt2htm::Ast<ndebug>&& subast_,
-                               ::pltxt2htm::Url<ndebug>&& url_) noexcept;
+    constexpr explicit MdImage(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::Url<ndebug>&& url_) noexcept;
     constexpr MdImage(::pltxt2htm::MdImage<ndebug> const&) noexcept = delete;
     constexpr MdImage(::pltxt2htm::MdImage<ndebug>&&) noexcept;
     constexpr ~MdImage() noexcept;
-    constexpr auto operator=(::pltxt2htm::MdImage<ndebug> const&) noexcept
-        -> ::pltxt2htm::MdImage<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::MdImage<ndebug> const&) noexcept -> ::pltxt2htm::MdImage<ndebug>& = delete;
     constexpr auto operator=(::pltxt2htm::MdImage<ndebug>&&) noexcept -> ::pltxt2htm::MdImage<ndebug>&;
 
     [[nodiscard]]
@@ -626,8 +613,7 @@ public:
     constexpr ~MdBlockQuotes() noexcept;
     constexpr auto operator=(::pltxt2htm::MdBlockQuotes<ndebug> const&) noexcept
         -> ::pltxt2htm::MdBlockQuotes<ndebug>& = delete;
-    constexpr auto operator=(::pltxt2htm::MdBlockQuotes<ndebug>&&) noexcept
-        -> ::pltxt2htm::MdBlockQuotes<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::MdBlockQuotes<ndebug>&&) noexcept -> ::pltxt2htm::MdBlockQuotes<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -648,8 +634,7 @@ public:
     constexpr MdUl(::pltxt2htm::MdUl<ndebug> const&) noexcept = delete;
     constexpr MdUl(::pltxt2htm::MdUl<ndebug>&&) noexcept;
     constexpr ~MdUl() noexcept;
-    constexpr auto operator=(::pltxt2htm::MdUl<ndebug> const&) noexcept
-        -> ::pltxt2htm::MdUl<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::MdUl<ndebug> const&) noexcept -> ::pltxt2htm::MdUl<ndebug>& = delete;
     constexpr auto operator=(::pltxt2htm::MdUl<ndebug>&&) noexcept -> ::pltxt2htm::MdUl<ndebug>&;
 
     [[nodiscard]]
@@ -671,8 +656,7 @@ public:
     constexpr MdOl(::pltxt2htm::MdOl<ndebug> const&) noexcept = delete;
     constexpr MdOl(::pltxt2htm::MdOl<ndebug>&&) noexcept;
     constexpr ~MdOl() noexcept;
-    constexpr auto operator=(::pltxt2htm::MdOl<ndebug> const&) noexcept
-        -> ::pltxt2htm::MdOl<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::MdOl<ndebug> const&) noexcept -> ::pltxt2htm::MdOl<ndebug>& = delete;
     constexpr auto operator=(::pltxt2htm::MdOl<ndebug>&&) noexcept -> ::pltxt2htm::MdOl<ndebug>&;
 
     [[nodiscard]]
@@ -694,8 +678,7 @@ public:
     constexpr MdLi(::pltxt2htm::MdLi<ndebug> const&) noexcept = delete;
     constexpr MdLi(::pltxt2htm::MdLi<ndebug>&&) noexcept;
     constexpr ~MdLi() noexcept;
-    constexpr auto operator=(::pltxt2htm::MdLi<ndebug> const&) noexcept
-        -> ::pltxt2htm::MdLi<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::MdLi<ndebug> const&) noexcept -> ::pltxt2htm::MdLi<ndebug>& = delete;
     constexpr auto operator=(::pltxt2htm::MdLi<ndebug>&&) noexcept -> ::pltxt2htm::MdLi<ndebug>&;
 
     [[nodiscard]]
@@ -719,8 +702,7 @@ public:
     constexpr ~MdLatexInline() noexcept;
     constexpr auto operator=(::pltxt2htm::MdLatexInline<ndebug> const&) noexcept
         -> ::pltxt2htm::MdLatexInline<ndebug>& = delete;
-    constexpr auto operator=(::pltxt2htm::MdLatexInline<ndebug>&&) noexcept
-        -> ::pltxt2htm::MdLatexInline<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::MdLatexInline<ndebug>&&) noexcept -> ::pltxt2htm::MdLatexInline<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -743,8 +725,7 @@ public:
     constexpr ~MdLatexBlock() noexcept;
     constexpr auto operator=(::pltxt2htm::MdLatexBlock<ndebug> const&) noexcept
         -> ::pltxt2htm::MdLatexBlock<ndebug>& = delete;
-    constexpr auto operator=(::pltxt2htm::MdLatexBlock<ndebug>&&) noexcept
-        -> ::pltxt2htm::MdLatexBlock<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::MdLatexBlock<ndebug>&&) noexcept -> ::pltxt2htm::MdLatexBlock<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
