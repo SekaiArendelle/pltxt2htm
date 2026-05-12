@@ -3,8 +3,8 @@
 namespace pltxt2htm {
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::Text<ndebug>::Text(::pltxt2htm::Ast<ndebug>&& subast) noexcept
-    : subast(::std::move(subast)) {
+constexpr ::pltxt2htm::Text<ndebug>::Text(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
+    : subast(::std::move(subast_)) {
 }
 
 template<::pltxt2htm::Contracts ndebug>
