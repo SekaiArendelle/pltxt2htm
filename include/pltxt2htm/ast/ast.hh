@@ -1516,7 +1516,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto&& get_equal_sign_tag_id(this auto&& self) noexcept {
+    constexpr auto get_equal_sign_tag_id(this auto&& self) noexcept -> decltype(auto) {
         bool const is_equal_sign_tag_type{::pltxt2htm::details::is_equal_sign_tag_type(self.node_kind)};
         pltxt2htm_assert(is_equal_sign_tag_type, u8"node kind mismatch");
         switch (self.node_kind) {
@@ -1536,14 +1536,14 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto&& get_external_tag_url(this auto&& self) noexcept {
+    constexpr auto get_external_tag_url(this auto&& self) noexcept -> decltype(auto) {
         bool const is_external_tag_type{::pltxt2htm::details::is_external_tag_type(self.node_kind)};
         pltxt2htm_assert(is_external_tag_type, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_external_node).get_url();
     }
 
     [[nodiscard]]
-    constexpr auto&& get_md_image_url(this auto&& self) noexcept {
+    constexpr auto get_md_image_url(this auto&& self) noexcept -> decltype(auto) {
         bool const is_md_image_type{self.node_kind == ::pltxt2htm::NodeType::md_image};
         pltxt2htm_assert(is_md_image_type, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_image_node).get_url();
@@ -1556,14 +1556,14 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto&& get_md_link_url(this auto&& self) noexcept {
+    constexpr auto get_md_link_url(this auto&& self) noexcept -> decltype(auto) {
         bool const is_md_link_type{::pltxt2htm::details::is_md_link_type(self.node_kind)};
         pltxt2htm_assert(is_md_link_type, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_link_node).get_url();
     }
 
     [[nodiscard]]
-    constexpr auto&& get_md_code_fence_language(this auto&& self) noexcept {
+    constexpr auto get_md_code_fence_language(this auto&& self) noexcept -> decltype(auto) {
         switch (self.node_kind) {
         case ::pltxt2htm::NodeType::md_code_fence_backtick:
             return ::std::forward_like<decltype(self)>(self.md_code_fence_backtick_node).get_language();
@@ -1577,7 +1577,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto&& get_subast(this auto&& self) noexcept {
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         switch (self.node_kind) {
         case ::pltxt2htm::NodeType::text:
             return ::std::forward_like<decltype(self)>(self.text_node).get_subast();

@@ -169,7 +169,7 @@ public:
         return self.context_data.kind;
     }
 
-    constexpr auto&& get_equal_sign_tag_id(this auto&& self) noexcept {
+    constexpr auto get_equal_sign_tag_id(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
         bool const is_equal_sign_tag_type{::pltxt2htm::details::is_equal_sign_tag_type(context_data_ref.kind)};
         pltxt2htm_assert(is_equal_sign_tag_type, u8"context kind mismatch");

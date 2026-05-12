@@ -38,12 +38,12 @@ public:
     constexpr auto operator=(::pltxt2htm::ast2::PlColor<ndebug>&&) noexcept -> ::pltxt2htm::ast2::PlColor<ndebug>&;
 
     [[nodiscard]]
-    constexpr auto&& get_subast(this auto&& self) noexcept {
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
 
     [[nodiscard]]
-    constexpr auto&& get_color(this auto&& self) noexcept {
+    constexpr auto get_color(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.color);
     }
 };
@@ -67,7 +67,7 @@ public:
     constexpr auto operator=(::pltxt2htm::ast2::PlA<ndebug>&&) noexcept -> ::pltxt2htm::ast2::PlA<ndebug>&;
 
     [[nodiscard]]
-    constexpr auto&& get_subast(this auto&& self) noexcept {
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
 
@@ -97,12 +97,12 @@ public:
         -> ::pltxt2htm::ast2::PlExperiment<ndebug>&;
 
     [[nodiscard]]
-    constexpr auto&& get_subast(this auto&& self) noexcept {
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
 
     [[nodiscard]]
-    constexpr auto&& get_id(this auto&& self) noexcept {
+    constexpr auto get_id(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.id);
     }
 };
@@ -127,12 +127,12 @@ public:
         -> ::pltxt2htm::ast2::PlDiscussion<ndebug>&;
 
     [[nodiscard]]
-    constexpr auto&& get_subast(this auto&& self) noexcept {
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
 
     [[nodiscard]]
-    constexpr auto&& get_id(this auto&& self) noexcept {
+    constexpr auto get_id(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.id);
     }
 };
@@ -156,12 +156,12 @@ public:
     constexpr auto operator=(::pltxt2htm::ast2::PlUser<ndebug>&&) noexcept -> ::pltxt2htm::ast2::PlUser<ndebug>&;
 
     [[nodiscard]]
-    constexpr auto&& get_subast(this auto&& self) noexcept {
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
 
     [[nodiscard]]
-    constexpr auto&& get_id(this auto&& self) noexcept {
+    constexpr auto get_id(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.id);
     }
 };
@@ -186,12 +186,12 @@ public:
         -> ::pltxt2htm::ast2::PlExternal<ndebug>&;
 
     [[nodiscard]]
-    constexpr auto&& get_subast(this auto&& self) noexcept {
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
 
     [[nodiscard]]
-    constexpr auto&& get_url(this auto&& self) noexcept {
+    constexpr auto get_url(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.url);
     }
 };
@@ -215,12 +215,12 @@ public:
     constexpr auto operator=(::pltxt2htm::ast2::PlSize<ndebug>&&) noexcept -> ::pltxt2htm::ast2::PlSize<ndebug>&;
 
     [[nodiscard]]
-    constexpr auto&& get_subast(this auto&& self) noexcept {
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
 
     [[nodiscard]]
-    constexpr auto&& get_size(this auto&& self) noexcept {
+    constexpr auto get_size(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.size);
     }
 };
@@ -243,7 +243,7 @@ public:
     constexpr auto operator=(::pltxt2htm::ast2::PlI<ndebug>&&) noexcept -> ::pltxt2htm::ast2::PlI<ndebug>&;
 
     [[nodiscard]]
-    constexpr auto&& get_subast(this auto&& self) noexcept {
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
 };
@@ -266,7 +266,7 @@ public:
     constexpr auto operator=(::pltxt2htm::ast2::PlB<ndebug>&&) noexcept -> ::pltxt2htm::ast2::PlB<ndebug>&;
 
     [[nodiscard]]
-    constexpr auto&& get_subast(this auto&& self) noexcept {
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
 };

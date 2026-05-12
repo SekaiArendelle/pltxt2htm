@@ -69,7 +69,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto&& get_text(this auto&& self) noexcept {
+    constexpr auto get_text(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.text);
     }
 
@@ -105,7 +105,7 @@ public:
     constexpr auto operator==(::pltxt2htm::details::MdListUlNode const& other) const noexcept -> bool;
 
     [[nodiscard]]
-    constexpr auto&& get_sublist(this auto&& self) noexcept {
+    constexpr auto get_sublist(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.sublist);
     }
 };
@@ -136,7 +136,7 @@ public:
     constexpr auto operator==(::pltxt2htm::details::MdListOlNode const& other) const noexcept -> bool;
 
     [[nodiscard]]
-    constexpr auto&& get_sublist(this auto&& self) noexcept {
+    constexpr auto get_sublist(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.sublist);
     }
 };
@@ -246,7 +246,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__pure__)
     [[__gnu__::__pure__]]
 #endif
-    constexpr auto&& get_text(this auto&& self) noexcept {
+    constexpr auto get_text(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.text_node).get_text();
     }
 

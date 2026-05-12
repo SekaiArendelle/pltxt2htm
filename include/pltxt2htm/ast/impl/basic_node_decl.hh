@@ -48,7 +48,7 @@ public:
     constexpr auto operator=(::pltxt2htm::ast2::Text<ndebug>&&) noexcept -> ::pltxt2htm::ast2::Text<ndebug>&;
 
     [[nodiscard]]
-    constexpr auto&& get_subast(this auto&& self) noexcept {
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
 };
@@ -80,7 +80,7 @@ public:
      * @return Reference to the URL AST (modifiable if this is an lvalue).
      */
     [[nodiscard]]
-    constexpr auto&& get_url_ast(this auto&& self) noexcept {
+    constexpr auto get_url_ast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.url_ast);
     }
 };
