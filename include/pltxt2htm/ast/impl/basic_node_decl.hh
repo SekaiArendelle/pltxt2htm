@@ -62,7 +62,6 @@ class Url {
     ::pltxt2htm::ast2::Ast<ndebug> url_ast{};
 
 public:
-    constexpr Url() noexcept;
     /**
      * @brief Construct a ::pltxt2htm::ast2::Url<ndebug> from an AST.
      * @param attr The AST representing the URL characters.
