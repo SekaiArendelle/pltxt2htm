@@ -57,12 +57,13 @@ public:
     ::pltxt2htm::Url<ndebug> link;
 };
 
+template<::pltxt2htm::Contracts ndebug>
 class ParserFrameContextWithMdListInfo {
 public:
-    ::pltxt2htm::details::MdListAst md_list_ast;
-    ::pltxt2htm::details::MdListAst::iterator iter;
+    ::pltxt2htm::details::MdListAst<ndebug> md_list_ast;
+    typename ::pltxt2htm::details::MdListAst<ndebug>::iterator iter;
 
-    constexpr explicit ParserFrameContextWithMdListInfo(::pltxt2htm::details::MdListAst&& md_list_ast_) noexcept
+    constexpr explicit ParserFrameContextWithMdListInfo(::pltxt2htm::details::MdListAst<ndebug>&& md_list_ast_) noexcept
         : md_list_ast(::std::move(md_list_ast_)),
           iter(md_list_ast.begin()) {
     }
@@ -78,7 +79,7 @@ public:
         ::pltxt2htm::details::ParserFrameContextWithPlSizeTagInfo pl_size_tag;
         ::pltxt2htm::details::ParserFrameContextWithMdBlockQuotesInfo md_block_quotes;
         ::pltxt2htm::details::ParserFrameContextWithMdLinkInfo<ndebug> md_link;
-        ::pltxt2htm::details::ParserFrameContextWithMdListInfo md_list;
+        ::pltxt2htm::details::ParserFrameContextWithMdListInfo<ndebug> md_list;
     };
 
     ::pltxt2htm::NodeType kind;
@@ -119,7 +120,7 @@ public:
           kind{node_type} {
     }
 
-    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithMdListInfo&& md_list_context,
+    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithMdListInfo<ndebug>&& md_list_context,
                              ::pltxt2htm::NodeType node_type) noexcept
         : md_list{::std::move(md_list_context)},
           kind{node_type} {
@@ -652,9 +653,9 @@ public:
     }
 
     constexpr explicit ParserFrameContext(::pltxt2htm::NodeType node_type,
-                                          ::pltxt2htm::details::MdListAst&& md_list_ast_) noexcept
+                                          ::pltxt2htm::details::MdListAst<ndebug>&& md_list_ast_) noexcept
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
-              ::pltxt2htm::details::ParserFrameContextWithMdListInfo{::std::move(md_list_ast_)}, node_type}} {
+              ::pltxt2htm::details::ParserFrameContextWithMdListInfo<ndebug>{::std::move(md_list_ast_)}, node_type}} {
         pltxt2htm_assert(node_type == ::pltxt2htm::NodeType::md_ul || node_type == ::pltxt2htm::NodeType::md_ol,
                          u8"mismatch node type");
     }
