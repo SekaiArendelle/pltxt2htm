@@ -20,13 +20,15 @@ constexpr auto md_list(Nodes&&... nodes) noexcept {
 template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce,
          ::pltxt2htm::details::is_md_list_node_type... Nodes>
 constexpr auto ul_item(Nodes&&... nodes) noexcept {
-    return ::pltxt2htm::details::MdListUlNode<ndebug>(::pltxt2htm_test::md_list<ndebug>(::std::forward<Nodes>(nodes)...));
+    return ::pltxt2htm::details::MdListUlNode<ndebug>(
+        ::pltxt2htm_test::md_list<ndebug>(::std::forward<Nodes>(nodes)...));
 }
 
 template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce,
          ::pltxt2htm::details::is_md_list_node_type... Nodes>
 constexpr auto ol_item(Nodes&&... nodes) noexcept {
-    return ::pltxt2htm::details::MdListOlNode<ndebug>(::pltxt2htm_test::md_list<ndebug>(::std::forward<Nodes>(nodes)...));
+    return ::pltxt2htm::details::MdListOlNode<ndebug>(
+        ::pltxt2htm_test::md_list<ndebug>(::std::forward<Nodes>(nodes)...));
 }
 
 } // namespace pltxt2htm_test

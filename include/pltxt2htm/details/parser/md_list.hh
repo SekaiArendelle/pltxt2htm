@@ -102,7 +102,8 @@ public:
     constexpr auto operator=(::pltxt2htm::details::MdListUlNode<ndebug> const&) & noexcept
         -> ::pltxt2htm::details::MdListUlNode<ndebug>& = delete;
 
-    constexpr auto operator=(::pltxt2htm::details::MdListUlNode<ndebug>&&) & noexcept -> ::pltxt2htm::details::MdListUlNode<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::details::MdListUlNode<ndebug>&&) & noexcept
+        -> ::pltxt2htm::details::MdListUlNode<ndebug>&;
 
     [[nodiscard]]
     constexpr auto operator==(::pltxt2htm::details::MdListUlNode<ndebug> const& other) const noexcept -> bool;
@@ -134,7 +135,8 @@ public:
     constexpr auto operator=(::pltxt2htm::details::MdListOlNode<ndebug> const&) & noexcept
         -> ::pltxt2htm::details::MdListOlNode<ndebug>& = delete;
 
-    constexpr auto operator=(::pltxt2htm::details::MdListOlNode<ndebug>&&) & noexcept -> ::pltxt2htm::details::MdListOlNode<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::details::MdListOlNode<ndebug>&&) & noexcept
+        -> ::pltxt2htm::details::MdListOlNode<ndebug>&;
 
     [[nodiscard]]
     constexpr auto operator==(::pltxt2htm::details::MdListOlNode<ndebug> const& other) const noexcept -> bool;
@@ -318,7 +320,8 @@ constexpr auto MdListUlNode<ndebug>::operator=(::pltxt2htm::details::MdListUlNod
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto MdListUlNode<ndebug>::operator==(::pltxt2htm::details::MdListUlNode<ndebug> const& other) const noexcept -> bool {
+constexpr auto MdListUlNode<ndebug>::operator==(::pltxt2htm::details::MdListUlNode<ndebug> const& other) const noexcept
+    -> bool {
     return sublist == other.sublist;
 }
 
@@ -341,7 +344,8 @@ constexpr auto MdListOlNode<ndebug>::operator=(::pltxt2htm::details::MdListOlNod
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto MdListOlNode<ndebug>::operator==(::pltxt2htm::details::MdListOlNode<ndebug> const& other) const noexcept -> bool {
+constexpr auto MdListOlNode<ndebug>::operator==(::pltxt2htm::details::MdListOlNode<ndebug> const& other) const noexcept
+    -> bool {
     return sublist == other.sublist;
 }
 
@@ -412,7 +416,8 @@ public:
         -> ::pltxt2htm::details::MdListFrameContext<ndebug>& = default;
 
     [[nodiscard]]
-    constexpr auto get_item_kind(this ::pltxt2htm::details::MdListFrameContext<ndebug> const& self) noexcept -> ::pltxt2htm::details::MdUlListItemKind {
+    constexpr auto get_item_kind(this ::pltxt2htm::details::MdListFrameContext<ndebug> const& self) noexcept
+        -> ::pltxt2htm::details::MdUlListItemKind {
         return self.item_kind;
     }
 };
@@ -647,7 +652,8 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
         if (auto opt_item = ::pltxt2htm::details::try_parse_item<ndebug>(pltext); opt_item.has_value()) {
             auto&& [space_hierarchy, forward_index, text, item_kind] =
                 opt_item.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-            ::pltxt2htm::details::MdListFrameContext<ndebug> current_frame{item_kind, space_hierarchy, pltext, forward_index};
+            ::pltxt2htm::details::MdListFrameContext<ndebug> current_frame{item_kind, space_hierarchy, pltext,
+                                                                           forward_index};
             current_frame.md_list_ast.emplace_back(::pltxt2htm::details::MdListTextNode(::std::move(text)));
             if (forward_index >= current_frame.pltext.size()) {
                 return ::pltxt2htm::details::ToMdListAstResult<ndebug>{
