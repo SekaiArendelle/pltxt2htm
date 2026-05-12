@@ -224,7 +224,7 @@ entry:
     while (current_iter != ast.end()) {
         auto&& node = *current_iter;
 
-        switch (node.get_node_kind()) {
+        switch (node.get_node_kind()) /* -Werror=switch */ {
         case ::pltxt2htm::NodeType::u8char:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::invalid_u8char:
@@ -822,14 +822,12 @@ entry:
             ++current_iter;
             continue;
         }
-        case ::pltxt2htm::NodeType::base:
 #if 0
-            [[unlikely]] [[fallthrough]];
         default:
-#endif
             [[unlikely]] {
                 ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
             }
+#endif
         }
     }
 

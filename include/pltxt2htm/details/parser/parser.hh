@@ -1477,8 +1477,6 @@ entry:
                         continue;
                     }
                 }
-                case ::pltxt2htm::NodeType::base:
-                    [[fallthrough]];
                 case ::pltxt2htm::NodeType::md_block_quotes:
                     [[fallthrough]];
                 case ::pltxt2htm::NodeType::md_code_fence_backtick:
@@ -1946,8 +1944,6 @@ entry:
                     ::pltxt2htm::MdLink<ndebug>{::std::move(subast), ::std::move(link_url)}));
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::base:
-                [[fallthrough]];
             case ::pltxt2htm::NodeType::u8char:
                 [[fallthrough]];
             case ::pltxt2htm::NodeType::invalid_u8char:

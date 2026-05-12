@@ -280,7 +280,7 @@ entry:
     for (; current_index < ast.size(); ++current_index) {
         auto&& node = ::pltxt2htm::details::vector_index<ndebug>(ast, current_index);
 
-        switch (node.get_node_kind()) {
+        switch (node.get_node_kind()) /* -Werror=switch */ {
         case ::pltxt2htm::NodeType::u8char: {
             result.push_back(node.get_u8char());
             continue;
@@ -867,9 +867,7 @@ entry:
             ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result, coauthors);
             continue;
         }
-        case ::pltxt2htm::NodeType::base:
 #if 0
-            [[unlikely]] [[fallthrough]];
         default:
 #endif
             [[unlikely]] {
@@ -1051,8 +1049,6 @@ entry:
                 result.append(::fast_io::u8string_view(end_tag.begin(), end_tag.size()));
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::base:
-                [[fallthrough]];
             default:
                 [[unlikely]] {
                     ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();

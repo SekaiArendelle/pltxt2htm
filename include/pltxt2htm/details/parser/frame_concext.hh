@@ -253,8 +253,6 @@ public:
             ::std::construct_at(::std::addressof(this->pltext), ::std::move(other.pltext));
             return;
         }
-        case ::pltxt2htm::NodeType::base:
-            [[fallthrough]];
         case ::pltxt2htm::NodeType::u8char:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::invalid_u8char:
@@ -485,8 +483,6 @@ public:
             ::std::destroy_at(::std::addressof(this->pltext));
             return;
         }
-        case ::pltxt2htm::NodeType::base:
-            [[fallthrough]];
         case ::pltxt2htm::NodeType::u8char:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::invalid_u8char:
@@ -687,8 +683,6 @@ public:
     constexpr auto get_pltext(this auto&& self) noexcept -> ::fast_io::u8string_view {
         auto const& context_data_ref = self.context_data;
         switch (context_data_ref.kind) /* -Werror=switch */ {
-        case ::pltxt2htm::NodeType::base:
-            [[fallthrough]];
         case ::pltxt2htm::NodeType::u8char:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::invalid_u8char:

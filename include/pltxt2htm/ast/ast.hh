@@ -654,7 +654,7 @@ public:
 
     constexpr PlTxtNode(::pltxt2htm::PlTxtNode<ndebug>&& other) noexcept
         : node_kind(other.node_kind) {
-        switch (node_kind) {
+        switch (node_kind) /* -Werror=switch */ {
         case ::pltxt2htm::NodeType::u8char: {
             new (::std::addressof(u8char_node))::pltxt2htm::U8Char(::std::move(other.u8char_node));
             break;
@@ -1141,15 +1141,17 @@ public:
                 ::std::move(other.md_latex_block_node));
             break;
         }
-        case ::pltxt2htm::NodeType::base:
+#if 0
+        default:
             [[unlikely]] {
                 ::exception::unreachable();
             }
+#endif
         }
     }
 
     constexpr ~PlTxtNode() noexcept {
-        switch (node_kind) {
+        switch (node_kind) /* -Werror=switch */ {
         case ::pltxt2htm::NodeType::u8char:
             u8char_node.~U8Char();
             break;
@@ -1483,10 +1485,12 @@ public:
         case ::pltxt2htm::NodeType::md_latex_block:
             md_latex_block_node.~MdLatexBlock();
             break;
-        case ::pltxt2htm::NodeType::base:
+#if 0
+        default:
             [[unlikely]] {
                 ::exception::unreachable();
             }
+#endif
         }
     }
 
