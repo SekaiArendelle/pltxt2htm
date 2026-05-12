@@ -16,9 +16,6 @@ using ::pltxt2htm::optimize_ast;
 // contracts
 using ::pltxt2htm::Contracts;
 
-// heap_guard
-using ::pltxt2htm::HeapGuard;
-
 // exported constant global variables
 namespace version {
 
@@ -31,11 +28,15 @@ using ::pltxt2htm::version::patch;
 // exported nodes
 using ::pltxt2htm::NodeType;
 
-// basic
+// ast2 types
 using ::pltxt2htm::PlTxtNode;
+using ::pltxt2htm::Ast;
+
+// basic
 using ::pltxt2htm::U8Char;
 using ::pltxt2htm::InvalidU8Char;
 using ::pltxt2htm::Text;
+using ::pltxt2htm::Url;
 
 // html_node
 using ::pltxt2htm::LineBreak;

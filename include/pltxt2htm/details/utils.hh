@@ -137,7 +137,7 @@ template<::pltxt2htm::Contracts ndebug, typename T>
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-constexpr auto const& stack_top(::fast_io::containers::stack<T> const& stack) {
+constexpr auto const& stack_top(::fast_io::containers::stack<T> const& stack) noexcept {
     if constexpr (ndebug == ::pltxt2htm::Contracts::ignore) {
         return stack.top_unchecked();
     }

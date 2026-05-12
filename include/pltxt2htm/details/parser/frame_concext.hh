@@ -16,7 +16,7 @@
 #include <fast_io/fast_io_dsal/string_view.h>
 #include "md_list.hh"
 #include "../../contracts.hh"
-#include "../../astnode/basic.hh"
+#include "pltxt2htm/ast/ast.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::details {
@@ -32,10 +32,11 @@ public:
     ::fast_io::u8string id;
 };
 
+template<::pltxt2htm::Contracts ndebug>
 class ParserFrameContextWithExternalTagInfo {
 public:
     ::fast_io::u8string_view pltext;
-    ::pltxt2htm::Url url;
+    ::pltxt2htm::Url<ndebug> url;
 };
 
 class ParserFrameContextWithPlSizeTagInfo {
@@ -49,18 +50,20 @@ public:
     ::fast_io::u8string pltext;
 };
 
+template<::pltxt2htm::Contracts ndebug>
 class ParserFrameContextWithMdLinkInfo {
 public:
     ::fast_io::u8string_view pltext;
-    ::pltxt2htm::Url link;
+    ::pltxt2htm::Url<ndebug> link;
 };
 
+template<::pltxt2htm::Contracts ndebug>
 class ParserFrameContextWithMdListInfo {
 public:
-    ::pltxt2htm::details::MdListAst md_list_ast;
-    ::pltxt2htm::details::MdListAst::iterator iter;
+    ::pltxt2htm::details::MdListAst<ndebug> md_list_ast;
+    typename ::pltxt2htm::details::MdListAst<ndebug>::iterator iter;
 
-    constexpr explicit ParserFrameContextWithMdListInfo(::pltxt2htm::details::MdListAst&& md_list_ast_) noexcept
+    constexpr explicit ParserFrameContextWithMdListInfo(::pltxt2htm::details::MdListAst<ndebug>&& md_list_ast_) noexcept
         : md_list_ast(::std::move(md_list_ast_)),
           iter(md_list_ast.begin()) {
     }
@@ -72,11 +75,11 @@ public:
     union {
         ::pltxt2htm::details::ParserFrameContextWithPltextInfo pltext;
         ::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo equal_sign_tag;
-        ::pltxt2htm::details::ParserFrameContextWithExternalTagInfo external_tag;
+        ::pltxt2htm::details::ParserFrameContextWithExternalTagInfo<ndebug> external_tag;
         ::pltxt2htm::details::ParserFrameContextWithPlSizeTagInfo pl_size_tag;
         ::pltxt2htm::details::ParserFrameContextWithMdBlockQuotesInfo md_block_quotes;
-        ::pltxt2htm::details::ParserFrameContextWithMdLinkInfo md_link;
-        ::pltxt2htm::details::ParserFrameContextWithMdListInfo md_list;
+        ::pltxt2htm::details::ParserFrameContextWithMdLinkInfo<ndebug> md_link;
+        ::pltxt2htm::details::ParserFrameContextWithMdListInfo<ndebug> md_list;
     };
 
     ::pltxt2htm::NodeType kind;
@@ -93,7 +96,7 @@ public:
           kind{node_type} {
     }
 
-    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithExternalTagInfo&& external_tag_context,
+    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithExternalTagInfo<ndebug>&& external_tag_context,
                              ::pltxt2htm::NodeType node_type) noexcept
         : external_tag{::std::move(external_tag_context)},
           kind{node_type} {
@@ -111,13 +114,13 @@ public:
           kind{node_type} {
     }
 
-    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithMdLinkInfo&& md_link_context,
+    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithMdLinkInfo<ndebug>&& md_link_context,
                              ::pltxt2htm::NodeType node_type) noexcept
         : md_link{::std::move(md_link_context)},
           kind{node_type} {
     }
 
-    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithMdListInfo&& md_list_context,
+    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithMdListInfo<ndebug>&& md_list_context,
                              ::pltxt2htm::NodeType node_type) noexcept
         : md_list{::std::move(md_list_context)},
           kind{node_type} {
@@ -251,8 +254,6 @@ public:
             ::std::construct_at(::std::addressof(this->pltext), ::std::move(other.pltext));
             return;
         }
-        case ::pltxt2htm::NodeType::base:
-            [[fallthrough]];
         case ::pltxt2htm::NodeType::u8char:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::invalid_u8char:
@@ -483,8 +484,6 @@ public:
             ::std::destroy_at(::std::addressof(this->pltext));
             return;
         }
-        case ::pltxt2htm::NodeType::base:
-            [[fallthrough]];
         case ::pltxt2htm::NodeType::u8char:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::invalid_u8char:
@@ -591,7 +590,7 @@ class ParserFrameContext {
 
 public:
     ::std::size_t current_index{};
-    ::pltxt2htm::Ast subast{};
+    ::pltxt2htm::Ast<ndebug> subast{};
 
     constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_,
                                           ::pltxt2htm::NodeType const nested_tag_type_) noexcept
@@ -604,7 +603,7 @@ public:
 
     constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_,
                                           ::pltxt2htm::NodeType const nested_tag_type_,
-                                          ::pltxt2htm::Ast&& subast_) noexcept
+                                          ::pltxt2htm::Ast<ndebug>&& subast_) noexcept
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
               ::pltxt2htm::details::ParserFrameContextWithPltextInfo{pltext_}, nested_tag_type_}},
           subast(::std::move(subast_)) {
@@ -624,7 +623,7 @@ public:
 
     constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_,
                                           ::pltxt2htm::NodeType const nested_tag_type_,
-                                          ::pltxt2htm::Url&& url_) noexcept
+                                          ::pltxt2htm::Url<ndebug>&& url_) noexcept
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
               ::pltxt2htm::details::ParserFrameContextWithExternalTagInfo{.pltext = pltext_, .url = ::std::move(url_)},
               nested_tag_type_}} {
@@ -647,16 +646,16 @@ public:
               ::pltxt2htm::NodeType::md_block_quotes}} {
     }
 
-    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::Url&& link_) noexcept
+    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::Url<ndebug>&& link_) noexcept
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
               ::pltxt2htm::details::ParserFrameContextWithMdLinkInfo{.pltext = pltext_, .link = ::std::move(link_)},
               ::pltxt2htm::NodeType::md_link}} {
     }
 
     constexpr explicit ParserFrameContext(::pltxt2htm::NodeType node_type,
-                                          ::pltxt2htm::details::MdListAst&& md_list_ast_) noexcept
+                                          ::pltxt2htm::details::MdListAst<ndebug>&& md_list_ast_) noexcept
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
-              ::pltxt2htm::details::ParserFrameContextWithMdListInfo{::std::move(md_list_ast_)}, node_type}} {
+              ::pltxt2htm::details::ParserFrameContextWithMdListInfo<ndebug>{::std::move(md_list_ast_)}, node_type}} {
         pltxt2htm_assert(node_type == ::pltxt2htm::NodeType::md_ul || node_type == ::pltxt2htm::NodeType::md_ol,
                          u8"mismatch node type");
     }
@@ -685,8 +684,6 @@ public:
     constexpr auto get_pltext(this auto&& self) noexcept -> ::fast_io::u8string_view {
         auto const& context_data_ref = self.context_data;
         switch (context_data_ref.kind) /* -Werror=switch */ {
-        case ::pltxt2htm::NodeType::base:
-            [[fallthrough]];
         case ::pltxt2htm::NodeType::u8char:
             [[fallthrough]];
         case ::pltxt2htm::NodeType::invalid_u8char:
@@ -905,16 +902,16 @@ public:
         ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
     }
 
-    constexpr auto&& get_equal_sign_tag_id(this auto&& self) noexcept {
+    constexpr auto get_equal_sign_tag_id(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
         bool const is_equal_sign_tag_type{::pltxt2htm::details::is_equal_sign_tag_type(context_data_ref.kind)};
         pltxt2htm_assert(is_equal_sign_tag_type, u8"context kind mismatch");
         return ::std::forward_like<decltype(self)>(context_data_ref.equal_sign_tag.id);
     }
 
-    constexpr auto&& get_external_tag_url(this auto&& self) noexcept {
+    constexpr auto get_external_tag_url(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
-        bool const is_external_tag_type{::pltxt2htm::details::is_external_tag_type(context_data_ref.kind)};
+        bool const is_external_tag_type{context_data_ref.kind == ::pltxt2htm::NodeType::pl_external};
         pltxt2htm_assert(is_external_tag_type, u8"context kind mismatch");
         return ::std::forward_like<decltype(self)>(context_data_ref.external_tag.url);
     }
@@ -926,21 +923,21 @@ public:
         return context_data_ref.pl_size_tag.id;
     }
 
-    constexpr auto&& get_md_link_url(this auto&& self) noexcept {
+    constexpr auto get_md_link_url(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
         bool const is_md_link_type{::pltxt2htm::details::is_md_link_type(context_data_ref.kind)};
         pltxt2htm_assert(is_md_link_type, u8"context kind mismatch");
         return ::std::forward_like<decltype(self)>(context_data_ref.md_link.link);
     }
 
-    constexpr auto&& get_md_list_ast(this auto&& self) noexcept {
+    constexpr auto get_md_list_ast(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
         bool const is_md_list_type{::pltxt2htm::details::is_md_list_type(context_data_ref.kind)};
         pltxt2htm_assert(is_md_list_type, u8"context kind mismatch");
         return ::std::forward_like<decltype(self)>(context_data_ref.md_list.md_list_ast);
     }
 
-    constexpr auto&& get_md_list_iter(this auto&& self) noexcept {
+    constexpr auto get_md_list_iter(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
         bool const is_md_list_type{::pltxt2htm::details::is_md_list_type(context_data_ref.kind)};
         pltxt2htm_assert(is_md_list_type, u8"context kind mismatch");

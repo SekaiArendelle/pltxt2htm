@@ -10,7 +10,7 @@ from pathlib import Path
 
 def find_cpp_files(root_dirs):
     """Find all C/C++ source files in the given directories."""
-    extensions = {".cc", ".cpp", ".h", ".hh", ".hpp", ".cppm", ".c"}
+    extensions = {".cc", ".cpp", ".h", ".hh", ".hpp", ".cppm", ".c", ".inc"}
     files = []
 
     for directory in root_dirs:

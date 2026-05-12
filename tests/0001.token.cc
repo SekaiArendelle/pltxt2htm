@@ -2,23 +2,24 @@
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
 #include <exception/exception.hh>
-#include <pltxt2htm/astnode/node_type.hh>
-#include <pltxt2htm/astnode/physics_lab_node.hh>
+#include <pltxt2htm/ast/ast.hh>
 
 int main() {
-    static_assert(::std::movable<::pltxt2htm::HeapGuard<::pltxt2htm::NodeType>>);
+    static_assert(::std::movable<::pltxt2htm::PlTxtNode<::pltxt2htm::Contracts::quick_enforce>>);
 
-    ::fast_io::vector<::pltxt2htm::PlTxtNode> arr{
-        ::pltxt2htm::U8Char{u8'a'},
-        ::pltxt2htm::PlColor{::pltxt2htm::Ast{}, ::fast_io::u8string{u8"red"}},
-        ::pltxt2htm::PlExperiment{::pltxt2htm::Ast{}, ::fast_io::u8string{u8"123"}},
-        ::pltxt2htm::PlDiscussion{::pltxt2htm::Ast{}, ::fast_io::u8string{u8"123"}},
-    };
+    ::fast_io::vector<::pltxt2htm::PlTxtNode<::pltxt2htm::Contracts::quick_enforce>> arr{};
+    arr.emplace_back(::pltxt2htm::U8Char{u8'a'});
+    arr.emplace_back(::pltxt2htm::PlColor<::pltxt2htm::Contracts::quick_enforce>{
+        ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::fast_io::u8string{u8"red"}});
+    arr.emplace_back(::pltxt2htm::PlExperiment<::pltxt2htm::Contracts::quick_enforce>{
+        ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::fast_io::u8string{u8"123"}});
+    arr.emplace_back(::pltxt2htm::PlDiscussion<::pltxt2htm::Contracts::quick_enforce>{
+        ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::fast_io::u8string{u8"123"}});
 
-    ::exception::assert_true(arr[0].node_type() == ::pltxt2htm::NodeType::u8char);
-    ::exception::assert_true(arr[1].node_type() == ::pltxt2htm::NodeType::pl_color);
-    ::exception::assert_true(arr[2].node_type() == ::pltxt2htm::NodeType::pl_experiment);
-    ::exception::assert_true(arr[3].node_type() == ::pltxt2htm::NodeType::pl_discussion);
+    ::exception::assert_true(arr[0].get_node_kind() == ::pltxt2htm::NodeType::u8char);
+    ::exception::assert_true(arr[1].get_node_kind() == ::pltxt2htm::NodeType::pl_color);
+    ::exception::assert_true(arr[2].get_node_kind() == ::pltxt2htm::NodeType::pl_experiment);
+    ::exception::assert_true(arr[3].get_node_kind() == ::pltxt2htm::NodeType::pl_discussion);
 
     return 0;
 }

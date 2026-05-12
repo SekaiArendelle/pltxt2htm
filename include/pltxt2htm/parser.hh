@@ -11,9 +11,8 @@
 #include <fast_io/fast_io_dsal/list.h>
 #include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/string_view.h>
-#include "astnode/node_type.hh"
+#include "ast/node_type.hh"
 #include "contracts.hh"
-#include "heap_guard.hh"
 #include "details/utils.hh"
 #include "details/parser/frame_concext.hh"
 #include "details/parser/parser.hh"
@@ -41,16 +40,15 @@ namespace pltxt2htm {
  * @retval pltxt2htm::Ast Abstract Syntax Tree containing the parsed structure
  * @note This function uses a stack-based approach to handle nested tag structures
  * @warning The parsing process is recursive and handles complex nested structures
- * @warning This function uses manual memory management via HeapGuard
  * @see pltxt2htm::details::parse_pltxt for the internal implementation
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2htm::Ast {
+constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2htm::Ast<ndebug> {
     // fast_io::deque contains bug about RAII, use fast_io::list instead
     // This stack is used to track nested tag contexts during parsing
     ::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>> call_stack{};
-    ::pltxt2htm::Ast result{};
+    ::pltxt2htm::Ast<ndebug> result{};
 
     ::std::size_t start_index{};
 
@@ -65,39 +63,39 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
         auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
         switch (type_of_subast) {
         case ::pltxt2htm::NodeType::md_atx_h1: {
-            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH1>(::std::move(subast)));
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH1<ndebug>{::std::move(subast)}));
             continue;
         }
         case ::pltxt2htm::NodeType::md_atx_h2: {
-            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH2>(::std::move(subast)));
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH2<ndebug>{::std::move(subast)}));
             continue;
         }
         case ::pltxt2htm::NodeType::md_atx_h3: {
-            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH3>(::std::move(subast)));
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH3<ndebug>{::std::move(subast)}));
             continue;
         }
         case ::pltxt2htm::NodeType::md_atx_h4: {
-            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH4>(::std::move(subast)));
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH4<ndebug>{::std::move(subast)}));
             continue;
         }
         case ::pltxt2htm::NodeType::md_atx_h5: {
-            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH5>(::std::move(subast)));
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH5<ndebug>{::std::move(subast)}));
             continue;
         }
         case ::pltxt2htm::NodeType::md_atx_h6: {
-            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdAtxH6>(::std::move(subast)));
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH6<ndebug>{::std::move(subast)}));
             continue;
         }
         case ::pltxt2htm::NodeType::md_block_quotes: {
-            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdBlockQuotes>(::std::move(subast)));
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdBlockQuotes<ndebug>{::std::move(subast)}));
             continue;
         }
         case ::pltxt2htm::NodeType::md_ul: {
-            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdUl>(::std::move(subast)));
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdUl<ndebug>{::std::move(subast)}));
             continue;
         }
         case ::pltxt2htm::NodeType::md_ol: {
-            result.push_back(::pltxt2htm::HeapGuard<::pltxt2htm::MdOl>(::std::move(subast)));
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdOl<ndebug>{::std::move(subast)}));
             continue;
         }
         default:
