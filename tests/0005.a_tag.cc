@@ -98,5 +98,11 @@ int main() {
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<a><i>test</i></a>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"color:#0000AA;\"><em>test</em></span>"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
     return 0;
 }

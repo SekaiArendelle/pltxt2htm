@@ -93,5 +93,11 @@ int main() {
         ::pltxt2htm_test::assert_true(html == answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<user=xxx><i>test</i></user>");
+        auto answer = ::fast_io::u8string_view{u8"<span class=\'RUser\' data-user=\'xxx\'><em>test</em></span>"};
+        ::pltxt2htm_test::assert_true(html == answer);
+    }
+
     return 0;
 }
