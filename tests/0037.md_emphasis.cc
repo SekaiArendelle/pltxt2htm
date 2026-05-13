@@ -5,102 +5,102 @@ int main() {
         auto pltext = ::fast_io::u8string_view{u8"*test*"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"<em>test</em>"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<i>test</i>"};
-        ::pltxt2htm_test::assert_true(plunity_richtext == plunity_richtext_answer);
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t*e*st");
         auto answer = ::fast_io::u8string_view{u8"t<em>e</em>st"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t**e**st");
         auto answer = ::fast_io::u8string_view{u8"t<strong>e</strong>st"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         // Test triple emphasis with asterisks ***text***
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"***test***");
         auto answer = ::fast_io::u8string{u8"<em><strong>test</strong></em>"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t***e***st");
         auto answer = ::fast_io::u8string_view{u8"t<em><strong>e</strong></em>st"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t_e_st");
         auto answer = ::fast_io::u8string_view{u8"t<em>e</em>st"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t__e__st");
         auto answer = ::fast_io::u8string_view{u8"t<strong>e</strong>st"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t___e___st");
         auto answer = ::fast_io::u8string_view{u8"t<em><strong>e</strong></em>st"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t_e*st");
         auto answer = ::fast_io::u8string_view{u8"t_e*st"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"*test\n*");
         auto answer = ::fast_io::u8string_view{u8"*test<br>*"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"**test\n**");
         auto answer = ::fast_io::u8string_view{u8"**test<br>**"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"te***st\n***");
         auto answer = ::fast_io::u8string_view{u8"te***st<br><hr>"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         // Test triple emphasis with underscores ___text___
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"___test___");
         auto answer = ::fast_io::u8string{u8"<em><strong>test</strong></em>"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t****t");
         auto answer = ::fast_io::u8string{u8"t****t"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t***t");
         auto answer = ::fast_io::u8string{u8"t***t"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t*****t");
         auto answer = ::fast_io::u8string{u8"t*****t"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     return 0;

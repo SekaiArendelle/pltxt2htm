@@ -3,7 +3,7 @@
  * @brief To improve build performance, we precompile the pltxt2htm.cpp file as static library
  */
 
-#include <fast_io/fast_io_dsal/string.h>
+#include <fast_io/fast_io.h>
 #include <fast_io/fast_io_dsal/string_view.h>
 #include <exception/exception.hh>
 #include <pltxt2htm/pltxt2htm.hh>
@@ -114,7 +114,25 @@ PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2plunity_introduction(::fast_io::u8string
 [[__gnu__::__used__]]
 #endif
 PLTXT2HTM_VISIBILITY_DEFAULT void assert_true(bool cond) noexcept {
-    ::exception::assert_true<false>(cond);
+    if (!cond) {
+        ::exception::terminate();
+    }
 }
+
+#if __has_cpp_attribute(__gnu__::__used__)
+[[__gnu__::__used__]]
+#endif
+PLTXT2HTM_VISIBILITY_DEFAULT void assert_equal_impl(::fast_io::u8string_view file, ::std::size_t line, ::fast_io::u8string_view html_expr,
+    ::fast_io::u8string_view answer_expr, ::fast_io::u8string_view html, ::fast_io::u8string_view answer) noexcept {
+    if (html != answer) {
+        ::fast_io::io::perr(::fast_io::u8err(), u8"unittest failed due to `", html_expr, u8" != ", answer_expr, u8"`\n  at ",
+                            file, u8":", static_cast<unsigned long long>(line), u8"\n  ", html_expr, u8": ",
+                            ::fast_io::u8string_view{::std::data(html), ::std::size(html)}, u8"\n  ", answer_expr,
+                            u8": ", ::fast_io::u8string_view{::std::data(answer), ::std::size(answer)},
+                            u8"\n");
+        ::exception::terminate();
+    }
+}
+
 
 } // namespace pltxt2htm_test

@@ -56,4 +56,18 @@ auto pltxt2fixedadv_htmld(::fast_io::u8string_view pltext, ::fast_io::u8string_v
 
 void assert_true(bool) noexcept;
 
+void assert_equal_impl(::fast_io::u8string_view file, ::std::size_t line, ::fast_io::u8string_view html_expr,
+                       ::fast_io::u8string_view answer_expr, ::fast_io::u8string_view html, ::fast_io::u8string_view answer);
+
 } // namespace pltxt2htm_test
+
+#define PLTXT2HTM_TEST_U8_CONSTANT_STR_HELPER_(str) u8##str
+#define PLTXT2HTM_TEST_U8_CONSTANT_STR_(str) PLTXT2HTM_TEST_U8_CONSTANT_STR_HELPER_(str)
+
+#define pltxt2htm_test_assert_equal(html, answer)                                    \
+    ::pltxt2htm_test::assert_equal_impl(                                             \
+        ::fast_io::u8string_view{PLTXT2HTM_TEST_U8_CONSTANT_STR_(__FILE__)},         \
+        __LINE__,                                                                    \
+        ::fast_io::u8string_view{PLTXT2HTM_TEST_U8_CONSTANT_STR_(#html)},            \
+        ::fast_io::u8string_view{PLTXT2HTM_TEST_U8_CONSTANT_STR_(#answer)},          \
+        ::fast_io::mnp::os_c_str(html), ::fast_io::mnp::os_c_str(answer))

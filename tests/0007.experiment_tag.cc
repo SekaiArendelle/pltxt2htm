@@ -6,7 +6,7 @@ int main() {
         auto answer = ::fast_io::u8string_view{
             u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/642cf37a494746375aae306a\" "
             u8"internal>physicsLab</a>"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
@@ -15,7 +15,7 @@ int main() {
         auto answer = ::fast_io::u8string_view{
             u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/642cf37a494746375aae306a\" "
             u8"internal>physicsLab</a>"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
@@ -27,7 +27,7 @@ int main() {
         auto answer = ::fast_io::u8string_view{
             u8"<br><a href=\"localhost:5173/ExperimentSummary/Experiment/642cf37a494746375aae306a\" "
             u8"internal>te<br>&nbsp;xt</a><br>"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
@@ -37,7 +37,7 @@ int main() {
         auto answer = ::fast_io::u8string_view{
             u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/642cf37a494746375aae306a\" "
             u8"internal>&lt;experiment=642cf37a494746375aae306a&gt;physicsLab</a>&lt;/experiment&gt;"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
@@ -46,26 +46,26 @@ int main() {
         auto answer = ::fast_io::u8string_view{
             u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/123\" "
             u8"internal>&lt;experiment=642cf37a494746375aae306a&gt;physicsLab</a>&lt;/Experiment&gt;"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"test<eXperiment=123>");
         auto answer = ::fast_io::u8string_view{u8"test"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"te<eXperiment=123></experiment>st");
         auto answer = ::fast_io::u8string_view{u8"test"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     // test invalid tag
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"test<experiment=");
         auto answer = ::fast_io::u8string_view{u8"test&lt;experiment="};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
@@ -75,7 +75,7 @@ int main() {
         auto answer = ::fast_io::u8string_view{
             u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/642cf37a494746375aae306a\" "
             u8"internal>text&lt;experiment=642cf37a494746375aae306a&gt;text</a>&lt;/experiment&gt;"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
@@ -84,7 +84,7 @@ int main() {
         auto answer = ::fast_io::u8string_view{
             u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/642cf37a494746375aae306a\" internal>physics"
             u8"&lt;experiment=123&gt;L</a>ab&lt;/experiment&gt;"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
@@ -92,19 +92,19 @@ int main() {
         auto answer = ::fast_io::u8string_view{
             u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/642cf37a494746375aae306a\" "
             u8"internal>physicsLab</a>"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<experiment=642cf37a494746375aae306a></experiment>t");
         auto answer = ::fast_io::u8string_view{u8"tt"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<experiment=>t");
         auto answer = ::fast_io::u8string_view{u8"&lt;experiment=&gt;t"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
@@ -112,7 +112,7 @@ int main() {
         auto answer = ::fast_io::u8string_view{
             u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/642cf37a494746375aae306a\" "
             u8"internal>&lt;/experiment</a>"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
@@ -120,7 +120,7 @@ int main() {
         auto answer = ::fast_io::u8string_view{
             u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/a\" "
             u8"internal>t&lt;experiment=b&gt;ex</a>t&lt;/experiment&gt;"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
@@ -129,13 +129,13 @@ int main() {
         auto answer = ::fast_io::u8string_view{
             u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/a\" "
             u8"internal><em>&lt;experiment=b&gt;c&lt;/experiment&gt;</em></a>"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<experiment=<>test</experiment>");
         auto answer = ::fast_io::u8string_view{u8"&lt;experiment=&lt;&gt;test&lt;/experiment&gt;"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
@@ -143,7 +143,7 @@ int main() {
         auto answer = ::fast_io::u8string_view{
             u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/a\" "
             u8"internal>t&lt;discussion=b&gt;ex&lt;/discussion&gt;t</a>"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
@@ -152,7 +152,7 @@ int main() {
         auto answer = ::fast_io::u8string_view{
             u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/a\" "
             u8"internal><em>t&lt;discussion=b&gt;ex&lt;/discussion&gt;t</em></a>"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
@@ -160,7 +160,7 @@ int main() {
         auto answer = ::fast_io::u8string_view{
             u8"<a href=\"localhost:5173/ExperimentSummary/Discussion/a\" "
             u8"internal>t&lt;experiment=b&gt;ex&lt;/experiment&gt;t</a>"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
@@ -169,7 +169,7 @@ int main() {
         auto answer = ::fast_io::u8string_view{
             u8"<a href=\"localhost:5173/ExperimentSummary/Discussion/a\" "
             u8"internal><em>t&lt;experiment=b&gt;ex&lt;/experiment&gt;t</em></a>"};
-        ::pltxt2htm_test::assert_true(html == answer);
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     return 0;
