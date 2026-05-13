@@ -2,9 +2,13 @@
 
 int main() {
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<pre>text</pre>");
+        auto pltext = ::fast_io::u8string_view{u8"<pre>text</pre>"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"<pre>text</pre>"};
         pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<pre>text</pre>"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
     {
