@@ -31,16 +31,16 @@ public:
         ::pltxt2htm::details::BackendContextWithOlInfo ol_info;
     };
 
-    ::pltxt2htm::NodeType kind;
+    ::pltxt2htm::NodeKind kind;
 
-    constexpr BackendContextVariant(::pltxt2htm::NodeType const kind_) noexcept
+    constexpr BackendContextVariant(::pltxt2htm::NodeKind const kind_) noexcept
         : without_info{},
           kind{kind_} {
     }
 
     constexpr BackendContextVariant(::pltxt2htm::details::BackendContextWithOlInfo&& ol_info_context) noexcept
         : ol_info{::std::move(ol_info_context)},
-          kind{::pltxt2htm::NodeType::html_ol} {
+          kind{::pltxt2htm::NodeKind::html_ol} {
     }
 
     constexpr ~BackendContextVariant() noexcept = default;
@@ -63,7 +63,7 @@ public:
     /**
      * @note construct ast from reference to avoid nullptr issue
      */
-    constexpr BackendFrameContext(::pltxt2htm::Ast<ndebug> const& ast_, ::pltxt2htm::NodeType const nested_tag_type,
+    constexpr BackendFrameContext(::pltxt2htm::Ast<ndebug> const& ast_, ::pltxt2htm::NodeKind const nested_tag_type,
                                   ::std::size_t current_index_) noexcept
         : context_data{nested_tag_type},
           ast(::std::addressof(ast_)),
@@ -98,8 +98,8 @@ public:
     }
 
     constexpr auto get_ol_li_count(this auto&& self) noexcept -> ::std::size_t& {
-        bool const is_ol_type{self.context_data.kind == ::pltxt2htm::NodeType::html_ol ||
-                              self.context_data.kind == ::pltxt2htm::NodeType::md_ol};
+        bool const is_ol_type{self.context_data.kind == ::pltxt2htm::NodeKind::html_ol ||
+                              self.context_data.kind == ::pltxt2htm::NodeKind::md_ol};
         pltxt2htm_assert(is_ol_type, u8"context kind mismatch");
         return self.context_data.ol_info.ol_li_count;
     }

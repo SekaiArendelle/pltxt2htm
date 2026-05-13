@@ -20,7 +20,7 @@ namespace pltxt2htm {
  * @note The values are ordered with basic types first, then Physics-Lab specific
  *       tags, HTML tags, Markdown syntax, and finally escape sequences.
  */
-enum class NodeType : ::std::size_t {
+enum class NodeKind : ::std::size_t {
     // Character and basic text nodes
     u8char = 0, ///< Valid UTF-8 character
     invalid_u8char, ///< Invalid UTF-8 character (replacement character)
@@ -167,38 +167,38 @@ enum class NodeType : ::std::size_t {
 namespace details {
 
 [[nodiscard]]
-constexpr auto is_equal_sign_tag_type(::pltxt2htm::NodeType const node_type) noexcept -> bool {
-    return node_type == ::pltxt2htm::NodeType::pl_color || node_type == ::pltxt2htm::NodeType::pl_experiment ||
-           node_type == ::pltxt2htm::NodeType::pl_discussion || node_type == ::pltxt2htm::NodeType::pl_user;
+constexpr auto is_equal_sign_tag_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
+    return node_type == ::pltxt2htm::NodeKind::pl_color || node_type == ::pltxt2htm::NodeKind::pl_experiment ||
+           node_type == ::pltxt2htm::NodeKind::pl_discussion || node_type == ::pltxt2htm::NodeKind::pl_user;
 }
 
 [[nodiscard]]
-constexpr auto is_external_tag_type(::pltxt2htm::NodeType const node_type) noexcept -> bool {
-    return node_type == ::pltxt2htm::NodeType::pl_external;
+constexpr auto is_external_tag_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
+    return node_type == ::pltxt2htm::NodeKind::pl_external;
 }
 
 [[nodiscard]]
-constexpr auto is_pl_size_tag_type(::pltxt2htm::NodeType const node_type) noexcept -> bool {
-    return node_type == ::pltxt2htm::NodeType::pl_size;
+constexpr auto is_pl_size_tag_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
+    return node_type == ::pltxt2htm::NodeKind::pl_size;
 }
 
 [[nodiscard]]
-constexpr auto is_md_block_quotes_type(::pltxt2htm::NodeType const node_type) noexcept -> bool {
-    return node_type == ::pltxt2htm::NodeType::md_block_quotes;
+constexpr auto is_md_block_quotes_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
+    return node_type == ::pltxt2htm::NodeKind::md_block_quotes;
 }
 
 [[nodiscard]]
-constexpr auto is_md_link_type(::pltxt2htm::NodeType const node_type) noexcept -> bool {
-    return node_type == ::pltxt2htm::NodeType::md_link;
+constexpr auto is_md_link_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
+    return node_type == ::pltxt2htm::NodeKind::md_link;
 }
 
 [[nodiscard]]
-constexpr auto is_md_list_type(::pltxt2htm::NodeType const node_type) noexcept -> bool {
-    return node_type == ::pltxt2htm::NodeType::md_ul || node_type == ::pltxt2htm::NodeType::md_ol;
+constexpr auto is_md_list_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
+    return node_type == ::pltxt2htm::NodeKind::md_ul || node_type == ::pltxt2htm::NodeKind::md_ol;
 }
 
 [[nodiscard]]
-constexpr auto is_plain_pltext_type(::pltxt2htm::NodeType const node_type) noexcept -> bool {
+constexpr auto is_plain_pltext_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
     return !(::pltxt2htm::details::is_equal_sign_tag_type(node_type) ||
              ::pltxt2htm::details::is_external_tag_type(node_type) ||
              ::pltxt2htm::details::is_pl_size_tag_type(node_type) ||

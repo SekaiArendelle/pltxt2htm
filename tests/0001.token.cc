@@ -16,10 +16,10 @@ int main() {
     arr.emplace_back(::pltxt2htm::PlDiscussion<::pltxt2htm::Contracts::quick_enforce>{
         ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::fast_io::u8string{u8"123"}});
 
-    ::exception::assert_true(arr[0].get_node_kind() == ::pltxt2htm::NodeType::u8char);
-    ::exception::assert_true(arr[1].get_node_kind() == ::pltxt2htm::NodeType::pl_color);
-    ::exception::assert_true(arr[2].get_node_kind() == ::pltxt2htm::NodeType::pl_experiment);
-    ::exception::assert_true(arr[3].get_node_kind() == ::pltxt2htm::NodeType::pl_discussion);
+    ::exception::assert_true(arr[0].get_node_kind() == ::pltxt2htm::NodeKind::u8char);
+    ::exception::assert_true(arr[1].get_node_kind() == ::pltxt2htm::NodeKind::pl_color);
+    ::exception::assert_true(arr[2].get_node_kind() == ::pltxt2htm::NodeKind::pl_experiment);
+    ::exception::assert_true(arr[3].get_node_kind() == ::pltxt2htm::NodeKind::pl_discussion);
 
     return 0;
 }
