@@ -26,7 +26,7 @@ using ::pltxt2htm::version::patch;
 } // namespace version
 
 // exported nodes
-using ::pltxt2htm::NodeType;
+using ::pltxt2htm::NodeKind;
 
 // ast2 types
 using ::pltxt2htm::PlTxtNode;

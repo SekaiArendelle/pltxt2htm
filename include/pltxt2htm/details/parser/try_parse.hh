@@ -324,14 +324,14 @@ template<::pltxt2htm::Contracts ndebug,
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]] constexpr auto try_parse_li_tag(::fast_io::u8string_view pltext,
-                                              ::pltxt2htm::NodeType const nested_tag_type) noexcept
+                                              ::pltxt2htm::NodeKind const nested_tag_type) noexcept
     -> ::exception::optional<::std::size_t> {
     auto opt_tag_len =
         ::pltxt2htm::details::try_parse_bare_tag<ndebug, ::pltxt2htm::details::U8LiteralString{u8"i"}>(pltext);
     if (!opt_tag_len.has_value()) {
         return ::exception::nullopt_t{};
     }
-    if (nested_tag_type != ::pltxt2htm::NodeType::html_ul && nested_tag_type != ::pltxt2htm::NodeType::html_ol) {
+    if (nested_tag_type != ::pltxt2htm::NodeKind::html_ul && nested_tag_type != ::pltxt2htm::NodeKind::html_ol) {
         return ::exception::nullopt_t{};
     }
     return opt_tag_len;
@@ -495,9 +495,9 @@ constexpr auto try_parse_non_nestable_equal_sign_tag(
         // e.g. <experiment><experiment>test</experiment>text</experiment>
         // e.g. <experiment><a><experiment>test</experiment>text</a>text</experiment>
         auto const nested_tag_type = v.get_nested_tag_type();
-        if (nested_tag_type == ::pltxt2htm::NodeType::pl_experiment ||
-            nested_tag_type == ::pltxt2htm::NodeType::pl_discussion ||
-            nested_tag_type == ::pltxt2htm::NodeType::pl_external) {
+        if (nested_tag_type == ::pltxt2htm::NodeKind::pl_experiment ||
+            nested_tag_type == ::pltxt2htm::NodeKind::pl_discussion ||
+            nested_tag_type == ::pltxt2htm::NodeKind::pl_external) {
             return ::exception::nullopt_t{};
         }
     }
@@ -603,7 +603,7 @@ struct TryParseMdAtxHeadingResult {
     ::std::size_t start_index; ///< Start index of the heading content.
     ::std::size_t sublength; ///< Length of the heading content.
     ::std::size_t forward_index; ///< Index to continue parsing from.
-    ::pltxt2htm::NodeType md_atx_heading_type; ///< Type of the ATX heading.
+    ::pltxt2htm::NodeKind md_atx_heading_type; ///< Type of the ATX heading.
 };
 
 /**
@@ -641,14 +641,14 @@ constexpr auto try_parse_md_atx_heading(::fast_io::u8string_view pltext) noexcep
     }
 
     // count how many `#` characters
-    ::std::size_t md_atx_heading_type{static_cast<::std::size_t>(::pltxt2htm::NodeType::md_atx_h1) - 1};
+    ::std::size_t md_atx_heading_type{static_cast<::std::size_t>(::pltxt2htm::NodeKind::md_atx_h1) - 1};
     while (true) {
         if (start_index >= pltext_size) {
             // https://spec.commonmark.org/0.31.2/#example-79
-            if (static_cast<::std::size_t>(::pltxt2htm::NodeType::md_atx_h1) <= md_atx_heading_type &&
-                md_atx_heading_type <= static_cast<::std::size_t>(::pltxt2htm::NodeType::md_atx_h6)) {
+            if (static_cast<::std::size_t>(::pltxt2htm::NodeKind::md_atx_h1) <= md_atx_heading_type &&
+                md_atx_heading_type <= static_cast<::std::size_t>(::pltxt2htm::NodeKind::md_atx_h6)) {
                 return ::pltxt2htm::details::TryParseMdAtxHeadingResult<ndebug>{
-                    start_index, 0, start_index, static_cast<::pltxt2htm::NodeType>(md_atx_heading_type)};
+                    start_index, 0, start_index, static_cast<::pltxt2htm::NodeKind>(md_atx_heading_type)};
             }
             else {
                 return ::exception::nullopt_t{};
@@ -660,8 +660,8 @@ constexpr auto try_parse_md_atx_heading(::fast_io::u8string_view pltext) noexcep
         ++start_index;
         ++md_atx_heading_type;
     }
-    if (md_atx_heading_type < static_cast<::std::size_t>(::pltxt2htm::NodeType::md_atx_h1) ||
-        static_cast<::std::size_t>(::pltxt2htm::NodeType::md_atx_h6) < md_atx_heading_type ||
+    if (md_atx_heading_type < static_cast<::std::size_t>(::pltxt2htm::NodeKind::md_atx_h1) ||
+        static_cast<::std::size_t>(::pltxt2htm::NodeKind::md_atx_h6) < md_atx_heading_type ||
         (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, start_index) != u8' ' &&
          ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, start_index) != u8'\t')) {
         // invalid atx header
@@ -673,7 +673,7 @@ constexpr auto try_parse_md_atx_heading(::fast_io::u8string_view pltext) noexcep
         if (start_index >= pltext_size) {
             // https://spec.commonmark.org/0.31.2/#example-79
             return ::pltxt2htm::details::TryParseMdAtxHeadingResult<ndebug>{
-                start_index, 0, start_index, static_cast<::pltxt2htm::NodeType>(md_atx_heading_type)};
+                start_index, 0, start_index, static_cast<::pltxt2htm::NodeKind>(md_atx_heading_type)};
         }
         if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, start_index) != u8' ' &&
             ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, start_index) != u8'\t') {
@@ -702,7 +702,7 @@ constexpr auto try_parse_md_atx_heading(::fast_io::u8string_view pltext) noexcep
         .start_index = start_index,
         .sublength = end_index - start_index,
         .forward_index = end_index + extra_length,
-        .md_atx_heading_type = static_cast<::pltxt2htm::NodeType>(md_atx_heading_type)};
+        .md_atx_heading_type = static_cast<::pltxt2htm::NodeKind>(md_atx_heading_type)};
 }
 
 enum class ThematicBreakType : ::std::uint_least32_t {

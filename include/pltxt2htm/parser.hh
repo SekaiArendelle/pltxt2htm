@@ -59,42 +59,42 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
         if (has_new_frame == false) {
             break;
         }
-        ::pltxt2htm::NodeType const type_of_subast{call_stack.top().get_nested_tag_type()};
+        ::pltxt2htm::NodeKind const type_of_subast{call_stack.top().get_nested_tag_type()};
         auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
         switch (type_of_subast) {
-        case ::pltxt2htm::NodeType::md_atx_h1: {
+        case ::pltxt2htm::NodeKind::md_atx_h1: {
             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH1<ndebug>{::std::move(subast)}));
             continue;
         }
-        case ::pltxt2htm::NodeType::md_atx_h2: {
+        case ::pltxt2htm::NodeKind::md_atx_h2: {
             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH2<ndebug>{::std::move(subast)}));
             continue;
         }
-        case ::pltxt2htm::NodeType::md_atx_h3: {
+        case ::pltxt2htm::NodeKind::md_atx_h3: {
             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH3<ndebug>{::std::move(subast)}));
             continue;
         }
-        case ::pltxt2htm::NodeType::md_atx_h4: {
+        case ::pltxt2htm::NodeKind::md_atx_h4: {
             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH4<ndebug>{::std::move(subast)}));
             continue;
         }
-        case ::pltxt2htm::NodeType::md_atx_h5: {
+        case ::pltxt2htm::NodeKind::md_atx_h5: {
             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH5<ndebug>{::std::move(subast)}));
             continue;
         }
-        case ::pltxt2htm::NodeType::md_atx_h6: {
+        case ::pltxt2htm::NodeKind::md_atx_h6: {
             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH6<ndebug>{::std::move(subast)}));
             continue;
         }
-        case ::pltxt2htm::NodeType::md_block_quotes: {
+        case ::pltxt2htm::NodeKind::md_block_quotes: {
             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdBlockQuotes<ndebug>{::std::move(subast)}));
             continue;
         }
-        case ::pltxt2htm::NodeType::md_ul: {
+        case ::pltxt2htm::NodeKind::md_ul: {
             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdUl<ndebug>{::std::move(subast)}));
             continue;
         }
-        case ::pltxt2htm::NodeType::md_ol: {
+        case ::pltxt2htm::NodeKind::md_ol: {
             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdOl<ndebug>{::std::move(subast)}));
             continue;
         }
@@ -108,7 +108,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
     if (start_index < pltext.size()) {
         // other common cases
         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index), ::pltxt2htm::NodeType::text,
+            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index), ::pltxt2htm::NodeKind::text,
             ::std::move(result)));
         result = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
     }

@@ -48,32 +48,32 @@ constexpr auto devil_stuff_after_line_break(
             }
             else {
                 switch (md_atx_heading_type) {
-                case ::pltxt2htm::NodeType::md_atx_h1: {
+                case ::pltxt2htm::NodeKind::md_atx_h1: {
                     result.push_back(
                         ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH1<ndebug>{::pltxt2htm::Ast<ndebug>{}}));
                     break;
                 }
-                case ::pltxt2htm::NodeType::md_atx_h2: {
+                case ::pltxt2htm::NodeKind::md_atx_h2: {
                     result.push_back(
                         ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH2<ndebug>{::pltxt2htm::Ast<ndebug>{}}));
                     break;
                 }
-                case ::pltxt2htm::NodeType::md_atx_h3: {
+                case ::pltxt2htm::NodeKind::md_atx_h3: {
                     result.push_back(
                         ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH3<ndebug>{::pltxt2htm::Ast<ndebug>{}}));
                     break;
                 }
-                case ::pltxt2htm::NodeType::md_atx_h4: {
+                case ::pltxt2htm::NodeKind::md_atx_h4: {
                     result.push_back(
                         ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH4<ndebug>{::pltxt2htm::Ast<ndebug>{}}));
                     break;
                 }
-                case ::pltxt2htm::NodeType::md_atx_h5: {
+                case ::pltxt2htm::NodeKind::md_atx_h5: {
                     result.push_back(
                         ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH5<ndebug>{::pltxt2htm::Ast<ndebug>{}}));
                     break;
                 }
-                case ::pltxt2htm::NodeType::md_atx_h6: {
+                case ::pltxt2htm::NodeKind::md_atx_h6: {
                     result.push_back(
                         ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH6<ndebug>{::pltxt2htm::Ast<ndebug>{}}));
                     break;
@@ -137,7 +137,7 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr auto parse_pltxt(::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>>& call_stack) noexcept
     -> ::pltxt2htm::Ast<ndebug> {
 entry:
-    if (call_stack.top().get_nested_tag_type() == ::pltxt2htm::NodeType::md_ul) {
+    if (call_stack.top().get_nested_tag_type() == ::pltxt2htm::NodeKind::md_ul) {
         // ::pltxt2htm::details::MdListAst to ::pltxt2htm::Ast<ndebug>
         auto&& frame = call_stack.top();
         auto&& frame_md_list_ast = frame.get_md_list_ast();
@@ -158,17 +158,17 @@ entry:
             switch (frame_iter->get_type()) {
             case ::pltxt2htm::details::MdListNodeType::text: {
                 call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(frame_iter->get_text_view(),
-                                                                                 ::pltxt2htm::NodeType::md_li));
+                                                                                 ::pltxt2htm::NodeKind::md_li));
                 break;
             }
             case ::pltxt2htm::details::MdListNodeType::md_ul: {
                 call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                    ::pltxt2htm::NodeType::md_ul, ::std::move(frame_iter->get_sublist())));
+                    ::pltxt2htm::NodeKind::md_ul, ::std::move(frame_iter->get_sublist())));
                 break;
             }
             case ::pltxt2htm::details::MdListNodeType::md_ol: {
                 call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                    ::pltxt2htm::NodeType::md_ol, ::std::move(frame_iter->get_sublist())));
+                    ::pltxt2htm::NodeKind::md_ol, ::std::move(frame_iter->get_sublist())));
                 break;
             }
 #if 0
@@ -182,7 +182,7 @@ entry:
         ++frame_iter;
         goto entry;
     }
-    else if (call_stack.top().get_nested_tag_type() == ::pltxt2htm::NodeType::md_ol) {
+    else if (call_stack.top().get_nested_tag_type() == ::pltxt2htm::NodeKind::md_ol) {
         // ::pltxt2htm::details::MdListAst to ::pltxt2htm::Ast<ndebug>
         auto&& frame = call_stack.top();
         auto&& frame_md_list_ast = frame.get_md_list_ast();
@@ -203,17 +203,17 @@ entry:
             switch (frame_iter->get_type()) {
             case ::pltxt2htm::details::MdListNodeType::text: {
                 call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(frame_iter->get_text_view(),
-                                                                                 ::pltxt2htm::NodeType::md_li));
+                                                                                 ::pltxt2htm::NodeKind::md_li));
                 break;
             }
             case ::pltxt2htm::details::MdListNodeType::md_ul: {
                 call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                    ::pltxt2htm::NodeType::md_ul, ::std::move(frame_iter->get_sublist())));
+                    ::pltxt2htm::NodeKind::md_ul, ::std::move(frame_iter->get_sublist())));
                 break;
             }
             case ::pltxt2htm::details::MdListNodeType::md_ol: {
                 call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                    ::pltxt2htm::NodeType::md_ol, ::std::move(frame_iter->get_sublist())));
+                    ::pltxt2htm::NodeKind::md_ol, ::std::move(frame_iter->get_sublist())));
                 break;
             }
 #if 0
@@ -233,7 +233,7 @@ entry:
     auto&& result = call_stack.top().subast;
     ::std::size_t const pltext_size{pltext.size()};
 
-    if (call_stack.top().get_nested_tag_type() == ::pltxt2htm::NodeType::md_block_quotes && current_index == 0) {
+    if (call_stack.top().get_nested_tag_type() == ::pltxt2htm::NodeKind::md_block_quotes && current_index == 0) {
         // https://spec.commonmark.org/0.31.2/#example-228
         // to support parsing md-atx-heading e.t.c inside md-block-quotes
         auto&& [forward_index, require_restart] = ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(
@@ -343,7 +343,7 @@ entry:
                 opt_triple_emphasis_asterisk.template value<ndebug == ::pltxt2htm::Contracts::ignore>()};
             call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 3, forward_index),
-                ::pltxt2htm::NodeType::md_triple_emphasis_asterisk));
+                ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk));
             current_index += forward_index + 6;
             goto entry;
         }
@@ -355,7 +355,7 @@ entry:
                 opt_double_emphasis_asterisk.template value<ndebug == ::pltxt2htm::Contracts::ignore>()};
             call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2, forward_index),
-                ::pltxt2htm::NodeType::md_double_emphasis_asterisk));
+                ::pltxt2htm::NodeKind::md_double_emphasis_asterisk));
             current_index += forward_index + 4;
             goto entry;
         }
@@ -367,7 +367,7 @@ entry:
                 opt_single_emphasis_asterisk.template value<ndebug == ::pltxt2htm::Contracts::ignore>()};
             call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1, forward_index),
-                ::pltxt2htm::NodeType::md_single_emphasis_asterisk));
+                ::pltxt2htm::NodeKind::md_single_emphasis_asterisk));
             current_index += forward_index + 2;
             goto entry;
         }
@@ -379,7 +379,7 @@ entry:
                 opt_triple_emphasis_underscore.template value<ndebug == ::pltxt2htm::Contracts::ignore>()};
             call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 3, forward_index),
-                ::pltxt2htm::NodeType::md_triple_emphasis_underscore));
+                ::pltxt2htm::NodeKind::md_triple_emphasis_underscore));
             current_index += forward_index + 6;
             goto entry;
         }
@@ -391,7 +391,7 @@ entry:
                 opt_double_emphasis_undersore.template value<ndebug == ::pltxt2htm::Contracts::ignore>()};
             call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2, forward_index),
-                ::pltxt2htm::NodeType::md_double_emphasis_underscore));
+                ::pltxt2htm::NodeKind::md_double_emphasis_underscore));
             current_index += forward_index + 4;
             goto entry;
         }
@@ -403,7 +403,7 @@ entry:
                 opt_single_emphasis_undersore.template value<ndebug == ::pltxt2htm::Contracts::ignore>()};
             call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1, forward_index),
-                ::pltxt2htm::NodeType::md_single_emphasis_underscore));
+                ::pltxt2htm::NodeKind::md_single_emphasis_underscore));
             current_index += forward_index + 2;
             goto entry;
         }
@@ -414,7 +414,7 @@ entry:
             ::std::size_t const forward_index{opt_md_del.template value<ndebug == ::pltxt2htm::Contracts::ignore>()};
             call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2, forward_index),
-                ::pltxt2htm::NodeType::md_del));
+                ::pltxt2htm::NodeKind::md_del));
             current_index += forward_index + 4;
             goto entry;
         }
@@ -510,7 +510,7 @@ entry:
                     current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                        ::pltxt2htm::NodeType::pl_a));
+                        ::pltxt2htm::NodeKind::pl_a));
                     goto entry;
                 }
                 else {
@@ -530,7 +530,7 @@ entry:
                     current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                        ::pltxt2htm::NodeType::pl_b));
+                        ::pltxt2htm::NodeKind::pl_b));
                     goto entry;
                 }
                 else if (auto opt_br_tag_len = ::pltxt2htm::details::try_parse_self_closing_tag<ndebug, u8"r">(
@@ -558,7 +558,7 @@ entry:
                     current_index += opt_blockquote_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                        ::pltxt2htm::NodeType::html_blockquote));
+                        ::pltxt2htm::NodeKind::html_blockquote));
                     goto entry;
                 }
                 else {
@@ -580,7 +580,7 @@ entry:
                     // parsing start tag <color> successed
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                        ::pltxt2htm::NodeType::pl_color, ::std::move(color)));
+                        ::pltxt2htm::NodeKind::pl_color, ::std::move(color)));
                     goto entry;
                 }
                 else if (auto opt_code_tag = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"ode">(
@@ -590,7 +590,7 @@ entry:
                     current_index += opt_code_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                        ::pltxt2htm::NodeType::html_code));
+                        ::pltxt2htm::NodeKind::html_code));
                     goto entry;
                 }
                 else {
@@ -610,7 +610,7 @@ entry:
                     current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                        ::pltxt2htm::NodeType::html_del));
+                        ::pltxt2htm::NodeKind::html_del));
                     goto entry;
                 }
                 // parsing: <discussion=$1>$2</discussion>
@@ -627,7 +627,7 @@ entry:
                     current_index += tag_len + 3;
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                        ::pltxt2htm::NodeType::pl_discussion, ::std::move(id)));
+                        ::pltxt2htm::NodeKind::pl_discussion, ::std::move(id)));
                     goto entry;
                 }
                 else {
@@ -654,7 +654,7 @@ entry:
                     current_index += tag_len + 3;
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                        ::pltxt2htm::NodeType::pl_experiment, ::std::move(id)));
+                        ::pltxt2htm::NodeKind::pl_experiment, ::std::move(id)));
                     goto entry;
                 }
                 else if (auto opt_external_tag = ::pltxt2htm::details::try_parse_external_tag<ndebug>(
@@ -665,7 +665,7 @@ entry:
                     current_index += tag_len + 3;
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                        ::pltxt2htm::NodeType::pl_external, ::std::move(url)));
+                        ::pltxt2htm::NodeKind::pl_external, ::std::move(url)));
                     goto entry;
                 }
                 else if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"m">(
@@ -674,7 +674,7 @@ entry:
                     current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                        ::pltxt2htm::NodeType::html_em));
+                        ::pltxt2htm::NodeKind::html_em));
                     goto entry;
                 }
                 else {
@@ -694,7 +694,7 @@ entry:
                     current_index += opt_h1_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                        ::pltxt2htm::NodeType::html_h1));
+                        ::pltxt2htm::NodeKind::html_h1));
                     goto entry;
                 }
                 else if (auto opt_h2_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"2">(
@@ -704,7 +704,7 @@ entry:
                     current_index += opt_h2_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                        ::pltxt2htm::NodeType::html_h2));
+                        ::pltxt2htm::NodeKind::html_h2));
                     goto entry;
                 }
                 else if (auto opt_h3_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"3">(
@@ -714,7 +714,7 @@ entry:
                     current_index += opt_h3_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                        ::pltxt2htm::NodeType::html_h3));
+                        ::pltxt2htm::NodeKind::html_h3));
                     goto entry;
                 }
                 else if (auto opt_h4_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"4">(
@@ -724,7 +724,7 @@ entry:
                     current_index += opt_h4_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                        ::pltxt2htm::NodeType::html_h4));
+                        ::pltxt2htm::NodeKind::html_h4));
                     goto entry;
                 }
                 else if (auto opt_h5_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"5">(
@@ -734,7 +734,7 @@ entry:
                     current_index += opt_h5_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                        ::pltxt2htm::NodeType::html_h5));
+                        ::pltxt2htm::NodeKind::html_h5));
                     goto entry;
                 }
                 else if (auto opt_h6_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"6">(
@@ -744,7 +744,7 @@ entry:
                     current_index += opt_h6_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                        ::pltxt2htm::NodeType::html_h6));
+                        ::pltxt2htm::NodeKind::html_h6));
                     goto entry;
                 }
                 else if (auto opt_tag_len = ::pltxt2htm::details::try_parse_self_closing_tag<ndebug, u8"r">(
@@ -772,7 +772,7 @@ entry:
                     current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                        ::pltxt2htm::NodeType::pl_i));
+                        ::pltxt2htm::NodeKind::pl_i));
                     goto entry;
                 }
                 else {
@@ -792,7 +792,7 @@ entry:
                     current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                        ::pltxt2htm::NodeType::html_li));
+                        ::pltxt2htm::NodeKind::html_li));
                     goto entry;
                 }
                 else {
@@ -811,7 +811,7 @@ entry:
                     current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                        ::pltxt2htm::NodeType::html_ol));
+                        ::pltxt2htm::NodeKind::html_ol));
                     goto entry;
                 }
                 else {
@@ -831,7 +831,7 @@ entry:
                     current_index += opt_p_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                        ::pltxt2htm::NodeType::html_p));
+                        ::pltxt2htm::NodeKind::html_p));
                     goto entry;
                 }
                 else if (auto opt_pre_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"re">(
@@ -840,7 +840,7 @@ entry:
                     current_index += opt_pre_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                        ::pltxt2htm::NodeType::html_pre));
+                        ::pltxt2htm::NodeKind::html_pre));
                     goto entry;
                 }
                 else {
@@ -868,7 +868,7 @@ entry:
                     current_index += tag_len + 3;
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                        ::pltxt2htm::NodeType::pl_size, id.template value<ndebug == ::pltxt2htm::Contracts::ignore>()));
+                        ::pltxt2htm::NodeKind::pl_size, id.template value<ndebug == ::pltxt2htm::Contracts::ignore>()));
                     goto entry;
                 }
                 else if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"trong">(
@@ -878,7 +878,7 @@ entry:
                     current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                        ::pltxt2htm::NodeType::html_strong));
+                        ::pltxt2htm::NodeKind::html_strong));
                     goto entry;
                 }
                 else {
@@ -902,7 +902,7 @@ entry:
                     current_index += tag_len + 3;
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                        ::pltxt2htm::NodeType::pl_user, ::std::move(id)));
+                        ::pltxt2htm::NodeKind::pl_user, ::std::move(id)));
                     goto entry;
                 }
                 else if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"l">(
@@ -911,7 +911,7 @@ entry:
                     current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                        ::pltxt2htm::NodeType::html_ul));
+                        ::pltxt2htm::NodeKind::html_ul));
                     goto entry;
                 }
                 else {
@@ -953,7 +953,7 @@ entry:
             case u8'/': {
                 auto const& top_frame = call_stack.top();
                 switch (top_frame.get_nested_tag_type()) /* -Werror=switch */ {
-                case ::pltxt2htm::NodeType::pl_color: {
+                case ::pltxt2htm::NodeKind::pl_color: {
                     // parsing </color> or </a>
                     ::exception::optional<::std::size_t> opt_tag_len{
                         ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"color">(
@@ -980,7 +980,7 @@ entry:
                         continue;
                     }
                 }
-                case ::pltxt2htm::NodeType::pl_a: {
+                case ::pltxt2htm::NodeKind::pl_a: {
                     // parsing </color> or </a>
                     ::exception::optional<::std::size_t> opt_tag_len{
                         ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"color">(
@@ -1006,7 +1006,7 @@ entry:
                         continue;
                     }
                 }
-                case ::pltxt2htm::NodeType::pl_experiment: {
+                case ::pltxt2htm::NodeKind::pl_experiment: {
                     // parsing </experiment>
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"experiment">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
@@ -1028,7 +1028,7 @@ entry:
                         continue;
                     }
                 }
-                case ::pltxt2htm::NodeType::pl_discussion: {
+                case ::pltxt2htm::NodeKind::pl_discussion: {
                     // parsing </discussion>
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"discussion">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
@@ -1050,7 +1050,7 @@ entry:
                         continue;
                     }
                 }
-                case ::pltxt2htm::NodeType::pl_external: {
+                case ::pltxt2htm::NodeKind::pl_external: {
                     // parsing </external>
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"external">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
@@ -1072,7 +1072,7 @@ entry:
                         continue;
                     }
                 }
-                case ::pltxt2htm::NodeType::pl_user: {
+                case ::pltxt2htm::NodeKind::pl_user: {
                     // parsing </user>
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"user">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
@@ -1093,7 +1093,7 @@ entry:
                         continue;
                     }
                 }
-                case ::pltxt2htm::NodeType::pl_size: {
+                case ::pltxt2htm::NodeKind::pl_size: {
                     // parsing </size>
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"size">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
@@ -1113,7 +1113,7 @@ entry:
                         continue;
                     }
                 }
-                case ::pltxt2htm::NodeType::pl_b: {
+                case ::pltxt2htm::NodeKind::pl_b: {
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"b">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
@@ -1133,7 +1133,7 @@ entry:
                         continue;
                     }
                 }
-                case ::pltxt2htm::NodeType::pl_i: {
+                case ::pltxt2htm::NodeKind::pl_i: {
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"i">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
@@ -1153,7 +1153,7 @@ entry:
                         continue;
                     }
                 }
-                case ::pltxt2htm::NodeType::html_p: {
+                case ::pltxt2htm::NodeKind::html_p: {
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"p">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
@@ -1173,7 +1173,7 @@ entry:
                         continue;
                     }
                 }
-                case ::pltxt2htm::NodeType::html_h1: {
+                case ::pltxt2htm::NodeKind::html_h1: {
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"h1">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
@@ -1193,7 +1193,7 @@ entry:
                         continue;
                     }
                 }
-                case ::pltxt2htm::NodeType::html_h2: {
+                case ::pltxt2htm::NodeKind::html_h2: {
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"h2">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
@@ -1213,7 +1213,7 @@ entry:
                         continue;
                     }
                 }
-                case ::pltxt2htm::NodeType::html_h3: {
+                case ::pltxt2htm::NodeKind::html_h3: {
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"h3">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
@@ -1233,7 +1233,7 @@ entry:
                         continue;
                     }
                 }
-                case ::pltxt2htm::NodeType::html_h4: {
+                case ::pltxt2htm::NodeKind::html_h4: {
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"h4">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
@@ -1253,7 +1253,7 @@ entry:
                         continue;
                     }
                 }
-                case ::pltxt2htm::NodeType::html_h5: {
+                case ::pltxt2htm::NodeKind::html_h5: {
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"h5">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
@@ -1273,7 +1273,7 @@ entry:
                         continue;
                     }
                 }
-                case ::pltxt2htm::NodeType::html_h6: {
+                case ::pltxt2htm::NodeKind::html_h6: {
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"h6">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
@@ -1293,7 +1293,7 @@ entry:
                         continue;
                     }
                 }
-                case ::pltxt2htm::NodeType::html_del: {
+                case ::pltxt2htm::NodeKind::html_del: {
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"del">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
@@ -1313,11 +1313,11 @@ entry:
                         continue;
                     }
                 }
-                case ::pltxt2htm::NodeType::html_note:
+                case ::pltxt2htm::NodeKind::html_note:
                     [[unlikely]] {
                         ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
                     }
-                case ::pltxt2htm::NodeType::html_em: {
+                case ::pltxt2htm::NodeKind::html_em: {
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"em">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
@@ -1337,7 +1337,7 @@ entry:
                         continue;
                     }
                 }
-                case ::pltxt2htm::NodeType::html_strong: {
+                case ::pltxt2htm::NodeKind::html_strong: {
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"strong">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
@@ -1357,7 +1357,7 @@ entry:
                         continue;
                     }
                 }
-                case ::pltxt2htm::NodeType::html_ul: {
+                case ::pltxt2htm::NodeKind::html_ul: {
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"ul">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
@@ -1377,7 +1377,7 @@ entry:
                         continue;
                     }
                 }
-                case ::pltxt2htm::NodeType::html_ol: {
+                case ::pltxt2htm::NodeKind::html_ol: {
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"ol">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
@@ -1397,7 +1397,7 @@ entry:
                         continue;
                     }
                 }
-                case ::pltxt2htm::NodeType::html_li: {
+                case ::pltxt2htm::NodeKind::html_li: {
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"li">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
@@ -1417,7 +1417,7 @@ entry:
                         continue;
                     }
                 }
-                case ::pltxt2htm::NodeType::html_code: {
+                case ::pltxt2htm::NodeKind::html_code: {
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"code">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
@@ -1437,7 +1437,7 @@ entry:
                         continue;
                     }
                 }
-                case ::pltxt2htm::NodeType::html_pre: {
+                case ::pltxt2htm::NodeKind::html_pre: {
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"pre">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
@@ -1457,7 +1457,7 @@ entry:
                         continue;
                     }
                 }
-                case ::pltxt2htm::NodeType::html_blockquote: {
+                case ::pltxt2htm::NodeKind::html_blockquote: {
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"blockquote">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
@@ -1477,162 +1477,162 @@ entry:
                         continue;
                     }
                 }
-                case ::pltxt2htm::NodeType::md_block_quotes:
+                case ::pltxt2htm::NodeKind::md_block_quotes:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_code_fence_backtick:
+                case ::pltxt2htm::NodeKind::md_code_fence_backtick:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_code_fence_tilde:
+                case ::pltxt2htm::NodeKind::md_code_fence_tilde:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_del:
+                case ::pltxt2htm::NodeKind::md_del:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_link:
+                case ::pltxt2htm::NodeKind::md_link:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_atx_h1:
+                case ::pltxt2htm::NodeKind::md_atx_h1:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_atx_h2:
+                case ::pltxt2htm::NodeKind::md_atx_h2:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_atx_h3:
+                case ::pltxt2htm::NodeKind::md_atx_h3:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_atx_h4:
+                case ::pltxt2htm::NodeKind::md_atx_h4:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_atx_h5:
+                case ::pltxt2htm::NodeKind::md_atx_h5:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_atx_h6:
+                case ::pltxt2htm::NodeKind::md_atx_h6:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::u8char:
+                case ::pltxt2htm::NodeKind::u8char:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::invalid_u8char:
+                case ::pltxt2htm::NodeKind::invalid_u8char:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::text:
+                case ::pltxt2htm::NodeKind::text:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::line_break:
+                case ::pltxt2htm::NodeKind::line_break:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::space:
+                case ::pltxt2htm::NodeKind::space:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::ampersand:
+                case ::pltxt2htm::NodeKind::ampersand:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::double_quote:
+                case ::pltxt2htm::NodeKind::double_quote:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::single_quote:
+                case ::pltxt2htm::NodeKind::single_quote:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::less_than:
+                case ::pltxt2htm::NodeKind::less_than:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::greater_than:
+                case ::pltxt2htm::NodeKind::greater_than:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::tab:
+                case ::pltxt2htm::NodeKind::tab:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::html_br:
+                case ::pltxt2htm::NodeKind::html_br:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::html_hr:
+                case ::pltxt2htm::NodeKind::html_hr:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_li:
+                case ::pltxt2htm::NodeKind::md_li:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_escape_backslash:
+                case ::pltxt2htm::NodeKind::md_escape_backslash:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_escape_exclamation:
+                case ::pltxt2htm::NodeKind::md_escape_exclamation:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_escape_double_quote:
+                case ::pltxt2htm::NodeKind::md_escape_double_quote:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_escape_hash:
+                case ::pltxt2htm::NodeKind::md_escape_hash:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_escape_dollar:
+                case ::pltxt2htm::NodeKind::md_escape_dollar:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_escape_percent:
+                case ::pltxt2htm::NodeKind::md_escape_percent:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_escape_ampersand:
+                case ::pltxt2htm::NodeKind::md_escape_ampersand:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_escape_single_quote:
+                case ::pltxt2htm::NodeKind::md_escape_single_quote:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_escape_left_paren:
+                case ::pltxt2htm::NodeKind::md_escape_left_paren:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_escape_right_paren:
+                case ::pltxt2htm::NodeKind::md_escape_right_paren:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_escape_asterisk:
+                case ::pltxt2htm::NodeKind::md_escape_asterisk:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_escape_plus:
+                case ::pltxt2htm::NodeKind::md_escape_plus:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_escape_comma:
+                case ::pltxt2htm::NodeKind::md_escape_comma:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_escape_hyphen:
+                case ::pltxt2htm::NodeKind::md_escape_hyphen:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_escape_dot:
+                case ::pltxt2htm::NodeKind::md_escape_dot:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_escape_slash:
+                case ::pltxt2htm::NodeKind::md_escape_slash:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_escape_colon:
+                case ::pltxt2htm::NodeKind::md_escape_colon:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_escape_semicolon:
+                case ::pltxt2htm::NodeKind::md_escape_semicolon:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_escape_less_than:
+                case ::pltxt2htm::NodeKind::md_escape_less_than:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_escape_equals:
+                case ::pltxt2htm::NodeKind::md_escape_equals:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_escape_greater_than:
+                case ::pltxt2htm::NodeKind::md_escape_greater_than:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_escape_question:
+                case ::pltxt2htm::NodeKind::md_escape_question:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_escape_at:
+                case ::pltxt2htm::NodeKind::md_escape_at:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_escape_left_bracket:
+                case ::pltxt2htm::NodeKind::md_escape_left_bracket:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_escape_right_bracket:
+                case ::pltxt2htm::NodeKind::md_escape_right_bracket:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_escape_caret:
+                case ::pltxt2htm::NodeKind::md_escape_caret:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_escape_underscore:
+                case ::pltxt2htm::NodeKind::md_escape_underscore:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_escape_backtick:
+                case ::pltxt2htm::NodeKind::md_escape_backtick:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_escape_left_brace:
+                case ::pltxt2htm::NodeKind::md_escape_left_brace:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_escape_pipe:
+                case ::pltxt2htm::NodeKind::md_escape_pipe:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_escape_right_brace:
+                case ::pltxt2htm::NodeKind::md_escape_right_brace:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_escape_tilde:
+                case ::pltxt2htm::NodeKind::md_escape_tilde:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_hr:
+                case ::pltxt2htm::NodeKind::md_hr:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_single_emphasis_asterisk:
+                case ::pltxt2htm::NodeKind::md_single_emphasis_asterisk:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_single_emphasis_underscore:
+                case ::pltxt2htm::NodeKind::md_single_emphasis_underscore:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_double_emphasis_asterisk:
+                case ::pltxt2htm::NodeKind::md_double_emphasis_asterisk:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_double_emphasis_underscore:
+                case ::pltxt2htm::NodeKind::md_double_emphasis_underscore:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_triple_emphasis_asterisk:
+                case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_triple_emphasis_underscore:
+                case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_code_span_1_backtick:
+                case ::pltxt2htm::NodeKind::md_code_span_1_backtick:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_code_span_2_backtick:
+                case ::pltxt2htm::NodeKind::md_code_span_2_backtick:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_code_span_3_backtick:
+                case ::pltxt2htm::NodeKind::md_code_span_3_backtick:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_latex_inline:
+                case ::pltxt2htm::NodeKind::md_latex_inline:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_latex_block: {
+                case ::pltxt2htm::NodeKind::md_latex_block: {
                     // relate to 0041.fuzzing-crash3
                     // any tag contains `</` context would hit this branch
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
                     ++current_index;
                     continue;
                 }
-                case ::pltxt2htm::NodeType::md_image:
+                case ::pltxt2htm::NodeKind::md_image:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::pl_macro_project:
+                case ::pltxt2htm::NodeKind::pl_macro_project:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::pl_macro_visitor:
+                case ::pltxt2htm::NodeKind::pl_macro_visitor:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::pl_macro_author:
+                case ::pltxt2htm::NodeKind::pl_macro_author:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::pl_macro_coauthors:
+                case ::pltxt2htm::NodeKind::pl_macro_coauthors:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_ul:
+                case ::pltxt2htm::NodeKind::md_ul:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeType::md_ol:
+                case ::pltxt2htm::NodeKind::md_ol:
                     [[unlikely]] {
                         ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
                     }
@@ -1680,147 +1680,147 @@ entry:
             auto&& super_ast = call_stack.top().subast;
             auto&& super_index = call_stack.top().current_index;
             switch (frame.get_nested_tag_type()) /* -Werror=switch */ {
-            case ::pltxt2htm::NodeType::pl_color: {
+            case ::pltxt2htm::NodeKind::pl_color: {
                 auto&& id = frame.get_equal_sign_tag_id();
                 super_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::PlColor<ndebug>{::std::move(subast), ::std::move(id)}));
                 super_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::pl_a: {
+            case ::pltxt2htm::NodeKind::pl_a: {
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::PlA<ndebug>{::std::move(subast)}));
                 super_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::pl_experiment: {
+            case ::pltxt2htm::NodeKind::pl_experiment: {
                 auto&& id = frame.get_equal_sign_tag_id();
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
                     ::pltxt2htm::PlExperiment<ndebug>{::std::move(subast), ::std::move(id)}));
                 super_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::pl_discussion: {
+            case ::pltxt2htm::NodeKind::pl_discussion: {
                 auto&& id = frame.get_equal_sign_tag_id();
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
                     ::pltxt2htm::PlDiscussion<ndebug>{::std::move(subast), ::std::move(id)}));
                 super_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::pl_user: {
+            case ::pltxt2htm::NodeKind::pl_user: {
                 auto&& id = frame.get_equal_sign_tag_id();
                 super_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::PlUser<ndebug>{::std::move(subast), ::std::move(id)}));
                 super_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::pl_external: {
+            case ::pltxt2htm::NodeKind::pl_external: {
                 auto&& url = frame.get_external_tag_url();
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
                     ::pltxt2htm::PlExternal<ndebug>{::std::move(subast), ::std::move(url)}));
                 super_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::pl_size: {
+            case ::pltxt2htm::NodeKind::pl_size: {
                 auto&& id = frame.get_pl_size_tag_id();
                 super_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::PlSize<ndebug>{::std::move(subast), id}));
                 super_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::html_strong:
+            case ::pltxt2htm::NodeKind::html_strong:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::pl_b: {
+            case ::pltxt2htm::NodeKind::pl_b: {
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::PlB<ndebug>{::std::move(subast)}));
                 super_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::pl_i: {
+            case ::pltxt2htm::NodeKind::pl_i: {
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::PlI<ndebug>{::std::move(subast)}));
                 super_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::html_p: {
+            case ::pltxt2htm::NodeKind::html_p: {
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::P<ndebug>{::std::move(subast)}));
                 super_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::html_h1: {
+            case ::pltxt2htm::NodeKind::html_h1: {
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::H1<ndebug>{::std::move(subast)}));
                 super_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::html_h2: {
+            case ::pltxt2htm::NodeKind::html_h2: {
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::H2<ndebug>{::std::move(subast)}));
                 super_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::html_h3: {
+            case ::pltxt2htm::NodeKind::html_h3: {
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::H3<ndebug>{::std::move(subast)}));
                 super_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::html_h4: {
+            case ::pltxt2htm::NodeKind::html_h4: {
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::H4<ndebug>{::std::move(subast)}));
                 super_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::html_h5: {
+            case ::pltxt2htm::NodeKind::html_h5: {
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::H5<ndebug>{::std::move(subast)}));
                 super_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::html_h6: {
+            case ::pltxt2htm::NodeKind::html_h6: {
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::H6<ndebug>{::std::move(subast)}));
                 super_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::html_del: {
+            case ::pltxt2htm::NodeKind::html_del: {
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Del<ndebug>{::std::move(subast)}));
                 super_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::html_em: {
+            case ::pltxt2htm::NodeKind::html_em: {
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Em<ndebug>{::std::move(subast)}));
                 super_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::html_ul: {
+            case ::pltxt2htm::NodeKind::html_ul: {
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Ul<ndebug>{::std::move(subast)}));
                 super_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::html_ol: {
+            case ::pltxt2htm::NodeKind::html_ol: {
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Ol<ndebug>{::std::move(subast)}));
                 super_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::html_li: {
+            case ::pltxt2htm::NodeKind::html_li: {
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Li<ndebug>{::std::move(subast)}));
                 super_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::md_li: {
+            case ::pltxt2htm::NodeKind::md_li: {
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdLi<ndebug>{::std::move(subast)}));
                 super_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::html_code: {
+            case ::pltxt2htm::NodeKind::html_code: {
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Code<ndebug>{::std::move(subast)}));
                 super_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::html_pre: {
+            case ::pltxt2htm::NodeKind::html_pre: {
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Pre<ndebug>{::std::move(subast)}));
                 super_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::html_blockquote: {
+            case ::pltxt2htm::NodeKind::html_blockquote: {
                 super_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Blockquote<ndebug>{::std::move(subast)}));
                 super_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::md_atx_h1: {
+            case ::pltxt2htm::NodeKind::md_atx_h1: {
                 ::fast_io::u8string_view super_pltext{call_stack.top().get_pltext()};
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH1<ndebug>{::std::move(subast)}));
                 auto&& [forward_index, _] = ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(
@@ -1829,7 +1829,7 @@ entry:
                 super_index += forward_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::md_atx_h2: {
+            case ::pltxt2htm::NodeKind::md_atx_h2: {
                 ::fast_io::u8string_view super_pltext{call_stack.top().get_pltext()};
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH2<ndebug>{::std::move(subast)}));
                 auto&& [forward_index, _] = ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(
@@ -1838,7 +1838,7 @@ entry:
                 super_index += forward_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::md_atx_h3: {
+            case ::pltxt2htm::NodeKind::md_atx_h3: {
                 ::fast_io::u8string_view super_pltext{call_stack.top().get_pltext()};
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH3<ndebug>{::std::move(subast)}));
                 auto&& [forward_index, _] = ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(
@@ -1847,7 +1847,7 @@ entry:
                 super_index += forward_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::md_atx_h4: {
+            case ::pltxt2htm::NodeKind::md_atx_h4: {
                 ::fast_io::u8string_view super_pltext{call_stack.top().get_pltext()};
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH4<ndebug>{::std::move(subast)}));
                 auto&& [forward_index, _] = ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(
@@ -1856,7 +1856,7 @@ entry:
                 super_index += forward_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::md_atx_h5: {
+            case ::pltxt2htm::NodeKind::md_atx_h5: {
                 ::fast_io::u8string_view super_pltext{call_stack.top().get_pltext()};
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH5<ndebug>{::std::move(subast)}));
                 auto&& [forward_index, _] = ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(
@@ -1865,7 +1865,7 @@ entry:
                 super_index += forward_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::md_atx_h6: {
+            case ::pltxt2htm::NodeKind::md_atx_h6: {
                 ::fast_io::u8string_view super_pltext{call_stack.top().get_pltext()};
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH6<ndebug>{::std::move(subast)}));
                 auto&& [forward_index, _] = ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(
@@ -1874,187 +1874,187 @@ entry:
                 super_index += forward_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::md_code_span_1_backtick: {
+            case ::pltxt2htm::NodeKind::md_code_span_1_backtick: {
                 super_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdCodeSpan1Backtick<ndebug>{::std::move(subast)}));
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::md_code_span_2_backtick: {
+            case ::pltxt2htm::NodeKind::md_code_span_2_backtick: {
                 super_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdCodeSpan2Backtick<ndebug>{::std::move(subast)}));
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::md_code_span_3_backtick: {
+            case ::pltxt2htm::NodeKind::md_code_span_3_backtick: {
                 super_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdCodeSpan3Backtick<ndebug>{::std::move(subast)}));
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::md_latex_inline: {
+            case ::pltxt2htm::NodeKind::md_latex_inline: {
                 super_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdLatexInline<ndebug>{::std::move(subast)}));
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::md_latex_block: {
+            case ::pltxt2htm::NodeKind::md_latex_block: {
                 super_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdLatexBlock<ndebug>{::std::move(subast)}));
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::md_single_emphasis_asterisk: {
+            case ::pltxt2htm::NodeKind::md_single_emphasis_asterisk: {
                 super_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdSingleEmphasisAsterisk<ndebug>{::std::move(subast)}));
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::md_single_emphasis_underscore: {
+            case ::pltxt2htm::NodeKind::md_single_emphasis_underscore: {
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
                     ::pltxt2htm::MdSingleEmphasisUnderscore<ndebug>{::std::move(subast)}));
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::md_double_emphasis_asterisk: {
+            case ::pltxt2htm::NodeKind::md_double_emphasis_asterisk: {
                 super_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdDoubleEmphasisAsterisk<ndebug>{::std::move(subast)}));
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::md_double_emphasis_underscore: {
+            case ::pltxt2htm::NodeKind::md_double_emphasis_underscore: {
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
                     ::pltxt2htm::MdDoubleEmphasisUnderscore<ndebug>{::std::move(subast)}));
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::md_triple_emphasis_asterisk: {
+            case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk: {
                 super_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTripleEmphasisAsterisk<ndebug>{::std::move(subast)}));
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::md_triple_emphasis_underscore: {
+            case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore: {
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
                     ::pltxt2htm::MdTripleEmphasisUnderscore<ndebug>{::std::move(subast)}));
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::md_del: {
+            case ::pltxt2htm::NodeKind::md_del: {
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdDel<ndebug>{::std::move(subast)}));
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::md_block_quotes: {
+            case ::pltxt2htm::NodeKind::md_block_quotes: {
                 super_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdBlockQuotes<ndebug>{::std::move(subast)}));
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::md_link: {
+            case ::pltxt2htm::NodeKind::md_link: {
                 auto&& link_url = frame.get_md_link_url();
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
                     ::pltxt2htm::MdLink<ndebug>{::std::move(subast), ::std::move(link_url)}));
                 goto entry;
             }
-            case ::pltxt2htm::NodeType::u8char:
+            case ::pltxt2htm::NodeKind::u8char:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::invalid_u8char:
+            case ::pltxt2htm::NodeKind::invalid_u8char:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::text:
+            case ::pltxt2htm::NodeKind::text:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::line_break:
+            case ::pltxt2htm::NodeKind::line_break:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::space:
+            case ::pltxt2htm::NodeKind::space:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::ampersand:
+            case ::pltxt2htm::NodeKind::ampersand:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::double_quote:
+            case ::pltxt2htm::NodeKind::double_quote:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::single_quote:
+            case ::pltxt2htm::NodeKind::single_quote:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::less_than:
+            case ::pltxt2htm::NodeKind::less_than:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::greater_than:
+            case ::pltxt2htm::NodeKind::greater_than:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::tab:
+            case ::pltxt2htm::NodeKind::tab:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_br:
+            case ::pltxt2htm::NodeKind::html_br:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_hr:
+            case ::pltxt2htm::NodeKind::html_hr:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_escape_backslash:
+            case ::pltxt2htm::NodeKind::md_escape_backslash:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_escape_exclamation:
+            case ::pltxt2htm::NodeKind::md_escape_exclamation:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_escape_double_quote:
+            case ::pltxt2htm::NodeKind::md_escape_double_quote:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_escape_hash:
+            case ::pltxt2htm::NodeKind::md_escape_hash:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_escape_dollar:
+            case ::pltxt2htm::NodeKind::md_escape_dollar:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_escape_percent:
+            case ::pltxt2htm::NodeKind::md_escape_percent:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_escape_ampersand:
+            case ::pltxt2htm::NodeKind::md_escape_ampersand:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_escape_single_quote:
+            case ::pltxt2htm::NodeKind::md_escape_single_quote:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_escape_left_paren:
+            case ::pltxt2htm::NodeKind::md_escape_left_paren:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_escape_right_paren:
+            case ::pltxt2htm::NodeKind::md_escape_right_paren:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_escape_asterisk:
+            case ::pltxt2htm::NodeKind::md_escape_asterisk:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_escape_plus:
+            case ::pltxt2htm::NodeKind::md_escape_plus:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_escape_comma:
+            case ::pltxt2htm::NodeKind::md_escape_comma:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_escape_hyphen:
+            case ::pltxt2htm::NodeKind::md_escape_hyphen:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_escape_dot:
+            case ::pltxt2htm::NodeKind::md_escape_dot:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_escape_slash:
+            case ::pltxt2htm::NodeKind::md_escape_slash:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_escape_colon:
+            case ::pltxt2htm::NodeKind::md_escape_colon:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_escape_semicolon:
+            case ::pltxt2htm::NodeKind::md_escape_semicolon:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_escape_less_than:
+            case ::pltxt2htm::NodeKind::md_escape_less_than:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_escape_equals:
+            case ::pltxt2htm::NodeKind::md_escape_equals:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_escape_greater_than:
+            case ::pltxt2htm::NodeKind::md_escape_greater_than:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_escape_question:
+            case ::pltxt2htm::NodeKind::md_escape_question:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_escape_at:
+            case ::pltxt2htm::NodeKind::md_escape_at:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_escape_left_bracket:
+            case ::pltxt2htm::NodeKind::md_escape_left_bracket:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_escape_right_bracket:
+            case ::pltxt2htm::NodeKind::md_escape_right_bracket:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_escape_caret:
+            case ::pltxt2htm::NodeKind::md_escape_caret:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_escape_underscore:
+            case ::pltxt2htm::NodeKind::md_escape_underscore:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_escape_backtick:
+            case ::pltxt2htm::NodeKind::md_escape_backtick:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_escape_left_brace:
+            case ::pltxt2htm::NodeKind::md_escape_left_brace:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_escape_pipe:
+            case ::pltxt2htm::NodeKind::md_escape_pipe:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_escape_right_brace:
+            case ::pltxt2htm::NodeKind::md_escape_right_brace:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_escape_tilde:
+            case ::pltxt2htm::NodeKind::md_escape_tilde:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_hr:
+            case ::pltxt2htm::NodeKind::md_hr:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_ul:
+            case ::pltxt2htm::NodeKind::md_ul:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_ol:
+            case ::pltxt2htm::NodeKind::md_ol:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_code_fence_backtick:
+            case ::pltxt2htm::NodeKind::md_code_fence_backtick:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_code_fence_tilde:
+            case ::pltxt2htm::NodeKind::md_code_fence_tilde:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::html_note:
+            case ::pltxt2htm::NodeKind::html_note:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::md_image:
+            case ::pltxt2htm::NodeKind::md_image:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::pl_macro_project:
+            case ::pltxt2htm::NodeKind::pl_macro_project:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::pl_macro_visitor:
+            case ::pltxt2htm::NodeKind::pl_macro_visitor:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::pl_macro_author:
+            case ::pltxt2htm::NodeKind::pl_macro_author:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeType::pl_macro_coauthors:
+            case ::pltxt2htm::NodeKind::pl_macro_coauthors:
                 [[unlikely]] {
                     ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
                 }

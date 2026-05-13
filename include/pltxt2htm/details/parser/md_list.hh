@@ -638,7 +638,7 @@ template<::pltxt2htm::Contracts ndebug>
 struct ToMdListAstResult {
     ::pltxt2htm::details::MdListAst<ndebug> ast;
     ::std::size_t forward_index;
-    ::pltxt2htm::NodeType item_kind;
+    ::pltxt2htm::NodeKind item_kind;
 };
 
 template<::pltxt2htm::Contracts ndebug>
@@ -660,8 +660,8 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
                     .ast = ::std::move(current_frame.md_list_ast),
                     .forward_index = forward_index,
                     .item_kind = item_kind == ::pltxt2htm::details::MdUlListItemKind::ordered_item
-                                     ? ::pltxt2htm::NodeType::md_ol
-                                     : ::pltxt2htm::NodeType::md_ul};
+                                     ? ::pltxt2htm::NodeKind::md_ol
+                                     : ::pltxt2htm::NodeKind::md_ul};
             }
             call_stack.push(::std::move(current_frame));
         }
@@ -686,8 +686,8 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
                     .ast = ::std::move(frame.md_list_ast),
                     .forward_index = frame.current_index,
                     .item_kind = frame.get_item_kind() == ::pltxt2htm::details::MdUlListItemKind::ordered_item
-                                     ? ::pltxt2htm::NodeType::md_ol
-                                     : ::pltxt2htm::NodeType::md_ul};
+                                     ? ::pltxt2htm::NodeKind::md_ol
+                                     : ::pltxt2htm::NodeKind::md_ul};
             }
             else {
                 switch (frame.get_item_kind()) {
@@ -740,8 +740,8 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
                     .ast = ::std::move(frame.md_list_ast),
                     .forward_index = pltext_size,
                     .item_kind = frame.get_item_kind() == ::pltxt2htm::details::MdUlListItemKind::ordered_item
-                                     ? ::pltxt2htm::NodeType::md_ol
-                                     : ::pltxt2htm::NodeType::md_ul};
+                                     ? ::pltxt2htm::NodeKind::md_ol
+                                     : ::pltxt2htm::NodeKind::md_ul};
             }
             else {
                 switch (frame.get_item_kind()) {
