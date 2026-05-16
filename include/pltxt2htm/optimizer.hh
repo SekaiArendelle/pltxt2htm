@@ -106,12 +106,12 @@ public:
     constexpr auto operator=(::pltxt2htm::details::OptimizerContextVariant<ndebug> const&) noexcept
         -> ::pltxt2htm::details::OptimizerContextVariant<ndebug>& = delete;
 
-    constexpr auto operator=(::pltxt2htm::details::OptimizerContextVariant<ndebug>&& other) noexcept
+    constexpr auto operator=(this ::pltxt2htm::details::OptimizerContextVariant<ndebug>& self, ::pltxt2htm::details::OptimizerContextVariant<ndebug>&& other) noexcept
         -> ::pltxt2htm::details::OptimizerContextVariant<ndebug>& {
-        pltxt2htm_assert(this != ::std::addressof(other), u8"can not assign to self");
-        this->~OptimizerContextVariant();
-        new (this) OptimizerContextVariant(::std::move(other));
-        return *this;
+        pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other), u8"can not assign to self");
+        self.~OptimizerContextVariant();
+        ::std::construct_at(::std::addressof(self), ::std::move(other));
+        return self;
     }
 };
 
@@ -160,7 +160,7 @@ public:
         ::pltxt2htm::details::OptimizerFrameContext<Iter, ndebug> const&) noexcept = delete;
 
     constexpr ::pltxt2htm::details::OptimizerFrameContext<Iter, ndebug>& operator=(
-        ::pltxt2htm::details::OptimizerFrameContext<Iter, ndebug>&&) noexcept = default;
+        this ::pltxt2htm::details::OptimizerFrameContext<Iter, ndebug>& self, ::pltxt2htm::details::OptimizerFrameContext<Iter, ndebug>&&) noexcept = default;
 
     constexpr auto get_nested_tag_type(
         this ::pltxt2htm::details::OptimizerFrameContext<Iter, ndebug> const& self) noexcept {

@@ -147,6 +147,9 @@ Please follow the existing low-runtime, cross-platform style used in core header
 - Prefer `::std::addressof` over `operator&`:
   - Do not use the built-in `&` operator to obtain the address of an object, because `operator&` can be overloaded.
   - Use `::std::addressof(...)` instead, which correctly returns the address even for types with overloaded `operator&`.
+- Use deducing-`this` for `operator=`:
+  - All non-`= delete` `operator=` overloads must use the C++23 deducing-`this` form with an lvalue reference object parameter (`this X& self`) to prevent assignment to temporaries.
+  - `= delete` overloads are exempt since they already prevent any use.
 
 ## Commit and Pull Request Guidelines
 
