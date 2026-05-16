@@ -81,6 +81,7 @@ public:
         }
     }
 
+    [[nodiscard]]
     constexpr auto&& operator[](this ::pltxt2htm::details::is_leteral_string auto&& self,
                                 ::std::size_t index) noexcept {
         if (index >= N) [[unlikely]] {
@@ -100,12 +101,14 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto begin(this ::pltxt2htm::details::BasicLiteralString<value_type, N> const& self) noexcept {
+    constexpr auto begin(this ::pltxt2htm::details::is_leteral_string auto const& self) noexcept
+        -> const_iterator {
         return const_iterator(self.data_);
     }
 
     [[nodiscard]]
-    constexpr auto cbegin(this ::pltxt2htm::details::BasicLiteralString<value_type, N> const& self) noexcept {
+    constexpr auto cbegin(this ::pltxt2htm::details::is_leteral_string auto const& self) noexcept
+        -> const_iterator {
         return const_iterator(self.data_);
     }
 
@@ -115,12 +118,14 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto end(this ::pltxt2htm::details::BasicLiteralString<value_type, N> const& self) noexcept {
+    constexpr auto end(this ::pltxt2htm::details::is_leteral_string auto const& self) noexcept
+        -> const_iterator {
         return const_iterator(self.data_ + N);
     }
 
     [[nodiscard]]
-    constexpr auto cend(this ::pltxt2htm::details::BasicLiteralString<value_type, N> const& self) noexcept {
+    constexpr auto cend(this ::pltxt2htm::details::is_leteral_string auto const& self) noexcept
+        -> const_iterator {
         return const_iterator(self.data_ + N);
     }
 
@@ -130,12 +135,14 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto data(this ::pltxt2htm::details::BasicLiteralString<value_type, N> const& self) noexcept {
+    constexpr auto data(this ::pltxt2htm::details::is_leteral_string auto const& self) noexcept
+        -> const_pointer {
         return const_pointer(self.data_);
     }
 
     [[nodiscard]]
-    constexpr auto cdata(this ::pltxt2htm::details::BasicLiteralString<value_type, N> const& self) noexcept {
+    constexpr auto cdata(this ::pltxt2htm::details::is_leteral_string auto const& self) noexcept
+        -> const_pointer {
         return const_pointer(self.data_);
     }
 };

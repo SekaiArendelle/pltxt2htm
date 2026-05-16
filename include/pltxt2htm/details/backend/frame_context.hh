@@ -88,15 +88,18 @@ public:
     constexpr ::pltxt2htm::details::BackendFrameContext<ndebug>& operator=(
         ::pltxt2htm::details::BackendFrameContext<ndebug>&&) noexcept = delete;
 
+    [[nodiscard]]
     constexpr auto get_nested_tag_type(this ::pltxt2htm::details::BackendFrameContext<ndebug> const& self) noexcept {
         return self.context_data.kind;
     }
 
+    [[nodiscard]]
     constexpr auto get_ast(this ::pltxt2htm::details::BackendFrameContext<ndebug> const& self) noexcept
         -> ::pltxt2htm::Ast<ndebug> const& {
         return *(self.ast);
     }
 
+    [[nodiscard]]
     constexpr auto get_ol_li_count(this auto&& self) noexcept -> ::std::size_t& {
         bool const is_ol_type{self.context_data.kind == ::pltxt2htm::NodeKind::html_ol ||
                               self.context_data.kind == ::pltxt2htm::NodeKind::md_ol};

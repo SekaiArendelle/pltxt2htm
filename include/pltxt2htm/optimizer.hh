@@ -162,11 +162,13 @@ public:
     constexpr ::pltxt2htm::details::OptimizerFrameContext<Iter, ndebug>& operator=(
         this ::pltxt2htm::details::OptimizerFrameContext<Iter, ndebug>& self, ::pltxt2htm::details::OptimizerFrameContext<Iter, ndebug>&&) noexcept = default;
 
+    [[nodiscard]]
     constexpr auto get_nested_tag_type(
         this ::pltxt2htm::details::OptimizerFrameContext<Iter, ndebug> const& self) noexcept {
         return self.context_data.kind;
     }
 
+    [[nodiscard]]
     constexpr auto get_equal_sign_tag_id(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
         bool const is_equal_sign_tag_type{::pltxt2htm::details::is_equal_sign_tag_type(context_data_ref.kind)};
@@ -174,6 +176,7 @@ public:
         return ::std::forward_like<decltype(self)>(context_data_ref.equal_sign_tag.id_);
     }
 
+    [[nodiscard]]
     constexpr auto get_pl_size_tag_id(this auto&& self) noexcept -> ::std::size_t {
         auto&& context_data_ref = self.context_data;
         bool const is_pl_size_tag_type{::pltxt2htm::details::is_pl_size_tag_type(context_data_ref.kind)};

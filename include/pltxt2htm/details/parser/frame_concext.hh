@@ -902,6 +902,7 @@ public:
         ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
     }
 
+    [[nodiscard]]
     constexpr auto get_equal_sign_tag_id(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
         bool const is_equal_sign_tag_type{::pltxt2htm::details::is_equal_sign_tag_type(context_data_ref.kind)};
@@ -909,6 +910,7 @@ public:
         return ::std::forward_like<decltype(self)>(context_data_ref.equal_sign_tag.id);
     }
 
+    [[nodiscard]]
     constexpr auto get_external_tag_url(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
         bool const is_external_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_external};
@@ -916,6 +918,7 @@ public:
         return ::std::forward_like<decltype(self)>(context_data_ref.external_tag.url);
     }
 
+    [[nodiscard]]
     constexpr auto get_pl_size_tag_id(this auto&& self) noexcept -> ::std::size_t {
         auto&& context_data_ref = self.context_data;
         bool const is_pl_size_tag_type{::pltxt2htm::details::is_pl_size_tag_type(context_data_ref.kind)};
@@ -923,6 +926,7 @@ public:
         return context_data_ref.pl_size_tag.id;
     }
 
+    [[nodiscard]]
     constexpr auto get_md_link_url(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
         bool const is_md_link_type{::pltxt2htm::details::is_md_link_type(context_data_ref.kind)};
@@ -930,6 +934,7 @@ public:
         return ::std::forward_like<decltype(self)>(context_data_ref.md_link.link);
     }
 
+    [[nodiscard]]
     constexpr auto get_md_list_ast(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
         bool const is_md_list_type{::pltxt2htm::details::is_md_list_type(context_data_ref.kind)};
@@ -937,6 +942,7 @@ public:
         return ::std::forward_like<decltype(self)>(context_data_ref.md_list.md_list_ast);
     }
 
+    [[nodiscard]]
     constexpr auto get_md_list_iter(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
         bool const is_md_list_type{::pltxt2htm::details::is_md_list_type(context_data_ref.kind)};
