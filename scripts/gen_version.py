@@ -81,3 +81,28 @@ pub const PATCH: usize = {__version__[2]};
 
 with open(RUST_VERSION_PATH, "w", newline="") as f:
     f.write(context)
+
+# Generate rust/*/Cargo.toml
+version_str = f"{__version__[0]}.{__version__[1]}.{__version__[2]}"
+
+for cargo_file in ["libpltxt2htm-sys/Cargo.toml", "pltxt2htm/Cargo.toml"]:
+    CARGO_PATH = os.path.join(SCRIPT_DIR, "rust", cargo_file)
+
+    with open(CARGO_PATH, "r+", newline="") as f:
+        lines = f.read().splitlines()
+        in_package = False
+        found = False
+        for i, line in enumerate(lines):
+            stripped = line.strip()
+            if stripped == "[package]":
+                in_package = True
+            elif in_package and stripped.startswith("["):
+                in_package = False
+            if in_package and stripped.startswith("version"):
+                lines[i] = f'version = "{version_str}"'
+                found = True
+                break
+        if not found:
+            raise RuntimeError(f"version not found in [package] of {cargo_file}")
+        f.seek(0)
+        f.write("".join(line + "\n" for line in lines))
