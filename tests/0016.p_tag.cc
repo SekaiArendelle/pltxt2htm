@@ -37,7 +37,8 @@ int main() {
         auto answer = ::fast_io::u8string_view{u8"<p><span style=\"color:red;\">text&lt;/p&gt;</span></p>"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<p><color=red>text<size=20>\xEF\xBC\x9C</size>/p<size=20>\xEF\xBC\x9E</size></color></p>"};
+        auto plunity_richtext_answer = ::fast_io::u8string_view{
+            u8"<p><color=red>text<size=20>\xEF\xBC\x9C</size>/p<size=20>\xEF\xBC\x9E</size></color></p>"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 

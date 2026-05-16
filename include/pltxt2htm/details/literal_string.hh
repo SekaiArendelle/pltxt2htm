@@ -101,14 +101,12 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto begin(this ::pltxt2htm::details::is_leteral_string auto const& self) noexcept
-        -> const_iterator {
+    constexpr auto begin(this ::pltxt2htm::details::is_leteral_string auto const& self) noexcept -> const_iterator {
         return const_iterator(self.data_);
     }
 
     [[nodiscard]]
-    constexpr auto cbegin(this ::pltxt2htm::details::is_leteral_string auto const& self) noexcept
-        -> const_iterator {
+    constexpr auto cbegin(this ::pltxt2htm::details::is_leteral_string auto const& self) noexcept -> const_iterator {
         return const_iterator(self.data_);
     }
 
@@ -118,14 +116,12 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto end(this ::pltxt2htm::details::is_leteral_string auto const& self) noexcept
-        -> const_iterator {
+    constexpr auto end(this ::pltxt2htm::details::is_leteral_string auto const& self) noexcept -> const_iterator {
         return const_iterator(self.data_ + N);
     }
 
     [[nodiscard]]
-    constexpr auto cend(this ::pltxt2htm::details::is_leteral_string auto const& self) noexcept
-        -> const_iterator {
+    constexpr auto cend(this ::pltxt2htm::details::is_leteral_string auto const& self) noexcept -> const_iterator {
         return const_iterator(self.data_ + N);
     }
 
@@ -135,14 +131,12 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto data(this ::pltxt2htm::details::is_leteral_string auto const& self) noexcept
-        -> const_pointer {
+    constexpr auto data(this ::pltxt2htm::details::is_leteral_string auto const& self) noexcept -> const_pointer {
         return const_pointer(self.data_);
     }
 
     [[nodiscard]]
-    constexpr auto cdata(this ::pltxt2htm::details::is_leteral_string auto const& self) noexcept
-        -> const_pointer {
+    constexpr auto cdata(this ::pltxt2htm::details::is_leteral_string auto const& self) noexcept -> const_pointer {
         return const_pointer(self.data_);
     }
 };

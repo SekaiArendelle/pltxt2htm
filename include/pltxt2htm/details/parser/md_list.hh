@@ -55,10 +55,12 @@ public:
 
     constexpr ~MdListTextNode() noexcept = default;
 
-    constexpr auto operator=(this ::pltxt2htm::details::MdListTextNode& self, ::pltxt2htm::details::MdListTextNode const& other) noexcept
+    constexpr auto operator=(this ::pltxt2htm::details::MdListTextNode& self,
+                             ::pltxt2htm::details::MdListTextNode const& other) noexcept
         -> ::pltxt2htm::details::MdListTextNode& = default;
 
-    constexpr auto operator=(this ::pltxt2htm::details::MdListTextNode& self, ::pltxt2htm::details::MdListTextNode&&) noexcept
+    constexpr auto operator=(this ::pltxt2htm::details::MdListTextNode& self,
+                             ::pltxt2htm::details::MdListTextNode&&) noexcept
         -> ::pltxt2htm::details::MdListTextNode& = default;
 
     [[nodiscard]]
@@ -99,10 +101,12 @@ public:
 
     constexpr ~MdListUlNode() noexcept;
 
-    constexpr auto operator=(this ::pltxt2htm::details::MdListUlNode<ndebug>& self, ::pltxt2htm::details::MdListUlNode<ndebug> const& other) noexcept
+    constexpr auto operator=(this ::pltxt2htm::details::MdListUlNode<ndebug>& self,
+                             ::pltxt2htm::details::MdListUlNode<ndebug> const& other) noexcept
         -> ::pltxt2htm::details::MdListUlNode<ndebug>& = delete;
 
-    constexpr auto operator=(this ::pltxt2htm::details::MdListUlNode<ndebug>& self, ::pltxt2htm::details::MdListUlNode<ndebug>&&) noexcept
+    constexpr auto operator=(this ::pltxt2htm::details::MdListUlNode<ndebug>& self,
+                             ::pltxt2htm::details::MdListUlNode<ndebug>&&) noexcept
         -> ::pltxt2htm::details::MdListUlNode<ndebug>&;
 
     [[nodiscard]]
@@ -132,10 +136,12 @@ public:
 
     constexpr ~MdListOlNode() noexcept;
 
-    constexpr auto operator=(this ::pltxt2htm::details::MdListOlNode<ndebug>& self, ::pltxt2htm::details::MdListOlNode<ndebug> const& other) noexcept
+    constexpr auto operator=(this ::pltxt2htm::details::MdListOlNode<ndebug>& self,
+                             ::pltxt2htm::details::MdListOlNode<ndebug> const& other) noexcept
         -> ::pltxt2htm::details::MdListOlNode<ndebug>& = delete;
 
-    constexpr auto operator=(this ::pltxt2htm::details::MdListOlNode<ndebug>& self, ::pltxt2htm::details::MdListOlNode<ndebug>&&) noexcept
+    constexpr auto operator=(this ::pltxt2htm::details::MdListOlNode<ndebug>& self,
+                             ::pltxt2htm::details::MdListOlNode<ndebug>&&) noexcept
         -> ::pltxt2htm::details::MdListOlNode<ndebug>&;
 
     [[nodiscard]]
@@ -229,10 +235,12 @@ public:
         }
     }
 
-    constexpr auto operator=(this ::pltxt2htm::details::MdListBaseNode<ndebug>& self, ::pltxt2htm::details::MdListBaseNode<ndebug> const& other) noexcept
+    constexpr auto operator=(this ::pltxt2htm::details::MdListBaseNode<ndebug>& self,
+                             ::pltxt2htm::details::MdListBaseNode<ndebug> const& other) noexcept
         -> ::pltxt2htm::details::MdListBaseNode<ndebug>& = delete;
 
-    constexpr auto operator=(this ::pltxt2htm::details::MdListBaseNode<ndebug>& self, ::pltxt2htm::details::MdListBaseNode<ndebug>&& other) noexcept
+    constexpr auto operator=(this ::pltxt2htm::details::MdListBaseNode<ndebug>& self,
+                             ::pltxt2htm::details::MdListBaseNode<ndebug>&& other) noexcept
         -> ::pltxt2htm::details::MdListBaseNode<ndebug>& {
         if (::std::addressof(other) != ::std::addressof(self)) {
             self.~MdListBaseNode();
@@ -315,7 +323,8 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr MdListUlNode<ndebug>::~MdListUlNode() noexcept = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto MdListUlNode<ndebug>::operator=(this ::pltxt2htm::details::MdListUlNode<ndebug>& self, ::pltxt2htm::details::MdListUlNode<ndebug>&& other) noexcept
+constexpr auto MdListUlNode<ndebug>::operator=(this ::pltxt2htm::details::MdListUlNode<ndebug>& self,
+                                               ::pltxt2htm::details::MdListUlNode<ndebug>&& other) noexcept
     -> ::pltxt2htm::details::MdListUlNode<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
@@ -339,7 +348,8 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr MdListOlNode<ndebug>::~MdListOlNode() noexcept = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto MdListOlNode<ndebug>::operator=(this ::pltxt2htm::details::MdListOlNode<ndebug>& self, ::pltxt2htm::details::MdListOlNode<ndebug>&& other) noexcept
+constexpr auto MdListOlNode<ndebug>::operator=(this ::pltxt2htm::details::MdListOlNode<ndebug>& self,
+                                               ::pltxt2htm::details::MdListOlNode<ndebug>&& other) noexcept
     -> ::pltxt2htm::details::MdListOlNode<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>

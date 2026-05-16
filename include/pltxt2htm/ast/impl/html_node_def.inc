@@ -12,7 +12,8 @@ constexpr ::pltxt2htm::H1<ndebug>::H1(::pltxt2htm::H1<ndebug>&&) noexcept = defa
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::H1<ndebug>::~H1() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::H1<ndebug>::operator=(this ::pltxt2htm::H1<ndebug>& self, ::pltxt2htm::H1<ndebug>&&) noexcept
+constexpr auto ::pltxt2htm::H1<ndebug>::operator=(this ::pltxt2htm::H1<ndebug>& self,
+                                                  ::pltxt2htm::H1<ndebug>&&) noexcept
     -> ::pltxt2htm::H1<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
@@ -25,7 +26,8 @@ constexpr ::pltxt2htm::H2<ndebug>::H2(::pltxt2htm::H2<ndebug>&&) noexcept = defa
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::H2<ndebug>::~H2() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::H2<ndebug>::operator=(this ::pltxt2htm::H2<ndebug>& self, ::pltxt2htm::H2<ndebug>&&) noexcept
+constexpr auto ::pltxt2htm::H2<ndebug>::operator=(this ::pltxt2htm::H2<ndebug>& self,
+                                                  ::pltxt2htm::H2<ndebug>&&) noexcept
     -> ::pltxt2htm::H2<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
@@ -38,7 +40,8 @@ constexpr ::pltxt2htm::H3<ndebug>::H3(::pltxt2htm::H3<ndebug>&&) noexcept = defa
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::H3<ndebug>::~H3() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::H3<ndebug>::operator=(this ::pltxt2htm::H3<ndebug>& self, ::pltxt2htm::H3<ndebug>&&) noexcept
+constexpr auto ::pltxt2htm::H3<ndebug>::operator=(this ::pltxt2htm::H3<ndebug>& self,
+                                                  ::pltxt2htm::H3<ndebug>&&) noexcept
     -> ::pltxt2htm::H3<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
@@ -51,7 +54,8 @@ constexpr ::pltxt2htm::H4<ndebug>::H4(::pltxt2htm::H4<ndebug>&&) noexcept = defa
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::H4<ndebug>::~H4() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::H4<ndebug>::operator=(this ::pltxt2htm::H4<ndebug>& self, ::pltxt2htm::H4<ndebug>&&) noexcept
+constexpr auto ::pltxt2htm::H4<ndebug>::operator=(this ::pltxt2htm::H4<ndebug>& self,
+                                                  ::pltxt2htm::H4<ndebug>&&) noexcept
     -> ::pltxt2htm::H4<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
@@ -64,7 +68,8 @@ constexpr ::pltxt2htm::H5<ndebug>::H5(::pltxt2htm::H5<ndebug>&&) noexcept = defa
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::H5<ndebug>::~H5() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::H5<ndebug>::operator=(this ::pltxt2htm::H5<ndebug>& self, ::pltxt2htm::H5<ndebug>&&) noexcept
+constexpr auto ::pltxt2htm::H5<ndebug>::operator=(this ::pltxt2htm::H5<ndebug>& self,
+                                                  ::pltxt2htm::H5<ndebug>&&) noexcept
     -> ::pltxt2htm::H5<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
@@ -77,7 +82,8 @@ constexpr ::pltxt2htm::H6<ndebug>::H6(::pltxt2htm::H6<ndebug>&&) noexcept = defa
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::H6<ndebug>::~H6() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::H6<ndebug>::operator=(this ::pltxt2htm::H6<ndebug>& self, ::pltxt2htm::H6<ndebug>&&) noexcept
+constexpr auto ::pltxt2htm::H6<ndebug>::operator=(this ::pltxt2htm::H6<ndebug>& self,
+                                                  ::pltxt2htm::H6<ndebug>&&) noexcept
     -> ::pltxt2htm::H6<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
@@ -103,7 +109,8 @@ constexpr ::pltxt2htm::Del<ndebug>::Del(::pltxt2htm::Del<ndebug>&&) noexcept = d
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::Del<ndebug>::~Del() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::Del<ndebug>::operator=(this ::pltxt2htm::Del<ndebug>& self, ::pltxt2htm::Del<ndebug>&&) noexcept
+constexpr auto ::pltxt2htm::Del<ndebug>::operator=(this ::pltxt2htm::Del<ndebug>& self,
+                                                   ::pltxt2htm::Del<ndebug>&&) noexcept
     -> ::pltxt2htm::Del<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
@@ -116,7 +123,8 @@ constexpr ::pltxt2htm::Note<ndebug>::Note(::pltxt2htm::Note<ndebug>&&) noexcept 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::Note<ndebug>::~Note() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::Note<ndebug>::operator=(this ::pltxt2htm::Note<ndebug>& self, ::pltxt2htm::Note<ndebug>&&) noexcept
+constexpr auto ::pltxt2htm::Note<ndebug>::operator=(this ::pltxt2htm::Note<ndebug>& self,
+                                                    ::pltxt2htm::Note<ndebug>&&) noexcept
     -> ::pltxt2htm::Note<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
@@ -129,7 +137,8 @@ constexpr ::pltxt2htm::Em<ndebug>::Em(::pltxt2htm::Em<ndebug>&&) noexcept = defa
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::Em<ndebug>::~Em() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::Em<ndebug>::operator=(this ::pltxt2htm::Em<ndebug>& self, ::pltxt2htm::Em<ndebug>&&) noexcept
+constexpr auto ::pltxt2htm::Em<ndebug>::operator=(this ::pltxt2htm::Em<ndebug>& self,
+                                                  ::pltxt2htm::Em<ndebug>&&) noexcept
     -> ::pltxt2htm::Em<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
@@ -142,7 +151,8 @@ constexpr ::pltxt2htm::Strong<ndebug>::Strong(::pltxt2htm::Strong<ndebug>&&) noe
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::Strong<ndebug>::~Strong() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::Strong<ndebug>::operator=(this ::pltxt2htm::Strong<ndebug>& self, ::pltxt2htm::Strong<ndebug>&&) noexcept
+constexpr auto ::pltxt2htm::Strong<ndebug>::operator=(this ::pltxt2htm::Strong<ndebug>& self,
+                                                      ::pltxt2htm::Strong<ndebug>&&) noexcept
     -> ::pltxt2htm::Strong<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
@@ -155,7 +165,8 @@ constexpr ::pltxt2htm::Ul<ndebug>::Ul(::pltxt2htm::Ul<ndebug>&&) noexcept = defa
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::Ul<ndebug>::~Ul() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::Ul<ndebug>::operator=(this ::pltxt2htm::Ul<ndebug>& self, ::pltxt2htm::Ul<ndebug>&&) noexcept
+constexpr auto ::pltxt2htm::Ul<ndebug>::operator=(this ::pltxt2htm::Ul<ndebug>& self,
+                                                  ::pltxt2htm::Ul<ndebug>&&) noexcept
     -> ::pltxt2htm::Ul<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
@@ -168,7 +179,8 @@ constexpr ::pltxt2htm::Ol<ndebug>::Ol(::pltxt2htm::Ol<ndebug>&&) noexcept = defa
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::Ol<ndebug>::~Ol() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::Ol<ndebug>::operator=(this ::pltxt2htm::Ol<ndebug>& self, ::pltxt2htm::Ol<ndebug>&&) noexcept
+constexpr auto ::pltxt2htm::Ol<ndebug>::operator=(this ::pltxt2htm::Ol<ndebug>& self,
+                                                  ::pltxt2htm::Ol<ndebug>&&) noexcept
     -> ::pltxt2htm::Ol<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
@@ -181,7 +193,8 @@ constexpr ::pltxt2htm::Li<ndebug>::Li(::pltxt2htm::Li<ndebug>&&) noexcept = defa
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::Li<ndebug>::~Li() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::Li<ndebug>::operator=(this ::pltxt2htm::Li<ndebug>& self, ::pltxt2htm::Li<ndebug>&&) noexcept
+constexpr auto ::pltxt2htm::Li<ndebug>::operator=(this ::pltxt2htm::Li<ndebug>& self,
+                                                  ::pltxt2htm::Li<ndebug>&&) noexcept
     -> ::pltxt2htm::Li<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
@@ -194,7 +207,8 @@ constexpr ::pltxt2htm::Code<ndebug>::Code(::pltxt2htm::Code<ndebug>&&) noexcept 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::Code<ndebug>::~Code() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::Code<ndebug>::operator=(this ::pltxt2htm::Code<ndebug>& self, ::pltxt2htm::Code<ndebug>&&) noexcept
+constexpr auto ::pltxt2htm::Code<ndebug>::operator=(this ::pltxt2htm::Code<ndebug>& self,
+                                                    ::pltxt2htm::Code<ndebug>&&) noexcept
     -> ::pltxt2htm::Code<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
@@ -207,7 +221,8 @@ constexpr ::pltxt2htm::Pre<ndebug>::Pre(::pltxt2htm::Pre<ndebug>&&) noexcept = d
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::Pre<ndebug>::~Pre() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::Pre<ndebug>::operator=(this ::pltxt2htm::Pre<ndebug>& self, ::pltxt2htm::Pre<ndebug>&&) noexcept
+constexpr auto ::pltxt2htm::Pre<ndebug>::operator=(this ::pltxt2htm::Pre<ndebug>& self,
+                                                   ::pltxt2htm::Pre<ndebug>&&) noexcept
     -> ::pltxt2htm::Pre<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
@@ -220,7 +235,8 @@ constexpr ::pltxt2htm::Blockquote<ndebug>::Blockquote(::pltxt2htm::Blockquote<nd
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::Blockquote<ndebug>::~Blockquote() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::Blockquote<ndebug>::operator=(this ::pltxt2htm::Blockquote<ndebug>& self, ::pltxt2htm::Blockquote<ndebug>&&) noexcept
+constexpr auto ::pltxt2htm::Blockquote<ndebug>::operator=(this ::pltxt2htm::Blockquote<ndebug>& self,
+                                                          ::pltxt2htm::Blockquote<ndebug>&&) noexcept
     -> ::pltxt2htm::Blockquote<ndebug>& = default;
 
 } // namespace pltxt2htm

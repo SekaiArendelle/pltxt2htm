@@ -106,7 +106,8 @@ public:
     constexpr auto operator=(::pltxt2htm::details::OptimizerContextVariant<ndebug> const&) noexcept
         -> ::pltxt2htm::details::OptimizerContextVariant<ndebug>& = delete;
 
-    constexpr auto operator=(this ::pltxt2htm::details::OptimizerContextVariant<ndebug>& self, ::pltxt2htm::details::OptimizerContextVariant<ndebug>&& other) noexcept
+    constexpr auto operator=(this ::pltxt2htm::details::OptimizerContextVariant<ndebug>& self,
+                             ::pltxt2htm::details::OptimizerContextVariant<ndebug>&& other) noexcept
         -> ::pltxt2htm::details::OptimizerContextVariant<ndebug>& {
         pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other), u8"can not assign to self");
         self.~OptimizerContextVariant();
@@ -130,21 +131,23 @@ public:
     Iter iter; ///< Iterator pointing to the current position in the AST
 
     constexpr OptimizerFrameContext(::pltxt2htm::Ast<ndebug>* ast_, ::pltxt2htm::NodeKind const nested_tag_type_,
-                          Iter&& iter_) noexcept
+                                    Iter&& iter_) noexcept
         : context_data{nested_tag_type_},
           ast(ast_),
           iter{iter_} {
     }
 
-    constexpr OptimizerFrameContext(::pltxt2htm::Ast<ndebug>* ast_, ::pltxt2htm::NodeKind const nested_tag_type_, Iter&& iter_,
-                          ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo&& equal_sign_tag_context_) noexcept
+    constexpr OptimizerFrameContext(
+        ::pltxt2htm::Ast<ndebug>* ast_, ::pltxt2htm::NodeKind const nested_tag_type_, Iter&& iter_,
+        ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo&& equal_sign_tag_context_) noexcept
         : context_data{::std::move(equal_sign_tag_context_), nested_tag_type_},
           ast(ast_),
           iter{iter_} {
     }
 
-    constexpr OptimizerFrameContext(::pltxt2htm::Ast<ndebug>* ast_, Iter&& iter_,
-                          ::pltxt2htm::details::OptimizerContextWithPlSizeTagInfo&& pl_size_tag_context_) noexcept
+    constexpr OptimizerFrameContext(
+        ::pltxt2htm::Ast<ndebug>* ast_, Iter&& iter_,
+        ::pltxt2htm::details::OptimizerContextWithPlSizeTagInfo&& pl_size_tag_context_) noexcept
         : context_data{::std::move(pl_size_tag_context_)},
           ast(ast_),
           iter{iter_} {
@@ -160,7 +163,8 @@ public:
         ::pltxt2htm::details::OptimizerFrameContext<Iter, ndebug> const&) noexcept = delete;
 
     constexpr ::pltxt2htm::details::OptimizerFrameContext<Iter, ndebug>& operator=(
-        this ::pltxt2htm::details::OptimizerFrameContext<Iter, ndebug>& self, ::pltxt2htm::details::OptimizerFrameContext<Iter, ndebug>&&) noexcept = default;
+        this ::pltxt2htm::details::OptimizerFrameContext<Iter, ndebug>& self,
+        ::pltxt2htm::details::OptimizerFrameContext<Iter, ndebug>&&) noexcept = default;
 
     [[nodiscard]]
     constexpr auto get_nested_tag_type(
