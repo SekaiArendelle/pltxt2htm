@@ -54,17 +54,36 @@ inline constexpr void string_heap_dilate_uncheck(::fast_io::containers::details:
 	{
 		beginptr = nullptr;
 	}
-	if constexpr (typed_allocator_type::has_reallocate)
+#if __cpp_constexpr_dynamic_alloc >= 201907L
+	if consteval
 	{
-		auto [newptr, newcap] = typed_allocator_type::reallocate_at_least(beginptr, rsize + 1u);
+		auto [newptr, newcap] = typed_allocator_type::allocate_at_least(rsize + 1u);
+		if (beginptr != nullptr)
+		{
+			for (::std::size_t i{}; i != strsize; ++i)
+			{
+				::std::construct_at(newptr + i, beginptr[i]);
+			}
+			typed_allocator_type::deallocate_n(beginptr, bfsize);
+		}
 		ptr = newptr;
 		rsize = newcap - 1u;
 	}
 	else
+#endif
 	{
-		auto [newptr, newcap] = typed_allocator_type::reallocate_n_at_least(beginptr, bfsize, rsize + 1u);
-		ptr = newptr;
-		rsize = newcap - 1u;
+		if constexpr (typed_allocator_type::has_reallocate)
+		{
+			auto [newptr, newcap] = typed_allocator_type::reallocate_at_least(beginptr, rsize + 1u);
+			ptr = newptr;
+			rsize = newcap - 1u;
+		}
+		else
+		{
+			auto [newptr, newcap] = typed_allocator_type::reallocate_n_at_least(beginptr, bfsize, rsize + 1u);
+			ptr = newptr;
+			rsize = newcap - 1u;
+		}
 	}
 	imp = {ptr, ptr + strsize, ptr + rsize};
 }
@@ -118,7 +137,7 @@ private:
 			using untyped_allocator_type = generic_allocator_adapter<allocator_type>;
 			using typed_allocator_type = typed_generic_allocator_adapter<untyped_allocator_type, chtype>;
 			auto [ptr, cap]{typed_allocator_type::allocate_at_least(2)};
-			*ptr = 0;
+			::std::construct_at(ptr, char_type{});
 			this->imp = {ptr, ptr, ptr + static_cast<size_type>(cap - 1u)};
 		}
 		else
