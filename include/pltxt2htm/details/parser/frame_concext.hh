@@ -627,7 +627,7 @@ public:
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
               ::pltxt2htm::details::ParserFrameContextWithExternalTagInfo{.pltext = pltext_, .url = ::std::move(url_)},
               nested_tag_type_}} {
-        bool const is_external_tag_type{::pltxt2htm::details::is_external_tag_type(nested_tag_type_)};
+        bool const is_external_tag_type{nested_tag_type_ == ::pltxt2htm::NodeKind::pl_external};
         pltxt2htm_assert(is_external_tag_type, u8"mismatch node type");
     }
 
@@ -636,7 +636,7 @@ public:
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
               ::pltxt2htm::details::ParserFrameContextWithPlSizeTagInfo{.pltext = pltext_, .id = id_},
               nested_tag_type_}} {
-        bool const is_pl_size_tag_type{::pltxt2htm::details::is_pl_size_tag_type(nested_tag_type_)};
+        bool const is_pl_size_tag_type{nested_tag_type_ == ::pltxt2htm::NodeKind::pl_size};
         pltxt2htm_assert(is_pl_size_tag_type, u8"mismatch node type");
     }
 
@@ -921,7 +921,7 @@ public:
     [[nodiscard]]
     constexpr auto get_pl_size_tag_id(this auto&& self) noexcept -> ::std::size_t {
         auto&& context_data_ref = self.context_data;
-        bool const is_pl_size_tag_type{::pltxt2htm::details::is_pl_size_tag_type(context_data_ref.kind)};
+        bool const is_pl_size_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_size};
         pltxt2htm_assert(is_pl_size_tag_type, u8"context kind mismatch");
         return context_data_ref.pl_size_tag.id;
     }
@@ -929,7 +929,7 @@ public:
     [[nodiscard]]
     constexpr auto get_md_link_url(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
-        bool const is_md_link_type{::pltxt2htm::details::is_md_link_type(context_data_ref.kind)};
+        bool const is_md_link_type{context_data_ref.kind == ::pltxt2htm::NodeKind::md_link};
         pltxt2htm_assert(is_md_link_type, u8"context kind mismatch");
         return ::std::forward_like<decltype(self)>(context_data_ref.md_link.link);
     }
@@ -937,16 +937,16 @@ public:
     [[nodiscard]]
     constexpr auto get_md_list_ast(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
-        bool const is_md_list_type{::pltxt2htm::details::is_md_list_type(context_data_ref.kind)};
-        pltxt2htm_assert(is_md_list_type, u8"context kind mismatch");
+        bool const is_md_ul_or_ol_type{::pltxt2htm::details::is_md_list_ul_or_ol_type(context_data_ref.kind)};
+        pltxt2htm_assert(is_md_ul_or_ol_type, u8"context kind mismatch");
         return ::std::forward_like<decltype(self)>(context_data_ref.md_list.md_list_ast);
     }
 
     [[nodiscard]]
     constexpr auto get_md_list_iter(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
-        bool const is_md_list_type{::pltxt2htm::details::is_md_list_type(context_data_ref.kind)};
-        pltxt2htm_assert(is_md_list_type, u8"context kind mismatch");
+        bool const is_md_ul_or_ol_type{::pltxt2htm::details::is_md_list_ul_or_ol_type(context_data_ref.kind)};
+        pltxt2htm_assert(is_md_ul_or_ol_type, u8"context kind mismatch");
         return ::std::forward_like<decltype(self)>(context_data_ref.md_list.iter);
     }
 };

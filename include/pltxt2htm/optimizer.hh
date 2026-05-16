@@ -183,7 +183,7 @@ public:
     [[nodiscard]]
     constexpr auto get_pl_size_tag_id(this auto&& self) noexcept -> ::std::size_t {
         auto&& context_data_ref = self.context_data;
-        bool const is_pl_size_tag_type{::pltxt2htm::details::is_pl_size_tag_type(context_data_ref.kind)};
+        bool const is_pl_size_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_size};
         pltxt2htm_assert(is_pl_size_tag_type, u8"context kind mismatch");
         return context_data_ref.pl_size_tag.id_;
     }

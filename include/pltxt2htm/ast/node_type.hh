@@ -173,37 +173,17 @@ constexpr auto is_equal_sign_tag_type(::pltxt2htm::NodeKind const node_type) noe
 }
 
 [[nodiscard]]
-constexpr auto is_external_tag_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
-    return node_type == ::pltxt2htm::NodeKind::pl_external;
-}
-
-[[nodiscard]]
-constexpr auto is_pl_size_tag_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
-    return node_type == ::pltxt2htm::NodeKind::pl_size;
-}
-
-[[nodiscard]]
-constexpr auto is_md_block_quotes_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
-    return node_type == ::pltxt2htm::NodeKind::md_block_quotes;
-}
-
-[[nodiscard]]
-constexpr auto is_md_link_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
-    return node_type == ::pltxt2htm::NodeKind::md_link;
-}
-
-[[nodiscard]]
-constexpr auto is_md_list_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
+constexpr auto is_md_list_ul_or_ol_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
     return node_type == ::pltxt2htm::NodeKind::md_ul || node_type == ::pltxt2htm::NodeKind::md_ol;
 }
 
 [[nodiscard]]
 constexpr auto is_plain_pltext_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
     return !(::pltxt2htm::details::is_equal_sign_tag_type(node_type) ||
-             ::pltxt2htm::details::is_external_tag_type(node_type) ||
-             ::pltxt2htm::details::is_pl_size_tag_type(node_type) ||
-             ::pltxt2htm::details::is_md_block_quotes_type(node_type) ||
-             ::pltxt2htm::details::is_md_link_type(node_type) || ::pltxt2htm::details::is_md_list_type(node_type));
+             node_type == ::pltxt2htm::NodeKind::pl_external ||
+             node_type == ::pltxt2htm::NodeKind::pl_size ||
+             node_type == ::pltxt2htm::NodeKind::md_block_quotes ||
+             node_type == ::pltxt2htm::NodeKind::md_link || ::pltxt2htm::details::is_md_list_ul_or_ol_type(node_type));
 }
 
 } // namespace details
