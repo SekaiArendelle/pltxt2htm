@@ -4,7 +4,7 @@ ARG MACOS_SDK_URL=https://github.com/joseluisq/macosx-sdks/releases/download/15.
 ARG PYTHON_VERSION=3.12.10
 ARG mode=release
 
-RUN apk add --no-cache clang cmake git lld python3 wget xz xar cpio
+RUN apk add --no-cache clang cmake git lld ninja python3 wget xz xar cpio
 
 # Download and extract macOS SDK
 RUN wget -q "${MACOS_SDK_URL}" -O /tmp/macos-sdk.tar.xz \
@@ -47,7 +47,10 @@ RUN . /tmp/build-vars \
         -DCMAKE_BUILD_TYPE=$(echo "${mode}" | sed 's/^release$/Release/; s/^debug$/Debug/') \
         -DCMAKE_CXX_COMPILER=clang++ \
         -DCMAKE_CXX_COMPILER_TARGET=${TARGET} \
-        -DCMAKE_CXX_FLAGS="--sysroot=${SYSROOT} -stdlib=libc++" \
+        -DCMAKE_SYSTEM_NAME=Darwin \
+        -DCMAKE_SYSTEM_PROCESSOR=arm64 \
+        -DCMAKE_CXX_FLAGS="--sysroot=${SYSROOT} -stdlib=libc++ -fuse-ld=lld" \
+        -G Ninja \
         -DPYTHON_INCLUDE_DIR=/tmp/python-include \
         -DPYTHON_EXT_SUFFIX=".${CPYTHON_ABIFLAGS}-darwin.so" \
         -S /pltxt2htm/py \
