@@ -36,7 +36,7 @@ docker run --rm aarch64-apple-darwin24-pltxt2htm-py-release \
 
 ```sh
 docker build -f py/docker/aarch64-apple-darwin24/Dockerfile \
-    --build-arg PYTHON_VERSION=3.13.2 \
+    --build-arg PYTHON_VERSION=3.13 \
     --build-arg mode=release \
     -t aarch64-apple-darwin24-pltxt2htm-py-313 .
 ```
