@@ -13,32 +13,21 @@ pointing to [macosx-sdks](https://github.com/joseluisq/macosx-sdks) is set in th
 ## Debug mode
 
 ```sh
-docker build -f py/docker/aarch64-apple-darwin24/Dockerfile \
-    --build-arg mode=debug \
-    -t aarch64-apple-darwin24-pltxt2htm-py-debug .
-docker run --rm aarch64-apple-darwin24-pltxt2htm-py-debug \
-    cat /pltxt2htm/py/aarch64-apple-darwin24-pltxt2htm-py-debug.tar.xz \
-    > aarch64-apple-darwin24-pltxt2htm-py-debug.tar.xz
+docker build -f py/docker/aarch64-apple-darwin24/Dockerfile --build-arg mode=debug -t aarch64-apple-darwin24-pltxt2htm-py-debug .
+docker run --rm aarch64-apple-darwin24-pltxt2htm-py-debug cat /pltxt2htm/py/aarch64-apple-darwin24-pltxt2htm-py-debug.tar.xz > aarch64-apple-darwin24-pltxt2htm-py-debug.tar.xz
 ```
 
 ## Release mode
 
 ```sh
-docker build -f py/docker/aarch64-apple-darwin24/Dockerfile \
-    --build-arg mode=release \
-    -t aarch64-apple-darwin24-pltxt2htm-py-release .
-docker run --rm aarch64-apple-darwin24-pltxt2htm-py-release \
-    cat /pltxt2htm/py/aarch64-apple-darwin24-pltxt2htm-py-release.tar.xz \
-    > aarch64-apple-darwin24-pltxt2htm-py-release.tar.xz
+docker build -f py/docker/aarch64-apple-darwin24/Dockerfile --build-arg mode=release -t aarch64-apple-darwin24-pltxt2htm-py-release .
+docker run --rm aarch64-apple-darwin24-pltxt2htm-py-release cat /pltxt2htm/py/aarch64-apple-darwin24-pltxt2htm-py-release.tar.xz > aarch64-apple-darwin24-pltxt2htm-py-release.tar.xz
 ```
 
 ## Custom Python version
 
 ```sh
-docker build -f py/docker/aarch64-apple-darwin24/Dockerfile \
-    --build-arg PYTHON_VERSION=3.13 \
-    --build-arg mode=release \
-    -t aarch64-apple-darwin24-pltxt2htm-py-313 .
+docker build -f py/docker/aarch64-apple-darwin24/Dockerfile --build-arg PYTHON_VERSION=3.13 --build-arg mode=release -t aarch64-apple-darwin24-pltxt2htm-py-313 .
 ```
 
 ## Clean up
