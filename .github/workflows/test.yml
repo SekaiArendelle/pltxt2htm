@@ -296,7 +296,7 @@ jobs:
       - name: Configure and build
         working-directory: py
         run: |
-          xmake config -p windows -a x64 --toolchain=x86_64-windows-msvc-clang -m ${{ matrix.build-mode }} --python-version=${{ matrix.python-version }}
+          xmake config -p windows -a x64 --toolchain=x86_64-windows-msvc-clang -m ${{ matrix.build-mode }} --python-version=${{ matrix.python-version }} -y
           xmake build -v
 
   aarch64-apple-darwin24-py:
