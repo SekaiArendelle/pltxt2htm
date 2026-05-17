@@ -4,7 +4,7 @@ ARG MACOS_SDK_URL=https://github.com/joseluisq/macosx-sdks/releases/download/15.
 ARG PYTHON_VERSION=3.12.10
 ARG mode=release
 
-RUN apk add --no-cache clang git lld python3 wget xz
+RUN apk add --no-cache clang git lld python3 wget xz xar cpio
 
 # Download and extract macOS SDK
 RUN wget -q "${MACOS_SDK_URL}" -O /tmp/macos-sdk.tar.xz \
@@ -12,20 +12,24 @@ RUN wget -q "${MACOS_SDK_URL}" -O /tmp/macos-sdk.tar.xz \
     && tar xf /tmp/macos-sdk.tar.xz -C /sysroots/aarch64-apple-darwin24 --strip-components=1 \
     && rm /tmp/macos-sdk.tar.xz
 
-# Download Python source and run configure with cross-compilation to generate pyconfig.h
-RUN export CC="clang --target=aarch64-apple-darwin24 --sysroot=/sysroots/aarch64-apple-darwin24 -fuse-ld=lld" \
-    && export CPP="clang -E --target=aarch64-apple-darwin24 --sysroot=/sysroots/aarch64-apple-darwin24" \
-    && export MACHDEP=darwin \
-    && wget -q "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz" -O /tmp/python.tar.xz \
-    && tar xf /tmp/python.tar.xz -C /tmp \
-    && cd "/tmp/Python-${PYTHON_VERSION}" \
-    && sed -i '/# for now, limit cross builds to known configurations/,/as_fn_error/{/MACHDEP="unknown"/s/.*/:/; /as_fn_error/s/.*/:/}' configure \
-    && ./configure --host=aarch64-apple-darwin24 --build=x86_64-pc-linux-musl \
-        --with-build-python=$(which python3) --without-ensurepip --disable-ipv6 \
-        ac_cv_file__dev_ptmx=yes ac_cv_file__dev_ptc=yes \
+# Download Python macOS installer and extract pyconfig.h
+RUN wget -q "https://www.python.org/ftp/python/${PYTHON_VERSION}/python-${PYTHON_VERSION}-macos11.pkg" -O /tmp/py.pkg \
+    && cd /tmp && xar -xf /tmp/py.pkg \
+    && mkdir -p /tmp/framework \
+    && cd /tmp/framework \
+    && cat /tmp/Python_Framework.pkg/Payload | gzip -d | cpio -idm 2>/dev/null \
+    && rm -rf /tmp/py.pkg /tmp/Python_*.pkg /tmp/Resources /tmp/Distribution
+
+# Download Python source tarball and extract Include/ headers
+RUN wget -q "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz" -O /tmp/python.tar.xz \
     && mkdir -p /tmp/python-include \
-    && cp -r Include/. pyconfig.h /tmp/python-include/ \
+    && tar xf /tmp/python.tar.xz -C /tmp \
+    && cp -r "/tmp/Python-${PYTHON_VERSION}/Include/." /tmp/python-include/ \
     && rm -rf "/tmp/Python-${PYTHON_VERSION}" /tmp/python.tar.xz
+
+# Copy pyconfig.h from extracted macOS framework
+RUN cp "/tmp/framework/Versions/${PYTHON_VERSION%.*}/include/python${PYTHON_VERSION%.*}/pyconfig.h" /tmp/python-include/ \
+    && rm -rf /tmp/framework
 
 RUN PY_VER_SHORT=$(echo "${PYTHON_VERSION}" | cut -d. -f1,2 | tr -d '.') \
     && echo "CPYTHON_ABIFLAGS=cpython-${PY_VER_SHORT}" >> /tmp/build-vars
