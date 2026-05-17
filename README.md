@@ -10,7 +10,7 @@ This repository is a sub-project of [Physics-Lab-Web2](https://github.com/NetLog
 > Note: MSVC support is still experimental
 
 ## Usage
-C++ APIs is in [include/pltxt2htm](include/pltxt2htm/), [Click here](examples/example.cc) to see a simple example.
+C++ APIs is in [include/pltxt2htm](include/pltxt2htm/), [Click here](examples) to see a simple example.
 
 You can also use `pltxt2htm` in console (cmd/README.md), browser (wasm/README.md), python (py/README.md), c (c/README.md), rust (rust/README.md) and csharp (csharp/README.md).
 
@@ -72,7 +72,7 @@ A: Conditional compilation in function body will cause [ODR violation](https://e
 
 > Q: Why use C++ instead of a "memory safe" language like Rust?
 
-A: I appreciate Rust but not for its "safety". Basically, safety should always be guaranteed by programmer, because most of the logic error can't be detected at compile time, not even type safety can be handled, thats why rtti exists, while Rust is not 100% memory safe.
+A: I appreciate Rust but not for its "safety". Basically, safety should always be guaranteed by programmer, because most of the logic error can't be detected at compile time, not even type safety can be handled, thats why rtti exists, while Rust rely on `unsafe` block.
 
 At the same time, `pltxt2htm` is absolutely safe:
 * Lots of assertions are enabled in debug mode to assure memory safety and logic correctness.
