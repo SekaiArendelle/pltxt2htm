@@ -296,7 +296,7 @@ jobs:
       - name: Configure and build
         working-directory: py
         run: |
-          xmake config -p windows -a x64 --toolchain=x86_64-windows-msvc-clang -m ${{ matrix.build-mode }}
+          xmake config -p windows -a x64 --toolchain=x86_64-windows-msvc-clang -m ${{ matrix.build-mode }} --python-version=${{ matrix.python-version }}
           xmake build -v
 
   aarch64-apple-darwin24-py:
@@ -307,30 +307,40 @@ jobs:
         build-mode: [debug]
 
     name: aarch64-apple-darwin24 (py/, ${{ matrix.build-mode }} mode, python ${{ matrix.python-version }})
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v3
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install clang and xmake
+      - name: Build docker image
         run: |
-          brew update
-          brew install llvm lld xmake
+          docker build -f py/docker/aarch64-apple-darwin24/Dockerfile \
+            --build-arg mode=${{ matrix.build-mode }} \
+            --build-arg PYTHON_VERSION=3.14.0a5 \
+            -t py-aarch64-${{ matrix.python-version }}-${{ matrix.build-mode }} \
+            .
 
-      - name: Set PATH for LLVM clang
-        run: echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
-
-      - name: Configure and build
-        working-directory: py
+      - name: Verify .so file
         run: |
-          xmake f --toolchain=clang -m ${{ matrix.build-mode }}
-          xmake build -v
+          mode="${{ matrix.build-mode }}"
+          container="py-verify-${{ matrix.python-version }}-${mode}"
+          docker run -d --name "${container}" py-aarch64-${{ matrix.python-version }}-${mode}
+          docker cp "${container}:/pltxt2htm/py/aarch64-apple-darwin24-pltxt2htm-py-${mode}.tar.xz" /tmp/py-output.tar.xz
+          tar -xJf /tmp/py-output.tar.xz -C /tmp
+          dir="/tmp/aarch64-apple-darwin24-pltxt2htm-py-${mode}"
+          file="${dir}/pltxt2htm.cpython-314-darwin.so"
+          if [ ! -f "${file}" ]; then
+            echo "ERROR: .so file not found"
+            exit 1
+          fi
+          magic=$(python3 -c "with open('${file}','rb') as f: print(f.read(4).hex())")
+          if [ "${magic}" = "cffaedfe" ]; then
+            echo "OK: valid MH_MAGIC_64"
+          else
+            echo "ERROR: bad magic ${magic}"
+            exit 1
+          fi
 
   armv7-linux-androideabi30-c-release:
     name: armv7-linux-androideabi30 (c/, release mode)

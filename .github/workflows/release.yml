@@ -146,40 +146,39 @@ jobs:
         build-mode: [release]
 
     name: aarch64-apple-darwin24 (py/, ${{ matrix.build-mode }} mode, python ${{ matrix.python-version }})
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v3
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install clang and xmake
+      - name: Map Python version
+        id: pyver
         run: |
-          brew update
-          brew install llvm lld xmake
+          case "${{ matrix.python-version }}" in
+            3.9)  ver="3.9.21"  ;;
+            3.10) ver="3.10.16" ;;
+            3.11) ver="3.11.11" ;;
+            3.12) ver="3.12.10" ;;
+            3.13) ver="3.13.4"  ;;
+            3.14) ver="3.14.0a5" ;;
+          esac
+          echo "full=${ver}" >> "${GITHUB_OUTPUT}"
 
-      - name: Set PATH for LLVM clang
-        run: echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
-
-      - name: Configure and build
-        working-directory: py
+      - name: Build docker image
         run: |
-          xmake f --toolchain=clang -m ${{ matrix.build-mode }}
-          xmake build -v
+          docker build -f py/docker/aarch64-apple-darwin24/Dockerfile \
+            --build-arg mode=${{ matrix.build-mode }} \
+            --build-arg PYTHON_VERSION=${{ steps.pyver.outputs.full }} \
+            -t py-aarch64-${{ matrix.python-version }}-${{ matrix.build-mode }} \
+            .
 
-      - name: Install
-        working-directory: py
+      - name: Copy archive from container
         run: |
-          xmake install -o aarch64-apple-darwin24-pltxt2htm-py-cpython${{ matrix.python-version }}-${{ matrix.build-mode }}
-
-      - name: Archive install dir
-        working-directory: py
-        run: |
-          tar -cJvf aarch64-apple-darwin24-pltxt2htm-py-cpython${{ matrix.python-version }}-${{ matrix.build-mode }}.tar.xz aarch64-apple-darwin24-pltxt2htm-py-cpython${{ matrix.python-version }}-${{ matrix.build-mode }}
+          container="py-extract-${{ matrix.python-version }}-${{ matrix.build-mode }}"
+          docker run -d --name "${container}" py-aarch64-${{ matrix.python-version }}-${{ matrix.build-mode }}
+          docker cp "${container}:/pltxt2htm/py/aarch64-apple-darwin24-pltxt2htm-py-${{ matrix.build-mode }}.tar.xz" \
+            "py/aarch64-apple-darwin24-pltxt2htm-py-cpython${{ matrix.python-version }}-${{ matrix.build-mode }}.tar.xz"
 
       - name: Upload binary
         uses: softprops/action-gh-release@v2
