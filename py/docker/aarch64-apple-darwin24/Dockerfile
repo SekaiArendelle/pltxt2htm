@@ -12,7 +12,7 @@ RUN wget -q "${MACOS_SDK_URL}" -O /tmp/macos-sdk.tar.xz \
     && tar xf /tmp/macos-sdk.tar.xz -C /sysroots/aarch64-apple-darwin24 --strip-components=1 \
     && rm /tmp/macos-sdk.tar.xz
 
-# Download Python macOS installer and extract pyconfig.h
+# Download and extract Python macOS framework (contains all headers including Python.h and pyconfig.h)
 RUN wget -q "https://www.python.org/ftp/python/${PYTHON_VERSION}/python-${PYTHON_VERSION}-macos11.pkg" -O /tmp/py.pkg \
     && cd /tmp && xar -xf /tmp/py.pkg \
     && mkdir -p /tmp/framework \
@@ -20,18 +20,10 @@ RUN wget -q "https://www.python.org/ftp/python/${PYTHON_VERSION}/python-${PYTHON
     && cat /tmp/Python_Framework.pkg/Payload | gzip -d | cpio -idm 2>/dev/null \
     && rm -rf /tmp/py.pkg /tmp/Python_*.pkg /tmp/Resources /tmp/Distribution
 
-# Download Python source tarball and extract Include/ headers
-RUN wget -q "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz" -O /tmp/python.tar.xz \
-    && mkdir -p /tmp/python-include \
-    && tar xf /tmp/python.tar.xz -C /tmp \
-    && cp -r "/tmp/Python-${PYTHON_VERSION}/Include/." /tmp/python-include/ \
-    && rm -rf "/tmp/Python-${PYTHON_VERSION}" /tmp/python.tar.xz
-
-# Copy pyconfig.h from extracted macOS framework
-RUN cp "/tmp/framework/Versions/${PYTHON_VERSION%.*}/include/python${PYTHON_VERSION%.*}/pyconfig.h" /tmp/python-include/ \
-    && rm -rf /tmp/framework
-
-RUN PY_VER_SHORT=$(echo "${PYTHON_VERSION}" | cut -d. -f1,2 | tr -d '.') \
+# Locate the include dir inside the framework and compute ABI flags
+RUN PY_MINOR=$(echo "${PYTHON_VERSION}" | cut -d. -f1,2) \
+    && PY_VER_SHORT=$(echo "${PY_MINOR}" | tr -d '.') \
+    && echo "PYTHON_INCLUDE_DIR=/tmp/framework/Versions/${PY_MINOR}/include/python${PY_MINOR}" >> /tmp/build-vars \
     && echo "CPYTHON_ABIFLAGS=cpython-${PY_VER_SHORT}" >> /tmp/build-vars
 
 ENV SYSROOT=/sysroots/aarch64-apple-darwin24
@@ -51,7 +43,7 @@ RUN . /tmp/build-vars \
         -DCMAKE_SYSTEM_PROCESSOR=arm64 \
         -DCMAKE_CXX_FLAGS="--sysroot=${SYSROOT} -stdlib=libc++ -fuse-ld=lld" \
         -G Ninja \
-        -DPYTHON_INCLUDE_DIR=/tmp/python-include \
+        -DPYTHON_INCLUDE_DIR="${PYTHON_INCLUDE_DIR}" \
         -DPYTHON_EXT_SUFFIX=".${CPYTHON_ABIFLAGS}-darwin.so" \
         -S /pltxt2htm/py \
     && cmake --build /pltxt2htm/py/build -j$(nproc)
