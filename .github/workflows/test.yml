@@ -303,7 +303,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.14"]
+        python-version: ["3.14.5"]
         build-mode: [debug]
 
     name: aarch64-apple-darwin24 (py/, ${{ matrix.build-mode }} mode, python ${{ matrix.python-version }})
@@ -317,19 +317,21 @@ jobs:
         run: |
           docker build -f py/docker/aarch64-apple-darwin24/Dockerfile \
             --build-arg mode=${{ matrix.build-mode }} \
-            --build-arg PYTHON_VERSION=3.14.5 \
-            -t aarch64-apple-darwin24-pltxt2htm-py-cpython3.14-${{ matrix.build-mode }} \
+            --build-arg PYTHON_VERSION=${{ matrix.python-version }} \
+            -t aarch64-apple-darwin24-pltxt2htm-py-cpython${{ matrix.python-version }}-${{ matrix.build-mode }} \
             .
 
       - name: Verify .so file
         run: |
           mode="${{ matrix.build-mode }}"
-          tag="aarch64-apple-darwin24-pltxt2htm-py-cpython3.14-${mode}"
-          docker run --rm "${tag}" cat "/pltxt2htm/py/aarch64-apple-darwin24-pltxt2htm-py-${mode}.tar.xz" \
+          tag="aarch64-apple-darwin24-pltxt2htm-py-cpython${{ matrix.python-version }}-${mode}"
+          docker run --rm "${tag}" cat "/pltxt2htm/py/aarch64-apple-darwin24-pltxt2htm-py-cpython${{ matrix.python-version }}-${mode}.tar.xz" \
             > /tmp/py-output.tar.xz
           tar -xJf /tmp/py-output.tar.xz -C /tmp
-          dir="/tmp/aarch64-apple-darwin24-pltxt2htm-py-${mode}"
-          file="${dir}/pltxt2htm.cpython-314-darwin.so"
+          dir="/tmp/aarch64-apple-darwin24-pltxt2htm-py-cpython${{ matrix.python-version }}-${mode}"
+          minor=$(echo "${{ matrix.python-version }}" | cut -d. -f1,2)
+          short=$(echo "${minor}" | tr -d '.')
+          file="${dir}/pltxt2htm.cpython-${short}-darwin.so"
           if [ ! -f "${file}" ]; then
             echo "ERROR: .so file not found"
             exit 1

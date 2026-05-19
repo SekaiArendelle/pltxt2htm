@@ -152,32 +152,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Derive minor version
-        id: pyver
-        run: |
-          minor=$(echo "${{ matrix.python-version }}" | cut -d. -f1,2)
-          echo "minor=${minor}" >> "${GITHUB_OUTPUT}"
-
       - name: Build docker image
         run: |
           docker build -f py/docker/aarch64-apple-darwin24/Dockerfile \
             --build-arg mode=${{ matrix.build-mode }} \
             --build-arg PYTHON_VERSION=${{ matrix.python-version }} \
-            -t aarch64-apple-darwin24-pltxt2htm-py-cpython${{ steps.pyver.outputs.minor }}-${{ matrix.build-mode }} \
+            -t aarch64-apple-darwin24-pltxt2htm-py-cpython${{ matrix.python-version }}-${{ matrix.build-mode }} \
             .
 
       - name: Copy archive from container
         run: |
-          minor="${{ steps.pyver.outputs.minor }}"
           mode=${{ matrix.build-mode }}
-          tag="aarch64-apple-darwin24-pltxt2htm-py-cpython${minor}-${mode}"
-          docker run --rm "${tag}" cat "/pltxt2htm/py/aarch64-apple-darwin24-pltxt2htm-py-${mode}.tar.xz" \
-            > "py/aarch64-apple-darwin24-pltxt2htm-py-cpython${minor}-${mode}.tar.xz"
+          tag="aarch64-apple-darwin24-pltxt2htm-py-cpython${{ matrix.python-version }}-${mode}"
+          full="${{ matrix.python-version }}"
+          docker run --rm "${tag}" cat "/pltxt2htm/py/aarch64-apple-darwin24-pltxt2htm-py-cpython${full}-${mode}.tar.xz" \
+            > "py/aarch64-apple-darwin24-pltxt2htm-py-cpython${full}-${mode}.tar.xz"
 
       - name: Upload binary
         uses: softprops/action-gh-release@v2
         with:
-          files: py/aarch64-apple-darwin24-pltxt2htm-py-cpython${{ steps.pyver.outputs.minor }}-${{ matrix.build-mode }}.tar.xz
+          files: py/aarch64-apple-darwin24-pltxt2htm-py-cpython${{ matrix.python-version }}-${{ matrix.build-mode }}.tar.xz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
