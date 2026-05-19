@@ -34,29 +34,31 @@ if(PLTXT2HTM_ENABLE_STACKTRACE)
     target_compile_definitions(pltxt2htm PRIVATE PLTXT2HTM_EXPERIMENTAL_ENABLE_STACKTRACE)
 endif()
 
-# Compile flags matching xmake.lua
-target_compile_options(pltxt2htm PRIVATE
-    -fno-rtti
-    -fno-unwind-tables
-    -fno-asynchronous-unwind-tables
-    -fvisibility=hidden
-    -fvisibility-inlines-hidden
-)
+# Compile/link flags matching xmake.lua for GCC/Clang-style toolchains
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
+    target_compile_options(pltxt2htm PRIVATE
+        -fno-rtti
+        -fno-unwind-tables
+        -fno-asynchronous-unwind-tables
+        -fvisibility=hidden
+        -fvisibility-inlines-hidden
+    )
 
-# -fuse-ld=lld if available (matching xmake.lua behavior)
-find_program(LLD_LD ld.lld)
-if(LLD_LD)
-    target_link_options(pltxt2htm PRIVATE -fuse-ld=lld)
-endif()
+    # -fuse-ld=lld if available (matching xmake.lua behavior)
+    find_program(LLD_LD ld.lld)
+    if(LLD_LD)
+        target_link_options(pltxt2htm PRIVATE -fuse-ld=lld)
+    endif()
 
-# Release-specific flags
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
-    target_compile_options(pltxt2htm PRIVATE -fno-ident)
-    include(CheckCXXCompilerFlag)
-    check_cxx_compiler_flag("-flto" LTO_SUPPORTED)
-    if(LTO_SUPPORTED)
-        target_compile_options(pltxt2htm PRIVATE -flto)
-        target_link_options(pltxt2htm PRIVATE -flto)
+    # Release-specific flags
+    if(CMAKE_BUILD_TYPE STREQUAL "Release")
+        target_compile_options(pltxt2htm PRIVATE -fno-ident)
+        include(CheckCXXCompilerFlag)
+        check_cxx_compiler_flag("-flto" LTO_SUPPORTED)
+        if(LTO_SUPPORTED)
+            target_compile_options(pltxt2htm PRIVATE -flto)
+            target_link_options(pltxt2htm PRIVATE -flto)
+        endif()
     endif()
 endif()
 
