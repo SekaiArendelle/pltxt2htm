@@ -10,9 +10,9 @@ RUN wget https://github.com/trcrsired/windows-msvc-sysroot/releases/download/202
   && rm windows-msvc-sysroot.tar.xz
 
 WORKDIR /pltxt2htm
-COPY ../../../include .
-COPY ../../../c .
-COPY ../../../xmake .
+COPY ../../../include /pltxt2htm/include/
+COPY ../../../c /pltxt2htm/c/
+COPY ../../../xmake /pltxt2htm/xmake/
 ENV XMAKE_ROOT=y
 
 WORKDIR /pltxt2htm/c
