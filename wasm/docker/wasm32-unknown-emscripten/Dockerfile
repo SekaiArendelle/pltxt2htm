@@ -15,6 +15,8 @@ FROM emscripten/emsdk:4.0.22
 ENV PATH=/xmake/bin:$PATH
 ENV XMAKE_ROOT=y
 
+COPY --from=xmake /xmake /xmake
+
 WORKDIR /pltxt2htm
 COPY include/ /pltxt2htm/include/
 COPY wasm/ /pltxt2htm/wasm/
