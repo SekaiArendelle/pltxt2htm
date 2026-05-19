@@ -51,11 +51,11 @@ RUN . /tmp/build-vars \
 # Package
 RUN . /tmp/build-vars \
     && cd /pltxt2htm/py \
-    && mkdir -p "aarch64-apple-darwin24-pltxt2htm-py-${mode}" \
+    && mkdir -p "aarch64-apple-darwin24-pltxt2htm-py-${PYTHON_VERSION}-${mode}" \
     && cp "/pltxt2htm/py/build/pltxt2htm.${CPYTHON_ABIFLAGS}-darwin.so" \
-        "aarch64-apple-darwin24-pltxt2htm-py-${mode}/" \
-    && tar cJf "aarch64-apple-darwin24-pltxt2htm-py-${mode}.tar.xz" \
-        "aarch64-apple-darwin24-pltxt2htm-py-${mode}"
+        "aarch64-apple-darwin24-pltxt2htm-py-${PYTHON_VERSION}-${mode}/" \
+    && tar cJf "aarch64-apple-darwin24-pltxt2htm-py-${PYTHON_VERSION}-${mode}.tar.xz" \
+        "aarch64-apple-darwin24-pltxt2htm-py-${PYTHON_VERSION}-${mode}"
 
 FROM alpine:3.23
 WORKDIR /pltxt2htm/py
