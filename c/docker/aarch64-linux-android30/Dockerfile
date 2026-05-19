@@ -13,7 +13,9 @@ ENV PATH=/llvm/android-ndk-r29/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
 ENV XMAKE_ROOT=y
 
 WORKDIR /pltxt2htm
-COPY ../../../ .
+COPY ../../../include /pltxt2htm/include/
+COPY ../../../c /pltxt2htm/c/
+COPY ../../../xmake /pltxt2htm/xmake/
 
 WORKDIR /pltxt2htm/c
 RUN xmake config -a arm64 -p android -m ${mode} -k static --toolchain=clang --cxxflags='--target=aarch64-linux-android30'

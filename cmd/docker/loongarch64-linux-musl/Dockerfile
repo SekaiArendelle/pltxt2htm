@@ -19,7 +19,10 @@ FROM alpine:3.23 AS builder
 RUN apk update && apk add --no-cache git xz xmake clang lld
 
 WORKDIR /pltxt2htm
-COPY ../../../ /pltxt2htm/
+COPY ../../../.git /pltxt2htm/.git/
+COPY ../../../include /pltxt2htm/include/
+COPY ../../../cmd /pltxt2htm/cmd/
+COPY ../../../xmake /pltxt2htm/xmake/
 
 COPY --from=sysroot /sysroots /sysroots
 

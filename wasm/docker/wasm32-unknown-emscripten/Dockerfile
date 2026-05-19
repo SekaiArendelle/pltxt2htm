@@ -18,9 +18,9 @@ ENV XMAKE_ROOT=y
 COPY --from=xmake /xmake /xmake
 
 WORKDIR /pltxt2htm
-COPY . .
-
-COPY --from=xmake /xmake /xmake
+COPY include/ /pltxt2htm/include/
+COPY wasm/ /pltxt2htm/wasm/
+COPY xmake/ /pltxt2htm/xmake/
 
 WORKDIR /pltxt2htm/wasm
 
