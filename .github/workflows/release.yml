@@ -156,47 +156,30 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+        python-version: ["3.9.13", "3.10.11", "3.11.9", "3.12.10", "3.13.13", "3.14.5"]
         build-mode: [release]
 
     name: x86_64-windows-msvc (py/, ${{ matrix.build-mode }} mode, python ${{ matrix.python-version }})
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v3
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install Clang
-        uses: egor-tensin/setup-clang@v1
-        with:
-          version: latest
-          platform: x64
-
-      - name: Setup XMake
-        uses: xmake-io/github-action-setup-xmake@v1
-        with:
-          xmake-version: 3.0.5
-
-      - name: Configure and build
-        working-directory: py
+      - name: Build docker image
         run: |
-          xmake config -p windows -a x64 --toolchain=x86_64-windows-msvc-clang -m ${{ matrix.build-mode }}
-          xmake build -v
+          docker build -f py/docker/x86_64-windows-msvc/Dockerfile \
+            --build-arg mode=${{ matrix.build-mode }} \
+            --build-arg PYTHON_VERSION=${{ matrix.python-version }} \
+            -t x86_64-windows-msvc-pltxt2htm-py-cpython${{ matrix.python-version }}-${{ matrix.build-mode }} .
 
-      - name: Install
-        working-directory: py
+      - name: Copy archive from container
         run: |
-          xmake install -o x86_64-windows-msvc-pltxt2htm-py-cpython${{ matrix.python-version }}-${{ matrix.build-mode }}
-
-      - name: Archive install dir
-        working-directory: py
-        run: |
-          Compress-Archive -Path "x86_64-windows-msvc-pltxt2htm-py-cpython${{ matrix.python-version }}-${{ matrix.build-mode }}" -DestinationPath "x86_64-windows-msvc-pltxt2htm-py-cpython${{ matrix.python-version }}-${{ matrix.build-mode }}.zip"
+          mode=${{ matrix.build-mode }}
+          tag="x86_64-windows-msvc-pltxt2htm-py-cpython${{ matrix.python-version }}-${mode}"
+          full="${{ matrix.python-version }}"
+          docker run --rm "${tag}" cat "/pltxt2htm/py/x86_64-windows-msvc-pltxt2htm-py-cpython${full}-${mode}.zip" \
+            > "py/x86_64-windows-msvc-pltxt2htm-py-cpython${full}-${mode}.zip"
 
       - name: Upload binary
         uses: softprops/action-gh-release@v2
