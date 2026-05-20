@@ -35,7 +35,8 @@ RUN MSVC_DIR=$(ls -d /opt/msvc/VC/Tools/MSVC/*/ 2>/dev/null | head -1) \
     && echo "MSVC_INCLUDE=${MSVC_DIR}include" >> /tmp/build-vars \
     && echo "MSVC_LIB=${MSVC_DIR}lib/x64" >> /tmp/build-vars \
     && echo "PYTHON_INCLUDE_DIR=/opt/python-win/tools/include" >> /tmp/build-vars \
-    && echo "CPYTHON_ABIFLAGS=cpython-${PY_VER_SHORT}" >> /tmp/build-vars
+    && echo "CPYTHON_ABIFLAGS=cpython-${PY_VER_SHORT}" >> /tmp/build-vars \
+    && echo "CPYTHON_ABIFLAGS_SHORT=cp${PY_VER_SHORT}" >> /tmp/build-vars
 
 ENV TARGET=x86_64-windows-msvc
 
@@ -65,7 +66,7 @@ RUN . /tmp/build-vars \
     && cd /pltxt2htm/py \
     && mkdir -p "x86_64-windows-msvc-pltxt2htm-py-cpython${PYTHON_VERSION}-${mode}" \
     && cp "/pltxt2htm/py/build/pltxt2htm.${CPYTHON_ABIFLAGS}-win_amd64.pyd" \
-        "x86_64-windows-msvc-pltxt2htm-py-cpython${PYTHON_VERSION}-${mode}/" \
+        "x86_64-windows-msvc-pltxt2htm-py-cpython${PYTHON_VERSION}-${mode}/pltxt2htm.${CPYTHON_ABIFLAGS_SHORT}-win_amd64.pyd" \
     && zip -r "x86_64-windows-msvc-pltxt2htm-py-cpython${PYTHON_VERSION}-${mode}.zip" \
         "x86_64-windows-msvc-pltxt2htm-py-cpython${PYTHON_VERSION}-${mode}"
 
