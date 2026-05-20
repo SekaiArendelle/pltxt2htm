@@ -1,7 +1,7 @@
 FROM ubuntu:26.04
 
 RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
-    ca-certificates curl xz-utils zip \
+    ca-certificates curl git xz-utils zip \
     xmake llvm clang lld python3
 
 RUN set -eux; \
