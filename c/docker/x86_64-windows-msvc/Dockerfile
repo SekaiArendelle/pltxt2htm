@@ -9,6 +9,7 @@ RUN set -eux; \
     curl -fsSL "https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
     | tar xz -C /usr/local/bin --strip-components=1 "xwin-${XWIN_VERSION}-x86_64-unknown-linux-musl/xwin"
 
+# TODO should I specify the version of sdk?
 RUN xwin --accept-license splat --output /opt/xwin
 
 WORKDIR /pltxt2htm
