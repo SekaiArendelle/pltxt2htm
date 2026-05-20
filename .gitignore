@@ -78,3 +78,6 @@ csharp/bin/
 
 # docsgen
 **/docs/
+
+# pixi
+**/.pixi

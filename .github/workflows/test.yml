@@ -133,46 +133,23 @@ jobs:
         build-mode: [release]
 
     name: x86_64-windows-msvc (cmd/, ${{ matrix.build-mode }} mode)
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Clang
-        uses: egor-tensin/setup-clang@v1
-        with:
-          version: latest
-          platform: x64
-
-      - name: Setup xmake
-        uses: xmake-io/github-action-setup-xmake@v1
-        with:
-          xmake-version: 3.0.5
-
-      - name: clang version
-        shell: powershell
+      - name: Build docker image
         run: |
-          clang -v
+          docker build -f cmd/docker/x86_64-windows-msvc/Dockerfile \
+            --build-arg mode=${{ matrix.build-mode }} \
+            -t x86_64-windows-msvc-pltxt2htm-cmd-${{ matrix.build-mode }} .
 
-      - name: Configure and build
-        shell: powershell
-        working-directory: cmd
+      - name: Verify archive
         run: |
-          xmake config -p windows -a x64 --toolchain=x86_64-windows-msvc-clang -m ${{ matrix.build-mode }}
-          xmake build -v
-
-      - name: Run
-        shell: powershell
-        working-directory: cmd
-        run: |
-          xmake run pltxt2htm
-
-      - name: Install
-        shell: powershell
-        working-directory: cmd
-        run: |
-          xmake install -o dist
+          docker run --rm \
+            x86_64-windows-msvc-pltxt2htm-cmd-${{ matrix.build-mode }} \
+            ls -la /pltxt2htm/cmd/x86_64-windows-msvc-pltxt2htm-cmd-${{ matrix.build-mode }}.zip
 
   aarch64-apple-darwin24-cmd:
     strategy:
