@@ -12,10 +12,9 @@ RUN set -eux; \
 RUN xwin --accept-license splat --output /opt/xwin
 
 WORKDIR /pltxt2htm
-COPY ../../../.git /pltxt2htm/.git/
-COPY ../../../include /pltxt2htm/include/
-COPY ../../../cmd /pltxt2htm/cmd/
-COPY ../../../xmake /pltxt2htm/xmake/
+# Copy the entire project to preserve git tracking history.
+# A partial copy would distort pltxt2htm's git-tracked modification detection.
+COPY ../../../ .
 
 ENV XMAKE_ROOT=y
 
