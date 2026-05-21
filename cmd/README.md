@@ -41,6 +41,10 @@ See [Docker build](docker/i586-linux-musl/README.md).
 
 See [Docker build](docker/aarch64-linux-musl/README.md).
 
+### aarch64-apple-darwin24
+
+See [Docker build](docker/aarch64-apple-darwin24/README.md).
+
 ### loongarch64-linux-musl
 
 See [Docker build](docker/loongarch64-linux-musl/README.md).
