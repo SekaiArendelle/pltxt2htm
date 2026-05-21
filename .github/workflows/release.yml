@@ -166,14 +166,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  aarch64-apple-darwin24-py:
+  aarch64-apple-darwin24-py-release:
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.9.13", "3.10.11", "3.11.9", "3.12.10", "3.13.13", "3.14.5"]
-        build-mode: [release]
 
-    name: aarch64-apple-darwin24 (py/, ${{ matrix.build-mode }} mode, python ${{ matrix.python-version }})
+    name: aarch64-apple-darwin24 (py/, release mode, python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
 
     steps:
@@ -183,34 +182,31 @@ jobs:
       - name: Build docker image
         run: |
           docker build -f py/docker/aarch64-apple-darwin24/Dockerfile \
-            --build-arg mode=${{ matrix.build-mode }} \
             --build-arg PYTHON_VERSION=${{ matrix.python-version }} \
-            -t aarch64-apple-darwin24-pltxt2htm-py-cpython${{ matrix.python-version }}-${{ matrix.build-mode }} \
+            -t aarch64-apple-darwin24-pltxt2htm-py-cpython${{ matrix.python-version }}-release \
             .
 
       - name: Copy archive from container
         run: |
-          mode=${{ matrix.build-mode }}
-          tag="aarch64-apple-darwin24-pltxt2htm-py-cpython${{ matrix.python-version }}-${mode}"
+          tag="aarch64-apple-darwin24-pltxt2htm-py-cpython${{ matrix.python-version }}-release"
           full="${{ matrix.python-version }}"
-          docker run --rm "${tag}" cat "/pltxt2htm/py/aarch64-apple-darwin24-pltxt2htm-py-cpython${full}-${mode}.tar.xz" \
-            > "py/aarch64-apple-darwin24-pltxt2htm-py-cpython${full}-${mode}.tar.xz"
+          docker run --rm "${tag}" cat "/pltxt2htm/py/aarch64-apple-darwin24-pltxt2htm-py-cpython${full}-release.tar.xz" \
+            > "py/aarch64-apple-darwin24-pltxt2htm-py-cpython${full}-release.tar.xz"
 
       - name: Upload binary
         uses: softprops/action-gh-release@v2
         with:
-          files: py/aarch64-apple-darwin24-pltxt2htm-py-cpython${{ matrix.python-version }}-${{ matrix.build-mode }}.tar.xz
+          files: py/aarch64-apple-darwin24-pltxt2htm-py-cpython${{ matrix.python-version }}-release.tar.xz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  x86_64-windows-msvc-py:
+  x86_64-windows-msvc-py-release:
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.9.13", "3.10.11", "3.11.9", "3.12.10", "3.13.13", "3.14.5"]
-        build-mode: [release]
 
-    name: x86_64-windows-msvc (py/, ${{ matrix.build-mode }} mode, python ${{ matrix.python-version }})
+    name: x86_64-windows-msvc (py/, release mode, python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
 
     steps:
@@ -220,22 +216,20 @@ jobs:
       - name: Build docker image
         run: |
           docker build -f py/docker/x86_64-windows-msvc/Dockerfile \
-            --build-arg mode=${{ matrix.build-mode }} \
             --build-arg PYTHON_VERSION=${{ matrix.python-version }} \
-            -t x86_64-windows-msvc-pltxt2htm-py-cpython${{ matrix.python-version }}-${{ matrix.build-mode }} .
+            -t x86_64-windows-msvc-pltxt2htm-py-cpython${{ matrix.python-version }}-release .
 
       - name: Copy archive from container
         run: |
-          mode=${{ matrix.build-mode }}
-          tag="x86_64-windows-msvc-pltxt2htm-py-cpython${{ matrix.python-version }}-${mode}"
+          tag="x86_64-windows-msvc-pltxt2htm-py-cpython${{ matrix.python-version }}-release"
           full="${{ matrix.python-version }}"
-          docker run --rm "${tag}" cat "/pltxt2htm/py/x86_64-windows-msvc-pltxt2htm-py-cpython${full}-${mode}.zip" \
-            > "py/x86_64-windows-msvc-pltxt2htm-py-cpython${full}-${mode}.zip"
+          docker run --rm "${tag}" cat "/pltxt2htm/py/x86_64-windows-msvc-pltxt2htm-py-cpython${full}-release.zip" \
+            > "py/x86_64-windows-msvc-pltxt2htm-py-cpython${full}-release.zip"
 
       - name: Upload binary
         uses: softprops/action-gh-release@v2
         with:
-          files: py/x86_64-windows-msvc-pltxt2htm-py-cpython${{ matrix.python-version }}-${{ matrix.build-mode }}.zip
+          files: py/x86_64-windows-msvc-pltxt2htm-py-cpython${{ matrix.python-version }}-release.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

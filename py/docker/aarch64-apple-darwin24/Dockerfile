@@ -2,7 +2,6 @@ FROM alpine:3.23 AS builder
 
 ARG MACOS_SDK_URL=https://github.com/joseluisq/macosx-sdks/releases/download/15.2/MacOSX15.2.sdk.tar.xz
 ARG PYTHON_VERSION
-ARG mode=release
 
 RUN apk add --no-cache clang cmake git lld ninja python3 wget xz xar cpio
 
@@ -36,7 +35,7 @@ COPY py/ /pltxt2htm/py/
 # Configure and build with CMake
 RUN . /tmp/build-vars \
     && cmake -B /pltxt2htm/py/build \
-        -DCMAKE_BUILD_TYPE=$(echo "${mode}" | sed 's/^release$/Release/; s/^debug$/Debug/') \
+        -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_CXX_COMPILER=clang++ \
         -DCMAKE_CXX_COMPILER_TARGET=${TARGET} \
         -DCMAKE_SYSTEM_NAME=Darwin \
@@ -51,11 +50,11 @@ RUN . /tmp/build-vars \
 # Package
 RUN . /tmp/build-vars \
     && cd /pltxt2htm/py \
-    && mkdir -p "aarch64-apple-darwin24-pltxt2htm-py-cpython${PYTHON_VERSION}-${mode}" \
+    && mkdir -p "aarch64-apple-darwin24-pltxt2htm-py-cpython${PYTHON_VERSION}-release" \
     && cp "/pltxt2htm/py/build/pltxt2htm.${CPYTHON_ABIFLAGS}-darwin.so" \
-        "aarch64-apple-darwin24-pltxt2htm-py-cpython${PYTHON_VERSION}-${mode}/" \
-    && tar cJf "aarch64-apple-darwin24-pltxt2htm-py-cpython${PYTHON_VERSION}-${mode}.tar.xz" \
-        "aarch64-apple-darwin24-pltxt2htm-py-cpython${PYTHON_VERSION}-${mode}"
+        "aarch64-apple-darwin24-pltxt2htm-py-cpython${PYTHON_VERSION}-release/" \
+    && tar cJf "aarch64-apple-darwin24-pltxt2htm-py-cpython${PYTHON_VERSION}-release.tar.xz" \
+        "aarch64-apple-darwin24-pltxt2htm-py-cpython${PYTHON_VERSION}-release"
 
 FROM alpine:3.23
 WORKDIR /pltxt2htm/py

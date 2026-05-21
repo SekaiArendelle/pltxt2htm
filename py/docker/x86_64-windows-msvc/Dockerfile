@@ -1,7 +1,6 @@
 FROM ubuntu:26.04 AS builder
 
 ARG PYTHON_VERSION
-ARG mode=release
 
 RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     ca-certificates curl xz-utils zip wget unzip cabextract msitools p7zip-full \
@@ -47,7 +46,7 @@ COPY py/ /pltxt2htm/py/
 # Configure and build the Python extension
 RUN . /tmp/build-vars \
     && cmake -B /pltxt2htm/py/build \
-        -DCMAKE_BUILD_TYPE=$(echo "${mode}" | sed 's/^release$/Release/; s/^debug$/Debug/') \
+        -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_CXX_COMPILER=clang++ \
         -DCMAKE_CXX_COMPILER_TARGET=${TARGET} \
         -DCMAKE_SYSTEM_NAME=Windows \
@@ -64,11 +63,11 @@ RUN . /tmp/build-vars \
 # Package the extension into a tarball
 RUN . /tmp/build-vars \
     && cd /pltxt2htm/py \
-    && mkdir -p "x86_64-windows-msvc-pltxt2htm-py-cpython${PYTHON_VERSION}-${mode}" \
+    && mkdir -p "x86_64-windows-msvc-pltxt2htm-py-cpython${PYTHON_VERSION}-release" \
     && cp "/pltxt2htm/py/build/pltxt2htm.${CPYTHON_ABIFLAGS}-win_amd64.pyd" \
-        "x86_64-windows-msvc-pltxt2htm-py-cpython${PYTHON_VERSION}-${mode}/pltxt2htm.${CPYTHON_ABIFLAGS_SHORT}-win_amd64.pyd" \
-    && zip -r "x86_64-windows-msvc-pltxt2htm-py-cpython${PYTHON_VERSION}-${mode}.zip" \
-        "x86_64-windows-msvc-pltxt2htm-py-cpython${PYTHON_VERSION}-${mode}"
+        "x86_64-windows-msvc-pltxt2htm-py-cpython${PYTHON_VERSION}-release/pltxt2htm.${CPYTHON_ABIFLAGS_SHORT}-win_amd64.pyd" \
+    && zip -r "x86_64-windows-msvc-pltxt2htm-py-cpython${PYTHON_VERSION}-release.zip" \
+        "x86_64-windows-msvc-pltxt2htm-py-cpython${PYTHON_VERSION}-release"
 
 FROM ubuntu:26.04
 WORKDIR /pltxt2htm/py
