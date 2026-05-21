@@ -224,14 +224,13 @@ jobs:
         run: |
           docker build -f wasm/docker/wasm32-unknown-emscripten/Dockerfile --build-arg mode=${{ matrix.build-mode }} -t wasm32-unknown-emscripten-pltxt2htm-wasm-${{ matrix.build-mode }} .
 
-  aarch64-apple-darwin24-py:
+  aarch64-apple-darwin24-py-release:
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.14.5"]
-        build-mode: [debug]
 
-    name: aarch64-apple-darwin24 (py/, ${{ matrix.build-mode }} mode, python ${{ matrix.python-version }})
+    name: aarch64-apple-darwin24 (py/, release mode, python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
 
     steps:
@@ -241,19 +240,17 @@ jobs:
       - name: Build docker image
         run: |
           docker build -f py/docker/aarch64-apple-darwin24/Dockerfile \
-            --build-arg mode=${{ matrix.build-mode }} \
             --build-arg PYTHON_VERSION=${{ matrix.python-version }} \
-            -t aarch64-apple-darwin24-pltxt2htm-py-cpython${{ matrix.python-version }}-${{ matrix.build-mode }} \
+            -t aarch64-apple-darwin24-pltxt2htm-py-cpython${{ matrix.python-version }}-release \
             .
 
       - name: Verify .so file
         run: |
-          mode="${{ matrix.build-mode }}"
-          tag="aarch64-apple-darwin24-pltxt2htm-py-cpython${{ matrix.python-version }}-${mode}"
-          docker run --rm "${tag}" cat "/pltxt2htm/py/aarch64-apple-darwin24-pltxt2htm-py-cpython${{ matrix.python-version }}-${mode}.tar.xz" \
+          tag="aarch64-apple-darwin24-pltxt2htm-py-cpython${{ matrix.python-version }}-release"
+          docker run --rm "${tag}" cat "/pltxt2htm/py/aarch64-apple-darwin24-pltxt2htm-py-cpython${{ matrix.python-version }}-release.tar.xz" \
             > /tmp/py-output.tar.xz
           tar -xJf /tmp/py-output.tar.xz -C /tmp
-          dir="/tmp/aarch64-apple-darwin24-pltxt2htm-py-cpython${{ matrix.python-version }}-${mode}"
+          dir="/tmp/aarch64-apple-darwin24-pltxt2htm-py-cpython${{ matrix.python-version }}-release"
           minor=$(echo "${{ matrix.python-version }}" | cut -d. -f1,2)
           short=$(echo "${minor}" | tr -d '.')
           file="${dir}/pltxt2htm.cpython-${short}-darwin.so"
@@ -269,14 +266,13 @@ jobs:
             exit 1
           fi
 
-  x86_64-windows-msvc-py:
+  x86_64-windows-msvc-py-release:
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.12.10"]
-        build-mode: [release]
 
-    name: x86_64-windows-msvc (py/, ${{ matrix.build-mode }} mode, python ${{ matrix.python-version }})
+    name: x86_64-windows-msvc (py/, release mode, python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
 
     steps:
@@ -286,17 +282,15 @@ jobs:
       - name: Build docker image
         run: |
           docker build -f py/docker/x86_64-windows-msvc/Dockerfile \
-            --build-arg mode=${{ matrix.build-mode }} \
             --build-arg PYTHON_VERSION=${{ matrix.python-version }} \
-            -t x86_64-windows-msvc-pltxt2htm-py-cpython${{ matrix.python-version }}-${{ matrix.build-mode }} \
+            -t x86_64-windows-msvc-pltxt2htm-py-cpython${{ matrix.python-version }}-release \
             .
 
       - name: Verify archive
         run: |
-          mode="${{ matrix.build-mode }}"
           full="${{ matrix.python-version }}"
-          tag="x86_64-windows-msvc-pltxt2htm-py-cpython${full}-${mode}"
-          docker run --rm "${tag}" cat "/pltxt2htm/py/x86_64-windows-msvc-pltxt2htm-py-cpython${full}-${mode}.zip" \
+          tag="x86_64-windows-msvc-pltxt2htm-py-cpython${full}-release"
+          docker run --rm "${tag}" cat "/pltxt2htm/py/x86_64-windows-msvc-pltxt2htm-py-cpython${full}-release.zip" \
             > /tmp/py-output.zip
           file_size=$(stat -c%s /tmp/py-output.zip 2>/dev/null || stat -f%z /tmp/py-output.zip)
           if [ "${file_size}" -le 1000 ]; then
