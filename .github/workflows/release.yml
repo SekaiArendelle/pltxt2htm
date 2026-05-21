@@ -71,6 +71,72 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  aarch64-windows-msvc-cmd:
+    strategy:
+      fail-fast: false
+      matrix:
+        build-mode: [debug, release]
+
+    name: aarch64-windows-msvc (cmd/, ${{ matrix.build-mode }} mode)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build docker image
+        run: |
+          docker build -f cmd/docker/aarch64-windows-msvc/Dockerfile \
+            --build-arg mode=${{ matrix.build-mode }} \
+            -t aarch64-windows-msvc-pltxt2htm-cmd-${{ matrix.build-mode }} .
+
+      - name: Copy archive from container
+        working-directory: cmd
+        run: |
+          docker run -d --name aarch64-windows-msvc-pltxt2htm-cmd-${{ matrix.build-mode }} \
+            aarch64-windows-msvc-pltxt2htm-cmd-${{ matrix.build-mode }}
+          docker cp aarch64-windows-msvc-pltxt2htm-cmd-${{ matrix.build-mode }}:/pltxt2htm/cmd/aarch64-windows-msvc-pltxt2htm-cmd-${{ matrix.build-mode }}.zip .
+
+      - name: Upload binary
+        uses: softprops/action-gh-release@v2
+        with:
+          files: cmd/aarch64-windows-msvc-pltxt2htm-cmd-${{ matrix.build-mode }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  i686-windows-msvc-cmd:
+    strategy:
+      fail-fast: false
+      matrix:
+        build-mode: [debug, release]
+
+    name: i686-windows-msvc (cmd/, ${{ matrix.build-mode }} mode)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build docker image
+        run: |
+          docker build -f cmd/docker/i686-windows-msvc/Dockerfile \
+            --build-arg mode=${{ matrix.build-mode }} \
+            -t i686-windows-msvc-pltxt2htm-cmd-${{ matrix.build-mode }} .
+
+      - name: Copy archive from container
+        working-directory: cmd
+        run: |
+          docker run -d --name i686-windows-msvc-pltxt2htm-cmd-${{ matrix.build-mode }} \
+            i686-windows-msvc-pltxt2htm-cmd-${{ matrix.build-mode }}
+          docker cp i686-windows-msvc-pltxt2htm-cmd-${{ matrix.build-mode }}:/pltxt2htm/cmd/i686-windows-msvc-pltxt2htm-cmd-${{ matrix.build-mode }}.zip .
+
+      - name: Upload binary
+        uses: softprops/action-gh-release@v2
+        with:
+          files: cmd/i686-windows-msvc-pltxt2htm-cmd-${{ matrix.build-mode }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   wasm32-unknown-emscripten-wasm:
     strategy:
       fail-fast: false
@@ -174,46 +240,24 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   wasm32-wasip1-cmd-release:
-    strategy:
-      fail-fast: false
-
     name: wasm32-wasip1 (cmd/, release mode)
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install xmake
+      - name: Build docker image
         run: |
-          brew update
-          brew install xmake
+          docker build -f cmd/docker/wasm32-wasip1/Dockerfile \
+            -t wasm32-wasip1-pltxt2htm-cmd-release .
 
-      - name: Install wasm32-wasip1-clang
+      - name: Copy archive from container
         working-directory: cmd
         run: |
-          wget https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-27/wasi-sdk-27.0-arm64-macos.tar.gz
-          tar -xf wasi-sdk-27.0-arm64-macos.tar.gz
-
-      - name: Set PATH for clang
-        working-directory: cmd
-        run: echo "$PWD/wasi-sdk-27.0-arm64-macos/bin" >> $GITHUB_PATH
-
-      - name: Verify wasm32-wasip1-clang installation
-        run: |
-          wasm32-wasip1-clang -v
-
-      - name: Configure and build
-        working-directory: cmd
-        run: |
-          xmake f -m release -p wasm --toolchain=wasm32-wasip1-clang
-          xmake build -v
-
-      - name: Install
-        working-directory: cmd
-        run: |
-          xmake install -o wasm32-wasip1-pltxt2htm-cmd-release
-          tar cJvf wasm32-wasip1-pltxt2htm-cmd-release.tar.xz wasm32-wasip1-pltxt2htm-cmd-release
+          docker run -d --name wasm32-wasip1-pltxt2htm-cmd-release \
+            wasm32-wasip1-pltxt2htm-cmd-release
+          docker cp wasm32-wasip1-pltxt2htm-cmd-release:/pltxt2htm/cmd/wasm32-wasip1-pltxt2htm-cmd-release.tar.xz .
 
       - name: Upload binary
         uses: softprops/action-gh-release@v2

@@ -18,9 +18,8 @@ COPY ../../../ .
 ENV XMAKE_ROOT=y
 
 WORKDIR /pltxt2htm/cmd
-ARG mode=debug
 
-RUN xmake config --plat=wasm --arch=wasm32 --toolchain=wasm32-wasip1-clang -m ${mode}
+RUN xmake config --plat=wasm --arch=wasm32 --toolchain=wasm32-wasip1-clang -m release
 RUN xmake build -v
-RUN xmake install -o wasm32-wasip1-pltxt2htm-cmd-${mode}
-RUN tar cJvf wasm32-wasip1-pltxt2htm-cmd-${mode}.tar.xz wasm32-wasip1-pltxt2htm-cmd-${mode}
+RUN xmake install -o wasm32-wasip1-pltxt2htm-cmd-release
+RUN tar cJvf wasm32-wasip1-pltxt2htm-cmd-release.tar.xz wasm32-wasip1-pltxt2htm-cmd-release
