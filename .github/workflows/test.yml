@@ -240,42 +240,6 @@ jobs:
         run: |
           docker build -f wasm/docker/wasm32-unknown-emscripten/Dockerfile --build-arg mode=${{ matrix.build-mode }} -t wasm32-unknown-emscripten-pltxt2htm-wasm-${{ matrix.build-mode }} .
 
-  x86_64-windows-msvc-py:
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.8"]
-        build-mode: [release]
-
-    name: x86_64-windows-msvc (py/, ${{ matrix.build-mode }} mode, python ${{ matrix.python-version }})
-    runs-on: windows-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v3
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install Clang
-        uses: egor-tensin/setup-clang@v1
-        with:
-          version: latest
-          platform: x64
-
-      - name: Setup XMake
-        uses: xmake-io/github-action-setup-xmake@v1
-        with:
-          xmake-version: 3.0.5
-
-      - name: Configure and build
-        working-directory: py
-        run: |
-          xmake config -p windows -a x64 --toolchain=x86_64-windows-msvc-clang -m ${{ matrix.build-mode }} --python-version=${{ matrix.python-version }} -y
-          xmake build -v
-
   aarch64-apple-darwin24-py:
     strategy:
       fail-fast: false
@@ -320,6 +284,42 @@ jobs:
             echo "ERROR: bad magic ${magic}"
             exit 1
           fi
+
+  x86_64-windows-msvc-py:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12.10"]
+        build-mode: [release]
+
+    name: x86_64-windows-msvc (py/, ${{ matrix.build-mode }} mode, python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build docker image
+        run: |
+          docker build -f py/docker/x86_64-windows-msvc/Dockerfile \
+            --build-arg mode=${{ matrix.build-mode }} \
+            --build-arg PYTHON_VERSION=${{ matrix.python-version }} \
+            -t x86_64-windows-msvc-pltxt2htm-py-cpython${{ matrix.python-version }}-${{ matrix.build-mode }} \
+            .
+
+      - name: Verify archive
+        run: |
+          mode="${{ matrix.build-mode }}"
+          full="${{ matrix.python-version }}"
+          tag="x86_64-windows-msvc-pltxt2htm-py-cpython${full}-${mode}"
+          docker run --rm "${tag}" cat "/pltxt2htm/py/x86_64-windows-msvc-pltxt2htm-py-cpython${full}-${mode}.zip" \
+            > /tmp/py-output.zip
+          file_size=$(stat -c%s /tmp/py-output.zip 2>/dev/null || stat -f%z /tmp/py-output.zip)
+          if [ "${file_size}" -le 1000 ]; then
+            echo "ERROR: archive too small (${file_size} bytes)"
+            exit 1
+          fi
+          echo "OK: archive size ${file_size} bytes"
 
   armv7-linux-androideabi30-c-release:
     name: armv7-linux-androideabi30 (c/, release mode)
