@@ -4,72 +4,55 @@ if __name__ != "__main__":
 import os
 import shutil
 import argparse
-import platform
+import subprocess
 
-# config section
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
+BUILD_DIR = os.path.join(TEST_DIR, "build")
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--compiler", choices=("clang", "gcc"), help="compiler to use")
 parser.add_argument("--target", help="target triplet")
 parser.add_argument("--sysroot", help="sysroot to use")
-parser.add_argument("--sanitizer", choices=("address",  "undefined", "memory"))
+parser.add_argument("--sanitizer", choices=("address", "undefined", "memory"))
 args = parser.parse_args()
 
 if args.compiler is None:
-    if shutil.which("clang") is not None:
-        args.compiler = "clang"
-    elif shutil.which("gcc") is not None:
-        args.compiler = "gcc"
+    for candidate in ("clang++", "g++"):
+        if shutil.which(candidate) is not None:
+            args.compiler = "clang" if candidate == "clang++" else "gcc"
+            break
     else:
-        raise Exception("no compiler found")
+        raise Exception("no compiler found (tried clang++, g++)")
+
+print(f"-- using compiler \"{args.compiler}\"")
+
+cmake_cmd = [
+    "cmake", "-S", TEST_DIR, "-B", BUILD_DIR,
+    "-GNinja",
+    "-DCMAKE_BUILD_TYPE=Debug",
+    f"-DCMAKE_CXX_COMPILER={'clang++' if args.compiler == 'clang' else 'g++'}",
+]
 
 if args.target is not None:
-    toolchain = f"{args.target}-{args.compiler}"
-else:
-    if platform.system() == "Windows" and args.compiler == "clang":
-        if shutil.which("gcc") is not None:
-            toolchain = "x86_64-windows-gnu-clang"
-        else:
-            toolchain = "x86_64-windows-msvc-clang"
-    else:
-        toolchain = args.compiler
-
-print(f"-- using toolchain \"{toolchain}\"")
-
-# build section
-os.chdir(TEST_DIR)
-print(f"entering dir \"{TEST_DIR}\"")
-
-if os.path.exists(os.path.join(TEST_DIR, ".xmake")):
-    shutil.rmtree(os.path.join(TEST_DIR, ".xmake"))
-    print(f"removing dir \"{os.path.join(TEST_DIR, '.xmake')}\"")
-if os.path.exists(os.path.join(TEST_DIR, "build")):
-    shutil.rmtree(os.path.join(TEST_DIR, "build"))
-    print(f"removing dir \"{os.path.join(TEST_DIR, 'build')}\"")
-
-# if args.compiler == "clang" and toolchain != "x86_64-windows-msvc-clang":
-#     clang_runtime = "--runtimes=libc++_shared --rtlib=compiler-rt --unwindlib=libunwind"
-# else:
-#     clang_runtime = ""
+    cmake_cmd += [f"-DCMAKE_CXX_COMPILER_TARGET={args.target}"]
 
 if args.sysroot is not None:
-    sysroot = f"--sysroot={args.sysroot}"
-else:
-    sysroot = ""
+    cmake_cmd += [f"-DCMAKE_SYSROOT={args.sysroot}"]
 
-if args.sanitizer == "address":
-    asan_flag="--policies=build.sanitizer.address"
-elif args.sanitizer == "undefined":
-    asan_flag="--policies=build.sanitizer.undefined"
-elif args.sanitizer == "memory":
-    asan_flag="--policies=build.sanitizer.memory"
-else:
-    asan_flag=""
+if args.sanitizer is not None:
+    cmake_cmd += [f"-DPLTXT2HTM_SANITIZER={args.sanitizer}"]
 
-err_code = os.system(f"xmake config --mode=debug --toolchain={toolchain} {sysroot} {asan_flag}")
-if err_code != 0:
-    raise Exception("XMake config fail")
-err_code = os.system("xmake test -v")
-if err_code != 0:
-    raise Exception("XMake test fail")
+print("-- configuring ...", " ".join(cmake_cmd))
+ret = subprocess.run(cmake_cmd)
+if ret.returncode != 0:
+    raise Exception("CMake configure fail")
+
+print("-- building ...")
+ret = subprocess.run(["cmake", "--build", BUILD_DIR, "-v", "-j", str(os.cpu_count())])
+if ret.returncode != 0:
+    raise Exception("CMake build fail")
+
+print("-- running tests ...")
+ret = subprocess.run(["ctest", "--test-dir", BUILD_DIR, "-V", "-j", str(os.cpu_count())])
+if ret.returncode != 0:
+    raise Exception("CTest test fail")
