@@ -536,7 +536,7 @@ entry:
                 else if (auto opt_br_tag_len = ::pltxt2htm::details::try_parse_self_closing_tag<ndebug, u8"r">(
                              ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                          opt_br_tag_len.has_value()) {
-                    current_index += opt_br_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 2;
+                    current_index += opt_br_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1;
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Br{}));
 
                     auto&& [forward_index, require_restart] =
@@ -750,7 +750,7 @@ entry:
                 else if (auto opt_tag_len = ::pltxt2htm::details::try_parse_self_closing_tag<ndebug, u8"r">(
                              ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                          opt_tag_len.has_value()) {
-                    current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 2;
+                    current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1;
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Hr{}));
                     ++current_index;
                     continue;

@@ -16,6 +16,9 @@
 #include "pltxt2htm/ast/ast.hh"
 #include "../push_macro.hh"
 
+/**
+ * @brief Namespace for internal implementation details.
+ */
 namespace pltxt2htm::details {
 
 /**
@@ -323,8 +326,8 @@ template<::pltxt2htm::Contracts ndebug,
  * @return Matched tag length when valid under &lt;ul&gt;/&lt;ol&gt;; otherwise nullopt.
  */
 template<::pltxt2htm::Contracts ndebug>
-[[nodiscard]] constexpr auto try_parse_li_tag(::fast_io::u8string_view pltext,
-                                              ::pltxt2htm::NodeKind const nested_tag_type) noexcept
+[[nodiscard]]
+constexpr auto try_parse_li_tag(::fast_io::u8string_view pltext, ::pltxt2htm::NodeKind const nested_tag_type) noexcept
     -> ::exception::optional<::std::size_t> {
     auto opt_tag_len =
         ::pltxt2htm::details::try_parse_bare_tag<ndebug, ::pltxt2htm::details::U8LiteralString{u8"i"}>(pltext);
@@ -553,11 +556,11 @@ constexpr auto try_parse_self_closing_tag(::fast_io::u8string_view pltext) noexc
     for (::std::size_t forward_index{}; forward_index < pltext.size(); ++forward_index) {
         char8_t const forward_chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index)};
         if (forward_chr == u8'>') {
-            return forward_index;
+            return forward_index + 1;
         }
         else if (forward_chr == u8'/' && forward_index + 1 < pltext.size() &&
                  ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index + 1) == u8'>') {
-            return forward_index + 1;
+            return forward_index + 2;
         }
         else if (forward_chr != u8' ' && forward_chr != u8'\t') {
             return ::exception::nullopt_t{};
@@ -571,7 +574,7 @@ constexpr auto try_parse_self_closing_tag(::fast_io::u8string_view pltext) noexc
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @tparam tag_name Compile-time tag prefix (e.g., `"<br"`).
  * @param[in] pltext The input text to parse from current position.
- * @return Position of closing `>` on success, otherwise nullopt.
+ * @return Length of the matched self-closing tag, otherwise nullopt.
  */
 template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::U8LiteralString tag_name>
 [[nodiscard]]
@@ -585,17 +588,38 @@ constexpr auto try_parse_self_closing_tag(::fast_io::u8string_view pltext) noexc
     for (::std::size_t forward_index{tag_name_size}; forward_index < pltext.size(); ++forward_index) {
         char8_t const forward_chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index)};
         if (forward_chr == u8'>') {
-            return forward_index;
+            return forward_index + 1;
         }
         else if (forward_chr == u8'/' && forward_index + 1 < pltext.size() &&
                  ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index + 1) == u8'>') {
-            return forward_index + 1;
+            return forward_index + 2;
         }
         else if (forward_chr != u8' ' && forward_chr != u8'\t') {
             return ::exception::nullopt_t{};
         }
     }
     return ::exception::nullopt_t{};
+}
+
+/**
+ * @brief Match a PL-text line terminator: either `\n` or a `<br` self-closing tag.
+ *
+ * Returns the byte length of the terminator (1 for `\n`, or the total tag length for `<br>`, `<br/>`, `<br />`, etc.).
+ *
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
+ * @param[in] pltext Input view starting at the current parser position.
+ * @return Length of the matched line terminator, or nullopt if neither `\n` nor `<br` tag is found.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_pltext_line_break(::fast_io::u8string_view pltext) noexcept -> ::exception::optional<::std::size_t> {
+    if (pltext.empty()) {
+        return ::exception::nullopt_t{};
+    }
+    if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 0) == u8'\n') {
+        return ::std::size_t{1};
+    }
+    return ::pltxt2htm::details::try_parse_self_closing_tag<ndebug, ::pltxt2htm::details::U8LiteralString{u8"<br"}>(pltext);
 }
 
 template<::pltxt2htm::Contracts ndebug>
@@ -685,16 +709,10 @@ constexpr auto try_parse_md_atx_heading(::fast_io::u8string_view pltext) noexcep
     ::std::size_t end_index{start_index};
     ::std::size_t extra_length{};
     for (; end_index < pltext_size; ++end_index) {
-        if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, end_index) == u8'\n') {
-            extra_length = 1;
-            break;
-        }
-        else if (auto opt =
-                     ::pltxt2htm::details::try_parse_self_closing_tag<ndebug,
-                                                                      ::pltxt2htm::details::U8LiteralString{u8"<br"}>(
-                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, end_index));
-                 opt.has_value()) {
-            extra_length = opt.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1;
+        if (auto opt_line_break = ::pltxt2htm::details::try_parse_pltext_line_break<ndebug>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, end_index));
+            opt_line_break.has_value()) {
+            extra_length = opt_line_break.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             break;
         }
     }
@@ -780,14 +798,10 @@ constexpr auto try_parse_md_thematic_break(::fast_io::u8string_view text) noexce
             }
         }
         else if (thematic_break_type != ::pltxt2htm::details::ThematicBreakType::none) {
-            if (chr == u8'\n') {
-                return i + 1;
-            }
-            else if (auto opt_tag_len = ::pltxt2htm::details::try_parse_self_closing_tag<
-                         ndebug, ::pltxt2htm::details::U8LiteralString{u8"<br"}>(
-                         ::pltxt2htm::details::u8string_view_subview<ndebug>(text, i));
-                     opt_tag_len.has_value()) {
-                return i + opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1;
+            if (auto opt_line_break = ::pltxt2htm::details::try_parse_pltext_line_break<ndebug>(
+                    ::pltxt2htm::details::u8string_view_subview<ndebug>(text, i));
+                opt_line_break.has_value()) {
+                return i + opt_line_break.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             }
             else {
                 return ::exception::nullopt_t{};
