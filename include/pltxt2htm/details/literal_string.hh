@@ -96,11 +96,6 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto begin(this ::pltxt2htm::details::is_leteral_string auto&& self) noexcept -> iterator {
-        return self.data_;
-    }
-
-    [[nodiscard]]
     constexpr auto begin(this ::pltxt2htm::details::is_leteral_string auto const& self) noexcept -> const_iterator {
         return const_iterator(self.data_);
     }
@@ -111,11 +106,6 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto end(this ::pltxt2htm::details::is_leteral_string auto&& self) noexcept -> iterator {
-        return self.data_ + N;
-    }
-
-    [[nodiscard]]
     constexpr auto end(this ::pltxt2htm::details::is_leteral_string auto const& self) noexcept -> const_iterator {
         return const_iterator(self.data_ + N);
     }
@@ -123,11 +113,6 @@ public:
     [[nodiscard]]
     constexpr auto cend(this ::pltxt2htm::details::is_leteral_string auto const& self) noexcept -> const_iterator {
         return const_iterator(self.data_ + N);
-    }
-
-    [[nodiscard]]
-    constexpr auto data(this ::pltxt2htm::details::is_leteral_string auto&& self) noexcept -> pointer {
-        return self.data_;
     }
 
     [[nodiscard]]
