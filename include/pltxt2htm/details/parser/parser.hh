@@ -1653,7 +1653,6 @@ entry:
             auto forward_index = ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), result);
             current_index += forward_index;
-            ++current_index;
             continue;
         }
     }
