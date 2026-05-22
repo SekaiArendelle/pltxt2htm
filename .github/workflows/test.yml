@@ -357,18 +357,6 @@ jobs:
           xmake config -m release -k static --toolchain=clang --cxxflags="--target=aarch64-apple-ios -isysroot $(xcrun --sdk iphoneos --show-sdk-path)"
           xmake build -v
 
-  aarch64-apple-darwin24-c-release:
-    name: aarch64-apple-darwin24 (c/, release mode)
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Build docker image
-        run: |
-          docker build -f c/docker/aarch64-apple-darwin24/Dockerfile --build-arg mode=release -t aarch64-apple-darwin24-pltxt2htm-c-release .
-
   x86_64-linux-gnu-cxxmodule:
     name: x86_64-linux-gnu (cxxmodule/)
     runs-on: ubuntu-latest
