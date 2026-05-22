@@ -79,7 +79,7 @@ public:
 
     [[nodiscard]]
     constexpr auto get_text_view(this ::pltxt2htm::details::MdListTextNode const& self) noexcept {
-        return ::fast_io::u8string_view(::fast_io::mnp::os_c_str(self.text));
+        return ::fast_io::u8string_view{self.text.data(), self.text.size()};
     }
 };
 

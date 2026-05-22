@@ -860,7 +860,7 @@ entry:
                     opt_size_tag.has_value()) {
                     auto&& [tag_len, id_] = opt_size_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                     ::exception::optional<::std::size_t> id{
-                        ::pltxt2htm::details::u8str2size_t(::fast_io::mnp::os_c_str(id_))};
+                        ::pltxt2htm::details::u8str2size_t(::fast_io::u8string_view{id_.data(), id_.size()})};
                     if (!id.has_value()) [[unlikely]] {
                         ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
                     }

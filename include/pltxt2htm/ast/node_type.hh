@@ -180,10 +180,9 @@ constexpr auto is_md_list_ul_or_ol_type(::pltxt2htm::NodeKind const node_type) n
 [[nodiscard]]
 constexpr auto is_plain_pltext_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
     return !(::pltxt2htm::details::is_equal_sign_tag_type(node_type) ||
-             node_type == ::pltxt2htm::NodeKind::pl_external ||
-             node_type == ::pltxt2htm::NodeKind::pl_size ||
-             node_type == ::pltxt2htm::NodeKind::md_block_quotes ||
-             node_type == ::pltxt2htm::NodeKind::md_link || ::pltxt2htm::details::is_md_list_ul_or_ol_type(node_type));
+             node_type == ::pltxt2htm::NodeKind::pl_external || node_type == ::pltxt2htm::NodeKind::pl_size ||
+             node_type == ::pltxt2htm::NodeKind::md_block_quotes || node_type == ::pltxt2htm::NodeKind::md_link ||
+             ::pltxt2htm::details::is_md_list_ul_or_ol_type(node_type));
 }
 
 } // namespace details

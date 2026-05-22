@@ -327,11 +327,12 @@ entry:
                     ast.erase(current_iter);
                     continue;
                 }
+                auto const& equal_sign_tag_id = node.get_equal_sign_tag_id();
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
                         ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_color, subast.begin(),
                         ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{
-                            ::fast_io::mnp::os_c_str(node.get_equal_sign_tag_id())}));
+                            ::fast_io::u8string_view{equal_sign_tag_id.data(), equal_sign_tag_id.size()}}));
                 goto entry;
             }
             else {
@@ -406,11 +407,12 @@ entry:
                 ast.erase(current_iter);
                 continue;
             }
+            auto const& equal_sign_tag_id = node.get_equal_sign_tag_id();
             call_stack.push(
                 ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_experiment, subast.begin(),
                     ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{
-                        ::fast_io::mnp::os_c_str(node.get_equal_sign_tag_id())}));
+                        ::fast_io::u8string_view{equal_sign_tag_id.data(), equal_sign_tag_id.size()}}));
             goto entry;
         }
         case ::pltxt2htm::NodeKind::pl_discussion: {
@@ -420,11 +422,12 @@ entry:
                 ast.erase(current_iter);
                 continue;
             }
+            auto const& equal_sign_tag_id = node.get_equal_sign_tag_id();
             call_stack.push(
                 ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_discussion, subast.begin(),
-                    ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{::fast_io::u8string_view{
-                        node.get_equal_sign_tag_id().data(), node.get_equal_sign_tag_id().size()}}));
+                    ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{
+                        ::fast_io::u8string_view{equal_sign_tag_id.data(), equal_sign_tag_id.size()}}));
             goto entry;
         }
         case ::pltxt2htm::NodeKind::pl_user: {
@@ -453,15 +456,16 @@ entry:
             }
             auto&& nested_tag_type = call_stack.top().get_nested_tag_type();
             // Optimization: If the user is the same as the parent node, then ignore the nested tag.
+            auto const& equal_sign_tag_id = node.get_equal_sign_tag_id();
             bool const is_not_same_tag = nested_tag_type != ::pltxt2htm::NodeKind::pl_user ||
-                                         node.get_equal_sign_tag_id() != call_stack.top().get_equal_sign_tag_id();
+                                         equal_sign_tag_id != call_stack.top().get_equal_sign_tag_id();
             if (is_not_same_tag) {
                 auto&& subast = node.get_subast();
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
                         ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_user, subast.begin(),
                         ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{
-                            ::fast_io::mnp::os_c_str(node.get_equal_sign_tag_id())}));
+                            ::fast_io::u8string_view{equal_sign_tag_id.data(), equal_sign_tag_id.size()}}));
                 goto entry;
             }
             else {
@@ -674,13 +678,13 @@ entry:
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
                         ::std::addressof(subast), ::pltxt2htm::NodeKind::html_em, subast.begin()));
+                goto entry;
             }
             else {
                 node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(node.get_subast())}};
                 ++current_iter;
                 continue;
             }
-            goto entry;
         }
         case ::pltxt2htm::NodeKind::md_latex_inline:
             [[fallthrough]];
