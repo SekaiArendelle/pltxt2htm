@@ -60,6 +60,10 @@ All distributions share the same version of `pltxt2htm::version`
 
 For linux users, the `$ARCH-linux-musl-pltxt2htm-cmd-{debug|release}` distribution have static-linked musl-libc. you can also use `wine pltxt2htm.exe`, `wavm run pltxt2htm.wasm` or compile and install `pltxt2htm`.
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, running tests, coding guidelines, and pull request workflow.
+
 ## others
 
 > Q: Is this the time to use C++20 module?
