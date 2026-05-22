@@ -10,7 +10,7 @@ TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 BUILD_DIR = os.path.join(TEST_DIR, "build")
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--compiler", choices=("clang", "gcc"), help="compiler to use")
+parser.add_argument("--compiler", choices=("clang", "gcc", "msvc"), help="compiler to use")
 parser.add_argument("--target", help="target triplet")
 parser.add_argument("--sysroot", help="sysroot to use")
 parser.add_argument("--sanitizer", choices=("address", "undefined", "memory"))
@@ -22,16 +22,22 @@ if args.compiler is None:
             args.compiler = "clang" if candidate == "clang++" else "gcc"
             break
     else:
-        raise Exception("no compiler found (tried clang++, g++)")
+        if shutil.which("cl.exe") is not None:
+            args.compiler = "msvc"
+        else:
+            raise Exception("no compiler found (tried clang++, g++, cl.exe)")
 
 print(f"-- using compiler \"{args.compiler}\"")
 
-cmake_cmd = [
-    "cmake", "-S", TEST_DIR, "-B", BUILD_DIR,
-    "-GNinja",
-    "-DCMAKE_BUILD_TYPE=Debug",
-    f"-DCMAKE_CXX_COMPILER={'clang++' if args.compiler == 'clang' else 'g++'}",
-]
+cmake_cmd = ["cmake", "-S", TEST_DIR, "-B", BUILD_DIR, "-DCMAKE_BUILD_TYPE=Debug"]
+
+if args.compiler == "msvc":
+    cmake_cmd += ["-DCMAKE_CXX_COMPILER=cl"]
+else:
+    cmake_cmd += [
+        "-GNinja",
+        f"-DCMAKE_CXX_COMPILER={'clang++' if args.compiler == 'clang' else 'g++'}",
+    ]
 
 if args.target is not None:
     cmake_cmd += [f"-DCMAKE_CXX_COMPILER_TARGET={args.target}"]
@@ -53,6 +59,9 @@ if ret.returncode != 0:
     raise Exception("CMake build fail")
 
 print("-- running tests ...")
-ret = subprocess.run(["ctest", "--test-dir", BUILD_DIR, "-V", "-j", str(os.cpu_count())])
+ctest_cmd = ["ctest", "--test-dir", BUILD_DIR, "-V", "-j", str(os.cpu_count())]
+if args.compiler == "msvc":
+    ctest_cmd += ["-C", "Debug"]
+ret = subprocess.run(ctest_cmd)
 if ret.returncode != 0:
     raise Exception("CTest test fail")
