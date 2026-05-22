@@ -16,7 +16,7 @@
 #include <fast_io/fast_io_dsal/string_view.h>
 #include "md_list.hh"
 #include "../../contracts.hh"
-#include "pltxt2htm/ast/ast.hh"
+#include "../../ast/ast.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::details {
