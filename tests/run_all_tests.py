@@ -16,6 +16,10 @@ parser.add_argument("--sysroot", help="sysroot to use")
 parser.add_argument("--sanitizer", choices=("address", "undefined", "memory"))
 args = parser.parse_args()
 
+if os.path.exists(BUILD_DIR) and os.path.isdir(BUILD_DIR):
+    shutil.rmtree(BUILD_DIR)
+    print(f"removing {BUILD_DIR}")
+
 if args.compiler is None:
     for candidate in ("clang++", "g++"):
         if shutil.which(candidate) is not None:
