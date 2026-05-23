@@ -25,11 +25,6 @@ jobs:
           version: latest
           platform: x64
 
-      - name: Setup xmake
-        uses: xmake-io/github-action-setup-xmake@v1
-        with:
-          xmake-version: 3.0.5
-
       - name: clang version
         shell: powershell
         run: |
@@ -37,10 +32,10 @@ jobs:
 
       - name: Configure and build
         shell: powershell
-        working-directory: tests
         run: |
-          xmake config -p windows -a x64 --toolchain=x86_64-windows-msvc-clang --enable-stacktrace=y
-          xmake test -v
+          cmake -S tests -B tests/build -GNinja -DCMAKE_BUILD_TYPE=Debug -DPLTXT2HTM_ENABLE_STACKTRACE=ON -DCMAKE_CXX_COMPILER=clang++
+          cmake --build tests/build -v
+          ctest --test-dir tests/build -V -j $env:NUMBER_OF_PROCESSORS
 
   aarch64-apple-darwin24-test-asan:
     name: aarch64-apple-darwin24 (tests/, asan)
@@ -50,19 +45,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install clang and xmake
+      - name: Install clang and ninja
         run: |
           brew update
-          brew install llvm lld xmake
+          brew install llvm lld ninja
 
       - name: Set PATH for LLVM clang
         run: echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
 
       - name: Configure and build
-        working-directory: tests
         run: |
-          xmake config --toolchain=clang --policies=build.sanitizer.address
-          xmake test -v
+          cmake -S tests -B tests/build -GNinja -DCMAKE_BUILD_TYPE=Debug -DPLTXT2HTM_SANITIZER=address -DCMAKE_CXX_COMPILER=clang++
+          cmake --build tests/build -v
+          ctest --test-dir tests/build -V -j $(sysctl -n hw.ncpu)
 
   aarch64-apple-darwin24-test-ubsan:
     name: aarch64-apple-darwin24 (tests/, ubsan)
@@ -72,21 +67,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install clang and xmake
+      - name: Install clang and ninja
         run: |
           brew update
-          brew install llvm lld xmake
+          brew install llvm lld ninja
 
       - name: Set PATH for LLVM clang
         run: echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
 
       - name: Configure and build
-        working-directory: tests
         env:
           UBSAN_OPTIONS: "halt_on_error=1:abort_on_error=1:print_stacktrace=1"
         run: |
-          xmake config --toolchain=clang --policies=build.sanitizer.undefined
-          xmake test -v
+          cmake -S tests -B tests/build -GNinja -DCMAKE_BUILD_TYPE=Debug -DPLTXT2HTM_SANITIZER=undefined -DCMAKE_CXX_COMPILER=clang++
+          cmake --build tests/build -v
+          ctest --test-dir tests/build -V -j $(sysctl -n hw.ncpu)
 
   x86_64-linux-gnu-test-asan:
     strategy:
@@ -99,13 +94,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build docker image
+      - name: Build docker image (tests run during build)
         run: |
           docker build -f tests/docker/x86_64-linux-gnu-asan/Dockerfile -t x86_64-linux-gnu-test-asan .
-
-      - name: Run all tests
-        run: |
-          docker run --name x86_64-linux-gnu-test-asan x86_64-linux-gnu-test-asan
 
   x86_64-linux-gnu-test-msan:
     strategy:
@@ -118,13 +109,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build docker image
+      - name: Build docker image (tests run during build)
         run: |
           docker build -f tests/docker/x86_64-linux-gnu-msan/Dockerfile -t x86_64-linux-gnu-test-msan .
-
-      - name: Run all tests
-        run: |
-          docker run --name x86_64-linux-gnu-test-msan x86_64-linux-gnu-test-msan
 
   x86_64-windows-msvc-cmd:
     strategy:

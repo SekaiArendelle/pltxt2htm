@@ -4,72 +4,72 @@ if __name__ != "__main__":
 import os
 import shutil
 import argparse
-import platform
+import subprocess
 
-# config section
-TEST_DIR = os.path.dirname(os.path.abspath(__file__))
+TEST_DIR: str = os.path.dirname(os.path.abspath(__file__))
+BUILD_DIR: str = os.path.join(TEST_DIR, "build")
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--compiler", choices=("clang", "gcc"), help="compiler to use")
+parser.add_argument("--compiler", choices=("clang", "gcc", "msvc"), help="compiler to use")
 parser.add_argument("--target", help="target triplet")
 parser.add_argument("--sysroot", help="sysroot to use")
-parser.add_argument("--sanitizer", choices=("address",  "undefined", "memory"))
+parser.add_argument("--sanitizer", choices=("address", "undefined", "memory"))
 args = parser.parse_args()
 
+if os.path.exists(BUILD_DIR) and os.path.isdir(BUILD_DIR):
+    shutil.rmtree(BUILD_DIR)
+    print(f"removing {BUILD_DIR}")
+
 if args.compiler is None:
-    if shutil.which("clang") is not None:
-        args.compiler = "clang"
-    elif shutil.which("gcc") is not None:
-        args.compiler = "gcc"
+    for candidate in ("clang++", "g++"):
+        if shutil.which(candidate) is not None:
+            args.compiler = "clang" if candidate == "clang++" else "gcc"
+            break
     else:
-        raise Exception("no compiler found")
+        if shutil.which("cl.exe") is not None:
+            args.compiler = "msvc"
+        else:
+            raise Exception("no compiler found (tried clang++, g++, cl.exe)")
+
+print(f"-- using compiler \"{args.compiler}\"")
+
+cmake_cmd: list[str] = ["cmake", "-S", TEST_DIR, "-B", BUILD_DIR]
+
+if args.compiler == "msvc":
+    cmake_cmd += ["-DCMAKE_CXX_COMPILER=cl"]
+else:
+    cmake_cmd += [
+        "-GNinja",
+        "-DCMAKE_BUILD_TYPE=Debug",
+        f"-DCMAKE_CXX_COMPILER={'clang++' if args.compiler == 'clang' else 'g++'}",
+    ]
 
 if args.target is not None:
-    toolchain = f"{args.target}-{args.compiler}"
-else:
-    if platform.system() == "Windows" and args.compiler == "clang":
-        if shutil.which("gcc") is not None:
-            toolchain = "x86_64-windows-gnu-clang"
-        else:
-            toolchain = "x86_64-windows-msvc-clang"
-    else:
-        toolchain = args.compiler
-
-print(f"-- using toolchain \"{toolchain}\"")
-
-# build section
-os.chdir(TEST_DIR)
-print(f"entering dir \"{TEST_DIR}\"")
-
-if os.path.exists(os.path.join(TEST_DIR, ".xmake")):
-    shutil.rmtree(os.path.join(TEST_DIR, ".xmake"))
-    print(f"removing dir \"{os.path.join(TEST_DIR, '.xmake')}\"")
-if os.path.exists(os.path.join(TEST_DIR, "build")):
-    shutil.rmtree(os.path.join(TEST_DIR, "build"))
-    print(f"removing dir \"{os.path.join(TEST_DIR, 'build')}\"")
-
-# if args.compiler == "clang" and toolchain != "x86_64-windows-msvc-clang":
-#     clang_runtime = "--runtimes=libc++_shared --rtlib=compiler-rt --unwindlib=libunwind"
-# else:
-#     clang_runtime = ""
+    cmake_cmd += [f"-DCMAKE_CXX_COMPILER_TARGET={args.target}"]
 
 if args.sysroot is not None:
-    sysroot = f"--sysroot={args.sysroot}"
-else:
-    sysroot = ""
+    cmake_cmd += [f"-DCMAKE_SYSROOT={args.sysroot}"]
 
-if args.sanitizer == "address":
-    asan_flag="--policies=build.sanitizer.address"
-elif args.sanitizer == "undefined":
-    asan_flag="--policies=build.sanitizer.undefined"
-elif args.sanitizer == "memory":
-    asan_flag="--policies=build.sanitizer.memory"
-else:
-    asan_flag=""
+if args.sanitizer is not None:
+    cmake_cmd += [f"-DPLTXT2HTM_SANITIZER={args.sanitizer}"]
 
-err_code = os.system(f"xmake config --mode=debug --toolchain={toolchain} {sysroot} {asan_flag}")
-if err_code != 0:
-    raise Exception("XMake config fail")
-err_code = os.system("xmake test -v")
-if err_code != 0:
-    raise Exception("XMake test fail")
+print("-- configuring ...", " ".join(cmake_cmd))
+ret = subprocess.run(cmake_cmd)
+if ret.returncode != 0:
+    raise Exception("CMake configure fail")
+
+print("-- building ...")
+build_cmd: list[str] = ["cmake", "--build", BUILD_DIR, "-j", str(os.cpu_count() or 1)]
+if args.compiler != "msvc":
+    build_cmd += ["--", "-v"]
+ret = subprocess.run(build_cmd)
+if ret.returncode != 0:
+    raise Exception("CMake build fail")
+
+print("-- running tests ...")
+ctest_cmd: list[str] = ["ctest", "--test-dir", BUILD_DIR, "-V", "-j", str(os.cpu_count() or 1)]
+if args.compiler == "msvc":
+    ctest_cmd += ["-C", "Debug"]
+ret = subprocess.run(ctest_cmd)
+if ret.returncode != 0:
+    raise Exception("CTest test fail")

@@ -1,11 +1,11 @@
 FROM ubuntu:26.04
 
-RUN apt update && apt install -y --no-install-recommends g++ xmake python3
+RUN apt update && apt install -y --no-install-recommends g++ cmake ninja-build
 
 WORKDIR /pltxt2htm
-COPY ../../../include/ /pltxt2htm/include/
-COPY ../../../xmake/ /pltxt2htm/xmake/
-COPY ../../../tests/ /pltxt2htm/tests/
+COPY include/ /pltxt2htm/include/
+COPY tests/ /pltxt2htm/tests/
 
-ENV XMAKE_ROOT=y
-CMD ["python3", "tests/run_all_tests.py", "--compiler=gcc", "--sanitizer=address"]
+RUN cmake -S tests -B build -GNinja -DCMAKE_BUILD_TYPE=Debug -DPLTXT2HTM_SANITIZER=address -DCMAKE_CXX_COMPILER=g++ \
+    && cmake --build build -v \
+    && ctest --test-dir build -V -j $(nproc)
