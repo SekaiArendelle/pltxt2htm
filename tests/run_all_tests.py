@@ -6,8 +6,8 @@ import shutil
 import argparse
 import subprocess
 
-TEST_DIR = os.path.dirname(os.path.abspath(__file__))
-BUILD_DIR = os.path.join(TEST_DIR, "build")
+TEST_DIR: str = os.path.dirname(os.path.abspath(__file__))
+BUILD_DIR: str = os.path.join(TEST_DIR, "build")
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--compiler", choices=("clang", "gcc", "msvc"), help="compiler to use")
@@ -29,7 +29,7 @@ if args.compiler is None:
 
 print(f"-- using compiler \"{args.compiler}\"")
 
-cmake_cmd = ["cmake", "-S", TEST_DIR, "-B", BUILD_DIR, "-DCMAKE_BUILD_TYPE=Debug"]
+cmake_cmd: list[str] = ["cmake", "-S", TEST_DIR, "-B", BUILD_DIR, "-DCMAKE_BUILD_TYPE=Debug"]
 
 if args.compiler == "msvc":
     cmake_cmd += ["-DCMAKE_CXX_COMPILER=cl"]
@@ -54,12 +54,12 @@ if ret.returncode != 0:
     raise Exception("CMake configure fail")
 
 print("-- building ...")
-ret = subprocess.run(["cmake", "--build", BUILD_DIR, "-v", "-j", str(os.cpu_count())])
+ret = subprocess.run(["cmake", "--build", BUILD_DIR, "-v", "-j", str(os.cpu_count() or 1)])
 if ret.returncode != 0:
     raise Exception("CMake build fail")
 
 print("-- running tests ...")
-ctest_cmd = ["ctest", "--test-dir", BUILD_DIR, "-V", "-j", str(os.cpu_count())]
+ctest_cmd: list[str] = ["ctest", "--test-dir", BUILD_DIR, "-V", "-j", str(os.cpu_count() or 1)]
 if args.compiler == "msvc":
     ctest_cmd += ["-C", "Debug"]
 ret = subprocess.run(ctest_cmd)
