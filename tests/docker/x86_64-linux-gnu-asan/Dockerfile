@@ -7,5 +7,5 @@ COPY include/ /pltxt2htm/include/
 COPY tests/ /pltxt2htm/tests/
 
 RUN cmake -S tests -B build -GNinja -DCMAKE_BUILD_TYPE=Debug -DPLTXT2HTM_SANITIZER=address -DCMAKE_CXX_COMPILER=g++ \
-    && cmake --build build \
-    && ctest --test-dir build
+    && cmake --build build -v \
+    && ctest --test-dir build -V -j $(nproc)

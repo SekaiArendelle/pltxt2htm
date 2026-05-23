@@ -33,9 +33,9 @@ jobs:
       - name: Configure and build
         shell: powershell
         run: |
-          cmake -S tests -B tests/build -DCMAKE_BUILD_TYPE=Debug -DPLTXT2HTM_ENABLE_STACKTRACE=ON -DCMAKE_CXX_COMPILER=clang++
-          cmake --build tests/build
-          ctest --test-dir tests/build -V -C Debug
+          cmake -S tests -B tests/build -GNinja -DCMAKE_BUILD_TYPE=Debug -DPLTXT2HTM_ENABLE_STACKTRACE=ON -DCMAKE_CXX_COMPILER=clang++
+          cmake --build tests/build -v
+          ctest --test-dir tests/build -V -C Debug -j $env:NUMBER_OF_PROCESSORS
 
   aarch64-apple-darwin24-test-asan:
     name: aarch64-apple-darwin24 (tests/, asan)
@@ -56,8 +56,8 @@ jobs:
       - name: Configure and build
         run: |
           cmake -S tests -B tests/build -GNinja -DCMAKE_BUILD_TYPE=Debug -DPLTXT2HTM_SANITIZER=address -DCMAKE_CXX_COMPILER=clang++
-          cmake --build tests/build
-          ctest --test-dir tests/build -V
+          cmake --build tests/build -v
+          ctest --test-dir tests/build -V -j $(nproc)
 
   aarch64-apple-darwin24-test-ubsan:
     name: aarch64-apple-darwin24 (tests/, ubsan)
@@ -80,8 +80,8 @@ jobs:
           UBSAN_OPTIONS: "halt_on_error=1:abort_on_error=1:print_stacktrace=1"
         run: |
           cmake -S tests -B tests/build -GNinja -DCMAKE_BUILD_TYPE=Debug -DPLTXT2HTM_SANITIZER=undefined -DCMAKE_CXX_COMPILER=clang++
-          cmake --build tests/build
-          ctest --test-dir tests/build -V
+          cmake --build tests/build -v
+          ctest --test-dir tests/build -V -j $(nproc)
 
   x86_64-linux-gnu-test-asan:
     strategy:
