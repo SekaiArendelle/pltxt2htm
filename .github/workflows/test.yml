@@ -35,7 +35,7 @@ jobs:
         run: |
           cmake -S tests -B tests/build -GNinja -DCMAKE_BUILD_TYPE=Debug -DPLTXT2HTM_ENABLE_STACKTRACE=ON -DCMAKE_CXX_COMPILER=clang++
           cmake --build tests/build -v
-          ctest --test-dir tests/build -V -C Debug -j $env:NUMBER_OF_PROCESSORS
+          ctest --test-dir tests/build -V -j $env:NUMBER_OF_PROCESSORS
 
   aarch64-apple-darwin24-test-asan:
     name: aarch64-apple-darwin24 (tests/, asan)
