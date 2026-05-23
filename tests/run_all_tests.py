@@ -33,13 +33,14 @@ if args.compiler is None:
 
 print(f"-- using compiler \"{args.compiler}\"")
 
-cmake_cmd: list[str] = ["cmake", "-S", TEST_DIR, "-B", BUILD_DIR, "-DCMAKE_BUILD_TYPE=Debug"]
+cmake_cmd: list[str] = ["cmake", "-S", TEST_DIR, "-B", BUILD_DIR]
 
 if args.compiler == "msvc":
     cmake_cmd += ["-DCMAKE_CXX_COMPILER=cl"]
 else:
     cmake_cmd += [
         "-GNinja",
+        "-DCMAKE_BUILD_TYPE=Debug",
         f"-DCMAKE_CXX_COMPILER={'clang++' if args.compiler == 'clang' else 'g++'}",
     ]
 
