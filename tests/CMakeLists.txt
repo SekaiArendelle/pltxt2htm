@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.28)
+cmake_minimum_required(VERSION 3.20)
 project(pltxt2htm-tests LANGUAGES CXX)
 
 enable_testing()
@@ -6,7 +6,9 @@ enable_testing()
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.28)
+    set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
+endif()
 
 option(PLTXT2HTM_ENABLE_STACKTRACE "Enable C++23 <stacktrace>" OFF)
 option(PLTXT2HTM_ENABLE_COVERAGE "Enable code coverage" OFF)
