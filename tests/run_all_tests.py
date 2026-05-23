@@ -58,7 +58,10 @@ if ret.returncode != 0:
     raise Exception("CMake configure fail")
 
 print("-- building ...")
-ret = subprocess.run(["cmake", "--build", BUILD_DIR, "-v", "-j", str(os.cpu_count() or 1)])
+build_cmd: list[str] = ["cmake", "--build", BUILD_DIR, "-j", str(os.cpu_count() or 1)]
+if args.compiler != "msvc":
+    build_cmd += ["--", "-v"]
+ret = subprocess.run(build_cmd)
 if ret.returncode != 0:
     raise Exception("CMake build fail")
 
