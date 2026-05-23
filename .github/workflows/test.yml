@@ -57,7 +57,7 @@ jobs:
         run: |
           cmake -S tests -B tests/build -GNinja -DCMAKE_BUILD_TYPE=Debug -DPLTXT2HTM_SANITIZER=address -DCMAKE_CXX_COMPILER=clang++
           cmake --build tests/build -v
-          ctest --test-dir tests/build -V -j $(nproc)
+          ctest --test-dir tests/build -V -j $(sysctl -n hw.ncpu)
 
   aarch64-apple-darwin24-test-ubsan:
     name: aarch64-apple-darwin24 (tests/, ubsan)
@@ -81,7 +81,7 @@ jobs:
         run: |
           cmake -S tests -B tests/build -GNinja -DCMAKE_BUILD_TYPE=Debug -DPLTXT2HTM_SANITIZER=undefined -DCMAKE_CXX_COMPILER=clang++
           cmake --build tests/build -v
-          ctest --test-dir tests/build -V -j $(nproc)
+          ctest --test-dir tests/build -V -j $(sysctl -n hw.ncpu)
 
   x86_64-linux-gnu-test-asan:
     strategy:
