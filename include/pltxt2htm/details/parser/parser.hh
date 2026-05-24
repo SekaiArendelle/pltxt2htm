@@ -110,14 +110,60 @@ constexpr auto devil_stuff_after_line_break(
             return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{.forward_index = current_index + forward_index,
                                                                         .new_frame_been_pushed_into_call_stack = true};
         }
-        else if (auto opt_md_list_ast = ::pltxt2htm::details::optionally_to_md_list_ast<ndebug>(
+        else if (auto opt_first_item = ::pltxt2htm::details::try_parse_item<ndebug>(
                      ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
-                 opt_md_list_ast.has_value()) {
-            auto&& [md_list_ast, forward_index, item_kind] =
-                opt_md_list_ast.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(item_kind, ::std::move(md_list_ast)));
-            return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{.forward_index = current_index + forward_index,
-                                                                        .new_frame_been_pushed_into_call_stack = true};
+                 opt_first_item.has_value()) {
+            auto&& [space_hierarchy, forward_index, text, item_kind] =
+                opt_first_item.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            auto list_kind = item_kind == ::pltxt2htm::details::MdUlListItemKind::ordered_item
+                                 ? ::pltxt2htm::NodeKind::md_ol
+                                 : ::pltxt2htm::NodeKind::md_ul;
+
+            auto list_pltext = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index);
+            struct ScanLevel {
+                ::std::size_t space_hierarchy;
+                ::pltxt2htm::details::MdUlListItemKind item_kind;
+            };
+            static constexpr auto max_nesting_depth = ::std::size_t{32};
+            ::std::size_t scan_pos = forward_index;
+            ScanLevel scan_stack[max_nesting_depth];
+            ::std::size_t scan_stack_size = 1;
+            scan_stack[0] = {space_hierarchy, item_kind};
+
+            while (scan_stack_size > 0) {
+                auto& level = scan_stack[scan_stack_size - 1];
+                auto opt_next = ::pltxt2htm::details::try_parse_item<ndebug>(
+                    ::pltxt2htm::details::u8string_view_subview<ndebug>(list_pltext, scan_pos),
+                    ::pltxt2htm::details::PreviousItemInfo{
+                        .space_hierarchy = level.space_hierarchy,
+                        .call_stack_is_single = (scan_stack_size == 1),
+                        .item_kind = level.item_kind});
+                if (!opt_next.has_value()) {
+                    if (scan_stack_size > 1) {
+                        --scan_stack_size;
+                        continue;
+                    }
+                    break;
+                }
+                auto&& [item_space, item_forward, _, item_item_kind] =
+                    opt_next.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                if (item_space > level.space_hierarchy + 1) {
+                    scan_pos += item_forward;
+                    scan_stack[scan_stack_size] = {item_space, item_item_kind};
+                    ++scan_stack_size;
+                }
+                else {
+                    level.space_hierarchy = item_space;
+                    level.item_kind = item_item_kind;
+                    scan_pos += item_forward;
+                }
+            }
+
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                list_kind, list_pltext, space_hierarchy, item_kind, true));
+            return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{
+                .forward_index = current_index + scan_pos,
+                .new_frame_been_pushed_into_call_stack = true};
         }
         else {
             return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{.forward_index = current_index,
@@ -137,94 +183,63 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr auto parse_pltxt(::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>>& call_stack) noexcept
     -> ::pltxt2htm::Ast<ndebug> {
 entry:
-    if (call_stack.top().get_nested_tag_type() == ::pltxt2htm::NodeKind::md_ul) {
-        // ::pltxt2htm::details::MdListAst to ::pltxt2htm::Ast<ndebug>
+    if (::pltxt2htm::details::is_md_list_ul_or_ol_type(call_stack.top().get_nested_tag_type())) {
         auto&& frame = call_stack.top();
-        auto&& frame_md_list_ast = frame.get_md_list_ast();
-        auto&& frame_iter = frame.get_md_list_iter();
-        if (frame_iter == frame_md_list_ast.end()) {
-            ::pltxt2htm::details::ParserFrameContext<ndebug> previous_frame(::std::move(frame));
+        auto list_node_type = frame.get_nested_tag_type();
+        auto scan_pltext = frame.get_md_list_scan_pltext();
+        auto frame_space_hierarchy = frame.get_md_list_scan_space_hierarchy();
+        auto frame_item_kind = frame.get_md_list_scan_item_kind();
+        auto frame_is_root = frame.get_md_list_scan_is_root();
+        auto& frame_current_index = frame.current_index;
+
+        auto remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(scan_pltext, frame_current_index);
+        auto opt_item = ::pltxt2htm::details::try_parse_item<ndebug>(
+            remaining,
+            ::pltxt2htm::details::PreviousItemInfo{.space_hierarchy = frame_space_hierarchy,
+                                                   .call_stack_is_single = frame_is_root,
+                                                   .item_kind = frame_item_kind});
+
+        if (!opt_item.has_value()) {
+            auto previous_frame = ::std::move(frame);
             call_stack.pop();
             if (call_stack.empty()) {
                 return ::std::move(previous_frame.subast);
             }
             else {
-                call_stack.top().subast.emplace_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdUl<ndebug>{::std::move(previous_frame.subast)}));
+                if (list_node_type == ::pltxt2htm::NodeKind::md_ul) {
+                    call_stack.top().subast.emplace_back(
+                        ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdUl<ndebug>{::std::move(previous_frame.subast)}));
+                }
+                else {
+                    call_stack.top().subast.emplace_back(
+                        ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdOl<ndebug>{::std::move(previous_frame.subast)}));
+                }
+                call_stack.top().current_index += previous_frame.current_index;
                 goto entry;
             }
         }
-        else {
-            switch (frame_iter->get_type()) {
-            case ::pltxt2htm::details::MdListNodeType::text: {
-                call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(frame_iter->get_text_view(),
-                                                                                 ::pltxt2htm::NodeKind::md_li));
-                break;
-            }
-            case ::pltxt2htm::details::MdListNodeType::md_ul: {
-                call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                    ::pltxt2htm::NodeKind::md_ul, ::std::move(frame_iter->get_sublist())));
-                break;
-            }
-            case ::pltxt2htm::details::MdListNodeType::md_ol: {
-                call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                    ::pltxt2htm::NodeKind::md_ol, ::std::move(frame_iter->get_sublist())));
-                break;
-            }
-#if 0
-            default:
-                [[unlikely]] {
-                    ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
-                }
-#endif
-            }
-        }
-        ++frame_iter;
-        goto entry;
-    }
-    else if (call_stack.top().get_nested_tag_type() == ::pltxt2htm::NodeKind::md_ol) {
-        // ::pltxt2htm::details::MdListAst to ::pltxt2htm::Ast<ndebug>
-        auto&& frame = call_stack.top();
-        auto&& frame_md_list_ast = frame.get_md_list_ast();
-        auto&& frame_iter = frame.get_md_list_iter();
-        if (frame_iter == frame_md_list_ast.end()) {
-            ::pltxt2htm::details::ParserFrameContext<ndebug> previous_frame(::std::move(frame));
-            call_stack.pop();
-            if (call_stack.empty()) {
-                return ::std::move(previous_frame.subast);
-            }
-            else {
-                call_stack.top().subast.emplace_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdOl<ndebug>{::std::move(previous_frame.subast)}));
-                goto entry;
-            }
+
+        auto&& [item_space, item_forward, item_text, item_item_kind] =
+            opt_item.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+
+        if (item_space > frame_space_hierarchy + 1) {
+            // Child list
+            auto child_kind = item_item_kind == ::pltxt2htm::details::MdUlListItemKind::ordered_item
+                                  ? ::pltxt2htm::NodeKind::md_ol
+                                  : ::pltxt2htm::NodeKind::md_ul;
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                child_kind,
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(scan_pltext, frame_current_index),
+                item_space, item_item_kind, false));
         }
         else {
-            switch (frame_iter->get_type()) {
-            case ::pltxt2htm::details::MdListNodeType::text: {
-                call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(frame_iter->get_text_view(),
-                                                                                 ::pltxt2htm::NodeKind::md_li));
-                break;
-            }
-            case ::pltxt2htm::details::MdListNodeType::md_ul: {
-                call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                    ::pltxt2htm::NodeKind::md_ul, ::std::move(frame_iter->get_sublist())));
-                break;
-            }
-            case ::pltxt2htm::details::MdListNodeType::md_ol: {
-                call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                    ::pltxt2htm::NodeKind::md_ol, ::std::move(frame_iter->get_sublist())));
-                break;
-            }
-#if 0
-            default:
-                [[unlikely]] {
-                    ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
-                }
-#endif
-            }
+            // Sibling item at same level
+            frame_current_index += item_forward;
+            frame.set_md_list_scan_space_hierarchy(item_space);
+            frame.set_md_list_scan_item_kind(item_item_kind);
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                item_text, ::pltxt2htm::NodeKind::md_li));
         }
-        ++frame_iter;
         goto entry;
     }
 
@@ -1800,7 +1815,6 @@ entry:
             }
             case ::pltxt2htm::NodeKind::md_li: {
                 super_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdLi<ndebug>{::std::move(subast)}));
-                super_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_code: {

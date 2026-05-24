@@ -58,14 +58,20 @@ public:
 };
 
 template<::pltxt2htm::Contracts ndebug>
-class ParserFrameContextWithMdListInfo {
+class ParserFrameContextWithMdListScanInfo {
 public:
-    ::pltxt2htm::details::MdListAst<ndebug> md_list_ast;
-    typename ::pltxt2htm::details::MdListAst<ndebug>::iterator iter;
+    ::fast_io::u8string_view pltext;
+    ::std::size_t space_hierarchy;
+    ::pltxt2htm::details::MdUlListItemKind item_kind;
+    bool is_root;
 
-    constexpr explicit ParserFrameContextWithMdListInfo(::pltxt2htm::details::MdListAst<ndebug>&& md_list_ast_) noexcept
-        : md_list_ast(::std::move(md_list_ast_)),
-          iter(md_list_ast.begin()) {
+    constexpr explicit ParserFrameContextWithMdListScanInfo(
+        ::fast_io::u8string_view pltext_, ::std::size_t space_hierarchy_,
+        ::pltxt2htm::details::MdUlListItemKind item_kind_, bool is_root_) noexcept
+        : pltext(pltext_),
+          space_hierarchy(space_hierarchy_),
+          item_kind(item_kind_),
+          is_root(is_root_) {
     }
 };
 
@@ -79,7 +85,7 @@ public:
         ::pltxt2htm::details::ParserFrameContextWithPlSizeTagInfo pl_size_tag;
         ::pltxt2htm::details::ParserFrameContextWithMdBlockQuotesInfo md_block_quotes;
         ::pltxt2htm::details::ParserFrameContextWithMdLinkInfo<ndebug> md_link;
-        ::pltxt2htm::details::ParserFrameContextWithMdListInfo<ndebug> md_list;
+        ::pltxt2htm::details::ParserFrameContextWithMdListScanInfo<ndebug> md_list;
     };
 
     ::pltxt2htm::NodeKind kind;
@@ -120,7 +126,7 @@ public:
           kind{node_type} {
     }
 
-    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithMdListInfo<ndebug>&& md_list_context,
+    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithMdListScanInfo<ndebug>&& md_list_context,
                              ::pltxt2htm::NodeKind node_type) noexcept
         : md_list{::std::move(md_list_context)},
           kind{node_type} {
@@ -653,9 +659,12 @@ public:
     }
 
     constexpr explicit ParserFrameContext(::pltxt2htm::NodeKind node_type,
-                                          ::pltxt2htm::details::MdListAst<ndebug>&& md_list_ast_) noexcept
+                                          ::fast_io::u8string_view pltext_, ::std::size_t space_hierarchy_,
+                                          ::pltxt2htm::details::MdUlListItemKind item_kind_, bool is_root_) noexcept
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
-              ::pltxt2htm::details::ParserFrameContextWithMdListInfo<ndebug>{::std::move(md_list_ast_)}, node_type}} {
+              ::pltxt2htm::details::ParserFrameContextWithMdListScanInfo<ndebug>{
+                  pltext_, space_hierarchy_, item_kind_, is_root_},
+              node_type}} {
         pltxt2htm_assert(node_type == ::pltxt2htm::NodeKind::md_ul || node_type == ::pltxt2htm::NodeKind::md_ol,
                          u8"mismatch node type");
     }
@@ -935,20 +944,49 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_md_list_ast(this auto&& self) noexcept -> decltype(auto) {
+    constexpr auto get_md_list_scan_pltext(this auto&& self) noexcept -> ::fast_io::u8string_view {
         auto&& context_data_ref = self.context_data;
         bool const is_md_ul_or_ol_type{::pltxt2htm::details::is_md_list_ul_or_ol_type(context_data_ref.kind)};
         pltxt2htm_assert(is_md_ul_or_ol_type, u8"context kind mismatch");
-        return ::std::forward_like<decltype(self)>(context_data_ref.md_list.md_list_ast);
+        return context_data_ref.md_list.pltext;
     }
 
     [[nodiscard]]
-    constexpr auto get_md_list_iter(this auto&& self) noexcept -> decltype(auto) {
+    constexpr auto get_md_list_scan_space_hierarchy(this auto&& self) noexcept -> ::std::size_t {
         auto&& context_data_ref = self.context_data;
         bool const is_md_ul_or_ol_type{::pltxt2htm::details::is_md_list_ul_or_ol_type(context_data_ref.kind)};
         pltxt2htm_assert(is_md_ul_or_ol_type, u8"context kind mismatch");
-        return ::std::forward_like<decltype(self)>(context_data_ref.md_list.iter);
+        return context_data_ref.md_list.space_hierarchy;
     }
+
+    [[nodiscard]]
+    constexpr auto get_md_list_scan_item_kind(this auto&& self) noexcept -> ::pltxt2htm::details::MdUlListItemKind {
+        auto&& context_data_ref = self.context_data;
+        bool const is_md_ul_or_ol_type{::pltxt2htm::details::is_md_list_ul_or_ol_type(context_data_ref.kind)};
+        pltxt2htm_assert(is_md_ul_or_ol_type, u8"context kind mismatch");
+        return context_data_ref.md_list.item_kind;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_md_list_scan_is_root(this auto&& self) noexcept -> bool {
+        auto&& context_data_ref = self.context_data;
+        bool const is_md_ul_or_ol_type{::pltxt2htm::details::is_md_list_ul_or_ol_type(context_data_ref.kind)};
+        pltxt2htm_assert(is_md_ul_or_ol_type, u8"context kind mismatch");
+        return context_data_ref.md_list.is_root;
+    }
+
+    constexpr auto set_md_list_scan_space_hierarchy(::std::size_t space_hierarchy_) noexcept -> void {
+        bool const is_md_ul_or_ol_type{::pltxt2htm::details::is_md_list_ul_or_ol_type(this->context_data.kind)};
+        pltxt2htm_assert(is_md_ul_or_ol_type, u8"context kind mismatch");
+        this->context_data.md_list.space_hierarchy = space_hierarchy_;
+    }
+
+    constexpr auto set_md_list_scan_item_kind(::pltxt2htm::details::MdUlListItemKind item_kind_) noexcept -> void {
+        bool const is_md_ul_or_ol_type{::pltxt2htm::details::is_md_list_ul_or_ol_type(this->context_data.kind)};
+        pltxt2htm_assert(is_md_ul_or_ol_type, u8"context kind mismatch");
+        this->context_data.md_list.item_kind = item_kind_;
+    }
+
 };
 
 } // namespace pltxt2htm::details
