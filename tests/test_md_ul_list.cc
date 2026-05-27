@@ -173,5 +173,16 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"    - a\n   - b\n      - c");
+        auto answer = ::fast_io::u8string_view(u8"<ul><li>a</li><li>b</li><ul><li>c</li></ul></ul>");
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"     - a\n   - b\n    - c");
+        auto answer = ::fast_io::u8string_view(u8"<ul><li>a</li><li>b</li><li>c</li></ul>");
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }
