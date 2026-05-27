@@ -139,6 +139,8 @@ Please follow the existing low-runtime, cross-platform style used in core header
   - For branches that end in `unreachable`, mark the branch with `[[unlikely]]` as well.
 - Prefer guard-clause error handling:
   - Return early on failure (for example, `if (!ok) { return err; }`) and keep the normal path unindented below.
+- No `else` after `return`/`continue`/`break`/`goto`:
+  - When a branch ends unconditionally with a jump statement, the `else` is unnecessary dead indentation; drop it and unindent the subsequent block.
 - Require `[[nodiscard]]` on meaningful return values:
   - For all non-`void`, non-`[[noreturn]]` functions/methods, add `[[nodiscard]]` to the declaration/definition (except `operator=`).
 - Prefer `const` for non-mutating locals:

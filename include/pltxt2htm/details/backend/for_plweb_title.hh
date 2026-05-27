@@ -385,45 +385,43 @@ entry:
         if (call_stack.empty()) {
             return result;
         }
-        else {
-            switch (top_frame.get_nested_tag_type()) {
-            case ::pltxt2htm::NodeKind::md_double_emphasis_asterisk:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_strong:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::pl_b: {
-                constexpr ::fast_io::u8string_view close_tag = u8"</strong>";
-                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_single_emphasis_asterisk:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::pl_i:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_em: {
-                constexpr ::fast_io::u8string_view close_tag = u8"</em>";
-                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk: {
-                constexpr ::fast_io::u8string_view close_tag = u8"</strong></em>";
-                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::pl_a:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::pl_color: {
-                constexpr ::fast_io::u8string_view close_tag = u8"</span>";
-                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::text: {
-                goto entry;
-            }
-            default:
-                [[unlikely]] {
-                    ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
-                }
+        switch (top_frame.get_nested_tag_type()) {
+        case ::pltxt2htm::NodeKind::md_double_emphasis_asterisk:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_strong:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_b: {
+            constexpr ::fast_io::u8string_view close_tag = u8"</strong>";
+            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::md_single_emphasis_asterisk:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_i:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_em: {
+            constexpr ::fast_io::u8string_view close_tag = u8"</em>";
+            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk: {
+            constexpr ::fast_io::u8string_view close_tag = u8"</strong></em>";
+            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::pl_a:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_color: {
+            constexpr ::fast_io::u8string_view close_tag = u8"</span>";
+            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::text: {
+            goto entry;
+        }
+        default:
+            [[unlikely]] {
+                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
             }
         }
     }

@@ -711,32 +711,30 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
                                      ? ::pltxt2htm::NodeKind::md_ol
                                      : ::pltxt2htm::NodeKind::md_ul};
             }
-            else {
-                switch (frame.get_item_kind()) {
-                case ::pltxt2htm::details::MdUlListItemKind::ordered_item: {
-                    call_stack.top().md_list_ast.emplace_back(
-                        ::pltxt2htm::details::MdListOlNode<ndebug>(::std::move(frame.md_list_ast)));
-                    break;
-                }
-                case ::pltxt2htm::details::MdUlListItemKind::hyphen:
-                    [[fallthrough]];
-                case ::pltxt2htm::details::MdUlListItemKind::plus:
-                    [[fallthrough]];
-                case ::pltxt2htm::details::MdUlListItemKind::asterisk: {
-                    call_stack.top().md_list_ast.emplace_back(
-                        ::pltxt2htm::details::MdListUlNode<ndebug>(::std::move(frame.md_list_ast)));
-                    break;
-                }
-#if 0
-                default:
-                    [[unlikely]] {
-                        ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
-                    }
-#endif
-                }
-                call_stack.top().current_index += frame.current_index;
-                continue;
+            switch (frame.get_item_kind()) {
+            case ::pltxt2htm::details::MdUlListItemKind::ordered_item: {
+                call_stack.top().md_list_ast.emplace_back(
+                    ::pltxt2htm::details::MdListOlNode<ndebug>(::std::move(frame.md_list_ast)));
+                break;
             }
+            case ::pltxt2htm::details::MdUlListItemKind::hyphen:
+                [[fallthrough]];
+            case ::pltxt2htm::details::MdUlListItemKind::plus:
+                [[fallthrough]];
+            case ::pltxt2htm::details::MdUlListItemKind::asterisk: {
+                call_stack.top().md_list_ast.emplace_back(
+                    ::pltxt2htm::details::MdListUlNode<ndebug>(::std::move(frame.md_list_ast)));
+                break;
+            }
+#if 0
+            default:
+                [[unlikely]] {
+                    ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                }
+#endif
+            }
+            call_stack.top().current_index += frame.current_index;
+            continue;
         }
         auto&& [space_hierarchy, forward_index, text, item_kind] =
             opt_list_item.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
@@ -748,50 +746,46 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
             call_stack.top().md_list_ast.emplace_back(::pltxt2htm::details::MdListTextNode(::std::move(text)));
             continue;
         }
-        else {
-            result.emplace_back(::pltxt2htm::details::MdListTextNode(::std::move(text)));
-            call_stack.top().space_hierarchy = space_hierarchy;
+        result.emplace_back(::pltxt2htm::details::MdListTextNode(::std::move(text)));
+        call_stack.top().space_hierarchy = space_hierarchy;
 
-            if (current_index < pltext_size) {
-                continue;
-            }
-            auto frame = ::std::move(call_stack.top());
-            call_stack.pop();
-            if (call_stack.empty()) {
-                return ::pltxt2htm::details::ToMdListAstResult<ndebug>{
-                    .ast = ::std::move(frame.md_list_ast),
-                    .forward_index = pltext_size,
-                    .item_kind = frame.get_item_kind() == ::pltxt2htm::details::MdUlListItemKind::ordered_item
-                                     ? ::pltxt2htm::NodeKind::md_ol
-                                     : ::pltxt2htm::NodeKind::md_ul};
-            }
-            else {
-                switch (frame.get_item_kind()) {
-                case ::pltxt2htm::details::MdUlListItemKind::ordered_item: {
-                    call_stack.top().md_list_ast.emplace_back(
-                        ::pltxt2htm::details::MdListOlNode<ndebug>(::std::move(frame.md_list_ast)));
-                    break;
-                }
-                case ::pltxt2htm::details::MdUlListItemKind::hyphen:
-                    [[fallthrough]];
-                case ::pltxt2htm::details::MdUlListItemKind::plus:
-                    [[fallthrough]];
-                case ::pltxt2htm::details::MdUlListItemKind::asterisk: {
-                    call_stack.top().md_list_ast.emplace_back(
-                        ::pltxt2htm::details::MdListUlNode<ndebug>(::std::move(frame.md_list_ast)));
-                    break;
-                }
-#if 0
-                default:
-                    [[unlikely]] {
-                        ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
-                    }
-#endif
-                }
-                call_stack.top().current_index += frame.current_index;
-                continue;
-            }
+        if (current_index < pltext_size) {
+            continue;
         }
+        auto frame = ::std::move(call_stack.top());
+        call_stack.pop();
+        if (call_stack.empty()) {
+            return ::pltxt2htm::details::ToMdListAstResult<ndebug>{
+                .ast = ::std::move(frame.md_list_ast),
+                .forward_index = pltext_size,
+                .item_kind = frame.get_item_kind() == ::pltxt2htm::details::MdUlListItemKind::ordered_item
+                                 ? ::pltxt2htm::NodeKind::md_ol
+                                 : ::pltxt2htm::NodeKind::md_ul};
+        }
+        switch (frame.get_item_kind()) {
+        case ::pltxt2htm::details::MdUlListItemKind::ordered_item: {
+            call_stack.top().md_list_ast.emplace_back(
+                ::pltxt2htm::details::MdListOlNode<ndebug>(::std::move(frame.md_list_ast)));
+            break;
+        }
+        case ::pltxt2htm::details::MdUlListItemKind::hyphen:
+            [[fallthrough]];
+        case ::pltxt2htm::details::MdUlListItemKind::plus:
+            [[fallthrough]];
+        case ::pltxt2htm::details::MdUlListItemKind::asterisk: {
+            call_stack.top().md_list_ast.emplace_back(
+                ::pltxt2htm::details::MdListUlNode<ndebug>(::std::move(frame.md_list_ast)));
+            break;
+        }
+#if 0
+        default:
+            [[unlikely]] {
+                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+            }
+#endif
+        }
+        call_stack.top().current_index += frame.current_index;
+        continue;
     }
 }
 

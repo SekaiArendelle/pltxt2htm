@@ -882,177 +882,175 @@ entry:
         if (call_stack.empty()) {
             return result;
         }
-        else {
-            switch (top_frame.get_nested_tag_type()) {
-            case ::pltxt2htm::NodeKind::text: {
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::pl_a:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::pl_color: {
-                constexpr ::fast_io::u8string_view close_tag = u8"</span>";
-                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::pl_experiment: {
-                constexpr ::fast_io::u8string_view close_tag = u8"</a>";
-                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::pl_discussion: {
-                constexpr ::fast_io::u8string_view close_tag = u8"</a>";
-                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::pl_user: {
-                constexpr ::fast_io::u8string_view close_tag = u8"</span>";
-                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::pl_size: {
-                constexpr ::fast_io::u8string_view close_tag = u8"</span>";
-                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_double_emphasis_underscore:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_double_emphasis_asterisk:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::pl_b:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_strong: {
-                constexpr ::fast_io::u8string_view close_tag = u8"</strong>";
-                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_single_emphasis_underscore:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_single_emphasis_asterisk:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::pl_i:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_em: {
-                constexpr ::fast_io::u8string_view close_tag = u8"</em>";
-                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk: {
-                constexpr ::fast_io::u8string_view close_tag = u8"</strong></em>";
-                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_p: {
-                constexpr ::fast_io::u8string_view close_tag = u8"</p>";
-                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_h1: {
-                constexpr ::fast_io::u8string_view close_tag = u8"</h1>";
-                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_h2: {
-                constexpr ::fast_io::u8string_view close_tag = u8"</h2>";
-                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_h3: {
-                constexpr ::fast_io::u8string_view close_tag = u8"</h3>";
-                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_h4: {
-                constexpr ::fast_io::u8string_view close_tag = u8"</h4>";
-                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_h5: {
-                constexpr ::fast_io::u8string_view close_tag = u8"</h5>";
-                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_h6: {
-                constexpr ::fast_io::u8string_view close_tag = u8"</h6>";
-                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_del:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_del: {
-                constexpr ::fast_io::u8string_view close_tag = u8"</del>";
-                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_ul:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_ul: {
-                constexpr ::fast_io::u8string_view close_tag = u8"</ul>";
-                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_ol:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_ol: {
-                constexpr ::fast_io::u8string_view close_tag = u8"</ol>";
-                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_li: {
-                constexpr ::fast_io::u8string_view close_tag = u8"</li>";
-                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_code_span_1_backtick:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_code_span_2_backtick:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_code_span_3_backtick:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_code: {
-                constexpr ::fast_io::u8string_view close_tag = u8"</code>";
-                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_latex_inline: {
-                result.append(u8"$");
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_latex_block: {
-                result.append(u8"$$");
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_pre: {
-                constexpr ::fast_io::u8string_view close_tag = u8"</pre>";
-                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_block_quotes:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_blockquote: {
-                constexpr ::fast_io::u8string_view close_tag = u8"</blockquote>";
-                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_code_fence_backtick:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_code_fence_tilde: {
-                constexpr ::fast_io::u8string_view close_tag = u8"</code></pre>";
-                result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::pl_external:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_link: {
-                constexpr ::fast_io::u8string_view end_tag = u8"</a>";
-                result.append(::fast_io::u8string_view(end_tag.begin(), end_tag.size()));
-                goto entry;
-            }
-            default:
-                [[unlikely]] {
-                    ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
-                }
+        switch (top_frame.get_nested_tag_type()) {
+        case ::pltxt2htm::NodeKind::text: {
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::pl_a:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_color: {
+            constexpr ::fast_io::u8string_view close_tag = u8"</span>";
+            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::pl_experiment: {
+            constexpr ::fast_io::u8string_view close_tag = u8"</a>";
+            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::pl_discussion: {
+            constexpr ::fast_io::u8string_view close_tag = u8"</a>";
+            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::pl_user: {
+            constexpr ::fast_io::u8string_view close_tag = u8"</span>";
+            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::pl_size: {
+            constexpr ::fast_io::u8string_view close_tag = u8"</span>";
+            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::md_double_emphasis_underscore:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_double_emphasis_asterisk:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_b:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_strong: {
+            constexpr ::fast_io::u8string_view close_tag = u8"</strong>";
+            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::md_single_emphasis_underscore:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_single_emphasis_asterisk:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_i:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_em: {
+            constexpr ::fast_io::u8string_view close_tag = u8"</em>";
+            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk: {
+            constexpr ::fast_io::u8string_view close_tag = u8"</strong></em>";
+            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::html_p: {
+            constexpr ::fast_io::u8string_view close_tag = u8"</p>";
+            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::html_h1: {
+            constexpr ::fast_io::u8string_view close_tag = u8"</h1>";
+            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::html_h2: {
+            constexpr ::fast_io::u8string_view close_tag = u8"</h2>";
+            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::html_h3: {
+            constexpr ::fast_io::u8string_view close_tag = u8"</h3>";
+            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::html_h4: {
+            constexpr ::fast_io::u8string_view close_tag = u8"</h4>";
+            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::html_h5: {
+            constexpr ::fast_io::u8string_view close_tag = u8"</h5>";
+            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::html_h6: {
+            constexpr ::fast_io::u8string_view close_tag = u8"</h6>";
+            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::md_del:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_del: {
+            constexpr ::fast_io::u8string_view close_tag = u8"</del>";
+            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::md_ul:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_ul: {
+            constexpr ::fast_io::u8string_view close_tag = u8"</ul>";
+            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::md_ol:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_ol: {
+            constexpr ::fast_io::u8string_view close_tag = u8"</ol>";
+            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::html_li: {
+            constexpr ::fast_io::u8string_view close_tag = u8"</li>";
+            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::md_code_span_1_backtick:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_code_span_2_backtick:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_code_span_3_backtick:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_code: {
+            constexpr ::fast_io::u8string_view close_tag = u8"</code>";
+            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::md_latex_inline: {
+            result.append(u8"$");
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::md_latex_block: {
+            result.append(u8"$$");
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::html_pre: {
+            constexpr ::fast_io::u8string_view close_tag = u8"</pre>";
+            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::md_block_quotes:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_blockquote: {
+            constexpr ::fast_io::u8string_view close_tag = u8"</blockquote>";
+            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::md_code_fence_backtick:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_code_fence_tilde: {
+            constexpr ::fast_io::u8string_view close_tag = u8"</code></pre>";
+            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::pl_external:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_link: {
+            constexpr ::fast_io::u8string_view end_tag = u8"</a>";
+            result.append(::fast_io::u8string_view(end_tag.begin(), end_tag.size()));
+            goto entry;
+        }
+        default:
+            [[unlikely]] {
+                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
             }
         }
     }

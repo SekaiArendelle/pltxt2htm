@@ -310,7 +310,7 @@ template<::pltxt2htm::Contracts ndebug,
         if (forward_chr == u8'>') {
             return i;
         }
-        else if (forward_chr != u8' ' && forward_chr != u8'\t') {
+        if (forward_chr != u8' ' && forward_chr != u8'\t') {
             return ::exception::nullopt_t{};
         }
     }
@@ -557,11 +557,11 @@ constexpr auto try_parse_self_closing_tag(::fast_io::u8string_view pltext) noexc
         if (forward_chr == u8'>') {
             return forward_index + 1;
         }
-        else if (forward_chr == u8'/' && forward_index + 1 < pltext.size() &&
-                 ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index + 1) == u8'>') {
+        if (forward_chr == u8'/' && forward_index + 1 < pltext.size() &&
+            ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index + 1) == u8'>') {
             return forward_index + 2;
         }
-        else if (forward_chr != u8' ' && forward_chr != u8'\t') {
+        if (forward_chr != u8' ' && forward_chr != u8'\t') {
             return ::exception::nullopt_t{};
         }
     }
@@ -589,11 +589,11 @@ constexpr auto try_parse_self_closing_tag(::fast_io::u8string_view pltext) noexc
         if (forward_chr == u8'>') {
             return forward_index + 1;
         }
-        else if (forward_chr == u8'/' && forward_index + 1 < pltext.size() &&
-                 ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index + 1) == u8'>') {
+        if (forward_chr == u8'/' && forward_index + 1 < pltext.size() &&
+            ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index + 1) == u8'>') {
             return forward_index + 2;
         }
-        else if (forward_chr != u8' ' && forward_chr != u8'\t') {
+        if (forward_chr != u8' ' && forward_chr != u8'\t') {
             return ::exception::nullopt_t{};
         }
     }
@@ -1104,9 +1104,7 @@ constexpr auto try_parse_md_code_fence(::fast_io::u8string_view pltext) noexcept
         return opt_code_fence_backtick;
     }
 #if 1
-    else {
-        return ::pltxt2htm::details::try_parse_md_code_fence_<ndebug, false>(pltext);
-    }
+    return ::pltxt2htm::details::try_parse_md_code_fence_<ndebug, false>(pltext);
 #else
     // Above code equals to below code
     else if (auto opt_code_fence_tilde = ::pltxt2htm::details::try_parse_md_code_fence_<ndebug, false>(pltext);
@@ -1155,9 +1153,7 @@ constexpr auto try_parse_md_inlines(::fast_io::u8string_view pltext) noexcept ->
             if (result == 0) {
                 return ::exception::nullopt_t{};
             }
-            else {
-                return result;
-            }
+            return result;
         }
     }
     return ::exception::nullopt_t{};
@@ -1207,9 +1203,7 @@ constexpr auto try_parse_md_block_quotes(::fast_io::u8string_view pltext) noexce
         if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, temp_index) != u8'>') {
             break;
         }
-        else {
-            current_index = temp_index + 1;
-        }
+        current_index = temp_index + 1;
         while (current_index < pltext_size &&
                (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) == u8' ' ||
                 ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) == u8'\t')) {
@@ -1225,28 +1219,24 @@ constexpr auto try_parse_md_block_quotes(::fast_io::u8string_view pltext) noexce
             if (current_index == pltext_size) {
                 break;
             }
-            else if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) == u8'\n') {
+            if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) == u8'\n') {
                 break;
             }
         }
         if (current_index == pltext_size) {
             break;
         }
-        else {
-            subpltext.push_back(u8'\n');
-        }
+        subpltext.push_back(u8'\n');
     }
 
     if (subpltext.empty()) {
         return ::exception::nullopt_t{};
     }
-    else {
-        if (subpltext.back_unchecked() == u8'\n') {
-            subpltext.pop_back();
-        }
-        return ::pltxt2htm::details::TryParseMdBlockQuotesResult<ndebug>{.forward_index = current_index,
-                                                                         .subpltext = ::std::move(subpltext)};
+    if (subpltext.back_unchecked() == u8'\n') {
+        subpltext.pop_back();
     }
+    return ::pltxt2htm::details::TryParseMdBlockQuotesResult<ndebug>{.forward_index = current_index,
+                                                                     .subpltext = ::std::move(subpltext)};
 }
 
 template<::pltxt2htm::Contracts ndebug>
@@ -1398,7 +1388,7 @@ constexpr auto try_parse_md_latex_inline(::fast_io::u8string_view pltext) noexce
         if (chr == u8'\n') {
             return ::exception::nullopt_t{};
         }
-        else if (chr == u8'$') {
+        if (chr == u8'$') {
             close_pos = i;
             break;
         }
@@ -1571,14 +1561,14 @@ constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept
             ++current_index;
             continue;
         }
-        else if (chr == u8'/') {
+        if (chr == u8'/') {
             if (::pltxt2htm::details::validate_url_domain<ndebug>(pltext, domain_start, current_index) == false) {
                 return ::exception::nullopt_t{};
             }
             ++current_index;
             break;
         }
-        else if (chr == u8':') {
+        if (chr == u8':') {
             if (::pltxt2htm::details::validate_url_domain<ndebug>(pltext, domain_start, current_index) == false) {
                 return ::exception::nullopt_t{};
             }
@@ -1616,19 +1606,17 @@ constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept
             }
             break;
         }
-        else {
-            if constexpr (regard_right_parent_as_end_of_url) {
-                if (chr != u8')') {
-                    return ::exception::nullopt_t{};
-                }
-                if (::pltxt2htm::details::validate_url_domain<ndebug>(pltext, domain_start, current_index) == false) {
-                    return ::exception::nullopt_t{};
-                }
-                return ::pltxt2htm::details::make_try_parse_url_result<ndebug>(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 0, current_index), current_index);
+        if constexpr (regard_right_parent_as_end_of_url) {
+            if (chr != u8')') {
+                return ::exception::nullopt_t{};
             }
-            return ::exception::nullopt_t{};
+            if (::pltxt2htm::details::validate_url_domain<ndebug>(pltext, domain_start, current_index) == false) {
+                return ::exception::nullopt_t{};
+            }
+            return ::pltxt2htm::details::make_try_parse_url_result<ndebug>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 0, current_index), current_index);
         }
+        return ::exception::nullopt_t{};
     }
     for (; current_index < pltext.size(); ++current_index) {
         auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);

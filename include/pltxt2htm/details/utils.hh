@@ -188,20 +188,10 @@ constexpr bool is_prefix_match(::fast_io::u8string_view str) noexcept {
             // ASCII between lowercase and uppercase is 32 (e.g. 'a' - 'A' == 32)
             constexpr ::std::uint8_t diff{32};
             // (expect != str[I] && expect != str[I] + diff) <=> (expect != (str[I] | diff))
-            if (expect != (::pltxt2htm::details::u8string_view_index<ndebug>(str, I) | diff)) {
-                return false;
-            }
-            else {
-                return true;
-            }
+            return expect == (::pltxt2htm::details::u8string_view_index<ndebug>(str, I) | diff);
         }
         else {
-            if (expect != ::pltxt2htm::details::u8string_view_index<ndebug>(str, I)) {
-                return false;
-            }
-            else {
-                return true;
-            }
+            return expect == ::pltxt2htm::details::u8string_view_index<ndebug>(str, I);
         }
 #if __cpp_expansion_statements >= 202506L
     }

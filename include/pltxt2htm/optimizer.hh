@@ -310,16 +310,14 @@ entry:
                 if (nested_tag_type == ::pltxt2htm::NodeKind::pl_color) {
                     return node.get_equal_sign_tag_id() != call_stack.top().get_equal_sign_tag_id();
                 }
-                else if (nested_tag_type == ::pltxt2htm::NodeKind::pl_a) {
+                if (nested_tag_type == ::pltxt2htm::NodeKind::pl_a) {
                     constexpr auto anchor_color_literal = ::pltxt2htm::PlA<ndebug>::get_color_literal();
                     // TODO Avoid constructing a temporary u8string_view on each comparison
                     auto const anchor_color =
                         ::fast_io::u8string_view{anchor_color_literal.data(), anchor_color_literal.size()};
                     return node.get_equal_sign_tag_id() != anchor_color;
                 }
-                else {
-                    return true; // Different tag types, so not the same
-                }
+                return true; // Different tag types, so not the same
             }()};
             if (is_not_same_tag) {
                 auto&& subast = node.get_subast();
@@ -335,12 +333,10 @@ entry:
                             ::fast_io::u8string_view{equal_sign_tag_id.data(), equal_sign_tag_id.size()}}));
                 goto entry;
             }
-            else {
-                // Optimization: If the color is the same as the parent node, then ignore the nested tag.
-                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(node.get_subast())}};
-                ++current_iter;
-                continue;
-            }
+            // Optimization: If the color is the same as the parent node, then ignore the nested tag.
+            node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(node.get_subast())}};
+            ++current_iter;
+            continue;
         }
         case ::pltxt2htm::NodeKind::pl_a: {
             {
@@ -375,12 +371,10 @@ entry:
                         ::fast_io::u8string_view{anchor_color_literal.data(), anchor_color_literal.size()};
                     return anchor_color != call_stack.top().get_equal_sign_tag_id();
                 }
-                else if (nested_tag_type == ::pltxt2htm::NodeKind::pl_a) {
+                if (nested_tag_type == ::pltxt2htm::NodeKind::pl_a) {
                     return false;
                 }
-                else {
-                    return true; // Different tag types, so not the same
-                }
+                return true; // Different tag types, so not the same
             }()};
             if (is_not_same_tag) {
                 auto&& subast = node.get_subast();
@@ -393,12 +387,10 @@ entry:
                         ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_a, subast.begin()));
                 goto entry;
             }
-            else {
-                // Optimization: If the color is the same as the parent node, then ignore the nested tag.
-                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(node.get_subast())}};
-                ++current_iter;
-                continue;
-            }
+            // Optimization: If the color is the same as the parent node, then ignore the nested tag.
+            node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(node.get_subast())}};
+            ++current_iter;
+            continue;
         }
         case ::pltxt2htm::NodeKind::pl_experiment: {
             auto&& subast = node.get_subast();
@@ -438,7 +430,7 @@ entry:
                     ast.erase(current_iter);
                     continue;
                 }
-                else if (subast.size() == 1) {
+                if (subast.size() == 1) {
                     // <User=123><user=642cf37a494746375aae306a>physicsLab</user></User> can be
                     auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
                     if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_user) {
@@ -468,11 +460,9 @@ entry:
                             ::fast_io::u8string_view{equal_sign_tag_id.data(), equal_sign_tag_id.size()}}));
                 goto entry;
             }
-            else {
-                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(node.get_subast())}};
-                ++current_iter;
-                continue;
-            }
+            node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(node.get_subast())}};
+            ++current_iter;
+            continue;
         }
         case ::pltxt2htm::NodeKind::pl_external: {
             auto&& subast = node.get_subast();
@@ -494,7 +484,7 @@ entry:
                     ast.erase(current_iter);
                     continue;
                 }
-                else if (subast.size() == 1) {
+                if (subast.size() == 1) {
                     // <size=12><size=3>physicsLab</size></size> can be
                     auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
                     if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_size) {
@@ -522,11 +512,9 @@ entry:
                         ::pltxt2htm::details::OptimizerContextWithPlSizeTagInfo{node.get_pl_size_tag_id()}));
                 goto entry;
             }
-            else {
-                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(node.get_subast())}};
-                ++current_iter;
-                continue;
-            }
+            node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(node.get_subast())}};
+            ++current_iter;
+            continue;
         }
         case ::pltxt2htm::NodeKind::md_double_emphasis_underscore:
             [[fallthrough]];
@@ -552,11 +540,9 @@ entry:
                         ::std::addressof(subast), ::pltxt2htm::NodeKind::html_strong, subast.begin()));
                 goto entry;
             }
-            else {
-                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(node.get_subast())}};
-                ++current_iter;
-                continue;
-            }
+            node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(node.get_subast())}};
+            ++current_iter;
+            continue;
         }
         case ::pltxt2htm::NodeKind::html_p: {
             auto&& subast = node.get_subast();
@@ -651,11 +637,9 @@ entry:
                         ::std::addressof(subast), ::pltxt2htm::NodeKind::html_del, subast.begin()));
                 goto entry;
             }
-            else {
-                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(node.get_subast())}};
-                ++current_iter;
-                continue;
-            }
+            node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(node.get_subast())}};
+            ++current_iter;
+            continue;
         }
         case ::pltxt2htm::NodeKind::md_single_emphasis_underscore:
             [[fallthrough]];
@@ -680,11 +664,9 @@ entry:
                         ::std::addressof(subast), ::pltxt2htm::NodeKind::html_em, subast.begin()));
                 goto entry;
             }
-            else {
-                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(node.get_subast())}};
-                ++current_iter;
-                continue;
-            }
+            node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(node.get_subast())}};
+            ++current_iter;
+            continue;
         }
         case ::pltxt2htm::NodeKind::md_latex_inline:
             [[fallthrough]];
