@@ -105,5 +105,19 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // regression: text before and after list should not be skipped
+    // (double-counting of parent current_index when root list frame pops)
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"hello\n- foo\n- bar\nworld");
+        auto answer = ::fast_io::u8string_view(u8"hello<br><ul><li>foo</li><li>bar</li></ul>world");
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"before\n- item\nbetween\n+ another\n- last\nafter");
+        auto answer = ::fast_io::u8string_view(
+            u8"before<br><ul><li>item</li></ul>between<br><ul><li>another</li></ul><ul><li>last</li></ul>after");
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }

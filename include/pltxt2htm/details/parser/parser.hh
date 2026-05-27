@@ -209,7 +209,24 @@ entry:
                     call_stack.top().subast.emplace_back(
                         ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdOl<ndebug>{::std::move(previous_frame.subast)}));
                 }
-                call_stack.top().current_index += previous_frame.current_index;
+                if (frame_is_root == false) {
+                    call_stack.top().current_index += previous_frame.current_index;
+                }
+                else {
+                    auto& parent_index = call_stack.top().current_index;
+                    auto parent_text = call_stack.top().get_pltext();
+                    if (parent_index < parent_text.size()) {
+                        auto&& [fwd, restart] =
+                            ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(
+                                ::pltxt2htm::details::u8string_view_subview<ndebug>(parent_text,
+                                                                                     parent_index),
+                                call_stack, call_stack.top().subast);
+                        parent_index += fwd;
+                        if (restart) {
+                            goto entry;
+                        }
+                    }
+                }
                 goto entry;
             }
         }
