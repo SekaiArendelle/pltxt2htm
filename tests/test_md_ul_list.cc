@@ -39,5 +39,71 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"+ test");
+        auto answer = ::fast_io::u8string_view(u8"<ul><li>test</li></ul>");
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"+ test\n + test");
+        auto answer = ::fast_io::u8string_view(u8"<ul><li>test</li><li>test</li></ul>");
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"+ test\n   + test");
+        auto answer = ::fast_io::u8string_view(u8"<ul><li>test</li><ul><li>test</li></ul></ul>");
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"* test");
+        auto answer = ::fast_io::u8string_view(u8"<ul><li>test</li></ul>");
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"* test\n * test");
+        auto answer = ::fast_io::u8string_view(u8"<ul><li>test</li><li>test</li></ul>");
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"* test\n   * test");
+        auto answer = ::fast_io::u8string_view(u8"<ul><li>test</li><ul><li>test</li></ul></ul>");
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8" - ");
+        auto answer = ::fast_io::u8string_view(u8"<ul><li></li></ul>");
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8" - test\n - ");
+        auto answer = ::fast_io::u8string_view(u8"<ul><li>test</li><li></li></ul>");
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8" - text\n   - text\n   * text");
+        auto answer = ::fast_io::u8string_view(u8"<ul><li>text</li><ul><li>text</li><li>text</li></ul></ul>");
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8" - text\n   - text\n * text");
+        auto answer = ::fast_io::u8string_view(u8"<ul><li>text</li><ul><li>text</li></ul></ul><ul><li>text</li></ul>");
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8" - text\n - text\n * text");
+        auto answer = ::fast_io::u8string_view(u8"<ul><li>text</li><li>text</li></ul><ul><li>text</li></ul>");
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8" - text\n + test");
+        auto answer = ::fast_io::u8string_view(u8"<ul><li>text</li></ul><ul><li>test</li></ul>");
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"- test\n - test\n   + text");
+        auto answer = ::fast_io::u8string_view(u8"<ul><li>test</li><li>test</li><ul><li>text</li></ul></ul>");
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }
