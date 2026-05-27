@@ -185,5 +185,53 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // negative cases: NOT thematic breaks
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8" - ");
+        auto answer = ::fast_io::u8string_view{u8"<ul><li></li></ul>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"--");
+        auto answer = ::fast_io::u8string_view{u8"--"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"-a-");
+        auto answer = ::fast_io::u8string_view{u8"-a-"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"*");
+        auto answer = ::fast_io::u8string_view{u8"*"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8" _ ");
+        auto answer = ::fast_io::u8string_view{u8"&nbsp;_"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8" - -");
+        auto answer = ::fast_io::u8string_view{u8"<ul><li>-</li></ul>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"---a");
+        auto answer = ::fast_io::u8string_view{u8"---a"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"a---");
+        auto answer = ::fast_io::u8string_view{u8"a---"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"***a");
+        auto answer = ::fast_io::u8string_view{u8"***a"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }

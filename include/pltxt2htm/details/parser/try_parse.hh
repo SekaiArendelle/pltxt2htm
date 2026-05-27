@@ -754,6 +754,7 @@ constexpr auto try_parse_md_thematic_break(::fast_io::u8string_view text) noexce
         return ::exception::nullopt_t{};
     }
     ::pltxt2htm::details::ThematicBreakType thematic_break_type{::pltxt2htm::details::ThematicBreakType::none};
+    ::std::size_t thematic_break_count{};
     ::std::size_t i{};
     for (; i < text.size(); ++i) {
         char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(text, i)};
@@ -761,61 +762,61 @@ constexpr auto try_parse_md_thematic_break(::fast_io::u8string_view text) noexce
             continue;
         }
         if (chr == u8'*') {
-            if (thematic_break_type == ::pltxt2htm::details::ThematicBreakType::none) {
-                thematic_break_type = ::pltxt2htm::details::ThematicBreakType::asterisk;
+            if (thematic_break_type == ::pltxt2htm::details::ThematicBreakType::asterisk) {
+                ++thematic_break_count;
                 continue;
             }
-            else if (thematic_break_type == ::pltxt2htm::details::ThematicBreakType::asterisk) {
-                continue;
-            }
-            else {
+            if (thematic_break_type != ::pltxt2htm::details::ThematicBreakType::none) {
                 return ::exception::nullopt_t{};
             }
+            thematic_break_type = ::pltxt2htm::details::ThematicBreakType::asterisk;
+            ++thematic_break_count;
+            continue;
         }
-        else if (chr == u8'-') {
-            if (thematic_break_type == ::pltxt2htm::details::ThematicBreakType::none) {
-                thematic_break_type = ::pltxt2htm::details::ThematicBreakType::hyphen;
+        if (chr == u8'-') {
+            if (thematic_break_type == ::pltxt2htm::details::ThematicBreakType::hyphen) {
+                ++thematic_break_count;
                 continue;
             }
-            else if (thematic_break_type == ::pltxt2htm::details::ThematicBreakType::hyphen) {
-                continue;
-            }
-            else {
+            if (thematic_break_type != ::pltxt2htm::details::ThematicBreakType::none) {
                 return ::exception::nullopt_t{};
             }
+            thematic_break_type = ::pltxt2htm::details::ThematicBreakType::hyphen;
+            ++thematic_break_count;
+            continue;
         }
-        else if (chr == u8'_') {
-            if (thematic_break_type == ::pltxt2htm::details::ThematicBreakType::none) {
-                thematic_break_type = ::pltxt2htm::details::ThematicBreakType::underscore;
+        if (chr == u8'_') {
+            if (thematic_break_type == ::pltxt2htm::details::ThematicBreakType::underscore) {
+                ++thematic_break_count;
                 continue;
             }
-            else if (thematic_break_type == ::pltxt2htm::details::ThematicBreakType::underscore) {
-                continue;
-            }
-            else {
+            if (thematic_break_type != ::pltxt2htm::details::ThematicBreakType::none) {
                 return ::exception::nullopt_t{};
             }
+            thematic_break_type = ::pltxt2htm::details::ThematicBreakType::underscore;
+            ++thematic_break_count;
+            continue;
         }
-        else if (thematic_break_type != ::pltxt2htm::details::ThematicBreakType::none) {
-            if (auto opt_line_break = ::pltxt2htm::details::try_parse_pltext_line_break<ndebug>(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(text, i));
-                opt_line_break.has_value()) {
-                return i + opt_line_break.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-            }
-            else {
-                return ::exception::nullopt_t{};
-            }
-        }
-        else {
+        if (thematic_break_type == ::pltxt2htm::details::ThematicBreakType::none) {
             return ::exception::nullopt_t{};
         }
+        auto opt_line_break = ::pltxt2htm::details::try_parse_pltext_line_break<ndebug>(
+            ::pltxt2htm::details::u8string_view_subview<ndebug>(text, i));
+        if (opt_line_break.has_value() == false) {
+            return ::exception::nullopt_t{};
+        }
+        if (thematic_break_count < 3) {
+            return ::exception::nullopt_t{};
+        }
+        return i + opt_line_break.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
     }
     if (thematic_break_type == ::pltxt2htm::details::ThematicBreakType::none) {
         return ::exception::nullopt_t{};
     }
-    else {
-        return i;
+    if (thematic_break_count < 3) {
+        return ::exception::nullopt_t{};
     }
+    return i;
 }
 
 template<::pltxt2htm::Contracts ndebug>
