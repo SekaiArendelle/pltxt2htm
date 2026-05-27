@@ -981,12 +981,6 @@ public:
         pltxt2htm_assert(is_md_ul_or_ol_type, u8"context kind mismatch");
         this->context_data.md_list.space_hierarchy = space_hierarchy_;
     }
-
-    constexpr auto set_md_list_scan_item_kind(::pltxt2htm::details::MdUlListItemKind item_kind_) noexcept -> void {
-        bool const is_md_ul_or_ol_type{::pltxt2htm::details::is_md_list_ul_or_ol_type(this->context_data.kind)};
-        pltxt2htm_assert(is_md_ul_or_ol_type, u8"context kind mismatch");
-        this->context_data.md_list.item_kind = item_kind_;
-    }
 };
 
 } // namespace pltxt2htm::details

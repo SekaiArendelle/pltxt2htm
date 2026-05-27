@@ -126,22 +126,20 @@ constexpr auto devil_stuff_after_line_break(
                 ::pltxt2htm::details::MdUlListItemKind item_kind;
             };
 
-            static constexpr auto max_nesting_depth = ::std::size_t{32};
             ::std::size_t scan_pos = forward_index;
-            ScanLevel scan_stack[max_nesting_depth];
-            ::std::size_t scan_stack_size = 1;
-            scan_stack[0] = {space_hierarchy, item_kind};
+            ::fast_io::stack<ScanLevel> scan_stack{};
+            scan_stack.push({space_hierarchy, item_kind});
 
-            while (scan_stack_size > 0) {
-                auto& level = scan_stack[scan_stack_size - 1];
+            while (scan_stack.empty() == false) {
+                auto& level = scan_stack.top();
                 auto opt_next = ::pltxt2htm::details::try_parse_item<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(list_pltext, scan_pos),
                     ::pltxt2htm::details::PreviousItemInfo{.space_hierarchy = level.space_hierarchy,
-                                                           .call_stack_is_single = (scan_stack_size == 1),
+                                                           .call_stack_is_single = (scan_stack.size() == 1),
                                                            .item_kind = level.item_kind});
-                if (!opt_next.has_value()) {
-                    if (scan_stack_size > 1) {
-                        --scan_stack_size;
+                if (opt_next.has_value() == false) {
+                    if (scan_stack.size() > 1) {
+                        scan_stack.pop();
                         continue;
                     }
                     break;
@@ -150,12 +148,10 @@ constexpr auto devil_stuff_after_line_break(
                     opt_next.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                 if (item_space > level.space_hierarchy + 1) {
                     scan_pos += item_forward;
-                    scan_stack[scan_stack_size] = {item_space, item_item_kind};
-                    ++scan_stack_size;
+                    scan_stack.push({item_space, item_item_kind});
                 }
                 else {
                     level.space_hierarchy = item_space;
-                    level.item_kind = item_item_kind;
                     scan_pos += item_forward;
                 }
             }
@@ -198,7 +194,7 @@ entry:
                                                               .call_stack_is_single = frame_is_root,
                                                               .item_kind = frame_item_kind});
 
-        if (!opt_item.has_value()) {
+        if (opt_item.has_value() == false) {
             auto previous_frame = ::std::move(frame);
             call_stack.pop();
             if (call_stack.empty()) {
@@ -234,7 +230,10 @@ entry:
             // Sibling item at same level
             frame_current_index += item_forward;
             frame.set_md_list_scan_space_hierarchy(item_space);
-            frame.set_md_list_scan_item_kind(item_item_kind);
+            if (frame_is_root) {
+                pltxt2htm_assert(item_item_kind == frame_item_kind,
+                                 u8"root-level sibling item_kind mismatch");
+            }
             call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(item_text, ::pltxt2htm::NodeKind::md_li));
         }
         goto entry;
