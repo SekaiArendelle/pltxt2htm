@@ -74,5 +74,17 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // ---- mixed ul inside ol ----
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"1. test\n 2. test\n   * text");
+        auto answer = ::fast_io::u8string_view(u8"<ol><li>test</li><li>test</li><ul><li>text</li></ul></ol>");
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"1x test");
+        auto answer = ::fast_io::u8string_view(u8"1x&nbsp;test");
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }

@@ -34,6 +34,18 @@ class MdListBaseNode;
 
 /**
  * @brief Internal markdown-list AST container type.
+ *
+ * @details The intermediate MdListAst is necessary because parsing a list requires a
+ *          two-phase approach: first, `optionally_to_md_list_ast` calls `try_parse_item`
+ *          once per item to build the full nested AST (determining hierarchy boundaries,
+ *          marker types, and extracting item text). Second, `parse_pltxt` iterates the
+ *          pre-built AST without re-parsing.
+ *
+ *          Without MdListAst, `parse_pltxt` would need to call `try_parse_item` twice
+ *          for each item: once during a pre-scan (to determine the list boundary / item
+ *          hierarchy before creating child frames) and again when actually producing the
+ *          output. The pre-built AST avoids this redundant work — each item is parsed
+ *          exactly once.
  */
 template<::pltxt2htm::Contracts ndebug>
 using MdListAst = ::fast_io::vector<::pltxt2htm::details::MdListBaseNode<ndebug>>;

@@ -148,41 +148,64 @@ entry:
             if (call_stack.empty()) {
                 return ::std::move(previous_frame.subast);
             }
-            else {
-                call_stack.top().subast.emplace_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdUl<ndebug>{::std::move(previous_frame.subast)}));
-                goto entry;
-            }
-        }
-        else {
-            switch (frame_iter->get_type()) {
-            case ::pltxt2htm::details::MdListNodeType::text: {
-                call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(frame_iter->get_text_view(),
-                                                                                 ::pltxt2htm::NodeKind::md_li));
-                break;
-            }
-            case ::pltxt2htm::details::MdListNodeType::md_ul: {
-                call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                    ::pltxt2htm::NodeKind::md_ul, ::std::move(frame_iter->get_sublist())));
-                break;
-            }
-            case ::pltxt2htm::details::MdListNodeType::md_ol: {
-                call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                    ::pltxt2htm::NodeKind::md_ol, ::std::move(frame_iter->get_sublist())));
-                break;
-            }
-#if 0
-            default:
-                [[unlikely]] {
-                    ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+            call_stack.top().subast.emplace_back(
+                ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdUl<ndebug>{::std::move(previous_frame.subast)}));
+            // Given "before\n- item\nbetween\n+ another\n- last\nafter":
+            //   devil_stuff_after_line_break first sees "- item\nbetween\n...",
+            //   but optionally_to_md_list_ast stops at "between" (not a list marker),
+            //   returning only "- item\n".  After that <ul> pops, the remaining text
+            //   "between\n+ another\n- last\nafter" is processed by the parent loop.
+            //   When the parent hits "\n" before "+ another",
+            //   devil_stuff_after_line_break is called again and sees
+            //   "+ another\n- last\nafter".  optionally_to_md_list_ast stops at
+            //   "- last" (different marker at root level), returning only
+            //   "+ another\n".  After that <ul> pops, the parent has unconsumed
+            //   text "- last\nafter".  Without re-scanning here, "- last" would be
+            //   treated as plain text "--last" instead of a new list.
+            //
+            // When the parent is another md_ul/md_ol (child nested inside a
+            // parent list): no re-scan needed -- the parent iterates its own AST.
+            if (::pltxt2htm::details::is_md_list_ul_or_ol_type(call_stack.top().get_nested_tag_type()) == false) {
+                auto& parent_index = call_stack.top().current_index;
+                auto parent_text = call_stack.top().get_pltext();
+                auto&& [fwd, restart] = ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(
+                    ::pltxt2htm::details::u8string_view_subview<ndebug>(parent_text, parent_index), call_stack,
+                    call_stack.top().subast);
+                parent_index += fwd;
+                if (restart) {
+                    goto entry;
                 }
-#endif
             }
+            goto entry;
         }
+        switch (frame_iter->get_type()) {
+        case ::pltxt2htm::details::MdListNodeType::text: {
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(frame_iter->get_text_view(),
+                                                                             ::pltxt2htm::NodeKind::md_li));
+            break;
+        }
+        case ::pltxt2htm::details::MdListNodeType::md_ul: {
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(::pltxt2htm::NodeKind::md_ul,
+                                                                             ::std::move(frame_iter->get_sublist())));
+            break;
+        }
+        case ::pltxt2htm::details::MdListNodeType::md_ol: {
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(::pltxt2htm::NodeKind::md_ol,
+                                                                             ::std::move(frame_iter->get_sublist())));
+            break;
+        }
+#if 0
+        default:
+            [[unlikely]] {
+                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+            }
+#endif
+        }
+
         ++frame_iter;
         goto entry;
     }
-    else if (call_stack.top().get_nested_tag_type() == ::pltxt2htm::NodeKind::md_ol) {
+    if (call_stack.top().get_nested_tag_type() == ::pltxt2htm::NodeKind::md_ol) {
         // ::pltxt2htm::details::MdListAst to ::pltxt2htm::Ast<ndebug>
         auto&& frame = call_stack.top();
         auto&& frame_md_list_ast = frame.get_md_list_ast();
@@ -193,36 +216,45 @@ entry:
             if (call_stack.empty()) {
                 return ::std::move(previous_frame.subast);
             }
-            else {
-                call_stack.top().subast.emplace_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdOl<ndebug>{::std::move(previous_frame.subast)}));
-                goto entry;
-            }
-        }
-        else {
-            switch (frame_iter->get_type()) {
-            case ::pltxt2htm::details::MdListNodeType::text: {
-                call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(frame_iter->get_text_view(),
-                                                                                 ::pltxt2htm::NodeKind::md_li));
-                break;
-            }
-            case ::pltxt2htm::details::MdListNodeType::md_ul: {
-                call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                    ::pltxt2htm::NodeKind::md_ul, ::std::move(frame_iter->get_sublist())));
-                break;
-            }
-            case ::pltxt2htm::details::MdListNodeType::md_ol: {
-                call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                    ::pltxt2htm::NodeKind::md_ol, ::std::move(frame_iter->get_sublist())));
-                break;
-            }
-#if 0
-            default:
-                [[unlikely]] {
-                    ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+            call_stack.top().subast.emplace_back(
+                ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdOl<ndebug>{::std::move(previous_frame.subast)}));
+            // Same logic as the MdUl case above -- re-scan only when the parent is a
+            // plain-text frame, not another md_ul/md_ol.
+            if (::pltxt2htm::details::is_md_list_ul_or_ol_type(call_stack.top().get_nested_tag_type()) == false) {
+                auto& parent_index = call_stack.top().current_index;
+                auto parent_text = call_stack.top().get_pltext();
+                auto&& [fwd, restart] = ::pltxt2htm::details::devil_stuff_after_line_break<ndebug>(
+                    ::pltxt2htm::details::u8string_view_subview<ndebug>(parent_text, parent_index), call_stack,
+                    call_stack.top().subast);
+                parent_index += fwd;
+                if (restart) {
+                    goto entry;
                 }
-#endif
             }
+            goto entry;
+        }
+        switch (frame_iter->get_type()) {
+        case ::pltxt2htm::details::MdListNodeType::text: {
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(frame_iter->get_text_view(),
+                                                                             ::pltxt2htm::NodeKind::md_li));
+            break;
+        }
+        case ::pltxt2htm::details::MdListNodeType::md_ul: {
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(::pltxt2htm::NodeKind::md_ul,
+                                                                             ::std::move(frame_iter->get_sublist())));
+            break;
+        }
+        case ::pltxt2htm::details::MdListNodeType::md_ol: {
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(::pltxt2htm::NodeKind::md_ol,
+                                                                             ::std::move(frame_iter->get_sublist())));
+            break;
+        }
+#if 0
+        default:
+            [[unlikely]] {
+                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+            }
+#endif
         }
         ++frame_iter;
         goto entry;
