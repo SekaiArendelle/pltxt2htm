@@ -113,17 +113,19 @@ constexpr auto devil_stuff_after_line_break(
         else if (auto opt_first_item = ::pltxt2htm::details::try_parse_item<ndebug>(
                      ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
                  opt_first_item.has_value()) {
-            auto&& [space_hierarchy, forward_index, text, item_kind] =
+            auto&& [space_hierarchy, forward_index, _, item_kind] =
                 opt_first_item.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             auto list_kind = item_kind == ::pltxt2htm::details::MdUlListItemKind::ordered_item
                                  ? ::pltxt2htm::NodeKind::md_ol
                                  : ::pltxt2htm::NodeKind::md_ul;
 
             auto list_pltext = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index);
+
             struct ScanLevel {
                 ::std::size_t space_hierarchy;
                 ::pltxt2htm::details::MdUlListItemKind item_kind;
             };
+
             static constexpr auto max_nesting_depth = ::std::size_t{32};
             ::std::size_t scan_pos = forward_index;
             ScanLevel scan_stack[max_nesting_depth];
@@ -134,10 +136,9 @@ constexpr auto devil_stuff_after_line_break(
                 auto& level = scan_stack[scan_stack_size - 1];
                 auto opt_next = ::pltxt2htm::details::try_parse_item<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(list_pltext, scan_pos),
-                    ::pltxt2htm::details::PreviousItemInfo{
-                        .space_hierarchy = level.space_hierarchy,
-                        .call_stack_is_single = (scan_stack_size == 1),
-                        .item_kind = level.item_kind});
+                    ::pltxt2htm::details::PreviousItemInfo{.space_hierarchy = level.space_hierarchy,
+                                                           .call_stack_is_single = (scan_stack_size == 1),
+                                                           .item_kind = level.item_kind});
                 if (!opt_next.has_value()) {
                     if (scan_stack_size > 1) {
                         --scan_stack_size;
@@ -159,11 +160,10 @@ constexpr auto devil_stuff_after_line_break(
                 }
             }
 
-            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                list_kind, list_pltext, space_hierarchy, item_kind, true));
-            return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{
-                .forward_index = current_index + scan_pos,
-                .new_frame_been_pushed_into_call_stack = true};
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(list_kind, list_pltext, space_hierarchy,
+                                                                             item_kind, true));
+            return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{.forward_index = current_index + scan_pos,
+                                                                        .new_frame_been_pushed_into_call_stack = true};
         }
         else {
             return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{.forward_index = current_index,
@@ -194,10 +194,9 @@ entry:
 
         auto remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(scan_pltext, frame_current_index);
         auto opt_item = ::pltxt2htm::details::try_parse_item<ndebug>(
-            remaining,
-            ::pltxt2htm::details::PreviousItemInfo{.space_hierarchy = frame_space_hierarchy,
-                                                   .call_stack_is_single = frame_is_root,
-                                                   .item_kind = frame_item_kind});
+            remaining, ::pltxt2htm::details::PreviousItemInfo{.space_hierarchy = frame_space_hierarchy,
+                                                              .call_stack_is_single = frame_is_root,
+                                                              .item_kind = frame_item_kind});
 
         if (!opt_item.has_value()) {
             auto previous_frame = ::std::move(frame);
@@ -228,8 +227,7 @@ entry:
                                   ? ::pltxt2htm::NodeKind::md_ol
                                   : ::pltxt2htm::NodeKind::md_ul;
             call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                child_kind,
-                ::pltxt2htm::details::u8string_view_subview<ndebug>(scan_pltext, frame_current_index),
+                child_kind, ::pltxt2htm::details::u8string_view_subview<ndebug>(scan_pltext, frame_current_index),
                 item_space, item_item_kind, false));
         }
         else {
@@ -237,8 +235,7 @@ entry:
             frame_current_index += item_forward;
             frame.set_md_list_scan_space_hierarchy(item_space);
             frame.set_md_list_scan_item_kind(item_item_kind);
-            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                item_text, ::pltxt2htm::NodeKind::md_li));
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(item_text, ::pltxt2htm::NodeKind::md_li));
         }
         goto entry;
     }

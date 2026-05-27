@@ -65,13 +65,14 @@ public:
     ::pltxt2htm::details::MdUlListItemKind item_kind;
     bool is_root;
 
-    constexpr explicit ParserFrameContextWithMdListScanInfo(
-        ::fast_io::u8string_view pltext_, ::std::size_t space_hierarchy_,
-        ::pltxt2htm::details::MdUlListItemKind item_kind_, bool is_root_) noexcept
-        : pltext(pltext_),
-          space_hierarchy(space_hierarchy_),
-          item_kind(item_kind_),
-          is_root(is_root_) {
+    constexpr explicit ParserFrameContextWithMdListScanInfo(::fast_io::u8string_view pltext_,
+                                                            ::std::size_t space_hierarchy_,
+                                                            ::pltxt2htm::details::MdUlListItemKind item_kind_,
+                                                            bool is_root_) noexcept
+        : pltext{pltext_},
+          space_hierarchy{space_hierarchy_},
+          item_kind{item_kind_},
+          is_root{is_root_} {
     }
 };
 
@@ -658,12 +659,12 @@ public:
               ::pltxt2htm::NodeKind::md_link}} {
     }
 
-    constexpr explicit ParserFrameContext(::pltxt2htm::NodeKind node_type,
-                                          ::fast_io::u8string_view pltext_, ::std::size_t space_hierarchy_,
+    constexpr explicit ParserFrameContext(::pltxt2htm::NodeKind node_type, ::fast_io::u8string_view pltext_,
+                                          ::std::size_t space_hierarchy_,
                                           ::pltxt2htm::details::MdUlListItemKind item_kind_, bool is_root_) noexcept
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
-              ::pltxt2htm::details::ParserFrameContextWithMdListScanInfo<ndebug>{
-                  pltext_, space_hierarchy_, item_kind_, is_root_},
+              ::pltxt2htm::details::ParserFrameContextWithMdListScanInfo<ndebug>{pltext_, space_hierarchy_, item_kind_,
+                                                                                 is_root_},
               node_type}} {
         pltxt2htm_assert(node_type == ::pltxt2htm::NodeKind::md_ul || node_type == ::pltxt2htm::NodeKind::md_ol,
                          u8"mismatch node type");
@@ -986,7 +987,6 @@ public:
         pltxt2htm_assert(is_md_ul_or_ol_type, u8"context kind mismatch");
         this->context_data.md_list.item_kind = item_kind_;
     }
-
 };
 
 } // namespace pltxt2htm::details

@@ -235,6 +235,4 @@ constexpr auto try_parse_item(
     };
 }
 
-
-
 } // namespace pltxt2htm::details

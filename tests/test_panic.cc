@@ -1,18 +1,18 @@
 #if !defined(_WIN32) && __has_include(<unistd.h>) && __has_include(<sys/wait.h>)
 
-#include <unistd.h>
-#include <sys/wait.h>
+    #include <unistd.h>
+    #include <sys/wait.h>
 
-#include <cstdio>
+    #include <cstdio>
 
-// Ensure stacktrace is disabled: stacktrace output is dynamic (file/line/function names
-// depend on the runtime environment), which would break the exact string comparison below.
-#ifdef PLTXT2HTM_EXPERIMENTAL_ENABLE_STACKTRACE
-#undef PLTXT2HTM_EXPERIMENTAL_ENABLE_STACKTRACE
-#endif
+    // Ensure stacktrace is disabled: stacktrace output is dynamic (file/line/function names
+    // depend on the runtime environment), which would break the exact string comparison below.
+    #ifdef PLTXT2HTM_EXPERIMENTAL_ENABLE_STACKTRACE
+        #undef PLTXT2HTM_EXPERIMENTAL_ENABLE_STACKTRACE
+    #endif
 
-#include <pltxt2htm/details/panic.hh>
-#include "precompile.hh"
+    #include <pltxt2htm/details/panic.hh>
+    #include "precompile.hh"
 
 namespace {
 
@@ -27,17 +27,15 @@ void test_panic_basic() noexcept {
     if (pid == -1) [[unlikely]] {
         ::std::fprintf(stderr, "fork() failed\n");
         ::exception::terminate();
-    } else if (pid == 0) {
+    }
+    else if (pid == 0) {
         ::close(pipe_fds[0]);
         ::dup2(pipe_fds[1], STDERR_FILENO);
         ::close(pipe_fds[1]);
 
-        ::pltxt2htm::details::panic<
-            ::pltxt2htm::details::U8LiteralString{u8"test_expression"},
-            ::pltxt2htm::details::U8LiteralString{u8"test_file.cc"},
-            42, 7,
-            ::pltxt2htm::details::U8LiteralString{u8"test message"}
-        >();
+        ::pltxt2htm::details::panic<::pltxt2htm::details::U8LiteralString{u8"test_expression"},
+                                    ::pltxt2htm::details::U8LiteralString{u8"test_file.cc"}, 42, 7,
+                                    ::pltxt2htm::details::U8LiteralString{u8"test message"}>();
     }
 
     ::close(pipe_fds[1]);
@@ -75,8 +73,7 @@ void test_panic_basic() noexcept {
         ::pltxt2htm::details::uint_to_literal_string<7>(),
         ::pltxt2htm::details::U8LiteralString{u8"\n"
                                               "* with message: \""},
-        ::pltxt2htm::details::U8LiteralString{u8"test message"},
-        ::pltxt2htm::details::U8LiteralString{u8"\"\n\0"});
+        ::pltxt2htm::details::U8LiteralString{u8"test message"}, ::pltxt2htm::details::U8LiteralString{u8"\"\n\0"});
     auto output = ::fast_io::u8string_view{buffer, total_read};
     auto expected = ::fast_io::u8string_view{expected_ls.cdata(), expected_ls.size()};
     ::pltxt2htm_test::assert_true(output == expected);
@@ -91,7 +88,7 @@ int main() noexcept {
 
 #else
 
-#warning "Skipping test_panic.cc because the platform does not support fork and pipe"
+    #warning "Skipping test_panic.cc because the platform does not support fork and pipe"
 
 int main() noexcept {
     return 0;
