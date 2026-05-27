@@ -611,14 +611,16 @@ constexpr auto try_parse_self_closing_tag(::fast_io::u8string_view pltext) noexc
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_pltext_line_break(::fast_io::u8string_view pltext) noexcept -> ::exception::optional<::std::size_t> {
+constexpr auto try_parse_pltext_line_break(::fast_io::u8string_view pltext) noexcept
+    -> ::exception::optional<::std::size_t> {
     if (pltext.empty()) {
         return ::exception::nullopt_t{};
     }
     if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 0) == u8'\n') {
         return ::std::size_t{1};
     }
-    return ::pltxt2htm::details::try_parse_self_closing_tag<ndebug, ::pltxt2htm::details::U8LiteralString{u8"<br"}>(pltext);
+    return ::pltxt2htm::details::try_parse_self_closing_tag<ndebug, ::pltxt2htm::details::U8LiteralString{u8"<br"}>(
+        pltext);
 }
 
 template<::pltxt2htm::Contracts ndebug>

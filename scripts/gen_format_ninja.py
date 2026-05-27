@@ -26,6 +26,8 @@ def find_cpp_files(root_dirs):
                 spath = str(path).replace("\\", "/")
                 if "-pltxt2htm-" in spath:
                     continue
+                if "/build/" in spath:
+                    continue
                 files.append(spath)
 
     return sorted(files)
