@@ -61,6 +61,8 @@ shared_cmake_cmd = (
     f"-DCMAKE_BUILD_TYPE={args.mode} "
     f"-DBUILD_SHARED_LIBS=ON "
 )
+if plat:
+    shared_cmake_cmd += f"-DCMAKE_SYSTEM_NAME={plat} "
 
 if args.toolchain == "clang":
     if args.cxxflags:
@@ -97,6 +99,8 @@ static_cmake_cmd = (
     f"-DCMAKE_BUILD_TYPE={args.mode} "
     f"-DBUILD_SHARED_LIBS=OFF "
 )
+if plat:
+    static_cmake_cmd += f"-DCMAKE_SYSTEM_NAME={plat} "
 
 if args.toolchain == "clang":
     if args.cxxflags:
