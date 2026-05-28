@@ -10,6 +10,8 @@ set(PLTXT2HTM_ENABLE_STACKTRACE OFF CACHE BOOL "Enable C++23 <stacktrace>")
 # or auto-detected from the python on PATH
 set(PYTHON_INCLUDE_DIR "" CACHE PATH "Python include dir (auto-detected if empty)")
 set(PYTHON_EXT_SUFFIX "" CACHE STRING "Python extension suffix (auto-detected if empty)")
+set(PYTHON_LIB "" CACHE STRING "Python import library name (e.g. python312; auto-detected if empty)")
+set(PYTHON_PREFIX "" CACHE PATH "Python prefix (auto-detected if empty)")
 
 if(PYTHON_INCLUDE_DIR AND PYTHON_EXT_SUFFIX)
     message(STATUS "Using user-provided Python: INC=${PYTHON_INCLUDE_DIR} SUFFIX=${PYTHON_EXT_SUFFIX}")
@@ -25,16 +27,38 @@ else()
     execute_process(
         COMMAND "${PYTHON_EXECUTABLE}" -c "import sysconfig; print(sysconfig.get_config_var('INCLUDEPY'), end='')"
         OUTPUT_VARIABLE PYTHON_INCLUDE_DIR
+        RESULT_VARIABLE _PYTHON_INCLUDE_DIR_RESULT
     )
+    if(NOT _PYTHON_INCLUDE_DIR_RESULT EQUAL 0 OR NOT PYTHON_INCLUDE_DIR)
+        message(FATAL_ERROR "Failed to detect Python include directory via '${PYTHON_EXECUTABLE}'")
+    endif()
     execute_process(
         COMMAND "${PYTHON_EXECUTABLE}" -c "import sysconfig; print(sysconfig.get_config_var('EXT_SUFFIX'), end='')"
         OUTPUT_VARIABLE PYTHON_EXT_SUFFIX
+        RESULT_VARIABLE _PYTHON_EXT_SUFFIX_RESULT
     )
+    if(NOT _PYTHON_EXT_SUFFIX_RESULT EQUAL 0 OR NOT PYTHON_EXT_SUFFIX)
+        message(FATAL_ERROR "Failed to detect Python extension suffix via '${PYTHON_EXECUTABLE}'")
+    endif()
     execute_process(
         COMMAND "${PYTHON_EXECUTABLE}" -c "import sysconfig; print(sysconfig.get_config_var('prefix'), end='')"
         OUTPUT_VARIABLE PYTHON_PREFIX
+        RESULT_VARIABLE _PYTHON_PREFIX_RESULT
     )
-    message(STATUS "Python: INC=${PYTHON_INCLUDE_DIR} SUFFIX=${PYTHON_EXT_SUFFIX} PREFIX=${PYTHON_PREFIX}")
+    if(NOT _PYTHON_PREFIX_RESULT EQUAL 0 OR NOT PYTHON_PREFIX)
+        message(FATAL_ERROR "Failed to detect Python prefix via '${PYTHON_EXECUTABLE}'")
+    endif()
+    if(NOT PYTHON_LIB)
+        execute_process(
+            COMMAND "${PYTHON_EXECUTABLE}" -c "import sys; print(f'python{sys.version_info.major}{sys.version_info.minor}', end='')"
+            OUTPUT_VARIABLE PYTHON_LIB
+            RESULT_VARIABLE _PYTHON_LIB_RESULT
+        )
+        if(NOT _PYTHON_LIB_RESULT EQUAL 0 OR NOT PYTHON_LIB)
+            message(FATAL_ERROR "Failed to detect Python library name via '${PYTHON_EXECUTABLE}'")
+        endif()
+    endif()
+    message(STATUS "Python: INC=${PYTHON_INCLUDE_DIR} SUFFIX=${PYTHON_EXT_SUFFIX} PREFIX=${PYTHON_PREFIX} LIB=${PYTHON_LIB}")
 endif()
 
 add_library(pltxt2htm MODULE pltxt2htm.cc)
@@ -83,12 +107,12 @@ endif()
 
 # Windows / MinGW
 if(WIN32)
-    target_link_directories(pltxt2htm PRIVATE "${PYTHON_PREFIX}/libs")
-    if(PYTHON_EXECUTABLE)
-        execute_process(
-            COMMAND "${PYTHON_EXECUTABLE}" -c "import sys; print(f'python{sys.version_info.major}{sys.version_info.minor}', end='')"
-            OUTPUT_VARIABLE PYTHON_LIB
-        )
+    if(PYTHON_PREFIX)
+        target_link_directories(pltxt2htm PRIVATE "${PYTHON_PREFIX}/libs")
     endif()
-    target_link_libraries(pltxt2htm PRIVATE ntdll "${PYTHON_LIB}")
+    if(PYTHON_LIB)
+        target_link_libraries(pltxt2htm PRIVATE ntdll "${PYTHON_LIB}")
+    else()
+        target_link_libraries(pltxt2htm PRIVATE ntdll)
+    endif()
 endif()
