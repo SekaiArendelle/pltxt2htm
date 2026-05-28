@@ -63,12 +63,18 @@ shared_cmake_cmd = (
 )
 
 if args.toolchain == "clang":
-    if args.target and not args.target.startswith("x86_64"):
-        # For cross-compilation, set the compiler target
-        if args.cxxflags:
-            shared_cmake_cmd += f"-DCMAKE_CXX_FLAGS=\"{args.cxxflags} {args.sysroot or ''}\" "
-        if args.shflags:
-            shared_cmake_cmd += f"-DCMAKE_SHARED_LINKER_FLAGS=\"{args.shflags}\" "
+    if args.cxxflags:
+        cxxflags = args.cxxflags
+        if args.target and not args.target.startswith("native"):
+            cxxflags += f" --target={args.target}"
+        if args.sysroot:
+            cxxflags += f" --sysroot={args.sysroot}"
+        shared_cmake_cmd += f"-DCMAKE_CXX_FLAGS=\"{cxxflags}\" "
+    if args.shflags:
+        shflags = args.shflags
+        if args.target and not args.target.startswith("native"):
+            shflags += f" --target={args.target}"
+        shared_cmake_cmd += f"-DCMAKE_SHARED_LINKER_FLAGS=\"{shflags}\" "
 elif args.toolchain == "clang-cl":
     shared_cmake_cmd += "-DCMAKE_CXX_COMPILER=clang-cl "
 
@@ -92,11 +98,18 @@ static_cmake_cmd = (
 )
 
 if args.toolchain == "clang":
-    if args.target and not args.target.startswith("x86_64"):
-        if args.cxxflags:
-            static_cmake_cmd += f"-DCMAKE_CXX_FLAGS=\"{args.cxxflags} {args.sysroot or ''}\" "
-        if args.arflags:
-            static_cmake_cmd += f"-DCMAKE_STATIC_LINKER_FLAGS=\"{args.arflags}\" "
+    if args.cxxflags:
+        cxxflags = args.cxxflags
+        if args.target and not args.target.startswith("native"):
+            cxxflags += f" --target={args.target}"
+        if args.sysroot:
+            cxxflags += f" --sysroot={args.sysroot}"
+        static_cmake_cmd += f"-DCMAKE_CXX_FLAGS=\"{cxxflags}\" "
+    if args.arflags:
+        arflags = args.arflags
+        if args.target and not args.target.startswith("native"):
+            arflags += f" --target={args.target}"
+        static_cmake_cmd += f"-DCMAKE_STATIC_LINKER_FLAGS=\"{arflags}\" "
 elif args.toolchain == "clang-cl":
     static_cmake_cmd += "-DCMAKE_CXX_COMPILER=clang-cl "
 
@@ -113,4 +126,4 @@ if err_code != 0:
 shutil.rmtree("build-static")
 
 # Copy headers
-shutil.copytree(os.path.join(SCRIPT_DIR, "include"), os.path.join(INSTALL_DIR, "include"))
+shutil.copytree(os.path.join(SCRIPT_DIR, "include"), os.path.join(INSTALL_DIR, "include"), dirs_exist_ok=True)
