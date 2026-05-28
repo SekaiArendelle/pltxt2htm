@@ -274,9 +274,9 @@ constexpr auto plweb_text_backend(::pltxt2htm::Ast<ndebug> const& ast_init, ::fa
     call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(ast_init, ::pltxt2htm::NodeKind::text, 0));
 
 entry:
-    auto const& ast = call_stack.top().get_ast();
-    auto const& nested_tag_type = call_stack.top().get_nested_tag_type();
-    auto&& current_index = call_stack.top().current_index;
+    auto const& ast = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_ast();
+    auto const& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
+    auto&& current_index = ::pltxt2htm::details::stack_top<ndebug>(call_stack).current_index;
     for (; current_index < ast.size(); ++current_index) {
         auto&& node = ::pltxt2htm::details::vector_index<ndebug>(ast, current_index);
 
@@ -877,7 +877,7 @@ entry:
     }
 
     {
-        auto top_frame = ::std::move(call_stack.top());
+        auto top_frame = ::std::move(::pltxt2htm::details::stack_top<ndebug>(call_stack));
         call_stack.pop();
         if (call_stack.empty()) {
             return result;

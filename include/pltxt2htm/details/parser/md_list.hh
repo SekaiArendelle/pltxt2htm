@@ -692,16 +692,17 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
         }
     }
     while (true) {
-        auto&& current_index = call_stack.top().current_index;
-        auto&& result = call_stack.top().md_list_ast;
-        ::std::size_t const pltext_size{call_stack.top().pltext.size()};
+        auto&& top_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+        auto&& current_index = top_frame.current_index;
+        auto&& result = top_frame.md_list_ast;
+        ::std::size_t const pltext_size{top_frame.pltext.size()};
         auto opt_list_item = ::pltxt2htm::details::try_parse_item<ndebug>(
-            ::pltxt2htm::details::u8string_view_subview<ndebug>(call_stack.top().pltext, current_index),
-            ::pltxt2htm::details::PreviousItemInfo{.space_hierarchy = call_stack.top().space_hierarchy,
+            ::pltxt2htm::details::u8string_view_subview<ndebug>(top_frame.pltext, current_index),
+            ::pltxt2htm::details::PreviousItemInfo{.space_hierarchy = top_frame.space_hierarchy,
                                                    .call_stack_is_single = call_stack.size() == 1,
-                                                   .item_kind = call_stack.top().get_item_kind()});
+                                                   .item_kind = top_frame.get_item_kind()});
         if (!opt_list_item.has_value()) {
-            auto frame = ::std::move(call_stack.top());
+            auto frame = ::std::move(top_frame);
             call_stack.pop();
             if (call_stack.empty()) {
                 return ::pltxt2htm::details::ToMdListAstResult<ndebug>{
@@ -711,9 +712,10 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
                                      ? ::pltxt2htm::NodeKind::md_ol
                                      : ::pltxt2htm::NodeKind::md_ul};
             }
+            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
             switch (frame.get_item_kind()) {
             case ::pltxt2htm::details::MdUlListItemKind::ordered_item: {
-                call_stack.top().md_list_ast.emplace_back(
+                parent_frame.md_list_ast.emplace_back(
                     ::pltxt2htm::details::MdListOlNode<ndebug>(::std::move(frame.md_list_ast)));
                 break;
             }
@@ -722,7 +724,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
             case ::pltxt2htm::details::MdUlListItemKind::plus:
                 [[fallthrough]];
             case ::pltxt2htm::details::MdUlListItemKind::asterisk: {
-                call_stack.top().md_list_ast.emplace_back(
+                parent_frame.md_list_ast.emplace_back(
                     ::pltxt2htm::details::MdListUlNode<ndebug>(::std::move(frame.md_list_ast)));
                 break;
             }
@@ -733,26 +735,28 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
                 }
 #endif
             }
-            call_stack.top().current_index += frame.current_index;
+            parent_frame.current_index += frame.current_index;
             continue;
         }
         auto&& [space_hierarchy, forward_index, text, item_kind] =
             opt_list_item.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
         current_index += forward_index;
-        if (space_hierarchy > call_stack.top().space_hierarchy + 1) {
+        if (space_hierarchy > top_frame.space_hierarchy + 1) {
             call_stack.push(::pltxt2htm::details::MdListFrameContext<ndebug>{
                 item_kind, space_hierarchy,
-                ::pltxt2htm::details::u8string_view_subview<ndebug>(call_stack.top().pltext, current_index)});
-            call_stack.top().md_list_ast.emplace_back(::pltxt2htm::details::MdListTextNode(::std::move(text)));
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(
+                    top_frame.pltext, current_index)});
+            auto&& child_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+            child_frame.md_list_ast.emplace_back(::pltxt2htm::details::MdListTextNode(::std::move(text)));
             continue;
         }
         result.emplace_back(::pltxt2htm::details::MdListTextNode(::std::move(text)));
-        call_stack.top().space_hierarchy = space_hierarchy;
+        top_frame.space_hierarchy = space_hierarchy;
 
         if (current_index < pltext_size) {
             continue;
         }
-        auto frame = ::std::move(call_stack.top());
+        auto frame = ::std::move(::pltxt2htm::details::stack_top<ndebug>(call_stack));
         call_stack.pop();
         if (call_stack.empty()) {
             return ::pltxt2htm::details::ToMdListAstResult<ndebug>{
@@ -762,10 +766,10 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
                                  ? ::pltxt2htm::NodeKind::md_ol
                                  : ::pltxt2htm::NodeKind::md_ul};
         }
+        auto&& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
         switch (frame.get_item_kind()) {
         case ::pltxt2htm::details::MdUlListItemKind::ordered_item: {
-            call_stack.top().md_list_ast.emplace_back(
-                ::pltxt2htm::details::MdListOlNode<ndebug>(::std::move(frame.md_list_ast)));
+            parent_frame.md_list_ast.emplace_back(::pltxt2htm::details::MdListOlNode<ndebug>(::std::move(frame.md_list_ast)));
             break;
         }
         case ::pltxt2htm::details::MdUlListItemKind::hyphen:
@@ -773,8 +777,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
         case ::pltxt2htm::details::MdUlListItemKind::plus:
             [[fallthrough]];
         case ::pltxt2htm::details::MdUlListItemKind::asterisk: {
-            call_stack.top().md_list_ast.emplace_back(
-                ::pltxt2htm::details::MdListUlNode<ndebug>(::std::move(frame.md_list_ast)));
+            parent_frame.md_list_ast.emplace_back(::pltxt2htm::details::MdListUlNode<ndebug>(::std::move(frame.md_list_ast)));
             break;
         }
 #if 0
@@ -784,7 +787,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
             }
 #endif
         }
-        call_stack.top().current_index += frame.current_index;
+        parent_frame.current_index += frame.current_index;
         continue;
     }
 }

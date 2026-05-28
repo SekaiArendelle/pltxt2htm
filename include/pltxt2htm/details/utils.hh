@@ -134,16 +134,23 @@ constexpr auto const& vector_index(::fast_io::vector<T> const& vec, ::std::size_
 
 template<::pltxt2htm::Contracts ndebug, typename T>
 [[nodiscard]]
+constexpr auto& stack_top(::fast_io::containers::stack<T>& stack) noexcept {
+    bool const is_not_empty{stack.empty() == false};
+    pltxt2htm_assert(is_not_empty, u8"Accessing top but stack is empty");
+
+    return stack.top_unchecked();
+}
+
+template<::pltxt2htm::Contracts ndebug, typename T>
+[[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
 constexpr auto const& stack_top(::fast_io::containers::stack<T> const& stack) noexcept {
-    if constexpr (ndebug == ::pltxt2htm::Contracts::ignore) {
-        return stack.top_unchecked();
-    }
-    else {
-        return stack.top();
-    }
+    bool const is_not_empty{stack.empty() == false};
+    pltxt2htm_assert(is_not_empty, u8"Accessing top but stack is empty");
+
+    return stack.top_unchecked();
 }
 
 /**
@@ -171,7 +178,7 @@ constexpr bool is_prefix_match(::fast_io::u8string_view str) noexcept {
     static_assert(!has_uppercase, "prefix_str must not contain uppercase letters");
 
     // Check whether the index is out of bound.
-    if (prefix_str.size() > str.size()) [[unlikely]] {
+    if (prefix_str.size() > str.size()) {
         return false;
     }
 
