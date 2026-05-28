@@ -1,7 +1,7 @@
 FROM ubuntu:26.04
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3 git vim xz-utils wget ca-certificates \
+    python3 npm git vim xz-utils wget curl ca-certificates \
     xmake cmake \
     gcc g++ gdb \
     clang lld lldb libc++-dev libclang-rt-dev \
