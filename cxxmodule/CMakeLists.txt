@@ -12,6 +12,7 @@ add_executable(example example.cc)
 
 target_include_directories(example PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/../include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../include/fast_io"
     "${CMAKE_CURRENT_SOURCE_DIR}/fast_io"
 )
 
