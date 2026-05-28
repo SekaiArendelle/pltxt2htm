@@ -7,11 +7,12 @@ import shutil
 import argparse
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-XMAKE_DIR = os.path.join(SCRIPT_DIR, ".xmake")
 BUILD_DIR = os.path.join(SCRIPT_DIR, "build")
 
-if not shutil.which("xmake"):
-    raise Exception("xmake not found, type `sudo pacman -S xmake` to install it")
+if not shutil.which("cmake"):
+    raise Exception("cmake not found, type `sudo pacman -S cmake` to install it")
+if not shutil.which("ninja"):
+    raise Exception("ninja not found, type `sudo pacman -S ninja` to install it")
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--toolchain", required=True, choices=("clang", "gcc", "clang-cl"), help="compiler to use")
@@ -38,95 +39,78 @@ if os.path.exists(INSTALL_DIR):
     shutil.rmtree(INSTALL_DIR)
     print(f"remove directory: {INSTALL_DIR}")
 
-if os.path.exists(XMAKE_DIR):
-    shutil.rmtree(XMAKE_DIR)
-    print(f"remove directory: {XMAKE_DIR}")
-
 if os.path.exists(BUILD_DIR):
     shutil.rmtree(BUILD_DIR)
     print(f"remove directory: {BUILD_DIR}")
 
-if args.sysroot:
-    args.sysroot = f"--sysroot={args.sysroot}"
-else:
-    args.sysroot = ""
-
-if args.toolchain != "clang-cl":
-    args.toolchain = f"{args.target}-{args.toolchain}"
-
-if args.toolchain == "clang-cl" or args.target.endswith("-windows-msvc"):
-    plat_flag = "-p windows"
+# Determine platform and architecture for cmake
+if args.target.endswith("-windows-msvc") or args.toolchain == "clang-cl":
+    plat = "Windows"
 elif args.target.endswith("-w64-mingw32") or args.target.endswith("-windows-gnu"):
-    plat_flag = "-p mingw"
+    plat = "MinGW"
 elif "-linux-" in args.target:
-    plat_flag = "-p linux"
+    plat = "Linux"
 elif "-apple-darwin" in args.target:
-    plat_flag = "-p macosx"
+    plat = "Darwin"
 else:
-    plat_flag = ""
+    plat = ""
 
-if args.target.startswith("x86_64"):
-    arch_flag = "-a x64"
-elif args.target.startswith("i686"):
-    arch_flag = "-a x86"
-elif args.target.startswith("aarch64"):
-    arch_flag = "-a arm64"
-elif args.target.startswith("wasm32"):
-    arch_flag = "-a wasm"
-else:
-    arch_flag = ""
+# Build shared library
+shared_cmake_cmd = (
+    f"cmake -S . -B build-shared -G Ninja "
+    f"-DCMAKE_BUILD_TYPE={args.mode} "
+    f"-DBUILD_SHARED_LIBS=ON "
+)
 
-if args.cxxflags:
-    cxxflags = f"--cxxflags=\"{args.cxxflags}\""
-else:
-    cxxflags = ""
+if args.toolchain == "clang":
+    if args.target and not args.target.startswith("x86_64"):
+        # For cross-compilation, set the compiler target
+        if args.cxxflags:
+            shared_cmake_cmd += f"-DCMAKE_CXX_FLAGS=\"{args.cxxflags} {args.sysroot or ''}\" "
+        if args.shflags:
+            shared_cmake_cmd += f"-DCMAKE_SHARED_LINKER_FLAGS=\"{args.shflags}\" "
+elif args.toolchain == "clang-cl":
+    shared_cmake_cmd += "-DCMAKE_CXX_COMPILER=clang-cl "
 
-if args.arflags:
-    arflags = f"--arflags=\"{args.arflags}\""
-else:
-    arflags = ""
-
-if args.shflags:
-    shflags = f"--shflags=\"{args.shflags}\""
-else:
-    shflags = ""
-
-shared_config_cmd = f"xmake config -m {args.mode} -k shared --toolchain={args.toolchain} {args.sysroot} {plat_flag} {arch_flag} {cxxflags} {arflags} {shflags}"
-print(">> ", shared_config_cmd)
-err_code = os.system(shared_config_cmd)
+print(">> ", shared_cmake_cmd)
+err_code = os.system(shared_cmake_cmd)
 if err_code != 0:
-    raise Exception("xmake config failed")
-err_code = os.system("xmake build -v")
+    raise Exception("cmake config (shared) failed")
+err_code = os.system("cmake --build build-shared -v")
 if err_code != 0:
-    raise Exception("xmake build failed")
-err_code = os.system(f"xmake install -o \"{INSTALL_DIR}\"")
+    raise Exception("cmake build (shared) failed")
+err_code = os.system(f"cmake --install build-shared --prefix \"{INSTALL_DIR}\"")
 if err_code != 0:
-    raise Exception("xmake install failed")
+    raise Exception("cmake install (shared) failed")
+shutil.rmtree("build-shared")
 
-if plat_flag == "-p windows":
-    if args.mode == "release":
-        shutil.move(os.path.join(INSTALL_DIR, "lib", "pltxt2htm.lib"), os.path.join(INSTALL_DIR, "bin"))
-    elif args.mode == "debug":
-        shutil.move(os.path.join(INSTALL_DIR, "lib", "pltxt2htmd.lib"), os.path.join(INSTALL_DIR, "bin"))
-    else:
-        raise Exception("Unknown mode")
-elif plat_flag == "-p mingw":
-    shutil.move(os.path.join(INSTALL_DIR, "lib", "pltxt2htm.dll.a"), os.path.join(INSTALL_DIR, "bin"))
+# Build static library
+static_cmake_cmd = (
+    f"cmake -S . -B build-static -G Ninja "
+    f"-DCMAKE_BUILD_TYPE={args.mode} "
+    f"-DBUILD_SHARED_LIBS=OFF "
+)
 
-shutil.rmtree(XMAKE_DIR)
-shutil.rmtree(BUILD_DIR)
+if args.toolchain == "clang":
+    if args.target and not args.target.startswith("x86_64"):
+        if args.cxxflags:
+            static_cmake_cmd += f"-DCMAKE_CXX_FLAGS=\"{args.cxxflags} {args.sysroot or ''}\" "
+        if args.arflags:
+            static_cmake_cmd += f"-DCMAKE_STATIC_LINKER_FLAGS=\"{args.arflags}\" "
+elif args.toolchain == "clang-cl":
+    static_cmake_cmd += "-DCMAKE_CXX_COMPILER=clang-cl "
 
-static_config_cmd = f"xmake config -m {args.mode} -k static --toolchain={args.toolchain} {args.sysroot} {plat_flag} {arch_flag} {cxxflags} {arflags} {shflags}"
-print(">> ", static_config_cmd)
-err_code = os.system(static_config_cmd)
+print(">> ", static_cmake_cmd)
+err_code = os.system(static_cmake_cmd)
 if err_code != 0:
-    raise Exception("xmake config failed")
-err_code = os.system("xmake build -v")
+    raise Exception("cmake config (static) failed")
+err_code = os.system("cmake --build build-static -v")
 if err_code != 0:
-    raise Exception("xmake build failed")
-err_code = os.system(f"xmake install -o \"{INSTALL_DIR}\"")
+    raise Exception("cmake build (static) failed")
+err_code = os.system(f"cmake --install build-static --prefix \"{INSTALL_DIR}\"")
 if err_code != 0:
-    raise Exception("xmake install failed")
+    raise Exception("cmake install (static) failed")
+shutil.rmtree("build-static")
 
 # Copy headers
 shutil.copytree(os.path.join(SCRIPT_DIR, "include"), os.path.join(INSTALL_DIR, "include"))

@@ -1,6 +1,6 @@
 FROM alpine:3.23
 
-RUN apk add --no-cache ca-certificates wget xz xmake llvm clang lld python3
+RUN apk add --no-cache ca-certificates wget xz cmake ninja-build llvm clang lld python3
 
 ARG MACOS_SDK_URL=https://github.com/joseluisq/macosx-sdks/releases/download/15.2/MacOSX15.2.sdk.tar.xz
 RUN wget -q "${MACOS_SDK_URL}" -O /tmp/macos-sdk.tar.xz \
@@ -11,8 +11,6 @@ RUN wget -q "${MACOS_SDK_URL}" -O /tmp/macos-sdk.tar.xz \
 WORKDIR /pltxt2htm
 COPY ../../../include /pltxt2htm/include/
 COPY ../../../c /pltxt2htm/c/
-COPY ../../../xmake /pltxt2htm/xmake/
-ENV XMAKE_ROOT=y
 
 WORKDIR /pltxt2htm/c
 ARG mode=debug

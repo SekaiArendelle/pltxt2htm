@@ -2,7 +2,7 @@
 
 ## Build example.cc
 ```sh
-xmake config
-xmake build
-xmake run
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++
+cmake --build build
+./build/example
 ```

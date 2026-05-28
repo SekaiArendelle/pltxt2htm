@@ -1,8 +1,8 @@
 FROM ubuntu:26.04
 
 RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
-    ca-certificates curl xz-utils zip \
-    xmake llvm clang lld python3
+    ca-certificates curl xz-utils zip python3 \
+    cmake ninja-build llvm clang lld
 
 RUN set -eux; \
     XWIN_VERSION=0.8.0; \
@@ -15,8 +15,6 @@ RUN xwin --accept-license splat --output /opt/xwin
 WORKDIR /pltxt2htm
 COPY ../../../include /pltxt2htm/include/
 COPY ../../../c /pltxt2htm/c/
-COPY ../../../xmake /pltxt2htm/xmake/
-ENV XMAKE_ROOT=y
 
 WORKDIR /pltxt2htm/c
 ARG mode=debug

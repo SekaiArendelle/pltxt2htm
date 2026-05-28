@@ -37,16 +37,16 @@ docker exec -it pltxt2htm-dev bash
 
 The source directory is mounted into the container via `-v .:/pltxt2htm`, so any edits made inside the container are reflected on the host and vice versa.
 
-This repository primarily uses **xmake** for configuration, building, and testing.
+This repository primarily uses **CMake** for configuration and building.
 
 Typical workflow:
 
 ```sh
-xmake config
-xmake build
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
+cmake --build build
 ```
 
-You may pass options such as `--toolchain=`, `--sysroot=`, `--arch=`, and `--plat=` depending on your target.
+For specific sub-projects (e.g. `c/`, `cmd/`, `tests/`), run cmake in the respective directory.
 
 ## Code Formatting
 
@@ -64,23 +64,26 @@ Run all tests from the repository root:
 python ./tests/run_all_tests.py
 ```
 
-Or with xmake:
+Or with CMake (in the `tests/` directory):
 
 ```sh
-xmake config
-xmake test
+cmake -S tests -B tests/build -G Ninja -DCMAKE_BUILD_TYPE=Debug
+cmake --build tests/build
+ctest --test-dir tests/build
 ```
 
 Sanitizer examples:
 
 ```sh
 # ASan
-xmake config --policies=build.sanitizer.address
-xmake test
+cmake -S tests -B tests/build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DPLTXT2HTM_SANITIZER=address
+cmake --build tests/build
+ctest --test-dir tests/build
 
 # MSan
-xmake config --policies=build.sanitizer.memory
-xmake test
+cmake -S tests -B tests/build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DPLTXT2HTM_SANITIZER=memory
+cmake --build tests/build
+ctest --test-dir tests/build
 ```
 
 For coverage:
@@ -172,7 +175,7 @@ When opening an issue, please include:
 - expected behavior
 - actual behavior
 - minimal reproduction input
-- platform/toolchain details (OS, compiler, target, xmake config)
+- platform/toolchain details (OS, compiler, target, cmake config)
 
 ## Security
 

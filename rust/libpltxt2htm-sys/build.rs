@@ -20,44 +20,60 @@ fn static_lib_name(target: &str) -> &'static str {
     }
 }
 
-fn try_run_xmake(c_root: &Path, out_dir: &Path) -> Result<(), String> {
+fn try_run_cmake(c_root: &Path, out_dir: &Path) -> Result<(), String> {
     let install_dir = out_dir.join("pltxt2htm-install");
+    let build_dir = c_root.join("build-cargo");
 
-    let config_status = Command::new("xmake")
-        .arg("config")
-        .arg("-P")
+    // Clean any existing build dir
+    let _ = std::fs::remove_dir_all(&build_dir);
+
+    let mut cmake_cmd = Command::new("cmake");
+    cmake_cmd
+        .arg("-S")
         .arg(c_root)
-        .arg("-k")
-        .arg("static")
-        .arg("-m")
-        .arg(profile_mode())
+        .arg("-B")
+        .arg(&build_dir)
+        .arg("-G")
+        .arg("Ninja");
+
+    let mode = profile_mode();
+    cmake_cmd.arg("-DCMAKE_BUILD_TYPE=".to_owned() + mode);
+
+    // Pass toolchain if CXX is set (e.g., cross-compilation via cargo)
+    if let Ok(cxx) = std::env::var("CXX") {
+        cmake_cmd.arg("-DCMAKE_CXX_COMPILER=".to_owned() + &cxx);
+    }
+
+    let config_status = cmake_cmd
         .status()
-        .map_err(|e| format!("failed to invoke xmake config: {e}"))?;
+        .map_err(|e| format!("failed to invoke cmake: {e}"))?;
     if !config_status.success() {
-        return Err("xmake config failed".to_owned());
+        return Err("cmake configure failed".to_owned());
     }
 
-    let build_status = Command::new("xmake")
-        .arg("build")
-        .arg("-P")
-        .arg(c_root)
+    let build_status = Command::new("cmake")
+        .arg("--build")
+        .arg(&build_dir)
+        .arg("-v")
         .status()
-        .map_err(|e| format!("failed to invoke xmake build: {e}"))?;
+        .map_err(|e| format!("failed to invoke cmake --build: {e}"))?;
     if !build_status.success() {
-        return Err("xmake build failed".to_owned());
+        return Err("cmake build failed".to_owned());
     }
 
-    let install_status = Command::new("xmake")
-        .arg("install")
-        .arg("-P")
-        .arg(c_root)
-        .arg("-o")
+    let install_status = Command::new("cmake")
+        .arg("--install")
+        .arg(&build_dir)
+        .arg("--prefix")
         .arg(&install_dir)
         .status()
-        .map_err(|e| format!("failed to invoke xmake install: {e}"))?;
+        .map_err(|e| format!("failed to invoke cmake --install: {e}"))?;
     if !install_status.success() {
-        return Err("xmake install failed".to_owned());
+        return Err("cmake install failed".to_owned());
     }
+
+    // Clean up build dir
+    let _ = std::fs::remove_dir_all(&build_dir);
 
     println!(
         "cargo:rustc-link-search=native={}",
@@ -121,7 +137,7 @@ fn main() {
 
     let out_dir = PathBuf::from(std::env::var("OUT_DIR").expect("OUT_DIR is not set"));
 
-    match try_run_xmake(&c_root, &out_dir) {
+    match try_run_cmake(&c_root, &out_dir) {
         Ok(()) => {}
         Err(reason) => {
             println!("cargo:warning=Using cc-rs fallback because {reason}");

@@ -9,8 +9,6 @@ python launch-fuzzing.py
 chdir to fuzzing/
 
 ```sh
-xmake config --toolchain=clang --policies=build.sanitizer.address
-# Asan costs a lot, and you can switch to other sanitizers
-# xmake config --toolchain=clang --policies=build.sanitizer.undefined
-xmake build
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++
+cmake --build build
 ```

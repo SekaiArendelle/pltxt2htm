@@ -6,15 +6,14 @@ if platform.system() != "Linux":
     raise Exception("This script is only for Linux")
 
 if shutil.which("clang") is None:
-    raise Exception("clang found")
-if shutil.which("xmake") is None:
-    raise Exception("xmake not found")
+    raise Exception("clang not found")
+if shutil.which("cmake") is None:
+    raise Exception("cmake not found")
 if shutil.which("nohup") is None:
     raise Exception("nohup not found")
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 BUILD_DIR = os.path.join(SCRIPT_DIR, "build")
-XMAKE_DIR = os.path.join(SCRIPT_DIR, ".xmake")
 INSTALL_DIR = os.path.join(SCRIPT_DIR, "exe.ignore")
 EXECUTABLE_DIR = os.path.join(INSTALL_DIR, "bin")
 
@@ -23,22 +22,16 @@ os.chdir(SCRIPT_DIR)
 if os.path.exists(BUILD_DIR) and os.path.isdir(BUILD_DIR):
     shutil.rmtree("build")
     print(f"Removing {BUILD_DIR}")
-if os.path.exists(XMAKE_DIR) and os.path.isdir(XMAKE_DIR):
-    print(f"Removing {XMAKE_DIR}")
-    shutil.rmtree(XMAKE_DIR)
-if os.path.exists(INSTALL_DIR) and os.path.isdir(INSTALL_DIR):
-    print(f"Removing {INSTALL_DIR}")
-    shutil.rmtree(INSTALL_DIR)
 
-error_code = os.system("xmake config --toolchain=clang --policies=build.sanitizer.address")
+error_code = os.system("cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++")
 if error_code != 0:
-    raise Exception("xmake config failed")
-error_code = os.system("xmake build -v")
+    raise Exception("cmake configure failed")
+error_code = os.system("cmake --build build -v")
 if error_code != 0:
-    raise Exception("xmake build failed")
-error_code = os.system(f"xmake install -o \"{INSTALL_DIR}\"")
+    raise Exception("cmake build failed")
+error_code = os.system(f"cmake --install build --prefix \"{INSTALL_DIR}\"")
 if error_code != 0:
-    raise Exception("xmake install failed")
+    raise Exception("cmake install failed")
 
 def launch_fuzzing(fuzzer: str):
     executable_path = os.path.join(EXECUTABLE_DIR, fuzzer)
