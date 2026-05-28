@@ -13,8 +13,11 @@ set(PYTHON_EXT_SUFFIX "" CACHE STRING "Python extension suffix (auto-detected if
 
 if(PYTHON_INCLUDE_DIR AND PYTHON_EXT_SUFFIX)
     message(STATUS "Using user-provided Python: INC=${PYTHON_INCLUDE_DIR} SUFFIX=${PYTHON_EXT_SUFFIX}")
+    if(NOT PYTHON_PREFIX)
+        set(PYTHON_PREFIX "${PYTHON_INCLUDE_DIR}/..")
+    endif()
 else()
-    find_program(PYTHON_EXECUTABLE python3 python)
+    find_program(PYTHON_EXECUTABLE NAMES python3 python)
     if(NOT PYTHON_EXECUTABLE)
         message(FATAL_ERROR "python3/python not found on PATH")
     endif()
@@ -27,7 +30,11 @@ else()
         COMMAND "${PYTHON_EXECUTABLE}" -c "import sysconfig; print(sysconfig.get_config_var('EXT_SUFFIX'), end='')"
         OUTPUT_VARIABLE PYTHON_EXT_SUFFIX
     )
-    message(STATUS "Python: INC=${PYTHON_INCLUDE_DIR} SUFFIX=${PYTHON_EXT_SUFFIX}")
+    execute_process(
+        COMMAND "${PYTHON_EXECUTABLE}" -c "import sysconfig; print(sysconfig.get_config_var('prefix'), end='')"
+        OUTPUT_VARIABLE PYTHON_PREFIX
+    )
+    message(STATUS "Python: INC=${PYTHON_INCLUDE_DIR} SUFFIX=${PYTHON_EXT_SUFFIX} PREFIX=${PYTHON_PREFIX}")
 endif()
 
 add_library(pltxt2htm MODULE pltxt2htm.cc)
@@ -76,5 +83,12 @@ endif()
 
 # Windows / MinGW
 if(WIN32)
-    target_link_libraries(pltxt2htm PRIVATE ntdll)
+    target_link_directories(pltxt2htm PRIVATE "${PYTHON_PREFIX}/libs")
+    if(PYTHON_EXECUTABLE)
+        execute_process(
+            COMMAND "${PYTHON_EXECUTABLE}" -c "import sys; print(f'python{sys.version_info.major}{sys.version_info.minor}', end='')"
+            OUTPUT_VARIABLE PYTHON_LIB
+        )
+    endif()
+    target_link_libraries(pltxt2htm PRIVATE ntdll "${PYTHON_LIB}")
 endif()
