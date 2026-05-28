@@ -26,7 +26,7 @@ Use the repository `Dockerfile`:
 
 ```sh
 docker build -t pltxt2htm .
-docker run -d --name pltxt2htm-dev pltxt2htm
+docker run -d --name pltxt2htm-dev -v .:/pltxt2htm pltxt2htm
 ```
 
 Enter the container:
@@ -34,6 +34,8 @@ Enter the container:
 ```sh
 docker exec -it pltxt2htm-dev bash
 ```
+
+The source directory is mounted into the container via `-v .:/pltxt2htm`, so any edits made inside the container are reflected on the host and vice versa.
 
 This repository primarily uses **xmake** for configuration, building, and testing.
 
