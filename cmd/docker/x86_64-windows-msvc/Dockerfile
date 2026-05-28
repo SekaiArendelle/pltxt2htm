@@ -21,7 +21,7 @@ ARG mode=debug
 
 RUN CFLAGS="--target=x86_64-windows-msvc -fms-runtime-lib=static -isystem/opt/xwin/crt/include -isystem/opt/xwin/sdk/include/ucrt -isystem/opt/xwin/sdk/include/um -isystem/opt/xwin/sdk/include/shared -D_CRT_SECURE_NO_WARNINGS" && \
     CXXFLAGS="${CFLAGS}" && \
-    LDFLAGS="--target=x86_64-windows-msvc -nostdlib -L/opt/xwin/crt/lib/x86_64 -L/opt/xwin/sdk/lib/ucrt/x86_64 -L/opt/xwin/sdk/lib/um/x86_64" && \
+    LDFLAGS="--target=x86_64-windows-msvc -nostdlib -fuse-ld=lld -L/opt/xwin/crt/lib/x86_64 -L/opt/xwin/sdk/lib/ucrt/x86_64 -L/opt/xwin/sdk/lib/um/x86_64" && \
     cmake -S . -B build \
         -DCMAKE_BUILD_TYPE=${mode} \
         -DCMAKE_CXX_COMPILER=clang++ \
