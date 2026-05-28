@@ -12,10 +12,10 @@ pixi run build
 Specify Python version via environment:
 
 ```sh
-pixi run -e py310  build
-pixi run -e py311  build
-pixi run -e py312  build   # default
-pixi run -e py313  build
+pixi run -e py310 build
+pixi run -e py311 build
+pixi run -e py312 build   # default
+pixi run -e py313 build
 ```
 
 The built `.so`/`.pyd` will be placed under `build/`.
