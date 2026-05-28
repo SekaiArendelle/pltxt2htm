@@ -1,21 +1,24 @@
 # Use `pltxt2htm` in py (By [c extension](https://docs.python.org/3/extending/index.html))
 
-## build
+## build (with pixi)
+
+Requires [pixi](https://pixi.sh) to be installed.
+
 ```sh
-xmake config --mode=[debug|release]
-```
-you can specify C++ toolchain e.g. `--toolchain=gcc`, `--toolchain=clang`, `--toolchain=x86_64-w64-mingw32-clang`
-
-> Note: `--toolchain=x86_64-w64-mingw32-clang` means `clang++ --target=x86_64-w64-mingw32`
-
-You can also specify python executable path e.g. `--python=/usr/bin/python3`
-
-then build:
-```sh
-xmake build
+# install environment & build (default: Python 3.12)
+pixi run build
 ```
 
-> Note: `pip install .` or `python -m build --wheel` based on xmake build script, use `PLTXT2HTM_XMAKE_CONFIG_FLAGS` env var to specify xmake config flags
+Specify Python version via environment:
+
+```sh
+pixi run -e py310  build
+pixi run -e py311  build
+pixi run -e py312  build   # default
+pixi run -e py313  build
+```
+
+The built `.so`/`.pyd` will be placed under `build/`.
 
 ## Usage
 ```py

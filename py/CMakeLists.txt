@@ -4,16 +4,30 @@ project(pltxt2htm LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Python runtime info passed via CLI (not via find_package)
-set(PYTHON_INCLUDE_DIR "" CACHE PATH "Path to Python include directory containing Python.h (required)")
-set(PYTHON_EXT_SUFFIX "" CACHE STRING "Python extension suffix, e.g. .cpython-312-x86_64-linux-gnu.so (required)")
 set(PLTXT2HTM_ENABLE_STACKTRACE OFF CACHE BOOL "Enable C++23 <stacktrace>")
 
-if(NOT PYTHON_INCLUDE_DIR)
-    message(FATAL_ERROR "PYTHON_INCLUDE_DIR is required (e.g. -DPYTHON_INCLUDE_DIR=/usr/include/python3.12)")
-endif()
-if(NOT PYTHON_EXT_SUFFIX)
-    message(FATAL_ERROR "PYTHON_EXT_SUFFIX is required (e.g. -DPYTHON_EXT_SUFFIX=.cpython-312-x86_64-linux-gnu.so)")
+# Python include dir and extension suffix — can be passed externally (e.g. cross-compile in docker),
+# or auto-detected from the python on PATH
+set(PYTHON_INCLUDE_DIR "" CACHE PATH "Python include dir (auto-detected if empty)")
+set(PYTHON_EXT_SUFFIX "" CACHE STRING "Python extension suffix (auto-detected if empty)")
+
+if(PYTHON_INCLUDE_DIR AND PYTHON_EXT_SUFFIX)
+    message(STATUS "Using user-provided Python: INC=${PYTHON_INCLUDE_DIR} SUFFIX=${PYTHON_EXT_SUFFIX}")
+else()
+    find_program(PYTHON_EXECUTABLE python3 python)
+    if(NOT PYTHON_EXECUTABLE)
+        message(FATAL_ERROR "python3/python not found on PATH")
+    endif()
+    message(STATUS "Using Python: ${PYTHON_EXECUTABLE}")
+    execute_process(
+        COMMAND "${PYTHON_EXECUTABLE}" -c "import sysconfig; print(sysconfig.get_config_var('INCLUDEPY'), end='')"
+        OUTPUT_VARIABLE PYTHON_INCLUDE_DIR
+    )
+    execute_process(
+        COMMAND "${PYTHON_EXECUTABLE}" -c "import sysconfig; print(sysconfig.get_config_var('EXT_SUFFIX'), end='')"
+        OUTPUT_VARIABLE PYTHON_EXT_SUFFIX
+    )
+    message(STATUS "Python: INC=${PYTHON_INCLUDE_DIR} SUFFIX=${PYTHON_EXT_SUFFIX}")
 endif()
 
 add_library(pltxt2htm MODULE pltxt2htm.cc)
@@ -50,15 +64,8 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
         target_link_options(pltxt2htm PRIVATE -fuse-ld=lld)
     endif()
 
-    # Release-specific flags
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
         target_compile_options(pltxt2htm PRIVATE -fno-ident)
-        include(CheckCXXCompilerFlag)
-        check_cxx_compiler_flag("-flto" LTO_SUPPORTED)
-        if(LTO_SUPPORTED)
-            target_compile_options(pltxt2htm PRIVATE -flto)
-            target_link_options(pltxt2htm PRIVATE -flto)
-        endif()
     endif()
 endif()
 
