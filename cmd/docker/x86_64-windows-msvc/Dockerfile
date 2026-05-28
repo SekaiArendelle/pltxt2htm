@@ -2,7 +2,7 @@ FROM ubuntu:26.04
 
 RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     ca-certificates curl git xz-utils zip python3 \
-    cmake ninja-build llvm clang lld
+    cmake make llvm clang lld
 
 RUN set -eux; \
     XWIN_VERSION=0.8.0; \
@@ -19,10 +19,10 @@ COPY ../../../ .
 WORKDIR /pltxt2htm/cmd
 ARG mode=debug
 
-RUN CFLAGS="-fms-runtime-lib=static -isystem/opt/xwin/crt/include -isystem/opt/xwin/sdk/include/ucrt -isystem/opt/xwin/sdk/include/um -isystem/opt/xwin/sdk/include/shared -D_CRT_SECURE_NO_WARNINGS" && \
+RUN CFLAGS="--target=x86_64-windows-msvc -fms-runtime-lib=static -isystem/opt/xwin/crt/include -isystem/opt/xwin/sdk/include/ucrt -isystem/opt/xwin/sdk/include/um -isystem/opt/xwin/sdk/include/shared -D_CRT_SECURE_NO_WARNINGS" && \
     CXXFLAGS="${CFLAGS}" && \
-    LDFLAGS="-nostdlib -L/opt/xwin/crt/lib/x86_64 -L/opt/xwin/sdk/lib/ucrt/x86_64 -L/opt/xwin/sdk/lib/um/x86_64" && \
-    cmake -S . -B build -G Ninja \
+    LDFLAGS="--target=x86_64-windows-msvc -nostdlib -L/opt/xwin/crt/lib/x86_64 -L/opt/xwin/sdk/lib/ucrt/x86_64 -L/opt/xwin/sdk/lib/um/x86_64" && \
+    cmake -S . -B build \
         -DCMAKE_BUILD_TYPE=${mode} \
         -DCMAKE_CXX_COMPILER=clang++ \
         -DCMAKE_CXX_FLAGS="${CXXFLAGS}" \
