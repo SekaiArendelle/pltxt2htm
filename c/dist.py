@@ -58,11 +58,13 @@ else:
 # Build shared library
 shared_cmake_cmd = (
     f"cmake -S . -B build-shared -G Ninja "
-    f"-DCMAKE_BUILD_TYPE={args.mode} "
+    f"-DCMAKE_BUILD_TYPE={args.mode.capitalize()} "
     f"-DBUILD_SHARED_LIBS=ON "
 )
 if plat:
     shared_cmake_cmd += f"-DCMAKE_SYSTEM_NAME={plat} "
+if plat == "Windows":
+    shared_cmake_cmd += "-DCMAKE_TRY_COMPILE_TARGET_TYPE=STATIC_LIBRARY "
 
 if args.toolchain == "clang":
     if args.cxxflags:
@@ -96,11 +98,13 @@ shutil.rmtree("build-shared")
 # Build static library
 static_cmake_cmd = (
     f"cmake -S . -B build-static -G Ninja "
-    f"-DCMAKE_BUILD_TYPE={args.mode} "
+    f"-DCMAKE_BUILD_TYPE={args.mode.capitalize()} "
     f"-DBUILD_SHARED_LIBS=OFF "
 )
 if plat:
     static_cmake_cmd += f"-DCMAKE_SYSTEM_NAME={plat} "
+if plat == "Windows":
+    static_cmake_cmd += "-DCMAKE_TRY_COMPILE_TARGET_TYPE=STATIC_LIBRARY "
 
 if args.toolchain == "clang":
     if args.cxxflags:
