@@ -75,6 +75,7 @@ if args.toolchain == "clang":
         if args.target and not args.target.startswith("native"):
             shflags += f" --target={args.target}"
         shared_cmake_cmd += f"-DCMAKE_SHARED_LINKER_FLAGS=\"{shflags}\" "
+        shared_cmake_cmd += f"-DCMAKE_EXE_LINKER_FLAGS=\"{shflags}\" "
 elif args.toolchain == "clang-cl":
     shared_cmake_cmd += "-DCMAKE_CXX_COMPILER=clang-cl "
 
