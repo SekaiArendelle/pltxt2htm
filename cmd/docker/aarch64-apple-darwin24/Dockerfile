@@ -3,7 +3,7 @@ FROM alpine:3.23 AS builder
 ARG MACOS_SDK_URL=https://github.com/joseluisq/macosx-sdks/releases/download/15.2/MacOSX15.2.sdk.tar.xz
 ARG mode=release
 
-RUN apk add --no-cache clang git lld wget xz cmake ninja-build
+RUN apk add --no-cache clang git lld wget xz cmake make
 
 # Download and extract macOS SDK
 RUN wget -q "${MACOS_SDK_URL}" -O /tmp/macos-sdk.tar.xz \
@@ -19,7 +19,7 @@ WORKDIR /pltxt2htm
 COPY ../../../ .
 
 WORKDIR /pltxt2htm/cmd
-RUN cmake -S . -B build -G Ninja \
+RUN cmake -S . -B build \
     -DCMAKE_BUILD_TYPE=${mode} \
     -DCMAKE_CXX_COMPILER=clang++ \
     -DCMAKE_C_FLAGS="--target=aarch64-apple-darwin24 --sysroot=${SYSROOT}" \
