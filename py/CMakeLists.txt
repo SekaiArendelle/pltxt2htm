@@ -4,16 +4,61 @@ project(pltxt2htm LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Python runtime info passed via CLI (not via find_package)
-set(PYTHON_INCLUDE_DIR "" CACHE PATH "Path to Python include directory containing Python.h (required)")
-set(PYTHON_EXT_SUFFIX "" CACHE STRING "Python extension suffix, e.g. .cpython-312-x86_64-linux-gnu.so (required)")
 set(PLTXT2HTM_ENABLE_STACKTRACE OFF CACHE BOOL "Enable C++23 <stacktrace>")
 
-if(NOT PYTHON_INCLUDE_DIR)
-    message(FATAL_ERROR "PYTHON_INCLUDE_DIR is required (e.g. -DPYTHON_INCLUDE_DIR=/usr/include/python3.12)")
-endif()
-if(NOT PYTHON_EXT_SUFFIX)
-    message(FATAL_ERROR "PYTHON_EXT_SUFFIX is required (e.g. -DPYTHON_EXT_SUFFIX=.cpython-312-x86_64-linux-gnu.so)")
+# Python include dir and extension suffix — can be passed externally (e.g. cross-compile in docker),
+# or auto-detected from the python on PATH
+set(PYTHON_INCLUDE_DIR "" CACHE PATH "Python include dir (auto-detected if empty)")
+set(PYTHON_EXT_SUFFIX "" CACHE STRING "Python extension suffix (auto-detected if empty)")
+set(PYTHON_LIB "" CACHE STRING "Python import library name (e.g. python312; auto-detected if empty)")
+set(PYTHON_PREFIX "" CACHE PATH "Python prefix (auto-detected if empty)")
+
+if(PYTHON_INCLUDE_DIR AND PYTHON_EXT_SUFFIX)
+    message(STATUS "Using user-provided Python: INC=${PYTHON_INCLUDE_DIR} SUFFIX=${PYTHON_EXT_SUFFIX}")
+    if(NOT PYTHON_PREFIX)
+        set(PYTHON_PREFIX "${PYTHON_INCLUDE_DIR}/..")
+    endif()
+else()
+    find_program(PYTHON_EXECUTABLE NAMES python3 python)
+    if(NOT PYTHON_EXECUTABLE)
+        message(FATAL_ERROR "python3/python not found on PATH")
+    endif()
+    message(STATUS "Using Python: ${PYTHON_EXECUTABLE}")
+    execute_process(
+        COMMAND "${PYTHON_EXECUTABLE}" -c "import sysconfig; print(sysconfig.get_config_var('INCLUDEPY'), end='')"
+        OUTPUT_VARIABLE PYTHON_INCLUDE_DIR
+        RESULT_VARIABLE _PYTHON_INCLUDE_DIR_RESULT
+    )
+    if(NOT _PYTHON_INCLUDE_DIR_RESULT EQUAL 0 OR NOT PYTHON_INCLUDE_DIR)
+        message(FATAL_ERROR "Failed to detect Python include directory via '${PYTHON_EXECUTABLE}'")
+    endif()
+    execute_process(
+        COMMAND "${PYTHON_EXECUTABLE}" -c "import sysconfig; print(sysconfig.get_config_var('EXT_SUFFIX'), end='')"
+        OUTPUT_VARIABLE PYTHON_EXT_SUFFIX
+        RESULT_VARIABLE _PYTHON_EXT_SUFFIX_RESULT
+    )
+    if(NOT _PYTHON_EXT_SUFFIX_RESULT EQUAL 0 OR NOT PYTHON_EXT_SUFFIX)
+        message(FATAL_ERROR "Failed to detect Python extension suffix via '${PYTHON_EXECUTABLE}'")
+    endif()
+    execute_process(
+        COMMAND "${PYTHON_EXECUTABLE}" -c "import sysconfig; print(sysconfig.get_config_var('prefix'), end='')"
+        OUTPUT_VARIABLE PYTHON_PREFIX
+        RESULT_VARIABLE _PYTHON_PREFIX_RESULT
+    )
+    if(NOT _PYTHON_PREFIX_RESULT EQUAL 0 OR NOT PYTHON_PREFIX)
+        message(FATAL_ERROR "Failed to detect Python prefix via '${PYTHON_EXECUTABLE}'")
+    endif()
+    if(NOT PYTHON_LIB)
+        execute_process(
+            COMMAND "${PYTHON_EXECUTABLE}" -c "import sys; print(f'python{sys.version_info.major}{sys.version_info.minor}', end='')"
+            OUTPUT_VARIABLE PYTHON_LIB
+            RESULT_VARIABLE _PYTHON_LIB_RESULT
+        )
+        if(NOT _PYTHON_LIB_RESULT EQUAL 0 OR NOT PYTHON_LIB)
+            message(FATAL_ERROR "Failed to detect Python library name via '${PYTHON_EXECUTABLE}'")
+        endif()
+    endif()
+    message(STATUS "Python: INC=${PYTHON_INCLUDE_DIR} SUFFIX=${PYTHON_EXT_SUFFIX} PREFIX=${PYTHON_PREFIX} LIB=${PYTHON_LIB}")
 endif()
 
 add_library(pltxt2htm MODULE pltxt2htm.cc)
@@ -34,7 +79,7 @@ if(PLTXT2HTM_ENABLE_STACKTRACE)
     target_compile_definitions(pltxt2htm PRIVATE PLTXT2HTM_EXPERIMENTAL_ENABLE_STACKTRACE)
 endif()
 
-# Compile/link flags matching xmake.lua for GCC/Clang-style toolchains
+# Compile/link flags for GCC/Clang-style toolchains
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
     target_compile_options(pltxt2htm PRIVATE
         -fno-rtti
@@ -44,21 +89,14 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
         -fvisibility-inlines-hidden
     )
 
-    # -fuse-ld=lld if available (matching xmake.lua behavior)
+    # -fuse-ld=lld if available
     find_program(LLD_LD ld.lld)
     if(LLD_LD)
         target_link_options(pltxt2htm PRIVATE -fuse-ld=lld)
     endif()
 
-    # Release-specific flags
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
         target_compile_options(pltxt2htm PRIVATE -fno-ident)
-        include(CheckCXXCompilerFlag)
-        check_cxx_compiler_flag("-flto" LTO_SUPPORTED)
-        if(LTO_SUPPORTED)
-            target_compile_options(pltxt2htm PRIVATE -flto)
-            target_link_options(pltxt2htm PRIVATE -flto)
-        endif()
     endif()
 endif()
 
@@ -69,5 +107,12 @@ endif()
 
 # Windows / MinGW
 if(WIN32)
-    target_link_libraries(pltxt2htm PRIVATE ntdll)
+    if(PYTHON_PREFIX)
+        target_link_directories(pltxt2htm PRIVATE "${PYTHON_PREFIX}/libs")
+    endif()
+    if(PYTHON_LIB)
+        target_link_libraries(pltxt2htm PRIVATE ntdll "${PYTHON_LIB}")
+    else()
+        target_link_libraries(pltxt2htm PRIVATE ntdll)
+    endif()
 endif()
