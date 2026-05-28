@@ -55,7 +55,7 @@ if(PLTXT2HTM_ENABLE_STACKTRACE)
     target_compile_definitions(pltxt2htm PRIVATE PLTXT2HTM_EXPERIMENTAL_ENABLE_STACKTRACE)
 endif()
 
-# Compile/link flags matching xmake.lua for GCC/Clang-style toolchains
+# Compile/link flags for GCC/Clang-style toolchains
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
     target_compile_options(pltxt2htm PRIVATE
         -fno-rtti
@@ -65,7 +65,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
         -fvisibility-inlines-hidden
     )
 
-    # -fuse-ld=lld if available (matching xmake.lua behavior)
+    # -fuse-ld=lld if available
     find_program(LLD_LD ld.lld)
     if(LLD_LD)
         target_link_options(pltxt2htm PRIVATE -fuse-ld=lld)
