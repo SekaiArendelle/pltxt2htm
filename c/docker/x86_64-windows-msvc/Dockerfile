@@ -20,7 +20,7 @@ ARG mode=debug
 
 RUN CRT_SUFFIX=""; [ "${mode}" = "debug" ] && CRT_SUFFIX="d"; \
     CXXFLAGS="-fms-runtime-lib=dll -isystem/opt/xwin/crt/include -isystem/opt/xwin/sdk/include/ucrt -isystem/opt/xwin/sdk/include/um -isystem/opt/xwin/sdk/include/shared -D_CRT_SECURE_NO_WARNINGS"; \
-    SHFLAGS="-fuse-ld=lld -L/opt/xwin/crt/lib/x86_64 -L/opt/xwin/sdk/lib/ucrt/x86_64 -L/opt/xwin/sdk/lib/um/x86_64 -lucrt${CRT_SUFFIX} -lmsvcrt${CRT_SUFFIX} -lvcruntime${CRT_SUFFIX}"; \
+    SHFLAGS="-nostdlib -fuse-ld=lld -L/opt/xwin/crt/lib/x86_64 -L/opt/xwin/sdk/lib/ucrt/x86_64 -L/opt/xwin/sdk/lib/um/x86_64 -lucrt${CRT_SUFFIX} -lmsvcrt${CRT_SUFFIX} -lvcruntime${CRT_SUFFIX}"; \
     python3 dist.py --mode=${mode} --toolchain=clang --target=x86_64-windows-msvc \
         --cxxflags="${CXXFLAGS}" --shflags="${SHFLAGS}"
 RUN zip -r x86_64-windows-msvc-pltxt2htm-c-${mode}.zip x86_64-windows-msvc-pltxt2htm-c-${mode}/

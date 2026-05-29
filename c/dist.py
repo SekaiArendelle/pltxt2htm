@@ -106,6 +106,21 @@ if err_code != 0:
 err_code = os.system(f"cmake --install build-shared --prefix \"{INSTALL_DIR}\"")
 if err_code != 0:
     raise Exception("cmake install (shared) failed")
+
+debug_suffix = "d" if args.mode == "debug" else ""
+if plat == "Windows":
+    src_lib = os.path.join(INSTALL_DIR, "lib", f"pltxt2htm{debug_suffix}.lib")
+    dst_lib = os.path.join(INSTALL_DIR, "bin", f"pltxt2htm{debug_suffix}.lib")
+    if os.path.exists(src_lib):
+        shutil.move(src_lib, dst_lib)
+        print(f"moved import library to {dst_lib}")
+elif plat == "MinGW":
+    src_lib = os.path.join(INSTALL_DIR, "lib", f"libpltxt2htm{debug_suffix}.dll.a")
+    dst_lib = os.path.join(INSTALL_DIR, "bin", f"libpltxt2htm{debug_suffix}.dll.a")
+    if os.path.exists(src_lib):
+        shutil.move(src_lib, dst_lib)
+        print(f"moved import library to {dst_lib}")
+
 shutil.rmtree("build-shared")
 
 # Build static library
