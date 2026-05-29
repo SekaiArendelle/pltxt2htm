@@ -21,10 +21,10 @@ ARG crt_kind=dynamic
 
 RUN if [ "${crt_kind}" = "dynamic" ]; then \
         CXXFLAGS="-fms-runtime-lib=dll -isystem/opt/xwin/crt/include -isystem/opt/xwin/sdk/include/ucrt -isystem/opt/xwin/sdk/include/um -isystem/opt/xwin/sdk/include/shared -D_CRT_SECURE_NO_WARNINGS"; \
-        SHFLAGS="-nostdlib -fuse-ld=lld -L/opt/xwin/crt/lib/x86_64 -L/opt/xwin/sdk/lib/ucrt/x86_64 -L/opt/xwin/sdk/lib/um/x86_64 -lucrt -lmsvcrt -lvcruntime"; \
+        SHFLAGS="-fuse-ld=lld -L/opt/xwin/crt/lib/x86_64 -L/opt/xwin/sdk/lib/ucrt/x86_64 -L/opt/xwin/sdk/lib/um/x86_64"; \
     elif [ "${crt_kind}" = "static" ]; then \
         CXXFLAGS="-fms-runtime-lib=static -isystem/opt/xwin/crt/include -isystem/opt/xwin/sdk/include/ucrt -isystem/opt/xwin/sdk/include/um -isystem/opt/xwin/sdk/include/shared -D_CRT_SECURE_NO_WARNINGS"; \
-        SHFLAGS="-nostdlib -fuse-ld=lld -L/opt/xwin/crt/lib/x86_64 -L/opt/xwin/sdk/lib/ucrt/x86_64 -L/opt/xwin/sdk/lib/um/x86_64"; \
+        SHFLAGS="-fuse-ld=lld -L/opt/xwin/crt/lib/x86_64 -L/opt/xwin/sdk/lib/ucrt/x86_64 -L/opt/xwin/sdk/lib/um/x86_64"; \
     else \
         echo "Error: crt_kind must be 'static' or 'dynamic', got '${crt_kind}'" && exit 1; \
     fi && \
