@@ -33,7 +33,16 @@ if(MINGW)
     target_link_libraries(pltxt2htm PRIVATE ntdll)
 endif()
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
+if(CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
+    target_compile_options(pltxt2htm PRIVATE
+        /GR-
+        -clang:-fno-unwind-tables
+        -clang:-fno-asynchronous-unwind-tables
+        -clang:-fvisibility=hidden
+        -clang:-fvisibility-inlines-hidden
+    )
+    target_compile_options(pltxt2htm PRIVATE /EHs-c-)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
     target_compile_options(pltxt2htm PRIVATE
         -fno-rtti
         -fno-unwind-tables
@@ -42,7 +51,9 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
         -fvisibility-inlines-hidden
         -fno-exceptions
     )
+endif()
 
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
     find_program(LLD_LD ld.lld)
     if(LLD_LD)
         target_link_options(pltxt2htm PRIVATE -fuse-ld=lld)

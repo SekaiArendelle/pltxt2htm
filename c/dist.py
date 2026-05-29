@@ -82,6 +82,19 @@ if args.toolchain == "clang":
         shared_cmake_cmd += f"-DCMAKE_EXE_LINKER_FLAGS=\"{shflags}\" "
 elif args.toolchain == "clang-cl":
     shared_cmake_cmd += "-DCMAKE_CXX_COMPILER=clang-cl "
+    if args.cxxflags:
+        cxxflags = args.cxxflags
+        if args.target and not args.target.startswith("native"):
+            cxxflags += f" --target={args.target}"
+        if args.sysroot:
+            cxxflags += f" --sysroot={args.sysroot}"
+        shared_cmake_cmd += f"-DCMAKE_CXX_FLAGS=\"{cxxflags}\" "
+    if args.shflags:
+        shflags = args.shflags
+        if args.target and not args.target.startswith("native"):
+            shflags += f" --target={args.target}"
+        shared_cmake_cmd += f"-DCMAKE_SHARED_LINKER_FLAGS=\"{shflags}\" "
+        shared_cmake_cmd += f"-DCMAKE_EXE_LINKER_FLAGS=\"{shflags}\" "
 
 print(">> ", shared_cmake_cmd)
 err_code = os.system(shared_cmake_cmd)
@@ -121,6 +134,18 @@ if args.toolchain == "clang":
         static_cmake_cmd += f"-DCMAKE_STATIC_LINKER_FLAGS=\"{arflags}\" "
 elif args.toolchain == "clang-cl":
     static_cmake_cmd += "-DCMAKE_CXX_COMPILER=clang-cl "
+    if args.cxxflags:
+        cxxflags = args.cxxflags
+        if args.target and not args.target.startswith("native"):
+            cxxflags += f" --target={args.target}"
+        if args.sysroot:
+            cxxflags += f" --sysroot={args.sysroot}"
+        static_cmake_cmd += f"-DCMAKE_CXX_FLAGS=\"{cxxflags}\" "
+    if args.arflags:
+        arflags = args.arflags
+        if args.target and not args.target.startswith("native"):
+            arflags += f" --target={args.target}"
+        static_cmake_cmd += f"-DCMAKE_STATIC_LINKER_FLAGS=\"{arflags}\" "
 
 print(">> ", static_cmake_cmd)
 err_code = os.system(static_cmake_cmd)
