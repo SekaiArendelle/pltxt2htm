@@ -16,7 +16,7 @@ RUN apk add --no-cache --no-scripts \
 
 FROM alpine:3.23 AS builder
 
-RUN apk update && apk add --no-cache git xz clang lld cmake ninja-build
+RUN apk update && apk add --no-cache git xz clang lld cmake ninja
 
 WORKDIR /pltxt2htm
 # Copy the entire project to preserve git tracking history.

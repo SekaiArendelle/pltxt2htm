@@ -1,6 +1,6 @@
 FROM alpine:3.23 AS builder
 
-RUN apk add --no-cache cmake ninja-build git zip mingw-w64-gcc
+RUN apk add --no-cache cmake ninja git zip mingw-w64-gcc
 
 WORKDIR /pltxt2htm
 # Copy the entire project to preserve git tracking history.
