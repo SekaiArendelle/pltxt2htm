@@ -67,14 +67,6 @@ install(TARGETS pltxt2htm
     RUNTIME DESTINATION bin
 )
 
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../include/
-    DESTINATION include
-    FILES_MATCHING
-        PATTERN "*.hh"
-        PATTERN "*.h"
-    PATTERN "fast_io" EXCLUDE
-)
-
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
     DESTINATION include
     FILES_MATCHING
