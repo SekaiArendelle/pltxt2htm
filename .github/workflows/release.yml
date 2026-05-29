@@ -3,6 +3,8 @@ name: release
 on:
   release:
     types: [published]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   x86_64-windows-msvc-cmd:
