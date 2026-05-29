@@ -31,7 +31,7 @@ RUN cmake -S . -B build -G Ninja \
     -DCMAKE_BUILD_TYPE=${mode} \
     -DCMAKE_CXX_COMPILER=clang++ \
     -DCMAKE_CXX_FLAGS="--target=i586-alpine-linux-musl --sysroot=/sysroots/i586-linux-musl" \
-    -DCMAKE_EXE_LINKER_FLAGS="-static --target=i586-alpine-linux-musl --sysroot=/sysroots/i586-linux-musl/"
+    -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=lld -static --target=i586-alpine-linux-musl --sysroot=/sysroots/i586-linux-musl/"
 RUN cmake --build build -v
 RUN cmake --install build --prefix i586-linux-musl-pltxt2htm-cmd-${mode}
 RUN tar cJf i586-linux-musl-pltxt2htm-cmd-${mode}.tar.xz i586-linux-musl-pltxt2htm-cmd-${mode}/

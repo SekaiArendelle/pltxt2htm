@@ -31,7 +31,7 @@ RUN cmake -S . -B build -G Ninja \
     -DCMAKE_BUILD_TYPE=${mode} \
     -DCMAKE_CXX_COMPILER=clang++ \
     -DCMAKE_CXX_FLAGS="--target=loongarch64-alpine-linux-musl --sysroot=/sysroots/loongarch64-linux-musl" \
-    -DCMAKE_EXE_LINKER_FLAGS="-static --target=loongarch64-alpine-linux-musl --sysroot=/sysroots/loongarch64-linux-musl/"
+    -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=lld -static --target=loongarch64-alpine-linux-musl --sysroot=/sysroots/loongarch64-linux-musl/"
 RUN cmake --build build -v
 RUN cmake --install build --prefix loongarch64-linux-musl-pltxt2htm-cmd-${mode}
 RUN tar cJf loongarch64-linux-musl-pltxt2htm-cmd-${mode}.tar.xz loongarch64-linux-musl-pltxt2htm-cmd-${mode}/

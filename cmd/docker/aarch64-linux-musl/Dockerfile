@@ -31,7 +31,7 @@ RUN cmake -S . -B build -G Ninja \
     -DCMAKE_BUILD_TYPE=${mode} \
     -DCMAKE_CXX_COMPILER=clang++ \
     -DCMAKE_CXX_FLAGS="--target=aarch64-alpine-linux-musl --sysroot=/sysroots/aarch64-linux-musl" \
-    -DCMAKE_EXE_LINKER_FLAGS="-static --target=aarch64-alpine-linux-musl --sysroot=/sysroots/aarch64-linux-musl/"
+    -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=lld -static --target=aarch64-alpine-linux-musl --sysroot=/sysroots/aarch64-linux-musl/"
 RUN cmake --build build -v
 RUN cmake --install build --prefix aarch64-linux-musl-pltxt2htm-cmd-${mode}
 RUN tar cJf aarch64-linux-musl-pltxt2htm-cmd-${mode}.tar.xz aarch64-linux-musl-pltxt2htm-cmd-${mode}/
