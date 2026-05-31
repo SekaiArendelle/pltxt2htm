@@ -27,7 +27,7 @@ if os.path.exists(INSTALL_DIR) and os.path.isdir(INSTALL_DIR):
     shutil.rmtree(INSTALL_DIR)
     print(f"Removing {INSTALL_DIR}")
 
-error_code = os.system("cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++")
+error_code = os.system("cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++ -DPLTXT2HTM_SANITIZER=asan")
 if error_code != 0:
     raise Exception("cmake configure failed")
 error_code = os.system("cmake --build build -v")

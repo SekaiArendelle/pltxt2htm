@@ -14,6 +14,8 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 option(PLTXT2HTM_ENABLE_STACKTRACE "Enable C++23 <stacktrace>" OFF)
+set(PLTXT2HTM_SANITIZER "" CACHE STRING "Sanitizer to enable: asan, msan, ubsan, or empty")
+set_property(CACHE PLTXT2HTM_SANITIZER PROPERTY STRINGS "" asan msan ubsan)
 
 if(WIN32 OR MINGW)
     message(FATAL_ERROR "Fuzzing is not supported on Windows")
@@ -23,9 +25,6 @@ endif()
 if(NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     message(FATAL_ERROR "Only clang is supported for fuzzing (CMAKE_CXX_COMPILER_ID=${CMAKE_CXX_COMPILER_ID})")
 endif()
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=fuzzer -fno-rtti -fno-omit-frame-pointer")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=fuzzer -fuse-ld=lld")
 
 foreach(FUZZER_SRC common_parser fixedadv_parser plrichtext_parser)
     add_executable(${FUZZER_SRC} src/${FUZZER_SRC}.cc)
@@ -50,6 +49,19 @@ foreach(FUZZER_SRC common_parser fixedadv_parser plrichtext_parser)
         -fsanitize=fuzzer
         -fuse-ld=lld
     )
+
+    if(PLTXT2HTM_SANITIZER STREQUAL "asan")
+        target_compile_options(${FUZZER_SRC} PRIVATE -fsanitize=address)
+        target_link_options(${FUZZER_SRC} PRIVATE -fsanitize=address)
+    elseif(PLTXT2HTM_SANITIZER STREQUAL "msan")
+        target_compile_options(${FUZZER_SRC} PRIVATE -fsanitize=memory)
+        target_link_options(${FUZZER_SRC} PRIVATE -fsanitize=memory)
+    elseif(PLTXT2HTM_SANITIZER STREQUAL "ubsan")
+        target_compile_options(${FUZZER_SRC} PRIVATE -fsanitize=undefined)
+        target_link_options(${FUZZER_SRC} PRIVATE -fsanitize=undefined)
+    elseif(PLTXT2HTM_SANITIZER)
+        message(FATAL_ERROR "Unknown sanitizer: ${PLTXT2HTM_SANITIZER}. Supported: asan, msan, ubsan")
+    endif()
 
     install(TARGETS ${FUZZER_SRC} RUNTIME DESTINATION bin)
 endforeach()
