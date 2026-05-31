@@ -17,7 +17,7 @@ COPY ../../../c /pltxt2htm/c/
 
 WORKDIR /pltxt2htm/c
 RUN cmake -S . -B build-shared -G Ninja \
-    -DCMAKE_BUILD_TYPE=${mode} \
+    -DCMAKE_BUILD_TYPE=${mode^} \
     -DBUILD_SHARED_LIBS=ON \
     -DCMAKE_TOOLCHAIN_FILE=/llvm/android-ndk-r29/build/cmake/android.toolchain.cmake \
     -DANDROID_ABI=arm64-v8a \
@@ -26,7 +26,7 @@ RUN cmake --build build-shared -v
 RUN cmake --install build-shared --prefix aarch64-linux-android30-pltxt2htm-c-${mode}
 
 RUN cmake -S . -B build-static -G Ninja \
-    -DCMAKE_BUILD_TYPE=${mode} \
+    -DCMAKE_BUILD_TYPE=${mode^} \
     -DBUILD_SHARED_LIBS=OFF \
     -DCMAKE_TOOLCHAIN_FILE=/llvm/android-ndk-r29/build/cmake/android.toolchain.cmake \
     -DANDROID_ABI=arm64-v8a \

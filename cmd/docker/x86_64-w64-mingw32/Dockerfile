@@ -10,7 +10,7 @@ COPY ../../../ .
 WORKDIR /pltxt2htm/cmd
 ARG mode=debug
 RUN cmake -S . -B build -G Ninja \
-    -DCMAKE_BUILD_TYPE=${mode} \
+    -DCMAKE_BUILD_TYPE=${mode^} \
     -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++ \
     -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc \
     -DCMAKE_SYSTEM_NAME=Windows

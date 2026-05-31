@@ -167,7 +167,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        build-mode: [debug]
+        build-mode: [Debug]
 
     name: aarch64-apple-darwin24 (examples/, ${{ matrix.build-mode }} mode)
     runs-on: macos-latest
