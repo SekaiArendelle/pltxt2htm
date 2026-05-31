@@ -20,7 +20,7 @@ if(PLTXT2HTM_ENABLE_STACKTRACE)
     target_compile_definitions(pltxt2htm PRIVATE PLTXT2HTM_EXPERIMENTAL_ENABLE_STACKTRACE)
 endif()
 
-if(WIN32 OR MINGW)
+if(WIN32 OR MINGW OR CMAKE_CXX_COMPILER_TARGET MATCHES "windows-msvc$")
     target_link_libraries(pltxt2htm PRIVATE ntdll)
 endif()
 

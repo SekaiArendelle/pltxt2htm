@@ -25,6 +25,8 @@ RUN CFLAGS="--target=aarch64-windows-msvc -fms-runtime-lib=static -isystem/opt/x
     cmake -S . -B build -G Ninja \
         -DCMAKE_BUILD_TYPE=${mode} \
         -DCMAKE_CXX_COMPILER=clang++ \
+        -DCMAKE_CXX_COMPILER_TARGET=aarch64-windows-msvc \
+        -DCMAKE_BUILD_WITH_INSTALL_RPATH=TRUE \
         -DCMAKE_CXX_FLAGS="${CXXFLAGS}" \
         -DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS}"
 RUN cmake --build build -v
