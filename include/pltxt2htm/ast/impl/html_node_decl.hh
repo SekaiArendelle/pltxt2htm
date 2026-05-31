@@ -73,6 +73,11 @@ class DoubleQuotationMark {};
 class Hr {};
 
 /**
+ * @brief HTML &lt;col&gt; self-closing column node
+ */
+class Col {};
+
+/**
  * @brief HTML &lt;h1&gt; heading node
  * @details Represents a level‑1 heading containing sub‑AST content.
  */
@@ -462,6 +467,213 @@ public:
         -> ::pltxt2htm::Blockquote<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::Blockquote<ndebug>& self, ::pltxt2htm::Blockquote<ndebug>&&) noexcept
         -> ::pltxt2htm::Blockquote<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+};
+
+/**
+ * @brief HTML &lt;table&gt; table node
+ */
+template<::pltxt2htm::Contracts ndebug>
+class Table {
+    ::pltxt2htm::Ast<ndebug> subast{};
+
+public:
+    constexpr Table() noexcept = delete;
+    constexpr explicit Table(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr Table(::pltxt2htm::Table<ndebug> const&) noexcept = delete;
+    constexpr Table(::pltxt2htm::Table<ndebug>&&) noexcept;
+    constexpr ~Table() noexcept;
+    constexpr auto operator=(::pltxt2htm::Table<ndebug> const&) noexcept -> ::pltxt2htm::Table<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::Table<ndebug>& self, ::pltxt2htm::Table<ndebug>&&) noexcept
+        -> ::pltxt2htm::Table<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+};
+
+/**
+ * @brief HTML &lt;tr&gt; table row node
+ */
+template<::pltxt2htm::Contracts ndebug>
+class Tr {
+    ::pltxt2htm::Ast<ndebug> subast{};
+
+public:
+    constexpr Tr() noexcept = delete;
+    constexpr explicit Tr(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr Tr(::pltxt2htm::Tr<ndebug> const&) noexcept = delete;
+    constexpr Tr(::pltxt2htm::Tr<ndebug>&&) noexcept;
+    constexpr ~Tr() noexcept;
+    constexpr auto operator=(::pltxt2htm::Tr<ndebug> const&) noexcept -> ::pltxt2htm::Tr<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::Tr<ndebug>& self, ::pltxt2htm::Tr<ndebug>&&) noexcept
+        -> ::pltxt2htm::Tr<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+};
+
+/**
+ * @brief HTML &lt;td&gt; table data cell node
+ */
+template<::pltxt2htm::Contracts ndebug>
+class Td {
+    ::pltxt2htm::Ast<ndebug> subast{};
+
+public:
+    constexpr Td() noexcept = delete;
+    constexpr explicit Td(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr Td(::pltxt2htm::Td<ndebug> const&) noexcept = delete;
+    constexpr Td(::pltxt2htm::Td<ndebug>&&) noexcept;
+    constexpr ~Td() noexcept;
+    constexpr auto operator=(::pltxt2htm::Td<ndebug> const&) noexcept -> ::pltxt2htm::Td<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::Td<ndebug>& self, ::pltxt2htm::Td<ndebug>&&) noexcept
+        -> ::pltxt2htm::Td<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+};
+
+/**
+ * @brief HTML &lt;th&gt; table header cell node
+ */
+template<::pltxt2htm::Contracts ndebug>
+class Th {
+    ::pltxt2htm::Ast<ndebug> subast{};
+
+public:
+    constexpr Th() noexcept = delete;
+    constexpr explicit Th(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr Th(::pltxt2htm::Th<ndebug> const&) noexcept = delete;
+    constexpr Th(::pltxt2htm::Th<ndebug>&&) noexcept;
+    constexpr ~Th() noexcept;
+    constexpr auto operator=(::pltxt2htm::Th<ndebug> const&) noexcept -> ::pltxt2htm::Th<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::Th<ndebug>& self, ::pltxt2htm::Th<ndebug>&&) noexcept
+        -> ::pltxt2htm::Th<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+};
+
+/**
+ * @brief HTML &lt;thead&gt; table head section node
+ */
+template<::pltxt2htm::Contracts ndebug>
+class Thead {
+    ::pltxt2htm::Ast<ndebug> subast{};
+
+public:
+    constexpr Thead() noexcept = delete;
+    constexpr explicit Thead(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr Thead(::pltxt2htm::Thead<ndebug> const&) noexcept = delete;
+    constexpr Thead(::pltxt2htm::Thead<ndebug>&&) noexcept;
+    constexpr ~Thead() noexcept;
+    constexpr auto operator=(::pltxt2htm::Thead<ndebug> const&) noexcept -> ::pltxt2htm::Thead<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::Thead<ndebug>& self, ::pltxt2htm::Thead<ndebug>&&) noexcept
+        -> ::pltxt2htm::Thead<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+};
+
+/**
+ * @brief HTML &lt;tbody&gt; table body section node
+ */
+template<::pltxt2htm::Contracts ndebug>
+class Tbody {
+    ::pltxt2htm::Ast<ndebug> subast{};
+
+public:
+    constexpr Tbody() noexcept = delete;
+    constexpr explicit Tbody(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr Tbody(::pltxt2htm::Tbody<ndebug> const&) noexcept = delete;
+    constexpr Tbody(::pltxt2htm::Tbody<ndebug>&&) noexcept;
+    constexpr ~Tbody() noexcept;
+    constexpr auto operator=(::pltxt2htm::Tbody<ndebug> const&) noexcept -> ::pltxt2htm::Tbody<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::Tbody<ndebug>& self, ::pltxt2htm::Tbody<ndebug>&&) noexcept
+        -> ::pltxt2htm::Tbody<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+};
+
+/**
+ * @brief HTML &lt;tfoot&gt; table foot section node
+ */
+template<::pltxt2htm::Contracts ndebug>
+class Tfoot {
+    ::pltxt2htm::Ast<ndebug> subast{};
+
+public:
+    constexpr Tfoot() noexcept = delete;
+    constexpr explicit Tfoot(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr Tfoot(::pltxt2htm::Tfoot<ndebug> const&) noexcept = delete;
+    constexpr Tfoot(::pltxt2htm::Tfoot<ndebug>&&) noexcept;
+    constexpr ~Tfoot() noexcept;
+    constexpr auto operator=(::pltxt2htm::Tfoot<ndebug> const&) noexcept -> ::pltxt2htm::Tfoot<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::Tfoot<ndebug>& self, ::pltxt2htm::Tfoot<ndebug>&&) noexcept
+        -> ::pltxt2htm::Tfoot<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+};
+
+/**
+ * @brief HTML &lt;caption&gt; table caption node
+ */
+template<::pltxt2htm::Contracts ndebug>
+class Caption {
+    ::pltxt2htm::Ast<ndebug> subast{};
+
+public:
+    constexpr Caption() noexcept = delete;
+    constexpr explicit Caption(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr Caption(::pltxt2htm::Caption<ndebug> const&) noexcept = delete;
+    constexpr Caption(::pltxt2htm::Caption<ndebug>&&) noexcept;
+    constexpr ~Caption() noexcept;
+    constexpr auto operator=(::pltxt2htm::Caption<ndebug> const&) noexcept -> ::pltxt2htm::Caption<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::Caption<ndebug>& self, ::pltxt2htm::Caption<ndebug>&&) noexcept
+        -> ::pltxt2htm::Caption<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+};
+
+/**
+ * @brief HTML &lt;colgroup&gt; table column group node
+ */
+template<::pltxt2htm::Contracts ndebug>
+class Colgroup {
+    ::pltxt2htm::Ast<ndebug> subast{};
+
+public:
+    constexpr Colgroup() noexcept = delete;
+    constexpr explicit Colgroup(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr Colgroup(::pltxt2htm::Colgroup<ndebug> const&) noexcept = delete;
+    constexpr Colgroup(::pltxt2htm::Colgroup<ndebug>&&) noexcept;
+    constexpr ~Colgroup() noexcept;
+    constexpr auto operator=(::pltxt2htm::Colgroup<ndebug> const&) noexcept -> ::pltxt2htm::Colgroup<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::Colgroup<ndebug>& self, ::pltxt2htm::Colgroup<ndebug>&&) noexcept
+        -> ::pltxt2htm::Colgroup<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {

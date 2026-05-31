@@ -208,6 +208,26 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_blockquote:
             [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_table:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_tr:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_td:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_th:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_thead:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_tbody:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_tfoot:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_caption:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_colgroup:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_col:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_atx_h1:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_atx_h2:
@@ -437,6 +457,26 @@ public:
         case ::pltxt2htm::NodeKind::html_pre:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_blockquote:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_table:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_tr:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_td:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_th:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_thead:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_tbody:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_tfoot:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_caption:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_colgroup:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_col:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_atx_h1:
             [[fallthrough]];
@@ -749,6 +789,26 @@ public:
         case ::pltxt2htm::NodeKind::html_pre:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_blockquote:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_table:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_tr:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_td:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_th:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_thead:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_tbody:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_tfoot:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_caption:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_colgroup:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_col:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_atx_h1:
             [[fallthrough]];

@@ -239,4 +239,130 @@ constexpr auto ::pltxt2htm::Blockquote<ndebug>::operator=(this ::pltxt2htm::Bloc
                                                           ::pltxt2htm::Blockquote<ndebug>&&) noexcept
     -> ::pltxt2htm::Blockquote<ndebug>& = default;
 
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::Table<ndebug>::Table(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
+    : subast(::std::move(subast_)) {
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::Table<ndebug>::Table(::pltxt2htm::Table<ndebug>&&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::Table<ndebug>::~Table() noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::Table<ndebug>::operator=(this ::pltxt2htm::Table<ndebug>& self,
+                                                     ::pltxt2htm::Table<ndebug>&&) noexcept
+    -> ::pltxt2htm::Table<ndebug>& = default;
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::Tr<ndebug>::Tr(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
+    : subast(::std::move(subast_)) {
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::Tr<ndebug>::Tr(::pltxt2htm::Tr<ndebug>&&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::Tr<ndebug>::~Tr() noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::Tr<ndebug>::operator=(this ::pltxt2htm::Tr<ndebug>& self,
+                                                  ::pltxt2htm::Tr<ndebug>&&) noexcept
+    -> ::pltxt2htm::Tr<ndebug>& = default;
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::Td<ndebug>::Td(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
+    : subast(::std::move(subast_)) {
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::Td<ndebug>::Td(::pltxt2htm::Td<ndebug>&&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::Td<ndebug>::~Td() noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::Td<ndebug>::operator=(this ::pltxt2htm::Td<ndebug>& self,
+                                                  ::pltxt2htm::Td<ndebug>&&) noexcept
+    -> ::pltxt2htm::Td<ndebug>& = default;
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::Th<ndebug>::Th(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
+    : subast(::std::move(subast_)) {
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::Th<ndebug>::Th(::pltxt2htm::Th<ndebug>&&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::Th<ndebug>::~Th() noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::Th<ndebug>::operator=(this ::pltxt2htm::Th<ndebug>& self,
+                                                  ::pltxt2htm::Th<ndebug>&&) noexcept
+    -> ::pltxt2htm::Th<ndebug>& = default;
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::Thead<ndebug>::Thead(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
+    : subast(::std::move(subast_)) {
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::Thead<ndebug>::Thead(::pltxt2htm::Thead<ndebug>&&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::Thead<ndebug>::~Thead() noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::Thead<ndebug>::operator=(this ::pltxt2htm::Thead<ndebug>& self,
+                                                     ::pltxt2htm::Thead<ndebug>&&) noexcept
+    -> ::pltxt2htm::Thead<ndebug>& = default;
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::Tbody<ndebug>::Tbody(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
+    : subast(::std::move(subast_)) {
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::Tbody<ndebug>::Tbody(::pltxt2htm::Tbody<ndebug>&&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::Tbody<ndebug>::~Tbody() noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::Tbody<ndebug>::operator=(this ::pltxt2htm::Tbody<ndebug>& self,
+                                                     ::pltxt2htm::Tbody<ndebug>&&) noexcept
+    -> ::pltxt2htm::Tbody<ndebug>& = default;
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::Tfoot<ndebug>::Tfoot(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
+    : subast(::std::move(subast_)) {
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::Tfoot<ndebug>::Tfoot(::pltxt2htm::Tfoot<ndebug>&&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::Tfoot<ndebug>::~Tfoot() noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::Tfoot<ndebug>::operator=(this ::pltxt2htm::Tfoot<ndebug>& self,
+                                                     ::pltxt2htm::Tfoot<ndebug>&&) noexcept
+    -> ::pltxt2htm::Tfoot<ndebug>& = default;
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::Caption<ndebug>::Caption(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
+    : subast(::std::move(subast_)) {
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::Caption<ndebug>::Caption(::pltxt2htm::Caption<ndebug>&&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::Caption<ndebug>::~Caption() noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::Caption<ndebug>::operator=(this ::pltxt2htm::Caption<ndebug>& self,
+                                                       ::pltxt2htm::Caption<ndebug>&&) noexcept
+    -> ::pltxt2htm::Caption<ndebug>& = default;
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::Colgroup<ndebug>::Colgroup(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
+    : subast(::std::move(subast_)) {
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::Colgroup<ndebug>::Colgroup(::pltxt2htm::Colgroup<ndebug>&&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::Colgroup<ndebug>::~Colgroup() noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::Colgroup<ndebug>::operator=(this ::pltxt2htm::Colgroup<ndebug>& self,
+                                                        ::pltxt2htm::Colgroup<ndebug>&&) noexcept
+    -> ::pltxt2htm::Colgroup<ndebug>& = default;
+
 } // namespace pltxt2htm
