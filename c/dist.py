@@ -67,6 +67,7 @@ if plat == "Windows":
     shared_cmake_cmd += "-DCMAKE_TRY_COMPILE_TARGET_TYPE=STATIC_LIBRARY "
 
 if args.toolchain == "clang":
+    shared_cmake_cmd += "-DCMAKE_CXX_COMPILER=clang++ "
     if args.cxxflags:
         cxxflags = args.cxxflags
         if args.target and not args.target.startswith("native"):
@@ -135,6 +136,7 @@ if plat == "Windows":
     static_cmake_cmd += "-DCMAKE_TRY_COMPILE_TARGET_TYPE=STATIC_LIBRARY "
 
 if args.toolchain == "clang":
+    static_cmake_cmd += "-DCMAKE_CXX_COMPILER=clang++ "
     if args.cxxflags:
         cxxflags = args.cxxflags
         if args.target and not args.target.startswith("native"):
