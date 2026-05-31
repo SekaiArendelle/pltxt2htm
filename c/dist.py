@@ -81,6 +81,13 @@ if args.toolchain == "clang":
             shflags += f" --target={args.target}"
         shared_cmake_cmd += f"-DCMAKE_SHARED_LINKER_FLAGS=\"{shflags}\" "
         shared_cmake_cmd += f"-DCMAKE_EXE_LINKER_FLAGS=\"{shflags}\" "
+elif args.toolchain == "gcc":
+    shared_cmake_cmd += "-DCMAKE_CXX_COMPILER=g++ "
+    if args.cxxflags:
+        shared_cmake_cmd += f"-DCMAKE_CXX_FLAGS=\"{args.cxxflags}\" "
+    if args.shflags:
+        shared_cmake_cmd += f"-DCMAKE_SHARED_LINKER_FLAGS=\"{args.shflags}\" "
+        shared_cmake_cmd += f"-DCMAKE_EXE_LINKER_FLAGS=\"{args.shflags}\" "
 elif args.toolchain == "clang-cl":
     shared_cmake_cmd += "-DCMAKE_CXX_COMPILER=clang-cl "
     if args.cxxflags:
@@ -149,6 +156,12 @@ if args.toolchain == "clang":
         if args.target and not args.target.startswith("native"):
             arflags += f" --target={args.target}"
         static_cmake_cmd += f"-DCMAKE_STATIC_LINKER_FLAGS=\"{arflags}\" "
+elif args.toolchain == "gcc":
+    static_cmake_cmd += "-DCMAKE_CXX_COMPILER=g++ "
+    if args.cxxflags:
+        static_cmake_cmd += f"-DCMAKE_CXX_FLAGS=\"{args.cxxflags}\" "
+    if args.arflags:
+        static_cmake_cmd += f"-DCMAKE_STATIC_LINKER_FLAGS=\"{args.arflags}\" "
 elif args.toolchain == "clang-cl":
     static_cmake_cmd += "-DCMAKE_CXX_COMPILER=clang-cl "
     if args.cxxflags:
