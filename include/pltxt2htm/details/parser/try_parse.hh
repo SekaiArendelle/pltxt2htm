@@ -459,22 +459,20 @@ constexpr auto try_parse_tfoot_tag(::fast_io::u8string_view pltext,
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @param[in] pltext The input text to parse, starting after `<t`.
  * @param[in] nested_tag_type Current parent tag type from parsing context.
- * @return Matched tag length when valid under &lt;table&gt;,&lt;thead&gt;,&lt;tbody&gt;,or &lt;tfoot&gt;; otherwise nullopt.
+ * @return Matched tag length when valid under &lt;table&gt;,&lt;thead&gt;,&lt;tbody&gt;,or &lt;tfoot&gt;; otherwise
+ * nullopt.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_tr_tag(::fast_io::u8string_view pltext,
-                                ::pltxt2htm::NodeKind const nested_tag_type) noexcept
+constexpr auto try_parse_tr_tag(::fast_io::u8string_view pltext, ::pltxt2htm::NodeKind const nested_tag_type) noexcept
     -> ::exception::optional<::std::size_t> {
     auto opt_tag_len =
         ::pltxt2htm::details::try_parse_bare_tag<ndebug, ::pltxt2htm::details::U8LiteralString{u8"r"}>(pltext);
     if (!opt_tag_len.has_value()) {
         return ::exception::nullopt_t{};
     }
-    if (nested_tag_type != ::pltxt2htm::NodeKind::html_table &&
-        nested_tag_type != ::pltxt2htm::NodeKind::html_thead &&
-        nested_tag_type != ::pltxt2htm::NodeKind::html_tbody &&
-        nested_tag_type != ::pltxt2htm::NodeKind::html_tfoot) {
+    if (nested_tag_type != ::pltxt2htm::NodeKind::html_table && nested_tag_type != ::pltxt2htm::NodeKind::html_thead &&
+        nested_tag_type != ::pltxt2htm::NodeKind::html_tbody && nested_tag_type != ::pltxt2htm::NodeKind::html_tfoot) {
         return ::exception::nullopt_t{};
     }
     return opt_tag_len;
@@ -489,8 +487,7 @@ constexpr auto try_parse_tr_tag(::fast_io::u8string_view pltext,
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_th_tag(::fast_io::u8string_view pltext,
-                                ::pltxt2htm::NodeKind const nested_tag_type) noexcept
+constexpr auto try_parse_th_tag(::fast_io::u8string_view pltext, ::pltxt2htm::NodeKind const nested_tag_type) noexcept
     -> ::exception::optional<::std::size_t> {
     auto opt_tag_len =
         ::pltxt2htm::details::try_parse_bare_tag<ndebug, ::pltxt2htm::details::U8LiteralString{u8"h"}>(pltext);
@@ -512,8 +509,7 @@ constexpr auto try_parse_th_tag(::fast_io::u8string_view pltext,
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_td_tag(::fast_io::u8string_view pltext,
-                                ::pltxt2htm::NodeKind const nested_tag_type) noexcept
+constexpr auto try_parse_td_tag(::fast_io::u8string_view pltext, ::pltxt2htm::NodeKind const nested_tag_type) noexcept
     -> ::exception::optional<::std::size_t> {
     auto opt_tag_len =
         ::pltxt2htm::details::try_parse_bare_tag<ndebug, ::pltxt2htm::details::U8LiteralString{u8"d"}>(pltext);
@@ -796,8 +792,7 @@ constexpr auto try_parse_self_closing_tag(::fast_io::u8string_view pltext) noexc
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_col_tag(::fast_io::u8string_view pltext,
-                                 ::pltxt2htm::NodeKind const nested_tag_type) noexcept
+constexpr auto try_parse_col_tag(::fast_io::u8string_view pltext, ::pltxt2htm::NodeKind const nested_tag_type) noexcept
     -> ::exception::optional<::std::size_t> {
     auto opt_tag_len =
         ::pltxt2htm::details::try_parse_self_closing_tag<ndebug, ::pltxt2htm::details::U8LiteralString{u8"ol"}>(pltext);

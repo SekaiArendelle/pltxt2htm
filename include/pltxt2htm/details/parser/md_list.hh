@@ -744,8 +744,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
         if (space_hierarchy > top_frame.space_hierarchy + 1) {
             call_stack.push(::pltxt2htm::details::MdListFrameContext<ndebug>{
                 item_kind, space_hierarchy,
-                ::pltxt2htm::details::u8string_view_subview<ndebug>(
-                    top_frame.pltext, current_index)});
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(top_frame.pltext, current_index)});
             auto&& child_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
             child_frame.md_list_ast.emplace_back(::pltxt2htm::details::MdListTextNode(::std::move(text)));
             continue;
@@ -769,7 +768,8 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
         auto&& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
         switch (frame.get_item_kind()) {
         case ::pltxt2htm::details::MdUlListItemKind::ordered_item: {
-            parent_frame.md_list_ast.emplace_back(::pltxt2htm::details::MdListOlNode<ndebug>(::std::move(frame.md_list_ast)));
+            parent_frame.md_list_ast.emplace_back(
+                ::pltxt2htm::details::MdListOlNode<ndebug>(::std::move(frame.md_list_ast)));
             break;
         }
         case ::pltxt2htm::details::MdUlListItemKind::hyphen:
@@ -777,7 +777,8 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
         case ::pltxt2htm::details::MdUlListItemKind::plus:
             [[fallthrough]];
         case ::pltxt2htm::details::MdUlListItemKind::asterisk: {
-            parent_frame.md_list_ast.emplace_back(::pltxt2htm::details::MdListUlNode<ndebug>(::std::move(frame.md_list_ast)));
+            parent_frame.md_list_ast.emplace_back(
+                ::pltxt2htm::details::MdListUlNode<ndebug>(::std::move(frame.md_list_ast)));
             break;
         }
 #if 0
