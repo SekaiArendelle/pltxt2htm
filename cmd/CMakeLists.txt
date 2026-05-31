@@ -47,9 +47,8 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
     endif()
 endif()
 
-# Generate repo_info.ignore with git info at build time
-set(REPO_INFO_SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/gen_repo_info.cmake)
-file(WRITE ${REPO_INFO_SCRIPT} [[
+# Generate repo_info.ignore with git info at configure time
+set(REPO_INFO_FILE "${CMAKE_CURRENT_SOURCE_DIR}/repo_info.ignore")
 execute_process(
     COMMAND git status --porcelain
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/..
@@ -67,7 +66,7 @@ if(GIT_RESULT EQUAL 0 AND GIT_STATUS)
     )
     string(REPLACE "\"" "\\\"" GIT_FULL_STATUS "${GIT_FULL_STATUS}")
     string(REPLACE "\n" "\\n" GIT_FULL_STATUS "${GIT_FULL_STATUS}")
-    file(WRITE repo_info.ignore "\"* repo status: UNCOMMITED\\n${GIT_FULL_STATUS}\"")
+    file(WRITE ${REPO_INFO_FILE} "\"* repo status: UNCOMMITED\\n${GIT_FULL_STATUS}\"")
 else()
     execute_process(
         COMMAND git rev-parse HEAD
@@ -75,20 +74,7 @@ else()
         OUTPUT_VARIABLE GIT_COMMIT_HASH
         OUTPUT_STRIP_TRAILING_WHITESPACE
     )
-    file(WRITE repo_info.ignore "\"* build commit: ${GIT_COMMIT_HASH}\\n\"")
+    file(WRITE ${REPO_INFO_FILE} "\"* build commit: ${GIT_COMMIT_HASH}\\n\"")
 endif()
-]])
-
-add_custom_command(TARGET pltxt2htm PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -P ${REPO_INFO_SCRIPT}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    COMMENT "Generating repo_info.ignore"
-)
-
-add_custom_command(TARGET pltxt2htm POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E rm -f repo_info.ignore
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    COMMENT "Cleaning repo_info.ignore"
-)
 
 install(TARGETS pltxt2htm RUNTIME DESTINATION .)
