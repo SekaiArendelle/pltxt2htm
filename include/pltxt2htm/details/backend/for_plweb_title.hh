@@ -276,7 +276,9 @@ entry:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_hr:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_note: {
+        case ::pltxt2htm::NodeKind::html_note:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_col: {
             continue;
         }
         case ::pltxt2htm::NodeKind::pl_external:
@@ -360,8 +362,6 @@ entry:
         case ::pltxt2htm::NodeKind::html_caption:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_colgroup:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_col:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_block_quotes:
             [[fallthrough]];
