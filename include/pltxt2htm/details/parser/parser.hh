@@ -627,8 +627,9 @@ entry:
                         ::pltxt2htm::NodeKind::html_code));
                     goto entry;
                 }
-                if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"aption">(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                if (auto opt_tag_len = ::pltxt2htm::details::try_parse_caption_tag<ndebug>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
+                        ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type());
                     opt_tag_len.has_value()) {
                     // parsing html <caption> tag
                     current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
@@ -637,8 +638,9 @@ entry:
                         ::pltxt2htm::NodeKind::html_caption));
                     goto entry;
                 }
-                if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"olgroup">(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                if (auto opt_tag_len = ::pltxt2htm::details::try_parse_colgroup_tag<ndebug>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
+                        ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type());
                     opt_tag_len.has_value()) {
                     // parsing html <colgroup> tag
                     current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
@@ -647,8 +649,9 @@ entry:
                         ::pltxt2htm::NodeKind::html_colgroup));
                     goto entry;
                 }
-                if (auto opt_tag_len = ::pltxt2htm::details::try_parse_self_closing_tag<ndebug, u8"ol">(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                if (auto opt_tag_len = ::pltxt2htm::details::try_parse_col_tag<ndebug>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
+                        ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type());
                     opt_tag_len.has_value()) {
                     // parsing html <col> self-closing tag
                     current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1;
@@ -944,8 +947,9 @@ entry:
                         ::pltxt2htm::NodeKind::html_table));
                     goto entry;
                 }
-                if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"head">(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                if (auto opt_tag_len = ::pltxt2htm::details::try_parse_thead_tag<ndebug>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
+                        ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type());
                     opt_tag_len.has_value()) {
                     current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
@@ -953,8 +957,9 @@ entry:
                         ::pltxt2htm::NodeKind::html_thead));
                     goto entry;
                 }
-                if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"body">(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                if (auto opt_tag_len = ::pltxt2htm::details::try_parse_tbody_tag<ndebug>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
+                        ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type());
                     opt_tag_len.has_value()) {
                     current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
@@ -962,8 +967,9 @@ entry:
                         ::pltxt2htm::NodeKind::html_tbody));
                     goto entry;
                 }
-                if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"foot">(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                if (auto opt_tag_len = ::pltxt2htm::details::try_parse_tfoot_tag<ndebug>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
+                        ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type());
                     opt_tag_len.has_value()) {
                     current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
@@ -971,8 +977,9 @@ entry:
                         ::pltxt2htm::NodeKind::html_tfoot));
                     goto entry;
                 }
-                if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"r">(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                if (auto opt_tag_len = ::pltxt2htm::details::try_parse_tr_tag<ndebug>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
+                        ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type());
                     opt_tag_len.has_value()) {
                     current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
@@ -980,8 +987,9 @@ entry:
                         ::pltxt2htm::NodeKind::html_tr));
                     goto entry;
                 }
-                if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"h">(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                if (auto opt_tag_len = ::pltxt2htm::details::try_parse_th_tag<ndebug>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
+                        ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type());
                     opt_tag_len.has_value()) {
                     current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
@@ -989,8 +997,9 @@ entry:
                         ::pltxt2htm::NodeKind::html_th));
                     goto entry;
                 }
-                if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"d">(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                if (auto opt_tag_len = ::pltxt2htm::details::try_parse_td_tag<ndebug>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
+                        ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type());
                     opt_tag_len.has_value()) {
                     current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
