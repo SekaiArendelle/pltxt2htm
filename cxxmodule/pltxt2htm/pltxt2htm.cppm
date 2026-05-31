@@ -38,9 +38,7 @@ using ::pltxt2htm::InvalidU8Char;
 using ::pltxt2htm::Text;
 using ::pltxt2htm::Url;
 
-// html_node
 using ::pltxt2htm::LineBreak;
-using ::pltxt2htm::Br;
 using ::pltxt2htm::Space;
 using ::pltxt2htm::LessThan;
 using ::pltxt2htm::GreaterThan;
@@ -49,28 +47,43 @@ using ::pltxt2htm::Ampersand;
 using ::pltxt2htm::SingleQuotationMark;
 using ::pltxt2htm::DoubleQuotationMark;
 
-using ::pltxt2htm::H1;
-using ::pltxt2htm::H2;
-using ::pltxt2htm::H3;
-using ::pltxt2htm::H4;
-using ::pltxt2htm::H5;
-using ::pltxt2htm::H6;
+// html_node
+using ::pltxt2htm::HtmlBr;
 
-using ::pltxt2htm::P;
-using ::pltxt2htm::Del;
-using ::pltxt2htm::Hr;
-using ::pltxt2htm::Note;
+using ::pltxt2htm::HtmlH1;
+using ::pltxt2htm::HtmlH2;
+using ::pltxt2htm::HtmlH3;
+using ::pltxt2htm::HtmlH4;
+using ::pltxt2htm::HtmlH5;
+using ::pltxt2htm::HtmlH6;
 
-using ::pltxt2htm::Em;
-using ::pltxt2htm::Strong;
+using ::pltxt2htm::HtmlP;
+using ::pltxt2htm::HtmlDel;
+using ::pltxt2htm::HtmlHr;
+using ::pltxt2htm::HtmlNote;
 
-using ::pltxt2htm::Ul;
-using ::pltxt2htm::Ol;
-using ::pltxt2htm::Li;
+using ::pltxt2htm::HtmlEm;
+using ::pltxt2htm::HtmlStrong;
 
-using ::pltxt2htm::Code;
-using ::pltxt2htm::Pre;
-using ::pltxt2htm::Blockquote;
+using ::pltxt2htm::HtmlUl;
+using ::pltxt2htm::HtmlOl;
+using ::pltxt2htm::HtmlLi;
+
+using ::pltxt2htm::HtmlCode;
+using ::pltxt2htm::HtmlPre;
+using ::pltxt2htm::HtmlBlockquote;
+
+// html table nodes
+using ::pltxt2htm::HtmlTable;
+using ::pltxt2htm::HtmlTr;
+using ::pltxt2htm::HtmlTd;
+using ::pltxt2htm::HtmlTh;
+using ::pltxt2htm::HtmlThead;
+using ::pltxt2htm::HtmlTbody;
+using ::pltxt2htm::HtmlTfoot;
+using ::pltxt2htm::HtmlCaption;
+using ::pltxt2htm::HtmlColgroup;
+using ::pltxt2htm::HtmlCol;
 
 // markdown_node
 using ::pltxt2htm::MdAtxH1;
