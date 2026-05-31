@@ -12,6 +12,54 @@
 namespace pltxt2htm {
 
 /**
+ * @brief Line break (newline) node
+ * @details Represents a line break character in the source text.
+ */
+class LineBreak {};
+
+/**
+ * @brief ::pltxt2htm::Space character node
+ * @details Represents a whitespace character (space, tab, etc.).
+ */
+class Space {};
+
+/**
+ * @brief Less-than sign node
+ * @details Represents the '<' character, which may need escaping in HTML.
+ */
+class LessThan {};
+
+/**
+ * @brief Greater-than sign node
+ * @details Represents the '>' character.
+ */
+class GreaterThan {};
+
+/**
+ * @brief ::pltxt2htm::Tab character node
+ * @details Represents a tab character in the source text.
+ */
+class Tab {};
+
+/**
+ * @brief ::pltxt2htm::Ampersand node
+ * @details Represents the '&' character, which may be part of an HTML entity.
+ */
+class Ampersand {};
+
+/**
+ * @brief Single quotation mark node
+ * @details Represents the "'" character.
+ */
+class SingleQuotationMark {};
+
+/**
+ * @brief Double quotation mark node
+ * @details Represents the '"' character.
+ */
+class DoubleQuotationMark {};
+
+/**
  * @brief UTF-8 character node
  * @details Represents a single UTF-8 character in the AST. This is a leaf node.
  */

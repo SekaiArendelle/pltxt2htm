@@ -13,87 +13,39 @@
 namespace pltxt2htm {
 
 /**
- * @brief Line break (newline) node
- * @details Represents a line break character in the source text.
- */
-class LineBreak {};
-
-/**
  * @brief HTML &lt;br&gt; tag node
  * @details Represents a forced line break in HTML output.
  */
-class Br {};
-
-/**
- * @brief ::pltxt2htm::Space character node
- * @details Represents a whitespace character (space, tab, etc.).
- */
-class Space {};
-
-/**
- * @brief Less-than sign node
- * @details Represents the '<' character, which may need escaping in HTML.
- */
-class LessThan {};
-
-/**
- * @brief Greater-than sign node
- * @details Represents the '>' character.
- */
-class GreaterThan {};
-
-/**
- * @brief ::pltxt2htm::Tab character node
- * @details Represents a tab character in the source text.
- */
-class Tab {};
-
-/**
- * @brief ::pltxt2htm::Ampersand node
- * @details Represents the '&' character, which may be part of an HTML entity.
- */
-class Ampersand {};
-
-/**
- * @brief Single quotation mark node
- * @details Represents the "'" character.
- */
-class SingleQuotationMark {};
-
-/**
- * @brief Double quotation mark node
- * @details Represents the '"' character.
- */
-class DoubleQuotationMark {};
+class HtmlBr {};
 
 /**
  * @brief HTML &lt;hr&gt; tag node
  * @details Represents a horizontal rule.
  */
-class Hr {};
+class HtmlHr {};
 
 /**
  * @brief HTML &lt;col&gt; self-closing column node
  */
-class Col {};
+class HtmlCol {};
 
 /**
  * @brief HTML &lt;h1&gt; heading node
  * @details Represents a level‑1 heading containing sub‑AST content.
  */
 template<::pltxt2htm::Contracts ndebug>
-class H1 {
+class HtmlH1 {
     ::pltxt2htm::Ast<ndebug> subast{};
 
 public:
-    constexpr H1() noexcept = delete;
-    constexpr explicit H1(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr H1(::pltxt2htm::H1<ndebug> const&) noexcept = delete;
-    constexpr H1(::pltxt2htm::H1<ndebug>&&) noexcept;
-    constexpr ~H1() noexcept;
-    constexpr auto operator=(::pltxt2htm::H1<ndebug> const&) noexcept -> ::pltxt2htm::H1<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::H1<ndebug>& self, ::pltxt2htm::H1<ndebug>&&) noexcept
-        -> ::pltxt2htm::H1<ndebug>&;
+    constexpr HtmlH1() noexcept = delete;
+    constexpr explicit HtmlH1(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlH1(::pltxt2htm::HtmlH1<ndebug> const&) noexcept = delete;
+    constexpr HtmlH1(::pltxt2htm::HtmlH1<ndebug>&&) noexcept;
+    constexpr ~HtmlH1() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlH1<ndebug> const&) noexcept -> ::pltxt2htm::HtmlH1<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlH1<ndebug>& self, ::pltxt2htm::HtmlH1<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlH1<ndebug>&;
 
     /**
      * @brief Get the sub‑AST contained in this heading.
@@ -109,18 +61,18 @@ public:
  * @brief HTML &lt;h2&gt; heading node
  */
 template<::pltxt2htm::Contracts ndebug>
-class H2 {
+class HtmlH2 {
     ::pltxt2htm::Ast<ndebug> subast{};
 
 public:
-    constexpr H2() noexcept = delete;
-    constexpr explicit H2(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr H2(::pltxt2htm::H2<ndebug> const&) noexcept = delete;
-    constexpr H2(::pltxt2htm::H2<ndebug>&&) noexcept;
-    constexpr ~H2() noexcept;
-    constexpr auto operator=(::pltxt2htm::H2<ndebug> const&) noexcept -> ::pltxt2htm::H2<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::H2<ndebug>& self, ::pltxt2htm::H2<ndebug>&&) noexcept
-        -> ::pltxt2htm::H2<ndebug>&;
+    constexpr HtmlH2() noexcept = delete;
+    constexpr explicit HtmlH2(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlH2(::pltxt2htm::HtmlH2<ndebug> const&) noexcept = delete;
+    constexpr HtmlH2(::pltxt2htm::HtmlH2<ndebug>&&) noexcept;
+    constexpr ~HtmlH2() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlH2<ndebug> const&) noexcept -> ::pltxt2htm::HtmlH2<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlH2<ndebug>& self, ::pltxt2htm::HtmlH2<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlH2<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -132,18 +84,18 @@ public:
  * @brief HTML &lt;h3&gt; heading node
  */
 template<::pltxt2htm::Contracts ndebug>
-class H3 {
+class HtmlH3 {
     ::pltxt2htm::Ast<ndebug> subast{};
 
 public:
-    constexpr H3() noexcept = delete;
-    constexpr explicit H3(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr H3(::pltxt2htm::H3<ndebug> const&) noexcept = delete;
-    constexpr H3(::pltxt2htm::H3<ndebug>&&) noexcept;
-    constexpr ~H3() noexcept;
-    constexpr auto operator=(::pltxt2htm::H3<ndebug> const&) noexcept -> ::pltxt2htm::H3<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::H3<ndebug>& self, ::pltxt2htm::H3<ndebug>&&) noexcept
-        -> ::pltxt2htm::H3<ndebug>&;
+    constexpr HtmlH3() noexcept = delete;
+    constexpr explicit HtmlH3(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlH3(::pltxt2htm::HtmlH3<ndebug> const&) noexcept = delete;
+    constexpr HtmlH3(::pltxt2htm::HtmlH3<ndebug>&&) noexcept;
+    constexpr ~HtmlH3() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlH3<ndebug> const&) noexcept -> ::pltxt2htm::HtmlH3<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlH3<ndebug>& self, ::pltxt2htm::HtmlH3<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlH3<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -155,18 +107,18 @@ public:
  * @brief HTML &lt;h4&gt; heading node
  */
 template<::pltxt2htm::Contracts ndebug>
-class H4 {
+class HtmlH4 {
     ::pltxt2htm::Ast<ndebug> subast{};
 
 public:
-    constexpr H4() noexcept = delete;
-    constexpr explicit H4(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr H4(::pltxt2htm::H4<ndebug> const&) noexcept = delete;
-    constexpr H4(::pltxt2htm::H4<ndebug>&&) noexcept;
-    constexpr ~H4() noexcept;
-    constexpr auto operator=(::pltxt2htm::H4<ndebug> const&) noexcept -> ::pltxt2htm::H4<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::H4<ndebug>& self, ::pltxt2htm::H4<ndebug>&&) noexcept
-        -> ::pltxt2htm::H4<ndebug>&;
+    constexpr HtmlH4() noexcept = delete;
+    constexpr explicit HtmlH4(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlH4(::pltxt2htm::HtmlH4<ndebug> const&) noexcept = delete;
+    constexpr HtmlH4(::pltxt2htm::HtmlH4<ndebug>&&) noexcept;
+    constexpr ~HtmlH4() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlH4<ndebug> const&) noexcept -> ::pltxt2htm::HtmlH4<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlH4<ndebug>& self, ::pltxt2htm::HtmlH4<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlH4<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -178,18 +130,18 @@ public:
  * @brief HTML &lt;h5&gt; heading node
  */
 template<::pltxt2htm::Contracts ndebug>
-class H5 {
+class HtmlH5 {
     ::pltxt2htm::Ast<ndebug> subast{};
 
 public:
-    constexpr H5() noexcept = delete;
-    constexpr explicit H5(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr H5(::pltxt2htm::H5<ndebug> const&) noexcept = delete;
-    constexpr H5(::pltxt2htm::H5<ndebug>&&) noexcept;
-    constexpr ~H5() noexcept;
-    constexpr auto operator=(::pltxt2htm::H5<ndebug> const&) noexcept -> ::pltxt2htm::H5<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::H5<ndebug>& self, ::pltxt2htm::H5<ndebug>&&) noexcept
-        -> ::pltxt2htm::H5<ndebug>&;
+    constexpr HtmlH5() noexcept = delete;
+    constexpr explicit HtmlH5(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlH5(::pltxt2htm::HtmlH5<ndebug> const&) noexcept = delete;
+    constexpr HtmlH5(::pltxt2htm::HtmlH5<ndebug>&&) noexcept;
+    constexpr ~HtmlH5() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlH5<ndebug> const&) noexcept -> ::pltxt2htm::HtmlH5<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlH5<ndebug>& self, ::pltxt2htm::HtmlH5<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlH5<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -201,18 +153,18 @@ public:
  * @brief HTML &lt;h6&gt; heading node
  */
 template<::pltxt2htm::Contracts ndebug>
-class H6 {
+class HtmlH6 {
     ::pltxt2htm::Ast<ndebug> subast{};
 
 public:
-    constexpr H6() noexcept = delete;
-    constexpr explicit H6(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr H6(::pltxt2htm::H6<ndebug> const&) noexcept = delete;
-    constexpr H6(::pltxt2htm::H6<ndebug>&&) noexcept;
-    constexpr ~H6() noexcept;
-    constexpr auto operator=(::pltxt2htm::H6<ndebug> const&) noexcept -> ::pltxt2htm::H6<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::H6<ndebug>& self, ::pltxt2htm::H6<ndebug>&&) noexcept
-        -> ::pltxt2htm::H6<ndebug>&;
+    constexpr HtmlH6() noexcept = delete;
+    constexpr explicit HtmlH6(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlH6(::pltxt2htm::HtmlH6<ndebug> const&) noexcept = delete;
+    constexpr HtmlH6(::pltxt2htm::HtmlH6<ndebug>&&) noexcept;
+    constexpr ~HtmlH6() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlH6<ndebug> const&) noexcept -> ::pltxt2htm::HtmlH6<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlH6<ndebug>& self, ::pltxt2htm::HtmlH6<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlH6<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -224,18 +176,18 @@ public:
  * @brief HTML &lt;p&gt; paragraph node
  */
 template<::pltxt2htm::Contracts ndebug>
-class P {
+class HtmlP {
     ::pltxt2htm::Ast<ndebug> subast{};
 
 public:
-    constexpr P() noexcept = delete;
-    constexpr explicit P(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr P(::pltxt2htm::P<ndebug> const&) noexcept = delete;
-    constexpr P(::pltxt2htm::P<ndebug>&&) noexcept;
-    constexpr ~P() noexcept;
-    constexpr auto operator=(::pltxt2htm::P<ndebug> const&) noexcept -> ::pltxt2htm::P<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::P<ndebug>& self, ::pltxt2htm::P<ndebug>&&) noexcept
-        -> ::pltxt2htm::P<ndebug>&;
+    constexpr HtmlP() noexcept = delete;
+    constexpr explicit HtmlP(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlP(::pltxt2htm::HtmlP<ndebug> const&) noexcept = delete;
+    constexpr HtmlP(::pltxt2htm::HtmlP<ndebug>&&) noexcept;
+    constexpr ~HtmlP() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlP<ndebug> const&) noexcept -> ::pltxt2htm::HtmlP<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlP<ndebug>& self, ::pltxt2htm::HtmlP<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlP<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -247,18 +199,18 @@ public:
  * @brief HTML &lt;del&gt; deleted text node
  */
 template<::pltxt2htm::Contracts ndebug>
-class Del {
+class HtmlDel {
     ::pltxt2htm::Ast<ndebug> subast{};
 
 public:
-    constexpr Del() noexcept = delete;
-    constexpr explicit Del(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr Del(::pltxt2htm::Del<ndebug> const&) noexcept = delete;
-    constexpr Del(::pltxt2htm::Del<ndebug>&&) noexcept;
-    constexpr ~Del() noexcept;
-    constexpr auto operator=(::pltxt2htm::Del<ndebug> const&) noexcept -> ::pltxt2htm::Del<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::Del<ndebug>& self, ::pltxt2htm::Del<ndebug>&&) noexcept
-        -> ::pltxt2htm::Del<ndebug>&;
+    constexpr HtmlDel() noexcept = delete;
+    constexpr explicit HtmlDel(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlDel(::pltxt2htm::HtmlDel<ndebug> const&) noexcept = delete;
+    constexpr HtmlDel(::pltxt2htm::HtmlDel<ndebug>&&) noexcept;
+    constexpr ~HtmlDel() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlDel<ndebug> const&) noexcept -> ::pltxt2htm::HtmlDel<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlDel<ndebug>& self, ::pltxt2htm::HtmlDel<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlDel<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -270,18 +222,18 @@ public:
  * @brief HTML &lt;note&gt; custom note node
  */
 template<::pltxt2htm::Contracts ndebug>
-class Note {
+class HtmlNote {
     ::pltxt2htm::Ast<ndebug> subast{};
 
 public:
-    constexpr Note() noexcept = delete;
-    constexpr explicit Note(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr Note(::pltxt2htm::Note<ndebug> const&) noexcept = delete;
-    constexpr Note(::pltxt2htm::Note<ndebug>&&) noexcept;
-    constexpr ~Note() noexcept;
-    constexpr auto operator=(::pltxt2htm::Note<ndebug> const&) noexcept -> ::pltxt2htm::Note<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::Note<ndebug>& self, ::pltxt2htm::Note<ndebug>&&) noexcept
-        -> ::pltxt2htm::Note<ndebug>&;
+    constexpr HtmlNote() noexcept = delete;
+    constexpr explicit HtmlNote(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlNote(::pltxt2htm::HtmlNote<ndebug> const&) noexcept = delete;
+    constexpr HtmlNote(::pltxt2htm::HtmlNote<ndebug>&&) noexcept;
+    constexpr ~HtmlNote() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlNote<ndebug> const&) noexcept -> ::pltxt2htm::HtmlNote<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlNote<ndebug>& self, ::pltxt2htm::HtmlNote<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlNote<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -293,18 +245,18 @@ public:
  * @brief HTML &lt;em&gt; emphasis node
  */
 template<::pltxt2htm::Contracts ndebug>
-class Em {
+class HtmlEm {
     ::pltxt2htm::Ast<ndebug> subast{};
 
 public:
-    constexpr Em() noexcept = delete;
-    constexpr explicit Em(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr Em(::pltxt2htm::Em<ndebug> const&) noexcept = delete;
-    constexpr Em(::pltxt2htm::Em<ndebug>&&) noexcept;
-    constexpr ~Em() noexcept;
-    constexpr auto operator=(::pltxt2htm::Em<ndebug> const&) noexcept -> ::pltxt2htm::Em<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::Em<ndebug>& self, ::pltxt2htm::Em<ndebug>&&) noexcept
-        -> ::pltxt2htm::Em<ndebug>&;
+    constexpr HtmlEm() noexcept = delete;
+    constexpr explicit HtmlEm(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlEm(::pltxt2htm::HtmlEm<ndebug> const&) noexcept = delete;
+    constexpr HtmlEm(::pltxt2htm::HtmlEm<ndebug>&&) noexcept;
+    constexpr ~HtmlEm() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlEm<ndebug> const&) noexcept -> ::pltxt2htm::HtmlEm<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlEm<ndebug>& self, ::pltxt2htm::HtmlEm<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlEm<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -316,18 +268,18 @@ public:
  * @brief HTML &lt;strong&gt; strong importance node
  */
 template<::pltxt2htm::Contracts ndebug>
-class Strong {
+class HtmlStrong {
     ::pltxt2htm::Ast<ndebug> subast{};
 
 public:
-    constexpr Strong() noexcept = delete;
-    constexpr explicit Strong(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr Strong(::pltxt2htm::Strong<ndebug> const&) noexcept = delete;
-    constexpr Strong(::pltxt2htm::Strong<ndebug>&&) noexcept;
-    constexpr ~Strong() noexcept;
-    constexpr auto operator=(::pltxt2htm::Strong<ndebug> const&) noexcept -> ::pltxt2htm::Strong<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::Strong<ndebug>& self, ::pltxt2htm::Strong<ndebug>&&) noexcept
-        -> ::pltxt2htm::Strong<ndebug>&;
+    constexpr HtmlStrong() noexcept = delete;
+    constexpr explicit HtmlStrong(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlStrong(::pltxt2htm::HtmlStrong<ndebug> const&) noexcept = delete;
+    constexpr HtmlStrong(::pltxt2htm::HtmlStrong<ndebug>&&) noexcept;
+    constexpr ~HtmlStrong() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlStrong<ndebug> const&) noexcept -> ::pltxt2htm::HtmlStrong<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlStrong<ndebug>& self, ::pltxt2htm::HtmlStrong<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlStrong<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -339,18 +291,18 @@ public:
  * @brief HTML &lt;ul&gt; unordered list node
  */
 template<::pltxt2htm::Contracts ndebug>
-class Ul {
+class HtmlUl {
     ::pltxt2htm::Ast<ndebug> subast{};
 
 public:
-    constexpr Ul() noexcept = delete;
-    constexpr explicit Ul(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr Ul(::pltxt2htm::Ul<ndebug> const&) noexcept = delete;
-    constexpr Ul(::pltxt2htm::Ul<ndebug>&&) noexcept;
-    constexpr ~Ul() noexcept;
-    constexpr auto operator=(::pltxt2htm::Ul<ndebug> const&) noexcept -> ::pltxt2htm::Ul<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::Ul<ndebug>& self, ::pltxt2htm::Ul<ndebug>&&) noexcept
-        -> ::pltxt2htm::Ul<ndebug>&;
+    constexpr HtmlUl() noexcept = delete;
+    constexpr explicit HtmlUl(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlUl(::pltxt2htm::HtmlUl<ndebug> const&) noexcept = delete;
+    constexpr HtmlUl(::pltxt2htm::HtmlUl<ndebug>&&) noexcept;
+    constexpr ~HtmlUl() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlUl<ndebug> const&) noexcept -> ::pltxt2htm::HtmlUl<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlUl<ndebug>& self, ::pltxt2htm::HtmlUl<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlUl<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -362,18 +314,18 @@ public:
  * @brief HTML &lt;ol&gt; ordered list node
  */
 template<::pltxt2htm::Contracts ndebug>
-class Ol {
+class HtmlOl {
     ::pltxt2htm::Ast<ndebug> subast{};
 
 public:
-    constexpr Ol() noexcept = delete;
-    constexpr explicit Ol(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr Ol(::pltxt2htm::Ol<ndebug> const&) noexcept = delete;
-    constexpr Ol(::pltxt2htm::Ol<ndebug>&&) noexcept;
-    constexpr ~Ol() noexcept;
-    constexpr auto operator=(::pltxt2htm::Ol<ndebug> const&) noexcept -> ::pltxt2htm::Ol<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::Ol<ndebug>& self, ::pltxt2htm::Ol<ndebug>&&) noexcept
-        -> ::pltxt2htm::Ol<ndebug>&;
+    constexpr HtmlOl() noexcept = delete;
+    constexpr explicit HtmlOl(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlOl(::pltxt2htm::HtmlOl<ndebug> const&) noexcept = delete;
+    constexpr HtmlOl(::pltxt2htm::HtmlOl<ndebug>&&) noexcept;
+    constexpr ~HtmlOl() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlOl<ndebug> const&) noexcept -> ::pltxt2htm::HtmlOl<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlOl<ndebug>& self, ::pltxt2htm::HtmlOl<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlOl<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -385,18 +337,18 @@ public:
  * @brief HTML &lt;li&gt; list item node
  */
 template<::pltxt2htm::Contracts ndebug>
-class Li {
+class HtmlLi {
     ::pltxt2htm::Ast<ndebug> subast{};
 
 public:
-    constexpr Li() noexcept = delete;
-    constexpr explicit Li(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr Li(::pltxt2htm::Li<ndebug> const&) noexcept = delete;
-    constexpr Li(::pltxt2htm::Li<ndebug>&&) noexcept;
-    constexpr ~Li() noexcept;
-    constexpr auto operator=(::pltxt2htm::Li<ndebug> const&) noexcept -> ::pltxt2htm::Li<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::Li<ndebug>& self, ::pltxt2htm::Li<ndebug>&&) noexcept
-        -> ::pltxt2htm::Li<ndebug>&;
+    constexpr HtmlLi() noexcept = delete;
+    constexpr explicit HtmlLi(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlLi(::pltxt2htm::HtmlLi<ndebug> const&) noexcept = delete;
+    constexpr HtmlLi(::pltxt2htm::HtmlLi<ndebug>&&) noexcept;
+    constexpr ~HtmlLi() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlLi<ndebug> const&) noexcept -> ::pltxt2htm::HtmlLi<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlLi<ndebug>& self, ::pltxt2htm::HtmlLi<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlLi<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -408,18 +360,18 @@ public:
  * @brief HTML &lt;code&gt; inline code node
  */
 template<::pltxt2htm::Contracts ndebug>
-class Code {
+class HtmlCode {
     ::pltxt2htm::Ast<ndebug> subast{};
 
 public:
-    constexpr Code() noexcept = delete;
-    constexpr explicit Code(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr Code(::pltxt2htm::Code<ndebug> const&) noexcept = delete;
-    constexpr Code(::pltxt2htm::Code<ndebug>&&) noexcept;
-    constexpr ~Code() noexcept;
-    constexpr auto operator=(::pltxt2htm::Code<ndebug> const&) noexcept -> ::pltxt2htm::Code<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::Code<ndebug>& self, ::pltxt2htm::Code<ndebug>&&) noexcept
-        -> ::pltxt2htm::Code<ndebug>&;
+    constexpr HtmlCode() noexcept = delete;
+    constexpr explicit HtmlCode(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlCode(::pltxt2htm::HtmlCode<ndebug> const&) noexcept = delete;
+    constexpr HtmlCode(::pltxt2htm::HtmlCode<ndebug>&&) noexcept;
+    constexpr ~HtmlCode() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlCode<ndebug> const&) noexcept -> ::pltxt2htm::HtmlCode<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlCode<ndebug>& self, ::pltxt2htm::HtmlCode<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlCode<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -431,18 +383,18 @@ public:
  * @brief HTML &lt;pre&gt; preformatted text node
  */
 template<::pltxt2htm::Contracts ndebug>
-class Pre {
+class HtmlPre {
     ::pltxt2htm::Ast<ndebug> subast{};
 
 public:
-    constexpr Pre() noexcept = delete;
-    constexpr explicit Pre(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr Pre(::pltxt2htm::Pre<ndebug> const&) noexcept = delete;
-    constexpr Pre(::pltxt2htm::Pre<ndebug>&&) noexcept;
-    constexpr ~Pre() noexcept;
-    constexpr auto operator=(::pltxt2htm::Pre<ndebug> const&) noexcept -> ::pltxt2htm::Pre<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::Pre<ndebug>& self, ::pltxt2htm::Pre<ndebug>&&) noexcept
-        -> ::pltxt2htm::Pre<ndebug>&;
+    constexpr HtmlPre() noexcept = delete;
+    constexpr explicit HtmlPre(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlPre(::pltxt2htm::HtmlPre<ndebug> const&) noexcept = delete;
+    constexpr HtmlPre(::pltxt2htm::HtmlPre<ndebug>&&) noexcept;
+    constexpr ~HtmlPre() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlPre<ndebug> const&) noexcept -> ::pltxt2htm::HtmlPre<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlPre<ndebug>& self, ::pltxt2htm::HtmlPre<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlPre<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -454,19 +406,19 @@ public:
  * @brief HTML &lt;blockquote&gt; block quotation node
  */
 template<::pltxt2htm::Contracts ndebug>
-class Blockquote {
+class HtmlBlockquote {
     ::pltxt2htm::Ast<ndebug> subast{};
 
 public:
-    constexpr Blockquote() noexcept = delete;
-    constexpr explicit Blockquote(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr Blockquote(::pltxt2htm::Blockquote<ndebug> const&) noexcept = delete;
-    constexpr Blockquote(::pltxt2htm::Blockquote<ndebug>&&) noexcept;
-    constexpr ~Blockquote() noexcept;
-    constexpr auto operator=(::pltxt2htm::Blockquote<ndebug> const&) noexcept
-        -> ::pltxt2htm::Blockquote<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::Blockquote<ndebug>& self, ::pltxt2htm::Blockquote<ndebug>&&) noexcept
-        -> ::pltxt2htm::Blockquote<ndebug>&;
+    constexpr HtmlBlockquote() noexcept = delete;
+    constexpr explicit HtmlBlockquote(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlBlockquote(::pltxt2htm::HtmlBlockquote<ndebug> const&) noexcept = delete;
+    constexpr HtmlBlockquote(::pltxt2htm::HtmlBlockquote<ndebug>&&) noexcept;
+    constexpr ~HtmlBlockquote() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlBlockquote<ndebug> const&) noexcept
+        -> ::pltxt2htm::HtmlBlockquote<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlBlockquote<ndebug>& self, ::pltxt2htm::HtmlBlockquote<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlBlockquote<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -478,18 +430,18 @@ public:
  * @brief HTML &lt;table&gt; table node
  */
 template<::pltxt2htm::Contracts ndebug>
-class Table {
+class HtmlTable {
     ::pltxt2htm::Ast<ndebug> subast{};
 
 public:
-    constexpr Table() noexcept = delete;
-    constexpr explicit Table(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr Table(::pltxt2htm::Table<ndebug> const&) noexcept = delete;
-    constexpr Table(::pltxt2htm::Table<ndebug>&&) noexcept;
-    constexpr ~Table() noexcept;
-    constexpr auto operator=(::pltxt2htm::Table<ndebug> const&) noexcept -> ::pltxt2htm::Table<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::Table<ndebug>& self, ::pltxt2htm::Table<ndebug>&&) noexcept
-        -> ::pltxt2htm::Table<ndebug>&;
+    constexpr HtmlTable() noexcept = delete;
+    constexpr explicit HtmlTable(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlTable(::pltxt2htm::HtmlTable<ndebug> const&) noexcept = delete;
+    constexpr HtmlTable(::pltxt2htm::HtmlTable<ndebug>&&) noexcept;
+    constexpr ~HtmlTable() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlTable<ndebug> const&) noexcept -> ::pltxt2htm::HtmlTable<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlTable<ndebug>& self, ::pltxt2htm::HtmlTable<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlTable<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -501,18 +453,18 @@ public:
  * @brief HTML &lt;tr&gt; table row node
  */
 template<::pltxt2htm::Contracts ndebug>
-class Tr {
+class HtmlTr {
     ::pltxt2htm::Ast<ndebug> subast{};
 
 public:
-    constexpr Tr() noexcept = delete;
-    constexpr explicit Tr(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr Tr(::pltxt2htm::Tr<ndebug> const&) noexcept = delete;
-    constexpr Tr(::pltxt2htm::Tr<ndebug>&&) noexcept;
-    constexpr ~Tr() noexcept;
-    constexpr auto operator=(::pltxt2htm::Tr<ndebug> const&) noexcept -> ::pltxt2htm::Tr<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::Tr<ndebug>& self, ::pltxt2htm::Tr<ndebug>&&) noexcept
-        -> ::pltxt2htm::Tr<ndebug>&;
+    constexpr HtmlTr() noexcept = delete;
+    constexpr explicit HtmlTr(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlTr(::pltxt2htm::HtmlTr<ndebug> const&) noexcept = delete;
+    constexpr HtmlTr(::pltxt2htm::HtmlTr<ndebug>&&) noexcept;
+    constexpr ~HtmlTr() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlTr<ndebug> const&) noexcept -> ::pltxt2htm::HtmlTr<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlTr<ndebug>& self, ::pltxt2htm::HtmlTr<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlTr<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -524,18 +476,18 @@ public:
  * @brief HTML &lt;td&gt; table data cell node
  */
 template<::pltxt2htm::Contracts ndebug>
-class Td {
+class HtmlTd {
     ::pltxt2htm::Ast<ndebug> subast{};
 
 public:
-    constexpr Td() noexcept = delete;
-    constexpr explicit Td(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr Td(::pltxt2htm::Td<ndebug> const&) noexcept = delete;
-    constexpr Td(::pltxt2htm::Td<ndebug>&&) noexcept;
-    constexpr ~Td() noexcept;
-    constexpr auto operator=(::pltxt2htm::Td<ndebug> const&) noexcept -> ::pltxt2htm::Td<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::Td<ndebug>& self, ::pltxt2htm::Td<ndebug>&&) noexcept
-        -> ::pltxt2htm::Td<ndebug>&;
+    constexpr HtmlTd() noexcept = delete;
+    constexpr explicit HtmlTd(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlTd(::pltxt2htm::HtmlTd<ndebug> const&) noexcept = delete;
+    constexpr HtmlTd(::pltxt2htm::HtmlTd<ndebug>&&) noexcept;
+    constexpr ~HtmlTd() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlTd<ndebug> const&) noexcept -> ::pltxt2htm::HtmlTd<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlTd<ndebug>& self, ::pltxt2htm::HtmlTd<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlTd<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -547,18 +499,18 @@ public:
  * @brief HTML &lt;th&gt; table header cell node
  */
 template<::pltxt2htm::Contracts ndebug>
-class Th {
+class HtmlTh {
     ::pltxt2htm::Ast<ndebug> subast{};
 
 public:
-    constexpr Th() noexcept = delete;
-    constexpr explicit Th(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr Th(::pltxt2htm::Th<ndebug> const&) noexcept = delete;
-    constexpr Th(::pltxt2htm::Th<ndebug>&&) noexcept;
-    constexpr ~Th() noexcept;
-    constexpr auto operator=(::pltxt2htm::Th<ndebug> const&) noexcept -> ::pltxt2htm::Th<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::Th<ndebug>& self, ::pltxt2htm::Th<ndebug>&&) noexcept
-        -> ::pltxt2htm::Th<ndebug>&;
+    constexpr HtmlTh() noexcept = delete;
+    constexpr explicit HtmlTh(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlTh(::pltxt2htm::HtmlTh<ndebug> const&) noexcept = delete;
+    constexpr HtmlTh(::pltxt2htm::HtmlTh<ndebug>&&) noexcept;
+    constexpr ~HtmlTh() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlTh<ndebug> const&) noexcept -> ::pltxt2htm::HtmlTh<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlTh<ndebug>& self, ::pltxt2htm::HtmlTh<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlTh<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -570,18 +522,18 @@ public:
  * @brief HTML &lt;thead&gt; table head section node
  */
 template<::pltxt2htm::Contracts ndebug>
-class Thead {
+class HtmlThead {
     ::pltxt2htm::Ast<ndebug> subast{};
 
 public:
-    constexpr Thead() noexcept = delete;
-    constexpr explicit Thead(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr Thead(::pltxt2htm::Thead<ndebug> const&) noexcept = delete;
-    constexpr Thead(::pltxt2htm::Thead<ndebug>&&) noexcept;
-    constexpr ~Thead() noexcept;
-    constexpr auto operator=(::pltxt2htm::Thead<ndebug> const&) noexcept -> ::pltxt2htm::Thead<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::Thead<ndebug>& self, ::pltxt2htm::Thead<ndebug>&&) noexcept
-        -> ::pltxt2htm::Thead<ndebug>&;
+    constexpr HtmlThead() noexcept = delete;
+    constexpr explicit HtmlThead(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlThead(::pltxt2htm::HtmlThead<ndebug> const&) noexcept = delete;
+    constexpr HtmlThead(::pltxt2htm::HtmlThead<ndebug>&&) noexcept;
+    constexpr ~HtmlThead() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlThead<ndebug> const&) noexcept -> ::pltxt2htm::HtmlThead<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlThead<ndebug>& self, ::pltxt2htm::HtmlThead<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlThead<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -593,18 +545,18 @@ public:
  * @brief HTML &lt;tbody&gt; table body section node
  */
 template<::pltxt2htm::Contracts ndebug>
-class Tbody {
+class HtmlTbody {
     ::pltxt2htm::Ast<ndebug> subast{};
 
 public:
-    constexpr Tbody() noexcept = delete;
-    constexpr explicit Tbody(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr Tbody(::pltxt2htm::Tbody<ndebug> const&) noexcept = delete;
-    constexpr Tbody(::pltxt2htm::Tbody<ndebug>&&) noexcept;
-    constexpr ~Tbody() noexcept;
-    constexpr auto operator=(::pltxt2htm::Tbody<ndebug> const&) noexcept -> ::pltxt2htm::Tbody<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::Tbody<ndebug>& self, ::pltxt2htm::Tbody<ndebug>&&) noexcept
-        -> ::pltxt2htm::Tbody<ndebug>&;
+    constexpr HtmlTbody() noexcept = delete;
+    constexpr explicit HtmlTbody(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlTbody(::pltxt2htm::HtmlTbody<ndebug> const&) noexcept = delete;
+    constexpr HtmlTbody(::pltxt2htm::HtmlTbody<ndebug>&&) noexcept;
+    constexpr ~HtmlTbody() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlTbody<ndebug> const&) noexcept -> ::pltxt2htm::HtmlTbody<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlTbody<ndebug>& self, ::pltxt2htm::HtmlTbody<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlTbody<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -616,18 +568,18 @@ public:
  * @brief HTML &lt;tfoot&gt; table foot section node
  */
 template<::pltxt2htm::Contracts ndebug>
-class Tfoot {
+class HtmlTfoot {
     ::pltxt2htm::Ast<ndebug> subast{};
 
 public:
-    constexpr Tfoot() noexcept = delete;
-    constexpr explicit Tfoot(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr Tfoot(::pltxt2htm::Tfoot<ndebug> const&) noexcept = delete;
-    constexpr Tfoot(::pltxt2htm::Tfoot<ndebug>&&) noexcept;
-    constexpr ~Tfoot() noexcept;
-    constexpr auto operator=(::pltxt2htm::Tfoot<ndebug> const&) noexcept -> ::pltxt2htm::Tfoot<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::Tfoot<ndebug>& self, ::pltxt2htm::Tfoot<ndebug>&&) noexcept
-        -> ::pltxt2htm::Tfoot<ndebug>&;
+    constexpr HtmlTfoot() noexcept = delete;
+    constexpr explicit HtmlTfoot(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlTfoot(::pltxt2htm::HtmlTfoot<ndebug> const&) noexcept = delete;
+    constexpr HtmlTfoot(::pltxt2htm::HtmlTfoot<ndebug>&&) noexcept;
+    constexpr ~HtmlTfoot() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlTfoot<ndebug> const&) noexcept -> ::pltxt2htm::HtmlTfoot<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlTfoot<ndebug>& self, ::pltxt2htm::HtmlTfoot<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlTfoot<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -639,18 +591,18 @@ public:
  * @brief HTML &lt;caption&gt; table caption node
  */
 template<::pltxt2htm::Contracts ndebug>
-class Caption {
+class HtmlCaption {
     ::pltxt2htm::Ast<ndebug> subast{};
 
 public:
-    constexpr Caption() noexcept = delete;
-    constexpr explicit Caption(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr Caption(::pltxt2htm::Caption<ndebug> const&) noexcept = delete;
-    constexpr Caption(::pltxt2htm::Caption<ndebug>&&) noexcept;
-    constexpr ~Caption() noexcept;
-    constexpr auto operator=(::pltxt2htm::Caption<ndebug> const&) noexcept -> ::pltxt2htm::Caption<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::Caption<ndebug>& self, ::pltxt2htm::Caption<ndebug>&&) noexcept
-        -> ::pltxt2htm::Caption<ndebug>&;
+    constexpr HtmlCaption() noexcept = delete;
+    constexpr explicit HtmlCaption(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlCaption(::pltxt2htm::HtmlCaption<ndebug> const&) noexcept = delete;
+    constexpr HtmlCaption(::pltxt2htm::HtmlCaption<ndebug>&&) noexcept;
+    constexpr ~HtmlCaption() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlCaption<ndebug> const&) noexcept -> ::pltxt2htm::HtmlCaption<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlCaption<ndebug>& self, ::pltxt2htm::HtmlCaption<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlCaption<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -662,18 +614,18 @@ public:
  * @brief HTML &lt;colgroup&gt; table column group node
  */
 template<::pltxt2htm::Contracts ndebug>
-class Colgroup {
+class HtmlColgroup {
     ::pltxt2htm::Ast<ndebug> subast{};
 
 public:
-    constexpr Colgroup() noexcept = delete;
-    constexpr explicit Colgroup(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr Colgroup(::pltxt2htm::Colgroup<ndebug> const&) noexcept = delete;
-    constexpr Colgroup(::pltxt2htm::Colgroup<ndebug>&&) noexcept;
-    constexpr ~Colgroup() noexcept;
-    constexpr auto operator=(::pltxt2htm::Colgroup<ndebug> const&) noexcept -> ::pltxt2htm::Colgroup<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::Colgroup<ndebug>& self, ::pltxt2htm::Colgroup<ndebug>&&) noexcept
-        -> ::pltxt2htm::Colgroup<ndebug>&;
+    constexpr HtmlColgroup() noexcept = delete;
+    constexpr explicit HtmlColgroup(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlColgroup(::pltxt2htm::HtmlColgroup<ndebug> const&) noexcept = delete;
+    constexpr HtmlColgroup(::pltxt2htm::HtmlColgroup<ndebug>&&) noexcept;
+    constexpr ~HtmlColgroup() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlColgroup<ndebug> const&) noexcept -> ::pltxt2htm::HtmlColgroup<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlColgroup<ndebug>& self, ::pltxt2htm::HtmlColgroup<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlColgroup<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {

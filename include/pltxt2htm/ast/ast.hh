@@ -33,7 +33,7 @@ class PlTxtNode {
 
         // html node
         ::pltxt2htm::LineBreak linebreak_node;
-        ::pltxt2htm::Br br_node;
+        ::pltxt2htm::HtmlBr br_node;
         ::pltxt2htm::Space space_node;
         ::pltxt2htm::LessThan lessthan_node;
         ::pltxt2htm::GreaterThan greaterthan_node;
@@ -41,36 +41,36 @@ class PlTxtNode {
         ::pltxt2htm::Ampersand ampersand_node;
         ::pltxt2htm::SingleQuotationMark singlequotationmark_node;
         ::pltxt2htm::DoubleQuotationMark doublequotationmark_node;
-        ::pltxt2htm::Hr hr_node;
-        ::pltxt2htm::H1<ndebug> h1_node;
-        ::pltxt2htm::H2<ndebug> h2_node;
-        ::pltxt2htm::H3<ndebug> h3_node;
-        ::pltxt2htm::H4<ndebug> h4_node;
-        ::pltxt2htm::H5<ndebug> h5_node;
-        ::pltxt2htm::H6<ndebug> h6_node;
-        ::pltxt2htm::P<ndebug> p_node;
-        ::pltxt2htm::Del<ndebug> del_node;
-        ::pltxt2htm::Note<ndebug> note_node;
-        ::pltxt2htm::Em<ndebug> em_node;
-        ::pltxt2htm::Strong<ndebug> strong_node;
-        ::pltxt2htm::Ul<ndebug> ul_node;
-        ::pltxt2htm::Ol<ndebug> ol_node;
-        ::pltxt2htm::Li<ndebug> li_node;
-        ::pltxt2htm::Code<ndebug> code_node;
-        ::pltxt2htm::Pre<ndebug> pre_node;
-        ::pltxt2htm::Blockquote<ndebug> blockquote_node;
+        ::pltxt2htm::HtmlHr hr_node;
+        ::pltxt2htm::HtmlH1<ndebug> h1_node;
+        ::pltxt2htm::HtmlH2<ndebug> h2_node;
+        ::pltxt2htm::HtmlH3<ndebug> h3_node;
+        ::pltxt2htm::HtmlH4<ndebug> h4_node;
+        ::pltxt2htm::HtmlH5<ndebug> h5_node;
+        ::pltxt2htm::HtmlH6<ndebug> h6_node;
+        ::pltxt2htm::HtmlP<ndebug> p_node;
+        ::pltxt2htm::HtmlDel<ndebug> del_node;
+        ::pltxt2htm::HtmlNote<ndebug> note_node;
+        ::pltxt2htm::HtmlEm<ndebug> em_node;
+        ::pltxt2htm::HtmlStrong<ndebug> strong_node;
+        ::pltxt2htm::HtmlUl<ndebug> ul_node;
+        ::pltxt2htm::HtmlOl<ndebug> ol_node;
+        ::pltxt2htm::HtmlLi<ndebug> li_node;
+        ::pltxt2htm::HtmlCode<ndebug> code_node;
+        ::pltxt2htm::HtmlPre<ndebug> pre_node;
+        ::pltxt2htm::HtmlBlockquote<ndebug> blockquote_node;
 
         // html table node
-        ::pltxt2htm::Col col_node;
-        ::pltxt2htm::Table<ndebug> table_node;
-        ::pltxt2htm::Caption<ndebug> caption_node;
-        ::pltxt2htm::Colgroup<ndebug> colgroup_node;
-        ::pltxt2htm::Thead<ndebug> thead_node;
-        ::pltxt2htm::Tbody<ndebug> tbody_node;
-        ::pltxt2htm::Tfoot<ndebug> tfoot_node;
-        ::pltxt2htm::Tr<ndebug> tr_node;
-        ::pltxt2htm::Th<ndebug> th_node;
-        ::pltxt2htm::Td<ndebug> td_node;
+        ::pltxt2htm::HtmlCol col_node;
+        ::pltxt2htm::HtmlTable<ndebug> table_node;
+        ::pltxt2htm::HtmlCaption<ndebug> caption_node;
+        ::pltxt2htm::HtmlColgroup<ndebug> colgroup_node;
+        ::pltxt2htm::HtmlThead<ndebug> thead_node;
+        ::pltxt2htm::HtmlTbody<ndebug> tbody_node;
+        ::pltxt2htm::HtmlTfoot<ndebug> tfoot_node;
+        ::pltxt2htm::HtmlTr<ndebug> tr_node;
+        ::pltxt2htm::HtmlTh<ndebug> th_node;
+        ::pltxt2htm::HtmlTd<ndebug> td_node;
 
         // markdown node
         ::pltxt2htm::MdAtxH1<ndebug> md_atx_h1_node;
@@ -237,7 +237,7 @@ public:
           node_kind{::pltxt2htm::NodeKind::line_break} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::Br&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::HtmlBr&& node) noexcept
         : br_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::html_br} {
     }
@@ -277,142 +277,142 @@ public:
           node_kind{::pltxt2htm::NodeKind::double_quote} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::Hr&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::HtmlHr&& node) noexcept
         : hr_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::html_hr} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::H1<ndebug>&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::HtmlH1<ndebug>&& node) noexcept
         : h1_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::html_h1} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::H2<ndebug>&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::HtmlH2<ndebug>&& node) noexcept
         : h2_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::html_h2} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::H3<ndebug>&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::HtmlH3<ndebug>&& node) noexcept
         : h3_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::html_h3} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::H4<ndebug>&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::HtmlH4<ndebug>&& node) noexcept
         : h4_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::html_h4} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::H5<ndebug>&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::HtmlH5<ndebug>&& node) noexcept
         : h5_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::html_h5} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::H6<ndebug>&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::HtmlH6<ndebug>&& node) noexcept
         : h6_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::html_h6} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::P<ndebug>&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::HtmlP<ndebug>&& node) noexcept
         : p_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::html_p} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::Del<ndebug>&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::HtmlDel<ndebug>&& node) noexcept
         : del_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::html_del} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::Note<ndebug>&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::HtmlNote<ndebug>&& node) noexcept
         : note_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::html_note} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::Em<ndebug>&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::HtmlEm<ndebug>&& node) noexcept
         : em_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::html_em} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::Strong<ndebug>&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::HtmlStrong<ndebug>&& node) noexcept
         : strong_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::html_strong} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::Ul<ndebug>&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::HtmlUl<ndebug>&& node) noexcept
         : ul_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::html_ul} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::Ol<ndebug>&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::HtmlOl<ndebug>&& node) noexcept
         : ol_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::html_ol} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::Li<ndebug>&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::HtmlLi<ndebug>&& node) noexcept
         : li_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::html_li} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::Code<ndebug>&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::HtmlCode<ndebug>&& node) noexcept
         : code_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::html_code} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::Pre<ndebug>&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::HtmlPre<ndebug>&& node) noexcept
         : pre_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::html_pre} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::Blockquote<ndebug>&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::HtmlBlockquote<ndebug>&& node) noexcept
         : blockquote_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::html_blockquote} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::Col&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::HtmlCol&& node) noexcept
         : col_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::html_col} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::Table<ndebug>&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::HtmlTable<ndebug>&& node) noexcept
         : table_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::html_table} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::Caption<ndebug>&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::HtmlCaption<ndebug>&& node) noexcept
         : caption_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::html_caption} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::Colgroup<ndebug>&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::HtmlColgroup<ndebug>&& node) noexcept
         : colgroup_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::html_colgroup} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::Thead<ndebug>&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::HtmlThead<ndebug>&& node) noexcept
         : thead_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::html_thead} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::Tbody<ndebug>&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::HtmlTbody<ndebug>&& node) noexcept
         : tbody_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::html_tbody} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::Tfoot<ndebug>&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::HtmlTfoot<ndebug>&& node) noexcept
         : tfoot_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::html_tfoot} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::Tr<ndebug>&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::HtmlTr<ndebug>&& node) noexcept
         : tr_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::html_tr} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::Th<ndebug>&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::HtmlTh<ndebug>&& node) noexcept
         : th_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::html_th} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::Td<ndebug>&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::HtmlTd<ndebug>&& node) noexcept
         : td_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::html_td} {
     }
@@ -793,7 +793,7 @@ public:
         }
 
         case ::pltxt2htm::NodeKind::html_br: {
-            new (::std::addressof(br_node))::pltxt2htm::Br(::std::move(other.br_node));
+            new (::std::addressof(br_node))::pltxt2htm::HtmlBr(::std::move(other.br_node));
             break;
         }
 
@@ -835,142 +835,142 @@ public:
         }
 
         case ::pltxt2htm::NodeKind::html_hr: {
-            new (::std::addressof(hr_node))::pltxt2htm::Hr(::std::move(other.hr_node));
+            new (::std::addressof(hr_node))::pltxt2htm::HtmlHr(::std::move(other.hr_node));
             break;
         }
 
         case ::pltxt2htm::NodeKind::html_h1: {
-            new (::std::addressof(h1_node))::pltxt2htm::H1(::std::move(other.h1_node));
+            new (::std::addressof(h1_node))::pltxt2htm::HtmlH1(::std::move(other.h1_node));
             break;
         }
 
         case ::pltxt2htm::NodeKind::html_h2: {
-            new (::std::addressof(h2_node))::pltxt2htm::H2(::std::move(other.h2_node));
+            new (::std::addressof(h2_node))::pltxt2htm::HtmlH2(::std::move(other.h2_node));
             break;
         }
 
         case ::pltxt2htm::NodeKind::html_h3: {
-            new (::std::addressof(h3_node))::pltxt2htm::H3(::std::move(other.h3_node));
+            new (::std::addressof(h3_node))::pltxt2htm::HtmlH3(::std::move(other.h3_node));
             break;
         }
 
         case ::pltxt2htm::NodeKind::html_h4: {
-            new (::std::addressof(h4_node))::pltxt2htm::H4(::std::move(other.h4_node));
+            new (::std::addressof(h4_node))::pltxt2htm::HtmlH4(::std::move(other.h4_node));
             break;
         }
 
         case ::pltxt2htm::NodeKind::html_h5: {
-            new (::std::addressof(h5_node))::pltxt2htm::H5(::std::move(other.h5_node));
+            new (::std::addressof(h5_node))::pltxt2htm::HtmlH5(::std::move(other.h5_node));
             break;
         }
 
         case ::pltxt2htm::NodeKind::html_h6: {
-            new (::std::addressof(h6_node))::pltxt2htm::H6(::std::move(other.h6_node));
+            new (::std::addressof(h6_node))::pltxt2htm::HtmlH6(::std::move(other.h6_node));
             break;
         }
 
         case ::pltxt2htm::NodeKind::html_p: {
-            new (::std::addressof(p_node))::pltxt2htm::P(::std::move(other.p_node));
+            new (::std::addressof(p_node))::pltxt2htm::HtmlP(::std::move(other.p_node));
             break;
         }
 
         case ::pltxt2htm::NodeKind::html_del: {
-            new (::std::addressof(del_node))::pltxt2htm::Del(::std::move(other.del_node));
+            new (::std::addressof(del_node))::pltxt2htm::HtmlDel(::std::move(other.del_node));
             break;
         }
 
         case ::pltxt2htm::NodeKind::html_note: {
-            new (::std::addressof(note_node))::pltxt2htm::Note(::std::move(other.note_node));
+            new (::std::addressof(note_node))::pltxt2htm::HtmlNote(::std::move(other.note_node));
             break;
         }
 
         case ::pltxt2htm::NodeKind::html_em: {
-            new (::std::addressof(em_node))::pltxt2htm::Em(::std::move(other.em_node));
+            new (::std::addressof(em_node))::pltxt2htm::HtmlEm(::std::move(other.em_node));
             break;
         }
 
         case ::pltxt2htm::NodeKind::html_strong: {
-            new (::std::addressof(strong_node))::pltxt2htm::Strong(::std::move(other.strong_node));
+            new (::std::addressof(strong_node))::pltxt2htm::HtmlStrong(::std::move(other.strong_node));
             break;
         }
 
         case ::pltxt2htm::NodeKind::html_ul: {
-            new (::std::addressof(ul_node))::pltxt2htm::Ul(::std::move(other.ul_node));
+            new (::std::addressof(ul_node))::pltxt2htm::HtmlUl(::std::move(other.ul_node));
             break;
         }
 
         case ::pltxt2htm::NodeKind::html_ol: {
-            new (::std::addressof(ol_node))::pltxt2htm::Ol(::std::move(other.ol_node));
+            new (::std::addressof(ol_node))::pltxt2htm::HtmlOl(::std::move(other.ol_node));
             break;
         }
 
         case ::pltxt2htm::NodeKind::html_li: {
-            new (::std::addressof(li_node))::pltxt2htm::Li(::std::move(other.li_node));
+            new (::std::addressof(li_node))::pltxt2htm::HtmlLi(::std::move(other.li_node));
             break;
         }
 
         case ::pltxt2htm::NodeKind::html_code: {
-            new (::std::addressof(code_node))::pltxt2htm::Code(::std::move(other.code_node));
+            new (::std::addressof(code_node))::pltxt2htm::HtmlCode(::std::move(other.code_node));
             break;
         }
 
         case ::pltxt2htm::NodeKind::html_pre: {
-            new (::std::addressof(pre_node))::pltxt2htm::Pre(::std::move(other.pre_node));
+            new (::std::addressof(pre_node))::pltxt2htm::HtmlPre(::std::move(other.pre_node));
             break;
         }
 
         case ::pltxt2htm::NodeKind::html_blockquote: {
-            new (::std::addressof(blockquote_node))::pltxt2htm::Blockquote(::std::move(other.blockquote_node));
+            new (::std::addressof(blockquote_node))::pltxt2htm::HtmlBlockquote(::std::move(other.blockquote_node));
             break;
         }
 
         case ::pltxt2htm::NodeKind::html_col: {
-            new (::std::addressof(col_node))::pltxt2htm::Col(::std::move(other.col_node));
+            new (::std::addressof(col_node))::pltxt2htm::HtmlCol(::std::move(other.col_node));
             break;
         }
 
         case ::pltxt2htm::NodeKind::html_table: {
-            new (::std::addressof(table_node))::pltxt2htm::Table(::std::move(other.table_node));
+            new (::std::addressof(table_node))::pltxt2htm::HtmlTable(::std::move(other.table_node));
             break;
         }
 
         case ::pltxt2htm::NodeKind::html_caption: {
-            new (::std::addressof(caption_node))::pltxt2htm::Caption(::std::move(other.caption_node));
+            new (::std::addressof(caption_node))::pltxt2htm::HtmlCaption(::std::move(other.caption_node));
             break;
         }
 
         case ::pltxt2htm::NodeKind::html_colgroup: {
-            new (::std::addressof(colgroup_node))::pltxt2htm::Colgroup(::std::move(other.colgroup_node));
+            new (::std::addressof(colgroup_node))::pltxt2htm::HtmlColgroup(::std::move(other.colgroup_node));
             break;
         }
 
         case ::pltxt2htm::NodeKind::html_thead: {
-            new (::std::addressof(thead_node))::pltxt2htm::Thead(::std::move(other.thead_node));
+            new (::std::addressof(thead_node))::pltxt2htm::HtmlThead(::std::move(other.thead_node));
             break;
         }
 
         case ::pltxt2htm::NodeKind::html_tbody: {
-            new (::std::addressof(tbody_node))::pltxt2htm::Tbody(::std::move(other.tbody_node));
+            new (::std::addressof(tbody_node))::pltxt2htm::HtmlTbody(::std::move(other.tbody_node));
             break;
         }
 
         case ::pltxt2htm::NodeKind::html_tfoot: {
-            new (::std::addressof(tfoot_node))::pltxt2htm::Tfoot(::std::move(other.tfoot_node));
+            new (::std::addressof(tfoot_node))::pltxt2htm::HtmlTfoot(::std::move(other.tfoot_node));
             break;
         }
 
         case ::pltxt2htm::NodeKind::html_tr: {
-            new (::std::addressof(tr_node))::pltxt2htm::Tr(::std::move(other.tr_node));
+            new (::std::addressof(tr_node))::pltxt2htm::HtmlTr(::std::move(other.tr_node));
             break;
         }
 
         case ::pltxt2htm::NodeKind::html_th: {
-            new (::std::addressof(th_node))::pltxt2htm::Th(::std::move(other.th_node));
+            new (::std::addressof(th_node))::pltxt2htm::HtmlTh(::std::move(other.th_node));
             break;
         }
 
         case ::pltxt2htm::NodeKind::html_td: {
-            new (::std::addressof(td_node))::pltxt2htm::Td(::std::move(other.td_node));
+            new (::std::addressof(td_node))::pltxt2htm::HtmlTd(::std::move(other.td_node));
             break;
         }
 
@@ -1334,7 +1334,7 @@ public:
             break;
         }
         case ::pltxt2htm::NodeKind::html_br: {
-            br_node.~Br();
+            br_node.~HtmlBr();
             break;
         }
         case ::pltxt2htm::NodeKind::space: {
@@ -1366,115 +1366,115 @@ public:
             break;
         }
         case ::pltxt2htm::NodeKind::html_hr: {
-            hr_node.~Hr();
+            hr_node.~HtmlHr();
             break;
         }
         case ::pltxt2htm::NodeKind::html_h1: {
-            h1_node.~H1();
+            h1_node.~HtmlH1();
             break;
         }
         case ::pltxt2htm::NodeKind::html_h2: {
-            h2_node.~H2();
+            h2_node.~HtmlH2();
             break;
         }
         case ::pltxt2htm::NodeKind::html_h3: {
-            h3_node.~H3();
+            h3_node.~HtmlH3();
             break;
         }
         case ::pltxt2htm::NodeKind::html_h4: {
-            h4_node.~H4();
+            h4_node.~HtmlH4();
             break;
         }
         case ::pltxt2htm::NodeKind::html_h5: {
-            h5_node.~H5();
+            h5_node.~HtmlH5();
             break;
         }
         case ::pltxt2htm::NodeKind::html_h6: {
-            h6_node.~H6();
+            h6_node.~HtmlH6();
             break;
         }
         case ::pltxt2htm::NodeKind::html_p: {
-            p_node.~P();
+            p_node.~HtmlP();
             break;
         }
         case ::pltxt2htm::NodeKind::html_del: {
-            del_node.~Del();
+            del_node.~HtmlDel();
             break;
         }
         case ::pltxt2htm::NodeKind::html_note: {
-            note_node.~Note();
+            note_node.~HtmlNote();
             break;
         }
         case ::pltxt2htm::NodeKind::html_em: {
-            em_node.~Em();
+            em_node.~HtmlEm();
             break;
         }
         case ::pltxt2htm::NodeKind::html_strong: {
-            strong_node.~Strong();
+            strong_node.~HtmlStrong();
             break;
         }
         case ::pltxt2htm::NodeKind::html_ul: {
-            ul_node.~Ul();
+            ul_node.~HtmlUl();
             break;
         }
         case ::pltxt2htm::NodeKind::html_ol: {
-            ol_node.~Ol();
+            ol_node.~HtmlOl();
             break;
         }
         case ::pltxt2htm::NodeKind::html_li: {
-            li_node.~Li();
+            li_node.~HtmlLi();
             break;
         }
         case ::pltxt2htm::NodeKind::html_code: {
-            code_node.~Code();
+            code_node.~HtmlCode();
             break;
         }
         case ::pltxt2htm::NodeKind::html_pre: {
-            pre_node.~Pre();
+            pre_node.~HtmlPre();
             break;
         }
         case ::pltxt2htm::NodeKind::html_blockquote: {
-            blockquote_node.~Blockquote();
+            blockquote_node.~HtmlBlockquote();
             break;
         }
         case ::pltxt2htm::NodeKind::html_col: {
-            col_node.~Col();
+            col_node.~HtmlCol();
             break;
         }
         case ::pltxt2htm::NodeKind::html_table: {
-            table_node.~Table();
+            table_node.~HtmlTable();
             break;
         }
         case ::pltxt2htm::NodeKind::html_caption: {
-            caption_node.~Caption();
+            caption_node.~HtmlCaption();
             break;
         }
         case ::pltxt2htm::NodeKind::html_colgroup: {
-            colgroup_node.~Colgroup();
+            colgroup_node.~HtmlColgroup();
             break;
         }
         case ::pltxt2htm::NodeKind::html_thead: {
-            thead_node.~Thead();
+            thead_node.~HtmlThead();
             break;
         }
         case ::pltxt2htm::NodeKind::html_tbody: {
-            tbody_node.~Tbody();
+            tbody_node.~HtmlTbody();
             break;
         }
         case ::pltxt2htm::NodeKind::html_tfoot: {
-            tfoot_node.~Tfoot();
+            tfoot_node.~HtmlTfoot();
             break;
         }
         case ::pltxt2htm::NodeKind::html_tr: {
-            tr_node.~Tr();
+            tr_node.~HtmlTr();
             break;
         }
         case ::pltxt2htm::NodeKind::html_th: {
-            th_node.~Th();
+            th_node.~HtmlTh();
             break;
         }
         case ::pltxt2htm::NodeKind::html_td: {
-            td_node.~Td();
+            td_node.~HtmlTd();
             break;
         }
         case ::pltxt2htm::NodeKind::md_atx_h1: {
