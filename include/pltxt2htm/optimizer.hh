@@ -747,6 +747,73 @@ entry:
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::html_blockquote, subast.begin()));
             goto entry;
         }
+        case ::pltxt2htm::NodeKind::html_table: {
+            auto&& subast = node.get_subast();
+            call_stack.push(
+                ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::html_table, subast.begin()));
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::html_caption: {
+            auto&& subast = node.get_subast();
+            call_stack.push(
+                ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::html_caption, subast.begin()));
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::html_colgroup: {
+            auto&& subast = node.get_subast();
+            call_stack.push(
+                ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::html_colgroup, subast.begin()));
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::html_thead: {
+            auto&& subast = node.get_subast();
+            call_stack.push(
+                ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::html_thead, subast.begin()));
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::html_tbody: {
+            auto&& subast = node.get_subast();
+            call_stack.push(
+                ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::html_tbody, subast.begin()));
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::html_tfoot: {
+            auto&& subast = node.get_subast();
+            call_stack.push(
+                ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::html_tfoot, subast.begin()));
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::html_tr: {
+            auto&& subast = node.get_subast();
+            call_stack.push(
+                ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::html_tr, subast.begin()));
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::html_th: {
+            auto&& subast = node.get_subast();
+            call_stack.push(
+                ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::html_th, subast.begin()));
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::html_td: {
+            auto&& subast = node.get_subast();
+            call_stack.push(
+                ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::html_td, subast.begin()));
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::html_col: {
+            ++current_iter;
+            continue;
+        }
         case ::pltxt2htm::NodeKind::md_image:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_link: {

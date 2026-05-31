@@ -343,6 +343,26 @@ entry:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_blockquote:
             [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_table:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_tr:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_td:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_th:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_thead:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_tbody:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_tfoot:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_caption:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_colgroup:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_col:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_block_quotes:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_code_fence_backtick:

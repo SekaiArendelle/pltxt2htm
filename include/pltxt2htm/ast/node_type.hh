@@ -84,6 +84,18 @@ enum class NodeKind : ::std::size_t {
     html_pre, ///< Preformatted text: &lt;pre&gt;...&lt;/pre&gt;
     html_blockquote, ///< Block quote: &lt;blockquote&gt;...&lt;/blockquote&gt;
 
+    // HTML table elements
+    html_table, ///< HTML table: &lt;table&gt;...&lt;/table&gt;
+    html_tr, ///< HTML table row: &lt;tr&gt;...&lt;/tr&gt;
+    html_td, ///< HTML table cell: &lt;td&gt;...&lt;/td&gt;
+    html_th, ///< HTML table header cell: &lt;th&gt;...&lt;/th&gt;
+    html_thead, ///< HTML table head: &lt;thead&gt;...&lt;/thead&gt;
+    html_tbody, ///< HTML table body: &lt;tbody&gt;...&lt;/tbody&gt;
+    html_tfoot, ///< HTML table foot: &lt;tfoot&gt;...&lt;/tfoot&gt;
+    html_caption, ///< HTML table caption: &lt;caption&gt;...&lt;/caption&gt;
+    html_colgroup, ///< HTML table column group: &lt;colgroup&gt;...&lt;/colgroup&gt;
+    html_col, ///< HTML table column: &lt;col&gt; (self-closing)
+
     // Markdown ATX-style headers (# ## ### #### ##### ######)
     md_atx_h1, ///< Markdown level 1 heading: # Heading
     md_atx_h2, ///< Markdown level 2 heading: ## Heading
