@@ -1265,380 +1265,454 @@ public:
 
     constexpr ~PlTxtNode() noexcept {
         switch (node_kind) /* -Werror=switch */ {
-        case ::pltxt2htm::NodeKind::u8char:
+        case ::pltxt2htm::NodeKind::u8char: {
             u8char_node.~U8Char();
             break;
-        case ::pltxt2htm::NodeKind::invalid_u8char:
+        }
+        case ::pltxt2htm::NodeKind::invalid_u8char: {
             invalid_u8char_node.~InvalidU8Char();
             break;
-        case ::pltxt2htm::NodeKind::text:
+        }
+        case ::pltxt2htm::NodeKind::text: {
             text_node.~Text();
             break;
-        case ::pltxt2htm::NodeKind::pl_color:
+        }
+        case ::pltxt2htm::NodeKind::pl_color: {
             pl_color_node.~PlColor();
             break;
-        case ::pltxt2htm::NodeKind::pl_a:
+        }
+        case ::pltxt2htm::NodeKind::pl_a: {
             pl_a_node.~PlA();
             break;
-        case ::pltxt2htm::NodeKind::pl_experiment:
+        }
+        case ::pltxt2htm::NodeKind::pl_experiment: {
             pl_experiment_node.~PlExperiment();
             break;
-        case ::pltxt2htm::NodeKind::pl_discussion:
+        }
+        case ::pltxt2htm::NodeKind::pl_discussion: {
             pl_discussion_node.~PlDiscussion();
             break;
-        case ::pltxt2htm::NodeKind::pl_user:
+        }
+        case ::pltxt2htm::NodeKind::pl_user: {
             pl_user_node.~PlUser();
             break;
-        case ::pltxt2htm::NodeKind::pl_external:
+        }
+        case ::pltxt2htm::NodeKind::pl_external: {
             pl_external_node.~PlExternal();
             break;
-        case ::pltxt2htm::NodeKind::pl_size:
+        }
+        case ::pltxt2htm::NodeKind::pl_size: {
             pl_size_node.~PlSize();
             break;
-        case ::pltxt2htm::NodeKind::pl_i:
+        }
+        case ::pltxt2htm::NodeKind::pl_i: {
             pl_i_node.~PlI();
             break;
-        case ::pltxt2htm::NodeKind::pl_b:
+        }
+        case ::pltxt2htm::NodeKind::pl_b: {
             pl_b_node.~PlB();
             break;
-        case ::pltxt2htm::NodeKind::pl_macro_project:
+        }
+        case ::pltxt2htm::NodeKind::pl_macro_project: {
             pl_macro_project_node.~PlMacroProject();
             break;
-        case ::pltxt2htm::NodeKind::pl_macro_visitor:
+        }
+        case ::pltxt2htm::NodeKind::pl_macro_visitor: {
             pl_macro_visitor_node.~PlMacroVisitor();
             break;
-        case ::pltxt2htm::NodeKind::pl_macro_author:
+        }
+        case ::pltxt2htm::NodeKind::pl_macro_author: {
             pl_macro_author_node.~PlMacroAuthor();
             break;
-        case ::pltxt2htm::NodeKind::pl_macro_coauthors:
+        }
+        case ::pltxt2htm::NodeKind::pl_macro_coauthors: {
             pl_macro_coauthors_node.~PlMacroCoauthors();
             break;
-
-        case ::pltxt2htm::NodeKind::line_break:
+        }
+        case ::pltxt2htm::NodeKind::line_break: {
             linebreak_node.~LineBreak();
             break;
-
-        case ::pltxt2htm::NodeKind::html_br:
+        }
+        case ::pltxt2htm::NodeKind::html_br: {
             br_node.~Br();
             break;
-
-        case ::pltxt2htm::NodeKind::space:
+        }
+        case ::pltxt2htm::NodeKind::space: {
             space_node.~Space();
             break;
-
-        case ::pltxt2htm::NodeKind::less_than:
+        }
+        case ::pltxt2htm::NodeKind::less_than: {
             lessthan_node.~LessThan();
             break;
-
-        case ::pltxt2htm::NodeKind::greater_than:
+        }
+        case ::pltxt2htm::NodeKind::greater_than: {
             greaterthan_node.~GreaterThan();
             break;
-
-        case ::pltxt2htm::NodeKind::tab:
+        }
+        case ::pltxt2htm::NodeKind::tab: {
             tab_node.~Tab();
             break;
-
-        case ::pltxt2htm::NodeKind::ampersand:
+        }
+        case ::pltxt2htm::NodeKind::ampersand: {
             ampersand_node.~Ampersand();
             break;
-
-        case ::pltxt2htm::NodeKind::single_quote:
+        }
+        case ::pltxt2htm::NodeKind::single_quote: {
             singlequotationmark_node.~SingleQuotationMark();
             break;
-
-        case ::pltxt2htm::NodeKind::double_quote:
+        }
+        case ::pltxt2htm::NodeKind::double_quote: {
             doublequotationmark_node.~DoubleQuotationMark();
             break;
-
-        case ::pltxt2htm::NodeKind::html_hr:
+        }
+        case ::pltxt2htm::NodeKind::html_hr: {
             hr_node.~Hr();
             break;
-
-        case ::pltxt2htm::NodeKind::html_h1:
+        }
+        case ::pltxt2htm::NodeKind::html_h1: {
             h1_node.~H1();
             break;
-
-        case ::pltxt2htm::NodeKind::html_h2:
+        }
+        case ::pltxt2htm::NodeKind::html_h2: {
             h2_node.~H2();
             break;
-
-        case ::pltxt2htm::NodeKind::html_h3:
+        }
+        case ::pltxt2htm::NodeKind::html_h3: {
             h3_node.~H3();
             break;
-
-        case ::pltxt2htm::NodeKind::html_h4:
+        }
+        case ::pltxt2htm::NodeKind::html_h4: {
             h4_node.~H4();
             break;
-
-        case ::pltxt2htm::NodeKind::html_h5:
+        }
+        case ::pltxt2htm::NodeKind::html_h5: {
             h5_node.~H5();
             break;
-
-        case ::pltxt2htm::NodeKind::html_h6:
+        }
+        case ::pltxt2htm::NodeKind::html_h6: {
             h6_node.~H6();
             break;
-
-        case ::pltxt2htm::NodeKind::html_p:
+        }
+        case ::pltxt2htm::NodeKind::html_p: {
             p_node.~P();
             break;
-
-        case ::pltxt2htm::NodeKind::html_del:
+        }
+        case ::pltxt2htm::NodeKind::html_del: {
             del_node.~Del();
             break;
-
-        case ::pltxt2htm::NodeKind::html_note:
+        }
+        case ::pltxt2htm::NodeKind::html_note: {
             note_node.~Note();
             break;
-
-        case ::pltxt2htm::NodeKind::html_em:
+        }
+        case ::pltxt2htm::NodeKind::html_em: {
             em_node.~Em();
             break;
-
-        case ::pltxt2htm::NodeKind::html_strong:
+        }
+        case ::pltxt2htm::NodeKind::html_strong: {
             strong_node.~Strong();
             break;
-
-        case ::pltxt2htm::NodeKind::html_ul:
+        }
+        case ::pltxt2htm::NodeKind::html_ul: {
             ul_node.~Ul();
             break;
-
-        case ::pltxt2htm::NodeKind::html_ol:
+        }
+        case ::pltxt2htm::NodeKind::html_ol: {
             ol_node.~Ol();
             break;
-
-        case ::pltxt2htm::NodeKind::html_li:
+        }
+        case ::pltxt2htm::NodeKind::html_li: {
             li_node.~Li();
             break;
-
-        case ::pltxt2htm::NodeKind::html_code:
+        }
+        case ::pltxt2htm::NodeKind::html_code: {
             code_node.~Code();
             break;
-
-        case ::pltxt2htm::NodeKind::html_pre:
+        }
+        case ::pltxt2htm::NodeKind::html_pre: {
             pre_node.~Pre();
             break;
-
-        case ::pltxt2htm::NodeKind::html_blockquote:
+        }
+        case ::pltxt2htm::NodeKind::html_blockquote: {
             blockquote_node.~Blockquote();
             break;
-
-        case ::pltxt2htm::NodeKind::html_col:
+        }
+        case ::pltxt2htm::NodeKind::html_col: {
             col_node.~Col();
             break;
-
-        case ::pltxt2htm::NodeKind::html_table:
+        }
+        case ::pltxt2htm::NodeKind::html_table: {
             table_node.~Table();
             break;
-
-        case ::pltxt2htm::NodeKind::html_caption:
+        }
+        case ::pltxt2htm::NodeKind::html_caption: {
             caption_node.~Caption();
             break;
-
-        case ::pltxt2htm::NodeKind::html_colgroup:
+        }
+        case ::pltxt2htm::NodeKind::html_colgroup: {
             colgroup_node.~Colgroup();
             break;
-
-        case ::pltxt2htm::NodeKind::html_thead:
+        }
+        case ::pltxt2htm::NodeKind::html_thead: {
             thead_node.~Thead();
             break;
-
-        case ::pltxt2htm::NodeKind::html_tbody:
+        }
+        case ::pltxt2htm::NodeKind::html_tbody: {
             tbody_node.~Tbody();
             break;
-
-        case ::pltxt2htm::NodeKind::html_tfoot:
+        }
+        case ::pltxt2htm::NodeKind::html_tfoot: {
             tfoot_node.~Tfoot();
             break;
-
-        case ::pltxt2htm::NodeKind::html_tr:
+        }
+        case ::pltxt2htm::NodeKind::html_tr: {
             tr_node.~Tr();
             break;
-
-        case ::pltxt2htm::NodeKind::html_th:
+        }
+        case ::pltxt2htm::NodeKind::html_th: {
             th_node.~Th();
             break;
-
-        case ::pltxt2htm::NodeKind::html_td:
+        }
+        case ::pltxt2htm::NodeKind::html_td: {
             td_node.~Td();
             break;
-
-        case ::pltxt2htm::NodeKind::md_atx_h1:
+        }
+        case ::pltxt2htm::NodeKind::md_atx_h1: {
             md_atx_h1_node.~MdAtxH1();
             break;
-        case ::pltxt2htm::NodeKind::md_atx_h2:
+        }
+        case ::pltxt2htm::NodeKind::md_atx_h2: {
             md_atx_h2_node.~MdAtxH2();
             break;
-        case ::pltxt2htm::NodeKind::md_atx_h3:
+        }
+        case ::pltxt2htm::NodeKind::md_atx_h3: {
             md_atx_h3_node.~MdAtxH3();
             break;
-        case ::pltxt2htm::NodeKind::md_atx_h4:
+        }
+        case ::pltxt2htm::NodeKind::md_atx_h4: {
             md_atx_h4_node.~MdAtxH4();
             break;
-        case ::pltxt2htm::NodeKind::md_atx_h5:
+        }
+        case ::pltxt2htm::NodeKind::md_atx_h5: {
             md_atx_h5_node.~MdAtxH5();
             break;
-        case ::pltxt2htm::NodeKind::md_atx_h6:
+        }
+        case ::pltxt2htm::NodeKind::md_atx_h6: {
             md_atx_h6_node.~MdAtxH6();
             break;
-        case ::pltxt2htm::NodeKind::md_escape_backslash:
+        }
+        case ::pltxt2htm::NodeKind::md_escape_backslash: {
             md_escape_backslash_node.~MdEscapeBackslash();
             break;
-        case ::pltxt2htm::NodeKind::md_escape_exclamation:
+        }
+        case ::pltxt2htm::NodeKind::md_escape_exclamation: {
             md_escape_exclamation_node.~MdEscapeExclamation();
             break;
-        case ::pltxt2htm::NodeKind::md_escape_double_quote:
+        }
+        case ::pltxt2htm::NodeKind::md_escape_double_quote: {
             md_escape_double_quote_node.~MdEscapeDoubleQuote();
             break;
-        case ::pltxt2htm::NodeKind::md_escape_hash:
+        }
+        case ::pltxt2htm::NodeKind::md_escape_hash: {
             md_escape_hash_node.~MdEscapeHash();
             break;
-        case ::pltxt2htm::NodeKind::md_escape_dollar:
+        }
+        case ::pltxt2htm::NodeKind::md_escape_dollar: {
             md_escape_dollar_node.~MdEscapeDollar();
             break;
-        case ::pltxt2htm::NodeKind::md_escape_percent:
+        }
+        case ::pltxt2htm::NodeKind::md_escape_percent: {
             md_escape_percent_node.~MdEscapePercent();
             break;
-        case ::pltxt2htm::NodeKind::md_escape_ampersand:
+        }
+        case ::pltxt2htm::NodeKind::md_escape_ampersand: {
             md_escape_ampersand_node.~MdEscapeAmpersand();
             break;
-        case ::pltxt2htm::NodeKind::md_escape_single_quote:
+        }
+        case ::pltxt2htm::NodeKind::md_escape_single_quote: {
             md_escape_single_quote_node.~MdEscapeSingleQuote();
             break;
-        case ::pltxt2htm::NodeKind::md_escape_left_paren:
+        }
+        case ::pltxt2htm::NodeKind::md_escape_left_paren: {
             md_escape_left_paren_node.~MdEscapeLeftParen();
             break;
-        case ::pltxt2htm::NodeKind::md_escape_right_paren:
+        }
+        case ::pltxt2htm::NodeKind::md_escape_right_paren: {
             md_escape_right_paren_node.~MdEscapeRightParen();
             break;
-        case ::pltxt2htm::NodeKind::md_escape_asterisk:
+        }
+        case ::pltxt2htm::NodeKind::md_escape_asterisk: {
             md_escape_asterisk_node.~MdEscapeAsterisk();
             break;
-        case ::pltxt2htm::NodeKind::md_escape_plus:
+        }
+        case ::pltxt2htm::NodeKind::md_escape_plus: {
             md_escape_plus_node.~MdEscapePlus();
             break;
-        case ::pltxt2htm::NodeKind::md_escape_comma:
+        }
+        case ::pltxt2htm::NodeKind::md_escape_comma: {
             md_escape_comma_node.~MdEscapeComma();
             break;
-        case ::pltxt2htm::NodeKind::md_escape_hyphen:
+        }
+        case ::pltxt2htm::NodeKind::md_escape_hyphen: {
             md_escape_hyphen_node.~MdEscapeHyphen();
             break;
-        case ::pltxt2htm::NodeKind::md_escape_dot:
+        }
+        case ::pltxt2htm::NodeKind::md_escape_dot: {
             md_escape_dot_node.~MdEscapeDot();
             break;
-        case ::pltxt2htm::NodeKind::md_escape_slash:
+        }
+        case ::pltxt2htm::NodeKind::md_escape_slash: {
             md_escape_slash_node.~MdEscapeSlash();
             break;
-        case ::pltxt2htm::NodeKind::md_escape_colon:
+        }
+        case ::pltxt2htm::NodeKind::md_escape_colon: {
             md_escape_colon_node.~MdEscapeColon();
             break;
-        case ::pltxt2htm::NodeKind::md_escape_semicolon:
+        }
+        case ::pltxt2htm::NodeKind::md_escape_semicolon: {
             md_escape_semicolon_node.~MdEscapeSemicolon();
             break;
-        case ::pltxt2htm::NodeKind::md_escape_less_than:
+        }
+        case ::pltxt2htm::NodeKind::md_escape_less_than: {
             md_escape_less_than_node.~MdEscapeLessThan();
             break;
-        case ::pltxt2htm::NodeKind::md_escape_equals:
+        }
+        case ::pltxt2htm::NodeKind::md_escape_equals: {
             md_escape_equals_node.~MdEscapeEquals();
             break;
-        case ::pltxt2htm::NodeKind::md_escape_greater_than:
+        }
+        case ::pltxt2htm::NodeKind::md_escape_greater_than: {
             md_escape_greater_than_node.~MdEscapeGreaterThan();
             break;
-        case ::pltxt2htm::NodeKind::md_escape_question:
+        }
+        case ::pltxt2htm::NodeKind::md_escape_question: {
             md_escape_question_node.~MdEscapeQuestion();
             break;
-        case ::pltxt2htm::NodeKind::md_escape_at:
+        }
+        case ::pltxt2htm::NodeKind::md_escape_at: {
             md_escape_at_node.~MdEscapeAt();
             break;
-        case ::pltxt2htm::NodeKind::md_escape_left_bracket:
+        }
+        case ::pltxt2htm::NodeKind::md_escape_left_bracket: {
             md_escape_left_bracket_node.~MdEscapeLeftBracket();
             break;
-        case ::pltxt2htm::NodeKind::md_escape_right_bracket:
+        }
+        case ::pltxt2htm::NodeKind::md_escape_right_bracket: {
             md_escape_right_bracket_node.~MdEscapeRightBracket();
             break;
-        case ::pltxt2htm::NodeKind::md_escape_caret:
+        }
+        case ::pltxt2htm::NodeKind::md_escape_caret: {
             md_escape_caret_node.~MdEscapeCaret();
             break;
-        case ::pltxt2htm::NodeKind::md_escape_underscore:
+        }
+        case ::pltxt2htm::NodeKind::md_escape_underscore: {
             md_escape_underscore_node.~MdEscapeUnderscore();
             break;
-        case ::pltxt2htm::NodeKind::md_escape_backtick:
+        }
+        case ::pltxt2htm::NodeKind::md_escape_backtick: {
             md_escape_backtick_node.~MdEscapeBacktick();
             break;
-        case ::pltxt2htm::NodeKind::md_escape_left_brace:
+        }
+        case ::pltxt2htm::NodeKind::md_escape_left_brace: {
             md_escape_left_brace_node.~MdEscapeLeftBrace();
             break;
-        case ::pltxt2htm::NodeKind::md_escape_pipe:
+        }
+        case ::pltxt2htm::NodeKind::md_escape_pipe: {
             md_escape_pipe_node.~MdEscapePipe();
             break;
-        case ::pltxt2htm::NodeKind::md_escape_right_brace:
+        }
+        case ::pltxt2htm::NodeKind::md_escape_right_brace: {
             md_escape_right_brace_node.~MdEscapeRightBrace();
             break;
-        case ::pltxt2htm::NodeKind::md_escape_tilde:
+        }
+        case ::pltxt2htm::NodeKind::md_escape_tilde: {
             md_escape_tilde_node.~MdEscapeTilde();
             break;
-        case ::pltxt2htm::NodeKind::md_hr:
+        }
+        case ::pltxt2htm::NodeKind::md_hr: {
             md_hr_node.~MdHr();
             break;
-        case ::pltxt2htm::NodeKind::md_code_fence_backtick:
+        }
+        case ::pltxt2htm::NodeKind::md_code_fence_backtick: {
             md_code_fence_backtick_node.~MdCodeFenceBacktick();
             break;
-        case ::pltxt2htm::NodeKind::md_code_fence_tilde:
+        }
+        case ::pltxt2htm::NodeKind::md_code_fence_tilde: {
             md_code_fence_tilde_node.~MdCodeFenceTilde();
             break;
-        case ::pltxt2htm::NodeKind::md_code_span_1_backtick:
+        }
+        case ::pltxt2htm::NodeKind::md_code_span_1_backtick: {
             md_code_span_1_backtick_node.~MdCodeSpan1Backtick();
             break;
-        case ::pltxt2htm::NodeKind::md_code_span_2_backtick:
+        }
+        case ::pltxt2htm::NodeKind::md_code_span_2_backtick: {
             md_code_span_2_backtick_node.~MdCodeSpan2Backtick();
             break;
-        case ::pltxt2htm::NodeKind::md_code_span_3_backtick:
+        }
+        case ::pltxt2htm::NodeKind::md_code_span_3_backtick: {
             md_code_span_3_backtick_node.~MdCodeSpan3Backtick();
             break;
-        case ::pltxt2htm::NodeKind::md_single_emphasis_asterisk:
+        }
+        case ::pltxt2htm::NodeKind::md_single_emphasis_asterisk: {
             md_single_emphasis_asterisk_node.~MdSingleEmphasisAsterisk();
             break;
-        case ::pltxt2htm::NodeKind::md_double_emphasis_asterisk:
+        }
+        case ::pltxt2htm::NodeKind::md_double_emphasis_asterisk: {
             md_double_emphasis_asterisk_node.~MdDoubleEmphasisAsterisk();
             break;
-        case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk:
+        }
+        case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk: {
             md_triple_emphasis_asterisk_node.~MdTripleEmphasisAsterisk();
             break;
-        case ::pltxt2htm::NodeKind::md_single_emphasis_underscore:
+        }
+        case ::pltxt2htm::NodeKind::md_single_emphasis_underscore: {
             md_single_emphasis_underscore_node.~MdSingleEmphasisUnderscore();
             break;
-        case ::pltxt2htm::NodeKind::md_double_emphasis_underscore:
+        }
+        case ::pltxt2htm::NodeKind::md_double_emphasis_underscore: {
             md_double_emphasis_underscore_node.~MdDoubleEmphasisUnderscore();
             break;
-        case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore:
+        }
+        case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore: {
             md_triple_emphasis_underscore_node.~MdTripleEmphasisUnderscore();
             break;
-        case ::pltxt2htm::NodeKind::md_del:
+        }
+        case ::pltxt2htm::NodeKind::md_del: {
             md_del_node.~MdDel();
             break;
-        case ::pltxt2htm::NodeKind::md_link:
+        }
+        case ::pltxt2htm::NodeKind::md_link: {
             md_link_node.~MdLink();
             break;
-        case ::pltxt2htm::NodeKind::md_image:
+        }
+        case ::pltxt2htm::NodeKind::md_image: {
             md_image_node.~MdImage();
             break;
-        case ::pltxt2htm::NodeKind::md_block_quotes:
+        }
+        case ::pltxt2htm::NodeKind::md_block_quotes: {
             md_block_quotes_node.~MdBlockQuotes();
             break;
-        case ::pltxt2htm::NodeKind::md_ul:
+        }
+        case ::pltxt2htm::NodeKind::md_ul: {
             md_ul_node.~MdUl();
             break;
-        case ::pltxt2htm::NodeKind::md_ol:
+        }
+        case ::pltxt2htm::NodeKind::md_ol: {
             md_ol_node.~MdOl();
             break;
-        case ::pltxt2htm::NodeKind::md_li:
+        }
+        case ::pltxt2htm::NodeKind::md_li: {
             md_li_node.~MdLi();
             break;
-        case ::pltxt2htm::NodeKind::md_latex_inline:
+        }
+        case ::pltxt2htm::NodeKind::md_latex_inline: {
             md_latex_inline_node.~MdLatexInline();
             break;
-        case ::pltxt2htm::NodeKind::md_latex_block:
+        }
+        case ::pltxt2htm::NodeKind::md_latex_block: {
             md_latex_block_node.~MdLatexBlock();
             break;
+        }
 #if 0
         default:
             [[unlikely]] {
@@ -1675,14 +1749,18 @@ public:
         bool const is_equal_sign_tag_type{::pltxt2htm::details::is_equal_sign_tag_type(self.node_kind)};
         pltxt2htm_assert(is_equal_sign_tag_type, u8"node kind mismatch");
         switch (self.node_kind) {
-        case ::pltxt2htm::NodeKind::pl_color:
+        case ::pltxt2htm::NodeKind::pl_color: {
             return ::std::forward_like<decltype(self)>(self.pl_color_node).get_color();
-        case ::pltxt2htm::NodeKind::pl_experiment:
+        }
+        case ::pltxt2htm::NodeKind::pl_experiment: {
             return ::std::forward_like<decltype(self)>(self.pl_experiment_node).get_id();
-        case ::pltxt2htm::NodeKind::pl_discussion:
+        }
+        case ::pltxt2htm::NodeKind::pl_discussion: {
             return ::std::forward_like<decltype(self)>(self.pl_discussion_node).get_id();
-        case ::pltxt2htm::NodeKind::pl_user:
+        }
+        case ::pltxt2htm::NodeKind::pl_user: {
             return ::std::forward_like<decltype(self)>(self.pl_user_node).get_id();
+        }
         default:
             [[unlikely]] {
                 ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
@@ -1721,10 +1799,12 @@ public:
     [[nodiscard]]
     constexpr auto get_md_code_fence_language(this auto&& self) noexcept -> decltype(auto) {
         switch (self.node_kind) {
-        case ::pltxt2htm::NodeKind::md_code_fence_backtick:
+        case ::pltxt2htm::NodeKind::md_code_fence_backtick: {
             return ::std::forward_like<decltype(self)>(self.md_code_fence_backtick_node).get_language();
-        case ::pltxt2htm::NodeKind::md_code_fence_tilde:
+        }
+        case ::pltxt2htm::NodeKind::md_code_fence_tilde: {
             return ::std::forward_like<decltype(self)>(self.md_code_fence_tilde_node).get_language();
+        }
         default:
             [[unlikely]] {
                 ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
@@ -1735,135 +1815,192 @@ public:
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         switch (self.node_kind) {
-        case ::pltxt2htm::NodeKind::text:
+        case ::pltxt2htm::NodeKind::text: {
             return ::std::forward_like<decltype(self)>(self.text_node).get_subast();
-
-        case ::pltxt2htm::NodeKind::html_h1:
+        }
+        case ::pltxt2htm::NodeKind::html_h1: {
             return ::std::forward_like<decltype(self)>(self.h1_node).get_subast();
-        case ::pltxt2htm::NodeKind::html_h2:
+        }
+        case ::pltxt2htm::NodeKind::html_h2: {
             return ::std::forward_like<decltype(self)>(self.h2_node).get_subast();
-        case ::pltxt2htm::NodeKind::html_h3:
+        }
+        case ::pltxt2htm::NodeKind::html_h3: {
             return ::std::forward_like<decltype(self)>(self.h3_node).get_subast();
-        case ::pltxt2htm::NodeKind::html_h4:
+        }
+        case ::pltxt2htm::NodeKind::html_h4: {
             return ::std::forward_like<decltype(self)>(self.h4_node).get_subast();
-        case ::pltxt2htm::NodeKind::html_h5:
+        }
+        case ::pltxt2htm::NodeKind::html_h5: {
             return ::std::forward_like<decltype(self)>(self.h5_node).get_subast();
-        case ::pltxt2htm::NodeKind::html_h6:
+        }
+        case ::pltxt2htm::NodeKind::html_h6: {
             return ::std::forward_like<decltype(self)>(self.h6_node).get_subast();
-        case ::pltxt2htm::NodeKind::html_p:
+        }
+        case ::pltxt2htm::NodeKind::html_p: {
             return ::std::forward_like<decltype(self)>(self.p_node).get_subast();
-        case ::pltxt2htm::NodeKind::html_del:
+        }
+        case ::pltxt2htm::NodeKind::html_del: {
             return ::std::forward_like<decltype(self)>(self.del_node).get_subast();
-        case ::pltxt2htm::NodeKind::html_note:
+        }
+        case ::pltxt2htm::NodeKind::html_note: {
             return ::std::forward_like<decltype(self)>(self.note_node).get_subast();
-        case ::pltxt2htm::NodeKind::html_em:
+        }
+        case ::pltxt2htm::NodeKind::html_em: {
             return ::std::forward_like<decltype(self)>(self.em_node).get_subast();
-        case ::pltxt2htm::NodeKind::html_strong:
+        }
+        case ::pltxt2htm::NodeKind::html_strong: {
             return ::std::forward_like<decltype(self)>(self.strong_node).get_subast();
-        case ::pltxt2htm::NodeKind::html_ul:
+        }
+        case ::pltxt2htm::NodeKind::html_ul: {
             return ::std::forward_like<decltype(self)>(self.ul_node).get_subast();
-        case ::pltxt2htm::NodeKind::html_ol:
+        }
+        case ::pltxt2htm::NodeKind::html_ol: {
             return ::std::forward_like<decltype(self)>(self.ol_node).get_subast();
-        case ::pltxt2htm::NodeKind::html_li:
+        }
+        case ::pltxt2htm::NodeKind::html_li: {
             return ::std::forward_like<decltype(self)>(self.li_node).get_subast();
-        case ::pltxt2htm::NodeKind::html_code:
+        }
+        case ::pltxt2htm::NodeKind::html_code: {
             return ::std::forward_like<decltype(self)>(self.code_node).get_subast();
-        case ::pltxt2htm::NodeKind::html_pre:
+        }
+        case ::pltxt2htm::NodeKind::html_pre: {
             return ::std::forward_like<decltype(self)>(self.pre_node).get_subast();
-        case ::pltxt2htm::NodeKind::html_blockquote:
+        }
+        case ::pltxt2htm::NodeKind::html_blockquote: {
             return ::std::forward_like<decltype(self)>(self.blockquote_node).get_subast();
-
-        case ::pltxt2htm::NodeKind::html_table:
+        }
+        case ::pltxt2htm::NodeKind::html_table: {
             return ::std::forward_like<decltype(self)>(self.table_node).get_subast();
-        case ::pltxt2htm::NodeKind::html_caption:
+        }
+        case ::pltxt2htm::NodeKind::html_caption: {
             return ::std::forward_like<decltype(self)>(self.caption_node).get_subast();
-        case ::pltxt2htm::NodeKind::html_colgroup:
+        }
+        case ::pltxt2htm::NodeKind::html_colgroup: {
             return ::std::forward_like<decltype(self)>(self.colgroup_node).get_subast();
-        case ::pltxt2htm::NodeKind::html_thead:
+        }
+        case ::pltxt2htm::NodeKind::html_thead: {
             return ::std::forward_like<decltype(self)>(self.thead_node).get_subast();
-        case ::pltxt2htm::NodeKind::html_tbody:
+        }
+        case ::pltxt2htm::NodeKind::html_tbody: {
             return ::std::forward_like<decltype(self)>(self.tbody_node).get_subast();
-        case ::pltxt2htm::NodeKind::html_tfoot:
+        }
+        case ::pltxt2htm::NodeKind::html_tfoot: {
             return ::std::forward_like<decltype(self)>(self.tfoot_node).get_subast();
-        case ::pltxt2htm::NodeKind::html_tr:
+        }
+        case ::pltxt2htm::NodeKind::html_tr: {
             return ::std::forward_like<decltype(self)>(self.tr_node).get_subast();
-        case ::pltxt2htm::NodeKind::html_th:
+        }
+        case ::pltxt2htm::NodeKind::html_th: {
             return ::std::forward_like<decltype(self)>(self.th_node).get_subast();
-        case ::pltxt2htm::NodeKind::html_td:
+        }
+        case ::pltxt2htm::NodeKind::html_td: {
             return ::std::forward_like<decltype(self)>(self.td_node).get_subast();
-
-        case ::pltxt2htm::NodeKind::md_atx_h1:
+        }
+        case ::pltxt2htm::NodeKind::md_atx_h1: {
             return ::std::forward_like<decltype(self)>(self.md_atx_h1_node).get_subast();
-        case ::pltxt2htm::NodeKind::md_atx_h2:
+        }
+        case ::pltxt2htm::NodeKind::md_atx_h2: {
             return ::std::forward_like<decltype(self)>(self.md_atx_h2_node).get_subast();
-        case ::pltxt2htm::NodeKind::md_atx_h3:
+        }
+        case ::pltxt2htm::NodeKind::md_atx_h3: {
             return ::std::forward_like<decltype(self)>(self.md_atx_h3_node).get_subast();
-        case ::pltxt2htm::NodeKind::md_atx_h4:
+        }
+        case ::pltxt2htm::NodeKind::md_atx_h4: {
             return ::std::forward_like<decltype(self)>(self.md_atx_h4_node).get_subast();
-        case ::pltxt2htm::NodeKind::md_atx_h5:
+        }
+        case ::pltxt2htm::NodeKind::md_atx_h5: {
             return ::std::forward_like<decltype(self)>(self.md_atx_h5_node).get_subast();
-        case ::pltxt2htm::NodeKind::md_atx_h6:
+        }
+        case ::pltxt2htm::NodeKind::md_atx_h6: {
             return ::std::forward_like<decltype(self)>(self.md_atx_h6_node).get_subast();
-        case ::pltxt2htm::NodeKind::md_code_fence_backtick:
+        }
+        case ::pltxt2htm::NodeKind::md_code_fence_backtick: {
             return ::std::forward_like<decltype(self)>(self.md_code_fence_backtick_node).get_subast();
-        case ::pltxt2htm::NodeKind::md_code_fence_tilde:
+        }
+        case ::pltxt2htm::NodeKind::md_code_fence_tilde: {
             return ::std::forward_like<decltype(self)>(self.md_code_fence_tilde_node).get_subast();
-        case ::pltxt2htm::NodeKind::md_code_span_1_backtick:
+        }
+        case ::pltxt2htm::NodeKind::md_code_span_1_backtick: {
             return ::std::forward_like<decltype(self)>(self.md_code_span_1_backtick_node).get_subast();
-        case ::pltxt2htm::NodeKind::md_code_span_2_backtick:
+        }
+        case ::pltxt2htm::NodeKind::md_code_span_2_backtick: {
             return ::std::forward_like<decltype(self)>(self.md_code_span_2_backtick_node).get_subast();
-        case ::pltxt2htm::NodeKind::md_code_span_3_backtick:
+        }
+        case ::pltxt2htm::NodeKind::md_code_span_3_backtick: {
             return ::std::forward_like<decltype(self)>(self.md_code_span_3_backtick_node).get_subast();
-        case ::pltxt2htm::NodeKind::md_single_emphasis_asterisk:
+        }
+        case ::pltxt2htm::NodeKind::md_single_emphasis_asterisk: {
             return ::std::forward_like<decltype(self)>(self.md_single_emphasis_asterisk_node).get_subast();
-        case ::pltxt2htm::NodeKind::md_double_emphasis_asterisk:
+        }
+        case ::pltxt2htm::NodeKind::md_double_emphasis_asterisk: {
             return ::std::forward_like<decltype(self)>(self.md_double_emphasis_asterisk_node).get_subast();
-        case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk:
+        }
+        case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk: {
             return ::std::forward_like<decltype(self)>(self.md_triple_emphasis_asterisk_node).get_subast();
-        case ::pltxt2htm::NodeKind::md_single_emphasis_underscore:
+        }
+        case ::pltxt2htm::NodeKind::md_single_emphasis_underscore: {
             return ::std::forward_like<decltype(self)>(self.md_single_emphasis_underscore_node).get_subast();
-        case ::pltxt2htm::NodeKind::md_double_emphasis_underscore:
+        }
+        case ::pltxt2htm::NodeKind::md_double_emphasis_underscore: {
             return ::std::forward_like<decltype(self)>(self.md_double_emphasis_underscore_node).get_subast();
-        case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore:
+        }
+        case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore: {
             return ::std::forward_like<decltype(self)>(self.md_triple_emphasis_underscore_node).get_subast();
-        case ::pltxt2htm::NodeKind::md_del:
+        }
+        case ::pltxt2htm::NodeKind::md_del: {
             return ::std::forward_like<decltype(self)>(self.md_del_node).get_subast();
-        case ::pltxt2htm::NodeKind::md_link:
+        }
+        case ::pltxt2htm::NodeKind::md_link: {
             return ::std::forward_like<decltype(self)>(self.md_link_node).get_subast();
-        case ::pltxt2htm::NodeKind::md_image:
+        }
+        case ::pltxt2htm::NodeKind::md_image: {
             return ::std::forward_like<decltype(self)>(self.md_image_node).get_subast();
-        case ::pltxt2htm::NodeKind::md_block_quotes:
+        }
+        case ::pltxt2htm::NodeKind::md_block_quotes: {
             return ::std::forward_like<decltype(self)>(self.md_block_quotes_node).get_subast();
-        case ::pltxt2htm::NodeKind::md_ul:
+        }
+        case ::pltxt2htm::NodeKind::md_ul: {
             return ::std::forward_like<decltype(self)>(self.md_ul_node).get_subast();
-        case ::pltxt2htm::NodeKind::md_ol:
+        }
+        case ::pltxt2htm::NodeKind::md_ol: {
             return ::std::forward_like<decltype(self)>(self.md_ol_node).get_subast();
-        case ::pltxt2htm::NodeKind::md_li:
+        }
+        case ::pltxt2htm::NodeKind::md_li: {
             return ::std::forward_like<decltype(self)>(self.md_li_node).get_subast();
-        case ::pltxt2htm::NodeKind::md_latex_inline:
+        }
+        case ::pltxt2htm::NodeKind::md_latex_inline: {
             return ::std::forward_like<decltype(self)>(self.md_latex_inline_node).get_subast();
-        case ::pltxt2htm::NodeKind::md_latex_block:
+        }
+        case ::pltxt2htm::NodeKind::md_latex_block: {
             return ::std::forward_like<decltype(self)>(self.md_latex_block_node).get_subast();
-
-        case ::pltxt2htm::NodeKind::pl_color:
+        }
+        case ::pltxt2htm::NodeKind::pl_color: {
             return ::std::forward_like<decltype(self)>(self.pl_color_node).get_subast();
-        case ::pltxt2htm::NodeKind::pl_a:
+        }
+        case ::pltxt2htm::NodeKind::pl_a: {
             return ::std::forward_like<decltype(self)>(self.pl_a_node).get_subast();
-        case ::pltxt2htm::NodeKind::pl_experiment:
+        }
+        case ::pltxt2htm::NodeKind::pl_experiment: {
             return ::std::forward_like<decltype(self)>(self.pl_experiment_node).get_subast();
-        case ::pltxt2htm::NodeKind::pl_discussion:
+        }
+        case ::pltxt2htm::NodeKind::pl_discussion: {
             return ::std::forward_like<decltype(self)>(self.pl_discussion_node).get_subast();
-        case ::pltxt2htm::NodeKind::pl_user:
+        }
+        case ::pltxt2htm::NodeKind::pl_user: {
             return ::std::forward_like<decltype(self)>(self.pl_user_node).get_subast();
-        case ::pltxt2htm::NodeKind::pl_external:
+        }
+        case ::pltxt2htm::NodeKind::pl_external: {
             return ::std::forward_like<decltype(self)>(self.pl_external_node).get_subast();
-        case ::pltxt2htm::NodeKind::pl_size:
+        }
+        case ::pltxt2htm::NodeKind::pl_size: {
             return ::std::forward_like<decltype(self)>(self.pl_size_node).get_subast();
-        case ::pltxt2htm::NodeKind::pl_i:
+        }
+        case ::pltxt2htm::NodeKind::pl_i: {
             return ::std::forward_like<decltype(self)>(self.pl_i_node).get_subast();
-        case ::pltxt2htm::NodeKind::pl_b:
+        }
+        case ::pltxt2htm::NodeKind::pl_b: {
             return ::std::forward_like<decltype(self)>(self.pl_b_node).get_subast();
-
+        }
         default:
             [[unlikely]] {
                 ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();

@@ -278,7 +278,7 @@ public:
 
     [[nodiscard]]
     constexpr auto get_sublist(this auto&& self) noexcept -> decltype(auto) {
-        switch (self.type_) {
+        switch (self.type_) /* -Werror=switch */ {
         case ::pltxt2htm::details::MdListNodeType::md_ul: {
             return ::std::forward_like<decltype(self)>(self.ul_node).get_sublist();
         }
