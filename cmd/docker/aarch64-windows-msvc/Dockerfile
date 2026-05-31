@@ -23,7 +23,7 @@ RUN CFLAGS="--target=aarch64-windows-msvc -fms-runtime-lib=static -isystem/opt/x
     CXXFLAGS="${CFLAGS}" && \
     LDFLAGS="--target=aarch64-windows-msvc -nostdlib -fuse-ld=lld -L/opt/xwin/crt/lib/aarch64 -L/opt/xwin/sdk/lib/ucrt/aarch64 -L/opt/xwin/sdk/lib/um/aarch64" && \
     cmake -S . -B build -G Ninja \
-        -DCMAKE_BUILD_TYPE=${mode^} \
+        -DCMAKE_BUILD_TYPE=${mode} \
         -DCMAKE_CXX_COMPILER=clang++ \
         -DCMAKE_CXX_COMPILER_TARGET=aarch64-windows-msvc \
         -DCMAKE_BUILD_WITH_INSTALL_RPATH=TRUE \

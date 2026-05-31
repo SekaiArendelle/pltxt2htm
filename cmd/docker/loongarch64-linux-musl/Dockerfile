@@ -28,7 +28,7 @@ COPY --from=sysroot /sysroots /sysroots
 WORKDIR /pltxt2htm/cmd
 ARG mode=debug
 RUN cmake -S . -B build -G Ninja \
-    -DCMAKE_BUILD_TYPE=${mode^} \
+    -DCMAKE_BUILD_TYPE=${mode} \
     -DCMAKE_CXX_COMPILER=clang++ \
     -DCMAKE_CXX_FLAGS="--target=loongarch64-alpine-linux-musl --sysroot=/sysroots/loongarch64-linux-musl" \
     -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=lld -static --target=loongarch64-alpine-linux-musl --sysroot=/sysroots/loongarch64-linux-musl/"

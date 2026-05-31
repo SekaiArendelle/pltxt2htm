@@ -23,7 +23,7 @@ RUN CFLAGS="--target=x86_64-windows-msvc -fms-runtime-lib=static -isystem/opt/xw
     CXXFLAGS="${CFLAGS}" && \
     LDFLAGS="--target=x86_64-windows-msvc -nostdlib -fuse-ld=lld -L/opt/xwin/crt/lib/x86_64 -L/opt/xwin/sdk/lib/ucrt/x86_64 -L/opt/xwin/sdk/lib/um/x86_64" && \
     cmake -S . -B build \
-        -DCMAKE_BUILD_TYPE=${mode^} \
+        -DCMAKE_BUILD_TYPE=${mode} \
         -DCMAKE_CXX_COMPILER=clang++ \
         -DCMAKE_CXX_COMPILER_TARGET=x86_64-windows-msvc \
         -DCMAKE_BUILD_WITH_INSTALL_RPATH=TRUE \

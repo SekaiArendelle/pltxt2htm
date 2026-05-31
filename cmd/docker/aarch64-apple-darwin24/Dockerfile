@@ -20,7 +20,7 @@ COPY ../../../ .
 
 WORKDIR /pltxt2htm/cmd
 RUN cmake -S . -B build \
-    -DCMAKE_BUILD_TYPE=${mode^} \
+    -DCMAKE_BUILD_TYPE=${mode} \
     -DCMAKE_CXX_COMPILER=clang++ \
     -DCMAKE_C_FLAGS="--target=aarch64-apple-darwin24 --sysroot=${SYSROOT}" \
     -DCMAKE_CXX_FLAGS="--target=aarch64-apple-darwin24 --sysroot=${SYSROOT}" \

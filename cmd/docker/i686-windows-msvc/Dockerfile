@@ -23,7 +23,7 @@ RUN CFLAGS="--target=i686-windows-msvc -fms-runtime-lib=static -isystem/opt/xwin
     CXXFLAGS="${CFLAGS}" && \
     LDFLAGS="--target=i686-windows-msvc -nostdlib -fuse-ld=lld -L/opt/xwin/crt/lib/x86 -L/opt/xwin/sdk/lib/ucrt/x86 -L/opt/xwin/sdk/lib/um/x86" && \
     cmake -S . -B build -G Ninja \
-        -DCMAKE_BUILD_TYPE=${mode^} \
+        -DCMAKE_BUILD_TYPE=${mode} \
         -DCMAKE_CXX_COMPILER=clang++ \
         -DCMAKE_CXX_COMPILER_TARGET=i686-windows-msvc \
         -DCMAKE_BUILD_WITH_INSTALL_RPATH=TRUE \
