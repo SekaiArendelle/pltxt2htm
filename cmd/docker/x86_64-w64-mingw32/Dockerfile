@@ -1,19 +1,21 @@
 FROM alpine:3.23 AS builder
 
-RUN apk add --no-cache xmake git zip mingw-w64-gcc
+RUN apk add --no-cache cmake ninja git zip mingw-w64-gcc
 
 WORKDIR /pltxt2htm
 # Copy the entire project to preserve git tracking history.
 # A partial copy would distort pltxt2htm's git-tracked modification detection.
 COPY ../../../ .
 
-ENV XMAKE_ROOT=y
-
 WORKDIR /pltxt2htm/cmd
 ARG mode=debug
-RUN xmake config --toolchain=x86_64-w64-mingw32-gcc --arch=x64 --plat=mingw -m ${mode}
-RUN xmake build -v
-RUN xmake install -o x86_64-w64-mingw32-pltxt2htm-cmd-${mode}
+RUN cmake -S . -B build -G Ninja \
+    -DCMAKE_BUILD_TYPE=${mode} \
+    -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++ \
+    -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc \
+    -DCMAKE_SYSTEM_NAME=Windows
+RUN cmake --build build -v
+RUN cmake --install build --prefix x86_64-w64-mingw32-pltxt2htm-cmd-${mode}
 RUN if [ "${mode}" = "debug" ]; then \
         cp /usr/x86_64-w64-mingw32/bin/libgcc_s_seh-1.dll ./x86_64-w64-mingw32-pltxt2htm-cmd-${mode}/; \
         cp /usr/x86_64-w64-mingw32/bin/libstdc++-6.dll ./x86_64-w64-mingw32-pltxt2htm-cmd-${mode}/; \

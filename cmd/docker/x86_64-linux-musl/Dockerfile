@@ -16,7 +16,7 @@ RUN apk add --no-cache --no-scripts \
 
 FROM alpine:3.23 AS builder
 
-RUN apk update && apk add --no-cache git xz xmake clang lld
+RUN apk update && apk add --no-cache git xz clang lld cmake ninja
 
 WORKDIR /pltxt2htm
 # Copy the entire project to preserve git tracking history.
@@ -25,11 +25,13 @@ COPY ../../../ .
 
 COPY --from=sysroot /sysroots /sysroots
 
-ENV XMAKE_ROOT=y
-
 WORKDIR /pltxt2htm/cmd
 ARG mode=debug
-RUN xmake config --toolchain=clang --arch=x64 --plat=linux -m ${mode} --cxxflags='--target=x86_64-alpine-linux-musl --sysroot=/sysroots/x86_64-linux-musl' --ldflags='-static --target=x86_64-alpine-linux-musl --sysroot=/sysroots/x86_64-linux-musl/'
-RUN xmake build -v
-RUN xmake install -o x86_64-linux-musl-pltxt2htm-cmd-${mode}
+RUN cmake -S . -B build -G Ninja \
+    -DCMAKE_BUILD_TYPE=${mode} \
+    -DCMAKE_CXX_COMPILER=clang++ \
+    -DCMAKE_CXX_FLAGS="--target=x86_64-alpine-linux-musl --sysroot=/sysroots/x86_64-linux-musl" \
+    -DCMAKE_EXE_LINKER_FLAGS="-static --target=x86_64-alpine-linux-musl --sysroot=/sysroots/x86_64-linux-musl/"
+RUN cmake --build build -v
+RUN cmake --install build --prefix x86_64-linux-musl-pltxt2htm-cmd-${mode}
 RUN tar cJf x86_64-linux-musl-pltxt2htm-cmd-${mode}.tar.xz x86_64-linux-musl-pltxt2htm-cmd-${mode}/

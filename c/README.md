@@ -7,9 +7,9 @@ This folder supply C's header-source style interface. (build source code to libr
 > Note: building library still requires C++ toolchains
 
 ```sh
-xmake config -k [static|shared]
-xmake build
-xmake install -o $PREFIX
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+cmake --install build --prefix $PREFIX
 ```
 
 ## Usage

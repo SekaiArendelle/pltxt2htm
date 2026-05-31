@@ -11,8 +11,10 @@ if platform.system() != "Linux":
 
 if not shutil.which("perf"):
     raise Exception("perf not found, type \"sudo pacman -S perf\" to install it")
-if not shutil.which("xmake"):
-    raise Exception("xmake not found, type \"sudo pacman -S xmake\" to install it")
+if not shutil.which("cmake"):
+    raise Exception("cmake not found, type \"sudo pacman -S cmake\" to install it")
+if not shutil.which("ninja"):
+    raise Exception("ninja not found, type \"sudo pacman -S ninja\" to install it")
 if not shutil.which("stackcollapse-perf.pl") or not shutil.which("flamegraph.pl"):
     raise Exception("FlameGraph not found, download it from 'https://github.com/brendangregg/FlameGraph'")
 if not shutil.which("g++"):
@@ -29,22 +31,20 @@ def try_rmdir(dir_name: str) -> None:
 os.chdir(CMD_DIR)
 
 BUILD_DIR = os.path.join(CMD_DIR, "build")
-XMAKE_DIR = os.path.join(CMD_DIR, ".xmake")
 INSTALL_DIR = os.path.join(CMD_DIR, "x86_64-linux-gnu-pltxt2htm-cmd-debug")
 
 try_rmdir(BUILD_DIR)
-try_rmdir(XMAKE_DIR)
 try_rmdir(INSTALL_DIR)
 
-err_code = os.system("xmake config --toolchain=gcc -m debug")
+err_code = os.system("cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++")
 if err_code != 0:
-    raise Exception("xmake config failed")
-err_code = os.system("xmake build -v")
+    raise Exception("cmake config failed")
+err_code = os.system("cmake --build build -v")
 if err_code != 0:
-    raise Exception("xmake build failed")
-err_code = os.system(f"xmake install -o \"{INSTALL_DIR}\"")
+    raise Exception("cmake build failed")
+err_code = os.system(f"cmake --install build --prefix \"{INSTALL_DIR}\"")
 if err_code != 0:
-    raise Exception("xmake install fail")
+    raise Exception("cmake install fail")
 
 PERF_DIR = os.path.join(SCRIPT_DIR, "build")
 EXE_PATH = os.path.join(INSTALL_DIR, "pltxt2htm")

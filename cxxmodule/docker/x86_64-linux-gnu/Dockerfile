@@ -1,15 +1,12 @@
 FROM ubuntu:26.04
 
-RUN apt-get update && apt-get install -y --no-install-recommends xmake clang
+RUN apt-get update && apt-get install -y --no-install-recommends cmake ninja-build clang
 
 WORKDIR /pltxt2htm
 COPY include/ /pltxt2htm/include/
 COPY cxxmodule/ /pltxt2htm/cxxmodule/
-COPY xmake/ /pltxt2htm/xmake/
-
-ENV XMAKE_ROOT=y
 
 WORKDIR /pltxt2htm/cxxmodule
 
-RUN xmake config -m debug --toolchain=clang
-RUN xmake build -v
+RUN cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++
+RUN cmake --build build -v

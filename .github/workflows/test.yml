@@ -176,10 +176,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install clang and xmake
+      - name: Install clang and cmake
         run: |
           brew update
-          brew install llvm lld xmake
+          brew install llvm lld cmake ninja
 
       - name: Set PATH for LLVM clang
         run: echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
@@ -191,8 +191,8 @@ jobs:
       - name: Configure and build
         working-directory: examples
         run: |
-          xmake f -m ${{ matrix.build-mode }} --toolchain=clang
-          xmake build -v
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.build-mode }} -DCMAKE_CXX_COMPILER=clang++
+          cmake --build build -v
 
   wasm32-unknown-emscripten-wasm:
     strategy:
@@ -330,10 +330,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install clang and xmake
+      - name: Install clang and cmake
         run: |
           brew update
-          brew install llvm lld xmake
+          brew install llvm lld cmake ninja
 
       - name: Set PATH for LLVM clang
         run: echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
@@ -341,8 +341,8 @@ jobs:
       - name: Configure and build
         working-directory: c
         run: |
-          xmake config -m release -k static --toolchain=clang --cxxflags="--target=aarch64-apple-ios -isysroot $(xcrun --sdk iphoneos --show-sdk-path)"
-          xmake build -v
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_CXX_FLAGS="--target=aarch64-apple-ios -isysroot $(xcrun --sdk iphoneos --show-sdk-path)"
+          cmake --build build -v
 
   x86_64-linux-gnu-cxxmodule:
     name: x86_64-linux-gnu (cxxmodule/)
