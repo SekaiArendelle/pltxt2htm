@@ -337,11 +337,14 @@ entry:
             // build <tbody>
             if (col < flat_ast.size()) {
                 ::pltxt2htm::Ast<ndebug> tbody_ast{};
-                while (col < flat_ast.size()) {
+                ::std::size_t body_row_index{};
+                while (col < flat_ast.size() && body_row_index < prev_raw_ast.body_rows.size()) {
+                    auto const& body_row = prev_raw_ast.body_rows[body_row_index];
                     ::pltxt2htm::Ast<ndebug> tr_ast{};
-                    for (::std::size_t c{}; c < prev_raw_ast.num_cols && col < flat_ast.size(); ++c, ++col) {
+                    for (::std::size_t c{}; c < body_row.size() && col < flat_ast.size(); ++c, ++col) {
                         tr_ast.push_back(::std::move(flat_ast[col]));
                     }
+                    ++body_row_index;
                     tbody_ast.push_back(
                         ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTr<ndebug>{::std::move(tr_ast)}));
                 }

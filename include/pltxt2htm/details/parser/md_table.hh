@@ -310,8 +310,12 @@ constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
         current_index = after_line;
         auto row = row_opt.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
 
+        // each body row must have exactly num_cols cells
+        if (row.cells.size() != num_cols) {
+            return ::exception::nullopt_t{};
+        }
         ::fast_io::vector<::pltxt2htm::details::MdTableCellRaw> body_cells{};
-        for (::std::size_t col{}; col < row.cells.size() && col < num_cols; ++col) {
+        for (::std::size_t col{}; col < row.cells.size(); ++col) {
             auto const& cell_text = row.cells[col];
             auto align_val = col < aligns.size() ? aligns[col] : ::pltxt2htm::MdTableAlign::left;
             body_cells.push_back(::pltxt2htm::details::MdTableCellRaw{

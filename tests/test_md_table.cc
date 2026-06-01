@@ -562,5 +562,61 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // Uneven column counts: body row with fewer cells than header → not a table
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| A | B | C |\n"
+            u8"|---|---|---|\n"
+            u8"| 1 | 2   |\n"
+            u8"| 3 | 4 | 5 |");
+        auto answer = ::fast_io::u8string_view{
+            u8"|&nbsp;A&nbsp;|&nbsp;B&nbsp;|&nbsp;C&nbsp;|<br>"
+            u8"|---|---|---|<br>"
+            u8"|&nbsp;1&nbsp;|&nbsp;2&nbsp;&nbsp;&nbsp;|<br>"
+            u8"|&nbsp;3&nbsp;|&nbsp;4&nbsp;|&nbsp;5&nbsp;|"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Uneven column counts with inline markdown → not a table
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| **A** | B | *C* |\n"
+            u8"|-------|---|-----|\n"
+            u8"| **x** | y |\n"
+            u8"| 1     | 2 | *3* |");
+        auto answer = ::fast_io::u8string_view{
+            u8"|&nbsp;<strong>A</strong>&nbsp;|&nbsp;B&nbsp;|&nbsp;<em>C</em>&nbsp;|<br>"
+            u8"|-------|---|-----|<br>"
+            u8"|&nbsp;<strong>x</strong>&nbsp;|&nbsp;y&nbsp;|<br>"
+            u8"|&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;2&nbsp;|&nbsp;<em>3</em>&nbsp;|"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // More cells in body row than header → not a table
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| A | B | C |\n"
+            u8"|---|---|---|\n"
+            u8"| 1 | 2 | 3 | 4 |");
+        auto answer = ::fast_io::u8string_view{
+            u8"|&nbsp;A&nbsp;|&nbsp;B&nbsp;|&nbsp;C&nbsp;|<br>"
+            u8"|---|---|---|<br>"
+            u8"|&nbsp;1&nbsp;|&nbsp;2&nbsp;|&nbsp;3&nbsp;|&nbsp;4&nbsp;|"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // More cells in body row than header with inline markdown → not a table
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| **A** | B | *C* |\n"
+            u8"|---|---|---|\n"
+            u8"| **x** | y | *z* | extra |");
+        auto answer = ::fast_io::u8string_view{
+            u8"|&nbsp;<strong>A</strong>&nbsp;|&nbsp;B&nbsp;|&nbsp;<em>C</em>&nbsp;|<br>"
+            u8"|---|---|---|<br>"
+            u8"|&nbsp;<strong>x</strong>&nbsp;|&nbsp;y&nbsp;|&nbsp;<em>z</em>&nbsp;|&nbsp;extra&nbsp;|"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }
