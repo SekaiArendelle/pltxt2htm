@@ -414,5 +414,153 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // --- Inline Markdown inside table cells ---
+
+    // Bold in header cell
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| **bold** | normal |\n"
+            u8"|----------|--------|\n"
+            u8"| 1        | 2      |");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><thead><tr><th><strong>bold</strong></th><th>normal</th></tr></thead>"
+            u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Italic in data cell
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| H | I |\n"
+            u8"|---|---|\n"
+            u8"| *italic* | normal |");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><thead><tr><th>H</th><th>I</th></tr></thead>"
+            u8"<tbody><tr><td><em>italic</em></td><td>normal</td></tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Code span in cell
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| `code` | text |\n"
+            u8"|--------|------|\n"
+            u8"| a      | b    |");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><thead><tr><th><code>code</code></th><th>text</th></tr></thead>"
+            u8"<tbody><tr><td>a</td><td>b</td></tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Strikethrough in cell
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| H |\n"
+            u8"|---|\n"
+            u8"| ~~strike~~ |");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><thead><tr><th>H</th></tr></thead>"
+            u8"<tbody><tr><td><del>strike</del></td></tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Bold and italic in separate cells
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| **bold** | *italic* |\n"
+            u8"|----------|----------|\n"
+            u8"| a        | b        |");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><thead><tr>"
+            u8"<th><strong>bold</strong></th><th><em>italic</em></th>"
+            u8"</tr></thead>"
+            u8"<tbody><tr><td>a</td><td>b</td></tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Inline markdown in same cell
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| **bold** *italic* | plain |\n"
+            u8"|-------------------|-------|\n"
+            u8"| 1                 | 2     |");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><thead><tr>"
+            u8"<th><strong>bold</strong>&nbsp;<em>italic</em></th><th>plain</th>"
+            u8"</tr></thead>"
+            u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Inline markdown with center alignment
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| **bold** |\n"
+            u8"|:--------:|\n"
+            u8"| *italic* |");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><thead><tr>"
+            u8"<th style=\"text-align:center\"><strong>bold</strong></th>"
+            u8"</tr></thead>"
+            u8"<tbody><tr>"
+            u8"<td style=\"text-align:center\"><em>italic</em></td>"
+            u8"</tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Inline markdown with right alignment
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| *italic* |\n"
+            u8"|---------:|\n"
+            u8"| **bold** |");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><thead><tr>"
+            u8"<th style=\"text-align:right\"><em>italic</em></th>"
+            u8"</tr></thead>"
+            u8"<tbody><tr>"
+            u8"<td style=\"text-align:right\"><strong>bold</strong></td>"
+            u8"</tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Escaped asterisks render as literal *, not italic
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| \\*not italic\\* |\n"
+            u8"|-----------------|\n"
+            u8"| x               |");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><thead><tr><th>*not&nbsp;italic*</th></tr></thead>"
+            u8"<tbody><tr><td>x</td></tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Code span with HTML entities
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| `<html>` | `a & b` |\n"
+            u8"|----------|--------|\n"
+            u8"| 1        | 2      |");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><thead><tr>"
+            u8"<th><code>&lt;html&gt;</code></th><th><code>a&nbsp;&amp;&nbsp;b</code></th>"
+            u8"</tr></thead>"
+            u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Bold inside empty cell should still work
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| A | **B** |\n"
+            u8"|---|---|\n"
+            u8"|   | **2** |");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><thead><tr><th>A</th><th><strong>B</strong></th></tr></thead>"
+            u8"<tbody><tr><td></td><td><strong>2</strong></td></tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }

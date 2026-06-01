@@ -7,8 +7,7 @@
 #include <exception/exception.hh>
 #include "../utils.hh"
 #include "../../contracts.hh"
-#include "../../ast/ast.hh"
-#include "try_parse.hh"
+#include "../../ast/node_type.hh"
 
 namespace pltxt2htm::details {
 
@@ -176,82 +175,29 @@ constexpr auto try_parse_md_table_delimiter(::fast_io::u8string_view line) noexc
 }
 
 /**
- * @brief Basic text parser for table cell content.
+ * @brief Raw table cell data (text + alignment) for intermediate table AST.
+ */
+struct MdTableCellRaw {
+    ::fast_io::u8string text;
+    ::pltxt2htm::MdTableAlign align;
+};
+
+/**
+ * @brief Intermediate table AST representing raw cell content.
  *
- * Handles special characters, escape sequences, and UTF-8 code points
- * without requiring an end-string template parameter.
+ * This is analogous to MdListAst: it stores raw text that will be
+ * re-parsed through the inline parser when the table frame is processed.
  */
 template<::pltxt2htm::Contracts ndebug>
-[[nodiscard]]
-constexpr auto parse_cell_text(::fast_io::u8string_view text) noexcept -> ::pltxt2htm::Ast<ndebug> {
-    ::pltxt2htm::Ast<ndebug> ast{};
-    ::std::size_t current_index{};
-    ::std::size_t const text_size{text.size()};
-    while (current_index < text_size) {
-        char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(text, current_index)};
-        if (chr == u8' ') {
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Space{}));
-            ++current_index;
-            continue;
-        }
-        if (chr == u8'&') {
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Ampersand{}));
-            ++current_index;
-            continue;
-        }
-        if (chr == u8'\'') {
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::SingleQuotationMark{}));
-            ++current_index;
-            continue;
-        }
-        if (chr == u8'\"') {
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::DoubleQuotationMark{}));
-            ++current_index;
-            continue;
-        }
-        if (chr == u8'>') {
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::GreaterThan{}));
-            ++current_index;
-            continue;
-        }
-        if (chr == u8'\t') {
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Tab{}));
-            ++current_index;
-            continue;
-        }
-        if (chr == u8'\\') {
-            if (current_index + 1 == text_size) {
-                ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'\\'}));
-                ++current_index;
-                continue;
-            }
-            auto escape_node = ::pltxt2htm::details::switch_escape_char<ndebug>(
-                ::pltxt2htm::details::u8string_view_index<ndebug>(text, current_index + 1));
-            if (escape_node.has_value()) {
-                ast.push_back(::std::move(escape_node.template value<ndebug == ::pltxt2htm::Contracts::ignore>()));
-                ++current_index;
-            }
-            else {
-                ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'\\'}));
-            }
-            ++current_index;
-            continue;
-        }
-        if (chr == u8'<') {
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
-            ++current_index;
-            continue;
-        }
-        auto forward_index = ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
-            ::pltxt2htm::details::u8string_view_subview<ndebug>(text, current_index), ast);
-        current_index += forward_index;
-    }
-    return ast;
-}
+struct MdTableAstRaw {
+    ::std::size_t num_cols;
+    ::fast_io::vector<::pltxt2htm::details::MdTableCellRaw> header_cells;
+    ::fast_io::vector<::fast_io::vector<::pltxt2htm::details::MdTableCellRaw>> body_rows;
+};
 
 template<::pltxt2htm::Contracts ndebug>
-struct TryParseMdTableResult {
-    ::pltxt2htm::Ast<ndebug> ast;
+struct TryParseMdTableRawResult {
+    ::pltxt2htm::details::MdTableAstRaw<ndebug> raw_ast;
     ::std::size_t forward_index;
 };
 
@@ -286,8 +232,8 @@ constexpr auto try_parse_md_table_line(::fast_io::u8string_view pltext, ::std::s
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_md_table(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseMdTableResult<ndebug>> {
+constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
+    -> ::exception::optional<::pltxt2htm::details::TryParseMdTableRawResult<ndebug>> {
     ::std::size_t current_index{};
 
     // parse first line
@@ -337,26 +283,19 @@ constexpr auto try_parse_md_table(::fast_io::u8string_view pltext) noexcept
         }
     }
 
-    // parse data rows
-    ::pltxt2htm::Ast<ndebug> table_ast{};
-
-    // build <table>
-    // build <thead><tr>
-    ::pltxt2htm::Ast<ndebug> thead_ast{};
-    ::pltxt2htm::Ast<ndebug> header_tr_ast{};
+    // build raw header cells
+    ::pltxt2htm::details::MdTableAstRaw<ndebug> raw_ast{};
+    raw_ast.num_cols = num_cols;
     for (::std::size_t col{}; col < header_row.cells.size(); ++col) {
         auto const& cell_text = header_row.cells[col];
-        auto parsed =
-            ::pltxt2htm::details::parse_cell_text<ndebug>(::fast_io::u8string_view{cell_text.data(), cell_text.size()});
         auto align_val = col < aligns.size() ? aligns[col] : ::pltxt2htm::MdTableAlign::left;
-        header_tr_ast.push_back(
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTh<ndebug>{::std::move(parsed), align_val}));
+        raw_ast.header_cells.push_back(::pltxt2htm::details::MdTableCellRaw{
+            .text = ::fast_io::u8string{cell_text.data(), cell_text.data() + cell_text.size()},
+            .align = align_val,
+        });
     }
-    thead_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTr<ndebug>{::std::move(header_tr_ast)}));
-    table_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdThead<ndebug>{::std::move(thead_ast)}));
 
-    // build <tbody>
-    ::pltxt2htm::Ast<ndebug> tbody_ast{};
+    // parse data rows
     while (true) {
         auto line_opt = ::pltxt2htm::details::try_parse_md_table_line<ndebug>(pltext, current_index);
         if (!line_opt.has_value()) {
@@ -371,23 +310,20 @@ constexpr auto try_parse_md_table(::fast_io::u8string_view pltext) noexcept
         current_index = after_line;
         auto row = row_opt.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
 
-        ::pltxt2htm::Ast<ndebug> tr_ast{};
+        ::fast_io::vector<::pltxt2htm::details::MdTableCellRaw> body_cells{};
         for (::std::size_t col{}; col < row.cells.size() && col < num_cols; ++col) {
             auto const& cell_text = row.cells[col];
-            auto parsed = ::pltxt2htm::details::parse_cell_text<ndebug>(
-                ::fast_io::u8string_view{cell_text.data(), cell_text.size()});
             auto align_val = col < aligns.size() ? aligns[col] : ::pltxt2htm::MdTableAlign::left;
-            tr_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTd<ndebug>{::std::move(parsed), align_val}));
+            body_cells.push_back(::pltxt2htm::details::MdTableCellRaw{
+                .text = ::fast_io::u8string{cell_text.data(), cell_text.data() + cell_text.size()},
+                .align = align_val,
+            });
         }
-        tbody_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTr<ndebug>{::std::move(tr_ast)}));
+        raw_ast.body_rows.push_back(::std::move(body_cells));
     }
 
-    if (!tbody_ast.empty()) {
-        table_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTbody<ndebug>{::std::move(tbody_ast)}));
-    }
-
-    return ::pltxt2htm::details::TryParseMdTableResult<ndebug>{.ast = ::std::move(table_ast),
-                                                               .forward_index = current_index};
+    return ::pltxt2htm::details::TryParseMdTableRawResult<ndebug>{.raw_ast = ::std::move(raw_ast),
+                                                                  .forward_index = current_index};
 }
 
 } // namespace pltxt2htm::details

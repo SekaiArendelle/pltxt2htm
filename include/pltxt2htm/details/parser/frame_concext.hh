@@ -15,6 +15,7 @@
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
 #include "md_list.hh"
+#include "md_table.hh"
 #include "../../contracts.hh"
 #include "../../ast/ast.hh"
 #include "../push_macro.hh"
@@ -69,6 +70,29 @@ public:
     }
 };
 
+class ParserFrameContextWithMdCellInfo {
+public:
+    ::fast_io::u8string_view pltext;
+    ::pltxt2htm::MdTableAlign align;
+};
+
+template<::pltxt2htm::Contracts ndebug>
+class ParserFrameContextWithMdTableInfo {
+public:
+    ::pltxt2htm::details::MdTableAstRaw<ndebug> raw_ast;
+    ::std::size_t state;
+    ::std::size_t row_index;
+    ::std::size_t cell_index;
+
+    constexpr explicit ParserFrameContextWithMdTableInfo(
+        ::pltxt2htm::details::MdTableAstRaw<ndebug>&& raw_ast_) noexcept
+        : raw_ast(::std::move(raw_ast_)),
+          state{},
+          row_index{},
+          cell_index{} {
+    }
+};
+
 template<::pltxt2htm::Contracts ndebug>
 class ContextVariant {
 public:
@@ -80,6 +104,8 @@ public:
         ::pltxt2htm::details::ParserFrameContextWithMdBlockQuotesInfo md_block_quotes;
         ::pltxt2htm::details::ParserFrameContextWithMdLinkInfo<ndebug> md_link;
         ::pltxt2htm::details::ParserFrameContextWithMdListInfo<ndebug> md_list;
+        ::pltxt2htm::details::ParserFrameContextWithMdCellInfo md_cell;
+        ::pltxt2htm::details::ParserFrameContextWithMdTableInfo<ndebug> md_table;
     };
 
     ::pltxt2htm::NodeKind kind;
@@ -123,6 +149,18 @@ public:
     constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithMdListInfo<ndebug>&& md_list_context,
                              ::pltxt2htm::NodeKind node_type) noexcept
         : md_list{::std::move(md_list_context)},
+          kind{node_type} {
+    }
+
+    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithMdCellInfo&& md_cell_context,
+                             ::pltxt2htm::NodeKind node_type) noexcept
+        : md_cell{::std::move(md_cell_context)},
+          kind{node_type} {
+    }
+
+    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithMdTableInfo<ndebug>&& md_table_context,
+                             ::pltxt2htm::NodeKind node_type) noexcept
+        : md_table{::std::move(md_table_context)},
           kind{node_type} {
     }
 
@@ -366,17 +404,21 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_escape_tilde:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_table:
+        case ::pltxt2htm::NodeKind::md_th:
             [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_td: {
+            ::std::construct_at(::std::addressof(this->md_cell), ::std::move(other.md_cell));
+            return;
+        }
+        case ::pltxt2htm::NodeKind::md_table: {
+            ::std::construct_at(::std::addressof(this->md_table), ::std::move(other.md_table));
+            return;
+        }
         case ::pltxt2htm::NodeKind::md_thead:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_tbody:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_tr:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_th:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_td:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_hr:
             [[unlikely]] {
@@ -628,17 +670,21 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_escape_tilde:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_table:
+        case ::pltxt2htm::NodeKind::md_th:
             [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_td: {
+            ::std::destroy_at(::std::addressof(this->md_cell));
+            return;
+        }
+        case ::pltxt2htm::NodeKind::md_table: {
+            ::std::destroy_at(::std::addressof(this->md_table));
+            return;
+        }
         case ::pltxt2htm::NodeKind::md_thead:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_tbody:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_tr:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_th:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_td:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_hr:
             [[unlikely]] {
@@ -724,6 +770,24 @@ public:
                          u8"mismatch node type");
     }
 
+    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_,
+                                          ::pltxt2htm::MdTableAlign align_,
+                                          ::pltxt2htm::NodeKind node_type) noexcept
+        : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
+              ::pltxt2htm::details::ParserFrameContextWithMdCellInfo{.pltext = pltext_, .align = align_},
+              node_type}} {
+        pltxt2htm_assert(node_type == ::pltxt2htm::NodeKind::md_th || node_type == ::pltxt2htm::NodeKind::md_td,
+                         u8"mismatch node type");
+    }
+
+    constexpr explicit ParserFrameContext(::pltxt2htm::NodeKind node_type,
+                                          ::pltxt2htm::details::MdTableAstRaw<ndebug>&& raw_ast_) noexcept
+        : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
+              ::pltxt2htm::details::ParserFrameContextWithMdTableInfo<ndebug>{::std::move(raw_ast_)}, node_type}} {
+        pltxt2htm_assert(node_type == ::pltxt2htm::NodeKind::md_table,
+                         u8"mismatch node type");
+    }
+
     constexpr ParserFrameContext(::pltxt2htm::details::ParserFrameContext<ndebug> const&) noexcept = delete;
 
     constexpr ParserFrameContext(::pltxt2htm::details::ParserFrameContext<ndebug>&& other) noexcept
@@ -752,17 +816,11 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::invalid_u8char:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_table:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_thead:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_tbody:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_tr:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_th:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_td:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::text:
             [[fallthrough]];
@@ -913,6 +971,11 @@ public:
         case ::pltxt2htm::NodeKind::md_link: {
             return context_data_ref.md_link.pltext;
         }
+        case ::pltxt2htm::NodeKind::md_th:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_td: {
+            return context_data_ref.md_cell.pltext;
+        }
         case ::pltxt2htm::NodeKind::pl_macro_project:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_macro_visitor:
@@ -985,6 +1048,8 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_escape_tilde:
             [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_table:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_hr:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_ul:
@@ -1044,6 +1109,61 @@ public:
         bool const is_md_ul_or_ol_type{::pltxt2htm::details::is_md_list_ul_or_ol_type(context_data_ref.kind)};
         pltxt2htm_assert(is_md_ul_or_ol_type, u8"context kind mismatch");
         return ::std::forward_like<decltype(self)>(context_data_ref.md_list.iter);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_md_table_raw_ast(this auto&& self) noexcept -> decltype(auto) {
+        auto&& context_data_ref = self.context_data;
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::md_table, u8"context kind mismatch");
+        return ::std::forward_like<decltype(self)>(context_data_ref.md_table.raw_ast);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_md_table_state(this auto&& self) noexcept -> ::std::size_t {
+        auto&& context_data_ref = self.context_data;
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::md_table, u8"context kind mismatch");
+        return context_data_ref.md_table.state;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_md_table_row_index(this auto&& self) noexcept -> ::std::size_t {
+        auto&& context_data_ref = self.context_data;
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::md_table, u8"context kind mismatch");
+        return context_data_ref.md_table.row_index;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_md_table_cell_index(this auto&& self) noexcept -> ::std::size_t {
+        auto&& context_data_ref = self.context_data;
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::md_table, u8"context kind mismatch");
+        return context_data_ref.md_table.cell_index;
+    }
+
+    constexpr auto set_md_table_state(this auto&& self, ::std::size_t s) noexcept -> void {
+        auto&& context_data_ref = self.context_data;
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::md_table, u8"context kind mismatch");
+        context_data_ref.md_table.state = s;
+    }
+
+    constexpr auto set_md_table_row_index(this auto&& self, ::std::size_t r) noexcept -> void {
+        auto&& context_data_ref = self.context_data;
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::md_table, u8"context kind mismatch");
+        context_data_ref.md_table.row_index = r;
+    }
+
+    constexpr auto set_md_table_cell_index(this auto&& self, ::std::size_t c) noexcept -> void {
+        auto&& context_data_ref = self.context_data;
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::md_table, u8"context kind mismatch");
+        context_data_ref.md_table.cell_index = c;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_md_cell_align(this auto&& self) noexcept -> ::pltxt2htm::MdTableAlign {
+        auto&& context_data_ref = self.context_data;
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::md_th ||
+                             context_data_ref.kind == ::pltxt2htm::NodeKind::md_td,
+                         u8"context kind mismatch");
+        return context_data_ref.md_cell.align;
     }
 };
 

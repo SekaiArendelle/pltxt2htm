@@ -119,13 +119,15 @@ constexpr auto devil_stuff_after_line_break(
             return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{.forward_index = current_index + forward_index,
                                                                         .new_frame_been_pushed_into_call_stack = true};
         }
-        if (auto opt_md_table = ::pltxt2htm::details::try_parse_md_table<ndebug>(
+        if (auto opt_md_table_raw = ::pltxt2htm::details::try_parse_md_table_raw<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
-            opt_md_table.has_value()) {
-            auto&& [table_ast, forward_index] = opt_md_table.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTable<ndebug>{::std::move(table_ast)}));
-            current_index += forward_index;
-            continue;
+            opt_md_table_raw.has_value()) {
+            auto&& [raw_ast, forward_index] =
+                opt_md_table_raw.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                ::pltxt2htm::NodeKind::md_table, ::std::move(raw_ast)));
+            return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{.forward_index = current_index + forward_index,
+                                                                        .new_frame_been_pushed_into_call_stack = true};
         }
         return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{.forward_index = current_index,
                                                                     .new_frame_been_pushed_into_call_stack = false};
@@ -268,6 +270,99 @@ entry:
         }
         ++frame_iter;
         goto entry;
+    }
+    if (::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type() == ::pltxt2htm::NodeKind::md_table) {
+        auto&& frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+        auto&& raw_ast = frame.get_md_table_raw_ast();
+        auto state = frame.get_md_table_state();
+        auto row_index = frame.get_md_table_row_index();
+        auto cell_index = frame.get_md_table_cell_index();
+
+        if (state == 0) {
+            if (cell_index < raw_ast.header_cells.size()) {
+                auto const& cell = raw_ast.header_cells[cell_index];
+                call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                    ::fast_io::u8string_view{cell.text.data(), cell.text.size()}, cell.align,
+                    ::pltxt2htm::NodeKind::md_th));
+                frame.set_md_table_cell_index(cell_index + 1);
+                goto entry;
+            }
+            frame.set_md_table_state(1);
+            frame.set_md_table_row_index(0);
+            frame.set_md_table_cell_index(0);
+            goto entry;
+        }
+
+        if (state == 1) {
+            if (row_index < raw_ast.body_rows.size()) {
+                auto const& body_row = raw_ast.body_rows[row_index];
+                if (cell_index < body_row.size()) {
+                    auto const& cell = body_row[cell_index];
+                    call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                        ::fast_io::u8string_view{cell.text.data(), cell.text.size()}, cell.align,
+                        ::pltxt2htm::NodeKind::md_td));
+                    frame.set_md_table_cell_index(cell_index + 1);
+                    goto entry;
+                }
+                frame.set_md_table_row_index(row_index + 1);
+                frame.set_md_table_cell_index(0);
+                goto entry;
+            }
+            frame.set_md_table_state(2);
+            goto entry;
+        }
+
+        if (state == 2) {
+            auto previous_frame = ::std::move(frame);
+            call_stack.pop();
+
+            ::pltxt2htm::Ast<ndebug> flat_ast = ::std::move(previous_frame.subast);
+            auto&& prev_raw_ast = previous_frame.get_md_table_raw_ast();
+            ::pltxt2htm::Ast<ndebug> table_ast{};
+            ::std::size_t col{};
+
+            // build <thead><tr>
+            if (!prev_raw_ast.header_cells.empty()) {
+                ::pltxt2htm::Ast<ndebug> header_tr_ast{};
+                for (; col < prev_raw_ast.header_cells.size() && col < flat_ast.size(); ++col) {
+                    header_tr_ast.push_back(::std::move(flat_ast[col]));
+                }
+                ::pltxt2htm::Ast<ndebug> thead_ast{};
+                thead_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTr<ndebug>{::std::move(header_tr_ast)}));
+                table_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdThead<ndebug>{::std::move(thead_ast)}));
+            }
+
+            // build <tbody>
+            if (col < flat_ast.size()) {
+                ::pltxt2htm::Ast<ndebug> tbody_ast{};
+                while (col < flat_ast.size()) {
+                    ::pltxt2htm::Ast<ndebug> tr_ast{};
+                    for (::std::size_t c{}; c < prev_raw_ast.num_cols && col < flat_ast.size(); ++c, ++col) {
+                        tr_ast.push_back(::std::move(flat_ast[col]));
+                    }
+                    tbody_ast.push_back(
+                        ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTr<ndebug>{::std::move(tr_ast)}));
+                }
+                table_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTbody<ndebug>{::std::move(tbody_ast)}));
+            }
+
+            if (call_stack.empty()) {
+                ::pltxt2htm::Ast<ndebug> result{};
+                result.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTable<ndebug>{::std::move(table_ast)}));
+                return result;
+            }
+
+            auto&& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+            parent_frame.subast.push_back(
+                ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTable<ndebug>{::std::move(table_ast)}));
+            goto entry;
+        }
+
+        ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
     }
 
     auto&& top_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
@@ -2087,6 +2182,20 @@ entry:
             parent_index += staged_index;
             goto entry;
         }
+        case ::pltxt2htm::NodeKind::md_th: {
+            auto align = frame.get_md_cell_align();
+            parent_ast.push_back(
+                ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTh<ndebug>{::std::move(subast), align}));
+            parent_index += staged_index;
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::md_td: {
+            auto align = frame.get_md_cell_align();
+            parent_ast.push_back(
+                ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTd<ndebug>{::std::move(subast), align}));
+            parent_index += staged_index;
+            goto entry;
+        }
         case ::pltxt2htm::NodeKind::html_code: {
             parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlCode<ndebug>{::std::move(subast)}));
             parent_index += staged_index;
@@ -2372,10 +2481,6 @@ entry:
         case ::pltxt2htm::NodeKind::md_tbody:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_tr:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_th:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_td:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_hr:
             [[fallthrough]];
