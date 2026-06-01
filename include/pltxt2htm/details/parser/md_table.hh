@@ -45,12 +45,24 @@ constexpr auto try_parse_md_table_row(::fast_io::u8string_view line) noexcept
                 break;
             }
         }
-        // parse cell content until | or end of line
+        // parse cell content until unescaped | or end of line
         ::fast_io::u8string cell{};
         for (; i < line.size(); ++i) {
             auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(line, i);
             if (chr == u8'|') {
-                break;
+                // count consecutive backslashes before |
+                ::std::size_t bs_count{};
+                while (bs_count < i &&
+                       ::pltxt2htm::details::u8string_view_index<ndebug>(line, i - 1 - bs_count) == u8'\\') {
+                    ++bs_count;
+                }
+                if (bs_count % 2 == 1) {
+                    // odd backslashes: backslash-pipe is escaped pipe, treat | as content
+                    cell.pop_back();       // remove the escape backslash
+                    chr = u8'|';
+                } else {
+                    break;
+                }
             }
             cell.push_back(chr);
         }

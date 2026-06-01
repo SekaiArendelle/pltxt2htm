@@ -618,5 +618,43 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // Escaped pipe \| in cell content → literal |, not column separator
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| a \\| b | c |\n"
+            u8"|---------|---|\n"
+            u8"| 1       | 2 |");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><thead><tr><th>a&nbsp;|&nbsp;b</th><th>c</th></tr></thead>"
+            u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Double backslash \\| → literal \, pipe is separator (3-col table)
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| a | b | c |\n"
+            u8"|---|---|---|\n"
+            u8"| \\\\| 2 | 3 |");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><thead><tr><th>a</th><th>b</th><th>c</th></tr></thead>"
+            u8"<tbody><tr><td>\\</td><td>2</td><td>3</td></tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Escaped pipe with inline markdown
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| **bold** \\| text | plain |\n"
+            u8"|--------------------|-------|\n"
+            u8"| 1                  | 2     |");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><thead><tr>"
+            u8"<th><strong>bold</strong>&nbsp;|&nbsp;text</th><th>plain</th>"
+            u8"</tr></thead>"
+            u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }
