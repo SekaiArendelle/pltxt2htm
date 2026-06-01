@@ -133,6 +133,10 @@ Please follow the existing low-runtime, cross-platform style used in core header
 - Prefer `constexpr` function definitions by default:
   - Prefix function/method definitions with `constexpr` whenever the language permits (the entrypoint `main` is the exception).
   - Do not write `inline constexpr`; use `constexpr` directly (it is already inline).
+- Do not name lambdas:
+  - Never write `auto name = [](...) { ... };` and call by name later.
+  - If a callable needs a name, extract it as a normal `constexpr` function.
+  - Immediately-invoked lambda expressions (`[]() { ... }()`) are acceptable only when necessary to compute a `constexpr` value in a context where `if constexpr` is not directly usable (e.g., inside a function with non-`constexpr` scope rules).
 - Use fully qualified namespace style:
   - Prefer `::ns::fn_or_cls` for function/class references to avoid ADL-based calls.
 - Prefer unambiguous initialization:
