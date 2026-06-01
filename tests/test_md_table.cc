@@ -56,8 +56,7 @@ int main() {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"| X | Y |\n"
             u8"|---|---|");
-        auto answer = ::fast_io::u8string_view{
-            u8"<table><thead><tr><th>X</th><th>Y</th></tr></thead></table>"};
+        auto answer = ::fast_io::u8string_view{u8"<table><thead><tr><th>X</th><th>Y</th></tr></thead></table>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

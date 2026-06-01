@@ -273,7 +273,8 @@ constexpr auto try_parse_md_table(::fast_io::u8string_view pltext) noexcept
     ::std::size_t current_index{};
     ::std::size_t const pltext_size{pltext.size()};
 
-    auto parse_line = [&](::std::size_t offset) -> ::exception::optional<::std::pair<::fast_io::u8string, ::std::size_t>> {
+    auto parse_line =
+        [&](::std::size_t offset) -> ::exception::optional<::std::pair<::fast_io::u8string, ::std::size_t>> {
         if (offset >= pltext_size) {
             return ::exception::nullopt_t{};
         }
@@ -349,10 +350,9 @@ constexpr auto try_parse_md_table(::fast_io::u8string_view pltext) noexcept
     ::pltxt2htm::Ast<ndebug> header_tr_ast{};
     for (::std::size_t col{}; col < header_row.cells.size(); ++col) {
         auto const& cell_text = header_row.cells[col];
-        auto parsed = ::pltxt2htm::details::parse_cell_text<ndebug>(
-            ::fast_io::u8string_view{cell_text.data(), cell_text.size()});
-        header_tr_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-            ::pltxt2htm::MdTh<ndebug>{::std::move(parsed)}));
+        auto parsed =
+            ::pltxt2htm::details::parse_cell_text<ndebug>(::fast_io::u8string_view{cell_text.data(), cell_text.size()});
+        header_tr_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTh<ndebug>{::std::move(parsed)}));
     }
     thead_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTr<ndebug>{::std::move(header_tr_ast)}));
     table_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdThead<ndebug>{::std::move(thead_ast)}));
@@ -378,8 +378,7 @@ constexpr auto try_parse_md_table(::fast_io::u8string_view pltext) noexcept
             auto const& cell_text = row.cells[col];
             auto parsed = ::pltxt2htm::details::parse_cell_text<ndebug>(
                 ::fast_io::u8string_view{cell_text.data(), cell_text.size()});
-            tr_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                ::pltxt2htm::MdTd<ndebug>{::std::move(parsed)}));
+            tr_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTd<ndebug>{::std::move(parsed)}));
         }
         tbody_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTr<ndebug>{::std::move(tr_ast)}));
     }
@@ -388,9 +387,8 @@ constexpr auto try_parse_md_table(::fast_io::u8string_view pltext) noexcept
         table_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTbody<ndebug>{::std::move(tbody_ast)}));
     }
 
-    return ::pltxt2htm::details::TryParseMdTableResult<ndebug>{
-        .ast = ::std::move(table_ast),
-        .forward_index = current_index};
+    return ::pltxt2htm::details::TryParseMdTableResult<ndebug>{.ast = ::std::move(table_ast),
+                                                               .forward_index = current_index};
 }
 
 } // namespace pltxt2htm::details

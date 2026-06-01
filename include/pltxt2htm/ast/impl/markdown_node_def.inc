@@ -447,7 +447,7 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdTr<ndebug>::~MdTr() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::MdTr<ndebug>::operator=(this ::pltxt2htm::MdTr<ndebug>& self,
-                                                       ::pltxt2htm::MdTr<ndebug>&&) noexcept
+                                                    ::pltxt2htm::MdTr<ndebug>&&) noexcept
     -> ::pltxt2htm::MdTr<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
@@ -461,7 +461,7 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdTh<ndebug>::~MdTh() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::MdTh<ndebug>::operator=(this ::pltxt2htm::MdTh<ndebug>& self,
-                                                       ::pltxt2htm::MdTh<ndebug>&&) noexcept
+                                                    ::pltxt2htm::MdTh<ndebug>&&) noexcept
     -> ::pltxt2htm::MdTh<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
@@ -475,7 +475,7 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdTd<ndebug>::~MdTd() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::MdTd<ndebug>::operator=(this ::pltxt2htm::MdTd<ndebug>& self,
-                                                       ::pltxt2htm::MdTd<ndebug>&&) noexcept
+                                                    ::pltxt2htm::MdTd<ndebug>&&) noexcept
     -> ::pltxt2htm::MdTd<ndebug>& = default;
 
 } // namespace pltxt2htm

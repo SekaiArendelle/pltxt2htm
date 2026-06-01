@@ -28,6 +28,8 @@ def find_cpp_files(root_dirs):
                     continue
                 if "/build/" in spath:
                     continue
+                if "/.pixi/" in spath:
+                    continue
                 files.append(spath)
 
     return sorted(files)
