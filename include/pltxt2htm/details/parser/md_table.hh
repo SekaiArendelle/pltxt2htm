@@ -266,36 +266,44 @@ struct TryParseMdTableResult {
     ::std::size_t forward_index;
 };
 
+struct TryParseMdTableLineResult {
+    ::fast_io::u8string line;
+    ::std::size_t forward_index;
+};
+
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_md_table_line(::fast_io::u8string_view pltext,
+                                       ::std::size_t offset) noexcept
+    -> ::exception::optional<::pltxt2htm::details::TryParseMdTableLineResult> {
+    ::std::size_t const pltext_size{pltext.size()};
+    if (offset >= pltext_size) {
+        return ::exception::nullopt_t{};
+    }
+    ::std::size_t line_start{offset};
+    ::std::size_t line_end{offset};
+    for (; line_end < pltext_size; ++line_end) {
+        auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, line_end);
+        if (chr == u8'\n') {
+            break;
+        }
+    }
+    ::fast_io::u8string line{};
+    for (::std::size_t i{line_start}; i < line_end; ++i) {
+        line.push_back(::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i));
+    }
+    ::std::size_t forward_index = line_end < pltext_size ? line_end + 1 : line_end;
+    return ::pltxt2htm::details::TryParseMdTableLineResult{::std::move(line), forward_index};
+}
+
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_table(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseMdTableResult<ndebug>> {
     ::std::size_t current_index{};
-    ::std::size_t const pltext_size{pltext.size()};
-
-    auto parse_line =
-        [&](::std::size_t offset) -> ::exception::optional<::std::pair<::fast_io::u8string, ::std::size_t>> {
-        if (offset >= pltext_size) {
-            return ::exception::nullopt_t{};
-        }
-        ::std::size_t line_start{offset};
-        ::std::size_t line_end{offset};
-        for (; line_end < pltext_size; ++line_end) {
-            auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, line_end);
-            if (chr == u8'\n') {
-                break;
-            }
-        }
-        ::fast_io::u8string line{};
-        for (::std::size_t i{line_start}; i < line_end; ++i) {
-            line.push_back(::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i));
-        }
-        ::std::size_t next_offset = line_end < pltext_size ? line_end + 1 : line_end;
-        return ::std::pair{::std::move(line), next_offset};
-    };
 
     // parse first line
-    auto first_line_opt = parse_line(current_index);
+    auto first_line_opt = ::pltxt2htm::details::try_parse_md_table_line<ndebug>(pltext, current_index);
     if (!first_line_opt.has_value()) {
         return ::exception::nullopt_t{};
     }
@@ -311,7 +319,7 @@ constexpr auto try_parse_md_table(::fast_io::u8string_view pltext) noexcept
     ::std::size_t num_cols{header_row.cells.size()};
 
     // parse delimiter line (second line)
-    auto second_line_opt = parse_line(current_index);
+    auto second_line_opt = ::pltxt2htm::details::try_parse_md_table_line<ndebug>(pltext, current_index);
     if (!second_line_opt.has_value()) {
         return ::exception::nullopt_t{};
     }
@@ -360,7 +368,7 @@ constexpr auto try_parse_md_table(::fast_io::u8string_view pltext) noexcept
     // build <tbody>
     ::pltxt2htm::Ast<ndebug> tbody_ast{};
     while (true) {
-        auto line_opt = parse_line(current_index);
+        auto line_opt = ::pltxt2htm::details::try_parse_md_table_line<ndebug>(pltext, current_index);
         if (!line_opt.has_value()) {
             break;
         }
