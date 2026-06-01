@@ -129,8 +129,10 @@ int main() {
             u8"|:---:|:---:|\n"
             u8"| 1 | 2 |");
         auto answer = ::fast_io::u8string_view{
-            u8"<table><thead><tr><th style=\"text-align:center\">A</th><th style=\"text-align:center\">B</th></tr></thead>"
-            u8"<tbody><tr><td style=\"text-align:center\">1</td><td style=\"text-align:center\">2</td></tr></tbody></table>"};
+            u8"<table><thead><tr><th style=\"text-align:center\">A</th><th "
+            u8"style=\"text-align:center\">B</th></tr></thead>"
+            u8"<tbody><tr><td style=\"text-align:center\">1</td><td "
+            u8"style=\"text-align:center\">2</td></tr></tbody></table>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -141,8 +143,10 @@ int main() {
             u8"|---:|---:|\n"
             u8"| 1 | 2 |");
         auto answer = ::fast_io::u8string_view{
-            u8"<table><thead><tr><th style=\"text-align:right\">A</th><th style=\"text-align:right\">B</th></tr></thead>"
-            u8"<tbody><tr><td style=\"text-align:right\">1</td><td style=\"text-align:right\">2</td></tr></tbody></table>"};
+            u8"<table><thead><tr><th style=\"text-align:right\">A</th><th "
+            u8"style=\"text-align:right\">B</th></tr></thead>"
+            u8"<tbody><tr><td style=\"text-align:right\">1</td><td "
+            u8"style=\"text-align:right\">2</td></tr></tbody></table>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -180,11 +184,65 @@ int main() {
             u8"| 1 |   | 3 |");
         auto answer = ::fast_io::u8string_view{
             u8"<table><thead><tr>"
-            u8"<th style=\"text-align:center\">A</th><th style=\"text-align:center\">B</th><th style=\"text-align:right\">C</th>"
+            u8"<th style=\"text-align:center\">A</th><th style=\"text-align:center\">B</th><th "
+            u8"style=\"text-align:right\">C</th>"
             u8"</tr></thead>"
             u8"<tbody><tr>"
-            u8"<td style=\"text-align:center\">1</td><td style=\"text-align:center\"></td><td style=\"text-align:right\">3</td>"
+            u8"<td style=\"text-align:center\">1</td><td style=\"text-align:center\"></td><td "
+            u8"style=\"text-align:right\">3</td>"
             u8"</tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // --- Negative tests: inputs that should NOT be parsed as tables ---
+
+    // Single pipe-delimited line without a delimiter row
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"| A | B |\n");
+        auto answer = ::fast_io::u8string_view{u8"|&nbsp;A&nbsp;|&nbsp;B&nbsp;|<br>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Text followed by a valid delimiter (first line is not a pipe table row)
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"text\n|---|---|\n");
+        auto answer = ::fast_io::u8string_view{u8"text<br>|---|---|<br>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Pipe character in the middle of regular text
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"this | that\n");
+        auto answer = ::fast_io::u8string_view{u8"this&nbsp;|&nbsp;that<br>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Single pipe character on a line
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"|\n");
+        auto answer = ::fast_io::u8string_view{u8"|<br>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Header line without leading pipe (no table)
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"A | B\n|---|---|\n");
+        auto answer = ::fast_io::u8string_view{u8"A&nbsp;|&nbsp;B<br>|---|---|<br>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Delimiter row without a preceding header
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"|---|---|---|\n");
+        auto answer = ::fast_io::u8string_view{u8"|---|---|---|<br>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Delimiter row with no dashes (all spaces) - should NOT be a table
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"| A | B |\n|   |   |\n");
+        auto answer =
+            ::fast_io::u8string_view{u8"|&nbsp;A&nbsp;|&nbsp;B&nbsp;|<br>|&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;|<br>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
