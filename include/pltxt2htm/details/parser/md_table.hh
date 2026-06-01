@@ -74,8 +74,7 @@ constexpr auto try_parse_md_table_row(::fast_io::u8string_view line) noexcept
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_md_table_align(::fast_io::u8string_view cell_text) noexcept
-    -> ::pltxt2htm::MdTableAlign {
+constexpr auto try_parse_md_table_align(::fast_io::u8string_view cell_text) noexcept -> ::pltxt2htm::MdTableAlign {
     bool left = false;
     bool right = false;
     ::std::size_t i{};
@@ -261,8 +260,7 @@ struct TryParseMdTableLineResult {
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_md_table_line(::fast_io::u8string_view pltext,
-                                       ::std::size_t offset) noexcept
+constexpr auto try_parse_md_table_line(::fast_io::u8string_view pltext, ::std::size_t offset) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseMdTableLineResult> {
     ::std::size_t const pltext_size{pltext.size()};
     if (offset >= pltext_size) {
@@ -377,8 +375,7 @@ constexpr auto try_parse_md_table(::fast_io::u8string_view pltext) noexcept
             auto parsed = ::pltxt2htm::details::parse_cell_text<ndebug>(
                 ::fast_io::u8string_view{cell_text.data(), cell_text.size()});
             auto align_val = col < aligns.size() ? aligns[col] : ::pltxt2htm::MdTableAlign::left;
-            tr_ast.push_back(
-                ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTd<ndebug>{::std::move(parsed), align_val}));
+            tr_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTd<ndebug>{::std::move(parsed), align_val}));
         }
         tbody_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTr<ndebug>{::std::move(tr_ast)}));
     }

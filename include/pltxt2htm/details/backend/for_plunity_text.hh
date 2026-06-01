@@ -586,7 +586,7 @@ entry:
         }
         case ::pltxt2htm::NodeKind::md_td: {
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
-                                                                               ::pltxt2htm::NodeKind::html_td, 0));
+                                                                              ::pltxt2htm::NodeKind::html_td, 0));
             ++current_index;
             {
                 constexpr ::fast_io::u8string_view start_tag = u8"<td";
@@ -611,14 +611,14 @@ entry:
         }
         case ::pltxt2htm::NodeKind::html_td: {
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
-                                                                               ::pltxt2htm::NodeKind::html_td, 0));
+                                                                              ::pltxt2htm::NodeKind::html_td, 0));
             ++current_index;
             result.append(u8"<td>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_th: {
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
-                                                                               ::pltxt2htm::NodeKind::html_th, 0));
+                                                                              ::pltxt2htm::NodeKind::html_th, 0));
             ++current_index;
             {
                 constexpr ::fast_io::u8string_view start_tag = u8"<th";
