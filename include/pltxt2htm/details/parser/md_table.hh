@@ -12,10 +12,28 @@
 
 namespace pltxt2htm::details {
 
+/**
+ * @brief Raw table row containing cell text strings.
+ *
+ * Produced by try_parse_md_table_row: splits a `|`-delimited line
+ * into individual cell strings (with escaped pipe handling).
+ */
 struct MdTableRow {
     ::fast_io::vector<::fast_io::u8string> cells;
 };
 
+/**
+ * @brief Parse a single pipe-table row into cell strings.
+ *
+ * Splits the line on unescaped `|` characters.  A backslash immediately
+ * before a `|` (`\|`) escapes the pipe so it becomes part of the cell
+ * content rather than a column boundary.  Leading/trailing whitespace
+ * is trimmed from each cell.
+ *
+ * @tparam ndebug Contract checking mode
+ * @param line A single table-row line (e.g. `"| a | b | c |"`)
+ * @return MdTableRow on success, nullopt if the line is not a valid table row
+ */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_table_row(::fast_io::u8string_view line) noexcept
@@ -85,6 +103,16 @@ constexpr auto try_parse_md_table_row(::fast_io::u8string_view line) noexcept
     return row;
 }
 
+/**
+ * @brief Parse alignment from a single delimiter cell.
+ *
+ * Recognises `:---` (left), `---:` (right), `:---:` (center), and
+ * plain `---` (left, the default).
+ *
+ * @tparam ndebug Contract checking mode
+ * @param cell_text The delimiter cell text (e.g. `":---:"`)
+ * @return MdTableAlign::left, MdTableAlign::center, or MdTableAlign::right
+ */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_table_align(::fast_io::u8string_view cell_text) noexcept -> ::pltxt2htm::MdTableAlign {
@@ -117,6 +145,16 @@ constexpr auto try_parse_md_table_align(::fast_io::u8string_view cell_text) noex
     return ::pltxt2htm::MdTableAlign::left;
 }
 
+/**
+ * @brief Validate that a line looks like a pipe-table delimiter row.
+ *
+ * A delimiter row consists of `|`-separated segments containing only
+ * dashes and optional colons, e.g. `|:---:|---:|`.
+ *
+ * @tparam ndebug Contract checking mode
+ * @param line A candidate delimiter line
+ * @return true if the line is a valid delimiter row
+ */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_table_delimiter(::fast_io::u8string_view line) noexcept -> bool {
@@ -192,66 +230,98 @@ constexpr auto try_parse_md_table_delimiter(::fast_io::u8string_view line) noexc
  * @brief Raw table cell data (text + alignment) for intermediate table AST.
  */
 struct MdTableCellRaw {
-    ::fast_io::u8string text;
-    ::pltxt2htm::MdTableAlign align;
+    ::fast_io::u8string text; ///< cell text content (to be inline-parsed later)
+    ::pltxt2htm::MdTableAlign align; ///< cell alignment from delimiter row
 };
 
 /**
  * @brief Intermediate table AST representing raw cell content.
  *
- * This is analogous to MdListAst: it stores raw text that will be
- * re-parsed through the inline parser when the table frame is processed.
+ * Stores all cells in a single flat vector:
+ *   `[header_cell_0, …, header_cell_N, row0_cell_0, …, row0_cell_N, row1_cell_0, …]`
+ *
+ * This is analogous to MdListAst: raw text will be re-parsed through the
+ * inline parser when the table frame is processed.
+ *
+ * @tparam ndebug Contract checking mode
  */
 template<::pltxt2htm::Contracts ndebug>
 class MdTableAstRaw {
-    ::std::size_t num_cols_{};
-    ::fast_io::vector<::pltxt2htm::details::MdTableCellRaw> cells_{};
+    ::std::size_t num_cols_{}; ///< number of columns (= header cells count)
+    ::fast_io::vector<::pltxt2htm::details::MdTableCellRaw> cells_{}; ///< flat storage: header then body (row-major)
 
 public:
+    /// @return number of header cells (= column count for every row)
     [[nodiscard]] constexpr auto header_cells_count(this auto&& self) noexcept -> ::std::size_t {
         return self.num_cols_;
     }
 
+    /// @param col column index
+    /// @return const/non-const reference to the header cell at @p col
     [[nodiscard]] constexpr auto header_cell_at(this auto&& self, ::std::size_t col) noexcept -> decltype(auto) {
         return ::pltxt2htm::details::vector_index<ndebug>(self.cells_, col);
     }
 
+    /// Append one header cell.  Increments internal column counter.
     constexpr void add_header_cell(this MdTableAstRaw& self, ::pltxt2htm::details::MdTableCellRaw&& cell) noexcept {
         self.cells_.push_back(::std::move(cell));
         ++self.num_cols_;
     }
 
+    /// @return number of body rows (derived from flat vector size and column count)
     [[nodiscard]] constexpr auto body_rows_count(this auto&& self) noexcept -> ::std::size_t {
         pltxt2htm_assert(self.num_cols_ != 0, u8"num_cols_ should be > 0 when calculating body rows count");
         return (self.cells_.size() - self.num_cols_) / self.num_cols_;
     }
 
+    /// @return cells per body row (= num_cols_, all rows have equal length)
     [[nodiscard]] constexpr auto body_cells_count(this auto&& self) noexcept -> ::std::size_t {
         return self.num_cols_;
     }
 
+    /// @param row body row index
+    /// @param col column index within the row
+    /// @return const/non-const reference to the body cell at (@p row, @p col)
     [[nodiscard]] constexpr auto body_cell_at(this auto&& self, ::std::size_t row, ::std::size_t col) noexcept
         -> decltype(auto) {
         return ::pltxt2htm::details::vector_index<ndebug>(self.cells_, self.num_cols_ + row * self.num_cols_ + col);
     }
 
+    /// Append one body row (all its cells) to the flat vector.
     constexpr void add_body_row(this MdTableAstRaw& self,
                                 ::fast_io::vector<::pltxt2htm::details::MdTableCellRaw>&& row_cells) noexcept {
         self.cells_.append_range(::std::move(row_cells));
     }
 };
 
+/**
+ * @brief Result of try_parse_md_table_raw: raw AST and consumed character count.
+ * @tparam ndebug Contract checking mode
+ */
 template<::pltxt2htm::Contracts ndebug>
 struct TryParseMdTableRawResult {
-    ::pltxt2htm::details::MdTableAstRaw<ndebug> raw_ast;
-    ::std::size_t forward_index;
+    ::pltxt2htm::details::MdTableAstRaw<ndebug> raw_ast; ///< parsed table AST
+    ::std::size_t forward_index; ///< number of characters consumed from input
 };
 
+/**
+ * @brief Result of try_parse_md_table_line: extracted line text and forward index.
+ */
 struct TryParseMdTableLineResult {
-    ::fast_io::u8string line;
-    ::std::size_t forward_index;
+    ::fast_io::u8string line; ///< extracted line text (without trailing newline)
+    ::std::size_t forward_index; ///< index past the line (including newline)
 };
 
+/**
+ * @brief Extract one line (up to `\n`) from pl-text starting at @p offset.
+ *
+ * The returned line does NOT include the trailing newline.
+ *
+ * @tparam ndebug Contract checking mode
+ * @param pltext The full pl-text input
+ * @param offset Start index within @p pltext
+ * @return TryParseMdTableLineResult on success, nullopt if @p offset is past the end
+ */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_table_line(::fast_io::u8string_view pltext, ::std::size_t offset) noexcept
@@ -276,6 +346,18 @@ constexpr auto try_parse_md_table_line(::fast_io::u8string_view pltext, ::std::s
     return ::pltxt2htm::details::TryParseMdTableLineResult{::std::move(line), forward_index};
 }
 
+/**
+ * @brief Parse an entire pipe table block (header + delimiter + body rows).
+ *
+ * The input must start at the first line of a table.  The header row
+ * determines the column count; every body row is required to have
+ * exactly that many cells (strict enforcement).  Returns nullopt if
+ * the input is not a valid table.
+ *
+ * @tparam ndebug Contract checking mode
+ * @param pltext The pl-text input starting at the table
+ * @return TryParseMdTableRawResult on success, nullopt if parsing fails
+ */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
