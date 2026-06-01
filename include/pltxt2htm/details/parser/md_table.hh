@@ -137,7 +137,7 @@ constexpr auto try_parse_md_table_delimiter(::fast_io::u8string_view line) noexc
             ++i;
             continue;
         }
-        // parse alignment segment
+        // parse alignment segment: :? -+ :?
         if (::pltxt2htm::details::u8string_view_index<ndebug>(line, i) == u8':') {
             ++i;
         }
@@ -147,10 +147,6 @@ constexpr auto try_parse_md_table_delimiter(::fast_io::u8string_view line) noexc
             if (chr == u8'-') {
                 ++dash_count;
             }
-            else if (chr == u8':') {
-                ++i;
-                break;
-            }
             else {
                 break;
             }
@@ -158,15 +154,21 @@ constexpr auto try_parse_md_table_delimiter(::fast_io::u8string_view line) noexc
         if (dash_count < 1) {
             return false;
         }
+        if (i < line.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(line, i) == u8':') {
+            ++i;
+        }
         has_content = true;
-        // skip spaces until | or end
+        // skip trailing spaces
         for (; i < line.size(); ++i) {
             auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(line, i);
             if (chr != u8' ' && chr != u8'\t') {
                 break;
             }
         }
-        if (i < line.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(line, i) == u8'|') {
+        if (i < line.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(line, i) != u8'|') {
+            return false;
+        }
+        if (i < line.size()) {
             ++i;
         }
     }

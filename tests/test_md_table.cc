@@ -246,5 +246,173 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // --- Additional positive tests for delimiter patterns ---
+
+    // Single dash in delimiter (minimum valid: -+)
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| A |\n"
+            u8"|-|\n"
+            u8"| B |");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><thead><tr><th>A</th></tr></thead>"
+            u8"<tbody><tr><td>B</td></tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Two dashes left-aligned
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| A |\n"
+            u8"|:--|\n"
+            u8"| B |");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><thead><tr><th>A</th></tr></thead>"
+            u8"<tbody><tr><td>B</td></tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Three dashes right-aligned
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| A |\n"
+            u8"|---:|\n"
+            u8"| B |");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><thead><tr><th style=\"text-align:right\">A</th></tr></thead>"
+            u8"<tbody><tr><td style=\"text-align:right\">B</td></tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Trailing whitespace in delimiter row
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| H |\n"
+            u8"|---|  \n"
+            u8"| C |");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><thead><tr><th>H</th></tr></thead>"
+            u8"<tbody><tr><td>C</td></tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Spaces around dashes within delimiter cells
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| A | B |\n"
+            u8"|---| --- |\n"
+            u8"| 1 | 2 |");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><thead><tr><th>A</th><th>B</th></tr></thead>"
+            u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Very long dashes with center alignment
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| A | B |\n"
+            u8"|:-----------------:|:-----------------:|\n"
+            u8"| 1 | 2 |");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><thead><tr>"
+            u8"<th style=\"text-align:center\">A</th><th style=\"text-align:center\">B</th>"
+            u8"</tr></thead>"
+            u8"<tbody><tr>"
+            u8"<td style=\"text-align:center\">1</td><td style=\"text-align:center\">2</td>"
+            u8"</tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // --- Negative tests: delimiter patterns that violate the spec ---
+
+    // Extra dash after trailing colon (|:-:-|)
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| A |\n"
+            u8"|:-:-|\n"
+            u8"| B |");
+        auto answer = ::fast_io::u8string_view{
+            u8"|&nbsp;A&nbsp;|<br>|:-:-|<br>|&nbsp;B&nbsp;|"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Space between dashes and trailing colon within cell
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| A |\n"
+            u8"|:-- :|\n"
+            u8"| B |");
+        auto answer = ::fast_io::u8string_view{
+            u8"|&nbsp;A&nbsp;|<br>|:--&nbsp;:|<br>|&nbsp;B&nbsp;|"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Invalid character inside delimiter cell
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| A |\n"
+            u8"|--x--|\n"
+            u8"| B |");
+        auto answer = ::fast_io::u8string_view{
+            u8"|&nbsp;A&nbsp;|<br>|--x--|<br>|&nbsp;B&nbsp;|"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Double leading colon
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| A |\n"
+            u8"|::---|\n"
+            u8"| B |");
+        auto answer = ::fast_io::u8string_view{
+            u8"|&nbsp;A&nbsp;|<br>|::---|<br>|&nbsp;B&nbsp;|"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Double trailing colon
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| A |\n"
+            u8"|---::|\n"
+            u8"| B |");
+        auto answer = ::fast_io::u8string_view{
+            u8"|&nbsp;A&nbsp;|<br>|---::|<br>|&nbsp;B&nbsp;|"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Colon in middle of dashes (not at edge)
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| A |\n"
+            u8"|-:-|\n"
+            u8"| B |");
+        auto answer = ::fast_io::u8string_view{
+            u8"|&nbsp;A&nbsp;|<br>|-:-|<br>|&nbsp;B&nbsp;|"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Extraneous text after valid delimiter cell
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| A |\n"
+            u8"|---|extra|\n"
+            u8"| B |");
+        auto answer = ::fast_io::u8string_view{
+            u8"|&nbsp;A&nbsp;|<br>|---|extra|<br>|&nbsp;B&nbsp;|"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Second column has invalid delimiter, first is valid
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| A | B |\n"
+            u8"|---|:-:-|\n"
+            u8"| 1 | 2 |");
+        auto answer = ::fast_io::u8string_view{
+            u8"|&nbsp;A&nbsp;|&nbsp;B&nbsp;|<br>|---|:-:-|<br>|&nbsp;1&nbsp;|&nbsp;2&nbsp;|"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }
