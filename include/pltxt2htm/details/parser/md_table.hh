@@ -8,6 +8,7 @@
 #include "../utils.hh"
 #include "../../contracts.hh"
 #include "../../ast/node_type.hh"
+#include "../../details/push_macro.hh"
 
 namespace pltxt2htm::details {
 
@@ -201,10 +202,43 @@ struct MdTableCellRaw {
  * re-parsed through the inline parser when the table frame is processed.
  */
 template<::pltxt2htm::Contracts ndebug>
-struct MdTableAstRaw {
-    ::std::size_t num_cols;
-    ::fast_io::vector<::pltxt2htm::details::MdTableCellRaw> header_cells;
-    ::fast_io::vector<::fast_io::vector<::pltxt2htm::details::MdTableCellRaw>> body_rows;
+class MdTableAstRaw {
+    ::std::size_t num_cols_{};
+    ::fast_io::vector<::pltxt2htm::details::MdTableCellRaw> cells_{};
+
+public:
+    [[nodiscard]] constexpr auto header_cells_count(this auto&& self) noexcept -> ::std::size_t {
+        return self.num_cols_;
+    }
+
+    [[nodiscard]] constexpr auto header_cell_at(this auto&& self, ::std::size_t col) noexcept -> decltype(auto) {
+        return ::pltxt2htm::details::vector_index<ndebug>(self.cells_, col);
+    }
+
+    constexpr void add_header_cell(this MdTableAstRaw& self, ::pltxt2htm::details::MdTableCellRaw&& cell) noexcept {
+        self.cells_.push_back(::std::move(cell));
+        ++self.num_cols_;
+    }
+
+    [[nodiscard]] constexpr auto body_rows_count(this auto&& self) noexcept -> ::std::size_t {
+        pltxt2htm_assert(self.num_cols_ != 0, u8"num_cols_ should be > 0 when calculating body rows count");
+        return (self.cells_.size() - self.num_cols_) / self.num_cols_;
+    }
+
+    [[nodiscard]] constexpr auto body_cells_count(this auto&& self) noexcept -> ::std::size_t {
+        return self.num_cols_;
+    }
+
+    [[nodiscard]] constexpr auto body_cell_at(this auto&& self, ::std::size_t row, ::std::size_t col) noexcept
+        -> decltype(auto) {
+        return ::pltxt2htm::details::vector_index<ndebug>(
+            self.cells_, self.num_cols_ + row * self.num_cols_ + col);
+    }
+
+    constexpr void add_body_row(this MdTableAstRaw& self,
+                                ::fast_io::vector<::pltxt2htm::details::MdTableCellRaw>&& row_cells) noexcept {
+        self.cells_.append_range(::std::move(row_cells));
+    }
 };
 
 template<::pltxt2htm::Contracts ndebug>
@@ -297,11 +331,10 @@ constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
 
     // build raw header cells
     ::pltxt2htm::details::MdTableAstRaw<ndebug> raw_ast{};
-    raw_ast.num_cols = num_cols;
     for (::std::size_t col{}; col < header_row.cells.size(); ++col) {
         auto const& cell_text = header_row.cells[col];
         auto align_val = col < aligns.size() ? aligns[col] : ::pltxt2htm::MdTableAlign::left;
-        raw_ast.header_cells.push_back(::pltxt2htm::details::MdTableCellRaw{
+        raw_ast.add_header_cell(::pltxt2htm::details::MdTableCellRaw{
             .text = ::fast_io::u8string{cell_text.data(), cell_text.data() + cell_text.size()},
             .align = align_val,
         });
@@ -335,7 +368,7 @@ constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
                 .align = align_val,
             });
         }
-        raw_ast.body_rows.push_back(::std::move(body_cells));
+        raw_ast.add_body_row(::std::move(body_cells));
     }
 
     return ::pltxt2htm::details::TryParseMdTableRawResult<ndebug>{.raw_ast = ::std::move(raw_ast),
@@ -343,3 +376,5 @@ constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
 }
 
 } // namespace pltxt2htm::details
+
+#include "../../details/pop_macro.hh"
