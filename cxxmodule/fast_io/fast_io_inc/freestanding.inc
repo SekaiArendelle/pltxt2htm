@@ -46,7 +46,12 @@ using ::fast_io::freestanding::find_last_not;
 using ::fast_io::freestanding::find_first_not_of;
 using ::fast_io::freestanding::find_last_of;
 using ::fast_io::freestanding::find_last_not_of;
+using ::fast_io::freestanding::nonoverlapped_bytes_copy_n;
+using ::fast_io::freestanding::bytes_clear_n;
+using ::fast_io::freestanding::overlapped_copy;
+using ::fast_io::freestanding::overlapped_copy_n;
 
 using ::fast_io::freestanding::errc;
+
 } // namespace freestanding
 } // namespace fast_io

@@ -124,5 +124,58 @@ using ::fast_io::system_call;
 
 using ::fast_io::posix_clock_id;
 using ::fast_io::posix_clock_gettime;
+using ::fast_io::posix_clock_getres;
 
+using ::fast_io::native_mutex;
+
+using ::fast_io::native_readlinkat;
+using ::fast_io::native_symlinkat;
+using ::fast_io::native_unlinkat;
+using ::fast_io::native_renameat;
+using ::fast_io::native_mkdirat;
+using ::fast_io::native_fstatat;
+using ::fast_io::native_at_flags;
+using ::fast_io::native_utimensat;
+using ::fast_io::native_linkat;
+
+#ifndef __wasm__
+using ::fast_io::native_socklen_t;
+using ::fast_io::posix_accept;
+using ::fast_io::posix_connect;
+using ::fast_io::posix_bind;
+using ::fast_io::posix_listen;
+#endif
+
+using ::fast_io::begin;
+using ::fast_io::end;
+using ::fast_io::current;
+using ::fast_io::u8filename;
+using ::fast_io::inode_ul64;
+using ::fast_io::type;
+using ::fast_io::is_dot;
+
+using ::fast_io::status;
+using ::fast_io::file_type;
+using ::fast_io::posix_file_status;
+
+using ::fast_io::truncate;
+
+using ::fast_io::native_white_hole;
+
+using ::fast_io::ipv4;
+using ::fast_io::ipv6;
+
+#ifndef __wasm__
+using ::fast_io::native_socket_file;
+using ::fast_io::native_socket_io_observer;
+using ::fast_io::native_dns_file;
+using ::fast_io::to_ip;
+using ::fast_io::to_ip_address;
+#endif
+
+using ::fast_io::io_kernel;
+
+#if defined(__linux__)
+using ::fast_io::fast_exit;
+#endif
 } // namespace fast_io

@@ -5,7 +5,10 @@ using ::fast_io::char_literal_v;
 using ::fast_io::pr_rsv_size;
 using ::fast_io::pr_rsv_to_iterator_unchecked;
 
+using ::fast_io::io_alias_t;
+using ::fast_io::io_alias;
 using ::fast_io::io_alias_type_t;
+using ::fast_io::io_alias_type;
 
 using ::fast_io::io_reserve_type_t;
 using ::fast_io::io_reserve_type;
@@ -49,7 +52,6 @@ using ::fast_io::open_mode;
 using ::fast_io::basic_io_lockable;
 using ::fast_io::basic_io_lockable_nonmovable;
 
-#if !defined(__clang__) // The gcc and msvc module does not support non-exported functions adl matching
 using ::fast_io::input_stream_ref_define;
 using ::fast_io::output_stream_ref_define;
 using ::fast_io::io_stream_ref_define;
@@ -120,11 +122,10 @@ using ::fast_io::io_stream_require_secure_clear_define;
 // using ::fast_io::input_stream_buffer_flush_define;
 using ::fast_io::output_stream_buffer_flush_define;
 using ::fast_io::io_stream_buffer_flush_define;
-#endif
 
 namespace manipulators
 {
-    
+
 using ::fast_io::manipulators::print_alias_define;
 using ::fast_io::manipulators::print_reserve_size;
 using ::fast_io::manipulators::print_reserve_define;
@@ -210,7 +211,26 @@ using ::fast_io::manipulators::ip_generic;
 using ::fast_io::manipulators::ip_scan_generic;
 #endif
 using ::fast_io::manipulators::cur_src_loc;
+
+using ::fast_io::manipulators::ip_scan_generic;
+using ::fast_io::manipulators::strvw;
 } // namespace manipulators
+
+namespace char_category
+{
+using ::fast_io::char_category::is_dos_file_invalid_character;
+using ::fast_io::char_category::char_category_family;
+using ::fast_io::char_category::char_category_traits;
+using ::fast_io::char_category::to_c_lower;
+using ::fast_io::char_category::to_c_upper;
+using ::fast_io::char_category::to_c_halfwidth;
+namespace ranges
+{
+using ::fast_io::char_category::ranges::to_c_lower;
+using ::fast_io::char_category::ranges::to_c_upper;
+using ::fast_io::char_category::ranges::to_c_halfwidth;
+} // namespace ranges
+} // namespace char_category
 
 namespace mnp = manipulators;
 
@@ -252,6 +272,8 @@ using ::fast_io::operations::scatter_pread_some_bytes;
 
 using ::fast_io::operations::output_stream_ref;
 
+using ::fast_io::operations::io_stream_seek_bytes;
+
 namespace decay
 {
 using ::fast_io::operations::decay::scan_freestanding_decay;
@@ -263,6 +285,11 @@ using ::fast_io::operations::decay::output_stream_mutex_ref_decay;
 using ::fast_io::operations::decay::output_stream_unlocked_ref_decay;
 
 } // namespace decay
+
+namespace defines
+{
+using ::fast_io::operations::defines::print_freestanding_okay;
+} // namespace defines
 
 using ::fast_io::operations::print_freestanding;
 
@@ -323,6 +350,7 @@ using ::fast_io::bitops::rtz;
 } // namespace bitops
 
 // network
+using ::fast_io::ip;
 using ::fast_io::posix_empty_network_service;
 using ::fast_io::sock_family;
 using ::fast_io::sock_protocol;
@@ -342,12 +370,23 @@ using ::fast_io::ipv6_scan_state_t;
 using ::fast_io::ip_port_scan_state_t;
 #endif
 
+using ::fast_io::io_scatter_t;
+using ::fast_io::io_scatter_status_t;
+using ::fast_io::perms;
+using ::fast_io::intfpos_t;
+using ::fast_io::fposoffadd_scatters;
+using ::fast_io::seekdir;
+
 using ::fast_io::basic_timestamp;
 using ::fast_io::unix_timestamp;
 using ::fast_io::win32_timestamp;
 using ::fast_io::csharp_timestamp;
 using ::fast_io::year0_timestamp;
 using ::fast_io::universe_timestamp;
+using ::fast_io::iso8601_timestamp;
+
+using ::fast_io::local;
+using ::fast_io::utc;
 
 using ::fast_io::operator==;
 using ::fast_io::operator!=;
@@ -369,4 +408,14 @@ using ::fast_io::operator^=;
 
 using ::fast_io::operator++;
 
+namespace details
+{
+using ::fast_io::details::dummy_buffer_output_stream;
+} // namespace details
+
+using ::fast_io::basic_general_concat;
+using ::fast_io::io_print_forward;
+using ::fast_io::io_print_alias;
+
+using ::fast_io::uint_least64_subseconds_per_second;
 } // namespace fast_io
