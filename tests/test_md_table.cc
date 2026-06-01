@@ -110,5 +110,83 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // Left-aligned columns (default, no style attribute)
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| A | B |\n"
+            u8"|:---|:---|\n"
+            u8"| 1 | 2 |");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><thead><tr><th>A</th><th>B</th></tr></thead>"
+            u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Center-aligned columns
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| A | B |\n"
+            u8"|:---:|:---:|\n"
+            u8"| 1 | 2 |");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><thead><tr><th style=\"text-align:center\">A</th><th style=\"text-align:center\">B</th></tr></thead>"
+            u8"<tbody><tr><td style=\"text-align:center\">1</td><td style=\"text-align:center\">2</td></tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Right-aligned columns
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| A | B |\n"
+            u8"|---:|---:|\n"
+            u8"| 1 | 2 |");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><thead><tr><th style=\"text-align:right\">A</th><th style=\"text-align:right\">B</th></tr></thead>"
+            u8"<tbody><tr><td style=\"text-align:right\">1</td><td style=\"text-align:right\">2</td></tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Mixed alignment in one table
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| Left | Center | Right |\n"
+            u8"|:-----|:------:|------:|\n"
+            u8"| a    |   b    |   c   |");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><thead><tr>"
+            u8"<th>Left</th><th style=\"text-align:center\">Center</th><th style=\"text-align:right\">Right</th>"
+            u8"</tr></thead>"
+            u8"<tbody><tr>"
+            u8"<td>a</td><td style=\"text-align:center\">b</td><td style=\"text-align:right\">c</td>"
+            u8"</tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Header-only table with alignment
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| X | Y |\n"
+            u8"|:---:|:---|");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><thead><tr><th style=\"text-align:center\">X</th><th>Y</th></tr></thead></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Alignment with empty cells
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| A | B | C |\n"
+            u8"|:---:|:---:|---:|\n"
+            u8"| 1 |   | 3 |");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><thead><tr>"
+            u8"<th style=\"text-align:center\">A</th><th style=\"text-align:center\">B</th><th style=\"text-align:right\">C</th>"
+            u8"</tr></thead>"
+            u8"<tbody><tr>"
+            u8"<td style=\"text-align:center\">1</td><td style=\"text-align:center\"></td><td style=\"text-align:right\">3</td>"
+            u8"</tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }
