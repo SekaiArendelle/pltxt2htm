@@ -1897,6 +1897,22 @@ public:
     }
 
     [[nodiscard]]
+    constexpr auto get_md_table_cell_align(this auto&& self) noexcept -> ::pltxt2htm::MdTableAlign {
+        switch (self.node_kind) {
+        case ::pltxt2htm::NodeKind::md_th: {
+            return self.md_th_node.get_align();
+        }
+        case ::pltxt2htm::NodeKind::md_td: {
+            return self.md_td_node.get_align();
+        }
+        default:
+            [[unlikely]] {
+                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+            }
+        }
+    }
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         switch (self.node_kind) {
         case ::pltxt2htm::NodeKind::text: {

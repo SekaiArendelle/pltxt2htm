@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstddef>
-#include <cstdint>
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
@@ -13,19 +12,8 @@
 
 namespace pltxt2htm::details {
 
-enum class MdTableAlign : ::std::uint_least32_t {
-    left = 0,
-    center,
-    right,
-};
-
 struct MdTableRow {
     ::fast_io::vector<::fast_io::u8string> cells;
-};
-
-struct MdTableData {
-    ::fast_io::vector<::pltxt2htm::details::MdTableRow> rows;
-    ::fast_io::vector<::pltxt2htm::details::MdTableAlign> aligns;
 };
 
 template<::pltxt2htm::Contracts ndebug>
@@ -87,7 +75,7 @@ constexpr auto try_parse_md_table_row(::fast_io::u8string_view line) noexcept
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_table_align(::fast_io::u8string_view cell_text) noexcept
-    -> ::pltxt2htm::details::MdTableAlign {
+    -> ::pltxt2htm::MdTableAlign {
     bool left = false;
     bool right = false;
     ::std::size_t i{};
@@ -102,19 +90,19 @@ constexpr auto try_parse_md_table_align(::fast_io::u8string_view cell_text) noex
             break;
         }
         if (chr != u8'-') {
-            return ::pltxt2htm::details::MdTableAlign::left;
+            return ::pltxt2htm::MdTableAlign::left;
         }
     }
     if (left && right) {
-        return ::pltxt2htm::details::MdTableAlign::center;
+        return ::pltxt2htm::MdTableAlign::center;
     }
     if (right) {
-        return ::pltxt2htm::details::MdTableAlign::right;
+        return ::pltxt2htm::MdTableAlign::right;
     }
     if (left) {
-        return ::pltxt2htm::details::MdTableAlign::left;
+        return ::pltxt2htm::MdTableAlign::left;
     }
-    return ::pltxt2htm::details::MdTableAlign::left;
+    return ::pltxt2htm::MdTableAlign::left;
 }
 
 template<::pltxt2htm::Contracts ndebug>
@@ -334,7 +322,7 @@ constexpr auto try_parse_md_table(::fast_io::u8string_view pltext) noexcept
     // parse alignment from delimiter row
     auto delim_row_opt = ::pltxt2htm::details::try_parse_md_table_row<ndebug>(
         ::fast_io::u8string_view{second_line.data(), second_line.size()});
-    ::fast_io::vector<::pltxt2htm::details::MdTableAlign> aligns{};
+    ::fast_io::vector<::pltxt2htm::MdTableAlign> aligns{};
     if (delim_row_opt.has_value()) {
         auto delim_row = delim_row_opt.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
         for (auto const& cell : delim_row.cells) {
@@ -345,7 +333,7 @@ constexpr auto try_parse_md_table(::fast_io::u8string_view pltext) noexcept
     // if delimiter row parsing failed, default to left alignment
     if (aligns.empty()) {
         for (::std::size_t i{}; i < num_cols; ++i) {
-            aligns.push_back(::pltxt2htm::details::MdTableAlign::left);
+            aligns.push_back(::pltxt2htm::MdTableAlign::left);
         }
     }
 
@@ -360,7 +348,9 @@ constexpr auto try_parse_md_table(::fast_io::u8string_view pltext) noexcept
         auto const& cell_text = header_row.cells[col];
         auto parsed =
             ::pltxt2htm::details::parse_cell_text<ndebug>(::fast_io::u8string_view{cell_text.data(), cell_text.size()});
-        header_tr_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTh<ndebug>{::std::move(parsed)}));
+        auto align_val = col < aligns.size() ? aligns[col] : ::pltxt2htm::MdTableAlign::left;
+        header_tr_ast.push_back(
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTh<ndebug>{::std::move(parsed), align_val}));
     }
     thead_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTr<ndebug>{::std::move(header_tr_ast)}));
     table_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdThead<ndebug>{::std::move(thead_ast)}));
@@ -386,7 +376,9 @@ constexpr auto try_parse_md_table(::fast_io::u8string_view pltext) noexcept
             auto const& cell_text = row.cells[col];
             auto parsed = ::pltxt2htm::details::parse_cell_text<ndebug>(
                 ::fast_io::u8string_view{cell_text.data(), cell_text.size()});
-            tr_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTd<ndebug>{::std::move(parsed)}));
+            auto align_val = col < aligns.size() ? aligns[col] : ::pltxt2htm::MdTableAlign::left;
+            tr_ast.push_back(
+                ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTd<ndebug>{::std::move(parsed), align_val}));
         }
         tbody_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTr<ndebug>{::std::move(tr_ast)}));
     }
