@@ -124,8 +124,8 @@ constexpr auto devil_stuff_after_line_break(
             opt_md_table_raw.has_value()) {
             auto&& [raw_ast, forward_index] =
                 opt_md_table_raw.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                ::pltxt2htm::NodeKind::md_table, ::std::move(raw_ast)));
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(::pltxt2htm::NodeKind::md_table,
+                                                                             ::std::move(raw_ast)));
             return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{.forward_index = current_index + forward_index,
                                                                         .new_frame_been_pushed_into_call_stack = true};
         }
@@ -343,8 +343,7 @@ entry:
                         tr_ast.push_back(::std::move(flat_ast[col]));
                     }
                     ++body_row_index;
-                    tbody_ast.push_back(
-                        ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTr<ndebug>{::std::move(tr_ast)}));
+                    tbody_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTr<ndebug>{::std::move(tr_ast)}));
                 }
                 table_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTbody<ndebug>{::std::move(tbody_ast)}));
@@ -352,8 +351,7 @@ entry:
 
             if (call_stack.empty()) {
                 ::pltxt2htm::Ast<ndebug> result{};
-                result.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTable<ndebug>{::std::move(table_ast)}));
+                result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTable<ndebug>{::std::move(table_ast)}));
                 return result;
             }
 
@@ -2185,15 +2183,13 @@ entry:
         }
         case ::pltxt2htm::NodeKind::md_th: {
             auto align = frame.get_md_cell_align();
-            parent_ast.push_back(
-                ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTh<ndebug>{::std::move(subast), align}));
+            parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTh<ndebug>{::std::move(subast), align}));
             parent_index += staged_index;
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_td: {
             auto align = frame.get_md_cell_align();
-            parent_ast.push_back(
-                ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTd<ndebug>{::std::move(subast), align}));
+            parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTd<ndebug>{::std::move(subast), align}));
             parent_index += staged_index;
             goto entry;
         }

@@ -59,9 +59,10 @@ constexpr auto try_parse_md_table_row(::fast_io::u8string_view line) noexcept
                 }
                 if (bs_count % 2 == 1) {
                     // odd backslashes: backslash-pipe is escaped pipe, treat | as content
-                    cell.pop_back();       // remove the escape backslash
+                    cell.pop_back(); // remove the escape backslash
                     chr = u8'|';
-                } else {
+                }
+                else {
                     break;
                 }
             }
@@ -231,8 +232,7 @@ public:
 
     [[nodiscard]] constexpr auto body_cell_at(this auto&& self, ::std::size_t row, ::std::size_t col) noexcept
         -> decltype(auto) {
-        return ::pltxt2htm::details::vector_index<ndebug>(
-            self.cells_, self.num_cols_ + row * self.num_cols_ + col);
+        return ::pltxt2htm::details::vector_index<ndebug>(self.cells_, self.num_cols_ + row * self.num_cols_ + col);
     }
 
     constexpr void add_body_row(this MdTableAstRaw& self,

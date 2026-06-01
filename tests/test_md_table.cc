@@ -332,8 +332,7 @@ int main() {
             u8"| A |\n"
             u8"|:-:-|\n"
             u8"| B |");
-        auto answer = ::fast_io::u8string_view{
-            u8"|&nbsp;A&nbsp;|<br>|:-:-|<br>|&nbsp;B&nbsp;|"};
+        auto answer = ::fast_io::u8string_view{u8"|&nbsp;A&nbsp;|<br>|:-:-|<br>|&nbsp;B&nbsp;|"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -343,8 +342,7 @@ int main() {
             u8"| A |\n"
             u8"|:-- :|\n"
             u8"| B |");
-        auto answer = ::fast_io::u8string_view{
-            u8"|&nbsp;A&nbsp;|<br>|:--&nbsp;:|<br>|&nbsp;B&nbsp;|"};
+        auto answer = ::fast_io::u8string_view{u8"|&nbsp;A&nbsp;|<br>|:--&nbsp;:|<br>|&nbsp;B&nbsp;|"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -354,8 +352,7 @@ int main() {
             u8"| A |\n"
             u8"|--x--|\n"
             u8"| B |");
-        auto answer = ::fast_io::u8string_view{
-            u8"|&nbsp;A&nbsp;|<br>|--x--|<br>|&nbsp;B&nbsp;|"};
+        auto answer = ::fast_io::u8string_view{u8"|&nbsp;A&nbsp;|<br>|--x--|<br>|&nbsp;B&nbsp;|"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -365,8 +362,7 @@ int main() {
             u8"| A |\n"
             u8"|::---|\n"
             u8"| B |");
-        auto answer = ::fast_io::u8string_view{
-            u8"|&nbsp;A&nbsp;|<br>|::---|<br>|&nbsp;B&nbsp;|"};
+        auto answer = ::fast_io::u8string_view{u8"|&nbsp;A&nbsp;|<br>|::---|<br>|&nbsp;B&nbsp;|"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -376,8 +372,7 @@ int main() {
             u8"| A |\n"
             u8"|---::|\n"
             u8"| B |");
-        auto answer = ::fast_io::u8string_view{
-            u8"|&nbsp;A&nbsp;|<br>|---::|<br>|&nbsp;B&nbsp;|"};
+        auto answer = ::fast_io::u8string_view{u8"|&nbsp;A&nbsp;|<br>|---::|<br>|&nbsp;B&nbsp;|"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -387,8 +382,7 @@ int main() {
             u8"| A |\n"
             u8"|-:-|\n"
             u8"| B |");
-        auto answer = ::fast_io::u8string_view{
-            u8"|&nbsp;A&nbsp;|<br>|-:-|<br>|&nbsp;B&nbsp;|"};
+        auto answer = ::fast_io::u8string_view{u8"|&nbsp;A&nbsp;|<br>|-:-|<br>|&nbsp;B&nbsp;|"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -398,8 +392,7 @@ int main() {
             u8"| A |\n"
             u8"|---|extra|\n"
             u8"| B |");
-        auto answer = ::fast_io::u8string_view{
-            u8"|&nbsp;A&nbsp;|<br>|---|extra|<br>|&nbsp;B&nbsp;|"};
+        auto answer = ::fast_io::u8string_view{u8"|&nbsp;A&nbsp;|<br>|---|extra|<br>|&nbsp;B&nbsp;|"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -409,8 +402,8 @@ int main() {
             u8"| A | B |\n"
             u8"|---|:-:-|\n"
             u8"| 1 | 2 |");
-        auto answer = ::fast_io::u8string_view{
-            u8"|&nbsp;A&nbsp;|&nbsp;B&nbsp;|<br>|---|:-:-|<br>|&nbsp;1&nbsp;|&nbsp;2&nbsp;|"};
+        auto answer =
+            ::fast_io::u8string_view{u8"|&nbsp;A&nbsp;|&nbsp;B&nbsp;|<br>|---|:-:-|<br>|&nbsp;1&nbsp;|&nbsp;2&nbsp;|"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

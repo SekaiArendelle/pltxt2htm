@@ -770,12 +770,10 @@ public:
                          u8"mismatch node type");
     }
 
-    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_,
-                                          ::pltxt2htm::MdTableAlign align_,
+    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::MdTableAlign align_,
                                           ::pltxt2htm::NodeKind node_type) noexcept
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
-              ::pltxt2htm::details::ParserFrameContextWithMdCellInfo{.pltext = pltext_, .align = align_},
-              node_type}} {
+              ::pltxt2htm::details::ParserFrameContextWithMdCellInfo{.pltext = pltext_, .align = align_}, node_type}} {
         pltxt2htm_assert(node_type == ::pltxt2htm::NodeKind::md_th || node_type == ::pltxt2htm::NodeKind::md_td,
                          u8"mismatch node type");
     }
@@ -784,8 +782,7 @@ public:
                                           ::pltxt2htm::details::MdTableAstRaw<ndebug>&& raw_ast_) noexcept
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
               ::pltxt2htm::details::ParserFrameContextWithMdTableInfo<ndebug>{::std::move(raw_ast_)}, node_type}} {
-        pltxt2htm_assert(node_type == ::pltxt2htm::NodeKind::md_table,
-                         u8"mismatch node type");
+        pltxt2htm_assert(node_type == ::pltxt2htm::NodeKind::md_table, u8"mismatch node type");
     }
 
     constexpr ParserFrameContext(::pltxt2htm::details::ParserFrameContext<ndebug> const&) noexcept = delete;
