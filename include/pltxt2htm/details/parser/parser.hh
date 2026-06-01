@@ -10,6 +10,7 @@
 #include "../../contracts.hh"
 #include "../../ast/ast.hh"
 #include "md_list.hh"
+#include "md_table.hh"
 #include "frame_concext.hh"
 #include "try_parse.hh"
 #include "../push_macro.hh"
@@ -117,6 +118,16 @@ constexpr auto devil_stuff_after_line_break(
             call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(item_kind, ::std::move(md_list_ast)));
             return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{.forward_index = current_index + forward_index,
                                                                         .new_frame_been_pushed_into_call_stack = true};
+        }
+        if (auto opt_md_table = ::pltxt2htm::details::try_parse_md_table<ndebug>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            opt_md_table.has_value()) {
+            auto&& [table_ast, forward_index] =
+                opt_md_table.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            result.push_back(
+                ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlTable<ndebug>{::std::move(table_ast)}));
+            current_index += forward_index;
+            continue;
         }
         return ::pltxt2htm::details::DevilStuffAfterLineBreakResult{.forward_index = current_index,
                                                                     .new_frame_been_pushed_into_call_stack = false};
