@@ -366,6 +366,18 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_escape_tilde:
             [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_table:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_thead:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_tbody:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_tr:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_th:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_td:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_hr:
             [[unlikely]] {
                 ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
@@ -616,6 +628,18 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_escape_tilde:
             [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_table:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_thead:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_tbody:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_tr:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_th:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_td:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_hr:
             [[unlikely]] {
                 ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
@@ -727,6 +751,18 @@ public:
         case ::pltxt2htm::NodeKind::u8char:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::invalid_u8char:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_table:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_thead:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_tbody:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_tr:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_th:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_td:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::text:
             [[fallthrough]];

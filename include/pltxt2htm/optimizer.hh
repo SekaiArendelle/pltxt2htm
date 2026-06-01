@@ -747,6 +747,8 @@ entry:
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::html_blockquote, subast.begin()));
             goto entry;
         }
+        case ::pltxt2htm::NodeKind::md_table:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_table: {
             auto&& subast = node.get_subast();
             call_stack.push(
@@ -768,6 +770,8 @@ entry:
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::html_colgroup, subast.begin()));
             goto entry;
         }
+        case ::pltxt2htm::NodeKind::md_thead:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_thead: {
             auto&& subast = node.get_subast();
             call_stack.push(
@@ -775,6 +779,8 @@ entry:
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::html_thead, subast.begin()));
             goto entry;
         }
+        case ::pltxt2htm::NodeKind::md_tbody:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_tbody: {
             auto&& subast = node.get_subast();
             call_stack.push(
@@ -789,6 +795,8 @@ entry:
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::html_tfoot, subast.begin()));
             goto entry;
         }
+        case ::pltxt2htm::NodeKind::md_tr:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_tr: {
             auto&& subast = node.get_subast();
             call_stack.push(
@@ -796,6 +804,8 @@ entry:
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::html_tr, subast.begin()));
             goto entry;
         }
+        case ::pltxt2htm::NodeKind::md_th:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_th: {
             auto&& subast = node.get_subast();
             call_stack.push(
@@ -803,6 +813,8 @@ entry:
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::html_th, subast.begin()));
             goto entry;
         }
+        case ::pltxt2htm::NodeKind::md_td:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_td: {
             auto&& subast = node.get_subast();
             call_stack.push(

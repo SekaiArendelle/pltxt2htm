@@ -352,10 +352,10 @@ constexpr auto try_parse_md_table(::fast_io::u8string_view pltext) noexcept
         auto parsed = ::pltxt2htm::details::parse_cell_text<ndebug>(
             ::fast_io::u8string_view{cell_text.data(), cell_text.size()});
         header_tr_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-            ::pltxt2htm::HtmlTh<ndebug>{::std::move(parsed)}));
+            ::pltxt2htm::MdTh<ndebug>{::std::move(parsed)}));
     }
-    thead_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlTr<ndebug>{::std::move(header_tr_ast)}));
-    table_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlThead<ndebug>{::std::move(thead_ast)}));
+    thead_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTr<ndebug>{::std::move(header_tr_ast)}));
+    table_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdThead<ndebug>{::std::move(thead_ast)}));
 
     // build <tbody>
     ::pltxt2htm::Ast<ndebug> tbody_ast{};
@@ -379,13 +379,13 @@ constexpr auto try_parse_md_table(::fast_io::u8string_view pltext) noexcept
             auto parsed = ::pltxt2htm::details::parse_cell_text<ndebug>(
                 ::fast_io::u8string_view{cell_text.data(), cell_text.size()});
             tr_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                ::pltxt2htm::HtmlTd<ndebug>{::std::move(parsed)}));
+                ::pltxt2htm::MdTd<ndebug>{::std::move(parsed)}));
         }
-        tbody_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlTr<ndebug>{::std::move(tr_ast)}));
+        tbody_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTr<ndebug>{::std::move(tr_ast)}));
     }
 
     if (!tbody_ast.empty()) {
-        table_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlTbody<ndebug>{::std::move(tbody_ast)}));
+        table_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTbody<ndebug>{::std::move(tbody_ast)}));
     }
 
     return ::pltxt2htm::details::TryParseMdTableResult<ndebug>{

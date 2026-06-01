@@ -171,6 +171,14 @@ enum class NodeKind : ::std::size_t {
     md_ol, ///< Ordered list marker
     md_li, ///< List item
 
+    // Markdown table nodes (markdown pipe-table syntax)
+    md_table, ///< Markdown table: | ... |
+    md_thead, ///< Markdown table header section
+    md_tbody, ///< Markdown table body section
+    md_tr, ///< Markdown table row
+    md_th, ///< Markdown table header cell
+    md_td, ///< Markdown table data cell
+
     // LaTeX support
     md_latex_inline, ///< Inline LaTeX math: $...$
     md_latex_block, ///< Block/display LaTeX math: $$...$$
