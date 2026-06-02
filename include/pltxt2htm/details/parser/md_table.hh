@@ -23,6 +23,14 @@ struct MdTableRow {
 };
 
 /**
+ * @brief Result of try_parse_md_table_row: parsed row and consumed character count.
+ */
+struct TryParseMdTableRowResult {
+    ::pltxt2htm::details::MdTableRow row;
+    ::std::size_t forward_index;
+};
+
+/**
  * @brief Parse a single pipe-table row into cell strings.
  *
  * Splits the line on unescaped `|` characters.  A backslash immediately
@@ -36,43 +44,52 @@ struct MdTableRow {
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_md_table_row(::fast_io::u8string_view line) noexcept
-    -> ::exception::optional<::pltxt2htm::details::MdTableRow> {
-    if (line.empty()) {
+constexpr auto try_parse_md_table_row(::fast_io::u8string_view pltext) noexcept
+    -> ::exception::optional<::pltxt2htm::details::TryParseMdTableRowResult> {
+    if (pltext.empty()) {
         return ::exception::nullopt_t{};
     }
-    ::std::size_t i{};
+    ::std::size_t const pltext_size{pltext.size()};
+    ::std::size_t current_index{};
     // skip leading spaces
-    for (; i < line.size(); ++i) {
-        auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(line, i);
+    for (; current_index < pltext_size; ++current_index) {
+        auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
         if (chr != u8' ' && chr != u8'\t') {
             break;
         }
     }
     // must start with |
-    if (i >= line.size() || ::pltxt2htm::details::u8string_view_index<ndebug>(line, i) != u8'|') {
+    if (current_index >= pltext_size || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8'|') {
         return ::exception::nullopt_t{};
     }
-    ++i; // skip the first |
+    ++current_index; // skip the first |
 
     ::pltxt2htm::details::MdTableRow row{};
-    while (i < line.size()) {
+    while (current_index < pltext_size) {
         // skip spaces before cell content
-        for (; i < line.size(); ++i) {
-            auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(line, i);
+        for (; current_index < pltext_size; ++current_index) {
+            auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
             if (chr != u8' ' && chr != u8'\t') {
                 break;
             }
         }
-        // parse cell content until unescaped | or end of line
+        if (current_index >= pltext_size) {
+            break;
+        }
+        // end of row at \n
+        if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) == u8'\n') {
+            ++current_index;
+            break;
+        }
+        // parse cell content until unescaped | or \n or end of view
         ::fast_io::u8string cell{};
-        for (; i < line.size(); ++i) {
-            auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(line, i);
+        for (; current_index < pltext_size; ++current_index) {
+            auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
             if (chr == u8'|') {
                 // count consecutive backslashes before |
                 ::std::size_t bs_count{};
-                while (bs_count < i &&
-                       ::pltxt2htm::details::u8string_view_index<ndebug>(line, i - 1 - bs_count) == u8'\\') {
+                while (bs_count < current_index &&
+                       ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index - 1 - bs_count) == u8'\\') {
                     ++bs_count;
                 }
                 if (bs_count % 2 == 1) {
@@ -84,6 +101,9 @@ constexpr auto try_parse_md_table_row(::fast_io::u8string_view line) noexcept
                     break;
                 }
             }
+            if (chr == u8'\n') {
+                break;
+            }
             cell.push_back(chr);
         }
         // trim trailing spaces from cell
@@ -91,8 +111,8 @@ constexpr auto try_parse_md_table_row(::fast_io::u8string_view line) noexcept
             cell.pop_back();
         }
         row.cells.push_back(::std::move(cell));
-        if (i < line.size()) {
-            ++i; // skip |
+        if (current_index < pltext_size && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) == u8'|') {
+            ++current_index; // skip |
         }
     }
 
@@ -100,7 +120,7 @@ constexpr auto try_parse_md_table_row(::fast_io::u8string_view line) noexcept
         return ::exception::nullopt_t{};
     }
 
-    return row;
+    return ::pltxt2htm::details::TryParseMdTableRowResult{::std::move(row), current_index};
 }
 
 /**
@@ -113,6 +133,44 @@ constexpr auto try_parse_md_table_row(::fast_io::u8string_view line) noexcept
  * @param cell_text The delimiter cell text (e.g. `":---:"`)
  * @return MdTableAlign::left, MdTableAlign::center, or MdTableAlign::right
  */
+/**
+ * @brief Check whether a single non-empty delimiter cell is syntactically valid.
+ *
+ * A valid cell matches `:? -+ :?`.
+ *
+ * @tparam ndebug Contract checking mode
+ * @param cell The delimiter cell text (e.g. `":---:"`)
+ * @return true if the cell is a valid delimiter cell
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto is_delimiter_cell_valid(::fast_io::u8string_view cell) noexcept -> bool {
+    if (cell.empty()) {
+        return false;
+    }
+    ::std::size_t i{};
+    if (::pltxt2htm::details::u8string_view_index<ndebug>(cell, i) == u8':') {
+        ++i;
+    }
+    bool has_dash{};
+    for (; i < cell.size(); ++i) {
+        auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(cell, i);
+        if (chr == u8'-') {
+            has_dash = true;
+        }
+        else {
+            break;
+        }
+    }
+    if (i >= cell.size()) {
+        return has_dash;
+    }
+    if (::pltxt2htm::details::u8string_view_index<ndebug>(cell, i) == u8':') {
+        return i + 1 == cell.size();
+    }
+    return false;
+}
+
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_table_align(::fast_io::u8string_view cell_text) noexcept -> ::pltxt2htm::MdTableAlign {
@@ -143,87 +201,6 @@ constexpr auto try_parse_md_table_align(::fast_io::u8string_view cell_text) noex
         return ::pltxt2htm::MdTableAlign::left;
     }
     return ::pltxt2htm::MdTableAlign::left;
-}
-
-/**
- * @brief Validate that a line looks like a pipe-table delimiter row.
- *
- * A delimiter row consists of `|`-separated segments containing only
- * dashes and optional colons, e.g. `|:---:|---:|`.
- *
- * @tparam ndebug Contract checking mode
- * @param line A candidate delimiter line
- * @return true if the line is a valid delimiter row
- */
-template<::pltxt2htm::Contracts ndebug>
-[[nodiscard]]
-constexpr auto try_parse_md_table_delimiter(::fast_io::u8string_view line) noexcept -> bool {
-    if (line.empty()) {
-        return false;
-    }
-    ::std::size_t i{};
-    for (; i < line.size(); ++i) {
-        auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(line, i);
-        if (chr != u8' ' && chr != u8'\t') {
-            break;
-        }
-    }
-    if (i >= line.size() || ::pltxt2htm::details::u8string_view_index<ndebug>(line, i) != u8'|') {
-        return false;
-    }
-    ++i;
-    bool has_content = false;
-    while (i < line.size()) {
-        // skip spaces
-        for (; i < line.size(); ++i) {
-            auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(line, i);
-            if (chr != u8' ' && chr != u8'\t') {
-                break;
-            }
-        }
-        if (i >= line.size()) {
-            break;
-        }
-        if (::pltxt2htm::details::u8string_view_index<ndebug>(line, i) == u8'|') {
-            ++i;
-            continue;
-        }
-        // parse alignment segment: :? -+ :?
-        if (::pltxt2htm::details::u8string_view_index<ndebug>(line, i) == u8':') {
-            ++i;
-        }
-        ::std::size_t dash_count{};
-        for (; i < line.size(); ++i) {
-            auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(line, i);
-            if (chr == u8'-') {
-                ++dash_count;
-            }
-            else {
-                break;
-            }
-        }
-        if (dash_count < 1) {
-            return false;
-        }
-        if (i < line.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(line, i) == u8':') {
-            ++i;
-        }
-        has_content = true;
-        // skip trailing spaces
-        for (; i < line.size(); ++i) {
-            auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(line, i);
-            if (chr != u8' ' && chr != u8'\t') {
-                break;
-            }
-        }
-        if (i < line.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(line, i) != u8'|') {
-            return false;
-        }
-        if (i < line.size()) {
-            ++i;
-        }
-    }
-    return has_content;
 }
 
 /**
@@ -307,48 +284,6 @@ struct TryParseMdTableRawResult {
 };
 
 /**
- * @brief Result of try_parse_md_table_line: extracted line text and forward index.
- */
-struct TryParseMdTableLineResult {
-    ::fast_io::u8string line; ///< extracted line text (without trailing newline)
-    ::std::size_t forward_index; ///< index past the line (including newline)
-};
-
-/**
- * @brief Extract one line (up to `\n`) from pl-text starting at @p offset.
- *
- * The returned line does NOT include the trailing newline.
- *
- * @tparam ndebug Contract checking mode
- * @param pltext The full pl-text input
- * @param offset Start index within @p pltext
- * @return TryParseMdTableLineResult on success, nullopt if @p offset is past the end
- */
-template<::pltxt2htm::Contracts ndebug>
-[[nodiscard]]
-constexpr auto try_parse_md_table_line(::fast_io::u8string_view pltext, ::std::size_t offset) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseMdTableLineResult> {
-    ::std::size_t const pltext_size{pltext.size()};
-    if (offset >= pltext_size) {
-        return ::exception::nullopt_t{};
-    }
-    ::std::size_t line_start{offset};
-    ::std::size_t line_end{offset};
-    for (; line_end < pltext_size; ++line_end) {
-        auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, line_end);
-        if (chr == u8'\n') {
-            break;
-        }
-    }
-    ::fast_io::u8string line{};
-    for (::std::size_t i{line_start}; i < line_end; ++i) {
-        line.push_back(::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i));
-    }
-    ::std::size_t forward_index = line_end < pltext_size ? line_end + 1 : line_end;
-    return ::pltxt2htm::details::TryParseMdTableLineResult{::std::move(line), forward_index};
-}
-
-/**
  * @brief Parse an entire pipe table block (header + delimiter + body rows).
  *
  * The input must start at the first line of a table.  The header row
@@ -366,51 +301,37 @@ constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseMdTableRawResult<ndebug>> {
     ::std::size_t current_index{};
 
-    // parse first line
-    auto first_line_opt = ::pltxt2htm::details::try_parse_md_table_line<ndebug>(pltext, current_index);
-    if (!first_line_opt.has_value()) {
+    // parse header row
+    auto header_opt = ::pltxt2htm::details::try_parse_md_table_row<ndebug>(pltext);
+    if (header_opt.has_value() == false) {
         return ::exception::nullopt_t{};
     }
-    auto&& [first_line, after_first] = first_line_opt.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    current_index = after_first;
-
-    auto header_row_opt = ::pltxt2htm::details::try_parse_md_table_row<ndebug>(
-        ::fast_io::u8string_view{first_line.data(), first_line.size()});
-    if (!header_row_opt.has_value()) {
-        return ::exception::nullopt_t{};
-    }
-    auto header_row = header_row_opt.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+    auto&& [header_row, header_forward] = header_opt.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+    current_index += header_forward;
     ::std::size_t num_cols{header_row.cells.size()};
 
-    // parse delimiter line (second line)
-    auto second_line_opt = ::pltxt2htm::details::try_parse_md_table_line<ndebug>(pltext, current_index);
-    if (!second_line_opt.has_value()) {
+    // parse delimiter line (second line) & extract alignment in one pass
+    auto delim_opt = ::pltxt2htm::details::try_parse_md_table_row<ndebug>(
+        ::fast_io::u8string_view{pltext.data() + current_index, pltext.size() - current_index});
+    if (delim_opt.has_value() == false) {
         return ::exception::nullopt_t{};
     }
-    auto&& [second_line, after_second] = second_line_opt.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    current_index = after_second;
-
-    if (!::pltxt2htm::details::try_parse_md_table_delimiter<ndebug>(
-            ::fast_io::u8string_view{second_line.data(), second_line.size()})) {
-        return ::exception::nullopt_t{};
-    }
-
-    // parse alignment from delimiter row
-    auto delim_row_opt = ::pltxt2htm::details::try_parse_md_table_row<ndebug>(
-        ::fast_io::u8string_view{second_line.data(), second_line.size()});
+    auto&& [delim_row, delim_forward] = delim_opt.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+    current_index += delim_forward;
     ::fast_io::vector<::pltxt2htm::MdTableAlign> aligns{};
-    if (delim_row_opt.has_value()) {
-        auto delim_row = delim_row_opt.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-        for (auto const& cell : delim_row.cells) {
-            aligns.push_back(::pltxt2htm::details::try_parse_md_table_align<ndebug>(
-                ::fast_io::u8string_view{cell.data(), cell.size()}));
+    bool has_delimiter_content{};
+    for (auto const& cell : delim_row.cells) {
+        auto cell_view = ::fast_io::u8string_view{cell.data(), cell.size()};
+        if (cell_view.empty() == false) {
+            if (::pltxt2htm::details::is_delimiter_cell_valid<ndebug>(cell_view) == false) {
+                return ::exception::nullopt_t{};
+            }
+            has_delimiter_content = true;
         }
+        aligns.push_back(::pltxt2htm::details::try_parse_md_table_align<ndebug>(cell_view));
     }
-    // if delimiter row parsing failed, default to left alignment
-    if (aligns.empty()) {
-        for (::std::size_t i{}; i < num_cols; ++i) {
-            aligns.push_back(::pltxt2htm::MdTableAlign::left);
-        }
+    if (has_delimiter_content == false) {
+        return ::exception::nullopt_t{};
     }
 
     // build raw header cells
@@ -427,18 +348,13 @@ constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
 
     // parse data rows
     while (true) {
-        auto line_opt = ::pltxt2htm::details::try_parse_md_table_line<ndebug>(pltext, current_index);
-        if (!line_opt.has_value()) {
-            break;
-        }
-        auto&& [line_text, after_line] = line_opt.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
         auto row_opt = ::pltxt2htm::details::try_parse_md_table_row<ndebug>(
-            ::fast_io::u8string_view{line_text.data(), line_text.size()});
+            ::fast_io::u8string_view{pltext.data() + current_index, pltext.size() - current_index});
         if (!row_opt.has_value()) {
             break;
         }
-        current_index = after_line;
-        auto row = row_opt.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        auto&& [row, forward] = row_opt.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        current_index += forward;
 
         // each body row must have exactly num_cols cells
         if (row.cells.size() != num_cols) {
