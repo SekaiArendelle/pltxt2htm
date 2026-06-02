@@ -290,6 +290,8 @@ public:
     /// Append one body row (all its cells) to the flat vector.
     constexpr void add_body_row(this MdTableAstRaw& self,
                                 ::fast_io::vector<::pltxt2htm::details::MdTableCellRaw>&& row_cells) noexcept {
+        bool const is_cow_cell_size_correct{row_cells.size() == self.num_cols_};
+        pltxt2htm_assert(is_cow_cell_size_correct, u8"row_cells size should match num_cols_ when adding a body row");
         self.cells_.append_range(::std::move(row_cells));
     }
 };

@@ -588,25 +588,15 @@ entry:
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::html_td, 0));
             ++current_index;
-            {
-                constexpr ::fast_io::u8string_view start_tag = u8"<td";
-                result.append(::fast_io::u8string_view{start_tag.data(), start_tag.size()});
+            result.append(u8"<td");
+            auto const align = node.get_md_table_cell_align();
+            if (align == ::pltxt2htm::MdTableAlign::center) {
+                result.append(u8" style=\"text-align:center\"");
             }
-            {
-                auto const align = node.get_md_table_cell_align();
-                if (align == ::pltxt2htm::MdTableAlign::center) {
-                    constexpr ::fast_io::u8string_view attr = u8" style=\"text-align:center\"";
-                    result.append(::fast_io::u8string_view{attr.data(), attr.size()});
-                }
-                else if (align == ::pltxt2htm::MdTableAlign::right) {
-                    constexpr ::fast_io::u8string_view attr = u8" style=\"text-align:right\"";
-                    result.append(::fast_io::u8string_view{attr.data(), attr.size()});
-                }
+            else if (align == ::pltxt2htm::MdTableAlign::right) {
+                result.append(u8" style=\"text-align:right\"");
             }
-            {
-                constexpr ::fast_io::u8string_view end_tag = u8">";
-                result.append(::fast_io::u8string_view{end_tag.data(), end_tag.size()});
-            }
+            result.push_back(u8'>');
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_td: {
