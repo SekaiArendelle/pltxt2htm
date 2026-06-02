@@ -98,6 +98,20 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"before\n"
+            u8"| H |\n"
+            u8"|---|\n"
+            u8"| C |\n"
+            u8"after");
+        auto answer = ::fast_io::u8string_view{
+            u8"before<br><table><thead><tr><th>H</th></tr></thead>"
+            u8"<tbody><tr><td>C</td></tr></tbody></table>"
+            u8"after"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     // Table after a <br> tag
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(
@@ -184,12 +198,14 @@ int main() {
             u8"| 1 |   | 3 |");
         auto answer = ::fast_io::u8string_view{
             u8"<table><thead><tr>"
-            u8"<th style=\"text-align:center\">A</th><th style=\"text-align:center\">B</th><th "
-            u8"style=\"text-align:right\">C</th>"
+            u8"<th style=\"text-align:center\">A</th>"
+            u8"<th style=\"text-align:center\">B</th>"
+            u8"<th style=\"text-align:right\">C</th>"
             u8"</tr></thead>"
             u8"<tbody><tr>"
-            u8"<td style=\"text-align:center\">1</td><td style=\"text-align:center\"></td><td "
-            u8"style=\"text-align:right\">3</td>"
+            u8"<td style=\"text-align:center\">1</td>"
+            u8"<td style=\"text-align:center\"></td>"
+            u8"<td style=\"text-align:right\">3</td>"
             u8"</tr></tbody></table>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
@@ -241,8 +257,9 @@ int main() {
     // Delimiter row with no dashes (all spaces) - should NOT be a table
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"| A | B |\n|   |   |\n");
-        auto answer =
-            ::fast_io::u8string_view{u8"|&nbsp;A&nbsp;|&nbsp;B&nbsp;|<br>|&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;|<br>"};
+        auto answer = ::fast_io::u8string_view{
+            u8"|&nbsp;A&nbsp;|&nbsp;B&nbsp;|<br>"
+            u8"|&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;|<br>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

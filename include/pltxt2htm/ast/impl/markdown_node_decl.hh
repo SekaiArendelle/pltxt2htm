@@ -13,6 +13,7 @@
 #include <fast_io/fast_io_dsal/string.h>
 #include "ast_decl.hh"
 #include "basic_node_decl.hh"
+#include "../node_type.hh"
 
 namespace pltxt2htm {
 
