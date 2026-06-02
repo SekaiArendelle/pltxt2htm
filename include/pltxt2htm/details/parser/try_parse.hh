@@ -828,7 +828,6 @@ constexpr auto try_parse_pltext_line_break(::fast_io::u8string_view pltext) noex
         pltext);
 }
 
-template<::pltxt2htm::Contracts ndebug>
 struct TryParseMdAtxHeadingResult {
     ::std::size_t start_index; ///< Start index of the heading content.
     ::std::size_t sublength; ///< Length of the heading content.
@@ -855,7 +854,7 @@ struct TryParseMdAtxHeadingResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_atx_heading(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseMdAtxHeadingResult<ndebug>> {
+    -> ::exception::optional<::pltxt2htm::details::TryParseMdAtxHeadingResult> {
     ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t start_index{};
     // spaces before the first #
@@ -877,7 +876,7 @@ constexpr auto try_parse_md_atx_heading(::fast_io::u8string_view pltext) noexcep
             // https://spec.commonmark.org/0.31.2/#example-79
             if (static_cast<::std::size_t>(::pltxt2htm::NodeKind::md_atx_h1) <= md_atx_heading_type &&
                 md_atx_heading_type <= static_cast<::std::size_t>(::pltxt2htm::NodeKind::md_atx_h6)) {
-                return ::pltxt2htm::details::TryParseMdAtxHeadingResult<ndebug>{
+                return ::pltxt2htm::details::TryParseMdAtxHeadingResult{
                     start_index, 0, start_index, static_cast<::pltxt2htm::NodeKind>(md_atx_heading_type)};
             }
             else {
@@ -902,7 +901,7 @@ constexpr auto try_parse_md_atx_heading(::fast_io::u8string_view pltext) noexcep
     while (true) {
         if (start_index >= pltext_size) {
             // https://spec.commonmark.org/0.31.2/#example-79
-            return ::pltxt2htm::details::TryParseMdAtxHeadingResult<ndebug>{
+            return ::pltxt2htm::details::TryParseMdAtxHeadingResult{
                 start_index, 0, start_index, static_cast<::pltxt2htm::NodeKind>(md_atx_heading_type)};
         }
         if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, start_index) != u8' ' &&
@@ -922,7 +921,7 @@ constexpr auto try_parse_md_atx_heading(::fast_io::u8string_view pltext) noexcep
             break;
         }
     }
-    return ::pltxt2htm::details::TryParseMdAtxHeadingResult<ndebug>{
+    return ::pltxt2htm::details::TryParseMdAtxHeadingResult{
         .start_index = start_index,
         .sublength = end_index - start_index,
         .forward_index = end_index + extra_length,
@@ -1364,7 +1363,6 @@ constexpr auto try_parse_md_inlines(::fast_io::u8string_view pltext) noexcept ->
     return ::exception::nullopt_t{};
 }
 
-template<::pltxt2htm::Contracts ndebug>
 struct TryParseMdBlockQuotesResult {
     ::std::size_t forward_index; ///< Index to continue parsing from.
     ::fast_io::u8string subpltext; ///< Parsed block quote content.
@@ -1390,7 +1388,7 @@ struct TryParseMdBlockQuotesResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_block_quotes(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseMdBlockQuotesResult<ndebug>> {
+    -> ::exception::optional<::pltxt2htm::details::TryParseMdBlockQuotesResult> {
     ::fast_io::u8string subpltext{};
 
     ::std::size_t const pltext_size{pltext.size()};
@@ -1440,7 +1438,7 @@ constexpr auto try_parse_md_block_quotes(::fast_io::u8string_view pltext) noexce
     if (subpltext.back_unchecked() == u8'\n') {
         subpltext.pop_back();
     }
-    return ::pltxt2htm::details::TryParseMdBlockQuotesResult<ndebug>{.forward_index = current_index,
+    return ::pltxt2htm::details::TryParseMdBlockQuotesResult{.forward_index = current_index,
                                                                      .subpltext = ::std::move(subpltext)};
 }
 
