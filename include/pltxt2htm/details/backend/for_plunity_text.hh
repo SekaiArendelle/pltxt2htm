@@ -278,7 +278,7 @@ entry:
             constexpr auto open_tag = ::pltxt2htm::details::concat(::pltxt2htm::details::U8LiteralString{u8"<color="},
                                                                    ::pltxt2htm::PlA<ndebug>::get_color_literal(),
                                                                    ::pltxt2htm::details::U8LiteralString{u8">"});
-            result.append(::fast_io::u8string_view{open_tag.data(), open_tag.size()});
+            result.append(open_tag);
             goto entry;
         }
         case ::pltxt2htm::NodeKind::pl_experiment: {
@@ -610,21 +610,15 @@ entry:
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::html_th, 0));
             ++current_index;
-            {
-                result.append(u8"<th");
+            result.append(u8"<th");
+            auto const align = node.get_md_table_cell_align();
+            if (align == ::pltxt2htm::MdTableAlign::center) {
+                result.append(u8" style=\"text-align:center\"");
             }
-            {
-                auto const align = node.get_md_table_cell_align();
-                if (align == ::pltxt2htm::MdTableAlign::center) {
-                    result.append(u8" style=\"text-align:center\"");
-                }
-                else if (align == ::pltxt2htm::MdTableAlign::right) {
-                    result.append(u8" style=\"text-align:right\"");
-                }
+            else if (align == ::pltxt2htm::MdTableAlign::right) {
+                result.append(u8" style=\"text-align:right\"");
             }
-            {
-                result.push_back(u8'>');
-            }
+            result.push_back(u8'>');
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_th: {
