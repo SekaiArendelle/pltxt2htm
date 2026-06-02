@@ -337,8 +337,7 @@ entry:
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::pl_color, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view close_tag1 = u8"<span style=\"color:";
-            result.append(::fast_io::u8string_view{close_tag1.data(), close_tag1.size()});
+            result.append(u8"<span style=\"color:");
             auto const& color_value = node.get_equal_sign_tag_id();
             // Under normal circumstances, `color_value` should never contain characters that could enable XSS in
             // HTML attributes. To avoid masking upstream bugs (and to keep release-path performance), we only
@@ -355,8 +354,7 @@ entry:
                     u8"check the color value or use a different backend that supports escaping.");
             }
             result.append(color_value);
-            constexpr ::fast_io::u8string_view close_tag2 = u8";\">";
-            result.append(::fast_io::u8string_view{close_tag2.data(), close_tag2.size()});
+            result.append(u8";\">");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::pl_a: {
@@ -435,8 +433,7 @@ entry:
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::pl_user, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view open_tag1 = u8"<span class='RUser' data-user='";
-            result.append(::fast_io::u8string_view{open_tag1.data(), open_tag1.size()});
+            result.append(u8"<span class='RUser' data-user='");
             auto const& user_id = node.get_equal_sign_tag_id();
             // Under normal circumstances, `user_id` should never contain characters that could enable XSS in HTML
             // attributes. To avoid masking upstream bugs (and to keep release-path performance), we only assert
@@ -453,19 +450,16 @@ entry:
                     u8"user ID or use a different backend that supports escaping.");
             }
             result.append(user_id);
-            constexpr ::fast_io::u8string_view open_tag2 = u8"'>";
-            result.append(::fast_io::u8string_view{open_tag2.data(), open_tag2.size()});
+            result.append(u8"'>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::pl_size: {
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::pl_size, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view open_tag1 = u8"<span style=\"font-size:";
-            result.append(::fast_io::u8string_view{open_tag1.data(), open_tag1.size()});
+            result.append(u8"<span style=\"font-size:");
             result.append(::pltxt2htm::details::size_t2str(node.get_pl_size_tag_id() / 2));
-            constexpr ::fast_io::u8string_view open_tag2 = u8"px\">";
-            result.append(::fast_io::u8string_view{open_tag2.data(), open_tag2.size()});
+            result.append(u8"px\">");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_double_emphasis_underscore:
@@ -478,16 +472,14 @@ entry:
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::html_strong, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view start_tag = u8"<strong>";
-            result.append(::fast_io::u8string_view{start_tag.data(), start_tag.size()});
+            result.append(u8"<strong>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_p: {
             call_stack.push(
                 ::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(), ::pltxt2htm::NodeKind::html_p, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view start_tag = u8"<p>";
-            result.append(::fast_io::u8string_view{start_tag.data(), start_tag.size()});
+            result.append(u8"<p>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::line_break: {
@@ -496,14 +488,12 @@ entry:
                 result.push_back('\n');
             }
             else {
-                constexpr ::fast_io::u8string_view start_tag = u8"<br>";
-                result.append(::fast_io::u8string_view{start_tag.data(), start_tag.size()});
+                result.append(u8"<br>");
             }
             continue;
         }
         case ::pltxt2htm::NodeKind::html_br: {
-            constexpr ::fast_io::u8string_view start_tag = u8"<br>";
-            result.append(::fast_io::u8string_view{start_tag.data(), start_tag.size()});
+            result.append(u8"<br>");
             continue;
         }
         case ::pltxt2htm::NodeKind::html_h1:
@@ -512,8 +502,7 @@ entry:
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::html_h1, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view start_tag = u8"<h1>";
-            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            result.append(u8"<h1>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_h2:
@@ -522,8 +511,7 @@ entry:
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::html_h2, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view start_tag = u8"<h2>";
-            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            result.append(u8"<h2>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_h3:
@@ -532,8 +520,7 @@ entry:
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::html_h3, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view start_tag = u8"<h3>";
-            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            result.append(u8"<h3>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_h4:
@@ -542,8 +529,7 @@ entry:
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::html_h4, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view start_tag = u8"<h4>";
-            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            result.append(u8"<h4>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_h5:
@@ -552,8 +538,7 @@ entry:
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::html_h5, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view start_tag = u8"<h5>";
-            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            result.append(u8"<h5>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_h6:
@@ -562,8 +547,7 @@ entry:
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::html_h6, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view start_tag = u8"<h6>";
-            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            result.append(u8"<h6>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_del:
@@ -572,8 +556,7 @@ entry:
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::html_del, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view start_tag = u8"<del>";
-            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            result.append(u8"<del>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_single_emphasis_underscore:
@@ -586,15 +569,13 @@ entry:
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::html_em, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view start_tag = u8"<em>";
-            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            result.append(u8"<em>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_hr:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_hr: {
-            constexpr ::fast_io::u8string_view start_tag = u8"<hr>";
-            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            result.append(u8"<hr>");
             continue;
         }
         case ::pltxt2htm::NodeKind::html_note: {
@@ -606,8 +587,7 @@ entry:
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::html_ul, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view start_tag = u8"<ul>";
-            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            result.append(u8"<ul>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_ol:
@@ -616,8 +596,7 @@ entry:
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::html_ol, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view start_tag = u8"<ol>";
-            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            result.append(u8"<ol>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_li:
@@ -626,8 +605,7 @@ entry:
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::html_li, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view start_tag = u8"<li>";
-            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            result.append(u8"<li>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_code_span_1_backtick:
@@ -641,8 +619,7 @@ entry:
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::html_code, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view start_tag = u8"<code>";
-            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            result.append(u8"<code>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_latex_inline: {
@@ -664,8 +641,7 @@ entry:
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::html_pre, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view start_tag = u8"<pre>";
-            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            result.append(u8"<pre>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_block_quotes:
@@ -674,85 +650,74 @@ entry:
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                 node.get_subast(), ::pltxt2htm::NodeKind::html_blockquote, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view start_tag = u8"<blockquote>";
-            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            result.append(u8"<blockquote>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_table: {
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::html_table, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view start_tag = u8"<table>";
-            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            result.append(u8"<table>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_tr: {
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::html_tr, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view start_tag = u8"<tr>";
-            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            result.append(u8"<tr>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_td: {
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::html_td, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view start_tag = u8"<td>";
-            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            result.append(u8"<td>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_th: {
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::html_th, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view start_tag = u8"<th>";
-            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            result.append(u8"<th>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_thead: {
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::html_thead, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view start_tag = u8"<thead>";
-            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            result.append(u8"<thead>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_tbody: {
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::html_tbody, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view start_tag = u8"<tbody>";
-            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            result.append(u8"<tbody>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_tfoot: {
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::html_tfoot, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view start_tag = u8"<tfoot>";
-            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            result.append(u8"<tfoot>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_caption: {
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::html_caption, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view start_tag = u8"<caption>";
-            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            result.append(u8"<caption>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_colgroup: {
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::html_colgroup, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view start_tag = u8"<colgroup>";
-            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            result.append(u8"<colgroup>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_col: {
-            constexpr ::fast_io::u8string_view start_tag = u8"<col>";
-            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            result.append(u8"<col>");
             continue;
         }
         case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore:
@@ -761,41 +726,33 @@ entry:
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                 node.get_subast(), ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk, 0));
             ++current_index;
-            constexpr ::fast_io::u8string_view start_tag = u8"<em><strong>";
-            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            result.append(u8"<em><strong>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_link: {
-            constexpr ::fast_io::u8string_view start_tag = u8"<a href=\"";
-            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            result.append(u8"<a href=\"");
             ::pltxt2htm::details::append_url_attr_from_ast<ndebug>(result, node.get_md_link_url());
-            constexpr ::fast_io::u8string_view mid_tag = u8"\">";
-            result.append(::fast_io::u8string_view(mid_tag.begin(), mid_tag.size()));
+            result.append(u8"\">");
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::md_link, 0));
             ++current_index;
             goto entry;
         }
         case ::pltxt2htm::NodeKind::pl_external: {
-            constexpr ::fast_io::u8string_view start_tag = u8"<a href=\"";
-            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            result.append(u8"<a href=\"");
             ::pltxt2htm::details::append_url_attr_from_ast<ndebug>(result, node.get_external_tag_url());
-            constexpr ::fast_io::u8string_view mid_tag = u8"\">";
-            result.append(::fast_io::u8string_view(mid_tag.begin(), mid_tag.size()));
+            result.append(u8"\">");
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::pl_external, 0));
             ++current_index;
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_image: {
-            constexpr ::fast_io::u8string_view start_tag = u8"<img src=\"";
-            result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+            result.append(u8"<img src=\"");
             ::pltxt2htm::details::append_url_attr_from_ast<ndebug>(result, node.get_md_image_url());
-            constexpr ::fast_io::u8string_view mid_tag = u8"\" alt=\"";
-            result.append(::fast_io::u8string_view(mid_tag.begin(), mid_tag.size()));
+            result.append(u8"\" alt=\"");
             result.append(::pltxt2htm::details::convert_simple_pltxt_ast_to_plweb_text<ndebug>(node.get_subast()));
-            constexpr ::fast_io::u8string_view end_tag = u8"\">";
-            result.append(::fast_io::u8string_view(end_tag.begin(), end_tag.size()));
+            result.append(u8"\">");
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_backslash: {
@@ -912,16 +869,13 @@ entry:
             auto const& opt_language = node.get_md_code_fence_language();
             if (opt_language.has_value()) {
                 auto const& language = opt_language.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-                constexpr ::fast_io::u8string_view start_tag = u8"<pre><code class=\"language-";
-                result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+                result.append(u8"<pre><code class=\"language-");
                 ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
                     result, ::fast_io::u8string_view{language.data(), language.size()});
-                constexpr ::fast_io::u8string_view start_tag2 = u8"\">";
-                result.append(::fast_io::u8string_view(start_tag2.begin(), start_tag2.size()));
+                result.append(u8"\">");
             }
             else {
-                constexpr ::fast_io::u8string_view start_tag = u8"<pre><code>";
-                result.append(::fast_io::u8string_view(start_tag.begin(), start_tag.size()));
+                result.append(u8"<pre><code>");
             }
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                 node.get_subast(), ::pltxt2htm::NodeKind::md_code_fence_backtick, 0));
@@ -966,28 +920,23 @@ entry:
         case ::pltxt2htm::NodeKind::pl_a:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_color: {
-            constexpr ::fast_io::u8string_view close_tag = u8"</span>";
-            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            result.append(u8"</span>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::pl_experiment: {
-            constexpr ::fast_io::u8string_view close_tag = u8"</a>";
-            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            result.append(u8"</a>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::pl_discussion: {
-            constexpr ::fast_io::u8string_view close_tag = u8"</a>";
-            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            result.append(u8"</a>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::pl_user: {
-            constexpr ::fast_io::u8string_view close_tag = u8"</span>";
-            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            result.append(u8"</span>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::pl_size: {
-            constexpr ::fast_io::u8string_view close_tag = u8"</span>";
-            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            result.append(u8"</span>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_double_emphasis_underscore:
@@ -997,8 +946,7 @@ entry:
         case ::pltxt2htm::NodeKind::pl_b:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_strong: {
-            constexpr ::fast_io::u8string_view close_tag = u8"</strong>";
-            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            result.append(u8"</strong>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_single_emphasis_underscore:
@@ -1008,76 +956,63 @@ entry:
         case ::pltxt2htm::NodeKind::pl_i:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_em: {
-            constexpr ::fast_io::u8string_view close_tag = u8"</em>";
-            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            result.append(u8"</em>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk: {
-            constexpr ::fast_io::u8string_view close_tag = u8"</strong></em>";
-            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            result.append(u8"</strong></em>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_p: {
-            constexpr ::fast_io::u8string_view close_tag = u8"</p>";
-            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            result.append(u8"</p>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_h1: {
-            constexpr ::fast_io::u8string_view close_tag = u8"</h1>";
-            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            result.append(u8"</h1>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_h2: {
-            constexpr ::fast_io::u8string_view close_tag = u8"</h2>";
-            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            result.append(u8"</h2>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_h3: {
-            constexpr ::fast_io::u8string_view close_tag = u8"</h3>";
-            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            result.append(u8"</h3>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_h4: {
-            constexpr ::fast_io::u8string_view close_tag = u8"</h4>";
-            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            result.append(u8"</h4>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_h5: {
-            constexpr ::fast_io::u8string_view close_tag = u8"</h5>";
-            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            result.append(u8"</h5>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_h6: {
-            constexpr ::fast_io::u8string_view close_tag = u8"</h6>";
-            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            result.append(u8"</h6>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_del:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_del: {
-            constexpr ::fast_io::u8string_view close_tag = u8"</del>";
-            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            result.append(u8"</del>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_ul:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_ul: {
-            constexpr ::fast_io::u8string_view close_tag = u8"</ul>";
-            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            result.append(u8"</ul>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_ol:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_ol: {
-            constexpr ::fast_io::u8string_view close_tag = u8"</ol>";
-            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            result.append(u8"</ol>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_li: {
-            constexpr ::fast_io::u8string_view close_tag = u8"</li>";
-            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            result.append(u8"</li>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_code_span_1_backtick:
@@ -1087,8 +1022,7 @@ entry:
         case ::pltxt2htm::NodeKind::md_code_span_3_backtick:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_code: {
-            constexpr ::fast_io::u8string_view close_tag = u8"</code>";
-            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            result.append(u8"</code>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_latex_inline: {
@@ -1100,74 +1034,61 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_pre: {
-            constexpr ::fast_io::u8string_view close_tag = u8"</pre>";
-            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            result.append(u8"</pre>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_block_quotes:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_blockquote: {
-            constexpr ::fast_io::u8string_view close_tag = u8"</blockquote>";
-            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            result.append(u8"</blockquote>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_table: {
-            constexpr ::fast_io::u8string_view close_tag = u8"</table>";
-            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            result.append(u8"</table>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_tr: {
-            constexpr ::fast_io::u8string_view close_tag = u8"</tr>";
-            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            result.append(u8"</tr>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_td: {
-            constexpr ::fast_io::u8string_view close_tag = u8"</td>";
-            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            result.append(u8"</td>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_th: {
-            constexpr ::fast_io::u8string_view close_tag = u8"</th>";
-            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            result.append(u8"</th>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_thead: {
-            constexpr ::fast_io::u8string_view close_tag = u8"</thead>";
-            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            result.append(u8"</thead>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_tbody: {
-            constexpr ::fast_io::u8string_view close_tag = u8"</tbody>";
-            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            result.append(u8"</tbody>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_tfoot: {
-            constexpr ::fast_io::u8string_view close_tag = u8"</tfoot>";
-            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            result.append(u8"</tfoot>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_caption: {
-            constexpr ::fast_io::u8string_view close_tag = u8"</caption>";
-            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            result.append(u8"</caption>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_colgroup: {
-            constexpr ::fast_io::u8string_view close_tag = u8"</colgroup>";
-            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            result.append(u8"</colgroup>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_code_fence_backtick:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_code_fence_tilde: {
-            constexpr ::fast_io::u8string_view close_tag = u8"</code></pre>";
-            result.append(::fast_io::u8string_view{close_tag.data(), close_tag.size()});
+            result.append(u8"</code></pre>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::pl_external:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_link: {
-            constexpr ::fast_io::u8string_view end_tag = u8"</a>";
-            result.append(::fast_io::u8string_view(end_tag.begin(), end_tag.size()));
+            result.append(u8"</a>");
             goto entry;
         }
         default:
