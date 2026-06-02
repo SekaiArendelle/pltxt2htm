@@ -29,18 +29,18 @@ if os.path.exists(LCOV_REPORT_DIR) and os.path.isdir(LCOV_REPORT_DIR):
 os.chdir(SCRIPT_DIR)
 print(f"entering {SCRIPT_DIR}")
 
-err_code = os.system("cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DPLTXT2HTM_ENABLE_COVERAGE=ON -DCMAKE_CXX_COMPILER=g++")
+err_code = os.system(f"cmake -S \"{SCRIPT_DIR}\" -B \"{BUILD_DIR}\" {"-GNinja" if shutil.which("ninja") else ""} -DCMAKE_BUILD_TYPE=Debug -DPLTXT2HTM_ENABLE_COVERAGE=ON -DCMAKE_CXX_COMPILER=g++")
 if err_code != 0:
     raise Exception("cmake config failed")
-err_code = os.system("cmake --build build")
+err_code = os.system(f"cmake --build \"{BUILD_DIR}\" -j {os.process_cpu_count()} -v")
 if err_code != 0:
     raise Exception("cmake build failed")
-err_code = os.system("ctest --test-dir build -V")
+err_code = os.system(f"ctest --test-dir \"{BUILD_DIR}\" -j {os.process_cpu_count()}")
 if err_code != 0:
     raise Exception("ctest failed")
-err_code = os.system("lcov --rc geninfo_unexecuted_blocks=1 --capture --directory build --output-file build/coverage.info --exclude \"*/fast_io/*\" --exclude \"*/exception/*\" --exclude \"*/c++/*\" | grep -v \"^Excluding file\"")
+err_code = os.system(f"lcov --rc geninfo_unexecuted_blocks=1 --capture --directory \"{BUILD_DIR}\" --output-file \"{BUILD_DIR}/coverage.info\" --exclude \"*/fast_io/*\" --exclude \"*/exception/*\" --exclude \"*/c++/*\" | grep -v \"^Excluding file\"")
 if err_code != 0:
     raise Exception("lcov failed")
-err_code = os.system(f"genhtml build/coverage.info --output-directory {os.path.join(SCRIPT_DIR, 'lcov-report')}")
+err_code = os.system(f"genhtml \"{BUILD_DIR}/coverage.info\" --output-directory {os.path.join(SCRIPT_DIR, 'lcov-report')}")
 if shutil.which("firefox"):
     os.system(f"firefox {os.path.join(SCRIPT_DIR, 'lcov-report', 'index.html')} &")
