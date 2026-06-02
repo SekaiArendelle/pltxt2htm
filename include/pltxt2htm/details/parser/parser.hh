@@ -350,9 +350,7 @@ entry:
             }
 
             if (call_stack.empty()) {
-                ::pltxt2htm::Ast<ndebug> result{};
-                result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTable<ndebug>{::std::move(table_ast)}));
-                return result;
+                return table_ast;
             }
 
             auto&& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
