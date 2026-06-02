@@ -278,7 +278,7 @@ entry:
             constexpr auto open_tag = ::pltxt2htm::details::concat(::pltxt2htm::details::U8LiteralString{u8"<color="},
                                                                    ::pltxt2htm::PlA<ndebug>::get_color_literal(),
                                                                    ::pltxt2htm::details::U8LiteralString{u8">"});
-            result.append(open_tag);
+            result.append(::fast_io::u8string_view{open_tag.data(), open_tag.size()});
             goto entry;
         }
         case ::pltxt2htm::NodeKind::pl_experiment: {
