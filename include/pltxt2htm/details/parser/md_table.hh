@@ -83,18 +83,13 @@ constexpr auto try_parse_md_table_row(::fast_io::u8string_view pltext) noexcept
         }
         // parse cell content until unescaped | or \n or end of view
         ::fast_io::u8string cell{};
+        bool prev_was_backslash{};
         for (; current_index < pltext_size; ++current_index) {
             auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
             if (chr == u8'|') {
-                // count consecutive backslashes before |
-                ::std::size_t bs_count{};
-                while (bs_count < current_index &&
-                       ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index - 1 - bs_count) == u8'\\') {
-                    ++bs_count;
-                }
-                if (bs_count % 2 == 1) {
-                    // odd backslashes: backslash-pipe is escaped pipe, treat | as content
+                if (prev_was_backslash) {
                     cell.pop_back(); // remove the escape backslash
+                    prev_was_backslash = false;
                     chr = u8'|';
                 }
                 else {
@@ -105,6 +100,7 @@ constexpr auto try_parse_md_table_row(::fast_io::u8string_view pltext) noexcept
                 break;
             }
             cell.push_back(chr);
+            prev_was_backslash = (chr == u8'\\') ? !prev_was_backslash : false;
         }
         // trim trailing spaces from cell
         while (!cell.empty() && (cell.back() == u8' ' || cell.back() == u8'\t')) {
@@ -337,11 +333,10 @@ constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
     // build raw header cells
     ::pltxt2htm::details::MdTableAstRaw<ndebug> raw_ast{};
     for (::std::size_t col{}; col < header_row.cells.size(); ++col) {
-        auto const& cell_text = ::pltxt2htm::details::vector_index<ndebug>(header_row.cells, col);
         auto align_val = col < aligns.size() ? ::pltxt2htm::details::vector_index<ndebug>(aligns, col)
                                              : ::pltxt2htm::MdTableAlign::left;
         raw_ast.add_header_cell(::pltxt2htm::details::MdTableCellRaw{
-            .text = ::fast_io::u8string{cell_text.data(), cell_text.data() + cell_text.size()},
+            .text = ::std::move(::pltxt2htm::details::vector_index<ndebug>(header_row.cells, col)),
             .align = align_val,
         });
     }
@@ -362,11 +357,10 @@ constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
         }
         ::fast_io::vector<::pltxt2htm::details::MdTableCellRaw> body_cells{};
         for (::std::size_t col{}; col < row.cells.size(); ++col) {
-            auto const& cell_text = ::pltxt2htm::details::vector_index<ndebug>(row.cells, col);
             auto align_val = col < aligns.size() ? ::pltxt2htm::details::vector_index<ndebug>(aligns, col)
                                                  : ::pltxt2htm::MdTableAlign::left;
             body_cells.push_back(::pltxt2htm::details::MdTableCellRaw{
-                .text = ::fast_io::u8string{cell_text.data(), cell_text.data() + cell_text.size()},
+                .text = ::std::move(::pltxt2htm::details::vector_index<ndebug>(row.cells, col)),
                 .align = align_val,
             });
         }
