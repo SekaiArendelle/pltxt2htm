@@ -611,23 +611,19 @@ entry:
                                                                               ::pltxt2htm::NodeKind::html_th, 0));
             ++current_index;
             {
-                constexpr ::fast_io::u8string_view start_tag = u8"<th";
-                result.append(::fast_io::u8string_view{start_tag.data(), start_tag.size()});
+                result.append(u8"<th");
             }
             {
                 auto const align = node.get_md_table_cell_align();
                 if (align == ::pltxt2htm::MdTableAlign::center) {
-                    constexpr ::fast_io::u8string_view attr = u8" style=\"text-align:center\"";
-                    result.append(::fast_io::u8string_view{attr.data(), attr.size()});
+                    result.append(u8" style=\"text-align:center\"");
                 }
                 else if (align == ::pltxt2htm::MdTableAlign::right) {
-                    constexpr ::fast_io::u8string_view attr = u8" style=\"text-align:right\"";
-                    result.append(::fast_io::u8string_view{attr.data(), attr.size()});
+                    result.append(u8" style=\"text-align:right\"");
                 }
             }
             {
-                constexpr ::fast_io::u8string_view end_tag = u8">";
-                result.append(::fast_io::u8string_view{end_tag.data(), end_tag.size()});
+                result.push_back(u8'>');
             }
             goto entry;
         }
