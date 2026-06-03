@@ -49,7 +49,8 @@ constexpr auto try_parse_md_table_row(::fast_io::u8string_view pltext) noexcept
         }
     }
     // must start with |
-    if (current_index >= pltext_size || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8'|') {
+    if (current_index >= pltext_size ||
+        ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8'|') {
         return ::exception::nullopt_t{};
     }
     ++current_index; // skip the first |
@@ -97,7 +98,8 @@ constexpr auto try_parse_md_table_row(::fast_io::u8string_view pltext) noexcept
             cell.pop_back();
         }
         row.push_back(::std::move(cell));
-        if (current_index < pltext_size && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) == u8'|') {
+        if (current_index < pltext_size &&
+            ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) == u8'|') {
             ++current_index; // skip |
         }
     }
@@ -215,13 +217,15 @@ class MdTableAstRaw {
 
 public:
     /// @return number of header cells (= column count for every row)
-    [[nodiscard]] constexpr auto header_cells_count(this auto&& self) noexcept -> ::std::size_t {
+    [[nodiscard]]
+    constexpr auto header_cells_count(this auto&& self) noexcept -> ::std::size_t {
         return self.num_cols_;
     }
 
     /// @param col column index
     /// @return const/non-const reference to the header cell at @p col
-    [[nodiscard]] constexpr auto header_cell_at(this auto&& self, ::std::size_t col) noexcept -> decltype(auto) {
+    [[nodiscard]]
+    constexpr auto header_cell_at(this auto&& self, ::std::size_t col) noexcept -> decltype(auto) {
         return ::pltxt2htm::details::vector_index<ndebug>(self.cells_, col);
     }
 
@@ -232,21 +236,23 @@ public:
     }
 
     /// @return number of body rows (derived from flat vector size and column count)
-    [[nodiscard]] constexpr auto body_rows_count(this auto&& self) noexcept -> ::std::size_t {
+    [[nodiscard]]
+    constexpr auto body_rows_count(this auto&& self) noexcept -> ::std::size_t {
         pltxt2htm_assert(self.num_cols_ != 0, u8"num_cols_ should be > 0 when calculating body rows count");
         return (self.cells_.size() - self.num_cols_) / self.num_cols_;
     }
 
     /// @return cells per body row (= num_cols_, all rows have equal length)
-    [[nodiscard]] constexpr auto body_cells_count(this auto&& self) noexcept -> ::std::size_t {
+    [[nodiscard]]
+    constexpr auto body_cells_count(this auto&& self) noexcept -> ::std::size_t {
         return self.num_cols_;
     }
 
     /// @param row body row index
     /// @param col column index within the row
     /// @return const/non-const reference to the body cell at (@p row, @p col)
-    [[nodiscard]] constexpr auto body_cell_at(this auto&& self, ::std::size_t row, ::std::size_t col) noexcept
-        -> decltype(auto) {
+    [[nodiscard]]
+    constexpr auto body_cell_at(this auto&& self, ::std::size_t row, ::std::size_t col) noexcept -> decltype(auto) {
         return ::pltxt2htm::details::vector_index<ndebug>(self.cells_, self.num_cols_ + row * self.num_cols_ + col);
     }
 

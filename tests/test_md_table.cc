@@ -534,6 +534,21 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| *~~italic~~* |\n"
+            u8"|---------:|\n"
+            u8"| **bold** |");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><thead><tr>"
+            u8"<th style=\"text-align:right\"><em><del>italic</del></em></th>"
+            u8"</tr></thead>"
+            u8"<tbody><tr>"
+            u8"<td style=\"text-align:right\"><strong>bold</strong></td>"
+            u8"</tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     // Escaped asterisks render as literal *, not italic
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(

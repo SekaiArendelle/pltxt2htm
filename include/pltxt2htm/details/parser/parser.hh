@@ -278,8 +278,8 @@ entry:
         auto row_index = frame.get_md_table_row_index();
         auto cell_index = frame.get_md_table_cell_index();
 
-        switch (state) {
-        case ::pltxt2htm::details::MdTableParsePhase::header:
+        switch (state) /* -Werror=switch */ {
+        case ::pltxt2htm::details::MdTableParsePhase::header: {
             if (cell_index < raw_ast.header_cells_count()) {
                 auto const& cell = raw_ast.header_cell_at(cell_index);
                 call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
@@ -292,8 +292,8 @@ entry:
             frame.set_md_table_row_index(0);
             frame.set_md_table_cell_index(0);
             goto entry;
-
-        case ::pltxt2htm::details::MdTableParsePhase::body:
+        }
+        case ::pltxt2htm::details::MdTableParsePhase::body: {
             if (row_index < raw_ast.body_rows_count()) {
                 if (cell_index < raw_ast.body_cells_count()) {
                     auto const& cell = raw_ast.body_cell_at(row_index, cell_index);
@@ -309,8 +309,8 @@ entry:
             }
             frame.set_md_table_state(::pltxt2htm::details::MdTableParsePhase::finish);
             goto entry;
-
-        case ::pltxt2htm::details::MdTableParsePhase::finish:
+        }
+        case ::pltxt2htm::details::MdTableParsePhase::finish: {
             auto previous_frame = ::std::move(frame);
             call_stack.pop();
 
@@ -323,7 +323,7 @@ entry:
             if (prev_raw_ast.header_cells_count() > 0) {
                 ::pltxt2htm::Ast<ndebug> header_tr_ast{};
                 for (; col < prev_raw_ast.header_cells_count() && col < flat_ast.size(); ++col) {
-                    header_tr_ast.push_back(::std::move(flat_ast[col]));
+                    header_tr_ast.push_back(::std::move(::pltxt2htm::details::vector_index<ndebug>(flat_ast, col)));
                 }
                 ::pltxt2htm::Ast<ndebug> thead_ast{};
                 thead_ast.push_back(
@@ -339,7 +339,7 @@ entry:
                 while (col < flat_ast.size() && body_row_index < prev_raw_ast.body_rows_count()) {
                     ::pltxt2htm::Ast<ndebug> tr_ast{};
                     for (::std::size_t c{}; c < prev_raw_ast.body_cells_count() && col < flat_ast.size(); ++c, ++col) {
-                        tr_ast.push_back(::std::move(flat_ast[col]));
+                        tr_ast.push_back(::std::move(::pltxt2htm::details::vector_index<ndebug>(flat_ast, col)));
                     }
                     ++body_row_index;
                     tbody_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTr<ndebug>{::std::move(tr_ast)}));
@@ -356,6 +356,13 @@ entry:
             parent_frame.subast.push_back(
                 ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTable<ndebug>{::std::move(table_ast)}));
             goto entry;
+        }
+#if 0
+        default:
+            [[unlikely]] {
+                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+            }
+#endif
         }
 
         ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
