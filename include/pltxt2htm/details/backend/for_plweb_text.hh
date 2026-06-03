@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file for_plweb_text.hh
  * @brief Advanced HTML backend for pltxt2htm
  * @details Generates full-featured HTML output with comprehensive support for
