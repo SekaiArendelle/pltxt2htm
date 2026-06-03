@@ -394,4 +394,90 @@ constexpr auto ::pltxt2htm::MdLatexBlock<ndebug>::operator=(this ::pltxt2htm::Md
                                                             ::pltxt2htm::MdLatexBlock<ndebug>&&) noexcept
     -> ::pltxt2htm::MdLatexBlock<ndebug>& = default;
 
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdTable<ndebug>::MdTable(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
+    : subast(::std::move(subast_)) {
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdTable<ndebug>::MdTable(::pltxt2htm::MdTable<ndebug>&&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdTable<ndebug>::~MdTable() noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::MdTable<ndebug>::operator=(this ::pltxt2htm::MdTable<ndebug>& self,
+                                                       ::pltxt2htm::MdTable<ndebug>&&) noexcept
+    -> ::pltxt2htm::MdTable<ndebug>& = default;
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdThead<ndebug>::MdThead(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
+    : subast(::std::move(subast_)) {
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdThead<ndebug>::MdThead(::pltxt2htm::MdThead<ndebug>&&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdThead<ndebug>::~MdThead() noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::MdThead<ndebug>::operator=(this ::pltxt2htm::MdThead<ndebug>& self,
+                                                       ::pltxt2htm::MdThead<ndebug>&&) noexcept
+    -> ::pltxt2htm::MdThead<ndebug>& = default;
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdTbody<ndebug>::MdTbody(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
+    : subast(::std::move(subast_)) {
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdTbody<ndebug>::MdTbody(::pltxt2htm::MdTbody<ndebug>&&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdTbody<ndebug>::~MdTbody() noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::MdTbody<ndebug>::operator=(this ::pltxt2htm::MdTbody<ndebug>& self,
+                                                       ::pltxt2htm::MdTbody<ndebug>&&) noexcept
+    -> ::pltxt2htm::MdTbody<ndebug>& = default;
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdTr<ndebug>::MdTr(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
+    : subast(::std::move(subast_)) {
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdTr<ndebug>::MdTr(::pltxt2htm::MdTr<ndebug>&&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdTr<ndebug>::~MdTr() noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::MdTr<ndebug>::operator=(this ::pltxt2htm::MdTr<ndebug>& self,
+                                                    ::pltxt2htm::MdTr<ndebug>&&) noexcept
+    -> ::pltxt2htm::MdTr<ndebug>& = default;
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdTh<ndebug>::MdTh(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::MdTableAlign align_) noexcept
+    : subast(::std::move(subast_)),
+      align(align_) {
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdTh<ndebug>::MdTh(::pltxt2htm::MdTh<ndebug>&&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdTh<ndebug>::~MdTh() noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::MdTh<ndebug>::operator=(this ::pltxt2htm::MdTh<ndebug>& self,
+                                                    ::pltxt2htm::MdTh<ndebug>&&) noexcept
+    -> ::pltxt2htm::MdTh<ndebug>& = default;
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdTd<ndebug>::MdTd(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::MdTableAlign align_) noexcept
+    : subast(::std::move(subast_)),
+      align(align_) {
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdTd<ndebug>::MdTd(::pltxt2htm::MdTd<ndebug>&&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdTd<ndebug>::~MdTd() noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::MdTd<ndebug>::operator=(this ::pltxt2htm::MdTd<ndebug>& self,
+                                                    ::pltxt2htm::MdTd<ndebug>&&) noexcept
+    -> ::pltxt2htm::MdTd<ndebug>& = default;
+
 } // namespace pltxt2htm

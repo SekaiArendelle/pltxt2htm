@@ -117,19 +117,28 @@ constexpr auto const& vector_front(::fast_io::vector<T> const& vec) noexcept {
     return vec.front_unchecked();
 }
 
+template<typename T>
+constexpr bool is_fast_io_vector_ = false;
+
+template<typename T, typename Alloc>
+constexpr bool is_fast_io_vector_<::fast_io::vector<T, Alloc>> = true;
+
+template<typename T>
+concept is_fast_io_vector = is_fast_io_vector_<::std::remove_cvref_t<T>>;
+
 /**
  * @return index of ::fast_io::u8string_view
  */
-template<::pltxt2htm::Contracts ndebug, typename T>
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-constexpr auto const& vector_index(::fast_io::vector<T> const& vec, ::std::size_t i) noexcept {
+constexpr auto vector_index(::pltxt2htm::details::is_fast_io_vector auto&& vec, ::std::size_t i) noexcept -> decltype(auto) {
     bool const is_not_out_of_bound{i < vec.size()};
     pltxt2htm_assert(is_not_out_of_bound, u8"Index of vector out of bound");
 
-    return vec.index_unchecked(i);
+    return ::std::forward_like<decltype(vec)>(vec.index_unchecked(i));
 }
 
 template<::pltxt2htm::Contracts ndebug, typename T>

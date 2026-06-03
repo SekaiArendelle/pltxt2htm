@@ -277,7 +277,8 @@ public:
     constexpr HtmlStrong(::pltxt2htm::HtmlStrong<ndebug> const&) noexcept = delete;
     constexpr HtmlStrong(::pltxt2htm::HtmlStrong<ndebug>&&) noexcept;
     constexpr ~HtmlStrong() noexcept;
-    constexpr auto operator=(::pltxt2htm::HtmlStrong<ndebug> const&) noexcept -> ::pltxt2htm::HtmlStrong<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::HtmlStrong<ndebug> const&) noexcept
+        -> ::pltxt2htm::HtmlStrong<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::HtmlStrong<ndebug>& self, ::pltxt2htm::HtmlStrong<ndebug>&&) noexcept
         -> ::pltxt2htm::HtmlStrong<ndebug>&;
 
@@ -417,8 +418,8 @@ public:
     constexpr ~HtmlBlockquote() noexcept;
     constexpr auto operator=(::pltxt2htm::HtmlBlockquote<ndebug> const&) noexcept
         -> ::pltxt2htm::HtmlBlockquote<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::HtmlBlockquote<ndebug>& self, ::pltxt2htm::HtmlBlockquote<ndebug>&&) noexcept
-        -> ::pltxt2htm::HtmlBlockquote<ndebug>&;
+    constexpr auto operator=(this ::pltxt2htm::HtmlBlockquote<ndebug>& self,
+                             ::pltxt2htm::HtmlBlockquote<ndebug>&&) noexcept -> ::pltxt2htm::HtmlBlockquote<ndebug>&;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -439,7 +440,8 @@ public:
     constexpr HtmlTable(::pltxt2htm::HtmlTable<ndebug> const&) noexcept = delete;
     constexpr HtmlTable(::pltxt2htm::HtmlTable<ndebug>&&) noexcept;
     constexpr ~HtmlTable() noexcept;
-    constexpr auto operator=(::pltxt2htm::HtmlTable<ndebug> const&) noexcept -> ::pltxt2htm::HtmlTable<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::HtmlTable<ndebug> const&) noexcept
+        -> ::pltxt2htm::HtmlTable<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::HtmlTable<ndebug>& self, ::pltxt2htm::HtmlTable<ndebug>&&) noexcept
         -> ::pltxt2htm::HtmlTable<ndebug>&;
 
@@ -531,7 +533,8 @@ public:
     constexpr HtmlThead(::pltxt2htm::HtmlThead<ndebug> const&) noexcept = delete;
     constexpr HtmlThead(::pltxt2htm::HtmlThead<ndebug>&&) noexcept;
     constexpr ~HtmlThead() noexcept;
-    constexpr auto operator=(::pltxt2htm::HtmlThead<ndebug> const&) noexcept -> ::pltxt2htm::HtmlThead<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::HtmlThead<ndebug> const&) noexcept
+        -> ::pltxt2htm::HtmlThead<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::HtmlThead<ndebug>& self, ::pltxt2htm::HtmlThead<ndebug>&&) noexcept
         -> ::pltxt2htm::HtmlThead<ndebug>&;
 
@@ -554,7 +557,8 @@ public:
     constexpr HtmlTbody(::pltxt2htm::HtmlTbody<ndebug> const&) noexcept = delete;
     constexpr HtmlTbody(::pltxt2htm::HtmlTbody<ndebug>&&) noexcept;
     constexpr ~HtmlTbody() noexcept;
-    constexpr auto operator=(::pltxt2htm::HtmlTbody<ndebug> const&) noexcept -> ::pltxt2htm::HtmlTbody<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::HtmlTbody<ndebug> const&) noexcept
+        -> ::pltxt2htm::HtmlTbody<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::HtmlTbody<ndebug>& self, ::pltxt2htm::HtmlTbody<ndebug>&&) noexcept
         -> ::pltxt2htm::HtmlTbody<ndebug>&;
 
@@ -577,7 +581,8 @@ public:
     constexpr HtmlTfoot(::pltxt2htm::HtmlTfoot<ndebug> const&) noexcept = delete;
     constexpr HtmlTfoot(::pltxt2htm::HtmlTfoot<ndebug>&&) noexcept;
     constexpr ~HtmlTfoot() noexcept;
-    constexpr auto operator=(::pltxt2htm::HtmlTfoot<ndebug> const&) noexcept -> ::pltxt2htm::HtmlTfoot<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::HtmlTfoot<ndebug> const&) noexcept
+        -> ::pltxt2htm::HtmlTfoot<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::HtmlTfoot<ndebug>& self, ::pltxt2htm::HtmlTfoot<ndebug>&&) noexcept
         -> ::pltxt2htm::HtmlTfoot<ndebug>&;
 
@@ -600,7 +605,8 @@ public:
     constexpr HtmlCaption(::pltxt2htm::HtmlCaption<ndebug> const&) noexcept = delete;
     constexpr HtmlCaption(::pltxt2htm::HtmlCaption<ndebug>&&) noexcept;
     constexpr ~HtmlCaption() noexcept;
-    constexpr auto operator=(::pltxt2htm::HtmlCaption<ndebug> const&) noexcept -> ::pltxt2htm::HtmlCaption<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::HtmlCaption<ndebug> const&) noexcept
+        -> ::pltxt2htm::HtmlCaption<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::HtmlCaption<ndebug>& self, ::pltxt2htm::HtmlCaption<ndebug>&&) noexcept
         -> ::pltxt2htm::HtmlCaption<ndebug>&;
 
@@ -623,7 +629,8 @@ public:
     constexpr HtmlColgroup(::pltxt2htm::HtmlColgroup<ndebug> const&) noexcept = delete;
     constexpr HtmlColgroup(::pltxt2htm::HtmlColgroup<ndebug>&&) noexcept;
     constexpr ~HtmlColgroup() noexcept;
-    constexpr auto operator=(::pltxt2htm::HtmlColgroup<ndebug> const&) noexcept -> ::pltxt2htm::HtmlColgroup<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::HtmlColgroup<ndebug> const&) noexcept
+        -> ::pltxt2htm::HtmlColgroup<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::HtmlColgroup<ndebug>& self, ::pltxt2htm::HtmlColgroup<ndebug>&&) noexcept
         -> ::pltxt2htm::HtmlColgroup<ndebug>&;
 

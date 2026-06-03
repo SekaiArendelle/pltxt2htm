@@ -130,6 +130,12 @@ class PlTxtNode {
         ::pltxt2htm::MdUl<ndebug> md_ul_node;
         ::pltxt2htm::MdOl<ndebug> md_ol_node;
         ::pltxt2htm::MdLi<ndebug> md_li_node;
+        ::pltxt2htm::MdTable<ndebug> md_table_node;
+        ::pltxt2htm::MdThead<ndebug> md_thead_node;
+        ::pltxt2htm::MdTbody<ndebug> md_tbody_node;
+        ::pltxt2htm::MdTr<ndebug> md_tr_node;
+        ::pltxt2htm::MdTh<ndebug> md_th_node;
+        ::pltxt2htm::MdTd<ndebug> md_td_node;
         ::pltxt2htm::MdLatexInline<ndebug> md_latex_inline_node;
         ::pltxt2htm::MdLatexBlock<ndebug> md_latex_block_node;
 
@@ -702,6 +708,36 @@ public:
           node_kind{::pltxt2htm::NodeKind::md_li} {
     }
 
+    constexpr PlTxtNode(::pltxt2htm::MdTable<ndebug>&& node) noexcept
+        : md_table_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::md_table} {
+    }
+
+    constexpr PlTxtNode(::pltxt2htm::MdThead<ndebug>&& node) noexcept
+        : md_thead_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::md_thead} {
+    }
+
+    constexpr PlTxtNode(::pltxt2htm::MdTbody<ndebug>&& node) noexcept
+        : md_tbody_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::md_tbody} {
+    }
+
+    constexpr PlTxtNode(::pltxt2htm::MdTr<ndebug>&& node) noexcept
+        : md_tr_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::md_tr} {
+    }
+
+    constexpr PlTxtNode(::pltxt2htm::MdTh<ndebug>&& node) noexcept
+        : md_th_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::md_th} {
+    }
+
+    constexpr PlTxtNode(::pltxt2htm::MdTd<ndebug>&& node) noexcept
+        : md_td_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::md_td} {
+    }
+
     constexpr PlTxtNode(::pltxt2htm::MdLatexInline<ndebug>&& node) noexcept
         : md_latex_inline_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::md_latex_inline} {
@@ -1244,6 +1280,30 @@ public:
             new (::std::addressof(md_li_node))::pltxt2htm::MdLi(::std::move(other.md_li_node));
             break;
         }
+        case ::pltxt2htm::NodeKind::md_table: {
+            new (::std::addressof(md_table_node))::pltxt2htm::MdTable(::std::move(other.md_table_node));
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_thead: {
+            new (::std::addressof(md_thead_node))::pltxt2htm::MdThead(::std::move(other.md_thead_node));
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_tbody: {
+            new (::std::addressof(md_tbody_node))::pltxt2htm::MdTbody(::std::move(other.md_tbody_node));
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_tr: {
+            new (::std::addressof(md_tr_node))::pltxt2htm::MdTr(::std::move(other.md_tr_node));
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_th: {
+            new (::std::addressof(md_th_node))::pltxt2htm::MdTh(::std::move(other.md_th_node));
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_td: {
+            new (::std::addressof(md_td_node))::pltxt2htm::MdTd(::std::move(other.md_td_node));
+            break;
+        }
         case ::pltxt2htm::NodeKind::md_latex_inline: {
             new (::std::addressof(md_latex_inline_node))::pltxt2htm::MdLatexInline(
                 ::std::move(other.md_latex_inline_node));
@@ -1705,6 +1765,30 @@ public:
             md_li_node.~MdLi();
             break;
         }
+        case ::pltxt2htm::NodeKind::md_table: {
+            md_table_node.~MdTable();
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_thead: {
+            md_thead_node.~MdThead();
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_tbody: {
+            md_tbody_node.~MdTbody();
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_tr: {
+            md_tr_node.~MdTr();
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_th: {
+            md_th_node.~MdTh();
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_td: {
+            md_td_node.~MdTd();
+            break;
+        }
         case ::pltxt2htm::NodeKind::md_latex_inline: {
             md_latex_inline_node.~MdLatexInline();
             break;
@@ -1804,6 +1888,22 @@ public:
         }
         case ::pltxt2htm::NodeKind::md_code_fence_tilde: {
             return ::std::forward_like<decltype(self)>(self.md_code_fence_tilde_node).get_language();
+        }
+        default:
+            [[unlikely]] {
+                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+            }
+        }
+    }
+
+    [[nodiscard]]
+    constexpr auto get_md_table_cell_align(this auto&& self) noexcept -> ::pltxt2htm::MdTableAlign {
+        switch (self.node_kind) {
+        case ::pltxt2htm::NodeKind::md_th: {
+            return self.md_th_node.get_align();
+        }
+        case ::pltxt2htm::NodeKind::md_td: {
+            return self.md_td_node.get_align();
         }
         default:
             [[unlikely]] {
@@ -1967,6 +2067,24 @@ public:
         }
         case ::pltxt2htm::NodeKind::md_li: {
             return ::std::forward_like<decltype(self)>(self.md_li_node).get_subast();
+        }
+        case ::pltxt2htm::NodeKind::md_table: {
+            return ::std::forward_like<decltype(self)>(self.md_table_node).get_subast();
+        }
+        case ::pltxt2htm::NodeKind::md_thead: {
+            return ::std::forward_like<decltype(self)>(self.md_thead_node).get_subast();
+        }
+        case ::pltxt2htm::NodeKind::md_tbody: {
+            return ::std::forward_like<decltype(self)>(self.md_tbody_node).get_subast();
+        }
+        case ::pltxt2htm::NodeKind::md_tr: {
+            return ::std::forward_like<decltype(self)>(self.md_tr_node).get_subast();
+        }
+        case ::pltxt2htm::NodeKind::md_th: {
+            return ::std::forward_like<decltype(self)>(self.md_th_node).get_subast();
+        }
+        case ::pltxt2htm::NodeKind::md_td: {
+            return ::std::forward_like<decltype(self)>(self.md_td_node).get_subast();
         }
         case ::pltxt2htm::NodeKind::md_latex_inline: {
             return ::std::forward_like<decltype(self)>(self.md_latex_inline_node).get_subast();

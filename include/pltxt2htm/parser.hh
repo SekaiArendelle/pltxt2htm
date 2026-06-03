@@ -97,6 +97,10 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdOl<ndebug>{::std::move(subast)}));
             continue;
         }
+        case ::pltxt2htm::NodeKind::md_table: {
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTable<ndebug>{::std::move(subast)}));
+            continue;
+        }
         default:
             [[unlikely]] {
                 ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();

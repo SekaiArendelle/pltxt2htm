@@ -340,6 +340,18 @@ entry:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_blockquote:
             [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_table:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_thead:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_tbody:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_tr:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_th:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_td:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_table:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_tr:

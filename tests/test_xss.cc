@@ -86,7 +86,6 @@ auto to_view(::fast_io::u8string const& s) noexcept -> ::fast_io::u8string_view 
 } // unnamed namespace
 
 int main() {
-
     // ============================================================
     //  1. Basic raw HTML tag injection (plain text)
     // ============================================================
@@ -97,8 +96,7 @@ int main() {
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<script src=\"http://evil/xss.js\"></script>");
-        pltxt2htm_test_assert_equal(html,
-                                    u8"&lt;script&nbsp;src=&quot;http://evil/xss.js&quot;&gt;&lt;/script&gt;");
+        pltxt2htm_test_assert_equal(html, u8"&lt;script&nbsp;src=&quot;http://evil/xss.js&quot;&gt;&lt;/script&gt;");
         assert_no_raw_xss_tags(to_view(html));
     }
     {
@@ -108,8 +106,7 @@ int main() {
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<object data=\"http://evil\"></object>");
-        pltxt2htm_test_assert_equal(html,
-                                    u8"&lt;object&nbsp;data=&quot;http://evil&quot;&gt;&lt;/object&gt;");
+        pltxt2htm_test_assert_equal(html, u8"&lt;object&nbsp;data=&quot;http://evil&quot;&gt;&lt;/object&gt;");
         assert_no_raw_xss_tags(to_view(html));
     }
     {
@@ -125,8 +122,7 @@ int main() {
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<marquee onstart=\"alert(1)\">text</marquee>");
-        pltxt2htm_test_assert_equal(
-            html, u8"&lt;marquee&nbsp;onstart=&quot;alert(1)&quot;&gt;text&lt;/marquee&gt;");
+        pltxt2htm_test_assert_equal(html, u8"&lt;marquee&nbsp;onstart=&quot;alert(1)&quot;&gt;text&lt;/marquee&gt;");
         assert_no_raw_xss_tags(to_view(html));
     }
 
@@ -154,20 +150,17 @@ int main() {
     // ============================================================
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<p><script>alert(1)</script></p>");
-        pltxt2htm_test_assert_equal(html,
-                                    u8"<p>&lt;script&gt;alert(1)&lt;/script&gt;</p>");
+        pltxt2htm_test_assert_equal(html, u8"<p>&lt;script&gt;alert(1)&lt;/script&gt;</p>");
         assert_no_raw_xss_tags(to_view(html));
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<strong><script>alert(1)</script></strong>");
-        pltxt2htm_test_assert_equal(html,
-                                    u8"<strong>&lt;script&gt;alert(1)&lt;/script&gt;</strong>");
+        pltxt2htm_test_assert_equal(html, u8"<strong>&lt;script&gt;alert(1)&lt;/script&gt;</strong>");
         assert_no_raw_xss_tags(to_view(html));
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"**<script>alert(1)</script>**");
-        pltxt2htm_test_assert_equal(html,
-                                    u8"<strong>&lt;script&gt;alert(1)&lt;/script&gt;</strong>");
+        pltxt2htm_test_assert_equal(html, u8"<strong>&lt;script&gt;alert(1)&lt;/script&gt;</strong>");
         assert_no_raw_xss_tags(to_view(html));
     }
     {
@@ -179,22 +172,18 @@ int main() {
     //  4. XSS inside pl-tags
     // ============================================================
     {
-        auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<color=red><script>alert(1)</script></color>");
-        pltxt2htm_test_assert_equal(
-            html, u8"<span style=\"color:red;\">&lt;script&gt;alert(1)&lt;/script&gt;</span>");
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<color=red><script>alert(1)</script></color>");
+        pltxt2htm_test_assert_equal(html, u8"<span style=\"color:red;\">&lt;script&gt;alert(1)&lt;/script&gt;</span>");
         assert_no_raw_xss_tags(to_view(html));
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<b><script>alert(1)</script></b>");
-        pltxt2htm_test_assert_equal(html,
-                                    u8"<strong>&lt;script&gt;alert(1)&lt;/script&gt;</strong>");
+        pltxt2htm_test_assert_equal(html, u8"<strong>&lt;script&gt;alert(1)&lt;/script&gt;</strong>");
         assert_no_raw_xss_tags(to_view(html));
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<i><script>alert(1)</script></i>");
-        pltxt2htm_test_assert_equal(html,
-                                    u8"<em>&lt;script&gt;alert(1)&lt;/script&gt;</em>");
+        pltxt2htm_test_assert_equal(html, u8"<em>&lt;script&gt;alert(1)&lt;/script&gt;</em>");
         assert_no_raw_xss_tags(to_view(html));
     }
 
@@ -203,14 +192,12 @@ int main() {
     // ============================================================
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"`<script>alert(1)</script>`");
-        pltxt2htm_test_assert_equal(html,
-                                    u8"<code>&lt;script&gt;alert(1)&lt;/script&gt;</code>");
+        pltxt2htm_test_assert_equal(html, u8"<code>&lt;script&gt;alert(1)&lt;/script&gt;</code>");
         assert_no_raw_xss_tags(to_view(html));
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"``<script>alert(1)</script>``");
-        pltxt2htm_test_assert_equal(html,
-                                    u8"<code>&lt;script&gt;alert(1)&lt;/script&gt;</code>");
+        pltxt2htm_test_assert_equal(html, u8"<code>&lt;script&gt;alert(1)&lt;/script&gt;</code>");
         assert_no_raw_xss_tags(to_view(html));
     }
 
@@ -219,8 +206,7 @@ int main() {
     // ============================================================
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"# <script>alert(1)</script>");
-        pltxt2htm_test_assert_equal(html,
-                                    u8"<h1>&lt;script&gt;alert(1)&lt;/script&gt;</h1>");
+        pltxt2htm_test_assert_equal(html, u8"<h1>&lt;script&gt;alert(1)&lt;/script&gt;</h1>");
         assert_no_raw_xss_tags(to_view(html));
     }
     {
@@ -263,8 +249,7 @@ int main() {
     // ============================================================
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<img src=x onerror=alert(1)>");
-        pltxt2htm_test_assert_equal(html,
-                                    u8"&lt;img&nbsp;src=x&nbsp;onerror=alert(1)&gt;");
+        pltxt2htm_test_assert_equal(html, u8"&lt;img&nbsp;src=x&nbsp;onerror=alert(1)&gt;");
         assert_no_raw_xss_tags(to_view(html));
         assert_no_raw_event_handlers(to_view(html));
     }
@@ -280,14 +265,12 @@ int main() {
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<a onmouseover=\"alert(1)\">hover</a>");
-        pltxt2htm_test_assert_equal(html,
-                                    u8"&lt;a&nbsp;onmouseover=&quot;alert(1)&quot;&gt;hover&lt;/a&gt;");
+        pltxt2htm_test_assert_equal(html, u8"&lt;a&nbsp;onmouseover=&quot;alert(1)&quot;&gt;hover&lt;/a&gt;");
         assert_no_raw_event_handlers(to_view(html));
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<a onclick=\"alert(1)\">click</a>");
-        pltxt2htm_test_assert_equal(html,
-                                    u8"&lt;a&nbsp;onclick=&quot;alert(1)&quot;&gt;click&lt;/a&gt;");
+        pltxt2htm_test_assert_equal(html, u8"&lt;a&nbsp;onclick=&quot;alert(1)&quot;&gt;click&lt;/a&gt;");
         assert_no_raw_event_handlers(to_view(html));
     }
 
@@ -308,15 +291,13 @@ int main() {
     // ============================================================
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<external=javascript:alert(1)>x</external>");
-        pltxt2htm_test_assert_equal(html,
-                                    u8"&lt;external=javascript:alert(1)&gt;x&lt;/external&gt;");
+        pltxt2htm_test_assert_equal(html, u8"&lt;external=javascript:alert(1)&gt;x&lt;/external&gt;");
         assert_no_raw_xss_tags(to_view(html));
     }
     {
-        auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<external=javascript:alert('XSS')>clickme</external>");
-        pltxt2htm_test_assert_equal(
-            html, u8"&lt;external=javascript:alert(&apos;XSS&apos;)&gt;clickme&lt;/external&gt;");
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<external=javascript:alert('XSS')>clickme</external>");
+        pltxt2htm_test_assert_equal(html,
+                                    u8"&lt;external=javascript:alert(&apos;XSS&apos;)&gt;clickme&lt;/external&gt;");
         assert_no_raw_xss_tags(to_view(html));
     }
     {
@@ -330,16 +311,13 @@ int main() {
     //  12. Combined / nested XSS vectors
     // ============================================================
     {
-        auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<color=blue>**<script>alert(1)</script>**</color>");
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<color=blue>**<script>alert(1)</script>**</color>");
         pltxt2htm_test_assert_equal(
-            html,
-            u8"<span style=\"color:blue;\"><strong>&lt;script&gt;alert(1)&lt;/script&gt;</strong></span>");
+            html, u8"<span style=\"color:blue;\"><strong>&lt;script&gt;alert(1)&lt;/script&gt;</strong></span>");
         assert_no_raw_xss_tags(to_view(html));
     }
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
-            u8"<color=red><a href=\"javascript:alert(1)\">click</a></color>");
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<color=red><a href=\"javascript:alert(1)\">click</a></color>");
         assert_no_raw_xss_tags(to_view(html));
     }
 
@@ -366,18 +344,15 @@ int main() {
     //  15. ID / parameter injection in experiment/discussion/user
     // ============================================================
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
-            u8"<experiment=abc\"onclick=\"alert(1)>text</experiment>");
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<experiment=abc\"onclick=\"alert(1)>text</experiment>");
         assert_no_raw_xss_tags(to_view(html));
     }
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
-            u8"<discussion=abc\"onclick=\"alert(1)>text</discussion>");
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<discussion=abc\"onclick=\"alert(1)>text</discussion>");
         assert_no_raw_xss_tags(to_view(html));
     }
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
-            u8"<user=abc\"onclick=\"alert(1)>text</user>");
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<user=abc\"onclick=\"alert(1)>text</user>");
         assert_no_raw_xss_tags(to_view(html));
     }
 
@@ -444,8 +419,7 @@ int main() {
     // ============================================================
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"~~<script>alert(1)</script>~~");
-        pltxt2htm_test_assert_equal(
-            html, u8"<del>&lt;script&gt;alert(1)&lt;/script&gt;</del>");
+        pltxt2htm_test_assert_equal(html, u8"<del>&lt;script&gt;alert(1)&lt;/script&gt;</del>");
         assert_no_raw_xss_tags(to_view(html));
     }
     {
@@ -489,8 +463,7 @@ int main() {
     //  21. CSS expression / style injection
     // ============================================================
     {
-        auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<div style=\"background-image: url(javascript:alert(1))\">");
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<div style=\"background-image: url(javascript:alert(1))\">");
         assert_no_raw_xss_tags(to_view(html));
     }
     {

@@ -13,6 +13,7 @@
 #include <fast_io/fast_io_dsal/string.h>
 #include "ast_decl.hh"
 #include "basic_node_decl.hh"
+#include "../node_type.hh"
 
 namespace pltxt2htm {
 
@@ -756,6 +757,156 @@ public:
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
+    }
+};
+
+/**
+ * @brief Markdown table (pipe-table syntax)
+ */
+template<::pltxt2htm::Contracts ndebug>
+class MdTable {
+    ::pltxt2htm::Ast<ndebug> subast{};
+
+public:
+    constexpr MdTable() noexcept = delete;
+    constexpr explicit MdTable(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr MdTable(::pltxt2htm::MdTable<ndebug> const&) noexcept = delete;
+    constexpr MdTable(::pltxt2htm::MdTable<ndebug>&&) noexcept;
+    constexpr ~MdTable() noexcept;
+    constexpr auto operator=(::pltxt2htm::MdTable<ndebug> const&) noexcept -> ::pltxt2htm::MdTable<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::MdTable<ndebug>& self, ::pltxt2htm::MdTable<ndebug>&&) noexcept
+        -> ::pltxt2htm::MdTable<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+};
+
+/**
+ * @brief Markdown table header section
+ */
+template<::pltxt2htm::Contracts ndebug>
+class MdThead {
+    ::pltxt2htm::Ast<ndebug> subast{};
+
+public:
+    constexpr MdThead() noexcept = delete;
+    constexpr explicit MdThead(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr MdThead(::pltxt2htm::MdThead<ndebug> const&) noexcept = delete;
+    constexpr MdThead(::pltxt2htm::MdThead<ndebug>&&) noexcept;
+    constexpr ~MdThead() noexcept;
+    constexpr auto operator=(::pltxt2htm::MdThead<ndebug> const&) noexcept -> ::pltxt2htm::MdThead<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::MdThead<ndebug>& self, ::pltxt2htm::MdThead<ndebug>&&) noexcept
+        -> ::pltxt2htm::MdThead<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+};
+
+/**
+ * @brief Markdown table body section
+ */
+template<::pltxt2htm::Contracts ndebug>
+class MdTbody {
+    ::pltxt2htm::Ast<ndebug> subast{};
+
+public:
+    constexpr MdTbody() noexcept = delete;
+    constexpr explicit MdTbody(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr MdTbody(::pltxt2htm::MdTbody<ndebug> const&) noexcept = delete;
+    constexpr MdTbody(::pltxt2htm::MdTbody<ndebug>&&) noexcept;
+    constexpr ~MdTbody() noexcept;
+    constexpr auto operator=(::pltxt2htm::MdTbody<ndebug> const&) noexcept -> ::pltxt2htm::MdTbody<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::MdTbody<ndebug>& self, ::pltxt2htm::MdTbody<ndebug>&&) noexcept
+        -> ::pltxt2htm::MdTbody<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+};
+
+/**
+ * @brief Markdown table row
+ */
+template<::pltxt2htm::Contracts ndebug>
+class MdTr {
+    ::pltxt2htm::Ast<ndebug> subast{};
+
+public:
+    constexpr MdTr() noexcept = delete;
+    constexpr explicit MdTr(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr MdTr(::pltxt2htm::MdTr<ndebug> const&) noexcept = delete;
+    constexpr MdTr(::pltxt2htm::MdTr<ndebug>&&) noexcept;
+    constexpr ~MdTr() noexcept;
+    constexpr auto operator=(::pltxt2htm::MdTr<ndebug> const&) noexcept -> ::pltxt2htm::MdTr<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::MdTr<ndebug>& self, ::pltxt2htm::MdTr<ndebug>&&) noexcept
+        -> ::pltxt2htm::MdTr<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+};
+
+/**
+ * @brief Markdown table header cell
+ */
+template<::pltxt2htm::Contracts ndebug>
+class MdTh {
+    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::MdTableAlign align{};
+
+public:
+    constexpr MdTh() noexcept = delete;
+    constexpr explicit MdTh(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::MdTableAlign align_ = {}) noexcept;
+    constexpr MdTh(::pltxt2htm::MdTh<ndebug> const&) noexcept = delete;
+    constexpr MdTh(::pltxt2htm::MdTh<ndebug>&&) noexcept;
+    constexpr ~MdTh() noexcept;
+    constexpr auto operator=(::pltxt2htm::MdTh<ndebug> const&) noexcept -> ::pltxt2htm::MdTh<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::MdTh<ndebug>& self, ::pltxt2htm::MdTh<ndebug>&&) noexcept
+        -> ::pltxt2htm::MdTh<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_align(this auto&& self) noexcept -> ::pltxt2htm::MdTableAlign {
+        return self.align;
+    }
+};
+
+/**
+ * @brief Markdown table data cell
+ */
+template<::pltxt2htm::Contracts ndebug>
+class MdTd {
+    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::MdTableAlign align{};
+
+public:
+    constexpr MdTd() noexcept = delete;
+    constexpr explicit MdTd(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::MdTableAlign align_ = {}) noexcept;
+    constexpr MdTd(::pltxt2htm::MdTd<ndebug> const&) noexcept = delete;
+    constexpr MdTd(::pltxt2htm::MdTd<ndebug>&&) noexcept;
+    constexpr ~MdTd() noexcept;
+    constexpr auto operator=(::pltxt2htm::MdTd<ndebug> const&) noexcept -> ::pltxt2htm::MdTd<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::MdTd<ndebug>& self, ::pltxt2htm::MdTd<ndebug>&&) noexcept
+        -> ::pltxt2htm::MdTd<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_align(this auto&& self) noexcept -> ::pltxt2htm::MdTableAlign {
+        return self.align;
     }
 };
 
