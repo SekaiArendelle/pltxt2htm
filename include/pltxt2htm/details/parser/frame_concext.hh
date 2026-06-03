@@ -70,6 +70,11 @@ public:
     }
 };
 
+/**
+ * @brief Context for an individual table cell during parsing.
+ *
+ * Stores the cell text content and its alignment for md_th / md_td nodes.
+ */
 class ParserFrameContextWithMdCellInfo {
 public:
     ::fast_io::u8string_view pltext;
@@ -82,6 +87,12 @@ enum class MdTableParsePhase : ::std::size_t {
     finish,
 };
 
+/**
+ * @brief Context for the top-level table parsing state machine.
+ *
+ * Holds the raw AST, parse phase (header / body / finish), and the
+ * current row/cell index within the table.
+ */
 template<::pltxt2htm::Contracts ndebug>
 class ParserFrameContextWithMdTableInfo {
 public:
