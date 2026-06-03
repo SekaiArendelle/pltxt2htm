@@ -13,20 +13,10 @@
 namespace pltxt2htm::details {
 
 /**
- * @brief Raw table row containing cell text strings.
- *
- * Produced by try_parse_md_table_row: splits a `|`-delimited line
- * into individual cell strings (with escaped pipe handling).
- */
-struct MdTableRow {
-    ::fast_io::vector<::fast_io::u8string> cells;
-};
-
-/**
- * @brief Result of try_parse_md_table_row: parsed row and consumed character count.
+ * @brief Result of try_parse_md_table_row: parsed cell strings and consumed character count.
  */
 struct TryParseMdTableRowResult {
-    ::pltxt2htm::details::MdTableRow row;
+    ::fast_io::vector<::fast_io::u8string> cells;
     ::std::size_t forward_index;
 };
 
@@ -40,7 +30,7 @@ struct TryParseMdTableRowResult {
  *
  * @tparam ndebug Contract checking mode
  * @param line A single table-row line (e.g. `"| a | b | c |"`)
- * @return MdTableRow on success, nullopt if the line is not a valid table row
+ * @return a vector of cell strings on success, nullopt if the line is not a valid table row
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
@@ -64,7 +54,7 @@ constexpr auto try_parse_md_table_row(::fast_io::u8string_view pltext) noexcept
     }
     ++current_index; // skip the first |
 
-    ::pltxt2htm::details::MdTableRow row{};
+    ::fast_io::vector<::fast_io::u8string> row{};
     while (current_index < pltext_size) {
         // skip spaces before cell content
         for (; current_index < pltext_size; ++current_index) {
@@ -106,13 +96,13 @@ constexpr auto try_parse_md_table_row(::fast_io::u8string_view pltext) noexcept
         while (!cell.empty() && (cell.back() == u8' ' || cell.back() == u8'\t')) {
             cell.pop_back();
         }
-        row.cells.push_back(::std::move(cell));
+        row.push_back(::std::move(cell));
         if (current_index < pltext_size && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) == u8'|') {
             ++current_index; // skip |
         }
     }
 
-    if (row.cells.empty()) {
+    if (row.empty()) {
         return ::exception::nullopt_t{};
     }
 
@@ -304,7 +294,7 @@ constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
     }
     auto&& [header_row, header_forward] = header_opt.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
     current_index += header_forward;
-    ::std::size_t num_cols{header_row.cells.size()};
+    ::std::size_t num_cols{header_row.size()};
 
     // parse delimiter line (second line) & extract alignment in one pass
     auto delim_opt = ::pltxt2htm::details::try_parse_md_table_row<ndebug>(
@@ -316,7 +306,7 @@ constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
     current_index += delim_forward;
     ::fast_io::vector<::pltxt2htm::MdTableAlign> aligns{};
     bool has_delimiter_content{};
-    for (auto const& cell : delim_row.cells) {
+    for (auto const& cell : delim_row) {
         auto cell_view = ::fast_io::u8string_view{cell.data(), cell.size()};
         if (cell_view.empty() == false) {
             if (::pltxt2htm::details::is_delimiter_cell_valid<ndebug>(cell_view) == false) {
@@ -332,11 +322,11 @@ constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
 
     // build raw header cells
     ::pltxt2htm::details::MdTableAstRaw<ndebug> raw_ast{};
-    for (::std::size_t col{}; col < header_row.cells.size(); ++col) {
+    for (::std::size_t col{}; col < header_row.size(); ++col) {
         auto align_val = col < aligns.size() ? ::pltxt2htm::details::vector_index<ndebug>(aligns, col)
                                              : ::pltxt2htm::MdTableAlign::left;
         raw_ast.add_header_cell(::pltxt2htm::details::MdTableCellRaw{
-            .text = ::std::move(::pltxt2htm::details::vector_index<ndebug>(header_row.cells, col)),
+            .text = ::std::move(::pltxt2htm::details::vector_index<ndebug>(header_row, col)),
             .align = align_val,
         });
     }
@@ -352,15 +342,15 @@ constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
         current_index += forward;
 
         // each body row must have exactly num_cols cells
-        if (row.cells.size() != num_cols) {
+        if (row.size() != num_cols) {
             return ::exception::nullopt_t{};
         }
         ::fast_io::vector<::pltxt2htm::details::MdTableCellRaw> body_cells{};
-        for (::std::size_t col{}; col < row.cells.size(); ++col) {
+        for (::std::size_t col{}; col < row.size(); ++col) {
             auto align_val = col < aligns.size() ? ::pltxt2htm::details::vector_index<ndebug>(aligns, col)
                                                  : ::pltxt2htm::MdTableAlign::left;
             body_cells.push_back(::pltxt2htm::details::MdTableCellRaw{
-                .text = ::std::move(::pltxt2htm::details::vector_index<ndebug>(row.cells, col)),
+                .text = ::std::move(::pltxt2htm::details::vector_index<ndebug>(row, col)),
                 .align = align_val,
             });
         }
