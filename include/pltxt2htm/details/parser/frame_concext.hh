@@ -76,20 +76,23 @@ public:
     ::pltxt2htm::MdTableAlign align;
 };
 
+enum class MdTableParsePhase : ::std::size_t {
+    header = 0,
+    body,
+    finish,
+};
+
 template<::pltxt2htm::Contracts ndebug>
 class ParserFrameContextWithMdTableInfo {
 public:
     ::pltxt2htm::details::MdTableAstRaw<ndebug> raw_ast;
-    ::std::size_t state;
-    ::std::size_t row_index;
-    ::std::size_t cell_index;
+    MdTableParsePhase state{MdTableParsePhase::header};
+    ::std::size_t row_index{};
+    ::std::size_t cell_index{};
 
     constexpr explicit ParserFrameContextWithMdTableInfo(
         ::pltxt2htm::details::MdTableAstRaw<ndebug>&& raw_ast_) noexcept
-        : raw_ast(::std::move(raw_ast_)),
-          state{},
-          row_index{},
-          cell_index{} {
+        : raw_ast(::std::move(raw_ast_)) {
     }
 };
 
@@ -1116,7 +1119,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_md_table_state(this auto&& self) noexcept -> ::std::size_t {
+    constexpr auto get_md_table_state(this auto&& self) noexcept -> MdTableParsePhase {
         auto&& context_data_ref = self.context_data;
         pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::md_table, u8"context kind mismatch");
         return context_data_ref.md_table.state;
@@ -1136,7 +1139,7 @@ public:
         return context_data_ref.md_table.cell_index;
     }
 
-    constexpr auto set_md_table_state(this auto&& self, ::std::size_t s) noexcept -> void {
+    constexpr auto set_md_table_state(this auto&& self, MdTableParsePhase s) noexcept -> void {
         auto&& context_data_ref = self.context_data;
         pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::md_table, u8"context kind mismatch");
         context_data_ref.md_table.state = s;

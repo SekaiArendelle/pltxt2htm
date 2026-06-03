@@ -278,7 +278,8 @@ entry:
         auto row_index = frame.get_md_table_row_index();
         auto cell_index = frame.get_md_table_cell_index();
 
-        if (state == 0) {
+        switch (state) {
+        case ::pltxt2htm::details::MdTableParsePhase::header:
             if (cell_index < raw_ast.header_cells_count()) {
                 auto const& cell = raw_ast.header_cell_at(cell_index);
                 call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
@@ -287,13 +288,12 @@ entry:
                 frame.set_md_table_cell_index(cell_index + 1);
                 goto entry;
             }
-            frame.set_md_table_state(1);
+            frame.set_md_table_state(::pltxt2htm::details::MdTableParsePhase::body);
             frame.set_md_table_row_index(0);
             frame.set_md_table_cell_index(0);
             goto entry;
-        }
 
-        if (state == 1) {
+        case ::pltxt2htm::details::MdTableParsePhase::body:
             if (row_index < raw_ast.body_rows_count()) {
                 if (cell_index < raw_ast.body_cells_count()) {
                     auto const& cell = raw_ast.body_cell_at(row_index, cell_index);
@@ -307,11 +307,10 @@ entry:
                 frame.set_md_table_cell_index(0);
                 goto entry;
             }
-            frame.set_md_table_state(2);
+            frame.set_md_table_state(::pltxt2htm::details::MdTableParsePhase::finish);
             goto entry;
-        }
 
-        if (state == 2) {
+        case ::pltxt2htm::details::MdTableParsePhase::finish:
             auto previous_frame = ::std::move(frame);
             call_stack.pop();
 
