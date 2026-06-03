@@ -38,11 +38,11 @@ endif()
 
 target_link_options(pltxt2htm PRIVATE
     -fuse-ld=lld
-    "-s EXPORTED_FUNCTIONS=['_common_parser','_fixedadv_parser','_free','_ver_major','_ver_minor','_ver_patch']"
-    "-s EXPORTED_RUNTIME_METHODS=['cwrap','UTF8ToString']"
-    "-s MODULARIZE=1"
-    "-s EXPORT_ES6=1"
-    "-s EXPORT_NAME=\"pltxt2htm\""
+    "-sEXPORTED_FUNCTIONS=['_common_parser','_fixedadv_parser','_free','_ver_major','_ver_minor','_ver_patch']"
+    "-sEXPORTED_RUNTIME_METHODS=['cwrap','UTF8ToString']"
+    -sMODULARIZE=1
+    -sEXPORT_ES6=1
+    -sEXPORT_NAME=pltxt2htm
 )
 
 # Install step: copy all pltxt2htm.* outputs to install dir
