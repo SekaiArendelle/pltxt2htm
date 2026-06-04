@@ -202,6 +202,7 @@ constexpr auto plunity_text_backend(::pltxt2htm::Ast<ndebug> const& ast_init, ::
     ::fast_io::u8string result{};
     ::fast_io::stack<::pltxt2htm::details::BackendFrameContext<ndebug>> call_stack{};
     call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(ast_init, ::pltxt2htm::NodeKind::text, 0));
+    ::std::size_t list_nesting_depth{};
 
 entry:
     auto const& ast = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_ast();
@@ -451,6 +452,7 @@ entry:
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::html_ul, 0));
             ++current_index;
+            ++list_nesting_depth;
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_ol:
@@ -459,6 +461,7 @@ entry:
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                 node.get_subast(), 0, ::pltxt2htm::details::BackendContextWithOlInfo{}));
             ++current_index;
+            ++list_nesting_depth;
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_li: {
@@ -472,17 +475,9 @@ entry:
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::html_li, 0));
             ++current_index;
-            ::std::size_t indent_level{};
-            for (auto const& frame : call_stack.container) {
-                if (frame.get_nested_tag_type() == ::pltxt2htm::NodeKind::html_ol ||
-                    frame.get_nested_tag_type() == ::pltxt2htm::NodeKind::html_ul ||
-                    frame.get_nested_tag_type() == ::pltxt2htm::NodeKind::md_ol ||
-                    frame.get_nested_tag_type() == ::pltxt2htm::NodeKind::md_ul) {
-                    if (indent_level > 0) {
-                        result.append(u8"  ");
-                    }
-                    ++indent_level;
-                }
+            auto const indent_level = list_nesting_depth;
+            for (::std::size_t i = 1; i < indent_level; ++i) {
+                result.append(u8"  ");
             }
             auto reverse_iter = call_stack.container.rbegin();
             ::pltxt2htm::details::BackendFrameContext<ndebug>& the_second_to_last_frame{*(++reverse_iter)};
@@ -952,6 +947,7 @@ entry:
         case ::pltxt2htm::NodeKind::md_ol:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_ol: {
+            --list_nesting_depth;
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_li:
