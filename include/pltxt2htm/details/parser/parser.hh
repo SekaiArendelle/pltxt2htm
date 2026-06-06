@@ -1985,7 +1985,19 @@ entry:
                     [[fallthrough]];
                 case ::pltxt2htm::NodeKind::md_latex_inline:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeKind::md_latex_block: {
+                case ::pltxt2htm::NodeKind::md_latex_block:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeKind::md_table:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeKind::md_thead:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeKind::md_tbody:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeKind::md_tr:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeKind::md_th:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeKind::md_td: {
                     // relate to 0041.fuzzing-crash3
                     // any tag contains `</` context would hit this branch
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
@@ -2001,18 +2013,6 @@ entry:
                 case ::pltxt2htm::NodeKind::pl_macro_author:
                     [[fallthrough]];
                 case ::pltxt2htm::NodeKind::pl_macro_coauthors:
-                    [[fallthrough]];
-                case ::pltxt2htm::NodeKind::md_table:
-                    [[fallthrough]];
-                case ::pltxt2htm::NodeKind::md_thead:
-                    [[fallthrough]];
-                case ::pltxt2htm::NodeKind::md_tbody:
-                    [[fallthrough]];
-                case ::pltxt2htm::NodeKind::md_tr:
-                    [[fallthrough]];
-                case ::pltxt2htm::NodeKind::md_th:
-                    [[fallthrough]];
-                case ::pltxt2htm::NodeKind::md_td:
                     [[fallthrough]];
                 case ::pltxt2htm::NodeKind::md_ul:
                     [[fallthrough]];

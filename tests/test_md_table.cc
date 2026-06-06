@@ -703,5 +703,43 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // --- Regression tests: `</` inside table cells (previously crashed) ---
+
+    // Minimal table with empty header and `</` in body cell
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"||\n"
+            u8"|-|\n"
+            u8"|</|");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><thead><tr><th></th></tr></thead>"
+            u8"<tbody><tr><td>&lt;/</td></tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Table with indented delimiter and `</` in body cell
+    // (rows without trailing | are NOT parsed as a table — see md_table.hh)
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"|cell\n"
+            u8" |--\n"
+            u8" |</|");
+        auto answer = ::fast_io::u8string_view{
+            u8"|cell<br>&nbsp;|--<br>&nbsp;|&lt;/|"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Table with `</x` (tag-like content) in body cell
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"|ok|\n"
+            u8"|---|\n"
+            u8"|</x|");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><thead><tr><th>ok</th></tr></thead>"
+            u8"<tbody><tr><td>&lt;/x</td></tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }

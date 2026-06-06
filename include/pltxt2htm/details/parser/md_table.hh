@@ -108,6 +108,28 @@ constexpr auto try_parse_md_table_row(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt_t{};
     }
 
+    // Require trailing |: the row text must end with | (possibly followed
+    // by spaces/tabs and at most one \n).  A row like "|cell" (no trailing |)
+    // is rejected.
+    {
+        ::std::size_t end_idx = current_index;
+        if (end_idx > 0 &&
+            ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, end_idx - 1) == u8'\n') {
+            --end_idx;
+        }
+        while (end_idx > 0) {
+            auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, end_idx - 1);
+            if (chr != u8' ' && chr != u8'\t') {
+                break;
+            }
+            --end_idx;
+        }
+        if (end_idx == 0 ||
+            ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, end_idx - 1) != u8'|') {
+            return ::exception::nullopt_t{};
+        }
+    }
+
     return ::pltxt2htm::details::TryParseMdTableRowResult{::std::move(row), current_index};
 }
 
