@@ -1210,10 +1210,8 @@ public:
 
     [[nodiscard]]
     constexpr auto get_checked(this auto&& self) noexcept -> bool {
-        auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::md_li_checkbox,
-                         u8"context kind mismatch");
-        return context_data_ref.md_li_checkbox.checked;
+        pltxt2htm_assert(self.context_data.kind == ::pltxt2htm::NodeKind::md_li_checkbox, u8"context kind mismatch");
+        return self.context_data.md_li_checkbox.checked;
     }
 };
 

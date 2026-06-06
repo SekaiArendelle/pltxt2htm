@@ -195,12 +195,11 @@ entry:
             {
                 if (frame_iter->is_checkbox()) {
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                        frame_iter->get_text_view(), frame_iter->is_checked(),
-                        ::pltxt2htm::NodeKind::md_li_checkbox));
+                        frame_iter->get_text_view(), frame_iter->is_checked(), ::pltxt2htm::NodeKind::md_li_checkbox));
                 }
                 else {
-                    call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                        frame_iter->get_text_view(), ::pltxt2htm::NodeKind::md_li));
+                    call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(frame_iter->get_text_view(),
+                                                                                     ::pltxt2htm::NodeKind::md_li));
                 }
             }
             break;
@@ -263,12 +262,11 @@ entry:
             {
                 if (frame_iter->is_checkbox()) {
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                        frame_iter->get_text_view(), frame_iter->is_checked(),
-                        ::pltxt2htm::NodeKind::md_li_checkbox));
+                        frame_iter->get_text_view(), frame_iter->is_checked(), ::pltxt2htm::NodeKind::md_li_checkbox));
                 }
                 else {
-                    call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                        frame_iter->get_text_view(), ::pltxt2htm::NodeKind::md_li));
+                    call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(frame_iter->get_text_view(),
+                                                                                     ::pltxt2htm::NodeKind::md_li));
                 }
             }
             break;
