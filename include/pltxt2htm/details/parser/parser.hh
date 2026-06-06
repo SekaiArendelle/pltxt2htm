@@ -193,13 +193,14 @@ entry:
             [[fallthrough]];
         case ::pltxt2htm::details::MdListNodeType::md_li_checkbox: {
             {
-                auto const node_kind =
-                    frame_iter->is_checkbox() ? ::pltxt2htm::NodeKind::md_li_checkbox : ::pltxt2htm::NodeKind::md_li;
-                call_stack.push(
-                    ::pltxt2htm::details::ParserFrameContext<ndebug>(frame_iter->get_text_view(), node_kind));
                 if (frame_iter->is_checkbox()) {
-                    auto& new_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
-                    new_frame.checked = frame_iter->is_checked();
+                    call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                        frame_iter->get_text_view(), frame_iter->is_checked(),
+                        ::pltxt2htm::NodeKind::md_li_checkbox));
+                }
+                else {
+                    call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                        frame_iter->get_text_view(), ::pltxt2htm::NodeKind::md_li));
                 }
             }
             break;
@@ -260,13 +261,14 @@ entry:
             [[fallthrough]];
         case ::pltxt2htm::details::MdListNodeType::md_li_checkbox: {
             {
-                auto const node_kind =
-                    frame_iter->is_checkbox() ? ::pltxt2htm::NodeKind::md_li_checkbox : ::pltxt2htm::NodeKind::md_li;
-                call_stack.push(
-                    ::pltxt2htm::details::ParserFrameContext<ndebug>(frame_iter->get_text_view(), node_kind));
                 if (frame_iter->is_checkbox()) {
-                    auto& new_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
-                    new_frame.checked = frame_iter->is_checked();
+                    call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                        frame_iter->get_text_view(), frame_iter->is_checked(),
+                        ::pltxt2htm::NodeKind::md_li_checkbox));
+                }
+                else {
+                    call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                        frame_iter->get_text_view(), ::pltxt2htm::NodeKind::md_li));
                 }
             }
             break;
@@ -2208,7 +2210,7 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_li_checkbox: {
-            auto checked = frame.checked;
+            auto checked = frame.get_checked();
             parent_ast.push_back(
                 ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdLiCheckbox<ndebug>{::std::move(subast), checked}));
             parent_index += staged_index;
