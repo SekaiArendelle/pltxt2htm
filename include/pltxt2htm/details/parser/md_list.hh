@@ -16,6 +16,7 @@
 #include "../utils.hh"
 #include "../../contracts.hh"
 #include "../../ast/ast.hh"
+#include "../push_macro.hh"
 
 namespace pltxt2htm::details {
 
@@ -133,7 +134,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto is_checked(this auto&& self) noexcept -> bool {
+    constexpr auto is_checked(this auto const& self) noexcept -> bool {
         return self.checked_;
     }
 
@@ -392,20 +393,9 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto is_checked(this auto&& self) noexcept -> bool {
-        switch (self.type_) /* -Werror=switch */ {
-        case ::pltxt2htm::details::MdListNodeType::md_li_checkbox: {
-            return self.li_checkbox_node.is_checked();
-        }
-        case ::pltxt2htm::details::MdListNodeType::md_li:
-            [[fallthrough]];
-        case ::pltxt2htm::details::MdListNodeType::md_ul:
-            [[fallthrough]];
-        case ::pltxt2htm::details::MdListNodeType::md_ol: {
-            return false;
-        }
-        }
-        ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+    constexpr auto is_checked(this auto const& self) noexcept -> bool {
+        pltxt2htm_assert(self.type_ == ::pltxt2htm::details::MdListNodeType::md_li_checkbox, u8"node type mismatch");
+        return self.li_checkbox_node.is_checked();
     }
 
     [[nodiscard]]
@@ -756,6 +746,22 @@ constexpr auto try_parse_item(
             break;
         }
     }
+    // detect markdown checkbox syntax: [ ] or [x]/[X] at start of text
+    bool checkbox{};
+    bool checked{};
+    if (pltext.size() >= current_index + 4 &&
+        ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) == u8'[' &&
+        (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index + 1) == u8' ' ||
+         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index + 1) == u8'x' ||
+         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index + 1) == u8'X') &&
+        ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index + 2) == u8']' &&
+        (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index + 3) == u8' ' ||
+         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index + 3) == u8'\t')) {
+        checkbox = true;
+        checked = (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index + 1) == u8'x' ||
+                   ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index + 1) == u8'X');
+        current_index += 4;
+    }
     // parsing text after - or + or *
     ::fast_io::u8string text{};
     for (; current_index < pltext.size(); ++current_index) {
@@ -765,16 +771,6 @@ constexpr auto try_parse_item(
             break;
         }
         text.push_back(chr);
-    }
-    // detect markdown checkbox syntax: [ ] or [x]/[X] at start of text
-    bool checkbox{};
-    bool checked{};
-    if (text.size() >= 4 && text[0] == u8'[' && (text[1] == u8' ' || text[1] == u8'x' || text[1] == u8'X') &&
-        text[2] == u8']' && (text[3] == u8' ' || text[3] == u8'\t')) {
-        checkbox = true;
-        checked = (text[1] == u8'x' || text[1] == u8'X');
-        auto remaining = ::fast_io::u8string{::fast_io::u8string_view{text.data() + 4, text.size() - 4}};
-        text = ::std::move(remaining);
     }
     return ::pltxt2htm::details::TryParseItemResult{
         .space_hierarchy = space_hierarchy,
@@ -944,3 +940,5 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
 }
 
 } // namespace pltxt2htm::details
+
+#include "../pop_macro.hh"
