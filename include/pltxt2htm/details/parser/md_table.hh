@@ -327,7 +327,9 @@ constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
     }
 
     // delimiter row must have the same column count as the header row
-    pltxt2htm_assert(aligns.size() == header_row.size(), u8"delimiter row cell count must match header row cell count");
+    if (aligns.size() != header_row.size()) {
+        return ::exception::nullopt_t{};
+    }
 
     // build raw header cells
     ::pltxt2htm::details::MdTableAstRaw<ndebug> raw_ast{};

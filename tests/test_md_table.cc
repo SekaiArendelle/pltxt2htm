@@ -643,6 +643,28 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // Delimiter row with fewer cells than header row → not a table
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| A | B | C |\n"
+            u8"|---|---|");
+        auto answer = ::fast_io::u8string_view{
+            u8"|&nbsp;A&nbsp;|&nbsp;B&nbsp;|&nbsp;C&nbsp;|<br>"
+            u8"|---|---|"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Delimiter row with more cells than header row → not a table
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"| A | B |\n"
+            u8"|---|---|---|");
+        auto answer = ::fast_io::u8string_view{
+            u8"|&nbsp;A&nbsp;|&nbsp;B&nbsp;|<br>"
+            u8"|---|---|---|"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     // Escaped pipe \| in cell content → literal |, not column separator
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(
