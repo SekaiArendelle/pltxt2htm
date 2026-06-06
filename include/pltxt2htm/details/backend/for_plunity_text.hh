@@ -492,7 +492,7 @@ entry:
             }
             else if (nested_tag_type == ::pltxt2htm::NodeKind::html_ul ||
                      nested_tag_type == ::pltxt2htm::NodeKind::md_ul) {
-                if (node.is_checkbox()) {
+                if (node.get_node_kind() == ::pltxt2htm::NodeKind::md_li_checkbox) {
                     if (node.is_checked()) {
                         result.append(u8"[x] ");
                     }

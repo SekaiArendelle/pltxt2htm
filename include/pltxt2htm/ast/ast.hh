@@ -2145,27 +2145,10 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto is_checkbox(this auto&& self) noexcept -> bool {
-        switch (self.node_kind) {
-        case ::pltxt2htm::NodeKind::md_li_checkbox: {
-            return true;
-        }
-        default: {
-            return false;
-        }
-        }
-    }
-
-    [[nodiscard]]
     constexpr auto is_checked(this auto&& self) noexcept -> bool {
-        switch (self.node_kind) {
-        case ::pltxt2htm::NodeKind::md_li_checkbox: {
-            return self.md_li_checkbox_node.is_checked();
-        }
-        default: {
-            return false;
-        }
-        }
+        bool const is_checkbox_type{self.node_kind == ::pltxt2htm::NodeKind::md_li_checkbox};
+        pltxt2htm_assert(is_checkbox_type, u8"node kind mismatch");
+        return self.md_li_checkbox_node.is_checked();
     };
 };
 
