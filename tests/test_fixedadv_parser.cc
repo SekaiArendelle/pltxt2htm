@@ -48,5 +48,11 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"0355");
+        auto answer = ::fast_io::u8string_view{u8"0355"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }
