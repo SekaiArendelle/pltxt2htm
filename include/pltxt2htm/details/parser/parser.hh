@@ -2193,8 +2193,8 @@ entry:
         case ::pltxt2htm::NodeKind::md_li: {
             auto checkbox = frame.checkbox;
             auto checked = frame.checked;
-            parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                ::pltxt2htm::MdLi<ndebug>{::std::move(subast), checkbox, checked}));
+            parent_ast.push_back(
+                ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdLi<ndebug>{::std::move(subast), checkbox, checked}));
             parent_index += staged_index;
             goto entry;
         }

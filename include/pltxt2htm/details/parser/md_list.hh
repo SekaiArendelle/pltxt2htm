@@ -698,9 +698,8 @@ constexpr auto try_parse_item(
     // detect markdown checkbox syntax: [ ] or [x]/[X] at start of text
     bool checkbox{};
     bool checked{};
-    if (text.size() >= 4 && text[0] == u8'[' &&
-        (text[1] == u8' ' || text[1] == u8'x' || text[1] == u8'X') && text[2] == u8']' &&
-        (text[3] == u8' ' || text[3] == u8'\t')) {
+    if (text.size() >= 4 && text[0] == u8'[' && (text[1] == u8' ' || text[1] == u8'x' || text[1] == u8'X') &&
+        text[2] == u8']' && (text[3] == u8' ' || text[3] == u8'\t')) {
         checkbox = true;
         checked = (text[1] == u8'x' || text[1] == u8'X');
         auto remaining = ::fast_io::u8string{::fast_io::u8string_view{text.data() + 4, text.size() - 4}};

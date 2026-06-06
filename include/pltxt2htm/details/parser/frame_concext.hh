@@ -806,7 +806,9 @@ public:
     constexpr ParserFrameContext(::pltxt2htm::details::ParserFrameContext<ndebug>&& other) noexcept
         : context_data{::std::move(other.context_data)},
           current_index{other.current_index},
-          subast(::std::move(other.subast)) {
+          subast(::std::move(other.subast)),
+          checkbox{other.checkbox},
+          checked{other.checked} {
     }
 
     constexpr auto operator=(::pltxt2htm::details::ParserFrameContext<ndebug> const&) noexcept

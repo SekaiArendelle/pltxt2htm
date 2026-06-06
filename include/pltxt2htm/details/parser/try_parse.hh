@@ -1439,7 +1439,7 @@ constexpr auto try_parse_md_block_quotes(::fast_io::u8string_view pltext) noexce
         subpltext.pop_back();
     }
     return ::pltxt2htm::details::TryParseMdBlockQuotesResult{.forward_index = current_index,
-                                                                     .subpltext = ::std::move(subpltext)};
+                                                             .subpltext = ::std::move(subpltext)};
 }
 
 template<::pltxt2htm::Contracts ndebug>
