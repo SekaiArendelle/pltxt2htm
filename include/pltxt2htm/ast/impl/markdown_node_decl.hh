@@ -695,10 +695,13 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class MdLi {
     ::pltxt2htm::Ast<ndebug> subast{};
+    bool checkbox_{};
+    bool checked_{};
 
 public:
     constexpr MdLi() noexcept = delete;
     constexpr explicit MdLi(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr explicit MdLi(::pltxt2htm::Ast<ndebug>&& subast_, bool checkbox, bool checked) noexcept;
     constexpr MdLi(::pltxt2htm::MdLi<ndebug> const&) noexcept = delete;
     constexpr MdLi(::pltxt2htm::MdLi<ndebug>&&) noexcept;
     constexpr ~MdLi() noexcept;
@@ -709,6 +712,16 @@ public:
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
+    }
+
+    [[nodiscard]]
+    constexpr auto is_checkbox(this auto&& self) noexcept -> bool {
+        return self.checkbox_;
+    }
+
+    [[nodiscard]]
+    constexpr auto is_checked(this auto&& self) noexcept -> bool {
+        return self.checked_;
     }
 };
 

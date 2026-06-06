@@ -715,6 +715,8 @@ class ParserFrameContext {
 public:
     ::std::size_t current_index{};
     ::pltxt2htm::Ast<ndebug> subast{};
+    bool checkbox{};
+    bool checked{};
 
     constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_,
                                           ::pltxt2htm::NodeKind const nested_tag_type_) noexcept

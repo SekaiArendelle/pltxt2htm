@@ -55,10 +55,18 @@ using MdListAst = ::fast_io::vector<::pltxt2htm::details::MdListBaseNode<ndebug>
  */
 class MdListTextNode {
     ::fast_io::u8string text;
+    bool checkbox_{};
+    bool checked_{};
 
 public:
     constexpr MdListTextNode(::fast_io::u8string&& text_) noexcept
         : text(::std::move(text_)) {
+    }
+
+    constexpr MdListTextNode(::fast_io::u8string&& text_, bool cb, bool ckd) noexcept
+        : text(::std::move(text_)),
+          checkbox_(cb),
+          checked_(ckd) {
     }
 
     constexpr MdListTextNode(::pltxt2htm::details::MdListTextNode const&) noexcept = default;
@@ -81,7 +89,17 @@ public:
 #endif
     constexpr auto operator==(this ::pltxt2htm::details::MdListTextNode const& self,
                               ::pltxt2htm::details::MdListTextNode const& other) noexcept -> bool {
-        return self.text == other.text;
+        return self.text == other.text && self.checkbox_ == other.checkbox_ && self.checked_ == other.checked_;
+    }
+
+    [[nodiscard]]
+    constexpr auto is_checkbox(this auto&& self) noexcept -> bool {
+        return self.checkbox_;
+    }
+
+    [[nodiscard]]
+    constexpr auto is_checked(this auto&& self) noexcept -> bool {
+        return self.checked_;
     }
 
     [[nodiscard]]
@@ -289,6 +307,36 @@ public:
             [[unlikely]] {
                 ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
             }
+        }
+        ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+    }
+
+    [[nodiscard]]
+    constexpr auto is_checkbox(this auto&& self) noexcept -> bool {
+        switch (self.type_) /* -Werror=switch */ {
+        case ::pltxt2htm::details::MdListNodeType::text: {
+            return self.text_node.is_checkbox();
+        }
+        case ::pltxt2htm::details::MdListNodeType::md_ul:
+            [[fallthrough]];
+        case ::pltxt2htm::details::MdListNodeType::md_ol: {
+            return false;
+        }
+        }
+        ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+    }
+
+    [[nodiscard]]
+    constexpr auto is_checked(this auto&& self) noexcept -> bool {
+        switch (self.type_) /* -Werror=switch */ {
+        case ::pltxt2htm::details::MdListNodeType::text: {
+            return self.text_node.is_checked();
+        }
+        case ::pltxt2htm::details::MdListNodeType::md_ul:
+            [[fallthrough]];
+        case ::pltxt2htm::details::MdListNodeType::md_ol: {
+            return false;
+        }
         }
         ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
     }
@@ -565,6 +613,8 @@ struct TryParseItemResult {
     ::std::size_t forward_index;
     ::fast_io::u8string text;
     ::pltxt2htm::details::MdUlListItemKind item_kind;
+    bool checkbox{};
+    bool checked{};
 };
 
 template<::pltxt2htm::Contracts ndebug>
@@ -645,11 +695,24 @@ constexpr auto try_parse_item(
         }
         text.push_back(chr);
     }
+    // detect markdown checkbox syntax: [ ] or [x]/[X] at start of text
+    bool checkbox{};
+    bool checked{};
+    if (text.size() >= 4 && text[0] == u8'[' &&
+        (text[1] == u8' ' || text[1] == u8'x' || text[1] == u8'X') && text[2] == u8']' &&
+        (text[3] == u8' ' || text[3] == u8'\t')) {
+        checkbox = true;
+        checked = (text[1] == u8'x' || text[1] == u8'X');
+        auto remaining = ::fast_io::u8string{::fast_io::u8string_view{text.data() + 4, text.size() - 4}};
+        text = ::std::move(remaining);
+    }
     return ::pltxt2htm::details::TryParseItemResult{
         .space_hierarchy = space_hierarchy,
         .forward_index = current_index,
         .text = ::std::move(text),
         .item_kind = item_kind,
+        .checkbox = checkbox,
+        .checked = checked,
     };
 }
 
@@ -672,11 +735,12 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
     // manually managing stack to avoid stack-overflow
     {
         if (auto opt_item = ::pltxt2htm::details::try_parse_item<ndebug>(pltext); opt_item.has_value()) {
-            auto&& [space_hierarchy, forward_index, text, item_kind] =
+            auto&& [space_hierarchy, forward_index, text, item_kind, checkbox, checked] =
                 opt_item.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             ::pltxt2htm::details::MdListFrameContext<ndebug> current_frame{item_kind, space_hierarchy, pltext,
                                                                            forward_index};
-            current_frame.md_list_ast.emplace_back(::pltxt2htm::details::MdListTextNode(::std::move(text)));
+            current_frame.md_list_ast.emplace_back(
+                ::pltxt2htm::details::MdListTextNode(::std::move(text), checkbox, checked));
             if (forward_index >= current_frame.pltext.size()) {
                 return ::pltxt2htm::details::ToMdListAstResult<ndebug>{
                     .ast = ::std::move(current_frame.md_list_ast),
@@ -738,7 +802,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
             parent_frame.current_index += frame.current_index;
             continue;
         }
-        auto&& [space_hierarchy, forward_index, text, item_kind] =
+        auto&& [space_hierarchy, forward_index, text, item_kind, checkbox, checked] =
             opt_list_item.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
         current_index += forward_index;
         if (space_hierarchy > top_frame.space_hierarchy + 1) {
@@ -746,10 +810,11 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
                 item_kind, space_hierarchy,
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(top_frame.pltext, current_index)});
             auto&& child_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
-            child_frame.md_list_ast.emplace_back(::pltxt2htm::details::MdListTextNode(::std::move(text)));
+            child_frame.md_list_ast.emplace_back(
+                ::pltxt2htm::details::MdListTextNode(::std::move(text), checkbox, checked));
             continue;
         }
-        result.emplace_back(::pltxt2htm::details::MdListTextNode(::std::move(text)));
+        result.emplace_back(::pltxt2htm::details::MdListTextNode(::std::move(text), checkbox, checked));
         top_frame.space_hierarchy = space_hierarchy;
 
         if (current_index < pltext_size) {

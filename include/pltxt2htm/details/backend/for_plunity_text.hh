@@ -490,7 +490,15 @@ entry:
             }
             else if (nested_tag_type == ::pltxt2htm::NodeKind::html_ul ||
                      nested_tag_type == ::pltxt2htm::NodeKind::md_ul) {
-                if (indent_level % 3 == 1) {
+                if (node.get_node_kind() == ::pltxt2htm::NodeKind::md_li && node.is_checkbox()) {
+                    if (node.is_checked()) {
+                        result.append(u8"[x] ");
+                    }
+                    else {
+                        result.append(u8"[ ] ");
+                    }
+                }
+                else if (indent_level % 3 == 1) {
                     result.append(u8"\u2022 ");
                 }
                 else if (indent_level % 3 == 2) {

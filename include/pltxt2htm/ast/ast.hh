@@ -2125,6 +2125,30 @@ public:
             }
         }
     }
+
+    [[nodiscard]]
+    constexpr auto is_checkbox(this auto&& self) noexcept -> bool {
+        switch (self.node_kind) {
+        case ::pltxt2htm::NodeKind::md_li: {
+            return self.md_li_node.is_checkbox();
+        }
+        default: {
+            return false;
+        }
+        }
+    }
+
+    [[nodiscard]]
+    constexpr auto is_checked(this auto&& self) noexcept -> bool {
+        switch (self.node_kind) {
+        case ::pltxt2htm::NodeKind::md_li: {
+            return self.md_li_node.is_checked();
+        }
+        default: {
+            return false;
+        }
+        }
+    };
 };
 
 } // namespace pltxt2htm
