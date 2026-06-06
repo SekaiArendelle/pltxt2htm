@@ -4,7 +4,7 @@ inline namespace pltxt2htm_test {
 
 template<::std::size_t N>
 constexpr auto text_item(char8_t const (&text)[N]) noexcept {
-    return ::pltxt2htm::details::MdListTextNode{::fast_io::u8string{text}};
+    return ::pltxt2htm::details::MdListLiNode{::fast_io::u8string{text}};
 }
 
 template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce,
@@ -35,8 +35,8 @@ constexpr auto ol_item(Nodes&&... nodes) noexcept {
 
 int main() {
     {
-        ::pltxt2htm::details::MdListTextNode node1{::fast_io::u8string{u8"test"}};
-        ::pltxt2htm::details::MdListTextNode node2{::fast_io::u8string{u8"test"}};
+        ::pltxt2htm::details::MdListLiNode node1{::fast_io::u8string{u8"test"}};
+        ::pltxt2htm::details::MdListLiNode node2{::fast_io::u8string{u8"test"}};
         ::exception::assert_true<false>(node1 == node2);
     }
     {
@@ -47,7 +47,7 @@ int main() {
         ::exception::assert_true<false>(node1 == node2);
     }
     {
-        ::pltxt2htm::details::MdListTextNode text_node{::fast_io::u8string{u8"test"}};
+        ::pltxt2htm::details::MdListLiNode text_node{::fast_io::u8string{u8"test"}};
         ::pltxt2htm::details::MdListUlNode<::pltxt2htm::Contracts::quick_enforce> ul_node{
             ::pltxt2htm::details::MdListAst<::pltxt2htm::Contracts::quick_enforce>{}};
         ::exception::assert_false<false>(

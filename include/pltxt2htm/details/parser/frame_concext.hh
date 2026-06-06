@@ -81,6 +81,12 @@ public:
     ::pltxt2htm::MdTableAlign align;
 };
 
+class ParserFrameContextWithMdLiCheckboxInfo {
+public:
+    ::fast_io::u8string_view pltext;
+    bool checked;
+};
+
 enum class MdTableParsePhase : ::std::size_t {
     header = 0,
     body,
@@ -119,6 +125,7 @@ public:
         ::pltxt2htm::details::ParserFrameContextWithMdLinkInfo<ndebug> md_link;
         ::pltxt2htm::details::ParserFrameContextWithMdListInfo<ndebug> md_list;
         ::pltxt2htm::details::ParserFrameContextWithMdCellInfo md_cell;
+        ::pltxt2htm::details::ParserFrameContextWithMdLiCheckboxInfo md_li_checkbox;
         ::pltxt2htm::details::ParserFrameContextWithMdTableInfo<ndebug> md_table;
     };
 
@@ -172,6 +179,12 @@ public:
           kind{node_type} {
     }
 
+    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithMdLiCheckboxInfo&& md_li_checkbox_context,
+                             ::pltxt2htm::NodeKind node_type) noexcept
+        : md_li_checkbox{::std::move(md_li_checkbox_context)},
+          kind{node_type} {
+    }
+
     constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithMdTableInfo<ndebug>&& md_table_context,
                              ::pltxt2htm::NodeKind node_type) noexcept
         : md_table{::std::move(md_table_context)},
@@ -212,6 +225,10 @@ public:
         case ::pltxt2htm::NodeKind::md_ul:
         case ::pltxt2htm::NodeKind::md_ol: {
             ::std::construct_at(::std::addressof(this->md_list), ::std::move(other.md_list));
+            return;
+        }
+        case ::pltxt2htm::NodeKind::md_li_checkbox: {
+            ::std::construct_at(::std::addressof(this->md_li_checkbox), ::std::move(other.md_li_checkbox));
             return;
         }
         case ::pltxt2htm::NodeKind::text:
@@ -694,6 +711,10 @@ public:
             ::std::destroy_at(::std::addressof(this->md_table));
             return;
         }
+        case ::pltxt2htm::NodeKind::md_li_checkbox: {
+            ::std::destroy_at(::std::addressof(this->md_li_checkbox));
+            return;
+        }
         case ::pltxt2htm::NodeKind::md_thead:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_tbody:
@@ -774,6 +795,13 @@ public:
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
               ::pltxt2htm::details::ParserFrameContextWithMdLinkInfo{.pltext = pltext_, .link = ::std::move(link_)},
               ::pltxt2htm::NodeKind::md_link}} {
+    }
+
+    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_, bool checked_,
+                                          ::pltxt2htm::NodeKind node_type) noexcept
+        : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
+              ::pltxt2htm::details::ParserFrameContextWithMdLiCheckboxInfo{pltext_, checked_}, node_type}} {
+        pltxt2htm_assert(node_type == ::pltxt2htm::NodeKind::md_li_checkbox, u8"mismatch node type");
     }
 
     constexpr explicit ParserFrameContext(::pltxt2htm::NodeKind node_type,
@@ -959,6 +987,9 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_latex_block: {
             return context_data_ref.pltext.pltext;
+        }
+        case ::pltxt2htm::NodeKind::md_li_checkbox: {
+            return context_data_ref.md_li_checkbox.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_color:
             [[fallthrough]];
@@ -1175,6 +1206,12 @@ public:
                              context_data_ref.kind == ::pltxt2htm::NodeKind::md_td,
                          u8"context kind mismatch");
         return context_data_ref.md_cell.align;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_checked(this auto&& self) noexcept -> bool {
+        pltxt2htm_assert(self.context_data.kind == ::pltxt2htm::NodeKind::md_li_checkbox, u8"context kind mismatch");
+        return self.context_data.md_li_checkbox.checked;
     }
 };
 

@@ -707,6 +707,8 @@ entry:
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::html_ol, subast.begin()));
             goto entry;
         }
+        case ::pltxt2htm::NodeKind::md_li_checkbox:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_li:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_li: {

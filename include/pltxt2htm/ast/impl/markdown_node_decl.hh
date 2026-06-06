@@ -713,6 +713,36 @@ public:
 };
 
 /**
+ * @brief Markdown checkbox list item (- [ ] / - [x])
+ */
+template<::pltxt2htm::Contracts ndebug>
+class MdLiCheckbox {
+    ::pltxt2htm::Ast<ndebug> subast{};
+    bool checked_{};
+
+public:
+    constexpr MdLiCheckbox() noexcept = delete;
+    constexpr explicit MdLiCheckbox(::pltxt2htm::Ast<ndebug>&& subast_, bool checked) noexcept;
+    constexpr MdLiCheckbox(::pltxt2htm::MdLiCheckbox<ndebug> const&) noexcept = delete;
+    constexpr MdLiCheckbox(::pltxt2htm::MdLiCheckbox<ndebug>&&) noexcept;
+    constexpr ~MdLiCheckbox() noexcept;
+    constexpr auto operator=(::pltxt2htm::MdLiCheckbox<ndebug> const&) noexcept
+        -> ::pltxt2htm::MdLiCheckbox<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::MdLiCheckbox<ndebug>& self, ::pltxt2htm::MdLiCheckbox<ndebug>&&) noexcept
+        -> ::pltxt2htm::MdLiCheckbox<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+
+    [[nodiscard]]
+    constexpr auto is_checked(this auto&& self) noexcept -> bool {
+        return self.checked_;
+    }
+};
+
+/**
  * @brief Inline LaTeX math (delimited by $...$)
  */
 template<::pltxt2htm::Contracts ndebug>

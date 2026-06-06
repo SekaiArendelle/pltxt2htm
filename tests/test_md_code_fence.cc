@@ -174,12 +174,8 @@ print("Hello World")
         // 5 backticks: first 3 are code span delimiter, remaining 2 are content
         // 0xE0 is an incomplete UTF-8 leading byte → gets replaced with U+FFFD
         // space inside <code> becomes &nbsp;
-        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
-            u8"`````\xe0 )\uBB6D"
-        );
-        auto answer = ::fast_io::u8string_view{
-            u8"<code>``\uFFFD&nbsp;)\uBB6D</code>"
-        };
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"`````\xe0 )\uBB6D");
+        auto answer = ::fast_io::u8string_view{u8"<code>``\uFFFD&nbsp;)\uBB6D</code>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

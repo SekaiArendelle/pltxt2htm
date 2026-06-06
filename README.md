@@ -49,7 +49,6 @@ markdown extension based on [commonmark](https://spec.commonmark.org/0.31.2/)
 * Rough support for markdown [block quotes](https://spec.commonmark.org/0.31.2/#block-quotes) but common usage is well tested.
 * Rough support for markdown [links](https://spec.commonmark.org/0.31.2/#links) but common usage is well tested.
 * Rough support for markdown [lists](https://spec.commonmark.org/0.31.2/#lists) but common usage is well tested.
-* `Checkbox` and `mermaid` are not planned yet.
 
 Show all supported features in [tests](./tests/)
 

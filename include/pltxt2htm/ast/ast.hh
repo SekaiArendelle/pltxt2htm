@@ -130,6 +130,7 @@ class PlTxtNode {
         ::pltxt2htm::MdUl<ndebug> md_ul_node;
         ::pltxt2htm::MdOl<ndebug> md_ol_node;
         ::pltxt2htm::MdLi<ndebug> md_li_node;
+        ::pltxt2htm::MdLiCheckbox<ndebug> md_li_checkbox_node;
         ::pltxt2htm::MdTable<ndebug> md_table_node;
         ::pltxt2htm::MdThead<ndebug> md_thead_node;
         ::pltxt2htm::MdTbody<ndebug> md_tbody_node;
@@ -708,6 +709,11 @@ public:
           node_kind{::pltxt2htm::NodeKind::md_li} {
     }
 
+    constexpr PlTxtNode(::pltxt2htm::MdLiCheckbox<ndebug>&& node) noexcept
+        : md_li_checkbox_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::md_li_checkbox} {
+    }
+
     constexpr PlTxtNode(::pltxt2htm::MdTable<ndebug>&& node) noexcept
         : md_table_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::md_table} {
@@ -1280,6 +1286,11 @@ public:
             new (::std::addressof(md_li_node))::pltxt2htm::MdLi(::std::move(other.md_li_node));
             break;
         }
+        case ::pltxt2htm::NodeKind::md_li_checkbox: {
+            new (::std::addressof(md_li_checkbox_node))::pltxt2htm::MdLiCheckbox(
+                ::std::move(other.md_li_checkbox_node));
+            break;
+        }
         case ::pltxt2htm::NodeKind::md_table: {
             new (::std::addressof(md_table_node))::pltxt2htm::MdTable(::std::move(other.md_table_node));
             break;
@@ -1765,6 +1776,10 @@ public:
             md_li_node.~MdLi();
             break;
         }
+        case ::pltxt2htm::NodeKind::md_li_checkbox: {
+            md_li_checkbox_node.~MdLiCheckbox();
+            break;
+        }
         case ::pltxt2htm::NodeKind::md_table: {
             md_table_node.~MdTable();
             break;
@@ -2068,6 +2083,9 @@ public:
         case ::pltxt2htm::NodeKind::md_li: {
             return ::std::forward_like<decltype(self)>(self.md_li_node).get_subast();
         }
+        case ::pltxt2htm::NodeKind::md_li_checkbox: {
+            return ::std::forward_like<decltype(self)>(self.md_li_checkbox_node).get_subast();
+        }
         case ::pltxt2htm::NodeKind::md_table: {
             return ::std::forward_like<decltype(self)>(self.md_table_node).get_subast();
         }
@@ -2125,6 +2143,13 @@ public:
             }
         }
     }
+
+    [[nodiscard]]
+    constexpr auto is_checked(this auto&& self) noexcept -> bool {
+        bool const is_checkbox_type{self.node_kind == ::pltxt2htm::NodeKind::md_li_checkbox};
+        pltxt2htm_assert(is_checkbox_type, u8"node kind mismatch");
+        return self.md_li_checkbox_node.is_checked();
+    };
 };
 
 } // namespace pltxt2htm

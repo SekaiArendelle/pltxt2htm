@@ -134,7 +134,8 @@ template<::pltxt2htm::Contracts ndebug>
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-constexpr auto vector_index(::pltxt2htm::details::is_fast_io_vector auto&& vec, ::std::size_t i) noexcept -> decltype(auto) {
+constexpr auto vector_index(::pltxt2htm::details::is_fast_io_vector auto&& vec, ::std::size_t i) noexcept
+    -> decltype(auto) {
     bool const is_not_out_of_bound{i < vec.size()};
     pltxt2htm_assert(is_not_out_of_bound, u8"Index of vector out of bound");
 
