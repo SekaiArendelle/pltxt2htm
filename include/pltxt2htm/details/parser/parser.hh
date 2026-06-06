@@ -1889,11 +1889,54 @@ entry:
                     [[fallthrough]];
                 case ::pltxt2htm::NodeKind::md_atx_h6:
                     [[fallthrough]];
+                case ::pltxt2htm::NodeKind::text:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeKind::md_li:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeKind::md_li_checkbox:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeKind::md_single_emphasis_asterisk:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeKind::md_single_emphasis_underscore:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeKind::md_double_emphasis_asterisk:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeKind::md_double_emphasis_underscore:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeKind::md_code_span_1_backtick:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeKind::md_code_span_2_backtick:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeKind::md_code_span_3_backtick:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeKind::md_latex_inline:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeKind::md_latex_block:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeKind::md_table:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeKind::md_thead:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeKind::md_tbody:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeKind::md_tr:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeKind::md_th:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeKind::md_td: {
+                    // relate to 0041.fuzzing-crash3
+                    // any tag contains `</` context would hit this branch
+                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                    ++current_index;
+                    continue;
+                }
                 case ::pltxt2htm::NodeKind::u8char:
                     [[fallthrough]];
                 case ::pltxt2htm::NodeKind::invalid_u8char:
-                    [[fallthrough]];
-                case ::pltxt2htm::NodeKind::text:
                     [[fallthrough]];
                 case ::pltxt2htm::NodeKind::line_break:
                     [[fallthrough]];
@@ -1911,15 +1954,27 @@ entry:
                     [[fallthrough]];
                 case ::pltxt2htm::NodeKind::tab:
                     [[fallthrough]];
+                case ::pltxt2htm::NodeKind::md_hr:
+                    [[fallthrough]];
                 case ::pltxt2htm::NodeKind::html_br:
                     [[fallthrough]];
                 case ::pltxt2htm::NodeKind::html_hr:
                     [[fallthrough]];
                 case ::pltxt2htm::NodeKind::html_col:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeKind::md_li:
+                case ::pltxt2htm::NodeKind::md_image:
                     [[fallthrough]];
-                case ::pltxt2htm::NodeKind::md_li_checkbox:
+                case ::pltxt2htm::NodeKind::pl_macro_project:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeKind::pl_macro_visitor:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeKind::pl_macro_author:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeKind::pl_macro_coauthors:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeKind::md_ul:
+                    [[fallthrough]];
+                case ::pltxt2htm::NodeKind::md_ol:
                     [[fallthrough]];
                 case ::pltxt2htm::NodeKind::md_escape_backslash:
                     [[fallthrough]];
@@ -1984,61 +2039,6 @@ entry:
                 case ::pltxt2htm::NodeKind::md_escape_right_brace:
                     [[fallthrough]];
                 case ::pltxt2htm::NodeKind::md_escape_tilde:
-                    [[fallthrough]];
-                case ::pltxt2htm::NodeKind::md_hr:
-                    [[fallthrough]];
-                case ::pltxt2htm::NodeKind::md_single_emphasis_asterisk:
-                    [[fallthrough]];
-                case ::pltxt2htm::NodeKind::md_single_emphasis_underscore:
-                    [[fallthrough]];
-                case ::pltxt2htm::NodeKind::md_double_emphasis_asterisk:
-                    [[fallthrough]];
-                case ::pltxt2htm::NodeKind::md_double_emphasis_underscore:
-                    [[fallthrough]];
-                case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk:
-                    [[fallthrough]];
-                case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore:
-                    [[fallthrough]];
-                case ::pltxt2htm::NodeKind::md_code_span_1_backtick:
-                    [[fallthrough]];
-                case ::pltxt2htm::NodeKind::md_code_span_2_backtick:
-                    [[fallthrough]];
-                case ::pltxt2htm::NodeKind::md_code_span_3_backtick:
-                    [[fallthrough]];
-                case ::pltxt2htm::NodeKind::md_latex_inline:
-                    [[fallthrough]];
-                case ::pltxt2htm::NodeKind::md_latex_block:
-                    [[fallthrough]];
-                case ::pltxt2htm::NodeKind::md_table:
-                    [[fallthrough]];
-                case ::pltxt2htm::NodeKind::md_thead:
-                    [[fallthrough]];
-                case ::pltxt2htm::NodeKind::md_tbody:
-                    [[fallthrough]];
-                case ::pltxt2htm::NodeKind::md_tr:
-                    [[fallthrough]];
-                case ::pltxt2htm::NodeKind::md_th:
-                    [[fallthrough]];
-                case ::pltxt2htm::NodeKind::md_td: {
-                    // relate to 0041.fuzzing-crash3
-                    // any tag contains `</` context would hit this branch
-                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
-                    ++current_index;
-                    continue;
-                }
-                case ::pltxt2htm::NodeKind::md_image:
-                    [[fallthrough]];
-                case ::pltxt2htm::NodeKind::pl_macro_project:
-                    [[fallthrough]];
-                case ::pltxt2htm::NodeKind::pl_macro_visitor:
-                    [[fallthrough]];
-                case ::pltxt2htm::NodeKind::pl_macro_author:
-                    [[fallthrough]];
-                case ::pltxt2htm::NodeKind::pl_macro_coauthors:
-                    [[fallthrough]];
-                case ::pltxt2htm::NodeKind::md_ul:
-                    [[fallthrough]];
-                case ::pltxt2htm::NodeKind::md_ol:
                     [[unlikely]] {
                         ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
                     }
