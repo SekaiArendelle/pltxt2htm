@@ -4,7 +4,7 @@
 **/venv/
 **/.venv/
 dist/
-**/build/
+**/build*/
 *.egg-info/
 **/__pycache__/
 **/*.pyc
@@ -81,3 +81,6 @@ csharp/bin/
 
 # pixi
 **/.pixi
+
+# OpenCode
+.opencode
