@@ -612,13 +612,8 @@ entry:
             }
             goto entry;
         }
-        case ::pltxt2htm::NodeKind::md_li: {
-            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
-                                                                              ::pltxt2htm::NodeKind::html_li, 0));
-            ++current_index;
-            result.append(u8"<li>");
-            goto entry;
-        }
+        case ::pltxt2htm::NodeKind::md_li:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_li: {
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::html_li, 0));
