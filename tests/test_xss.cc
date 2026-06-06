@@ -427,6 +427,63 @@ int main() {
         assert_no_raw_xss_tags(to_view(html));
     }
     {
+        // Checkbox emits a legitimate <input> tag, so we verify script/iframe/object/svg
+        // are escaped rather than using assert_no_raw_xss_tags (which flags <input>).
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"- [ ] <script>alert(1)</script>");
+        auto v = to_view(html);
+        ::pltxt2htm_test::assert_true(contains_u8(v, u8"&lt;script&gt;alert(1)&lt;/script&gt;"));
+        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"script"));
+        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"iframe"));
+        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"object"));
+        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"svg"));
+        // Also verify standard checkbox <input> is present
+        ::pltxt2htm_test::assert_true(contains_u8(v, u8"<input type=\"checkbox\" disabled>"));
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"- [x] <script>alert(1)</script>");
+        auto v = to_view(html);
+        ::pltxt2htm_test::assert_true(contains_u8(v, u8"&lt;script&gt;alert(1)&lt;/script&gt;"));
+        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"script"));
+        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"iframe"));
+        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"object"));
+        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"svg"));
+        // Checked variant
+        ::pltxt2htm_test::assert_true(contains_u8(v, u8"<input type=\"checkbox\" disabled checked>"));
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"- [X] <script>alert(1)</script>");
+        auto v = to_view(html);
+        ::pltxt2htm_test::assert_true(contains_u8(v, u8"&lt;script&gt;alert(1)&lt;/script&gt;"));
+        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"script"));
+        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"iframe"));
+        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"object"));
+        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"svg"));
+        // Uppercase X also checked
+        ::pltxt2htm_test::assert_true(contains_u8(v, u8"<input type=\"checkbox\" disabled checked>"));
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"- [x] <script>alert(1)</script>");
+        auto v = to_view(html);
+        ::pltxt2htm_test::assert_true(contains_u8(v, u8"&lt;script&gt;alert(1)&lt;/script&gt;"));
+        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"script"));
+        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"iframe"));
+        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"object"));
+        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"svg"));
+        // Checked variant
+        ::pltxt2htm_test::assert_true(contains_u8(v, u8"<input type=\"checkbox\" disabled checked>"));
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"- [X] <script>alert(1)</script>");
+        auto v = to_view(html);
+        ::pltxt2htm_test::assert_true(contains_u8(v, u8"&lt;script&gt;alert(1)&lt;/script&gt;"));
+        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"script"));
+        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"iframe"));
+        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"object"));
+        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"svg"));
+        // Uppercase X also checked
+        ::pltxt2htm_test::assert_true(contains_u8(v, u8"<input type=\"checkbox\" disabled checked>"));
+    }
+    {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"> <script>alert(1)</script>");
         assert_no_raw_xss_tags(to_view(html));
     }

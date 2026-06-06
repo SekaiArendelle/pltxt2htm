@@ -189,7 +189,9 @@ entry:
             goto entry;
         }
         switch (frame_iter->get_type()) {
-        case ::pltxt2htm::details::MdListNodeType::text: {
+        case ::pltxt2htm::details::MdListNodeType::md_li:
+            [[fallthrough]];
+        case ::pltxt2htm::details::MdListNodeType::md_li_checkbox: {
             {
                 auto const node_kind =
                     frame_iter->is_checkbox() ? ::pltxt2htm::NodeKind::md_li_checkbox : ::pltxt2htm::NodeKind::md_li;
@@ -254,7 +256,9 @@ entry:
             goto entry;
         }
         switch (frame_iter->get_type()) {
-        case ::pltxt2htm::details::MdListNodeType::text: {
+        case ::pltxt2htm::details::MdListNodeType::md_li:
+            [[fallthrough]];
+        case ::pltxt2htm::details::MdListNodeType::md_li_checkbox: {
             {
                 auto const node_kind =
                     frame_iter->is_checkbox() ? ::pltxt2htm::NodeKind::md_li_checkbox : ::pltxt2htm::NodeKind::md_li;
