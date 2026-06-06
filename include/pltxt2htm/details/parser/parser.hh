@@ -193,7 +193,7 @@ entry:
             [[fallthrough]];
         case ::pltxt2htm::details::MdListNodeType::md_li_checkbox: {
             {
-                if (frame_iter->is_checkbox()) {
+                if (frame_iter->get_type() == ::pltxt2htm::details::MdListNodeType::md_li_checkbox) {
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                         frame_iter->get_text_view(), frame_iter->is_checked(), ::pltxt2htm::NodeKind::md_li_checkbox));
                 }
@@ -260,7 +260,7 @@ entry:
             [[fallthrough]];
         case ::pltxt2htm::details::MdListNodeType::md_li_checkbox: {
             {
-                if (frame_iter->is_checkbox()) {
+                if (frame_iter->get_type() == ::pltxt2htm::details::MdListNodeType::md_li_checkbox) {
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                         frame_iter->get_text_view(), frame_iter->is_checked(), ::pltxt2htm::NodeKind::md_li_checkbox));
                 }

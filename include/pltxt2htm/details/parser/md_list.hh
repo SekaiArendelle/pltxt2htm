@@ -392,11 +392,6 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto is_checkbox(this auto&& self) noexcept -> bool {
-        return self.type_ == ::pltxt2htm::details::MdListNodeType::md_li_checkbox;
-    }
-
-    [[nodiscard]]
     constexpr auto is_checked(this auto&& self) noexcept -> bool {
         switch (self.type_) /* -Werror=switch */ {
         case ::pltxt2htm::details::MdListNodeType::md_li_checkbox: {
