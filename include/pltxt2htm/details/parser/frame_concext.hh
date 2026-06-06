@@ -318,6 +318,8 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_image:
             [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_li_checkbox:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_li:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_latex_inline:
@@ -584,6 +586,8 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_image:
             [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_li_checkbox:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_li:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_latex_inline:
@@ -715,7 +719,6 @@ class ParserFrameContext {
 public:
     ::std::size_t current_index{};
     ::pltxt2htm::Ast<ndebug> subast{};
-    bool checkbox{};
     bool checked{};
 
     constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_,
@@ -807,7 +810,6 @@ public:
         : context_data{::std::move(other.context_data)},
           current_index{other.current_index},
           subast(::std::move(other.subast)),
-          checkbox{other.checkbox},
           checked{other.checked} {
     }
 
@@ -956,6 +958,8 @@ public:
         case ::pltxt2htm::NodeKind::md_del:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_image:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_li_checkbox:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_li:
             [[fallthrough]];

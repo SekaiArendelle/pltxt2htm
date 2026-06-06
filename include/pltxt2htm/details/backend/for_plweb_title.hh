@@ -316,6 +316,8 @@ entry:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_ol:
             [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_li_checkbox:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_li:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_code:

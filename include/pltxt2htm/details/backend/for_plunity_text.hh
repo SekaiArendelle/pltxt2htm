@@ -471,6 +471,8 @@ entry:
                 u8"Invalid tag type");
             [[fallthrough]];
         }
+        case ::pltxt2htm::NodeKind::md_li_checkbox:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_li: {
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::html_li, 0));
@@ -490,7 +492,7 @@ entry:
             }
             else if (nested_tag_type == ::pltxt2htm::NodeKind::html_ul ||
                      nested_tag_type == ::pltxt2htm::NodeKind::md_ul) {
-                if (node.get_node_kind() == ::pltxt2htm::NodeKind::md_li && node.is_checkbox()) {
+                if (node.is_checkbox()) {
                     if (node.is_checked()) {
                         result.append(u8"[x] ");
                     }
@@ -958,6 +960,8 @@ entry:
             --list_nesting_depth;
             goto entry;
         }
+        case ::pltxt2htm::NodeKind::md_li_checkbox:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_li:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_li: {

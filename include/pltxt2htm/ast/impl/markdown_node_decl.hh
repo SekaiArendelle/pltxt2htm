@@ -695,13 +695,10 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class MdLi {
     ::pltxt2htm::Ast<ndebug> subast{};
-    bool checkbox_{};
-    bool checked_{};
 
 public:
     constexpr MdLi() noexcept = delete;
     constexpr explicit MdLi(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr explicit MdLi(::pltxt2htm::Ast<ndebug>&& subast_, bool checkbox, bool checked) noexcept;
     constexpr MdLi(::pltxt2htm::MdLi<ndebug> const&) noexcept = delete;
     constexpr MdLi(::pltxt2htm::MdLi<ndebug>&&) noexcept;
     constexpr ~MdLi() noexcept;
@@ -713,10 +710,30 @@ public:
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
+};
+
+/**
+ * @brief Markdown checkbox list item (- [ ] / - [x])
+ */
+template<::pltxt2htm::Contracts ndebug>
+class MdLiCheckbox {
+    ::pltxt2htm::Ast<ndebug> subast{};
+    bool checked_{};
+
+public:
+    constexpr MdLiCheckbox() noexcept = delete;
+    constexpr explicit MdLiCheckbox(::pltxt2htm::Ast<ndebug>&& subast_, bool checked) noexcept;
+    constexpr MdLiCheckbox(::pltxt2htm::MdLiCheckbox<ndebug> const&) noexcept = delete;
+    constexpr MdLiCheckbox(::pltxt2htm::MdLiCheckbox<ndebug>&&) noexcept;
+    constexpr ~MdLiCheckbox() noexcept;
+    constexpr auto operator=(::pltxt2htm::MdLiCheckbox<ndebug> const&) noexcept
+        -> ::pltxt2htm::MdLiCheckbox<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::MdLiCheckbox<ndebug>& self, ::pltxt2htm::MdLiCheckbox<ndebug>&&) noexcept
+        -> ::pltxt2htm::MdLiCheckbox<ndebug>&;
 
     [[nodiscard]]
-    constexpr auto is_checkbox(this auto&& self) noexcept -> bool {
-        return self.checkbox_;
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
     }
 
     [[nodiscard]]

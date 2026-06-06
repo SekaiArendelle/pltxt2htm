@@ -599,19 +599,24 @@ entry:
             result.append(u8"<ol>");
             goto entry;
         }
+        case ::pltxt2htm::NodeKind::md_li_checkbox: {
+            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
+                                                                              ::pltxt2htm::NodeKind::html_li, 0));
+            ++current_index;
+            result.append(u8"<li>");
+            if (node.is_checked()) {
+                result.append(u8"<input type=\"checkbox\" disabled checked>");
+            }
+            else {
+                result.append(u8"<input type=\"checkbox\" disabled>");
+            }
+            goto entry;
+        }
         case ::pltxt2htm::NodeKind::md_li: {
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::html_li, 0));
             ++current_index;
             result.append(u8"<li>");
-            if (node.is_checkbox()) {
-                if (node.is_checked()) {
-                    result.append(u8"<input type=\"checkbox\" disabled checked>");
-                }
-                else {
-                    result.append(u8"<input type=\"checkbox\" disabled>");
-                }
-            }
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_li: {

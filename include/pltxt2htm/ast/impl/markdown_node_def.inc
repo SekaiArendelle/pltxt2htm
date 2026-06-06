@@ -358,13 +358,6 @@ constexpr ::pltxt2htm::MdLi<ndebug>::MdLi(::pltxt2htm::Ast<ndebug>&& subast_) no
 }
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdLi<ndebug>::MdLi(::pltxt2htm::Ast<ndebug>&& subast_, bool checkbox, bool checked) noexcept
-    : subast(::std::move(subast_)),
-      checkbox_(checkbox),
-      checked_(checked) {
-}
-
-template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdLi<ndebug>::MdLi(::pltxt2htm::MdLi<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdLi<ndebug>::~MdLi() noexcept = default;
@@ -372,6 +365,21 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::MdLi<ndebug>::operator=(this ::pltxt2htm::MdLi<ndebug>& self,
                                                     ::pltxt2htm::MdLi<ndebug>&&) noexcept
     -> ::pltxt2htm::MdLi<ndebug>& = default;
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdLiCheckbox<ndebug>::MdLiCheckbox(::pltxt2htm::Ast<ndebug>&& subast_, bool checked) noexcept
+    : subast(::std::move(subast_)),
+      checked_(checked) {
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdLiCheckbox<ndebug>::MdLiCheckbox(::pltxt2htm::MdLiCheckbox<ndebug>&&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdLiCheckbox<ndebug>::~MdLiCheckbox() noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::MdLiCheckbox<ndebug>::operator=(this ::pltxt2htm::MdLiCheckbox<ndebug>& self,
+                                                            ::pltxt2htm::MdLiCheckbox<ndebug>&&) noexcept
+    -> ::pltxt2htm::MdLiCheckbox<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdLatexInline<ndebug>::MdLatexInline(::pltxt2htm::Ast<ndebug>&& subast_) noexcept

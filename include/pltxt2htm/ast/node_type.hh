@@ -170,6 +170,7 @@ enum class NodeKind : ::std::size_t {
     md_ul, ///< Unordered list marker
     md_ol, ///< Ordered list marker
     md_li, ///< List item
+    md_li_checkbox, ///< Checkbox list item (- [ ] / - [x])
 
     // Markdown table nodes (markdown pipe-table syntax)
     md_table, ///< Markdown table: | ... |
