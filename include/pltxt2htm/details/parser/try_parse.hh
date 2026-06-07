@@ -831,7 +831,7 @@ constexpr auto try_parse_pltext_line_break(::fast_io::u8string_view pltext) noex
 struct TryParseMdAtxHeadingResult {
     ::std::size_t start_index; ///< Start index of the heading content.
     ::std::size_t sublength; ///< Length of the heading content.
-    ::std::size_t forward_index; ///< Index to continue parsing from.
+    ::std::size_t advance_count; ///< Number of characters consumed.
     ::pltxt2htm::NodeKind md_atx_heading_type; ///< Type of the ATX heading.
 };
 
@@ -924,7 +924,7 @@ constexpr auto try_parse_md_atx_heading(::fast_io::u8string_view pltext) noexcep
     return ::pltxt2htm::details::TryParseMdAtxHeadingResult{
         .start_index = start_index,
         .sublength = end_index - start_index,
-        .forward_index = end_index + extra_length,
+        .advance_count = end_index + extra_length,
         .md_atx_heading_type = static_cast<::pltxt2htm::NodeKind>(md_atx_heading_type)};
 }
 
@@ -1027,7 +1027,7 @@ constexpr auto try_parse_md_thematic_break(::fast_io::u8string_view text) noexce
 
 template<::pltxt2htm::Contracts ndebug>
 struct SimplyParsePLtextResult {
-    ::std::size_t forward_index; ///< Index to continue parsing from.
+    ::std::size_t advance_count; ///< Number of characters consumed.
     ::pltxt2htm::Ast<ndebug> ast; ///< Parsed AST.
 };
 
@@ -1082,12 +1082,12 @@ constexpr auto simply_parse_pltext(::fast_io::u8string_view pltext) noexcept
             continue;
         }
         else if (chr == u8'\'') {
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::SingleQuotationMark{}));
+            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::SingleQuote{}));
             ++current_index;
             continue;
         }
         else if (chr == u8'\"') {
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::DoubleQuotationMark{}));
+            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::DoubleQuote{}));
             ++current_index;
             continue;
         }
@@ -1125,20 +1125,20 @@ constexpr auto simply_parse_pltext(::fast_io::u8string_view pltext) noexcept
             continue;
         }
         else {
-            auto forward_index = ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
+            auto advance_count = ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), ast);
-            current_index += forward_index;
+            current_index += advance_count;
             continue;
         }
         ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
     }
-    return {.forward_index = current_index, .ast = ::std::move(ast)};
+    return {.advance_count = current_index, .ast = ::std::move(ast)};
 }
 
 template<::pltxt2htm::Contracts ndebug>
 struct TryParseMdCodeFenceResult {
     ::pltxt2htm::PlTxtNode<ndebug> node; ///< Parsed code fence node.
-    ::std::size_t forward_index; ///< Index to continue parsing from.
+    ::std::size_t advance_count; ///< Number of characters consumed.
 };
 
 /**
@@ -1210,14 +1210,14 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
                     return ::pltxt2htm::details::TryParseMdCodeFenceResult<ndebug>{
                         .node =
                             ::pltxt2htm::MdCodeFenceBacktick<ndebug>{::pltxt2htm::Ast<ndebug>{}, ::std::move(opt_lang)},
-                        .forward_index = current_index + 3,
+                        .advance_count = current_index + 3,
                     };
                 }
                 else {
                     return ::pltxt2htm::details::TryParseMdCodeFenceResult<ndebug>{
                         .node =
                             ::pltxt2htm::MdCodeFenceTilde<ndebug>{::pltxt2htm::Ast<ndebug>{}, ::std::move(opt_lang)},
-                        .forward_index = current_index + 3,
+                        .advance_count = current_index + 3,
                     };
                 }
             }
@@ -1255,17 +1255,17 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
     ::pltxt2htm::Ast<ndebug> ast{};
     if constexpr (is_backtick) {
         constexpr auto end_string = ::pltxt2htm::details::concat(::pltxt2htm::details::U8LiteralString{u8"\n"}, fence);
-        auto&& [forward_index, ast_] = ::pltxt2htm::details::simply_parse_pltext<ndebug, end_string>(
+        auto&& [advance_count, ast_] = ::pltxt2htm::details::simply_parse_pltext<ndebug, end_string>(
             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
         ast = ::std::move(ast_);
-        current_index += forward_index;
+        current_index += advance_count;
     }
     else {
         constexpr auto end_string = ::pltxt2htm::details::concat(::pltxt2htm::details::U8LiteralString{u8"\n"}, fence);
-        auto&& [forward_index, ast_] = ::pltxt2htm::details::simply_parse_pltext<ndebug, end_string>(
+        auto&& [advance_count, ast_] = ::pltxt2htm::details::simply_parse_pltext<ndebug, end_string>(
             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
         ast = ::std::move(ast_);
-        current_index += forward_index;
+        current_index += advance_count;
     }
 
     ::exception::optional<::fast_io::u8string> opt_lang{::exception::nullopt_t{}};
@@ -1275,12 +1275,12 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
     if constexpr (is_backtick) {
         return ::pltxt2htm::details::TryParseMdCodeFenceResult<ndebug>{
             .node = ::pltxt2htm::MdCodeFenceBacktick<ndebug>{::std::move(ast), ::std::move(opt_lang)},
-            .forward_index = current_index};
+            .advance_count = current_index};
     }
     else {
         return ::pltxt2htm::details::TryParseMdCodeFenceResult<ndebug>{
             .node = ::pltxt2htm::MdCodeFenceTilde<ndebug>{::std::move(ast), ::std::move(opt_lang)},
-            .forward_index = current_index};
+            .advance_count = current_index};
     }
 }
 
@@ -1364,7 +1364,7 @@ constexpr auto try_parse_md_inlines(::fast_io::u8string_view pltext) noexcept ->
 }
 
 struct TryParseMdBlockQuotesResult {
-    ::std::size_t forward_index; ///< Index to continue parsing from.
+    ::std::size_t advance_count; ///< Number of characters consumed.
     ::fast_io::u8string subpltext; ///< Parsed block quote content.
 };
 
@@ -1438,13 +1438,13 @@ constexpr auto try_parse_md_block_quotes(::fast_io::u8string_view pltext) noexce
     if (subpltext.back_unchecked() == u8'\n') {
         subpltext.pop_back();
     }
-    return ::pltxt2htm::details::TryParseMdBlockQuotesResult{.forward_index = current_index,
+    return ::pltxt2htm::details::TryParseMdBlockQuotesResult{.advance_count = current_index,
                                                              .subpltext = ::std::move(subpltext)};
 }
 
 template<::pltxt2htm::Contracts ndebug>
 struct TryParseMdCodeSpanResult {
-    ::std::size_t forward_index; ///< Index to continue parsing from.
+    ::std::size_t advance_count; ///< Number of characters consumed.
     ::pltxt2htm::Ast<ndebug> subast; ///< Parsed AST for the code span.
 };
 
@@ -1475,19 +1475,19 @@ constexpr auto try_parse_md_code_span(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt_t{};
     }
 
-    auto&& [forward_index, ast] = ::pltxt2htm::details::simply_parse_pltext<ndebug, embraced_string>(
+    auto&& [advance_count, ast] = ::pltxt2htm::details::simply_parse_pltext<ndebug, embraced_string>(
         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, embraced_size));
 
     if constexpr (embraced_size == 1) {
-        return ::pltxt2htm::details::TryParseMdCodeSpanResult<ndebug>{.forward_index = forward_index + embraced_size,
+        return ::pltxt2htm::details::TryParseMdCodeSpanResult<ndebug>{.advance_count = advance_count + embraced_size,
                                                                       .subast = ::std::move(ast)};
     }
     else if constexpr (embraced_size == 2) {
-        return ::pltxt2htm::details::TryParseMdCodeSpanResult<ndebug>{.forward_index = forward_index + embraced_size,
+        return ::pltxt2htm::details::TryParseMdCodeSpanResult<ndebug>{.advance_count = advance_count + embraced_size,
                                                                       .subast = ::std::move(ast)};
     }
     else if constexpr (embraced_size == 3) {
-        return ::pltxt2htm::details::TryParseMdCodeSpanResult<ndebug>{.forward_index = forward_index + embraced_size,
+        return ::pltxt2htm::details::TryParseMdCodeSpanResult<ndebug>{.advance_count = advance_count + embraced_size,
                                                                       .subast = ::std::move(ast)};
     }
     else {
@@ -1497,7 +1497,7 @@ constexpr auto try_parse_md_code_span(::fast_io::u8string_view pltext) noexcept
 
 template<::pltxt2htm::Contracts ndebug>
 struct TryParseMdLatexResult {
-    ::std::size_t forward_index; ///< Index to continue parsing from (includes both delimiters).
+    ::std::size_t advance_count; ///< Number of characters consumed (includes both delimiters).
     ::pltxt2htm::Ast<ndebug> subast; ///< Parsed AST inside the latex delimiters.
 };
 
@@ -1554,7 +1554,7 @@ constexpr auto try_parse_md_latex_block_dollar(::fast_io::u8string_view pltext) 
         }
     }
 
-    return ::pltxt2htm::details::TryParseMdLatexResult<ndebug>{.forward_index = close_pos + 4,
+    return ::pltxt2htm::details::TryParseMdLatexResult<ndebug>{.advance_count = close_pos + 4,
                                                                .subast = ::std::move(ast)};
 }
 
@@ -1610,7 +1610,7 @@ constexpr auto try_parse_md_latex_inline(::fast_io::u8string_view pltext) noexce
         idx += forward;
     }
 
-    return ::pltxt2htm::details::TryParseMdLatexResult<ndebug>{.forward_index = close_pos + 2,
+    return ::pltxt2htm::details::TryParseMdLatexResult<ndebug>{.advance_count = close_pos + 2,
                                                                .subast = ::std::move(ast)};
 }
 
@@ -1711,10 +1711,10 @@ constexpr auto make_try_parse_url_result(::fast_io::u8string_view const parsed_u
             ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Ampersand{}));
             break;
         case u8'\'':
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::SingleQuotationMark{}));
+            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::SingleQuote{}));
             break;
         case u8'\"':
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::DoubleQuotationMark{}));
+            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::DoubleQuote{}));
             break;
         case u8'<':
             ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
@@ -1879,7 +1879,7 @@ constexpr auto try_parse_external_tag(
 
 template<::pltxt2htm::Contracts ndebug>
 struct TryParseMdLinkResult {
-    ::std::size_t forward_index;
+    ::std::size_t advance_count;
     ::fast_io::u8string_view link_text;
     ::pltxt2htm::Url<ndebug> link_url;
 };
@@ -1954,14 +1954,14 @@ constexpr auto try_parse_md_link(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt_t{};
     }
     ++current_index;
-    return ::pltxt2htm::details::TryParseMdLinkResult<ndebug>{.forward_index = current_index,
+    return ::pltxt2htm::details::TryParseMdLinkResult<ndebug>{.advance_count = current_index,
                                                               .link_text = pltext.subview(1, link_text_end - 1),
                                                               .link_url = ::std::move(urlobj)};
 }
 
 template<::pltxt2htm::Contracts ndebug>
 struct TryParseMdImageResult {
-    ::std::size_t forward_index;
+    ::std::size_t advance_count;
     ::pltxt2htm::Ast<ndebug> link_text;
     ::pltxt2htm::Url<ndebug> link_url;
 };
@@ -2006,12 +2006,12 @@ constexpr auto try_parse_md_image(::fast_io::u8string_view pltext) noexcept
             continue;
         }
         else if (chr == u8'\'') {
-            link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::SingleQuotationMark{}));
+            link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::SingleQuote{}));
             ++current_index;
             continue;
         }
         else if (chr == u8'\"') {
-            link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::DoubleQuotationMark{}));
+            link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::DoubleQuote{}));
             ++current_index;
             continue;
         }
@@ -2050,9 +2050,9 @@ constexpr auto try_parse_md_image(::fast_io::u8string_view pltext) noexcept
             continue;
         }
         else {
-            auto forward_index = ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
+            auto advance_count = ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), link_text_ast);
-            current_index += forward_index;
+            current_index += advance_count;
             continue;
         }
         ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
@@ -2081,7 +2081,7 @@ constexpr auto try_parse_md_image(::fast_io::u8string_view pltext) noexcept
         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8')') {
         return ::exception::nullopt_t{};
     }
-    return ::pltxt2htm::details::TryParseMdImageResult<ndebug>{.forward_index = current_index + 1,
+    return ::pltxt2htm::details::TryParseMdImageResult<ndebug>{.advance_count = current_index + 1,
                                                                .link_text = ::std::move(link_text_ast),
                                                                .link_url = ::std::move(link_url_result.url)};
 }

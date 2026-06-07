@@ -48,8 +48,8 @@ using ::pltxt2htm::LessThan;
 using ::pltxt2htm::GreaterThan;
 using ::pltxt2htm::Tab;
 using ::pltxt2htm::Ampersand;
-using ::pltxt2htm::SingleQuotationMark;
-using ::pltxt2htm::DoubleQuotationMark;
+using ::pltxt2htm::SingleQuote;
+using ::pltxt2htm::DoubleQuote;
 
 // html_node
 using ::pltxt2htm::HtmlBr;

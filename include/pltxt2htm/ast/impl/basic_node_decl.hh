@@ -51,13 +51,13 @@ class Ampersand {};
  * @brief Single quotation mark node
  * @details Represents the "'" character.
  */
-class SingleQuotationMark {};
+class SingleQuote {};
 
 /**
  * @brief Double quotation mark node
  * @details Represents the '"' character.
  */
-class DoubleQuotationMark {};
+class DoubleQuote {};
 
 /**
  * @brief UTF-8 character node
