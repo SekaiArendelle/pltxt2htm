@@ -17,7 +17,7 @@ namespace pltxt2htm::details {
  */
 struct TryParseMdTableRowResult {
     ::fast_io::vector<::fast_io::u8string> cells;
-    ::std::size_t forward_index;
+    ::std::size_t advance_count;
 };
 
 /**
@@ -292,7 +292,7 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 struct TryParseMdTableRawResult {
     ::pltxt2htm::details::MdTableAstRaw<ndebug> raw_ast; ///< parsed table AST
-    ::std::size_t forward_index; ///< number of characters consumed from input
+    ::std::size_t advance_count; ///< number of characters consumed from input
 };
 
 /**
@@ -387,7 +387,7 @@ constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
     }
 
     return ::pltxt2htm::details::TryParseMdTableRawResult<ndebug>{.raw_ast = ::std::move(raw_ast),
-                                                                  .forward_index = current_index};
+                                                                  .advance_count = current_index};
 }
 
 } // namespace pltxt2htm::details

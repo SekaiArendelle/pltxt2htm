@@ -671,7 +671,7 @@ constexpr auto is_valid_md_ol_list_hierarchy(
  */
 struct TryParseItemResult {
     ::std::size_t space_hierarchy;
-    ::std::size_t forward_index;
+    ::std::size_t advance_count;
     ::fast_io::u8string text;
     ::pltxt2htm::details::MdUlListItemKind item_kind;
     bool checkbox{};
@@ -774,7 +774,7 @@ constexpr auto try_parse_item(
     }
     return ::pltxt2htm::details::TryParseItemResult{
         .space_hierarchy = space_hierarchy,
-        .forward_index = current_index,
+        .advance_count = current_index,
         .text = ::std::move(text),
         .item_kind = item_kind,
         .checkbox = checkbox,
@@ -788,7 +788,7 @@ constexpr auto try_parse_item(
 template<::pltxt2htm::Contracts ndebug>
 struct ToMdListAstResult {
     ::pltxt2htm::details::MdListAst<ndebug> ast;
-    ::std::size_t forward_index;
+    ::std::size_t advance_count;
     ::pltxt2htm::NodeKind item_kind;
 };
 
@@ -801,10 +801,10 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
     // manually managing stack to avoid stack-overflow
     {
         if (auto opt_item = ::pltxt2htm::details::try_parse_item<ndebug>(pltext); opt_item.has_value()) {
-            auto&& [space_hierarchy, forward_index, text, item_kind, checkbox, checked] =
+            auto&& [space_hierarchy, advance_count, text, item_kind, checkbox, checked] =
                 opt_item.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             ::pltxt2htm::details::MdListFrameContext<ndebug> current_frame{item_kind, space_hierarchy, pltext,
-                                                                           forward_index};
+                                                                           advance_count};
             if (checkbox) {
                 current_frame.md_list_ast.emplace_back(
                     ::pltxt2htm::details::MdListLiCheckboxNode(::std::move(text), checked));
@@ -812,10 +812,10 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
             else {
                 current_frame.md_list_ast.emplace_back(::pltxt2htm::details::MdListLiNode(::std::move(text)));
             }
-            if (forward_index >= current_frame.pltext.size()) {
+            if (advance_count >= current_frame.pltext.size()) {
                 return ::pltxt2htm::details::ToMdListAstResult<ndebug>{
                     .ast = ::std::move(current_frame.md_list_ast),
-                    .forward_index = forward_index,
+                    .advance_count = advance_count,
                     .item_kind = item_kind == ::pltxt2htm::details::MdUlListItemKind::ordered_item
                                      ? ::pltxt2htm::NodeKind::md_ol
                                      : ::pltxt2htm::NodeKind::md_ul};
@@ -842,7 +842,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
             if (call_stack.empty()) {
                 return ::pltxt2htm::details::ToMdListAstResult<ndebug>{
                     .ast = ::std::move(frame.md_list_ast),
-                    .forward_index = frame.current_index,
+                    .advance_count = frame.current_index,
                     .item_kind = frame.get_item_kind() == ::pltxt2htm::details::MdUlListItemKind::ordered_item
                                      ? ::pltxt2htm::NodeKind::md_ol
                                      : ::pltxt2htm::NodeKind::md_ul};
@@ -873,9 +873,9 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
             parent_frame.current_index += frame.current_index;
             continue;
         }
-        auto&& [space_hierarchy, forward_index, text, item_kind, checkbox, checked] =
+        auto&& [space_hierarchy, advance_count, text, item_kind, checkbox, checked] =
             opt_list_item.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-        current_index += forward_index;
+        current_index += advance_count;
         if (space_hierarchy > top_frame.space_hierarchy + 1) {
             call_stack.push(::pltxt2htm::details::MdListFrameContext<ndebug>{
                 item_kind, space_hierarchy,
@@ -906,7 +906,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
         if (call_stack.empty()) {
             return ::pltxt2htm::details::ToMdListAstResult<ndebug>{
                 .ast = ::std::move(frame.md_list_ast),
-                .forward_index = pltext_size,
+                .advance_count = pltext_size,
                 .item_kind = frame.get_item_kind() == ::pltxt2htm::details::MdUlListItemKind::ordered_item
                                  ? ::pltxt2htm::NodeKind::md_ol
                                  : ::pltxt2htm::NodeKind::md_ul};

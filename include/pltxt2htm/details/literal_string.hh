@@ -42,7 +42,7 @@ constexpr bool is_literal_string_<::pltxt2htm::details::BasicLiteralString<CharT
 } // namespace details
 
 template<typename T>
-concept is_leteral_string = ::pltxt2htm::details::details::is_literal_string_<::std::remove_cvref_t<T>>;
+concept is_literal_string = ::pltxt2htm::details::details::is_literal_string_<::std::remove_cvref_t<T>>;
 
 template<typename CharType, ::std::size_t N>
 class BasicLiteralString {
@@ -82,7 +82,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto&& operator[](this ::pltxt2htm::details::is_leteral_string auto&& self,
+    constexpr auto&& operator[](this ::pltxt2htm::details::is_literal_string auto&& self,
                                 ::std::size_t index) noexcept {
         if (index >= N) [[unlikely]] {
             ::exception::terminate();
@@ -96,32 +96,32 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto begin(this ::pltxt2htm::details::is_leteral_string auto const& self) noexcept -> const_iterator {
+    constexpr auto begin(this ::pltxt2htm::details::is_literal_string auto const& self) noexcept -> const_iterator {
         return const_iterator(self.data_);
     }
 
     [[nodiscard]]
-    constexpr auto cbegin(this ::pltxt2htm::details::is_leteral_string auto const& self) noexcept -> const_iterator {
+    constexpr auto cbegin(this ::pltxt2htm::details::is_literal_string auto const& self) noexcept -> const_iterator {
         return const_iterator(self.data_);
     }
 
     [[nodiscard]]
-    constexpr auto end(this ::pltxt2htm::details::is_leteral_string auto const& self) noexcept -> const_iterator {
+    constexpr auto end(this ::pltxt2htm::details::is_literal_string auto const& self) noexcept -> const_iterator {
         return const_iterator(self.data_ + N);
     }
 
     [[nodiscard]]
-    constexpr auto cend(this ::pltxt2htm::details::is_leteral_string auto const& self) noexcept -> const_iterator {
+    constexpr auto cend(this ::pltxt2htm::details::is_literal_string auto const& self) noexcept -> const_iterator {
         return const_iterator(self.data_ + N);
     }
 
     [[nodiscard]]
-    constexpr auto data(this ::pltxt2htm::details::is_leteral_string auto const& self) noexcept -> const_pointer {
+    constexpr auto data(this ::pltxt2htm::details::is_literal_string auto const& self) noexcept -> const_pointer {
         return const_pointer(self.data_);
     }
 
     [[nodiscard]]
-    constexpr auto cdata(this ::pltxt2htm::details::is_leteral_string auto const& self) noexcept -> const_pointer {
+    constexpr auto cdata(this ::pltxt2htm::details::is_literal_string auto const& self) noexcept -> const_pointer {
         return const_pointer(self.data_);
     }
 };
@@ -159,7 +159,7 @@ consteval auto uint_to_literal_string() noexcept {
 }
 
 template<typename result_type>
-consteval void concat_memcpy(::pltxt2htm::details::is_leteral_string auto const& args, ::std::size_t& index,
+consteval void concat_memcpy(::pltxt2htm::details::is_literal_string auto const& args, ::std::size_t& index,
                              result_type& result) noexcept {
     for (::std::size_t i{}; i < args.size(); ++i) {
         result[i + index] = args[i];
@@ -173,7 +173,7 @@ consteval void concat_memcpy(::pltxt2htm::details::is_leteral_string auto const&
  * @param[in] args The strings to concatenate
  * @return A new LiteralString containing all input strings concatenated
  */
-template<::pltxt2htm::details::is_leteral_string Arg, ::pltxt2htm::details::is_leteral_string... Args>
+template<::pltxt2htm::details::is_literal_string Arg, ::pltxt2htm::details::is_literal_string... Args>
     requires (::std::is_same_v<typename Arg::value_type, typename Args::value_type> && ...)
 consteval auto concat(Arg const& arg, Args const&... args) noexcept {
     auto result =

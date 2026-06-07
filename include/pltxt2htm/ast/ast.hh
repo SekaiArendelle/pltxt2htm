@@ -32,15 +32,15 @@ class PlTxtNode {
         ::pltxt2htm::Text<ndebug> text_node;
 
         // html node
-        ::pltxt2htm::LineBreak linebreak_node;
+        ::pltxt2htm::LineBreak line_break_node;
         ::pltxt2htm::HtmlBr br_node;
         ::pltxt2htm::Space space_node;
-        ::pltxt2htm::LessThan lessthan_node;
-        ::pltxt2htm::GreaterThan greaterthan_node;
+        ::pltxt2htm::LessThan less_than_node;
+        ::pltxt2htm::GreaterThan greater_than_node;
         ::pltxt2htm::Tab tab_node;
         ::pltxt2htm::Ampersand ampersand_node;
-        ::pltxt2htm::SingleQuotationMark singlequotationmark_node;
-        ::pltxt2htm::DoubleQuotationMark doublequotationmark_node;
+        ::pltxt2htm::SingleQuote single_quote_node;
+        ::pltxt2htm::DoubleQuote double_quote_node;
         ::pltxt2htm::HtmlHr hr_node;
         ::pltxt2htm::HtmlH1<ndebug> h1_node;
         ::pltxt2htm::HtmlH2<ndebug> h2_node;
@@ -240,7 +240,7 @@ public:
     }
 
     constexpr PlTxtNode(::pltxt2htm::LineBreak&& node) noexcept
-        : linebreak_node(::std::move(node)),
+        : line_break_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::line_break} {
     }
 
@@ -255,12 +255,12 @@ public:
     }
 
     constexpr PlTxtNode(::pltxt2htm::LessThan&& node) noexcept
-        : lessthan_node(::std::move(node)),
+        : less_than_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::less_than} {
     }
 
     constexpr PlTxtNode(::pltxt2htm::GreaterThan&& node) noexcept
-        : greaterthan_node(::std::move(node)),
+        : greater_than_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::greater_than} {
     }
 
@@ -274,13 +274,13 @@ public:
           node_kind{::pltxt2htm::NodeKind::ampersand} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::SingleQuotationMark&& node) noexcept
-        : singlequotationmark_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::SingleQuote&& node) noexcept
+        : single_quote_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::single_quote} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::DoubleQuotationMark&& node) noexcept
-        : doublequotationmark_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::DoubleQuote&& node) noexcept
+        : double_quote_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::double_quote} {
     }
 
@@ -830,7 +830,7 @@ public:
         }
 
         case ::pltxt2htm::NodeKind::line_break: {
-            new (::std::addressof(linebreak_node))::pltxt2htm::LineBreak(::std::move(other.linebreak_node));
+            new (::std::addressof(line_break_node))::pltxt2htm::LineBreak(::std::move(other.line_break_node));
             break;
         }
 
@@ -845,12 +845,12 @@ public:
         }
 
         case ::pltxt2htm::NodeKind::less_than: {
-            new (::std::addressof(lessthan_node))::pltxt2htm::LessThan(::std::move(other.lessthan_node));
+            new (::std::addressof(less_than_node))::pltxt2htm::LessThan(::std::move(other.less_than_node));
             break;
         }
 
         case ::pltxt2htm::NodeKind::greater_than: {
-            new (::std::addressof(greaterthan_node))::pltxt2htm::GreaterThan(::std::move(other.greaterthan_node));
+            new (::std::addressof(greater_than_node))::pltxt2htm::GreaterThan(::std::move(other.greater_than_node));
             break;
         }
 
@@ -865,14 +865,14 @@ public:
         }
 
         case ::pltxt2htm::NodeKind::single_quote: {
-            new (::std::addressof(singlequotationmark_node))::pltxt2htm::SingleQuotationMark(
-                ::std::move(other.singlequotationmark_node));
+            new (::std::addressof(single_quote_node))::pltxt2htm::SingleQuote(
+                ::std::move(other.single_quote_node));
             break;
         }
 
         case ::pltxt2htm::NodeKind::double_quote: {
-            new (::std::addressof(doublequotationmark_node))::pltxt2htm::DoubleQuotationMark(
-                ::std::move(other.doublequotationmark_node));
+            new (::std::addressof(double_quote_node))::pltxt2htm::DoubleQuote(
+                ::std::move(other.double_quote_node));
             break;
         }
 
@@ -1401,7 +1401,7 @@ public:
             break;
         }
         case ::pltxt2htm::NodeKind::line_break: {
-            linebreak_node.~LineBreak();
+            line_break_node.~LineBreak();
             break;
         }
         case ::pltxt2htm::NodeKind::html_br: {
@@ -1413,11 +1413,11 @@ public:
             break;
         }
         case ::pltxt2htm::NodeKind::less_than: {
-            lessthan_node.~LessThan();
+            less_than_node.~LessThan();
             break;
         }
         case ::pltxt2htm::NodeKind::greater_than: {
-            greaterthan_node.~GreaterThan();
+            greater_than_node.~GreaterThan();
             break;
         }
         case ::pltxt2htm::NodeKind::tab: {
@@ -1429,11 +1429,11 @@ public:
             break;
         }
         case ::pltxt2htm::NodeKind::single_quote: {
-            singlequotationmark_node.~SingleQuotationMark();
+            single_quote_node.~SingleQuote();
             break;
         }
         case ::pltxt2htm::NodeKind::double_quote: {
-            doublequotationmark_node.~DoubleQuotationMark();
+            double_quote_node.~DoubleQuote();
             break;
         }
         case ::pltxt2htm::NodeKind::html_hr: {
