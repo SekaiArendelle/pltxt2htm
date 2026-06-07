@@ -724,8 +724,7 @@ int main() {
             u8"|cell\n"
             u8" |--\n"
             u8" |</|");
-        auto answer = ::fast_io::u8string_view{
-            u8"|cell<br>&nbsp;|--<br>&nbsp;|&lt;/|"};
+        auto answer = ::fast_io::u8string_view{u8"|cell<br>&nbsp;|--<br>&nbsp;|&lt;/|"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

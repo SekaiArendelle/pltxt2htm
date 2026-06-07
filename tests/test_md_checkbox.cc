@@ -29,14 +29,15 @@ int main() {
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"- [ ] parent\n  - [x] child");
         auto answer = ::fast_io::u8string_view(
-            u8"<ul><li><input type=\"checkbox\" disabled>parent</li><ul><li><input type=\"checkbox\" disabled checked>child</li></ul></ul>");
+            u8"<ul><li><input type=\"checkbox\" disabled>parent</li><ul><li><input type=\"checkbox\" disabled "
+            u8"checked>child</li></ul></ul>");
         pltxt2htm_test_assert_equal(html, answer);
     }
     // ---- checkbox in mixed list ----
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"- [ ] task\n- normal");
-        auto answer = ::fast_io::u8string_view(
-            u8"<ul><li><input type=\"checkbox\" disabled>task</li><li>normal</li></ul>");
+        auto answer =
+            ::fast_io::u8string_view(u8"<ul><li><input type=\"checkbox\" disabled>task</li><li>normal</li></ul>");
         pltxt2htm_test_assert_equal(html, answer);
     }
     // ---- [ ] without following space is not a checkbox ----

@@ -113,8 +113,7 @@ constexpr auto try_parse_md_table_row(::fast_io::u8string_view pltext) noexcept
     // is rejected.
     {
         ::std::size_t end_idx = current_index;
-        if (end_idx > 0 &&
-            ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, end_idx - 1) == u8'\n') {
+        if (end_idx > 0 && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, end_idx - 1) == u8'\n') {
             --end_idx;
         }
         while (end_idx > 0) {
@@ -124,8 +123,7 @@ constexpr auto try_parse_md_table_row(::fast_io::u8string_view pltext) noexcept
             }
             --end_idx;
         }
-        if (end_idx == 0 ||
-            ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, end_idx - 1) != u8'|') {
+        if (end_idx == 0 || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, end_idx - 1) != u8'|') {
             return ::exception::nullopt_t{};
         }
     }

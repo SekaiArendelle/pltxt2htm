@@ -1,4 +1,4 @@
-Build cxxmodule/example.cc in ci
+Build cxxmodule/examples/example.cc in ci
 
 ## Build docker image
 ```sh

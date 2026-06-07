@@ -14,7 +14,7 @@ C++ APIs is in [include/pltxt2htm](include/pltxt2htm/), [Click here](examples) t
 
 You can also use `pltxt2htm` in console (cmd/README.md), browser (wasm/README.md), python (py/README.md), c (c/README.md), rust (rust/README.md) and csharp (csharp/README.md).
 
-C++20 module example is in [cxxmodule/example.cc](cxxmodule/example.cc)
+C++20 module example is in [cxxmodule/examples/example.cc](cxxmodule/examples/example.cc)
 
 ## Documentation
 See docsgen/README.md.

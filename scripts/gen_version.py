@@ -153,7 +153,7 @@ CMAKE_FILES = [
     "examples/CMakeLists.txt",
     "fuzzing/CMakeLists.txt",
     "wasm/CMakeLists.txt",
-    "cxxmodule/CMakeLists.txt",
+    "cxxmodule/examples/CMakeLists.txt",
 ]
 
 for cmake_file in CMAKE_FILES:

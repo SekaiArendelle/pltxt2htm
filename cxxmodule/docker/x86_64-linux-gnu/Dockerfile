@@ -8,5 +8,5 @@ COPY cxxmodule/ /pltxt2htm/cxxmodule/
 
 WORKDIR /pltxt2htm/cxxmodule
 
-RUN cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++
-RUN cmake --build build -v
+RUN cmake -S examples -B examples/build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++
+RUN cmake --build examples/build -v
