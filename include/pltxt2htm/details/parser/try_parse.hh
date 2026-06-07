@@ -598,7 +598,7 @@ template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::U8LiteralString pr
 [[nodiscard]]
 constexpr auto try_parse_equal_sign_tag(::fast_io::u8string_view pltext, Func&& func) noexcept
     -> ::exception::optional<TryParseEqualSignTagResult> {
-    ::std::size_t prefix_size{prefix_str.size()};
+    ::std::size_t const prefix_size{prefix_str.size()};
     constexpr auto prefix_with_equal =
         ::pltxt2htm::details::concat(prefix_str, ::pltxt2htm::details::U8LiteralString{u8"="});
     if (::pltxt2htm::details::is_prefix_match<ndebug, prefix_with_equal>(pltext) == false) {
@@ -1933,7 +1933,7 @@ constexpr auto try_parse_md_link(::fast_io::u8string_view pltext) noexcept
         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8']') {
         return ::exception::nullopt_t{};
     }
-    ::std::size_t link_text_end{current_index};
+    ::std::size_t const link_text_end{current_index};
     ++current_index;
 
     // Ensure the next character is '('

@@ -615,7 +615,7 @@ constexpr auto is_valid_md_ol_list_hierarchy(
     ::fast_io::u8string_view pltext, ::std::size_t const space_hierarchy,
     ::exception::optional<::pltxt2htm::details::PreviousItemInfo> const expect) noexcept
     -> ::exception::optional<::std::size_t> {
-    ::std::size_t pltext_size{pltext.size()};
+    ::std::size_t const pltext_size{pltext.size()};
     if (pltext_size < 4) {
         return ::exception::nullopt_t{};
     }
