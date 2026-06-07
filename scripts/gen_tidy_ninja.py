@@ -8,8 +8,8 @@ import sys
 
 def find_cpp_files(root_dirs):
     """Find all C/C++ source files in the given directories."""
-    extensions = {".cc", ".cpp", ".h", ".hh", ".hpp", ".cppm", ".c", ".inc"}
-    skip_dir_components = {"build", ".pixi"}
+    extensions = {".cc", ".cpp", ".c"}
+    skip_dir_components = {"build", ".pixi", "experimental"}
     files = []
 
     for directory in root_dirs:
@@ -54,8 +54,7 @@ def generate_ninja_file(files, output_path: str):
         for source_file in files:
             target_name = source_file.replace("/", "_").replace(".", "_") + "_tidy"
             ext = os.path.splitext(source_file)[1]
-            is_c = ext == ".c" or (ext == ".h" and source_file.startswith("c/"))
-            rule = "tidy_c" if is_c else "tidy_cpp"
+            rule = "tidy_c" if ext == ".c" else "tidy_cpp"
             targets.append(target_name)
             f.write(f"build {target_name}: {rule} {source_file}\n")
 
@@ -69,11 +68,7 @@ def main():
     search_dirs = [
         "tests",
         "examples",
-        "include/pltxt2htm",
-        "wasm",
         "cmd",
-        "py",
-        "fuzzing",
         "c",
     ]
     print(f"Scanning: {', '.join(search_dirs)}")
