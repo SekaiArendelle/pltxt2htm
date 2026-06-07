@@ -12,6 +12,7 @@ using ::pltxt2htm::pltxt2fixedadv_html;
 using ::pltxt2htm::pltxt2plunity_introduction;
 using ::pltxt2htm::parse_pltxt;
 using ::pltxt2htm::optimize_ast;
+using ::pltxt2htm::pltxt4unittest;
 
 // contracts
 using ::pltxt2htm::Contracts;
@@ -27,6 +28,9 @@ using ::pltxt2htm::version::patch;
 
 // exported nodes
 using ::pltxt2htm::NodeKind;
+
+// markdown table alignment
+using ::pltxt2htm::MdTableAlign;
 
 // ast2 types
 using ::pltxt2htm::PlTxtNode;
@@ -143,8 +147,17 @@ using ::pltxt2htm::MdBlockQuotes;
 using ::pltxt2htm::MdUl;
 using ::pltxt2htm::MdOl;
 using ::pltxt2htm::MdLi;
+using ::pltxt2htm::MdLiCheckbox;
 using ::pltxt2htm::MdLatexInline;
 using ::pltxt2htm::MdLatexBlock;
+
+// md table nodes
+using ::pltxt2htm::MdTable;
+using ::pltxt2htm::MdTr;
+using ::pltxt2htm::MdTd;
+using ::pltxt2htm::MdTh;
+using ::pltxt2htm::MdThead;
+using ::pltxt2htm::MdTbody;
 
 // physics_lab_node
 using ::pltxt2htm::PlColor;

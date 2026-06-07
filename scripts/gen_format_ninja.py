@@ -69,6 +69,8 @@ def main():
         "fuzzing",
         "c",
         "cxxmodule/pltxt2htm",
+        "cxxmodule/examples",
+        "cxxmodule/tests",
     ]
     print(f"Scanning: {', '.join(search_dirs)}")
 
