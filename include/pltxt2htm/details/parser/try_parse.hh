@@ -170,7 +170,7 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{chr}));
         return 1;
     }
-    else if ((chr & 0xE0) == 0xC0) {
+    if ((chr & 0xE0) == 0xC0) {
         if (1 >= pltext_size) {
             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
             return 1;
@@ -180,7 +180,7 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
             return 1;
         }
-        char32_t combine{static_cast<char32_t>(chr & 0x1F) << 6 | static_cast<char32_t>(next_char & 0x3F)};
+        char32_t const combine{static_cast<char32_t>(chr & 0x1F) << 6 | static_cast<char32_t>(next_char & 0x3F)};
         if (combine < 0x80 || combine > 0x7FF) {
             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
             return 2;
@@ -190,7 +190,7 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{next_char}));
         return 2;
     }
-    else if ((chr & 0xF0) == 0xE0) {
+    if ((chr & 0xF0) == 0xE0) {
         if (2 >= pltext_size) {
             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
             if (pltext_size != 2) {
@@ -212,8 +212,8 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
             return 2;
         }
-        char32_t combine{static_cast<char32_t>(chr & 0x0f) << 12 | static_cast<char32_t>(next_char & 0x3f) << 6 |
-                         static_cast<char32_t>(next_char2 & 0x3f)};
+        char32_t const combine{static_cast<char32_t>(chr & 0x0f) << 12 | static_cast<char32_t>(next_char & 0x3f) << 6 |
+                               static_cast<char32_t>(next_char2 & 0x3f)};
         if (combine < 0x800 || combine > 0xffff) {
             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
             return 3;
@@ -228,7 +228,7 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{next_char2}));
         return 3;
     }
-    else if ((chr & 0xF8) == 0xF0) {
+    if ((chr & 0xF8) == 0xF0) {
         if (3 >= pltext_size) {
             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
             if (pltext_size < 2) {
@@ -262,8 +262,8 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
             return 3;
         }
-        char32_t combine{static_cast<char32_t>(chr & 0x07) << 18 | static_cast<char32_t>(next_char & 0x3F) << 12 |
-                         static_cast<char32_t>(next_char2 & 0x3F) << 6 | static_cast<char32_t>(next_char3 & 0x3F)};
+        char32_t const combine{static_cast<char32_t>(chr & 0x07) << 18 | static_cast<char32_t>(next_char & 0x3F) << 12 |
+                               static_cast<char32_t>(next_char2 & 0x3F) << 6 | static_cast<char32_t>(next_char3 & 0x3F)};
         if (combine < 0x10000 || combine > 0x10FFFF) {
             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
             return 4;
@@ -274,10 +274,8 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{next_char3}));
         return 4;
     }
-    else {
-        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
-        return 1;
-    }
+    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
+    return 1;
 }
 
 /**
@@ -598,7 +596,7 @@ template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::U8LiteralString pr
 [[nodiscard]]
 constexpr auto try_parse_equal_sign_tag(::fast_io::u8string_view pltext, Func&& func) noexcept
     -> ::exception::optional<TryParseEqualSignTagResult> {
-    ::std::size_t prefix_size{prefix_str.size()};
+    ::std::size_t const prefix_size{prefix_str.size()};
     constexpr auto prefix_with_equal =
         ::pltxt2htm::details::concat(prefix_str, ::pltxt2htm::details::U8LiteralString{u8"="});
     if (::pltxt2htm::details::is_prefix_match<ndebug, prefix_with_equal>(pltext) == false) {
@@ -618,7 +616,7 @@ constexpr auto try_parse_equal_sign_tag(::fast_io::u8string_view pltext, Func&& 
             }
             return ::pltxt2htm::details::TryParseEqualSignTagResult{forward_index, ::std::move(substr)};
         }
-        else if (forward_chr == u8' ' || forward_chr == u8'\t') {
+        if (forward_chr == u8' ' || forward_chr == u8'\t') {
             while (true) {
                 if (forward_index + 1 >= pltext.size()) {
                     return ::exception::nullopt_t{};
@@ -879,9 +877,7 @@ constexpr auto try_parse_md_atx_heading(::fast_io::u8string_view pltext) noexcep
                 return ::pltxt2htm::details::TryParseMdAtxHeadingResult{
                     start_index, 0, start_index, static_cast<::pltxt2htm::NodeKind>(md_atx_heading_type)};
             }
-            else {
-                return ::exception::nullopt_t{};
-            }
+            return ::exception::nullopt_t{};
         }
         if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, start_index) != u8'#') {
             break;
@@ -1071,37 +1067,37 @@ constexpr auto simply_parse_pltext(::fast_io::u8string_view pltext) noexcept
             ++current_index;
             continue;
         }
-        else if (chr == u8' ') {
+        if (chr == u8' ') {
             ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Space{}));
             ++current_index;
             continue;
         }
-        else if (chr == u8'&') {
+        if (chr == u8'&') {
             ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Ampersand{}));
             ++current_index;
             continue;
         }
-        else if (chr == u8'\'') {
+        if (chr == u8'\'') {
             ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::SingleQuote{}));
             ++current_index;
             continue;
         }
-        else if (chr == u8'\"') {
+        if (chr == u8'\"') {
             ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::DoubleQuote{}));
             ++current_index;
             continue;
         }
-        else if (chr == u8'>') {
+        if (chr == u8'>') {
             ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::GreaterThan{}));
             ++current_index;
             continue;
         }
-        else if (chr == u8'\t') {
+        if (chr == u8'\t') {
             ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Tab{}));
             ++current_index;
             continue;
         }
-        else if (chr == u8'\\') {
+        if (chr == u8'\\') {
             if (current_index + 1 == pltext_size) {
                 ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'\\'}));
                 ++current_index;
@@ -1119,18 +1115,15 @@ constexpr auto simply_parse_pltext(::fast_io::u8string_view pltext) noexcept
             ++current_index;
             continue;
         }
-        else if (chr == u8'<') {
+        if (chr == u8'<') {
             ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
             ++current_index;
             continue;
         }
-        else {
-            auto advance_count = ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
-                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), ast);
-            current_index += advance_count;
-            continue;
-        }
-        ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+        auto advance_count = ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
+            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), ast);
+        current_index += advance_count;
+        continue;
     }
     return {.advance_count = current_index, .ast = ::std::move(ast)};
 }
@@ -1223,7 +1216,7 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
             }
             break;
         }
-        else if (chr == u8' ' || chr == u8'\t') {
+        if (chr == u8' ' || chr == u8'\t') {
             ++current_index;
             if (current_index == pltext_size) {
                 // 0042.fuzzing-crash3
@@ -1240,15 +1233,13 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
             ++current_index;
             break;
         }
-        else {
-            if constexpr (is_backtick) {
-                if (::pltxt2htm::details::is_prefix_match<ndebug, fence>(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) {
-                    return ::exception::nullopt_t{};
-                }
+        if constexpr (is_backtick) {
+            if (::pltxt2htm::details::is_prefix_match<ndebug, fence>(
+                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) {
+                return ::exception::nullopt_t{};
             }
-            lang.push_back(chr);
         }
+        lang.push_back(chr);
     }
 
     // parsing context of code fence
@@ -1740,13 +1731,11 @@ constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept
             ::pltxt2htm::details::is_prefix_match<ndebug, http>(pltext)) {
             return http.size();
         }
-        else if (constexpr auto https = ::pltxt2htm::details::U8LiteralString{u8"https://"};
+        if (constexpr auto https = ::pltxt2htm::details::U8LiteralString{u8"https://"};
                  ::pltxt2htm::details::is_prefix_match<ndebug, https>(pltext)) {
             return https.size();
         }
-        else {
-            return 0;
-        }
+        return 0;
     }()};
     auto const domain_start = current_index;
 
@@ -1777,7 +1766,7 @@ constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept
             }
             ::std::uint_least32_t port{};
             ::std::size_t port_index{};
-            for (char8_t c : ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1)) {
+            for (char8_t const c : ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1)) {
                 if (c < u8'0' || c > u8'9') {
                     break;
                 }
@@ -1933,7 +1922,7 @@ constexpr auto try_parse_md_link(::fast_io::u8string_view pltext) noexcept
         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8']') {
         return ::exception::nullopt_t{};
     }
-    ::std::size_t link_text_end{current_index};
+    ::std::size_t const link_text_end{current_index};
     ++current_index;
 
     // Ensure the next character is '('
@@ -1995,37 +1984,37 @@ constexpr auto try_parse_md_image(::fast_io::u8string_view pltext) noexcept
         if (chr == u8'\n') {
             return ::exception::nullopt_t{};
         }
-        else if (chr == u8' ') {
+        if (chr == u8' ') {
             link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Space{}));
             ++current_index;
             continue;
         }
-        else if (chr == u8'&') {
+        if (chr == u8'&') {
             link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Ampersand{}));
             ++current_index;
             continue;
         }
-        else if (chr == u8'\'') {
+        if (chr == u8'\'') {
             link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::SingleQuote{}));
             ++current_index;
             continue;
         }
-        else if (chr == u8'\"') {
+        if (chr == u8'\"') {
             link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::DoubleQuote{}));
             ++current_index;
             continue;
         }
-        else if (chr == u8'>') {
+        if (chr == u8'>') {
             link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::GreaterThan{}));
             ++current_index;
             continue;
         }
-        else if (chr == u8'\t') {
+        if (chr == u8'\t') {
             link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Tab{}));
             ++current_index;
             continue;
         }
-        else if (chr == u8'\\') {
+        if (chr == u8'\\') {
             if (current_index + 1 == pltext.size()) {
                 link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'\\'}));
                 ++current_index;
@@ -2044,18 +2033,15 @@ constexpr auto try_parse_md_image(::fast_io::u8string_view pltext) noexcept
             ++current_index;
             continue;
         }
-        else if (chr == u8'<') {
+        if (chr == u8'<') {
             link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
             ++current_index;
             continue;
         }
-        else {
-            auto advance_count = ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
-                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), link_text_ast);
-            current_index += advance_count;
-            continue;
-        }
-        ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+        auto advance_count = ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
+            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), link_text_ast);
+        current_index += advance_count;
+        continue;
     }
 
     if (current_index >= pltext.size() ||

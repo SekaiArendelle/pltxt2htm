@@ -320,7 +320,7 @@ constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
     }
     auto&& [header_row, header_forward] = header_opt.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
     current_index += header_forward;
-    ::std::size_t num_cols{header_row.size()};
+    ::std::size_t const num_cols{header_row.size()};
 
     // parse delimiter line (second line) & extract alignment in one pass
     auto delim_opt = ::pltxt2htm::details::try_parse_md_table_row<ndebug>(

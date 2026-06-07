@@ -92,7 +92,7 @@ int main(int argc, char const* const* const argv) noexcept {
             host = reinterpret_cast<char8_t const*>(argv[++i]);
             continue;
         }
-        else if (::std::strcmp(argv[i], "--target") == 0) {
+        if (::std::strcmp(argv[i], "--target") == 0) {
             if (i == static_cast<::std::size_t>(argc) - 1) [[unlikely]] {
                 ::fast_io::perrln("Missing target");
                 return 1;
