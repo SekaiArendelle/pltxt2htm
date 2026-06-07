@@ -11,9 +11,9 @@ option(PLTXT2HTM_ENABLE_STACKTRACE "Enable C++23 <stacktrace>" OFF)
 add_executable(example example.cc)
 
 target_include_directories(example PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/../include"
-    "${CMAKE_CURRENT_SOURCE_DIR}/../include/fast_io"
-    "${CMAKE_CURRENT_SOURCE_DIR}/fast_io"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../include/fast_io"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../fast_io"
 )
 
 target_compile_features(example PRIVATE cxx_std_23)
@@ -25,9 +25,10 @@ endif()
 # Register C++20 module sources
 target_sources(example PRIVATE
     FILE_SET CXX_MODULES
+    BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/..
     FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/pltxt2htm/pltxt2htm.cppm
-        ${CMAKE_CURRENT_SOURCE_DIR}/fast_io/fast_io.cppm
+        ${CMAKE_CURRENT_SOURCE_DIR}/../pltxt2htm/pltxt2htm.cppm
+        ${CMAKE_CURRENT_SOURCE_DIR}/../fast_io/fast_io.cppm
 )
 
 if(WIN32 OR MINGW)

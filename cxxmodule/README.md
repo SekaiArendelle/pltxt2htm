@@ -1,8 +1,10 @@
 ## Use pltxt2htm in C++20 module
 
+Requires: clang++ >= 22, g++ >= 16
+
 ## Build example.cc
 ```sh
-cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++
-cmake --build build
-./build/example
+cmake -S examples -B examples/build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++
+cmake --build examples/build
+./examples/build/example
 ```
