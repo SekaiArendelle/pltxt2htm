@@ -2038,13 +2038,10 @@ constexpr auto try_parse_md_image(::fast_io::u8string_view pltext) noexcept
             ++current_index;
             continue;
         }
-        {
-            auto advance_count = ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
-                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), link_text_ast);
-            current_index += advance_count;
-            continue;
-        }
-        ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+        auto advance_count = ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
+            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), link_text_ast);
+        current_index += advance_count;
+        continue;
     }
 
     if (current_index >= pltext.size() ||
