@@ -22,7 +22,7 @@ You can use your local environment or Docker.
 
 ### Docker workflow
 
-Use the repository `Dockerfile`:
+Use the repository [Dockerfile](./Dockerfile):
 
 ```sh
 docker build -t pltxt2htm .
@@ -35,18 +35,9 @@ Enter the container:
 docker exec -it pltxt2htm-dev bash
 ```
 
-The source directory is mounted into the container via `-v .:/pltxt2htm`, so any edits made inside the container are reflected on the host and vice versa.
+The source directory is mounted into the container, so edits made inside are reflected on the host and vice versa.
 
-This repository primarily uses **CMake** for configuration and building.
-
-Typical workflow:
-
-```sh
-cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
-cmake --build build
-```
-
-For specific sub-projects (e.g. `c/`, `cmd/`, `tests/`), run cmake in the respective directory.
+Each sub-project (`c/`, `cmd/`, `tests/`, etc.) is independently built with CMake. See the respective `README.md` for build instructions.
 
 ## Code Formatting
 
@@ -141,7 +132,7 @@ Please follow the existing low-runtime, cross-platform style used in core header
   - Prefer `::ns::fn_or_cls` for function/class references to avoid ADL-based calls.
 - Prefer unambiguous initialization:
   - Prefer brace initialization (`T x{...}`) when constructing typed instances.
-  - Avoid copy/equal-sign initialization (`T x = ...`) when it can hide implicit narrowing conversions.
+  - Avoid copy-initialization (`T x = ...`) when it can hide implicit narrowing conversions.
   - Avoid initialization forms that look like declarations but actually construct objects (the "most vexing parse" style).
 - Mark terminal error branches as cold paths:
   - For branches that call `exit`/`terminate`, mark the branch with `[[unlikely]]`.

@@ -1,8 +1,8 @@
-#include <pltxt2htm/pltxt2htm.hh>
-
 #include <meta>
 #include <string>
 #include <vector>
+
+#include <pltxt2htm/pltxt2htm.hh>
 
 template<::std::meta::info ns>
 consteval auto collect_header_info() -> ::std::vector<::std::meta::info> {

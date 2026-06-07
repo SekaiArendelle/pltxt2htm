@@ -17,42 +17,56 @@ You can also use `pltxt2htm` in console (cmd/README.md), browser (wasm/README.md
 C++20 module example is in [cxxmodule/examples/example.cc](cxxmodule/examples/example.cc)
 
 ## Documentation
-See docsgen/README.md.
+See [docsgen](./docsgen/README.md).
 
 ## Exported API
 All C++ APIs have been listed in [pltxt2htm.cppm](cxxmodule/pltxt2htm/pltxt2htm.cppm)
 
-## features
-I am ensure any new features (like markdown extension) will break old Quantum Physics's text. However, compatibility is not the reason that we should stop our steps. Here are some features why I (or why I not) support:
+## Features
 
-markdown extension based on [commonmark](https://spec.commonmark.org/0.31.2/)
+Markdown extension based on [CommonMark](https://spec.commonmark.org/0.31.2/):
 
-* carriage return will be regarded as line break (unlike markdown, which requires 2 spaces before a carriage return to be considered a line break)
-* Quantum-Physics's color tag is supported
-* Quantum-Physics's a tag is supported
-* Quantum-Physics's Discussion tag is supported
-* Quantum-Physics's Experiment tag is supported
-* Quantum-Physics's user tag is supported
-* Quantum-Physics's size tag is supported
-* Quantum-Physics's external tag is supported
-* Quantum-Physics&HTML's i tag is supported
-* Quantum-Physics&HTML's b tag is supported
-* Partial supports of [HTML blocks](https://spec.commonmark.org/0.31.2/#html-blocks)
-* most of the markdown ATX headers are supported
-  - [example 69 ~ 76](https://spec.commonmark.org/0.31.2/#example-69) sucks thus I ignore it
-* [setext headers](https://spec.commonmark.org/0.31.2/#setext-headings) is not planed
-* MarkDown escape characters are supported
-* I hate [Indent code block](https://spec.commonmark.org/0.31.2/#indented-code-blocks).
-* Rough support for markdown [code fences](https://spec.commonmark.org/0.31.2/#code-fence) but common usage is well tested.
-* Rough support for markdown [code span](https://spec.commonmark.org/0.31.2/#code-spans) but common usage is well tested.
-* Rough support for markdown [emphasis](https://spec.commonmark.org/0.31.2/#emphasis-and-strong-emphasis) but common usage is well tested.
-* Rough support for markdown [block quotes](https://spec.commonmark.org/0.31.2/#block-quotes) but common usage is well tested.
-* Rough support for markdown [links](https://spec.commonmark.org/0.31.2/#links) but common usage is well tested.
-* Rough support for markdown [lists](https://spec.commonmark.org/0.31.2/#lists) but common usage is well tested.
+| Feature | Support | Details |
+|---------|---------|---------|
+| **Line breaks** | Supported | Carriage return → line break (no trailing-space requirement) |
+| **ATX headers** | Supported | `#`–`######` → `<h1>`–`<h6>`. Trailing `#` not stripped. |
+| **Setext headers** | Not planned | |
+| **Escape characters** | Supported | Backslash escape for all ASCII punctuation |
+| **Indented code blocks** | Not planned | |
+| **Code fences** | Basic | ` ``` ` / `~~~` → `<pre><code>`. Optional language annotation. Fixed 3-delimiter only. |
+| **Code spans** | Basic | No intra-span backtick balancing. |
+| **Emphasis** | Basic | `*`/`_` → `<em>`, `**`/`__` → `<strong>`, `***`/`___` → `<em><strong>`. No intra-word emphasis or delimiter-run rules. |
+| **Block quotes** | Basic | `>` lines → `<blockquote>`. Single-level only. No lazy continuation. |
+| **Links** | Basic | `[text](url)` → `<a href="...">`. HTTP(S) only, TLD-restricted. No reference-style or title attribute. |
+| **Images** | Basic | `![alt](url)` → `<img>`. Same URL restrictions as links. |
+| **Strikethrough** | Supported | `~~text~~` → `<del>` |
+| **Horizontal rules** | Supported | `---` / `***` / `___` (3+ chars) → `<hr>` |
+| **Lists** | Supported | `-`/`+`/`*` → `<ul>`, `1.` → `<ol>`, with nesting and checkbox items (`- [ ]` / `- [x]`). No tight/loose distinction. |
+| **Tables** | Supported | Pipe tables with alignment (`:---`, `:---:`, `---:`). Backslash-escaped pipes. |
+| **LaTeX** | Basic | Inline `$...$` and block `$$...$$`. Raw passthrough, no delimiter escaping. |
+| **HTML blocks** | Partial | Individual HTML tags parsed inline (bare tags, no generic attributes). PL-specific key=value attributes supported. |
 
-Show all supported features in [tests](./tests/)
+Quantum-Physics tags:
+
+| Tag | Status |
+|-----|--------|
+| `color` | Supported |
+| `a` | Supported |
+| `discussion` | Supported |
+| `experiment` | Supported |
+| `user` | Supported |
+| `size` | Supported |
+| `external` | Supported |
+| `i` | Supported |
+| `b` | Supported |
+| `{Project}` / `{Visitor}` / `{Author}` / `{CoAuthors}` | Supported macros |
+
+> Any new features (e.g. markdown extensions) may break existing Quantum-Physics texts, but compatibility concerns do not block progress.
+
+See [tests](./tests/) for details on all supported features.
 
 ## distribution
+
 All distributions share the same version of `pltxt2htm::version`
 
 `pltxt2htm` only maintains the trunk, and the release versions are only snapshots.
@@ -79,7 +93,7 @@ A: I appreciate Rust but not for its "safety". Basically, safety should always b
 
 At the same time, `pltxt2htm` is absolutely safe:
 * Lots of assertions are enabled in debug mode to assure memory safety and logic correctness.
-* Over 90% (with a future target of 95%) test coverage.
+* Over 95% test coverage.
 * Every commit in main undergose testing with asan under both clang and gcc in ci.
 * Every release undergose at least 6 hours of fuzzing with clang, with asan or ubsan enabled.
 
