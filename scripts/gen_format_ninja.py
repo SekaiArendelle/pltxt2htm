@@ -4,13 +4,12 @@ Generate a Ninja build file for clang-format - fixed version without stamp files
 
 import os
 import sys
-import platform
-from pathlib import Path
 
 
 def find_cpp_files(root_dirs):
     """Find all C/C++ source files in the given directories."""
     extensions = {".cc", ".cpp", ".h", ".hh", ".hpp", ".cppm", ".c", ".inc"}
+    skip_dir_components = {"build", ".pixi"}
     files = []
 
     for directory in root_dirs:
@@ -21,16 +20,19 @@ def find_cpp_files(root_dirs):
             )
             continue
 
-        for path in Path(directory).rglob("*"):
-            if path.is_file() and path.suffix in extensions:
-                spath = str(path).replace("\\", "/")
-                if "-pltxt2htm-" in spath:
-                    continue
-                if "/build/" in spath:
-                    continue
-                if "/.pixi/" in spath:
-                    continue
-                files.append(spath)
+        for root, dirs, filenames in os.walk(directory):
+            rel_root = root.replace("\\", "/")
+
+            if "-pltxt2htm-" in rel_root:
+                dirs[:] = []
+                continue
+
+            # Prune unwanted subtrees to avoid walking them entirely
+            dirs[:] = [d for d in dirs if d not in skip_dir_components]
+
+            for filename in filenames:
+                if os.path.splitext(filename)[1] in extensions:
+                    files.append(f"{rel_root}/{filename}")
 
     return sorted(files)
 
