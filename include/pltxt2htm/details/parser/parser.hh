@@ -30,8 +30,8 @@ constexpr auto find_next_block_after_line_break(
     ::std::size_t current_index{};
     while (true) {
         if (current_index >= pltext.size()) {
-            return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{.advance_count = current_index,
-                                                                        .new_frame_been_pushed_into_call_stack = false};
+            return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{
+                .advance_count = current_index, .new_frame_been_pushed_into_call_stack = false};
         }
 
         if (auto opt_md_atx_heading = ::pltxt2htm::details::try_parse_md_atx_heading<ndebug>(
@@ -99,16 +99,16 @@ constexpr auto find_next_block_after_line_break(
             opt_code_fence.has_value()) {
             auto&& [node, advance_count] = opt_code_fence.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             result.push_back(::std::move(node));
-            return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{.advance_count = current_index + advance_count,
-                                                                        .new_frame_been_pushed_into_call_stack = false};
+            return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{
+                .advance_count = current_index + advance_count, .new_frame_been_pushed_into_call_stack = false};
         }
         if (auto opt_block_quote = ::pltxt2htm::details::try_parse_md_block_quotes<ndebug>(pltext);
             opt_block_quote.has_value()) {
             auto&& [advance_count, subpltext] =
                 opt_block_quote.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(::std::move(subpltext)));
-            return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{.advance_count = current_index + advance_count,
-                                                                        .new_frame_been_pushed_into_call_stack = true};
+            return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{
+                .advance_count = current_index + advance_count, .new_frame_been_pushed_into_call_stack = true};
         }
         if (auto opt_md_list_ast = ::pltxt2htm::details::optionally_to_md_list_ast<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
@@ -116,8 +116,8 @@ constexpr auto find_next_block_after_line_break(
             auto&& [md_list_ast, advance_count, item_kind] =
                 opt_md_list_ast.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(item_kind, ::std::move(md_list_ast)));
-            return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{.advance_count = current_index + advance_count,
-                                                                        .new_frame_been_pushed_into_call_stack = true};
+            return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{
+                .advance_count = current_index + advance_count, .new_frame_been_pushed_into_call_stack = true};
         }
         if (auto opt_md_table_raw = ::pltxt2htm::details::try_parse_md_table_raw<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
@@ -126,11 +126,11 @@ constexpr auto find_next_block_after_line_break(
                 opt_md_table_raw.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(::pltxt2htm::NodeKind::md_table,
                                                                              ::std::move(raw_ast)));
-            return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{.advance_count = current_index + advance_count,
-                                                                        .new_frame_been_pushed_into_call_stack = true};
+            return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{
+                .advance_count = current_index + advance_count, .new_frame_been_pushed_into_call_stack = true};
         }
         return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{.advance_count = current_index,
-                                                                    .new_frame_been_pushed_into_call_stack = false};
+                                                                       .new_frame_been_pushed_into_call_stack = false};
     }
 }
 

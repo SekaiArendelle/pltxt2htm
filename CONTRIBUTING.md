@@ -47,6 +47,20 @@ Format project C++ code from the repository root with:
 ninja -f format_cpp.ninja
 ```
 
+## Static Analysis
+
+Run clang-tidy on all C/C++ source files:
+
+```sh
+ninja -f tidy_cpp.ninja
+```
+
+Configuration is in `.clang-tidy` at the project root. Re-generate `tidy_cpp.ninja` after adding new source files:
+
+```sh
+python3 scripts/gen_tidy_ninja.py
+```
+
 ## Running Tests
 
 Run all tests from the repository root:

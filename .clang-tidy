@@ -1,0 +1,19 @@
+Checks: >
+  modernize-use-constexpr,
+  modernize-use-noexcept,
+  modernize-use-braced-init-list,
+  modernize-use-nodiscard,
+  cppcoreguidelines-pro-type-typeid,
+  cppcoreguidelines-macro-usage,
+  cppcoreguidelines-avoid-non-const-global-variables,
+  cert-dcl03-c,
+  readability-else-after-return,
+  misc-const-correctness
+
+HeaderFilterRegex: '.*pltxt2htm.*'
+
+CheckOptions:
+  - key:   misc-const-correctness.TransformValues
+    value: true
+
+FormatStyle: none

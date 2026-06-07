@@ -865,14 +865,12 @@ public:
         }
 
         case ::pltxt2htm::NodeKind::single_quote: {
-            new (::std::addressof(single_quote_node))::pltxt2htm::SingleQuote(
-                ::std::move(other.single_quote_node));
+            new (::std::addressof(single_quote_node))::pltxt2htm::SingleQuote(::std::move(other.single_quote_node));
             break;
         }
 
         case ::pltxt2htm::NodeKind::double_quote: {
-            new (::std::addressof(double_quote_node))::pltxt2htm::DoubleQuote(
-                ::std::move(other.double_quote_node));
+            new (::std::addressof(double_quote_node))::pltxt2htm::DoubleQuote(::std::move(other.double_quote_node));
             break;
         }
 
