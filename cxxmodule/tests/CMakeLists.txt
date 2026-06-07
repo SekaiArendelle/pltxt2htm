@@ -6,7 +6,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
-add_executable(check_public_symbols check_public_symbols.cc)
+add_executable(check_public_symbols
+    check_public_symbols.cc
+    header_symbols.cc
+    module_symbols.cc
+)
 
 target_include_directories(check_public_symbols PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/../../include"

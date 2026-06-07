@@ -151,6 +151,14 @@ using ::pltxt2htm::MdLiCheckbox;
 using ::pltxt2htm::MdLatexInline;
 using ::pltxt2htm::MdLatexBlock;
 
+// md table nodes
+using ::pltxt2htm::MdTable;
+using ::pltxt2htm::MdTr;
+using ::pltxt2htm::MdTd;
+using ::pltxt2htm::MdTh;
+using ::pltxt2htm::MdThead;
+using ::pltxt2htm::MdTbody;
+
 // physics_lab_node
 using ::pltxt2htm::PlColor;
 using ::pltxt2htm::PlA;
