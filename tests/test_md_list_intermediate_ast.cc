@@ -35,14 +35,14 @@ constexpr auto ol_item(Nodes&&... nodes) noexcept {
 
 int main() {
     {
-        ::pltxt2htm::details::MdListLiNode node1{::fast_io::u8string{u8"test"}};
-        ::pltxt2htm::details::MdListLiNode node2{::fast_io::u8string{u8"test"}};
+        ::pltxt2htm::details::MdListLiNode const node1{::fast_io::u8string{u8"test"}};
+        ::pltxt2htm::details::MdListLiNode const node2{::fast_io::u8string{u8"test"}};
         ::exception::assert_true<false>(node1 == node2);
     }
     {
-        ::pltxt2htm::details::MdListUlNode<::pltxt2htm::Contracts::quick_enforce> node1{
+        ::pltxt2htm::details::MdListUlNode<::pltxt2htm::Contracts::quick_enforce> const node1{
             ::pltxt2htm::details::MdListAst<::pltxt2htm::Contracts::quick_enforce>{}};
-        ::pltxt2htm::details::MdListUlNode<::pltxt2htm::Contracts::quick_enforce> node2{
+        ::pltxt2htm::details::MdListUlNode<::pltxt2htm::Contracts::quick_enforce> const node2{
             ::pltxt2htm::details::MdListAst<::pltxt2htm::Contracts::quick_enforce>{}};
         ::exception::assert_true<false>(node1 == node2);
     }
@@ -55,8 +55,8 @@ int main() {
             ::pltxt2htm::details::MdListBaseNode<::pltxt2htm::Contracts::quick_enforce>(::std::move(ul_node)));
     }
     {
-        ::pltxt2htm::details::MdListAst<::pltxt2htm::Contracts::quick_enforce> ast1{};
-        ::pltxt2htm::details::MdListAst<::pltxt2htm::Contracts::quick_enforce> ast2{};
+        ::pltxt2htm::details::MdListAst<::pltxt2htm::Contracts::quick_enforce> const ast1{};
+        ::pltxt2htm::details::MdListAst<::pltxt2htm::Contracts::quick_enforce> const ast2{};
         ::exception::assert_true<false>(ast1 == ast2);
     }
     {

@@ -1,7 +1,7 @@
 #include "precompile.hh"
 
 int main() {
-    ::fast_io::u8string_view text{
+    ::fast_io::u8string_view const text{
         u8R"(
 文本1<hR   />文本2<hr/>文本3<hr   >文本4<HR    /
 文本5<hr<hr>
