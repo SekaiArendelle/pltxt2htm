@@ -15,49 +15,73 @@ namespace pltxt2htm {
  * @brief Line break (newline) node
  * @details Represents a line break character in the source text.
  */
-class LineBreak {};
+class LineBreak {
+public:
+    constexpr auto operator==(this LineBreak const&, LineBreak const&) noexcept -> bool = default;
+};
 
 /**
  * @brief ::pltxt2htm::Space character node
  * @details Represents a whitespace character (space, tab, etc.).
  */
-class Space {};
+class Space {
+public:
+    constexpr auto operator==(this Space const&, Space const&) noexcept -> bool = default;
+};
 
 /**
  * @brief Less-than sign node
  * @details Represents the '<' character, which may need escaping in HTML.
  */
-class LessThan {};
+class LessThan {
+public:
+    constexpr auto operator==(this LessThan const&, LessThan const&) noexcept -> bool = default;
+};
 
 /**
  * @brief Greater-than sign node
  * @details Represents the '>' character.
  */
-class GreaterThan {};
+class GreaterThan {
+public:
+    constexpr auto operator==(this GreaterThan const&, GreaterThan const&) noexcept -> bool = default;
+};
 
 /**
  * @brief ::pltxt2htm::Tab character node
  * @details Represents a tab character in the source text.
  */
-class Tab {};
+class Tab {
+public:
+    constexpr auto operator==(this Tab const&, Tab const&) noexcept -> bool = default;
+};
 
 /**
  * @brief ::pltxt2htm::Ampersand node
  * @details Represents the '&' character, which may be part of an HTML entity.
  */
-class Ampersand {};
+class Ampersand {
+public:
+    constexpr auto operator==(this Ampersand const&, Ampersand const&) noexcept -> bool = default;
+};
 
 /**
  * @brief Single quotation mark node
  * @details Represents the "'" character.
  */
-class SingleQuote {};
+class SingleQuote {
+public:
+    constexpr auto operator==(this SingleQuote const&, SingleQuote const&) noexcept -> bool = default;
+};
 
 /**
  * @brief Double quotation mark node
  * @details Represents the '"' character.
  */
-class DoubleQuote {};
+class DoubleQuote {
+public:
+    constexpr auto operator==(this DoubleQuote const&, DoubleQuote const&) noexcept -> bool = default;
+};
 
 /**
  * @brief UTF-8 character node
@@ -66,13 +90,17 @@ class DoubleQuote {};
 class U8Char {
 public:
     char8_t chr;
+    constexpr auto operator==(this U8Char const&, U8Char const&) noexcept -> bool = default;
 };
 
 /**
  * @brief Invalid UTF-8 character node
  * @details Represents an invalid UTF-8 character encountered during parsing.
  */
-class InvalidU8Char {};
+class InvalidU8Char {
+public:
+    constexpr auto operator==(this InvalidU8Char const&, InvalidU8Char const&) noexcept -> bool = default;
+};
 
 /**
  * @brief ::pltxt2htm::Text<ndebug> container node
@@ -94,6 +122,9 @@ public:
     constexpr auto operator=(::pltxt2htm::Text<ndebug> const&) noexcept -> ::pltxt2htm::Text<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::Text<ndebug>& self, ::pltxt2htm::Text<ndebug>&&) noexcept
         -> ::pltxt2htm::Text<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this Text const&, Text const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -122,10 +153,9 @@ public:
     constexpr auto operator=(this ::pltxt2htm::Url<ndebug>& self, ::pltxt2htm::Url<ndebug>&&) noexcept
         -> ::pltxt2htm::Url<ndebug>&;
 
-    /**
-     * @brief Get the underlying URL AST.
-     * @return Reference to the URL AST (modifiable if this is an lvalue).
-     */
+    [[nodiscard]]
+    constexpr auto operator==(this Url const&, Url const&) noexcept -> bool;
+
     [[nodiscard]]
     constexpr auto get_url_ast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.url_ast);
