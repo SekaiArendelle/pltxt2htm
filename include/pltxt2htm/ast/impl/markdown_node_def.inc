@@ -129,19 +129,7 @@ constexpr auto ::pltxt2htm::MdCodeFenceBacktick<ndebug>::operator=(this ::pltxt2
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::MdCodeFenceBacktick<ndebug>::operator==(
-    this ::pltxt2htm::MdCodeFenceBacktick<ndebug> const& self,
-    ::pltxt2htm::MdCodeFenceBacktick<ndebug> const& other) noexcept -> bool {
-    if (self.subast != other.subast) {
-        return false;
-    }
-    if (self.lang.has_value() != other.lang.has_value()) {
-        return false;
-    }
-    if (self.lang.has_value()) {
-        return self.lang.value() == other.lang.value();
-    }
-    return true;
-}
+    this ::pltxt2htm::MdCodeFenceBacktick<ndebug> const&, ::pltxt2htm::MdCodeFenceBacktick<ndebug> const&) noexcept -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdCodeFenceTilde<ndebug>::MdCodeFenceTilde(
@@ -162,19 +150,7 @@ constexpr auto ::pltxt2htm::MdCodeFenceTilde<ndebug>::operator=(this ::pltxt2htm
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::MdCodeFenceTilde<ndebug>::operator==(
-    this ::pltxt2htm::MdCodeFenceTilde<ndebug> const& self,
-    ::pltxt2htm::MdCodeFenceTilde<ndebug> const& other) noexcept -> bool {
-    if (self.subast != other.subast) {
-        return false;
-    }
-    if (self.lang.has_value() != other.lang.has_value()) {
-        return false;
-    }
-    if (self.lang.has_value()) {
-        return self.lang.value() == other.lang.value();
-    }
-    return true;
-}
+    this ::pltxt2htm::MdCodeFenceTilde<ndebug> const&, ::pltxt2htm::MdCodeFenceTilde<ndebug> const&) noexcept -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdCodeSpan1Backtick<ndebug>::MdCodeSpan1Backtick(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
