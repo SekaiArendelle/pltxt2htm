@@ -23,8 +23,12 @@ namespace exception {
 [[noreturn]]
 inline void terminate() noexcept {
     // https://llvm.org/doxygen/Compiler_8h_source.html
-#if defined(__has_builtin) && __has_builtin(__builtin_trap)
+#if defined(__has_builtin)
+#if __has_builtin(__builtin_trap)
     __builtin_trap();
+#else
+    ::std::terminate();
+#endif
 #else
     ::std::terminate();
 #endif
@@ -37,8 +41,12 @@ template<bool ndebug = false>
 [[noreturn]]
 inline void unreachable() noexcept {
     if constexpr (ndebug) {
-#if defined(__has_builtin) && __has_builtin(__builtin_unreachable)
+#if defined(__has_builtin)
+#if __has_builtin(__builtin_unreachable)
         __builtin_unreachable();
+#else
+        ::std::unreachable();
+#endif
 #else
         ::std::unreachable();
 #endif
@@ -289,9 +297,8 @@ public:
     constexpr auto value_or(U& val) & noexcept -> value_type& {
         if (this->has_value() == false) {
             return val;
-        } else {
-            return this->ok_;
         }
+        return this->ok_;
     }
 
     template<typename U>
@@ -300,9 +307,8 @@ public:
     constexpr auto value_or(U const& val) const& noexcept -> value_type const& {
         if (this->has_value() == false) {
             return val;
-        } else {
-            return this->ok_;
         }
+        return this->ok_;
     }
 
     template<typename U>
@@ -311,9 +317,8 @@ public:
     constexpr auto value_or(U&& val) && noexcept -> value_type&& {
         if (this->has_value() == false) {
             return ::std::move(val);
-        } else {
-            return ::std::move(this->ok_);
         }
+        return ::std::move(this->ok_);
     }
 
     template<typename U>
@@ -322,9 +327,32 @@ public:
     constexpr auto value_or(U const&& val) const&& noexcept -> value_type const&& {
         if (this->has_value() == false) {
             return ::std::move(val);
-        } else {
-            return ::std::move(this->ok_);
         }
+        return ::std::move(this->ok_);
+    }
+
+    constexpr bool operator==(this expected const& self, expected const& rhs) noexcept
+        requires (::std::equality_comparable<Ok> && ::std::equality_comparable<Fail>)
+    {
+        if (self.has_value() != rhs.has_value()) {
+            return false;
+        }
+        if (self.has_value()) {
+            return self.ok_ == rhs.ok_;
+        }
+        return self.fail_ == rhs.fail_;
+    }
+
+    constexpr bool operator==(this expected const& self, value_type const& rhs) noexcept
+        requires ::std::equality_comparable<Ok>
+    {
+        return self.has_value() && self.ok_ == rhs;
+    }
+
+    constexpr bool operator==(this expected const& self, unexpected<Fail> const& rhs) noexcept
+        requires ::std::equality_comparable<Fail>
+    {
+        return !self.has_value() && self.fail_ == rhs.val_;
     }
 };
 
@@ -332,7 +360,7 @@ namespace details {
 
 struct nullopt_t_ {};
 
-}
+} // namespace details
 
 template<typename T>
 using optional = ::exception::expected<T, ::exception::details::nullopt_t_>;
