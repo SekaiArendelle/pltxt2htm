@@ -1830,7 +1830,8 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto operator==(this ::pltxt2htm::PlTxtNode<ndebug> const& self, ::pltxt2htm::PlTxtNode<ndebug> const& other) noexcept -> bool {
+    constexpr auto operator==(this ::pltxt2htm::PlTxtNode<ndebug> const& self,
+                              ::pltxt2htm::PlTxtNode<ndebug> const& other) noexcept -> bool {
         if (self.node_kind != other.node_kind) {
             return false;
         }
@@ -2192,6 +2193,12 @@ public:
         case ::pltxt2htm::NodeKind::md_latex_block: {
             return self.md_latex_block_node == other.md_latex_block_node;
         }
+#if 0
+        default:
+            [[unlikely]] {
+                ::exception::unreachable();
+            }
+#endif
         }
     }
 

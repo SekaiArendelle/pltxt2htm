@@ -614,7 +614,8 @@ public:
         -> ::pltxt2htm::MdSingleEmphasisUnderscore<ndebug>&;
 
     [[nodiscard]]
-    constexpr auto operator==(this MdSingleEmphasisUnderscore const&, MdSingleEmphasisUnderscore const&) noexcept -> bool;
+    constexpr auto operator==(this MdSingleEmphasisUnderscore const&, MdSingleEmphasisUnderscore const&) noexcept
+        -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -642,7 +643,8 @@ public:
         -> ::pltxt2htm::MdDoubleEmphasisUnderscore<ndebug>&;
 
     [[nodiscard]]
-    constexpr auto operator==(this MdDoubleEmphasisUnderscore const&, MdDoubleEmphasisUnderscore const&) noexcept -> bool;
+    constexpr auto operator==(this MdDoubleEmphasisUnderscore const&, MdDoubleEmphasisUnderscore const&) noexcept
+        -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -670,7 +672,8 @@ public:
         -> ::pltxt2htm::MdTripleEmphasisUnderscore<ndebug>&;
 
     [[nodiscard]]
-    constexpr auto operator==(this MdTripleEmphasisUnderscore const&, MdTripleEmphasisUnderscore const&) noexcept -> bool;
+    constexpr auto operator==(this MdTripleEmphasisUnderscore const&, MdTripleEmphasisUnderscore const&) noexcept
+        -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {

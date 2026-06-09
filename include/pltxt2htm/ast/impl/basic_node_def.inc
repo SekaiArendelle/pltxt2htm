@@ -19,7 +19,8 @@ constexpr auto ::pltxt2htm::Text<ndebug>::operator=(this ::pltxt2htm::Text<ndebu
     -> ::pltxt2htm::Text<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::Text<ndebug>::operator==(this ::pltxt2htm::Text<ndebug> const&, ::pltxt2htm::Text<ndebug> const&) noexcept -> bool = default;
+constexpr auto ::pltxt2htm::Text<ndebug>::operator==(this ::pltxt2htm::Text<ndebug> const&,
+                                                     ::pltxt2htm::Text<ndebug> const&) noexcept -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::Url<ndebug>::Url(::pltxt2htm::Ast<ndebug>&& attr) noexcept
@@ -38,6 +39,7 @@ constexpr auto ::pltxt2htm::Url<ndebug>::operator=(this ::pltxt2htm::Url<ndebug>
     -> ::pltxt2htm::Url<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::Url<ndebug>::operator==(this ::pltxt2htm::Url<ndebug> const&, ::pltxt2htm::Url<ndebug> const&) noexcept -> bool = default;
+constexpr auto ::pltxt2htm::Url<ndebug>::operator==(this ::pltxt2htm::Url<ndebug> const&,
+                                                    ::pltxt2htm::Url<ndebug> const&) noexcept -> bool = default;
 
 } // namespace pltxt2htm
