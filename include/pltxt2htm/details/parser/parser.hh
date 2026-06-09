@@ -451,21 +451,12 @@ entry:
             ++current_index;
             continue;
         }
-        if (chr == u8'\\') {
-            if (current_index + 1 == pltext_size) {
-                result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'\\'}));
-                break;
-            }
-            auto escape_node = ::pltxt2htm::details::switch_escape_char<ndebug>(
-                ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index + 1));
-            if (escape_node.has_value()) {
-                result.push_back(::std::move(escape_node.template value<ndebug == ::pltxt2htm::Contracts::ignore>()));
-                ++current_index;
-            }
-            else {
-                result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'\\'}));
-            }
-            ++current_index;
+        if (auto opt_escape = ::pltxt2htm::details::try_parse_md_escape<ndebug>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            opt_escape.has_value()) {
+            auto&& [node, advance_count] = opt_escape.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            result.push_back(::std::move(node));
+            current_index += advance_count;
             continue;
         }
         if (::pltxt2htm::details::is_prefix_match<ndebug, u8"{project}">(

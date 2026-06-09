@@ -35,107 +35,125 @@ namespace pltxt2htm::details {
  * @see https://spec.commonmark.org/0.31.2/#backslash-escapes
  */
 template<::pltxt2htm::Contracts ndebug>
+struct TryParseMdEscapeResult {
+    ::pltxt2htm::PlTxtNode<ndebug> node;
+    ::std::size_t advance_count;
+};
+
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr ::exception::optional<::pltxt2htm::PlTxtNode<ndebug>> switch_escape_char(char8_t u8char) noexcept {
-    switch (u8char) {
-    case u8'\\': {
-        return ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeBackslash{});
-    }
-    case u8'!': {
-        return ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeExclamation{});
-    }
-    case u8'\"': {
-        return ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeDoubleQuote{});
-    }
-    case u8'#': {
-        return ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeHash{});
-    }
-    case u8'$': {
-        return ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeDollar{});
-    }
-    case u8'%': {
-        return ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapePercent{});
-    }
-    case u8'&': {
-        return ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeAmpersand{});
-    }
-    case u8'\'': {
-        return ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeSingleQuote{});
-    }
-    case u8'(': {
-        return ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeLeftParen{});
-    }
-    case u8')': {
-        return ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeRightParen{});
-    }
-    case u8'*': {
-        return ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeAsterisk{});
-    }
-    case u8'+': {
-        return ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapePlus{});
-    }
-    case u8',': {
-        return ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeComma{});
-    }
-    case u8'-': {
-        return ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeHyphen{});
-    }
-    case u8'.': {
-        return ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeDot{});
-    }
-    case u8'/': {
-        return ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeSlash{});
-    }
-    case u8':': {
-        return ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeColon{});
-    }
-    case u8';': {
-        return ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeSemicolon{});
-    }
-    case u8'<': {
-        return ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeLessThan{});
-    }
-    case u8'=': {
-        return ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeEquals{});
-    }
-    case u8'>': {
-        return ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeGreaterThan{});
-    }
-    case u8'?': {
-        return ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeQuestion{});
-    }
-    case u8'@': {
-        return ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeAt{});
-    }
-    case u8'[': {
-        return ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeLeftBracket{});
-    }
-    case u8']': {
-        return ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeRightBracket{});
-    }
-    case u8'^': {
-        return ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeCaret{});
-    }
-    case u8'_': {
-        return ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeUnderscore{});
-    }
-    case u8'`': {
-        return ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeBacktick{});
-    }
-    case u8'{': {
-        return ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeLeftBrace{});
-    }
-    case u8'|': {
-        return ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapePipe{});
-    }
-    case u8'}': {
-        return ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeRightBrace{});
-    }
-    case u8'~': {
-        return ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeTilde{});
-    }
-    default:
+constexpr auto try_parse_md_escape(::fast_io::u8string_view pltext) noexcept
+    -> ::exception::optional<::pltxt2htm::details::TryParseMdEscapeResult<ndebug>> {
+    if (pltext.empty()) {
         return ::exception::nullopt_t{};
+    }
+    if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 0) != u8'\\') {
+        return ::exception::nullopt_t{};
+    }
+    if (pltext.size() == 1) {
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'\\'}), 1};
+    }
+    switch (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 1)) {
+    case u8'\\':
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeBackslash{}), 2};
+    case u8'!':
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeExclamation{}), 2};
+    case u8'\"':
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeDoubleQuote{}), 2};
+    case u8'#':
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeHash{}), 2};
+    case u8'$':
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeDollar{}), 2};
+    case u8'%':
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapePercent{}), 2};
+    case u8'&':
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeAmpersand{}), 2};
+    case u8'\'':
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeSingleQuote{}), 2};
+    case u8'(':
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeLeftParen{}), 2};
+    case u8')':
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeRightParen{}), 2};
+    case u8'*':
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeAsterisk{}), 2};
+    case u8'+':
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapePlus{}), 2};
+    case u8',':
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeComma{}), 2};
+    case u8'-':
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeHyphen{}), 2};
+    case u8'.':
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeDot{}), 2};
+    case u8'/':
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeSlash{}), 2};
+    case u8':':
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeColon{}), 2};
+    case u8';':
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeSemicolon{}), 2};
+    case u8'<':
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeLessThan{}), 2};
+    case u8'=':
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeEquals{}), 2};
+    case u8'>':
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeGreaterThan{}), 2};
+    case u8'?':
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeQuestion{}), 2};
+    case u8'@':
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeAt{}), 2};
+    case u8'[':
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeLeftBracket{}), 2};
+    case u8']':
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeRightBracket{}), 2};
+    case u8'^':
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeCaret{}), 2};
+    case u8'_':
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeUnderscore{}), 2};
+    case u8'`':
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeBacktick{}), 2};
+    case u8'{':
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeLeftBrace{}), 2};
+    case u8'|':
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapePipe{}), 2};
+    case u8'}':
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeRightBrace{}), 2};
+    case u8'~':
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeTilde{}), 2};
+    default:
+        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'\\'}), 1};
     }
 }
 
@@ -1049,7 +1067,6 @@ constexpr auto simply_parse_pltext(::fast_io::u8string_view pltext) noexcept
     -> ::pltxt2htm::details::SimplyParsePLtextResult<ndebug> {
     ::pltxt2htm::Ast<ndebug> ast{};
     ::std::size_t current_index{};
-    ::std::size_t const pltext_size{pltext.size()};
     constexpr ::std::size_t end_size{end_string.size()};
 
     while (current_index < pltext.size()) {
@@ -1096,22 +1113,12 @@ constexpr auto simply_parse_pltext(::fast_io::u8string_view pltext) noexcept
             ++current_index;
             continue;
         }
-        if (chr == u8'\\') {
-            if (current_index + 1 == pltext_size) {
-                ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'\\'}));
-                ++current_index;
-                continue;
-            }
-            auto escape_node = ::pltxt2htm::details::switch_escape_char<ndebug>(
-                ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index + 1));
-            if (escape_node.has_value()) {
-                ast.push_back(::std::move(escape_node.template value<ndebug == ::pltxt2htm::Contracts::ignore>()));
-                ++current_index;
-            }
-            else {
-                ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'\\'}));
-            }
-            ++current_index;
+        if (auto opt_escape = ::pltxt2htm::details::try_parse_md_escape<ndebug>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            opt_escape.has_value()) {
+            auto&& [node, advance_count] = opt_escape.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            ast.push_back(::std::move(node));
+            current_index += advance_count;
             continue;
         }
         if (chr == u8'<') {
@@ -2013,23 +2020,12 @@ constexpr auto try_parse_md_image(::fast_io::u8string_view pltext) noexcept
             ++current_index;
             continue;
         }
-        if (chr == u8'\\') {
-            if (current_index + 1 == pltext.size()) {
-                link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'\\'}));
-                ++current_index;
-                continue;
-            }
-            auto escape_node = ::pltxt2htm::details::switch_escape_char<ndebug>(
-                ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index + 1));
-            if (escape_node.has_value()) {
-                link_text_ast.push_back(
-                    ::std::move(escape_node.template value<ndebug == ::pltxt2htm::Contracts::ignore>()));
-                ++current_index;
-            }
-            else {
-                link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'\\'}));
-            }
-            ++current_index;
+        if (auto opt_escape = ::pltxt2htm::details::try_parse_md_escape<ndebug>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            opt_escape.has_value()) {
+            auto&& [node, advance_count] = opt_escape.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            link_text_ast.push_back(::std::move(node));
+            current_index += advance_count;
             continue;
         }
         if (chr == u8'<') {
