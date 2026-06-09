@@ -3,7 +3,7 @@
 int main() {
     using nd = ::pltxt2htm::Contracts;
 
-    // ── Empty/stateless nodes ──────────────────────────────────────────
+    // Empty/stateless nodes
     {
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::LineBreak{});
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::LineBreak{});
@@ -39,8 +39,13 @@ int main() {
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlMacroProject{});
         ::exception::assert_true<false>(a == b);
     }
+    {
+        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::InvalidU8Char{});
+        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::InvalidU8Char{});
+        ::exception::assert_true<false>(a == b);
+    }
 
-    // ── Different empty types should NOT be equal ──────────────────────
+    // Different empty types should NOT be equal
     {
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::LineBreak{});
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Space{});
@@ -52,7 +57,7 @@ int main() {
         ::exception::assert_false<false>(a == b);
     }
 
-    // ── U8Char with same/different values ─────────────────────────────
+    // U8Char with same/different values
     {
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::U8Char{u8'A'});
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::U8Char{u8'A'});
@@ -64,7 +69,7 @@ int main() {
         ::exception::assert_false<false>(a == b);
     }
 
-    // ── Text with empty sub-AST ────────────────────────────────────────
+    // Text with empty sub-AST
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
@@ -75,7 +80,7 @@ int main() {
         ::exception::assert_true<false>(a == b);
     }
 
-    // ── Text with non-empty sub-AST ────────────────────────────────────
+    // Text with non-empty sub-AST
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ast_a.emplace_back(::pltxt2htm::U8Char{u8'H'});
@@ -92,7 +97,7 @@ int main() {
         ::exception::assert_true<false>(a == b);
     }
 
-    // ── Text with different sub-AST content ────────────────────────────
+    // Text with different sub-AST content
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ast_a.emplace_back(::pltxt2htm::U8Char{u8'H'});
@@ -109,7 +114,7 @@ int main() {
         ::exception::assert_false<false>(a == b);
     }
 
-    // ── Text with different sub-AST size ───────────────────────────────
+    // Text with different sub-AST size
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ast_a.emplace_back(::pltxt2htm::U8Char{u8'H'});
@@ -125,7 +130,7 @@ int main() {
         ::exception::assert_false<false>(a == b);
     }
 
-    // ── HtmlH1 with sub-AST ───────────────────────────────────────────
+    // HtmlH1 with sub-AST
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ast_a.emplace_back(::pltxt2htm::U8Char{u8'X'});
@@ -153,7 +158,7 @@ int main() {
         ::exception::assert_false<false>(a == b);
     }
 
-    // ── HtmlBlockquote with nested sub-AST ─────────────────────────────
+    // HtmlBlockquote with nested sub-AST
     {
         ::pltxt2htm::Ast<nd::quick_enforce> inner_a{};
         inner_a.emplace_back(::pltxt2htm::U8Char{u8'a'});
@@ -174,7 +179,7 @@ int main() {
         ::exception::assert_true<false>(a == b);
     }
 
-    // ── MdCodeFenceBacktick without language ───────────────────────────
+    // MdCodeFenceBacktick without language
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ast_a.emplace_back(::pltxt2htm::U8Char{u8'a'});
@@ -189,7 +194,7 @@ int main() {
         ::exception::assert_true<false>(a == b);
     }
 
-    // ── MdCodeFenceBacktick with same language ─────────────────────────
+    // MdCodeFenceBacktick with same language
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ast_a.emplace_back(::pltxt2htm::U8Char{u8'a'});
@@ -204,7 +209,7 @@ int main() {
         ::exception::assert_true<false>(a == b);
     }
 
-    // ── MdCodeFenceBacktick with different languages ───────────────────
+    // MdCodeFenceBacktick with different languages
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ast_a.emplace_back(::pltxt2htm::U8Char{u8'a'});
@@ -219,7 +224,7 @@ int main() {
         ::exception::assert_false<false>(a == b);
     }
 
-    // ── MdCodeFenceBacktick: one has language, other does not ──────────
+    // MdCodeFenceBacktick: one has language, other does not
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
 
@@ -232,7 +237,7 @@ int main() {
         ::exception::assert_false<false>(a == b);
     }
 
-    // ── MdCodeFenceTilde without language ──────────────────────────────
+    // MdCodeFenceTilde without language
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
 
@@ -245,7 +250,7 @@ int main() {
         ::exception::assert_true<false>(a == b);
     }
 
-    // ── MdCodeFenceTilde with same language ────────────────────────────
+    // MdCodeFenceTilde with same language
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
 
@@ -258,7 +263,7 @@ int main() {
         ::exception::assert_true<false>(a == b);
     }
 
-    // ── MdCodeFenceTilde with different languages ──────────────────────
+    // MdCodeFenceTilde with different languages
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
 
@@ -271,7 +276,20 @@ int main() {
         ::exception::assert_false<false>(a == b);
     }
 
-    // ── MdLink with sub-AST and URL ────────────────────────────────────
+    // MdCodeFenceTilde: one has language, other does not
+    {
+        ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
+
+        ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
+
+        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdCodeFenceTilde<nd::quick_enforce>(
+            ::std::move(ast_a), ::exception::optional<::fast_io::u8string>(::fast_io::u8string{u8"cpp"})));
+        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdCodeFenceTilde<nd::quick_enforce>(
+            ::std::move(ast_b), ::exception::optional<::fast_io::u8string>(::exception::nullopt_t{})));
+        ::exception::assert_false<false>(a == b);
+    }
+
+    // MdLink with sub-AST and URL
     {
         ::pltxt2htm::Ast<nd::quick_enforce> text_a{};
         text_a.emplace_back(::pltxt2htm::U8Char{u8'a'});
@@ -290,7 +308,7 @@ int main() {
         ::exception::assert_true<false>(a == b);
     }
 
-    // ── MdLink with different URL ──────────────────────────────────────
+    // MdLink with different URL
     {
         ::pltxt2htm::Ast<nd::quick_enforce> text_a{};
         text_a.emplace_back(::pltxt2htm::U8Char{u8'a'});
@@ -309,7 +327,7 @@ int main() {
         ::exception::assert_false<false>(a == b);
     }
 
-    // ── MdImage with sub-AST and URL ───────────────────────────────────
+    // MdImage with sub-AST and URL
     {
         ::pltxt2htm::Ast<nd::quick_enforce> alt_a{};
         alt_a.emplace_back(::pltxt2htm::U8Char{u8'a'});
@@ -328,7 +346,7 @@ int main() {
         ::exception::assert_true<false>(a == b);
     }
 
-    // ── MdLiCheckbox (sub-AST + bool checked) ──────────────────────────
+    // MdLiCheckbox (sub-AST + bool checked)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ast_a.emplace_back(::pltxt2htm::U8Char{u8't'});
@@ -354,7 +372,7 @@ int main() {
         ::exception::assert_false<false>(a == b);
     }
 
-    // ── MdTh / MdTd (sub-AST + MdTableAlign) ───────────────────────────
+    // MdTh / MdTd (sub-AST + MdTableAlign)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ast_a.emplace_back(::pltxt2htm::U8Char{u8'h'});
@@ -395,7 +413,7 @@ int main() {
         ::exception::assert_true<false>(a == b);
     }
 
-    // ── PlColor (sub-AST + color string) ───────────────────────────────
+    // PlColor (sub-AST + color string)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
@@ -417,7 +435,7 @@ int main() {
         ::exception::assert_false<false>(a == b);
     }
 
-    // ── PlExperiment (sub-AST + id string) ─────────────────────────────
+    // PlExperiment (sub-AST + id string)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
@@ -439,7 +457,7 @@ int main() {
         ::exception::assert_false<false>(a == b);
     }
 
-    // ── PlSize (sub-AST + size_t) ──────────────────────────────────────
+    // PlSize (sub-AST + size_t)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
@@ -461,7 +479,7 @@ int main() {
         ::exception::assert_false<false>(a == b);
     }
 
-    // ── PlExternal (sub-AST + Url) ─────────────────────────────────────
+    // PlExternal (sub-AST + Url)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ::pltxt2htm::Ast<nd::quick_enforce> url_ast_a{};
@@ -478,14 +496,14 @@ int main() {
         ::exception::assert_true<false>(a == b);
     }
 
-    // ── Ast-level comparison (empty) ───────────────────────────────────
+    // Ast-level comparison (empty)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> const ast_a{};
         ::pltxt2htm::Ast<nd::quick_enforce> const ast_b{};
         ::exception::assert_true<false>(ast_a == ast_b);
     }
 
-    // ── Ast-level comparison (single matching elements) ────────────────
+    // Ast-level comparison (single matching elements)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ast_a.emplace_back(::pltxt2htm::U8Char{u8'A'});
@@ -496,7 +514,7 @@ int main() {
         ::exception::assert_true<false>(ast_a == ast_b);
     }
 
-    // ── Ast-level comparison (multiple matching elements) ──────────────
+    // Ast-level comparison (multiple matching elements)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ast_a.emplace_back(::pltxt2htm::U8Char{u8'A'});
@@ -509,7 +527,7 @@ int main() {
         ::exception::assert_true<false>(ast_a == ast_b);
     }
 
-    // ── Ast-level comparison (different elements) ──────────────────────
+    // Ast-level comparison (different elements)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ast_a.emplace_back(::pltxt2htm::U8Char{u8'A'});
@@ -522,7 +540,7 @@ int main() {
         ::exception::assert_false<false>(ast_a == ast_b);
     }
 
-    // ── Ast-level comparison (different sizes) ─────────────────────────
+    // Ast-level comparison (different sizes)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ast_a.emplace_back(::pltxt2htm::U8Char{u8'A'});
@@ -534,7 +552,7 @@ int main() {
         ::exception::assert_false<false>(ast_a == ast_b);
     }
 
-    // ── C++20 operator!= auto-generation ───────────────────────────────
+    // C++20 operator!= auto-generation
     {
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::U8Char{u8'A'});
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::U8Char{u8'B'});
@@ -546,7 +564,7 @@ int main() {
         ::exception::assert_false<false>(a != b);
     }
 
-    // ── MdEscape (all empty, always equal) ─────────────────────────────
+    // MdEscape (all empty, always equal)
     {
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscapeBackslash{});
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscapeBackslash{});
@@ -557,8 +575,13 @@ int main() {
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscapeAsterisk{});
         ::exception::assert_true<false>(a == b);
     }
+    {
+        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscapeBackslash{});
+        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscapeAsterisk{});
+        ::exception::assert_false<false>(a == b);
+    }
 
-    // ── PlI / PlB (sub-AST only) ───────────────────────────────────────
+    // PlI (sub-AST only)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ast_a.emplace_back(::pltxt2htm::U8Char{u8't'});
@@ -571,6 +594,106 @@ int main() {
         auto const b =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlI<nd::quick_enforce>(::std::move(ast_b)));
         ::exception::assert_true<false>(a == b);
+    }
+
+    // PlB (sub-AST only)
+    {
+        ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
+        ast_a.emplace_back(::pltxt2htm::U8Char{u8't'});
+
+        ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
+        ast_b.emplace_back(::pltxt2htm::U8Char{u8't'});
+
+        auto const a =
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlB<nd::quick_enforce>(::std::move(ast_a)));
+        auto const b =
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlB<nd::quick_enforce>(::std::move(ast_b)));
+        ::exception::assert_true<false>(a == b);
+    }
+
+    // Cross-type: same sub-AST, different wrapper type
+    {
+        ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
+        ast_a.emplace_back(::pltxt2htm::U8Char{u8'H'});
+        ast_a.emplace_back(::pltxt2htm::U8Char{u8'i'});
+
+        ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
+        ast_b.emplace_back(::pltxt2htm::U8Char{u8'H'});
+        ast_b.emplace_back(::pltxt2htm::U8Char{u8'i'});
+
+        auto const a =
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(ast_a)));
+        auto const b =
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::HtmlH1<nd::quick_enforce>(::std::move(ast_b)));
+        ::exception::assert_false<false>(a == b);
+    }
+    {
+        ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
+        ast_a.emplace_back(::pltxt2htm::U8Char{u8'X'});
+
+        ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
+        ast_b.emplace_back(::pltxt2htm::U8Char{u8'X'});
+
+        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
+            ::pltxt2htm::HtmlBlockquote<nd::quick_enforce>(::std::move(ast_a)));
+        auto const b =
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::HtmlH1<nd::quick_enforce>(::std::move(ast_b)));
+        ::exception::assert_false<false>(a == b);
+    }
+    {
+        ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
+        ast_a.emplace_back(::pltxt2htm::U8Char{u8't'});
+
+        ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
+        ast_b.emplace_back(::pltxt2htm::U8Char{u8't'});
+
+        auto const a =
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlI<nd::quick_enforce>(::std::move(ast_a)));
+        auto const b =
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlB<nd::quick_enforce>(::std::move(ast_b)));
+        ::exception::assert_false<false>(a == b);
+    }
+    {
+        ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
+
+        ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
+
+        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdCodeFenceBacktick<nd::quick_enforce>(
+            ::std::move(ast_a), ::exception::optional<::fast_io::u8string>(::fast_io::u8string{u8"cpp"})));
+        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdCodeFenceTilde<nd::quick_enforce>(
+            ::std::move(ast_b), ::exception::optional<::fast_io::u8string>(::fast_io::u8string{u8"cpp"})));
+        ::exception::assert_false<false>(a == b);
+    }
+
+    // Sub-AST count mismatch
+    {
+        ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
+        ast_a.emplace_back(::pltxt2htm::U8Char{u8'H'});
+        ast_a.emplace_back(::pltxt2htm::U8Char{u8'i'});
+        ast_a.emplace_back(::pltxt2htm::U8Char{u8'!'});
+
+        ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
+        ast_b.emplace_back(::pltxt2htm::U8Char{u8'H'});
+
+        auto const a =
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(ast_a)));
+        auto const b =
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(ast_b)));
+        ::exception::assert_false<false>(a == b);
+    }
+    {
+        ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
+        ast_a.emplace_back(::pltxt2htm::U8Char{u8'A'});
+        ast_a.emplace_back(::pltxt2htm::U8Char{u8'B'});
+
+        ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
+        ast_b.emplace_back(::pltxt2htm::U8Char{u8'A'});
+
+        auto const a =
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::HtmlH1<nd::quick_enforce>(::std::move(ast_a)));
+        auto const b =
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::HtmlH1<nd::quick_enforce>(::std::move(ast_b)));
+        ::exception::assert_false<false>(a == b);
     }
 
     return 0;
