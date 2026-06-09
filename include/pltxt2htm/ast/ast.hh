@@ -2196,10 +2196,12 @@ public:
 #if 0
         default:
             [[unlikely]] {
-                ::exception::unreachable();
+                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
             }
 #endif
         }
+        // reduce MSVC return-path warning
+        ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
     }
 
     [[nodiscard]]

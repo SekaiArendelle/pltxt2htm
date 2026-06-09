@@ -1928,7 +1928,6 @@ entry:
                 case ::pltxt2htm::NodeKind::md_th:
                     [[fallthrough]];
                 case ::pltxt2htm::NodeKind::md_td: {
-                    // relate to 0041.fuzzing-crash3
                     // any tag contains `</` context would hit this branch
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
                     ++current_index;

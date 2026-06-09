@@ -611,8 +611,7 @@ constexpr auto try_parse_equal_sign_tag(::fast_io::u8string_view pltext, Func&& 
         char8_t const forward_chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index)};
         if (forward_chr == u8'>') {
             if (substr.empty()) {
-                // test/0030.fuzzing-crash1.cc
-                // e.g. `<size=>text` is invalid
+                // e.g. `<size=>text` is invalid (empty value in equal-sign tag)
                 return ::exception::nullopt_t{};
             }
             return ::pltxt2htm::details::TryParseEqualSignTagResult{forward_index, ::std::move(substr)};
@@ -629,8 +628,7 @@ constexpr auto try_parse_equal_sign_tag(::fast_io::u8string_view pltext, Func&& 
                 }
                 else if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index + 1) == u8'>') {
                     if (substr.empty()) {
-                        // test/0030.fuzzing-crassh1.cc
-                        // <size= >text
+                        // <size= >text is invalid (empty value in equal-sign tag)
                         return ::exception::nullopt_t{};
                     }
                     return ::pltxt2htm::details::TryParseEqualSignTagResult{forward_index + 1, ::std::move(substr)};
@@ -1220,7 +1218,7 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
         if (chr == u8' ' || chr == u8'\t') {
             ++current_index;
             if (current_index == pltext_size) {
-                // 0042.fuzzing-crash3
+                // space/tab at end of input after language: not a valid code fence
                 return ::exception::nullopt_t{};
             }
             while (current_index != pltext_size &&
@@ -1228,7 +1226,7 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
                 ++current_index;
             }
             if (current_index == pltext_size) {
-                // 0047.fuzzing-crash
+                // content after space/tab without newline: not a valid code fence
                 return ::exception::nullopt_t{};
             }
             ++current_index;
