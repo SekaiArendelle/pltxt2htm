@@ -38,6 +38,9 @@ public:
         -> ::pltxt2htm::PlColor<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this PlColor const&, PlColor const&) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -65,6 +68,9 @@ public:
     constexpr auto operator=(::pltxt2htm::PlA<ndebug> const&) noexcept -> ::pltxt2htm::PlA<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::PlA<ndebug>& self, ::pltxt2htm::PlA<ndebug>&&) noexcept
         -> ::pltxt2htm::PlA<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this PlA const&, PlA const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -97,6 +103,9 @@ public:
         -> ::pltxt2htm::PlExperiment<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this PlExperiment const&, PlExperiment const&) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -127,6 +136,9 @@ public:
         -> ::pltxt2htm::PlDiscussion<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this PlDiscussion const&, PlDiscussion const&) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -154,6 +166,9 @@ public:
     constexpr auto operator=(::pltxt2htm::PlUser<ndebug> const&) noexcept -> ::pltxt2htm::PlUser<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::PlUser<ndebug>& self, ::pltxt2htm::PlUser<ndebug>&&) noexcept
         -> ::pltxt2htm::PlUser<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this PlUser const&, PlUser const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -186,6 +201,9 @@ public:
         -> ::pltxt2htm::PlExternal<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this PlExternal const&, PlExternal const&) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -213,6 +231,9 @@ public:
     constexpr auto operator=(::pltxt2htm::PlSize<ndebug> const&) noexcept -> ::pltxt2htm::PlSize<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::PlSize<ndebug>& self, ::pltxt2htm::PlSize<ndebug>&&) noexcept
         -> ::pltxt2htm::PlSize<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this PlSize const&, PlSize const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -243,6 +264,9 @@ public:
         -> ::pltxt2htm::PlI<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this PlI const&, PlI const&) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -266,6 +290,9 @@ public:
         -> ::pltxt2htm::PlB<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this PlB const&, PlB const&) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -275,24 +302,36 @@ public:
  * @brief Physics-Lab {Project} macro node
  * @details Represents the {Project} template placeholder.
  */
-class PlMacroProject {};
+class PlMacroProject {
+public:
+    constexpr auto operator==(this PlMacroProject const&, PlMacroProject const&) noexcept -> bool = default;
+};
 
 /**
  * @brief Physics-Lab {Visitor} macro node
  * @details Represents the {Visitor} template placeholder.
  */
-class PlMacroVisitor {};
+class PlMacroVisitor {
+public:
+    constexpr auto operator==(this PlMacroVisitor const&, PlMacroVisitor const&) noexcept -> bool = default;
+};
 
 /**
  * @brief Physics-Lab {Author} macro node
  * @details Represents the {Author} template placeholder.
  */
-class PlMacroAuthor {};
+class PlMacroAuthor {
+public:
+    constexpr auto operator==(this PlMacroAuthor const&, PlMacroAuthor const&) noexcept -> bool = default;
+};
 
 /**
  * @brief Physics-Lab {CoAuthors} macro node
  * @details Represents the {CoAuthors} template placeholder.
  */
-class PlMacroCoauthors {};
+class PlMacroCoauthors {
+public:
+    constexpr auto operator==(this PlMacroCoauthors const&, PlMacroCoauthors const&) noexcept -> bool = default;
+};
 
 } // namespace pltxt2htm

@@ -16,18 +16,27 @@ namespace pltxt2htm {
  * @brief HTML &lt;br&gt; tag node
  * @details Represents a forced line break in HTML output.
  */
-class HtmlBr {};
+class HtmlBr {
+public:
+    constexpr auto operator==(this HtmlBr const&, HtmlBr const&) noexcept -> bool = default;
+};
 
 /**
  * @brief HTML &lt;hr&gt; tag node
  * @details Represents a horizontal rule.
  */
-class HtmlHr {};
+class HtmlHr {
+public:
+    constexpr auto operator==(this HtmlHr const&, HtmlHr const&) noexcept -> bool = default;
+};
 
 /**
  * @brief HTML &lt;col&gt; self-closing column node
  */
-class HtmlCol {};
+class HtmlCol {
+public:
+    constexpr auto operator==(this HtmlCol const&, HtmlCol const&) noexcept -> bool = default;
+};
 
 /**
  * @brief HTML &lt;h1&gt; heading node
@@ -47,10 +56,9 @@ public:
     constexpr auto operator=(this ::pltxt2htm::HtmlH1<ndebug>& self, ::pltxt2htm::HtmlH1<ndebug>&&) noexcept
         -> ::pltxt2htm::HtmlH1<ndebug>&;
 
-    /**
-     * @brief Get the sub‑AST contained in this heading.
-     * @return Reference to the sub‑AST (modifiable if this is an lvalue).
-     */
+    [[nodiscard]]
+    constexpr auto operator==(this HtmlH1 const&, HtmlH1 const&) noexcept -> bool;
+
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
@@ -73,6 +81,9 @@ public:
     constexpr auto operator=(::pltxt2htm::HtmlH2<ndebug> const&) noexcept -> ::pltxt2htm::HtmlH2<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::HtmlH2<ndebug>& self, ::pltxt2htm::HtmlH2<ndebug>&&) noexcept
         -> ::pltxt2htm::HtmlH2<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this HtmlH2 const&, HtmlH2 const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -98,6 +109,9 @@ public:
         -> ::pltxt2htm::HtmlH3<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this HtmlH3 const&, HtmlH3 const&) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -119,6 +133,9 @@ public:
     constexpr auto operator=(::pltxt2htm::HtmlH4<ndebug> const&) noexcept -> ::pltxt2htm::HtmlH4<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::HtmlH4<ndebug>& self, ::pltxt2htm::HtmlH4<ndebug>&&) noexcept
         -> ::pltxt2htm::HtmlH4<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this HtmlH4 const&, HtmlH4 const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -144,6 +161,9 @@ public:
         -> ::pltxt2htm::HtmlH5<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this HtmlH5 const&, HtmlH5 const&) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -165,6 +185,9 @@ public:
     constexpr auto operator=(::pltxt2htm::HtmlH6<ndebug> const&) noexcept -> ::pltxt2htm::HtmlH6<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::HtmlH6<ndebug>& self, ::pltxt2htm::HtmlH6<ndebug>&&) noexcept
         -> ::pltxt2htm::HtmlH6<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this HtmlH6 const&, HtmlH6 const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -190,6 +213,9 @@ public:
         -> ::pltxt2htm::HtmlP<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this HtmlP const&, HtmlP const&) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -211,6 +237,9 @@ public:
     constexpr auto operator=(::pltxt2htm::HtmlDel<ndebug> const&) noexcept -> ::pltxt2htm::HtmlDel<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::HtmlDel<ndebug>& self, ::pltxt2htm::HtmlDel<ndebug>&&) noexcept
         -> ::pltxt2htm::HtmlDel<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this HtmlDel const&, HtmlDel const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -236,6 +265,9 @@ public:
         -> ::pltxt2htm::HtmlNote<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this HtmlNote const&, HtmlNote const&) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -257,6 +289,9 @@ public:
     constexpr auto operator=(::pltxt2htm::HtmlEm<ndebug> const&) noexcept -> ::pltxt2htm::HtmlEm<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::HtmlEm<ndebug>& self, ::pltxt2htm::HtmlEm<ndebug>&&) noexcept
         -> ::pltxt2htm::HtmlEm<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this HtmlEm const&, HtmlEm const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -283,6 +318,9 @@ public:
         -> ::pltxt2htm::HtmlStrong<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this HtmlStrong const&, HtmlStrong const&) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -304,6 +342,9 @@ public:
     constexpr auto operator=(::pltxt2htm::HtmlUl<ndebug> const&) noexcept -> ::pltxt2htm::HtmlUl<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::HtmlUl<ndebug>& self, ::pltxt2htm::HtmlUl<ndebug>&&) noexcept
         -> ::pltxt2htm::HtmlUl<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this HtmlUl const&, HtmlUl const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -329,6 +370,9 @@ public:
         -> ::pltxt2htm::HtmlOl<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this HtmlOl const&, HtmlOl const&) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -350,6 +394,9 @@ public:
     constexpr auto operator=(::pltxt2htm::HtmlLi<ndebug> const&) noexcept -> ::pltxt2htm::HtmlLi<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::HtmlLi<ndebug>& self, ::pltxt2htm::HtmlLi<ndebug>&&) noexcept
         -> ::pltxt2htm::HtmlLi<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this HtmlLi const&, HtmlLi const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -375,6 +422,9 @@ public:
         -> ::pltxt2htm::HtmlCode<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this HtmlCode const&, HtmlCode const&) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -396,6 +446,9 @@ public:
     constexpr auto operator=(::pltxt2htm::HtmlPre<ndebug> const&) noexcept -> ::pltxt2htm::HtmlPre<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::HtmlPre<ndebug>& self, ::pltxt2htm::HtmlPre<ndebug>&&) noexcept
         -> ::pltxt2htm::HtmlPre<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this HtmlPre const&, HtmlPre const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -422,6 +475,9 @@ public:
                              ::pltxt2htm::HtmlBlockquote<ndebug>&&) noexcept -> ::pltxt2htm::HtmlBlockquote<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this HtmlBlockquote const&, HtmlBlockquote const&) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -444,6 +500,9 @@ public:
         -> ::pltxt2htm::HtmlTable<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::HtmlTable<ndebug>& self, ::pltxt2htm::HtmlTable<ndebug>&&) noexcept
         -> ::pltxt2htm::HtmlTable<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this HtmlTable const&, HtmlTable const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -469,6 +528,9 @@ public:
         -> ::pltxt2htm::HtmlTr<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this HtmlTr const&, HtmlTr const&) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -492,6 +554,9 @@ public:
         -> ::pltxt2htm::HtmlTd<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this HtmlTd const&, HtmlTd const&) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -513,6 +578,9 @@ public:
     constexpr auto operator=(::pltxt2htm::HtmlTh<ndebug> const&) noexcept -> ::pltxt2htm::HtmlTh<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::HtmlTh<ndebug>& self, ::pltxt2htm::HtmlTh<ndebug>&&) noexcept
         -> ::pltxt2htm::HtmlTh<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this HtmlTh const&, HtmlTh const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -539,6 +607,9 @@ public:
         -> ::pltxt2htm::HtmlThead<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this HtmlThead const&, HtmlThead const&) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -561,6 +632,9 @@ public:
         -> ::pltxt2htm::HtmlTbody<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::HtmlTbody<ndebug>& self, ::pltxt2htm::HtmlTbody<ndebug>&&) noexcept
         -> ::pltxt2htm::HtmlTbody<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this HtmlTbody const&, HtmlTbody const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -587,6 +661,9 @@ public:
         -> ::pltxt2htm::HtmlTfoot<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this HtmlTfoot const&, HtmlTfoot const&) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -611,6 +688,9 @@ public:
         -> ::pltxt2htm::HtmlCaption<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this HtmlCaption const&, HtmlCaption const&) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -633,6 +713,9 @@ public:
         -> ::pltxt2htm::HtmlColgroup<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::HtmlColgroup<ndebug>& self, ::pltxt2htm::HtmlColgroup<ndebug>&&) noexcept
         -> ::pltxt2htm::HtmlColgroup<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this HtmlColgroup const&, HtmlColgroup const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {

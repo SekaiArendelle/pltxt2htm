@@ -1830,6 +1830,379 @@ public:
     }
 
     [[nodiscard]]
+    constexpr auto operator==(this ::pltxt2htm::PlTxtNode<ndebug> const& self,
+                              ::pltxt2htm::PlTxtNode<ndebug> const& other) noexcept -> bool {
+        if (self.node_kind != other.node_kind) {
+            return false;
+        }
+        switch (self.node_kind) /* -Werror=switch */ {
+        case ::pltxt2htm::NodeKind::u8char: {
+            return self.u8char_node == other.u8char_node;
+        }
+        case ::pltxt2htm::NodeKind::invalid_u8char: {
+            return self.invalid_u8char_node == other.invalid_u8char_node;
+        }
+        case ::pltxt2htm::NodeKind::text: {
+            return self.text_node == other.text_node;
+        }
+        case ::pltxt2htm::NodeKind::pl_color: {
+            return self.pl_color_node == other.pl_color_node;
+        }
+        case ::pltxt2htm::NodeKind::pl_a: {
+            return self.pl_a_node == other.pl_a_node;
+        }
+        case ::pltxt2htm::NodeKind::pl_experiment: {
+            return self.pl_experiment_node == other.pl_experiment_node;
+        }
+        case ::pltxt2htm::NodeKind::pl_discussion: {
+            return self.pl_discussion_node == other.pl_discussion_node;
+        }
+        case ::pltxt2htm::NodeKind::pl_user: {
+            return self.pl_user_node == other.pl_user_node;
+        }
+        case ::pltxt2htm::NodeKind::pl_external: {
+            return self.pl_external_node == other.pl_external_node;
+        }
+        case ::pltxt2htm::NodeKind::pl_size: {
+            return self.pl_size_node == other.pl_size_node;
+        }
+        case ::pltxt2htm::NodeKind::pl_i: {
+            return self.pl_i_node == other.pl_i_node;
+        }
+        case ::pltxt2htm::NodeKind::pl_b: {
+            return self.pl_b_node == other.pl_b_node;
+        }
+        case ::pltxt2htm::NodeKind::pl_macro_project: {
+            return self.pl_macro_project_node == other.pl_macro_project_node;
+        }
+        case ::pltxt2htm::NodeKind::pl_macro_visitor: {
+            return self.pl_macro_visitor_node == other.pl_macro_visitor_node;
+        }
+        case ::pltxt2htm::NodeKind::pl_macro_author: {
+            return self.pl_macro_author_node == other.pl_macro_author_node;
+        }
+        case ::pltxt2htm::NodeKind::pl_macro_coauthors: {
+            return self.pl_macro_coauthors_node == other.pl_macro_coauthors_node;
+        }
+        case ::pltxt2htm::NodeKind::line_break: {
+            return self.line_break_node == other.line_break_node;
+        }
+        case ::pltxt2htm::NodeKind::html_br: {
+            return self.br_node == other.br_node;
+        }
+        case ::pltxt2htm::NodeKind::space: {
+            return self.space_node == other.space_node;
+        }
+        case ::pltxt2htm::NodeKind::less_than: {
+            return self.less_than_node == other.less_than_node;
+        }
+        case ::pltxt2htm::NodeKind::greater_than: {
+            return self.greater_than_node == other.greater_than_node;
+        }
+        case ::pltxt2htm::NodeKind::tab: {
+            return self.tab_node == other.tab_node;
+        }
+        case ::pltxt2htm::NodeKind::ampersand: {
+            return self.ampersand_node == other.ampersand_node;
+        }
+        case ::pltxt2htm::NodeKind::single_quote: {
+            return self.single_quote_node == other.single_quote_node;
+        }
+        case ::pltxt2htm::NodeKind::double_quote: {
+            return self.double_quote_node == other.double_quote_node;
+        }
+        case ::pltxt2htm::NodeKind::html_hr: {
+            return self.hr_node == other.hr_node;
+        }
+        case ::pltxt2htm::NodeKind::html_h1: {
+            return self.h1_node == other.h1_node;
+        }
+        case ::pltxt2htm::NodeKind::html_h2: {
+            return self.h2_node == other.h2_node;
+        }
+        case ::pltxt2htm::NodeKind::html_h3: {
+            return self.h3_node == other.h3_node;
+        }
+        case ::pltxt2htm::NodeKind::html_h4: {
+            return self.h4_node == other.h4_node;
+        }
+        case ::pltxt2htm::NodeKind::html_h5: {
+            return self.h5_node == other.h5_node;
+        }
+        case ::pltxt2htm::NodeKind::html_h6: {
+            return self.h6_node == other.h6_node;
+        }
+        case ::pltxt2htm::NodeKind::html_p: {
+            return self.p_node == other.p_node;
+        }
+        case ::pltxt2htm::NodeKind::html_del: {
+            return self.del_node == other.del_node;
+        }
+        case ::pltxt2htm::NodeKind::html_note: {
+            return self.note_node == other.note_node;
+        }
+        case ::pltxt2htm::NodeKind::html_em: {
+            return self.em_node == other.em_node;
+        }
+        case ::pltxt2htm::NodeKind::html_strong: {
+            return self.strong_node == other.strong_node;
+        }
+        case ::pltxt2htm::NodeKind::html_ul: {
+            return self.ul_node == other.ul_node;
+        }
+        case ::pltxt2htm::NodeKind::html_ol: {
+            return self.ol_node == other.ol_node;
+        }
+        case ::pltxt2htm::NodeKind::html_li: {
+            return self.li_node == other.li_node;
+        }
+        case ::pltxt2htm::NodeKind::html_code: {
+            return self.code_node == other.code_node;
+        }
+        case ::pltxt2htm::NodeKind::html_pre: {
+            return self.pre_node == other.pre_node;
+        }
+        case ::pltxt2htm::NodeKind::html_blockquote: {
+            return self.blockquote_node == other.blockquote_node;
+        }
+        case ::pltxt2htm::NodeKind::html_col: {
+            return self.col_node == other.col_node;
+        }
+        case ::pltxt2htm::NodeKind::html_table: {
+            return self.table_node == other.table_node;
+        }
+        case ::pltxt2htm::NodeKind::html_caption: {
+            return self.caption_node == other.caption_node;
+        }
+        case ::pltxt2htm::NodeKind::html_colgroup: {
+            return self.colgroup_node == other.colgroup_node;
+        }
+        case ::pltxt2htm::NodeKind::html_thead: {
+            return self.thead_node == other.thead_node;
+        }
+        case ::pltxt2htm::NodeKind::html_tbody: {
+            return self.tbody_node == other.tbody_node;
+        }
+        case ::pltxt2htm::NodeKind::html_tfoot: {
+            return self.tfoot_node == other.tfoot_node;
+        }
+        case ::pltxt2htm::NodeKind::html_tr: {
+            return self.tr_node == other.tr_node;
+        }
+        case ::pltxt2htm::NodeKind::html_th: {
+            return self.th_node == other.th_node;
+        }
+        case ::pltxt2htm::NodeKind::html_td: {
+            return self.td_node == other.td_node;
+        }
+        case ::pltxt2htm::NodeKind::md_atx_h1: {
+            return self.md_atx_h1_node == other.md_atx_h1_node;
+        }
+        case ::pltxt2htm::NodeKind::md_atx_h2: {
+            return self.md_atx_h2_node == other.md_atx_h2_node;
+        }
+        case ::pltxt2htm::NodeKind::md_atx_h3: {
+            return self.md_atx_h3_node == other.md_atx_h3_node;
+        }
+        case ::pltxt2htm::NodeKind::md_atx_h4: {
+            return self.md_atx_h4_node == other.md_atx_h4_node;
+        }
+        case ::pltxt2htm::NodeKind::md_atx_h5: {
+            return self.md_atx_h5_node == other.md_atx_h5_node;
+        }
+        case ::pltxt2htm::NodeKind::md_atx_h6: {
+            return self.md_atx_h6_node == other.md_atx_h6_node;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_backslash: {
+            return self.md_escape_backslash_node == other.md_escape_backslash_node;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_exclamation: {
+            return self.md_escape_exclamation_node == other.md_escape_exclamation_node;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_double_quote: {
+            return self.md_escape_double_quote_node == other.md_escape_double_quote_node;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_hash: {
+            return self.md_escape_hash_node == other.md_escape_hash_node;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_dollar: {
+            return self.md_escape_dollar_node == other.md_escape_dollar_node;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_percent: {
+            return self.md_escape_percent_node == other.md_escape_percent_node;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_ampersand: {
+            return self.md_escape_ampersand_node == other.md_escape_ampersand_node;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_single_quote: {
+            return self.md_escape_single_quote_node == other.md_escape_single_quote_node;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_left_paren: {
+            return self.md_escape_left_paren_node == other.md_escape_left_paren_node;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_right_paren: {
+            return self.md_escape_right_paren_node == other.md_escape_right_paren_node;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_asterisk: {
+            return self.md_escape_asterisk_node == other.md_escape_asterisk_node;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_plus: {
+            return self.md_escape_plus_node == other.md_escape_plus_node;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_comma: {
+            return self.md_escape_comma_node == other.md_escape_comma_node;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_hyphen: {
+            return self.md_escape_hyphen_node == other.md_escape_hyphen_node;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_dot: {
+            return self.md_escape_dot_node == other.md_escape_dot_node;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_slash: {
+            return self.md_escape_slash_node == other.md_escape_slash_node;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_colon: {
+            return self.md_escape_colon_node == other.md_escape_colon_node;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_semicolon: {
+            return self.md_escape_semicolon_node == other.md_escape_semicolon_node;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_less_than: {
+            return self.md_escape_less_than_node == other.md_escape_less_than_node;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_equals: {
+            return self.md_escape_equals_node == other.md_escape_equals_node;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_greater_than: {
+            return self.md_escape_greater_than_node == other.md_escape_greater_than_node;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_question: {
+            return self.md_escape_question_node == other.md_escape_question_node;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_at: {
+            return self.md_escape_at_node == other.md_escape_at_node;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_left_bracket: {
+            return self.md_escape_left_bracket_node == other.md_escape_left_bracket_node;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_right_bracket: {
+            return self.md_escape_right_bracket_node == other.md_escape_right_bracket_node;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_caret: {
+            return self.md_escape_caret_node == other.md_escape_caret_node;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_underscore: {
+            return self.md_escape_underscore_node == other.md_escape_underscore_node;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_backtick: {
+            return self.md_escape_backtick_node == other.md_escape_backtick_node;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_left_brace: {
+            return self.md_escape_left_brace_node == other.md_escape_left_brace_node;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_pipe: {
+            return self.md_escape_pipe_node == other.md_escape_pipe_node;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_right_brace: {
+            return self.md_escape_right_brace_node == other.md_escape_right_brace_node;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_tilde: {
+            return self.md_escape_tilde_node == other.md_escape_tilde_node;
+        }
+        case ::pltxt2htm::NodeKind::md_hr: {
+            return self.md_hr_node == other.md_hr_node;
+        }
+        case ::pltxt2htm::NodeKind::md_code_fence_backtick: {
+            return self.md_code_fence_backtick_node == other.md_code_fence_backtick_node;
+        }
+        case ::pltxt2htm::NodeKind::md_code_fence_tilde: {
+            return self.md_code_fence_tilde_node == other.md_code_fence_tilde_node;
+        }
+        case ::pltxt2htm::NodeKind::md_code_span_1_backtick: {
+            return self.md_code_span_1_backtick_node == other.md_code_span_1_backtick_node;
+        }
+        case ::pltxt2htm::NodeKind::md_code_span_2_backtick: {
+            return self.md_code_span_2_backtick_node == other.md_code_span_2_backtick_node;
+        }
+        case ::pltxt2htm::NodeKind::md_code_span_3_backtick: {
+            return self.md_code_span_3_backtick_node == other.md_code_span_3_backtick_node;
+        }
+        case ::pltxt2htm::NodeKind::md_single_emphasis_asterisk: {
+            return self.md_single_emphasis_asterisk_node == other.md_single_emphasis_asterisk_node;
+        }
+        case ::pltxt2htm::NodeKind::md_double_emphasis_asterisk: {
+            return self.md_double_emphasis_asterisk_node == other.md_double_emphasis_asterisk_node;
+        }
+        case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk: {
+            return self.md_triple_emphasis_asterisk_node == other.md_triple_emphasis_asterisk_node;
+        }
+        case ::pltxt2htm::NodeKind::md_single_emphasis_underscore: {
+            return self.md_single_emphasis_underscore_node == other.md_single_emphasis_underscore_node;
+        }
+        case ::pltxt2htm::NodeKind::md_double_emphasis_underscore: {
+            return self.md_double_emphasis_underscore_node == other.md_double_emphasis_underscore_node;
+        }
+        case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore: {
+            return self.md_triple_emphasis_underscore_node == other.md_triple_emphasis_underscore_node;
+        }
+        case ::pltxt2htm::NodeKind::md_del: {
+            return self.md_del_node == other.md_del_node;
+        }
+        case ::pltxt2htm::NodeKind::md_link: {
+            return self.md_link_node == other.md_link_node;
+        }
+        case ::pltxt2htm::NodeKind::md_image: {
+            return self.md_image_node == other.md_image_node;
+        }
+        case ::pltxt2htm::NodeKind::md_block_quotes: {
+            return self.md_block_quotes_node == other.md_block_quotes_node;
+        }
+        case ::pltxt2htm::NodeKind::md_ul: {
+            return self.md_ul_node == other.md_ul_node;
+        }
+        case ::pltxt2htm::NodeKind::md_ol: {
+            return self.md_ol_node == other.md_ol_node;
+        }
+        case ::pltxt2htm::NodeKind::md_li: {
+            return self.md_li_node == other.md_li_node;
+        }
+        case ::pltxt2htm::NodeKind::md_li_checkbox: {
+            return self.md_li_checkbox_node == other.md_li_checkbox_node;
+        }
+        case ::pltxt2htm::NodeKind::md_table: {
+            return self.md_table_node == other.md_table_node;
+        }
+        case ::pltxt2htm::NodeKind::md_thead: {
+            return self.md_thead_node == other.md_thead_node;
+        }
+        case ::pltxt2htm::NodeKind::md_tbody: {
+            return self.md_tbody_node == other.md_tbody_node;
+        }
+        case ::pltxt2htm::NodeKind::md_tr: {
+            return self.md_tr_node == other.md_tr_node;
+        }
+        case ::pltxt2htm::NodeKind::md_th: {
+            return self.md_th_node == other.md_th_node;
+        }
+        case ::pltxt2htm::NodeKind::md_td: {
+            return self.md_td_node == other.md_td_node;
+        }
+        case ::pltxt2htm::NodeKind::md_latex_inline: {
+            return self.md_latex_inline_node == other.md_latex_inline_node;
+        }
+        case ::pltxt2htm::NodeKind::md_latex_block: {
+            return self.md_latex_block_node == other.md_latex_block_node;
+        }
+#if 0
+        default:
+            [[unlikely]] {
+                ::exception::unreachable();
+            }
+#endif
+        }
+    }
+
+    [[nodiscard]]
     constexpr auto get_node_kind(this auto&& self) noexcept -> ::pltxt2htm::NodeKind {
         return self.node_kind;
     }

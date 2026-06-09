@@ -36,6 +36,9 @@ public:
         -> ::pltxt2htm::MdAtxH1<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this MdAtxH1 const&, MdAtxH1 const&) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -57,6 +60,9 @@ public:
     constexpr auto operator=(::pltxt2htm::MdAtxH2<ndebug> const&) noexcept -> ::pltxt2htm::MdAtxH2<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::MdAtxH2<ndebug>& self, ::pltxt2htm::MdAtxH2<ndebug>&&) noexcept
         -> ::pltxt2htm::MdAtxH2<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this MdAtxH2 const&, MdAtxH2 const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -82,6 +88,9 @@ public:
         -> ::pltxt2htm::MdAtxH3<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this MdAtxH3 const&, MdAtxH3 const&) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -103,6 +112,9 @@ public:
     constexpr auto operator=(::pltxt2htm::MdAtxH4<ndebug> const&) noexcept -> ::pltxt2htm::MdAtxH4<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::MdAtxH4<ndebug>& self, ::pltxt2htm::MdAtxH4<ndebug>&&) noexcept
         -> ::pltxt2htm::MdAtxH4<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this MdAtxH4 const&, MdAtxH4 const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -128,6 +140,9 @@ public:
         -> ::pltxt2htm::MdAtxH5<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this MdAtxH5 const&, MdAtxH5 const&) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -151,81 +166,183 @@ public:
         -> ::pltxt2htm::MdAtxH6<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this MdAtxH6 const&, MdAtxH6 const&) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
 };
 
 // Markdown escaped characters (each represents a backslash-escaped character)
-/** @brief Escaped backslash '\\' */ class MdEscapeBackslash {};
+/** @brief Escaped backslash '\\' */ class MdEscapeBackslash {
+public:
+    constexpr auto operator==(this MdEscapeBackslash const&, MdEscapeBackslash const&) noexcept -> bool = default;
+};
 
-/** @brief Escaped exclamation '!' */ class MdEscapeExclamation {};
+/** @brief Escaped exclamation '!' */ class MdEscapeExclamation {
+public:
+    constexpr auto operator==(this MdEscapeExclamation const&, MdEscapeExclamation const&) noexcept -> bool = default;
+};
 
-/** @brief Escaped double quote '"' */ class MdEscapeDoubleQuote {};
+/** @brief Escaped double quote '"' */ class MdEscapeDoubleQuote {
+public:
+    constexpr auto operator==(this MdEscapeDoubleQuote const&, MdEscapeDoubleQuote const&) noexcept -> bool = default;
+};
 
-/** @brief Escaped hash '#' */ class MdEscapeHash {};
+/** @brief Escaped hash '#' */ class MdEscapeHash {
+public:
+    constexpr auto operator==(this MdEscapeHash const&, MdEscapeHash const&) noexcept -> bool = default;
+};
 
-/** @brief Escaped dollar '$' */ class MdEscapeDollar {};
+/** @brief Escaped dollar '$' */ class MdEscapeDollar {
+public:
+    constexpr auto operator==(this MdEscapeDollar const&, MdEscapeDollar const&) noexcept -> bool = default;
+};
 
-/** @brief Escaped percent '%' */ class MdEscapePercent {};
+/** @brief Escaped percent '%' */ class MdEscapePercent {
+public:
+    constexpr auto operator==(this MdEscapePercent const&, MdEscapePercent const&) noexcept -> bool = default;
+};
 
-/** @brief Escaped ampersand '&' */ class MdEscapeAmpersand {};
+/** @brief Escaped ampersand '&' */ class MdEscapeAmpersand {
+public:
+    constexpr auto operator==(this MdEscapeAmpersand const&, MdEscapeAmpersand const&) noexcept -> bool = default;
+};
 
-/** @brief Escaped single quote '\'' */ class MdEscapeSingleQuote {};
+/** @brief Escaped single quote '\'' */ class MdEscapeSingleQuote {
+public:
+    constexpr auto operator==(this MdEscapeSingleQuote const&, MdEscapeSingleQuote const&) noexcept -> bool = default;
+};
 
-/** @brief Escaped left parenthesis '(' */ class MdEscapeLeftParen {};
+/** @brief Escaped left parenthesis '(' */ class MdEscapeLeftParen {
+public:
+    constexpr auto operator==(this MdEscapeLeftParen const&, MdEscapeLeftParen const&) noexcept -> bool = default;
+};
 
-/** @brief Escaped right parenthesis ')' */ class MdEscapeRightParen {};
+/** @brief Escaped right parenthesis ')' */ class MdEscapeRightParen {
+public:
+    constexpr auto operator==(this MdEscapeRightParen const&, MdEscapeRightParen const&) noexcept -> bool = default;
+};
 
-/** @brief Escaped asterisk '*' */ class MdEscapeAsterisk {};
+/** @brief Escaped asterisk '*' */ class MdEscapeAsterisk {
+public:
+    constexpr auto operator==(this MdEscapeAsterisk const&, MdEscapeAsterisk const&) noexcept -> bool = default;
+};
 
-/** @brief Escaped plus '+' */ class MdEscapePlus {};
+/** @brief Escaped plus '+' */ class MdEscapePlus {
+public:
+    constexpr auto operator==(this MdEscapePlus const&, MdEscapePlus const&) noexcept -> bool = default;
+};
 
-/** @brief Escaped comma ',' */ class MdEscapeComma {};
+/** @brief Escaped comma ',' */ class MdEscapeComma {
+public:
+    constexpr auto operator==(this MdEscapeComma const&, MdEscapeComma const&) noexcept -> bool = default;
+};
 
-/** @brief Escaped hyphen '-' */ class MdEscapeHyphen {};
+/** @brief Escaped hyphen '-' */ class MdEscapeHyphen {
+public:
+    constexpr auto operator==(this MdEscapeHyphen const&, MdEscapeHyphen const&) noexcept -> bool = default;
+};
 
-/** @brief Escaped dot '.' */ class MdEscapeDot {};
+/** @brief Escaped dot '.' */ class MdEscapeDot {
+public:
+    constexpr auto operator==(this MdEscapeDot const&, MdEscapeDot const&) noexcept -> bool = default;
+};
 
-/** @brief Escaped slash '/' */ class MdEscapeSlash {};
+/** @brief Escaped slash '/' */ class MdEscapeSlash {
+public:
+    constexpr auto operator==(this MdEscapeSlash const&, MdEscapeSlash const&) noexcept -> bool = default;
+};
 
-/** @brief Escaped colon ':' */ class MdEscapeColon {};
+/** @brief Escaped colon ':' */ class MdEscapeColon {
+public:
+    constexpr auto operator==(this MdEscapeColon const&, MdEscapeColon const&) noexcept -> bool = default;
+};
 
-/** @brief Escaped semicolon ';' */ class MdEscapeSemicolon {};
+/** @brief Escaped semicolon ';' */ class MdEscapeSemicolon {
+public:
+    constexpr auto operator==(this MdEscapeSemicolon const&, MdEscapeSemicolon const&) noexcept -> bool = default;
+};
 
-/** @brief Escaped less-than '<' */ class MdEscapeLessThan {};
+/** @brief Escaped less-than '<' */ class MdEscapeLessThan {
+public:
+    constexpr auto operator==(this MdEscapeLessThan const&, MdEscapeLessThan const&) noexcept -> bool = default;
+};
 
-/** @brief Escaped equals '=' */ class MdEscapeEquals {};
+/** @brief Escaped equals '=' */ class MdEscapeEquals {
+public:
+    constexpr auto operator==(this MdEscapeEquals const&, MdEscapeEquals const&) noexcept -> bool = default;
+};
 
-/** @brief Escaped greater-than '>' */ class MdEscapeGreaterThan {};
+/** @brief Escaped greater-than '>' */ class MdEscapeGreaterThan {
+public:
+    constexpr auto operator==(this MdEscapeGreaterThan const&, MdEscapeGreaterThan const&) noexcept -> bool = default;
+};
 
-/** @brief Escaped question '?' */ class MdEscapeQuestion {};
+/** @brief Escaped question '?' */ class MdEscapeQuestion {
+public:
+    constexpr auto operator==(this MdEscapeQuestion const&, MdEscapeQuestion const&) noexcept -> bool = default;
+};
 
-/** @brief Escaped at '@' */ class MdEscapeAt {};
+/** @brief Escaped at '@' */ class MdEscapeAt {
+public:
+    constexpr auto operator==(this MdEscapeAt const&, MdEscapeAt const&) noexcept -> bool = default;
+};
 
-/** @brief Escaped left bracket '[' */ class MdEscapeLeftBracket {};
+/** @brief Escaped left bracket '[' */ class MdEscapeLeftBracket {
+public:
+    constexpr auto operator==(this MdEscapeLeftBracket const&, MdEscapeLeftBracket const&) noexcept -> bool = default;
+};
 
-/** @brief Escaped right bracket ']' */ class MdEscapeRightBracket {};
+/** @brief Escaped right bracket ']' */ class MdEscapeRightBracket {
+public:
+    constexpr auto operator==(this MdEscapeRightBracket const&, MdEscapeRightBracket const&) noexcept -> bool = default;
+};
 
-/** @brief Escaped caret '^' */ class MdEscapeCaret {};
+/** @brief Escaped caret '^' */ class MdEscapeCaret {
+public:
+    constexpr auto operator==(this MdEscapeCaret const&, MdEscapeCaret const&) noexcept -> bool = default;
+};
 
-/** @brief Escaped underscore '_' */ class MdEscapeUnderscore {};
+/** @brief Escaped underscore '_' */ class MdEscapeUnderscore {
+public:
+    constexpr auto operator==(this MdEscapeUnderscore const&, MdEscapeUnderscore const&) noexcept -> bool = default;
+};
 
-/** @brief Escaped backtick '`' */ class MdEscapeBacktick {};
+/** @brief Escaped backtick '`' */ class MdEscapeBacktick {
+public:
+    constexpr auto operator==(this MdEscapeBacktick const&, MdEscapeBacktick const&) noexcept -> bool = default;
+};
 
-/** @brief Escaped left brace '{' */ class MdEscapeLeftBrace {};
+/** @brief Escaped left brace '{' */ class MdEscapeLeftBrace {
+public:
+    constexpr auto operator==(this MdEscapeLeftBrace const&, MdEscapeLeftBrace const&) noexcept -> bool = default;
+};
 
-/** @brief Escaped pipe '|' */ class MdEscapePipe {};
+/** @brief Escaped pipe '|' */ class MdEscapePipe {
+public:
+    constexpr auto operator==(this MdEscapePipe const&, MdEscapePipe const&) noexcept -> bool = default;
+};
 
-/** @brief Escaped right brace '}' */ class MdEscapeRightBrace {};
+/** @brief Escaped right brace '}' */ class MdEscapeRightBrace {
+public:
+    constexpr auto operator==(this MdEscapeRightBrace const&, MdEscapeRightBrace const&) noexcept -> bool = default;
+};
 
-/** @brief Escaped tilde '~' */ class MdEscapeTilde {};
+/** @brief Escaped tilde '~' */ class MdEscapeTilde {
+public:
+    constexpr auto operator==(this MdEscapeTilde const&, MdEscapeTilde const&) noexcept -> bool = default;
+};
 
 /**
  * @brief Markdown thematic break (horizontal rule)
  * @details Represents '---', '***', or '___' lines.
  */
-class MdHr {};
+class MdHr {
+public:
+    constexpr auto operator==(this MdHr const&, MdHr const&) noexcept -> bool = default;
+};
 
 /**
  * @brief Markdown fenced code block using backticks
@@ -253,6 +370,9 @@ public:
     constexpr auto operator=(this ::pltxt2htm::MdCodeFenceBacktick<ndebug>& self,
                              ::pltxt2htm::MdCodeFenceBacktick<ndebug>&&) noexcept
         -> ::pltxt2htm::MdCodeFenceBacktick<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this MdCodeFenceBacktick const& self, MdCodeFenceBacktick const& other) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -293,6 +413,9 @@ public:
         -> ::pltxt2htm::MdCodeFenceTilde<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this MdCodeFenceTilde const& self, MdCodeFenceTilde const& other) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -323,6 +446,9 @@ public:
         -> ::pltxt2htm::MdCodeSpan1Backtick<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this MdCodeSpan1Backtick const&, MdCodeSpan1Backtick const&) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -346,6 +472,9 @@ public:
     constexpr auto operator=(this ::pltxt2htm::MdCodeSpan2Backtick<ndebug>& self,
                              ::pltxt2htm::MdCodeSpan2Backtick<ndebug>&&) noexcept
         -> ::pltxt2htm::MdCodeSpan2Backtick<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this MdCodeSpan2Backtick const&, MdCodeSpan2Backtick const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -373,6 +502,9 @@ public:
         -> ::pltxt2htm::MdCodeSpan3Backtick<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this MdCodeSpan3Backtick const&, MdCodeSpan3Backtick const&) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -396,6 +528,9 @@ public:
     constexpr auto operator=(this ::pltxt2htm::MdSingleEmphasisAsterisk<ndebug>& self,
                              ::pltxt2htm::MdSingleEmphasisAsterisk<ndebug>&&) noexcept
         -> ::pltxt2htm::MdSingleEmphasisAsterisk<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this MdSingleEmphasisAsterisk const&, MdSingleEmphasisAsterisk const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -423,6 +558,9 @@ public:
         -> ::pltxt2htm::MdDoubleEmphasisAsterisk<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this MdDoubleEmphasisAsterisk const&, MdDoubleEmphasisAsterisk const&) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -446,6 +584,9 @@ public:
     constexpr auto operator=(this ::pltxt2htm::MdTripleEmphasisAsterisk<ndebug>& self,
                              ::pltxt2htm::MdTripleEmphasisAsterisk<ndebug>&&) noexcept
         -> ::pltxt2htm::MdTripleEmphasisAsterisk<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this MdTripleEmphasisAsterisk const&, MdTripleEmphasisAsterisk const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -473,6 +614,10 @@ public:
         -> ::pltxt2htm::MdSingleEmphasisUnderscore<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this MdSingleEmphasisUnderscore const&, MdSingleEmphasisUnderscore const&) noexcept
+        -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -496,6 +641,10 @@ public:
     constexpr auto operator=(this ::pltxt2htm::MdDoubleEmphasisUnderscore<ndebug>& self,
                              ::pltxt2htm::MdDoubleEmphasisUnderscore<ndebug>&&) noexcept
         -> ::pltxt2htm::MdDoubleEmphasisUnderscore<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this MdDoubleEmphasisUnderscore const&, MdDoubleEmphasisUnderscore const&) noexcept
+        -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -523,6 +672,10 @@ public:
         -> ::pltxt2htm::MdTripleEmphasisUnderscore<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this MdTripleEmphasisUnderscore const&, MdTripleEmphasisUnderscore const&) noexcept
+        -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -544,6 +697,9 @@ public:
     constexpr auto operator=(::pltxt2htm::MdDel<ndebug> const&) noexcept -> ::pltxt2htm::MdDel<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::MdDel<ndebug>& self, ::pltxt2htm::MdDel<ndebug>&&) noexcept
         -> ::pltxt2htm::MdDel<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this MdDel const&, MdDel const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -573,6 +729,9 @@ public:
     constexpr auto operator=(::pltxt2htm::MdLink<ndebug> const&) noexcept -> ::pltxt2htm::MdLink<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::MdLink<ndebug>& self, ::pltxt2htm::MdLink<ndebug>&&) noexcept
         -> ::pltxt2htm::MdLink<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this MdLink const&, MdLink const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -609,6 +768,9 @@ public:
         -> ::pltxt2htm::MdImage<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this MdImage const&, MdImage const&) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -638,6 +800,9 @@ public:
                              ::pltxt2htm::MdBlockQuotes<ndebug>&&) noexcept -> ::pltxt2htm::MdBlockQuotes<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this MdBlockQuotes const&, MdBlockQuotes const&) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -659,6 +824,9 @@ public:
     constexpr auto operator=(::pltxt2htm::MdUl<ndebug> const&) noexcept -> ::pltxt2htm::MdUl<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::MdUl<ndebug>& self, ::pltxt2htm::MdUl<ndebug>&&) noexcept
         -> ::pltxt2htm::MdUl<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this MdUl const&, MdUl const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -684,6 +852,9 @@ public:
         -> ::pltxt2htm::MdOl<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this MdOl const&, MdOl const&) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -705,6 +876,9 @@ public:
     constexpr auto operator=(::pltxt2htm::MdLi<ndebug> const&) noexcept -> ::pltxt2htm::MdLi<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::MdLi<ndebug>& self, ::pltxt2htm::MdLi<ndebug>&&) noexcept
         -> ::pltxt2htm::MdLi<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this MdLi const&, MdLi const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -730,6 +904,9 @@ public:
         -> ::pltxt2htm::MdLiCheckbox<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::MdLiCheckbox<ndebug>& self, ::pltxt2htm::MdLiCheckbox<ndebug>&&) noexcept
         -> ::pltxt2htm::MdLiCheckbox<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this MdLiCheckbox const&, MdLiCheckbox const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -761,6 +938,9 @@ public:
                              ::pltxt2htm::MdLatexInline<ndebug>&&) noexcept -> ::pltxt2htm::MdLatexInline<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this MdLatexInline const&, MdLatexInline const&) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -783,6 +963,9 @@ public:
         -> ::pltxt2htm::MdLatexBlock<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::MdLatexBlock<ndebug>& self, ::pltxt2htm::MdLatexBlock<ndebug>&&) noexcept
         -> ::pltxt2htm::MdLatexBlock<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this MdLatexBlock const&, MdLatexBlock const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -808,6 +991,9 @@ public:
         -> ::pltxt2htm::MdTable<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this MdTable const&, MdTable const&) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -829,6 +1015,9 @@ public:
     constexpr auto operator=(::pltxt2htm::MdThead<ndebug> const&) noexcept -> ::pltxt2htm::MdThead<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::MdThead<ndebug>& self, ::pltxt2htm::MdThead<ndebug>&&) noexcept
         -> ::pltxt2htm::MdThead<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this MdThead const&, MdThead const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -854,6 +1043,9 @@ public:
         -> ::pltxt2htm::MdTbody<ndebug>&;
 
     [[nodiscard]]
+    constexpr auto operator==(this MdTbody const&, MdTbody const&) noexcept -> bool;
+
+    [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
     }
@@ -875,6 +1067,9 @@ public:
     constexpr auto operator=(::pltxt2htm::MdTr<ndebug> const&) noexcept -> ::pltxt2htm::MdTr<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::MdTr<ndebug>& self, ::pltxt2htm::MdTr<ndebug>&&) noexcept
         -> ::pltxt2htm::MdTr<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this MdTr const&, MdTr const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -899,6 +1094,9 @@ public:
     constexpr auto operator=(::pltxt2htm::MdTh<ndebug> const&) noexcept -> ::pltxt2htm::MdTh<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::MdTh<ndebug>& self, ::pltxt2htm::MdTh<ndebug>&&) noexcept
         -> ::pltxt2htm::MdTh<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this MdTh const&, MdTh const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
@@ -928,6 +1126,9 @@ public:
     constexpr auto operator=(::pltxt2htm::MdTd<ndebug> const&) noexcept -> ::pltxt2htm::MdTd<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::MdTd<ndebug>& self, ::pltxt2htm::MdTd<ndebug>&&) noexcept
         -> ::pltxt2htm::MdTd<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this MdTd const&, MdTd const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {

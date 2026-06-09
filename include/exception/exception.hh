@@ -358,7 +358,9 @@ public:
 
 namespace details {
 
-struct nullopt_t_ {};
+struct nullopt_t_ {
+    constexpr bool operator==(this nullopt_t_ const&, nullopt_t_ const&) noexcept = default;
+};
 
 } // namespace details
 

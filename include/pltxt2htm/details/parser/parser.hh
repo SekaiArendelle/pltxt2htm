@@ -2289,7 +2289,8 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_atx_h1: {
-            ::fast_io::u8string_view const super_pltext{::pltxt2htm::details::stack_top<ndebug>(call_stack).get_pltext()};
+            ::fast_io::u8string_view const super_pltext{
+                ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_pltext()};
             parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH1<ndebug>{::std::move(subast)}));
             auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(super_pltext, parent_index), call_stack,
@@ -2298,7 +2299,8 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_atx_h2: {
-            ::fast_io::u8string_view const super_pltext{::pltxt2htm::details::stack_top<ndebug>(call_stack).get_pltext()};
+            ::fast_io::u8string_view const super_pltext{
+                ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_pltext()};
             parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH2<ndebug>{::std::move(subast)}));
             auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(super_pltext, parent_index), call_stack,
@@ -2307,7 +2309,8 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_atx_h3: {
-            ::fast_io::u8string_view const super_pltext{::pltxt2htm::details::stack_top<ndebug>(call_stack).get_pltext()};
+            ::fast_io::u8string_view const super_pltext{
+                ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_pltext()};
             parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH3<ndebug>{::std::move(subast)}));
             auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(super_pltext, parent_index), call_stack,
@@ -2316,7 +2319,8 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_atx_h4: {
-            ::fast_io::u8string_view const super_pltext{::pltxt2htm::details::stack_top<ndebug>(call_stack).get_pltext()};
+            ::fast_io::u8string_view const super_pltext{
+                ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_pltext()};
             parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH4<ndebug>{::std::move(subast)}));
             auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(super_pltext, parent_index), call_stack,
@@ -2325,7 +2329,8 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_atx_h5: {
-            ::fast_io::u8string_view const super_pltext{::pltxt2htm::details::stack_top<ndebug>(call_stack).get_pltext()};
+            ::fast_io::u8string_view const super_pltext{
+                ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_pltext()};
             parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH5<ndebug>{::std::move(subast)}));
             auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(super_pltext, parent_index), call_stack,
@@ -2334,7 +2339,8 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_atx_h6: {
-            ::fast_io::u8string_view const super_pltext{::pltxt2htm::details::stack_top<ndebug>(call_stack).get_pltext()};
+            ::fast_io::u8string_view const super_pltext{
+                ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_pltext()};
             parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH6<ndebug>{::std::move(subast)}));
             auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(super_pltext, parent_index), call_stack,

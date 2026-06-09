@@ -263,7 +263,8 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
             return 3;
         }
         char32_t const combine{static_cast<char32_t>(chr & 0x07) << 18 | static_cast<char32_t>(next_char & 0x3F) << 12 |
-                               static_cast<char32_t>(next_char2 & 0x3F) << 6 | static_cast<char32_t>(next_char3 & 0x3F)};
+                               static_cast<char32_t>(next_char2 & 0x3F) << 6 |
+                               static_cast<char32_t>(next_char3 & 0x3F)};
         if (combine < 0x10000 || combine > 0x10FFFF) {
             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
             return 4;
@@ -1732,7 +1733,7 @@ constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept
             return http.size();
         }
         if (constexpr auto https = ::pltxt2htm::details::U8LiteralString{u8"https://"};
-                 ::pltxt2htm::details::is_prefix_match<ndebug, https>(pltext)) {
+            ::pltxt2htm::details::is_prefix_match<ndebug, https>(pltext)) {
             return https.size();
         }
         return 0;
