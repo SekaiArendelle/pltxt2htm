@@ -449,6 +449,14 @@ entry:
         case ::pltxt2htm::NodeKind::md_ul:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_ul: {
+            {
+                auto const parent_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
+                if (parent_tag_type == ::pltxt2htm::NodeKind::html_li ||
+                    parent_tag_type == ::pltxt2htm::NodeKind::md_li ||
+                    parent_tag_type == ::pltxt2htm::NodeKind::md_li_checkbox) {
+                    result.push_back(u8'\n');
+                }
+            }
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::html_ul, 0));
             ++current_index;
@@ -458,6 +466,14 @@ entry:
         case ::pltxt2htm::NodeKind::md_ol:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_ol: {
+            {
+                auto const parent_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
+                if (parent_tag_type == ::pltxt2htm::NodeKind::html_li ||
+                    parent_tag_type == ::pltxt2htm::NodeKind::md_li ||
+                    parent_tag_type == ::pltxt2htm::NodeKind::md_li_checkbox) {
+                    result.push_back(u8'\n');
+                }
+            }
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                 node.get_subast(), 0, ::pltxt2htm::details::BackendContextWithOlInfo{}));
             ++current_index;

@@ -115,6 +115,37 @@ int main() {
     }
 
     {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<ul><li><ul><li>xxx</li></ul></li></ul>");
+        auto answer = ::fast_io::u8string_view{u8"\u2022 \n  \u2218 xxx\n\n"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<ul><li>text<ul><li>sub</li></ul></li></ul>");
+        auto answer = ::fast_io::u8string_view{u8"\u2022 text\n  \u2218 sub\n\n"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<ol><li><ol><li>xxx</li></ol></li></ol>");
+        auto answer = ::fast_io::u8string_view{u8"1. \n  1. xxx\n\n"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html =
+            ::pltxt2htm_test::pltxt2plunity_introduction(u8"<ul><li>a<ul><li>b<ul><li>c</li></ul></li></ul></li></ul>");
+        auto answer = ::fast_io::u8string_view{u8"\u2022 a\n  \u2218 b\n    \u25ab c\n\n\n"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<ul><li>a<ol><li>b</li></ol></li></ul>");
+        auto answer = ::fast_io::u8string_view{u8"\u2022 a\n  1. b\n\n"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab<code>test</code>cd");
         auto answer = ::fast_io::u8string_view{u8"ab<code>test</code>cd"};
         pltxt2htm_test_assert_equal(html, answer);
