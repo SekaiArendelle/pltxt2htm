@@ -54,10 +54,12 @@ int main() {
     {
         auto pltext = ::fast_io::u8string_view{u8"![special](https://example.com/path with spaces.jpg)"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"![special](https://example.com/path&nbsp;with&nbsp;spaces.jpg)"};
+        auto answer =
+            ::fast_io::u8string_view{u8"<img src=\"https://example.com/path%20with%20spaces.jpg\" alt=\"special\">"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = pltext;
+        auto plunity_richtext_answer =
+            ::fast_io::u8string_view{u8"![special](https://example.com/path%20with%20spaces.jpg)"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
@@ -166,6 +168,19 @@ int main() {
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"<img src=\"example.com/a.png?x=1&amp;y=2\" alt=\"img\">"};
         pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // Chinese characters in URL path are percent-encoded
+        auto pltext = ::fast_io::u8string_view{u8"![alt](https://example.com/中文路径)"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer = ::fast_io::u8string_view{
+            u8"<img src=\"https://example.com/%E4%B8%AD%E6%96%87%E8%B7%AF%E5%BE%84\" alt=\"alt\">"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer =
+            ::fast_io::u8string_view{u8"![alt](https://example.com/%E4%B8%AD%E6%96%87%E8%B7%AF%E5%BE%84)"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
     return 0;

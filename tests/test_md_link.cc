@@ -199,5 +199,18 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        // Chinese characters in URL path are percent-encoded
+        auto pltext = ::fast_io::u8string_view{u8"[text](https://example.com/中文路径)"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer =
+            ::fast_io::u8string_view{u8"<a href=\"https://example.com/%E4%B8%AD%E6%96%87%E8%B7%AF%E5%BE%84\">text</a>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{
+            u8"<external=https://example.com/%E4%B8%AD%E6%96%87%E8%B7%AF%E5%BE%84>text</external>"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
     return 0;
 }
