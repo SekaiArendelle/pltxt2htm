@@ -27,6 +27,12 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
+        auto pltext = ::fast_io::u8string_view{u8"https://example.com/?a=1&amp;b=2"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"https://example.com/?a=1&amp;b=2\">https://example.com/?a=1&amp;b=2</a>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
         auto pltext = ::fast_io::u8string_view{u8"https://example.com/path#fragment"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"<a href=\"https://example.com/path#fragment\">https://example.com/path#fragment</a>"};

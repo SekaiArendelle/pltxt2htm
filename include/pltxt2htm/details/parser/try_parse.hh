@@ -1691,13 +1691,14 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::std::size_t> {
     auto current_index = ::std::size_t{[pltext] constexpr noexcept -> ::std::size_t {
-        if (constexpr auto http = ::pltxt2htm::details::U8LiteralString{u8"http://"};
-            ::pltxt2htm::details::is_prefix_match<ndebug, http>(pltext)) {
-            return http.size();
-        }
-        if (constexpr auto https = ::pltxt2htm::details::U8LiteralString{u8"https://"};
-            ::pltxt2htm::details::is_prefix_match<ndebug, https>(pltext)) {
-            return https.size();
+        if (::pltxt2htm::details::is_prefix_match<ndebug, u8"http">(pltext)) {
+            auto const after_http = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 4);
+            if (::pltxt2htm::details::is_prefix_match<ndebug, u8"://">(after_http)) {
+                return ::std::size_t{7};
+            }
+            if (::pltxt2htm::details::is_prefix_match<ndebug, u8"s://">(after_http)) {
+                return ::std::size_t{8};
+            }
         }
         return 0;
     }()};
