@@ -1972,14 +1972,16 @@ constexpr auto try_parse_md_url(::fast_io::u8string_view pltext) noexcept
     while (raw_len < pltext.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, raw_len) != u8')') {
         ++raw_len;
     }
-    if (raw_len >= pltext.size()) {
+    auto const pltext_size = pltext.size();
+    pltxt2htm_assert(raw_len <= pltext_size, u8"raw_len should not exceed pltext size");
+    if (raw_len == pltext_size) {
         return ::exception::nullopt_t{};
     }
     auto raw_url = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 0, raw_len);
     ::fast_io::u8string encoded{};
     for (::std::size_t i = 0; i < raw_url.size(); ++i) {
         auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(raw_url, i);
-        if (chr >= u8'!' && chr <= u8'~' && chr != u8'<' && chr != u8'>' && chr != u8'"') {
+        if (chr >= u8'!' && chr <= u8'~' && chr != u8'<' && chr != u8'>' && chr != u8'\"') {
             encoded.push_back(chr);
         }
         else {
