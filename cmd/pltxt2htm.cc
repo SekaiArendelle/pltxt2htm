@@ -12,7 +12,8 @@ enum class TargetType : ::std::uint_least32_t {
     indeterminate = 0,
     html4unittest,
     common_html,
-    fixedadv_html
+    fixedadv_html,
+    plunity_text
 };
 
 constexpr ::fast_io::u8string_view usage{
@@ -25,6 +26,8 @@ constexpr ::fast_io::u8string_view usage{
     echo "example" | pltxt2htm --target html4unittest -o <output file>
     echo "example" | pltxt2htm --target fixedadv_html --host <host name> --project <project name> --visitor <visitor name> --author <author name> --coauthors <coauthors string>
     echo "example" | pltxt2htm --target fixedadv_html --host <host name> --project <project name> --visitor <visitor name> --author <author name> --coauthors <coauthors string> -o <output file>
+    echo "example" | pltxt2htm --target plunity_text --project <project name> --visitor <visitor name> --author <author name> --coauthors <coauthors string>
+    echo "example" | pltxt2htm --target plunity_text --project <project name> --visitor <visitor name> --author <author name> --coauthors <coauthors string> -o <output file>
 )"};
 
 int main(int argc, char const* const* const argv) noexcept {
@@ -105,6 +108,9 @@ int main(int argc, char const* const* const argv) noexcept {
             }
             else if (::std::strcmp(argv[i + 1], "fixedadv_html") == 0) {
                 target_type = ::TargetType::fixedadv_html;
+            }
+            else if (::std::strcmp(argv[i + 1], "plunity_text") == 0) {
+                target_type = ::TargetType::plunity_text;
             }
             else {
                 ::fast_io::perrln("Invalid target: ", ::fast_io::mnp::os_c_str(argv[i + 1]));
@@ -229,6 +235,34 @@ int main(int argc, char const* const* const argv) noexcept {
         }
         break;
     }
+    case ::TargetType::plunity_text: {
+        if (host != nullptr) [[unlikely]] {
+            ::fast_io::perrln("** You can not specify host when `--target` is plunity_text");
+            ::fast_io::println(::fast_io::u8c_stderr(), usage);
+            return 1;
+        }
+        if (project == nullptr) [[unlikely]] {
+            ::fast_io::perrln("** You must specify project name with `--project`");
+            ::fast_io::println(::fast_io::u8c_stderr(), usage);
+            return 1;
+        }
+        if (visitor == nullptr) [[unlikely]] {
+            ::fast_io::perrln("** You must specify visitor name with `--visitor`");
+            ::fast_io::println(::fast_io::u8c_stderr(), usage);
+            return 1;
+        }
+        if (author == nullptr) [[unlikely]] {
+            ::fast_io::perrln("** You must specify author name with `--author`");
+            ::fast_io::println(::fast_io::u8c_stderr(), usage);
+            return 1;
+        }
+        if (coauthors == nullptr) [[unlikely]] {
+            ::fast_io::perrln("** You must specify coauthors string with `--coauthors`");
+            ::fast_io::println(::fast_io::u8c_stderr(), usage);
+            return 1;
+        }
+        break;
+    }
     case ::TargetType::html4unittest: {
         if (host != nullptr || project != nullptr || visitor != nullptr || author != nullptr || coauthors != nullptr)
             [[unlikely]] {
@@ -293,6 +327,17 @@ int main(int argc, char const* const* const argv) noexcept {
                 >(::fast_io::mnp::os_c_str(input_text), ::fast_io::mnp::os_c_str(host),
                   ::fast_io::mnp::os_c_str(project), ::fast_io::mnp::os_c_str(visitor),
                   ::fast_io::mnp::os_c_str(author), ::fast_io::mnp::os_c_str(coauthors));
+        }
+        else if (target_type == ::TargetType::plunity_text) {
+            html = ::pltxt2htm::pltxt2plunity_introduction<
+#ifdef NDEBUG
+                ::pltxt2htm::Contracts::ignore
+#else
+                ::pltxt2htm::Contracts::quick_enforce
+#endif
+                >(::fast_io::mnp::os_c_str(input_text), ::fast_io::mnp::os_c_str(project),
+                  ::fast_io::mnp::os_c_str(visitor), ::fast_io::mnp::os_c_str(author),
+                  ::fast_io::mnp::os_c_str(coauthors));
         }
         else [[unlikely]] {
             ::exception::unreachable<
