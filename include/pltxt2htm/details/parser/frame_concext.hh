@@ -335,6 +335,8 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_image:
             [[fallthrough]];
+        case ::pltxt2htm::NodeKind::url:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_li:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_latex_inline:
@@ -600,6 +602,8 @@ public:
         case ::pltxt2htm::NodeKind::md_del:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_image:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::url:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_li:
             [[fallthrough]];
@@ -980,6 +984,8 @@ public:
         case ::pltxt2htm::NodeKind::md_del:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_image:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::url:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_li:
             [[fallthrough]];

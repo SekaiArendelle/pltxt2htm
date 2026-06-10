@@ -183,5 +183,24 @@ int main() {
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
+    {
+        auto pltext = ::fast_io::u8string_view{u8"![alt](https://www.example.com:65535/image.png)"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer =
+            ::fast_io::u8string_view{u8"<img src=\"https://www.example.com:65535/image.png\" alt=\"alt\">"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = pltext;
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    {
+        auto pltext = ::fast_io::u8string_view{u8"![alt](example.com/image.png?x=1&amp;y=2)"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer =
+            ::fast_io::u8string_view{u8"<img src=\"example.com/image.png?x=1&amp;y=2\" alt=\"alt\">"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }

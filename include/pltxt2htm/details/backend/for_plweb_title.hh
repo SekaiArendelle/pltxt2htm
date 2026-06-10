@@ -390,7 +390,9 @@ entry:
             ++current_index;
             goto entry;
         }
-        case ::pltxt2htm::NodeKind::md_link: {
+        case ::pltxt2htm::NodeKind::md_link:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::url: {
             // TODO common_html should not ignore md_link
             ++current_index;
             goto entry;

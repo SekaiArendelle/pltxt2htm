@@ -701,6 +701,16 @@ entry:
             result.append(u8"<b><i>");
             goto entry;
         }
+        case ::pltxt2htm::NodeKind::url: {
+            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
+                                                                              ::pltxt2htm::NodeKind::url, 0));
+            ++current_index;
+            result.append(u8"<external=");
+            result.append(::pltxt2htm::details::convert_simple_pltxt_ast_to_plunity_richtext<ndebug>(
+                node.get_url_node().get_url_ast()));
+            result.push_back(u8'>');
+            goto entry;
+        }
         case ::pltxt2htm::NodeKind::md_link: {
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
                                                                               ::pltxt2htm::NodeKind::md_link, 0));
@@ -1069,7 +1079,9 @@ entry:
             result.append(u8"\n```");
             goto entry;
         }
-        case ::pltxt2htm::NodeKind::md_link: {
+        case ::pltxt2htm::NodeKind::md_link:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::url: {
             result.append(u8"</external>");
             goto entry;
         }

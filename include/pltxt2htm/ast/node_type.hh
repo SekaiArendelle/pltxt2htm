@@ -25,6 +25,7 @@ enum class NodeKind : ::std::size_t {
     u8char = 0, ///< Valid UTF-8 character
     invalid_u8char, ///< Invalid UTF-8 character (replacement character)
     text, ///< Text container node (groups characters and inline elements)
+    url, ///< Auto-detected URL link: https://example.com
 
     // Whitespace and special characters
     line_break, ///< Line break character (\n)

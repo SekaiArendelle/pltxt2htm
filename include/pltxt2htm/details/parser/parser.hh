@@ -1954,6 +1954,8 @@ entry:
                     [[fallthrough]];
                 case ::pltxt2htm::NodeKind::md_image:
                     [[fallthrough]];
+                case ::pltxt2htm::NodeKind::url:
+                    [[fallthrough]];
                 case ::pltxt2htm::NodeKind::pl_macro_project:
                     [[fallthrough]];
                 case ::pltxt2htm::NodeKind::pl_macro_visitor:
@@ -2044,6 +2046,13 @@ entry:
             }
 
             ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+        }
+        if (auto opt_url = ::pltxt2htm::details::try_parse_auto_url<ndebug>(pltext, current_index);
+            opt_url.has_value()) {
+            auto&& [consumed_size, url_obj] = opt_url.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(url_obj)));
+            current_index += consumed_size;
+            continue;
         }
         auto advance_count = ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), result);
@@ -2521,6 +2530,8 @@ entry:
         case ::pltxt2htm::NodeKind::html_note:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_image:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::url:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_macro_project:
             [[fallthrough]];
