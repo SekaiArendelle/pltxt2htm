@@ -14,6 +14,125 @@
 
 namespace pltxt2htm::details {
 
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto url_ast_to_string(::pltxt2htm::Ast<ndebug> const& ast) noexcept -> ::fast_io::u8string {
+    ::fast_io::u8string result{};
+    for (auto&& node : ast) {
+        switch (node.get_node_kind()) {
+        case ::pltxt2htm::NodeKind::u8char: {
+            result.push_back(node.get_u8char());
+            continue;
+        }
+        case ::pltxt2htm::NodeKind::invalid_u8char: {
+            result.append(u8"\uFFFD");
+            continue;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_backslash:
+            result.push_back(u8'\\');
+            continue;
+        case ::pltxt2htm::NodeKind::md_escape_exclamation:
+            result.push_back(u8'!');
+            continue;
+        case ::pltxt2htm::NodeKind::md_escape_double_quote:
+            result.push_back(u8'"');
+            continue;
+        case ::pltxt2htm::NodeKind::md_escape_hash:
+            result.push_back(u8'#');
+            continue;
+        case ::pltxt2htm::NodeKind::md_escape_dollar:
+            result.push_back(u8'$');
+            continue;
+        case ::pltxt2htm::NodeKind::md_escape_percent:
+            result.push_back(u8'%');
+            continue;
+        case ::pltxt2htm::NodeKind::md_escape_ampersand:
+            result.push_back(u8'&');
+            continue;
+        case ::pltxt2htm::NodeKind::md_escape_single_quote:
+            result.push_back(u8'\'');
+            continue;
+        case ::pltxt2htm::NodeKind::md_escape_left_paren:
+            result.push_back(u8'(');
+            continue;
+        case ::pltxt2htm::NodeKind::md_escape_right_paren:
+            result.push_back(u8')');
+            continue;
+        case ::pltxt2htm::NodeKind::md_escape_asterisk:
+            result.push_back(u8'*');
+            continue;
+        case ::pltxt2htm::NodeKind::md_escape_plus:
+            result.push_back(u8'+');
+            continue;
+        case ::pltxt2htm::NodeKind::md_escape_comma:
+            result.push_back(u8',');
+            continue;
+        case ::pltxt2htm::NodeKind::md_escape_hyphen:
+            result.push_back(u8'-');
+            continue;
+        case ::pltxt2htm::NodeKind::md_escape_dot:
+            result.push_back(u8'.');
+            continue;
+        case ::pltxt2htm::NodeKind::md_escape_slash:
+            result.push_back(u8'/');
+            continue;
+        case ::pltxt2htm::NodeKind::md_escape_colon:
+            result.push_back(u8':');
+            continue;
+        case ::pltxt2htm::NodeKind::md_escape_semicolon:
+            result.push_back(u8';');
+            continue;
+        case ::pltxt2htm::NodeKind::md_escape_less_than:
+            result.push_back(u8'<');
+            continue;
+        case ::pltxt2htm::NodeKind::md_escape_equals:
+            result.push_back(u8'=');
+            continue;
+        case ::pltxt2htm::NodeKind::md_escape_greater_than:
+            result.push_back(u8'>');
+            continue;
+        case ::pltxt2htm::NodeKind::md_escape_question:
+            result.push_back(u8'?');
+            continue;
+        case ::pltxt2htm::NodeKind::md_escape_at:
+            result.push_back(u8'@');
+            continue;
+        case ::pltxt2htm::NodeKind::md_escape_left_bracket:
+            result.push_back(u8'[');
+            continue;
+        case ::pltxt2htm::NodeKind::md_escape_right_bracket:
+            result.push_back(u8']');
+            continue;
+        case ::pltxt2htm::NodeKind::md_escape_caret:
+            result.push_back(u8'^');
+            continue;
+        case ::pltxt2htm::NodeKind::md_escape_underscore:
+            result.push_back(u8'_');
+            continue;
+        case ::pltxt2htm::NodeKind::md_escape_backtick:
+            result.push_back(u8'`');
+            continue;
+        case ::pltxt2htm::NodeKind::md_escape_left_brace:
+            result.push_back(u8'{');
+            continue;
+        case ::pltxt2htm::NodeKind::md_escape_pipe:
+            result.push_back(u8'|');
+            continue;
+        case ::pltxt2htm::NodeKind::md_escape_right_brace:
+            result.push_back(u8'}');
+            continue;
+        case ::pltxt2htm::NodeKind::md_escape_tilde:
+            result.push_back(u8'~');
+            continue;
+        default:
+            [[unlikely]] {
+                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+            }
+        }
+    }
+    return result;
+}
+
 /**
  * @brief Translate pl-text's AST to common HTML (only supports color, b and i tags)
  * @details This backend generates simplified HTML output suitable for basic formatting.
@@ -276,8 +395,6 @@ entry:
         case ::pltxt2htm::NodeKind::html_col: {
             continue;
         }
-        case ::pltxt2htm::NodeKind::pl_external:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::text:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_experiment:
@@ -383,17 +500,35 @@ entry:
         case ::pltxt2htm::NodeKind::md_code_span_2_backtick:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_code_span_3_backtick: {
-            // TODO common_html should not ignore the tag context
-            // We should recover the tag context
             call_stack.push(
                 ::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(), ::pltxt2htm::NodeKind::text, 0));
             ++current_index;
             goto entry;
         }
-        case ::pltxt2htm::NodeKind::md_link:
-            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_external: {
+            result.append(u8"<a href=\"");
+            result.append(::pltxt2htm::details::url_ast_to_string<ndebug>(node.get_external_tag_url().get_url_ast()));
+            result.append(u8"\">");
+            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
+                                                                               ::pltxt2htm::NodeKind::pl_external, 0));
+            ++current_index;
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::md_link: {
+            result.append(u8"<a href=\"");
+            result.append(::pltxt2htm::details::url_ast_to_string<ndebug>(node.get_md_link_url().get_url_ast()));
+            result.append(u8"\">");
+            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
+                                                                               ::pltxt2htm::NodeKind::md_link, 0));
+            ++current_index;
+            goto entry;
+        }
         case ::pltxt2htm::NodeKind::url: {
-            // TODO common_html should not ignore md_link
+            result.append(u8"<a href=\"");
+            result.append(::pltxt2htm::details::url_ast_to_string<ndebug>(node.get_url_node().get_url_ast()));
+            result.append(u8"\">");
+            call_stack.push(
+                ::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(), ::pltxt2htm::NodeKind::url, 0));
             ++current_index;
             goto entry;
         }
@@ -443,6 +578,14 @@ entry:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_color: {
             result.append(u8"</span>");
+            goto entry;
+        }
+        case ::pltxt2htm::NodeKind::pl_external:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_link:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::url: {
+            result.append(u8"</a>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::text: {

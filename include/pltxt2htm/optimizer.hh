@@ -313,9 +313,8 @@ entry:
                            ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_equal_sign_tag_id();
                 }
                 if (nested_tag_type == ::pltxt2htm::NodeKind::pl_a) {
-                    constexpr auto anchor_color_literal = ::pltxt2htm::PlA<ndebug>::get_color_literal();
-                    // TODO Avoid constructing a temporary u8string_view on each comparison
-                    auto const anchor_color =
+                    static constexpr auto anchor_color_literal = ::pltxt2htm::PlA<ndebug>::get_color_literal();
+                    static constexpr auto anchor_color =
                         ::fast_io::u8string_view{anchor_color_literal.data(), anchor_color_literal.size()};
                     return node.get_equal_sign_tag_id() != anchor_color;
                 }
@@ -368,9 +367,8 @@ entry:
             // <a>text<a>text</a>text</a> -> <a>texttexttext</a>
             auto const is_not_same_tag = bool{[nested_tag_type, &call_stack] constexpr noexcept {
                 if (nested_tag_type == ::pltxt2htm::NodeKind::pl_color) {
-                    constexpr auto anchor_color_literal = ::pltxt2htm::PlA<ndebug>::get_color_literal();
-                    // TODO Avoid constructing a temporary u8string_view on each comparison
-                    auto const anchor_color =
+                    static constexpr auto anchor_color_literal = ::pltxt2htm::PlA<ndebug>::get_color_literal();
+                    static constexpr auto anchor_color =
                         ::fast_io::u8string_view{anchor_color_literal.data(), anchor_color_literal.size()};
                     return anchor_color != ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_equal_sign_tag_id();
                 }

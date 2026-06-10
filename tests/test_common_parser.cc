@@ -63,7 +63,31 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"[text](https://example.com)");
-        auto answer = ::fast_io::u8string_view{u8""};
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"https://example.com\">text</a>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"https://example.com");
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"https://example.com\">https://example.com</a>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"[**bold**](https://example.com)");
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"https://example.com\"><strong>bold</strong></a>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"<external=https://example.com>text</external>");
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"https://example.com\">text</a>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"<external=https://example.com><b>bold</b></external>");
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"https://example.com\"><strong>bold</strong></a>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
