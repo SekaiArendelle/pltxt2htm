@@ -830,7 +830,9 @@ entry:
         }
         case ::pltxt2htm::NodeKind::md_image:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_link: {
+        case ::pltxt2htm::NodeKind::md_link:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::url: {
             ++current_iter;
             continue;
         }

@@ -125,6 +125,7 @@ class PlTxtNode {
         ::pltxt2htm::MdTripleEmphasisUnderscore<ndebug> md_triple_emphasis_underscore_node;
         ::pltxt2htm::MdDel<ndebug> md_del_node;
         ::pltxt2htm::MdLink<ndebug> md_link_node;
+        ::pltxt2htm::Url<ndebug> url_node;
         ::pltxt2htm::MdImage<ndebug> md_image_node;
         ::pltxt2htm::MdBlockQuotes<ndebug> md_block_quotes_node;
         ::pltxt2htm::MdUl<ndebug> md_ul_node;
@@ -682,6 +683,11 @@ public:
     constexpr PlTxtNode(::pltxt2htm::MdLink<ndebug>&& node) noexcept
         : md_link_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::md_link} {
+    }
+
+    constexpr PlTxtNode(::pltxt2htm::Url<ndebug>&& node) noexcept
+        : url_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::url} {
     }
 
     constexpr PlTxtNode(::pltxt2htm::MdImage<ndebug>&& node) noexcept
@@ -1263,6 +1269,10 @@ public:
             new (::std::addressof(md_link_node))::pltxt2htm::MdLink(::std::move(other.md_link_node));
             break;
         }
+        case ::pltxt2htm::NodeKind::url: {
+            new (::std::addressof(url_node))::pltxt2htm::Url(::std::move(other.url_node));
+            break;
+        }
         case ::pltxt2htm::NodeKind::md_image: {
             new (::std::addressof(md_image_node))::pltxt2htm::MdImage(::std::move(other.md_image_node));
             break;
@@ -1754,6 +1764,10 @@ public:
             md_link_node.~MdLink();
             break;
         }
+        case ::pltxt2htm::NodeKind::url: {
+            url_node.~Url();
+            break;
+        }
         case ::pltxt2htm::NodeKind::md_image: {
             md_image_node.~MdImage();
             break;
@@ -2151,6 +2165,9 @@ public:
         case ::pltxt2htm::NodeKind::md_link: {
             return self.md_link_node == other.md_link_node;
         }
+        case ::pltxt2htm::NodeKind::url: {
+            return self.url_node == other.url_node;
+        }
         case ::pltxt2htm::NodeKind::md_image: {
             return self.md_image_node == other.md_image_node;
         }
@@ -2245,6 +2262,13 @@ public:
         bool const is_external_tag_type{self.node_kind == ::pltxt2htm::NodeKind::pl_external};
         pltxt2htm_assert(is_external_tag_type, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_external_node).get_url();
+    }
+
+    [[nodiscard]]
+    constexpr auto get_url_node(this auto&& self) noexcept -> decltype(auto) {
+        bool const is_url_type{self.node_kind == ::pltxt2htm::NodeKind::url};
+        pltxt2htm_assert(is_url_type, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.url_node);
     }
 
     [[nodiscard]]
@@ -2440,6 +2464,9 @@ public:
         }
         case ::pltxt2htm::NodeKind::md_link: {
             return ::std::forward_like<decltype(self)>(self.md_link_node).get_subast();
+        }
+        case ::pltxt2htm::NodeKind::url: {
+            return ::std::forward_like<decltype(self)>(self.url_node).get_url_ast();
         }
         case ::pltxt2htm::NodeKind::md_image: {
             return ::std::forward_like<decltype(self)>(self.md_image_node).get_subast();

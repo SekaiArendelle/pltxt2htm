@@ -1805,12 +1805,16 @@ constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept
             break;
         }
         if constexpr (regard_right_parent_as_end_of_url) {
-            if (chr != u8')') {
-                return ::exception::nullopt_t{};
+            if (chr == u8')') {
+                if (::pltxt2htm::details::validate_url_domain<ndebug>(pltext, domain_start, current_index) == false) {
+                    return ::exception::nullopt_t{};
+                }
+                return ::pltxt2htm::details::make_try_parse_url_result<ndebug>(
+                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 0, current_index), current_index);
             }
-            if (::pltxt2htm::details::validate_url_domain<ndebug>(pltext, domain_start, current_index) == false) {
-                return ::exception::nullopt_t{};
-            }
+        }
+        // URL ends at a non-URL character after a valid domain
+        if (::pltxt2htm::details::validate_url_domain<ndebug>(pltext, domain_start, current_index)) {
             return ::pltxt2htm::details::make_try_parse_url_result<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 0, current_index), current_index);
         }

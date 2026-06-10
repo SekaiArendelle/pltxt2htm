@@ -780,6 +780,15 @@ entry:
             result.append(u8"<em><strong>");
             goto entry;
         }
+        case ::pltxt2htm::NodeKind::url: {
+            result.append(u8"<a href=\"");
+            ::pltxt2htm::details::append_url_attr_from_ast<ndebug>(result, node.get_url_node());
+            result.append(u8"\">");
+            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
+                                                                              ::pltxt2htm::NodeKind::url, 0));
+            ++current_index;
+            goto entry;
+        }
         case ::pltxt2htm::NodeKind::md_link: {
             result.append(u8"<a href=\"");
             ::pltxt2htm::details::append_url_attr_from_ast<ndebug>(result, node.get_md_link_url());
@@ -1150,7 +1159,9 @@ entry:
         }
         case ::pltxt2htm::NodeKind::pl_external:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_link: {
+        case ::pltxt2htm::NodeKind::md_link:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::url: {
             result.append(u8"</a>");
             goto entry;
         }

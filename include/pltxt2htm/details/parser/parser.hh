@@ -1954,6 +1954,8 @@ entry:
                     [[fallthrough]];
                 case ::pltxt2htm::NodeKind::md_image:
                     [[fallthrough]];
+                case ::pltxt2htm::NodeKind::url:
+                    [[fallthrough]];
                 case ::pltxt2htm::NodeKind::pl_macro_project:
                     [[fallthrough]];
                 case ::pltxt2htm::NodeKind::pl_macro_visitor:
@@ -2044,6 +2046,23 @@ entry:
             }
 
             ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+        }
+        if (auto opt_url = ::pltxt2htm::details::try_parse_url<ndebug>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            opt_url.has_value() &&
+            (::pltxt2htm::details::is_prefix_match<ndebug, u8"http://">(
+                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)) ||
+             ::pltxt2htm::details::is_prefix_match<ndebug, u8"https://">(
+                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) &&
+            !(current_index >= 2 &&
+              ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index - 1) == u8'(' &&
+              ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index - 2) == u8']') &&
+            !(current_index >= 1 &&
+              ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index - 1) == u8'=')) {
+            auto&& [consumed_size, url_obj] = opt_url.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(url_obj)));
+            current_index += consumed_size;
+            continue;
         }
         auto advance_count = ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), result);
@@ -2521,6 +2540,8 @@ entry:
         case ::pltxt2htm::NodeKind::html_note:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_image:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::url:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_macro_project:
             [[fallthrough]];
