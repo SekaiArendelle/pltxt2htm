@@ -834,12 +834,17 @@ entry:
             ++current_iter;
             continue;
         }
+        case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk: {
+            auto&& subast = node.get_subast();
+            bool const ast_not_empty = !subast.empty();
+            pltxt2htm_assert(ast_not_empty, u8"md_triple_emphasis subast must not be empty");
+            ++current_iter;
+            continue;
+        }
         case ::pltxt2htm::NodeKind::md_block_quotes:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore:
-            [[fallthrough]]; // TODO optimization support for md_triple_emphasis
-        case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk:
-            [[fallthrough]]; // TODO optimization support for md_triple_emphasis
         case ::pltxt2htm::NodeKind::md_escape_backslash:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_escape_exclamation:
