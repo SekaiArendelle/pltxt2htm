@@ -68,5 +68,28 @@ int main() {
         auto answer = ::fast_io::u8string_view{u8"<a href=\"https://example.com\">click</a>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
+    {
+        // Chinese chars after the path are excluded from the auto-link
+        auto pltext = ::fast_io::u8string_view{u8"https://example.com/\u4E2D\u6587"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer =
+            ::fast_io::u8string_view{u8"<a href=\"https://example.com/\">https://example.com/</a>\u4E2D\u6587"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer =
+            ::fast_io::u8string_view{u8"<external=https://example.com/>https://example.com/</external>\u4E2D\u6587"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+    {
+        // Space in the URL is treated as end of the auto-link
+        auto pltext = ::fast_io::u8string_view{u8"https://example.com/a b"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"https://example.com/a\">https://example.com/a</a>&nbsp;b"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer =
+            ::fast_io::u8string_view{u8"<external=https://example.com/a>https://example.com/a</external> b"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
     return 0;
 }

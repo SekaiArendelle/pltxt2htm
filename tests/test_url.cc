@@ -223,6 +223,47 @@ int main() {
             ::pltxt2htm::details::try_parse_url<::pltxt2htm::Contracts::quick_enforce>(url).has_value() == false);
     }
     {
+        // URL with Chinese characters: parsing stops at the first Chinese byte (>0x7E)
+        auto input = ::fast_io::u8string_view{u8"https://example.com/\u4E2D\u6587"};
+        auto opt = ::pltxt2htm::details::try_parse_url<::pltxt2htm::Contracts::quick_enforce>(input);
+        ::pltxt2htm_test::assert_true(opt.has_value());
+        auto&& [consumed_size, url_obj] = opt.value();
+        // consumed_size == 20 ("https://example.com/"), stops before Chinese bytes
+        ::pltxt2htm_test::assert_true(consumed_size == 20);
+        // URL AST contains only the ASCII prefix
+        ::pltxt2htm_test::assert_true(url_obj.get_url_ast().size() == 20);
+    }
+    {
+        // URL with space: parsing stops at the space (< 0x21)
+        auto input = ::fast_io::u8string_view{u8"https://example.com/a b"};
+        auto opt = ::pltxt2htm::details::try_parse_url<::pltxt2htm::Contracts::quick_enforce>(input);
+        ::pltxt2htm_test::assert_true(opt.has_value());
+        auto&& [consumed_size, url_obj] = opt.value();
+        // consumed_size == 21 ("https://example.com/a"), stops before space
+        ::pltxt2htm_test::assert_true(consumed_size == 21);
+        ::pltxt2htm_test::assert_true(url_obj.get_url_ast().size() == 21);
+    }
+    {
+        // try_parse_auto_url with Chinese characters: same truncation
+        auto input = ::fast_io::u8string_view{u8"text https://example.com/\u4E2D\u6587 end"};
+        auto opt = ::pltxt2htm::details::try_parse_auto_url<::pltxt2htm::Contracts::quick_enforce>(input, 5);
+        ::pltxt2htm_test::assert_true(opt.has_value());
+        auto&& [consumed_size, url_obj] = opt.value();
+        // consumed_size == 20 ("https://example.com/"), stops before Chinese bytes
+        ::pltxt2htm_test::assert_true(consumed_size == 20);
+        ::pltxt2htm_test::assert_true(url_obj.get_url_ast().size() == 20);
+    }
+    {
+        // try_parse_auto_url with space: same truncation
+        auto input = ::fast_io::u8string_view{u8"text https://example.com/a b end"};
+        auto opt = ::pltxt2htm::details::try_parse_auto_url<::pltxt2htm::Contracts::quick_enforce>(input, 5);
+        ::pltxt2htm_test::assert_true(opt.has_value());
+        auto&& [consumed_size, url_obj] = opt.value();
+        // consumed_size == 21 ("https://example.com/a"), stops before space
+        ::pltxt2htm_test::assert_true(consumed_size == 21);
+        ::pltxt2htm_test::assert_true(url_obj.get_url_ast().size() == 21);
+    }
+    {
         ::pltxt2htm_test::assert_true(
             ::pltxt2htm::details::try_parse_url<::pltxt2htm::Contracts::quick_enforce, true>(u8"image.gif)")
                 .has_value() == false);

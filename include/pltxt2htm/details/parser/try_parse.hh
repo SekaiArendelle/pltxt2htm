@@ -1838,6 +1838,45 @@ constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept
 }
 
 /**
+ * @brief Parse an auto-detected bare URL (http/https) with context guards.
+ *
+ * Detects a URL starting with `http://` or `https://` at `current_index` and rejects it
+ * when preceded by `](` (i.e. inside markdown link syntax) or `=` (i.e. inside
+ * `<tag=url...>`).
+ *
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
+ * @param[in] pltext The full input text view.
+ * @param[in] current_index Offset into `pltext` at which to probe for a URL.
+ * @return Parsed URL payload on success; nullopt if no valid auto-link is found.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_auto_url(::fast_io::u8string_view pltext, ::std::size_t current_index) noexcept
+    -> ::exception::optional<::pltxt2htm::details::TryParseUrlResult<ndebug>> {
+    auto opt_url = ::pltxt2htm::details::try_parse_url<ndebug>(
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+    if (!opt_url.has_value()) {
+        return ::exception::nullopt_t{};
+    }
+    if (!::pltxt2htm::details::is_prefix_match<ndebug, u8"http://">(
+            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)) &&
+        !::pltxt2htm::details::is_prefix_match<ndebug, u8"https://">(
+            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) {
+        return ::exception::nullopt_t{};
+    }
+    if (current_index >= 2 &&
+        ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index - 1) == u8'(' &&
+        ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index - 2) == u8']') {
+        return ::exception::nullopt_t{};
+    }
+    if (current_index >= 1 &&
+        ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index - 1) == u8'=') {
+        return ::exception::nullopt_t{};
+    }
+    return opt_url;
+}
+
+/**
  * @brief Parse `<external=...>` tag and validate its URL payload.
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @param[in] pltext The input text starting at the `external` tag payload.
