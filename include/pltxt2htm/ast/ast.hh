@@ -1333,6 +1333,8 @@ public:
                 ::std::move(other.md_latex_block_node));
             break;
         }
+// All enum values are covered above; default is unreachable.
+// #if 0 documents intent and keeps the formatter output clean.
 #if 0
         default:
             [[unlikely]] {
@@ -1824,6 +1826,8 @@ public:
             md_latex_block_node.~MdLatexBlock();
             break;
         }
+// All enum values are covered above; default is unreachable.
+// #if 0 documents intent and keeps the formatter output clean.
 #if 0
         default:
             [[unlikely]] {
@@ -2210,6 +2214,8 @@ public:
         case ::pltxt2htm::NodeKind::md_latex_block: {
             return self.md_latex_block_node == other.md_latex_block_node;
         }
+// All enum values are covered above; default is unreachable.
+// #if 0 documents intent and keeps the formatter output clean.
 #if 0
         default:
             [[unlikely]] {

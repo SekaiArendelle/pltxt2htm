@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file for_plweb_text.hh
  * @brief Advanced HTML backend for pltxt2htm
  * @details Generates full-featured HTML output with comprehensive support for
@@ -784,8 +784,8 @@ entry:
             result.append(u8"<a href=\"");
             ::pltxt2htm::details::append_url_attr_from_ast<ndebug>(result, node.get_url_node());
             result.append(u8"\">");
-            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
-                                                                              ::pltxt2htm::NodeKind::url, 0));
+            call_stack.push(
+                ::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(), ::pltxt2htm::NodeKind::url, 0));
             ++current_index;
             goto entry;
         }
@@ -958,12 +958,14 @@ entry:
             ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result, coauthors);
             continue;
         }
+// All enum values are covered above; default is unreachable.
+// #if 0 documents intent and keeps the formatter output clean.
 #if 0
         default:
-#endif
             [[unlikely]] {
                 ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
             }
+#endif
         }
     }
 

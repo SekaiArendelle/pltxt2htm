@@ -702,8 +702,8 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeKind::url: {
-            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
-                                                                              ::pltxt2htm::NodeKind::url, 0));
+            call_stack.push(
+                ::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(), ::pltxt2htm::NodeKind::url, 0));
             ++current_index;
             result.append(u8"<external=");
             result.append(::pltxt2htm::details::convert_simple_pltxt_ast_to_plunity_richtext<ndebug>(
@@ -869,6 +869,8 @@ entry:
             result.append(coauthors);
             continue;
         }
+// All enum values are covered above; default is unreachable.
+// #if 0 documents intent and keeps the formatter output clean.
 #if 0
         default:
             [[unlikely]] {

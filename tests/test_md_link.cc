@@ -286,8 +286,7 @@ int main() {
     {
         auto pltext = ::fast_io::u8string_view{u8"[text](https://www.bilibili.com/video/BV1df421f7WB)"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer =
-            ::fast_io::u8string_view{u8"<a href=\"https://www.bilibili.com/video/BV1df421f7WB\">text</a>"};
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"https://www.bilibili.com/video/BV1df421f7WB\">text</a>"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer =

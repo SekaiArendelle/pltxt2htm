@@ -902,6 +902,8 @@ entry:
             ++current_iter;
             continue;
         }
+// All enum values are covered above; default is unreachable.
+// #if 0 documents intent and keeps the formatter output clean.
 #if 0
         default:
             [[unlikely]] {

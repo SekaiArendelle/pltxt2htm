@@ -1688,8 +1688,7 @@ constexpr auto validate_url_domain(::fast_io::u8string_view pltext, ::std::size_
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::std::size_t> {
+constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept -> ::exception::optional<::std::size_t> {
     auto current_index = ::std::size_t{[pltext] constexpr noexcept -> ::std::size_t {
         if (::pltxt2htm::details::is_prefix_match<ndebug, u8"http">(pltext)) {
             auto const after_http = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 4);
@@ -1824,8 +1823,8 @@ constexpr auto make_try_parse_url_result(::fast_io::u8string_view const parsed_u
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_url_path_simple(::fast_io::u8string_view pltext,
-                                         ::std::size_t start_index) noexcept -> ::std::size_t {
+constexpr auto try_parse_url_path_simple(::fast_io::u8string_view pltext, ::std::size_t start_index) noexcept
+    -> ::std::size_t {
     while (start_index < pltext.size()) {
         auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, start_index);
         if (chr < u8'!' || chr > u8'~' || chr == u8'<' || chr == u8'>' || chr == u8'\"') {
@@ -1868,13 +1867,11 @@ constexpr auto try_parse_auto_url(::fast_io::u8string_view pltext, ::std::size_t
     else {
         return ::exception::nullopt_t{};
     }
-    if (current_index >= 2 &&
-        ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index - 1) == u8'(' &&
+    if (current_index >= 2 && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index - 1) == u8'(' &&
         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index - 2) == u8']') {
         return ::exception::nullopt_t{};
     }
-    if (current_index >= 1 &&
-        ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index - 1) == u8'=') {
+    if (current_index >= 1 && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index - 1) == u8'=') {
         return ::exception::nullopt_t{};
     }
     auto path_end = ::pltxt2htm::details::try_parse_url_path_simple<ndebug>(url_vw, auth_end);
@@ -1955,8 +1952,7 @@ constexpr auto try_parse_md_url(::fast_io::u8string_view pltext) noexcept
             }
             ++path_end;
         }
-        if (path_end < pltext.size() &&
-            ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, path_end) == u8')') {
+        if (path_end < pltext.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, path_end) == u8')') {
             auto url_vw = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 0, path_end);
             auto opt_result = ::pltxt2htm::details::make_try_parse_url_result<ndebug>(url_vw, path_end);
             if (opt_result.has_value()) {
@@ -2008,8 +2004,7 @@ constexpr auto try_parse_md_url(::fast_io::u8string_view pltext) noexcept
     }
     return ::pltxt2htm::details::TryParseMdUrlResult<ndebug>{
         .consumed_size = raw_len,
-        .url = ::std::move(
-            opt_result.template value<ndebug == ::pltxt2htm::Contracts::ignore>().url)};
+        .url = ::std::move(opt_result.template value<ndebug == ::pltxt2htm::Contracts::ignore>().url)};
 }
 
 template<::pltxt2htm::Contracts ndebug>
