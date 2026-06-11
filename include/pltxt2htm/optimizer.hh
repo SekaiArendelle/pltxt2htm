@@ -527,10 +527,7 @@ entry:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_b: {
             auto&& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
-            bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeKind::pl_b &&
-                                       nested_tag_type != ::pltxt2htm::NodeKind::html_strong &&
-                                       nested_tag_type != ::pltxt2htm::NodeKind::md_double_emphasis_asterisk &&
-                                       nested_tag_type != ::pltxt2htm::NodeKind::md_double_emphasis_underscore};
+            bool const is_not_same_tag{!::pltxt2htm::details::is_strong_like(nested_tag_type)};
             if (is_not_same_tag) {
                 auto&& subast = node.get_subast();
                 if (subast.empty()) {
@@ -652,10 +649,7 @@ entry:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_em: {
             auto&& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
-            bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeKind::html_em &&
-                                       nested_tag_type != ::pltxt2htm::NodeKind::pl_i &&
-                                       nested_tag_type != ::pltxt2htm::NodeKind::md_single_emphasis_asterisk &&
-                                       nested_tag_type != ::pltxt2htm::NodeKind::md_single_emphasis_underscore};
+            bool const is_not_same_tag{!::pltxt2htm::details::is_em_like(nested_tag_type)};
             if (is_not_same_tag) {
                 auto&& subast = node.get_subast();
                 if (subast.empty()) {
@@ -834,12 +828,56 @@ entry:
             ++current_iter;
             continue;
         }
+        case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk: {
+            auto&& subast = node.get_subast();
+            bool const ast_not_empty = !subast.empty();
+            pltxt2htm_assert(ast_not_empty, u8"md_triple_emphasis subast must not be empty");
+            auto const& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
+            // Parent provides both em and strong → triple emphasis fully redundant, flatten
+            if (nested_tag_type == ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk ||
+                nested_tag_type == ::pltxt2htm::NodeKind::md_triple_emphasis_underscore) {
+                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
+                ++current_iter;
+                continue;
+            }
+            // If parent is em-like → em part redundant, convert to double emphasis (strong)
+            if (::pltxt2htm::details::is_em_like(nested_tag_type)) {
+                auto tmp = ::std::move(subast);
+                if (node.get_node_kind() == ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk) {
+                    *current_iter = ::pltxt2htm::PlTxtNode<ndebug>(
+                        ::pltxt2htm::MdDoubleEmphasisAsterisk<ndebug>{::std::move(tmp)});
+                } else {
+                    *current_iter = ::pltxt2htm::PlTxtNode<ndebug>(
+                        ::pltxt2htm::MdDoubleEmphasisUnderscore<ndebug>{::std::move(tmp)});
+                }
+                continue;
+            }
+            // If parent is strong-like → strong part redundant, convert to single emphasis (em)
+            if (::pltxt2htm::details::is_strong_like(nested_tag_type)) {
+                auto tmp = ::std::move(subast);
+                if (node.get_node_kind() == ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk) {
+                    *current_iter = ::pltxt2htm::PlTxtNode<ndebug>(
+                        ::pltxt2htm::MdSingleEmphasisAsterisk<ndebug>{::std::move(tmp)});
+                } else {
+                    *current_iter = ::pltxt2htm::PlTxtNode<ndebug>(
+                        ::pltxt2htm::MdSingleEmphasisUnderscore<ndebug>{::std::move(tmp)});
+                }
+                continue;
+            }
+            // Parent is neither em-like nor strong-like → push frame for child traversal
+            if (subast.empty()) {
+                ast.erase(current_iter);
+                continue;
+            }
+            call_stack.push(
+                ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
+                    ::std::addressof(subast), node.get_node_kind(), subast.begin()));
+            goto entry;
+        }
         case ::pltxt2htm::NodeKind::md_block_quotes:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore:
-            [[fallthrough]]; // TODO optimization support for md_triple_emphasis
-        case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk:
-            [[fallthrough]]; // TODO optimization support for md_triple_emphasis
         case ::pltxt2htm::NodeKind::md_escape_backslash:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_escape_exclamation:

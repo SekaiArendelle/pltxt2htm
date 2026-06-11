@@ -195,6 +195,24 @@ constexpr auto is_equal_sign_tag_type(::pltxt2htm::NodeKind const node_type) noe
 }
 
 [[nodiscard]]
+constexpr auto is_em_like(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
+    return node_type == ::pltxt2htm::NodeKind::html_em || node_type == ::pltxt2htm::NodeKind::pl_i ||
+           node_type == ::pltxt2htm::NodeKind::md_single_emphasis_asterisk ||
+           node_type == ::pltxt2htm::NodeKind::md_single_emphasis_underscore ||
+           node_type == ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk ||
+           node_type == ::pltxt2htm::NodeKind::md_triple_emphasis_underscore;
+}
+
+[[nodiscard]]
+constexpr auto is_strong_like(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
+    return node_type == ::pltxt2htm::NodeKind::html_strong || node_type == ::pltxt2htm::NodeKind::pl_b ||
+           node_type == ::pltxt2htm::NodeKind::md_double_emphasis_asterisk ||
+           node_type == ::pltxt2htm::NodeKind::md_double_emphasis_underscore ||
+           node_type == ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk ||
+           node_type == ::pltxt2htm::NodeKind::md_triple_emphasis_underscore;
+}
+
+[[nodiscard]]
 constexpr auto is_md_list_ul_or_ol_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
     return node_type == ::pltxt2htm::NodeKind::md_ul || node_type == ::pltxt2htm::NodeKind::md_ol;
 }
