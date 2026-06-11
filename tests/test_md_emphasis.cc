@@ -117,5 +117,79 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // Redundant tag elimination: triple emphasis inside em-like parent → em part redundant
+    {
+        // <em> wrapping *** → em part of triple is redundant, convert to <strong>
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<em>***text***</em>");
+        auto answer = ::fast_io::u8string_view{u8"<em><strong>text</strong></em>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // <i> wrapping *** → same as <em>, convert to <strong>
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<i>***text***</i>");
+        auto answer = ::fast_io::u8string_view{u8"<em><strong>text</strong></em>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Redundant tag elimination: triple emphasis inside strong-like parent → strong part redundant
+    {
+        // <strong> wrapping *** → strong part of triple is redundant, convert to <em>
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<strong>***text***</strong>");
+        auto answer = ::fast_io::u8string_view{u8"<strong><em>text</em></strong>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // <b> wrapping *** → same as <strong>, convert to <em>
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<b>***text***</b>");
+        auto answer = ::fast_io::u8string_view{u8"<strong><em>text</em></strong>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Redundant tag elimination: em/strong inside triple emphasis → child redundant
+    {
+        // <em> inside *** → em redundant (triple already provides <em>)
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"***<em>text</em>***");
+        auto answer = ::fast_io::u8string_view{u8"<em><strong>text</strong></em>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // <strong> inside *** → strong redundant (triple already provides <strong>)
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"***<strong>text</strong>***");
+        auto answer = ::fast_io::u8string_view{u8"<em><strong>text</strong></em>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Redundant tag elimination: with surrounding text content
+    {
+        // <em> wrapping text***text***text → triple converted to <strong> in em context
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<em>text***text***text</em>");
+        auto answer = ::fast_io::u8string_view{u8"<em>text<strong>text</strong>text</em>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // <strong> wrapping text***text***text → triple converted to <em> in strong context
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<strong>text***text***text</strong>");
+        auto answer = ::fast_io::u8string_view{u8"<strong>text<em>text</em>text</strong>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // *** surrounding text<em>text</em>text → inner em redundant, unwrapped
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"text***<em>text</em>***text");
+        auto answer = ::fast_io::u8string_view{u8"text<em><strong>text</strong></em>text"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // *** surrounding text<strong>text</strong>text → inner strong redundant, unwrapped
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"text***<strong>text</strong>***text");
+        auto answer = ::fast_io::u8string_view{u8"text<em><strong>text</strong></em>text"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }
