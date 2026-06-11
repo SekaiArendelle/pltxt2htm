@@ -168,7 +168,13 @@ constexpr auto try_parse_md_escape(::fast_io::u8string_view pltext) noexcept
  * @param[out] result The AST to which parsed character nodes are appended.
  * @return Total number of bytes consumed (1..4). The caller should advance by `return_value`.
  * @note ASCII bytes append one U8Char and return 1.
- * @note Control characters 0x00-0x1F and 0x7F are ignored (no node appended, return 1).
+ * @note Control characters 0x00-0x1F and 0x7F produce an InvalidU8Char node.
+ * @warning Previously these were silently dropped, which caused a crash when they appeared
+ *          inside emphasis structures (***...***, **...**, *...*, etc.): the inline parser
+ *          accepted them as valid content, but the sub-AST ended up empty because no node
+ *          was emitted, triggering an assertion in the optimizer
+ *          ("md_triple_emphasis subast must not be empty"). Emitting InvalidU8Char ensures
+ *          the sub-AST is never empty for structural nodes.
  * @note Invalid sequences append one InvalidU8Char. The return value may be greater than 1 when
  *       continuation bytes are consumed as part of one invalid sequence.
  * @see https://en.wikipedia.org/wiki/UTF-8
@@ -181,6 +187,7 @@ constexpr auto parse_utf8_code_point(::fast_io::u8string_view const& pltext, ::p
     char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 0)};
 
     if (chr <= 0x1f || chr == 0x7f) {
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
         return 1;
     }
     if ((chr & 0x80) == 0) {

@@ -94,10 +94,11 @@ int main() {
     }
 
     {
+        // Control chars now produce InvalidU8Char (U+FFFD) instead of being silently dropped
         auto html = ::pltxt2htm_test::pltxt2common_htmld(
             u8"A\x1f"
             u8"B");
-        auto answer = ::fast_io::u8string_view{u8"AB"};
+        auto answer = ::fast_io::u8string_view{u8"A\uFFFDB"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
