@@ -124,6 +124,21 @@ constexpr auto url_ast_to_string(::pltxt2htm::Ast<ndebug> const& ast) noexcept -
         case ::pltxt2htm::NodeKind::md_escape_tilde:
             result.push_back(u8'~');
             continue;
+        case ::pltxt2htm::NodeKind::ampersand:
+            result.push_back(u8'&');
+            continue;
+        case ::pltxt2htm::NodeKind::single_quote:
+            result.push_back(u8'\'');
+            continue;
+        case ::pltxt2htm::NodeKind::double_quote:
+            result.push_back(u8'"');
+            continue;
+        case ::pltxt2htm::NodeKind::less_than:
+            result.push_back(u8'<');
+            continue;
+        case ::pltxt2htm::NodeKind::greater_than:
+            result.push_back(u8'>');
+            continue;
         default:
             [[unlikely]] {
                 ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
