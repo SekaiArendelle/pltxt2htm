@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(pltxt2htm-tests LANGUAGES CXX VERSION 0.20.0)
+project(pltxt2htm-tests LANGUAGES CXX VERSION 0.21.0)
 
 enable_testing()
 
