@@ -625,7 +625,7 @@ entry:
         case ::pltxt2htm::NodeKind::html_del: {
             auto&& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
             bool const is_different_tag{nested_tag_type != ::pltxt2htm::NodeKind::html_del &&
-                                       nested_tag_type != ::pltxt2htm::NodeKind::md_del};
+                                        nested_tag_type != ::pltxt2htm::NodeKind::md_del};
             if (is_different_tag) {
                 auto&& subast = node.get_subast();
                 if (subast.empty()) {
@@ -846,9 +846,10 @@ entry:
             if (::pltxt2htm::details::is_em_like(nested_tag_type)) {
                 auto tmp = ::std::move(subast);
                 if (node.get_node_kind() == ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk) {
-                    *current_iter = ::pltxt2htm::PlTxtNode<ndebug>(
-                        ::pltxt2htm::MdDoubleEmphasisAsterisk<ndebug>{::std::move(tmp)});
-                } else {
+                    *current_iter =
+                        ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdDoubleEmphasisAsterisk<ndebug>{::std::move(tmp)});
+                }
+                else {
                     *current_iter = ::pltxt2htm::PlTxtNode<ndebug>(
                         ::pltxt2htm::MdDoubleEmphasisUnderscore<ndebug>{::std::move(tmp)});
                 }
@@ -858,9 +859,10 @@ entry:
             if (::pltxt2htm::details::is_strong_like(nested_tag_type)) {
                 auto tmp = ::std::move(subast);
                 if (node.get_node_kind() == ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk) {
-                    *current_iter = ::pltxt2htm::PlTxtNode<ndebug>(
-                        ::pltxt2htm::MdSingleEmphasisAsterisk<ndebug>{::std::move(tmp)});
-                } else {
+                    *current_iter =
+                        ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdSingleEmphasisAsterisk<ndebug>{::std::move(tmp)});
+                }
+                else {
                     *current_iter = ::pltxt2htm::PlTxtNode<ndebug>(
                         ::pltxt2htm::MdSingleEmphasisUnderscore<ndebug>{::std::move(tmp)});
                 }

@@ -8,6 +8,9 @@ constexpr ::pltxt2htm::Text<ndebug>::Text(::pltxt2htm::Ast<ndebug>&& subast_) no
 }
 
 template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::Text<ndebug>::Text(::pltxt2htm::Text<ndebug> const&) noexcept = default;
+
+template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::Text<ndebug>::Text(::pltxt2htm::Text<ndebug>&& other) noexcept = default;
 
 template<::pltxt2htm::Contracts ndebug>
@@ -26,6 +29,9 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::Url<ndebug>::Url(::pltxt2htm::Ast<ndebug>&& attr) noexcept
     : url_ast(::std::move(attr)) {
 }
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::Url<ndebug>::Url(::pltxt2htm::Url<ndebug> const&) noexcept = default;
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::Url<ndebug>::Url(::pltxt2htm::Url<ndebug>&& other) noexcept = default;

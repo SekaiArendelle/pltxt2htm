@@ -116,7 +116,7 @@ public:
      * @param subast The sub-AST to be contained.
      */
     constexpr Text(::pltxt2htm::Ast<ndebug>&& subast) noexcept;
-    constexpr Text(::pltxt2htm::Text<ndebug> const&) noexcept = delete;
+    constexpr Text(::pltxt2htm::Text<ndebug> const&) noexcept;
     constexpr Text(::pltxt2htm::Text<ndebug>&&) noexcept;
     constexpr ~Text() noexcept;
     constexpr auto operator=(::pltxt2htm::Text<ndebug> const&) noexcept -> ::pltxt2htm::Text<ndebug>& = delete;
@@ -146,7 +146,7 @@ public:
      * @param attr The AST representing the URL characters.
      */
     constexpr explicit Url(::pltxt2htm::Ast<ndebug>&& attr) noexcept;
-    constexpr Url(::pltxt2htm::Url<ndebug> const&) noexcept = delete;
+    constexpr Url(::pltxt2htm::Url<ndebug> const&) noexcept;
     constexpr Url(::pltxt2htm::Url<ndebug>&&) noexcept;
     constexpr ~Url() noexcept;
     constexpr auto operator=(::pltxt2htm::Url<ndebug> const&) noexcept -> ::pltxt2htm::Url<ndebug>& = delete;

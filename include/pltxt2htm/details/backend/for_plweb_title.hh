@@ -525,7 +525,7 @@ entry:
             result.append(::pltxt2htm::details::url_ast_to_string<ndebug>(node.get_external_tag_url().get_url_ast()));
             result.append(u8"\">");
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
-                                                                               ::pltxt2htm::NodeKind::pl_external, 0));
+                                                                              ::pltxt2htm::NodeKind::pl_external, 0));
             ++current_index;
             goto entry;
         }
@@ -534,7 +534,7 @@ entry:
             result.append(::pltxt2htm::details::url_ast_to_string<ndebug>(node.get_md_link_url().get_url_ast()));
             result.append(u8"\">");
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.get_subast(),
-                                                                               ::pltxt2htm::NodeKind::md_link, 0));
+                                                                              ::pltxt2htm::NodeKind::md_link, 0));
             ++current_index;
             goto entry;
         }

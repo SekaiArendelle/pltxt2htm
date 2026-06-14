@@ -8,6 +8,8 @@ constexpr ::pltxt2htm::MdAtxH1<ndebug>::MdAtxH1(::pltxt2htm::Ast<ndebug>&& subas
 }
 
 template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdAtxH1<ndebug>::MdAtxH1(::pltxt2htm::MdAtxH1<ndebug> const&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdAtxH1<ndebug>::MdAtxH1(::pltxt2htm::MdAtxH1<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdAtxH1<ndebug>::~MdAtxH1() noexcept = default;
@@ -25,6 +27,8 @@ constexpr ::pltxt2htm::MdAtxH2<ndebug>::MdAtxH2(::pltxt2htm::Ast<ndebug>&& subas
     : subast(::std::move(subast_)) {
 }
 
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdAtxH2<ndebug>::MdAtxH2(::pltxt2htm::MdAtxH2<ndebug> const&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdAtxH2<ndebug>::MdAtxH2(::pltxt2htm::MdAtxH2<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
@@ -44,6 +48,8 @@ constexpr ::pltxt2htm::MdAtxH3<ndebug>::MdAtxH3(::pltxt2htm::Ast<ndebug>&& subas
 }
 
 template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdAtxH3<ndebug>::MdAtxH3(::pltxt2htm::MdAtxH3<ndebug> const&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdAtxH3<ndebug>::MdAtxH3(::pltxt2htm::MdAtxH3<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdAtxH3<ndebug>::~MdAtxH3() noexcept = default;
@@ -61,6 +67,8 @@ constexpr ::pltxt2htm::MdAtxH4<ndebug>::MdAtxH4(::pltxt2htm::Ast<ndebug>&& subas
     : subast(::std::move(subast_)) {
 }
 
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdAtxH4<ndebug>::MdAtxH4(::pltxt2htm::MdAtxH4<ndebug> const&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdAtxH4<ndebug>::MdAtxH4(::pltxt2htm::MdAtxH4<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
@@ -80,6 +88,8 @@ constexpr ::pltxt2htm::MdAtxH5<ndebug>::MdAtxH5(::pltxt2htm::Ast<ndebug>&& subas
 }
 
 template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdAtxH5<ndebug>::MdAtxH5(::pltxt2htm::MdAtxH5<ndebug> const&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdAtxH5<ndebug>::MdAtxH5(::pltxt2htm::MdAtxH5<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdAtxH5<ndebug>::~MdAtxH5() noexcept = default;
@@ -97,6 +107,8 @@ constexpr ::pltxt2htm::MdAtxH6<ndebug>::MdAtxH6(::pltxt2htm::Ast<ndebug>&& subas
     : subast(::std::move(subast_)) {
 }
 
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdAtxH6<ndebug>::MdAtxH6(::pltxt2htm::MdAtxH6<ndebug> const&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdAtxH6<ndebug>::MdAtxH6(::pltxt2htm::MdAtxH6<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
@@ -117,6 +129,9 @@ constexpr ::pltxt2htm::MdCodeFenceBacktick<ndebug>::MdCodeFenceBacktick(
       lang(::std::move(lang_)) {
 }
 
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdCodeFenceBacktick<ndebug>::MdCodeFenceBacktick(
+    ::pltxt2htm::MdCodeFenceBacktick<ndebug> const&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdCodeFenceBacktick<ndebug>::MdCodeFenceBacktick(
     ::pltxt2htm::MdCodeFenceBacktick<ndebug>&&) noexcept = default;
@@ -140,6 +155,9 @@ constexpr ::pltxt2htm::MdCodeFenceTilde<ndebug>::MdCodeFenceTilde(
 }
 
 template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdCodeFenceTilde<ndebug>::MdCodeFenceTilde(
+    ::pltxt2htm::MdCodeFenceTilde<ndebug> const&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdCodeFenceTilde<ndebug>::MdCodeFenceTilde(::pltxt2htm::MdCodeFenceTilde<ndebug>&&) noexcept =
     default;
 template<::pltxt2htm::Contracts ndebug>
@@ -159,6 +177,9 @@ constexpr ::pltxt2htm::MdCodeSpan1Backtick<ndebug>::MdCodeSpan1Backtick(::pltxt2
     : subast(::std::move(subast_)) {
 }
 
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdCodeSpan1Backtick<ndebug>::MdCodeSpan1Backtick(
+    ::pltxt2htm::MdCodeSpan1Backtick<ndebug> const&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdCodeSpan1Backtick<ndebug>::MdCodeSpan1Backtick(
     ::pltxt2htm::MdCodeSpan1Backtick<ndebug>&&) noexcept = default;
@@ -181,6 +202,9 @@ constexpr ::pltxt2htm::MdCodeSpan2Backtick<ndebug>::MdCodeSpan2Backtick(::pltxt2
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdCodeSpan2Backtick<ndebug>::MdCodeSpan2Backtick(
+    ::pltxt2htm::MdCodeSpan2Backtick<ndebug> const&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdCodeSpan2Backtick<ndebug>::MdCodeSpan2Backtick(
     ::pltxt2htm::MdCodeSpan2Backtick<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdCodeSpan2Backtick<ndebug>::~MdCodeSpan2Backtick() noexcept = default;
@@ -199,6 +223,9 @@ constexpr ::pltxt2htm::MdCodeSpan3Backtick<ndebug>::MdCodeSpan3Backtick(::pltxt2
     : subast(::std::move(subast_)) {
 }
 
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdCodeSpan3Backtick<ndebug>::MdCodeSpan3Backtick(
+    ::pltxt2htm::MdCodeSpan3Backtick<ndebug> const&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdCodeSpan3Backtick<ndebug>::MdCodeSpan3Backtick(
     ::pltxt2htm::MdCodeSpan3Backtick<ndebug>&&) noexcept = default;
@@ -222,6 +249,9 @@ constexpr ::pltxt2htm::MdSingleEmphasisAsterisk<ndebug>::MdSingleEmphasisAsteris
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdSingleEmphasisAsterisk<ndebug>::MdSingleEmphasisAsterisk(
+    ::pltxt2htm::MdSingleEmphasisAsterisk<ndebug> const&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdSingleEmphasisAsterisk<ndebug>::MdSingleEmphasisAsterisk(
     ::pltxt2htm::MdSingleEmphasisAsterisk<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdSingleEmphasisAsterisk<ndebug>::~MdSingleEmphasisAsterisk() noexcept = default;
@@ -241,6 +271,9 @@ constexpr ::pltxt2htm::MdDoubleEmphasisAsterisk<ndebug>::MdDoubleEmphasisAsteris
     : subast(::std::move(subast_)) {
 }
 
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdDoubleEmphasisAsterisk<ndebug>::MdDoubleEmphasisAsterisk(
+    ::pltxt2htm::MdDoubleEmphasisAsterisk<ndebug> const&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdDoubleEmphasisAsterisk<ndebug>::MdDoubleEmphasisAsterisk(
     ::pltxt2htm::MdDoubleEmphasisAsterisk<ndebug>&&) noexcept = default;
@@ -264,6 +297,9 @@ constexpr ::pltxt2htm::MdTripleEmphasisAsterisk<ndebug>::MdTripleEmphasisAsteris
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdTripleEmphasisAsterisk<ndebug>::MdTripleEmphasisAsterisk(
+    ::pltxt2htm::MdTripleEmphasisAsterisk<ndebug> const&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdTripleEmphasisAsterisk<ndebug>::MdTripleEmphasisAsterisk(
     ::pltxt2htm::MdTripleEmphasisAsterisk<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdTripleEmphasisAsterisk<ndebug>::~MdTripleEmphasisAsterisk() noexcept = default;
@@ -283,6 +319,9 @@ constexpr ::pltxt2htm::MdSingleEmphasisUnderscore<ndebug>::MdSingleEmphasisUnder
     : subast(::std::move(subast_)) {
 }
 
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdSingleEmphasisUnderscore<ndebug>::MdSingleEmphasisUnderscore(
+    ::pltxt2htm::MdSingleEmphasisUnderscore<ndebug> const&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdSingleEmphasisUnderscore<ndebug>::MdSingleEmphasisUnderscore(
     ::pltxt2htm::MdSingleEmphasisUnderscore<ndebug>&&) noexcept = default;
@@ -307,6 +346,9 @@ constexpr ::pltxt2htm::MdDoubleEmphasisUnderscore<ndebug>::MdDoubleEmphasisUnder
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdDoubleEmphasisUnderscore<ndebug>::MdDoubleEmphasisUnderscore(
+    ::pltxt2htm::MdDoubleEmphasisUnderscore<ndebug> const&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdDoubleEmphasisUnderscore<ndebug>::MdDoubleEmphasisUnderscore(
     ::pltxt2htm::MdDoubleEmphasisUnderscore<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdDoubleEmphasisUnderscore<ndebug>::~MdDoubleEmphasisUnderscore() noexcept = default;
@@ -329,6 +371,9 @@ constexpr ::pltxt2htm::MdTripleEmphasisUnderscore<ndebug>::MdTripleEmphasisUnder
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdTripleEmphasisUnderscore<ndebug>::MdTripleEmphasisUnderscore(
+    ::pltxt2htm::MdTripleEmphasisUnderscore<ndebug> const&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdTripleEmphasisUnderscore<ndebug>::MdTripleEmphasisUnderscore(
     ::pltxt2htm::MdTripleEmphasisUnderscore<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdTripleEmphasisUnderscore<ndebug>::~MdTripleEmphasisUnderscore() noexcept = default;
@@ -348,6 +393,8 @@ constexpr ::pltxt2htm::MdDel<ndebug>::MdDel(::pltxt2htm::Ast<ndebug>&& subast_) 
     : subast(::std::move(subast_)) {
 }
 
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdDel<ndebug>::MdDel(::pltxt2htm::MdDel<ndebug> const&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdDel<ndebug>::MdDel(::pltxt2htm::MdDel<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
@@ -369,6 +416,8 @@ constexpr ::pltxt2htm::MdLink<ndebug>::MdLink(::pltxt2htm::Ast<ndebug>&& subast_
 }
 
 template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdLink<ndebug>::MdLink(::pltxt2htm::MdLink<ndebug> const&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdLink<ndebug>::MdLink(::pltxt2htm::MdLink<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdLink<ndebug>::~MdLink() noexcept = default;
@@ -389,6 +438,8 @@ constexpr ::pltxt2htm::MdImage<ndebug>::MdImage(::pltxt2htm::Ast<ndebug>&& subas
 }
 
 template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdImage<ndebug>::MdImage(::pltxt2htm::MdImage<ndebug> const&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdImage<ndebug>::MdImage(::pltxt2htm::MdImage<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdImage<ndebug>::~MdImage() noexcept = default;
@@ -406,6 +457,9 @@ constexpr ::pltxt2htm::MdBlockQuotes<ndebug>::MdBlockQuotes(::pltxt2htm::Ast<nde
     : subast(::std::move(subast_)) {
 }
 
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdBlockQuotes<ndebug>::MdBlockQuotes(::pltxt2htm::MdBlockQuotes<ndebug> const&) noexcept =
+    default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdBlockQuotes<ndebug>::MdBlockQuotes(::pltxt2htm::MdBlockQuotes<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
@@ -426,6 +480,8 @@ constexpr ::pltxt2htm::MdUl<ndebug>::MdUl(::pltxt2htm::Ast<ndebug>&& subast_) no
 }
 
 template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdUl<ndebug>::MdUl(::pltxt2htm::MdUl<ndebug> const&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdUl<ndebug>::MdUl(::pltxt2htm::MdUl<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdUl<ndebug>::~MdUl() noexcept = default;
@@ -444,6 +500,8 @@ constexpr ::pltxt2htm::MdOl<ndebug>::MdOl(::pltxt2htm::Ast<ndebug>&& subast_) no
 }
 
 template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdOl<ndebug>::MdOl(::pltxt2htm::MdOl<ndebug> const&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdOl<ndebug>::MdOl(::pltxt2htm::MdOl<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdOl<ndebug>::~MdOl() noexcept = default;
@@ -461,6 +519,8 @@ constexpr ::pltxt2htm::MdLi<ndebug>::MdLi(::pltxt2htm::Ast<ndebug>&& subast_) no
     : subast(::std::move(subast_)) {
 }
 
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdLi<ndebug>::MdLi(::pltxt2htm::MdLi<ndebug> const&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdLi<ndebug>::MdLi(::pltxt2htm::MdLi<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
@@ -481,6 +541,8 @@ constexpr ::pltxt2htm::MdLiCheckbox<ndebug>::MdLiCheckbox(::pltxt2htm::Ast<ndebu
 }
 
 template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdLiCheckbox<ndebug>::MdLiCheckbox(::pltxt2htm::MdLiCheckbox<ndebug> const&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdLiCheckbox<ndebug>::MdLiCheckbox(::pltxt2htm::MdLiCheckbox<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdLiCheckbox<ndebug>::~MdLiCheckbox() noexcept = default;
@@ -499,6 +561,9 @@ constexpr ::pltxt2htm::MdLatexInline<ndebug>::MdLatexInline(::pltxt2htm::Ast<nde
     : subast(::std::move(subast_)) {
 }
 
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdLatexInline<ndebug>::MdLatexInline(::pltxt2htm::MdLatexInline<ndebug> const&) noexcept =
+    default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdLatexInline<ndebug>::MdLatexInline(::pltxt2htm::MdLatexInline<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
@@ -519,6 +584,8 @@ constexpr ::pltxt2htm::MdLatexBlock<ndebug>::MdLatexBlock(::pltxt2htm::Ast<ndebu
 }
 
 template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdLatexBlock<ndebug>::MdLatexBlock(::pltxt2htm::MdLatexBlock<ndebug> const&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdLatexBlock<ndebug>::MdLatexBlock(::pltxt2htm::MdLatexBlock<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdLatexBlock<ndebug>::~MdLatexBlock() noexcept = default;
@@ -538,6 +605,8 @@ constexpr ::pltxt2htm::MdTable<ndebug>::MdTable(::pltxt2htm::Ast<ndebug>&& subas
 }
 
 template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdTable<ndebug>::MdTable(::pltxt2htm::MdTable<ndebug> const&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdTable<ndebug>::MdTable(::pltxt2htm::MdTable<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdTable<ndebug>::~MdTable() noexcept = default;
@@ -555,6 +624,8 @@ constexpr ::pltxt2htm::MdThead<ndebug>::MdThead(::pltxt2htm::Ast<ndebug>&& subas
     : subast(::std::move(subast_)) {
 }
 
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdThead<ndebug>::MdThead(::pltxt2htm::MdThead<ndebug> const&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdThead<ndebug>::MdThead(::pltxt2htm::MdThead<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
@@ -574,6 +645,8 @@ constexpr ::pltxt2htm::MdTbody<ndebug>::MdTbody(::pltxt2htm::Ast<ndebug>&& subas
 }
 
 template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdTbody<ndebug>::MdTbody(::pltxt2htm::MdTbody<ndebug> const&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdTbody<ndebug>::MdTbody(::pltxt2htm::MdTbody<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdTbody<ndebug>::~MdTbody() noexcept = default;
@@ -591,6 +664,8 @@ constexpr ::pltxt2htm::MdTr<ndebug>::MdTr(::pltxt2htm::Ast<ndebug>&& subast_) no
     : subast(::std::move(subast_)) {
 }
 
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdTr<ndebug>::MdTr(::pltxt2htm::MdTr<ndebug> const&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdTr<ndebug>::MdTr(::pltxt2htm::MdTr<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
@@ -611,6 +686,8 @@ constexpr ::pltxt2htm::MdTh<ndebug>::MdTh(::pltxt2htm::Ast<ndebug>&& subast_, ::
 }
 
 template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdTh<ndebug>::MdTh(::pltxt2htm::MdTh<ndebug> const&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdTh<ndebug>::MdTh(::pltxt2htm::MdTh<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdTh<ndebug>::~MdTh() noexcept = default;
@@ -629,6 +706,8 @@ constexpr ::pltxt2htm::MdTd<ndebug>::MdTd(::pltxt2htm::Ast<ndebug>&& subast_, ::
       align(align_) {
 }
 
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::MdTd<ndebug>::MdTd(::pltxt2htm::MdTd<ndebug> const&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdTd<ndebug>::MdTd(::pltxt2htm::MdTd<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
