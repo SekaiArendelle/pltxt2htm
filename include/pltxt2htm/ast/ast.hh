@@ -760,7 +760,532 @@ public:
           node_kind{::pltxt2htm::NodeKind::md_latex_block} {
     }
 
+    /**
+     * @note: Move construction is sufficient for this codebase. Copy construction is provided for completeness only.
+     */
+#if 1
+    constexpr PlTxtNode(::pltxt2htm::PlTxtNode<ndebug> const& other) noexcept
+        : node_kind(other.node_kind) {
+        switch (node_kind) /* -Werror=switch */ {
+        case ::pltxt2htm::NodeKind::u8char: {
+            new (::std::addressof(u8char_node))::pltxt2htm::U8Char(other.u8char_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::invalid_u8char: {
+            new (::std::addressof(invalid_u8char_node))::pltxt2htm::InvalidU8Char(other.invalid_u8char_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::text: {
+            new (::std::addressof(text_node))::pltxt2htm::Text(other.text_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::pl_color: {
+            new (::std::addressof(pl_color_node))::pltxt2htm::PlColor(other.pl_color_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::pl_a: {
+            new (::std::addressof(pl_a_node))::pltxt2htm::PlA<ndebug>(other.pl_a_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::pl_experiment: {
+            new (::std::addressof(pl_experiment_node))::pltxt2htm::PlExperiment(other.pl_experiment_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::pl_discussion: {
+            new (::std::addressof(pl_discussion_node))::pltxt2htm::PlDiscussion(other.pl_discussion_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::pl_user: {
+            new (::std::addressof(pl_user_node))::pltxt2htm::PlUser(other.pl_user_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::pl_external: {
+            new (::std::addressof(pl_external_node))::pltxt2htm::PlExternal(other.pl_external_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::pl_size: {
+            new (::std::addressof(pl_size_node))::pltxt2htm::PlSize(other.pl_size_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::pl_i: {
+            new (::std::addressof(pl_i_node))::pltxt2htm::PlI(other.pl_i_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::pl_b: {
+            new (::std::addressof(pl_b_node))::pltxt2htm::PlB(other.pl_b_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::pl_macro_project: {
+            new (::std::addressof(pl_macro_project_node))::pltxt2htm::PlMacroProject(other.pl_macro_project_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::pl_macro_visitor: {
+            new (::std::addressof(pl_macro_visitor_node))::pltxt2htm::PlMacroVisitor(other.pl_macro_visitor_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::pl_macro_author: {
+            new (::std::addressof(pl_macro_author_node))::pltxt2htm::PlMacroAuthor(other.pl_macro_author_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::pl_macro_coauthors: {
+            new (::std::addressof(pl_macro_coauthors_node))::pltxt2htm::PlMacroCoauthors(other.pl_macro_coauthors_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::line_break: {
+            new (::std::addressof(line_break_node))::pltxt2htm::LineBreak(other.line_break_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::html_br: {
+            new (::std::addressof(br_node))::pltxt2htm::HtmlBr(other.br_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::space: {
+            new (::std::addressof(space_node))::pltxt2htm::Space(other.space_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::less_than: {
+            new (::std::addressof(less_than_node))::pltxt2htm::LessThan(other.less_than_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::greater_than: {
+            new (::std::addressof(greater_than_node))::pltxt2htm::GreaterThan(other.greater_than_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::tab: {
+            new (::std::addressof(tab_node))::pltxt2htm::Tab(other.tab_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::ampersand: {
+            new (::std::addressof(ampersand_node))::pltxt2htm::Ampersand(other.ampersand_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::single_quote: {
+            new (::std::addressof(single_quote_node))::pltxt2htm::SingleQuote(other.single_quote_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::double_quote: {
+            new (::std::addressof(double_quote_node))::pltxt2htm::DoubleQuote(other.double_quote_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::html_hr: {
+            new (::std::addressof(hr_node))::pltxt2htm::HtmlHr(other.hr_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::html_h1: {
+            new (::std::addressof(h1_node))::pltxt2htm::HtmlH1(other.h1_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::html_h2: {
+            new (::std::addressof(h2_node))::pltxt2htm::HtmlH2(other.h2_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::html_h3: {
+            new (::std::addressof(h3_node))::pltxt2htm::HtmlH3(other.h3_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::html_h4: {
+            new (::std::addressof(h4_node))::pltxt2htm::HtmlH4(other.h4_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::html_h5: {
+            new (::std::addressof(h5_node))::pltxt2htm::HtmlH5(other.h5_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::html_h6: {
+            new (::std::addressof(h6_node))::pltxt2htm::HtmlH6(other.h6_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::html_p: {
+            new (::std::addressof(p_node))::pltxt2htm::HtmlP(other.p_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::html_del: {
+            new (::std::addressof(del_node))::pltxt2htm::HtmlDel(other.del_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::html_note: {
+            new (::std::addressof(note_node))::pltxt2htm::HtmlNote(other.note_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::html_em: {
+            new (::std::addressof(em_node))::pltxt2htm::HtmlEm(other.em_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::html_strong: {
+            new (::std::addressof(strong_node))::pltxt2htm::HtmlStrong(other.strong_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::html_ul: {
+            new (::std::addressof(ul_node))::pltxt2htm::HtmlUl(other.ul_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::html_ol: {
+            new (::std::addressof(ol_node))::pltxt2htm::HtmlOl(other.ol_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::html_li: {
+            new (::std::addressof(li_node))::pltxt2htm::HtmlLi(other.li_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::html_code: {
+            new (::std::addressof(code_node))::pltxt2htm::HtmlCode(other.code_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::html_pre: {
+            new (::std::addressof(pre_node))::pltxt2htm::HtmlPre(other.pre_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::html_blockquote: {
+            new (::std::addressof(blockquote_node))::pltxt2htm::HtmlBlockquote(other.blockquote_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::html_col: {
+            new (::std::addressof(col_node))::pltxt2htm::HtmlCol(other.col_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::html_table: {
+            new (::std::addressof(table_node))::pltxt2htm::HtmlTable(other.table_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::html_caption: {
+            new (::std::addressof(caption_node))::pltxt2htm::HtmlCaption(other.caption_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::html_colgroup: {
+            new (::std::addressof(colgroup_node))::pltxt2htm::HtmlColgroup(other.colgroup_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::html_thead: {
+            new (::std::addressof(thead_node))::pltxt2htm::HtmlThead(other.thead_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::html_tbody: {
+            new (::std::addressof(tbody_node))::pltxt2htm::HtmlTbody(other.tbody_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::html_tfoot: {
+            new (::std::addressof(tfoot_node))::pltxt2htm::HtmlTfoot(other.tfoot_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::html_tr: {
+            new (::std::addressof(tr_node))::pltxt2htm::HtmlTr(other.tr_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::html_th: {
+            new (::std::addressof(th_node))::pltxt2htm::HtmlTh(other.th_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::html_td: {
+            new (::std::addressof(td_node))::pltxt2htm::HtmlTd(other.td_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_atx_h1: {
+            new (::std::addressof(md_atx_h1_node))::pltxt2htm::MdAtxH1(other.md_atx_h1_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_atx_h2: {
+            new (::std::addressof(md_atx_h2_node))::pltxt2htm::MdAtxH2(other.md_atx_h2_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_atx_h3: {
+            new (::std::addressof(md_atx_h3_node))::pltxt2htm::MdAtxH3(other.md_atx_h3_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_atx_h4: {
+            new (::std::addressof(md_atx_h4_node))::pltxt2htm::MdAtxH4(other.md_atx_h4_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_atx_h5: {
+            new (::std::addressof(md_atx_h5_node))::pltxt2htm::MdAtxH5(other.md_atx_h5_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_atx_h6: {
+            new (::std::addressof(md_atx_h6_node))::pltxt2htm::MdAtxH6(other.md_atx_h6_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_backslash: {
+            new (::std::addressof(md_escape_backslash_node))::pltxt2htm::MdEscapeBackslash(
+                other.md_escape_backslash_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_exclamation: {
+            new (::std::addressof(md_escape_exclamation_node))::pltxt2htm::MdEscapeExclamation(
+                other.md_escape_exclamation_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_double_quote: {
+            new (::std::addressof(md_escape_double_quote_node))::pltxt2htm::MdEscapeDoubleQuote(
+                other.md_escape_double_quote_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_hash: {
+            new (::std::addressof(md_escape_hash_node))::pltxt2htm::MdEscapeHash(other.md_escape_hash_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_dollar: {
+            new (::std::addressof(md_escape_dollar_node))::pltxt2htm::MdEscapeDollar(other.md_escape_dollar_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_percent: {
+            new (::std::addressof(md_escape_percent_node))::pltxt2htm::MdEscapePercent(other.md_escape_percent_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_ampersand: {
+            new (::std::addressof(md_escape_ampersand_node))::pltxt2htm::MdEscapeAmpersand(
+                other.md_escape_ampersand_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_single_quote: {
+            new (::std::addressof(md_escape_single_quote_node))::pltxt2htm::MdEscapeSingleQuote(
+                other.md_escape_single_quote_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_left_paren: {
+            new (::std::addressof(md_escape_left_paren_node))::pltxt2htm::MdEscapeLeftParen(
+                other.md_escape_left_paren_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_right_paren: {
+            new (::std::addressof(md_escape_right_paren_node))::pltxt2htm::MdEscapeRightParen(
+                other.md_escape_right_paren_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_asterisk: {
+            new (::std::addressof(md_escape_asterisk_node))::pltxt2htm::MdEscapeAsterisk(other.md_escape_asterisk_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_plus: {
+            new (::std::addressof(md_escape_plus_node))::pltxt2htm::MdEscapePlus(other.md_escape_plus_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_comma: {
+            new (::std::addressof(md_escape_comma_node))::pltxt2htm::MdEscapeComma(other.md_escape_comma_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_hyphen: {
+            new (::std::addressof(md_escape_hyphen_node))::pltxt2htm::MdEscapeHyphen(other.md_escape_hyphen_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_dot: {
+            new (::std::addressof(md_escape_dot_node))::pltxt2htm::MdEscapeDot(other.md_escape_dot_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_slash: {
+            new (::std::addressof(md_escape_slash_node))::pltxt2htm::MdEscapeSlash(other.md_escape_slash_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_colon: {
+            new (::std::addressof(md_escape_colon_node))::pltxt2htm::MdEscapeColon(other.md_escape_colon_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_semicolon: {
+            new (::std::addressof(md_escape_semicolon_node))::pltxt2htm::MdEscapeSemicolon(
+                other.md_escape_semicolon_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_less_than: {
+            new (::std::addressof(md_escape_less_than_node))::pltxt2htm::MdEscapeLessThan(
+                other.md_escape_less_than_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_equals: {
+            new (::std::addressof(md_escape_equals_node))::pltxt2htm::MdEscapeEquals(other.md_escape_equals_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_greater_than: {
+            new (::std::addressof(md_escape_greater_than_node))::pltxt2htm::MdEscapeGreaterThan(
+                other.md_escape_greater_than_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_question: {
+            new (::std::addressof(md_escape_question_node))::pltxt2htm::MdEscapeQuestion(other.md_escape_question_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_at: {
+            new (::std::addressof(md_escape_at_node))::pltxt2htm::MdEscapeAt(other.md_escape_at_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_left_bracket: {
+            new (::std::addressof(md_escape_left_bracket_node))::pltxt2htm::MdEscapeLeftBracket(
+                other.md_escape_left_bracket_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_right_bracket: {
+            new (::std::addressof(md_escape_right_bracket_node))::pltxt2htm::MdEscapeRightBracket(
+                other.md_escape_right_bracket_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_caret: {
+            new (::std::addressof(md_escape_caret_node))::pltxt2htm::MdEscapeCaret(other.md_escape_caret_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_underscore: {
+            new (::std::addressof(md_escape_underscore_node))::pltxt2htm::MdEscapeUnderscore(
+                other.md_escape_underscore_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_backtick: {
+            new (::std::addressof(md_escape_backtick_node))::pltxt2htm::MdEscapeBacktick(other.md_escape_backtick_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_left_brace: {
+            new (::std::addressof(md_escape_left_brace_node))::pltxt2htm::MdEscapeLeftBrace(
+                other.md_escape_left_brace_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_pipe: {
+            new (::std::addressof(md_escape_pipe_node))::pltxt2htm::MdEscapePipe(other.md_escape_pipe_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_right_brace: {
+            new (::std::addressof(md_escape_right_brace_node))::pltxt2htm::MdEscapeRightBrace(
+                other.md_escape_right_brace_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_escape_tilde: {
+            new (::std::addressof(md_escape_tilde_node))::pltxt2htm::MdEscapeTilde(other.md_escape_tilde_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_hr: {
+            new (::std::addressof(md_hr_node))::pltxt2htm::MdHr(other.md_hr_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_code_fence_backtick: {
+            new (::std::addressof(md_code_fence_backtick_node))::pltxt2htm::MdCodeFenceBacktick(
+                other.md_code_fence_backtick_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_code_fence_tilde: {
+            new (::std::addressof(md_code_fence_tilde_node))::pltxt2htm::MdCodeFenceTilde(
+                other.md_code_fence_tilde_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_code_span_1_backtick: {
+            new (::std::addressof(md_code_span_1_backtick_node))::pltxt2htm::MdCodeSpan1Backtick(
+                other.md_code_span_1_backtick_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_code_span_2_backtick: {
+            new (::std::addressof(md_code_span_2_backtick_node))::pltxt2htm::MdCodeSpan2Backtick(
+                other.md_code_span_2_backtick_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_code_span_3_backtick: {
+            new (::std::addressof(md_code_span_3_backtick_node))::pltxt2htm::MdCodeSpan3Backtick(
+                other.md_code_span_3_backtick_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_single_emphasis_asterisk: {
+            new (::std::addressof(md_single_emphasis_asterisk_node))::pltxt2htm::MdSingleEmphasisAsterisk(
+                other.md_single_emphasis_asterisk_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_double_emphasis_asterisk: {
+            new (::std::addressof(md_double_emphasis_asterisk_node))::pltxt2htm::MdDoubleEmphasisAsterisk(
+                other.md_double_emphasis_asterisk_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk: {
+            new (::std::addressof(md_triple_emphasis_asterisk_node))::pltxt2htm::MdTripleEmphasisAsterisk(
+                other.md_triple_emphasis_asterisk_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_single_emphasis_underscore: {
+            new (::std::addressof(md_single_emphasis_underscore_node))::pltxt2htm::MdSingleEmphasisUnderscore(
+                other.md_single_emphasis_underscore_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_double_emphasis_underscore: {
+            new (::std::addressof(md_double_emphasis_underscore_node))::pltxt2htm::MdDoubleEmphasisUnderscore(
+                other.md_double_emphasis_underscore_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore: {
+            new (::std::addressof(md_triple_emphasis_underscore_node))::pltxt2htm::MdTripleEmphasisUnderscore(
+                other.md_triple_emphasis_underscore_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_del: {
+            new (::std::addressof(md_del_node))::pltxt2htm::MdDel(other.md_del_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_link: {
+            new (::std::addressof(md_link_node))::pltxt2htm::MdLink(other.md_link_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::url: {
+            new (::std::addressof(url_node))::pltxt2htm::Url(other.url_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_image: {
+            new (::std::addressof(md_image_node))::pltxt2htm::MdImage(other.md_image_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_block_quotes: {
+            new (::std::addressof(md_block_quotes_node))::pltxt2htm::MdBlockQuotes(other.md_block_quotes_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_ul: {
+            new (::std::addressof(md_ul_node))::pltxt2htm::MdUl(other.md_ul_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_ol: {
+            new (::std::addressof(md_ol_node))::pltxt2htm::MdOl(other.md_ol_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_li: {
+            new (::std::addressof(md_li_node))::pltxt2htm::MdLi(other.md_li_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_li_checkbox: {
+            new (::std::addressof(md_li_checkbox_node))::pltxt2htm::MdLiCheckbox(other.md_li_checkbox_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_table: {
+            new (::std::addressof(md_table_node))::pltxt2htm::MdTable(other.md_table_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_thead: {
+            new (::std::addressof(md_thead_node))::pltxt2htm::MdThead(other.md_thead_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_tbody: {
+            new (::std::addressof(md_tbody_node))::pltxt2htm::MdTbody(other.md_tbody_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_tr: {
+            new (::std::addressof(md_tr_node))::pltxt2htm::MdTr(other.md_tr_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_th: {
+            new (::std::addressof(md_th_node))::pltxt2htm::MdTh(other.md_th_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_td: {
+            new (::std::addressof(md_td_node))::pltxt2htm::MdTd(other.md_td_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_latex_inline: {
+            new (::std::addressof(md_latex_inline_node))::pltxt2htm::MdLatexInline(other.md_latex_inline_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::md_latex_block: {
+            new (::std::addressof(md_latex_block_node))::pltxt2htm::MdLatexBlock(other.md_latex_block_node);
+            break;
+        }
+    // All enum values are covered above; default is unreachable.
+    // #if 0 documents intent and keeps the formatter output clean.
+    #if 0
+        default:
+            [[unlikely]] {
+                ::exception::unreachable();
+            }
+    #endif
+        }
+    }
+#else
     constexpr PlTxtNode(::pltxt2htm::PlTxtNode<ndebug> const&) noexcept = delete;
+#endif
 
     constexpr PlTxtNode(::pltxt2htm::PlTxtNode<ndebug>&& other) noexcept
         : node_kind(other.node_kind) {

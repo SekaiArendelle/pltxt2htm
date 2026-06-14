@@ -7,13 +7,15 @@ int main() {
         auto answer = ::fast_io::u8string_view{u8"<a href=\"https://example.com\">https://example.com</a>"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<external=https://example.com>https://example.com</external>"};
+        auto plunity_richtext_answer =
+            ::fast_io::u8string_view{u8"<external=https://example.com>https://example.com</external>"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
     {
         auto pltext = ::fast_io::u8string_view{u8"visit https://example.com now"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"visit&nbsp;<a href=\"https://example.com\">https://example.com</a>&nbsp;now"};
+        auto answer =
+            ::fast_io::u8string_view{u8"visit&nbsp;<a href=\"https://example.com\">https://example.com</a>&nbsp;now"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer =
@@ -23,25 +25,30 @@ int main() {
     {
         auto pltext = ::fast_io::u8string_view{u8"https://example.com/path?query=1&foo=bar"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"<a href=\"https://example.com/path?query=1&amp;foo=bar\">https://example.com/path?query=1&amp;foo=bar</a>"};
+        auto answer = ::fast_io::u8string_view{
+            u8"<a "
+            u8"href=\"https://example.com/path?query=1&amp;foo=bar\">https://example.com/path?query=1&amp;foo=bar</a>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
         auto pltext = ::fast_io::u8string_view{u8"https://example.com/?a=1&amp;b=2"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"<a href=\"https://example.com/?a=1&amp;b=2\">https://example.com/?a=1&amp;b=2</a>"};
+        auto answer = ::fast_io::u8string_view{
+            u8"<a href=\"https://example.com/?a=1&amp;b=2\">https://example.com/?a=1&amp;b=2</a>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
         auto pltext = ::fast_io::u8string_view{u8"https://example.com/path#fragment"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"<a href=\"https://example.com/path#fragment\">https://example.com/path#fragment</a>"};
+        auto answer = ::fast_io::u8string_view{
+            u8"<a href=\"https://example.com/path#fragment\">https://example.com/path#fragment</a>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
         auto pltext = ::fast_io::u8string_view{u8"https://example.com:8080/path"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"<a href=\"https://example.com:8080/path\">https://example.com:8080/path</a>"};
+        auto answer =
+            ::fast_io::u8string_view{u8"<a href=\"https://example.com:8080/path\">https://example.com:8080/path</a>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
@@ -53,7 +60,8 @@ int main() {
     {
         auto pltext = ::fast_io::u8string_view{u8"prefix https://example.com suffix"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"prefix&nbsp;<a href=\"https://example.com\">https://example.com</a>&nbsp;suffix"};
+        auto answer = ::fast_io::u8string_view{
+            u8"prefix&nbsp;<a href=\"https://example.com\">https://example.com</a>&nbsp;suffix"};
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
@@ -137,22 +145,24 @@ int main() {
         auto pltext = ::fast_io::u8string_view{u8"https://www.bilibili.com/video/BV1df421f7WB"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{
-            u8"<a href=\"https://www.bilibili.com/video/BV1df421f7WB\">https://www.bilibili.com/video/BV1df421f7WB</a>"};
+            u8"<a "
+            u8"href=\"https://www.bilibili.com/video/BV1df421f7WB\">https://www.bilibili.com/video/BV1df421f7WB</a>"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer =
-            ::fast_io::u8string_view{u8"<external=https://www.bilibili.com/video/BV1df421f7WB>https://www.bilibili.com/video/BV1df421f7WB</external>"};
+        auto plunity_richtext_answer = ::fast_io::u8string_view{
+            u8"<external=https://www.bilibili.com/video/BV1df421f7WB>https://www.bilibili.com/video/BV1df421f7WB</"
+            u8"external>"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
     {
         auto pltext = ::fast_io::u8string_view{u8"https://www.example.com:65535"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{
-            u8"<a href=\"https://www.example.com:65535\">https://www.example.com:65535</a>"};
+        auto answer =
+            ::fast_io::u8string_view{u8"<a href=\"https://www.example.com:65535\">https://www.example.com:65535</a>"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer =
-            ::fast_io::u8string_view{u8"<external=https://www.example.com:65535>https://www.example.com:65535</external>"};
+        auto plunity_richtext_answer = ::fast_io::u8string_view{
+            u8"<external=https://www.example.com:65535>https://www.example.com:65535</external>"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
     {
