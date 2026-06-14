@@ -58,14 +58,14 @@ int main() {
         // Mutate original: replace its sub-AST
         ::pltxt2htm::Ast<nd::quick_enforce> new_ast{};
         new_ast.emplace_back(::pltxt2htm::U8Char{u8'B'});
-        original = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::Text<nd::quick_enforce>(::std::move(new_ast)));
+        original =
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(new_ast)));
 
         // Copy must still hold old value
         ::pltxt2htm::Ast<nd::quick_enforce> expected_ast{};
         expected_ast.emplace_back(::pltxt2htm::U8Char{u8'A'});
-        auto const expected = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::Text<nd::quick_enforce>(::std::move(expected_ast)));
+        auto const expected =
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(expected_ast)));
         ::exception::assert_true<false>(copy == expected);
         ::exception::assert_false<false>(copy == original);
     }
@@ -87,10 +87,9 @@ int main() {
         ::pltxt2htm::Ast<nd::quick_enforce> ast{};
         ast.emplace_back(::pltxt2htm::U8Char{u8'x'});
 
-        auto const original = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::MdCodeFenceBacktick<nd::quick_enforce>(
-                ::std::move(ast),
-                ::exception::optional<::fast_io::u8string>(::fast_io::u8string{u8"cpp"})));
+        auto const original =
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdCodeFenceBacktick<nd::quick_enforce>(
+                ::std::move(ast), ::exception::optional<::fast_io::u8string>(::fast_io::u8string{u8"cpp"})));
 
         auto const copy = original;
         ::exception::assert_true<false>(original == copy);
@@ -104,10 +103,8 @@ int main() {
         ::pltxt2htm::Ast<nd::quick_enforce> url_ast{};
         url_ast.emplace_back(::pltxt2htm::U8Char{u8'x'});
 
-        auto const original = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::MdLink<nd::quick_enforce>(
-                ::std::move(text_ast),
-                ::pltxt2htm::Url<nd::quick_enforce>(::std::move(url_ast))));
+        auto const original = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdLink<nd::quick_enforce>(
+            ::std::move(text_ast), ::pltxt2htm::Url<nd::quick_enforce>(::std::move(url_ast))));
 
         auto const copy = original;
         ::exception::assert_true<false>(original == copy);
