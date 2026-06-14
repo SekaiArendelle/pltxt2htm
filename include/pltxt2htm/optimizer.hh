@@ -307,7 +307,7 @@ entry:
                 ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type()};
             // Optimization: If this color matches the parent color, flatten the nesting
             // <color=red>text<color=red>text</color>test</color> -> <color=red>texttexttext</color>
-            auto const is_not_same_tag = bool{[nested_tag_type, &call_stack, &node] constexpr noexcept {
+            auto const is_different_tag = bool{[nested_tag_type, &call_stack, &node] constexpr noexcept {
                 if (nested_tag_type == ::pltxt2htm::NodeKind::pl_color) {
                     return node.get_equal_sign_tag_id() !=
                            ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_equal_sign_tag_id();
@@ -320,7 +320,7 @@ entry:
                 }
                 return true; // Different tag types, so not the same
             }()};
-            if (is_not_same_tag) {
+            if (is_different_tag) {
                 auto&& subast = node.get_subast();
                 if (subast.empty()) {
                     ast.erase(current_iter);
@@ -365,7 +365,7 @@ entry:
                 ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type()};
             // Optimization: If this color matches the parent color, flatten the nesting
             // <a>text<a>text</a>text</a> -> <a>texttexttext</a>
-            auto const is_not_same_tag = bool{[nested_tag_type, &call_stack] constexpr noexcept {
+            auto const is_different_tag = bool{[nested_tag_type, &call_stack] constexpr noexcept {
                 if (nested_tag_type == ::pltxt2htm::NodeKind::pl_color) {
                     static constexpr auto anchor_color_literal = ::pltxt2htm::PlA<ndebug>::get_color_literal();
                     static constexpr auto anchor_color =
@@ -377,7 +377,7 @@ entry:
                 }
                 return true; // Different tag types, so not the same
             }()};
-            if (is_not_same_tag) {
+            if (is_different_tag) {
                 auto&& subast = node.get_subast();
                 if (subast.empty()) {
                     ast.erase(current_iter);
@@ -450,10 +450,10 @@ entry:
             auto&& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
             // Optimization: If the user is the same as the parent node, then ignore the nested tag.
             auto const& equal_sign_tag_id = node.get_equal_sign_tag_id();
-            bool const is_not_same_tag =
+            bool const is_different_tag =
                 nested_tag_type != ::pltxt2htm::NodeKind::pl_user ||
                 equal_sign_tag_id != ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_equal_sign_tag_id();
-            if (is_not_same_tag) {
+            if (is_different_tag) {
                 auto&& subast = node.get_subast();
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -504,10 +504,10 @@ entry:
             }
             auto&& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
             // Optimization: If the size is the same as the parent node, then ignore the nested tag.
-            bool const is_not_same_tag =
+            bool const is_different_tag =
                 nested_tag_type != ::pltxt2htm::NodeKind::pl_size ||
                 node.get_pl_size_tag_id() != ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_pl_size_tag_id();
-            if (is_not_same_tag) {
+            if (is_different_tag) {
                 auto&& subast = node.get_subast();
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -527,8 +527,8 @@ entry:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_b: {
             auto&& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
-            bool const is_not_same_tag{!::pltxt2htm::details::is_strong_like(nested_tag_type)};
-            if (is_not_same_tag) {
+            bool const is_different_tag{!::pltxt2htm::details::is_strong_like(nested_tag_type)};
+            if (is_different_tag) {
                 auto&& subast = node.get_subast();
                 if (subast.empty()) {
                     // <b></b> can be omitted
@@ -624,9 +624,9 @@ entry:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_del: {
             auto&& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
-            bool const is_not_same_tag{nested_tag_type != ::pltxt2htm::NodeKind::html_del &&
+            bool const is_different_tag{nested_tag_type != ::pltxt2htm::NodeKind::html_del &&
                                        nested_tag_type != ::pltxt2htm::NodeKind::md_del};
-            if (is_not_same_tag) {
+            if (is_different_tag) {
                 auto&& subast = node.get_subast();
                 if (subast.empty()) {
                     ast.erase(current_iter);
@@ -649,8 +649,8 @@ entry:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_em: {
             auto&& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
-            bool const is_not_same_tag{!::pltxt2htm::details::is_em_like(nested_tag_type)};
-            if (is_not_same_tag) {
+            bool const is_different_tag{!::pltxt2htm::details::is_em_like(nested_tag_type)};
+            if (is_different_tag) {
                 auto&& subast = node.get_subast();
                 if (subast.empty()) {
                     ast.erase(current_iter);
