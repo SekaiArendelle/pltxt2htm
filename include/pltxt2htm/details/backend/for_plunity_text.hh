@@ -612,11 +612,11 @@ entry:
                 else if (indent_level % 3 == 0) {
                     result.append(u8"\u25ab ");
                 }
-                else {
+                else [[unlikely]] {
                     ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
                 }
             }
-            else {
+            else [[unlikely]] {
                 ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
             }
             goto entry;
@@ -647,7 +647,7 @@ entry:
                     result.append(u8"[ ] ");
                 }
             }
-            else {
+            else [[unlikely]] {
                 ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
             }
             goto entry;
