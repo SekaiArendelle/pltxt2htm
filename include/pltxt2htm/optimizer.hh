@@ -20,7 +20,6 @@
 #include "contracts.hh"
 #include "details/utils.hh"
 #include "details/push_macro.hh"
-#include "pltxt2htm/ast/node_type.hh"
 
 namespace pltxt2htm {
 
