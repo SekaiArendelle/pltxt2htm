@@ -13,7 +13,7 @@
 #include <memory>
 
 #include "../contracts.hh"
-#include "node_type.hh"
+#include "node_kind.hh"
 
 #include "impl/basic_node_decl.hh"
 #include "impl/html_node_decl.hh"

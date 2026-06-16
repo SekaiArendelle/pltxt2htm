@@ -1,5 +1,5 @@
 /**
- * @file node_type.hh
+ * @file node_kind.hh
  * @brief AST node type definitions for pltxt2htm
  * @details Defines all possible node types in the Abstract Syntax Tree for
  *          Physics-Lab text parsing. Each node type represents a different
