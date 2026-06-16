@@ -1165,22 +1165,16 @@ entry:
         }
         case ::pltxt2htm::NodeKind::md_atx_h1:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_h1: {
-            result.append(u8"</b></size>");
-            goto entry;
-        }
+        case ::pltxt2htm::NodeKind::html_h1:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_atx_h2:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_h2: {
-            result.append(u8"</b></size>");
-            goto entry;
-        }
+        case ::pltxt2htm::NodeKind::html_h2:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_atx_h3:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_h3: {
-            result.append(u8"</b></size>");
-            goto entry;
-        }
+        case ::pltxt2htm::NodeKind::html_h3:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_atx_h4:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_h4: {
