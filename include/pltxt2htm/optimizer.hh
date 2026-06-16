@@ -13,6 +13,7 @@
 #include <iterator>
 #include <memory>
 #include <type_traits>
+#include <exception/exception.hh>
 #include <fast_io/fast_io_dsal/list.h>
 #include <fast_io/fast_io_dsal/stack.h>
 #include "ast/ast.hh"
@@ -919,8 +920,9 @@ entry:
         case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk: {
-            auto&& subast = [&] -> ::pltxt2htm::Ast<ndebug>& {
-                switch (node.get_node_kind()) {
+            ::pltxt2htm::NodeKind const node_kind{node.get_node_kind()};
+            auto&& subast = [node_kind, &node] -> ::pltxt2htm::Ast<ndebug>& {
+                switch (node_kind) {
                 case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore: {
                     return node.as_md_triple_emphasis_underscore().get_subast();
                 }
@@ -944,42 +946,32 @@ entry:
             }
             if (::pltxt2htm::details::is_em_like(nested_tag_type)) {
                 auto tmp = ::std::move(subast);
-                *current_iter = [&] -> ::pltxt2htm::PlTxtNode<ndebug> {
-                    switch (node.get_node_kind()) {
-                    case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore: {
-                        return ::pltxt2htm::PlTxtNode<ndebug>(
-                            ::pltxt2htm::MdDoubleEmphasisUnderscore<ndebug>{::std::move(tmp)});
-                    }
-                    case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk: {
-                        return ::pltxt2htm::PlTxtNode<ndebug>(
-                            ::pltxt2htm::MdDoubleEmphasisAsterisk<ndebug>{::std::move(tmp)});
-                    }
-                    default:
-                        [[unlikely]] {
-                            ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
-                        }
-                    }
-                }();
+                if (node_kind == ::pltxt2htm::NodeKind::md_triple_emphasis_underscore) {
+                    *current_iter = ::pltxt2htm::PlTxtNode<ndebug>(
+                        ::pltxt2htm::MdDoubleEmphasisUnderscore<ndebug>{::std::move(tmp)});
+                }
+                else if (node_kind == ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk) {
+                    *current_iter =
+                        ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdDoubleEmphasisAsterisk<ndebug>(::std::move(tmp)));
+                }
+                else [[unlikely]] {
+                    ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                }
                 continue;
             }
             if (::pltxt2htm::details::is_strong_like(nested_tag_type)) {
                 auto tmp = ::std::move(subast);
-                *current_iter = [&] -> ::pltxt2htm::PlTxtNode<ndebug> {
-                    switch (node.get_node_kind()) {
-                    case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore: {
-                        return ::pltxt2htm::PlTxtNode<ndebug>(
-                            ::pltxt2htm::MdSingleEmphasisUnderscore<ndebug>{::std::move(tmp)});
-                    }
-                    case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk: {
-                        return ::pltxt2htm::PlTxtNode<ndebug>(
-                            ::pltxt2htm::MdSingleEmphasisAsterisk<ndebug>{::std::move(tmp)});
-                    }
-                    default:
-                        [[unlikely]] {
-                            ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
-                        }
-                    }
-                }();
+                if (node_kind == ::pltxt2htm::NodeKind::md_triple_emphasis_underscore) {
+                    *current_iter = ::pltxt2htm::PlTxtNode<ndebug>(
+                        ::pltxt2htm::MdSingleEmphasisUnderscore<ndebug>{::std::move(tmp)});
+                }
+                else if (node_kind == ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk) {
+                    *current_iter =
+                        ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdSingleEmphasisAsterisk<ndebug>{::std::move(tmp)});
+                }
+                else [[unlikely]] {
+                    ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                }
                 continue;
             }
             if (subast.empty()) {
