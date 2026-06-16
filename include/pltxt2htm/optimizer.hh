@@ -277,6 +277,7 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeKind::pl_color: {
+            auto&& subast = node.as_pl_color().get_subast();
             {
                 // Optimization: <color=red><color=blue>text</color></color>
                 // simplifies to <color=blue>text</color>.
@@ -285,7 +286,6 @@ entry:
                 // Optimization: <color=red><a>text</a></color>
                 // simplifies to <a>text</a>.
                 // The inner anchor tag's styling takes precedence over the outer color.
-                auto&& subast = node.as_pl_color().get_subast();
                 if (subast.size() == 1) {
                     auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
                     if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_color ||
@@ -321,7 +321,6 @@ entry:
                 return true; // Different tag types, so not the same
             }()};
             if (is_different_tag) {
-                auto&& subast = node.as_pl_color().get_subast();
                 if (subast.empty()) {
                     ast.erase(current_iter);
                     continue;
@@ -335,17 +334,16 @@ entry:
                 goto entry;
             }
             // Optimization: If the color is the same as the parent node, then ignore the nested tag.
-            node =
-                ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(node.as_pl_color().get_subast())}};
+            node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
             ++current_iter;
             continue;
         }
         case ::pltxt2htm::NodeKind::pl_a: {
+            auto&& subast = node.as_pl_a().get_subast();
             {
                 // Optimization: <a><color=blue>text</color></a>
                 // can be simplified to <color=blue>text</color>
                 // The inner color takes precedence over the outer color
-                auto&& subast = node.as_pl_a().get_subast();
                 if (subast.size() == 1) {
                     auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
                     if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_color) {
@@ -379,7 +377,6 @@ entry:
                 return true; // Different tag types, so not the same
             }()};
             if (is_different_tag) {
-                auto&& subast = node.as_pl_a().get_subast();
                 if (subast.empty()) {
                     ast.erase(current_iter);
                     continue;
@@ -390,7 +387,7 @@ entry:
                 goto entry;
             }
             // Optimization: If the color is the same as the parent node, then ignore the nested tag.
-            node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(node.as_pl_a().get_subast())}};
+            node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
             ++current_iter;
             continue;
         }
