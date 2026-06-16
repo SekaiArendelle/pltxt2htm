@@ -413,8 +413,8 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeKind::pl_user: {
+            auto&& subast = node.as_pl_user().get_subast();
             {
-                auto&& subast = node.as_pl_user().get_subast();
                 if (subast.empty()) {
                     // <user=123></user> can be omitted
                     ast.erase(current_iter);
@@ -443,7 +443,6 @@ entry:
                 nested_tag_type != ::pltxt2htm::NodeKind::pl_user ||
                 equal_sign_tag_id != ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_equal_sign_tag_id();
             if (is_different_tag) {
-                auto&& subast = node.as_pl_user().get_subast();
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
                         ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_user, subast.begin(),
@@ -451,8 +450,7 @@ entry:
                             ::fast_io::u8string_view{equal_sign_tag_id.data(), equal_sign_tag_id.size()}}));
                 goto entry;
             }
-            node =
-                ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(node.as_pl_user().get_subast())}};
+            node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
             ++current_iter;
             continue;
         }
@@ -469,8 +467,8 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeKind::pl_size: {
+            auto&& subast = node.as_pl_size().get_subast();
             {
-                auto&& subast = node.as_pl_size().get_subast();
                 if (subast.empty()) {
                     // <size=123></size> can be omitted
                     ast.erase(current_iter);
@@ -498,15 +496,13 @@ entry:
                                           node.as_pl_size().get_size() !=
                                               ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_pl_size_tag_id();
             if (is_different_tag) {
-                auto&& subast = node.as_pl_size().get_subast();
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
                         ::std::addressof(subast), subast.begin(),
                         ::pltxt2htm::details::OptimizerContextWithPlSizeTagInfo{node.as_pl_size().get_size()}));
                 goto entry;
             }
-            node =
-                ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(node.as_pl_size().get_subast())}};
+            node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
             ++current_iter;
             continue;
         }
