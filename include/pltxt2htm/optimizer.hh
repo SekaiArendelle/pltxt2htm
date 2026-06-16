@@ -20,6 +20,7 @@
 #include "contracts.hh"
 #include "details/utils.hh"
 #include "details/push_macro.hh"
+#include "pltxt2htm/ast/node_type.hh"
 
 namespace pltxt2htm {
 
@@ -921,20 +922,9 @@ entry:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk: {
             ::pltxt2htm::NodeKind const node_kind{node.get_node_kind()};
-            auto&& subast = [node_kind, &node] -> ::pltxt2htm::Ast<ndebug>& {
-                switch (node_kind) {
-                case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore: {
-                    return node.as_md_triple_emphasis_underscore().get_subast();
-                }
-                case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk: {
-                    return node.as_md_triple_emphasis_asterisk().get_subast();
-                }
-                default:
-                    [[unlikely]] {
-                        ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
-                    }
-                }
-            }();
+            auto&& subast = node_kind == ::pltxt2htm::NodeKind::md_triple_emphasis_underscore
+                                ? node.as_md_triple_emphasis_underscore().get_subast()
+                                : node.as_md_triple_emphasis_asterisk().get_subast();
             bool const ast_not_empty = !subast.empty();
             pltxt2htm_assert(ast_not_empty, u8"md_triple_emphasis subast must not be empty");
             auto const& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
