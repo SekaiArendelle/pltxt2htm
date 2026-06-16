@@ -244,21 +244,23 @@ entry:
         }
         case ::pltxt2htm::NodeKind::md_double_emphasis_underscore: {
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                node.as_md_double_emphasis_underscore().get_subast(), ::pltxt2htm::NodeKind::html_strong, 0));
+                node.as_md_double_emphasis_underscore().get_subast(),
+                ::pltxt2htm::NodeKind::md_double_emphasis_underscore, 0));
             ++current_index;
             result.append(u8"<strong>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_double_emphasis_asterisk: {
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                node.as_md_double_emphasis_asterisk().get_subast(), ::pltxt2htm::NodeKind::html_strong, 0));
+                node.as_md_double_emphasis_asterisk().get_subast(), ::pltxt2htm::NodeKind::md_double_emphasis_asterisk,
+                0));
             ++current_index;
             result.append(u8"<strong>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::pl_b: {
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_pl_b().get_subast(),
-                                                                              ::pltxt2htm::NodeKind::html_strong, 0));
+                                                                              ::pltxt2htm::NodeKind::pl_b, 0));
             ++current_index;
             result.append(u8"<strong>");
             goto entry;
@@ -272,21 +274,23 @@ entry:
         }
         case ::pltxt2htm::NodeKind::md_single_emphasis_underscore: {
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                node.as_md_single_emphasis_underscore().get_subast(), ::pltxt2htm::NodeKind::html_em, 0));
+                node.as_md_single_emphasis_underscore().get_subast(),
+                ::pltxt2htm::NodeKind::md_single_emphasis_underscore, 0));
             ++current_index;
             result.append(u8"<em>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_single_emphasis_asterisk: {
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                node.as_md_single_emphasis_asterisk().get_subast(), ::pltxt2htm::NodeKind::html_em, 0));
+                node.as_md_single_emphasis_asterisk().get_subast(), ::pltxt2htm::NodeKind::md_single_emphasis_asterisk,
+                0));
             ++current_index;
             result.append(u8"<em>");
             goto entry;
         }
         case ::pltxt2htm::NodeKind::pl_i: {
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_pl_i().get_subast(),
-                                                                              ::pltxt2htm::NodeKind::html_em, 0));
+                                                                              ::pltxt2htm::NodeKind::pl_i, 0));
             ++current_index;
             result.append(u8"<em>");
             goto entry;
@@ -301,7 +305,7 @@ entry:
         case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore: {
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                 node.as_md_triple_emphasis_underscore().get_subast(),
-                ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk, 0));
+                ::pltxt2htm::NodeKind::md_triple_emphasis_underscore, 0));
             ++current_index;
             result.append(u8"<em><strong>");
             goto entry;
@@ -815,6 +819,8 @@ entry:
             return result;
         }
         switch (top_frame.get_nested_tag_type()) {
+        case ::pltxt2htm::NodeKind::md_double_emphasis_underscore:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_double_emphasis_asterisk:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_strong:
@@ -823,6 +829,8 @@ entry:
             result.append(u8"</strong>");
             goto entry;
         }
+        case ::pltxt2htm::NodeKind::md_single_emphasis_underscore:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_single_emphasis_asterisk:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_i:
@@ -831,6 +839,8 @@ entry:
             result.append(u8"</em>");
             goto entry;
         }
+        case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk: {
             result.append(u8"</strong></em>");
             goto entry;

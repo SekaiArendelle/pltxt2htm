@@ -533,7 +533,8 @@ entry:
                 }
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_strong, subast.begin()));
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::md_double_emphasis_underscore,
+                        subast.begin()));
                 goto entry;
             }
             node = ::pltxt2htm::PlTxtNode<ndebug>{
@@ -552,7 +553,7 @@ entry:
                 }
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_strong, subast.begin()));
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::md_double_emphasis_asterisk, subast.begin()));
                 goto entry;
             }
             node = ::pltxt2htm::PlTxtNode<ndebug>{
@@ -590,7 +591,7 @@ entry:
                 }
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_strong, subast.begin()));
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_b, subast.begin()));
                 goto entry;
             }
             node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(node.as_pl_b().get_subast())}};
@@ -753,7 +754,8 @@ entry:
                 }
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_em, subast.begin()));
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::md_single_emphasis_underscore,
+                        subast.begin()));
                 goto entry;
             }
             node = ::pltxt2htm::PlTxtNode<ndebug>{
@@ -772,7 +774,7 @@ entry:
                 }
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_em, subast.begin()));
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::md_single_emphasis_asterisk, subast.begin()));
                 goto entry;
             }
             node = ::pltxt2htm::PlTxtNode<ndebug>{
@@ -791,7 +793,7 @@ entry:
                 }
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_em, subast.begin()));
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_i, subast.begin()));
                 goto entry;
             }
             node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(node.as_pl_i().get_subast())}};

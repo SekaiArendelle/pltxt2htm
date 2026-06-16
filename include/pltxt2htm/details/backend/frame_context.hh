@@ -38,9 +38,10 @@ public:
           kind{kind_} {
     }
 
-    constexpr BackendContextVariant(::pltxt2htm::details::BackendContextWithOlInfo&& ol_info_context) noexcept
+    constexpr BackendContextVariant(::pltxt2htm::NodeKind const kind_,
+                                    ::pltxt2htm::details::BackendContextWithOlInfo&& ol_info_context) noexcept
         : ol_info{::std::move(ol_info_context)},
-          kind{::pltxt2htm::NodeKind::html_ol} {
+          kind{kind_} {
     }
 
     constexpr ~BackendContextVariant() noexcept = default;
@@ -70,9 +71,10 @@ public:
           current_index{current_index_} {
     }
 
-    constexpr BackendFrameContext(::pltxt2htm::Ast<ndebug> const& ast_, ::std::size_t current_index_,
+    constexpr BackendFrameContext(::pltxt2htm::Ast<ndebug> const& ast_, ::pltxt2htm::NodeKind const nested_tag_type,
+                                  ::std::size_t current_index_,
                                   ::pltxt2htm::details::BackendContextWithOlInfo&& ol_info_context) noexcept
-        : context_data{::std::move(ol_info_context)},
+        : context_data{nested_tag_type, ::std::move(ol_info_context)},
           ast(::std::addressof(ast_)),
           current_index{current_index_} {
     }
