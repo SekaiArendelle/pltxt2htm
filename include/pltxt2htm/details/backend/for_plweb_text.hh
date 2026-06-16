@@ -702,7 +702,7 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_code_span_1_backtick: {
-            // Note: Despite `<code></code>` is empty, we still need to handle it
+            /// @note Despite `<code></code>` is empty, we still need to handle it
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_code_span_1_backtick().get_subast(),
                                                                                ::pltxt2htm::NodeKind::html_code, 0));
             ++current_index;
@@ -710,7 +710,7 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_code_span_2_backtick: {
-            // Note: Despite `<code></code>` is empty, we still need to handle it
+            /// @note Despite `<code></code>` is empty, we still need to handle it
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_code_span_2_backtick().get_subast(),
                                                                                ::pltxt2htm::NodeKind::html_code, 0));
             ++current_index;
@@ -718,7 +718,7 @@ entry:
             goto entry;
         }
         case ::pltxt2htm::NodeKind::md_code_span_3_backtick: {
-            // Note: Despite `<code></code>` is empty, we still need to handle it
+            /// @note Despite `<code></code>` is empty, we still need to handle it
             call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_code_span_3_backtick().get_subast(),
                                                                                ::pltxt2htm::NodeKind::html_code, 0));
             ++current_index;

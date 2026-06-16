@@ -2752,9 +2752,8 @@ public:
         ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
     }
 
-// ============================================================================
-// as_xxx() accessors — one per union member type
-// ============================================================================
+/// @name as_xxx() accessors — one per union member type
+/// @{
 
     [[nodiscard]]
     constexpr auto as_u8char(this auto&& self) noexcept -> decltype(auto) {
@@ -3595,6 +3594,8 @@ public:
         pltxt2htm_assert(is_type, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_macro_coauthors_node);
     }
+
+/// @}
 
     [[nodiscard]]
     constexpr auto get_node_kind(this auto&& self) noexcept -> ::pltxt2htm::NodeKind {
