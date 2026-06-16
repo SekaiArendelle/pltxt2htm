@@ -7,7 +7,7 @@
 #include <exception/exception.hh>
 #include "../utils.hh"
 #include "../../contracts.hh"
-#include "../../ast/node_type.hh"
+#include "../../ast/node_kind.hh"
 #include "../../details/push_macro.hh"
 
 namespace pltxt2htm::details {
