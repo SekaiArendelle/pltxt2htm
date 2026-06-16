@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file for_plweb_text.hh
  * @brief Advanced HTML backend for pltxt2htm
  * @details Generates full-featured HTML output with comprehensive support for
@@ -17,7 +17,6 @@
 #include "../../contracts.hh"
 #include "../../details/utils.hh"
 #include "../../details/parser/try_parse.hh"
-#include "../../ast/ast.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::details {

@@ -18,7 +18,6 @@
 #include "frame_context.hh"
 #include "../../contracts.hh"
 #include "../../details/utils.hh"
-#include "../../ast/ast.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::details {
