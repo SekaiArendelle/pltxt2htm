@@ -578,7 +578,7 @@ entry:
             auto&& subast = node.as_md_atx_h1().get_subast();
             call_stack.push(
                 ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                    ::std::addressof(subast), ::pltxt2htm::NodeKind::html_h1, subast.begin()));
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::md_atx_h1, subast.begin()));
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_h2: {
@@ -592,7 +592,7 @@ entry:
             auto&& subast = node.as_md_atx_h2().get_subast();
             call_stack.push(
                 ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                    ::std::addressof(subast), ::pltxt2htm::NodeKind::html_h2, subast.begin()));
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::md_atx_h2, subast.begin()));
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_h3: {
@@ -606,7 +606,7 @@ entry:
             auto&& subast = node.as_md_atx_h3().get_subast();
             call_stack.push(
                 ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                    ::std::addressof(subast), ::pltxt2htm::NodeKind::html_h3, subast.begin()));
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::md_atx_h3, subast.begin()));
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_h4: {
@@ -620,7 +620,7 @@ entry:
             auto&& subast = node.as_md_atx_h4().get_subast();
             call_stack.push(
                 ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                    ::std::addressof(subast), ::pltxt2htm::NodeKind::html_h4, subast.begin()));
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::md_atx_h4, subast.begin()));
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_h5: {
@@ -634,7 +634,7 @@ entry:
             auto&& subast = node.as_md_atx_h5().get_subast();
             call_stack.push(
                 ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                    ::std::addressof(subast), ::pltxt2htm::NodeKind::html_h5, subast.begin()));
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::md_atx_h5, subast.begin()));
             goto entry;
         }
         case ::pltxt2htm::NodeKind::html_h6: {
@@ -648,35 +648,18 @@ entry:
             auto&& subast = node.as_md_atx_h6().get_subast();
             call_stack.push(
                 ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                    ::std::addressof(subast), ::pltxt2htm::NodeKind::html_h6, subast.begin()));
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::md_atx_h6, subast.begin()));
             goto entry;
         }
-        case ::pltxt2htm::NodeKind::md_del: {
-            auto&& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
-            bool const is_different_tag{nested_tag_type != ::pltxt2htm::NodeKind::html_del &&
-                                        nested_tag_type != ::pltxt2htm::NodeKind::md_del};
-            if (is_different_tag) {
-                auto&& subast = node.as_md_del().get_subast();
-                if (subast.empty()) {
-                    ast.erase(current_iter);
-                    continue;
-                }
-                call_stack.push(
-                    ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_del, subast.begin()));
-                goto entry;
-            }
-            node =
-                ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(node.as_md_del().get_subast())}};
-            ++current_iter;
-            continue;
-        }
+        case ::pltxt2htm::NodeKind::md_del:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_del: {
             auto&& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
+            auto&& subast = node.get_node_kind() == ::pltxt2htm::NodeKind::md_del ? node.as_md_del().get_subast()
+                                                                      : node.as_html_del().get_subast();
             bool const is_different_tag{nested_tag_type != ::pltxt2htm::NodeKind::html_del &&
                                         nested_tag_type != ::pltxt2htm::NodeKind::md_del};
             if (is_different_tag) {
-                auto&& subast = node.as_html_del().get_subast();
                 if (subast.empty()) {
                     ast.erase(current_iter);
                     continue;
@@ -686,8 +669,7 @@ entry:
                         ::std::addressof(subast), ::pltxt2htm::NodeKind::html_del, subast.begin()));
                 goto entry;
             }
-            node =
-                ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(node.as_html_del().get_subast())}};
+            node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
             ++current_iter;
             continue;
         }
