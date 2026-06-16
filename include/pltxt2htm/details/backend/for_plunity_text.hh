@@ -576,8 +576,17 @@ entry:
             pltxt2htm_assert(
                 nested_tag_type == ::pltxt2htm::NodeKind::html_ol || nested_tag_type == ::pltxt2htm::NodeKind::html_ul,
                 u8"Invalid tag type");
-            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_li().get_subast(),
-                                                                              ::pltxt2htm::NodeKind::html_li, 0));
+            [[fallthrough]];
+        }
+        case ::pltxt2htm::NodeKind::md_li: {
+            if (node.get_node_kind() == ::pltxt2htm::NodeKind::html_li) {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_li().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::html_li, 0));
+            }
+            else {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_li().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::md_li, 0));
+            }
             ++current_index;
             auto const indent_level = list_nesting_depth;
             for (::std::size_t i = 1; i < indent_level; ++i) {
@@ -585,9 +594,8 @@ entry:
             }
             auto reverse_iter = call_stack.container.rbegin();
             ::pltxt2htm::details::BackendFrameContext<ndebug>& the_second_to_last_frame{*(++reverse_iter)};
-            auto const second_nested_tag_type = the_second_to_last_frame.get_nested_tag_type();
-            if (second_nested_tag_type == ::pltxt2htm::NodeKind::html_ol ||
-                second_nested_tag_type == ::pltxt2htm::NodeKind::md_ol) {
+            auto const nested_tag_type = the_second_to_last_frame.get_nested_tag_type();
+            if (nested_tag_type == ::pltxt2htm::NodeKind::html_ol || nested_tag_type == ::pltxt2htm::NodeKind::md_ol) {
                 ::std::size_t& ol_li_count = the_second_to_last_frame.get_ol_li_count();
                 result.append(::pltxt2htm::details::size_t2str(ol_li_count));
                 result.append(u8". ");
@@ -595,15 +603,7 @@ entry:
             }
             else if (nested_tag_type == ::pltxt2htm::NodeKind::html_ul ||
                      nested_tag_type == ::pltxt2htm::NodeKind::md_ul) {
-                if (node.get_node_kind() == ::pltxt2htm::NodeKind::md_li_checkbox) {
-                    if (node.as_md_li_checkbox().is_checked()) {
-                        result.append(u8"[x] ");
-                    }
-                    else {
-                        result.append(u8"[ ] ");
-                    }
-                }
-                else if (indent_level % 3 == 1) {
+                if (indent_level % 3 == 1) {
                     result.append(u8"\u2022 ");
                 }
                 else if (indent_level % 3 == 2) {
@@ -640,62 +640,11 @@ entry:
             }
             else if (nested_tag_type == ::pltxt2htm::NodeKind::html_ul ||
                      nested_tag_type == ::pltxt2htm::NodeKind::md_ul) {
-                if (node.get_node_kind() == ::pltxt2htm::NodeKind::md_li_checkbox) {
-                    if (node.as_md_li_checkbox().is_checked()) {
-                        result.append(u8"[x] ");
-                    }
-                    else {
-                        result.append(u8"[ ] ");
-                    }
-                }
-                else if (indent_level % 3 == 1) {
-                    result.append(u8"\u2022 ");
-                }
-                else if (indent_level % 3 == 2) {
-                    result.append(u8"\u2218 ");
-                }
-                else if (indent_level % 3 == 0) {
-                    result.append(u8"\u25ab ");
+                if (node.as_md_li_checkbox().is_checked()) {
+                    result.append(u8"[x] ");
                 }
                 else {
-                    ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
-                }
-            }
-            else {
-                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
-            }
-            goto entry;
-        }
-        case ::pltxt2htm::NodeKind::md_li: {
-            call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_li().get_subast(),
-                                                                              ::pltxt2htm::NodeKind::md_li, 0));
-            ++current_index;
-            auto const indent_level = list_nesting_depth;
-            for (::std::size_t i = 1; i < indent_level; ++i) {
-                result.append(u8"  ");
-            }
-            auto reverse_iter = call_stack.container.rbegin();
-            ::pltxt2htm::details::BackendFrameContext<ndebug>& the_second_to_last_frame{*(++reverse_iter)};
-            auto const nested_tag_type = the_second_to_last_frame.get_nested_tag_type();
-            if (nested_tag_type == ::pltxt2htm::NodeKind::html_ol || nested_tag_type == ::pltxt2htm::NodeKind::md_ol) {
-                ::std::size_t& ol_li_count = the_second_to_last_frame.get_ol_li_count();
-                result.append(::pltxt2htm::details::size_t2str(ol_li_count));
-                result.append(u8". ");
-                ++ol_li_count;
-            }
-            else if (nested_tag_type == ::pltxt2htm::NodeKind::html_ul ||
-                     nested_tag_type == ::pltxt2htm::NodeKind::md_ul) {
-                if (indent_level % 3 == 1) {
-                    result.append(u8"\u2022 ");
-                }
-                else if (indent_level % 3 == 2) {
-                    result.append(u8"\u2218 ");
-                }
-                else if (indent_level % 3 == 0) {
-                    result.append(u8"\u25ab ");
-                }
-                else {
-                    ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    result.append(u8"[ ] ");
                 }
             }
             else {
