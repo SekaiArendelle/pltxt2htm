@@ -87,7 +87,7 @@ public:
     bool checked;
 };
 
-enum class MdTableParsePhase : ::std::size_t {
+enum class MdTableParsePhase : unsigned {
     header = 0,
     body,
     finish,

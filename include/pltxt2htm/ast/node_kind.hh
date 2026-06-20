@@ -8,8 +8,6 @@
 
 #pragma once
 
-#include <cstddef>
-
 namespace pltxt2htm {
 
 /**
@@ -20,7 +18,7 @@ namespace pltxt2htm {
  * @note The values are ordered with basic types first, then Physics-Lab specific
  *       tags, HTML tags, Markdown syntax, and finally escape sequences.
  */
-enum class NodeKind : ::std::size_t {
+enum class NodeKind : unsigned {
     // Character and basic text nodes
     u8char = 0, ///< Valid UTF-8 character
     invalid_u8char, ///< Invalid UTF-8 character (replacement character)
@@ -230,7 +228,7 @@ constexpr auto is_plain_pltext_type(::pltxt2htm::NodeKind const node_type) noexc
 /**
  * @brief Table cell alignment for Markdown pipe tables
  */
-enum class MdTableAlign : ::std::size_t {
+enum class MdTableAlign : unsigned {
     left = 0,
     center,
     right,
