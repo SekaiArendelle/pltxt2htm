@@ -84,11 +84,10 @@ public:
 
     constexpr ~BackendFrameContext() noexcept = default;
 
-    // const reference do not support operator=
     constexpr ::pltxt2htm::details::BackendFrameContext<ndebug>& operator=(
         ::pltxt2htm::details::BackendFrameContext<ndebug> const&) noexcept = delete;
     constexpr ::pltxt2htm::details::BackendFrameContext<ndebug>& operator=(
-        ::pltxt2htm::details::BackendFrameContext<ndebug>&&) noexcept = delete;
+        ::pltxt2htm::details::BackendFrameContext<ndebug>&&) noexcept = default;
 
     [[nodiscard]]
     constexpr auto get_nested_tag_type(this ::pltxt2htm::details::BackendFrameContext<ndebug> const& self) noexcept {
