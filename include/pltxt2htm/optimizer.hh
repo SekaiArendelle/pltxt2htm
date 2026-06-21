@@ -1086,7 +1086,7 @@ entry:
             ++(::pltxt2htm::details::stack_top<ndebug>(call_stack).iter);
             goto entry;
         }
-        break;
+        return;
     }
     return;
 }
