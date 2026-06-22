@@ -541,20 +541,17 @@ entry:
                 // Optimization: If this color matches the parent color, flatten the nesting
                 // <a>text<a>text</a>text</a> -> <a>texttexttext</a>
                 auto const is_different_tag = bool{[nested_tag_type, &call_stack] constexpr noexcept {
-                    if (nested_tag_type == ::pltxt2htm::NodeKind::pl_color) {
-                        static constexpr auto anchor_color_literal = ::pltxt2htm::PlA<ndebug>::get_color_literal();
-                        static constexpr auto anchor_color =
-                            ::fast_io::u8string_view{anchor_color_literal.data(), anchor_color_literal.size()};
-                        return anchor_color !=
-                               ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_equal_sign_tag_id();
-                    }
+                    static constexpr auto anchor_color_literal = ::pltxt2htm::PlA<ndebug>::get_color_literal();
+                    static constexpr auto anchor_color =
+                        ::fast_io::u8string_view{anchor_color_literal.data(), anchor_color_literal.size()};
                     if (nested_tag_type == ::pltxt2htm::NodeKind::pl_a) {
                         return false;
                     }
+                    if (nested_tag_type == ::pltxt2htm::NodeKind::pl_color) {
+                        return anchor_color !=
+                               ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_equal_sign_tag_id();
+                    }
                     if (nested_tag_type == ::pltxt2htm::NodeKind::html_span) {
-                        static constexpr auto anchor_color_literal = ::pltxt2htm::PlA<ndebug>::get_color_literal();
-                        static constexpr auto anchor_color =
-                            ::fast_io::u8string_view{anchor_color_literal.data(), anchor_color_literal.size()};
                         return anchor_color !=
                                ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_html_span_color();
                     }

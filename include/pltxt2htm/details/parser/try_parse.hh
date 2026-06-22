@@ -757,27 +757,13 @@ constexpr auto parse_font_size_value(::fast_io::u8string_view value) noexcept ->
     if (value.empty()) {
         return ::exception::nullopt_t{};
     }
-    ::std::size_t len = value.size();
+    ::std::size_t len{value.size()};
     // strip optional "px" suffix (lowercase only)
     if (len >= 2 && value[len - 2] == u8'p' && value[len - 1] == u8'x') {
         len -= 2;
     }
-    if (len == 0) {
-        return ::exception::nullopt_t{};
-    }
-    ::std::size_t result{};
-    for (::std::size_t i = 0; i < len; ++i) {
-        auto c = value[i];
-        if (c < u8'0' || c > u8'9') {
-            return ::exception::nullopt_t{};
-        }
-        ::std::size_t const digit = static_cast<::std::size_t>(c - u8'0');
-        // Reject overflow: result would exceed ::std::size_t max
-        if (result > (~static_cast<::std::size_t>(0) - digit) / 10) {
-            return ::exception::nullopt_t{};
-        }
-        result = result * 10 + digit;
-    }
+    ::exception::optional<::std::size_t> result{
+        ::pltxt2htm::details::u8str2size_t(::fast_io::u8string_view{value.data(), len})};
     if (result == 0) {
         return ::exception::nullopt_t{};
     }
@@ -801,9 +787,9 @@ constexpr auto try_parse_span_tag(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt_t{};
     }
 
-    ::std::size_t pos = 4; // skip past "span" (the 's' was consumed by the trie dispatch)
-    bool found_style = false;
-    ::fast_io::u8string color;
+    ::std::size_t pos{4}; // skip past "span" (the 's' was consumed by the trie dispatch)
+    bool found_style{false};
+    ::fast_io::u8string color{};
     ::exception::optional<::std::size_t> font_size{::exception::nullopt_t{}};
 
     while (pos < pltext.size()) {
