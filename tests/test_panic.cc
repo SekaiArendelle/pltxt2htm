@@ -59,10 +59,10 @@ void test_panic_basic() noexcept {
     ::pltxt2htm_test::assert_true(total_read > 0);
 
     constexpr auto expected_ls = ::pltxt2htm::details::concat(
-        ::pltxt2htm::details::U8LiteralString{u8"Program panicked because \"assert("},
+        ::pltxt2htm::details::U8LiteralString{u8"Program panicked because "},
         ::pltxt2htm::details::U8LiteralString{u8"test_expression"},
         ::pltxt2htm::details::U8LiteralString{
-            u8")\" failed, please file a bug at \"https://github.com/SekaiArendelle/pltxt2htm/issues\" and attach the "
+            u8", please file a bug at \"https://github.com/SekaiArendelle/pltxt2htm/issues\" and attach the "
             u8"crash info along with the source text\n* in file: "},
         ::pltxt2htm::details::U8LiteralString{u8"test_file.cc"},
         ::pltxt2htm::details::U8LiteralString{u8"\n"
