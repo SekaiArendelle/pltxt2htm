@@ -280,9 +280,7 @@ public:
             new (::std::addressof(ol_node))::pltxt2htm::details::MdListOlNode<ndebug>(::std::move(other.ol_node));
             break;
         }
-// All enum values are covered above; default is unreachable.
-// #if 0 documents intent and keeps the formatter output clean.
-#if 0
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
         default:
             [[unlikely]] {
                 pltxt2htm_unreachable(u8"Unexpected MdListNodeType in move constructor");
@@ -309,9 +307,7 @@ public:
             ol_node.~MdListOlNode<ndebug>();
             break;
         }
-// All enum values are covered above; default is unreachable.
-// #if 0 documents intent and keeps the formatter output clean.
-#if 0
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
         default:
             [[unlikely]] {
                 pltxt2htm_unreachable(u8"Unexpected MdListNodeType in destructor");
@@ -422,9 +418,7 @@ public:
         case ::pltxt2htm::details::MdListNodeType::md_ol: {
             return self.ol_node == other.ol_node;
         }
-// All enum values are covered above; default is unreachable.
-// #if 0 documents intent and keeps the formatter output clean.
-#if 0
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
         default:
             [[unlikely]] {
                 pltxt2htm_unreachable(u8"Unexpected MdListNodeType in operator==");
@@ -869,9 +863,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
                     ::pltxt2htm::details::MdListUlNode<ndebug>(::std::move(frame.md_list_ast)));
                 break;
             }
-// All enum values are covered above; default is unreachable.
-// #if 0 documents intent and keeps the formatter output clean.
-#if 0
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
             default:
                 [[unlikely]] {
                     pltxt2htm_unreachable(u8"Unexpected MdUlListItemKind");
@@ -935,9 +927,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
                 ::pltxt2htm::details::MdListUlNode<ndebug>(::std::move(frame.md_list_ast)));
             break;
         }
-// All enum values are covered above; default is unreachable.
-// #if 0 documents intent and keeps the formatter output clean.
-#if 0
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
         default:
             [[unlikely]] {
                 pltxt2htm_unreachable(u8"Unexpected MdUlListItemKind");

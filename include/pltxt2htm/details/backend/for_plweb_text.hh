@@ -1139,9 +1139,7 @@ entry:
                 ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result, coauthors);
                 continue;
             }
-// All enum values are covered above; default is unreachable.
-// #if 0 documents intent and keeps the formatter output clean.
-#if 0
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
             default:
                 [[unlikely]] {
                     pltxt2htm_unreachable(u8"Unexpected macro node kind in text backend");

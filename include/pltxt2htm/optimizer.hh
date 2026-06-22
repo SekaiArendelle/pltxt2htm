@@ -1238,9 +1238,7 @@ entry:
                 ++current_iter;
                 continue;
             }
-// All enum values are covered above; default is unreachable.
-// #if 0 documents intent and keeps the formatter output clean.
-#if 0
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
             default:
                 [[unlikely]] {
                     pltxt2htm_unreachable(u8"Unexpected node kind in escape/code-fence switch");

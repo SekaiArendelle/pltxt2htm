@@ -216,9 +216,7 @@ entry:
                     ::pltxt2htm::NodeKind::md_ol, ::std::move(frame_iter->get_sublist())));
                 break;
             }
-// All enum values are covered above; default is unreachable.
-// #if 0 documents intent and keeps the formatter output clean.
-#if 0
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
             default:
                 [[unlikely]] {
                     pltxt2htm_unreachable(u8"Unexpected MdListNodeType");
@@ -286,9 +284,7 @@ entry:
                     ::pltxt2htm::NodeKind::md_ol, ::std::move(frame_iter->get_sublist())));
                 break;
             }
-// All enum values are covered above; default is unreachable.
-// #if 0 documents intent and keeps the formatter output clean.
-#if 0
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
             default:
                 [[unlikely]] {
                     pltxt2htm_unreachable(u8"Unexpected MdListNodeType");
@@ -387,9 +383,7 @@ entry:
                     ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTable<ndebug>{::std::move(table_ast)}));
                 goto entry;
             }
-// All enum values are covered above; default is unreachable.
-// #if 0 documents intent and keeps the formatter output clean.
-#if 0
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
             default:
                 [[unlikely]] {
                     pltxt2htm_unreachable(u8"Unexpected MdTableParsePhase");

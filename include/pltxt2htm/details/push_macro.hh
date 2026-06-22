@@ -62,10 +62,10 @@
     do { \
         if constexpr (ndebug != ::pltxt2htm::Contracts::ignore) { \
             constexpr auto source_location = ::std::source_location::current(); \
-            ::pltxt2htm::details::panic< \
-                ::pltxt2htm::details::U8LiteralString{u8"unreachable code reached"}, \
-                ::pltxt2htm::details::U8LiteralString{PLTXT2HTM_U8_CONSTANT_STR_(__FILE__)}, \
-                source_location.line(), source_location.column(), ::pltxt2htm::details::U8LiteralString{message}>(); \
+            ::pltxt2htm::details::panic<::pltxt2htm::details::U8LiteralString{u8"unreachable code reached"}, \
+                                        ::pltxt2htm::details::U8LiteralString{PLTXT2HTM_U8_CONSTANT_STR_(__FILE__)}, \
+                                        source_location.line(), source_location.column(), \
+                                        ::pltxt2htm::details::U8LiteralString{message}>(); \
         } \
         else { \
             ::exception::unreachable<true>(); \
