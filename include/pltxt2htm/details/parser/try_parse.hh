@@ -1700,7 +1700,7 @@ constexpr auto try_parse_md_code_span(::fast_io::u8string_view pltext) noexcept
                                                                       .subast = ::std::move(ast)};
     }
     else {
-        ::exception::unreachable();
+        pltxt2htm_unreachable(u8"Unexpected embraced size for code span");
     }
 }
 

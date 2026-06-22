@@ -1288,7 +1288,7 @@ public:
     #if 0
         default:
             [[unlikely]] {
-                ::exception::unreachable();
+                pltxt2htm_unreachable(u8"Unexpected node kind in PlTxtNode copy constructor");
             }
     #endif
         }
@@ -1878,7 +1878,7 @@ public:
 #if 0
         default:
             [[unlikely]] {
-                ::exception::unreachable();
+                pltxt2htm_unreachable(u8"Unexpected node kind in PlTxtNode move constructor");
             }
 #endif
         }
@@ -2375,7 +2375,7 @@ public:
 #if 0
         default:
             [[unlikely]] {
-                ::exception::unreachable();
+                pltxt2htm_unreachable(u8"Unexpected node kind in PlTxtNode destructor");
             }
 #endif
         }
@@ -2766,12 +2766,12 @@ public:
 #if 0
         default:
             [[unlikely]] {
-                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                pltxt2htm_unreachable(u8"Unexpected node kind in PlTxtNode operator==");
             }
 #endif
         }
         // reduce MSVC return-path warning
-        ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+        pltxt2htm_unreachable(u8"Unreachable after PlTxtNode operator== switch");
     }
 
     /// @name as_xxx() accessors — one per union member type

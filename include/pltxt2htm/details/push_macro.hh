@@ -46,12 +46,28 @@
             if ((condition) == false) [[unlikely]] { \
                 constexpr auto source_location = ::std::source_location::current(); \
                 ::pltxt2htm::details::panic< \
-                    ::pltxt2htm::details::U8LiteralString{PLTXT2HTM_U8_CONSTANT_STR_(#condition)}, \
+                    ::pltxt2htm::details::U8LiteralString{u8"\"assert(" #condition ")\" failed"}, \
                     ::pltxt2htm::details::U8LiteralString{PLTXT2HTM_U8_CONSTANT_STR_(__FILE__)}, \
                     source_location.line(), source_location.column(), pltxt2htm::details::U8LiteralString{message}>(); \
             } \
         } \
         else { \
             [[assume(condition)]]; \
+        } \
+    } while (0)
+
+#pragma push_macro("pltxt2htm_unreachable")
+#undef pltxt2htm_unreachable
+#define pltxt2htm_unreachable(message) \
+    do { \
+        if constexpr (ndebug != ::pltxt2htm::Contracts::ignore) { \
+            constexpr auto source_location = ::std::source_location::current(); \
+            ::pltxt2htm::details::panic< \
+                ::pltxt2htm::details::U8LiteralString{u8"unreachable code reached"}, \
+                ::pltxt2htm::details::U8LiteralString{PLTXT2HTM_U8_CONSTANT_STR_(__FILE__)}, \
+                source_location.line(), source_location.column(), ::pltxt2htm::details::U8LiteralString{message}>(); \
+        } \
+        else { \
+            ::exception::unreachable<true>(); \
         } \
     } while (0)

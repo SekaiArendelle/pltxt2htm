@@ -714,7 +714,7 @@ entry:
                     }
                     default:
                         [[unlikely]] {
-                            ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                            pltxt2htm_unreachable(u8"Unexpected node kind in emphasis switch");
                         }
                     }
                 }();
@@ -886,7 +886,7 @@ entry:
                     }
                     default:
                         [[unlikely]] {
-                            ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                            pltxt2htm_unreachable(u8"Unexpected node kind");
                         }
                     }
                 }();
@@ -1132,7 +1132,7 @@ entry:
                             ::pltxt2htm::MdDoubleEmphasisAsterisk<ndebug>(::std::move(tmp)));
                     }
                     else [[unlikely]] {
-                        ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                        pltxt2htm_unreachable(u8"Unexpected node kind");
                     }
                     continue;
                 }
@@ -1147,7 +1147,7 @@ entry:
                             ::pltxt2htm::MdSingleEmphasisAsterisk<ndebug>{::std::move(tmp)});
                     }
                     else [[unlikely]] {
-                        ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                        pltxt2htm_unreachable(u8"Unexpected node kind");
                     }
                     continue;
                 }
@@ -1243,7 +1243,7 @@ entry:
 #if 0
             default:
                 [[unlikely]] {
-                    ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    pltxt2htm_unreachable(u8"Unexpected node kind in escape/code-fence switch");
                 }
 #endif
             }
