@@ -10,6 +10,7 @@
 #include "frame_context.hh"
 #include "../../contracts.hh"
 #include "../../details/utils.hh"
+#include "../push_macro.hh"
 
 namespace pltxt2htm::details {
 
@@ -240,6 +241,37 @@ entry:
                     ::pltxt2htm::details::U8LiteralString{u8"<span style=\"color:"},
                     ::pltxt2htm::PlA<ndebug>::get_color_literal(), ::pltxt2htm::details::U8LiteralString{u8";\">"});
                 result.append(::fast_io::u8string_view{open_tag.data(), open_tag.size()});
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::html_span: {
+                auto const& span_color = node.as_html_span().get_color();
+                auto const& span_font_size = node.as_html_span().get_font_size();
+                bool const has_color = !span_color.empty();
+                bool const has_font_size = span_font_size.has_value();
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
+                    node.as_html_span().get_subast(), 0,
+                    ::pltxt2htm::details::BackendContextWithHtmlSpanInfo{has_color, has_font_size}));
+                ++current_index;
+                result.append(u8"<span style=\"");
+                if (has_color) {
+                    result.append(u8"color:");
+                    if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
+                        ::fast_io::u8string purified_color{};
+                        ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                            purified_color, ::fast_io::u8string_view{span_color.data(), span_color.size()});
+                        pltxt2htm_assert(
+                            purified_color == span_color,
+                            u8"Color value contains characters that cannot be directly used in HTML attributes.");
+                    }
+                    result.append(span_color);
+                    result.push_back(u8';');
+                }
+                if (has_font_size) {
+                    result.append(u8"font-size:");
+                    result.append(::pltxt2htm::details::size_t2str(span_font_size.value()));
+                    result.append(u8"px;");
+                }
+                result.append(u8"\">");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_double_emphasis_underscore: {
@@ -846,6 +878,8 @@ entry:
                 result.append(u8"</strong></em>");
                 goto entry;
             }
+            case ::pltxt2htm::NodeKind::html_span:
+                [[fallthrough]];
             case ::pltxt2htm::NodeKind::pl_a:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::pl_color: {
@@ -873,3 +907,5 @@ entry:
 }
 
 } // namespace pltxt2htm::details
+
+#include "../pop_macro.hh"

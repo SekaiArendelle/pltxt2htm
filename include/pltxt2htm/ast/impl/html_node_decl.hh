@@ -8,6 +8,9 @@
 #pragma once
 
 #include <utility>
+#include <cstddef>
+#include <fast_io/fast_io_dsal/string.h>
+#include <exception/exception.hh>
 #include "ast_decl.hh"
 
 namespace pltxt2htm {
@@ -453,6 +456,47 @@ public:
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
+    }
+};
+
+/**
+ * @brief HTML &lt;span style="color:...;font-size:..."&gt; node
+ * @details Represents an HTML span element with color and/or font-size style attributes.
+ *          color stores the CSS color value (e.g. "red" or "#FF0000").
+ *          font_size stores the numeric font-size value if present (e.g. 20 for 20px).
+ */
+template<::pltxt2htm::Contracts ndebug>
+class HtmlSpan {
+    ::pltxt2htm::Ast<ndebug> subast{};
+    ::fast_io::u8string color;
+    ::exception::optional<::std::size_t> font_size;
+
+public:
+    constexpr HtmlSpan(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& color_,
+                       ::exception::optional<::std::size_t>&& font_size_) noexcept;
+    constexpr HtmlSpan(::pltxt2htm::HtmlSpan<ndebug> const&) noexcept;
+    constexpr HtmlSpan(::pltxt2htm::HtmlSpan<ndebug>&&) noexcept;
+    constexpr ~HtmlSpan() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlSpan<ndebug> const&) noexcept -> ::pltxt2htm::HtmlSpan<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlSpan<ndebug>& self, ::pltxt2htm::HtmlSpan<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlSpan<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this HtmlSpan const&, HtmlSpan const&) noexcept -> bool;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_color(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.color);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_font_size(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.font_size);
     }
 };
 

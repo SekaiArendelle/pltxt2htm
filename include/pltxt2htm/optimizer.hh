@@ -44,6 +44,13 @@ public:
     ::std::size_t id_; ///< Numeric size value (e.g., 12 in size=12)
 };
 
+class OptimizerContextWithHtmlSpanInfo {
+public:
+    ::fast_io::u8string_view color{};
+    ::std::size_t font_size_value{};
+    bool has_font_size{false};
+};
+
 template<::pltxt2htm::Contracts ndebug>
 class OptimizerContextVariant {
 public:
@@ -51,6 +58,7 @@ public:
         ::pltxt2htm::details::OptimizerContextWithoutInfo without_info;
         ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo equal_sign_tag;
         ::pltxt2htm::details::OptimizerContextWithPlSizeTagInfo pl_size_tag;
+        ::pltxt2htm::details::OptimizerContextWithHtmlSpanInfo html_span_info;
     };
 
     ::pltxt2htm::NodeKind kind; ///< Type of the current nested tag context
@@ -73,6 +81,12 @@ public:
           kind{::pltxt2htm::NodeKind::pl_size} {
     }
 
+    constexpr OptimizerContextVariant(
+        ::pltxt2htm::details::OptimizerContextWithHtmlSpanInfo&& html_span_context) noexcept
+        : html_span_info{::std::move(html_span_context)},
+          kind{::pltxt2htm::NodeKind::html_span} {
+    }
+
     constexpr OptimizerContextVariant(::pltxt2htm::details::OptimizerContextVariant<ndebug> const&) noexcept = delete;
 
     constexpr OptimizerContextVariant(::pltxt2htm::details::OptimizerContextVariant<ndebug>&& other) noexcept
@@ -92,6 +106,10 @@ public:
             ::std::construct_at(::std::addressof(this->pl_size_tag), ::std::move(other.pl_size_tag));
             return;
         }
+        case ::pltxt2htm::NodeKind::html_span: {
+            ::std::construct_at(::std::addressof(this->html_span_info), ::std::move(other.html_span_info));
+            return;
+        }
         default:
             ::std::construct_at(::std::addressof(this->without_info), ::std::move(other.without_info));
             return;
@@ -101,6 +119,7 @@ public:
     static_assert(::std::is_trivially_destructible_v<decltype(without_info)>);
     static_assert(::std::is_trivially_destructible_v<decltype(equal_sign_tag)>);
     static_assert(::std::is_trivially_destructible_v<decltype(pl_size_tag)>);
+    static_assert(::std::is_trivially_destructible_v<decltype(html_span_info)>);
 
     constexpr ~OptimizerContextVariant() noexcept = default;
 
@@ -154,6 +173,14 @@ public:
           iter{iter_} {
     }
 
+    constexpr OptimizerFrameContext(
+        ::pltxt2htm::Ast<ndebug>* ast_, Iter&& iter_,
+        ::pltxt2htm::details::OptimizerContextWithHtmlSpanInfo&& html_span_context_) noexcept
+        : context_data{::std::move(html_span_context_)},
+          ast(ast_),
+          iter{iter_} {
+    }
+
     constexpr OptimizerFrameContext(::pltxt2htm::details::OptimizerFrameContext<Iter, ndebug> const&) noexcept = delete;
 
     constexpr OptimizerFrameContext(::pltxt2htm::details::OptimizerFrameContext<Iter, ndebug>&&) noexcept = default;
@@ -187,6 +214,30 @@ public:
         bool const is_pl_size_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_size};
         pltxt2htm_assert(is_pl_size_tag_type, u8"context kind mismatch");
         return context_data_ref.pl_size_tag.id_;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_html_span_color(this auto&& self) noexcept -> ::fast_io::u8string_view {
+        auto&& context_data_ref = self.context_data;
+        bool const is_html_span_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_span};
+        pltxt2htm_assert(is_html_span_type, u8"context kind mismatch");
+        return context_data_ref.html_span_info.color;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_html_span_has_font_size(this auto&& self) noexcept -> bool {
+        auto&& context_data_ref = self.context_data;
+        bool const is_html_span_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_span};
+        pltxt2htm_assert(is_html_span_type, u8"context kind mismatch");
+        return context_data_ref.html_span_info.has_font_size;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_html_span_font_size_value(this auto&& self) noexcept -> ::std::size_t {
+        auto&& context_data_ref = self.context_data;
+        bool const is_html_span_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_span};
+        pltxt2htm_assert(is_html_span_type, u8"context kind mismatch");
+        return context_data_ref.html_span_info.font_size_value;
     }
 };
 
@@ -291,7 +342,8 @@ entry:
                     if (subast.size() == 1) {
                         auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
                         if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_color ||
-                            subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_a) {
+                            subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_a ||
+                            subnode.get_node_kind() == ::pltxt2htm::NodeKind::html_span) {
                             // SAFETY: We must NOT write `(*current_iter) = ::std::move(subnode);` directly.
                             // `subnode` is a reference into `(*current_iter).get_subast()`. When the move-assignment
                             // operator of the node runs, it first destructs the old value at `*current_iter`, which
@@ -341,6 +393,126 @@ entry:
                 ++current_iter;
                 continue;
             }
+            case ::pltxt2htm::NodeKind::html_span: {
+                // Merge attributes rather than discarding the outer span.
+                // Inner values override outer for conflicts; outer values not
+                // set on inner are preserved (CSS cascading).
+                // e.g. <span style="font-size:20px"><span style="color:red">t</span></span>
+                //      → <span style="color:red;font-size:20px">t</span>
+                auto&& subast = node.as_html_span().get_subast();
+                if (subast.size() == 1) {
+                    auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
+                    if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::html_span) {
+                        auto const& outer_color = node.as_html_span().get_color();
+                        auto const outer_fs = node.as_html_span().get_font_size();
+                        auto const& inner_color = subnode.as_html_span().get_color();
+                        auto const inner_fs = subnode.as_html_span().get_font_size();
+                        auto merged_color = ::fast_io::u8string{inner_color.empty() ? outer_color : inner_color};
+                        ::exception::optional<::std::size_t> merged_fs{::exception::nullopt_t{}};
+                        if (inner_fs.has_value()) {
+                            merged_fs = inner_fs.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                        }
+                        else if (outer_fs.has_value()) {
+                            merged_fs = outer_fs.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                        }
+                        // SAFETY: Move inner's subast to a temporary first to break aliasing.
+                        // `subnode` is a reference into `(*current_iter).get_subast()`.
+                        auto inner_subast = ::std::move(subnode.as_html_span().get_subast());
+                        (*current_iter) = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::HtmlSpan<ndebug>{
+                            ::std::move(inner_subast), ::std::move(merged_color), ::std::move(merged_fs)}};
+                        continue;
+                    }
+                    if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_color) {
+                        auto const outer_fs = node.as_html_span().get_font_size();
+                        ::exception::optional<::std::size_t> merged_fs{::exception::nullopt_t{}};
+                        if (outer_fs.has_value()) {
+                            merged_fs = outer_fs.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                        }
+                        auto inner_subast = ::std::move(subnode.as_pl_color().get_subast());
+                        auto const& inner_color = subnode.as_pl_color().get_color();
+                        (*current_iter) = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::HtmlSpan<ndebug>{
+                            ::std::move(inner_subast), ::fast_io::u8string{inner_color}, ::std::move(merged_fs)}};
+                        continue;
+                    }
+                    if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_a) {
+                        auto tmp = ::std::move(subnode);
+                        (*current_iter) = ::std::move(tmp);
+                        continue;
+                    }
+                }
+                if (subast.empty()) {
+                    ast.erase(current_iter);
+                    continue;
+                }
+                // Optimization: If the same attrs as parent html_span or color tag, flatten.
+                // <span style="color:red">a<span style="color:red">b</span>c</span>
+                // -> <span style="color:red">abc</span>
+                // <color=red>a<span style="color:red">b</span>c</color>
+                // -> <span style="color:red">abc</span>
+                {
+                    ::pltxt2htm::NodeKind const nested_tag_type{
+                        ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type()};
+                    if (nested_tag_type == ::pltxt2htm::NodeKind::html_span) {
+                        auto const& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                        auto const& node_color = node.as_html_span().get_color();
+                        ::fast_io::u8string_view const node_color_view{node_color.data(), node_color.size()};
+                        auto const& node_fs = node.as_html_span().get_font_size();
+                        bool const same_font_size =
+                            node_fs.has_value() == parent_frame.get_html_span_has_font_size() &&
+                            (!node_fs.has_value() ||
+                             node_fs.template value<ndebug == ::pltxt2htm::Contracts::ignore>() ==
+                                 parent_frame.get_html_span_font_size_value());
+                        if (node_color_view == parent_frame.get_html_span_color() && same_font_size) {
+                            node = ::pltxt2htm::PlTxtNode<ndebug>{
+                                ::pltxt2htm::Text<ndebug>{::std::move(node.as_html_span().get_subast())}};
+                            ++current_iter;
+                            continue;
+                        }
+                    }
+                    if (nested_tag_type == ::pltxt2htm::NodeKind::pl_color) {
+                        auto const& parent_color_id =
+                            ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_equal_sign_tag_id();
+                        auto const& node_color = node.as_html_span().get_color();
+                        ::fast_io::u8string_view const node_color_view{node_color.data(), node_color.size()};
+                        auto const& node_fs = node.as_html_span().get_font_size();
+                        if (node_color_view == parent_color_id && !node_fs.has_value()) {
+                            node = ::pltxt2htm::PlTxtNode<ndebug>{
+                                ::pltxt2htm::Text<ndebug>{::std::move(node.as_html_span().get_subast())}};
+                            ++current_iter;
+                            continue;
+                        }
+                    }
+                    if (nested_tag_type == ::pltxt2htm::NodeKind::pl_a) {
+                        static constexpr auto anchor_color_literal = ::pltxt2htm::PlA<ndebug>::get_color_literal();
+                        static constexpr auto anchor_color =
+                            ::fast_io::u8string_view{anchor_color_literal.data(), anchor_color_literal.size()};
+                        auto const& node_color = node.as_html_span().get_color();
+                        ::fast_io::u8string_view const node_color_view{node_color.data(), node_color.size()};
+                        auto const& node_fs = node.as_html_span().get_font_size();
+                        if (node_color_view == anchor_color && !node_fs.has_value()) {
+                            node = ::pltxt2htm::PlTxtNode<ndebug>{
+                                ::pltxt2htm::Text<ndebug>{::std::move(node.as_html_span().get_subast())}};
+                            ++current_iter;
+                            continue;
+                        }
+                    }
+                }
+                {
+                    auto const& span_color = node.as_html_span().get_color();
+                    auto const span_font_size = node.as_html_span().get_font_size();
+                    call_stack.push(
+                        ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator,
+                                                                    ndebug>(
+                            ::std::addressof(subast), subast.begin(),
+                            ::pltxt2htm::details::OptimizerContextWithHtmlSpanInfo{
+                                ::fast_io::u8string_view{span_color.data(), span_color.size()},
+                                span_font_size.has_value()
+                                    ? span_font_size.template value<ndebug == ::pltxt2htm::Contracts::ignore>()
+                                    : 0,
+                                span_font_size.has_value()}));
+                    goto entry;
+                }
+            }
             case ::pltxt2htm::NodeKind::pl_a: {
                 auto&& subast = node.as_pl_a().get_subast();
                 {
@@ -349,7 +521,8 @@ entry:
                     // The inner color takes precedence over the outer color
                     if (subast.size() == 1) {
                         auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
-                        if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_color) {
+                        if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_color ||
+                            subnode.get_node_kind() == ::pltxt2htm::NodeKind::html_span) {
                             // SAFETY: We must NOT write `(*current_iter) = ::std::move(subnode);` directly.
                             // `subnode` is a reference into `(*current_iter).get_subast()`. When the move-assignment
                             // operator of the node runs, it first destructs the old value at `*current_iter`, which
@@ -368,15 +541,19 @@ entry:
                 // Optimization: If this color matches the parent color, flatten the nesting
                 // <a>text<a>text</a>text</a> -> <a>texttexttext</a>
                 auto const is_different_tag = bool{[nested_tag_type, &call_stack] constexpr noexcept {
+                    static constexpr auto anchor_color_literal = ::pltxt2htm::PlA<ndebug>::get_color_literal();
+                    static constexpr auto anchor_color =
+                        ::fast_io::u8string_view{anchor_color_literal.data(), anchor_color_literal.size()};
+                    if (nested_tag_type == ::pltxt2htm::NodeKind::pl_a) {
+                        return false;
+                    }
                     if (nested_tag_type == ::pltxt2htm::NodeKind::pl_color) {
-                        static constexpr auto anchor_color_literal = ::pltxt2htm::PlA<ndebug>::get_color_literal();
-                        static constexpr auto anchor_color =
-                            ::fast_io::u8string_view{anchor_color_literal.data(), anchor_color_literal.size()};
                         return anchor_color !=
                                ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_equal_sign_tag_id();
                     }
-                    if (nested_tag_type == ::pltxt2htm::NodeKind::pl_a) {
-                        return false;
+                    if (nested_tag_type == ::pltxt2htm::NodeKind::html_span) {
+                        return anchor_color !=
+                               ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_html_span_color();
                     }
                     return true; // Different tag types, so not the same
                 }()};
