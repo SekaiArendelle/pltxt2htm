@@ -184,7 +184,7 @@ constexpr auto convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> c
         }
         default:
             [[unlikely]] {
-                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                pltxt2htm_unreachable(u8"Unexpected node kind in HTML escaping");
             }
         }
     }
@@ -1144,7 +1144,7 @@ entry:
 #if 0
             default:
                 [[unlikely]] {
-                    ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    pltxt2htm_unreachable(u8"Unexpected macro node kind in text backend");
                 }
 #endif
             }
@@ -1368,7 +1368,7 @@ entry:
             }
             default:
                 [[unlikely]] {
-                    ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    pltxt2htm_unreachable(u8"Unexpected nested tag type in text backend");
                 }
             }
         }

@@ -219,7 +219,7 @@ constexpr bool is_prefix_match(::fast_io::u8string_view str) noexcept {
     }(::std::make_index_sequence<prefix_str.size()>{});
 #endif
     // suppress GCC -Wreturn-type warning
-    ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+    pltxt2htm_unreachable(u8"Unreachable - all cases return above");
 }
 
 /**

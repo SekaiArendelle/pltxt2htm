@@ -103,7 +103,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
         }
         default:
             [[unlikely]] {
-                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                pltxt2htm_unreachable(u8"Unexpected node kind");
             }
         }
     }

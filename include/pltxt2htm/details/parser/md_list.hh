@@ -285,7 +285,7 @@ public:
 #if 0
         default:
             [[unlikely]] {
-                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                pltxt2htm_unreachable(u8"Unexpected MdListNodeType in move constructor");
             }
 #endif
         }
@@ -314,7 +314,7 @@ public:
 #if 0
         default:
             [[unlikely]] {
-                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                pltxt2htm_unreachable(u8"Unexpected MdListNodeType in destructor");
             }
 #endif
         }
@@ -352,10 +352,10 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::details::MdListNodeType::md_ol:
             [[unlikely]] {
-                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                pltxt2htm_unreachable(u8"Unexpected md_ul/md_ol in get_text()");
             }
         }
-        ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+        pltxt2htm_unreachable(u8"Unreachable after get_text() switch");
     }
 
     [[nodiscard]]
@@ -371,10 +371,10 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::details::MdListNodeType::md_ol:
             [[unlikely]] {
-                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                pltxt2htm_unreachable(u8"Unexpected md_ul/md_ol in get_text_view()");
             }
         }
-        ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+        pltxt2htm_unreachable(u8"Unreachable after get_text_view() switch");
     }
 
     [[nodiscard]]
@@ -390,10 +390,10 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::details::MdListNodeType::md_li_checkbox:
             [[unlikely]] {
-                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                pltxt2htm_unreachable(u8"Unexpected md_li/md_li_checkbox in get_sublist()");
             }
         }
-        ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+        pltxt2htm_unreachable(u8"Unreachable after get_sublist() switch");
     }
 
     [[nodiscard]]
@@ -427,11 +427,11 @@ public:
 #if 0
         default:
             [[unlikely]] {
-                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                pltxt2htm_unreachable(u8"Unexpected MdListNodeType in operator==");
             }
 #endif
         }
-        ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+        pltxt2htm_unreachable(u8"Unreachable after MdListNodeType operator== switch");
     }
 };
 
@@ -874,7 +874,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
 #if 0
             default:
                 [[unlikely]] {
-                    ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    pltxt2htm_unreachable(u8"Unexpected MdUlListItemKind");
                 }
 #endif
             }
@@ -940,7 +940,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
 #if 0
         default:
             [[unlikely]] {
-                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                pltxt2htm_unreachable(u8"Unexpected MdUlListItemKind");
             }
 #endif
         }

@@ -473,7 +473,7 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_hr:
             [[unlikely]] {
-                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                pltxt2htm_unreachable(u8"Unexpected node kind in ContextVariant move");
             }
         }
     }
@@ -749,7 +749,7 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_hr:
             [[unlikely]] {
-                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                pltxt2htm_unreachable(u8"Unexpected node kind in ContextVariant destructor");
             }
         }
     }
@@ -1140,11 +1140,11 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_ol:
             [[unlikely]] {
-                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                pltxt2htm_unreachable(u8"Unexpected node kind in context-kind switch");
             }
         }
         // suppress GCC -Wreturn-type warning
-        ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+        pltxt2htm_unreachable(u8"Unreachable after context-kind switch");
     }
 
     [[nodiscard]]

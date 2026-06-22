@@ -81,7 +81,7 @@ constexpr auto find_next_block_after_line_break(
             }
             default:
                 [[unlikely]] {
-                    ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    pltxt2htm_unreachable(u8"Unexpected heading node kind");
                 }
             }
             current_index += advance_count;
@@ -221,7 +221,7 @@ entry:
 #if 0
             default:
                 [[unlikely]] {
-                    ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    pltxt2htm_unreachable(u8"Unexpected MdListNodeType");
                 }
 #endif
             }
@@ -291,7 +291,7 @@ entry:
 #if 0
             default:
                 [[unlikely]] {
-                    ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    pltxt2htm_unreachable(u8"Unexpected MdListNodeType");
                 }
 #endif
             }
@@ -392,12 +392,12 @@ entry:
 #if 0
             default:
                 [[unlikely]] {
-                    ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    pltxt2htm_unreachable(u8"Unexpected MdTableParsePhase");
                 }
 #endif
             }
 
-            ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+            pltxt2htm_unreachable(u8"Unreachable after MdTableParsePhase switch");
         }
 
         auto&& top_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
@@ -1607,7 +1607,7 @@ entry:
                     }
                     case ::pltxt2htm::NodeKind::html_note:
                         [[unlikely]] {
-                            ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                            pltxt2htm_unreachable(u8"Unexpected html_note node during end-tag parsing");
                         }
                     case ::pltxt2htm::NodeKind::html_em: {
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"em">(
@@ -2123,10 +2123,10 @@ entry:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::md_escape_tilde:
                         [[unlikely]] {
-                            ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                            pltxt2htm_unreachable(u8"Unexpected escape node kind in inner switch");
                         }
                     }
-                    ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    pltxt2htm_unreachable(u8"Unreachable after escape-node inner switch");
                 }
 
                 default: {
@@ -2136,7 +2136,7 @@ entry:
                 }
                 }
 
-                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                pltxt2htm_unreachable(u8"Unreachable after outer switch");
             }
             if (auto opt_url = ::pltxt2htm::details::try_parse_auto_url<ndebug>(pltext, current_index);
                 opt_url.has_value()) {
@@ -2648,10 +2648,10 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::pl_macro_coauthors:
                 [[unlikely]] {
-                    ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    pltxt2htm_unreachable(u8"Unexpected block node kind in inline context");
                 }
             }
-            ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+            pltxt2htm_unreachable(u8"Unreachable after block-node-in-inline switch");
         }
     }
 }

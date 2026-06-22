@@ -141,7 +141,7 @@ constexpr auto url_ast_to_string(::pltxt2htm::Ast<ndebug> const& ast) noexcept -
             continue;
         default:
             [[unlikely]] {
-                ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                pltxt2htm_unreachable(u8"Unexpected node kind in title character rendering");
             }
         }
     }
@@ -839,7 +839,7 @@ entry:
 #if 0
             default:
                 [[unlikely]] {
-                    ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    pltxt2htm_unreachable(u8"Unexpected node kind in title backend");
                 }
 #endif
             }
@@ -899,7 +899,7 @@ entry:
             }
             default:
                 [[unlikely]] {
-                    ::exception::unreachable<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    pltxt2htm_unreachable(u8"Unexpected nested tag type in title backend");
                 }
             }
         }
