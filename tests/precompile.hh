@@ -62,11 +62,7 @@ void assert_equal_impl(::fast_io::u8string_view file, ::std::size_t line, ::fast
 
 } // namespace pltxt2htm_test
 
-#define PLTXT2HTM_TEST_U8_CONSTANT_STR_HELPER_(str) u8##str
-#define PLTXT2HTM_TEST_U8_CONSTANT_STR_(str) PLTXT2HTM_TEST_U8_CONSTANT_STR_HELPER_(str)
-
 #define pltxt2htm_test_assert_equal(html, answer) \
-    ::pltxt2htm_test::assert_equal_impl(::fast_io::u8string_view{PLTXT2HTM_TEST_U8_CONSTANT_STR_(__FILE__)}, __LINE__, \
-                                        ::fast_io::u8string_view{PLTXT2HTM_TEST_U8_CONSTANT_STR_(#html)}, \
-                                        ::fast_io::u8string_view{PLTXT2HTM_TEST_U8_CONSTANT_STR_(#answer)}, \
+    ::pltxt2htm_test::assert_equal_impl(::fast_io::u8string_view{u8"" __FILE__}, __LINE__, \
+                                        ::fast_io::u8string_view{u8"" #html}, ::fast_io::u8string_view{u8"" #answer}, \
                                         ::fast_io::mnp::os_c_str(html), ::fast_io::mnp::os_c_str(answer))

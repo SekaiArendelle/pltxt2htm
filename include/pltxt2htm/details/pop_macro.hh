@@ -11,5 +11,3 @@
 
 #pragma pop_macro("pltxt2htm_unreachable")
 #pragma pop_macro("pltxt2htm_assert")
-#pragma pop_macro("PLTXT2HTM_U8_CONSTANT_STR_")
-#pragma pop_macro("PLTXT2HTM_U8_CONSTANT_STR_HELPER_")
