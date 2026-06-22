@@ -344,15 +344,15 @@ entry:
                         if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_color ||
                             subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_a ||
                             subnode.get_node_kind() == ::pltxt2htm::NodeKind::html_span) {
-                            // SAFETY: We must NOT write `(*current_iter) = ::std::move(subnode);` directly.
-                            // `subnode` is a reference into `(*current_iter).get_subast()`. When the move-assignment
+                            // SAFETY: We must NOT write `node = ::std::move(subnode);` directly.
+                            // `subnode` is a reference into `node.get_subast()`. When the move-assignment
                             // operator of the node runs, it first destructs the old value at `*current_iter`, which
                             // in turn destructs `subnode` (since `subnode` lives inside that sub-AST). That means
                             // `subnode` is destroyed *before* its contents are moved -- a use-after-free.
                             // By moving `subnode` into a temporary first, we extract the value before the
                             // destination is touched, breaking the aliasing.
                             auto tmp = ::std::move(subnode);
-                            (*current_iter) = ::std::move(tmp);
+                            node = ::std::move(tmp);
                             continue;
                         }
                     }
@@ -416,9 +416,9 @@ entry:
                             merged_fs = outer_fs.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                         }
                         // SAFETY: Move inner's subast to a temporary first to break aliasing.
-                        // `subnode` is a reference into `(*current_iter).get_subast()`.
+                        // `subnode` is a reference into `node.get_subast()`.
                         auto inner_subast = ::std::move(subnode.as_html_span().get_subast());
-                        (*current_iter) = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::HtmlSpan<ndebug>{
+                        node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::HtmlSpan<ndebug>{
                             ::std::move(inner_subast), ::std::move(merged_color), ::std::move(merged_fs)}};
                         continue;
                     }
@@ -430,13 +430,13 @@ entry:
                         }
                         auto inner_subast = ::std::move(subnode.as_pl_color().get_subast());
                         auto const& inner_color = subnode.as_pl_color().get_color();
-                        (*current_iter) = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::HtmlSpan<ndebug>{
+                        node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::HtmlSpan<ndebug>{
                             ::std::move(inner_subast), ::fast_io::u8string{inner_color}, ::std::move(merged_fs)}};
                         continue;
                     }
                     if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_a) {
                         auto tmp = ::std::move(subnode);
-                        (*current_iter) = ::std::move(tmp);
+                        node = ::std::move(tmp);
                         continue;
                     }
                 }
@@ -523,15 +523,15 @@ entry:
                         auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
                         if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_color ||
                             subnode.get_node_kind() == ::pltxt2htm::NodeKind::html_span) {
-                            // SAFETY: We must NOT write `(*current_iter) = ::std::move(subnode);` directly.
-                            // `subnode` is a reference into `(*current_iter).get_subast()`. When the move-assignment
+                            // SAFETY: We must NOT write `node = ::std::move(subnode);` directly.
+                            // `subnode` is a reference into `node.get_subast()`. When the move-assignment
                             // operator of the node runs, it first destructs the old value at `*current_iter`, which
                             // in turn destructs `subnode` (since `subnode` lives inside that sub-AST). That means
                             // `subnode` is destroyed *before* its contents are moved -- a use-after-free.
                             // By moving `subnode` into a temporary first, we extract the value before the
                             // destination is touched, breaking the aliasing.
                             auto tmp = ::std::move(subnode);
-                            (*current_iter) = ::std::move(tmp);
+                            node = ::std::move(tmp);
                             continue;
                         }
                     }
