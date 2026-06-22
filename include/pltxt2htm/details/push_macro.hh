@@ -46,7 +46,7 @@
             if ((condition) == false) [[unlikely]] { \
                 constexpr auto source_location = ::std::source_location::current(); \
                 ::pltxt2htm::details::panic< \
-                    ::pltxt2htm::details::U8LiteralString{u8" \"assert(" #condition ")\" failed"}, \
+                    ::pltxt2htm::details::U8LiteralString{u8"\"assert(" #condition ")\" failed"}, \
                     ::pltxt2htm::details::U8LiteralString{PLTXT2HTM_U8_CONSTANT_STR_(__FILE__)}, \
                     source_location.line(), source_location.column(), pltxt2htm::details::U8LiteralString{message}>(); \
             } \
