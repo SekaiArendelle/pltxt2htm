@@ -590,7 +590,7 @@ constexpr bool is_valid_color(::fast_io::u8string_view color) noexcept {
 
     for (::std::size_t i{}; i < color_size; ++i) {
         auto const chr{::pltxt2htm::details::u8string_view_index<ndebug>(color, i)};
-        if (!((u8'a' <= chr && chr <= u8'z') || (u8'A' <= chr && chr <= u8'Z'))) {
+        if (!(u8'a' <= chr && chr <= u8'z')) {
             return false;
         }
     }
@@ -735,6 +735,225 @@ constexpr auto try_parse_color_tag(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt_t{};
     }
     return result;
+}
+
+struct TryParseSpanTagResult {
+    ::std::size_t tag_len;
+    ::fast_io::u8string color;
+    ::exception::optional<::std::size_t> font_size;
+};
+
+/**
+ * @brief Parse a CSS font-size value to a numeric size_t.
+ * @details Accepts integer values optionally followed by "px" (case-insensitive).
+ *          Rejects values with decimals or non-px units.
+ * @tparam ndebug When set to Contracts::ignore, runtime assertions are disabled.
+ * @param[in] value The font-size value string (e.g. "20px", "20").
+ * @return The numeric value on success, or nullopt on failure.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto parse_font_size_value(::fast_io::u8string_view value) noexcept -> ::exception::optional<::std::size_t> {
+    if (value.empty()) {
+        return ::exception::nullopt_t{};
+    }
+    ::std::size_t len = value.size();
+    // strip optional "px" suffix (lowercase only)
+    if (len >= 2 && value[len - 2] == u8'p' && value[len - 1] == u8'x') {
+        len -= 2;
+    }
+    if (len == 0) {
+        return ::exception::nullopt_t{};
+    }
+    ::std::size_t result{};
+    for (::std::size_t i = 0; i < len; ++i) {
+        auto c = value[i];
+        if (c < u8'0' || c > u8'9') {
+            return ::exception::nullopt_t{};
+        }
+        ::std::size_t const digit = static_cast<::std::size_t>(c - u8'0');
+        // Reject overflow: result would exceed ::std::size_t max
+        if (result > (~static_cast<::std::size_t>(0) - digit) / 10) {
+            return ::exception::nullopt_t{};
+        }
+        result = result * 10 + digit;
+    }
+    if (result == 0) {
+        return ::exception::nullopt_t{};
+    }
+    return result;
+}
+
+/**
+ * @brief Parse &lt;span style="color:V;font-size:S"&gt; and reject any other attributes or CSS properties.
+ * @tparam ndebug When set to Contracts::ignore, runtime assertions are disabled for performance.
+ * @param[in] pltext Input text starting at "pan ..." (after "<s").
+ * @return Parsed tag result with color and/or font_size on success; nullopt on failure.
+ * @note Only the lowercase "style" attribute is accepted. Within style, only lowercase "color" and
+ *       "font-size" CSS properties are accepted. Any other attribute or CSS property causes parse failure.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_span_tag(::fast_io::u8string_view pltext) noexcept
+    -> ::exception::optional<TryParseSpanTagResult> {
+    // match "pan" prefix (case-insensitive)
+    if (!::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"pan"}>(pltext)) {
+        return ::exception::nullopt_t{};
+    }
+
+    ::std::size_t pos = 4; // skip past "span" (the 's' was consumed by the trie dispatch)
+    bool found_style = false;
+    ::fast_io::u8string color;
+    ::exception::optional<::std::size_t> font_size{::exception::nullopt_t{}};
+
+    while (pos < pltext.size()) {
+        // skip whitespace
+        while (pos < pltext.size() && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
+            ++pos;
+        }
+        if (pos >= pltext.size()) {
+            return ::exception::nullopt_t{};
+        }
+        if (pltext[pos] == u8'>') {
+            break;
+        }
+
+        // parse attribute name
+        ::std::size_t const attr_start = pos;
+        while (pos < pltext.size() && pltext[pos] != u8'=' && pltext[pos] != u8'>' && pltext[pos] != u8' ' &&
+               pltext[pos] != u8'\t' && pltext[pos] != u8'/') {
+            ++pos;
+        }
+        ::fast_io::u8string_view const attr_name{pltext.data() + attr_start, pos - attr_start};
+
+        // skip whitespace before '='
+        while (pos < pltext.size() && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
+            ++pos;
+        }
+        if (pos >= pltext.size() || pltext[pos] != u8'=') {
+            return ::exception::nullopt_t{};
+        }
+        ++pos; // skip '='
+
+        // skip whitespace after '='
+        while (pos < pltext.size() && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
+            ++pos;
+        }
+        if (pos >= pltext.size()) {
+            return ::exception::nullopt_t{};
+        }
+
+        // parse quoted attribute value
+        char8_t const quote = pltext[pos];
+        if (quote != u8'"' && quote != u8'\'') {
+            return ::exception::nullopt_t{};
+        }
+        ++pos; // skip opening quote
+        ::std::size_t const val_start = pos;
+        while (pos < pltext.size() && pltext[pos] != quote) {
+            ++pos;
+        }
+        if (pos >= pltext.size()) {
+            return ::exception::nullopt_t{};
+        }
+        ::fast_io::u8string_view const attr_val{pltext.data() + val_start, pos - val_start};
+        ++pos; // skip closing quote
+
+        // only lowercase "style" attribute is allowed
+        if (attr_name != ::fast_io::u8string_view{u8"style"}) {
+            return ::exception::nullopt_t{};
+        }
+        found_style = true;
+
+        // parse CSS property:value pairs from the style value
+        ::std::size_t css_pos = 0;
+        while (css_pos < attr_val.size()) {
+            // skip leading whitespace
+            while (css_pos < attr_val.size() && (attr_val[css_pos] == u8' ' || attr_val[css_pos] == u8'\t')) {
+                ++css_pos;
+            }
+            if (css_pos >= attr_val.size()) {
+                break;
+            }
+            // find next ';' or end of value
+            ::std::size_t prop_end = css_pos;
+            while (prop_end < attr_val.size() && attr_val[prop_end] != u8';') {
+                ++prop_end;
+            }
+            auto segment = ::fast_io::u8string_view{attr_val.data() + css_pos, prop_end - css_pos};
+            css_pos = prop_end;
+            if (css_pos < attr_val.size() && attr_val[css_pos] == u8';') {
+                ++css_pos; // skip ';'
+            }
+
+            // trim trailing whitespace from segment
+            while (!segment.empty() && (segment.back() == u8' ' || segment.back() == u8'\t')) {
+                segment = ::fast_io::u8string_view{segment.data(), segment.size() - 1};
+            }
+            if (segment.empty()) {
+                continue;
+            }
+
+            // find ':' to split property:value
+            ::std::size_t colon = 0;
+            while (colon < segment.size() && segment[colon] != u8':') {
+                ++colon;
+            }
+            if (colon == 0 || colon >= segment.size()) {
+                return ::exception::nullopt_t{};
+            }
+
+            // extract property name (lowercase only)
+            auto prop = ::fast_io::u8string_view{segment.data(), colon};
+            while (!prop.empty() && (prop.back() == u8' ' || prop.back() == u8'\t')) {
+                prop = ::fast_io::u8string_view{prop.data(), prop.size() - 1};
+            }
+
+            // extract value
+            ::std::size_t val_idx = colon + 1;
+            while (val_idx < segment.size() && (segment[val_idx] == u8' ' || segment[val_idx] == u8'\t')) {
+                ++val_idx;
+            }
+            auto val = ::fast_io::u8string_view{segment.data() + val_idx, segment.size() - val_idx};
+
+            // trim trailing whitespace
+            while (!val.empty() && (val.back() == u8' ' || val.back() == u8'\t')) {
+                val = ::fast_io::u8string_view{val.data(), val.size() - 1};
+            }
+
+            // match property
+            if (prop == ::fast_io::u8string_view{u8"color"}) {
+                if (!color.empty()) {
+                    return ::exception::nullopt_t{}; // duplicate color
+                }
+                if (!::pltxt2htm::details::is_valid_color<ndebug>(val)) {
+                    return ::exception::nullopt_t{};
+                }
+                color = ::fast_io::u8string{val};
+            }
+            else if (prop == ::fast_io::u8string_view{u8"font-size"}) {
+                if (font_size.has_value()) {
+                    return ::exception::nullopt_t{}; // duplicate font-size
+                }
+                auto opt_fs = ::pltxt2htm::details::parse_font_size_value<ndebug>(val);
+                if (!opt_fs.has_value()) {
+                    return ::exception::nullopt_t{};
+                }
+                font_size = opt_fs.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            }
+            else {
+                return ::exception::nullopt_t{}; // unknown CSS property
+            }
+        }
+    }
+
+    if (!found_style || (color.empty() && !font_size.has_value())) {
+        return ::exception::nullopt_t{};
+    }
+    if (pos >= pltext.size() || pltext[pos] != u8'>') {
+        return ::exception::nullopt_t{};
+    }
+    return TryParseSpanTagResult{pos + 1, ::std::move(color), ::std::move(font_size)};
 }
 
 /**

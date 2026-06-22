@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file for_plweb_text.hh
  * @brief Advanced HTML backend for pltxt2htm
  * @details Generates full-featured HTML output with comprehensive support for
@@ -460,6 +460,37 @@ entry:
                 result.append(u8"<span style=\"font-size:");
                 result.append(::pltxt2htm::details::size_t2str(node.as_pl_size().get_size() / 2));
                 result.append(u8"px\">");
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::html_span: {
+                auto const& span_color = node.as_html_span().get_color();
+                auto const& span_font_size = node.as_html_span().get_font_size();
+                bool const has_color = !span_color.empty();
+                bool const has_font_size = span_font_size.has_value();
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
+                    node.as_html_span().get_subast(), 0,
+                    ::pltxt2htm::details::BackendContextWithHtmlSpanInfo{has_color, has_font_size}));
+                ++current_index;
+                result.append(u8"<span style=\"");
+                if (has_color) {
+                    result.append(u8"color:");
+                    if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
+                        ::fast_io::u8string purified_color{};
+                        ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                            purified_color, ::fast_io::u8string_view{span_color.data(), span_color.size()});
+                        pltxt2htm_assert(
+                            purified_color == span_color,
+                            u8"Color value contains characters that cannot be directly used in HTML attributes.");
+                    }
+                    result.append(span_color);
+                    result.push_back(u8';');
+                }
+                if (has_font_size) {
+                    result.append(u8"font-size:");
+                    result.append(::pltxt2htm::details::size_t2str(span_font_size.value()));
+                    result.append(u8"px;");
+                }
+                result.append(u8"\">");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_double_emphasis_underscore: {
@@ -1129,6 +1160,8 @@ entry:
             case ::pltxt2htm::NodeKind::text: {
                 goto entry;
             }
+            case ::pltxt2htm::NodeKind::html_span:
+                [[fallthrough]];
             case ::pltxt2htm::NodeKind::pl_a:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::pl_color: {

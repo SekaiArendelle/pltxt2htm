@@ -328,6 +328,27 @@ entry:
                 result.push_back(u8'>');
                 goto entry;
             }
+            case ::pltxt2htm::NodeKind::html_span: {
+                auto const& span_color = node.as_html_span().get_color();
+                auto const& span_font_size = node.as_html_span().get_font_size();
+                bool const has_color = !span_color.empty();
+                bool const has_font_size = span_font_size.has_value();
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
+                    node.as_html_span().get_subast(), 0,
+                    ::pltxt2htm::details::BackendContextWithHtmlSpanInfo{has_color, has_font_size}));
+                ++current_index;
+                if (has_color) {
+                    result.append(u8"<color=");
+                    result.append(span_color);
+                    result.push_back(u8'>');
+                }
+                if (has_font_size) {
+                    result.append(u8"<size=");
+                    result.append(::pltxt2htm::details::size_t2str(span_font_size.value()));
+                    result.push_back(u8'>');
+                }
+                goto entry;
+            }
             case ::pltxt2htm::NodeKind::md_double_emphasis_underscore: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_md_double_emphasis_underscore().get_subast(),
@@ -1054,6 +1075,16 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::pl_color: {
                 result.append(u8"</color>");
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::html_span: {
+                auto const& span_info = top_frame.get_html_span_info();
+                if (span_info.has_font_size) {
+                    result.append(u8"</size>");
+                }
+                if (span_info.has_color) {
+                    result.append(u8"</color>");
+                }
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_experiment: {

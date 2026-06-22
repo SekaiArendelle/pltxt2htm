@@ -533,4 +533,28 @@ constexpr auto ::pltxt2htm::HtmlColgroup<ndebug>::operator==(this ::pltxt2htm::H
                                                              ::pltxt2htm::HtmlColgroup<ndebug> const&) noexcept
     -> bool = default;
 
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::HtmlSpan<ndebug>::HtmlSpan(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& color_,
+                                                  ::exception::optional<::std::size_t>&& font_size_) noexcept
+    : subast(::std::move(subast_)),
+      color(::std::move(color_)),
+      font_size(::std::move(font_size_)) {
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::HtmlSpan<ndebug>::HtmlSpan(::pltxt2htm::HtmlSpan<ndebug> const&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::HtmlSpan<ndebug>::HtmlSpan(::pltxt2htm::HtmlSpan<ndebug>&&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::HtmlSpan<ndebug>::~HtmlSpan() noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::HtmlSpan<ndebug>::operator=(this ::pltxt2htm::HtmlSpan<ndebug>& self,
+                                                        ::pltxt2htm::HtmlSpan<ndebug>&&) noexcept
+    -> ::pltxt2htm::HtmlSpan<ndebug>& = default;
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::HtmlSpan<ndebug>::operator==(this ::pltxt2htm::HtmlSpan<ndebug> const&,
+                                                         ::pltxt2htm::HtmlSpan<ndebug> const&) noexcept
+    -> bool = default;
+
 } // namespace pltxt2htm

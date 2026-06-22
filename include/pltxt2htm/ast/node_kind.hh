@@ -72,6 +72,7 @@ enum class NodeKind : unsigned {
     html_note, ///< HTML comment/note (not rendered in output)
     html_em, ///< Emphasis: &lt;em&gt;...&lt;/em&gt; (HTML equivalent of &lt;i&gt;)
     html_strong, ///< Strong emphasis: &lt;strong&gt;...&lt;/strong&gt; (HTML equivalent of &lt;b&gt;)
+    html_span, ///< HTML span with style attributes: &lt;span style="color:...;font-size:..."&gt;
 
     // HTML list elements
     html_ul, ///< Unordered list: &lt;ul&gt;...&lt;/ul&gt;
@@ -220,6 +221,7 @@ constexpr auto is_plain_pltext_type(::pltxt2htm::NodeKind const node_type) noexc
     return !(::pltxt2htm::details::is_equal_sign_tag_type(node_type) ||
              node_type == ::pltxt2htm::NodeKind::pl_external || node_type == ::pltxt2htm::NodeKind::pl_size ||
              node_type == ::pltxt2htm::NodeKind::md_block_quotes || node_type == ::pltxt2htm::NodeKind::md_link ||
+             node_type == ::pltxt2htm::NodeKind::html_span ||
              ::pltxt2htm::details::is_md_list_ul_or_ol_type(node_type));
 }
 
