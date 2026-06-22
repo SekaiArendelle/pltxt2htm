@@ -590,7 +590,7 @@ constexpr bool is_valid_color(::fast_io::u8string_view color) noexcept {
 
     for (::std::size_t i{}; i < color_size; ++i) {
         auto const chr{::pltxt2htm::details::u8string_view_index<ndebug>(color, i)};
-        if (!(u8'a' <= chr && chr <= u8'z')) {
+        if (!((u8'a' <= chr && chr <= u8'z') || (u8'A' <= chr && chr <= u8'Z'))) {
             return false;
         }
     }

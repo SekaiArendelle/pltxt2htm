@@ -328,14 +328,14 @@ int main() {
     {
         // uppercase color name rejected (lowercase only)
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"color:Red\">text</span>");
-        auto answer = ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;color:Red&quot;&gt;text&lt;/span&gt;"};
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"color:Red;\">text</span>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         // uppercase color name rejected (lowercase only)
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"color:BLUE\">text</span>");
-        auto answer = ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;color:BLUE&quot;&gt;text&lt;/span&gt;"};
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"color:BLUE;\">text</span>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
