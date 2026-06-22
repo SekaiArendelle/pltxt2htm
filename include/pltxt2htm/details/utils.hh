@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <limits>
 #include <cstddef>
 #include <ranges>
 #include <fast_io/fast_io_dsal/stack.h>
@@ -274,8 +275,12 @@ constexpr ::exception::optional<std::size_t> u8str2size_t(::fast_io::u8string_vi
         if (c < u8'0' || c > u8'9') {
             return ::exception::nullopt_t{};
         }
-
-        result = result * 10 + (c - '0');
+        ::std::size_t const digit = static_cast<::std::size_t>(c - u8'0');
+        // Reject overflow: result would exceed ::std::size_t max
+        if (result > (::std::numeric_limits<::std::size_t>::max() - digit) / 10) {
+            return ::exception::nullopt_t{};
+        }
+        result = result * 10 + digit;
     }
 
     return result;

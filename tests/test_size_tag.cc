@@ -80,5 +80,11 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    if constexpr (sizeof(::std::size_t) <= 8) {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<size=999999999999999999999999>hello</size>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;size=999999999999999999999999&gt;hello&lt;/size&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }
