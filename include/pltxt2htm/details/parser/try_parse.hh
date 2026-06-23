@@ -712,8 +712,10 @@ constexpr auto try_parse_td_tag(::fast_io::u8string_view pltext, ::pltxt2htm::No
                     return ::exception::nullopt_t{};
                 }
             }
+            continue; // processed "style", check next attribute or '>'
         }
-        // else: unknown attribute, ignore
+        // else: unknown attribute → reject tag
+        return ::exception::nullopt_t{};
     }
     return ::exception::nullopt_t{};
 }
