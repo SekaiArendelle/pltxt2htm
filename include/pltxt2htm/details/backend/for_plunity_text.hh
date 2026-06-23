@@ -288,7 +288,7 @@ entry:
                 ++current_index;
                 result.append(u8"<experiment=");
                 result.append(node.as_pl_experiment().get_id());
-                result.append(u8">");
+                result.push_back(u8'>');
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_discussion: {
@@ -297,7 +297,7 @@ entry:
                 ++current_index;
                 result.append(u8"<discussion=");
                 result.append(node.as_pl_discussion().get_id());
-                result.append(u8">");
+                result.push_back(u8'>');
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_external: {
@@ -307,7 +307,7 @@ entry:
                 result.append(u8"<external=");
                 result.append(::pltxt2htm::details::convert_simple_pltxt_ast_to_plunity_richtext<ndebug>(
                     node.as_pl_external().get_url().get_url_ast()));
-                result.append(u8">");
+                result.push_back(u8'>');
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_user: {
@@ -389,7 +389,7 @@ entry:
             case ::pltxt2htm::NodeKind::html_br:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::line_break: {
-                result.push_back('\n');
+                result.push_back(u8'\n');
                 continue;
             }
             case ::pltxt2htm::NodeKind::html_h1: {
@@ -778,7 +778,15 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_td().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::html_td, 0));
                 ++current_index;
-                result.append(u8"<td>");
+                result.append(u8"<td");
+                auto const align = node.as_html_td().get_align();
+                if (align == ::pltxt2htm::MdTableAlign::center) {
+                    result.append(u8" style=\"text-align:center\"");
+                }
+                else if (align == ::pltxt2htm::MdTableAlign::right) {
+                    result.append(u8" style=\"text-align:right\"");
+                }
+                result.push_back(u8'>');
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_th: {

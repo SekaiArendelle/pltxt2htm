@@ -533,7 +533,7 @@ entry:
             case ::pltxt2htm::NodeKind::line_break: {
                 if (nested_tag_type == ::pltxt2htm::NodeKind::md_code_fence_backtick ||
                     nested_tag_type == ::pltxt2htm::NodeKind::md_code_fence_tilde) {
-                    result.push_back('\n');
+                    result.push_back(u8'\n');
                 }
                 else {
                     result.append(u8"<br>");
@@ -844,14 +844,22 @@ entry:
                 else if (align == ::pltxt2htm::MdTableAlign::right) {
                     result.append(u8" style=\"text-align:right\"");
                 }
-                result.append(u8">");
+                result.push_back(u8'>');
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_td: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_td().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::html_td, 0));
                 ++current_index;
-                result.append(u8"<td>");
+                result.append(u8"<td");
+                auto const align = node.as_html_td().get_align();
+                if (align == ::pltxt2htm::MdTableAlign::center) {
+                    result.append(u8" style=\"text-align:center\"");
+                }
+                else if (align == ::pltxt2htm::MdTableAlign::right) {
+                    result.append(u8" style=\"text-align:right\"");
+                }
+                result.push_back(u8'>');
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_th: {
@@ -866,7 +874,7 @@ entry:
                 else if (align == ::pltxt2htm::MdTableAlign::right) {
                     result.append(u8" style=\"text-align:right\"");
                 }
-                result.append(u8">");
+                result.push_back(u8'>');
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_th: {

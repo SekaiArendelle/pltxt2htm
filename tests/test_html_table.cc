@@ -227,5 +227,103 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // ── <td style="text-align:..."> ──
+
+    {
+        // <td> without style → no style attribute
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><td>cell</td></tr></table>");
+        auto answer = ::fast_io::u8string_view{u8"<table><tr><td>cell</td></tr></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // <td style="text-align:center">
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><td style=\"text-align:center\">cell</td></tr></table>");
+        auto answer = ::fast_io::u8string_view{u8"<table><tr><td style=\"text-align:center\">cell</td></tr></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // <td style="text-align:right">
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><td style=\"text-align:right\">cell</td></tr></table>");
+        auto answer = ::fast_io::u8string_view{u8"<table><tr><td style=\"text-align:right\">cell</td></tr></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // <td style="text-align:left"> → accepted (valid), default align → no style attr
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><td style=\"text-align:left\">cell</td></tr></table>");
+        auto answer = ::fast_io::u8string_view{u8"<table><tr><td>cell</td></tr></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // <td> with multiple attributes — unknown attributes (class, id) → tag rejected, escaped
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"<table><tr><td class=\"foo\" style=\"text-align:center\" id=\"bar\">cell</td></tr></table>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><tr>&lt;td&nbsp;class=&quot;foo&quot;&nbsp;style=&quot;text-align:center&quot;&nbsp;id=&quot;bar&quot;&gt;cell&lt;/td&gt;</tr></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // <td style="color:red;text-align:center"> → unknown CSS → tag rejected, escaped
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"<table><tr><td style=\"color:red;text-align:center\">cell</td></tr></table>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><tr>&lt;td&nbsp;style=&quot;color:red;text-align:center&quot;&gt;cell&lt;/td&gt;</tr></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // <td style="text-align:center;color:red"> → unknown CSS → tag rejected, escaped
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"<table><tr><td style=\"text-align:center;color:red\">cell</td></tr></table>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><tr>&lt;td&nbsp;style=&quot;text-align:center;color:red&quot;&gt;cell&lt;/td&gt;</tr></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // ── uppercase text-align values rejected ──
+
+    {
+        // <td style="text-align:LEFT"> → uppercase → rejected
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><td style=\"text-align:LEFT\">cell</td></tr></table>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><tr>&lt;td&nbsp;style=&quot;text-align:LEFT&quot;&gt;cell&lt;/td&gt;</tr></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // <td style="text-align:Left"> → mixed case → rejected
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><td style=\"text-align:Left\">cell</td></tr></table>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><tr>&lt;td&nbsp;style=&quot;text-align:Left&quot;&gt;cell&lt;/td&gt;</tr></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // <td style="text-align:CENTER"> → uppercase → rejected
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><td style=\"text-align:CENTER\">cell</td></tr></table>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><tr>&lt;td&nbsp;style=&quot;text-align:CENTER&quot;&gt;cell&lt;/td&gt;</tr></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // <td style="text-align:Right"> → mixed case → rejected
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><td style=\"text-align:Right\">cell</td></tr></table>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><tr>&lt;td&nbsp;style=&quot;text-align:Right&quot;&gt;cell&lt;/td&gt;</tr></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }

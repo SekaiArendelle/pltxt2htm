@@ -12,6 +12,7 @@
 #include <fast_io/fast_io_dsal/string.h>
 #include <exception/exception.hh>
 #include "ast_decl.hh"
+#include "../node_kind.hh"
 
 namespace pltxt2htm {
 
@@ -586,10 +587,11 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class HtmlTd {
     ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::MdTableAlign align_;
 
 public:
     constexpr HtmlTd() noexcept = delete;
-    constexpr explicit HtmlTd(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr explicit HtmlTd(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::MdTableAlign align_) noexcept;
     constexpr HtmlTd(::pltxt2htm::HtmlTd<ndebug> const&) noexcept;
     constexpr HtmlTd(::pltxt2htm::HtmlTd<ndebug>&&) noexcept;
     constexpr ~HtmlTd() noexcept;
@@ -603,6 +605,11 @@ public:
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_align(this auto&& self) noexcept -> ::pltxt2htm::MdTableAlign {
+        return self.align_;
     }
 };
 
