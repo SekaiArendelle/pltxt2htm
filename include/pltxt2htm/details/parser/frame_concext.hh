@@ -299,8 +299,6 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_tr:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_td:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_th:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_thead:
@@ -455,6 +453,8 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_escape_tilde:
             [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_td:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_th:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_td: {
@@ -570,8 +570,6 @@ public:
         case ::pltxt2htm::NodeKind::html_table:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_tr:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_td:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_th:
             [[fallthrough]];
@@ -727,6 +725,8 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_escape_tilde:
             [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_td:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_th:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_td: {
@@ -853,7 +853,8 @@ public:
                                           ::pltxt2htm::NodeKind node_type) noexcept
         : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
               ::pltxt2htm::details::ParserFrameContextWithMdCellInfo{.pltext = pltext_, .align = align_}, node_type}} {
-        pltxt2htm_assert(node_type == ::pltxt2htm::NodeKind::md_th || node_type == ::pltxt2htm::NodeKind::md_td,
+        pltxt2htm_assert(node_type == ::pltxt2htm::NodeKind::html_td || node_type == ::pltxt2htm::NodeKind::md_th ||
+                             node_type == ::pltxt2htm::NodeKind::md_td,
                          u8"mismatch node type");
     }
 
@@ -964,8 +965,6 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_tr:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_td:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_th:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_thead:
@@ -1055,6 +1054,8 @@ public:
         case ::pltxt2htm::NodeKind::md_link: {
             return context_data_ref.md_link.pltext;
         }
+        case ::pltxt2htm::NodeKind::html_td:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_th:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_td: {
@@ -1260,7 +1261,8 @@ public:
     [[nodiscard]]
     constexpr auto get_md_cell_align(this auto&& self) noexcept -> ::pltxt2htm::MdTableAlign {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::md_th ||
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_td ||
+                             context_data_ref.kind == ::pltxt2htm::NodeKind::md_th ||
                              context_data_ref.kind == ::pltxt2htm::NodeKind::md_td,
                          u8"context kind mismatch");
         return context_data_ref.md_cell.align;
