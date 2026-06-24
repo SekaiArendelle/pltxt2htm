@@ -490,7 +490,9 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_note:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_col: {
+            case ::pltxt2htm::NodeKind::html_col:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_input: {
                 continue;
             }
             case ::pltxt2htm::NodeKind::text: {

@@ -1169,6 +1169,8 @@ entry:
             }
             case ::pltxt2htm::NodeKind::html_col:
                 [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_input:
+                [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_image:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_link:

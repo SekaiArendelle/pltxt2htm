@@ -1116,6 +1116,18 @@ entry:
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
+                    // parsing html <input type="checkbox" disabled [checked]> self-closing tag
+                    if (auto opt_input_tag = ::pltxt2htm::details::try_parse_input_checkbox_tag<ndebug>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                        opt_input_tag.has_value()) {
+                        auto&& [tag_len, checked] =
+                            opt_input_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                        current_index += tag_len + 1;
+                        result.push_back(
+                            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlInput{checked}));
+                        ++current_index;
+                        continue;
+                    }
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
                     ++current_index;
                     continue;
@@ -2265,6 +2277,8 @@ entry:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::html_col:
                         [[fallthrough]];
+                    case ::pltxt2htm::NodeKind::html_input:
+                        [[fallthrough]];
                     case ::pltxt2htm::NodeKind::md_image:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::url:
@@ -2781,6 +2795,8 @@ entry:
             case ::pltxt2htm::NodeKind::html_hr:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_col:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_input:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_escape_backslash:
                 [[fallthrough]];
