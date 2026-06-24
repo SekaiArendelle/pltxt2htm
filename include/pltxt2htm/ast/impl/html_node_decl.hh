@@ -12,6 +12,7 @@
 #include <fast_io/fast_io_dsal/string.h>
 #include <exception/exception.hh>
 #include "ast_decl.hh"
+#include "basic_node_decl.hh"
 #include "../node_kind.hh"
 
 namespace pltxt2htm {
@@ -482,6 +483,38 @@ public:
     [[nodiscard]]
     constexpr auto get_font_size(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.font_size);
+    }
+};
+
+/**
+ * @brief HTML &lt;a href="URL"&gt; anchor/link node
+ * @details Represents an HTML anchor element with href attribute.
+ */
+template<::pltxt2htm::Contracts ndebug>
+class HtmlA {
+    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Url<ndebug> url;
+
+public:
+    constexpr explicit HtmlA(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::Url<ndebug>&& url_) noexcept;
+    constexpr HtmlA(::pltxt2htm::HtmlA<ndebug> const&) noexcept;
+    constexpr HtmlA(::pltxt2htm::HtmlA<ndebug>&&) noexcept;
+    constexpr ~HtmlA() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlA<ndebug> const&) noexcept -> ::pltxt2htm::HtmlA<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlA<ndebug>& self, ::pltxt2htm::HtmlA<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlA<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this HtmlA const&, HtmlA const&) noexcept -> bool;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_url(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.url);
     }
 };
 

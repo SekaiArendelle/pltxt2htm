@@ -349,6 +349,16 @@ entry:
                 }
                 goto entry;
             }
+            case ::pltxt2htm::NodeKind::html_a: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_a().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::html_a, 0));
+                ++current_index;
+                result.append(u8"<external=");
+                result.append(::pltxt2htm::details::convert_simple_pltxt_ast_to_plunity_richtext<ndebug>(
+                    node.as_html_a().get_url().get_url_ast()));
+                result.push_back(u8'>');
+                goto entry;
+            }
             case ::pltxt2htm::NodeKind::md_double_emphasis_underscore: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_md_double_emphasis_underscore().get_subast(),
@@ -1286,7 +1296,9 @@ entry:
             }
             case ::pltxt2htm::NodeKind::md_link:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::url: {
+            case ::pltxt2htm::NodeKind::url:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_a: {
                 result.append(u8"</external>");
                 goto entry;
             }

@@ -274,6 +274,16 @@ entry:
                 result.append(u8"\">");
                 goto entry;
             }
+            case ::pltxt2htm::NodeKind::html_a: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_a().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::html_a, 0));
+                ++current_index;
+                result.append(u8"<a href=\"");
+                result.append(
+                    ::pltxt2htm::details::url_ast_to_string<ndebug>(node.as_html_a().get_url().get_url_ast()));
+                result.append(u8"\">");
+                goto entry;
+            }
             case ::pltxt2htm::NodeKind::md_double_emphasis_underscore: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_md_double_emphasis_underscore().get_subast(),
@@ -888,7 +898,9 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_link:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::url: {
+            case ::pltxt2htm::NodeKind::url:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_a: {
                 result.append(u8"</a>");
                 goto entry;
             }
