@@ -42,7 +42,10 @@ constexpr auto find_next_block_after_line_break(
             if (sublength != 0) {
                 auto subtext =
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + start_index, sublength);
-                call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(subtext, md_atx_heading_type));
+                call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                    ::pltxt2htm::details::ContextVariant<ndebug>{
+                        ::pltxt2htm::details::ParserFrameContextWithPltextInfo{subtext}, md_atx_heading_type},
+                    ::pltxt2htm::Ast<ndebug>{}));
                 current_index += advance_count;
                 return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{
                     .advance_count = current_index, .new_frame_been_pushed_into_call_stack = true};
@@ -106,7 +109,11 @@ constexpr auto find_next_block_after_line_break(
             opt_block_quote.has_value()) {
             auto&& [advance_count, subpltext] =
                 opt_block_quote.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(::std::move(subpltext)));
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                ::pltxt2htm::details::ContextVariant<ndebug>{
+                    ::pltxt2htm::details::ParserFrameContextWithMdBlockQuotesInfo{::std::move(subpltext)},
+                    ::pltxt2htm::NodeKind::md_block_quotes},
+                ::pltxt2htm::Ast<ndebug>{}));
             return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{
                 .advance_count = current_index + advance_count, .new_frame_been_pushed_into_call_stack = true};
         }
@@ -115,7 +122,11 @@ constexpr auto find_next_block_after_line_break(
             opt_md_list_ast.has_value()) {
             auto&& [md_list_ast, advance_count, item_kind] =
                 opt_md_list_ast.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(item_kind, ::std::move(md_list_ast)));
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                ::pltxt2htm::details::ContextVariant<ndebug>{
+                    ::pltxt2htm::details::ParserFrameContextWithMdListInfo<ndebug>{::std::move(md_list_ast)},
+                    item_kind},
+                ::pltxt2htm::Ast<ndebug>{}));
             return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{
                 .advance_count = current_index + advance_count, .new_frame_been_pushed_into_call_stack = true};
         }
@@ -124,8 +135,11 @@ constexpr auto find_next_block_after_line_break(
             opt_md_table_raw.has_value()) {
             auto&& [raw_ast, advance_count] =
                 opt_md_table_raw.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(::pltxt2htm::NodeKind::md_table,
-                                                                             ::std::move(raw_ast)));
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                ::pltxt2htm::details::ContextVariant<ndebug>{
+                    ::pltxt2htm::details::ParserFrameContextWithMdTableInfo<ndebug>{::std::move(raw_ast)},
+                    ::pltxt2htm::NodeKind::md_table},
+                ::pltxt2htm::Ast<ndebug>{}));
             return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{
                 .advance_count = current_index + advance_count, .new_frame_been_pushed_into_call_stack = true};
         }
@@ -196,24 +210,38 @@ entry:
                 {
                     if (frame_iter->get_type() == ::pltxt2htm::details::MdListNodeType::md_li_checkbox) {
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            frame_iter->get_text_view(), frame_iter->is_checked(),
-                            ::pltxt2htm::NodeKind::md_li_checkbox));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithMdLiCheckboxInfo{
+                                    frame_iter->get_text_view(), frame_iter->is_checked()},
+                                ::pltxt2htm::NodeKind::md_li_checkbox},
+                            ::pltxt2htm::Ast<ndebug>{}));
                     }
                     else {
-                        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(frame_iter->get_text_view(),
-                                                                                         ::pltxt2htm::NodeKind::md_li));
+                        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{frame_iter->get_text_view()},
+                                ::pltxt2htm::NodeKind::md_li},
+                            ::pltxt2htm::Ast<ndebug>{}));
                     }
                 }
                 break;
             }
             case ::pltxt2htm::details::MdListNodeType::md_ul: {
                 call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                    ::pltxt2htm::NodeKind::md_ul, ::std::move(frame_iter->get_sublist())));
+                    ::pltxt2htm::details::ContextVariant<ndebug>{
+                        ::pltxt2htm::details::ParserFrameContextWithMdListInfo<ndebug>{
+                            ::std::move(frame_iter->get_sublist())},
+                        ::pltxt2htm::NodeKind::md_ul},
+                    ::pltxt2htm::Ast<ndebug>{}));
                 break;
             }
             case ::pltxt2htm::details::MdListNodeType::md_ol: {
                 call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                    ::pltxt2htm::NodeKind::md_ol, ::std::move(frame_iter->get_sublist())));
+                    ::pltxt2htm::details::ContextVariant<ndebug>{
+                        ::pltxt2htm::details::ParserFrameContextWithMdListInfo<ndebug>{
+                            ::std::move(frame_iter->get_sublist())},
+                        ::pltxt2htm::NodeKind::md_ol},
+                    ::pltxt2htm::Ast<ndebug>{}));
                 break;
             }
 #ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
@@ -264,24 +292,38 @@ entry:
                 {
                     if (frame_iter->get_type() == ::pltxt2htm::details::MdListNodeType::md_li_checkbox) {
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            frame_iter->get_text_view(), frame_iter->is_checked(),
-                            ::pltxt2htm::NodeKind::md_li_checkbox));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithMdLiCheckboxInfo{
+                                    frame_iter->get_text_view(), frame_iter->is_checked()},
+                                ::pltxt2htm::NodeKind::md_li_checkbox},
+                            ::pltxt2htm::Ast<ndebug>{}));
                     }
                     else {
-                        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(frame_iter->get_text_view(),
-                                                                                         ::pltxt2htm::NodeKind::md_li));
+                        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{frame_iter->get_text_view()},
+                                ::pltxt2htm::NodeKind::md_li},
+                            ::pltxt2htm::Ast<ndebug>{}));
                     }
                 }
                 break;
             }
             case ::pltxt2htm::details::MdListNodeType::md_ul: {
                 call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                    ::pltxt2htm::NodeKind::md_ul, ::std::move(frame_iter->get_sublist())));
+                    ::pltxt2htm::details::ContextVariant<ndebug>{
+                        ::pltxt2htm::details::ParserFrameContextWithMdListInfo<ndebug>{
+                            ::std::move(frame_iter->get_sublist())},
+                        ::pltxt2htm::NodeKind::md_ul},
+                    ::pltxt2htm::Ast<ndebug>{}));
                 break;
             }
             case ::pltxt2htm::details::MdListNodeType::md_ol: {
                 call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                    ::pltxt2htm::NodeKind::md_ol, ::std::move(frame_iter->get_sublist())));
+                    ::pltxt2htm::details::ContextVariant<ndebug>{
+                        ::pltxt2htm::details::ParserFrameContextWithMdListInfo<ndebug>{
+                            ::std::move(frame_iter->get_sublist())},
+                        ::pltxt2htm::NodeKind::md_ol},
+                    ::pltxt2htm::Ast<ndebug>{}));
                 break;
             }
 #ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
@@ -307,8 +349,11 @@ entry:
                 if (cell_index < raw_ast.header_cells_count()) {
                     auto const& cell = raw_ast.header_cell_at(cell_index);
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                        ::fast_io::u8string_view{cell.text.data(), cell.text.size()}, cell.align,
-                        ::pltxt2htm::NodeKind::md_th));
+                        ::pltxt2htm::details::ContextVariant<ndebug>{
+                            ::pltxt2htm::details::ParserFrameContextWithMdCellInfo{
+                                ::fast_io::u8string_view{cell.text.data(), cell.text.size()}, cell.align},
+                            ::pltxt2htm::NodeKind::md_th},
+                        ::pltxt2htm::Ast<ndebug>{}));
                     frame.set_md_table_cell_index(cell_index + 1);
                     goto entry;
                 }
@@ -322,8 +367,11 @@ entry:
                     if (cell_index < raw_ast.body_cells_count()) {
                         auto const& cell = raw_ast.body_cell_at(row_index, cell_index);
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::fast_io::u8string_view{cell.text.data(), cell.text.size()}, cell.align,
-                            ::pltxt2htm::NodeKind::md_td));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithMdCellInfo{
+                                    ::fast_io::u8string_view{cell.text.data(), cell.text.size()}, cell.align},
+                                ::pltxt2htm::NodeKind::md_td},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         frame.set_md_table_cell_index(cell_index + 1);
                         goto entry;
                     }
@@ -502,8 +550,12 @@ entry:
                 ::std::size_t const advance_count{
                     opt_triple_emphasis_asterisk.template value<ndebug == ::pltxt2htm::Contracts::ignore>()};
                 call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 3, advance_count),
-                    ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk));
+                    ::pltxt2htm::details::ContextVariant<ndebug>{
+                        ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 3,
+                                                                                advance_count)},
+                        ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk},
+                    ::pltxt2htm::Ast<ndebug>{}));
                 current_index += advance_count + 6;
                 goto entry;
             }
@@ -514,8 +566,12 @@ entry:
                 ::std::size_t const advance_count{
                     opt_double_emphasis_asterisk.template value<ndebug == ::pltxt2htm::Contracts::ignore>()};
                 call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2, advance_count),
-                    ::pltxt2htm::NodeKind::md_double_emphasis_asterisk));
+                    ::pltxt2htm::details::ContextVariant<ndebug>{
+                        ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2,
+                                                                                advance_count)},
+                        ::pltxt2htm::NodeKind::md_double_emphasis_asterisk},
+                    ::pltxt2htm::Ast<ndebug>{}));
                 current_index += advance_count + 4;
                 goto entry;
             }
@@ -526,8 +582,12 @@ entry:
                 ::std::size_t const advance_count{
                     opt_single_emphasis_asterisk.template value<ndebug == ::pltxt2htm::Contracts::ignore>()};
                 call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1, advance_count),
-                    ::pltxt2htm::NodeKind::md_single_emphasis_asterisk));
+                    ::pltxt2htm::details::ContextVariant<ndebug>{
+                        ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1,
+                                                                                advance_count)},
+                        ::pltxt2htm::NodeKind::md_single_emphasis_asterisk},
+                    ::pltxt2htm::Ast<ndebug>{}));
                 current_index += advance_count + 2;
                 goto entry;
             }
@@ -538,8 +598,12 @@ entry:
                 ::std::size_t const advance_count{
                     opt_triple_emphasis_underscore.template value<ndebug == ::pltxt2htm::Contracts::ignore>()};
                 call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 3, advance_count),
-                    ::pltxt2htm::NodeKind::md_triple_emphasis_underscore));
+                    ::pltxt2htm::details::ContextVariant<ndebug>{
+                        ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 3,
+                                                                                advance_count)},
+                        ::pltxt2htm::NodeKind::md_triple_emphasis_underscore},
+                    ::pltxt2htm::Ast<ndebug>{}));
                 current_index += advance_count + 6;
                 goto entry;
             }
@@ -550,8 +614,12 @@ entry:
                 ::std::size_t const advance_count{
                     opt_double_emphasis_undersore.template value<ndebug == ::pltxt2htm::Contracts::ignore>()};
                 call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2, advance_count),
-                    ::pltxt2htm::NodeKind::md_double_emphasis_underscore));
+                    ::pltxt2htm::details::ContextVariant<ndebug>{
+                        ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2,
+                                                                                advance_count)},
+                        ::pltxt2htm::NodeKind::md_double_emphasis_underscore},
+                    ::pltxt2htm::Ast<ndebug>{}));
                 current_index += advance_count + 4;
                 goto entry;
             }
@@ -562,8 +630,12 @@ entry:
                 ::std::size_t const advance_count{
                     opt_single_emphasis_undersore.template value<ndebug == ::pltxt2htm::Contracts::ignore>()};
                 call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1, advance_count),
-                    ::pltxt2htm::NodeKind::md_single_emphasis_underscore));
+                    ::pltxt2htm::details::ContextVariant<ndebug>{
+                        ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1,
+                                                                                advance_count)},
+                        ::pltxt2htm::NodeKind::md_single_emphasis_underscore},
+                    ::pltxt2htm::Ast<ndebug>{}));
                 current_index += advance_count + 2;
                 goto entry;
             }
@@ -574,8 +646,12 @@ entry:
                 ::std::size_t const advance_count{
                     opt_md_del.template value<ndebug == ::pltxt2htm::Contracts::ignore>()};
                 call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2, advance_count),
-                    ::pltxt2htm::NodeKind::md_del));
+                    ::pltxt2htm::details::ContextVariant<ndebug>{
+                        ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2,
+                                                                                advance_count)},
+                        ::pltxt2htm::NodeKind::md_del},
+                    ::pltxt2htm::Ast<ndebug>{}));
                 current_index += advance_count + 4;
                 goto entry;
             }
@@ -638,7 +714,11 @@ entry:
                 auto&& [advance_count, url_text, url_link] =
                     opt_md_link.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                 current_index += advance_count;
-                call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(url_text, ::std::move(url_link)));
+                call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                    ::pltxt2htm::details::ContextVariant<ndebug>{
+                        ::pltxt2htm::details::ParserFrameContextWithMdLinkInfo<ndebug>{url_text, ::std::move(url_link)},
+                        ::pltxt2htm::NodeKind::md_link},
+                    ::pltxt2htm::Ast<ndebug>{}));
                 goto entry;
             }
             if (auto opt_md_image = ::pltxt2htm::details::try_parse_md_image<ndebug>(
@@ -672,8 +752,11 @@ entry:
                         opt_tag_len.has_value()) {
                         current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::pl_a));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ::pltxt2htm::NodeKind::pl_a},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
@@ -690,8 +773,11 @@ entry:
                         // parsing pl&html <b> tag
                         current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::pl_b));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ::pltxt2htm::NodeKind::pl_b},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     if (auto opt_br_tag_len = ::pltxt2htm::details::try_parse_self_closing_tag<ndebug, u8"r">(
@@ -719,8 +805,11 @@ entry:
                         current_index +=
                             opt_blockquote_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::html_blockquote));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ::pltxt2htm::NodeKind::html_blockquote},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
@@ -740,8 +829,12 @@ entry:
                         current_index += tag_len + 3;
                         // parsing start tag <color> successed
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::pl_color, ::std::move(color)));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                                    ::std::move(color)},
+                                ::pltxt2htm::NodeKind::pl_color},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     if (auto opt_code_tag = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"ode">(
@@ -750,8 +843,11 @@ entry:
                         // parsing html <code> tag
                         current_index += opt_code_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::html_code));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ::pltxt2htm::NodeKind::html_code},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_caption_tag<ndebug>(
@@ -761,8 +857,11 @@ entry:
                         // parsing html <caption> tag
                         current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::html_caption));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ::pltxt2htm::NodeKind::html_caption},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_colgroup_tag<ndebug>(
@@ -772,8 +871,11 @@ entry:
                         // parsing html <colgroup> tag
                         current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::html_colgroup));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ::pltxt2htm::NodeKind::html_colgroup},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_col_tag<ndebug>(
@@ -800,8 +902,11 @@ entry:
                         // parsing <del>$1</del>
                         current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::html_del));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ::pltxt2htm::NodeKind::html_del},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     // parsing: <discussion=$1>$2</discussion>
@@ -817,8 +922,12 @@ entry:
                             opt_discussion_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                         current_index += tag_len + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::pl_discussion, ::std::move(id)));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                                    ::std::move(id)},
+                                ::pltxt2htm::NodeKind::pl_discussion},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
@@ -842,8 +951,12 @@ entry:
                             opt_experiment_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                         current_index += tag_len + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::pl_experiment, ::std::move(id)));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                                    ::std::move(id)},
+                                ::pltxt2htm::NodeKind::pl_experiment},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     if (auto opt_external_tag = ::pltxt2htm::details::try_parse_external_tag<ndebug>(
@@ -853,8 +966,12 @@ entry:
                             opt_external_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                         current_index += tag_len + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::pl_external, ::std::move(url)));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithExternalTagInfo<ndebug>{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                                    ::std::move(url)},
+                                ::pltxt2htm::NodeKind::pl_external},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"m">(
@@ -862,8 +979,11 @@ entry:
                         opt_tag_len.has_value()) {
                         current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::html_em));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ::pltxt2htm::NodeKind::html_em},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
@@ -880,8 +1000,11 @@ entry:
                         // parsing html <h1> tag
                         current_index += opt_h1_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::html_h1));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ::pltxt2htm::NodeKind::html_h1},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     if (auto opt_h2_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"2">(
@@ -890,8 +1013,11 @@ entry:
                         // parsing html <h2> tag
                         current_index += opt_h2_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::html_h2));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ::pltxt2htm::NodeKind::html_h2},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     if (auto opt_h3_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"3">(
@@ -900,8 +1026,11 @@ entry:
                         // parsing html <h3> tag
                         current_index += opt_h3_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::html_h3));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ::pltxt2htm::NodeKind::html_h3},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     if (auto opt_h4_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"4">(
@@ -910,8 +1039,11 @@ entry:
                         // parsing html <h4> tag
                         current_index += opt_h4_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::html_h4));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ::pltxt2htm::NodeKind::html_h4},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     if (auto opt_h5_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"5">(
@@ -920,8 +1052,11 @@ entry:
                         // parsing html <h5> tag
                         current_index += opt_h5_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::html_h5));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ::pltxt2htm::NodeKind::html_h5},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     if (auto opt_h6_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"6">(
@@ -930,8 +1065,11 @@ entry:
                         // parsing html <h6> tag
                         current_index += opt_h6_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::html_h6));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ::pltxt2htm::NodeKind::html_h6},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_self_closing_tag<ndebug, u8"r">(
@@ -956,8 +1094,11 @@ entry:
                         opt_tag_len.has_value()) {
                         current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::pl_i));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ::pltxt2htm::NodeKind::pl_i},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
@@ -974,8 +1115,11 @@ entry:
                         opt_tag_len.has_value()) {
                         current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::html_li));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ::pltxt2htm::NodeKind::html_li},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
@@ -991,8 +1135,11 @@ entry:
                         opt_tag_len.has_value()) {
                         current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::html_ol));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ::pltxt2htm::NodeKind::html_ol},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
@@ -1009,8 +1156,11 @@ entry:
                         opt_p_tag_len.has_value()) {
                         current_index += opt_p_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::html_p));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ::pltxt2htm::NodeKind::html_p},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     if (auto opt_pre_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"re">(
@@ -1018,8 +1168,11 @@ entry:
                         opt_pre_tag_len.has_value()) {
                         current_index += opt_pre_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::html_pre));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ::pltxt2htm::NodeKind::html_pre},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
@@ -1046,9 +1199,12 @@ entry:
 
                         current_index += tag_len + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::pl_size,
-                            id.template value<ndebug == ::pltxt2htm::Contracts::ignore>()));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithPlSizeTagInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                                    id.template value<ndebug == ::pltxt2htm::Contracts::ignore>()},
+                                ::pltxt2htm::NodeKind::pl_size},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     // parsing <span style="color:...;font-size:..."> as html_span
@@ -1059,8 +1215,12 @@ entry:
                             opt_span_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                         current_index += tag_len + 2;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::html_span, ::std::move(color), ::std::move(font_size)));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithHtmlSpanInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                                    ::std::move(color), ::std::move(font_size)},
+                                ::pltxt2htm::NodeKind::html_span},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"trong">(
@@ -1069,8 +1229,11 @@ entry:
                         // HTML <strong> tag
                         current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::html_strong));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ::pltxt2htm::NodeKind::html_strong},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
@@ -1086,8 +1249,11 @@ entry:
                         opt_tag_len.has_value()) {
                         current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::html_table));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ::pltxt2htm::NodeKind::html_table},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_thead_tag<ndebug>(
@@ -1096,8 +1262,11 @@ entry:
                         opt_tag_len.has_value()) {
                         current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::html_thead));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ::pltxt2htm::NodeKind::html_thead},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_tbody_tag<ndebug>(
@@ -1106,8 +1275,11 @@ entry:
                         opt_tag_len.has_value()) {
                         current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::html_tbody));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ::pltxt2htm::NodeKind::html_tbody},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_tfoot_tag<ndebug>(
@@ -1116,8 +1288,11 @@ entry:
                         opt_tag_len.has_value()) {
                         current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::html_tfoot));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ::pltxt2htm::NodeKind::html_tfoot},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_tr_tag<ndebug>(
@@ -1126,8 +1301,11 @@ entry:
                         opt_tag_len.has_value()) {
                         current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::html_tr));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ::pltxt2htm::NodeKind::html_tr},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_th_tag<ndebug>(
@@ -1136,8 +1314,11 @@ entry:
                         opt_tag_len.has_value()) {
                         current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::html_th));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ::pltxt2htm::NodeKind::html_th},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     if (auto opt_td_tag = ::pltxt2htm::details::try_parse_td_tag<ndebug>(
@@ -1147,8 +1328,11 @@ entry:
                         auto&& [tag_len, align] = opt_td_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                         current_index += tag_len + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), align,
-                            ::pltxt2htm::NodeKind::html_td));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithMdCellInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), align},
+                                ::pltxt2htm::NodeKind::html_td},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
@@ -1169,8 +1353,12 @@ entry:
                         auto&& [tag_len, id] = opt_user_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                         current_index += tag_len + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::pl_user, ::std::move(id)));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                                    ::std::move(id)},
+                                ::pltxt2htm::NodeKind::pl_user},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"l">(
@@ -1178,8 +1366,11 @@ entry:
                         opt_tag_len.has_value()) {
                         current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                            ::pltxt2htm::NodeKind::html_ul));
+                            ::pltxt2htm::details::ContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ::pltxt2htm::NodeKind::html_ul},
+                            ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
