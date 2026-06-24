@@ -162,13 +162,13 @@ class PlTxtNode {
     ::pltxt2htm::NodeKind node_kind;
 
 public:
-    constexpr PlTxtNode(::pltxt2htm::U8Char&& node) noexcept
-        : u8char_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::U8Char node) noexcept
+        : u8char_node{node},
           node_kind{::pltxt2htm::NodeKind::u8char} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::InvalidU8Char&& node) noexcept
-        : invalid_u8char_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::InvalidU8Char node) noexcept
+        : invalid_u8char_node{node},
           node_kind{::pltxt2htm::NodeKind::invalid_u8char} {
     }
 
@@ -222,73 +222,73 @@ public:
           node_kind{::pltxt2htm::NodeKind::pl_b} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::PlMacroProject&& node) noexcept
-        : pl_macro_project_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::PlMacroProject node) noexcept
+        : pl_macro_project_node{node},
           node_kind{::pltxt2htm::NodeKind::pl_macro_project} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::PlMacroVisitor&& node) noexcept
-        : pl_macro_visitor_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::PlMacroVisitor node) noexcept
+        : pl_macro_visitor_node{node},
           node_kind{::pltxt2htm::NodeKind::pl_macro_visitor} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::PlMacroAuthor&& node) noexcept
-        : pl_macro_author_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::PlMacroAuthor node) noexcept
+        : pl_macro_author_node{node},
           node_kind{::pltxt2htm::NodeKind::pl_macro_author} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::PlMacroCoauthors&& node) noexcept
-        : pl_macro_coauthors_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::PlMacroCoauthors node) noexcept
+        : pl_macro_coauthors_node{node},
           node_kind{::pltxt2htm::NodeKind::pl_macro_coauthors} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::LineBreak&& node) noexcept
-        : line_break_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::LineBreak node) noexcept
+        : line_break_node{node},
           node_kind{::pltxt2htm::NodeKind::line_break} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::HtmlBr&& node) noexcept
-        : br_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::HtmlBr node) noexcept
+        : br_node{node},
           node_kind{::pltxt2htm::NodeKind::html_br} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::Space&& node) noexcept
-        : space_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::Space node) noexcept
+        : space_node{node},
           node_kind{::pltxt2htm::NodeKind::space} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::LessThan&& node) noexcept
-        : less_than_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::LessThan node) noexcept
+        : less_than_node{node},
           node_kind{::pltxt2htm::NodeKind::less_than} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::GreaterThan&& node) noexcept
-        : greater_than_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::GreaterThan node) noexcept
+        : greater_than_node{node},
           node_kind{::pltxt2htm::NodeKind::greater_than} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::Tab&& node) noexcept
-        : tab_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::Tab node) noexcept
+        : tab_node{node},
           node_kind{::pltxt2htm::NodeKind::tab} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::Ampersand&& node) noexcept
-        : ampersand_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::Ampersand node) noexcept
+        : ampersand_node{node},
           node_kind{::pltxt2htm::NodeKind::ampersand} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::SingleQuote&& node) noexcept
-        : single_quote_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::SingleQuote node) noexcept
+        : single_quote_node{node},
           node_kind{::pltxt2htm::NodeKind::single_quote} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::DoubleQuote&& node) noexcept
-        : double_quote_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::DoubleQuote node) noexcept
+        : double_quote_node{node},
           node_kind{::pltxt2htm::NodeKind::double_quote} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::HtmlHr&& node) noexcept
-        : html_hr_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::HtmlHr node) noexcept
+        : html_hr_node{node},
           node_kind{::pltxt2htm::NodeKind::html_hr} {
     }
 
@@ -387,8 +387,8 @@ public:
           node_kind{::pltxt2htm::NodeKind::html_blockquote} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::HtmlCol&& node) noexcept
-        : html_col_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::HtmlCol node) noexcept
+        : html_col_node{node},
           node_kind{::pltxt2htm::NodeKind::html_col} {
     }
 
@@ -467,168 +467,168 @@ public:
           node_kind{::pltxt2htm::NodeKind::md_atx_h6} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeBackslash&& node) noexcept
-        : md_escape_backslash_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdEscapeBackslash node) noexcept
+        : md_escape_backslash_node{node},
           node_kind{::pltxt2htm::NodeKind::md_escape_backslash} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeExclamation&& node) noexcept
-        : md_escape_exclamation_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdEscapeExclamation node) noexcept
+        : md_escape_exclamation_node{node},
           node_kind{::pltxt2htm::NodeKind::md_escape_exclamation} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeDoubleQuote&& node) noexcept
-        : md_escape_double_quote_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdEscapeDoubleQuote node) noexcept
+        : md_escape_double_quote_node{node},
           node_kind{::pltxt2htm::NodeKind::md_escape_double_quote} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeHash&& node) noexcept
-        : md_escape_hash_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdEscapeHash node) noexcept
+        : md_escape_hash_node{node},
           node_kind{::pltxt2htm::NodeKind::md_escape_hash} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeDollar&& node) noexcept
-        : md_escape_dollar_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdEscapeDollar node) noexcept
+        : md_escape_dollar_node{node},
           node_kind{::pltxt2htm::NodeKind::md_escape_dollar} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapePercent&& node) noexcept
-        : md_escape_percent_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdEscapePercent node) noexcept
+        : md_escape_percent_node{node},
           node_kind{::pltxt2htm::NodeKind::md_escape_percent} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeAmpersand&& node) noexcept
-        : md_escape_ampersand_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdEscapeAmpersand node) noexcept
+        : md_escape_ampersand_node{node},
           node_kind{::pltxt2htm::NodeKind::md_escape_ampersand} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeSingleQuote&& node) noexcept
-        : md_escape_single_quote_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdEscapeSingleQuote node) noexcept
+        : md_escape_single_quote_node{node},
           node_kind{::pltxt2htm::NodeKind::md_escape_single_quote} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeLeftParen&& node) noexcept
-        : md_escape_left_paren_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdEscapeLeftParen node) noexcept
+        : md_escape_left_paren_node{node},
           node_kind{::pltxt2htm::NodeKind::md_escape_left_paren} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeRightParen&& node) noexcept
-        : md_escape_right_paren_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdEscapeRightParen node) noexcept
+        : md_escape_right_paren_node{node},
           node_kind{::pltxt2htm::NodeKind::md_escape_right_paren} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeAsterisk&& node) noexcept
-        : md_escape_asterisk_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdEscapeAsterisk node) noexcept
+        : md_escape_asterisk_node{node},
           node_kind{::pltxt2htm::NodeKind::md_escape_asterisk} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapePlus&& node) noexcept
-        : md_escape_plus_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdEscapePlus node) noexcept
+        : md_escape_plus_node{node},
           node_kind{::pltxt2htm::NodeKind::md_escape_plus} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeComma&& node) noexcept
-        : md_escape_comma_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdEscapeComma node) noexcept
+        : md_escape_comma_node{node},
           node_kind{::pltxt2htm::NodeKind::md_escape_comma} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeHyphen&& node) noexcept
-        : md_escape_hyphen_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdEscapeHyphen node) noexcept
+        : md_escape_hyphen_node{node},
           node_kind{::pltxt2htm::NodeKind::md_escape_hyphen} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeDot&& node) noexcept
-        : md_escape_dot_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdEscapeDot node) noexcept
+        : md_escape_dot_node{node},
           node_kind{::pltxt2htm::NodeKind::md_escape_dot} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeSlash&& node) noexcept
-        : md_escape_slash_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdEscapeSlash node) noexcept
+        : md_escape_slash_node{node},
           node_kind{::pltxt2htm::NodeKind::md_escape_slash} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeColon&& node) noexcept
-        : md_escape_colon_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdEscapeColon node) noexcept
+        : md_escape_colon_node{node},
           node_kind{::pltxt2htm::NodeKind::md_escape_colon} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeSemicolon&& node) noexcept
-        : md_escape_semicolon_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdEscapeSemicolon node) noexcept
+        : md_escape_semicolon_node{node},
           node_kind{::pltxt2htm::NodeKind::md_escape_semicolon} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeLessThan&& node) noexcept
-        : md_escape_less_than_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdEscapeLessThan node) noexcept
+        : md_escape_less_than_node{node},
           node_kind{::pltxt2htm::NodeKind::md_escape_less_than} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeEquals&& node) noexcept
-        : md_escape_equals_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdEscapeEquals node) noexcept
+        : md_escape_equals_node{node},
           node_kind{::pltxt2htm::NodeKind::md_escape_equals} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeGreaterThan&& node) noexcept
-        : md_escape_greater_than_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdEscapeGreaterThan node) noexcept
+        : md_escape_greater_than_node{node},
           node_kind{::pltxt2htm::NodeKind::md_escape_greater_than} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeQuestion&& node) noexcept
-        : md_escape_question_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdEscapeQuestion node) noexcept
+        : md_escape_question_node{node},
           node_kind{::pltxt2htm::NodeKind::md_escape_question} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeAt&& node) noexcept
-        : md_escape_at_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdEscapeAt node) noexcept
+        : md_escape_at_node{node},
           node_kind{::pltxt2htm::NodeKind::md_escape_at} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeLeftBracket&& node) noexcept
-        : md_escape_left_bracket_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdEscapeLeftBracket node) noexcept
+        : md_escape_left_bracket_node{node},
           node_kind{::pltxt2htm::NodeKind::md_escape_left_bracket} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeRightBracket&& node) noexcept
-        : md_escape_right_bracket_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdEscapeRightBracket node) noexcept
+        : md_escape_right_bracket_node{node},
           node_kind{::pltxt2htm::NodeKind::md_escape_right_bracket} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeCaret&& node) noexcept
-        : md_escape_caret_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdEscapeCaret node) noexcept
+        : md_escape_caret_node{node},
           node_kind{::pltxt2htm::NodeKind::md_escape_caret} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeUnderscore&& node) noexcept
-        : md_escape_underscore_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdEscapeUnderscore node) noexcept
+        : md_escape_underscore_node{node},
           node_kind{::pltxt2htm::NodeKind::md_escape_underscore} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeBacktick&& node) noexcept
-        : md_escape_backtick_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdEscapeBacktick node) noexcept
+        : md_escape_backtick_node{node},
           node_kind{::pltxt2htm::NodeKind::md_escape_backtick} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeLeftBrace&& node) noexcept
-        : md_escape_left_brace_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdEscapeLeftBrace node) noexcept
+        : md_escape_left_brace_node{node},
           node_kind{::pltxt2htm::NodeKind::md_escape_left_brace} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapePipe&& node) noexcept
-        : md_escape_pipe_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdEscapePipe node) noexcept
+        : md_escape_pipe_node{node},
           node_kind{::pltxt2htm::NodeKind::md_escape_pipe} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeRightBrace&& node) noexcept
-        : md_escape_right_brace_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdEscapeRightBrace node) noexcept
+        : md_escape_right_brace_node{node},
           node_kind{::pltxt2htm::NodeKind::md_escape_right_brace} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeTilde&& node) noexcept
-        : md_escape_tilde_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdEscapeTilde node) noexcept
+        : md_escape_tilde_node{node},
           node_kind{::pltxt2htm::NodeKind::md_escape_tilde} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdHr&& node) noexcept
-        : md_hr_node(::std::move(node)),
+    constexpr PlTxtNode(::pltxt2htm::MdHr node) noexcept
+        : md_hr_node{node},
           node_kind{::pltxt2htm::NodeKind::md_hr} {
     }
 
