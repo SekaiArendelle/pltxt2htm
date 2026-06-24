@@ -236,8 +236,6 @@ class MdListBaseNode {
     ::pltxt2htm::details::MdListNodeType type_;
 
 public:
-    constexpr MdListBaseNode() noexcept = delete;
-
     constexpr MdListBaseNode(::pltxt2htm::details::MdListLiNode&& node) noexcept
         : li_node(::std::move(node)),
           type_{::pltxt2htm::details::MdListNodeType::md_li} {

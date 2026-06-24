@@ -26,7 +26,6 @@ class MdAtxH1 {
     ::pltxt2htm::Ast<ndebug> subast;
 
 public:
-    constexpr MdAtxH1() noexcept = delete;
     constexpr explicit MdAtxH1(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr MdAtxH1(::pltxt2htm::MdAtxH1<ndebug> const&) noexcept;
     constexpr MdAtxH1(::pltxt2htm::MdAtxH1<ndebug>&&) noexcept;
@@ -52,7 +51,6 @@ class MdAtxH2 {
     ::pltxt2htm::Ast<ndebug> subast;
 
 public:
-    constexpr MdAtxH2() noexcept = delete;
     constexpr explicit MdAtxH2(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr MdAtxH2(::pltxt2htm::MdAtxH2<ndebug> const&) noexcept;
     constexpr MdAtxH2(::pltxt2htm::MdAtxH2<ndebug>&&) noexcept;
@@ -78,7 +76,6 @@ class MdAtxH3 {
     ::pltxt2htm::Ast<ndebug> subast;
 
 public:
-    constexpr MdAtxH3() noexcept = delete;
     constexpr explicit MdAtxH3(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr MdAtxH3(::pltxt2htm::MdAtxH3<ndebug> const&) noexcept;
     constexpr MdAtxH3(::pltxt2htm::MdAtxH3<ndebug>&&) noexcept;
@@ -104,7 +101,6 @@ class MdAtxH4 {
     ::pltxt2htm::Ast<ndebug> subast;
 
 public:
-    constexpr MdAtxH4() noexcept = delete;
     constexpr explicit MdAtxH4(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr MdAtxH4(::pltxt2htm::MdAtxH4<ndebug> const&) noexcept;
     constexpr MdAtxH4(::pltxt2htm::MdAtxH4<ndebug>&&) noexcept;
@@ -130,7 +126,6 @@ class MdAtxH5 {
     ::pltxt2htm::Ast<ndebug> subast;
 
 public:
-    constexpr MdAtxH5() noexcept = delete;
     constexpr explicit MdAtxH5(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr MdAtxH5(::pltxt2htm::MdAtxH5<ndebug> const&) noexcept;
     constexpr MdAtxH5(::pltxt2htm::MdAtxH5<ndebug>&&) noexcept;
@@ -156,7 +151,6 @@ class MdAtxH6 {
     ::pltxt2htm::Ast<ndebug> subast;
 
 public:
-    constexpr MdAtxH6() noexcept = delete;
     constexpr explicit MdAtxH6(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr MdAtxH6(::pltxt2htm::MdAtxH6<ndebug> const&) noexcept;
     constexpr MdAtxH6(::pltxt2htm::MdAtxH6<ndebug>&&) noexcept;
@@ -354,7 +348,6 @@ class MdCodeFenceBacktick {
     ::exception::optional<::fast_io::u8string> lang;
 
 public:
-    constexpr MdCodeFenceBacktick() noexcept = delete;
     /**
      * @brief Construct a backtick fenced code block.
      * @param subast The inner code content as an AST.
@@ -395,7 +388,6 @@ class MdCodeFenceTilde {
     ::exception::optional<::fast_io::u8string> lang;
 
 public:
-    constexpr MdCodeFenceTilde() noexcept = delete;
     /**
      * @brief Construct a tilde fenced code block.
      * @param subast The code content AST.
@@ -434,7 +426,6 @@ class MdCodeSpan1Backtick {
     ::pltxt2htm::Ast<ndebug> subast;
 
 public:
-    constexpr MdCodeSpan1Backtick() noexcept = delete;
     constexpr explicit MdCodeSpan1Backtick(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr MdCodeSpan1Backtick(::pltxt2htm::MdCodeSpan1Backtick<ndebug> const&) noexcept;
     constexpr MdCodeSpan1Backtick(::pltxt2htm::MdCodeSpan1Backtick<ndebug>&&) noexcept;
@@ -462,7 +453,6 @@ class MdCodeSpan2Backtick {
     ::pltxt2htm::Ast<ndebug> subast;
 
 public:
-    constexpr MdCodeSpan2Backtick() noexcept = delete;
     constexpr explicit MdCodeSpan2Backtick(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr MdCodeSpan2Backtick(::pltxt2htm::MdCodeSpan2Backtick<ndebug> const&) noexcept;
     constexpr MdCodeSpan2Backtick(::pltxt2htm::MdCodeSpan2Backtick<ndebug>&&) noexcept;
@@ -490,7 +480,6 @@ class MdCodeSpan3Backtick {
     ::pltxt2htm::Ast<ndebug> subast;
 
 public:
-    constexpr MdCodeSpan3Backtick() noexcept = delete;
     constexpr explicit MdCodeSpan3Backtick(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr MdCodeSpan3Backtick(::pltxt2htm::MdCodeSpan3Backtick<ndebug> const&) noexcept;
     constexpr MdCodeSpan3Backtick(::pltxt2htm::MdCodeSpan3Backtick<ndebug>&&) noexcept;
@@ -518,7 +507,6 @@ class MdSingleEmphasisAsterisk {
     ::pltxt2htm::Ast<ndebug> subast;
 
 public:
-    constexpr MdSingleEmphasisAsterisk() noexcept = delete;
     constexpr explicit MdSingleEmphasisAsterisk(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr MdSingleEmphasisAsterisk(::pltxt2htm::MdSingleEmphasisAsterisk<ndebug> const&) noexcept;
     constexpr MdSingleEmphasisAsterisk(::pltxt2htm::MdSingleEmphasisAsterisk<ndebug>&&) noexcept;
@@ -546,7 +534,6 @@ class MdDoubleEmphasisAsterisk {
     ::pltxt2htm::Ast<ndebug> subast;
 
 public:
-    constexpr MdDoubleEmphasisAsterisk() noexcept = delete;
     constexpr explicit MdDoubleEmphasisAsterisk(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr MdDoubleEmphasisAsterisk(::pltxt2htm::MdDoubleEmphasisAsterisk<ndebug> const&) noexcept;
     constexpr MdDoubleEmphasisAsterisk(::pltxt2htm::MdDoubleEmphasisAsterisk<ndebug>&&) noexcept;
@@ -574,7 +561,6 @@ class MdTripleEmphasisAsterisk {
     ::pltxt2htm::Ast<ndebug> subast;
 
 public:
-    constexpr MdTripleEmphasisAsterisk() noexcept = delete;
     constexpr explicit MdTripleEmphasisAsterisk(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr MdTripleEmphasisAsterisk(::pltxt2htm::MdTripleEmphasisAsterisk<ndebug> const&) noexcept;
     constexpr MdTripleEmphasisAsterisk(::pltxt2htm::MdTripleEmphasisAsterisk<ndebug>&&) noexcept;
@@ -602,7 +588,6 @@ class MdSingleEmphasisUnderscore {
     ::pltxt2htm::Ast<ndebug> subast;
 
 public:
-    constexpr MdSingleEmphasisUnderscore() noexcept = delete;
     constexpr explicit MdSingleEmphasisUnderscore(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr MdSingleEmphasisUnderscore(::pltxt2htm::MdSingleEmphasisUnderscore<ndebug> const&) noexcept;
     constexpr MdSingleEmphasisUnderscore(::pltxt2htm::MdSingleEmphasisUnderscore<ndebug>&&) noexcept;
@@ -631,7 +616,6 @@ class MdDoubleEmphasisUnderscore {
     ::pltxt2htm::Ast<ndebug> subast;
 
 public:
-    constexpr MdDoubleEmphasisUnderscore() noexcept = delete;
     constexpr explicit MdDoubleEmphasisUnderscore(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr MdDoubleEmphasisUnderscore(::pltxt2htm::MdDoubleEmphasisUnderscore<ndebug> const&) noexcept;
     constexpr MdDoubleEmphasisUnderscore(::pltxt2htm::MdDoubleEmphasisUnderscore<ndebug>&&) noexcept;
@@ -660,7 +644,6 @@ class MdTripleEmphasisUnderscore {
     ::pltxt2htm::Ast<ndebug> subast;
 
 public:
-    constexpr MdTripleEmphasisUnderscore() noexcept = delete;
     constexpr explicit MdTripleEmphasisUnderscore(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr MdTripleEmphasisUnderscore(::pltxt2htm::MdTripleEmphasisUnderscore<ndebug> const&) noexcept;
     constexpr MdTripleEmphasisUnderscore(::pltxt2htm::MdTripleEmphasisUnderscore<ndebug>&&) noexcept;
@@ -689,7 +672,6 @@ class MdDel {
     ::pltxt2htm::Ast<ndebug> subast;
 
 public:
-    constexpr MdDel() noexcept = delete;
     constexpr explicit MdDel(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr MdDel(::pltxt2htm::MdDel<ndebug> const&) noexcept;
     constexpr MdDel(::pltxt2htm::MdDel<ndebug>&&) noexcept;
@@ -716,7 +698,6 @@ class MdLink {
     ::pltxt2htm::Url<ndebug> url;
 
 public:
-    constexpr MdLink() noexcept = delete;
     /**
      * @brief Construct a link.
      * @param subast The link text/content AST.
@@ -753,7 +734,6 @@ class MdImage {
     ::pltxt2htm::Url<ndebug> url;
 
 public:
-    constexpr MdImage() noexcept = delete;
     /**
      * @brief Construct an image.
      * @param subast The alt text/content AST.
@@ -789,7 +769,6 @@ class MdBlockQuotes {
     ::pltxt2htm::Ast<ndebug> subast;
 
 public:
-    constexpr MdBlockQuotes() noexcept = delete;
     constexpr explicit MdBlockQuotes(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr MdBlockQuotes(::pltxt2htm::MdBlockQuotes<ndebug> const&) noexcept;
     constexpr MdBlockQuotes(::pltxt2htm::MdBlockQuotes<ndebug>&&) noexcept;
@@ -816,7 +795,6 @@ class MdUl {
     ::pltxt2htm::Ast<ndebug> subast;
 
 public:
-    constexpr MdUl() noexcept = delete;
     constexpr explicit MdUl(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr MdUl(::pltxt2htm::MdUl<ndebug> const&) noexcept;
     constexpr MdUl(::pltxt2htm::MdUl<ndebug>&&) noexcept;
@@ -842,7 +820,6 @@ class MdOl {
     ::pltxt2htm::Ast<ndebug> subast;
 
 public:
-    constexpr MdOl() noexcept = delete;
     constexpr explicit MdOl(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr MdOl(::pltxt2htm::MdOl<ndebug> const&) noexcept;
     constexpr MdOl(::pltxt2htm::MdOl<ndebug>&&) noexcept;
@@ -868,7 +845,6 @@ class MdLi {
     ::pltxt2htm::Ast<ndebug> subast;
 
 public:
-    constexpr MdLi() noexcept = delete;
     constexpr explicit MdLi(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr MdLi(::pltxt2htm::MdLi<ndebug> const&) noexcept;
     constexpr MdLi(::pltxt2htm::MdLi<ndebug>&&) noexcept;
@@ -895,7 +871,6 @@ class MdLiCheckbox {
     bool checked_;
 
 public:
-    constexpr MdLiCheckbox() noexcept = delete;
     constexpr explicit MdLiCheckbox(::pltxt2htm::Ast<ndebug>&& subast_, bool checked) noexcept;
     constexpr MdLiCheckbox(::pltxt2htm::MdLiCheckbox<ndebug> const&) noexcept;
     constexpr MdLiCheckbox(::pltxt2htm::MdLiCheckbox<ndebug>&&) noexcept;
@@ -927,7 +902,6 @@ class MdLatexInline {
     ::pltxt2htm::Ast<ndebug> subast;
 
 public:
-    constexpr MdLatexInline() noexcept = delete;
     constexpr explicit MdLatexInline(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr MdLatexInline(::pltxt2htm::MdLatexInline<ndebug> const&) noexcept;
     constexpr MdLatexInline(::pltxt2htm::MdLatexInline<ndebug>&&) noexcept;
@@ -954,7 +928,6 @@ class MdLatexBlock {
     ::pltxt2htm::Ast<ndebug> subast;
 
 public:
-    constexpr MdLatexBlock() noexcept = delete;
     constexpr explicit MdLatexBlock(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr MdLatexBlock(::pltxt2htm::MdLatexBlock<ndebug> const&) noexcept;
     constexpr MdLatexBlock(::pltxt2htm::MdLatexBlock<ndebug>&&) noexcept;
@@ -981,7 +954,6 @@ class MdTable {
     ::pltxt2htm::Ast<ndebug> subast;
 
 public:
-    constexpr MdTable() noexcept = delete;
     constexpr explicit MdTable(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr MdTable(::pltxt2htm::MdTable<ndebug> const&) noexcept;
     constexpr MdTable(::pltxt2htm::MdTable<ndebug>&&) noexcept;
@@ -1007,7 +979,6 @@ class MdThead {
     ::pltxt2htm::Ast<ndebug> subast;
 
 public:
-    constexpr MdThead() noexcept = delete;
     constexpr explicit MdThead(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr MdThead(::pltxt2htm::MdThead<ndebug> const&) noexcept;
     constexpr MdThead(::pltxt2htm::MdThead<ndebug>&&) noexcept;
@@ -1033,7 +1004,6 @@ class MdTbody {
     ::pltxt2htm::Ast<ndebug> subast;
 
 public:
-    constexpr MdTbody() noexcept = delete;
     constexpr explicit MdTbody(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr MdTbody(::pltxt2htm::MdTbody<ndebug> const&) noexcept;
     constexpr MdTbody(::pltxt2htm::MdTbody<ndebug>&&) noexcept;
@@ -1059,7 +1029,6 @@ class MdTr {
     ::pltxt2htm::Ast<ndebug> subast;
 
 public:
-    constexpr MdTr() noexcept = delete;
     constexpr explicit MdTr(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr MdTr(::pltxt2htm::MdTr<ndebug> const&) noexcept;
     constexpr MdTr(::pltxt2htm::MdTr<ndebug>&&) noexcept;
@@ -1086,7 +1055,6 @@ class MdTh {
     ::pltxt2htm::MdTableAlign align;
 
 public:
-    constexpr MdTh() noexcept = delete;
     constexpr explicit MdTh(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::MdTableAlign align_) noexcept;
     constexpr MdTh(::pltxt2htm::MdTh<ndebug> const&) noexcept;
     constexpr MdTh(::pltxt2htm::MdTh<ndebug>&&) noexcept;
@@ -1118,7 +1086,6 @@ class MdTd {
     ::pltxt2htm::MdTableAlign align;
 
 public:
-    constexpr MdTd() noexcept = delete;
     constexpr explicit MdTd(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::MdTableAlign align_) noexcept;
     constexpr MdTd(::pltxt2htm::MdTd<ndebug> const&) noexcept;
     constexpr MdTd(::pltxt2htm::MdTd<ndebug>&&) noexcept;
