@@ -114,7 +114,7 @@ public:
 };
 
 template<::pltxt2htm::Contracts ndebug>
-class ContextVariant {
+class FrontendContextVariant {
 public:
     union {
         ::pltxt2htm::details::ParserFrameContextWithPltextInfo pltext;
@@ -131,69 +131,69 @@ public:
 
     ::pltxt2htm::NodeKind kind;
 
-    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithPltextInfo&& pltext_context,
+    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithPltextInfo&& pltext_context,
                              ::pltxt2htm::NodeKind node_type) noexcept
         : pltext{::std::move(pltext_context)},
           kind{node_type} {
     }
 
-    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo&& equal_sign_tag_context,
+    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo&& equal_sign_tag_context,
                              ::pltxt2htm::NodeKind node_type) noexcept
         : equal_sign_tag{::std::move(equal_sign_tag_context)},
           kind{node_type} {
     }
 
-    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithHtmlSpanInfo&& html_span_context,
+    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithHtmlSpanInfo&& html_span_context,
                              ::pltxt2htm::NodeKind node_type) noexcept
         : html_span_info{::std::move(html_span_context)},
           kind{node_type} {
     }
 
-    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithUrlInfo<ndebug>&& url_context,
+    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithUrlInfo<ndebug>&& url_context,
                              ::pltxt2htm::NodeKind node_type) noexcept
         : url_info{::std::move(url_context)},
           kind{node_type} {
     }
 
-    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithPlSizeTagInfo&& pl_size_tag_context,
+    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithPlSizeTagInfo&& pl_size_tag_context,
                              ::pltxt2htm::NodeKind node_type) noexcept
         : pl_size_tag{::std::move(pl_size_tag_context)},
           kind{node_type} {
     }
 
-    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithMdBlockQuotesInfo&& md_block_quotes_context,
+    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithMdBlockQuotesInfo&& md_block_quotes_context,
                              ::pltxt2htm::NodeKind node_type) noexcept
         : md_block_quotes{::std::move(md_block_quotes_context)},
           kind{node_type} {
     }
 
-    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithMdListInfo<ndebug>&& md_list_context,
+    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithMdListInfo<ndebug>&& md_list_context,
                              ::pltxt2htm::NodeKind node_type) noexcept
         : md_list{::std::move(md_list_context)},
           kind{node_type} {
     }
 
-    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithMdCellInfo&& md_cell_context,
+    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithMdCellInfo&& md_cell_context,
                              ::pltxt2htm::NodeKind node_type) noexcept
         : md_cell{::std::move(md_cell_context)},
           kind{node_type} {
     }
 
-    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithMdLiCheckboxInfo&& md_li_checkbox_context,
+    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithMdLiCheckboxInfo&& md_li_checkbox_context,
                              ::pltxt2htm::NodeKind node_type) noexcept
         : md_li_checkbox{::std::move(md_li_checkbox_context)},
           kind{node_type} {
     }
 
-    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithMdTableInfo<ndebug>&& md_table_context,
+    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithMdTableInfo<ndebug>&& md_table_context,
                              ::pltxt2htm::NodeKind node_type) noexcept
         : md_table{::std::move(md_table_context)},
           kind{node_type} {
     }
 
-    constexpr ContextVariant(::pltxt2htm::details::ContextVariant<ndebug> const&) noexcept = delete;
+    constexpr FrontendContextVariant(::pltxt2htm::details::FrontendContextVariant<ndebug> const&) noexcept = delete;
 
-    constexpr ContextVariant(::pltxt2htm::details::ContextVariant<ndebug>&& other) noexcept
+    constexpr FrontendContextVariant(::pltxt2htm::details::FrontendContextVariant<ndebug>&& other) noexcept
         : kind{other.kind} {
         switch (this->kind) /* -Werror=switch */ {
         case ::pltxt2htm::NodeKind::pl_color:
@@ -460,17 +460,17 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_hr:
             [[unlikely]] {
-                pltxt2htm_unreachable(u8"Unexpected node kind in ContextVariant move");
+                pltxt2htm_unreachable(u8"Unexpected node kind in FrontendContextVariant move");
             }
         }
     }
 
-    constexpr auto operator=(::pltxt2htm::details::ContextVariant<ndebug> const&) noexcept
-        -> ::pltxt2htm::details::ContextVariant<ndebug>& = delete;
-    constexpr auto operator=(::pltxt2htm::details::ContextVariant<ndebug>&&) noexcept
-        -> ::pltxt2htm::details::ContextVariant<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::details::FrontendContextVariant<ndebug> const&) noexcept
+        -> ::pltxt2htm::details::FrontendContextVariant<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::details::FrontendContextVariant<ndebug>&&) noexcept
+        -> ::pltxt2htm::details::FrontendContextVariant<ndebug>& = delete;
 
-    constexpr ~ContextVariant() noexcept {
+    constexpr ~FrontendContextVariant() noexcept {
         switch (this->kind) /* -Werror=switch */ {
         case ::pltxt2htm::NodeKind::pl_color:
             [[fallthrough]];
@@ -736,7 +736,7 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_hr:
             [[unlikely]] {
-                pltxt2htm_unreachable(u8"Unexpected node kind in ContextVariant destructor");
+                pltxt2htm_unreachable(u8"Unexpected node kind in FrontendContextVariant destructor");
             }
         }
     }
@@ -744,13 +744,13 @@ public:
 
 template<::pltxt2htm::Contracts ndebug>
 class ParserFrameContext {
-    ::pltxt2htm::details::ContextVariant<ndebug> context_data;
+    ::pltxt2htm::details::FrontendContextVariant<ndebug> context_data;
 
 public:
     ::std::size_t current_index{};
     ::pltxt2htm::Ast<ndebug> subast;
 
-    constexpr explicit ParserFrameContext(::pltxt2htm::details::ContextVariant<ndebug>&& ctx,
+    constexpr explicit ParserFrameContext(::pltxt2htm::details::FrontendContextVariant<ndebug>&& ctx,
                                           ::pltxt2htm::Ast<ndebug>&& subast_) noexcept
         : context_data(::std::move(ctx)),
           subast(::std::move(subast_)) {
