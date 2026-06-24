@@ -158,5 +158,11 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<external=example.com>text</external>");
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"example.com\">text</a>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }
