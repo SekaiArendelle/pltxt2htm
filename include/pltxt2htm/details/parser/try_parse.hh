@@ -1226,7 +1226,6 @@ constexpr auto try_parse_col_tag(::fast_io::u8string_view pltext, ::pltxt2htm::N
  * @param[in] pltext The input text to parse, starting after `<i`.
  * @return Tag length and checked state if matched; otherwise nullopt.
  */
-template<::pltxt2htm::Contracts ndebug>
 struct TryParseInputCheckboxTagResult {
     ::std::size_t tag_len;
     bool checked;
@@ -1235,7 +1234,7 @@ struct TryParseInputCheckboxTagResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_input_checkbox_tag(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<TryParseInputCheckboxTagResult<ndebug>> {
+    -> ::exception::optional<TryParseInputCheckboxTagResult> {
     // match "nput" (case-insensitive)
     if (pltext.size() < 4 ||
         !::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"nput"}>(pltext)) {
@@ -1346,7 +1345,7 @@ constexpr auto try_parse_input_checkbox_tag(::fast_io::u8string_view pltext) noe
     if (pos >= pltext.size() || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'>') {
         return ::exception::nullopt_t{};
     }
-    return TryParseInputCheckboxTagResult<ndebug>{pos + 1, checked};
+    return TryParseInputCheckboxTagResult{pos + 1, checked};
 }
 
 /**
