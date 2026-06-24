@@ -1474,7 +1474,7 @@ public:
         }
 
         case ::pltxt2htm::NodeKind::html_span: {
-            new (::std::addressof(span_node))::pltxt2htm::HtmlSpan(other.span_node);
+            new (::std::addressof(span_node))::pltxt2htm::HtmlSpan(::std::move(other.span_node));
             break;
         }
 
