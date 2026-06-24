@@ -48,7 +48,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlH1 {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
 
 public:
     constexpr HtmlH1() noexcept = delete;
@@ -74,7 +74,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlH2 {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
 
 public:
     constexpr HtmlH2() noexcept = delete;
@@ -100,7 +100,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlH3 {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
 
 public:
     constexpr HtmlH3() noexcept = delete;
@@ -126,7 +126,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlH4 {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
 
 public:
     constexpr HtmlH4() noexcept = delete;
@@ -152,7 +152,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlH5 {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
 
 public:
     constexpr HtmlH5() noexcept = delete;
@@ -178,7 +178,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlH6 {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
 
 public:
     constexpr HtmlH6() noexcept = delete;
@@ -204,7 +204,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlP {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
 
 public:
     constexpr HtmlP() noexcept = delete;
@@ -230,7 +230,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlDel {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
 
 public:
     constexpr HtmlDel() noexcept = delete;
@@ -256,7 +256,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlNote {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
 
 public:
     constexpr HtmlNote() noexcept = delete;
@@ -282,7 +282,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlEm {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
 
 public:
     constexpr HtmlEm() noexcept = delete;
@@ -308,7 +308,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlStrong {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
 
 public:
     constexpr HtmlStrong() noexcept = delete;
@@ -335,7 +335,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlUl {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
 
 public:
     constexpr HtmlUl() noexcept = delete;
@@ -361,7 +361,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlOl {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
 
 public:
     constexpr HtmlOl() noexcept = delete;
@@ -387,7 +387,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlLi {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
 
 public:
     constexpr HtmlLi() noexcept = delete;
@@ -413,7 +413,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlCode {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
 
 public:
     constexpr HtmlCode() noexcept = delete;
@@ -439,7 +439,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlPre {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
 
 public:
     constexpr HtmlPre() noexcept = delete;
@@ -468,7 +468,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlSpan {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
     ::fast_io::u8string color;
     ::exception::optional<::std::size_t> font_size;
 
@@ -506,7 +506,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlBlockquote {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
 
 public:
     constexpr HtmlBlockquote() noexcept = delete;
@@ -533,7 +533,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlTable {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
 
 public:
     constexpr HtmlTable() noexcept = delete;
@@ -560,7 +560,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlTr {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
 
 public:
     constexpr HtmlTr() noexcept = delete;
@@ -586,7 +586,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlTd {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
     ::pltxt2htm::MdTableAlign align_;
 
 public:
@@ -618,7 +618,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlTh {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
 
 public:
     constexpr HtmlTh() noexcept = delete;
@@ -644,7 +644,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlThead {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
 
 public:
     constexpr HtmlThead() noexcept = delete;
@@ -671,7 +671,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlTbody {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
 
 public:
     constexpr HtmlTbody() noexcept = delete;
@@ -698,7 +698,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlTfoot {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
 
 public:
     constexpr HtmlTfoot() noexcept = delete;
@@ -725,7 +725,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlCaption {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
 
 public:
     constexpr HtmlCaption() noexcept = delete;
@@ -752,7 +752,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlColgroup {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
 
 public:
     constexpr HtmlColgroup() noexcept = delete;

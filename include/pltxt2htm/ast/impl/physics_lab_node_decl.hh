@@ -25,7 +25,7 @@ namespace pltxt2htm {
  */
 template<::pltxt2htm::Contracts ndebug>
 class PlColor {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
     ::fast_io::u8string color;
 
 public:
@@ -57,7 +57,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class PlA {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
     static constexpr ::pltxt2htm::details::U8LiteralString<7> color_{u8"#0000AA"};
 
 public:
@@ -89,7 +89,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class PlExperiment {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
     ::fast_io::u8string id;
 
 public:
@@ -122,7 +122,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class PlDiscussion {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
     ::fast_io::u8string id;
 
 public:
@@ -155,7 +155,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class PlUser {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
     ::fast_io::u8string id;
 
 public:
@@ -187,7 +187,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class PlExternal {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
     ::pltxt2htm::Url<ndebug> url;
 
 public:
@@ -220,7 +220,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class PlSize {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
     ::std::size_t size;
 
 public:
@@ -252,7 +252,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class PlI {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
 
 public:
     constexpr PlI(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
@@ -278,7 +278,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class PlB {
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
 
 public:
     constexpr PlB(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;

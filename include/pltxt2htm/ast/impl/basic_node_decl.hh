@@ -138,7 +138,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class Url {
-    ::pltxt2htm::Ast<ndebug> url_ast{};
+    ::pltxt2htm::Ast<ndebug> url_ast;
 
 public:
     /**
