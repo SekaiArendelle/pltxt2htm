@@ -111,7 +111,10 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
     if (start_index < pltext.size()) {
         // other common cases
         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index), ::pltxt2htm::NodeKind::text,
+            ::pltxt2htm::details::ContextVariant<ndebug>{
+                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index)},
+                ::pltxt2htm::NodeKind::text},
             ::std::move(result)));
         result = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
     }

@@ -783,118 +783,12 @@ class ParserFrameContext {
 
 public:
     ::std::size_t current_index{};
-    ::pltxt2htm::Ast<ndebug> subast{};
+    ::pltxt2htm::Ast<ndebug> subast;
 
-    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_,
-                                          ::pltxt2htm::NodeKind const nested_tag_type_) noexcept
-        : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
-              ::pltxt2htm::details::ParserFrameContextWithPltextInfo{pltext_}, nested_tag_type_}},
-          subast{} {
-        bool const is_plain_pltext_type{::pltxt2htm::details::is_plain_pltext_type(nested_tag_type_)};
-        pltxt2htm_assert(is_plain_pltext_type, u8"mismatch node type");
-    }
-
-    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_,
-                                          ::pltxt2htm::NodeKind const nested_tag_type_,
+    constexpr explicit ParserFrameContext(::pltxt2htm::details::ContextVariant<ndebug>&& ctx,
                                           ::pltxt2htm::Ast<ndebug>&& subast_) noexcept
-        : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
-              ::pltxt2htm::details::ParserFrameContextWithPltextInfo{pltext_}, nested_tag_type_}},
+        : context_data(::std::move(ctx)),
           subast(::std::move(subast_)) {
-        bool const is_plain_pltext_type{::pltxt2htm::details::is_plain_pltext_type(nested_tag_type_)};
-        pltxt2htm_assert(is_plain_pltext_type, u8"mismatch node type");
-    }
-
-    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_,
-                                          ::pltxt2htm::NodeKind const nested_tag_type_,
-                                          ::fast_io::u8string&& id_) noexcept
-        : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
-              ::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo{.pltext = pltext_, .id = ::std::move(id_)},
-              nested_tag_type_}} {
-        bool const is_equal_sign_tag_type{::pltxt2htm::details::is_equal_sign_tag_type(nested_tag_type_)};
-        pltxt2htm_assert(is_equal_sign_tag_type, u8"mismatch node type");
-    }
-
-    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_,
-                                          ::pltxt2htm::NodeKind const nested_tag_type_,
-                                          ::pltxt2htm::Url<ndebug>&& url_) noexcept
-        : context_data{[&]() -> ::pltxt2htm::details::ContextVariant<ndebug> {
-              if (nested_tag_type_ == ::pltxt2htm::NodeKind::pl_external) {
-                  return {::pltxt2htm::details::ParserFrameContextWithExternalTagInfo{.pltext = pltext_,
-                                                                                      .url = ::std::move(url_)},
-                          nested_tag_type_};
-              }
-              else {
-                  return {::pltxt2htm::details::ParserFrameContextWithHtmlATagInfo{.pltext = pltext_,
-                                                                                   .url = ::std::move(url_)},
-                          nested_tag_type_};
-              }
-          }()} {
-        bool const is_url_type{nested_tag_type_ == ::pltxt2htm::NodeKind::pl_external ||
-                               nested_tag_type_ == ::pltxt2htm::NodeKind::html_a};
-        pltxt2htm_assert(is_url_type, u8"mismatch node type");
-    }
-
-    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_,
-                                          ::pltxt2htm::NodeKind const nested_tag_type_, ::std::size_t id_) noexcept
-        : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
-              ::pltxt2htm::details::ParserFrameContextWithPlSizeTagInfo{.pltext = pltext_, .id = id_},
-              nested_tag_type_}} {
-        bool const is_pl_size_tag_type{nested_tag_type_ == ::pltxt2htm::NodeKind::pl_size};
-        pltxt2htm_assert(is_pl_size_tag_type, u8"mismatch node type");
-    }
-
-    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_,
-                                          ::pltxt2htm::NodeKind const nested_tag_type_, ::fast_io::u8string&& color_,
-                                          ::exception::optional<::std::size_t>&& font_size_) noexcept
-        : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
-              ::pltxt2htm::details::ParserFrameContextWithHtmlSpanInfo{
-                  .pltext = pltext_, .color = ::std::move(color_), .font_size = ::std::move(font_size_)},
-              nested_tag_type_}} {
-        bool const is_html_span_type{nested_tag_type_ == ::pltxt2htm::NodeKind::html_span};
-        pltxt2htm_assert(is_html_span_type, u8"mismatch node type");
-    }
-
-    constexpr explicit ParserFrameContext(::fast_io::u8string&& pltext_) noexcept
-        : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
-              ::pltxt2htm::details::ParserFrameContextWithMdBlockQuotesInfo{::std::move(pltext_)},
-              ::pltxt2htm::NodeKind::md_block_quotes}} {
-    }
-
-    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::Url<ndebug>&& link_) noexcept
-        : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
-              ::pltxt2htm::details::ParserFrameContextWithMdLinkInfo{.pltext = pltext_, .link = ::std::move(link_)},
-              ::pltxt2htm::NodeKind::md_link}} {
-    }
-
-    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_, bool checked_,
-                                          ::pltxt2htm::NodeKind node_type) noexcept
-        : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
-              ::pltxt2htm::details::ParserFrameContextWithMdLiCheckboxInfo{pltext_, checked_}, node_type}} {
-        pltxt2htm_assert(node_type == ::pltxt2htm::NodeKind::md_li_checkbox, u8"mismatch node type");
-    }
-
-    constexpr explicit ParserFrameContext(::pltxt2htm::NodeKind node_type,
-                                          ::pltxt2htm::details::MdListAst<ndebug>&& md_list_ast_) noexcept
-        : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
-              ::pltxt2htm::details::ParserFrameContextWithMdListInfo<ndebug>{::std::move(md_list_ast_)}, node_type}} {
-        pltxt2htm_assert(node_type == ::pltxt2htm::NodeKind::md_ul || node_type == ::pltxt2htm::NodeKind::md_ol,
-                         u8"mismatch node type");
-    }
-
-    constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_, ::pltxt2htm::MdTableAlign align_,
-                                          ::pltxt2htm::NodeKind node_type) noexcept
-        : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
-              ::pltxt2htm::details::ParserFrameContextWithMdCellInfo{.pltext = pltext_, .align = align_}, node_type}} {
-        pltxt2htm_assert(node_type == ::pltxt2htm::NodeKind::html_td || node_type == ::pltxt2htm::NodeKind::md_th ||
-                             node_type == ::pltxt2htm::NodeKind::md_td,
-                         u8"mismatch node type");
-    }
-
-    constexpr explicit ParserFrameContext(::pltxt2htm::NodeKind node_type,
-                                          ::pltxt2htm::details::MdTableAstRaw<ndebug>&& raw_ast_) noexcept
-        : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
-              ::pltxt2htm::details::ParserFrameContextWithMdTableInfo<ndebug>{::std::move(raw_ast_)}, node_type}} {
-        pltxt2htm_assert(node_type == ::pltxt2htm::NodeKind::md_table, u8"mismatch node type");
     }
 
     constexpr ParserFrameContext(::pltxt2htm::details::ParserFrameContext<ndebug> const&) noexcept = delete;

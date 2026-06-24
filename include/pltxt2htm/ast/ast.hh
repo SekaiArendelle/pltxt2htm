@@ -1519,7 +1519,8 @@ public:
         }
 
         case ::pltxt2htm::NodeKind::html_blockquote: {
-            new (::std::addressof(html_blockquote_node))::pltxt2htm::HtmlBlockquote(::std::move(other.html_blockquote_node));
+            new (::std::addressof(html_blockquote_node))::pltxt2htm::HtmlBlockquote(
+                ::std::move(other.html_blockquote_node));
             break;
         }
 
