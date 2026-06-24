@@ -513,6 +513,13 @@ entry:
                     goto entry;
                 }
             }
+            case ::pltxt2htm::NodeKind::html_a: {
+                auto&& subast = node.as_html_a().get_subast();
+                call_stack.push(
+                    ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_a, subast.begin()));
+                goto entry;
+            }
             case ::pltxt2htm::NodeKind::pl_a: {
                 auto&& subast = node.as_pl_a().get_subast();
                 {

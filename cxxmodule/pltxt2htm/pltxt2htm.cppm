@@ -91,6 +91,8 @@ using ::pltxt2htm::HtmlCol;
 
 using ::pltxt2htm::HtmlSpan;
 
+using ::pltxt2htm::HtmlA;
+
 // markdown_node
 using ::pltxt2htm::MdAtxH1;
 using ::pltxt2htm::MdAtxH2;

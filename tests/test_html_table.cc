@@ -265,7 +265,8 @@ int main() {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<table><tr><td class=\"foo\" style=\"text-align:center\" id=\"bar\">cell</td></tr></table>");
         auto answer = ::fast_io::u8string_view{
-            u8"<table><tr>&lt;td&nbsp;class=&quot;foo&quot;&nbsp;style=&quot;text-align:center&quot;&nbsp;id=&quot;bar&quot;&gt;cell&lt;/td&gt;</tr></table>"};
+            u8"<table><tr>&lt;td&nbsp;class=&quot;foo&quot;&nbsp;style=&quot;text-align:center&quot;&nbsp;id=&quot;bar&"
+            u8"quot;&gt;cell&lt;/td&gt;</tr></table>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

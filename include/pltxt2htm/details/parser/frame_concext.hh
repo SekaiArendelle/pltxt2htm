@@ -41,6 +41,13 @@ public:
 };
 
 template<::pltxt2htm::Contracts ndebug>
+class ParserFrameContextWithHtmlATagInfo {
+public:
+    ::fast_io::u8string_view pltext;
+    ::pltxt2htm::Url<ndebug> url;
+};
+
+template<::pltxt2htm::Contracts ndebug>
 class ParserFrameContextWithExternalTagInfo {
 public:
     ::fast_io::u8string_view pltext;
@@ -127,6 +134,7 @@ public:
         ::pltxt2htm::details::ParserFrameContextWithPltextInfo pltext;
         ::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo equal_sign_tag;
         ::pltxt2htm::details::ParserFrameContextWithHtmlSpanInfo html_span_info;
+        ::pltxt2htm::details::ParserFrameContextWithHtmlATagInfo<ndebug> html_a_info;
         ::pltxt2htm::details::ParserFrameContextWithExternalTagInfo<ndebug> external_tag;
         ::pltxt2htm::details::ParserFrameContextWithPlSizeTagInfo pl_size_tag;
         ::pltxt2htm::details::ParserFrameContextWithMdBlockQuotesInfo md_block_quotes;
@@ -154,6 +162,12 @@ public:
     constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithHtmlSpanInfo&& html_span_context,
                              ::pltxt2htm::NodeKind node_type) noexcept
         : html_span_info{::std::move(html_span_context)},
+          kind{node_type} {
+    }
+
+    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithHtmlATagInfo<ndebug>&& html_a_context,
+                             ::pltxt2htm::NodeKind node_type) noexcept
+        : html_a_info{::std::move(html_a_context)},
           kind{node_type} {
     }
 
@@ -230,6 +244,10 @@ public:
         }
         case ::pltxt2htm::NodeKind::html_span: {
             ::std::construct_at(::std::addressof(this->html_span_info), ::std::move(other.html_span_info));
+            return;
+        }
+        case ::pltxt2htm::NodeKind::html_a: {
+            ::std::construct_at(::std::addressof(this->html_a_info), ::std::move(other.html_a_info));
             return;
         }
         case ::pltxt2htm::NodeKind::md_block_quotes: {
@@ -505,6 +523,10 @@ public:
         }
         case ::pltxt2htm::NodeKind::html_span: {
             ::std::destroy_at(::std::addressof(this->html_span_info));
+            return;
+        }
+        case ::pltxt2htm::NodeKind::html_a: {
+            ::std::destroy_at(::std::addressof(this->html_a_info));
             return;
         }
         case ::pltxt2htm::NodeKind::md_block_quotes: {
@@ -795,11 +817,21 @@ public:
     constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_,
                                           ::pltxt2htm::NodeKind const nested_tag_type_,
                                           ::pltxt2htm::Url<ndebug>&& url_) noexcept
-        : context_data{::pltxt2htm::details::ContextVariant<ndebug>{
-              ::pltxt2htm::details::ParserFrameContextWithExternalTagInfo{.pltext = pltext_, .url = ::std::move(url_)},
-              nested_tag_type_}} {
-        bool const is_external_tag_type{nested_tag_type_ == ::pltxt2htm::NodeKind::pl_external};
-        pltxt2htm_assert(is_external_tag_type, u8"mismatch node type");
+        : context_data{[&]() -> ::pltxt2htm::details::ContextVariant<ndebug> {
+              if (nested_tag_type_ == ::pltxt2htm::NodeKind::pl_external) {
+                  return {::pltxt2htm::details::ParserFrameContextWithExternalTagInfo{.pltext = pltext_,
+                                                                                      .url = ::std::move(url_)},
+                          nested_tag_type_};
+              }
+              else {
+                  return {::pltxt2htm::details::ParserFrameContextWithHtmlATagInfo{.pltext = pltext_,
+                                                                                   .url = ::std::move(url_)},
+                          nested_tag_type_};
+              }
+          }()} {
+        bool const is_url_type{nested_tag_type_ == ::pltxt2htm::NodeKind::pl_external ||
+                               nested_tag_type_ == ::pltxt2htm::NodeKind::html_a};
+        pltxt2htm_assert(is_url_type, u8"mismatch node type");
     }
 
     constexpr explicit ParserFrameContext(::fast_io::u8string_view pltext_,
@@ -1047,6 +1079,9 @@ public:
         case ::pltxt2htm::NodeKind::html_span: {
             return context_data_ref.html_span_info.pltext;
         }
+        case ::pltxt2htm::NodeKind::html_a: {
+            return context_data_ref.html_a_info.pltext;
+        }
         case ::pltxt2htm::NodeKind::md_block_quotes: {
             auto const& pltext = context_data_ref.md_block_quotes.pltext;
             return ::fast_io::u8string_view{pltext.data(), pltext.size()};
@@ -1186,6 +1221,14 @@ public:
         bool const is_html_span_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_span};
         pltxt2htm_assert(is_html_span_type, u8"context kind mismatch");
         return ::std::forward_like<decltype(self)>(context_data_ref.html_span_info.font_size);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_html_a_url(this auto&& self) noexcept -> decltype(auto) {
+        auto&& context_data_ref = self.context_data;
+        bool const is_html_a_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_a};
+        pltxt2htm_assert(is_html_a_type, u8"context kind mismatch");
+        return ::std::forward_like<decltype(self)>(context_data_ref.html_a_info.url);
     }
 
     [[nodiscard]]
