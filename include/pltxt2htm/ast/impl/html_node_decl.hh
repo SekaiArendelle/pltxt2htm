@@ -44,6 +44,26 @@ public:
 };
 
 /**
+ * @brief HTML &lt;input&gt; checkbox input node (self-closing)
+ * @details Represents &lt;input type=&quot;checkbox&quot; disabled&gt; or
+ *          &lt;input type=&quot;checkbox&quot; disabled checked&gt;.
+ */
+class HtmlInput {
+public:
+    bool checked_;
+
+    [[nodiscard]]
+    constexpr auto operator==(this HtmlInput const& self, HtmlInput const& other) noexcept -> bool {
+        return self.checked_ == other.checked_;
+    }
+
+    [[nodiscard]]
+    constexpr auto is_checked(this auto&& self) noexcept -> bool {
+        return self.checked_;
+    }
+};
+
+/**
  * @brief HTML &lt;h1&gt; heading node
  * @details Represents a level‑1 heading containing sub‑AST content.
  */

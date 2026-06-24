@@ -1221,6 +1221,135 @@ constexpr auto try_parse_col_tag(::fast_io::u8string_view pltext, ::pltxt2htm::N
 }
 
 /**
+ * @brief Parse &lt;input type=&quot;checkbox&quot; disabled [checked]&gt; tag.
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
+ * @param[in] pltext The input text to parse, starting after `<i`.
+ * @return Tag length and checked state if matched; otherwise nullopt.
+ */
+template<::pltxt2htm::Contracts ndebug>
+struct TryParseInputCheckboxTagResult {
+    ::std::size_t tag_len;
+    bool checked;
+};
+
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_input_checkbox_tag(::fast_io::u8string_view pltext) noexcept
+    -> ::exception::optional<TryParseInputCheckboxTagResult<ndebug>> {
+    // match "nput" (case-insensitive)
+    if (pltext.size() < 4 ||
+        !::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"nput"}>(pltext)) {
+        return ::exception::nullopt_t{};
+    }
+    ::std::size_t pos{4};
+    bool found_type_checkbox{false};
+    bool found_disabled{false};
+    bool checked{false};
+
+    while (pos < pltext.size()) {
+        // skip whitespace
+        while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
+                                       ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t')) {
+            ++pos;
+        }
+        if (pos >= pltext.size()) {
+            return ::exception::nullopt_t{};
+        }
+        // end of tag
+        if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'>') {
+            break;
+        }
+        if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'/' && pos + 1 < pltext.size() &&
+            ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos + 1) == u8'>') {
+            break;
+        }
+
+        // parse attribute name
+        ::std::size_t const attr_start = pos;
+        while (pos < pltext.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'=' &&
+               ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'>' &&
+               ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8' ' &&
+               ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'\t' &&
+               ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'/') {
+            ++pos;
+        }
+        ::fast_io::u8string_view const attr_name{pltext.data() + attr_start, pos - attr_start};
+
+        // boolean attribute without value: "disabled" or "checked"
+        if (pos < pltext.size() &&
+            (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
+             ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t' ||
+             ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'>' ||
+             ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'/')) {
+            if (attr_name == ::fast_io::u8string_view{u8"disabled"}) {
+                found_disabled = true;
+                continue;
+            }
+            if (attr_name == ::fast_io::u8string_view{u8"checked"}) {
+                checked = true;
+                continue;
+            }
+            return ::exception::nullopt_t{};
+        }
+
+        // attribute with '=' value: "type=..."
+        if (pos >= pltext.size() || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'=') {
+            return ::exception::nullopt_t{};
+        }
+        ++pos; // skip '='
+
+        // skip whitespace after '='
+        while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
+                                       ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t')) {
+            ++pos;
+        }
+        if (pos >= pltext.size()) {
+            return ::exception::nullopt_t{};
+        }
+
+        // parse quoted attribute value
+        char8_t const quote{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos)};
+        if (quote != u8'"' && quote != u8'\'') {
+            return ::exception::nullopt_t{};
+        }
+        ++pos; // skip opening quote
+        ::std::size_t const val_start = pos;
+        while (pos < pltext.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != quote) {
+            ++pos;
+        }
+        if (pos >= pltext.size()) {
+            return ::exception::nullopt_t{};
+        }
+        ::fast_io::u8string_view const attr_val{pltext.data() + val_start, pos - val_start};
+        ++pos; // skip closing quote
+
+        // only "type=checkbox" is allowed
+        if (attr_name != ::fast_io::u8string_view{u8"type"}) {
+            return ::exception::nullopt_t{};
+        }
+        if (attr_val != ::fast_io::u8string_view{u8"checkbox"}) {
+            return ::exception::nullopt_t{};
+        }
+        found_type_checkbox = true;
+    }
+
+    if (!found_type_checkbox || !found_disabled) {
+        return ::exception::nullopt_t{};
+    }
+    if (pos >= pltext.size()) {
+        return ::exception::nullopt_t{};
+    }
+    // skip '>' or '/>'
+    if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'/' && pos + 1 < pltext.size()) {
+        ++pos;
+    }
+    if (pos >= pltext.size() || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'>') {
+        return ::exception::nullopt_t{};
+    }
+    return TryParseInputCheckboxTagResult<ndebug>{pos + 1, checked};
+}
+
+/**
  * @brief Match a PL-text line terminator: either `\n` or a `<br` self-closing tag.
  *
  * Returns the byte length of the terminator (1 for `\n`, or the total tag length for `<br>`, `<br/>`, `<br />`, etc.).

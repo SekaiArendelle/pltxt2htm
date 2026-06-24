@@ -59,7 +59,6 @@ void assert_no_raw_xss_tags(::fast_io::u8string_view html) noexcept {
     ::pltxt2htm_test::assert_true(!has_unescaped_tag(html, u8"meta"));
     ::pltxt2htm_test::assert_true(!has_unescaped_tag(html, u8"link"));
     ::pltxt2htm_test::assert_true(!has_unescaped_tag(html, u8"form"));
-    ::pltxt2htm_test::assert_true(!has_unescaped_tag(html, u8"input"));
     ::pltxt2htm_test::assert_true(!has_unescaped_tag(html, u8"textarea"));
     ::pltxt2htm_test::assert_true(!has_unescaped_tag(html, u8"marquee"));
     ::pltxt2htm_test::assert_true(!has_unescaped_tag(html, u8"noscript"));
@@ -525,6 +524,48 @@ int main() {
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<style>@import url(http://evil/xss.css);</style>");
+        assert_no_raw_xss_tags(to_view(html));
+    }
+
+    // ============================================================
+    //  22. Raw <input> tag parsing (checkbox only, others escaped)
+    // ============================================================
+    {
+        // unchecked checkbox should be parsed as raw <input>
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<input type=\"checkbox\" disabled>");
+        pltxt2htm_test_assert_equal(html, u8"<input type=\"checkbox\" disabled>");
+        // still no dangerous tags
+        ::pltxt2htm_test::assert_true(!has_unescaped_tag(to_view(html), u8"script"));
+        ::pltxt2htm_test::assert_true(!has_unescaped_tag(to_view(html), u8"iframe"));
+        ::pltxt2htm_test::assert_true(!has_unescaped_tag(to_view(html), u8"svg"));
+    }
+    {
+        // checked checkbox
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<input type=\"checkbox\" disabled checked>");
+        pltxt2htm_test_assert_equal(html, u8"<input type=\"checkbox\" disabled checked>");
+    }
+    {
+        // reversed order: checked before disabled is still valid
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<input disabled checked type=\"checkbox\">");
+        pltxt2htm_test_assert_equal(html, u8"<input type=\"checkbox\" disabled checked>");
+    }
+    {
+        // <input type="text"> should be escaped (not a checkbox)
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<input type=\"text\">");
+        pltxt2htm_test_assert_equal(html, u8"&lt;input&nbsp;type=&quot;text&quot;&gt;");
+        assert_no_raw_xss_tags(to_view(html));
+    }
+    {
+        // <input with event handler should be escaped
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<input type=\"checkbox\" onfocus=\"alert(1)\">");
+        pltxt2htm_test_assert_equal(html, u8"&lt;input&nbsp;type=&quot;checkbox&quot;&nbsp;onfocus=&quot;alert(1)&quot;&gt;");
+        assert_no_raw_xss_tags(to_view(html));
+        assert_no_raw_event_handlers(to_view(html));
+    }
+    {
+        // <input> without disabled should be escaped
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<input type=\"checkbox\">");
+        pltxt2htm_test_assert_equal(html, u8"&lt;input&nbsp;type=&quot;checkbox&quot;&gt;");
         assert_no_raw_xss_tags(to_view(html));
     }
 

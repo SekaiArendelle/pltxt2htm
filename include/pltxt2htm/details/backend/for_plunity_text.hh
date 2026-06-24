@@ -874,6 +874,15 @@ entry:
                 result.append(u8"<col>");
                 continue;
             }
+            case ::pltxt2htm::NodeKind::html_input: {
+                if (node.as_html_input().is_checked()) {
+                    result.append(u8"<input type=\"checkbox\" disabled checked>");
+                }
+                else {
+                    result.append(u8"<input type=\"checkbox\" disabled>");
+                }
+                continue;
+            }
             case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_md_triple_emphasis_underscore().get_subast(),
