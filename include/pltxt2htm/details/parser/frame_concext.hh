@@ -41,14 +41,7 @@ public:
 };
 
 template<::pltxt2htm::Contracts ndebug>
-class ParserFrameContextWithHtmlATagInfo {
-public:
-    ::fast_io::u8string_view pltext;
-    ::pltxt2htm::Url<ndebug> url;
-};
-
-template<::pltxt2htm::Contracts ndebug>
-class ParserFrameContextWithExternalTagInfo {
+class ParserFrameContextWithUrlInfo {
 public:
     ::fast_io::u8string_view pltext;
     ::pltxt2htm::Url<ndebug> url;
@@ -63,13 +56,6 @@ public:
 class ParserFrameContextWithMdBlockQuotesInfo {
 public:
     ::fast_io::u8string pltext;
-};
-
-template<::pltxt2htm::Contracts ndebug>
-class ParserFrameContextWithMdLinkInfo {
-public:
-    ::fast_io::u8string_view pltext;
-    ::pltxt2htm::Url<ndebug> link;
 };
 
 template<::pltxt2htm::Contracts ndebug>
@@ -134,11 +120,9 @@ public:
         ::pltxt2htm::details::ParserFrameContextWithPltextInfo pltext;
         ::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo equal_sign_tag;
         ::pltxt2htm::details::ParserFrameContextWithHtmlSpanInfo html_span_info;
-        ::pltxt2htm::details::ParserFrameContextWithHtmlATagInfo<ndebug> html_a_info;
-        ::pltxt2htm::details::ParserFrameContextWithExternalTagInfo<ndebug> external_tag;
+        ::pltxt2htm::details::ParserFrameContextWithUrlInfo<ndebug> url_info;
         ::pltxt2htm::details::ParserFrameContextWithPlSizeTagInfo pl_size_tag;
         ::pltxt2htm::details::ParserFrameContextWithMdBlockQuotesInfo md_block_quotes;
-        ::pltxt2htm::details::ParserFrameContextWithMdLinkInfo<ndebug> md_link;
         ::pltxt2htm::details::ParserFrameContextWithMdListInfo<ndebug> md_list;
         ::pltxt2htm::details::ParserFrameContextWithMdCellInfo md_cell;
         ::pltxt2htm::details::ParserFrameContextWithMdLiCheckboxInfo md_li_checkbox;
@@ -165,15 +149,9 @@ public:
           kind{node_type} {
     }
 
-    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithHtmlATagInfo<ndebug>&& html_a_context,
+    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithUrlInfo<ndebug>&& url_context,
                              ::pltxt2htm::NodeKind node_type) noexcept
-        : html_a_info{::std::move(html_a_context)},
-          kind{node_type} {
-    }
-
-    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithExternalTagInfo<ndebug>&& external_tag_context,
-                             ::pltxt2htm::NodeKind node_type) noexcept
-        : external_tag{::std::move(external_tag_context)},
+        : url_info{::std::move(url_context)},
           kind{node_type} {
     }
 
@@ -186,12 +164,6 @@ public:
     constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithMdBlockQuotesInfo&& md_block_quotes_context,
                              ::pltxt2htm::NodeKind node_type) noexcept
         : md_block_quotes{::std::move(md_block_quotes_context)},
-          kind{node_type} {
-    }
-
-    constexpr ContextVariant(::pltxt2htm::details::ParserFrameContextWithMdLinkInfo<ndebug>&& md_link_context,
-                             ::pltxt2htm::NodeKind node_type) noexcept
-        : md_link{::std::move(md_link_context)},
           kind{node_type} {
     }
 
@@ -234,8 +206,12 @@ public:
             ::std::construct_at(::std::addressof(this->equal_sign_tag), ::std::move(other.equal_sign_tag));
             return;
         }
-        case ::pltxt2htm::NodeKind::pl_external: {
-            ::std::construct_at(::std::addressof(this->external_tag), ::std::move(other.external_tag));
+        case ::pltxt2htm::NodeKind::pl_external:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_a:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_link: {
+            ::std::construct_at(::std::addressof(this->url_info), ::std::move(other.url_info));
             return;
         }
         case ::pltxt2htm::NodeKind::pl_size: {
@@ -246,19 +222,12 @@ public:
             ::std::construct_at(::std::addressof(this->html_span_info), ::std::move(other.html_span_info));
             return;
         }
-        case ::pltxt2htm::NodeKind::html_a: {
-            ::std::construct_at(::std::addressof(this->html_a_info), ::std::move(other.html_a_info));
-            return;
-        }
         case ::pltxt2htm::NodeKind::md_block_quotes: {
             ::std::construct_at(::std::addressof(this->md_block_quotes), ::std::move(other.md_block_quotes));
             return;
         }
-        case ::pltxt2htm::NodeKind::md_link: {
-            ::std::construct_at(::std::addressof(this->md_link), ::std::move(other.md_link));
-            return;
-        }
         case ::pltxt2htm::NodeKind::md_ul:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_ol: {
             ::std::construct_at(::std::addressof(this->md_list), ::std::move(other.md_list));
             return;
@@ -513,8 +482,12 @@ public:
             ::std::destroy_at(::std::addressof(this->equal_sign_tag));
             return;
         }
-        case ::pltxt2htm::NodeKind::pl_external: {
-            ::std::destroy_at(::std::addressof(this->external_tag));
+        case ::pltxt2htm::NodeKind::pl_external:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_a:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_link: {
+            ::std::destroy_at(::std::addressof(this->url_info));
             return;
         }
         case ::pltxt2htm::NodeKind::pl_size: {
@@ -525,16 +498,8 @@ public:
             ::std::destroy_at(::std::addressof(this->html_span_info));
             return;
         }
-        case ::pltxt2htm::NodeKind::html_a: {
-            ::std::destroy_at(::std::addressof(this->html_a_info));
-            return;
-        }
         case ::pltxt2htm::NodeKind::md_block_quotes: {
             ::std::destroy_at(::std::addressof(this->md_block_quotes));
-            return;
-        }
-        case ::pltxt2htm::NodeKind::md_link: {
-            ::std::destroy_at(::std::addressof(this->md_link));
             return;
         }
         case ::pltxt2htm::NodeKind::md_ul:
@@ -965,7 +930,7 @@ public:
             return context_data_ref.equal_sign_tag.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_external: {
-            return context_data_ref.external_tag.pltext;
+            return context_data_ref.url_info.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_size: {
             return context_data_ref.pl_size_tag.pltext;
@@ -974,14 +939,14 @@ public:
             return context_data_ref.html_span_info.pltext;
         }
         case ::pltxt2htm::NodeKind::html_a: {
-            return context_data_ref.html_a_info.pltext;
+            return context_data_ref.url_info.pltext;
         }
         case ::pltxt2htm::NodeKind::md_block_quotes: {
             auto const& pltext = context_data_ref.md_block_quotes.pltext;
             return ::fast_io::u8string_view{pltext.data(), pltext.size()};
         }
         case ::pltxt2htm::NodeKind::md_link: {
-            return context_data_ref.md_link.pltext;
+            return context_data_ref.url_info.pltext;
         }
         case ::pltxt2htm::NodeKind::html_td:
             [[fallthrough]];
@@ -1090,7 +1055,7 @@ public:
         auto&& context_data_ref = self.context_data;
         bool const is_external_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_external};
         pltxt2htm_assert(is_external_tag_type, u8"context kind mismatch");
-        return ::std::forward_like<decltype(self)>(context_data_ref.external_tag.url);
+        return ::std::forward_like<decltype(self)>(context_data_ref.url_info.url);
     }
 
     [[nodiscard]]
@@ -1122,7 +1087,7 @@ public:
         auto&& context_data_ref = self.context_data;
         bool const is_html_a_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_a};
         pltxt2htm_assert(is_html_a_type, u8"context kind mismatch");
-        return ::std::forward_like<decltype(self)>(context_data_ref.html_a_info.url);
+        return ::std::forward_like<decltype(self)>(context_data_ref.url_info.url);
     }
 
     [[nodiscard]]
@@ -1130,7 +1095,7 @@ public:
         auto&& context_data_ref = self.context_data;
         bool const is_md_link_type{context_data_ref.kind == ::pltxt2htm::NodeKind::md_link};
         pltxt2htm_assert(is_md_link_type, u8"context kind mismatch");
-        return ::std::forward_like<decltype(self)>(context_data_ref.md_link.link);
+        return ::std::forward_like<decltype(self)>(context_data_ref.url_info.url);
     }
 
     [[nodiscard]]

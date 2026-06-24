@@ -716,7 +716,7 @@ entry:
                 current_index += advance_count;
                 call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                     ::pltxt2htm::details::ContextVariant<ndebug>{
-                        ::pltxt2htm::details::ParserFrameContextWithMdLinkInfo<ndebug>{url_text, ::std::move(url_link)},
+                        ::pltxt2htm::details::ParserFrameContextWithUrlInfo<ndebug>{url_text, ::std::move(url_link)},
                         ::pltxt2htm::NodeKind::md_link},
                     ::pltxt2htm::Ast<ndebug>{}));
                 goto entry;
@@ -767,7 +767,7 @@ entry:
                         current_index += tag_len + 2;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                             ::pltxt2htm::details::ContextVariant<ndebug>{
-                                ::pltxt2htm::details::ParserFrameContextWithHtmlATagInfo<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithUrlInfo<ndebug>{
                                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
                                     ::std::move(url)},
                                 ::pltxt2htm::NodeKind::html_a},
@@ -982,7 +982,7 @@ entry:
                         current_index += tag_len + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                             ::pltxt2htm::details::ContextVariant<ndebug>{
-                                ::pltxt2htm::details::ParserFrameContextWithExternalTagInfo<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithUrlInfo<ndebug>{
                                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
                                     ::std::move(url)},
                                 ::pltxt2htm::NodeKind::pl_external},
