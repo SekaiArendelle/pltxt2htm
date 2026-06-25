@@ -97,6 +97,7 @@ enum class NodeKind : unsigned {
     html_colgroup, ///< HTML table column group: &lt;colgroup&gt;...&lt;/colgroup&gt;
     html_col, ///< HTML table column: &lt;col&gt; (self-closing)
     html_input, ///< HTML checkbox input: &lt;input type=&quot;checkbox&quot; disabled&gt;
+    html_img, ///< HTML image: &lt;img src=&quot;...&quot; alt=&quot;...&quot;&gt;
 
     // Markdown ATX-style headers (# ## ### #### ##### ######)
     md_atx_h1, ///< Markdown level 1 heading: # Heading

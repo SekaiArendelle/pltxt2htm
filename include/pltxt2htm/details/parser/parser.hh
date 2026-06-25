@@ -1128,6 +1128,18 @@ entry:
                         ++current_index;
                         continue;
                     }
+                    // parsing html <img src="..." alt="..."> self-closing tag
+                    if (auto opt_img_tag = ::pltxt2htm::details::try_parse_img_tag<ndebug>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                        opt_img_tag.has_value()) {
+                        auto&& [tag_len, src, alt] =
+                            opt_img_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                        current_index += tag_len + 1;
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(
+                            ::pltxt2htm::HtmlImg{::std::move(src), ::std::move(alt)}));
+                        ++current_index;
+                        continue;
+                    }
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
                     ++current_index;
                     continue;
@@ -2278,6 +2290,8 @@ entry:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::html_col:
                         [[fallthrough]];
+                    case ::pltxt2htm::NodeKind::html_img:
+                        [[fallthrough]];
                     case ::pltxt2htm::NodeKind::html_input:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::md_image:
@@ -2796,6 +2810,8 @@ entry:
             case ::pltxt2htm::NodeKind::html_hr:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_col:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_img:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_input:
                 [[fallthrough]];

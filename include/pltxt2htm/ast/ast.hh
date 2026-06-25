@@ -65,6 +65,7 @@ class PlTxtNode {
         // html table node
         ::pltxt2htm::HtmlCol html_col_node;
         ::pltxt2htm::HtmlInput html_input_node;
+        ::pltxt2htm::HtmlImg html_img_node;
         ::pltxt2htm::HtmlTable<ndebug> html_table_node;
         ::pltxt2htm::HtmlCaption<ndebug> html_caption_node;
         ::pltxt2htm::HtmlColgroup<ndebug> html_colgroup_node;
@@ -396,6 +397,11 @@ public:
     constexpr PlTxtNode(::pltxt2htm::HtmlInput node) noexcept
         : html_input_node{node},
           node_kind{::pltxt2htm::NodeKind::html_input} {
+    }
+
+    constexpr PlTxtNode(::pltxt2htm::HtmlImg node) noexcept
+        : html_img_node{::std::move(node)},
+          node_kind{::pltxt2htm::NodeKind::html_img} {
     }
 
     constexpr PlTxtNode(::pltxt2htm::HtmlTable<ndebug>&& node) noexcept
@@ -973,6 +979,10 @@ public:
             new (::std::addressof(html_input_node))::pltxt2htm::HtmlInput(other.html_input_node);
             break;
         }
+        case ::pltxt2htm::NodeKind::html_img: {
+            new (::std::addressof(html_img_node))::pltxt2htm::HtmlImg(other.html_img_node);
+            break;
+        }
         case ::pltxt2htm::NodeKind::html_table: {
             new (::std::addressof(html_table_node))::pltxt2htm::HtmlTable(other.html_table_node);
             break;
@@ -1544,6 +1554,11 @@ public:
             break;
         }
 
+        case ::pltxt2htm::NodeKind::html_img: {
+            new (::std::addressof(html_img_node))::pltxt2htm::HtmlImg(::std::move(other.html_img_node));
+            break;
+        }
+
         case ::pltxt2htm::NodeKind::html_table: {
             new (::std::addressof(html_table_node))::pltxt2htm::HtmlTable(::std::move(other.html_table_node));
             break;
@@ -2101,6 +2116,10 @@ public:
             html_input_node.~HtmlInput();
             break;
         }
+        case ::pltxt2htm::NodeKind::html_img: {
+            html_img_node.~HtmlImg();
+            break;
+        }
         case ::pltxt2htm::NodeKind::html_table: {
             html_table_node.~HtmlTable();
             break;
@@ -2572,6 +2591,9 @@ public:
         case ::pltxt2htm::NodeKind::html_input: {
             return self.html_input_node == other.html_input_node;
         }
+        case ::pltxt2htm::NodeKind::html_img: {
+            return self.html_img_node == other.html_img_node;
+        }
         case ::pltxt2htm::NodeKind::html_table: {
             return self.html_table_node == other.html_table_node;
         }
@@ -3036,6 +3058,13 @@ public:
         bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_input};
         pltxt2htm_assert(is_type, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.html_input_node);
+    }
+
+    [[nodiscard]]
+    constexpr auto as_html_img(this auto&& self) noexcept -> decltype(auto) {
+        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_img};
+        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.html_img_node);
     }
 
     [[nodiscard]]

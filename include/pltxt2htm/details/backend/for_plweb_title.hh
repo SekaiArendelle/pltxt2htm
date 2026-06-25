@@ -497,7 +497,9 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_col:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_input: {
+            case ::pltxt2htm::NodeKind::html_input:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_img: {
                 continue;
             }
             case ::pltxt2htm::NodeKind::text: {

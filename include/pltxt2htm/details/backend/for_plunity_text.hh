@@ -883,6 +883,14 @@ entry:
                 }
                 continue;
             }
+            case ::pltxt2htm::NodeKind::html_img: {
+                result.append(u8"<img src=\"");
+                result.append(node.as_html_img().get_src());
+                result.append(u8"\" alt=\"");
+                result.append(node.as_html_img().get_alt());
+                result.append(u8"\">");
+                continue;
+            }
             case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_md_triple_emphasis_underscore().get_subast(),

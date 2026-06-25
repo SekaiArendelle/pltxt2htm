@@ -64,6 +64,41 @@ public:
 };
 
 /**
+ * @brief HTML &lt;img&gt; image node (self-closing)
+ * @details Represents &lt;img src=&quot;...&quot; alt=&quot;...&quot;&gt;.
+ */
+class HtmlImg {
+    ::fast_io::u8string src;
+    ::fast_io::u8string alt;
+
+public:
+    constexpr HtmlImg(::fast_io::u8string&& src_, ::fast_io::u8string&& alt_) noexcept
+        : src(::std::move(src_)),
+          alt(::std::move(alt_)) {
+    }
+
+    constexpr HtmlImg(::pltxt2htm::HtmlImg const&) noexcept = default;
+    constexpr HtmlImg(::pltxt2htm::HtmlImg&&) noexcept = default;
+    constexpr ~HtmlImg() noexcept = default;
+    constexpr auto operator=(::pltxt2htm::HtmlImg const&) noexcept -> ::pltxt2htm::HtmlImg& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlImg& self, ::pltxt2htm::HtmlImg&&) noexcept
+        -> ::pltxt2htm::HtmlImg& = default;
+
+    [[nodiscard]]
+    constexpr auto operator==(this HtmlImg const&, HtmlImg const&) noexcept -> bool = default;
+
+    [[nodiscard]]
+    constexpr auto get_src(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.src);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_alt(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.alt);
+    }
+};
+
+/**
  * @brief HTML &lt;h1&gt; heading node
  * @details Represents a level‑1 heading containing sub‑AST content.
  */
