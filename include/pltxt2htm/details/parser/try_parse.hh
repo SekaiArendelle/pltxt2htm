@@ -1702,6 +1702,64 @@ struct SimplyParsePLtextResult {
     ::pltxt2htm::Ast<ndebug> ast; ///< Parsed AST.
 };
 
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_entity_reference(::fast_io::u8string_view text) noexcept
+    -> ::exception::optional<::std::size_t> {
+    if (text.empty() || ::pltxt2htm::details::u8string_view_index<ndebug>(text, 0) != u8'&') {
+        return ::exception::nullopt_t{};
+    }
+    auto const max = text.size();
+    auto index = ::std::size_t{1};
+    if (index >= max) {
+        return ::exception::nullopt_t{};
+    }
+    if (::pltxt2htm::details::u8string_view_index<ndebug>(text, index) == u8'#') {
+        ++index;
+        if (index >= max) {
+            return ::exception::nullopt_t{};
+        }
+        bool hex{};
+        auto const prefix = ::pltxt2htm::details::u8string_view_index<ndebug>(text, index);
+        if (prefix == u8'x' || prefix == u8'X') {
+            hex = true;
+            ++index;
+        }
+        if (index >= max) {
+            return ::exception::nullopt_t{};
+        }
+        auto const begin = index;
+        for (; index < max; ++index) {
+            auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(text, index);
+            if (chr == u8';') {
+                break;
+            }
+            if (hex ? !::pltxt2htm::details::is_ascii_hexdigit(chr) : !::pltxt2htm::details::is_ascii_digit(chr)) {
+                return ::exception::nullopt_t{};
+            }
+        }
+        if (index == begin || index >= max || ::pltxt2htm::details::u8string_view_index<ndebug>(text, index) != u8';') {
+            return ::exception::nullopt_t{};
+        }
+        return index + 1;
+    }
+
+    if (!::pltxt2htm::details::is_ascii_alpha(::pltxt2htm::details::u8string_view_index<ndebug>(text, index))) {
+        return ::exception::nullopt_t{};
+    }
+    ++index;
+    for (; index < max; ++index) {
+        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(text, index);
+        if (chr == u8';') {
+            return index + 1;
+        }
+        if (!::pltxt2htm::details::is_ascii_alpha(chr) && !::pltxt2htm::details::is_ascii_digit(chr)) {
+            return ::exception::nullopt_t{};
+        }
+    }
+    return ::exception::nullopt_t{};
+}
+
 /**
  * @brief Parse plain text content into an AST until a termination string is encountered.
  *
@@ -1747,6 +1805,17 @@ constexpr auto simply_parse_pltext(::fast_io::u8string_view pltext) noexcept
             continue;
         }
         if (chr == u8'&') {
+            if (auto const opt_entity_len = ::pltxt2htm::details::try_parse_entity_reference<ndebug>(
+                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                opt_entity_len.has_value()) {
+                auto const entity_len = opt_entity_len.value();
+                ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
+                    ::pltxt2htm::EntityReference{::fast_io::u8string{
+                        pltext.data() + current_index + 1,
+                        pltext.data() + current_index + entity_len - 1}}));
+                current_index += entity_len;
+                continue;
+            }
             ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Ampersand{}));
             ++current_index;
             continue;
@@ -2948,64 +3017,6 @@ constexpr auto try_parse_md_image(::fast_io::u8string_view pltext) noexcept
     return ::pltxt2htm::details::TryParseMdImageResult<ndebug>{.advance_count = current_index + 1,
                                                                .link_text = ::std::move(link_text_ast),
                                                                .link_url = ::std::move(md_url_result.url)};
-}
-
-template<::pltxt2htm::Contracts ndebug>
-[[nodiscard]]
-constexpr auto try_parse_entity_reference(::fast_io::u8string_view text) noexcept
-    -> ::exception::optional<::std::size_t> {
-    if (text.empty() || ::pltxt2htm::details::u8string_view_index<ndebug>(text, 0) != u8'&') {
-        return ::exception::nullopt_t{};
-    }
-    auto const max = text.size();
-    auto index = ::std::size_t{1};
-    if (index >= max) {
-        return ::exception::nullopt_t{};
-    }
-    if (::pltxt2htm::details::u8string_view_index<ndebug>(text, index) == u8'#') {
-        ++index;
-        if (index >= max) {
-            return ::exception::nullopt_t{};
-        }
-        bool hex{};
-        auto const prefix = ::pltxt2htm::details::u8string_view_index<ndebug>(text, index);
-        if (prefix == u8'x' || prefix == u8'X') {
-            hex = true;
-            ++index;
-        }
-        if (index >= max) {
-            return ::exception::nullopt_t{};
-        }
-        auto const begin = index;
-        for (; index < max; ++index) {
-            auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(text, index);
-            if (chr == u8';') {
-                break;
-            }
-            if (hex ? !::pltxt2htm::details::is_ascii_hexdigit(chr) : !::pltxt2htm::details::is_ascii_digit(chr)) {
-                return ::exception::nullopt_t{};
-            }
-        }
-        if (index == begin || index >= max || ::pltxt2htm::details::u8string_view_index<ndebug>(text, index) != u8';') {
-            return ::exception::nullopt_t{};
-        }
-        return index + 1;
-    }
-
-    if (!::pltxt2htm::details::is_ascii_alpha(::pltxt2htm::details::u8string_view_index<ndebug>(text, index))) {
-        return ::exception::nullopt_t{};
-    }
-    ++index;
-    for (; index < max; ++index) {
-        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(text, index);
-        if (chr == u8';') {
-            return index + 1;
-        }
-        if (!::pltxt2htm::details::is_ascii_alpha(chr) && !::pltxt2htm::details::is_ascii_digit(chr)) {
-            return ::exception::nullopt_t{};
-        }
-    }
-    return ::exception::nullopt_t{};
 }
 
 } // namespace pltxt2htm::details

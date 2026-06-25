@@ -127,6 +127,11 @@ constexpr auto url_ast_to_string(::pltxt2htm::Ast<ndebug> const& ast) noexcept -
         case ::pltxt2htm::NodeKind::ampersand:
             result.push_back(u8'&');
             continue;
+        case ::pltxt2htm::NodeKind::entity_reference:
+            result.push_back(u8'&');
+            result.append(node.as_entity_reference().get_value());
+            result.push_back(u8';');
+            continue;
         case ::pltxt2htm::NodeKind::single_quote:
             result.push_back(u8'\'');
             continue;
@@ -189,6 +194,12 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::ampersand: {
                 result.append(u8"&amp;");
+                continue;
+            }
+            case ::pltxt2htm::NodeKind::entity_reference: {
+                result.push_back(u8'&');
+                result.append(node.as_entity_reference().get_value());
+                result.push_back(u8';');
                 continue;
             }
             case ::pltxt2htm::NodeKind::md_escape_single_quote:

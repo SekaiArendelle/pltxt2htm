@@ -483,6 +483,17 @@ entry:
                 continue;
             }
             if (chr == u8'&') {
+                if (auto const opt_entity_len = ::pltxt2htm::details::try_parse_entity_reference<ndebug>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                    opt_entity_len.has_value()) {
+                    auto const entity_len = opt_entity_len.value();
+                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(
+                        ::pltxt2htm::EntityReference{::fast_io::u8string{
+                            pltext.data() + current_index + 1,
+                            pltext.data() + current_index + entity_len - 1}}));
+                    current_index += entity_len;
+                    continue;
+                }
                 result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Ampersand{}));
                 ++current_index;
                 continue;
@@ -2272,6 +2283,8 @@ entry:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::ampersand:
                         [[fallthrough]];
+                    case ::pltxt2htm::NodeKind::entity_reference:
+                        [[fallthrough]];
                     case ::pltxt2htm::NodeKind::double_quote:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::single_quote:
@@ -2794,6 +2807,8 @@ entry:
             case ::pltxt2htm::NodeKind::space:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::ampersand:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::entity_reference:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::double_quote:
                 [[fallthrough]];

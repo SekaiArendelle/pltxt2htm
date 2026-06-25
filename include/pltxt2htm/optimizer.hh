@@ -294,6 +294,8 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::ampersand:
                 [[fallthrough]];
+            case ::pltxt2htm::NodeKind::entity_reference:
+                [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_escape_single_quote:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::single_quote:
