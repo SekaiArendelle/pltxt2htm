@@ -2423,12 +2423,13 @@ constexpr auto try_parse_html_a_tag(::fast_io::u8string_view pltext) noexcept
     if (pos < pltext.size() &&
         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'>') {
         // only the boolean attribute "internal" is accepted as an extra attribute
-        if (!::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"internal"}>(
+        constexpr auto internal_literal = ::pltxt2htm::details::U8LiteralString{u8"internal"};
+        if (!::pltxt2htm::details::is_prefix_match<ndebug, internal_literal>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, pos))) {
             return ::exception::nullopt_t{};
         }
         internal = true;
-        pos += 8; // skip "internal"
+        pos += internal_literal.size();
         while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
                                        ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t')) {
             ++pos;
