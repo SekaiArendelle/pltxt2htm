@@ -540,7 +540,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_internal(this auto&& self) noexcept -> bool {
+    constexpr auto get_internal(this HtmlA const& self) noexcept -> bool {
         return self.internal;
     }
 };
