@@ -56,3 +56,4 @@ def launch_fuzzing(fuzzer: str):
 launch_fuzzing("common_parser")
 launch_fuzzing("fixedadv_parser")
 launch_fuzzing("plrichtext_parser")
+launch_fuzzing("fixedadv_roundtrip")
