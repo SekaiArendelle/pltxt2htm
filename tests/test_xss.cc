@@ -558,7 +558,8 @@ int main() {
     {
         // <input with event handler should be escaped
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<input type=\"checkbox\" onfocus=\"alert(1)\">");
-        pltxt2htm_test_assert_equal(html, u8"&lt;input&nbsp;type=&quot;checkbox&quot;&nbsp;onfocus=&quot;alert(1)&quot;&gt;");
+        pltxt2htm_test_assert_equal(html,
+                                    u8"&lt;input&nbsp;type=&quot;checkbox&quot;&nbsp;onfocus=&quot;alert(1)&quot;&gt;");
         assert_no_raw_xss_tags(to_view(html));
         assert_no_raw_event_handlers(to_view(html));
     }

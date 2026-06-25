@@ -95,5 +95,12 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // internal attribute
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<a href=\"https://www.example.com\" internal>text</a>");
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"https://www.example.com\" internal>text</a>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }

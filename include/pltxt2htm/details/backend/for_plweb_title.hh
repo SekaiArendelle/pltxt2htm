@@ -281,7 +281,12 @@ entry:
                 result.append(u8"<a href=\"");
                 result.append(
                     ::pltxt2htm::details::url_ast_to_string<ndebug>(node.as_html_a().get_url().get_url_ast()));
-                result.append(u8"\">");
+                if (node.as_html_a().get_internal()) {
+                    result.append(u8"\" internal>");
+                }
+                else {
+                    result.append(u8"\">");
+                }
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_double_emphasis_underscore: {
