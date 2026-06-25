@@ -960,6 +960,22 @@ entry:
                 }
                 continue;
             }
+            case ::pltxt2htm::NodeKind::html_img: {
+                result.append(u8"<img src=\"");
+                {
+                    auto const& src = node.as_html_img().get_src();
+                    ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result,
+                                                                          ::fast_io::u8string_view{src.data(), src.size()});
+                }
+                result.append(u8"\" alt=\"");
+                {
+                    auto const& alt = node.as_html_img().get_alt();
+                    ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result,
+                                                                          ::fast_io::u8string_view{alt.data(), alt.size()});
+                }
+                result.append(u8"\">");
+                continue;
+            }
             case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_md_triple_emphasis_underscore().get_subast(),
