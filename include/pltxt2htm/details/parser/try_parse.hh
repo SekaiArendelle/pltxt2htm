@@ -1236,8 +1236,7 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr auto try_parse_input_checkbox_tag(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<TryParseInputCheckboxTagResult> {
     // match "nput" (case-insensitive)
-    if (pltext.size() < 4 ||
-        !::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"nput"}>(pltext)) {
+    if (::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"nput"}>(pltext) == false) {
         return ::exception::nullopt_t{};
     }
     ::std::size_t pos{4};
@@ -1369,8 +1368,7 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr auto try_parse_img_tag(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<TryParseImgTagResult> {
     // match "mg" (case-insensitive)
-    if (pltext.size() < 2 ||
-        !::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"mg"}>(pltext)) {
+    if (::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"mg"}>(pltext) == false) {
         return ::exception::nullopt_t{};
     }
 
