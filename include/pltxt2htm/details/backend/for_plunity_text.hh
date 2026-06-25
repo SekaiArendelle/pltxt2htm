@@ -47,6 +47,12 @@ constexpr auto convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast<nde
             result.push_back(u8'&');
             continue;
         }
+        case ::pltxt2htm::NodeKind::entity_reference: {
+            result.push_back(u8'&');
+            result.append(node.as_entity_reference().get_value());
+            result.push_back(u8';');
+            continue;
+        }
         case ::pltxt2htm::NodeKind::md_escape_single_quote:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::single_quote: {
@@ -233,6 +239,12 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::ampersand: {
                 result.push_back(u8'&');
+                continue;
+            }
+            case ::pltxt2htm::NodeKind::entity_reference: {
+                result.push_back(u8'&');
+                result.append(node.as_entity_reference().get_value());
+                result.push_back(u8';');
                 continue;
             }
             case ::pltxt2htm::NodeKind::md_escape_single_quote:

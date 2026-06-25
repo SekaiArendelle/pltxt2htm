@@ -50,6 +50,7 @@ using ::pltxt2htm::Tab;
 using ::pltxt2htm::Ampersand;
 using ::pltxt2htm::SingleQuote;
 using ::pltxt2htm::DoubleQuote;
+using ::pltxt2htm::EntityReference;
 
 // html_node
 using ::pltxt2htm::HtmlBr;
