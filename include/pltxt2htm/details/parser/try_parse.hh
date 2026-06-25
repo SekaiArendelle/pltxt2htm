@@ -1275,11 +1275,10 @@ constexpr auto try_parse_input_checkbox_tag(::fast_io::u8string_view pltext) noe
         ::fast_io::u8string_view const attr_name{pltext.data() + attr_start, pos - attr_start};
 
         // boolean attribute without value: "disabled" or "checked"
-        if (pos < pltext.size() &&
-            (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
-             ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t' ||
-             ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'>' ||
-             ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'/')) {
+        if (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
+                                    ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t' ||
+                                    ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'>' ||
+                                    ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'/')) {
             if (attr_name == ::fast_io::u8string_view{u8"disabled"}) {
                 found_disabled = true;
                 continue;
@@ -2367,6 +2366,7 @@ template<::pltxt2htm::Contracts ndebug>
 struct TryParseHtmlATagResult {
     ::std::size_t tag_len;
     ::pltxt2htm::Url<ndebug> url;
+    bool internal;
 };
 
 template<::pltxt2htm::Contracts ndebug>
@@ -2419,6 +2419,22 @@ constexpr auto try_parse_html_a_tag(::fast_io::u8string_view pltext) noexcept
                                    ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t')) {
         ++pos;
     }
+    bool internal{};
+    if (pos < pltext.size() &&
+        ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'>') {
+        // only the boolean attribute "internal" is accepted as an extra attribute
+        constexpr auto internal_literal = ::pltxt2htm::details::U8LiteralString{u8"internal"};
+        if (!::pltxt2htm::details::is_prefix_match<ndebug, internal_literal>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, pos))) {
+            return ::exception::nullopt_t{};
+        }
+        internal = true;
+        pos += internal_literal.size();
+        while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
+                                       ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t')) {
+            ++pos;
+        }
+    }
     if (pos >= pltext.size() || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'>') {
         return ::exception::nullopt_t{};
     }
@@ -2433,7 +2449,7 @@ constexpr auto try_parse_html_a_tag(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt_t{};
     }
     return TryParseHtmlATagResult<ndebug>{
-        pos + 1, ::std::move(opt_url_result.template value<ndebug == ::pltxt2htm::Contracts::ignore>().url)};
+        pos + 1, ::std::move(opt_url_result.template value<ndebug == ::pltxt2htm::Contracts::ignore>().url), internal};
 }
 
 /**

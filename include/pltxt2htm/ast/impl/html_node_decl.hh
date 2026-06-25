@@ -514,9 +514,11 @@ template<::pltxt2htm::Contracts ndebug>
 class HtmlA {
     ::pltxt2htm::Ast<ndebug> subast;
     ::pltxt2htm::Url<ndebug> url;
+    bool internal;
 
 public:
-    constexpr explicit HtmlA(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::Url<ndebug>&& url_) noexcept;
+    constexpr explicit HtmlA(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::Url<ndebug>&& url_,
+                             bool internal_) noexcept;
     constexpr HtmlA(::pltxt2htm::HtmlA<ndebug> const&) noexcept;
     constexpr HtmlA(::pltxt2htm::HtmlA<ndebug>&&) noexcept;
     constexpr ~HtmlA() noexcept;
@@ -535,6 +537,11 @@ public:
     [[nodiscard]]
     constexpr auto get_url(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.url);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_internal(this HtmlA const& self) noexcept -> bool {
+        return self.internal;
     }
 };
 

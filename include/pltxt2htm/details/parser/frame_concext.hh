@@ -47,6 +47,14 @@ public:
     ::pltxt2htm::Url<ndebug> url;
 };
 
+template<::pltxt2htm::Contracts ndebug>
+class ParserFrameContextWithHtmlATagInfo {
+public:
+    ::fast_io::u8string_view pltext;
+    ::pltxt2htm::Url<ndebug> url;
+    bool internal;
+};
+
 class ParserFrameContextWithPlSizeTagInfo {
 public:
     ::fast_io::u8string_view pltext;
@@ -121,6 +129,7 @@ public:
         ::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo equal_sign_tag;
         ::pltxt2htm::details::ParserFrameContextWithHtmlSpanInfo html_span_info;
         ::pltxt2htm::details::ParserFrameContextWithUrlInfo<ndebug> url_info;
+        ::pltxt2htm::details::ParserFrameContextWithHtmlATagInfo<ndebug> html_a_tag_info;
         ::pltxt2htm::details::ParserFrameContextWithPlSizeTagInfo pl_size_tag;
         ::pltxt2htm::details::ParserFrameContextWithMdBlockQuotesInfo md_block_quotes;
         ::pltxt2htm::details::ParserFrameContextWithMdListInfo<ndebug> md_list;
@@ -148,6 +157,12 @@ public:
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
         : html_span_info{::std::move(html_span_context)},
           kind{node_kind_} {
+    }
+
+    constexpr FrontendContextVariant(
+        ::pltxt2htm::details::ParserFrameContextWithHtmlATagInfo<ndebug>&& html_a_tag_context) noexcept
+        : html_a_tag_info{::std::move(html_a_tag_context)},
+          kind{::pltxt2htm::NodeKind::html_a} {
     }
 
     constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithUrlInfo<ndebug>&& url_context,
@@ -209,9 +224,11 @@ public:
             ::std::construct_at(::std::addressof(this->equal_sign_tag), ::std::move(other.equal_sign_tag));
             return;
         }
+        case ::pltxt2htm::NodeKind::html_a: {
+            ::std::construct_at(::std::addressof(this->html_a_tag_info), ::std::move(other.html_a_tag_info));
+            return;
+        }
         case ::pltxt2htm::NodeKind::pl_external:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_a:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_link: {
             ::std::construct_at(::std::addressof(this->url_info), ::std::move(other.url_info));
@@ -487,9 +504,11 @@ public:
             ::std::destroy_at(::std::addressof(this->equal_sign_tag));
             return;
         }
+        case ::pltxt2htm::NodeKind::html_a: {
+            ::std::destroy_at(::std::addressof(this->html_a_tag_info));
+            return;
+        }
         case ::pltxt2htm::NodeKind::pl_external:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_a:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_link: {
             ::std::destroy_at(::std::addressof(this->url_info));
@@ -948,7 +967,7 @@ public:
             return context_data_ref.html_span_info.pltext;
         }
         case ::pltxt2htm::NodeKind::html_a: {
-            return context_data_ref.url_info.pltext;
+            return context_data_ref.html_a_tag_info.pltext;
         }
         case ::pltxt2htm::NodeKind::md_block_quotes: {
             auto const& pltext = context_data_ref.md_block_quotes.pltext;
@@ -1096,7 +1115,15 @@ public:
         auto&& context_data_ref = self.context_data;
         bool const is_html_a_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_a};
         pltxt2htm_assert(is_html_a_type, u8"context kind mismatch");
-        return ::std::forward_like<decltype(self)>(context_data_ref.url_info.url);
+        return ::std::forward_like<decltype(self)>(context_data_ref.html_a_tag_info.url);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_html_a_internal(this auto&& self) noexcept -> bool {
+        auto&& context_data_ref = self.context_data;
+        bool const is_html_a_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_a};
+        pltxt2htm_assert(is_html_a_type, u8"context kind mismatch");
+        return context_data_ref.html_a_tag_info.internal;
     }
 
     [[nodiscard]]

@@ -499,7 +499,12 @@ entry:
                 ++current_index;
                 result.append(u8"<a href=\"");
                 ::pltxt2htm::details::append_url_attr_from_ast<ndebug>(result, node.as_html_a().get_url());
-                result.append(u8"\">");
+                if (node.as_html_a().get_internal()) {
+                    result.append(u8"\" internal>");
+                }
+                else {
+                    result.append(u8"\">");
+                }
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_double_emphasis_underscore: {
