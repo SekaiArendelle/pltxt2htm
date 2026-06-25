@@ -1399,7 +1399,7 @@ constexpr auto try_parse_img_tag(::fast_io::u8string_view pltext) noexcept
         }
 
         // parse attribute name
-        ::std::size_t const attr_start = pos;
+        ::std::size_t const attr_start{pos};
         while (pos < pltext.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'=' &&
                ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'>' &&
                ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8' ' &&
@@ -1434,7 +1434,7 @@ constexpr auto try_parse_img_tag(::fast_io::u8string_view pltext) noexcept
             return ::exception::nullopt_t{};
         }
         ++pos; // skip opening quote
-        ::std::size_t const val_start = pos;
+        ::std::size_t const val_start{pos};
         while (pos < pltext.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != quote) {
             ++pos;
         }
