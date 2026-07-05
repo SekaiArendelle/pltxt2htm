@@ -4,6 +4,14 @@ Thanks for your interest in contributing!
 
 This project is a C++23 header-only library for converting Physics-Lab text to HTML, with bindings and distributions for multiple environments.
 
+## Typical workflow
+
+1. **Locate** – Read the relevant sub-project README listed under
+   [Before You Start](#before-you-start) to understand which module to modify.
+2. **Code & Analyze** – Follow the [Coding Guidelines](#coding-guidelines) while writing your changes, then run the [formatting](#code-formatting) and static analysis tools.
+3. **Test** – [Run all tests](#running-tests) as described in Running Tests.
+4. **Submit** – Only ever submit an Issue (see [Pull Requests](#pull-requests)).
+
 ## Before You Start
 
 - Read the main project overview in `README.md`.
@@ -47,6 +55,12 @@ Format project C++ code from the repository root with:
 ninja -f format_cpp.ninja
 ```
 
+Configuration is in `.clang-format` at the project root. Re-generate `format_cpp.ninja` after adding new source files:
+
+```sh
+python scripts/gen_format_ninja.py
+```
+
 ## Static Analysis
 
 Run clang-tidy on all C/C++ source files:
@@ -58,7 +72,7 @@ ninja -f tidy_cpp.ninja
 Configuration is in `.clang-tidy` at the project root. Re-generate `tidy_cpp.ninja` after adding new source files:
 
 ```sh
-python3 scripts/gen_tidy_ninja.py
+python scripts/gen_tidy_ninja.py
 ```
 
 ## Running Tests
@@ -141,7 +155,7 @@ Please follow the existing low-runtime, cross-platform style used in core header
 - Do not name lambdas:
   - Never write `auto name = [](...) { ... };` and call by name later.
   - If a callable needs a name, extract it as a normal `constexpr` function.
-  - Immediately-invoked lambda expressions (`[]() { ... }()`) are acceptable only when necessary to compute a `constexpr` value in a context where `if constexpr` is not directly usable (e.g., inside a function with non-`constexpr` scope rules).
+  - Immediately invoked lambda expressions (`[]() { ... }()`) are acceptable only when necessary to compute a `constexpr` value in a context where `if constexpr` is not directly usable (e.g., inside a function with non-`constexpr` scope rules).
 - Use fully qualified namespace style:
   - Prefer `::ns::fn_or_cls` for function/class references to avoid ADL-based calls.
 - Prefer unambiguous initialization:
@@ -167,15 +181,10 @@ Please follow the existing low-runtime, cross-platform style used in core header
   - All non-`= delete` `operator=` overloads must use the C++23 deducing-`this` form with an lvalue reference object parameter (`this X& self`) to prevent assignment to temporaries.
   - `= delete` overloads are exempt since they already prevent any use.
 
-## Commit and Pull Request Guidelines
+## Pull Requests
 
-- Write clear commit messages that explain *what* changed and *why*.
-- Keep pull requests scoped to a single logical change.
-- Include:
-  - problem statement
-  - summary of the solution
-  - testing performed (commands + results)
-- If output behavior changes, include before/after examples when possible.
+Pull requests from contributors I am not personally familiar with, or from AI agents, will be closed — not because the contribution isn't appreciated, but because handling external PRs is less efficient than writing the fix myself. Discussion and review of proposed approaches are always welcome.
+If you have a solution in mind, please open an **Issue** with reference code or a sketch of the approach or a patch file. I will write the actual patch myself and credit you in the commit message.
 
 ## Reporting Issues
 

@@ -5,12 +5,12 @@
 
 This repository is a sub-project of [Physics-Lab-Web2](https://github.com/NetLogo-Mobile/plweb2)
 
-**header-only** C++23 library for converting Quantum-Physics(aka. Physics-Lab)'s text format to HTML, with supports for markdown and latex as much as possible (see the Features section below). Requires g++ >= 14, clang++ >= 20 or MSVC >= VS2026. Build without C++ rtti and exceptions for maximum cross-platform compatibility.
+**header-only** C++23 library for converting Quantum-Physics (aka Physics-Lab) text format to HTML, with support for markdown and latex as much as possible (see the Features section below). Requires g++ >= 14, clang++ >= 20 or MSVC >= VS2026. Built without C++ RTTI and exceptions for maximum cross-platform compatibility.
 
 > Note: MSVC support is still experimental
 
 ## Usage
-C++ APIs is in [include/pltxt2htm](include/pltxt2htm/), [Click here](examples) to see a simple example.
+C++ APIs are in [include/pltxt2htm](include/pltxt2htm/). [Click here](examples) to see a simple example.
 
 You can also use `pltxt2htm` in console (cmd/README.md), browser (wasm/README.md), python (py/README.md), c (c/README.md), rust (rust/README.md) and csharp (csharp/README.md).
 
@@ -65,38 +65,38 @@ Quantum-Physics tags:
 
 See [tests](./tests/) for details on all supported features.
 
-## distribution
+## Distribution
 
 All distributions share the same version of `pltxt2htm::version`
 
 `pltxt2htm` only maintains the trunk, and the release versions are only snapshots.
 
-For linux users, the `$ARCH-linux-musl-pltxt2htm-cmd-{debug|release}` distribution have static-linked musl-libc. you can also use `wine pltxt2htm.exe`, `wavm run pltxt2htm.wasm` or compile and install `pltxt2htm`.
+For Linux users, the `$ARCH-linux-musl-pltxt2htm-cmd-{debug|release}` distribution has static-linked musl-libc. You can also use `wine pltxt2htm.exe`, `wavm run pltxt2htm.wasm` or compile and install `pltxt2htm`.
 
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, running tests, coding guidelines, and pull request workflow.
 
-## others
+## Others
 
 > Q: Is this the time to use C++20 module?
 
-A: Not exactly. Despite clang, gcc and msvc all support C++20 module, but the compiler crashes more frequently than hearder-only. At the same time, C++20 module heavily rely on build system, which makes it more painful than header-only.
+A: Not exactly. Although clang, gcc and msvc all support C++20 modules, the compiler crashes more frequently than with header-only. At the same time, C++20 modules heavily rely on build systems, which makes it more painful than header-only.
 
-> Q: Why not use NDEBUG macro in include/pltxt2htm
+> Q: Why not use the NDEBUG macro in include/pltxt2htm?
 
-A: Conditional compilation in function body will cause [ODR violation](https://en.cppreference.com/w/cpp/language/definition) and [C++26 Contracts](https://en.cppreference.com/w/cpp/language/contracts) has the same problem. Therefore, to make function has different symbols in debug / release mode, I use `template<pltxt2htm::Contracts ndebug>` to achieve it.
+A: Conditional compilation in a function body will cause [ODR violation](https://en.cppreference.com/w/cpp/language/definition) and [C++26 Contracts](https://en.cppreference.com/w/cpp/language/contracts) has the same problem. Therefore, to give functions different symbols in debug / release mode, I use `template<pltxt2htm::Contracts ndebug>` to achieve it.
 
 > Q: Why use C++ instead of a "memory safe" language like Rust?
 
-A: I appreciate Rust but not for its "safety". Basically, safety should always be guaranteed by programmer, because most of the logic error can't be detected at compile time, not even type safety can be handled, thats why rtti exists, while Rust rely on `unsafe` block.
+A: I appreciate Rust but not for its "safety". Basically, safety should always be guaranteed by the programmer, because most logic errors can't be detected at compile time — not even type safety can be fully handled, which is why RTTI exists, while Rust relies on `unsafe` blocks.
 
 At the same time, `pltxt2htm` is absolutely safe:
 * Lots of assertions are enabled in debug mode to assure memory safety and logic correctness.
 * Over 95% test coverage.
-* Every commit in main undergose testing with asan under both clang and gcc in ci.
-* Every release undergose at least 6 hours of fuzzing with clang, with asan or ubsan enabled.
+* Every commit in main undergoes testing with asan under both clang and gcc in ci.
+* Every release undergoes at least 6 hours of fuzzing with clang, with asan or ubsan enabled.
 
 > Q: Why use C++ instead of a language with VM?
 
-A: Only system languages have the strongest ability to not only run in different arch and platform but provide binds to other language.
+A: Only system languages have the strongest ability to not only run on different architectures and platforms but also provide bindings to other languages.
