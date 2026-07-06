@@ -14,15 +14,15 @@ This project is a C++23 header-only library for converting Physics-Lab text to H
 
 ## Before You Start
 
-- Read the main project overview in `README.md`.
+- Read the main project overview in [README.md](./README.md).
 - Check component-specific docs when needed:
-  - CLI: `cmd/README.md`
-  - Tests: `tests/README.md`
-  - Python binding: `py/README.md`
-  - C API: `c/README.md`
-  - Rust binding: `rust/README.md`
-  - C# binding: `csharp/README.md`
-  - WASM: `wasm/README.md`
+  - CLI: [cmd/README.md](./cmd/README.md)
+  - Tests: [tests/README.md](./tests/README.md)
+  - Python binding: [py/README.md](./py/README.md)
+  - C API: [c/README.md](./c/README.md)
+  - Rust binding: [rust/README.md](./rust/README.md)
+  - C# binding: [csharp/README.md](./csharp/README.md)
+  - WASM: [wasm/README.md](./wasm/README.md)
 
 ## Development Environment
 
@@ -83,7 +83,7 @@ Run all tests from the repository root:
 python ./tests/run_all_tests.py
 ```
 
-Or with CMake (in the `tests/` directory):
+Or with CMake:
 
 ```sh
 cmake -S tests -B tests/build -G Ninja -DCMAKE_BUILD_TYPE=Debug
