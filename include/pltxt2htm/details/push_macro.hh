@@ -48,6 +48,12 @@
         } \
     } while (0)
 
+/**
+ * @brief Mark a code path as unreachable; calls panic or unreachable builtin.
+ * @param message Diagnostic message string literal.
+ * @note In quick_enforce mode invokes ::pltxt2htm::details::panic.
+ *       In ignore mode uses ::exception::unreachable<true>().
+ */
 #pragma push_macro("pltxt2htm_unreachable")
 #undef pltxt2htm_unreachable
 #define pltxt2htm_unreachable(message) \

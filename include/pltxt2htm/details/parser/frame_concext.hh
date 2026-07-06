@@ -22,17 +22,26 @@
 
 namespace pltxt2htm::details {
 
+/**
+ * @brief Context for frames that only store raw pl-text (e.g., emphasis, headings).
+ */
 class ParserFrameContextWithPltextInfo {
 public:
     ::fast_io::u8string_view pltext;
 };
 
+/**
+ * @brief Context for frames with an equals-sign attribute (color=, experiment=, etc.).
+ */
 class ParserFrameContextWithEqualSignTagInfo {
 public:
     ::fast_io::u8string_view pltext;
     ::fast_io::u8string id;
 };
 
+/**
+ * @brief Context for html_span frames during parsing.
+ */
 class ParserFrameContextWithHtmlSpanInfo {
 public:
     ::fast_io::u8string_view pltext;
@@ -40,6 +49,9 @@ public:
     ::exception::optional<::std::size_t> font_size;
 };
 
+/**
+ * @brief Context for URL frames during parsing; stores the raw text and parsed URL.
+ */
 template<::pltxt2htm::Contracts ndebug>
 class ParserFrameContextWithUrlInfo {
 public:
@@ -47,6 +59,9 @@ public:
     ::pltxt2htm::Url<ndebug> url;
 };
 
+/**
+ * @brief Context for HTML <a> tag frames during parsing.
+ */
 template<::pltxt2htm::Contracts ndebug>
 class ParserFrameContextWithHtmlATagInfo {
 public:
@@ -55,17 +70,26 @@ public:
     bool internal;
 };
 
+/**
+ * @brief Context for <size=N> frames during parsing.
+ */
 class ParserFrameContextWithPlSizeTagInfo {
 public:
     ::fast_io::u8string_view pltext;
     ::std::size_t id;
 };
 
+/**
+ * @brief Context for block-quote frames; stores the owned sub-text.
+ */
 class ParserFrameContextWithMdBlockQuotesInfo {
 public:
     ::fast_io::u8string pltext;
 };
 
+/**
+ * @brief Context for ordered/unordered list frames; owns the intermediate list AST + iterator.
+ */
 template<::pltxt2htm::Contracts ndebug>
 class ParserFrameContextWithMdListInfo {
 public:
@@ -89,16 +113,22 @@ public:
     ::pltxt2htm::MdTableAlign align;
 };
 
+/**
+ * @brief Context for checkbox list-item frames during parsing.
+ */
 class ParserFrameContextWithMdLiCheckboxInfo {
 public:
     ::fast_io::u8string_view pltext;
     bool checked;
 };
 
+/**
+ * @brief State-machine phase for table-frame parsing.
+ */
 enum class MdTableParsePhase : unsigned {
-    header = 0,
-    body,
-    finish,
+    header = 0, ///< Currently parsing header cells.
+    body, ///< Currently parsing body cells.
+    finish, ///< All cells consumed; finalise the table AST.
 };
 
 /**
@@ -121,6 +151,11 @@ public:
     }
 };
 
+/**
+ * @brief Tagged-union variant of all parser frame context types.
+ * @details Dispatched on `kind` (::pltxt2htm::NodeKind). Used inside
+ *          ::pltxt2htm::details::ParserFrameContext.
+ */
 template<::pltxt2htm::Contracts ndebug>
 class FrontendContextVariant {
 public:
@@ -776,13 +811,20 @@ public:
     }
 };
 
+/**
+ * @brief Main parser frame context – one frame per nesting level on the call stack.
+ * @details Holds the context data (tag type + payload), the current parse index
+ *          within the raw text, and the sub-AST being built for this frame.
+ *          Frames are manually managed on a call-stack to avoid stack overflow.
+ * @tparam ndebug Contract checking mode.
+ */
 template<::pltxt2htm::Contracts ndebug>
 class ParserFrameContext {
     ::pltxt2htm::details::FrontendContextVariant<ndebug> context_data;
 
 public:
-    ::std::size_t current_index{};
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::std::size_t current_index{}; ///< Current parse position in the raw text.
+    ::pltxt2htm::Ast<ndebug> subast; ///< Sub-AST being built for this frame.
 
     constexpr explicit ParserFrameContext(::pltxt2htm::details::FrontendContextVariant<ndebug>&& ctx,
                                           ::pltxt2htm::Ast<ndebug>&& subast_) noexcept

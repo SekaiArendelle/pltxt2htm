@@ -22,6 +22,12 @@
 
 namespace pltxt2htm::details {
 
+/**
+ * @brief Convert a simple (leaf-only) AST to Unity Rich Text with unescaping.
+ * @tparam ndebug Contract checking mode.
+ * @param url The AST to convert (should only contain leaf/character-like nodes).
+ * @return Unity Rich Text string (characters are unescaped, not HTML-escaped).
+ */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast<ndebug> const& url) noexcept
@@ -199,6 +205,19 @@ constexpr auto convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast<nde
     return result;
 }
 
+/**
+ * @brief Convert AST nodes to Unity Rich Text format.
+ * @details Generates Unity Rich Text with support for Physics-Lab tags,
+ *          Markdown syntax, and HTML-like elements mapped to Unity-compatible tags.
+ *          Uses a goto-based state machine to avoid stack overflow.
+ * @tparam ndebug Contract checking mode.
+ * @param ast_init The AST to convert.
+ * @param project Project identifier for Physics-Lab context.
+ * @param visitor Visitor identifier for Physics-Lab context.
+ * @param author Author identifier for Physics-Lab context.
+ * @param coauthors Co-authors identifier for Physics-Lab context.
+ * @return A string containing Unity Rich Text output.
+ */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto plunity_text_backend(::pltxt2htm::Ast<ndebug> const& ast_init, ::fast_io::u8string_view project,

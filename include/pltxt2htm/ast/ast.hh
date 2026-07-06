@@ -23,6 +23,12 @@
 
 namespace pltxt2htm {
 
+/**
+ * @brief Tagged-union AST node that can represent any pl-text / Markdown / HTML element.
+ * @details Dispatched by ::pltxt2htm::NodeKind. Holds exactly one of the concrete
+ *          node types (basic, HTML, Markdown, Physics-Lab) in a type-safe union.
+ * @tparam ndebug Contract checking mode.
+ */
 template<::pltxt2htm::Contracts ndebug>
 class PlTxtNode {
     union {

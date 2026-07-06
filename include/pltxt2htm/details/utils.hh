@@ -22,6 +22,11 @@
 
 namespace pltxt2htm::details {
 
+/**
+ * @brief Check if a character is an ASCII letter.
+ * @param chr The character to test.
+ * @return true if chr is in [a-zA-Z].
+ */
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
@@ -30,6 +35,11 @@ constexpr bool is_ascii_alpha(char8_t const chr) noexcept {
     return (u8'a' <= chr && chr <= u8'z') || (u8'A' <= chr && chr <= u8'Z');
 }
 
+/**
+ * @brief Check if a character is an ASCII digit.
+ * @param chr The character to test.
+ * @return true if chr is in [0-9].
+ */
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
@@ -38,6 +48,11 @@ constexpr bool is_ascii_digit(char8_t const chr) noexcept {
     return u8'0' <= chr && chr <= u8'9';
 }
 
+/**
+ * @brief Check if a character is an ASCII hexadecimal digit.
+ * @param chr The character to test.
+ * @return true if chr is in [0-9a-fA-F].
+ */
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
@@ -94,6 +109,13 @@ constexpr auto u8string_view_subview(::fast_io::u8string_view pltext, ::std::siz
     }
 }
 
+/**
+ * @brief Access the first element of a mutable vector (checked).
+ * @tparam ndebug Contract checking mode.
+ * @tparam T Element type.
+ * @param vec The vector.
+ * @return Reference to the first element.
+ */
 template<::pltxt2htm::Contracts ndebug, typename T>
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
@@ -106,6 +128,13 @@ constexpr auto& vector_front(::fast_io::vector<T>& vec) noexcept {
     return vec.front_unchecked();
 }
 
+/**
+ * @brief Access the first element of a const vector (checked).
+ * @tparam ndebug Contract checking mode.
+ * @tparam T Element type.
+ * @param vec The vector.
+ * @return Const reference to the first element.
+ */
 template<::pltxt2htm::Contracts ndebug, typename T>
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
@@ -118,17 +147,27 @@ constexpr auto const& vector_front(::fast_io::vector<T> const& vec) noexcept {
     return vec.front_unchecked();
 }
 
+/**
+ * @brief Variable-template helper for the is_fast_io_vector concept.
+ */
 template<typename T>
 constexpr bool is_fast_io_vector_ = false;
 
 template<typename T, typename Alloc>
 constexpr bool is_fast_io_vector_<::fast_io::vector<T, Alloc>> = true;
 
+/**
+ * @brief Concept matching ::fast_io::vector<T, Alloc> (any T, any Alloc).
+ */
 template<typename T>
 concept is_fast_io_vector = is_fast_io_vector_<::std::remove_cvref_t<T>>;
 
 /**
- * @return index of ::fast_io::u8string_view
+ * @brief Index into a fast_io::vector with bounds checking.
+ * @tparam ndebug Contract checking mode.
+ * @param vec The vector.
+ * @param i Index.
+ * @return Reference to the element at index @p i.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
@@ -143,6 +182,13 @@ constexpr auto vector_index(::pltxt2htm::details::is_fast_io_vector auto&& vec, 
     return ::std::forward_like<decltype(vec)>(vec.index_unchecked(i));
 }
 
+/**
+ * @brief Access the top element of a mutable stack (checked).
+ * @tparam ndebug Contract checking mode.
+ * @tparam T Element type.
+ * @param stack The stack.
+ * @return Reference to the top element.
+ */
 template<::pltxt2htm::Contracts ndebug, typename T>
 [[nodiscard]]
 constexpr auto& stack_top(::fast_io::containers::stack<T>& stack) noexcept {
@@ -152,6 +198,13 @@ constexpr auto& stack_top(::fast_io::containers::stack<T>& stack) noexcept {
     return stack.top_unchecked();
 }
 
+/**
+ * @brief Access the top element of a const stack (checked).
+ * @tparam ndebug Contract checking mode.
+ * @tparam T Element type.
+ * @param stack The stack.
+ * @return Const reference to the top element.
+ */
 template<::pltxt2htm::Contracts ndebug, typename T>
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)

@@ -21,6 +21,12 @@
 
 namespace pltxt2htm::details {
 
+/**
+ * @brief Convert a simple (leaf-only) AST to HTML text with proper escaping.
+ * @tparam ndebug Contract checking mode.
+ * @param ast The AST to convert (should only contain leaf/character-like nodes).
+ * @return Escaped HTML string.
+ */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> const& ast) noexcept
@@ -198,6 +204,12 @@ constexpr auto convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> c
     return result;
 }
 
+/**
+ * @brief Append a string to an HTML attribute value with proper escaping.
+ * @tparam ndebug Contract checking mode.
+ * @param result Output string to append to.
+ * @param value Raw attribute value to escape.
+ */
 template<::pltxt2htm::Contracts ndebug>
 constexpr void append_html_attr_escaped(::fast_io::u8string& result, ::fast_io::u8string_view value) noexcept {
     for (::std::size_t index{}; index < value.size(); ++index) {
@@ -233,6 +245,14 @@ constexpr void append_html_attr_escaped(::fast_io::u8string& result, ::fast_io::
     }
 }
 
+/**
+ * @brief Convert a URL AST node to a string and append to HTML output.
+ * @details Asserts in debug mode that the generated URL does not contain
+ *          characters requiring HTML-attribute escaping.
+ * @tparam ndebug Contract checking mode.
+ * @param result Output string to append to.
+ * @param url_ast The URL AST to convert.
+ */
 template<::pltxt2htm::Contracts ndebug>
 constexpr void append_url_attr_from_ast(::fast_io::u8string& result, ::pltxt2htm::Url<ndebug> const& url_ast) noexcept {
     auto const url_str = ::pltxt2htm::details::convert_simple_pltxt_ast_to_plweb_text<ndebug>(url_ast.get_url_ast());

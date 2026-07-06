@@ -17,19 +17,33 @@
 
 namespace pltxt2htm::details {
 
+/**
+ * @brief Empty context for tags that carry no extra data.
+ */
 class BackendContextWithoutInfo {};
 
+/**
+ * @brief Context for ordered-list frames: tracks the current list-item counter.
+ */
 class BackendContextWithOlInfo {
 public:
-    ::std::size_t ol_li_count{1};
+    ::std::size_t ol_li_count{1}; ///< Running list-item counter for <ol> numbering.
 };
 
+/**
+ * @brief Context for html_span frames: remembers which style properties were set.
+ */
 class BackendContextWithHtmlSpanInfo {
 public:
-    bool has_color{};
-    bool has_font_size{};
+    bool has_color{}; ///< Whether the span has a color.
+    bool has_font_size{}; ///< Whether the span has a font-size.
 };
 
+/**
+ * @brief Tagged-union variant of backend context payloads.
+ * @details Dispatched on `kind` (::pltxt2htm::NodeKind) – used inside
+ *          ::pltxt2htm::details::BackendFrameContext.
+ */
 class BackendContextVariant {
 public:
     union {

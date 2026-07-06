@@ -25,25 +25,30 @@ namespace pltxt2htm {
 
 namespace details {
 
+/**
+ * @brief Empty context for optimizer tags that carry no extra data.
+ */
 class OptimizerContextWithoutInfo {};
 
 /**
- * @brief Base context for AST optimization operations
- * @tparam Iter Iterator type for traversing the AST
- * @details This context maintains the state during AST optimization,
- *          tracking the current AST being processed, the type of nested tag,
- *          and the current iterator position.
+ * @brief Context for optimizer tags with a string attribute (e.g., color=red).
  */
 class OptimizerContextWithEqualSignTagInfo {
 public:
     ::fast_io::u8string_view id_; ///< The value part of the attribute (e.g., "red" in color=red)
 };
 
+/**
+ * @brief Context for optimizer <size=N> tags.
+ */
 class OptimizerContextWithPlSizeTagInfo {
 public:
     ::std::size_t id_; ///< Numeric size value (e.g., 12 in size=12)
 };
 
+/**
+ * @brief Context for optimizer html_span frames, remembers color and font-size flags.
+ */
 class OptimizerContextWithHtmlSpanInfo {
 public:
     ::fast_io::u8string_view color{};
@@ -51,6 +56,11 @@ public:
     bool has_font_size{false};
 };
 
+/**
+ * @brief Tagged-union variant of optimizer context payloads.
+ * @details Dispatched on `kind` (::pltxt2htm::NodeKind) – used inside
+ *          ::pltxt2htm::details::OptimizerFrameContext.
+ */
 template<::pltxt2htm::Contracts ndebug>
 class OptimizerContextVariant {
 public:
@@ -136,6 +146,14 @@ public:
     }
 };
 
+/**
+ * @brief Frame context for the AST optimizer traversal.
+ * @details Holds the current AST, a typed context variant, and the iterator
+ *          into the AST being processed. Manually managed on a call-stack to
+ *          avoid stack overflow on deeply nested input.
+ * @tparam Iter Forward-iterator type over the AST (typically Ast::iterator).
+ * @tparam ndebug Contract checking mode.
+ */
 template<::std::forward_iterator Iter, ::pltxt2htm::Contracts ndebug>
 class OptimizerFrameContext {
     ::pltxt2htm::details::OptimizerContextVariant<ndebug> context_data;

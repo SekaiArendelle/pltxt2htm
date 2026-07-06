@@ -22,24 +22,27 @@
 namespace pltxt2htm::details {
 
 /**
- * @brief Switch to a markdown punctuation character for escape sequences.
+ * @brief Return type of try_parse_md_escape: the parsed node and consumed bytes.
+ * @tparam ndebug Contract checking mode.
+ */
+template<::pltxt2htm::Contracts ndebug>
+struct TryParseMdEscapeResult {
+    ::pltxt2htm::PlTxtNode<ndebug> node; ///< The parsed escape node.
+    ::std::size_t advance_count; ///< Bytes consumed from input.
+};
+
+/**
+ * @brief Parse a markdown backslash-escape sequence.
  *
- * This function maps escape character sequences (prefixed with backslash) to their corresponding
- * AST node types. It handles all common markdown punctuation characters that can be escaped.
+ * Maps the character following a backslash to the corresponding markdown escape AST node.
  *
- * @param[in] u8char The UTF-8 character following the backslash in an escape sequence.
- * @return An optional PlTxtNode containing the corresponding escape node, or nullopt if the character
- *         is not a valid escapable character in markdown.
+ * @param[in] pltext Input starting with a backslash escape sequence.
+ * @return An optional TryParseMdEscapeResult containing the parsed node and bytes consumed,
+ *         or nullopt if the input does not start with a valid escape.
  * @note Supported escape characters include: \\ \! \" \# \$ \% \& \' \( \) \* \+ \, \- \. \/ \: \; \< \= \> \? \@ \[ \]
  * \^ \_ \` \{ \| \} \~
  * @see https://spec.commonmark.org/0.31.2/#backslash-escapes
  */
-template<::pltxt2htm::Contracts ndebug>
-struct TryParseMdEscapeResult {
-    ::pltxt2htm::PlTxtNode<ndebug> node;
-    ::std::size_t advance_count;
-};
-
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_escape(::fast_io::u8string_view pltext) noexcept
@@ -546,6 +549,9 @@ constexpr auto parse_text_align_value(::fast_io::u8string_view value) noexcept
     return ::exception::nullopt_t{};
 }
 
+/**
+ * @brief Return type of try_parse_td_tag: tag length and cell alignment.
+ */
 struct TryParseTdTagResult {
     ::std::size_t tag_len; ///< Length of the matched tag up to the closing `>`.
     ::pltxt2htm::MdTableAlign align; ///< Cell alignment parsed from `style="text-align:..."`.
@@ -720,6 +726,9 @@ constexpr auto try_parse_td_tag(::fast_io::u8string_view pltext, ::pltxt2htm::No
     return ::exception::nullopt_t{};
 }
 
+/**
+ * @brief Return type of try_parse_equal_sign_tag: tag length and extracted value.
+ */
 struct TryParseEqualSignTagResult {
     ::std::size_t tag_len; ///< Length of the tag.
     ::fast_io::u8string substr; ///< Substring extracted from the tag.
@@ -911,10 +920,13 @@ constexpr auto try_parse_color_tag(::fast_io::u8string_view pltext) noexcept
     return result;
 }
 
+/**
+ * @brief Return type of try_parse_span_tag: tag length, color, and optional font-size.
+ */
 struct TryParseSpanTagResult {
-    ::std::size_t tag_len;
-    ::fast_io::u8string color;
-    ::exception::optional<::std::size_t> font_size;
+    ::std::size_t tag_len; ///< Length of the matched tag.
+    ::fast_io::u8string color; ///< Extracted color value.
+    ::exception::optional<::std::size_t> font_size; ///< Extracted font-size (if present).
 };
 
 /**

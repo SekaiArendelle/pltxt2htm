@@ -560,6 +560,15 @@ struct PreviousItemInfo {
     ::pltxt2htm::details::MdUlListItemKind item_kind;
 };
 
+/**
+ * @brief Validate that the current position starts a valid unordered-list item.
+ * @tparam ndebug Contract checking mode.
+ * @tparam item_kind The expected marker type (-, +, or *).
+ * @param pltext Input text starting at the candidate marker.
+ * @param space_hierarchy Number of leading whitespace characters.
+ * @param expect Previous item info for hierarchy validation.
+ * @return true if the marker is valid in the current list context.
+ */
 template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::MdUlListItemKind item_kind>
 [[nodiscard]]
 constexpr auto is_valid_md_ul_list_hierarchy(
@@ -607,6 +616,14 @@ constexpr auto is_valid_md_ul_list_hierarchy(
     return false;
 }
 
+/**
+ * @brief Validate that the current position starts a valid ordered-list item (e.g., "1.").
+ * @tparam ndebug Contract checking mode.
+ * @param pltext Input text starting at the candidate marker.
+ * @param space_hierarchy Number of leading whitespace characters.
+ * @param expect Previous item info for hierarchy validation.
+ * @return Position after the dot if valid; nullopt otherwise.
+ */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto is_valid_md_ol_list_hierarchy(
@@ -676,6 +693,13 @@ struct TryParseItemResult {
     bool checked{};
 };
 
+/**
+ * @brief Parse a single markdown list item marker and its text content.
+ * @tparam ndebug Contract checking mode.
+ * @param pltext Input text starting at the candidate item position.
+ * @param expect Previous item info for hierarchy validation (nullopt for first item).
+ * @return Parsed item result on success; nullopt if no valid item is found.
+ */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_item(
@@ -790,6 +814,12 @@ struct ToMdListAstResult {
     ::pltxt2htm::NodeKind item_kind;
 };
 
+/**
+ * @brief Try to parse one or more consecutive markdown list lines into an intermediate AST.
+ * @tparam ndebug Contract checking mode.
+ * @param pltext Input text to parse.
+ * @return Parsed list AST, advance count, and item kind on success; nullopt otherwise.
+ */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexcept

@@ -1,3 +1,10 @@
+/**
+ * @file for_plweb_title.hh
+ * @brief HTML title backend for plweb – generates simple HTML suitable for page titles.
+ * @details Provides `url_ast_to_string` and `plweb_title_backend` for converting
+ *          a pl-text AST into a simplified HTML fragment that only supports
+ *          color, bold, and italic formatting.
+ */
 #pragma once
 
 #include <fast_io/fast_io_dsal/list.h>

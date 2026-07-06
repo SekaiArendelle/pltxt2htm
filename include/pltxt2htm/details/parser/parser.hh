@@ -1,3 +1,10 @@
+/**
+ * @file parser.hh
+ * @brief Main pl-text parser – converts raw pl-text into an AST.
+ * @details Provides `find_next_block_after_line_break` and `parse_pltxt`
+ *          templates that drive the recursive-descent (goto-based) parsing
+ *          of pl-text / Markdown content into ::pltxt2htm::Ast<ndebug>.
+ */
 #pragma once
 
 #include <cstddef>
@@ -17,11 +24,22 @@
 
 namespace pltxt2htm::details {
 
+/**
+ * @brief Return type of find_next_block_after_line_break.
+ */
 struct FindNextBlockAfterLineBreakResult {
-    ::std::size_t advance_count;
-    bool new_frame_been_pushed_into_call_stack;
+    ::std::size_t advance_count; ///< Number of characters consumed.
+    bool new_frame_been_pushed_into_call_stack; ///< Whether a new frame was pushed.
 };
 
+/**
+ * @brief Scan forward from the current position to find and push the next block-level frame.
+ * @tparam ndebug Contract checking mode.
+ * @param pltext Remaining input text to scan.
+ * @param call_stack Active parser call stack.
+ * @param result AST being built.
+ * @return How many characters were consumed and whether a new frame was created.
+ */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto find_next_block_after_line_break(

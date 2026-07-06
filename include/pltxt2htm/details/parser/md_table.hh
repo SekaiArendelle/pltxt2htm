@@ -1,3 +1,10 @@
+/**
+ * @file md_table.hh
+ * @brief Markdown pipe-table parser for constructing raw table ASTs.
+ * @details Provides functions to parse pipe-table syntax (header row, delimiter
+ *          row, body rows) into an intermediate raw table AST that is later
+ *          re-parsed through the inline parser.
+ */
 #pragma once
 
 #include <cstddef>
