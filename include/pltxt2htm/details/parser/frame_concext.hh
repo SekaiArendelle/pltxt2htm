@@ -301,8 +301,6 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_p:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_br:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_h1:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_h2:
@@ -316,10 +314,6 @@ public:
         case ::pltxt2htm::NodeKind::html_h6:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_del:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_hr:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_note:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_em:
             [[fallthrough]];
@@ -353,12 +347,6 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_colgroup:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_col:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_img:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_input:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_atx_h1:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_atx_h2:
@@ -370,16 +358,6 @@ public:
         case ::pltxt2htm::NodeKind::md_atx_h5:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_atx_h6:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_code_fence_backtick:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_code_fence_tilde:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_code_span_1_backtick:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_code_span_2_backtick:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_code_span_3_backtick:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_single_emphasis_asterisk:
             [[fallthrough]];
@@ -395,18 +373,52 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_del:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_image:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::url:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_li:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_latex_inline:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_latex_block: {
+        case ::pltxt2htm::NodeKind::md_li: {
             ::std::construct_at(::std::addressof(this->pltext), ::std::move(other.pltext));
             return;
         }
+        case ::pltxt2htm::NodeKind::html_td:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_th:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_td: {
+            ::std::construct_at(::std::addressof(this->md_cell), ::std::move(other.md_cell));
+            return;
+        }
+        case ::pltxt2htm::NodeKind::md_table: {
+            ::std::construct_at(::std::addressof(this->md_table), ::std::move(other.md_table));
+            return;
+        }
+        case ::pltxt2htm::NodeKind::html_br:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_col:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_hr:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_img:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_input:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_note:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_code_fence_backtick:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_code_fence_tilde:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_code_span_1_backtick:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_code_span_2_backtick:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_code_span_3_backtick:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_image:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_latex_inline:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_latex_block:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::url:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::u8char:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::invalid_u8char:
@@ -499,18 +511,6 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_escape_tilde:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_td:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_th:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_td: {
-            ::std::construct_at(::std::addressof(this->md_cell), ::std::move(other.md_cell));
-            return;
-        }
-        case ::pltxt2htm::NodeKind::md_table: {
-            ::std::construct_at(::std::addressof(this->md_table), ::std::move(other.md_table));
-            return;
-        }
         case ::pltxt2htm::NodeKind::md_thead:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_tbody:
@@ -581,8 +581,6 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_p:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_br:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_h1:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_h2:
@@ -596,10 +594,6 @@ public:
         case ::pltxt2htm::NodeKind::html_h6:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_del:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_hr:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_note:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_em:
             [[fallthrough]];
@@ -633,12 +627,6 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_colgroup:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_col:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_img:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_input:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_atx_h1:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_atx_h2:
@@ -650,16 +638,6 @@ public:
         case ::pltxt2htm::NodeKind::md_atx_h5:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_atx_h6:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_code_fence_backtick:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_code_fence_tilde:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_code_span_1_backtick:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_code_span_2_backtick:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_code_span_3_backtick:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_single_emphasis_asterisk:
             [[fallthrough]];
@@ -675,18 +653,56 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_del:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_image:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::url:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_li:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_latex_inline:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_latex_block: {
+        case ::pltxt2htm::NodeKind::md_li: {
             ::std::destroy_at(::std::addressof(this->pltext));
             return;
         }
+        case ::pltxt2htm::NodeKind::html_td:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_th:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_td: {
+            ::std::destroy_at(::std::addressof(this->md_cell));
+            return;
+        }
+        case ::pltxt2htm::NodeKind::md_table: {
+            ::std::destroy_at(::std::addressof(this->md_table));
+            return;
+        }
+        case ::pltxt2htm::NodeKind::md_li_checkbox: {
+            ::std::destroy_at(::std::addressof(this->md_li_checkbox));
+            return;
+        }
+        case ::pltxt2htm::NodeKind::html_br:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_col:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_hr:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_img:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_input:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_note:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_code_fence_backtick:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_code_fence_tilde:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_code_span_1_backtick:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_code_span_2_backtick:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_code_span_3_backtick:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_image:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_latex_inline:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_latex_block:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::url:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::u8char:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::invalid_u8char:
@@ -779,22 +795,6 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_escape_tilde:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_td:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_th:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_td: {
-            ::std::destroy_at(::std::addressof(this->md_cell));
-            return;
-        }
-        case ::pltxt2htm::NodeKind::md_table: {
-            ::std::destroy_at(::std::addressof(this->md_table));
-            return;
-        }
-        case ::pltxt2htm::NodeKind::md_li_checkbox: {
-            ::std::destroy_at(::std::addressof(this->md_li_checkbox));
-            return;
-        }
         case ::pltxt2htm::NodeKind::md_thead:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_tbody:
