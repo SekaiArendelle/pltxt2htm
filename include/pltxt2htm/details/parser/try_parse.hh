@@ -1611,7 +1611,7 @@ constexpr auto try_parse_md_atx_heading(::fast_io::u8string_view pltext) noexcep
         .md_atx_heading_type = static_cast<::pltxt2htm::NodeKind>(md_atx_heading_type)};
 }
 
-enum class ThematicBreakType : ::std::uint_least32_t {
+enum class ThematicBreakType : unsigned {
     none = 0, ///< No thematic break.
     hyphen, ///< Thematic break using hyphens (`---`).
     underscore, ///< Thematic break using underscores (`___`).

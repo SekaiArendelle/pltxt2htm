@@ -8,7 +8,7 @@
 #include <fast_io/fast_io.h>
 #include <pltxt2htm/pltxt2htm.hh>
 
-enum class TargetType : ::std::uint_least32_t {
+enum class TargetType : unsigned {
     indeterminate = 0,
     html4unittest,
     common_html,

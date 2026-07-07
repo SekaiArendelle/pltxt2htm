@@ -23,7 +23,7 @@ namespace pltxt2htm::details {
 /**
  * @brief Internal markdown-list AST node discriminator.
  */
-enum class MdListNodeType : ::std::uint_least32_t {
+enum class MdListNodeType : unsigned {
     md_li = 0,
     md_li_checkbox,
     md_ul,
