@@ -1248,7 +1248,8 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr auto try_parse_input_checkbox_tag(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<TryParseInputCheckboxTagResult> {
     // match "nput" (case-insensitive)
-    if (::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"nput"}>(pltext) == false) {
+    if (::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"nput"}>(pltext) ==
+        false) {
         return ::exception::nullopt_t{};
     }
     ::std::size_t pos{4};
@@ -1821,10 +1822,8 @@ constexpr auto simply_parse_pltext(::fast_io::u8string_view pltext) noexcept
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
                 opt_entity_len.has_value()) {
                 auto const entity_len = opt_entity_len.value();
-                ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                    ::pltxt2htm::EntityReference{::fast_io::u8string{
-                        pltext.data() + current_index + 1,
-                        pltext.data() + current_index + entity_len - 1}}));
+                ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::EntityReference{::fast_io::u8string{
+                    pltext.data() + current_index + 1, pltext.data() + current_index + entity_len - 1}}));
                 current_index += entity_len;
                 continue;
             }
@@ -2632,8 +2631,7 @@ constexpr auto try_parse_html_a_tag(::fast_io::u8string_view pltext) noexcept
         ++pos;
     }
     bool internal{};
-    if (pos < pltext.size() &&
-        ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'>') {
+    if (pos < pltext.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'>') {
         // only the boolean attribute "internal" is accepted as an extra attribute
         constexpr auto internal_literal = ::pltxt2htm::details::U8LiteralString{u8"internal"};
         if (!::pltxt2htm::details::is_prefix_match<ndebug, internal_literal>(

@@ -22,8 +22,8 @@ int main() {
     // ---- uppercase INPUT (tag name case-insensitive, attributes case-sensitive) ----
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<INPUT TYPE=\"checkbox\" DISABLED CHECKED>");
-        auto answer = ::fast_io::u8string_view(
-            u8"&lt;INPUT&nbsp;TYPE=&quot;checkbox&quot;&nbsp;DISABLED&nbsp;CHECKED&gt;");
+        auto answer =
+            ::fast_io::u8string_view(u8"&lt;INPUT&nbsp;TYPE=&quot;checkbox&quot;&nbsp;DISABLED&nbsp;CHECKED&gt;");
         pltxt2htm_test_assert_equal(html, answer);
     }
     // ---- self-closing syntax <input ... /> ----
@@ -59,7 +59,8 @@ int main() {
     // ---- <input> with extra unknown attribute should be escaped ----
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<input type=\"checkbox\" disabled unknown=\"x\">");
-        auto answer = ::fast_io::u8string_view(u8"&lt;input&nbsp;type=&quot;checkbox&quot;&nbsp;disabled&nbsp;unknown=&quot;x&quot;&gt;");
+        auto answer = ::fast_io::u8string_view(
+            u8"&lt;input&nbsp;type=&quot;checkbox&quot;&nbsp;disabled&nbsp;unknown=&quot;x&quot;&gt;");
         pltxt2htm_test_assert_equal(html, answer);
     }
     // ---- <input> with event handler should be escaped ----

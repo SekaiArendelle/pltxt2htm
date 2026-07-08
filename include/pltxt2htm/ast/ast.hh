@@ -1450,7 +1450,8 @@ public:
         }
 
         case ::pltxt2htm::NodeKind::entity_reference: {
-            new (::std::addressof(entity_reference_node))::pltxt2htm::EntityReference(::std::move(other.entity_reference_node));
+            new (::std::addressof(entity_reference_node))::pltxt2htm::EntityReference(
+                ::std::move(other.entity_reference_node));
             break;
         }
 

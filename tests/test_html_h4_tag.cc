@@ -70,8 +70,7 @@ int main() {
         auto answer = ::fast_io::u8string_view{u8"<h4>&lt;/h4</h4>"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer =
-            ::fast_io::u8string_view{u8"<size=35><b><size=20>\uFF1C</size>/h4</b></size>"};
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<size=35><b><size=20>\uFF1C</size>/h4</b></size>"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 

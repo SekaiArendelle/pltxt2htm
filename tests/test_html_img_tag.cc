@@ -17,7 +17,8 @@ int main() {
         auto answer = ::fast_io::u8string_view{u8"<img src=\"https://example.com/image.png\" alt=\"description\">"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<img src=\"https://example.com/image.png\" alt=\"description\">"};
+        auto plunity_richtext_answer =
+            ::fast_io::u8string_view{u8"<img src=\"https://example.com/image.png\" alt=\"description\">"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
@@ -71,10 +72,13 @@ int main() {
     }
 
     {
-        auto pltext = ::fast_io::u8string_view{u8"<img src=\"https://example.com/image.png\" alt=\"description\" class=\"cls\"/>"};
+        auto pltext = ::fast_io::u8string_view{
+            u8"<img src=\"https://example.com/image.png\" alt=\"description\" class=\"cls\"/>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{
-            u8"&lt;img&nbsp;src=&quot;<a href=\"https://example.com/image.png\">https://example.com/image.png</a>&quot;&nbsp;alt=&quot;description&quot;&nbsp;class=&quot;cls&quot;/&gt;"};
+            u8"&lt;img&nbsp;src=&quot;<a "
+            u8"href=\"https://example.com/image.png\">https://example.com/image.png</"
+            u8"a>&quot;&nbsp;alt=&quot;description&quot;&nbsp;class=&quot;cls&quot;/&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

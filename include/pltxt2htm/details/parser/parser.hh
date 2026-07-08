@@ -222,26 +222,21 @@ entry:
                 goto entry;
             }
             switch (frame_iter->get_type()) {
-            case ::pltxt2htm::details::MdListNodeType::md_li:
-                [[fallthrough]];
+            case ::pltxt2htm::details::MdListNodeType::md_li: {
+                call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                    ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                        ::pltxt2htm::details::ParserFrameContextWithPltextInfo{frame_iter->get_text_view()},
+                        ::pltxt2htm::NodeKind::md_li},
+                    ::pltxt2htm::Ast<ndebug>{}));
+                break;
+            }
             case ::pltxt2htm::details::MdListNodeType::md_li_checkbox: {
-                {
-                    if (frame_iter->get_type() == ::pltxt2htm::details::MdListNodeType::md_li_checkbox) {
-                        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                                ::pltxt2htm::details::ParserFrameContextWithMdLiCheckboxInfo{
-                                    frame_iter->get_text_view(), frame_iter->is_checked()},
-                                ::pltxt2htm::NodeKind::md_li_checkbox},
-                            ::pltxt2htm::Ast<ndebug>{}));
-                    }
-                    else {
-                        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{frame_iter->get_text_view()},
-                                ::pltxt2htm::NodeKind::md_li},
-                            ::pltxt2htm::Ast<ndebug>{}));
-                    }
-                }
+                call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                    ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                        ::pltxt2htm::details::ParserFrameContextWithMdLiCheckboxInfo{frame_iter->get_text_view(),
+                                                                                     frame_iter->is_checked()},
+                        ::pltxt2htm::NodeKind::md_li_checkbox},
+                    ::pltxt2htm::Ast<ndebug>{}));
                 break;
             }
             case ::pltxt2htm::details::MdListNodeType::md_ul: {
@@ -304,26 +299,21 @@ entry:
                 goto entry;
             }
             switch (frame_iter->get_type()) {
-            case ::pltxt2htm::details::MdListNodeType::md_li:
-                [[fallthrough]];
+            case ::pltxt2htm::details::MdListNodeType::md_li: {
+                call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                    ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                        ::pltxt2htm::details::ParserFrameContextWithPltextInfo{frame_iter->get_text_view()},
+                        ::pltxt2htm::NodeKind::md_li},
+                    ::pltxt2htm::Ast<ndebug>{}));
+                break;
+            }
             case ::pltxt2htm::details::MdListNodeType::md_li_checkbox: {
-                {
-                    if (frame_iter->get_type() == ::pltxt2htm::details::MdListNodeType::md_li_checkbox) {
-                        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                                ::pltxt2htm::details::ParserFrameContextWithMdLiCheckboxInfo{
-                                    frame_iter->get_text_view(), frame_iter->is_checked()},
-                                ::pltxt2htm::NodeKind::md_li_checkbox},
-                            ::pltxt2htm::Ast<ndebug>{}));
-                    }
-                    else {
-                        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{frame_iter->get_text_view()},
-                                ::pltxt2htm::NodeKind::md_li},
-                            ::pltxt2htm::Ast<ndebug>{}));
-                    }
-                }
+                call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                    ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                        ::pltxt2htm::details::ParserFrameContextWithMdLiCheckboxInfo{frame_iter->get_text_view(),
+                                                                                     frame_iter->is_checked()},
+                        ::pltxt2htm::NodeKind::md_li_checkbox},
+                    ::pltxt2htm::Ast<ndebug>{}));
                 break;
             }
             case ::pltxt2htm::details::MdListNodeType::md_ul: {
@@ -505,10 +495,8 @@ entry:
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
                     opt_entity_len.has_value()) {
                     auto const entity_len = opt_entity_len.value();
-                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                        ::pltxt2htm::EntityReference{::fast_io::u8string{
-                            pltext.data() + current_index + 1,
-                            pltext.data() + current_index + entity_len - 1}}));
+                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::EntityReference{::fast_io::u8string{
+                        pltext.data() + current_index + 1, pltext.data() + current_index + entity_len - 1}}));
                     current_index += entity_len;
                     continue;
                 }
@@ -1164,8 +1152,8 @@ entry:
                         auto&& [tag_len, src, alt] =
                             opt_img_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                         current_index += tag_len + 1;
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                            ::pltxt2htm::HtmlImg{::std::move(src), ::std::move(alt)}));
+                        result.push_back(
+                            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlImg{::std::move(src), ::std::move(alt)}));
                         ++current_index;
                         continue;
                     }
