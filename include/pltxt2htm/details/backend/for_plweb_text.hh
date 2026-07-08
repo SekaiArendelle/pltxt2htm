@@ -25,173 +25,172 @@ namespace pltxt2htm::details {
  * @brief Convert a simple (leaf-only) AST to HTML text with proper escaping.
  * @tparam ndebug Contract checking mode.
  * @param ast The AST to convert (should only contain leaf/character-like nodes).
- * @return Escaped HTML string.
+ * @param[out] out Output buffer receiving the escaped HTML text.
  */
 template<::pltxt2htm::Contracts ndebug>
-[[nodiscard]]
-constexpr auto convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> const& ast) noexcept
-    -> ::fast_io::u8string {
-    ::fast_io::u8string result{};
+constexpr void convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> const& ast,
+                                                      ::fast_io::u8string& out) noexcept {
+    out.reserve(out.size() + ast.size() * 6);
     for (auto&& node : ast) {
         switch (node.get_node_kind()) {
         case ::pltxt2htm::NodeKind::u8char: {
-            result.push_back(node.as_u8char().chr);
+            out.push_back(node.as_u8char().chr);
             continue;
         }
         case ::pltxt2htm::NodeKind::invalid_u8char: {
-            result.append(u8"\uFFFD");
+            out.append(u8"\uFFFD");
             continue;
         }
         case ::pltxt2htm::NodeKind::space: {
-            result.append(u8"&nbsp;");
+            out.append(u8"&nbsp;");
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_ampersand:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::ampersand: {
-            result.append(u8"&amp;");
+            out.append(u8"&amp;");
             continue;
         }
         case ::pltxt2htm::NodeKind::entity_reference: {
-            result.push_back(u8'&');
-            result.append(node.as_entity_reference().get_value());
-            result.push_back(u8';');
+            out.push_back(u8'&');
+            out.append(node.as_entity_reference().get_value());
+            out.push_back(u8';');
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_single_quote:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::single_quote: {
-            result.append(u8"&apos;");
+            out.append(u8"&apos;");
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_double_quote:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::double_quote: {
-            result.append(u8"&quot;");
+            out.append(u8"&quot;");
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_less_than:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::less_than: {
-            result.append(u8"&lt;");
+            out.append(u8"&lt;");
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_greater_than:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::greater_than: {
-            result.append(u8"&gt;");
+            out.append(u8"&gt;");
             continue;
         }
         case ::pltxt2htm::NodeKind::tab: {
-            result.append(u8"&nbsp;&nbsp;&nbsp;&nbsp;");
+            out.append(u8"&nbsp;&nbsp;&nbsp;&nbsp;");
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_backslash: {
-            result.push_back(u8'\\');
+            out.push_back(u8'\\');
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_exclamation: {
-            result.push_back(u8'!');
+            out.push_back(u8'!');
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_hash: {
-            result.push_back(u8'#');
+            out.push_back(u8'#');
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_dollar: {
-            result.push_back(u8'$');
+            out.push_back(u8'$');
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_percent: {
-            result.push_back(u8'%');
+            out.push_back(u8'%');
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_left_paren: {
-            result.push_back(u8'(');
+            out.push_back(u8'(');
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_right_paren: {
-            result.push_back(u8')');
+            out.push_back(u8')');
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_asterisk: {
-            result.push_back(u8'*');
+            out.push_back(u8'*');
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_plus: {
-            result.push_back(u8'+');
+            out.push_back(u8'+');
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_comma: {
-            result.push_back(u8',');
+            out.push_back(u8',');
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_hyphen: {
-            result.push_back(u8'-');
+            out.push_back(u8'-');
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_dot: {
-            result.push_back(u8'.');
+            out.push_back(u8'.');
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_slash: {
-            result.push_back(u8'/');
+            out.push_back(u8'/');
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_colon: {
-            result.push_back(u8':');
+            out.push_back(u8':');
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_semicolon: {
-            result.push_back(u8';');
+            out.push_back(u8';');
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_equals: {
-            result.push_back(u8'=');
+            out.push_back(u8'=');
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_question: {
-            result.push_back(u8'?');
+            out.push_back(u8'?');
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_at: {
-            result.push_back(u8'@');
+            out.push_back(u8'@');
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_left_bracket: {
-            result.push_back(u8'[');
+            out.push_back(u8'[');
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_right_bracket: {
-            result.push_back(u8']');
+            out.push_back(u8']');
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_caret: {
-            result.push_back(u8'^');
+            out.push_back(u8'^');
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_underscore: {
-            result.push_back(u8'_');
+            out.push_back(u8'_');
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_backtick: {
-            result.push_back(u8'`');
+            out.push_back(u8'`');
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_left_brace: {
-            result.push_back(u8'{');
+            out.push_back(u8'{');
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_pipe: {
-            result.push_back(u8'|');
+            out.push_back(u8'|');
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_right_brace: {
-            result.push_back(u8'}');
+            out.push_back(u8'}');
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_tilde: {
-            result.push_back(u8'~');
+            out.push_back(u8'~');
             continue;
         }
         default:
@@ -200,8 +199,6 @@ constexpr auto convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> c
             }
         }
     }
-
-    return result;
 }
 
 /**
@@ -255,19 +252,21 @@ constexpr void append_html_attr_escaped(::fast_io::u8string& result, ::fast_io::
  */
 template<::pltxt2htm::Contracts ndebug>
 constexpr void append_url_attr_from_ast(::fast_io::u8string& result, ::pltxt2htm::Url<ndebug> const& url_ast) noexcept {
-    auto const url_str = ::pltxt2htm::details::convert_simple_pltxt_ast_to_plweb_text<ndebug>(url_ast.get_url_ast());
-    // Under normal circumstances, `url_str` should never contain characters that could enable XSS in HTML attributes.
+    auto const url_str_offset = result.size();
+    ::pltxt2htm::details::convert_simple_pltxt_ast_to_plweb_text<ndebug>(url_ast.get_url_ast(), result);
+    // Under normal circumstances, the URL should never contain characters that could enable XSS in HTML attributes.
     // To avoid masking upstream bugs (and to keep release-path performance), we only assert this in debug mode.
     // Do not try to hide such errors by routing output through `append_html_attr_escaped`.
     if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
+        auto const url_str_view =
+            ::fast_io::u8string_view{result.data() + url_str_offset, result.size() - url_str_offset};
         ::fast_io::u8string purified_url{};
-        ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-            purified_url, ::fast_io::u8string_view{url_str.data(), url_str.size()});
-        pltxt2htm_assert(purified_url == url_str,
+        ::pltxt2htm::details::append_html_attr_escaped<ndebug>(purified_url, url_str_view);
+        bool const url_is_safe{purified_url == url_str_view};
+        pltxt2htm_assert(url_is_safe,
                          u8"URL contains characters that cannot be directly used in HTML attributes. Please "
                          u8"check the URL or use a different backend that supports escaping.");
     }
-    result.append(url_str);
 }
 
 /**
@@ -995,12 +994,12 @@ entry:
             case ::pltxt2htm::NodeKind::html_img: {
                 result.append(u8"<img src=\"");
                 auto const& src = node.as_html_img().get_src();
-                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result,
-                                                                        ::fast_io::u8string_view{src.data(), src.size()});
+                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                    result, ::fast_io::u8string_view{src.data(), src.size()});
                 result.append(u8"\" alt=\"");
                 auto const& alt = node.as_html_img().get_alt();
-                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result,
-                                                                        ::fast_io::u8string_view{alt.data(), alt.size()});
+                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                    result, ::fast_io::u8string_view{alt.data(), alt.size()});
                 result.append(u8"\">");
                 continue;
             }
@@ -1051,8 +1050,8 @@ entry:
                 result.append(u8"<img src=\"");
                 ::pltxt2htm::details::append_url_attr_from_ast<ndebug>(result, node.as_md_image().get_url());
                 result.append(u8"\" alt=\"");
-                result.append(::pltxt2htm::details::convert_simple_pltxt_ast_to_plweb_text<ndebug>(
-                    node.as_md_image().get_subast()));
+                ::pltxt2htm::details::convert_simple_pltxt_ast_to_plweb_text<ndebug>(node.as_md_image().get_subast(),
+                                                                                     result);
                 result.append(u8"\">");
                 continue;
             }
