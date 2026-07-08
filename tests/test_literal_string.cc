@@ -40,34 +40,34 @@ consteval void test_for_loop() noexcept {
 int main() noexcept {
     {
         constexpr auto str = pltxt2htm::details::U8LiteralString{u8"test"};
-        ::pltxt2htm_test::assert_true(::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(
+        pltxt2htm_test_assert_true(::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(
             ::fast_io::u8string_view{u8"test"}));
-        ::pltxt2htm_test::assert_true(::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(
+        pltxt2htm_test_assert_true(::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(
             ::fast_io::u8string_view{u8"TEST"}));
-        ::pltxt2htm_test::assert_true(::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(
+        pltxt2htm_test_assert_true(::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(
                                           ::fast_io::u8string_view{u8"kksk"}) == false);
     }
 
     {
         constexpr auto str = pltxt2htm::details::U8LiteralString{u8"te-1"};
-        ::pltxt2htm_test::assert_true(
+        pltxt2htm_test_assert_true(
             ::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(u8"TE-1"));
-        ::pltxt2htm_test::assert_true(
+        pltxt2htm_test_assert_true(
             ::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(u8"TE_1") == false);
     }
     {
         constexpr auto str = pltxt2htm::details::U8LiteralString{u8"a"};
-        ::pltxt2htm_test::assert_true(
+        pltxt2htm_test_assert_true(
             ::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(u8"b") == false);
     }
     {
         constexpr auto str = pltxt2htm::details::U8LiteralString{u8"-"};
-        ::pltxt2htm_test::assert_true(
+        pltxt2htm_test_assert_true(
             ::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(u8"_") == false);
     }
     {
         constexpr auto str = pltxt2htm::details::U8LiteralString{u8"-"};
-        ::pltxt2htm_test::assert_true(
+        pltxt2htm_test_assert_true(
             ::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(u8"-"));
     }
 
@@ -77,9 +77,9 @@ int main() noexcept {
     }
 
     {
-        ::pltxt2htm_test::assert_true(::pltxt2htm::details::u8str2size_t(u8"").has_value() == false);
-        ::pltxt2htm_test::assert_true(::pltxt2htm::details::u8str2size_t(u8"12x").has_value() == false);
-        ::pltxt2htm_test::assert_true(::pltxt2htm::details::u8str2size_t(u8"42").has_value());
+        pltxt2htm_test_assert_true(::pltxt2htm::details::u8str2size_t(u8"").has_value() == false);
+        pltxt2htm_test_assert_true(::pltxt2htm::details::u8str2size_t(u8"12x").has_value() == false);
+        pltxt2htm_test_assert_true(::pltxt2htm::details::u8str2size_t(u8"42").has_value());
     }
 
     return 0;

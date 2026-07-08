@@ -43,7 +43,7 @@ void test_panic_basic() noexcept {
     int wait_status{};
     ::waitpid(pid, ::std::addressof(wait_status), 0);
 
-    ::pltxt2htm_test::assert_true(WIFSIGNALED(wait_status));
+    pltxt2htm_test_assert_true(WIFSIGNALED(wait_status));
 
     char8_t buffer[4096]{};
     ::std::size_t total_read{};
@@ -56,7 +56,7 @@ void test_panic_basic() noexcept {
     }
     ::close(pipe_fds[0]);
 
-    ::pltxt2htm_test::assert_true(total_read > 0);
+    pltxt2htm_test_assert_true(total_read > 0);
 
     constexpr auto expected_ls = ::pltxt2htm::details::concat(
         ::pltxt2htm::details::U8LiteralString{u8"Program panicked because "},
@@ -76,7 +76,7 @@ void test_panic_basic() noexcept {
         ::pltxt2htm::details::U8LiteralString{u8"test message"}, ::pltxt2htm::details::U8LiteralString{u8"\"\n\0"});
     auto output = ::fast_io::u8string_view{buffer, total_read};
     auto expected = ::fast_io::u8string_view{expected_ls.cdata(), expected_ls.size()};
-    ::pltxt2htm_test::assert_true(output == expected);
+    pltxt2htm_test_assert_true(output == expected);
 }
 
 } // namespace

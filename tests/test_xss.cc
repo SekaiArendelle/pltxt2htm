@@ -48,32 +48,32 @@ constexpr bool has_unescaped_tag(::fast_io::u8string_view html, ::fast_io::u8str
 }
 
 void assert_no_raw_xss_tags(::fast_io::u8string_view html) noexcept {
-    ::pltxt2htm_test::assert_true(!has_unescaped_tag(html, u8"script"));
-    ::pltxt2htm_test::assert_true(!has_unescaped_tag(html, u8"iframe"));
-    ::pltxt2htm_test::assert_true(!has_unescaped_tag(html, u8"object"));
-    ::pltxt2htm_test::assert_true(!has_unescaped_tag(html, u8"embed"));
-    ::pltxt2htm_test::assert_true(!has_unescaped_tag(html, u8"svg"));
-    ::pltxt2htm_test::assert_true(!has_unescaped_tag(html, u8"style"));
-    ::pltxt2htm_test::assert_true(!has_unescaped_tag(html, u8"base"));
-    ::pltxt2htm_test::assert_true(!has_unescaped_tag(html, u8"applet"));
-    ::pltxt2htm_test::assert_true(!has_unescaped_tag(html, u8"meta"));
-    ::pltxt2htm_test::assert_true(!has_unescaped_tag(html, u8"link"));
-    ::pltxt2htm_test::assert_true(!has_unescaped_tag(html, u8"form"));
-    ::pltxt2htm_test::assert_true(!has_unescaped_tag(html, u8"textarea"));
-    ::pltxt2htm_test::assert_true(!has_unescaped_tag(html, u8"marquee"));
-    ::pltxt2htm_test::assert_true(!has_unescaped_tag(html, u8"noscript"));
-    ::pltxt2htm_test::assert_true(!has_unescaped_tag(html, u8"select"));
+    pltxt2htm_test_assert_true(!has_unescaped_tag(html, u8"script"));
+    pltxt2htm_test_assert_true(!has_unescaped_tag(html, u8"iframe"));
+    pltxt2htm_test_assert_true(!has_unescaped_tag(html, u8"object"));
+    pltxt2htm_test_assert_true(!has_unescaped_tag(html, u8"embed"));
+    pltxt2htm_test_assert_true(!has_unescaped_tag(html, u8"svg"));
+    pltxt2htm_test_assert_true(!has_unescaped_tag(html, u8"style"));
+    pltxt2htm_test_assert_true(!has_unescaped_tag(html, u8"base"));
+    pltxt2htm_test_assert_true(!has_unescaped_tag(html, u8"applet"));
+    pltxt2htm_test_assert_true(!has_unescaped_tag(html, u8"meta"));
+    pltxt2htm_test_assert_true(!has_unescaped_tag(html, u8"link"));
+    pltxt2htm_test_assert_true(!has_unescaped_tag(html, u8"form"));
+    pltxt2htm_test_assert_true(!has_unescaped_tag(html, u8"textarea"));
+    pltxt2htm_test_assert_true(!has_unescaped_tag(html, u8"marquee"));
+    pltxt2htm_test_assert_true(!has_unescaped_tag(html, u8"noscript"));
+    pltxt2htm_test_assert_true(!has_unescaped_tag(html, u8"select"));
 }
 
 void assert_no_raw_event_handlers(::fast_io::u8string_view html) noexcept {
-    ::pltxt2htm_test::assert_true(!contains_u8(html, u8"<img onerror="));
-    ::pltxt2htm_test::assert_true(!contains_u8(html, u8"<img onload="));
-    ::pltxt2htm_test::assert_true(!contains_u8(html, u8"<body onload="));
-    ::pltxt2htm_test::assert_true(!contains_u8(html, u8"<body onpageshow="));
-    ::pltxt2htm_test::assert_true(!contains_u8(html, u8"<svg onload="));
-    ::pltxt2htm_test::assert_true(!contains_u8(html, u8"<svg/onload="));
-    ::pltxt2htm_test::assert_true(!contains_u8(html, u8"<a onmouseover="));
-    ::pltxt2htm_test::assert_true(!contains_u8(html, u8"<a onclick="));
+    pltxt2htm_test_assert_true(!contains_u8(html, u8"<img onerror="));
+    pltxt2htm_test_assert_true(!contains_u8(html, u8"<img onload="));
+    pltxt2htm_test_assert_true(!contains_u8(html, u8"<body onload="));
+    pltxt2htm_test_assert_true(!contains_u8(html, u8"<body onpageshow="));
+    pltxt2htm_test_assert_true(!contains_u8(html, u8"<svg onload="));
+    pltxt2htm_test_assert_true(!contains_u8(html, u8"<svg/onload="));
+    pltxt2htm_test_assert_true(!contains_u8(html, u8"<a onmouseover="));
+    pltxt2htm_test_assert_true(!contains_u8(html, u8"<a onclick="));
 }
 
 // Helper to wrap u8string -> u8string_view for MSVC compat
@@ -430,57 +430,57 @@ int main() {
         // are escaped rather than using assert_no_raw_xss_tags (which flags <input>).
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"- [ ] <script>alert(1)</script>");
         auto v = to_view(html);
-        ::pltxt2htm_test::assert_true(contains_u8(v, u8"&lt;script&gt;alert(1)&lt;/script&gt;"));
-        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"script"));
-        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"iframe"));
-        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"object"));
-        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"svg"));
+        pltxt2htm_test_assert_true(contains_u8(v, u8"&lt;script&gt;alert(1)&lt;/script&gt;"));
+        pltxt2htm_test_assert_true(!has_unescaped_tag(v, u8"script"));
+        pltxt2htm_test_assert_true(!has_unescaped_tag(v, u8"iframe"));
+        pltxt2htm_test_assert_true(!has_unescaped_tag(v, u8"object"));
+        pltxt2htm_test_assert_true(!has_unescaped_tag(v, u8"svg"));
         // Also verify standard checkbox <input> is present
-        ::pltxt2htm_test::assert_true(contains_u8(v, u8"<input type=\"checkbox\" disabled>"));
+        pltxt2htm_test_assert_true(contains_u8(v, u8"<input type=\"checkbox\" disabled>"));
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"- [x] <script>alert(1)</script>");
         auto v = to_view(html);
-        ::pltxt2htm_test::assert_true(contains_u8(v, u8"&lt;script&gt;alert(1)&lt;/script&gt;"));
-        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"script"));
-        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"iframe"));
-        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"object"));
-        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"svg"));
+        pltxt2htm_test_assert_true(contains_u8(v, u8"&lt;script&gt;alert(1)&lt;/script&gt;"));
+        pltxt2htm_test_assert_true(!has_unescaped_tag(v, u8"script"));
+        pltxt2htm_test_assert_true(!has_unescaped_tag(v, u8"iframe"));
+        pltxt2htm_test_assert_true(!has_unescaped_tag(v, u8"object"));
+        pltxt2htm_test_assert_true(!has_unescaped_tag(v, u8"svg"));
         // Checked variant
-        ::pltxt2htm_test::assert_true(contains_u8(v, u8"<input type=\"checkbox\" disabled checked>"));
+        pltxt2htm_test_assert_true(contains_u8(v, u8"<input type=\"checkbox\" disabled checked>"));
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"- [X] <script>alert(1)</script>");
         auto v = to_view(html);
-        ::pltxt2htm_test::assert_true(contains_u8(v, u8"&lt;script&gt;alert(1)&lt;/script&gt;"));
-        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"script"));
-        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"iframe"));
-        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"object"));
-        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"svg"));
+        pltxt2htm_test_assert_true(contains_u8(v, u8"&lt;script&gt;alert(1)&lt;/script&gt;"));
+        pltxt2htm_test_assert_true(!has_unescaped_tag(v, u8"script"));
+        pltxt2htm_test_assert_true(!has_unescaped_tag(v, u8"iframe"));
+        pltxt2htm_test_assert_true(!has_unescaped_tag(v, u8"object"));
+        pltxt2htm_test_assert_true(!has_unescaped_tag(v, u8"svg"));
         // Uppercase X also checked
-        ::pltxt2htm_test::assert_true(contains_u8(v, u8"<input type=\"checkbox\" disabled checked>"));
+        pltxt2htm_test_assert_true(contains_u8(v, u8"<input type=\"checkbox\" disabled checked>"));
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"- [x] <script>alert(1)</script>");
         auto v = to_view(html);
-        ::pltxt2htm_test::assert_true(contains_u8(v, u8"&lt;script&gt;alert(1)&lt;/script&gt;"));
-        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"script"));
-        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"iframe"));
-        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"object"));
-        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"svg"));
+        pltxt2htm_test_assert_true(contains_u8(v, u8"&lt;script&gt;alert(1)&lt;/script&gt;"));
+        pltxt2htm_test_assert_true(!has_unescaped_tag(v, u8"script"));
+        pltxt2htm_test_assert_true(!has_unescaped_tag(v, u8"iframe"));
+        pltxt2htm_test_assert_true(!has_unescaped_tag(v, u8"object"));
+        pltxt2htm_test_assert_true(!has_unescaped_tag(v, u8"svg"));
         // Checked variant
-        ::pltxt2htm_test::assert_true(contains_u8(v, u8"<input type=\"checkbox\" disabled checked>"));
+        pltxt2htm_test_assert_true(contains_u8(v, u8"<input type=\"checkbox\" disabled checked>"));
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"- [X] <script>alert(1)</script>");
         auto v = to_view(html);
-        ::pltxt2htm_test::assert_true(contains_u8(v, u8"&lt;script&gt;alert(1)&lt;/script&gt;"));
-        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"script"));
-        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"iframe"));
-        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"object"));
-        ::pltxt2htm_test::assert_true(!has_unescaped_tag(v, u8"svg"));
+        pltxt2htm_test_assert_true(contains_u8(v, u8"&lt;script&gt;alert(1)&lt;/script&gt;"));
+        pltxt2htm_test_assert_true(!has_unescaped_tag(v, u8"script"));
+        pltxt2htm_test_assert_true(!has_unescaped_tag(v, u8"iframe"));
+        pltxt2htm_test_assert_true(!has_unescaped_tag(v, u8"object"));
+        pltxt2htm_test_assert_true(!has_unescaped_tag(v, u8"svg"));
         // Uppercase X also checked
-        ::pltxt2htm_test::assert_true(contains_u8(v, u8"<input type=\"checkbox\" disabled checked>"));
+        pltxt2htm_test_assert_true(contains_u8(v, u8"<input type=\"checkbox\" disabled checked>"));
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"> <script>alert(1)</script>");
@@ -535,9 +535,9 @@ int main() {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<input type=\"checkbox\" disabled>");
         pltxt2htm_test_assert_equal(html, u8"<input type=\"checkbox\" disabled>");
         // still no dangerous tags
-        ::pltxt2htm_test::assert_true(!has_unescaped_tag(to_view(html), u8"script"));
-        ::pltxt2htm_test::assert_true(!has_unescaped_tag(to_view(html), u8"iframe"));
-        ::pltxt2htm_test::assert_true(!has_unescaped_tag(to_view(html), u8"svg"));
+        pltxt2htm_test_assert_true(!has_unescaped_tag(to_view(html), u8"script"));
+        pltxt2htm_test_assert_true(!has_unescaped_tag(to_view(html), u8"iframe"));
+        pltxt2htm_test_assert_true(!has_unescaped_tag(to_view(html), u8"svg"));
     }
     {
         // checked checkbox
