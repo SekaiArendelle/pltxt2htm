@@ -70,7 +70,7 @@ Measure-Command { .\benches\build\bench_end2end.exe }
 
 ## Adding a New Benchmark
 
-1. Create `bench_<name>.cc` including `<benchmark/benchmark.h>` and required library headers
+1. Create `src/bench_<name>.cc` including `<benchmark/benchmark.h>` and required library headers
 2. Write standard Google Benchmark functions using `benchmark::State`
 3. Register with `BENCHMARK(FuncName)->Arg(N);`
 4. End with `BENCHMARK_MAIN();`

@@ -18,7 +18,10 @@ set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googlebenchmark)
 
 add_library(pltxt2htm_bench_base INTERFACE)
-target_include_directories(pltxt2htm_bench_base INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+target_include_directories(pltxt2htm_bench_base INTERFACE
+    "${CMAKE_CURRENT_SOURCE_DIR}/../include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+)
 target_link_libraries(pltxt2htm_bench_base INTERFACE benchmark::benchmark benchmark::benchmark_main)
 if(WIN32)
     target_link_libraries(pltxt2htm_bench_base INTERFACE ntdll)
@@ -35,7 +38,7 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_link_options(pltxt2htm_bench_base INTERFACE -flto=thin)
 endif()
 
-file(GLOB BENCH_SOURCES LIST_DIRECTORIES FALSE "${CMAKE_CURRENT_SOURCE_DIR}/bench_*.cc")
+file(GLOB BENCH_SOURCES LIST_DIRECTORIES FALSE "${CMAKE_CURRENT_SOURCE_DIR}/src/bench_*.cc")
 
 foreach(BENCH_SOURCE ${BENCH_SOURCES})
     get_filename_component(BENCH_NAME ${BENCH_SOURCE} NAME_WE)
