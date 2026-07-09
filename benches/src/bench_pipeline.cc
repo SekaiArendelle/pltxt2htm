@@ -1,3 +1,4 @@
+#include <pltxt2htm/parser.hh>
 #include <pltxt2htm/optimizer.hh>
 #include "bench_fixtures.hh"
 
