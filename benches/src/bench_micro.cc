@@ -3,7 +3,11 @@
 #include <pltxt2htm/ast/node_kind.hh>
 #include <pltxt2htm/contracts.hh>
 
+#ifdef NDEBUG
+constexpr auto ndebug = ::pltxt2htm::Contracts::ignore;
+#else
 constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
+#endif
 
 static void BM_NodeCreate_U8Char(benchmark::State& state) {
     for (auto _ : state) {

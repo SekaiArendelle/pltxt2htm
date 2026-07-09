@@ -4,7 +4,11 @@
 #include <pltxt2htm/contracts.hh>
 #include "bench_inputs.hh"
 
+#ifdef NDEBUG
+constexpr auto ndebug = ::pltxt2htm::Contracts::ignore;
+#else
 constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
+#endif
 
 static void BM_Parse_PlainText(benchmark::State& state) {
     auto input = make_plain_text(static_cast<::std::size_t>(state.range(0)));

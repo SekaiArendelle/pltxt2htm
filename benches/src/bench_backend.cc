@@ -7,7 +7,11 @@
 #include <pltxt2htm/details/backend/for_plunity_text.hh>
 #include "bench_inputs.hh"
 
+#ifdef NDEBUG
+constexpr auto ndebug = ::pltxt2htm::Contracts::ignore;
+#else
 constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
+#endif
 
 struct AstFixture {
     ::pltxt2htm::Ast<ndebug> ast;

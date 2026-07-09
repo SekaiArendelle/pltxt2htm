@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Google Benchmark from source (avoids MSVC/MinGW ABI mismatch with conda package)
+# Google Benchmark from source
 include(FetchContent)
 FetchContent_Declare(
     googlebenchmark
@@ -27,16 +27,20 @@ if(WIN32)
     target_link_libraries(pltxt2htm_bench_base INTERFACE ntdll)
 endif()
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    target_compile_options(pltxt2htm_bench_base INTERFACE /utf-8 /EHsc /O2 /GL)
-    target_link_options(pltxt2htm_bench_base INTERFACE /LTCG)
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    target_compile_options(pltxt2htm_bench_base INTERFACE
-        -finput-charset=utf-8 -fexec-charset=utf-8 -fexceptions
-        -O3 -DNDEBUG -flto=thin
-    )
-    target_link_options(pltxt2htm_bench_base INTERFACE -flto=thin)
-endif()
+target_compile_options(pltxt2htm_bench_base INTERFACE
+    $<$<CXX_COMPILER_ID:MSVC>:/utf-8 /O2 /GL>
+    $<$<CXX_COMPILER_ID:GNU,Clang>:-finput-charset=utf-8 -fexec-charset=utf-8 -O3 -DNDEBUG -flto=thin>
+)
+
+target_compile_options(pltxt2htm_bench_base INTERFACE
+    $<$<CXX_COMPILER_ID:MSVC>:/GR- /D_HAS_EXCEPTIONS=0>
+    $<$<CXX_COMPILER_ID:GNU,Clang>:-fno-exceptions -fno-rtti>
+)
+
+target_link_options(pltxt2htm_bench_base INTERFACE
+    $<$<CXX_COMPILER_ID:MSVC>:/LTCG>
+    $<$<CXX_COMPILER_ID:GNU,Clang>:-flto=thin>
+)
 
 file(GLOB BENCH_SOURCES LIST_DIRECTORIES FALSE "${CMAKE_CURRENT_SOURCE_DIR}/src/bench_*.cc")
 

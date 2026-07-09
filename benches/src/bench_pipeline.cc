@@ -4,7 +4,11 @@
 #include <pltxt2htm/contracts.hh>
 #include "bench_inputs.hh"
 
+#ifdef NDEBUG
+constexpr auto ndebug = ::pltxt2htm::Contracts::ignore;
+#else
 constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
+#endif
 
 static void BM_Optimize_RedundantColor(benchmark::State& state) {
     auto input = make_redundant_color_nesting(static_cast<::std::size_t>(state.range(0)));

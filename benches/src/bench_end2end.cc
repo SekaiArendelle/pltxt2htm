@@ -2,7 +2,11 @@
 #include <pltxt2htm/pltxt2htm.hh>
 #include "bench_inputs.hh"
 
+#ifdef NDEBUG
+constexpr auto ndebug = ::pltxt2htm::Contracts::ignore;
+#else
 constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
+#endif
 
 #define DEFINE_E2E_BENCH(Name, DocGen, ApiCall)                          \
     static void Name(benchmark::State& state) {                          \
