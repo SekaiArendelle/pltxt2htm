@@ -21,7 +21,8 @@ inline ::fast_io::u8string make_plain_text(::std::size_t repeat) {
 inline ::fast_io::u8string make_rich_markdown(::std::size_t repeat) {
     ::fast_io::u8string text;
     for (::std::size_t i = 0; i < repeat; ++i) {
-        text.append(u8R"(# Heading 1
+        text.append(
+            u8R"(# Heading 1
 ## Heading 2
 ### Heading 3
 
@@ -77,7 +78,8 @@ inline ::fast_io::u8string make_pl_tags_nested(::std::size_t depth) {
 inline ::fast_io::u8string make_pl_tags_mixed(::std::size_t repeat) {
     ::fast_io::u8string input;
     for (::std::size_t i = 0; i < repeat; ++i) {
-        input.append(u8R"(<color=red><b>bold text</b> and <i>italic</i></color>
+        input.append(
+            u8R"(<color=red><b>bold text</b> and <i>italic</i></color>
 <experiment=12345>experiment link</experiment>
 <discussion=67890>discussion link</discussion>
 <user=alice>user link</user>
@@ -92,7 +94,8 @@ inline ::fast_io::u8string make_pl_tags_mixed(::std::size_t repeat) {
 inline ::fast_io::u8string make_latex_heavy(::std::size_t repeat) {
     ::fast_io::u8string input;
     for (::std::size_t i = 0; i < repeat; ++i) {
-        input.append(u8R"(Inline equation: $E = mc^2$
+        input.append(
+            u8R"(Inline equation: $E = mc^2$
 Block equation:
 $$
 \int_{-\infty}^{\infty} e^{-x^2}\,dx = \sqrt{\pi}
@@ -152,7 +155,8 @@ inline ::fast_io::u8string make_adjacent_text_nodes(::std::size_t segments) {
         input.push_back(u8'0' + static_cast<char8_t>(i % 10));
         if (i % 2 == 0) {
             input.append(u8"</color><color=red>");
-        } else {
+        }
+        else {
             input.append(u8"</color>");
         }
     }
@@ -162,7 +166,8 @@ inline ::fast_io::u8string make_adjacent_text_nodes(::std::size_t segments) {
 inline ::fast_io::u8string make_html_span_attrs(::std::size_t spans) {
     ::fast_io::u8string input;
     for (::std::size_t i = 0; i < spans; ++i) {
-        input.append(u8R"(<span style="color:red;font-size:16px">text</span>
+        input.append(
+            u8R"(<span style="color:red;font-size:16px">text</span>
 )");
     }
     return input;
@@ -173,7 +178,8 @@ inline ::fast_io::u8string make_html_span_attrs(::std::size_t spans) {
 inline ::fast_io::u8string make_full_document(::std::size_t repeat) {
     ::fast_io::u8string input;
     for (::std::size_t i = 0; i < repeat; ++i) {
-        input.append(u8R"(# Chapter Title
+        input.append(
+            u8R"(# Chapter Title
 
 This is a paragraph with **bold** and *italic* text.
 It also contains `inline code` and a [link](https://example.com).
@@ -235,7 +241,8 @@ $$
 inline ::fast_io::u8string make_terse_document(::std::size_t repeat) {
     ::fast_io::u8string input;
     for (::std::size_t i = 0; i < repeat; ++i) {
-        input.append(u8R"(<color=red>item</color> <b>bold</b> <i>italic</i>
+        input.append(
+            u8R"(<color=red>item</color> <b>bold</b> <i>italic</i>
 <experiment=1>exp</experiment>
 [link](https://x.com)
 ---

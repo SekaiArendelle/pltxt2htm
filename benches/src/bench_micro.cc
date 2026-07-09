@@ -12,6 +12,7 @@ BENCHMARK_DEFINE_F(MicroFixture, NodeCreate_U8Char)(benchmark::State& st) {
         ::benchmark::DoNotOptimize(node);
     }
 }
+
 BENCHMARK_REGISTER_F(MicroFixture, NodeCreate_U8Char);
 
 BENCHMARK_DEFINE_F(MicroFixture, NodeCreate_Text)(benchmark::State& st) {
@@ -22,6 +23,7 @@ BENCHMARK_DEFINE_F(MicroFixture, NodeCreate_Text)(benchmark::State& st) {
         ::benchmark::DoNotOptimize(node);
     }
 }
+
 BENCHMARK_REGISTER_F(MicroFixture, NodeCreate_Text);
 
 BENCHMARK_DEFINE_F(MicroFixture, NodeCreate_PlColor)(benchmark::State& st) {
@@ -33,6 +35,7 @@ BENCHMARK_DEFINE_F(MicroFixture, NodeCreate_PlColor)(benchmark::State& st) {
         ::benchmark::DoNotOptimize(node);
     }
 }
+
 BENCHMARK_REGISTER_F(MicroFixture, NodeCreate_PlColor);
 
 BENCHMARK_DEFINE_F(MicroFixture, NodeCreate_HtmlSpan)(benchmark::State& st) {
@@ -44,6 +47,7 @@ BENCHMARK_DEFINE_F(MicroFixture, NodeCreate_HtmlSpan)(benchmark::State& st) {
         ::benchmark::DoNotOptimize(node);
     }
 }
+
 BENCHMARK_REGISTER_F(MicroFixture, NodeCreate_HtmlSpan);
 
 BENCHMARK_DEFINE_F(MicroFixture, NodeCreate_MdLink)(benchmark::State& st) {
@@ -52,11 +56,11 @@ BENCHMARK_DEFINE_F(MicroFixture, NodeCreate_MdLink)(benchmark::State& st) {
         text_sub.push_back(::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::U8Char{u8'L'}});
         url_sub.push_back(::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::U8Char{u8'/'}});
         ::pltxt2htm::Url<ndebug> url{::std::move(url_sub)};
-        ::pltxt2htm::PlTxtNode<ndebug> node{
-            ::pltxt2htm::MdLink<ndebug>{::std::move(text_sub), ::std::move(url)}};
+        ::pltxt2htm::PlTxtNode<ndebug> node{::pltxt2htm::MdLink<ndebug>{::std::move(text_sub), ::std::move(url)}};
         ::benchmark::DoNotOptimize(node);
     }
 }
+
 BENCHMARK_REGISTER_F(MicroFixture, NodeCreate_MdLink);
 
 BENCHMARK_DEFINE_F(MicroFixture, NodeMove_Trivial)(benchmark::State& st) {
@@ -67,6 +71,7 @@ BENCHMARK_DEFINE_F(MicroFixture, NodeMove_Trivial)(benchmark::State& st) {
         ::benchmark::DoNotOptimize(src);
     }
 }
+
 BENCHMARK_REGISTER_F(MicroFixture, NodeMove_Trivial);
 
 BENCHMARK_DEFINE_F(MicroFixture, NodeMove_WithSubAst)(benchmark::State& st) {
@@ -80,6 +85,7 @@ BENCHMARK_DEFINE_F(MicroFixture, NodeMove_WithSubAst)(benchmark::State& st) {
         ::benchmark::DoNotOptimize(src);
     }
 }
+
 BENCHMARK_REGISTER_F(MicroFixture, NodeMove_WithSubAst);
 
 BENCHMARK_DEFINE_F(MicroFixture, AstAppend_1000)(benchmark::State& st) {
@@ -91,6 +97,7 @@ BENCHMARK_DEFINE_F(MicroFixture, AstAppend_1000)(benchmark::State& st) {
         ::benchmark::DoNotOptimize(ast);
     }
 }
+
 BENCHMARK_REGISTER_F(MicroFixture, AstAppend_1000);
 
 BENCHMARK_DEFINE_F(MicroFixture, StringAppend_Reserved)(benchmark::State& st) {
@@ -103,6 +110,7 @@ BENCHMARK_DEFINE_F(MicroFixture, StringAppend_Reserved)(benchmark::State& st) {
         ::benchmark::DoNotOptimize(s);
     }
 }
+
 BENCHMARK_REGISTER_F(MicroFixture, StringAppend_Reserved);
 
 BENCHMARK_DEFINE_F(MicroFixture, StringAppend_NoReserve)(benchmark::State& st) {
@@ -114,6 +122,7 @@ BENCHMARK_DEFINE_F(MicroFixture, StringAppend_NoReserve)(benchmark::State& st) {
         ::benchmark::DoNotOptimize(s);
     }
 }
+
 BENCHMARK_REGISTER_F(MicroFixture, StringAppend_NoReserve);
 
 BENCHMARK_MAIN();

@@ -10,6 +10,7 @@
 struct PlainTextBackendFixture : ::benchmark::Fixture {
     ::pltxt2htm::Ast<ndebug> ast;
     ::std::size_t input_bytes;
+
     void SetUp(::benchmark::State& state) override {
         ::fast_io::u8string text;
         auto n = as_size(state);
@@ -24,11 +25,13 @@ struct PlainTextBackendFixture : ::benchmark::Fixture {
 struct RichHtmlBackendFixture : ::benchmark::Fixture {
     ::pltxt2htm::Ast<ndebug> ast;
     ::std::size_t input_bytes;
+
     void SetUp(::benchmark::State& state) override {
         ::fast_io::u8string text;
         auto n = as_size(state);
         for (::std::size_t i = 0; i < n; ++i)
-            text.append(u8R"(<p>Paragraph with <em>emphasis</em> and <strong>bold</strong>.</p>
+            text.append(
+                u8R"(<p>Paragraph with <em>emphasis</em> and <strong>bold</strong>.</p>
 <h1>Heading</h1>
 <ul><li>item 1</li><li>item 2</li></ul>
 <table><tr><td>cell 1</td><td>cell 2</td></tr></table>
@@ -44,11 +47,13 @@ struct RichHtmlBackendFixture : ::benchmark::Fixture {
 struct PlTagsBackendFixture : ::benchmark::Fixture {
     ::pltxt2htm::Ast<ndebug> ast;
     ::std::size_t input_bytes;
+
     void SetUp(::benchmark::State& state) override {
         ::fast_io::u8string text;
         auto n = as_size(state);
         for (::std::size_t i = 0; i < n; ++i)
-            text.append(u8R"(<color=red><b>bold text</b></color>
+            text.append(
+                u8R"(<color=red><b>bold text</b></color>
 <experiment=123>exp</experiment>
 <discussion=456>disc</discussion>
 <user=bob>user</user>
@@ -64,11 +69,13 @@ struct PlTagsBackendFixture : ::benchmark::Fixture {
 struct MarkdownBackendFixture : ::benchmark::Fixture {
     ::pltxt2htm::Ast<ndebug> ast;
     ::std::size_t input_bytes;
+
     void SetUp(::benchmark::State& state) override {
         ::fast_io::u8string text;
         auto n = as_size(state);
         for (::std::size_t i = 0; i < n; ++i)
-            text.append(u8R"(# Header
+            text.append(
+                u8R"(# Header
 **bold** and *italic*
 - list item
 - another item
@@ -99,6 +106,7 @@ BENCHMARK_DEFINE_F(PlainTextBackendFixture, Title)(benchmark::State& st) {
     }
     st.SetBytesProcessed(input_bytes * st.iterations());
 }
+
 BENCHMARK_REGISTER_F(PlainTextBackendFixture, Title)->Arg(50000);
 
 BENCHMARK_DEFINE_F(RichHtmlBackendFixture, Title)(benchmark::State& st) {
@@ -108,6 +116,7 @@ BENCHMARK_DEFINE_F(RichHtmlBackendFixture, Title)(benchmark::State& st) {
     }
     st.SetBytesProcessed(input_bytes * st.iterations());
 }
+
 BENCHMARK_REGISTER_F(RichHtmlBackendFixture, Title)->Arg(100);
 
 BENCHMARK_DEFINE_F(PlTagsBackendFixture, Title)(benchmark::State& st) {
@@ -117,6 +126,7 @@ BENCHMARK_DEFINE_F(PlTagsBackendFixture, Title)(benchmark::State& st) {
     }
     st.SetBytesProcessed(input_bytes * st.iterations());
 }
+
 BENCHMARK_REGISTER_F(PlTagsBackendFixture, Title)->Arg(200);
 
 BENCHMARK_DEFINE_F(MarkdownBackendFixture, Title)(benchmark::State& st) {
@@ -126,6 +136,7 @@ BENCHMARK_DEFINE_F(MarkdownBackendFixture, Title)(benchmark::State& st) {
     }
     st.SetBytesProcessed(input_bytes * st.iterations());
 }
+
 BENCHMARK_REGISTER_F(MarkdownBackendFixture, Title)->Arg(50);
 
 // -------------------------------------------------------------------
@@ -139,6 +150,7 @@ BENCHMARK_DEFINE_F(PlainTextBackendFixture, PlwebText)(benchmark::State& st) {
     }
     st.SetBytesProcessed(input_bytes * st.iterations());
 }
+
 BENCHMARK_REGISTER_F(PlainTextBackendFixture, PlwebText)->Arg(50000);
 
 BENCHMARK_DEFINE_F(RichHtmlBackendFixture, PlwebText)(benchmark::State& st) {
@@ -149,6 +161,7 @@ BENCHMARK_DEFINE_F(RichHtmlBackendFixture, PlwebText)(benchmark::State& st) {
     }
     st.SetBytesProcessed(input_bytes * st.iterations());
 }
+
 BENCHMARK_REGISTER_F(RichHtmlBackendFixture, PlwebText)->Arg(100);
 
 BENCHMARK_DEFINE_F(PlTagsBackendFixture, PlwebText)(benchmark::State& st) {
@@ -159,6 +172,7 @@ BENCHMARK_DEFINE_F(PlTagsBackendFixture, PlwebText)(benchmark::State& st) {
     }
     st.SetBytesProcessed(input_bytes * st.iterations());
 }
+
 BENCHMARK_REGISTER_F(PlTagsBackendFixture, PlwebText)->Arg(200);
 
 BENCHMARK_DEFINE_F(MarkdownBackendFixture, PlwebText)(benchmark::State& st) {
@@ -169,6 +183,7 @@ BENCHMARK_DEFINE_F(MarkdownBackendFixture, PlwebText)(benchmark::State& st) {
     }
     st.SetBytesProcessed(input_bytes * st.iterations());
 }
+
 BENCHMARK_REGISTER_F(MarkdownBackendFixture, PlwebText)->Arg(50);
 
 // -------------------------------------------------------------------
@@ -176,42 +191,46 @@ BENCHMARK_REGISTER_F(MarkdownBackendFixture, PlwebText)->Arg(50);
 // -------------------------------------------------------------------
 BENCHMARK_DEFINE_F(PlainTextBackendFixture, PlunityText)(benchmark::State& st) {
     for (auto _ : st) {
-        auto result = ::pltxt2htm::details::plunity_text_backend<ndebug>(
-            ast, u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
+        auto result = ::pltxt2htm::details::plunity_text_backend<ndebug>(ast, u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR",
+                                                                         u8"$CO_AUTHORS");
         ::benchmark::DoNotOptimize(result);
     }
     st.SetBytesProcessed(input_bytes * st.iterations());
 }
+
 BENCHMARK_REGISTER_F(PlainTextBackendFixture, PlunityText)->Arg(50000);
 
 BENCHMARK_DEFINE_F(RichHtmlBackendFixture, PlunityText)(benchmark::State& st) {
     for (auto _ : st) {
-        auto result = ::pltxt2htm::details::plunity_text_backend<ndebug>(
-            ast, u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
+        auto result = ::pltxt2htm::details::plunity_text_backend<ndebug>(ast, u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR",
+                                                                         u8"$CO_AUTHORS");
         ::benchmark::DoNotOptimize(result);
     }
     st.SetBytesProcessed(input_bytes * st.iterations());
 }
+
 BENCHMARK_REGISTER_F(RichHtmlBackendFixture, PlunityText)->Arg(100);
 
 BENCHMARK_DEFINE_F(PlTagsBackendFixture, PlunityText)(benchmark::State& st) {
     for (auto _ : st) {
-        auto result = ::pltxt2htm::details::plunity_text_backend<ndebug>(
-            ast, u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
+        auto result = ::pltxt2htm::details::plunity_text_backend<ndebug>(ast, u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR",
+                                                                         u8"$CO_AUTHORS");
         ::benchmark::DoNotOptimize(result);
     }
     st.SetBytesProcessed(input_bytes * st.iterations());
 }
+
 BENCHMARK_REGISTER_F(PlTagsBackendFixture, PlunityText)->Arg(200);
 
 BENCHMARK_DEFINE_F(MarkdownBackendFixture, PlunityText)(benchmark::State& st) {
     for (auto _ : st) {
-        auto result = ::pltxt2htm::details::plunity_text_backend<ndebug>(
-            ast, u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
+        auto result = ::pltxt2htm::details::plunity_text_backend<ndebug>(ast, u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR",
+                                                                         u8"$CO_AUTHORS");
         ::benchmark::DoNotOptimize(result);
     }
     st.SetBytesProcessed(input_bytes * st.iterations());
 }
+
 BENCHMARK_REGISTER_F(MarkdownBackendFixture, PlunityText)->Arg(50);
 
 BENCHMARK_MAIN();

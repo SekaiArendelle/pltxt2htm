@@ -22,6 +22,7 @@ inline auto as_size(::benchmark::State const& state) -> ::std::size_t {
 // -------------------------------------------------------------------
 struct PlainTextParseFixture : ::benchmark::Fixture {
     ::fast_io::u8string input;
+
     void SetUp(::benchmark::State& state) override {
         input = make_plain_text(as_size(state));
     }
@@ -29,6 +30,7 @@ struct PlainTextParseFixture : ::benchmark::Fixture {
 
 struct RichMarkdownParseFixture : ::benchmark::Fixture {
     ::fast_io::u8string input;
+
     void SetUp(::benchmark::State& state) override {
         input = make_rich_markdown(as_size(state));
     }
@@ -36,6 +38,7 @@ struct RichMarkdownParseFixture : ::benchmark::Fixture {
 
 struct PlTagsNestedParseFixture : ::benchmark::Fixture {
     ::fast_io::u8string input;
+
     void SetUp(::benchmark::State& state) override {
         input = make_pl_tags_nested(as_size(state));
     }
@@ -43,6 +46,7 @@ struct PlTagsNestedParseFixture : ::benchmark::Fixture {
 
 struct PlTagsMixedParseFixture : ::benchmark::Fixture {
     ::fast_io::u8string input;
+
     void SetUp(::benchmark::State& state) override {
         input = make_pl_tags_mixed(as_size(state));
     }
@@ -50,6 +54,7 @@ struct PlTagsMixedParseFixture : ::benchmark::Fixture {
 
 struct LatexHeavyParseFixture : ::benchmark::Fixture {
     ::fast_io::u8string input;
+
     void SetUp(::benchmark::State& state) override {
         input = make_latex_heavy(as_size(state));
     }
@@ -57,6 +62,7 @@ struct LatexHeavyParseFixture : ::benchmark::Fixture {
 
 struct StressLongLineParseFixture : ::benchmark::Fixture {
     ::fast_io::u8string input;
+
     void SetUp(::benchmark::State& state) override {
         input = make_stress_long_line(as_size(state));
     }
@@ -64,6 +70,7 @@ struct StressLongLineParseFixture : ::benchmark::Fixture {
 
 struct StressManyLinesParseFixture : ::benchmark::Fixture {
     ::fast_io::u8string input;
+
     void SetUp(::benchmark::State& state) override {
         input = make_stress_many_lines(as_size(state));
     }
@@ -71,6 +78,7 @@ struct StressManyLinesParseFixture : ::benchmark::Fixture {
 
 struct RedundantColorParseFixture : ::benchmark::Fixture {
     ::fast_io::u8string input;
+
     void SetUp(::benchmark::State& state) override {
         input = make_redundant_color_nesting(as_size(state));
     }
@@ -78,6 +86,7 @@ struct RedundantColorParseFixture : ::benchmark::Fixture {
 
 struct AdjacentTextParseFixture : ::benchmark::Fixture {
     ::fast_io::u8string input;
+
     void SetUp(::benchmark::State& state) override {
         input = make_adjacent_text_nodes(as_size(state));
     }
@@ -88,6 +97,7 @@ struct AdjacentTextParseFixture : ::benchmark::Fixture {
 // -------------------------------------------------------------------
 struct FullDocE2EFixture : ::benchmark::Fixture {
     ::fast_io::u8string input;
+
     void SetUp(::benchmark::State& state) override {
         input = make_full_document(as_size(state));
     }
@@ -95,6 +105,7 @@ struct FullDocE2EFixture : ::benchmark::Fixture {
 
 struct TerseDocE2EFixture : ::benchmark::Fixture {
     ::fast_io::u8string input;
+
     void SetUp(::benchmark::State& state) override {
         input = make_terse_document(as_size(state));
     }
@@ -102,6 +113,7 @@ struct TerseDocE2EFixture : ::benchmark::Fixture {
 
 struct PlainDocE2EFixture : ::benchmark::Fixture {
     ::fast_io::u8string input;
+
     void SetUp(::benchmark::State& state) override {
         input = make_plain_document(as_size(state));
     }
@@ -141,14 +153,12 @@ inline auto build_mixed_redundant_ast(::std::size_t depth) -> ::pltxt2htm::Ast<n
         {
             ::pltxt2htm::Ast<ndebug> sub;
             sub.push_back(::std::move(inner));
-            inner = ::pltxt2htm::PlTxtNode<ndebug>{
-                ::pltxt2htm::PlI<ndebug>{::std::move(sub)}};
+            inner = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::PlI<ndebug>{::std::move(sub)}};
         }
         {
             ::pltxt2htm::Ast<ndebug> sub;
             sub.push_back(::std::move(inner));
-            inner = ::pltxt2htm::PlTxtNode<ndebug>{
-                ::pltxt2htm::PlB<ndebug>{::std::move(sub)}};
+            inner = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::PlB<ndebug>{::std::move(sub)}};
         }
         {
             ::pltxt2htm::Ast<ndebug> sub;
@@ -167,9 +177,9 @@ inline auto build_html_span_ast(::std::size_t count) -> ::pltxt2htm::Ast<ndebug>
     for (::std::size_t i = 0; i < count; ++i) {
         ::pltxt2htm::Ast<ndebug> sub;
         sub.push_back(::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::U8Char{u8't'}});
-        ast.push_back(::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::HtmlSpan<ndebug>{
-            ::std::move(sub), ::fast_io::u8string{u8"color:red;font-size:16px"},
-            ::exception::optional<::std::size_t>{}}});
+        ast.push_back(::pltxt2htm::PlTxtNode<ndebug>{
+            ::pltxt2htm::HtmlSpan<ndebug>{::std::move(sub), ::fast_io::u8string{u8"color:red;font-size:16px"},
+                                          ::exception::optional<::std::size_t>{}}});
     }
     return ast;
 }
