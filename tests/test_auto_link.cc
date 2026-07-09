@@ -142,6 +142,19 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
+        auto pltext = ::fast_io::u8string_view{u8"https://example.com:"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer = ::fast_io::u8string_view{u8"https://example.com:"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto pltext = ::fast_io::u8string_view{u8"https://example.com:80javascript:alert(1)"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer =
+            ::fast_io::u8string_view{u8"https://example.com:80javascript:alert(1)"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
         auto pltext = ::fast_io::u8string_view{u8"https://www.bilibili.com/video/BV1df421f7WB"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{
