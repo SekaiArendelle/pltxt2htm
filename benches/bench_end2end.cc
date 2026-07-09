@@ -1,8 +1,5 @@
-#include "precompile.hh"
 #include "bench_harness.hh"
-#include <pltxt2htm/contracts.hh>
-#include <cstddef>
-#include <fast_io/fast_io_dsal/string.h>
+#include <pltxt2htm/pltxt2htm.hh>
 
 using namespace pltxt2htm_bench;
 constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
@@ -110,28 +107,30 @@ int main() {
         ::fast_io::io::print(::fast_io::u8out(), u8"--- Input: ", inp.first, u8" (", sv.size(), u8" bytes) ---\n");
 
         {
-            auto res = benchmark([&] { return bench_full_common(sv); },
+            auto res = benchmark([&] { return ::pltxt2htm::pltxt2common_html<ndebug>(sv); },
                                  sv.size(), 0, 5, 20);
             print_result(inp.first, u8"common_html (opt=false)", res);
             print_result_csv(inp.first, u8"common_html", res);
         }
 
         {
-            auto res = benchmark([&] { return bench_full_unittest(sv); },
+            auto res = benchmark([&] { return ::pltxt2htm::pltxt4unittest<ndebug>(sv); },
                                  sv.size(), 0, 5, 20);
             print_result(inp.first, u8"pltxt4unittest (opt=true)", res);
             print_result_csv(inp.first, u8"pltxt4unittest", res);
         }
 
         {
-            auto res = benchmark([&] { return bench_full_fixedadv(sv); },
+            auto res = benchmark([&] { return ::pltxt2htm::pltxt2fixedadv_html<ndebug>(
+                sv, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS"); },
                                  sv.size(), 0, 5, 20);
             print_result(inp.first, u8"fixedadv_html (opt=true)", res);
             print_result_csv(inp.first, u8"fixedadv_html", res);
         }
 
         {
-            auto res = benchmark([&] { return bench_full_plunity(sv); },
+            auto res = benchmark([&] { return ::pltxt2htm::pltxt2plunity_introduction<ndebug>(
+                sv, u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS"); },
                                  sv.size(), 0, 5, 20);
             print_result(inp.first, u8"plunity_introduction (opt=true)", res);
             print_result_csv(inp.first, u8"plunity_introduction", res);

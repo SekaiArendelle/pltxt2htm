@@ -97,7 +97,7 @@ plain_text,parse,20,38400,0,72.73,3351,2781,5246,10.07
 
 ## Adding a New Benchmark
 
-1. Create `bench_<name>.cc` that includes `"precompile.hh"` and `"bench_harness.hh"`
+1. Create `bench_<name>.cc` that includes `"bench_harness.hh"` and the required library headers
 2. Use `pltxt2htm_bench::benchmark()` (for functions returning a value) or `benchmark_void()`
 3. Call `print_result()` / `print_result_csv()` to display results
 4. Rebuild — `CMakeLists.txt` auto-globs `bench_*.cc` files

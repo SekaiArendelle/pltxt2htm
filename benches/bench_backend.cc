@@ -1,4 +1,3 @@
-#include "precompile.hh"
 #include "bench_harness.hh"
 #include <pltxt2htm/parser.hh>
 #include <pltxt2htm/optimizer.hh>
@@ -6,8 +5,6 @@
 #include <pltxt2htm/details/backend/for_plweb_text.hh>
 #include <pltxt2htm/details/backend/for_plweb_title.hh>
 #include <pltxt2htm/details/backend/for_plunity_text.hh>
-#include <cstddef>
-#include <fast_io/fast_io_dsal/string.h>
 
 using namespace pltxt2htm_bench;
 constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;

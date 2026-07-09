@@ -14,18 +14,18 @@ target_include_directories(pltxt2htm_bench_base INTERFACE "${CMAKE_CURRENT_SOURC
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     target_compile_options(pltxt2htm_bench_base INTERFACE /utf-8 /EHsc /O2 /GL /wd4626 /wd5027)
     target_link_options(pltxt2htm_bench_base INTERFACE /LTCG)
+    if(WIN32)
+        target_link_libraries(pltxt2htm_bench_base INTERFACE ntdll)
+    endif()
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(pltxt2htm_bench_base INTERFACE
         -finput-charset=utf-8 -fexec-charset=utf-8 -fexceptions
         -O3 -DNDEBUG -flto=thin
     )
     target_link_options(pltxt2htm_bench_base INTERFACE -fuse-ld=lld -flto=thin)
-endif()
-
-add_library(bench_precompile STATIC precompile.cpp)
-target_link_libraries(bench_precompile PUBLIC pltxt2htm_bench_base)
-if(WIN32)
-    target_link_libraries(bench_precompile PUBLIC ntdll)
+    if(WIN32)
+        target_link_libraries(pltxt2htm_bench_base INTERFACE ntdll)
+    endif()
 endif()
 
 file(GLOB BENCH_SOURCES LIST_DIRECTORIES FALSE "${CMAKE_CURRENT_SOURCE_DIR}/bench_*.cc")
@@ -33,7 +33,7 @@ file(GLOB BENCH_SOURCES LIST_DIRECTORIES FALSE "${CMAKE_CURRENT_SOURCE_DIR}/benc
 foreach(BENCH_SOURCE ${BENCH_SOURCES})
     get_filename_component(BENCH_NAME ${BENCH_SOURCE} NAME_WE)
     add_executable(${BENCH_NAME} ${BENCH_SOURCE})
-    target_link_libraries(${BENCH_NAME} PRIVATE bench_precompile)
+    target_link_libraries(${BENCH_NAME} PRIVATE pltxt2htm_bench_base)
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         target_compile_options(${BENCH_NAME} PRIVATE -g)
     endif()
