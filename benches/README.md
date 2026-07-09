@@ -79,17 +79,17 @@ Containerized build without host toolchain requirements:
 
 ```bash
 docker build -f benches/docker/unknown-linux-musl/Dockerfile \
-    -t pltxt2htm-bench .
+    -t x86_64-linux-musl-pltxt2htm-benches .
 
 # Interactive shell
-docker run -it --rm pltxt2htm-bench
+docker run -it --rm x86_64-linux-musl-pltxt2htm-benches
 
 # Single command
-docker run --rm pltxt2htm-bench \
+docker run --rm x86_64-linux-musl-pltxt2htm-benches \
     ./benches/build/bench_micro
 
 # With filter and CSV output
-docker run --rm pltxt2htm-bench \
+docker run --rm x86_64-linux-musl-pltxt2htm-benches \
     ./benches/build/bench_parse --benchmark_filter=RichMarkdown --benchmark_format=csv
 ```
 
