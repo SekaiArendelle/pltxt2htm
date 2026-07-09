@@ -115,7 +115,7 @@ PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2plunity_introduction(::fast_io::u8string
 [[__gnu__::__used__]]
 #endif
 PLTXT2HTM_VISIBILITY_DEFAULT void assert_true_impl(::fast_io::u8string_view file, ::std::size_t line,
-                      ::fast_io::u8string_view expr, bool cond) noexcept {
+                                                   ::fast_io::u8string_view expr, bool cond) noexcept {
     if (!cond) {
         ::fast_io::io::perr(::fast_io::u8err(), u8"unittest failed: `", expr, u8"` is false\n  at ", file, u8":",
                             static_cast<::std::size_t>(line), u8"\n");
@@ -132,10 +132,9 @@ PLTXT2HTM_VISIBILITY_DEFAULT void assert_equal_impl(::fast_io::u8string_view fil
                                                     ::fast_io::u8string_view answer) noexcept {
     if (html != answer) {
         ::fast_io::io::perr(::fast_io::u8err(), u8"unittest failed due to `", html_expr, u8" != ", answer_expr,
-                            u8"`\n  at ", file, u8":", static_cast<::std::size_t>(line), u8"\n  ", html_expr,
-                            u8": ", ::fast_io::u8string_view{::std::data(html), ::std::size(html)}, u8"\n  ",
-                            answer_expr, u8": ", ::fast_io::u8string_view{::std::data(answer), ::std::size(answer)},
-                            u8"\n");
+                            u8"`\n  at ", file, u8":", static_cast<::std::size_t>(line), u8"\n  ", html_expr, u8": ",
+                            ::fast_io::u8string_view{::std::data(html), ::std::size(html)}, u8"\n  ", answer_expr,
+                            u8": ", ::fast_io::u8string_view{::std::data(answer), ::std::size(answer)}, u8"\n");
         ::exception::terminate();
     }
 }

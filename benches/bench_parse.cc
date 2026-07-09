@@ -21,7 +21,8 @@ namespace {
 ::fast_io::u8string make_rich_markdown(::std::size_t repeat = 50) {
     ::fast_io::u8string text;
     for (::std::size_t i = 0; i < repeat; ++i) {
-        text.append(u8R"(# Heading 1
+        text.append(
+            u8R"(# Heading 1
 ## Heading 2
 ### Heading 3
 
@@ -77,7 +78,8 @@ std::cout << x;
 ::fast_io::u8string make_pl_tags_mixed(::std::size_t repeat = 50) {
     ::fast_io::u8string input;
     for (::std::size_t i = 0; i < repeat; ++i) {
-        input.append(u8R"(<color=red><b>bold text</b> and <i>italic</i></color>
+        input.append(
+            u8R"(<color=red><b>bold text</b> and <i>italic</i></color>
 <experiment=12345>experiment link</experiment>
 <discussion=67890>discussion link</discussion>
 <user=alice>user link</user>
@@ -92,7 +94,8 @@ std::cout << x;
 ::fast_io::u8string make_latex_heavy(::std::size_t repeat = 100) {
     ::fast_io::u8string input;
     for (::std::size_t i = 0; i < repeat; ++i) {
-        input.append(u8R"(Inline equation: $E = mc^2$
+        input.append(
+            u8R"(Inline equation: $E = mc^2$
 Block equation:
 $$
 \int_{-\infty}^{\infty} e^{-x^2}\,dx = \sqrt{\pi}
@@ -125,13 +128,13 @@ int main() {
     ::fast_io::io::print(::fast_io::u8out(), u8"=== bench_parse: Parser Performance ===\n\n");
 
     auto inputs = ::std::vector<::std::pair<::fast_io::u8string_view, ::fast_io::u8string>>{
-        {u8"plain_text",         make_plain_text(200)},
-        {u8"rich_markdown",      make_rich_markdown(50)},
+        {u8"plain_text", make_plain_text(200)},
+        {u8"rich_markdown", make_rich_markdown(50)},
         {u8"pl_tags_nested_500", make_pl_tags_nested(500)},
-        {u8"pl_tags_mixed_50x",  make_pl_tags_mixed(50)},
-        {u8"latex_heavy_100x",   make_latex_heavy(100)},
-        {u8"stress_long_line",   make_stress_long_line(100000)},
-        {u8"stress_many_lines",  make_stress_many_lines(10000)},
+        {u8"pl_tags_mixed_50x", make_pl_tags_mixed(50)},
+        {u8"latex_heavy_100x", make_latex_heavy(100)},
+        {u8"stress_long_line", make_stress_long_line(100000)},
+        {u8"stress_many_lines", make_stress_many_lines(10000)},
     };
 
     bool first_csv = true;
@@ -142,15 +145,13 @@ int main() {
         int opt_iter = parse_iter;
 
         {
-            auto res = benchmark([&] { return ::pltxt2htm::parse_pltxt<ndebug>(sv); },
-                                 sv.size(), 0, 2, parse_iter);
+            auto res = benchmark([&] { return ::pltxt2htm::parse_pltxt<ndebug>(sv); }, sv.size(), 0, 2, parse_iter);
             print_result(inp.first, u8"parse (quick_enforce)", res);
         }
 
         {
             auto ast = ::pltxt2htm::parse_pltxt<ndebug>(sv);
-            auto res = benchmark_void([&] { ::pltxt2htm::optimize_ast<ndebug>(ast); },
-                                      sv.size(), 2, opt_iter);
+            auto res = benchmark_void([&] { ::pltxt2htm::optimize_ast<ndebug>(ast); }, sv.size(), 2, opt_iter);
             print_result(inp.first, u8"optimize (quick_enforce)", res);
         }
 
@@ -159,14 +160,12 @@ int main() {
             first_csv = false;
         }
         {
-            auto res = benchmark([&] { return ::pltxt2htm::parse_pltxt<ndebug>(sv); },
-                                 sv.size(), 0, 2, parse_iter);
+            auto res = benchmark([&] { return ::pltxt2htm::parse_pltxt<ndebug>(sv); }, sv.size(), 0, 2, parse_iter);
             print_result_csv(inp.first, u8"parse", res);
         }
         {
             auto ast = ::pltxt2htm::parse_pltxt<ndebug>(sv);
-            auto res = benchmark_void([&] { ::pltxt2htm::optimize_ast<ndebug>(ast); },
-                                      sv.size(), 2, opt_iter);
+            auto res = benchmark_void([&] { ::pltxt2htm::optimize_ast<ndebug>(ast); }, sv.size(), 2, opt_iter);
             print_result_csv(inp.first, u8"optimize", res);
         }
     }

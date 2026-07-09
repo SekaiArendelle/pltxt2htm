@@ -45,7 +45,7 @@ int main() noexcept {
         pltxt2htm_test_assert_true(::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(
             ::fast_io::u8string_view{u8"TEST"}));
         pltxt2htm_test_assert_true(::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(
-                                          ::fast_io::u8string_view{u8"kksk"}) == false);
+                                       ::fast_io::u8string_view{u8"kksk"}) == false);
     }
 
     {

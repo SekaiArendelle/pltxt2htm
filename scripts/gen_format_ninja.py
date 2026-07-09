@@ -70,6 +70,7 @@ def main():
         "py",
         "fuzzing",
         "c",
+        "benches",
         "cxxmodule/pltxt2htm",
         "cxxmodule/examples",
         "cxxmodule/tests",

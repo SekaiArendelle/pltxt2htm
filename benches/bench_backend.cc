@@ -30,7 +30,8 @@ PrebuiltAst make_ast_plain_text(::std::size_t length = 50000) {
 PrebuiltAst make_ast_rich_html(::std::size_t repeat = 100) {
     ::fast_io::u8string text;
     for (::std::size_t i = 0; i < repeat; ++i) {
-        text.append(u8R"(<p>Paragraph with <em>emphasis</em> and <strong>bold</strong>.</p>
+        text.append(
+            u8R"(<p>Paragraph with <em>emphasis</em> and <strong>bold</strong>.</p>
 <h1>Heading</h1>
 <ul><li>item 1</li><li>item 2</li></ul>
 <table><tr><td>cell 1</td><td>cell 2</td></tr></table>
@@ -46,7 +47,8 @@ PrebuiltAst make_ast_rich_html(::std::size_t repeat = 100) {
 PrebuiltAst make_ast_pl_tags(::std::size_t repeat = 200) {
     ::fast_io::u8string text;
     for (::std::size_t i = 0; i < repeat; ++i) {
-        text.append(u8R"(<color=red><b>bold text</b></color>
+        text.append(
+            u8R"(<color=red><b>bold text</b></color>
 <experiment=123>exp</experiment>
 <discussion=456>disc</discussion>
 <user=bob>user</user>
@@ -62,7 +64,8 @@ PrebuiltAst make_ast_pl_tags(::std::size_t repeat = 200) {
 PrebuiltAst make_ast_markdown(::std::size_t repeat = 50) {
     ::fast_io::u8string text;
     for (::std::size_t i = 0; i < repeat; ++i) {
-        text.append(u8R"(# Header
+        text.append(
+            u8R"(# Header
 **bold** and *italic*
 - list item
 - another item
@@ -102,9 +105,8 @@ int main() {
 
         {
             auto ast_copy = prebuilt.ast;
-            auto res = benchmark(
-                [&] { return ::pltxt2htm::details::plweb_title_backend<ndebug>(ast_copy); },
-                prebuilt.input_bytes, 0, 5, 20);
+            auto res = benchmark([&] { return ::pltxt2htm::details::plweb_title_backend<ndebug>(ast_copy); },
+                                 prebuilt.input_bytes, 0, 5, 20);
             print_result(prebuilt.name, u8"title_backend", res);
             print_result_csv(prebuilt.name, u8"title_backend", res);
         }
@@ -112,8 +114,10 @@ int main() {
         {
             auto ast_copy = prebuilt.ast;
             auto res = benchmark(
-                [&] { return ::pltxt2htm::details::plweb_text_backend<ndebug, false>(
-                    ast_copy, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS"); },
+                [&] {
+                    return ::pltxt2htm::details::plweb_text_backend<ndebug, false>(
+                        ast_copy, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
+                },
                 prebuilt.input_bytes, 0, 5, 20);
             print_result(prebuilt.name, u8"plweb_text_backend", res);
             print_result_csv(prebuilt.name, u8"plweb_text_backend", res);
@@ -122,8 +126,10 @@ int main() {
         {
             auto ast_copy = prebuilt.ast;
             auto res = benchmark(
-                [&] { return ::pltxt2htm::details::plunity_text_backend<ndebug>(
-                    ast_copy, u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS"); },
+                [&] {
+                    return ::pltxt2htm::details::plunity_text_backend<ndebug>(ast_copy, u8"$PROJECT", u8"$VISITOR",
+                                                                              u8"$AUTHOR", u8"$CO_AUTHORS");
+                },
                 prebuilt.input_bytes, 0, 5, 20);
             print_result(prebuilt.name, u8"plunity_text_backend", res);
             print_result_csv(prebuilt.name, u8"plunity_text_backend", res);

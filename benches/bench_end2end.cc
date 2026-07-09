@@ -9,7 +9,8 @@ namespace {
 ::fast_io::u8string make_full_document(::std::size_t repeat = 30) {
     ::fast_io::u8string input;
     for (::std::size_t i = 0; i < repeat; ++i) {
-        input.append(u8R"(# Chapter Title
+        input.append(
+            u8R"(# Chapter Title
 
 This is a paragraph with **bold** and *italic* text.
 It also contains `inline code` and a [link](https://example.com).
@@ -71,7 +72,8 @@ $$
 ::fast_io::u8string make_terse_document(::std::size_t repeat = 200) {
     ::fast_io::u8string input;
     for (::std::size_t i = 0; i < repeat; ++i) {
-        input.append(u8R"(<color=red>item</color> <b>bold</b> <i>italic</i>
+        input.append(
+            u8R"(<color=red>item</color> <b>bold</b> <i>italic</i>
 <experiment=1>exp</experiment>
 [link](https://x.com)
 ---
@@ -94,9 +96,9 @@ int main() {
     ::fast_io::io::print(::fast_io::u8out(), u8"=== bench_end2end: End-to-End Pipeline ===\n\n");
 
     auto inputs = ::std::vector<::std::pair<::fast_io::u8string_view, ::fast_io::u8string>>{
-        {u8"full_document_30x",    make_full_document(30)},
-        {u8"terse_document_200x",  make_terse_document(200)},
-        {u8"plain_document_100k",  make_plain_document(100000)},
+        {u8"full_document_30x", make_full_document(30)},
+        {u8"terse_document_200x", make_terse_document(200)},
+        {u8"plain_document_100k", make_plain_document(100000)},
     };
 
     print_csv_header();
@@ -107,31 +109,35 @@ int main() {
         ::fast_io::io::print(::fast_io::u8out(), u8"--- Input: ", inp.first, u8" (", sv.size(), u8" bytes) ---\n");
 
         {
-            auto res = benchmark([&] { return ::pltxt2htm::pltxt2common_html<ndebug>(sv); },
-                                 sv.size(), 0, 5, 20);
+            auto res = benchmark([&] { return ::pltxt2htm::pltxt2common_html<ndebug>(sv); }, sv.size(), 0, 5, 20);
             print_result(inp.first, u8"common_html (opt=false)", res);
             print_result_csv(inp.first, u8"common_html", res);
         }
 
         {
-            auto res = benchmark([&] { return ::pltxt2htm::pltxt4unittest<ndebug>(sv); },
-                                 sv.size(), 0, 5, 20);
+            auto res = benchmark([&] { return ::pltxt2htm::pltxt4unittest<ndebug>(sv); }, sv.size(), 0, 5, 20);
             print_result(inp.first, u8"pltxt4unittest (opt=true)", res);
             print_result_csv(inp.first, u8"pltxt4unittest", res);
         }
 
         {
-            auto res = benchmark([&] { return ::pltxt2htm::pltxt2fixedadv_html<ndebug>(
-                sv, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS"); },
-                                 sv.size(), 0, 5, 20);
+            auto res = benchmark(
+                [&] {
+                    return ::pltxt2htm::pltxt2fixedadv_html<ndebug>(sv, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR",
+                                                                    u8"$AUTHOR", u8"$CO_AUTHORS");
+                },
+                sv.size(), 0, 5, 20);
             print_result(inp.first, u8"fixedadv_html (opt=true)", res);
             print_result_csv(inp.first, u8"fixedadv_html", res);
         }
 
         {
-            auto res = benchmark([&] { return ::pltxt2htm::pltxt2plunity_introduction<ndebug>(
-                sv, u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS"); },
-                                 sv.size(), 0, 5, 20);
+            auto res = benchmark(
+                [&] {
+                    return ::pltxt2htm::pltxt2plunity_introduction<ndebug>(sv, u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR",
+                                                                           u8"$CO_AUTHORS");
+                },
+                sv.size(), 0, 5, 20);
             print_result(inp.first, u8"plunity_introduction (opt=true)", res);
             print_result_csv(inp.first, u8"plunity_introduction", res);
         }

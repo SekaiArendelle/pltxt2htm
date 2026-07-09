@@ -28,10 +28,10 @@ inline void do_not_optimize(volatile void* p) noexcept {
 
 inline volatile ::std::uintptr_t sink;
 
-template <typename F>
+template<typename F>
 [[nodiscard]]
-inline BenchResult benchmark(F&& func, ::std::size_t input_bytes = 0, ::std::size_t output_bytes = 0,
-                             int warmup = 5, int iterations = 15) noexcept {
+inline BenchResult benchmark(F&& func, ::std::size_t input_bytes = 0, ::std::size_t output_bytes = 0, int warmup = 5,
+                             int iterations = 15) noexcept {
     for (int i = 0; i < warmup; ++i) {
         auto result = func();
         sink = reinterpret_cast<::std::uintptr_t>(result.data());
@@ -55,8 +55,10 @@ inline BenchResult benchmark(F&& func, ::std::size_t input_bytes = 0, ::std::siz
 
     for (auto s : samples) {
         res.total_ns += s;
-        if (s < res.min_ns) res.min_ns = s;
-        if (s > res.max_ns) res.max_ns = s;
+        if (s < res.min_ns)
+            res.min_ns = s;
+        if (s > res.max_ns)
+            res.max_ns = s;
     }
 
     ::std::sort(samples.begin(), samples.end());
@@ -65,10 +67,10 @@ inline BenchResult benchmark(F&& func, ::std::size_t input_bytes = 0, ::std::siz
     return res;
 }
 
-template <typename F>
+template<typename F>
 [[nodiscard]]
-inline BenchResult benchmark_void(F&& func, ::std::size_t input_bytes = 0,
-                                  int warmup = 5, int iterations = 15) noexcept {
+inline BenchResult benchmark_void(F&& func, ::std::size_t input_bytes = 0, int warmup = 5,
+                                  int iterations = 15) noexcept {
     for (int i = 0; i < warmup; ++i) {
         func();
     }
@@ -89,8 +91,10 @@ inline BenchResult benchmark_void(F&& func, ::std::size_t input_bytes = 0,
 
     for (auto s : samples) {
         res.total_ns += s;
-        if (s < res.min_ns) res.min_ns = s;
-        if (s > res.max_ns) res.max_ns = s;
+        if (s < res.min_ns)
+            res.min_ns = s;
+        if (s > res.max_ns)
+            res.max_ns = s;
     }
 
     ::std::sort(samples.begin(), samples.end());
@@ -113,8 +117,7 @@ inline void print_result(::fast_io::u8string_view name, ::fast_io::u8string_view
         double throughput = static_cast<double>(res.input_bytes) * res.iterations / (total_ms / 1000.0);
         ::fast_io::io::print(::fast_io::u8out(), u8"    Input:      ", static_cast<::std::size_t>(res.input_bytes),
                              u8" bytes, Output: ", static_cast<::std::size_t>(res.output_bytes), u8" bytes\n");
-        ::fast_io::io::print(::fast_io::u8out(), u8"    Throughput: ", throughput / 1024.0 / 1024.0,
-                             u8" MB/s\n");
+        ::fast_io::io::print(::fast_io::u8out(), u8"    Throughput: ", throughput / 1024.0 / 1024.0, u8" MB/s\n");
 
         if (res.output_bytes > 0) {
             double output_throughput = static_cast<double>(res.output_bytes) * res.iterations / (total_ms / 1000.0);
@@ -141,17 +144,16 @@ inline void print_result_csv(::fast_io::u8string_view name, ::fast_io::u8string_
         throughput = static_cast<double>(res.input_bytes) * res.iterations / (total_ms / 1000.0);
     }
 
-    ::fast_io::io::print(::fast_io::u8out(), name, u8",", config, u8",",
-                         static_cast<::std::size_t>(res.iterations), u8",",
-                         static_cast<::std::size_t>(res.input_bytes), u8",",
-                         static_cast<::std::size_t>(res.output_bytes), u8",",
-                         total_ms, u8",", median_us, u8",", min_us, u8",", max_us, u8",",
-                         throughput / 1024.0 / 1024.0, u8"\n");
+    ::fast_io::io::print(::fast_io::u8out(), name, u8",", config, u8",", static_cast<::std::size_t>(res.iterations),
+                         u8",", static_cast<::std::size_t>(res.input_bytes), u8",",
+                         static_cast<::std::size_t>(res.output_bytes), u8",", total_ms, u8",", median_us, u8",", min_us,
+                         u8",", max_us, u8",", throughput / 1024.0 / 1024.0, u8"\n");
 }
 
 inline void print_csv_header() noexcept {
-    ::fast_io::io::print(::fast_io::u8out(),
-                         u8"bench,config,iterations,input_bytes,output_bytes,total_ms,median_us,min_us,max_us,throughput_mbs\n");
+    ::fast_io::io::print(
+        ::fast_io::u8out(),
+        u8"bench,config,iterations,input_bytes,output_bytes,total_ms,median_us,min_us,max_us,throughput_mbs\n");
 }
 
 } // namespace pltxt2htm_bench

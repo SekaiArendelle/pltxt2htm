@@ -39,7 +39,8 @@ namespace {
         input.push_back(u8'0' + static_cast<char8_t>(i % 10));
         if (i % 2 == 0) {
             input.append(u8"</color><color=red>");
-        } else {
+        }
+        else {
             input.append(u8"</color>");
         }
     }
@@ -49,7 +50,8 @@ namespace {
 ::fast_io::u8string make_html_span_attrs(::std::size_t spans = 300) {
     ::fast_io::u8string input;
     for (::std::size_t i = 0; i < spans; ++i) {
-        input.append(u8R"(<span style="color:red;font-size:16px">text</span>
+        input.append(
+            u8R"(<span style="color:red;font-size:16px">text</span>
 )");
     }
     return input;
@@ -63,7 +65,7 @@ int main() {
     auto inputs = ::std::vector<::std::pair<::fast_io::u8string_view, ::fast_io::u8string>>{
         {u8"redundant_color_200x", make_redundant_color_nesting(200)},
         {u8"mixed_redundant_100x", make_mixed_redundant(100)},
-        {u8"adjacent_text_500x",   make_adjacent_text_nodes(500)},
+        {u8"adjacent_text_500x", make_adjacent_text_nodes(500)},
         {u8"html_span_attrs_300x", make_html_span_attrs(300)},
     };
 
@@ -75,17 +77,13 @@ int main() {
 
         {
             auto ast_copy = ast;
-            auto res = benchmark_void(
-                [&] { ::pltxt2htm::optimize_ast<ndebug>(ast_copy); },
-                sv.size(), 5, 20);
+            auto res = benchmark_void([&] { ::pltxt2htm::optimize_ast<ndebug>(ast_copy); }, sv.size(), 5, 20);
             print_result(inp.first, u8"optimize (quick_enforce)", res);
             print_result_csv(inp.first, u8"optimize", res);
         }
 
         {
-            auto res_parse = benchmark(
-                [&] { return ::pltxt2htm::parse_pltxt<ndebug>(sv); },
-                sv.size(), 0, 3, 10);
+            auto res_parse = benchmark([&] { return ::pltxt2htm::parse_pltxt<ndebug>(sv); }, sv.size(), 0, 3, 10);
             print_result(inp.first, u8"parse (for comparison)", res_parse);
             print_result_csv(inp.first, u8"parse", res_parse);
         }
