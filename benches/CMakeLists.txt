@@ -29,17 +29,19 @@ endif()
 
 target_compile_options(pltxt2htm_bench_base INTERFACE
     $<$<CXX_COMPILER_ID:MSVC>:/utf-8 /O2 /GL>
-    $<$<CXX_COMPILER_ID:GNU,Clang>:-finput-charset=utf-8 -fexec-charset=utf-8 -O3 -DNDEBUG -flto=thin>
+    $<$<CXX_COMPILER_ID:GNU>:-finput-charset=utf-8 -fexec-charset=utf-8 -O3 -DNDEBUG>
+    $<$<CXX_COMPILER_ID:Clang>:-finput-charset=utf-8 -fexec-charset=utf-8 -O3 -DNDEBUG -flto=thin>
 )
 
 target_compile_options(pltxt2htm_bench_base INTERFACE
     $<$<CXX_COMPILER_ID:MSVC>:/GR- /D_HAS_EXCEPTIONS=0>
-    $<$<CXX_COMPILER_ID:GNU,Clang>:-fno-exceptions -fno-rtti>
+    $<$<CXX_COMPILER_ID:GNU>:-fno-exceptions -fno-rtti>
+    $<$<CXX_COMPILER_ID:Clang>:-fno-exceptions -fno-rtti>
 )
 
 target_link_options(pltxt2htm_bench_base INTERFACE
     $<$<CXX_COMPILER_ID:MSVC>:/LTCG>
-    $<$<CXX_COMPILER_ID:GNU,Clang>:-flto=thin>
+    $<$<CXX_COMPILER_ID:Clang>:-flto=thin>
 )
 
 file(GLOB BENCH_SOURCES LIST_DIRECTORIES FALSE "${CMAKE_CURRENT_SOURCE_DIR}/src/bench_*.cc")

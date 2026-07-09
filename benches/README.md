@@ -73,6 +73,26 @@ Open `profile.etl` in Windows Performance Analyzer (WPA).
 Measure-Command { .\benches\build\bench_end2end.exe }
 ```
 
+## Docker (Alpine / musl)
+
+Containerized build without host toolchain requirements:
+
+```bash
+docker build -f benches/docker/unknown-linux-musl/Dockerfile \
+    -t pltxt2htm-bench .
+
+# Interactive shell
+docker run -it --rm pltxt2htm-bench
+
+# Single command
+docker run --rm pltxt2htm-bench \
+    ./benches/build/bench_micro
+
+# With filter and CSV output
+docker run --rm pltxt2htm-bench \
+    ./benches/build/bench_parse --benchmark_filter=RichMarkdown --benchmark_format=csv
+```
+
 ## Adding a New Benchmark
 
 1. Create `src/bench_<name>.cc` including `<benchmark/benchmark.h>` and required library headers
