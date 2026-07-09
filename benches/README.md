@@ -1,12 +1,15 @@
 # pltxt2htm Benchmarks
 
-Microbenchmark suite for quantitative performance analysis of `pltxt2htm`.
+Microbenchmark suite using [Google Benchmark](https://github.com/google/benchmark) for quantitative performance analysis of `pltxt2htm`.
+
+Google Benchmark is fetched and built automatically by CMake via `FetchContent` (v1.9.5 from GitHub).
 
 ## Prerequisites
 
 - C++23 compiler (Clang/GCC/MSVC)
 - CMake >= 3.20
 - Ninja (recommended) or other build system
+- Git (for `FetchContent`)
 
 ## Build
 
@@ -15,7 +18,7 @@ cmake -S benches -B benches/build -G Ninja -DCMAKE_BUILD_TYPE=Release
 cmake --build benches/build
 ```
 
-This produces Release-optimized executables (`-O3 -flto` on GCC/Clang, `/O2 /GL /LTCG` on MSVC).
+First build fetches and compiles Google Benchmark automatically. Subsequent builds reuse the cached source.
 
 ## Benchmarks
 
@@ -30,74 +33,45 @@ This produces Release-optimized executables (`-O3 -flto` on GCC/Clang, `/O2 /GL 
 ## Run
 
 ```sh
-# Run a single benchmark
-./benches/build/bench_parse.exe
-
-# Run all benchmarks
-./benches/build/bench_parse.exe
-./benches/build/bench_optimize.exe
-./benches/build/bench_backend.exe
-./benches/build/bench_end2end.exe
-./benches/build/bench_micro.exe
+.\benches\build\bench_end2end.exe
+.\benches\build\bench_parse.exe --benchmark_format=csv
+.\benches\build\bench_parse.exe --benchmark_format=json --benchmark_out=results.json
 ```
 
-Each benchmark outputs both human-readable tables and CSV lines (prefixed with header row `bench,config,...`).
+## Options
+
+```
+--benchmark_format=<console|csv|json>
+--benchmark_out=<filename>
+--benchmark_counters_tabular=true
+--benchmark_filter=<regex>
+--benchmark_min_time=<seconds>
+```
+
+See [Google Benchmark docs](https://github.com/google/benchmark/blob/main/docs/user_guide.md) for all options.
 
 ## Profiling
 
-### Simple timing (PowerShell)
+### Windows Performance Recorder
+
+```powershell
+wpr -start CPU -filemode
+.\benches\build\bench_parse.exe
+wpr -stop profile.etl
+```
+
+Open `profile.etl` in Windows Performance Analyzer (WPA).
+
+### PowerShell simple timing
 
 ```powershell
 Measure-Command { .\benches\build\bench_end2end.exe }
 ```
 
-Or use the built-in script:
-
-```powershell
-.\benches\profile.ps1 -Mode simple -Binary .\benches\build\bench_parse.exe -Iterations 10
-```
-
-### CPU hotspot analysis (Windows Performance Recorder)
-
-Requires [Windows Performance Toolkit](https://learn.microsoft.com/en-us/windows-hardware/test/wpt/) (part of Windows ADK).
-
-```powershell
-# Run as Administrator
-.\benches\profile.ps1 -Mode wpr -Binary .\benches\build\bench_parse.exe
-```
-
-Produces a `.etl` file openable with Windows Performance Analyzer (WPA).
-
-### ETW kernel tracing (xperf)
-
-```powershell
-.\benches\profile.ps1 -Mode etw -Binary .\benches\build\bench_end2end.exe
-```
-
-## Output Format
-
-Human-readable:
-
-```
-  plain_text [parse (quick_enforce)]
-    Iterations: 20
-    Input:      38400 bytes
-    Throughput: 11.3 MB/s
-    Median:     3115 us
-    Min:        2565 us
-    Max:        4751 us
-```
-
-CSV (for plotting or further analysis):
-
-```
-bench,config,iterations,input_bytes,output_bytes,total_ms,median_us,min_us,max_us,throughput_mbs
-plain_text,parse,20,38400,0,72.73,3351,2781,5246,10.07
-```
-
 ## Adding a New Benchmark
 
-1. Create `bench_<name>.cc` that includes `"bench_harness.hh"` and the required library headers
-2. Use `pltxt2htm_bench::benchmark()` (for functions returning a value) or `benchmark_void()`
-3. Call `print_result()` / `print_result_csv()` to display results
-4. Rebuild — `CMakeLists.txt` auto-globs `bench_*.cc` files
+1. Create `bench_<name>.cc` including `<benchmark/benchmark.h>` and required library headers
+2. Write standard Google Benchmark functions using `benchmark::State`
+3. Register with `BENCHMARK(FuncName)->Arg(N);`
+4. End with `BENCHMARK_MAIN();`
+5. Rebuild — `CMakeLists.txt` auto-globs `bench_*.cc`
