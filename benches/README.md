@@ -67,12 +67,6 @@ wpr -stop profile.etl
 
 Open `profile.etl` in Windows Performance Analyzer (WPA).
 
-### PowerShell simple timing
-
-```powershell
-Measure-Command { .\benches\build\bench_end2end.exe }
-```
-
 ## Docker (Alpine / musl)
 
 Containerized build without host toolchain requirements:
