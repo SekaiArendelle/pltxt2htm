@@ -54,8 +54,8 @@ auto pltxt2fixedadv_htmld(::fast_io::u8string_view pltext, ::fast_io::u8string_v
                           ::fast_io::u8string_view project, ::fast_io::u8string_view visitor,
                           ::fast_io::u8string_view author, ::fast_io::u8string_view coauthors) -> ::fast_io::u8string;
 
-void assert_true_impl(::fast_io::u8string_view file, ::std::size_t line,
-                      ::fast_io::u8string_view expr, bool cond) noexcept;
+void assert_true_impl(::fast_io::u8string_view file, ::std::size_t line, ::fast_io::u8string_view expr,
+                      bool cond) noexcept;
 
 void assert_equal_impl(::fast_io::u8string_view file, ::std::size_t line, ::fast_io::u8string_view html_expr,
                        ::fast_io::u8string_view answer_expr, ::fast_io::u8string_view html,

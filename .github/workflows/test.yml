@@ -355,3 +355,15 @@ jobs:
       - name: Build docker image
         run: |
           docker build -f cxxmodule/docker/x86_64-linux-gnu/Dockerfile -t pltxt2htm-cxxmodule .
+
+  x86_64-linux-musl-benches:
+    name: x86_64-linux-musl (benches/)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build docker image
+        run: |
+          docker build -f benches/docker/unknown-linux-musl/Dockerfile \
+            -t x86_64-linux-musl-pltxt2htm-benches .

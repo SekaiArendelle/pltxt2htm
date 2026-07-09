@@ -23,6 +23,7 @@ This project is a C++23 header-only library for converting Physics-Lab text to H
   - Rust binding: [rust/README.md](./rust/README.md)
   - C# binding: [csharp/README.md](./csharp/README.md)
   - WASM: [wasm/README.md](./wasm/README.md)
+  - Benchmarks: [benches/README.md](./benches/README.md)
 
 ## Development Environment
 
