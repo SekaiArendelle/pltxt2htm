@@ -31,6 +31,10 @@ First build fetches and compiles Google Benchmark automatically. Subsequent buil
 | `bench_end2end` | All 4 public APIs (`common_html`, `pltxt4unittest`, `fixedadv_html`, `plunity_introduction`) | full document, terse document, plain document |
 | `bench_micro` | Micro-operations (node creation/move, AST append, string ops) | N/A |
 
+Data preparation is handled by Google Benchmark's `SetUp` in dedicated Fixture classes
+(see `include/bench_fixtures.hh`). Each fixture generates and parses its input once
+per benchmark invocation, before the measured loop.
+
 ## Run
 
 ```sh
