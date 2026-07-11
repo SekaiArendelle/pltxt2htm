@@ -738,6 +738,13 @@ entry:
                     ::pltxt2htm::Ast<ndebug>{}));
                 goto entry;
             }
+            if (auto opt_url = ::pltxt2htm::details::try_parse_auto_url<ndebug>(pltext, current_index);
+                opt_url.has_value()) {
+                auto&& [consumed_size, url_obj] = opt_url.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(url_obj)));
+                current_index += consumed_size;
+                continue;
+            }
             if (auto opt_md_image = ::pltxt2htm::details::try_parse_md_image<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
                 opt_md_image.has_value()) {
@@ -2407,13 +2414,6 @@ entry:
                 }
 
                 pltxt2htm_unreachable(u8"Unreachable after outer switch");
-            }
-            if (auto opt_url = ::pltxt2htm::details::try_parse_auto_url<ndebug>(pltext, current_index);
-                opt_url.has_value()) {
-                auto&& [consumed_size, url_obj] = opt_url.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-                result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(url_obj)));
-                current_index += consumed_size;
-                continue;
             }
             auto advance_count = ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), result);
