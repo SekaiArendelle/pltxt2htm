@@ -2425,14 +2425,15 @@ constexpr auto validate_url_domain(::fast_io::u8string_view pltext, ::std::size_
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_url_scheme(::fast_io::u8string_view pltext) noexcept -> ::exception::optional<::std::size_t> {
-    if (::pltxt2htm::details::is_prefix_match<ndebug, u8"http">(pltext)) {
-        auto const after_http = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 4);
-        if (::pltxt2htm::details::is_prefix_match<ndebug, u8"://">(after_http)) {
-            return ::std::size_t{7};
-        }
-        if (::pltxt2htm::details::is_prefix_match<ndebug, u8"s://">(after_http)) {
-            return ::std::size_t{8};
-        }
+    if (::pltxt2htm::details::is_prefix_match<ndebug, u8"http">(pltext) == false) {
+        return ::exception::nullopt_t{};
+    }
+    auto const after_http = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 4);
+    if (::pltxt2htm::details::is_prefix_match<ndebug, u8"://">(after_http)) {
+        return ::std::size_t{7};
+    }
+    if (::pltxt2htm::details::is_prefix_match<ndebug, u8"s://">(after_http)) {
+        return ::std::size_t{8};
     }
     return ::exception::nullopt_t{};
 }
