@@ -2686,6 +2686,11 @@ constexpr auto try_parse_html_a_tag(::fast_io::u8string_view pltext) noexcept
  * when preceded by `](` (i.e. inside markdown link syntax) or `=` (i.e. inside
  * `<tag=url...>`).
  *
+ * Only `http://`/`https://` schemes are accepted.  Bare domains (e.g. `example.com`) are
+ * intentionally not supported because the parser calls this function at every character
+ * position — allowing domain scans without a scheme prefix would reintroduce O(n²)
+ * behaviour on long lines without whitespace.
+ *
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @param[in] pltext The full input text view.
  * @param[in] current_index Offset into `pltext` at which to probe for a URL.
