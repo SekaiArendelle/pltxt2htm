@@ -110,57 +110,36 @@ constexpr auto u8string_view_subview(::fast_io::u8string_view pltext, ::std::siz
 }
 
 /**
+ * @brief Variable-template helper for the is_fast_io_vector concept.
+ */
+template<typename T>
+constexpr bool is_fast_io_vector_impl = false;
+
+template<typename T, typename Alloc>
+constexpr bool is_fast_io_vector_impl<::fast_io::vector<T, Alloc>> = true;
+
+/**
+ * @brief Concept matching ::fast_io::vector<T, Alloc> (any T, any Alloc).
+ */
+template<typename T>
+concept is_fast_io_vector = is_fast_io_vector_impl<::std::remove_cvref_t<T>>;
+
+/**
  * @brief Access the first element of a mutable vector (checked).
  * @tparam ndebug Contract checking mode.
  * @tparam T Element type.
  * @param vec The vector.
  * @return Reference to the first element.
  */
-template<::pltxt2htm::Contracts ndebug, typename T>
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
-constexpr auto& vector_front(::fast_io::vector<T>& vec) noexcept {
+constexpr auto vector_front(is_fast_io_vector auto&& vec) noexcept -> decltype(auto) {
+    static_assert(::std::is_lvalue_reference_v<decltype(vec)>, "vector_front requires an lvalue reference");
     bool const vec_is_not_empty{!vec.empty()};
     pltxt2htm_assert(vec_is_not_empty, u8"Indexing front but vector is empty");
 
-    return vec.front_unchecked();
+    return ::std::forward_like<decltype(vec)>(vec.front_unchecked());
 }
-
-/**
- * @brief Access the first element of a const vector (checked).
- * @tparam ndebug Contract checking mode.
- * @tparam T Element type.
- * @param vec The vector.
- * @return Const reference to the first element.
- */
-template<::pltxt2htm::Contracts ndebug, typename T>
-[[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
-constexpr auto const& vector_front(::fast_io::vector<T> const& vec) noexcept {
-    bool const vec_is_not_empty{!vec.empty()};
-    pltxt2htm_assert(vec_is_not_empty, u8"Indexing front but vector is empty");
-
-    return vec.front_unchecked();
-}
-
-/**
- * @brief Variable-template helper for the is_fast_io_vector concept.
- */
-template<typename T>
-constexpr bool is_fast_io_vector_ = false;
-
-template<typename T, typename Alloc>
-constexpr bool is_fast_io_vector_<::fast_io::vector<T, Alloc>> = true;
-
-/**
- * @brief Concept matching ::fast_io::vector<T, Alloc> (any T, any Alloc).
- */
-template<typename T>
-concept is_fast_io_vector = is_fast_io_vector_<::std::remove_cvref_t<T>>;
 
 /**
  * @brief Index into a fast_io::vector with bounds checking.
@@ -171,11 +150,8 @@ concept is_fast_io_vector = is_fast_io_vector_<::std::remove_cvref_t<T>>;
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
-constexpr auto vector_index(::pltxt2htm::details::is_fast_io_vector auto&& vec, ::std::size_t i) noexcept
-    -> decltype(auto) {
+constexpr auto vector_index(is_fast_io_vector auto&& vec, ::std::size_t i) noexcept -> decltype(auto) {
+    static_assert(::std::is_lvalue_reference_v<decltype(vec)>, "vector_index requires an lvalue reference");
     bool const is_not_out_of_bound{i < vec.size()};
     pltxt2htm_assert(is_not_out_of_bound, u8"Index of vector out of bound");
 
@@ -288,7 +264,7 @@ constexpr bool is_prefix_match(::fast_io::u8string_view str) noexcept {
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-constexpr ::fast_io::u8string size_t2str(::std::size_t num) noexcept {
+constexpr auto size_t2str(::std::size_t num) noexcept -> ::fast_io::u8string {
     if (num == 0) {
         return ::fast_io::u8string{u8"0"};
     }
@@ -318,7 +294,7 @@ constexpr ::fast_io::u8string size_t2str(::std::size_t num) noexcept {
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-constexpr ::exception::optional<std::size_t> u8str2size_t(::fast_io::u8string_view str) noexcept {
+constexpr auto u8str2size_t(::fast_io::u8string_view str) noexcept -> ::exception::optional<std::size_t> {
     if (str.empty()) {
         return ::exception::nullopt_t{};
     }

@@ -764,7 +764,8 @@ constexpr bool is_valid_color(::fast_io::u8string_view color) noexcept {
         }
         for (::std::size_t i{1}; i < color_size; ++i) {
             auto const chr{::pltxt2htm::details::u8string_view_index<ndebug>(color, i)};
-            if (((u8'0' <= chr && chr <= u8'9') || (u8'a' <= chr && chr <= u8'f') || (u8'A' <= chr && chr <= u8'F')) == false) {
+            if (((u8'0' <= chr && chr <= u8'9') || (u8'a' <= chr && chr <= u8'f') || (u8'A' <= chr && chr <= u8'F')) ==
+                false) {
                 return false;
             }
         }
@@ -970,7 +971,8 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr auto try_parse_span_tag(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<TryParseSpanTagResult> {
     // match "pan" prefix (case-insensitive)
-    if (::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"pan"}>(pltext) == false) {
+    if (::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"pan"}>(pltext) ==
+        false) {
         return ::exception::nullopt_t{};
     }
 
@@ -2544,21 +2546,26 @@ constexpr auto make_try_parse_url_result(::fast_io::u8string_view const parsed_u
             }
         }
         switch (chr) {
-        case u8'&':
+        case u8'&': {
             ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Ampersand{}));
             break;
-        case u8'\'':
+        }
+        case u8'\'': {
             ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::SingleQuote{}));
             break;
-        case u8'\"':
+        }
+        case u8'\"': {
             ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::DoubleQuote{}));
             break;
-        case u8'<':
+        }
+        case u8'<': {
             ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
             break;
-        case u8'>':
+        }
+        case u8'>': {
             ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::GreaterThan{}));
             break;
+        }
         default:
             ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{chr}));
             break;
