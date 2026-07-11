@@ -150,8 +150,7 @@ int main() {
     {
         auto pltext = ::fast_io::u8string_view{u8"https://example.com:80javascript:alert(1)"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer =
-            ::fast_io::u8string_view{u8"https://example.com:80javascript:alert(1)"};
+        auto answer = ::fast_io::u8string_view{u8"https://example.com:80javascript:alert(1)"};
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
