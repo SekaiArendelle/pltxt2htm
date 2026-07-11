@@ -357,7 +357,7 @@ constexpr auto try_parse_li_tag(::fast_io::u8string_view pltext, ::pltxt2htm::No
     -> ::exception::optional<::std::size_t> {
     auto opt_tag_len =
         ::pltxt2htm::details::try_parse_bare_tag<ndebug, ::pltxt2htm::details::U8LiteralString{u8"i"}>(pltext);
-    if (!opt_tag_len.has_value()) {
+    if (opt_tag_len.has_value() == false) {
         return ::exception::nullopt_t{};
     }
     if (nested_tag_type != ::pltxt2htm::NodeKind::html_ul && nested_tag_type != ::pltxt2htm::NodeKind::html_ol) {
@@ -380,7 +380,7 @@ constexpr auto try_parse_caption_tag(::fast_io::u8string_view pltext,
     -> ::exception::optional<::std::size_t> {
     auto opt_tag_len =
         ::pltxt2htm::details::try_parse_bare_tag<ndebug, ::pltxt2htm::details::U8LiteralString{u8"aption"}>(pltext);
-    if (!opt_tag_len.has_value()) {
+    if (opt_tag_len.has_value() == false) {
         return ::exception::nullopt_t{};
     }
     if (nested_tag_type != ::pltxt2htm::NodeKind::html_table) {
@@ -403,7 +403,7 @@ constexpr auto try_parse_colgroup_tag(::fast_io::u8string_view pltext,
     -> ::exception::optional<::std::size_t> {
     auto opt_tag_len =
         ::pltxt2htm::details::try_parse_bare_tag<ndebug, ::pltxt2htm::details::U8LiteralString{u8"olgroup"}>(pltext);
-    if (!opt_tag_len.has_value()) {
+    if (opt_tag_len.has_value() == false) {
         return ::exception::nullopt_t{};
     }
     if (nested_tag_type != ::pltxt2htm::NodeKind::html_table) {
@@ -426,7 +426,7 @@ constexpr auto try_parse_thead_tag(::fast_io::u8string_view pltext,
     -> ::exception::optional<::std::size_t> {
     auto opt_tag_len =
         ::pltxt2htm::details::try_parse_bare_tag<ndebug, ::pltxt2htm::details::U8LiteralString{u8"head"}>(pltext);
-    if (!opt_tag_len.has_value()) {
+    if (opt_tag_len.has_value() == false) {
         return ::exception::nullopt_t{};
     }
     if (nested_tag_type != ::pltxt2htm::NodeKind::html_table) {
@@ -449,7 +449,7 @@ constexpr auto try_parse_tbody_tag(::fast_io::u8string_view pltext,
     -> ::exception::optional<::std::size_t> {
     auto opt_tag_len =
         ::pltxt2htm::details::try_parse_bare_tag<ndebug, ::pltxt2htm::details::U8LiteralString{u8"body"}>(pltext);
-    if (!opt_tag_len.has_value()) {
+    if (opt_tag_len.has_value() == false) {
         return ::exception::nullopt_t{};
     }
     if (nested_tag_type != ::pltxt2htm::NodeKind::html_table) {
@@ -472,7 +472,7 @@ constexpr auto try_parse_tfoot_tag(::fast_io::u8string_view pltext,
     -> ::exception::optional<::std::size_t> {
     auto opt_tag_len =
         ::pltxt2htm::details::try_parse_bare_tag<ndebug, ::pltxt2htm::details::U8LiteralString{u8"foot"}>(pltext);
-    if (!opt_tag_len.has_value()) {
+    if (opt_tag_len.has_value() == false) {
         return ::exception::nullopt_t{};
     }
     if (nested_tag_type != ::pltxt2htm::NodeKind::html_table) {
@@ -495,7 +495,7 @@ constexpr auto try_parse_tr_tag(::fast_io::u8string_view pltext, ::pltxt2htm::No
     -> ::exception::optional<::std::size_t> {
     auto opt_tag_len =
         ::pltxt2htm::details::try_parse_bare_tag<ndebug, ::pltxt2htm::details::U8LiteralString{u8"r"}>(pltext);
-    if (!opt_tag_len.has_value()) {
+    if (opt_tag_len.has_value() == false) {
         return ::exception::nullopt_t{};
     }
     if (nested_tag_type != ::pltxt2htm::NodeKind::html_table && nested_tag_type != ::pltxt2htm::NodeKind::html_thead &&
@@ -518,7 +518,7 @@ constexpr auto try_parse_th_tag(::fast_io::u8string_view pltext, ::pltxt2htm::No
     -> ::exception::optional<::std::size_t> {
     auto opt_tag_len =
         ::pltxt2htm::details::try_parse_bare_tag<ndebug, ::pltxt2htm::details::U8LiteralString{u8"h"}>(pltext);
-    if (!opt_tag_len.has_value()) {
+    if (opt_tag_len.has_value() == false) {
         return ::exception::nullopt_t{};
     }
     if (nested_tag_type != ::pltxt2htm::NodeKind::html_tr) {
@@ -568,7 +568,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_td_tag(::fast_io::u8string_view pltext, ::pltxt2htm::NodeKind const nested_tag_type) noexcept
     -> ::exception::optional<TryParseTdTagResult> {
-    if (!::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"d"}>(pltext)) {
+    if (::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"d"}>(pltext) == false) {
         return ::exception::nullopt_t{};
     }
     if (nested_tag_type != ::pltxt2htm::NodeKind::html_tr) {
@@ -764,7 +764,7 @@ constexpr bool is_valid_color(::fast_io::u8string_view color) noexcept {
         }
         for (::std::size_t i{1}; i < color_size; ++i) {
             auto const chr{::pltxt2htm::details::u8string_view_index<ndebug>(color, i)};
-            if (!((u8'0' <= chr && chr <= u8'9') || (u8'a' <= chr && chr <= u8'f') || (u8'A' <= chr && chr <= u8'F'))) {
+            if (((u8'0' <= chr && chr <= u8'9') || (u8'a' <= chr && chr <= u8'f') || (u8'A' <= chr && chr <= u8'F')) == false) {
                 return false;
             }
         }
@@ -773,7 +773,7 @@ constexpr bool is_valid_color(::fast_io::u8string_view color) noexcept {
 
     for (::std::size_t i{}; i < color_size; ++i) {
         auto const chr{::pltxt2htm::details::u8string_view_index<ndebug>(color, i)};
-        if (!((u8'a' <= chr && chr <= u8'z') || (u8'A' <= chr && chr <= u8'Z'))) {
+        if (((u8'a' <= chr && chr <= u8'z') || (u8'A' <= chr && chr <= u8'Z')) == false) {
             return false;
         }
     }
@@ -909,12 +909,12 @@ constexpr auto try_parse_color_tag(::fast_io::u8string_view pltext) noexcept
             return (u8'0' <= u8chr && u8chr <= u8'9') || (u8'a' <= u8chr && u8chr <= u8'z') ||
                    (u8'A' <= u8chr && u8chr <= u8'Z') || u8chr == u8'#';
         });
-    if (!result.has_value()) {
+    if (result.has_value() == false) {
         return ::exception::nullopt_t{};
     }
 
     auto const& color{result.template value<ndebug == ::pltxt2htm::Contracts::ignore>().substr};
-    if (!::pltxt2htm::details::is_valid_color<ndebug>(::fast_io::u8string_view{color.data(), color.size()})) {
+    if (::pltxt2htm::details::is_valid_color<ndebug>(::fast_io::u8string_view{color.data(), color.size()}) == false) {
         return ::exception::nullopt_t{};
     }
     return result;
@@ -970,7 +970,7 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr auto try_parse_span_tag(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<TryParseSpanTagResult> {
     // match "pan" prefix (case-insensitive)
-    if (!::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"pan"}>(pltext)) {
+    if (::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"pan"}>(pltext) == false) {
         return ::exception::nullopt_t{};
     }
 
@@ -1109,10 +1109,10 @@ constexpr auto try_parse_span_tag(::fast_io::u8string_view pltext) noexcept
 
             // match property
             if (prop == ::fast_io::u8string_view{u8"color"}) {
-                if (!color.empty()) {
+                if (color.empty() == false) {
                     return ::exception::nullopt_t{}; // duplicate color
                 }
-                if (!::pltxt2htm::details::is_valid_color<ndebug>(val)) {
+                if (::pltxt2htm::details::is_valid_color<ndebug>(val) == false) {
                     return ::exception::nullopt_t{};
                 }
                 color = ::fast_io::u8string{val};
@@ -1122,7 +1122,7 @@ constexpr auto try_parse_span_tag(::fast_io::u8string_view pltext) noexcept
                     return ::exception::nullopt_t{}; // duplicate font-size
                 }
                 auto opt_fs = ::pltxt2htm::details::parse_font_size_value<ndebug>(val);
-                if (!opt_fs.has_value()) {
+                if (opt_fs.has_value() == false) {
                     return ::exception::nullopt_t{};
                 }
                 font_size = opt_fs.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
@@ -1133,7 +1133,7 @@ constexpr auto try_parse_span_tag(::fast_io::u8string_view pltext) noexcept
         }
     }
 
-    if (!found_style || (color.empty() && !font_size.has_value())) {
+    if (found_style == false || (color.empty() && !font_size.has_value())) {
         return ::exception::nullopt_t{};
     }
     if (pos >= pltext.size() || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'>') {
@@ -1223,7 +1223,7 @@ constexpr auto try_parse_col_tag(::fast_io::u8string_view pltext, ::pltxt2htm::N
     -> ::exception::optional<::std::size_t> {
     auto opt_tag_len =
         ::pltxt2htm::details::try_parse_self_closing_tag<ndebug, ::pltxt2htm::details::U8LiteralString{u8"ol"}>(pltext);
-    if (!opt_tag_len.has_value()) {
+    if (opt_tag_len.has_value() == false) {
         return ::exception::nullopt_t{};
     }
     if (nested_tag_type != ::pltxt2htm::NodeKind::html_colgroup) {
@@ -1343,7 +1343,7 @@ constexpr auto try_parse_input_checkbox_tag(::fast_io::u8string_view pltext) noe
         found_type_checkbox = true;
     }
 
-    if (!found_type_checkbox || !found_disabled) {
+    if (found_type_checkbox == false || !found_disabled) {
         return ::exception::nullopt_t{};
     }
     if (pos >= pltext.size()) {
@@ -1475,7 +1475,7 @@ constexpr auto try_parse_img_tag(::fast_io::u8string_view pltext) noexcept
         }
     }
 
-    if (!found_src || !found_alt) {
+    if (found_src == false || !found_alt) {
         return ::exception::nullopt_t{};
     }
     if (pos >= pltext.size()) {
@@ -1757,7 +1757,7 @@ constexpr auto try_parse_entity_reference(::fast_io::u8string_view text) noexcep
         return index + 1;
     }
 
-    if (!::pltxt2htm::details::is_ascii_alpha(::pltxt2htm::details::u8string_view_index<ndebug>(text, index))) {
+    if (::pltxt2htm::details::is_ascii_alpha(::pltxt2htm::details::u8string_view_index<ndebug>(text, index)) == false) {
         return ::exception::nullopt_t{};
     }
     ++index;
@@ -1766,7 +1766,7 @@ constexpr auto try_parse_entity_reference(::fast_io::u8string_view text) noexcep
         if (chr == u8';') {
             return index + 1;
         }
-        if (!::pltxt2htm::details::is_ascii_alpha(chr) && !::pltxt2htm::details::is_ascii_digit(chr)) {
+        if (::pltxt2htm::details::is_ascii_alpha(chr) == false && !::pltxt2htm::details::is_ascii_digit(chr)) {
             return ::exception::nullopt_t{};
         }
     }
@@ -1940,7 +1940,7 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
                 // ```py
                 // ```
                 ::exception::optional<::fast_io::u8string> opt_lang{::exception::nullopt_t{}};
-                if (!lang.empty()) {
+                if (lang.empty() == false) {
                     opt_lang = ::std::move(lang);
                 }
                 if constexpr (is_backtick) {
@@ -2004,7 +2004,7 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
     }
 
     ::exception::optional<::fast_io::u8string> opt_lang{::exception::nullopt_t{}};
-    if (!lang.empty()) {
+    if (lang.empty() == false) {
         opt_lang = ::std::move(lang);
     }
     if constexpr (is_backtick) {
@@ -2078,7 +2078,7 @@ template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::U8LiteralString em
 [[nodiscard]]
 constexpr auto try_parse_md_inlines(::fast_io::u8string_view pltext) noexcept -> ::exception::optional<::std::size_t> {
     constexpr ::std::size_t embraced_size{embraced_chars.size()};
-    if (!::pltxt2htm::details::is_prefix_match<ndebug, embraced_chars>(pltext)) {
+    if (::pltxt2htm::details::is_prefix_match<ndebug, embraced_chars>(pltext) == false) {
         return ::exception::nullopt_t{};
     }
 
@@ -2206,7 +2206,7 @@ template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::U8LiteralString em
 constexpr auto try_parse_md_code_span(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseMdCodeSpanResult<ndebug>> {
     constexpr ::std::size_t embraced_size{embraced_string.size()};
-    if (!::pltxt2htm::details::is_prefix_match<ndebug, embraced_string>(pltext)) {
+    if (::pltxt2htm::details::is_prefix_match<ndebug, embraced_string>(pltext) == false) {
         return ::exception::nullopt_t{};
     }
 
@@ -2608,8 +2608,8 @@ constexpr auto try_parse_html_a_tag(::fast_io::u8string_view pltext) noexcept
     if (pos >= pltext.size()) {
         return ::exception::nullopt_t{};
     }
-    if (!::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"href"}>(
-            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, pos))) {
+    if (::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"href"}>(
+            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, pos)) == false) {
         return ::exception::nullopt_t{};
     }
     pos += 4;
@@ -2650,8 +2650,8 @@ constexpr auto try_parse_html_a_tag(::fast_io::u8string_view pltext) noexcept
     if (pos < pltext.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'>') {
         // only the boolean attribute "internal" is accepted as an extra attribute
         constexpr auto internal_literal = ::pltxt2htm::details::U8LiteralString{u8"internal"};
-        if (!::pltxt2htm::details::is_prefix_match<ndebug, internal_literal>(
-                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, pos))) {
+        if (::pltxt2htm::details::is_prefix_match<ndebug, internal_literal>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, pos)) == false) {
             return ::exception::nullopt_t{};
         }
         internal = true;
@@ -2666,13 +2666,13 @@ constexpr auto try_parse_html_a_tag(::fast_io::u8string_view pltext) noexcept
     }
     auto opt_auth_end = ::pltxt2htm::details::try_parse_url_authority<ndebug>(
         attr_val, ::pltxt2htm::details::try_parse_url_scheme<ndebug>(attr_val).value_or(::std::size_t{}));
-    if (!opt_auth_end.has_value()) {
+    if (opt_auth_end.has_value() == false) {
         return ::exception::nullopt_t{};
     }
     auto auth_end = opt_auth_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
     auto path_end = ::pltxt2htm::details::try_parse_url_path_simple<ndebug>(attr_val, auth_end);
     auto opt_url_result = ::pltxt2htm::details::make_try_parse_url_result<ndebug>(attr_val, path_end);
-    if (!opt_url_result.has_value()) {
+    if (opt_url_result.has_value() == false) {
         return ::exception::nullopt_t{};
     }
     return TryParseHtmlATagResult<ndebug>{
@@ -2702,12 +2702,12 @@ constexpr auto try_parse_auto_url(::fast_io::u8string_view pltext, ::std::size_t
     -> ::exception::optional<::pltxt2htm::details::TryParseUrlResult<ndebug>> {
     auto url_vw = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index);
     auto opt_scheme_end = ::pltxt2htm::details::try_parse_url_scheme<ndebug>(url_vw);
-    if (!opt_scheme_end.has_value()) {
+    if (opt_scheme_end.has_value() == false) {
         return ::exception::nullopt_t{};
     }
     auto scheme_end = opt_scheme_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
     auto opt_auth_end = ::pltxt2htm::details::try_parse_url_authority<ndebug>(url_vw, scheme_end);
-    if (!opt_auth_end.has_value()) {
+    if (opt_auth_end.has_value() == false) {
         return ::exception::nullopt_t{};
     }
     auto auth_end = opt_auth_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
@@ -2752,7 +2752,7 @@ constexpr auto try_parse_external_tag(
     auto url_vw = ::fast_io::u8string_view{url_str.data(), url_str.size()};
     auto opt_auth_end = ::pltxt2htm::details::try_parse_url_authority<ndebug>(
         url_vw, ::pltxt2htm::details::try_parse_url_scheme<ndebug>(url_vw).value_or(::std::size_t{}));
-    if (!opt_auth_end.has_value()) {
+    if (opt_auth_end.has_value() == false) {
         return ::exception::nullopt_t{};
     }
     auto auth_end = opt_auth_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
@@ -2761,7 +2761,7 @@ constexpr auto try_parse_external_tag(
         return ::exception::nullopt_t{};
     }
     auto opt_url = ::pltxt2htm::details::make_try_parse_url_result<ndebug>(url_vw, url_vw.size());
-    if (!opt_url.has_value()) {
+    if (opt_url.has_value() == false) {
         return ::exception::nullopt_t{};
     }
 
@@ -2837,7 +2837,7 @@ constexpr auto try_parse_md_url(::fast_io::u8string_view pltext) noexcept
     auto encoded_vw = ::fast_io::u8string_view{encoded.data(), encoded.size()};
     auto opt_retry_auth = ::pltxt2htm::details::try_parse_url_authority<ndebug>(
         encoded_vw, ::pltxt2htm::details::try_parse_url_scheme<ndebug>(encoded_vw).value_or(::std::size_t{}));
-    if (!opt_retry_auth.has_value()) {
+    if (opt_retry_auth.has_value() == false) {
         return ::exception::nullopt_t{};
     }
     auto retry_auth_end = opt_retry_auth.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
@@ -2846,7 +2846,7 @@ constexpr auto try_parse_md_url(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt_t{};
     }
     auto opt_result = ::pltxt2htm::details::make_try_parse_url_result<ndebug>(encoded_vw, encoded_vw.size());
-    if (!opt_result.has_value()) {
+    if (opt_result.has_value() == false) {
         return ::exception::nullopt_t{};
     }
     return ::pltxt2htm::details::TryParseMdUrlResult<ndebug>{

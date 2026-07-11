@@ -1477,7 +1477,7 @@ entry:
                         ::exception::optional<::std::size_t> opt_tag_len{
                             ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"color">(
                                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2))};
-                        if (!opt_tag_len.has_value()) {
+                        if (opt_tag_len.has_value() == false) {
                             opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"a">(
                                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         }
@@ -1504,7 +1504,7 @@ entry:
                         ::exception::optional<::std::size_t> opt_tag_len{
                             ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"color">(
                                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2))};
-                        if (!opt_tag_len.has_value()) {
+                        if (opt_tag_len.has_value() == false) {
                             opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"a">(
                                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         }

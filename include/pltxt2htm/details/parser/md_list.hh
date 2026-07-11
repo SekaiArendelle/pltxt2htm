@@ -864,7 +864,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
             ::pltxt2htm::details::PreviousItemInfo{.space_hierarchy = top_frame.space_hierarchy,
                                                    .call_stack_is_single = call_stack.size() == 1,
                                                    .item_kind = top_frame.get_item_kind()});
-        if (!opt_list_item.has_value()) {
+        if (opt_list_item.has_value() == false) {
             auto frame = ::std::move(top_frame);
             call_stack.pop();
             if (call_stack.empty()) {

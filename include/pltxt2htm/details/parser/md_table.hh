@@ -372,7 +372,7 @@ constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
     while (true) {
         auto row_opt = ::pltxt2htm::details::try_parse_md_table_row<ndebug>(
             ::fast_io::u8string_view{pltext.data() + current_index, pltext.size() - current_index});
-        if (!row_opt.has_value()) {
+        if (row_opt.has_value() == false) {
             break;
         }
         auto&& [row, forward] = row_opt.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
