@@ -2414,32 +2414,48 @@ constexpr auto validate_url_domain(::fast_io::u8string_view pltext, ::std::size_
 }
 
 /**
- * @brief Parse and validate the authority part (scheme + domain + port) of a URL.
+ * @brief Detect and return the end offset of `http://` or `https://` scheme.
  *
- * Supports optional `http://` or `https://` scheme, domain validation, and optional port.
+ * O(1) — does NOT scan for domains. Returns the scheme length (7 or 8) or nullopt.
+ *
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
+ * @param[in] pltext The input text that may begin with a URL scheme.
+ * @return 7 for `http://`, 8 for `https://`, or nullopt.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_url_scheme(::fast_io::u8string_view pltext) noexcept -> ::exception::optional<::std::size_t> {
+    if (::pltxt2htm::details::is_prefix_match<ndebug, u8"http">(pltext) == false) {
+        return ::exception::nullopt_t{};
+    }
+    auto const after_http = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 4);
+    if (::pltxt2htm::details::is_prefix_match<ndebug, u8"://">(after_http)) {
+        return ::std::size_t{7};
+    }
+    if (::pltxt2htm::details::is_prefix_match<ndebug, u8"s://">(after_http)) {
+        return ::std::size_t{8};
+    }
+    return ::exception::nullopt_t{};
+}
+
+/**
+ * @brief Parse and validate the authority part (domain + port) of a URL.
+ *
+ * Does NOT detect the scheme — the caller must supply `domain_start` (use 0 when
+ * no scheme is present). Supports domain validation and optional port.
  * Does NOT parse the path, query, or fragment — that is the caller's responsibility.
  *
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @param[in] pltext The input text that begins at a URL candidate.
+ * @param[in] domain_start The offset within pltext where the domain starts (0 when no scheme).
  * @return The index after the port (or after the domain if no port), or nullopt when
- *         scheme/domain/port validation fails.
+ *         domain/port validation fails.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_url(::fast_io::u8string_view pltext) noexcept -> ::exception::optional<::std::size_t> {
-    auto current_index = ::std::size_t{[pltext] constexpr noexcept -> ::std::size_t {
-        if (::pltxt2htm::details::is_prefix_match<ndebug, u8"http">(pltext)) {
-            auto const after_http = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 4);
-            if (::pltxt2htm::details::is_prefix_match<ndebug, u8"://">(after_http)) {
-                return ::std::size_t{7};
-            }
-            if (::pltxt2htm::details::is_prefix_match<ndebug, u8"s://">(after_http)) {
-                return ::std::size_t{8};
-            }
-        }
-        return 0;
-    }()};
-    auto const domain_start = current_index;
+constexpr auto try_parse_url_authority(::fast_io::u8string_view pltext, ::std::size_t domain_start) noexcept
+    -> ::exception::optional<::std::size_t> {
+    auto current_index = domain_start;
 
     while (true) {
         if (current_index >= pltext.size()) {
@@ -2648,7 +2664,8 @@ constexpr auto try_parse_html_a_tag(::fast_io::u8string_view pltext) noexcept
     if (pos >= pltext.size() || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'>') {
         return ::exception::nullopt_t{};
     }
-    auto opt_auth_end = ::pltxt2htm::details::try_parse_url<ndebug>(attr_val);
+    auto opt_auth_end = ::pltxt2htm::details::try_parse_url_authority<ndebug>(
+        attr_val, ::pltxt2htm::details::try_parse_url_scheme<ndebug>(attr_val).value_or(::std::size_t{}));
     if (!opt_auth_end.has_value()) {
         return ::exception::nullopt_t{};
     }
@@ -2669,6 +2686,11 @@ constexpr auto try_parse_html_a_tag(::fast_io::u8string_view pltext) noexcept
  * when preceded by `](` (i.e. inside markdown link syntax) or `=` (i.e. inside
  * `<tag=url...>`).
  *
+ * Only `http://`/`https://` schemes are accepted.  Bare domains (e.g. `example.com`) are
+ * intentionally not supported because the parser calls this function at every character
+ * position — allowing domain scans without a scheme prefix would reintroduce O(n²)
+ * behaviour on long lines without whitespace.
+ *
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @param[in] pltext The full input text view.
  * @param[in] current_index Offset into `pltext` at which to probe for a URL.
@@ -2679,21 +2701,16 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr auto try_parse_auto_url(::fast_io::u8string_view pltext, ::std::size_t current_index) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseUrlResult<ndebug>> {
     auto url_vw = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index);
-    auto opt_auth_end = ::pltxt2htm::details::try_parse_url<ndebug>(url_vw);
+    auto opt_scheme_end = ::pltxt2htm::details::try_parse_url_scheme<ndebug>(url_vw);
+    if (!opt_scheme_end.has_value()) {
+        return ::exception::nullopt_t{};
+    }
+    auto scheme_end = opt_scheme_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+    auto opt_auth_end = ::pltxt2htm::details::try_parse_url_authority<ndebug>(url_vw, scheme_end);
     if (!opt_auth_end.has_value()) {
         return ::exception::nullopt_t{};
     }
     auto auth_end = opt_auth_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    if (::pltxt2htm::details::is_prefix_match<ndebug, u8"http">(url_vw)) {
-        auto const after_http = ::pltxt2htm::details::u8string_view_subview<ndebug>(url_vw, 4);
-        if (!::pltxt2htm::details::is_prefix_match<ndebug, u8"://">(after_http) &&
-            !::pltxt2htm::details::is_prefix_match<ndebug, u8"s://">(after_http)) {
-            return ::exception::nullopt_t{};
-        }
-    }
-    else {
-        return ::exception::nullopt_t{};
-    }
     if (current_index >= 2 && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index - 1) == u8'(' &&
         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index - 2) == u8']') {
         return ::exception::nullopt_t{};
@@ -2733,7 +2750,8 @@ constexpr auto try_parse_external_tag(
 
     auto&& [_, url_str] = result.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
     auto url_vw = ::fast_io::u8string_view{url_str.data(), url_str.size()};
-    auto opt_auth_end = ::pltxt2htm::details::try_parse_url<ndebug>(url_vw);
+    auto opt_auth_end = ::pltxt2htm::details::try_parse_url_authority<ndebug>(
+        url_vw, ::pltxt2htm::details::try_parse_url_scheme<ndebug>(url_vw).value_or(::std::size_t{}));
     if (!opt_auth_end.has_value()) {
         return ::exception::nullopt_t{};
     }
@@ -2765,7 +2783,8 @@ constexpr auto try_parse_md_url(::fast_io::u8string_view pltext) noexcept
     // First attempt: authority + path with `)` as terminator, then verify `)` follows
     // Save path_end so the fallback doesn't re-scan content already parsed.
     ::std::size_t path_end{};
-    auto opt_auth_end = ::pltxt2htm::details::try_parse_url<ndebug>(pltext);
+    auto opt_auth_end = ::pltxt2htm::details::try_parse_url_authority<ndebug>(
+        pltext, ::pltxt2htm::details::try_parse_url_scheme<ndebug>(pltext).value_or(::std::size_t{}));
     if (opt_auth_end.has_value()) {
         auto auth_end = opt_auth_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
         path_end = auth_end;
@@ -2816,7 +2835,8 @@ constexpr auto try_parse_md_url(::fast_io::u8string_view pltext) noexcept
         }
     }
     auto encoded_vw = ::fast_io::u8string_view{encoded.data(), encoded.size()};
-    auto opt_retry_auth = ::pltxt2htm::details::try_parse_url<ndebug>(encoded_vw);
+    auto opt_retry_auth = ::pltxt2htm::details::try_parse_url_authority<ndebug>(
+        encoded_vw, ::pltxt2htm::details::try_parse_url_scheme<ndebug>(encoded_vw).value_or(::std::size_t{}));
     if (!opt_retry_auth.has_value()) {
         return ::exception::nullopt_t{};
     }
