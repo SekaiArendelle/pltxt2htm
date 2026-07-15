@@ -18,12 +18,12 @@
 
 namespace pltxt2htm::details::html_parser {
 
-class ParserFrameContextWithPltextInfo {
+class HtmlParserFrameContextWithPltextInfo {
 public:
     ::fast_io::u8string_view pltext;
 };
 
-class ParserFrameContextWithHtmlSpanInfo {
+class HtmlParserFrameContextWithHtmlSpanInfo {
 public:
     ::fast_io::u8string_view pltext;
     ::fast_io::u8string color;
@@ -31,14 +31,14 @@ public:
 };
 
 template<::pltxt2htm::Contracts ndebug>
-class ParserFrameContextWithHtmlATagInfo {
+class HtmlParserFrameContextWithHtmlATagInfo {
 public:
     ::fast_io::u8string_view pltext;
     ::pltxt2htm::Url<ndebug> url;
     bool internal;
 };
 
-class ParserFrameContextWithMdCellInfo {
+class HtmlParserFrameContextWithMdCellInfo {
 public:
     ::fast_io::u8string_view pltext;
     ::pltxt2htm::MdTableAlign align;
@@ -48,36 +48,36 @@ template<::pltxt2htm::Contracts ndebug>
 class FrontendContextVariant {
 public:
     union {
-        ::pltxt2htm::details::html_parser::ParserFrameContextWithPltextInfo pltext;
-        ::pltxt2htm::details::html_parser::ParserFrameContextWithHtmlSpanInfo html_span_info;
-        ::pltxt2htm::details::html_parser::ParserFrameContextWithHtmlATagInfo<ndebug> html_a_tag_info;
-        ::pltxt2htm::details::html_parser::ParserFrameContextWithMdCellInfo md_cell;
+        ::pltxt2htm::details::html_parser::HtmlParserFrameContextWithPltextInfo pltext;
+        ::pltxt2htm::details::html_parser::HtmlParserFrameContextWithHtmlSpanInfo html_span_info;
+        ::pltxt2htm::details::html_parser::HtmlParserFrameContextWithHtmlATagInfo<ndebug> html_a_tag_info;
+        ::pltxt2htm::details::html_parser::HtmlParserFrameContextWithMdCellInfo md_cell;
     };
 
     ::pltxt2htm::NodeKind kind;
 
     constexpr FrontendContextVariant(
-        ::pltxt2htm::details::html_parser::ParserFrameContextWithPltextInfo&& pltext_context,
+        ::pltxt2htm::details::html_parser::HtmlParserFrameContextWithPltextInfo&& pltext_context,
         ::pltxt2htm::NodeKind node_kind_) noexcept
         : pltext{::std::move(pltext_context)},
           kind{node_kind_} {
     }
 
     constexpr FrontendContextVariant(
-        ::pltxt2htm::details::html_parser::ParserFrameContextWithHtmlSpanInfo&& html_span_context,
+        ::pltxt2htm::details::html_parser::HtmlParserFrameContextWithHtmlSpanInfo&& html_span_context,
         ::pltxt2htm::NodeKind node_kind_) noexcept
         : html_span_info{::std::move(html_span_context)},
           kind{node_kind_} {
     }
 
     constexpr FrontendContextVariant(
-        ::pltxt2htm::details::html_parser::ParserFrameContextWithHtmlATagInfo<ndebug>&& html_a_tag_context) noexcept
+        ::pltxt2htm::details::html_parser::HtmlParserFrameContextWithHtmlATagInfo<ndebug>&& html_a_tag_context) noexcept
         : html_a_tag_info{::std::move(html_a_tag_context)},
           kind{::pltxt2htm::NodeKind::html_a} {
     }
 
     constexpr FrontendContextVariant(
-        ::pltxt2htm::details::html_parser::ParserFrameContextWithMdCellInfo&& md_cell_context,
+        ::pltxt2htm::details::html_parser::HtmlParserFrameContextWithMdCellInfo&& md_cell_context,
         ::pltxt2htm::NodeKind node_kind_) noexcept
         : md_cell{::std::move(md_cell_context)},
           kind{node_kind_} {
@@ -136,34 +136,34 @@ public:
 };
 
 template<::pltxt2htm::Contracts ndebug>
-class ParserFrameContext {
+class HtmlParserFrameContext {
     ::pltxt2htm::details::html_parser::FrontendContextVariant<ndebug> context_data;
 
 public:
     ::std::size_t current_index{};
     ::pltxt2htm::Ast<ndebug> subast;
 
-    constexpr explicit ParserFrameContext(
+    constexpr explicit HtmlParserFrameContext(
         ::pltxt2htm::details::html_parser::FrontendContextVariant<ndebug>&& ctx,
         ::pltxt2htm::Ast<ndebug>&& subast_) noexcept
         : context_data(::std::move(ctx)),
           subast(::std::move(subast_)) {
     }
 
-    constexpr ParserFrameContext(::pltxt2htm::details::html_parser::ParserFrameContext<ndebug> const&) noexcept = delete;
+    constexpr HtmlParserFrameContext(::pltxt2htm::details::html_parser::HtmlParserFrameContext<ndebug> const&) noexcept = delete;
 
-    constexpr ParserFrameContext(::pltxt2htm::details::html_parser::ParserFrameContext<ndebug>&& other) noexcept
+    constexpr HtmlParserFrameContext(::pltxt2htm::details::html_parser::HtmlParserFrameContext<ndebug>&& other) noexcept
         : context_data{::std::move(other.context_data)},
           current_index{other.current_index},
           subast(::std::move(other.subast)) {
     }
 
-    constexpr auto operator=(::pltxt2htm::details::html_parser::ParserFrameContext<ndebug> const&) noexcept
-        -> ::pltxt2htm::details::html_parser::ParserFrameContext<ndebug>& = delete;
-    constexpr auto operator=(::pltxt2htm::details::html_parser::ParserFrameContext<ndebug>&&) noexcept
-        -> ::pltxt2htm::details::html_parser::ParserFrameContext<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::details::html_parser::HtmlParserFrameContext<ndebug> const&) noexcept
+        -> ::pltxt2htm::details::html_parser::HtmlParserFrameContext<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::details::html_parser::HtmlParserFrameContext<ndebug>&&) noexcept
+        -> ::pltxt2htm::details::html_parser::HtmlParserFrameContext<ndebug>& = delete;
 
-    constexpr ~ParserFrameContext() noexcept = default;
+    constexpr ~HtmlParserFrameContext() noexcept = default;
 
     [[nodiscard]]
     constexpr auto get_nested_tag_type(this auto&& self) noexcept -> ::pltxt2htm::NodeKind {

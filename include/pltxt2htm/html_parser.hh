@@ -38,12 +38,12 @@ namespace pltxt2htm {
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto parse_html(::fast_io::u8string_view html_text) noexcept -> ::pltxt2htm::Ast<ndebug> {
-    ::fast_io::stack<::pltxt2htm::details::html_parser::ParserFrameContext<ndebug>> call_stack{};
+constexpr auto parse_pltxt_html(::fast_io::u8string_view html_text) noexcept -> ::pltxt2htm::Ast<ndebug> {
+    ::fast_io::stack<::pltxt2htm::details::html_parser::HtmlParserFrameContext<ndebug>> call_stack{};
 
-    call_stack.push(::pltxt2htm::details::html_parser::ParserFrameContext<ndebug>(
+    call_stack.push(::pltxt2htm::details::html_parser::HtmlParserFrameContext<ndebug>(
         ::pltxt2htm::details::html_parser::FrontendContextVariant<ndebug>{
-            ::pltxt2htm::details::html_parser::ParserFrameContextWithPltextInfo{
+            ::pltxt2htm::details::html_parser::HtmlParserFrameContextWithPltextInfo{
                 html_text},
             ::pltxt2htm::NodeKind::text},
         ::pltxt2htm::Ast<ndebug>{}));
