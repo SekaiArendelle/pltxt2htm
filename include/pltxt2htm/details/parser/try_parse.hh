@@ -1880,6 +1880,12 @@ struct TryParseMdCodeFenceResult {
     ::std::size_t advance_count; ///< Number of characters consumed.
 };
 
+[[nodiscard]]
+constexpr bool is_allowed_in_language(char8_t const chr) noexcept {
+    return (chr >= u8'a' && chr <= u8'z') || (chr >= u8'A' && chr <= u8'Z') || (chr >= u8'0' && chr <= u8'9') ||
+           chr == u8'+' || chr == u8'#' || chr == u8'.' || chr == u8'_' || chr == u8'-';
+}
+
 /**
  * @brief Parse Markdown code fences with language specification.
  *
@@ -1984,6 +1990,18 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) {
                 return ::exception::nullopt_t{};
             }
+        }
+        if (::pltxt2htm::details::is_allowed_in_language(chr) == false) {
+            lang.clear();
+            while (current_index != pltext_size &&
+                   ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8'\n') {
+                ++current_index;
+            }
+            if (current_index == pltext_size) {
+                return ::exception::nullopt_t{};
+            }
+            ++current_index;
+            break;
         }
         lang.push_back(chr);
     }

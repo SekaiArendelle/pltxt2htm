@@ -144,29 +144,73 @@ print("Hello World")
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // Invalid language characters are rejected (only [a-zA-Z0-9+#._-] allowed)
+    // "" in language → rejected, no language class
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```foo\"onmouseover=\"alert(1)\nprint(1)\n```");
-        auto answer = ::fast_io::u8string_view{
-            u8"<pre><code class=\"language-foo&quot;onmouseover=&quot;alert(1)\">print(1)</code></pre>"};
+        auto answer = ::fast_io::u8string_view{u8"<pre><code>print(1)</code></pre>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // "<" in language → rejected, no language class
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```<svg/onload=alert(1)>\nprint(1)\n```");
-        auto answer = ::fast_io::u8string_view{
-            u8"<pre><code class=\"language-&lt;svg/onload=alert(1)&gt;\">print(1)</code></pre>"};
+        auto answer = ::fast_io::u8string_view{u8"<pre><code>print(1)</code></pre>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // "&" in language → rejected, no language class
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```&#xGG;\nprint(1)\n```");
-        auto answer = ::fast_io::u8string_view{u8"<pre><code class=\"language-&amp;#xGG;\">print(1)</code></pre>"};
+        auto answer = ::fast_io::u8string_view{u8"<pre><code>print(1)</code></pre>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // "~" is not a valid language character → rejected, no language class
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"~~~~\n%'#");
-        auto answer = ::fast_io::u8string_view{u8"<pre><code class=\"language-~\">%&apos;#</code></pre>"};
+        auto answer = ::fast_io::u8string_view{u8"<pre><code>%&apos;#</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // "\" in language → rejected, no language class
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"```\\\ncode\n```");
+        auto answer = ::fast_io::u8string_view{u8"<pre><code>code</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // "`" in language → rejected, no language class
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"````\ncode\n```");
+        auto answer = ::fast_io::u8string_view{u8"<pre><code>code</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Valid special characters in language: "+", "#", ".", "_", "-"
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"```c++\ncode\n```");
+        auto answer = ::fast_io::u8string_view{u8"<pre><code class=\"language-c++\">code</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"```c#\ncode\n```");
+        auto answer = ::fast_io::u8string_view{u8"<pre><code class=\"language-c#\">code</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"```foo.bar\ncode\n```");
+        auto answer = ::fast_io::u8string_view{u8"<pre><code class=\"language-foo.bar\">code</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"```foo_bar\ncode\n```");
+        auto answer = ::fast_io::u8string_view{u8"<pre><code class=\"language-foo_bar\">code</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"```foo-bar\ncode\n```");
+        auto answer = ::fast_io::u8string_view{u8"<pre><code class=\"language-foo-bar\">code</code></pre>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
