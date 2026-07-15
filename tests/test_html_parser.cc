@@ -23,8 +23,13 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
-        auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<a href=\"url\">link</a>");
-        auto answer = ::fast_io::u8string_view{u8"<a href=\"url\">link</a>"};
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<a href=\"http://example.com\">link</a>");
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"http://example.com\">link</a>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<a href=\"invalid-url\">link</a>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;a&nbsp;href=&quot;invalid-url&quot;&gt;link&lt;/a&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
@@ -84,7 +89,7 @@ int main() {
     }
     {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<!-- comment -->");
-        auto answer = ::fast_io::u8string_view{u8"<!-- comment -->"};
+        auto answer = ::fast_io::u8string_view{u8""};
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
