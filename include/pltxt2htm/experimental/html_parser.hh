@@ -1,9 +1,3 @@
-/**
- * @file parser.hh
- * @brief HTML-only parser – converts HTML subset of pl-text into an AST.
- * @details Provides `parse_pltxt_html` template that drives the recursive-descent
- *          (goto-based) parsing of HTML syntax elements only (no MD/PL syntax).
- */
 #pragma once
 
 #include <cstddef>
@@ -12,14 +6,16 @@
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
 #include <exception/exception.hh>
-#include "../utils.hh"
-#include "../../contracts.hh"
-#include "../../ast/ast.hh"
-#include "../parser/try_parse.hh"
-#include "../parser/frame_concext.hh"
-#include "../push_macro.hh"
+#include "../ast/node_kind.hh"
+#include "../ast/ast.hh"
+#include "../contracts.hh"
+#include "../details/utils.hh"
+#include "../details/parser/frame_concext.hh"
+#include "../details/parser/try_parse.hh"
+#include "../details/push_macro.hh"
 
-namespace pltxt2htm::details::html_parser {
+namespace pltxt2htm::experimental {
+namespace details {
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
@@ -93,7 +89,6 @@ entry:
                 case u8'a':
                     [[fallthrough]];
                 case u8'A': {
-                    // parsing html <a href="URL"> tag
                     if (auto opt_a_tag = ::pltxt2htm::details::try_parse_html_a_tag<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_a_tag.has_value()) {
@@ -328,7 +323,6 @@ entry:
                 case u8'i':
                     [[fallthrough]];
                 case u8'I': {
-                    // parsing html <input type="checkbox" disabled [checked]> self-closing tag
                     if (auto opt_input_tag = ::pltxt2htm::details::try_parse_input_checkbox_tag<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_input_tag.has_value()) {
@@ -339,7 +333,6 @@ entry:
                         ++current_index;
                         continue;
                     }
-                    // parsing html <img src="..." alt="..."> self-closing tag
                     if (auto opt_img_tag = ::pltxt2htm::details::try_parse_img_tag<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_img_tag.has_value()) {
@@ -400,7 +393,6 @@ entry:
                 case u8'p':
                     [[fallthrough]];
                 case u8'P': {
-                    // parsing html <p></p> tag
                     if (auto opt_p_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_p_tag_len.has_value()) {
@@ -433,7 +425,6 @@ entry:
                 case u8's':
                     [[fallthrough]];
                 case u8'S': {
-                    // parsing <span style="color:...;font-size:..."> as html_span
                     if (auto opt_span_tag = ::pltxt2htm::details::try_parse_span_tag<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_span_tag.has_value()) {
@@ -586,7 +577,6 @@ entry:
                 }
 
                 case u8'!': {
-                    // parsing: <!--$1-->
                     if (::pltxt2htm::details::is_prefix_match<ndebug, u8"--">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2))) {
                         ::std::size_t comment_end{current_index + 4};
@@ -1277,6 +1267,28 @@ entry:
     }
 }
 
-} // namespace pltxt2htm::details::html_parser
+} // namespace details
 
-#include "../pop_macro.hh"
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto parse_pltxt_html(::fast_io::u8string_view html_text) noexcept -> ::pltxt2htm::Ast<ndebug> {
+    ::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>> call_stack{};
+
+    call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+        ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+            ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                html_text},
+            ::pltxt2htm::NodeKind::text},
+        ::pltxt2htm::Ast<ndebug>{}));
+
+    auto result = details::parse_pltxt_html<ndebug>(call_stack);
+
+    bool const call_stack_is_empty{call_stack.empty()};
+    pltxt2htm_assert(call_stack_is_empty, u8"call_stack is not empty");
+
+    return result;
+}
+
+} // namespace pltxt2htm::experimental
+
+#include "../details/pop_macro.hh"

@@ -21,7 +21,6 @@
 #include <exception/exception.hh>
 #include "contracts.hh"
 #include "parser.hh"
-#include "html_parser.hh"
 #include "optimizer.hh"
 #include "details/backend/for_plweb_text.hh"
 #include "details/backend/for_plweb_title.hh"
@@ -58,17 +57,6 @@ constexpr auto pltxt4unittest(::fast_io::u8string_view pltext) noexcept {
     }
     return ::pltxt2htm::details::plweb_text_backend<ndebug, false>(ast, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR",
                                                                    u8"$AUTHOR", u8"$CO_AUTHORS");
-}
-
-template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, bool optimize = true>
-[[nodiscard]]
-constexpr auto pltxt4htmlunittest(::fast_io::u8string_view html_text) noexcept {
-    auto ast = ::pltxt2htm::parse_pltxt_html<ndebug>(html_text);
-    if constexpr (optimize) {
-        ::pltxt2htm::optimize_ast<ndebug>(ast);
-    }
-    return ::pltxt2htm::details::plweb_text_backend<ndebug, false>(ast, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR",
-                                                                    u8"$AUTHOR", u8"$CO_AUTHORS");
 }
 
 /**
