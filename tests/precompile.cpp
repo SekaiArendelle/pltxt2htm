@@ -8,6 +8,7 @@
 #include <fast_io/fast_io_dsal/string_view.h>
 #include <exception/exception.hh>
 #include <pltxt2htm/pltxt2htm.hh>
+#include <pltxt2htm/experimental/html_parser.hh>
 
 #if defined(pltxt2htm_assert)
     #error "Test fail: pltxt2htm_assert is defined"
@@ -53,6 +54,18 @@ PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2common_html(::fast_io::u8string_view plt
 #endif
 PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt4unittest(::fast_io::u8string_view pltext) noexcept -> ::fast_io::u8string {
     return ::pltxt2htm::pltxt4unittest<::pltxt2htm::Contracts::quick_enforce>(pltext);
+}
+
+#if __has_cpp_attribute(__gnu__::__used__)
+[[__gnu__::__used__]]
+#endif
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
+PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt4htmlunittest(::fast_io::u8string_view pltext) noexcept -> ::fast_io::u8string {
+    auto ast = ::pltxt2htm::experimental::parse_pltxt_html<::pltxt2htm::Contracts::quick_enforce>(pltext);
+    return ::pltxt2htm::details::plweb_text_backend<::pltxt2htm::Contracts::quick_enforce, false>(
+        ast, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
 }
 
 #if __has_cpp_attribute(__gnu__::__used__)

@@ -15,6 +15,12 @@ auto pltxt4unittest(::fast_io::u8string_view) noexcept -> ::fast_io::u8string;
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
+auto pltxt4htmlunittest(::fast_io::u8string_view) noexcept -> ::fast_io::u8string;
+
+[[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
 auto pltxt2common_html(::fast_io::u8string_view) noexcept -> ::fast_io::u8string;
 
 [[nodiscard]]
