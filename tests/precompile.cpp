@@ -61,6 +61,16 @@ PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt4unittest(::fast_io::u8string_view pltext
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
+PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt4htmlunittest(::fast_io::u8string_view pltext) noexcept -> ::fast_io::u8string {
+    return ::pltxt2htm::pltxt4htmlunittest<::pltxt2htm::Contracts::quick_enforce>(pltext);
+}
+
+#if __has_cpp_attribute(__gnu__::__used__)
+[[__gnu__::__used__]]
+#endif
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
 PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2fixedadv_htmld(::fast_io::u8string_view pltext) noexcept
     -> ::fast_io::u8string {
     return ::pltxt2htm::pltxt2fixedadv_html<::pltxt2htm::Contracts::quick_enforce>(
