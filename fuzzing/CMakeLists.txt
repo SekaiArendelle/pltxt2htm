@@ -26,7 +26,7 @@ if(NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     message(FATAL_ERROR "Only clang is supported for fuzzing (CMAKE_CXX_COMPILER_ID=${CMAKE_CXX_COMPILER_ID})")
 endif()
 
-foreach(FUZZER_SRC common_parser fixedadv_parser plrichtext_parser)
+foreach(FUZZER_SRC common_parser fixedadv_parser plrichtext_parser fixedadv_roundtrip)
     add_executable(${FUZZER_SRC} src/${FUZZER_SRC}.cc)
     target_include_directories(${FUZZER_SRC} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
     target_compile_features(${FUZZER_SRC} PRIVATE cxx_std_23)
