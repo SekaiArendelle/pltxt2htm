@@ -55,8 +55,8 @@ constexpr auto pltxt4unittest(::fast_io::u8string_view pltext) noexcept {
     if constexpr (optimize) {
         ::pltxt2htm::optimize_ast<ndebug>(ast);
     }
-    return ::pltxt2htm::details::plweb_text_backend<ndebug, false>(ast, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR",
-                                                                   u8"$AUTHOR", u8"$CO_AUTHORS");
+    return ::pltxt2htm::details::plweb_text_backend<ndebug, ::pltxt2htm::details::PlWebTextBackendMode::pltxt4unittest>(
+        ast, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
 }
 
 /**
@@ -82,7 +82,8 @@ constexpr auto pltxt2fixedadv_html(::fast_io::u8string_view pltext, ::fast_io::u
     if constexpr (optimize) {
         ::pltxt2htm::optimize_ast<ndebug>(ast);
     }
-    return ::pltxt2htm::details::plweb_text_backend<ndebug, true>(ast, host, project, visitor, author, coauthors);
+    return ::pltxt2htm::details::plweb_text_backend<ndebug, ::pltxt2htm::details::PlWebTextBackendMode::fixedadv_html>(
+        ast, host, project, visitor, author, coauthors);
 }
 
 /**
@@ -133,7 +134,6 @@ constexpr auto pltxt2plunity_introduction(::fast_io::u8string_view pltext, ::fas
  * @note This function is faster than the advanced versions but supports fewer features
  * @warning Markdown syntax and advanced HTML features are not supported in this mode
  * @warning AST optimization is disabled by default for this function
- * @see pltxt2advanced_html for full feature support
  */
 template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, bool optimize = false>
 [[nodiscard]]

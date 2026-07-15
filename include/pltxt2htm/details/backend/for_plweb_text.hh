@@ -269,6 +269,12 @@ constexpr void append_url_attr_from_ast(::fast_io::u8string& result, ::pltxt2htm
     }
 }
 
+enum class PlWebTextBackendMode : unsigned {
+    pltxt4unittest = 0,
+    fixedadv_html,
+    no_latex,
+};
+
 /**
  * @brief Convert AST nodes to advanced HTML with full feature support
  * @details This backend generates comprehensive HTML output supporting:
@@ -287,7 +293,7 @@ constexpr void append_url_attr_from_ast(::fast_io::u8string& result, ::pltxt2htm
  * @return A string containing the generated HTML
  * @note To avoid stack overflow, this function manages call_stack manually using goto-based state machine
  */
-template<::pltxt2htm::Contracts ndebug, bool isfixed>
+template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::PlWebTextBackendMode mode>
 [[nodiscard]]
 constexpr auto plweb_text_backend(::pltxt2htm::Ast<ndebug> const& ast_init, ::fast_io::u8string_view host,
                                   ::fast_io::u8string_view project, ::fast_io::u8string_view visitor,
@@ -404,7 +410,7 @@ entry:
                 ++current_index;
                 result.append(u8"<a href=\"");
                 ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result, host);
-                if constexpr (isfixed) {
+                if constexpr (mode != PlWebTextBackendMode::pltxt4unittest) {
                     result.append(u8"/p/Experiment/");
                 }
                 else {
@@ -435,7 +441,7 @@ entry:
                 ++current_index;
                 result.append(u8"<a href=\"");
                 ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result, host);
-                if constexpr (isfixed) {
+                if constexpr (mode != PlWebTextBackendMode::pltxt4unittest) {
                     result.append(u8"/p/Discussion/");
                 }
                 else {
@@ -814,18 +820,28 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_latex_inline: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                    node.as_md_latex_inline().get_subast(), ::pltxt2htm::NodeKind::md_latex_inline, 0));
                 ++current_index;
-                result.append(u8"$");
-                goto entry;
+                if constexpr (mode == PlWebTextBackendMode::no_latex) {
+                    continue;
+                }
+                else {
+                    call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
+                        node.as_md_latex_inline().get_subast(), ::pltxt2htm::NodeKind::md_latex_inline, 0));
+                    result.append(u8"$");
+                    goto entry;
+                }
             }
             case ::pltxt2htm::NodeKind::md_latex_block: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                    node.as_md_latex_block().get_subast(), ::pltxt2htm::NodeKind::md_latex_block, 0));
                 ++current_index;
-                result.append(u8"$$");
-                goto entry;
+                if constexpr (mode == PlWebTextBackendMode::no_latex) {
+                    continue;
+                }
+                else {
+                    call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
+                        node.as_md_latex_block().get_subast(), ::pltxt2htm::NodeKind::md_latex_block, 0));
+                    result.append(u8"$$");
+                    goto entry;
+                }
             }
             case ::pltxt2htm::NodeKind::html_pre: {
                 // Note: Despite `<pre></pre>` is empty, we still need to handle it
@@ -1359,10 +1375,14 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_latex_inline: {
+                pltxt2htm_assert(mode != PlWebTextBackendMode::no_latex,
+                                 u8"Unexpected md_latex_inline node in no_latex mode");
                 result.append(u8"$");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_latex_block: {
+                pltxt2htm_assert(mode != PlWebTextBackendMode::no_latex,
+                                 u8"Unexpected md_latex_block node in no_latex mode");
                 result.append(u8"$$");
                 goto entry;
             }
