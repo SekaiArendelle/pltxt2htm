@@ -1283,6 +1283,7 @@ public:
     constexpr auto get_md_cell_align(this auto&& self) noexcept -> ::pltxt2htm::MdTableAlign {
         auto&& context_data_ref = self.context_data;
         pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_td ||
+                             context_data_ref.kind == ::pltxt2htm::NodeKind::html_th ||
                              context_data_ref.kind == ::pltxt2htm::NodeKind::md_th ||
                              context_data_ref.kind == ::pltxt2htm::NodeKind::md_td,
                          u8"context kind mismatch");

@@ -851,7 +851,15 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_th().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::html_th, 0));
                 ++current_index;
-                result.append(u8"<th>");
+                result.append(u8"<th");
+                auto const align = node.as_html_th().get_align();
+                if (align == ::pltxt2htm::MdTableAlign::center) {
+                    result.append(u8" style=\"text-align:center\"");
+                }
+                else if (align == ::pltxt2htm::MdTableAlign::right) {
+                    result.append(u8" style=\"text-align:right\"");
+                }
+                result.push_back(u8'>');
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_thead: {

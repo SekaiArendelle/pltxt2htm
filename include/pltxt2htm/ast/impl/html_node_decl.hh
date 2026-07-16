@@ -700,9 +700,10 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class HtmlTh {
     ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::MdTableAlign align_;
 
 public:
-    constexpr explicit HtmlTh(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr explicit HtmlTh(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::MdTableAlign align_) noexcept;
     constexpr HtmlTh(::pltxt2htm::HtmlTh<ndebug> const&) noexcept;
     constexpr HtmlTh(::pltxt2htm::HtmlTh<ndebug>&&) noexcept;
     constexpr ~HtmlTh() noexcept;
@@ -716,6 +717,11 @@ public:
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_align(this auto&& self) noexcept -> ::pltxt2htm::MdTableAlign {
+        return self.align_;
     }
 };
 
