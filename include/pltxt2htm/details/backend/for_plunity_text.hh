@@ -730,7 +730,7 @@ entry:
             case ::pltxt2htm::NodeKind::html_code: {
                 // Note: Despite `<code></code>` is empty, we still need to handle it
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_code().get_subast(),
-                                                                                   ::pltxt2htm::NodeKind::html_code, 0));
+                                                                                  ::pltxt2htm::NodeKind::html_code, 0));
                 ++current_index;
                 result.append(u8"<code");
                 auto const& language = node.as_html_code().get_language();

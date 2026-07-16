@@ -203,6 +203,7 @@ public:
         : html_span_info{::std::move(html_span_context)},
           kind{node_kind_} {
     }
+
     constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithHtmlCodeInfo&& html_code_context,
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
         : html_code_info{::std::move(html_code_context)},
@@ -1034,7 +1035,8 @@ public:
         }
         case ::pltxt2htm::NodeKind::html_span: {
             return context_data_ref.html_span_info.pltext;
-        }        case ::pltxt2htm::NodeKind::html_code: {
+        }
+        case ::pltxt2htm::NodeKind::html_code: {
             return context_data_ref.html_code_info.pltext;
         }
         case ::pltxt2htm::NodeKind::html_a: {
@@ -1183,7 +1185,6 @@ public:
         return ::std::forward_like<decltype(self)>(context_data_ref.html_span_info.font_size);
     }
 
-
     [[nodiscard]]
     constexpr auto get_html_code_language(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
@@ -1191,7 +1192,6 @@ public:
         pltxt2htm_assert(is_html_code_type, u8"context kind mismatch");
         return ::std::forward_like<decltype(self)>(context_data_ref.html_code_info.language);
     }
-
 
     [[nodiscard]]
     constexpr auto get_html_a_url(this auto&& self) noexcept -> decltype(auto) {

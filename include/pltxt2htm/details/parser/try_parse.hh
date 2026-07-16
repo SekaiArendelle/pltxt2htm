@@ -1243,8 +1243,7 @@ constexpr auto try_parse_code_tag(::fast_io::u8string_view pltext) noexcept
                 return ::exception::nullopt_t{};
             }
             // value must start with "language-" and have at least one char after
-            if (attr_val.size() < 10 ||
-                ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, 0) != u8'l' ||
+            if (attr_val.size() < 10 || ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, 0) != u8'l' ||
                 ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, 1) != u8'a' ||
                 ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, 2) != u8'n' ||
                 ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, 3) != u8'g' ||
@@ -1269,6 +1268,7 @@ constexpr auto try_parse_code_tag(::fast_io::u8string_view pltext) noexcept
     }
     return TryParseCodeTagResult{pos + 1, ::std::move(language)};
 }
+
 /**
  * @brief Parse a self-closing HTML tag without a specific tag name (e.g., `<tag/>`).
  *
