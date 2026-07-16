@@ -813,7 +813,14 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_code().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::html_code, 0));
                 ++current_index;
-                result.append(u8"<code>");
+                result.append(u8"<code");
+                auto const& language = node.as_html_code().get_language();
+                if (language.has_value()) {
+                    result.append(u8" class=\"");
+                    result.append(language.template value<ndebug == ::pltxt2htm::Contracts::ignore>());
+                    result.push_back(u8'\"');
+                }
+                result.push_back(u8'>');
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_latex_inline: {
@@ -824,7 +831,7 @@ entry:
                     ++current_index;
                     call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                         node.as_md_latex_inline().get_subast(), ::pltxt2htm::NodeKind::md_latex_inline, 0));
-                    result.append(u8"$");
+                    result.push_back(u8'$');
                     goto entry;
                 }
             }
@@ -1374,7 +1381,7 @@ entry:
             case ::pltxt2htm::NodeKind::md_latex_inline: {
                 pltxt2htm_assert(mode != PlWebTextBackendMode::no_latex,
                                  u8"Unexpected md_latex_inline node in no_latex mode");
-                result.append(u8"$");
+                result.push_back(u8'$');
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_latex_block: {

@@ -75,8 +75,7 @@ PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt4htmlunittest(::fast_io::u8string_view pl
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2nolatex_htmld(::fast_io::u8string_view pltext) noexcept
-    -> ::fast_io::u8string {
+PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2nolatex_htmld(::fast_io::u8string_view pltext) noexcept -> ::fast_io::u8string {
     auto ast = ::pltxt2htm::parse_pltxt<::pltxt2htm::Contracts::quick_enforce>(pltext);
     ::pltxt2htm::optimize_ast<::pltxt2htm::Contracts::quick_enforce>(ast);
     return ::pltxt2htm::details::plweb_text_backend<::pltxt2htm::Contracts::quick_enforce,

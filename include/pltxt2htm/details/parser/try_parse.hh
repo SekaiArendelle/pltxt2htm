@@ -1145,6 +1145,131 @@ constexpr auto try_parse_span_tag(::fast_io::u8string_view pltext) noexcept
 }
 
 /**
+ * @brief Result of parsing a <code class="language-..."> tag.
+ */
+struct TryParseCodeTagResult {
+    ::std::size_t tag_len; ///< Length of the matched tag.
+    ::exception::optional<::fast_io::u8string> language;
+};
+
+/**
+ * @brief Parse <code> or <code class="language-..."> with strict validation.
+ * @tparam ndebug When set to Contracts::ignore, runtime assertions are disabled for performance.
+ * @param[in] pltext Input text starting at "ode ..." (after "<c").
+ * @return Parsed tag result on success; nullopt on any deviation.
+ * @note Bare <code> (no attributes) is accepted. If "class" attribute is present,
+ *       the value must start with "language-" and have at least one character after.
+ *       Any other attribute, duplicate class, empty class, or non-"language-" prefix fails.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_code_tag(::fast_io::u8string_view pltext) noexcept
+    -> ::exception::optional<TryParseCodeTagResult> {
+    // match "ode" prefix (case-insensitive)
+    if (::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"ode"}>(pltext) ==
+        false) {
+        return ::exception::nullopt_t{};
+    }
+
+    ::std::size_t pos{3}; // skip past "ode" (the 'c' was consumed by the trie dispatch)
+    bool found_class{false};
+    ::exception::optional<::fast_io::u8string> language{::exception::nullopt_t{}};
+
+    while (pos < pltext.size()) {
+        // skip whitespace
+        while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
+                                       ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t')) {
+            ++pos;
+        }
+        if (pos >= pltext.size()) {
+            return ::exception::nullopt_t{};
+        }
+        if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'>') {
+            break;
+        }
+
+        // parse attribute name
+        ::std::size_t const attr_start = pos;
+        while (pos < pltext.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'=' &&
+               ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'>' &&
+               ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8' ' &&
+               ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'\t' &&
+               ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'/') {
+            ++pos;
+        }
+        ::fast_io::u8string_view const attr_name{pltext.data() + attr_start, pos - attr_start};
+
+        // skip whitespace before '='
+        while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
+                                       ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t')) {
+            ++pos;
+        }
+        if (pos >= pltext.size() || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'=') {
+            return ::exception::nullopt_t{};
+        }
+        ++pos; // skip '='
+
+        // skip whitespace after '='
+        while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
+                                       ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t')) {
+            ++pos;
+        }
+        if (pos >= pltext.size()) {
+            return ::exception::nullopt_t{};
+        }
+
+        // parse quoted attribute value
+        char8_t const quote{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos)};
+        if (quote != u8'"' && quote != u8'\'') {
+            return ::exception::nullopt_t{};
+        }
+        ++pos; // skip opening quote
+        ::std::size_t const val_start = pos;
+        while (pos < pltext.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != quote) {
+            ++pos;
+        }
+        if (pos >= pltext.size()) {
+            return ::exception::nullopt_t{};
+        }
+        ::fast_io::u8string_view const attr_val{pltext.data() + val_start, pos - val_start};
+        ++pos; // skip closing quote
+
+        // only lowercase "class" attribute is allowed
+        if (attr_name == ::fast_io::u8string_view{u8"class"}) {
+            if (found_class) {
+                return ::exception::nullopt_t{}; // duplicate class
+            }
+            if (attr_val.empty()) {
+                return ::exception::nullopt_t{};
+            }
+            // value must start with "language-" and have at least one char after
+            if (attr_val.size() < 10 || ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, 0) != u8'l' ||
+                ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, 1) != u8'a' ||
+                ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, 2) != u8'n' ||
+                ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, 3) != u8'g' ||
+                ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, 4) != u8'u' ||
+                ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, 5) != u8'a' ||
+                ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, 6) != u8'g' ||
+                ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, 7) != u8'e' ||
+                ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, 8) != u8'-') {
+                return ::exception::nullopt_t{};
+            }
+            language = ::fast_io::u8string{attr_val};
+            found_class = true;
+        }
+        else {
+            return ::exception::nullopt_t{}; // unknown attribute
+        }
+    }
+
+    // bare tag with no attributes is accepted
+    if (pos >= pltext.size() || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'>') {
+        return ::exception::nullopt_t{};
+    }
+    return TryParseCodeTagResult{pos + 1, ::std::move(language)};
+}
+
+/**
  * @brief Parse a self-closing HTML tag without a specific tag name (e.g., `<tag/>`).
  *
  * This function attempts to parse any self-closing HTML tag by looking for the pattern
