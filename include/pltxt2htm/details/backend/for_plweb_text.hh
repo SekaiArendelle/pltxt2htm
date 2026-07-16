@@ -822,7 +822,7 @@ entry:
                         result.append(u8"\"");
                     }
                 }
-                result.append(u8">");
+                result.push_back(u8'>');
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_latex_inline: {
@@ -833,7 +833,7 @@ entry:
                     ++current_index;
                     call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                         node.as_md_latex_inline().get_subast(), ::pltxt2htm::NodeKind::md_latex_inline, 0));
-                    result.append(u8"$");
+                    result.push_back(u8'$');
                     goto entry;
                 }
             }
@@ -1383,7 +1383,7 @@ entry:
             case ::pltxt2htm::NodeKind::md_latex_inline: {
                 pltxt2htm_assert(mode != PlWebTextBackendMode::no_latex,
                                  u8"Unexpected md_latex_inline node in no_latex mode");
-                result.append(u8"$");
+                result.push_back(u8'$');
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_latex_block: {

@@ -741,14 +741,14 @@ entry:
                         result.append(u8"\"");
                     }
                 }
-                result.append(u8">");
+                result.push_back(u8'>');
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_latex_inline: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_md_latex_inline().get_subast(), ::pltxt2htm::NodeKind::md_latex_inline, 0));
                 ++current_index;
-                result.append(u8"$");
+                result.push_back(u8'$');
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_latex_block: {
@@ -1276,7 +1276,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_latex_inline: {
-                result.append(u8"$");
+                result.push_back(u8'$');
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_latex_block: {
