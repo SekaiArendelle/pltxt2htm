@@ -817,11 +817,11 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_latex_inline: {
-                ++current_index;
                 if constexpr (mode == PlWebTextBackendMode::no_latex) {
                     continue;
                 }
                 else {
+                    ++current_index;
                     call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                         node.as_md_latex_inline().get_subast(), ::pltxt2htm::NodeKind::md_latex_inline, 0));
                     result.append(u8"$");
@@ -829,11 +829,11 @@ entry:
                 }
             }
             case ::pltxt2htm::NodeKind::md_latex_block: {
-                ++current_index;
                 if constexpr (mode == PlWebTextBackendMode::no_latex) {
                     continue;
                 }
                 else {
+                    ++current_index;
                     call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                         node.as_md_latex_block().get_subast(), ::pltxt2htm::NodeKind::md_latex_block, 0));
                     result.append(u8"$$");
