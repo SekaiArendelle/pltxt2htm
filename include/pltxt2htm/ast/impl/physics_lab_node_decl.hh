@@ -188,10 +188,10 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class PlExternal {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::pltxt2htm::Url<ndebug> url;
+    ::pltxt2htm::Url url;
 
 public:
-    constexpr PlExternal(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::Url<ndebug>&& url_) noexcept;
+    constexpr PlExternal(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::Url&& url_) noexcept;
     constexpr PlExternal(::pltxt2htm::PlExternal<ndebug> const&) noexcept;
     constexpr PlExternal(::pltxt2htm::PlExternal<ndebug>&&) noexcept;
     constexpr ~PlExternal() noexcept;

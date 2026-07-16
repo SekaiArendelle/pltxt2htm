@@ -165,31 +165,32 @@ public:
 
 /**
  * @brief URL node
- * @details Represents a URL stored as an AST of characters.
+ * @details Represents a URL stored as a plain string.
  */
-template<::pltxt2htm::Contracts ndebug>
 class Url {
-    ::pltxt2htm::Ast<ndebug> url_ast;
+    ::fast_io::u8string url_str;
 
 public:
     /**
-     * @brief Construct a ::pltxt2htm::Url<ndebug> from an AST.
-     * @param attr The AST representing the URL characters.
+     * @brief Construct a ::pltxt2htm::Url from a URL string.
+     * @param url The URL string.
      */
-    constexpr explicit Url(::pltxt2htm::Ast<ndebug>&& attr) noexcept;
-    constexpr Url(::pltxt2htm::Url<ndebug> const&) noexcept;
-    constexpr Url(::pltxt2htm::Url<ndebug>&&) noexcept;
-    constexpr ~Url() noexcept;
-    constexpr auto operator=(::pltxt2htm::Url<ndebug> const&) noexcept -> ::pltxt2htm::Url<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::Url<ndebug>& self, ::pltxt2htm::Url<ndebug>&&) noexcept
-        -> ::pltxt2htm::Url<ndebug>&;
+    constexpr explicit Url(::fast_io::u8string&& url) noexcept
+        : url_str(::std::move(url)) {
+    }
+
+    constexpr Url(Url const&) noexcept = default;
+    constexpr Url(Url&&) noexcept = default;
+    constexpr ~Url() noexcept = default;
+    constexpr auto operator=(Url const&) noexcept -> Url& = delete;
+    constexpr auto operator=(this Url& self, Url&&) noexcept -> Url& = default;
 
     [[nodiscard]]
-    constexpr auto operator==(this Url const&, Url const&) noexcept -> bool;
+    constexpr auto operator==(this Url const&, Url const&) noexcept -> bool = default;
 
     [[nodiscard]]
-    constexpr auto get_url_ast(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.url_ast);
+    constexpr auto as_string(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.url_str);
     }
 };
 

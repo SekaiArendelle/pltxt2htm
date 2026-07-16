@@ -136,7 +136,7 @@ class PlTxtNode {
         ::pltxt2htm::MdTripleEmphasisUnderscore<ndebug> md_triple_emphasis_underscore_node;
         ::pltxt2htm::MdDel<ndebug> md_del_node;
         ::pltxt2htm::MdLink<ndebug> md_link_node;
-        ::pltxt2htm::Url<ndebug> url_node;
+        ::pltxt2htm::Url url_node;
         ::pltxt2htm::MdImage<ndebug> md_image_node;
         ::pltxt2htm::MdBlockQuotes<ndebug> md_block_quotes_node;
         ::pltxt2htm::MdUl<ndebug> md_ul_node;
@@ -721,7 +721,7 @@ public:
           node_kind{::pltxt2htm::NodeKind::md_link} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::Url<ndebug>&& node) noexcept
+    constexpr PlTxtNode(::pltxt2htm::Url&& node) noexcept
         : url_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::url} {
     }

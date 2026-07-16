@@ -333,8 +333,7 @@ entry:
                     node.as_pl_external().get_subast(), ::pltxt2htm::NodeKind::pl_external, 0));
                 ++current_index;
                 result.append(u8"<external=");
-                ::pltxt2htm::details::convert_simple_pltxt_ast_to_plunity_richtext<ndebug>(
-                    node.as_pl_external().get_url().get_url_ast(), result);
+                result.append(node.as_pl_external().get_url().as_string());
                 result.push_back(u8'>');
                 goto entry;
             }
@@ -382,8 +381,7 @@ entry:
                                                                                   ::pltxt2htm::NodeKind::html_a, 0));
                 ++current_index;
                 result.append(u8"<external=");
-                ::pltxt2htm::details::convert_simple_pltxt_ast_to_plunity_richtext<ndebug>(
-                    node.as_html_a().get_url().get_url_ast(), result);
+                result.append(node.as_html_a().get_url().as_string());
                 result.push_back(u8'>');
                 goto entry;
             }
@@ -943,22 +941,20 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::url: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_url().get_url_ast(),
-                                                                                  ::pltxt2htm::NodeKind::url, 0));
-                ++current_index;
+                auto const& url_str = node.as_url().as_string();
                 result.append(u8"<external=");
-                ::pltxt2htm::details::convert_simple_pltxt_ast_to_plunity_richtext<ndebug>(node.as_url().get_url_ast(),
-                                                                                           result);
+                result.append(url_str);
                 result.push_back(u8'>');
-                goto entry;
+                result.append(url_str);
+                result.append(u8"</external>");
+                continue;
             }
             case ::pltxt2htm::NodeKind::md_link: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_link().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::md_link, 0));
                 ++current_index;
                 result.append(u8"<external=");
-                ::pltxt2htm::details::convert_simple_pltxt_ast_to_plunity_richtext<ndebug>(
-                    node.as_md_link().get_url().get_url_ast(), result);
+                result.append(node.as_md_link().get_url().as_string());
                 result.push_back(u8'>');
                 goto entry;
             }
@@ -967,8 +963,7 @@ entry:
                 ::pltxt2htm::details::convert_simple_pltxt_ast_to_plunity_richtext<ndebug>(
                     node.as_md_image().get_subast(), result);
                 result.append(u8"](");
-                ::pltxt2htm::details::convert_simple_pltxt_ast_to_plunity_richtext<ndebug>(
-                    node.as_md_image().get_url().get_url_ast(), result);
+                result.append(node.as_md_image().get_url().as_string());
                 result.push_back(u8')');
                 continue;
             }

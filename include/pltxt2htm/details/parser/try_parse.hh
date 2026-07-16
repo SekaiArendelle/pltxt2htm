@@ -2670,7 +2670,7 @@ constexpr auto try_parse_url_authority(::fast_io::u8string_view pltext, ::std::s
 template<::pltxt2htm::Contracts ndebug>
 struct TryParseUrlResult {
     ::std::size_t consumed_size;
-    ::pltxt2htm::Url<ndebug> url;
+    ::pltxt2htm::Url url;
 };
 
 template<::pltxt2htm::Contracts ndebug>
@@ -2678,7 +2678,8 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr auto make_try_parse_url_result(::fast_io::u8string_view const parsed_url,
                                          ::std::size_t consumed_size) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseUrlResult<ndebug>> {
-    ::pltxt2htm::Ast<ndebug> ast{};
+    ::fast_io::u8string url_str{};
+    url_str.reserve(parsed_url.size());
     for (::std::size_t index{}; index < parsed_url.size(); ++index) {
         auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(parsed_url, index);
         if (chr == u8'&') {
@@ -2689,41 +2690,29 @@ constexpr auto make_try_parse_url_result(::fast_io::u8string_view const parsed_u
             }
         }
         switch (chr) {
-        case u8'&': {
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Ampersand{}));
-            break;
-        }
         case u8'\'': {
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'%'}));
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'2'}));
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'7'}));
+            url_str.append(u8"%27");
             break;
         }
         case u8'\"': {
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'%'}));
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'2'}));
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'2'}));
+            url_str.append(u8"%22");
             break;
         }
         case u8'<': {
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'%'}));
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'3'}));
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'C'}));
+            url_str.append(u8"%3C");
             break;
         }
         case u8'>': {
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'%'}));
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'3'}));
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'E'}));
+            url_str.append(u8"%3E");
             break;
         }
         default:
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{chr}));
+            url_str.push_back(chr);
             break;
         }
     }
     return ::pltxt2htm::details::TryParseUrlResult<ndebug>{.consumed_size = consumed_size,
-                                                           .url = ::pltxt2htm::Url<ndebug>{::std::move(ast)}};
+                                                           .url = ::pltxt2htm::Url{::std::move(url_str)}};
 }
 
 /**
@@ -2750,7 +2739,7 @@ constexpr auto try_parse_url_path_simple(::fast_io::u8string_view pltext, ::std:
 template<::pltxt2htm::Contracts ndebug>
 struct TryParseHtmlATagResult {
     ::std::size_t tag_len;
-    ::pltxt2htm::Url<ndebug> url;
+    ::pltxt2htm::Url url;
     bool internal;
 };
 
@@ -2891,7 +2880,7 @@ constexpr auto try_parse_auto_url(::fast_io::u8string_view pltext, ::std::size_t
 template<::pltxt2htm::Contracts ndebug>
 struct TryParseExternalTagResult {
     ::std::size_t tag_len;
-    ::pltxt2htm::Url<ndebug> url;
+    ::pltxt2htm::Url url;
 };
 
 template<::pltxt2htm::Contracts ndebug>
@@ -2931,7 +2920,7 @@ constexpr auto try_parse_external_tag(
 template<::pltxt2htm::Contracts ndebug>
 struct TryParseMdUrlResult {
     ::std::size_t consumed_size;
-    ::pltxt2htm::Url<ndebug> url;
+    ::pltxt2htm::Url url;
 };
 
 template<::pltxt2htm::Contracts ndebug>
@@ -3016,7 +3005,7 @@ template<::pltxt2htm::Contracts ndebug>
 struct TryParseMdLinkResult {
     ::std::size_t advance_count;
     ::fast_io::u8string_view link_text;
-    ::pltxt2htm::Url<ndebug> link_url;
+    ::pltxt2htm::Url link_url;
 };
 
 /**
@@ -3098,7 +3087,7 @@ template<::pltxt2htm::Contracts ndebug>
 struct TryParseMdImageResult {
     ::std::size_t advance_count;
     ::pltxt2htm::Ast<ndebug> link_text;
-    ::pltxt2htm::Url<ndebug> link_url;
+    ::pltxt2htm::Url link_url;
 };
 
 /**

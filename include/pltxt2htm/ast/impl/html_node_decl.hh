@@ -555,12 +555,11 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class HtmlA {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::pltxt2htm::Url<ndebug> url;
+    ::pltxt2htm::Url url;
     bool internal;
 
 public:
-    constexpr explicit HtmlA(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::Url<ndebug>&& url_,
-                             bool internal_) noexcept;
+    constexpr explicit HtmlA(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::Url&& url_, bool internal_) noexcept;
     constexpr HtmlA(::pltxt2htm::HtmlA<ndebug> const&) noexcept;
     constexpr HtmlA(::pltxt2htm::HtmlA<ndebug>&&) noexcept;
     constexpr ~HtmlA() noexcept;

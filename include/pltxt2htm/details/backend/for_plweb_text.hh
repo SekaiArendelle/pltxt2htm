@@ -242,33 +242,6 @@ constexpr void append_html_attr_escaped(::fast_io::u8string& result, ::fast_io::
     }
 }
 
-/**
- * @brief Convert a URL AST node to a string and append to HTML output.
- * @details Asserts in debug mode that the generated URL does not contain
- *          characters requiring HTML-attribute escaping.
- * @tparam ndebug Contract checking mode.
- * @param result Output string to append to.
- * @param url_ast The URL AST to convert.
- */
-template<::pltxt2htm::Contracts ndebug>
-constexpr void append_url_attr_from_ast(::fast_io::u8string& result, ::pltxt2htm::Url<ndebug> const& url_ast) noexcept {
-    auto const url_str_offset = result.size();
-    ::pltxt2htm::details::convert_simple_pltxt_ast_to_plweb_text<ndebug>(url_ast.get_url_ast(), result);
-    // Under normal circumstances, the URL should never contain characters that could enable XSS in HTML attributes.
-    // To avoid masking upstream bugs (and to keep release-path performance), we only assert this in debug mode.
-    // Do not try to hide such errors by routing output through `append_html_attr_escaped`.
-    if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
-        auto const url_str_view =
-            ::fast_io::u8string_view{result.data() + url_str_offset, result.size() - url_str_offset};
-        ::fast_io::u8string purified_url{};
-        ::pltxt2htm::details::append_html_attr_escaped<ndebug>(purified_url, url_str_view);
-        bool const url_is_safe{purified_url == url_str_view};
-        pltxt2htm_assert(url_is_safe,
-                         u8"URL contains characters that cannot be directly used in HTML attributes. Please "
-                         u8"check the URL or use a different backend that supports escaping.");
-    }
-}
-
 enum class PlWebTextBackendMode : unsigned {
     pltxt4unittest = 0,
     fixedadv_html,
@@ -536,7 +509,9 @@ entry:
                                                                                   ::pltxt2htm::NodeKind::html_a, 0));
                 ++current_index;
                 result.append(u8"<a href=\"");
-                ::pltxt2htm::details::append_url_attr_from_ast<ndebug>(result, node.as_html_a().get_url());
+                auto const& html_a_url = node.as_html_a().get_url().as_string();
+                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                    result, ::fast_io::u8string_view{html_a_url.data(), html_a_url.size()});
                 if (node.as_html_a().get_internal()) {
                     result.append(u8"\" internal>");
                 }
@@ -1040,17 +1015,22 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::url: {
+                auto const& url_str = node.as_url().as_string();
+                ::fast_io::u8string escaped;
+                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                    escaped, ::fast_io::u8string_view{url_str.data(), url_str.size()});
                 result.append(u8"<a href=\"");
-                ::pltxt2htm::details::append_url_attr_from_ast<ndebug>(result, node.as_url());
+                result.append(escaped);
                 result.append(u8"\">");
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_url().get_url_ast(),
-                                                                                  ::pltxt2htm::NodeKind::url, 0));
-                ++current_index;
-                goto entry;
+                result.append(escaped);
+                result.append(u8"</a>");
+                continue;
             }
             case ::pltxt2htm::NodeKind::md_link: {
                 result.append(u8"<a href=\"");
-                ::pltxt2htm::details::append_url_attr_from_ast<ndebug>(result, node.as_md_link().get_url());
+                auto const& md_link_url = node.as_md_link().get_url().as_string();
+                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                    result, ::fast_io::u8string_view{md_link_url.data(), md_link_url.size()});
                 result.append(u8"\">");
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_link().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::md_link, 0));
@@ -1059,7 +1039,9 @@ entry:
             }
             case ::pltxt2htm::NodeKind::pl_external: {
                 result.append(u8"<a href=\"");
-                ::pltxt2htm::details::append_url_attr_from_ast<ndebug>(result, node.as_pl_external().get_url());
+                auto const& ext_url = node.as_pl_external().get_url().as_string();
+                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                    result, ::fast_io::u8string_view{ext_url.data(), ext_url.size()});
                 result.append(u8"\">");
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_pl_external().get_subast(), ::pltxt2htm::NodeKind::pl_external, 0));
@@ -1068,7 +1050,9 @@ entry:
             }
             case ::pltxt2htm::NodeKind::md_image: {
                 result.append(u8"<img src=\"");
-                ::pltxt2htm::details::append_url_attr_from_ast<ndebug>(result, node.as_md_image().get_url());
+                auto const& img_url = node.as_md_image().get_url().as_string();
+                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                    result, ::fast_io::u8string_view{img_url.data(), img_url.size()});
                 result.append(u8"\" alt=\"");
                 ::pltxt2htm::details::convert_simple_pltxt_ast_to_plweb_text<ndebug>(node.as_md_image().get_subast(),
                                                                                      result);

@@ -52,10 +52,9 @@ BENCHMARK_REGISTER_F(MicroFixture, NodeCreate_HtmlSpan);
 
 BENCHMARK_DEFINE_F(MicroFixture, NodeCreate_MdLink)(benchmark::State& st) {
     for (auto _ : st) {
-        ::pltxt2htm::Ast<ndebug> text_sub, url_sub;
+        ::pltxt2htm::Ast<ndebug> text_sub;
         text_sub.push_back(::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::U8Char{u8'L'}});
-        url_sub.push_back(::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::U8Char{u8'/'}});
-        ::pltxt2htm::Url<ndebug> url{::std::move(url_sub)};
+        ::pltxt2htm::Url url{::fast_io::u8string{u8"/"}};
         ::pltxt2htm::PlTxtNode<ndebug> node{::pltxt2htm::MdLink<ndebug>{::std::move(text_sub), ::std::move(url)}};
         ::benchmark::DoNotOptimize(node);
     }

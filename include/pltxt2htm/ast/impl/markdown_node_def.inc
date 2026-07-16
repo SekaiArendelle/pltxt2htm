@@ -409,8 +409,7 @@ constexpr auto ::pltxt2htm::MdDel<ndebug>::operator==(this ::pltxt2htm::MdDel<nd
                                                       ::pltxt2htm::MdDel<ndebug> const&) noexcept -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdLink<ndebug>::MdLink(::pltxt2htm::Ast<ndebug>&& subast_,
-                                              ::pltxt2htm::Url<ndebug>&& url_) noexcept
+constexpr ::pltxt2htm::MdLink<ndebug>::MdLink(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::Url&& url_) noexcept
     : subast(::std::move(subast_)),
       url(::std::move(url_)) {
 }
@@ -431,8 +430,7 @@ constexpr auto ::pltxt2htm::MdLink<ndebug>::operator==(this ::pltxt2htm::MdLink<
                                                        ::pltxt2htm::MdLink<ndebug> const&) noexcept -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdImage<ndebug>::MdImage(::pltxt2htm::Ast<ndebug>&& subast_,
-                                                ::pltxt2htm::Url<ndebug>&& url_) noexcept
+constexpr ::pltxt2htm::MdImage<ndebug>::MdImage(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::Url&& url_) noexcept
     : subast(::std::move(subast_)),
       url(::std::move(url_)) {
 }
