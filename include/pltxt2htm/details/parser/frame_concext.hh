@@ -353,8 +353,6 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_tr:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_th:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_thead:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_tbody:
@@ -395,6 +393,8 @@ public:
             ::std::construct_at(::std::addressof(this->pltext), ::std::move(other.pltext));
             return;
         }
+        case ::pltxt2htm::NodeKind::html_th:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_td:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_th:
