@@ -669,7 +669,7 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class HtmlTd {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::pltxt2htm::MdTableAlign align_;
+    ::pltxt2htm::MdTableAlign align;
 
 public:
     constexpr explicit HtmlTd(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::MdTableAlign align_) noexcept;
@@ -690,7 +690,7 @@ public:
 
     [[nodiscard]]
     constexpr auto get_align(this auto&& self) noexcept -> ::pltxt2htm::MdTableAlign {
-        return self.align_;
+        return self.align;
     }
 };
 
@@ -700,7 +700,7 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class HtmlTh {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::pltxt2htm::MdTableAlign align_;
+    ::pltxt2htm::MdTableAlign align;
 
 public:
     constexpr explicit HtmlTh(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::MdTableAlign align_) noexcept;
@@ -721,7 +721,7 @@ public:
 
     [[nodiscard]]
     constexpr auto get_align(this auto&& self) noexcept -> ::pltxt2htm::MdTableAlign {
-        return self.align_;
+        return self.align;
     }
 };
 
