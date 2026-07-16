@@ -929,9 +929,6 @@ entry:
                 else if (align == ::pltxt2htm::MdTableAlign::right) {
                     result.append(u8" style=\"text-align:right\"");
                 }
-                else if (align != ::pltxt2htm::MdTableAlign::left) {
-                    pltxt2htm_unreachable(u8"Invalid table header alignment value.");
-                }
                 result.push_back(u8'>');
                 goto entry;
             }

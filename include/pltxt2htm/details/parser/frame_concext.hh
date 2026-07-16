@@ -114,7 +114,7 @@ public:
 /**
  * @brief Context for an individual table cell during parsing.
  *
- * Stores the cell text content and its alignment for md_th / md_td nodes.
+ * Stores the cell text content and its alignment for md_th / md_td / html_th / html_td nodes.
  */
 class ParserFrameContextWithMdCellInfo {
 public:
@@ -635,8 +635,6 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_tr:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_th:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_thead:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_tbody:
@@ -677,6 +675,8 @@ public:
             ::std::destroy_at(::std::addressof(this->pltext));
             return;
         }
+        case ::pltxt2htm::NodeKind::html_th:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_td:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_th:
@@ -950,8 +950,6 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_tr:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_th:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_thead:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_tbody:
@@ -1049,6 +1047,8 @@ public:
         case ::pltxt2htm::NodeKind::md_link: {
             return context_data_ref.url_info.pltext;
         }
+        case ::pltxt2htm::NodeKind::html_th:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_td:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_th:

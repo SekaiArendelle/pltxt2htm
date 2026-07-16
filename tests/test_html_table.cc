@@ -333,6 +333,15 @@ int main() {
     }
 
     {
+        // <th style="text-align: center"> -> whitespace after colon accepted and normalized
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"<table><tr><th style=\"text-align: center\">header</th></tr></table>");
+        auto answer =
+            ::fast_io::u8string_view{u8"<table><tr><th style=\"text-align:center\">header</th></tr></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
         // <th style="text-align:left"> -> accepted, default align -> no style attr
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<table><tr><th style=\"text-align:left\">header</th></tr></table>");
