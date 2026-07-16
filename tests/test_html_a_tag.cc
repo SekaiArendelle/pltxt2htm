@@ -102,5 +102,49 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // percent-encoding: ' in auto-link URL → %27
+    {
+        auto pltext = ::fast_io::u8string_view{u8"https://example.com/path'with'quote"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer = ::fast_io::u8string_view{
+            u8"<a "
+            u8"href=\"https://example.com/path%27with%27quote\">https://example.com/path%27with%27quote</a>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto pltext = ::fast_io::u8string_view{u8"https://example.com/path'with'quote"};
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(pltext);
+        auto answer = ::fast_io::u8string_view{
+            u8"<a "
+            u8"href=\"https://example.com/path%27with%27quote\">https://example.com/path%27with%27quote</a>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // percent-encoding: ' in markdown link URL → %27
+    {
+        auto pltext = ::fast_io::u8string_view{u8"[text](https://example.com/pa'th)"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer = ::fast_io::u8string_view{
+            u8"<a href=\"https://example.com/pa%27th\">text</a>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // percent-encoding: ' in HTML <a> tag href → %27
+    {
+        auto pltext = ::fast_io::u8string_view{u8"<a href=\"https://example.com/pa'th\">text</a>"};
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
+        auto answer = ::fast_io::u8string_view{
+            u8"<a href=\"https://example.com/pa%27th\">text</a>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // roundtrip idempotency for ' in auto-link URL
+    {
+        auto pass1 = ::pltxt2htm_test::pltxt2nolatex_htmld(
+            ::fast_io::u8string_view{u8"https://example.com/path'with'quote"});
+        auto pass2 = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::mnp::os_c_str(pass1));
+        pltxt2htm_test_assert_equal(pass2, pass1);
+    }
+
     return 0;
 }
