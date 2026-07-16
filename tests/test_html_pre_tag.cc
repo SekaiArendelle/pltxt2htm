@@ -53,5 +53,33 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // \n inside <pre> should be preserved as \n, not converted to <br>
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<pre>line1\nline2</pre>");
+        auto answer = ::fast_io::u8string_view{u8"<pre>line1\nline2</pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // \n inside <pre><code> should also preserve \n
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<pre><code>line1\nline2</code></pre>");
+        auto answer = ::fast_io::u8string_view{u8"<pre><code>line1\nline2</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // \n inside <pre><color> should preserve \n
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<pre><color=red>line1\nline2</color></pre>");
+        auto answer = ::fast_io::u8string_view{u8"<pre><span style=\"color:red;\">line1\nline2</span></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // \n outside <pre> should still become <br>
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"line1\nline2");
+        auto answer = ::fast_io::u8string_view{u8"line1<br>line2"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }
