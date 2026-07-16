@@ -601,7 +601,7 @@ constexpr auto try_parse_th_tag(::fast_io::u8string_view pltext, ::pltxt2htm::No
 
         // parse quoted attribute value
         char8_t const quote{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos)};
-        if (quote != u8'"' && quote != u8'\'') {
+        if (quote != u8'\"' && quote != u8'\'') {
             return ::exception::nullopt_t{};
         }
         ++pos; // skip opening quote
@@ -616,64 +616,63 @@ constexpr auto try_parse_th_tag(::fast_io::u8string_view pltext, ::pltxt2htm::No
         ++pos; // skip closing quote
 
         // only lowercase "style" attribute is checked for text-align
-        if (::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"style"}>(
-                attr_name) &&
-            attr_name.size() == 5) {
-            // parse CSS property:value pairs from the style value
-            ::std::size_t css_pos{};
-            while (css_pos < attr_val.size()) {
-                // skip leading whitespace
-                while (css_pos < attr_val.size() &&
-                       (::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, css_pos) == u8' ' ||
-                        ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, css_pos) == u8'\t')) {
-                    ++css_pos;
-                }
-                if (css_pos >= attr_val.size()) {
-                    break;
-                }
-
-                // parse CSS property name (text-align)
-                ::std::size_t const css_prop_start{css_pos};
-                while (css_pos < attr_val.size() &&
-                       ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, css_pos) != u8':') {
-                    ++css_pos;
-                }
-                if (css_pos >= attr_val.size()) {
-                    break;
-                }
-                ::fast_io::u8string_view const css_prop{attr_val.data() + css_prop_start,
-                                                        css_pos - css_prop_start};
-                ++css_pos; // skip ':'
-
-                // skip whitespace before value
-                while (css_pos < attr_val.size() &&
-                       (::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, css_pos) == u8' ' ||
-                        ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, css_pos) == u8'\t')) {
-                    ++css_pos;
-                }
-
-                // parse CSS value
-                ::std::size_t const css_val_start{css_pos};
-                while (css_pos < attr_val.size() &&
-                       ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, css_pos) != u8';') {
-                    ++css_pos;
-                }
-                ::fast_io::u8string_view const css_val{attr_val.data() + css_val_start,
-                                                       css_pos - css_val_start};
-                if (css_pos < attr_val.size()) {
-                    ++css_pos; // skip ';'
-                }
-
-                // check text-align property
-                static constexpr ::pltxt2htm::details::U8LiteralString text_align{u8"text-align"};
-                if (css_prop.size() == text_align.size() &&
-                    ::pltxt2htm::details::is_prefix_match<ndebug, text_align>(css_prop)) {
-                    auto opt_align = ::pltxt2htm::details::parse_text_align_value(css_val);
-                    if (opt_align.has_value()) {
-                        align = opt_align.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-                    }
-                }
+        if (attr_name != u8"style") {
+            return ::exception::nullopt_t{};
+        }
+        // parse CSS property:value pairs from the style value
+        ::std::size_t css_pos{};
+        while (css_pos < attr_val.size()) {
+            // skip leading whitespace
+            while (css_pos < attr_val.size() &&
+                    (::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, css_pos) == u8' ' ||
+                    ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, css_pos) == u8'\t')) {
+                ++css_pos;
             }
+            if (css_pos >= attr_val.size()) {
+                break;
+            }
+
+            // parse CSS property name (text-align)
+            ::std::size_t const css_prop_start{css_pos};
+            while (css_pos < attr_val.size() &&
+                    ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, css_pos) != u8':') {
+                ++css_pos;
+            }
+            if (css_pos >= attr_val.size()) {
+                break;
+            }
+            ::fast_io::u8string_view const css_prop{attr_val.data() + css_prop_start,
+                                                    css_pos - css_prop_start};
+            ++css_pos; // skip ':'
+
+            // skip whitespace before value
+            while (css_pos < attr_val.size() &&
+                    (::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, css_pos) == u8' ' ||
+                    ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, css_pos) == u8'\t')) {
+                ++css_pos;
+            }
+
+            // parse CSS value
+            ::std::size_t const css_val_start{css_pos};
+            while (css_pos < attr_val.size() &&
+                    ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, css_pos) != u8';') {
+                ++css_pos;
+            }
+            ::fast_io::u8string_view const css_val{attr_val.data() + css_val_start,
+                                                    css_pos - css_val_start};
+            if (css_pos < attr_val.size()) {
+                ++css_pos; // skip ';'
+            }
+
+            // check text-align property
+            if (css_prop != u8"text-align") {
+                return ::exception::nullopt_t{};
+            }
+            auto opt_align = ::pltxt2htm::details::parse_text_align_value(css_val);
+            if (opt_align.has_value() == false) {
+                return ::exception::nullopt_t{};
+            }
+            align = opt_align.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
         }
     }
 
