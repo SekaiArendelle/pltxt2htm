@@ -818,7 +818,7 @@ entry:
                 if (language.has_value()) {
                     result.append(u8" class=\"");
                     result.append(language.template value<ndebug == ::pltxt2htm::Contracts::ignore>());
-                    result.append(u8"\"");
+                    result.push_back(u8'\"');
                 }
                 result.push_back(u8'>');
                 goto entry;
