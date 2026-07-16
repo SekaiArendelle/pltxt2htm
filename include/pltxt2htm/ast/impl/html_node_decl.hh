@@ -456,9 +456,11 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class HtmlCode {
     ::pltxt2htm::Ast<ndebug> subast;
+    ::exception::optional<::fast_io::u8string> language;
 
 public:
-    constexpr explicit HtmlCode(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr explicit HtmlCode(::pltxt2htm::Ast<ndebug>&& subast_,
+                                ::exception::optional<::fast_io::u8string>&& language_) noexcept;
     constexpr HtmlCode(::pltxt2htm::HtmlCode<ndebug> const&) noexcept;
     constexpr HtmlCode(::pltxt2htm::HtmlCode<ndebug>&&) noexcept;
     constexpr ~HtmlCode() noexcept;
@@ -472,6 +474,11 @@ public:
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_language(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.language);
     }
 };
 

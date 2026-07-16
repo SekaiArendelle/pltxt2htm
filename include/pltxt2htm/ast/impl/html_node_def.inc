@@ -285,8 +285,10 @@ constexpr auto ::pltxt2htm::HtmlLi<ndebug>::operator==(this ::pltxt2htm::HtmlLi<
                                                        ::pltxt2htm::HtmlLi<ndebug> const&) noexcept -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::HtmlCode<ndebug>::HtmlCode(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
-    : subast(::std::move(subast_)) {
+constexpr ::pltxt2htm::HtmlCode<ndebug>::HtmlCode(::pltxt2htm::Ast<ndebug>&& subast_,
+                                                   ::exception::optional<::fast_io::u8string>&& language_) noexcept
+    : subast(::std::move(subast_)),
+      language(::std::move(language_)) {
 }
 
 template<::pltxt2htm::Contracts ndebug>

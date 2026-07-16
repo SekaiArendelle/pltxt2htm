@@ -811,9 +811,18 @@ entry:
             }
             case ::pltxt2htm::NodeKind::html_code: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_code().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::html_code, 0));
+                                                                                   ::pltxt2htm::NodeKind::html_code, 0));
                 ++current_index;
-                result.append(u8"<code>");
+                result.append(u8"<code");
+                {
+                    auto const& language = node.as_html_code().get_language();
+                    if (language.has_value()) {
+                        result.append(u8" class=\"");
+                        result.append(language.template value<ndebug == ::pltxt2htm::Contracts::ignore>());
+                        result.append(u8"\"");
+                    }
+                }
+                result.append(u8">");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_latex_inline: {

@@ -140,14 +140,17 @@ entry:
                 case u8'c':
                     [[fallthrough]];
                 case u8'C': {
-                    if (auto opt_code_tag = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"ode">(
+                    if (auto opt_code_tag = ::pltxt2htm::details::try_parse_code_tag<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_code_tag.has_value()) {
-                        current_index += opt_code_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
+                        // parsing html <code> tag (bare or with class="language-...")
+                        auto&& [tag_len, lang] = opt_code_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                        current_index += tag_len + 2;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                             ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ::pltxt2htm::details::ParserFrameContextWithHtmlCodeInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                                    ::std::move(lang)},
                                 ::pltxt2htm::NodeKind::html_code},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -902,7 +905,10 @@ entry:
                                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
-                            ::pltxt2htm::HtmlCode staged_node(::std::move(result));
+                            auto& code_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            ::pltxt2htm::HtmlCode staged_node(
+                                ::std::move(result),
+                                ::std::move(code_frame.get_html_code_language()));
                             call_stack.pop();
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
@@ -1226,8 +1232,9 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_code: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlCode<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
+                    ::pltxt2htm::HtmlCode<ndebug>{::std::move(subast),
+                                                  ::std::move(frame.get_html_code_language())}));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_pre: {

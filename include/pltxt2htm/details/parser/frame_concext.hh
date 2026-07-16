@@ -50,6 +50,15 @@ public:
 };
 
 /**
+ * @brief Context for HTML <code> tag frames during parsing; stores class attribute.
+ */
+class ParserFrameContextWithHtmlCodeInfo {
+public:
+    ::fast_io::u8string_view pltext;
+    ::exception::optional<::fast_io::u8string> language;
+};
+
+/**
  * @brief Context for URL frames during parsing; stores the raw text and parsed URL.
  */
 template<::pltxt2htm::Contracts ndebug>
@@ -163,6 +172,7 @@ public:
         ::pltxt2htm::details::ParserFrameContextWithPltextInfo pltext;
         ::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo equal_sign_tag;
         ::pltxt2htm::details::ParserFrameContextWithHtmlSpanInfo html_span_info;
+        ::pltxt2htm::details::ParserFrameContextWithHtmlCodeInfo html_code_info;
         ::pltxt2htm::details::ParserFrameContextWithUrlInfo<ndebug> url_info;
         ::pltxt2htm::details::ParserFrameContextWithHtmlATagInfo<ndebug> html_a_tag_info;
         ::pltxt2htm::details::ParserFrameContextWithPlSizeTagInfo pl_size_tag;
@@ -191,6 +201,11 @@ public:
     constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithHtmlSpanInfo&& html_span_context,
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
         : html_span_info{::std::move(html_span_context)},
+          kind{node_kind_} {
+    }
+    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithHtmlCodeInfo&& html_code_context,
+                                     ::pltxt2htm::NodeKind node_kind_) noexcept
+        : html_code_info{::std::move(html_code_context)},
           kind{node_kind_} {
     }
 
@@ -277,6 +292,10 @@ public:
             ::std::construct_at(::std::addressof(this->html_span_info), ::std::move(other.html_span_info));
             return;
         }
+        case ::pltxt2htm::NodeKind::html_code: {
+            ::std::construct_at(::std::addressof(this->html_code_info), ::std::move(other.html_code_info));
+            return;
+        }
         case ::pltxt2htm::NodeKind::md_block_quotes: {
             ::std::construct_at(::std::addressof(this->md_block_quotes), ::std::move(other.md_block_quotes));
             return;
@@ -324,8 +343,6 @@ public:
         case ::pltxt2htm::NodeKind::html_ol:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_li:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_code:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_pre:
             [[fallthrough]];
@@ -561,6 +578,10 @@ public:
             ::std::destroy_at(::std::addressof(this->html_span_info));
             return;
         }
+        case ::pltxt2htm::NodeKind::html_code: {
+            ::std::destroy_at(::std::addressof(this->html_code_info));
+            return;
+        }
         case ::pltxt2htm::NodeKind::md_block_quotes: {
             ::std::destroy_at(::std::addressof(this->md_block_quotes));
             return;
@@ -604,8 +625,6 @@ public:
         case ::pltxt2htm::NodeKind::html_ol:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_li:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_code:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_pre:
             [[fallthrough]];
@@ -922,8 +941,6 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_li:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_code:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_pre:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_blockquote:
@@ -1017,6 +1034,8 @@ public:
         }
         case ::pltxt2htm::NodeKind::html_span: {
             return context_data_ref.html_span_info.pltext;
+        }        case ::pltxt2htm::NodeKind::html_code: {
+            return context_data_ref.html_code_info.pltext;
         }
         case ::pltxt2htm::NodeKind::html_a: {
             return context_data_ref.html_a_tag_info.pltext;
@@ -1163,6 +1182,16 @@ public:
         pltxt2htm_assert(is_html_span_type, u8"context kind mismatch");
         return ::std::forward_like<decltype(self)>(context_data_ref.html_span_info.font_size);
     }
+
+
+    [[nodiscard]]
+    constexpr auto get_html_code_language(this auto&& self) noexcept -> decltype(auto) {
+        auto&& context_data_ref = self.context_data;
+        bool const is_html_code_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_code};
+        pltxt2htm_assert(is_html_code_type, u8"context kind mismatch");
+        return ::std::forward_like<decltype(self)>(context_data_ref.html_code_info.language);
+    }
+
 
     [[nodiscard]]
     constexpr auto get_html_a_url(this auto&& self) noexcept -> decltype(auto) {
