@@ -113,7 +113,7 @@ constexpr auto ::pltxt2htm::PlUser<ndebug>::operator==(this ::pltxt2htm::PlUser<
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::PlExternal<ndebug>::PlExternal(::pltxt2htm::Ast<ndebug>&& subast_,
-                                                      ::pltxt2htm::Url<ndebug>&& url_) noexcept
+                                                      ::pltxt2htm::Url&& url_) noexcept
     : subast(::std::move(subast_)),
       url(::std::move(url_)) {
 }

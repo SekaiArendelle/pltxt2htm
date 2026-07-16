@@ -293,18 +293,14 @@ int main() {
     {
         ::pltxt2htm::Ast<nd::quick_enforce> text_a{};
         text_a.emplace_back(::pltxt2htm::U8Char{u8'a'});
-        ::pltxt2htm::Ast<nd::quick_enforce> url_ast_a{};
-        url_ast_a.emplace_back(::pltxt2htm::U8Char{u8'x'});
 
         ::pltxt2htm::Ast<nd::quick_enforce> text_b{};
         text_b.emplace_back(::pltxt2htm::U8Char{u8'a'});
-        ::pltxt2htm::Ast<nd::quick_enforce> url_ast_b{};
-        url_ast_b.emplace_back(::pltxt2htm::U8Char{u8'x'});
 
-        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdLink<nd::quick_enforce>(
-            ::std::move(text_a), ::pltxt2htm::Url<nd::quick_enforce>(::std::move(url_ast_a))));
-        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdLink<nd::quick_enforce>(
-            ::std::move(text_b), ::pltxt2htm::Url<nd::quick_enforce>(::std::move(url_ast_b))));
+        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
+            ::pltxt2htm::MdLink<nd::quick_enforce>(::std::move(text_a), ::pltxt2htm::Url(::fast_io::u8string{u8"x"})));
+        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
+            ::pltxt2htm::MdLink<nd::quick_enforce>(::std::move(text_b), ::pltxt2htm::Url(::fast_io::u8string{u8"x"})));
         ::exception::assert_true<false>(a == b);
     }
 
@@ -312,18 +308,14 @@ int main() {
     {
         ::pltxt2htm::Ast<nd::quick_enforce> text_a{};
         text_a.emplace_back(::pltxt2htm::U8Char{u8'a'});
-        ::pltxt2htm::Ast<nd::quick_enforce> url_ast_a{};
-        url_ast_a.emplace_back(::pltxt2htm::U8Char{u8'x'});
 
         ::pltxt2htm::Ast<nd::quick_enforce> text_b{};
         text_b.emplace_back(::pltxt2htm::U8Char{u8'a'});
-        ::pltxt2htm::Ast<nd::quick_enforce> url_ast_b{};
-        url_ast_b.emplace_back(::pltxt2htm::U8Char{u8'y'});
 
-        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdLink<nd::quick_enforce>(
-            ::std::move(text_a), ::pltxt2htm::Url<nd::quick_enforce>(::std::move(url_ast_a))));
-        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdLink<nd::quick_enforce>(
-            ::std::move(text_b), ::pltxt2htm::Url<nd::quick_enforce>(::std::move(url_ast_b))));
+        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
+            ::pltxt2htm::MdLink<nd::quick_enforce>(::std::move(text_a), ::pltxt2htm::Url(::fast_io::u8string{u8"x"})));
+        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
+            ::pltxt2htm::MdLink<nd::quick_enforce>(::std::move(text_b), ::pltxt2htm::Url(::fast_io::u8string{u8"y"})));
         ::exception::assert_false<false>(a == b);
     }
 
@@ -331,18 +323,14 @@ int main() {
     {
         ::pltxt2htm::Ast<nd::quick_enforce> alt_a{};
         alt_a.emplace_back(::pltxt2htm::U8Char{u8'a'});
-        ::pltxt2htm::Ast<nd::quick_enforce> url_ast_a{};
-        url_ast_a.emplace_back(::pltxt2htm::U8Char{u8'x'});
 
         ::pltxt2htm::Ast<nd::quick_enforce> alt_b{};
         alt_b.emplace_back(::pltxt2htm::U8Char{u8'a'});
-        ::pltxt2htm::Ast<nd::quick_enforce> url_ast_b{};
-        url_ast_b.emplace_back(::pltxt2htm::U8Char{u8'x'});
 
-        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdImage<nd::quick_enforce>(
-            ::std::move(alt_a), ::pltxt2htm::Url<nd::quick_enforce>(::std::move(url_ast_a))));
-        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdImage<nd::quick_enforce>(
-            ::std::move(alt_b), ::pltxt2htm::Url<nd::quick_enforce>(::std::move(url_ast_b))));
+        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
+            ::pltxt2htm::MdImage<nd::quick_enforce>(::std::move(alt_a), ::pltxt2htm::Url(::fast_io::u8string{u8"x"})));
+        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
+            ::pltxt2htm::MdImage<nd::quick_enforce>(::std::move(alt_b), ::pltxt2htm::Url(::fast_io::u8string{u8"x"})));
         ::exception::assert_true<false>(a == b);
     }
 
@@ -482,17 +470,13 @@ int main() {
     // PlExternal (sub-AST + Url)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-        ::pltxt2htm::Ast<nd::quick_enforce> url_ast_a{};
-        url_ast_a.emplace_back(::pltxt2htm::U8Char{u8'x'});
 
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-        ::pltxt2htm::Ast<nd::quick_enforce> url_ast_b{};
-        url_ast_b.emplace_back(::pltxt2htm::U8Char{u8'x'});
 
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlExternal<nd::quick_enforce>(
-            ::std::move(ast_a), ::pltxt2htm::Url<nd::quick_enforce>(::std::move(url_ast_a))));
+            ::std::move(ast_a), ::pltxt2htm::Url(::fast_io::u8string{u8"x"})));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlExternal<nd::quick_enforce>(
-            ::std::move(ast_b), ::pltxt2htm::Url<nd::quick_enforce>(::std::move(url_ast_b))));
+            ::std::move(ast_b), ::pltxt2htm::Url(::fast_io::u8string{u8"x"})));
         ::exception::assert_true<false>(a == b);
     }
 

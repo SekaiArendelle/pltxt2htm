@@ -1,7 +1,7 @@
 /**
  * @file for_plweb_title.hh
  * @brief HTML title backend for plweb – generates simple HTML suitable for page titles.
- * @details Provides `url_ast_to_string` and `plweb_title_backend` for converting
+ * @details Provides `plweb_title_backend` for converting
  *          a pl-text AST into a simplified HTML fragment that only supports
  *          color, bold, and italic formatting.
  */
@@ -20,149 +20,6 @@
 #include "../push_macro.hh"
 
 namespace pltxt2htm::details {
-
-/**
- * @brief Convert a URL AST to a plain URL string (all md_escape_* are unescaped).
- * @tparam ndebug Contract checking mode.
- * @param ast The URL AST to convert.
- * @param[out] out Output buffer receiving the URL string.
- */
-template<::pltxt2htm::Contracts ndebug>
-constexpr void url_ast_to_string(::pltxt2htm::Ast<ndebug> const& ast, ::fast_io::u8string& out) noexcept {
-    out.reserve(out.size() + ast.size());
-    for (auto&& node : ast) {
-        switch (node.get_node_kind()) {
-        case ::pltxt2htm::NodeKind::u8char: {
-            out.push_back(node.as_u8char().chr);
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::invalid_u8char: {
-            out.append(u8"\uFFFD");
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_backslash:
-            out.push_back(u8'\\');
-            continue;
-        case ::pltxt2htm::NodeKind::md_escape_exclamation:
-            out.push_back(u8'!');
-            continue;
-        case ::pltxt2htm::NodeKind::md_escape_double_quote:
-            out.push_back(u8'"');
-            continue;
-        case ::pltxt2htm::NodeKind::md_escape_hash:
-            out.push_back(u8'#');
-            continue;
-        case ::pltxt2htm::NodeKind::md_escape_dollar:
-            out.push_back(u8'$');
-            continue;
-        case ::pltxt2htm::NodeKind::md_escape_percent:
-            out.push_back(u8'%');
-            continue;
-        case ::pltxt2htm::NodeKind::md_escape_ampersand:
-            out.push_back(u8'&');
-            continue;
-        case ::pltxt2htm::NodeKind::md_escape_single_quote:
-            out.push_back(u8'\'');
-            continue;
-        case ::pltxt2htm::NodeKind::md_escape_left_paren:
-            out.push_back(u8'(');
-            continue;
-        case ::pltxt2htm::NodeKind::md_escape_right_paren:
-            out.push_back(u8')');
-            continue;
-        case ::pltxt2htm::NodeKind::md_escape_asterisk:
-            out.push_back(u8'*');
-            continue;
-        case ::pltxt2htm::NodeKind::md_escape_plus:
-            out.push_back(u8'+');
-            continue;
-        case ::pltxt2htm::NodeKind::md_escape_comma:
-            out.push_back(u8',');
-            continue;
-        case ::pltxt2htm::NodeKind::md_escape_hyphen:
-            out.push_back(u8'-');
-            continue;
-        case ::pltxt2htm::NodeKind::md_escape_dot:
-            out.push_back(u8'.');
-            continue;
-        case ::pltxt2htm::NodeKind::md_escape_slash:
-            out.push_back(u8'/');
-            continue;
-        case ::pltxt2htm::NodeKind::md_escape_colon:
-            out.push_back(u8':');
-            continue;
-        case ::pltxt2htm::NodeKind::md_escape_semicolon:
-            out.push_back(u8';');
-            continue;
-        case ::pltxt2htm::NodeKind::md_escape_less_than:
-            out.push_back(u8'<');
-            continue;
-        case ::pltxt2htm::NodeKind::md_escape_equals:
-            out.push_back(u8'=');
-            continue;
-        case ::pltxt2htm::NodeKind::md_escape_greater_than:
-            out.push_back(u8'>');
-            continue;
-        case ::pltxt2htm::NodeKind::md_escape_question:
-            out.push_back(u8'?');
-            continue;
-        case ::pltxt2htm::NodeKind::md_escape_at:
-            out.push_back(u8'@');
-            continue;
-        case ::pltxt2htm::NodeKind::md_escape_left_bracket:
-            out.push_back(u8'[');
-            continue;
-        case ::pltxt2htm::NodeKind::md_escape_right_bracket:
-            out.push_back(u8']');
-            continue;
-        case ::pltxt2htm::NodeKind::md_escape_caret:
-            out.push_back(u8'^');
-            continue;
-        case ::pltxt2htm::NodeKind::md_escape_underscore:
-            out.push_back(u8'_');
-            continue;
-        case ::pltxt2htm::NodeKind::md_escape_backtick:
-            out.push_back(u8'`');
-            continue;
-        case ::pltxt2htm::NodeKind::md_escape_left_brace:
-            out.push_back(u8'{');
-            continue;
-        case ::pltxt2htm::NodeKind::md_escape_pipe:
-            out.push_back(u8'|');
-            continue;
-        case ::pltxt2htm::NodeKind::md_escape_right_brace:
-            out.push_back(u8'}');
-            continue;
-        case ::pltxt2htm::NodeKind::md_escape_tilde:
-            out.push_back(u8'~');
-            continue;
-        case ::pltxt2htm::NodeKind::ampersand:
-            out.push_back(u8'&');
-            continue;
-        case ::pltxt2htm::NodeKind::entity_reference:
-            out.push_back(u8'&');
-            out.append(node.as_entity_reference().get_value());
-            out.push_back(u8';');
-            continue;
-        case ::pltxt2htm::NodeKind::single_quote:
-            out.push_back(u8'\'');
-            continue;
-        case ::pltxt2htm::NodeKind::double_quote:
-            out.push_back(u8'"');
-            continue;
-        case ::pltxt2htm::NodeKind::less_than:
-            out.push_back(u8'<');
-            continue;
-        case ::pltxt2htm::NodeKind::greater_than:
-            out.push_back(u8'>');
-            continue;
-        default:
-            [[unlikely]] {
-                pltxt2htm_unreachable(u8"Unexpected node kind in title character rendering");
-            }
-        }
-    }
-}
 
 /**
  * @brief Translate pl-text's AST to common HTML (only supports color, b and i tags)
@@ -301,7 +158,7 @@ entry:
                                                                                   ::pltxt2htm::NodeKind::html_a, 0));
                 ++current_index;
                 result.append(u8"<a href=\"");
-                ::pltxt2htm::details::url_ast_to_string<ndebug>(node.as_html_a().get_url().get_url_ast(), result);
+                result.append(node.as_html_a().get_url().as_string());
                 if (node.as_html_a().get_internal()) {
                     result.append(u8"\" internal>");
                 }
@@ -843,7 +700,7 @@ entry:
             }
             case ::pltxt2htm::NodeKind::pl_external: {
                 result.append(u8"<a href=\"");
-                ::pltxt2htm::details::url_ast_to_string<ndebug>(node.as_pl_external().get_url().get_url_ast(), result);
+                result.append(node.as_pl_external().get_url().as_string());
                 result.append(u8"\">");
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_pl_external().get_subast(), ::pltxt2htm::NodeKind::pl_external, 0));
@@ -852,7 +709,7 @@ entry:
             }
             case ::pltxt2htm::NodeKind::md_link: {
                 result.append(u8"<a href=\"");
-                ::pltxt2htm::details::url_ast_to_string<ndebug>(node.as_md_link().get_url().get_url_ast(), result);
+                result.append(node.as_md_link().get_url().as_string());
                 result.append(u8"\">");
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_link().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::md_link, 0));
@@ -860,13 +717,13 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::url: {
+                auto const& url_str = node.as_url().as_string();
                 result.append(u8"<a href=\"");
-                ::pltxt2htm::details::url_ast_to_string<ndebug>(node.as_url().get_url_ast(), result);
+                result.append(url_str);
                 result.append(u8"\">");
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_url().get_url_ast(),
-                                                                                  ::pltxt2htm::NodeKind::url, 0));
-                ++current_index;
-                goto entry;
+                result.append(url_str);
+                result.append(u8"</a>");
+                continue;
             }
             case ::pltxt2htm::NodeKind::md_image: {
                 ++current_index;

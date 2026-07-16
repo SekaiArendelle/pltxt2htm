@@ -562,7 +562,7 @@ constexpr auto ::pltxt2htm::HtmlSpan<ndebug>::operator==(this ::pltxt2htm::HtmlS
     -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::HtmlA<ndebug>::HtmlA(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::Url<ndebug>&& url_,
+constexpr ::pltxt2htm::HtmlA<ndebug>::HtmlA(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::Url&& url_,
                                             bool internal_) noexcept
     : subast(::std::move(subast_)),
       url(::std::move(url_)),

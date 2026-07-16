@@ -695,7 +695,7 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class MdLink {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::pltxt2htm::Url<ndebug> url;
+    ::pltxt2htm::Url url;
 
 public:
     /**
@@ -703,7 +703,7 @@ public:
      * @param subast The link text/content AST.
      * @param url The target URL.
      */
-    constexpr explicit MdLink(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::Url<ndebug>&& url_) noexcept;
+    constexpr explicit MdLink(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::Url&& url_) noexcept;
     constexpr MdLink(::pltxt2htm::MdLink<ndebug> const&) noexcept;
     constexpr MdLink(::pltxt2htm::MdLink<ndebug>&&) noexcept;
     constexpr ~MdLink() noexcept;
@@ -731,7 +731,7 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class MdImage {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::pltxt2htm::Url<ndebug> url;
+    ::pltxt2htm::Url url;
 
 public:
     /**
@@ -739,7 +739,7 @@ public:
      * @param subast The alt text/content AST.
      * @param url The image source URL.
      */
-    constexpr explicit MdImage(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::Url<ndebug>&& url_) noexcept;
+    constexpr explicit MdImage(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::Url&& url_) noexcept;
     constexpr MdImage(::pltxt2htm::MdImage<ndebug> const&) noexcept;
     constexpr MdImage(::pltxt2htm::MdImage<ndebug>&&) noexcept;
     constexpr ~MdImage() noexcept;

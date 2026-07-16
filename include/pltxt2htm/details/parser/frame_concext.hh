@@ -65,7 +65,7 @@ template<::pltxt2htm::Contracts ndebug>
 class ParserFrameContextWithUrlInfo {
 public:
     ::fast_io::u8string_view pltext;
-    ::pltxt2htm::Url<ndebug> url;
+    ::pltxt2htm::Url url;
 };
 
 /**
@@ -75,7 +75,7 @@ template<::pltxt2htm::Contracts ndebug>
 class ParserFrameContextWithHtmlATagInfo {
 public:
     ::fast_io::u8string_view pltext;
-    ::pltxt2htm::Url<ndebug> url;
+    ::pltxt2htm::Url url;
     bool internal;
 };
 

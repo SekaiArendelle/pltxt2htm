@@ -98,11 +98,8 @@ int main() {
         ::pltxt2htm::Ast<nd::quick_enforce> text_ast{};
         text_ast.emplace_back(::pltxt2htm::U8Char{u8't'});
 
-        ::pltxt2htm::Ast<nd::quick_enforce> url_ast{};
-        url_ast.emplace_back(::pltxt2htm::U8Char{u8'x'});
-
         auto const original = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdLink<nd::quick_enforce>(
-            ::std::move(text_ast), ::pltxt2htm::Url<nd::quick_enforce>(::std::move(url_ast))));
+            ::std::move(text_ast), ::pltxt2htm::Url(::fast_io::u8string{u8"x"})));
 
         auto const copy = original;
         ::exception::assert_true<false>(original == copy);
