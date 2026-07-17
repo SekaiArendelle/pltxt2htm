@@ -316,35 +316,32 @@ int main() {
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
-            u8"<table><tr><th style=\"text-align:center\">header</th></tr></table>");
-        auto answer =
-            ::fast_io::u8string_view{u8"<table><tr><th style=\"text-align:center\">header</th></tr></table>"};
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><th style=\"text-align:center\">header</th></tr></table>");
+        auto answer = ::fast_io::u8string_view{u8"<table><tr><th style=\"text-align:center\">header</th></tr></table>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         // <th style="text-align:right">
-        auto html = ::pltxt2htm_test::pltxt4unittest(
-            u8"<table><tr><th style=\"text-align:right\">header</th></tr></table>");
-        auto answer =
-            ::fast_io::u8string_view{u8"<table><tr><th style=\"text-align:right\">header</th></tr></table>"};
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><th style=\"text-align:right\">header</th></tr></table>");
+        auto answer = ::fast_io::u8string_view{u8"<table><tr><th style=\"text-align:right\">header</th></tr></table>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         // <th style="text-align: center"> -> whitespace after colon accepted and normalized
-        auto html = ::pltxt2htm_test::pltxt4unittest(
-            u8"<table><tr><th style=\"text-align: center\">header</th></tr></table>");
-        auto answer =
-            ::fast_io::u8string_view{u8"<table><tr><th style=\"text-align:center\">header</th></tr></table>"};
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><th style=\"text-align: center\">header</th></tr></table>");
+        auto answer = ::fast_io::u8string_view{u8"<table><tr><th style=\"text-align:center\">header</th></tr></table>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         // <th style="text-align:left"> -> accepted, default align -> no style attr
-        auto html = ::pltxt2htm_test::pltxt4unittest(
-            u8"<table><tr><th style=\"text-align:left\">header</th></tr></table>");
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><th style=\"text-align:left\">header</th></tr></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><tr><th>header</th></tr></table>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
@@ -381,8 +378,8 @@ int main() {
 
     {
         // <th style="text-align:LEFT"> -> uppercase -> rejected
-        auto html = ::pltxt2htm_test::pltxt4unittest(
-            u8"<table><tr><th style=\"text-align:LEFT\">header</th></tr></table>");
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><th style=\"text-align:LEFT\">header</th></tr></table>");
         auto answer = ::fast_io::u8string_view{
             u8"<table><tr>&lt;th&nbsp;style=&quot;text-align:LEFT&quot;&gt;header&lt;/th&gt;</tr></table>"};
         pltxt2htm_test_assert_equal(html, answer);
@@ -390,8 +387,8 @@ int main() {
 
     {
         // <th style="text-align:Left"> -> mixed case -> rejected
-        auto html = ::pltxt2htm_test::pltxt4unittest(
-            u8"<table><tr><th style=\"text-align:Left\">header</th></tr></table>");
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><th style=\"text-align:Left\">header</th></tr></table>");
         auto answer = ::fast_io::u8string_view{
             u8"<table><tr>&lt;th&nbsp;style=&quot;text-align:Left&quot;&gt;header&lt;/th&gt;</tr></table>"};
         pltxt2htm_test_assert_equal(html, answer);
@@ -399,8 +396,8 @@ int main() {
 
     {
         // <th style="text-align:CENTER"> -> uppercase -> rejected
-        auto html = ::pltxt2htm_test::pltxt4unittest(
-            u8"<table><tr><th style=\"text-align:CENTER\">header</th></tr></table>");
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><th style=\"text-align:CENTER\">header</th></tr></table>");
         auto answer = ::fast_io::u8string_view{
             u8"<table><tr>&lt;th&nbsp;style=&quot;text-align:CENTER&quot;&gt;header&lt;/th&gt;</tr></table>"};
         pltxt2htm_test_assert_equal(html, answer);
@@ -408,8 +405,8 @@ int main() {
 
     {
         // <th style="text-align:Right"> -> mixed case -> rejected
-        auto html = ::pltxt2htm_test::pltxt4unittest(
-            u8"<table><tr><th style=\"text-align:Right\">header</th></tr></table>");
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><th style=\"text-align:Right\">header</th></tr></table>");
         auto answer = ::fast_io::u8string_view{
             u8"<table><tr>&lt;th&nbsp;style=&quot;text-align:Right&quot;&gt;header&lt;/th&gt;</tr></table>"};
         pltxt2htm_test_assert_equal(html, answer);
@@ -436,16 +433,16 @@ int main() {
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
-            u8"<table><tr><td Style=\"text-align:center\">cell</td></tr></table>");
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><td Style=\"text-align:center\">cell</td></tr></table>");
         auto answer = ::fast_io::u8string_view{
             u8"<table><tr>&lt;td&nbsp;Style=&quot;text-align:center&quot;&gt;cell&lt;/td&gt;</tr></table>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
-            u8"<table><tr><td style=\"Text-align:center\">cell</td></tr></table>");
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><td style=\"Text-align:center\">cell</td></tr></table>");
         auto answer = ::fast_io::u8string_view{
             u8"<table><tr>&lt;td&nbsp;style=&quot;Text-align:center&quot;&gt;cell&lt;/td&gt;</tr></table>"};
         pltxt2htm_test_assert_equal(html, answer);

@@ -10,7 +10,7 @@
 #include <exception/exception.hh>
 #include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/string_view.h>
-#include "frame_concext.hh"
+#include "frame_context.hh"
 #include "../utils.hh"
 #include "../../contracts.hh"
 #include "../../ast/ast.hh"
@@ -624,7 +624,7 @@ constexpr auto try_parse_th_tag(::fast_io::u8string_view pltext, ::pltxt2htm::No
         while (css_pos < attr_val.size()) {
             // skip leading whitespace
             while (css_pos < attr_val.size() &&
-                    (::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, css_pos) == u8' ' ||
+                   (::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, css_pos) == u8' ' ||
                     ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, css_pos) == u8'\t')) {
                 ++css_pos;
             }
@@ -635,19 +635,18 @@ constexpr auto try_parse_th_tag(::fast_io::u8string_view pltext, ::pltxt2htm::No
             // parse CSS property name (text-align)
             ::std::size_t const css_prop_start{css_pos};
             while (css_pos < attr_val.size() &&
-                    ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, css_pos) != u8':') {
+                   ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, css_pos) != u8':') {
                 ++css_pos;
             }
             if (css_pos >= attr_val.size()) {
                 break;
             }
-            ::fast_io::u8string_view const css_prop{attr_val.data() + css_prop_start,
-                                                    css_pos - css_prop_start};
+            ::fast_io::u8string_view const css_prop{attr_val.data() + css_prop_start, css_pos - css_prop_start};
             ++css_pos; // skip ':'
 
             // skip whitespace before value
             while (css_pos < attr_val.size() &&
-                    (::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, css_pos) == u8' ' ||
+                   (::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, css_pos) == u8' ' ||
                     ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, css_pos) == u8'\t')) {
                 ++css_pos;
             }
@@ -655,11 +654,10 @@ constexpr auto try_parse_th_tag(::fast_io::u8string_view pltext, ::pltxt2htm::No
             // parse CSS value
             ::std::size_t const css_val_start{css_pos};
             while (css_pos < attr_val.size() &&
-                    ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, css_pos) != u8';') {
+                   ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, css_pos) != u8';') {
                 ++css_pos;
             }
-            ::fast_io::u8string_view const css_val{attr_val.data() + css_val_start,
-                                                    css_pos - css_val_start};
+            ::fast_io::u8string_view const css_val{attr_val.data() + css_val_start, css_pos - css_val_start};
             if (css_pos < attr_val.size()) {
                 ++css_pos; // skip ';'
             }

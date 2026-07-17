@@ -14,7 +14,7 @@
 #include "ast/node_kind.hh"
 #include "contracts.hh"
 #include "details/utils.hh"
-#include "details/parser/frame_concext.hh"
+#include "details/parser/frame_context.hh"
 #include "details/parser/parser.hh"
 #include "details/push_macro.hh"
 

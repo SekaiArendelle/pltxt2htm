@@ -1,9 +1,7 @@
 /**
- * @file frame_concext.hh
+ * @file frame_context.hh
  * @brief Parser frame contexts for parsing pl-text
  * @details Defines context storage used during parsing.
- * @note The filename "concext" is intentionally spelled this way (not "context")
- *       to avoid potential naming conflicts in the codebase.
  */
 
 #pragma once
