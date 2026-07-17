@@ -509,9 +509,7 @@ entry:
                                                                                   ::pltxt2htm::NodeKind::html_a, 0));
                 ++current_index;
                 result.append(u8"<a href=\"");
-                auto const& html_a_url = node.as_html_a().get_url().as_string();
-                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                    result, ::fast_io::u8string_view{html_a_url.data(), html_a_url.size()});
+                result.append(node.as_html_a().get_url().as_string());
                 if (node.as_html_a().get_internal()) {
                     result.append(u8"\" internal>");
                 }
@@ -1024,21 +1022,16 @@ entry:
             }
             case ::pltxt2htm::NodeKind::url: {
                 auto const& url_str = node.as_url().as_string();
-                ::fast_io::u8string escaped;
-                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                    escaped, ::fast_io::u8string_view{url_str.data(), url_str.size()});
                 result.append(u8"<a href=\"");
-                result.append(escaped);
+                result.append(url_str);
                 result.append(u8"\">");
-                result.append(escaped);
+                result.append(url_str);
                 result.append(u8"</a>");
                 continue;
             }
             case ::pltxt2htm::NodeKind::md_link: {
                 result.append(u8"<a href=\"");
-                auto const& md_link_url = node.as_md_link().get_url().as_string();
-                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                    result, ::fast_io::u8string_view{md_link_url.data(), md_link_url.size()});
+                result.append(node.as_md_link().get_url().as_string());
                 result.append(u8"\">");
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_link().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::md_link, 0));
@@ -1047,9 +1040,7 @@ entry:
             }
             case ::pltxt2htm::NodeKind::pl_external: {
                 result.append(u8"<a href=\"");
-                auto const& ext_url = node.as_pl_external().get_url().as_string();
-                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                    result, ::fast_io::u8string_view{ext_url.data(), ext_url.size()});
+                result.append(node.as_pl_external().get_url().as_string());
                 result.append(u8"\">");
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_pl_external().get_subast(), ::pltxt2htm::NodeKind::pl_external, 0));
@@ -1058,9 +1049,7 @@ entry:
             }
             case ::pltxt2htm::NodeKind::md_image: {
                 result.append(u8"<img src=\"");
-                auto const& img_url = node.as_md_image().get_url().as_string();
-                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                    result, ::fast_io::u8string_view{img_url.data(), img_url.size()});
+                result.append(node.as_md_image().get_url().as_string());
                 result.append(u8"\" alt=\"");
                 ::pltxt2htm::details::convert_simple_pltxt_ast_to_plweb_text<ndebug>(node.as_md_image().get_subast(),
                                                                                      result);

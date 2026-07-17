@@ -188,14 +188,14 @@ int main() {
     {
         auto pltext = ::fast_io::u8string_view{u8"[q](example.com/?a=1&b=2)"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"<a href=\"example.com/?a=1&amp;b=2\">q</a>"};
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"example.com/?a=1%26b=2\">q</a>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto pltext = ::fast_io::u8string_view{u8"[q](example.com/?a=1&amp;b=2)"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"<a href=\"example.com/?a=1&amp;b=2\">q</a>"};
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"example.com/?a=1%26b=2\">q</a>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

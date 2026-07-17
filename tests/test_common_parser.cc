@@ -99,7 +99,7 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"[](3.tw&)");
-        auto answer = ::fast_io::u8string_view{u8"<a href=\"3.tw&\"></a>"};
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"3.tw%26\"></a>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
