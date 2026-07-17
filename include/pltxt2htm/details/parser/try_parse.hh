@@ -506,23 +506,23 @@ constexpr auto try_parse_tr_tag(::fast_io::u8string_view pltext, ::pltxt2htm::No
 }
 
 /**
- * @brief Parse a CSS text-align value to a MdTableAlign.
+ * @brief Parse a CSS text-align value to a TableAlign.
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled.
  * @param[in] value The text-align value string (e.g. "center", "CENTER").
  * @return The corresponding alignment on success, or nullopt on failure.
  */
 [[nodiscard]]
 constexpr auto parse_text_align_value(::fast_io::u8string_view value) noexcept
-    -> ::exception::optional<::pltxt2htm::MdTableAlign> {
+    -> ::exception::optional<::pltxt2htm::TableAlign> {
     // only exact lowercase values accepted
     if (value == ::fast_io::u8string_view{u8"left"}) {
-        return ::pltxt2htm::MdTableAlign::left;
+        return ::pltxt2htm::TableAlign::left;
     }
     if (value == ::fast_io::u8string_view{u8"center"}) {
-        return ::pltxt2htm::MdTableAlign::center;
+        return ::pltxt2htm::TableAlign::center;
     }
     if (value == ::fast_io::u8string_view{u8"right"}) {
-        return ::pltxt2htm::MdTableAlign::right;
+        return ::pltxt2htm::TableAlign::right;
     }
     return ::exception::nullopt_t{};
 }
@@ -532,7 +532,7 @@ constexpr auto parse_text_align_value(::fast_io::u8string_view value) noexcept
  */
 struct TryParseTdTagResult {
     ::std::size_t tag_len; ///< Length of the matched tag up to the closing `>`.
-    ::pltxt2htm::MdTableAlign align; ///< Cell alignment parsed from `style="text-align:..."`.
+    ::pltxt2htm::TableAlign align; ///< Cell alignment parsed from `style="text-align:..."`.
 };
 
 /**
@@ -554,7 +554,7 @@ constexpr auto try_parse_th_tag(::fast_io::u8string_view pltext, ::pltxt2htm::No
     }
 
     ::std::size_t pos{1}; // skip past "h"
-    ::pltxt2htm::MdTableAlign align{::pltxt2htm::MdTableAlign::left};
+    ::pltxt2htm::TableAlign align{::pltxt2htm::TableAlign::left};
 
     while (pos < pltext.size()) {
         // skip whitespace
@@ -696,7 +696,7 @@ constexpr auto try_parse_td_tag(::fast_io::u8string_view pltext, ::pltxt2htm::No
     }
 
     ::std::size_t pos{1}; // skip past "d"
-    ::pltxt2htm::MdTableAlign align{::pltxt2htm::MdTableAlign::left};
+    ::pltxt2htm::TableAlign align{::pltxt2htm::TableAlign::left};
 
     while (pos < pltext.size()) {
         // skip whitespace

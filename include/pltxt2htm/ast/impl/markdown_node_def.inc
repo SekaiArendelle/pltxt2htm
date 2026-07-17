@@ -678,7 +678,7 @@ constexpr auto ::pltxt2htm::MdTr<ndebug>::operator==(this ::pltxt2htm::MdTr<ndeb
                                                      ::pltxt2htm::MdTr<ndebug> const&) noexcept -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdTh<ndebug>::MdTh(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::MdTableAlign align_) noexcept
+constexpr ::pltxt2htm::MdTh<ndebug>::MdTh(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::TableAlign align_) noexcept
     : subast(::std::move(subast_)),
       align(align_) {
 }
@@ -699,7 +699,7 @@ constexpr auto ::pltxt2htm::MdTh<ndebug>::operator==(this ::pltxt2htm::MdTh<ndeb
                                                      ::pltxt2htm::MdTh<ndebug> const&) noexcept -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdTd<ndebug>::MdTd(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::MdTableAlign align_) noexcept
+constexpr ::pltxt2htm::MdTd<ndebug>::MdTd(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::TableAlign align_) noexcept
     : subast(::std::move(subast_)),
       align(align_) {
 }

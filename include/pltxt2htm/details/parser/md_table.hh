@@ -184,11 +184,11 @@ constexpr auto is_delimiter_cell_valid(::fast_io::u8string_view cell) noexcept -
  *
  * @tparam ndebug Contract checking mode
  * @param cell_text The delimiter cell text (e.g. `":---:"`)
- * @return MdTableAlign::left, MdTableAlign::center, or MdTableAlign::right
+ * @return TableAlign::left, TableAlign::center, or TableAlign::right
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_md_table_align(::fast_io::u8string_view cell_text) noexcept -> ::pltxt2htm::MdTableAlign {
+constexpr auto try_parse_table_align(::fast_io::u8string_view cell_text) noexcept -> ::pltxt2htm::TableAlign {
     bool left = false;
     bool right = false;
     ::std::size_t i{};
@@ -203,19 +203,19 @@ constexpr auto try_parse_md_table_align(::fast_io::u8string_view cell_text) noex
             break;
         }
         if (chr != u8'-') {
-            return ::pltxt2htm::MdTableAlign::left;
+            return ::pltxt2htm::TableAlign::left;
         }
     }
     if (left && right) {
-        return ::pltxt2htm::MdTableAlign::center;
+        return ::pltxt2htm::TableAlign::center;
     }
     if (right) {
-        return ::pltxt2htm::MdTableAlign::right;
+        return ::pltxt2htm::TableAlign::right;
     }
     if (left) {
-        return ::pltxt2htm::MdTableAlign::left;
+        return ::pltxt2htm::TableAlign::left;
     }
-    return ::pltxt2htm::MdTableAlign::left;
+    return ::pltxt2htm::TableAlign::left;
 }
 
 /**
@@ -223,7 +223,7 @@ constexpr auto try_parse_md_table_align(::fast_io::u8string_view cell_text) noex
  */
 struct MdTableCellRaw {
     ::fast_io::u8string text; ///< cell text content (to be inline-parsed later)
-    ::pltxt2htm::MdTableAlign align; ///< cell alignment from delimiter row
+    ::pltxt2htm::TableAlign align; ///< cell alignment from delimiter row
 };
 
 /**
@@ -337,7 +337,7 @@ constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
     }
     auto&& [delim_row, delim_forward] = delim_opt.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
     current_index += delim_forward;
-    ::fast_io::vector<::pltxt2htm::MdTableAlign> aligns{};
+    ::fast_io::vector<::pltxt2htm::TableAlign> aligns{};
     bool has_delimiter_content{};
     for (auto const& cell : delim_row) {
         auto cell_view = ::fast_io::u8string_view{cell.data(), cell.size()};
@@ -347,7 +347,7 @@ constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
             }
             has_delimiter_content = true;
         }
-        aligns.push_back(::pltxt2htm::details::try_parse_md_table_align<ndebug>(cell_view));
+        aligns.push_back(::pltxt2htm::details::try_parse_table_align<ndebug>(cell_view));
     }
     if (has_delimiter_content == false) {
         return ::exception::nullopt_t{};

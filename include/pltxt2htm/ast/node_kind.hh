@@ -232,9 +232,9 @@ constexpr auto is_plain_pltext_type(::pltxt2htm::NodeKind const node_type) noexc
 } // namespace details
 
 /**
- * @brief Table cell alignment for Markdown pipe tables
+ * @brief Table cell alignment
  */
-enum class MdTableAlign : unsigned {
+enum class TableAlign : unsigned {
     left = 0,
     center,
     right,

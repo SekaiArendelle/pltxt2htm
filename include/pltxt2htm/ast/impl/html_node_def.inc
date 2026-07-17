@@ -392,7 +392,7 @@ constexpr auto ::pltxt2htm::HtmlTr<ndebug>::operator==(this ::pltxt2htm::HtmlTr<
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::HtmlTd<ndebug>::HtmlTd(::pltxt2htm::Ast<ndebug>&& subast_,
-                                              ::pltxt2htm::MdTableAlign align_) noexcept
+                                              ::pltxt2htm::TableAlign align_) noexcept
     : subast(::std::move(subast_)),
       align{align_} {
 }
@@ -414,7 +414,7 @@ constexpr auto ::pltxt2htm::HtmlTd<ndebug>::operator==(this ::pltxt2htm::HtmlTd<
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::HtmlTh<ndebug>::HtmlTh(::pltxt2htm::Ast<ndebug>&& subast_,
-                                              ::pltxt2htm::MdTableAlign align_) noexcept
+                                              ::pltxt2htm::TableAlign align_) noexcept
     : subast(::std::move(subast_)),
       align{align_} {
 }

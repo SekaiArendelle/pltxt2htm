@@ -114,10 +114,10 @@ public:
  *
  * Stores the cell text content and its alignment for md_th / md_td / html_th / html_td nodes.
  */
-class ParserFrameContextWithMdCellInfo {
+class ParserFrameContextWithCellInfo {
 public:
     ::fast_io::u8string_view pltext;
-    ::pltxt2htm::MdTableAlign align;
+    ::pltxt2htm::TableAlign align;
 };
 
 /**
@@ -176,7 +176,7 @@ public:
         ::pltxt2htm::details::ParserFrameContextWithPlSizeTagInfo pl_size_tag;
         ::pltxt2htm::details::ParserFrameContextWithMdBlockQuotesInfo md_block_quotes;
         ::pltxt2htm::details::ParserFrameContextWithMdListInfo<ndebug> md_list;
-        ::pltxt2htm::details::ParserFrameContextWithMdCellInfo md_cell;
+        ::pltxt2htm::details::ParserFrameContextWithCellInfo cell;
         ::pltxt2htm::details::ParserFrameContextWithMdLiCheckboxInfo md_li_checkbox;
         ::pltxt2htm::details::ParserFrameContextWithMdTableInfo<ndebug> md_table;
     };
@@ -239,9 +239,9 @@ public:
           kind{node_kind_} {
     }
 
-    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithMdCellInfo&& md_cell_context,
+    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithCellInfo&& cell_context,
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
-        : md_cell{::std::move(md_cell_context)},
+        : cell{::std::move(cell_context)},
           kind{node_kind_} {
     }
 
@@ -398,7 +398,7 @@ public:
         case ::pltxt2htm::NodeKind::md_th:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_td: {
-            ::std::construct_at(::std::addressof(this->md_cell), ::std::move(other.md_cell));
+            ::std::construct_at(::std::addressof(this->cell), ::std::move(other.cell));
             return;
         }
         case ::pltxt2htm::NodeKind::md_table: {
@@ -680,7 +680,7 @@ public:
         case ::pltxt2htm::NodeKind::md_th:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_td: {
-            ::std::destroy_at(::std::addressof(this->md_cell));
+            ::std::destroy_at(::std::addressof(this->cell));
             return;
         }
         case ::pltxt2htm::NodeKind::md_table: {
@@ -1052,7 +1052,7 @@ public:
         case ::pltxt2htm::NodeKind::md_th:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_td: {
-            return context_data_ref.md_cell.pltext;
+            return context_data_ref.cell.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_macro_project:
             [[fallthrough]];
@@ -1278,14 +1278,14 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_md_cell_align(this auto&& self) noexcept -> ::pltxt2htm::MdTableAlign {
+    constexpr auto get_cell_align(this auto&& self) noexcept -> ::pltxt2htm::TableAlign {
         auto&& context_data_ref = self.context_data;
         pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_td ||
                              context_data_ref.kind == ::pltxt2htm::NodeKind::html_th ||
                              context_data_ref.kind == ::pltxt2htm::NodeKind::md_th ||
                              context_data_ref.kind == ::pltxt2htm::NodeKind::md_td,
                          u8"context kind mismatch");
-        return context_data_ref.md_cell.align;
+        return context_data_ref.cell.align;
     }
 
     [[nodiscard]]

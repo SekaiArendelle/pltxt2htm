@@ -74,7 +74,7 @@ int main() {
         ast.emplace_back(::pltxt2htm::U8Char{u8'c'});
 
         auto const original = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::MdTh<nd::quick_enforce>(::std::move(ast), ::pltxt2htm::MdTableAlign::center));
+            ::pltxt2htm::MdTh<nd::quick_enforce>(::std::move(ast), ::pltxt2htm::TableAlign::center));
 
         auto const copy = original;
         ::exception::assert_true<false>(original == copy);

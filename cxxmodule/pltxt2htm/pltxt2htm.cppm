@@ -29,8 +29,8 @@ using ::pltxt2htm::version::patch;
 // exported nodes
 using ::pltxt2htm::NodeKind;
 
-// markdown table alignment
-using ::pltxt2htm::MdTableAlign;
+// table cell alignment
+using ::pltxt2htm::TableAlign;
 
 // ast2 types
 using ::pltxt2htm::PlTxtNode;

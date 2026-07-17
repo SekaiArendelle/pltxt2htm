@@ -808,10 +808,10 @@ entry:
                 ++current_index;
                 result.append(u8"<td");
                 auto const align = node.as_md_td().get_align();
-                if (align == ::pltxt2htm::MdTableAlign::center) {
+                if (align == ::pltxt2htm::TableAlign::center) {
                     result.append(u8" style=\"text-align:center\"");
                 }
-                else if (align == ::pltxt2htm::MdTableAlign::right) {
+                else if (align == ::pltxt2htm::TableAlign::right) {
                     result.append(u8" style=\"text-align:right\"");
                 }
                 result.push_back(u8'>');
@@ -823,10 +823,10 @@ entry:
                 ++current_index;
                 result.append(u8"<td");
                 auto const align = node.as_html_td().get_align();
-                if (align == ::pltxt2htm::MdTableAlign::center) {
+                if (align == ::pltxt2htm::TableAlign::center) {
                     result.append(u8" style=\"text-align:center\"");
                 }
-                else if (align == ::pltxt2htm::MdTableAlign::right) {
+                else if (align == ::pltxt2htm::TableAlign::right) {
                     result.append(u8" style=\"text-align:right\"");
                 }
                 result.push_back(u8'>');
@@ -838,10 +838,10 @@ entry:
                 ++current_index;
                 result.append(u8"<th");
                 auto const align = node.as_md_th().get_align();
-                if (align == ::pltxt2htm::MdTableAlign::center) {
+                if (align == ::pltxt2htm::TableAlign::center) {
                     result.append(u8" style=\"text-align:center\"");
                 }
-                else if (align == ::pltxt2htm::MdTableAlign::right) {
+                else if (align == ::pltxt2htm::TableAlign::right) {
                     result.append(u8" style=\"text-align:right\"");
                 }
                 result.push_back(u8'>');
@@ -853,10 +853,10 @@ entry:
                 ++current_index;
                 result.append(u8"<th");
                 auto const align = node.as_html_th().get_align();
-                if (align == ::pltxt2htm::MdTableAlign::center) {
+                if (align == ::pltxt2htm::TableAlign::center) {
                     result.append(u8" style=\"text-align:center\"");
                 }
-                else if (align == ::pltxt2htm::MdTableAlign::right) {
+                else if (align == ::pltxt2htm::TableAlign::right) {
                     result.append(u8" style=\"text-align:right\"");
                 }
                 result.push_back(u8'>');

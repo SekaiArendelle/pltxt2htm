@@ -358,7 +358,7 @@ entry:
                     auto const& cell = raw_ast.header_cell_at(cell_index);
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                         ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                            ::pltxt2htm::details::ParserFrameContextWithMdCellInfo{
+                            ::pltxt2htm::details::ParserFrameContextWithCellInfo{
                                 ::fast_io::u8string_view{cell.text.data(), cell.text.size()}, cell.align},
                             ::pltxt2htm::NodeKind::md_th},
                         ::pltxt2htm::Ast<ndebug>{}));
@@ -376,7 +376,7 @@ entry:
                         auto const& cell = raw_ast.body_cell_at(row_index, cell_index);
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                             ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                                ::pltxt2htm::details::ParserFrameContextWithMdCellInfo{
+                                ::pltxt2htm::details::ParserFrameContextWithCellInfo{
                                     ::fast_io::u8string_view{cell.text.data(), cell.text.size()}, cell.align},
                                 ::pltxt2htm::NodeKind::md_td},
                             ::pltxt2htm::Ast<ndebug>{}));
@@ -1382,7 +1382,7 @@ entry:
                         current_index += tag_len + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                             ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                                ::pltxt2htm::details::ParserFrameContextWithMdCellInfo{
+                                ::pltxt2htm::details::ParserFrameContextWithCellInfo{
                                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), align},
                                 ::pltxt2htm::NodeKind::html_th},
                             ::pltxt2htm::Ast<ndebug>{}));
@@ -1396,7 +1396,7 @@ entry:
                         current_index += tag_len + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                             ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                                ::pltxt2htm::details::ParserFrameContextWithMdCellInfo{
+                                ::pltxt2htm::details::ParserFrameContextWithCellInfo{
                                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), align},
                                 ::pltxt2htm::NodeKind::html_td},
                             ::pltxt2htm::Ast<ndebug>{}));
@@ -2071,7 +2071,7 @@ entry:
                             opt_tag_len.has_value()) {
                             // parsing end tag </td> successed
                             ::std::size_t const staged_index{current_index};
-                            auto align = frame.get_md_cell_align();
+                            auto align = frame.get_cell_align();
                             ::pltxt2htm::HtmlTd staged_node(::std::move(result), align);
                             call_stack.pop();
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
@@ -2092,7 +2092,7 @@ entry:
                             opt_tag_len.has_value()) {
                             // parsing end tag </th> successed
                             ::std::size_t const staged_index{current_index};
-                            auto align = frame.get_md_cell_align();
+                            auto align = frame.get_cell_align();
                             ::pltxt2htm::HtmlTh staged_node(::std::move(result), align);
                             call_stack.pop();
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
@@ -2596,14 +2596,14 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_th: {
-                auto align = frame.get_md_cell_align();
+                auto align = frame.get_cell_align();
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTh<ndebug>{::std::move(subast), align}));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_td: {
-                auto align = frame.get_md_cell_align();
+                auto align = frame.get_cell_align();
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTd<ndebug>{::std::move(subast), align}));
                 parent_index += staged_index;
@@ -2632,14 +2632,14 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_td: {
-                auto align = frame.get_md_cell_align();
+                auto align = frame.get_cell_align();
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlTd<ndebug>{::std::move(subast), align}));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_th: {
-                auto align = frame.get_md_cell_align();
+                auto align = frame.get_cell_align();
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlTh<ndebug>{::std::move(subast), align}));
                 parent_index += staged_index;

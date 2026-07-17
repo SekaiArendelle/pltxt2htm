@@ -1052,10 +1052,10 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class MdTh {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::pltxt2htm::MdTableAlign align;
+    ::pltxt2htm::TableAlign align;
 
 public:
-    constexpr explicit MdTh(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::MdTableAlign align_) noexcept;
+    constexpr explicit MdTh(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::TableAlign align_) noexcept;
     constexpr MdTh(::pltxt2htm::MdTh<ndebug> const&) noexcept;
     constexpr MdTh(::pltxt2htm::MdTh<ndebug>&&) noexcept;
     constexpr ~MdTh() noexcept;
@@ -1072,7 +1072,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_align(this auto&& self) noexcept -> ::pltxt2htm::MdTableAlign {
+    constexpr auto get_align(this auto&& self) noexcept -> ::pltxt2htm::TableAlign {
         return self.align;
     }
 };
@@ -1083,10 +1083,10 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class MdTd {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::pltxt2htm::MdTableAlign align;
+    ::pltxt2htm::TableAlign align;
 
 public:
-    constexpr explicit MdTd(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::MdTableAlign align_) noexcept;
+    constexpr explicit MdTd(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::TableAlign align_) noexcept;
     constexpr MdTd(::pltxt2htm::MdTd<ndebug> const&) noexcept;
     constexpr MdTd(::pltxt2htm::MdTd<ndebug>&&) noexcept;
     constexpr ~MdTd() noexcept;
@@ -1103,7 +1103,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_align(this auto&& self) noexcept -> ::pltxt2htm::MdTableAlign {
+    constexpr auto get_align(this auto&& self) noexcept -> ::pltxt2htm::TableAlign {
         return self.align;
     }
 };
