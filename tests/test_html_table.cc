@@ -435,5 +435,21 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"<table><tr><td Style=\"text-align:center\">cell</td></tr></table>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><tr>&lt;td&nbsp;Style=&quot;text-align:center&quot;&gt;cell&lt;/td&gt;</tr></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"<table><tr><td style=\"Text-align:center\">cell</td></tr></table>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><tr>&lt;td&nbsp;style=&quot;Text-align:center&quot;&gt;cell&lt;/td&gt;</tr></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }

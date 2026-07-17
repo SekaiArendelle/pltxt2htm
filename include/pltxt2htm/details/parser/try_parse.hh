@@ -759,10 +759,7 @@ constexpr auto try_parse_td_tag(::fast_io::u8string_view pltext, ::pltxt2htm::No
         ::fast_io::u8string_view const attr_val{pltext.data() + val_start, pos - val_start};
         ++pos; // skip closing quote
 
-        // only lowercase "style" attribute is checked for text-align
-        if (::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"style"}>(
-                attr_name) &&
-            attr_name.size() == 5) {
+        if (attr_name == u8"style") {
             // parse CSS property:value pairs from the style value
             ::std::size_t css_pos{};
             while (css_pos < attr_val.size()) {
@@ -825,7 +822,7 @@ constexpr auto try_parse_td_tag(::fast_io::u8string_view pltext, ::pltxt2htm::No
                 }
 
                 // only lowercase "text-align" property is recognized
-                if (::pltxt2htm::details::is_prefix_match<ndebug, u8"text-align">(prop) && prop.size() == 10) {
+                if (prop == u8"text-align") {
                     auto opt_align_val = ::pltxt2htm::details::parse_text_align_value(val);
                     if (opt_align_val.has_value()) {
                         align = opt_align_val.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
