@@ -2815,10 +2815,9 @@ constexpr auto make_try_parse_url_result(::fast_io::u8string_view const parsed_u
         if (chr == u8'&') {
             if (index + 5 <= parsed_url.size() &&
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(parsed_url, index, 5) == u8"&amp;") {
+                chr = u8'&';
                 index += 4;
             }
-            url_str.append(u8"%26");
-            continue;
         }
         switch (chr) {
         case u8'\'': {

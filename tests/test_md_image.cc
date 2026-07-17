@@ -166,7 +166,7 @@ int main() {
     {
         auto pltext = ::fast_io::u8string_view{u8"![img](example.com/a.png?x=1&y=2)"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"<img src=\"example.com/a.png?x=1%26y=2\" alt=\"img\">"};
+        auto answer = ::fast_io::u8string_view{u8"<img src=\"example.com/a.png?x=1&amp;y=2\" alt=\"img\">"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -196,7 +196,7 @@ int main() {
     {
         auto pltext = ::fast_io::u8string_view{u8"![alt](example.com/image.png?x=1&amp;y=2)"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"<img src=\"example.com/image.png?x=1%26y=2\" alt=\"alt\">"};
+        auto answer = ::fast_io::u8string_view{u8"<img src=\"example.com/image.png?x=1&amp;y=2\" alt=\"alt\">"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

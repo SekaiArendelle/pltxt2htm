@@ -27,14 +27,14 @@ int main() {
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{
             u8"<a "
-            u8"href=\"https://example.com/path?query=1%26foo=bar\">https://example.com/path?query=1%26foo=bar</a>"};
+            u8"href=\"https://example.com/path?query=1&amp;foo=bar\">https://example.com/path?query=1&amp;foo=bar</a>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
         auto pltext = ::fast_io::u8string_view{u8"https://example.com/?a=1&amp;b=2"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer =
-            ::fast_io::u8string_view{u8"<a href=\"https://example.com/?a=1%26b=2\">https://example.com/?a=1%26b=2</a>"};
+            ::fast_io::u8string_view{u8"<a href=\"https://example.com/?a=1&amp;b=2\">https://example.com/?a=1&amp;b=2</a>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
