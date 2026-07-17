@@ -469,7 +469,9 @@ entry:
                                                                                   ::pltxt2htm::NodeKind::pl_size, 0));
                 ++current_index;
                 result.append(u8"<span style=\"font-size:");
-                result.append(::pltxt2htm::details::size_t2str(node.as_pl_size().get_size() / 2));
+                auto const pl_size{node.as_pl_size().get_size()};
+                // Use division plus remainder for ceil(pl_size / 2) to avoid overflow at size_t max.
+                result.append(::pltxt2htm::details::size_t2str(pl_size / 2 + pl_size % 2));
                 result.append(u8"px;\">");
                 goto entry;
             }

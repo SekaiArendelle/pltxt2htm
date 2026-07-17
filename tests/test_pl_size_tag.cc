@@ -8,20 +8,33 @@ int main() {
     }
 
     {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<size=1>hello</size>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:1px;\">hello</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2nolatex_htmld(u8"<size=1>hello</size>");
+        auto reparsed_html = ::pltxt2htm_test::pltxt4htmlunittest(
+            ::fast_io::u8string_view{html.data(), html.size()});
+        pltxt2htm_test_assert_equal(reparsed_html, html);
+    }
+
+    {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<size=11>hello</size>");
-        auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:5px;\">hello</span>"};
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:6px;\">hello</span>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<SIZE=11   >hello</siZE  >");
-        auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:5px;\">hello</span>"};
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:6px;\">hello</span>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<size=11>hello");
-        auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:5px;\">hello</span>"};
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:6px;\">hello</span>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -33,14 +46,14 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"hello<size=9><size=11>world");
-        auto answer = ::fast_io::u8string_view{u8"hello<span style=\"font-size:5px;\">world</span>"};
+        auto answer = ::fast_io::u8string_view{u8"hello<span style=\"font-size:6px;\">world</span>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<size=9>hello<size=11>world</size></size>");
         auto answer = ::fast_io::u8string_view{
-            u8"<span style=\"font-size:4px;\">hello<span style=\"font-size:5px;\">world</span></span>"};
+            u8"<span style=\"font-size:5px;\">hello<span style=\"font-size:6px;\">world</span></span>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
