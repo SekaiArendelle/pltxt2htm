@@ -154,6 +154,13 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
+        auto pltext = ::fast_io::u8string_view{u8"https://example.com@evil.invalid/path"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer =
+            ::fast_io::u8string_view{u8"<a href=\"https://example.com\">https://example.com</a>@evil.invalid/path"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
         auto pltext = ::fast_io::u8string_view{u8"https://www.bilibili.com/video/BV1df421f7WB"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{

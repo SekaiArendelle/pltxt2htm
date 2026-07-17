@@ -82,6 +82,15 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"<a href=\"https://example.com@evil.invalid/path\">click</a>");
+        auto answer = ::fast_io::u8string_view{
+            u8"&lt;a&nbsp;href=&quot;<a href=\"https://example.com\">https://example.com</a>@evil.invalid/"
+            u8"path&quot;&gt;click&lt;/a&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     // scheme-less URLs are accepted (validated by try_parse_url)
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<a href=\"example.com\">text</a>");
