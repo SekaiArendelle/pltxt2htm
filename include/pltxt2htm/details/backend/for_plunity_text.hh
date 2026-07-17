@@ -25,14 +25,14 @@ namespace pltxt2htm::details {
 /**
  * @brief Convert a simple (leaf-only) AST to Unity Rich Text with unescaping.
  * @tparam ndebug Contract checking mode.
- * @param url The AST to convert (should only contain leaf/character-like nodes).
+ * @param ast The AST to convert (should only contain leaf/character-like nodes).
  * @param[out] out Output buffer receiving the Unity Rich Text string.
  */
 template<::pltxt2htm::Contracts ndebug>
-constexpr void convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast<ndebug> const& url,
+constexpr void convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast<ndebug> const& ast,
                                                             ::fast_io::u8string& out) noexcept {
-    out.reserve(out.size() + url.size() * 6);
-    for (auto&& node : url) {
+    out.reserve(out.size() + ast.size() * 6);
+    for (auto&& node : ast) {
         switch (node.get_node_kind()) {
         case ::pltxt2htm::NodeKind::u8char: {
             out.push_back(node.as_u8char().chr);
