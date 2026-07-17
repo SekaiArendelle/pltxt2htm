@@ -1269,6 +1269,12 @@ struct TryParseCodeTagResult {
     ::exception::optional<::fast_io::u8string> language;
 };
 
+[[nodiscard]]
+constexpr bool is_code_language_suffix_char(char8_t const chr) noexcept {
+    return ::pltxt2htm::details::is_ascii_alpha(chr) || ::pltxt2htm::details::is_ascii_digit(chr) ||
+           chr == u8'+' || chr == u8'#' || chr == u8'.' || chr == u8'_' || chr == u8'-';
+}
+
 /**
  * @brief Parse <code> or <code class="language-..."> with strict validation.
  * @tparam ndebug When set to Contracts::ignore, runtime assertions are disabled for performance.
@@ -1342,7 +1348,13 @@ constexpr auto try_parse_code_tag(::fast_io::u8string_view pltext) noexcept
         }
         ++pos; // skip opening quote
         ::std::size_t const val_start = pos;
+        bool language_suffix_is_safe{true};
         while (pos < pltext.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != quote) {
+            if (attr_name == ::fast_io::u8string_view{u8"class"} && pos - val_start >= 9 &&
+                ::pltxt2htm::details::is_code_language_suffix_char(
+                    ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos)) == false) {
+                language_suffix_is_safe = false;
+            }
             ++pos;
         }
         if (pos >= pltext.size()) {
@@ -1368,7 +1380,8 @@ constexpr auto try_parse_code_tag(::fast_io::u8string_view pltext) noexcept
                 ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, 5) != u8'a' ||
                 ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, 6) != u8'g' ||
                 ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, 7) != u8'e' ||
-                ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, 8) != u8'-') {
+                ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, 8) != u8'-' ||
+                language_suffix_is_safe == false) {
                 return ::exception::nullopt_t{};
             }
             language = ::fast_io::u8string{attr_val};
