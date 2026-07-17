@@ -470,7 +470,7 @@ entry:
                 ++current_index;
                 result.append(u8"<span style=\"font-size:");
                 result.append(::pltxt2htm::details::size_t2str(node.as_pl_size().get_size() / 2));
-                result.append(u8"px\">");
+                result.append(u8"px;\">");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_span: {
