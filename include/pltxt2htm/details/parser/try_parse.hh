@@ -8,9 +8,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <exception/exception.hh>
-#include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/string_view.h>
 #include "frame_context.hh"
+#include "../call_stack.hh"
 #include "../utils.hh"
 #include "../../contracts.hh"
 #include "../../ast/ast.hh"
@@ -991,14 +991,14 @@ template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::U8LiteralString pr
 [[nodiscard]]
 constexpr auto try_parse_non_nestable_equal_sign_tag(
     ::fast_io::u8string_view pltext, Func&& func,
-    ::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>> const& call_stack) noexcept
+    ::pltxt2htm::details::CallStack<::pltxt2htm::details::ParserFrameContext<ndebug>> const& call_stack) noexcept
     -> ::exception::optional<TryParseEqualSignTagResult> {
     auto result =
         ::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, prefix_str>(pltext, ::std::forward<Func>(func));
     if (result.has_value() == false) {
         return ::exception::nullopt_t{};
     }
-    for (auto const& v : call_stack.container) {
+    for (auto const& v : call_stack) {
         // skip
         // e.g. <experiment><experiment>test</experiment>text</experiment>
         // e.g. <experiment><a><experiment>test</experiment>text</a>text</experiment>
@@ -3026,7 +3026,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_external_tag(
     ::fast_io::u8string_view pltext,
-    ::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>> const& call_stack) noexcept
+    ::pltxt2htm::details::CallStack<::pltxt2htm::details::ParserFrameContext<ndebug>> const& call_stack) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseExternalTagResult<ndebug>> {
     auto result = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<ndebug, u8"xternal">(
         pltext, [](char8_t u8chr) static constexpr noexcept { return u8'!' <= u8chr && u8chr <= u8'~'; }, call_stack);
