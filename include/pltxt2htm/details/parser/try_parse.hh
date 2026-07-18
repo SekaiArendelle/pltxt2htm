@@ -2610,67 +2610,99 @@ constexpr auto try_parse_md_latex_inline(::fast_io::u8string_view pltext) noexce
 }
 
 /**
- * @brief Validate URL domain and top-level domain portion.
- * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
- * @param[in] pltext Original URL text.
- * @param[in] domain_start Start index (inclusive) of the domain segment.
- * @param[in] domain_end End index (exclusive) of the domain segment.
- * @return `true` if domain labels and TLD are accepted by project rules; otherwise `false`.
+ * @brief Check whether a parsed domain ends in an accepted top-level domain.
+ */
+[[nodiscard]]
+constexpr bool has_allowed_url_tld(::fast_io::u8string_view domain) noexcept {
+    return domain.ends_with(u8".com") || domain.ends_with(u8".net") || domain.ends_with(u8".org") ||
+           domain.ends_with(u8".cn") || domain.ends_with(u8".edu") || domain.ends_with(u8".gov") ||
+           domain.ends_with(u8".io") || domain.ends_with(u8".ai") || domain.ends_with(u8".co") ||
+           domain.ends_with(u8".me") || domain.ends_with(u8".cc") || domain.ends_with(u8".tv") ||
+           domain.ends_with(u8".info") || domain.ends_with(u8".biz") || domain.ends_with(u8".us") ||
+           domain.ends_with(u8".uk") || domain.ends_with(u8".jp") || domain.ends_with(u8".hk") ||
+           domain.ends_with(u8".tw") || domain.ends_with(u8".xyz") || domain.ends_with(u8".top");
+}
+
+/**
+ * @brief Parse and validate a URL domain in one pass.
+ * @return The first index after the domain, or nullopt when a label or TLD is invalid.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto validate_url_domain(::fast_io::u8string_view pltext, ::std::size_t domain_start,
-                                   ::std::size_t domain_end) noexcept -> bool {
-    if (domain_end > pltext.size() || domain_end <= domain_start) {
-        return false;
-    }
-    auto domain_vw = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 0, domain_end);
-    if (domain_vw.ends_with(u8".com") == false && domain_vw.ends_with(u8".net") == false &&
-        domain_vw.ends_with(u8".org") == false && domain_vw.ends_with(u8".cn") == false &&
-        domain_vw.ends_with(u8".edu") == false && domain_vw.ends_with(u8".gov") == false &&
-        domain_vw.ends_with(u8".io") == false && domain_vw.ends_with(u8".ai") == false &&
-        domain_vw.ends_with(u8".co") == false && domain_vw.ends_with(u8".me") == false &&
-        domain_vw.ends_with(u8".cc") == false && domain_vw.ends_with(u8".tv") == false &&
-        domain_vw.ends_with(u8".info") == false && domain_vw.ends_with(u8".biz") == false &&
-        domain_vw.ends_with(u8".us") == false && domain_vw.ends_with(u8".uk") == false &&
-        domain_vw.ends_with(u8".jp") == false && domain_vw.ends_with(u8".hk") == false &&
-        domain_vw.ends_with(u8".tw") == false && domain_vw.ends_with(u8".xyz") == false &&
-        domain_vw.ends_with(u8".top") == false) {
-        return false;
-    }
-
-    auto const domain =
-        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, domain_start, domain_end - domain_start);
+constexpr auto try_parse_url_domain(::fast_io::u8string_view pltext, ::std::size_t domain_start) noexcept
+    -> ::exception::optional<::std::size_t> {
+    ::std::size_t current_index{domain_start};
     bool label_has_char{};
     bool label_ended_with_hyphen{};
-    for (auto chr : domain) {
-        if (chr == u8'.') {
+    while (current_index < pltext.size()) {
+        auto const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index)};
+        if (::pltxt2htm::details::is_ascii_alpha(chr) || ::pltxt2htm::details::is_ascii_digit(chr)) {
+            label_has_char = true;
+            label_ended_with_hyphen = false;
+        }
+        else if (chr == u8'-') {
+            if (label_has_char == false) {
+                return ::exception::nullopt_t{};
+            }
+            label_ended_with_hyphen = true;
+        }
+        else if (chr == u8'.') {
             if (label_has_char == false || label_ended_with_hyphen) {
-                return false;
+                return ::exception::nullopt_t{};
             }
             label_has_char = false;
             label_ended_with_hyphen = false;
-            continue;
         }
-
-        if ((u8'A' <= chr && chr <= u8'Z') || (u8'a' <= chr && chr <= u8'z') || (u8'0' <= chr && chr <= u8'9')) {
-            label_has_char = true;
-            label_ended_with_hyphen = false;
-            continue;
+        else {
+            break;
         }
-
-        if (chr == u8'-') {
-            if (label_has_char == false) {
-                return false;
-            }
-            label_ended_with_hyphen = true;
-            continue;
-        }
-
-        return false;
+        ++current_index;
     }
 
-    return label_has_char && !label_ended_with_hyphen;
+    if (label_has_char == false || label_ended_with_hyphen) {
+        return ::exception::nullopt_t{};
+    }
+    auto const domain =
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, domain_start, current_index - domain_start);
+    if (::pltxt2htm::details::has_allowed_url_tld(domain) == false) {
+        return ::exception::nullopt_t{};
+    }
+    return current_index;
+}
+
+/**
+ * @brief Parse and validate a URL port and its following delimiter.
+ * @return The first index after the port, or nullopt when the port is invalid.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_url_port(::fast_io::u8string_view pltext, ::std::size_t port_start) noexcept
+    -> ::exception::optional<::std::size_t> {
+    ::std::uint_least32_t port{};
+    ::std::size_t current_index{port_start};
+    ::std::size_t port_size{};
+    while (current_index < pltext.size()) {
+        auto const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index)};
+        if (::pltxt2htm::details::is_ascii_digit(chr) == false) {
+            break;
+        }
+        port = port * 10 + static_cast<::std::uint_least32_t>(chr - u8'0');
+        ++current_index;
+        ++port_size;
+        if (port_size > 5) {
+            return ::exception::nullopt_t{};
+        }
+    }
+    if (port_size == 0 || port > 65535) {
+        return ::exception::nullopt_t{};
+    }
+    if (current_index < pltext.size()) {
+        auto const next_chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index)};
+        if (next_chr != u8'/' && next_chr != u8'?' && next_chr != u8'#') {
+            return ::exception::nullopt_t{};
+        }
+    }
+    return current_index;
 }
 
 /**
@@ -2715,64 +2747,15 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_url_authority(::fast_io::u8string_view pltext, ::std::size_t domain_start) noexcept
     -> ::exception::optional<::std::size_t> {
-    auto current_index = domain_start;
-
-    while (true) {
-        if (current_index >= pltext.size()) {
-            if (::pltxt2htm::details::validate_url_domain<ndebug>(pltext, domain_start, current_index)) {
-                return current_index;
-            }
-            return ::exception::nullopt_t{};
-        }
-        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
-        if ((u8'A' <= chr && chr <= u8'Z') || (u8'a' <= chr && chr <= u8'z') || (u8'0' <= chr && chr <= u8'9') ||
-            chr == u8'.' || chr == u8'-') {
-            ++current_index;
-            continue;
-        }
-        if (chr == u8'/') {
-            if (::pltxt2htm::details::validate_url_domain<ndebug>(pltext, domain_start, current_index) == false) {
-                return ::exception::nullopt_t{};
-            }
-            return current_index;
-        }
-        if (chr == u8':') {
-            if (::pltxt2htm::details::validate_url_domain<ndebug>(pltext, domain_start, current_index) == false) {
-                return ::exception::nullopt_t{};
-            }
-            ::std::uint_least32_t port{};
-            ::std::size_t port_index{};
-            for (char8_t const c : ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1)) {
-                if (c < u8'0' || c > u8'9') {
-                    break;
-                }
-                port = port * 10 + (c - '0');
-                ++port_index;
-                if (port_index > 5) {
-                    return ::exception::nullopt_t{};
-                }
-            }
-            if (port_index == 0) {
-                return ::exception::nullopt_t{};
-            }
-            if (port > 65535) {
-                return ::exception::nullopt_t{};
-            }
-            current_index += port_index + 1;
-            if (current_index < pltext.size()) {
-                auto const next_chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
-                if (next_chr != u8'/' && next_chr != u8'?' && next_chr != u8'#') {
-                    return ::exception::nullopt_t{};
-                }
-            }
-            return current_index;
-        }
-        // non-domain, non-'/', non-':' character
-        if (::pltxt2htm::details::validate_url_domain<ndebug>(pltext, domain_start, current_index)) {
-            return current_index;
-        }
+    auto const opt_domain_end{::pltxt2htm::details::try_parse_url_domain<ndebug>(pltext, domain_start)};
+    if (opt_domain_end.has_value() == false) {
         return ::exception::nullopt_t{};
     }
+    auto const domain_end{opt_domain_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>()};
+    if (domain_end >= pltext.size() || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, domain_end) != u8':') {
+        return domain_end;
+    }
+    return ::pltxt2htm::details::try_parse_url_port<ndebug>(pltext, domain_end + 1);
 }
 
 /**
