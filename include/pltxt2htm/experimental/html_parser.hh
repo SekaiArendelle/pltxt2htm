@@ -1168,6 +1168,7 @@ entry:
             auto&& subast = frame.subast;
             auto&& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
             auto&& parent_ast = parent_frame.subast;
+            parent_frame.current_index += pltext_size;
             switch (frame.get_nested_tag_type()) {
             case ::pltxt2htm::NodeKind::html_span: {
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(

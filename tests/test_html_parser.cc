@@ -236,5 +236,53 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // Remaining heading levels
+    {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<h2>2</h2><h3>3</h3><h4>4</h4><h5>5</h5><h6>6</h6>");
+        auto answer = ::fast_io::u8string_view{u8"<h2>2</h2><h3>3</h3><h4>4</h4><h5>5</h5><h6>6</h6>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Complete table structure
+    {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(
+            u8"<table><caption>caption</caption><colgroup><col></colgroup><thead><tr><th "
+            u8"style=\"text-align:center\">head</th></tr></thead><tbody><tr><td "
+            u8"style=\"text-align:right\">body</td></tr></tbody><tfoot><tr><td>foot</td></tr></tfoot></table>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><caption>caption</caption><colgroup><col></colgroup><thead><tr><th "
+            u8"style=\"text-align:center\">head</th></tr></thead><tbody><tr><td "
+            u8"style=\"text-align:right\">body</td></tr></tbody><tfoot><tr><td>foot</td></tr></tfoot></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Scalar nodes handled directly by the HTML-only parser
+    {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"\n\t'\"");
+        auto answer = ::fast_io::u8string_view{u8"<br>&nbsp;&nbsp;&nbsp;&nbsp;&apos;&quot;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Nested tags without explicit closing tags are closed once at end of input.
+    {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<blockquote><p><em><strong>text");
+        auto answer = ::fast_io::u8string_view{u8"<blockquote><p><em><strong>text</strong></em></p></blockquote>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(
+            u8"<p><span style=\"color:red\"><a href=\"https://example.com\"><code>text");
+        auto answer = ::fast_io::u8string_view{
+            u8"<p><span style=\"color:red;\"><a href=\"https://example.com\"><code>text</code></a></span></p>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<table><thead><tr><th>head");
+        auto answer = ::fast_io::u8string_view{u8"<table><thead><tr><th>head</th></tr></thead></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }
