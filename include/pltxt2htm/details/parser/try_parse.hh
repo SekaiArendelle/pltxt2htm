@@ -857,134 +857,88 @@ struct TryParseEqualSignTagResult {
 };
 
 /**
- * @brief Incrementally validate a color value while it is being parsed.
+ * @brief Find the end of a value whose characters are accepted by a named predicate.
  */
-class ColorValueValidator {
-    ::std::size_t color_size{};
-    bool is_hex{};
-
-public:
-    [[nodiscard]]
-    constexpr bool operator()(char8_t const chr) noexcept {
-        if (this->color_size == 0) {
-            this->is_hex = chr == u8'#';
-        }
-        ++this->color_size;
-        if (this->is_hex) {
-            return this->color_size == 1 || ::pltxt2htm::details::is_ascii_hexdigit(chr);
-        }
-        return ::pltxt2htm::details::is_ascii_alpha(chr);
-    }
-
-    [[nodiscard]]
-    constexpr bool is_valid(this ColorValueValidator const& self) noexcept {
-        if (self.is_hex == false) {
-            return self.color_size != 0;
-        }
-        auto const hex_size{self.color_size - 1};
-        return hex_size == 3 || hex_size == 4 || hex_size == 6 || hex_size == 8;
-    }
-};
-
-/**
- * @brief Parse an HTML tag with a single attribute value (e.g., `<tag=value>`).
- *
- * This function parses HTML tags that have a simple attribute with an equals sign and a value.
- * It uses a validation function to determine which characters are valid in the attribute value.
- *
- * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
- * @tparam prefix_str The complete tag prefix including the attribute name and equals sign
- *                    (e.g., "size=" for `<size=value>`).
- * @tparam Func A callable type that validates characters in the tag value.
- * @param[in] pltext The input text to parse, starting at the current position.
- * @param[in] func A validation function that returns true for valid characters in the value.
- * @return The parsed result containing the tag length and extracted substring, or nullopt if parsing fails.
- * @note The function stops parsing at the first invalid character, space, or the closing `>`.
- * @note Empty values (e.g., `<size=>`) are considered invalid.
- * @note Leading/trailing spaces in the value are trimmed.
- * @note The validation function must be callable with a char8_t and return a boolean.
- */
-template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::U8LiteralString prefix_str, typename Func>
-    requires requires(Func&& func, char8_t chr) {
-        { func(chr) } -> ::std::same_as<bool>;
+template<::pltxt2htm::Contracts ndebug, auto value_char_predicate>
+    requires requires(char8_t chr) {
+        { value_char_predicate(chr) } -> ::std::same_as<bool>;
     }
 [[nodiscard]]
-constexpr auto try_parse_equal_sign_tag(::fast_io::u8string_view pltext, Func&& func) noexcept
-    -> ::exception::optional<TryParseEqualSignTagResult> {
-    ::std::size_t const prefix_size{prefix_str.size()};
+constexpr auto find_value_end(::fast_io::u8string_view pltext, ::std::size_t pos) noexcept -> ::std::size_t {
+    while (pos < pltext.size()) {
+        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos);
+        if (chr == u8'>' || chr == u8' ' || chr == u8'\t' || value_char_predicate(chr) == false) {
+            break;
+        }
+        ++pos;
+    }
+    return pos;
+}
+
+/**
+ * @brief Check whether the input starts with an equals-sign tag prefix.
+ */
+template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::U8LiteralString prefix_str>
+[[nodiscard]]
+constexpr bool is_equal_sign_tag_prefix(::fast_io::u8string_view pltext) noexcept {
     constexpr auto prefix_with_equal =
         ::pltxt2htm::details::concat(prefix_str, ::pltxt2htm::details::U8LiteralString{u8"="});
-    if (::pltxt2htm::details::is_prefix_match<ndebug, prefix_with_equal>(pltext) == false) {
+    return ::pltxt2htm::details::is_prefix_match<ndebug, prefix_with_equal>(pltext);
+}
+
+/**
+ * @brief Parse trailing whitespace and the closing bracket of an equals-sign tag.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_equal_sign_tag_suffix(::fast_io::u8string_view pltext, ::std::size_t const value_start,
+                                               ::std::size_t pos) noexcept
+    -> ::exception::optional<::pltxt2htm::details::TryParseEqualSignTagResult> {
+    if (pos == value_start) {
         return ::exception::nullopt_t{};
     }
-
-    auto const value_start{prefix_size + 1};
-    ::std::size_t value_size{};
-
-    for (::std::size_t forward_index{value_start}; forward_index < pltext.size(); ++forward_index) {
-        char8_t const forward_chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index)};
-        if (forward_chr == u8'>') {
-            if (value_size == 0) {
-                // e.g. `<size=>text` is invalid (empty value in equal-sign tag)
-                return ::exception::nullopt_t{};
-            }
-            return ::pltxt2htm::details::TryParseEqualSignTagResult{
-                forward_index, ::fast_io::u8string_view{pltext.data() + value_start, value_size}};
-        }
-        if (forward_chr == u8' ' || forward_chr == u8'\t') {
-            while (true) {
-                if (forward_index + 1 >= pltext.size()) {
-                    return ::exception::nullopt_t{};
-                }
-
-                if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index + 1) == u8' ' ||
-                    ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index + 1) == u8'\t') {
-                    ++forward_index;
-                }
-                else if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index + 1) == u8'>') {
-                    if (value_size == 0) {
-                        // <size= >text is invalid (empty value in equal-sign tag)
-                        return ::exception::nullopt_t{};
-                    }
-                    return ::pltxt2htm::details::TryParseEqualSignTagResult{
-                        forward_index + 1, ::fast_io::u8string_view{pltext.data() + value_start, value_size}};
-                }
-                else {
-                    return ::exception::nullopt_t{};
-                }
-            }
-        }
-        else if (func(forward_chr)) {
-            ++value_size;
-        }
-        else {
-            return ::exception::nullopt_t{};
-        }
+    auto const value_size = pos - value_start;
+    while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
+                                   ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t')) {
+        ++pos;
     }
-    return ::exception::nullopt_t{};
+    if (pos >= pltext.size() || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'>') {
+        return ::exception::nullopt_t{};
+    }
+    return ::pltxt2htm::details::TryParseEqualSignTagResult{
+        pos, ::fast_io::u8string_view{pltext.data() + value_start, value_size}};
+}
+
+/**
+ * @brief Parse an equals-sign tag whose value uses a stateless character grammar.
+ */
+template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::U8LiteralString prefix_str, auto value_char_predicate>
+[[nodiscard]]
+constexpr auto try_parse_equal_sign_tag(::fast_io::u8string_view pltext) noexcept
+    -> ::exception::optional<::pltxt2htm::details::TryParseEqualSignTagResult> {
+    if (::pltxt2htm::details::is_equal_sign_tag_prefix<ndebug, prefix_str>(pltext) == false) {
+        return ::exception::nullopt_t{};
+    }
+    constexpr auto value_start = prefix_str.size() + 1;
+    auto const value_end = ::pltxt2htm::details::find_value_end<ndebug, value_char_predicate>(pltext, value_start);
+    return ::pltxt2htm::details::try_parse_equal_sign_tag_suffix<ndebug>(pltext, value_start, value_end);
 }
 
 /**
  * @brief Parse `<tag=value>` and reject it when nested inside non-nestable PL tags.
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @tparam prefix_str Tag-name prefix used by `try_parse_equal_sign_tag`.
- * @tparam Func Character validator for the `value` part.
  * @param[in] pltext The input text to parse at current position.
- * @param[in] func Predicate that validates each value character.
  * @param[in] call_stack Active parser stack used to detect forbidden nesting.
  * @return Parsed tag result on success, otherwise nullopt.
  */
-template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::U8LiteralString prefix_str, typename Func>
-    requires requires(Func&& func, char8_t chr) {
-        { func(chr) } -> ::std::same_as<bool>;
-    }
+template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::U8LiteralString prefix_str, auto value_char_predicate>
 [[nodiscard]]
 constexpr auto try_parse_non_nestable_equal_sign_tag(
-    ::fast_io::u8string_view pltext, Func&& func,
+    ::fast_io::u8string_view pltext,
     ::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>> const& call_stack) noexcept
     -> ::exception::optional<TryParseEqualSignTagResult> {
-    auto result =
-        ::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, prefix_str>(pltext, ::std::forward<Func>(func));
+    auto result = ::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, prefix_str, value_char_predicate>(pltext);
     if (result.has_value() == false) {
         return ::exception::nullopt_t{};
     }
@@ -1003,6 +957,35 @@ constexpr auto try_parse_non_nestable_equal_sign_tag(
 }
 
 /**
+ * @brief Parse a color value and return the first character after it.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_color_value(::fast_io::u8string_view pltext, ::std::size_t const start) noexcept
+    -> ::exception::optional<::std::size_t> {
+    if (start >= pltext.size()) {
+        return ::exception::nullopt_t{};
+    }
+    if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, start) != u8'#') {
+        auto const end =
+            ::pltxt2htm::details::find_value_end<ndebug, ::pltxt2htm::details::is_ascii_alpha>(pltext, start);
+        if (end == start) {
+            return ::exception::nullopt_t{};
+        }
+        return end;
+    }
+
+    auto const hex_start = start + 1;
+    auto const end =
+        ::pltxt2htm::details::find_value_end<ndebug, ::pltxt2htm::details::is_ascii_hexdigit>(pltext, hex_start);
+    auto const hex_size = end - hex_start;
+    if (hex_size != 3 && hex_size != 4 && hex_size != 6 && hex_size != 8) {
+        return ::exception::nullopt_t{};
+    }
+    return end;
+}
+
+/**
  * @brief Parse `<color=...>` and validate value against a strict color grammar.
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @param[in] pltext Input text starting at `olor=...`.
@@ -1012,12 +995,50 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_color_tag(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<TryParseEqualSignTagResult> {
-    ::pltxt2htm::details::ColorValueValidator validator{};
-    auto result = ::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, u8"olor">(pltext, validator);
-    if (result.has_value() == false || validator.is_valid() == false) {
+    constexpr auto prefix_str = ::pltxt2htm::details::U8LiteralString{u8"olor"};
+    if (::pltxt2htm::details::is_equal_sign_tag_prefix<ndebug, prefix_str>(pltext) == false) {
         return ::exception::nullopt_t{};
     }
-    return result;
+    constexpr auto value_start = prefix_str.size() + 1;
+    auto opt_value_end = ::pltxt2htm::details::try_parse_color_value<ndebug>(pltext, value_start);
+    if (opt_value_end.has_value() == false) {
+        return ::exception::nullopt_t{};
+    }
+    return ::pltxt2htm::details::try_parse_equal_sign_tag_suffix<ndebug>(
+        pltext, value_start, opt_value_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>());
+}
+
+/**
+ * @brief Return type of try_parse_size_tag: tag length and parsed size.
+ */
+struct TryParseSizeTagResult {
+    ::std::size_t tag_len;
+    ::std::size_t value;
+};
+
+/**
+ * @brief Parse a `<size=N>` opening tag.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_size_tag(::fast_io::u8string_view pltext) noexcept
+    -> ::exception::optional<::pltxt2htm::details::TryParseSizeTagResult> {
+    constexpr auto prefix_str = ::pltxt2htm::details::U8LiteralString{u8"ize"};
+    if (::pltxt2htm::details::is_equal_sign_tag_prefix<ndebug, prefix_str>(pltext) == false) {
+        return ::exception::nullopt_t{};
+    }
+    constexpr auto value_start = prefix_str.size() + 1;
+    auto opt_value = ::pltxt2htm::details::try_parse_size_t_decimal_value<ndebug>(pltext, value_start);
+    if (opt_value.has_value() == false) {
+        return ::exception::nullopt_t{};
+    }
+    auto const value = opt_value.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+    auto opt_tag = ::pltxt2htm::details::try_parse_equal_sign_tag_suffix<ndebug>(pltext, value_start, value.end);
+    if (opt_tag.has_value() == false) {
+        return ::exception::nullopt_t{};
+    }
+    return ::pltxt2htm::details::TryParseSizeTagResult{
+        opt_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>().tag_len, value.value};
 }
 
 /**
@@ -1030,67 +1051,55 @@ struct TryParseSpanTagResult {
 };
 
 /**
- * @brief Incrementally parse a CSS font-size value.
- * @details Accepts a non-zero integer optionally followed by lowercase `px`.
+ * @brief Result of parsing a CSS font-size value.
  */
-class FontSizeValueParser {
-    ::pltxt2htm::details::SizeTDecimalParser decimal_parser{};
-    ::std::size_t suffix_size{};
-
-public:
-    [[nodiscard]]
-    constexpr bool operator()(char8_t const chr) noexcept {
-        if (this->suffix_size == 0 && this->decimal_parser(chr)) {
-            return true;
-        }
-        if (chr == u8'p' && this->decimal_parser.is_valid() && this->suffix_size == 0) {
-            this->suffix_size = 1;
-            return true;
-        }
-        if (chr == u8'x' && this->suffix_size == 1) {
-            this->suffix_size = 2;
-            return true;
-        }
-        return false;
-    }
-
-    [[nodiscard]]
-    constexpr bool is_valid(this FontSizeValueParser const& self) noexcept {
-        return self.decimal_parser.is_valid() && self.decimal_parser.value() != 0 &&
-               (self.suffix_size == 0 || self.suffix_size == 2);
-    }
-
-    [[nodiscard]]
-    constexpr auto value(this FontSizeValueParser const& self) noexcept -> ::std::size_t {
-        return self.decimal_parser.value();
-    }
+struct TryParseFontSizeValueResult {
+    ::std::size_t end;
+    ::std::size_t value;
 };
 
-template<::pltxt2htm::Contracts ndebug, typename Validator>
+/**
+ * @brief Parse a non-zero integer optionally followed by lowercase `px`.
+ */
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr bool try_parse_span_style_property_value(::fast_io::u8string_view pltext, ::std::size_t& pos,
-                                                   char8_t const quote, Validator&& validator,
-                                                   ::fast_io::u8string* result) noexcept {
-    bool has_trailing_whitespace{};
-    while (pos < pltext.size()) {
-        auto const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos)};
-        if (chr == u8';' || chr == quote) {
-            break;
-        }
-        if (chr == u8' ' || chr == u8'\t') {
-            has_trailing_whitespace = true;
-            ++pos;
-            continue;
-        }
-        if (has_trailing_whitespace || validator(chr) == false) {
-            return false;
-        }
-        if (result != nullptr) {
-            result->push_back(chr);
+constexpr auto try_parse_font_size_value(::fast_io::u8string_view pltext, ::std::size_t const start) noexcept
+    -> ::exception::optional<::pltxt2htm::details::TryParseFontSizeValueResult> {
+    auto opt_decimal = ::pltxt2htm::details::try_parse_size_t_decimal_value<ndebug>(pltext, start);
+    if (opt_decimal.has_value() == false) {
+        return ::exception::nullopt_t{};
+    }
+    auto const decimal = opt_decimal.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+    if (decimal.value == 0) {
+        return ::exception::nullopt_t{};
+    }
+    auto pos = decimal.end;
+    if (pos < pltext.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'p') {
+        ++pos;
+        if (pos >= pltext.size() || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'x') {
+            return ::exception::nullopt_t{};
         }
         ++pos;
     }
-    return validator.is_valid();
+    return ::pltxt2htm::details::TryParseFontSizeValueResult{pos, decimal.value};
+}
+
+/**
+ * @brief Skip trailing whitespace and require a CSS property delimiter.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr bool try_parse_span_style_property_suffix(::fast_io::u8string_view pltext, ::std::size_t& pos,
+                                                    char8_t const quote) noexcept {
+    while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
+                                   ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t')) {
+        ++pos;
+    }
+    if (pos >= pltext.size()) {
+        return false;
+    }
+    auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos);
+    return chr == u8';' || chr == quote;
 }
 
 template<::pltxt2htm::Contracts ndebug>
@@ -1146,22 +1155,32 @@ constexpr bool try_parse_span_style(::fast_io::u8string_view pltext, ::std::size
             if (color.empty() == false) {
                 return false;
             }
-            ::pltxt2htm::details::ColorValueValidator validator{};
-            if (::pltxt2htm::details::try_parse_span_style_property_value<ndebug>(pltext, pos, quote, validator,
-                                                                                  ::std::addressof(color)) == false) {
+            auto const value_start = pos;
+            auto opt_value_end = ::pltxt2htm::details::try_parse_color_value<ndebug>(pltext, value_start);
+            if (opt_value_end.has_value() == false) {
                 return false;
             }
+            auto const value_end = opt_value_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            pos = value_end;
+            if (::pltxt2htm::details::try_parse_span_style_property_suffix<ndebug>(pltext, pos, quote) == false) {
+                return false;
+            }
+            color = ::fast_io::u8string{::fast_io::u8string_view{pltext.data() + value_start, value_end - value_start}};
         }
         else if (property == ::fast_io::u8string_view{u8"font-size"}) {
             if (font_size.has_value()) {
                 return false;
             }
-            ::pltxt2htm::details::FontSizeValueParser parser{};
-            if (::pltxt2htm::details::try_parse_span_style_property_value<ndebug>(pltext, pos, quote, parser,
-                                                                                  nullptr) == false) {
+            auto opt_value = ::pltxt2htm::details::try_parse_font_size_value<ndebug>(pltext, pos);
+            if (opt_value.has_value() == false) {
                 return false;
             }
-            font_size = parser.value();
+            auto const value = opt_value.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            pos = value.end;
+            if (::pltxt2htm::details::try_parse_span_style_property_suffix<ndebug>(pltext, pos, quote) == false) {
+                return false;
+            }
+            font_size = value.value;
         }
         else {
             return false;
@@ -3001,8 +3020,9 @@ constexpr auto try_parse_external_tag(
     ::fast_io::u8string_view pltext,
     ::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>> const& call_stack) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseExternalTagResult<ndebug>> {
-    auto result = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<ndebug, u8"xternal">(
-        pltext, [](char8_t u8chr) static constexpr noexcept { return u8'!' <= u8chr && u8chr <= u8'~'; }, call_stack);
+    auto result = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<ndebug, u8"xternal",
+                                                                              ::pltxt2htm::details::is_ascii_graphic>(
+        pltext, call_stack);
     if (result.has_value() == false) {
         return ::exception::nullopt_t{};
     }

@@ -954,13 +954,9 @@ entry:
                         goto entry;
                     }
                     // parsing: <discussion=$1>$2</discussion>
-                    if (auto opt_discussion_tag =
-                            ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<ndebug, u8"iscussion">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                                [](char8_t u8chr) static constexpr noexcept {
-                                    return (u8'a' <= u8chr && u8chr <= u8'z') || (u8'0' <= u8chr && u8chr <= u8'9');
-                                },
-                                call_stack);
+                    if (auto opt_discussion_tag = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<
+                            ndebug, u8"iscussion", ::pltxt2htm::details::is_ascii_lowercase_alphanumeric>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), call_stack);
                         opt_discussion_tag.has_value()) {
                         auto&& [tag_len, id] =
                             opt_discussion_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
@@ -982,13 +978,9 @@ entry:
                 case u8'e':
                     [[fallthrough]];
                 case u8'E': {
-                    if (auto opt_experiment_tag =
-                            ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<ndebug, u8"xperiment">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                                [](char8_t u8chr) static constexpr noexcept {
-                                    return (u8'a' <= u8chr && u8chr <= u8'z') || (u8'0' <= u8chr && u8chr <= u8'9');
-                                },
-                                call_stack);
+                    if (auto opt_experiment_tag = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<
+                            ndebug, u8"xperiment", ::pltxt2htm::details::is_ascii_lowercase_alphanumeric>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), call_stack);
                         opt_experiment_tag.has_value()) {
                         // parsing: <experiment=$1>$2</experiment>
                         auto&& [tag_len, id] =
@@ -1251,14 +1243,11 @@ entry:
                     [[fallthrough]];
                 case u8'S': {
                     // parsing pl <size=$1>$2</size> tag
-                    ::pltxt2htm::details::SizeTDecimalParser size_parser{};
-                    if (auto opt_size_tag = ::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, u8"ize">(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                            size_parser);
+                    if (auto opt_size_tag = ::pltxt2htm::details::try_parse_size_tag<ndebug>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_size_tag.has_value()) {
-                        auto const tag_len{
-                            opt_size_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>().tag_len};
-                        auto const id{size_parser.value()};
+                        auto const [tag_len, id] =
+                            opt_size_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                         if (id == 0) {
                             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
                             ++current_index;
@@ -1412,11 +1401,9 @@ entry:
                     [[fallthrough]];
                 case u8'U': {
                     // parsing pl <user=$1>$2</user> tag
-                    if (auto opt_user_tag = ::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, u8"ser">(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                            [](char8_t u8chr) static constexpr noexcept {
-                                return (u8'a' <= u8chr && u8chr <= u8'z') || (u8'0' <= u8chr && u8chr <= u8'9');
-                            });
+                    if (auto opt_user_tag = ::pltxt2htm::details::try_parse_equal_sign_tag<
+                            ndebug, u8"ser", ::pltxt2htm::details::is_ascii_lowercase_alphanumeric>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_user_tag.has_value()) {
                         auto&& [tag_len, id] = opt_user_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                         current_index += tag_len + 3;

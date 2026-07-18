@@ -118,6 +118,21 @@ int main() {
     }
 
     {
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"<color=#123>a</color><color=#1234>b</color><color=#12345678>c</color>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<span style=\"color:#123;\">a</span><span style=\"color:#1234;\">b</span><span "
+            u8"style=\"color:#12345678;\">c</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<color=red$>test</color>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;color=red$&gt;test&lt;/color&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
         // block style injection / XSS payload in color value
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<color=red;background:urljavascriptalert1>test</color>");
         auto answer = ::fast_io::u8string_view{u8"&lt;color=red;background:urljavascriptalert1&gt;test&lt;/color&gt;"};

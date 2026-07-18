@@ -63,6 +63,28 @@ constexpr bool is_ascii_hexdigit(char8_t const chr) noexcept {
 }
 
 /**
+ * @brief Check if a character is an ASCII lowercase letter or digit.
+ */
+[[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
+constexpr bool is_ascii_lowercase_alphanumeric(char8_t const chr) noexcept {
+    return (u8'a' <= chr && chr <= u8'z') || ::pltxt2htm::details::is_ascii_digit(chr);
+}
+
+/**
+ * @brief Check if a character is printable ASCII excluding space.
+ */
+[[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
+constexpr bool is_ascii_graphic(char8_t const chr) noexcept {
+    return u8'!' <= chr && chr <= u8'~';
+}
+
+/**
  * @brief Get character at specific index from u8string_view with bounds checking
  * @tparam ndebug Contract checking mode controlling assertion behavior.
  * @param[in] pltext The string view to index into
@@ -283,38 +305,39 @@ constexpr auto size_t2str(::std::size_t num) noexcept -> ::fast_io::u8string {
 }
 
 /**
- * @brief Incrementally parse an ASCII decimal value into std::size_t.
- * @details Rejects non-digits and values that overflow std::size_t.
+ * @brief Result of parsing an ASCII decimal value.
  */
-class SizeTDecimalParser {
-    ::std::size_t parsed_value{};
-    bool has_digit{};
-
-public:
-    [[nodiscard]]
-    constexpr bool operator()(char8_t const chr) noexcept {
-        if (::pltxt2htm::details::is_ascii_digit(chr) == false) {
-            return false;
-        }
-        auto const digit{static_cast<::std::size_t>(chr - u8'0')};
-        if (this->parsed_value > (::std::numeric_limits<::std::size_t>::max() - digit) / 10) {
-            return false;
-        }
-        this->parsed_value = this->parsed_value * 10 + digit;
-        this->has_digit = true;
-        return true;
-    }
-
-    [[nodiscard]]
-    constexpr bool is_valid(this SizeTDecimalParser const& self) noexcept {
-        return self.has_digit;
-    }
-
-    [[nodiscard]]
-    constexpr auto value(this SizeTDecimalParser const& self) noexcept -> ::std::size_t {
-        return self.parsed_value;
-    }
+struct TryParseSizeTDecimalValueResult {
+    ::std::size_t end;
+    ::std::size_t value;
 };
+
+/**
+ * @brief Parse an ASCII decimal value starting at a given position.
+ * @details Stops at the first non-digit and rejects empty or overflowing values.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_size_t_decimal_value(::fast_io::u8string_view str, ::std::size_t const start) noexcept
+    -> ::exception::optional<::pltxt2htm::details::TryParseSizeTDecimalValueResult> {
+    ::std::size_t parsed_value{};
+    auto pos = start;
+    for (; pos < str.size(); ++pos) {
+        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(str, pos);
+        if (::pltxt2htm::details::is_ascii_digit(chr) == false) {
+            break;
+        }
+        auto const digit = static_cast<::std::size_t>(chr - u8'0');
+        if (parsed_value > (::std::numeric_limits<::std::size_t>::max() - digit) / 10) {
+            return ::exception::nullopt_t{};
+        }
+        parsed_value = parsed_value * 10 + digit;
+    }
+    if (pos == start) {
+        return ::exception::nullopt_t{};
+    }
+    return ::pltxt2htm::details::TryParseSizeTDecimalValueResult{pos, parsed_value};
+}
 
 /**
  * @brief Convert a UTF-8 string to std::size_t
@@ -329,16 +352,15 @@ public:
 [[__gnu__::__pure__]]
 #endif
 constexpr auto u8str2size_t(::fast_io::u8string_view str) noexcept -> ::exception::optional<std::size_t> {
-    ::pltxt2htm::details::SizeTDecimalParser parser{};
-    for (auto const chr : str) {
-        if (parser(chr) == false) {
-            return ::exception::nullopt_t{};
-        }
-    }
-    if (parser.is_valid() == false) {
+    auto result = ::pltxt2htm::details::try_parse_size_t_decimal_value<::pltxt2htm::Contracts::quick_enforce>(str, 0);
+    if (result.has_value() == false) {
         return ::exception::nullopt_t{};
     }
-    return parser.value();
+    auto const parsed = result.template value<false>();
+    if (parsed.end != str.size()) {
+        return ::exception::nullopt_t{};
+    }
+    return parsed.value;
 }
 
 } // namespace pltxt2htm::details

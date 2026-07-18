@@ -333,6 +333,19 @@ int main() {
     }
 
     {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:20p\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;font-size:20p&quot;&gt;text&lt;/span&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:20pxx\">text</span>");
+        auto answer =
+            ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;font-size:20pxx&quot;&gt;text&lt;/span&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
         // uppercase color name rejected (lowercase only)
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"color:Red\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:Red;\">text</span>"};
