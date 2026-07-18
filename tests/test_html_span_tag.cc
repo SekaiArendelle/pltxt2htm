@@ -20,6 +20,13 @@ int main() {
     }
 
     {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"<span style=\" ; color \t : \t red \t ; ; font-size : 20px ; \">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"color:red;font-size:20px;\">text</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
         // uppercase STYLE attribute is rejected (only lowercase "style" is allowed)
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span STYLE=\"color:red\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"&lt;span&nbsp;STYLE=&quot;color:red&quot;&gt;text&lt;/span&gt;"};
