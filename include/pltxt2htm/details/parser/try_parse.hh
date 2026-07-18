@@ -3047,8 +3047,6 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr auto try_parse_md_url(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseMdUrlResult<ndebug>> {
     // First attempt: authority + path with `)` as terminator, then verify `)` follows
-    // Save path_end so the fallback doesn't re-scan content already parsed.
-    ::std::size_t path_end{};
     auto opt_auth_end = ::pltxt2htm::details::try_parse_url_authority<ndebug>(
         pltext, ::pltxt2htm::details::try_parse_url_scheme<ndebug>(pltext).value_or(::std::size_t{}));
     if (opt_auth_end.has_value()) {
@@ -3060,7 +3058,7 @@ constexpr auto try_parse_md_url(::fast_io::u8string_view pltext) noexcept
         bool const ends_after_authority =
             auth_end < pltext.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, auth_end) == u8')';
         if (has_path_start || ends_after_authority) {
-            path_end = auth_end;
+            ::std::size_t path_end{auth_end};
             while (path_end < pltext.size()) {
                 auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, path_end);
                 if (chr == u8')') {
@@ -3084,20 +3082,14 @@ constexpr auto try_parse_md_url(::fast_io::u8string_view pltext) noexcept
         }
     }
 
-    // Fallback: continue from path_end (skips content already parsed above)
-    auto raw_len = path_end;
-    while (raw_len < pltext.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, raw_len) != u8')') {
-        ++raw_len;
-    }
-    auto const pltext_size = pltext.size();
-    pltxt2htm_assert(raw_len <= pltext_size, u8"raw_len should not exceed pltext size");
-    if (raw_len == pltext_size) {
-        return ::exception::nullopt_t{};
-    }
-    auto raw_url = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 0, raw_len);
+    // Fallback: locate the closing parenthesis and encode the URL in one pass.
     ::fast_io::u8string encoded{};
-    for (::std::size_t i = 0; i < raw_url.size(); ++i) {
-        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(raw_url, i);
+    ::std::size_t raw_len{};
+    for (; raw_len < pltext.size(); ++raw_len) {
+        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, raw_len);
+        if (chr == u8')') {
+            break;
+        }
         if (chr >= u8'!' && chr <= u8'~' && chr != u8'<' && chr != u8'>' && chr != u8'\"') {
             encoded.push_back(chr);
         }
@@ -3108,6 +3100,11 @@ constexpr auto try_parse_md_url(::fast_io::u8string_view pltext) noexcept
             encoded.push_back(hi < 10 ? u8'0' + hi : u8'A' + (hi - 10));
             encoded.push_back(lo < 10 ? u8'0' + lo : u8'A' + (lo - 10));
         }
+    }
+    auto const pltext_size = pltext.size();
+    pltxt2htm_assert(raw_len <= pltext_size, u8"raw_len should not exceed pltext size");
+    if (raw_len == pltext_size) {
+        return ::exception::nullopt_t{};
     }
     auto encoded_vw = ::fast_io::u8string_view{encoded.data(), encoded.size()};
     auto opt_retry_auth = ::pltxt2htm::details::try_parse_url_authority<ndebug>(
