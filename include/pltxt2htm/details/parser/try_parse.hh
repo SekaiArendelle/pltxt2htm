@@ -848,7 +848,7 @@ constexpr auto try_parse_td_tag(::fast_io::u8string_view pltext, ::pltxt2htm::No
  */
 struct TryParseEqualSignTagResult {
     ::std::size_t tag_len; ///< Length of the tag.
-    ::fast_io::u8string substr; ///< Substring extracted from the tag.
+    ::fast_io::u8string_view substr; ///< View of the value extracted from the tag.
 };
 
 /**
@@ -913,17 +913,18 @@ constexpr auto try_parse_equal_sign_tag(::fast_io::u8string_view pltext, Func&& 
         return ::exception::nullopt_t{};
     }
 
-    // substr: str of $1
-    ::fast_io::u8string substr{};
+    auto const value_start{prefix_size + 1};
+    ::std::size_t value_size{};
 
-    for (::std::size_t forward_index{prefix_size + 1}; forward_index < pltext.size(); ++forward_index) {
+    for (::std::size_t forward_index{value_start}; forward_index < pltext.size(); ++forward_index) {
         char8_t const forward_chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index)};
         if (forward_chr == u8'>') {
-            if (substr.empty()) {
+            if (value_size == 0) {
                 // e.g. `<size=>text` is invalid (empty value in equal-sign tag)
                 return ::exception::nullopt_t{};
             }
-            return ::pltxt2htm::details::TryParseEqualSignTagResult{forward_index, ::std::move(substr)};
+            return ::pltxt2htm::details::TryParseEqualSignTagResult{
+                forward_index, ::fast_io::u8string_view{pltext.data() + value_start, value_size}};
         }
         if (forward_chr == u8' ' || forward_chr == u8'\t') {
             while (true) {
@@ -936,11 +937,12 @@ constexpr auto try_parse_equal_sign_tag(::fast_io::u8string_view pltext, Func&& 
                     ++forward_index;
                 }
                 else if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, forward_index + 1) == u8'>') {
-                    if (substr.empty()) {
+                    if (value_size == 0) {
                         // <size= >text is invalid (empty value in equal-sign tag)
                         return ::exception::nullopt_t{};
                     }
-                    return ::pltxt2htm::details::TryParseEqualSignTagResult{forward_index + 1, ::std::move(substr)};
+                    return ::pltxt2htm::details::TryParseEqualSignTagResult{
+                        forward_index + 1, ::fast_io::u8string_view{pltext.data() + value_start, value_size}};
                 }
                 else {
                     return ::exception::nullopt_t{};
@@ -948,7 +950,7 @@ constexpr auto try_parse_equal_sign_tag(::fast_io::u8string_view pltext, Func&& 
             }
         }
         else if (func(forward_chr)) {
-            substr.push_back(forward_chr);
+            ++value_size;
         }
         else {
             return ::exception::nullopt_t{};

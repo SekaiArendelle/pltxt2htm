@@ -873,7 +873,7 @@ entry:
                             ::pltxt2htm::details::FrontendContextVariant<ndebug>{
                                 ::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo{
                                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                                    ::std::move(color)},
+                                    ::fast_io::u8string{color}},
                                 ::pltxt2htm::NodeKind::pl_color},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -969,7 +969,7 @@ entry:
                             ::pltxt2htm::details::FrontendContextVariant<ndebug>{
                                 ::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo{
                                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                                    ::std::move(id)},
+                                    ::fast_io::u8string{id}},
                                 ::pltxt2htm::NodeKind::pl_discussion},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -998,7 +998,7 @@ entry:
                             ::pltxt2htm::details::FrontendContextVariant<ndebug>{
                                 ::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo{
                                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                                    ::std::move(id)},
+                                    ::fast_io::u8string{id}},
                                 ::pltxt2htm::NodeKind::pl_experiment},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -1251,15 +1251,15 @@ entry:
                     [[fallthrough]];
                 case u8'S': {
                     // parsing pl <size=$1>$2</size> tag
+                    ::pltxt2htm::details::SizeTDecimalParser size_parser{};
                     if (auto opt_size_tag = ::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, u8"ize">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                            [](char8_t u8chr) static constexpr noexcept { return u8'0' <= u8chr && u8chr <= u8'9'; });
+                            size_parser);
                         opt_size_tag.has_value()) {
-                        auto&& [tag_len, id_] = opt_size_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-                        ::exception::optional<::std::size_t> id{
-                            ::pltxt2htm::details::u8str2size_t(::fast_io::u8string_view{id_.data(), id_.size()})};
-                        if (id.has_value() == false ||
-                            id.template value<ndebug == ::pltxt2htm::Contracts::ignore>() == 0) [[unlikely]] {
+                        auto const tag_len{
+                            opt_size_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>().tag_len};
+                        auto const id{size_parser.value()};
+                        if (id == 0) {
                             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
                             ++current_index;
                             goto entry;
@@ -1269,8 +1269,7 @@ entry:
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                             ::pltxt2htm::details::FrontendContextVariant<ndebug>{
                                 ::pltxt2htm::details::ParserFrameContextWithPlSizeTagInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                                    id.template value<ndebug == ::pltxt2htm::Contracts::ignore>()},
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), id},
                                 ::pltxt2htm::NodeKind::pl_size},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -1425,7 +1424,7 @@ entry:
                             ::pltxt2htm::details::FrontendContextVariant<ndebug>{
                                 ::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo{
                                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                                    ::std::move(id)},
+                                    ::fast_io::u8string{id}},
                                 ::pltxt2htm::NodeKind::pl_user},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
