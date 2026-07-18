@@ -289,10 +289,12 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 constexpr void optimize_ast(::pltxt2htm::Ast<ndebug>& ast_init) noexcept {
-    ::pltxt2htm::details::CallStack<::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>>
+    ::pltxt2htm::details::CallStack<
+        ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>>
         call_stack{};
-    call_stack.template push<ndebug>(::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>{
-        ::std::addressof(ast_init), ::pltxt2htm::NodeKind::text, ast_init.begin()});
+    call_stack.template push<ndebug>(
+        ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>{
+            ::std::addressof(ast_init), ::pltxt2htm::NodeKind::text, ast_init.begin()});
 
 entry:
     while (true) {
@@ -377,8 +379,7 @@ entry:
                         }
                     }
                 }
-                ::pltxt2htm::NodeKind const nested_tag_type{
-                    call_stack.template top<ndebug>().get_nested_tag_type()};
+                ::pltxt2htm::NodeKind const nested_tag_type{call_stack.template top<ndebug>().get_nested_tag_type()};
                 // Optimization: If this color matches the parent color, flatten the nesting
                 // <color=red>text<color=red>text</color>test</color> -> <color=red>texttexttext</color>
                 auto const is_different_tag = bool{[nested_tag_type, &call_stack, &node] constexpr noexcept {
@@ -490,8 +491,7 @@ entry:
                         }
                     }
                     if (nested_tag_type == ::pltxt2htm::NodeKind::pl_color) {
-                        auto const& parent_color_id =
-                            call_stack.template top<ndebug>().get_equal_sign_tag_id();
+                        auto const& parent_color_id = call_stack.template top<ndebug>().get_equal_sign_tag_id();
                         auto const& node_color = node.as_html_span().get_color();
                         ::fast_io::u8string_view const node_color_view{node_color.data(), node_color.size()};
                         auto const& node_fs = node.as_html_span().get_font_size();
@@ -563,8 +563,7 @@ entry:
                         }
                     }
                 }
-                ::pltxt2htm::NodeKind const nested_tag_type{
-                    call_stack.template top<ndebug>().get_nested_tag_type()};
+                ::pltxt2htm::NodeKind const nested_tag_type{call_stack.template top<ndebug>().get_nested_tag_type()};
                 // Optimization: If this color matches the parent color, flatten the nesting
                 // <a>text<a>text</a>text</a> -> <a>texttexttext</a>
                 auto const is_different_tag = bool{[nested_tag_type, &call_stack] constexpr noexcept {
@@ -575,12 +574,10 @@ entry:
                         return false;
                     }
                     if (nested_tag_type == ::pltxt2htm::NodeKind::pl_color) {
-                        return anchor_color !=
-                               call_stack.template top<ndebug>().get_equal_sign_tag_id();
+                        return anchor_color != call_stack.template top<ndebug>().get_equal_sign_tag_id();
                     }
                     if (nested_tag_type == ::pltxt2htm::NodeKind::html_span) {
-                        return anchor_color !=
-                               call_stack.template top<ndebug>().get_html_span_color();
+                        return anchor_color != call_stack.template top<ndebug>().get_html_span_color();
                     }
                     return true; // Different tag types, so not the same
                 }()};
@@ -702,8 +699,7 @@ entry:
                 // Optimization: If the size is the same as the parent node, then ignore the nested tag.
                 bool const is_different_tag =
                     nested_tag_type != ::pltxt2htm::NodeKind::pl_size ||
-                    node.as_pl_size().get_size() !=
-                        call_stack.template top<ndebug>().get_pl_size_tag_id();
+                    node.as_pl_size().get_size() != call_stack.template top<ndebug>().get_pl_size_tag_id();
                 if (is_different_tag) {
                     call_stack.template push<ndebug>(
                         ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator,

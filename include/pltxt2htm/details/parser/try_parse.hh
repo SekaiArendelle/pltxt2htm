@@ -1271,8 +1271,8 @@ struct TryParseCodeTagResult {
 
 [[nodiscard]]
 constexpr bool is_code_language_suffix_char(char8_t const chr) noexcept {
-    return ::pltxt2htm::details::is_ascii_alpha(chr) || ::pltxt2htm::details::is_ascii_digit(chr) ||
-           chr == u8'+' || chr == u8'#' || chr == u8'.' || chr == u8'_' || chr == u8'-';
+    return ::pltxt2htm::details::is_ascii_alpha(chr) || ::pltxt2htm::details::is_ascii_digit(chr) || chr == u8'+' ||
+           chr == u8'#' || chr == u8'.' || chr == u8'_' || chr == u8'-';
 }
 
 /**

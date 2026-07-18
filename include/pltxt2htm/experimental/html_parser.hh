@@ -19,7 +19,8 @@ namespace details {
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto parse_pltxt_html(::pltxt2htm::details::CallStack<::pltxt2htm::details::ParserFrameContext<ndebug>>& call_stack) noexcept
+constexpr auto parse_pltxt_html(
+    ::pltxt2htm::details::CallStack<::pltxt2htm::details::ParserFrameContext<ndebug>>& call_stack) noexcept
     -> ::pltxt2htm::Ast<ndebug> {
 entry:
     while (true) {
@@ -1159,8 +1160,7 @@ entry:
         }
 
         {
-            ::pltxt2htm::details::ParserFrameContext<ndebug> frame(
-                ::std::move(call_stack.template top<ndebug>()));
+            ::pltxt2htm::details::ParserFrameContext<ndebug> frame(::std::move(call_stack.template top<ndebug>()));
             call_stack.template pop<ndebug>();
             if (call_stack.empty()) {
                 return ::std::move(frame.subast);

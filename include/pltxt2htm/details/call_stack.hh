@@ -24,7 +24,7 @@ public:
     using size_type = ::std::size_t;
 
 private:
-    alignas(T) ::std::byte storage_[sizeof(T) * Capacity];
+    alignas(T)::std::byte storage_[sizeof(T) * Capacity];
     size_type size_{};
 
 public:

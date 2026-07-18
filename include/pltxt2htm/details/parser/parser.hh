@@ -43,7 +43,8 @@ struct FindNextBlockAfterLineBreakResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto find_next_block_after_line_break(
-    ::fast_io::u8string_view pltext, ::pltxt2htm::details::CallStack<::pltxt2htm::details::ParserFrameContext<ndebug>>& call_stack,
+    ::fast_io::u8string_view pltext,
+    ::pltxt2htm::details::CallStack<::pltxt2htm::details::ParserFrameContext<ndebug>>& call_stack,
     ::pltxt2htm::Ast<ndebug>& result) noexcept -> ::pltxt2htm::details::FindNextBlockAfterLineBreakResult {
     ::std::size_t current_index{};
     while (true) {
@@ -174,7 +175,8 @@ constexpr auto find_next_block_after_line_break(
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto parse_pltxt(::pltxt2htm::details::CallStack<::pltxt2htm::details::ParserFrameContext<ndebug>>& call_stack) noexcept
+constexpr auto parse_pltxt(
+    ::pltxt2htm::details::CallStack<::pltxt2htm::details::ParserFrameContext<ndebug>>& call_stack) noexcept
     -> ::pltxt2htm::Ast<ndebug> {
 entry:
     while (true) {
@@ -189,9 +191,8 @@ entry:
                 if (call_stack.empty()) {
                     return ::std::move(previous_frame.subast);
                 }
-                call_stack.template top<ndebug>()
-                    .subast.emplace_back(
-                        ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdUl<ndebug>{::std::move(previous_frame.subast)}));
+                call_stack.template top<ndebug>().subast.emplace_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdUl<ndebug>{::std::move(previous_frame.subast)}));
                 // Given "before\n- item\nbetween\n+ another\n- last\nafter":
                 //   find_next_block_after_line_break first sees "- item\nbetween\n...",
                 //   but optionally_to_md_list_ast stops at "between" (not a list marker),
@@ -279,9 +280,8 @@ entry:
                 if (call_stack.empty()) {
                     return ::std::move(previous_frame.subast);
                 }
-                call_stack.template top<ndebug>()
-                    .subast.emplace_back(
-                        ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdOl<ndebug>{::std::move(previous_frame.subast)}));
+                call_stack.template top<ndebug>().subast.emplace_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdOl<ndebug>{::std::move(previous_frame.subast)}));
                 // Same logic as the MdUl case above -- re-scan only when the parent is a
                 // plain-text frame, not another md_ul/md_ol.
                 auto&& parent_frame = call_stack.template top<ndebug>();
@@ -344,8 +344,7 @@ entry:
             ++frame_iter;
             goto entry;
         }
-        if (call_stack.template top<ndebug>().get_nested_tag_type() ==
-            ::pltxt2htm::NodeKind::md_table) {
+        if (call_stack.template top<ndebug>().get_nested_tag_type() == ::pltxt2htm::NodeKind::md_table) {
             auto&& frame = call_stack.template top<ndebug>();
             auto&& raw_ast = frame.get_md_table_raw_ast();
             auto state = frame.get_md_table_state();
@@ -2430,8 +2429,7 @@ entry:
         }
 
         {
-            ::pltxt2htm::details::ParserFrameContext<ndebug> frame(
-                ::std::move(call_stack.template top<ndebug>()));
+            ::pltxt2htm::details::ParserFrameContext<ndebug> frame(::std::move(call_stack.template top<ndebug>()));
             ::std::size_t const staged_index = pltext_size;
             call_stack.template pop<ndebug>();
             if (call_stack.empty()) {
@@ -2683,8 +2681,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h1: {
-                ::fast_io::u8string_view const super_pltext{
-                    call_stack.template top<ndebug>().get_pltext()};
+                ::fast_io::u8string_view const super_pltext{call_stack.template top<ndebug>().get_pltext()};
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH1<ndebug>{::std::move(subast)}));
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(super_pltext, parent_index), call_stack,
@@ -2693,8 +2690,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h2: {
-                ::fast_io::u8string_view const super_pltext{
-                    call_stack.template top<ndebug>().get_pltext()};
+                ::fast_io::u8string_view const super_pltext{call_stack.template top<ndebug>().get_pltext()};
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH2<ndebug>{::std::move(subast)}));
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(super_pltext, parent_index), call_stack,
@@ -2703,8 +2699,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h3: {
-                ::fast_io::u8string_view const super_pltext{
-                    call_stack.template top<ndebug>().get_pltext()};
+                ::fast_io::u8string_view const super_pltext{call_stack.template top<ndebug>().get_pltext()};
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH3<ndebug>{::std::move(subast)}));
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(super_pltext, parent_index), call_stack,
@@ -2713,8 +2708,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h4: {
-                ::fast_io::u8string_view const super_pltext{
-                    call_stack.template top<ndebug>().get_pltext()};
+                ::fast_io::u8string_view const super_pltext{call_stack.template top<ndebug>().get_pltext()};
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH4<ndebug>{::std::move(subast)}));
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(super_pltext, parent_index), call_stack,
@@ -2723,8 +2717,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h5: {
-                ::fast_io::u8string_view const super_pltext{
-                    call_stack.template top<ndebug>().get_pltext()};
+                ::fast_io::u8string_view const super_pltext{call_stack.template top<ndebug>().get_pltext()};
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH5<ndebug>{::std::move(subast)}));
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(super_pltext, parent_index), call_stack,
@@ -2733,8 +2726,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h6: {
-                ::fast_io::u8string_view const super_pltext{
-                    call_stack.template top<ndebug>().get_pltext()};
+                ::fast_io::u8string_view const super_pltext{call_stack.template top<ndebug>().get_pltext()};
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH6<ndebug>{::std::move(subast)}));
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(super_pltext, parent_index), call_stack,
