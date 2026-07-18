@@ -4,11 +4,11 @@
 int main() {
     {
         ::fast_io::u8string input;
-        for (::std::size_t i{}; i < 120; ++i) {
+        for (::std::size_t i{}; i < 500; ++i) {
             input.append(u8"<color=red>");
         }
         input.append(u8"hello");
-        for (::std::size_t i{}; i < 120; ++i) {
+        for (::std::size_t i{}; i < 500; ++i) {
             input.append(u8"</color>");
         }
         auto html = ::pltxt2htm_test::pltxt4unittest(::fast_io::mnp::os_c_str(input));

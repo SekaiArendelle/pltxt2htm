@@ -9,10 +9,10 @@
 
 #include <cstddef>
 #include <fast_io/fast_io_dsal/list.h>
+#include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/string_view.h>
 #include "ast/node_kind.hh"
 #include "contracts.hh"
-#include "details/call_stack.hh"
 #include "details/utils.hh"
 #include "details/parser/frame_context.hh"
 #include "details/parser/parser.hh"
@@ -46,7 +46,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2htm::Ast<ndebug> {
     // This stack is used to track nested tag contexts during parsing
-    ::pltxt2htm::details::CallStack<::pltxt2htm::details::ParserFrameContext<ndebug>> call_stack{};
+    ::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>> call_stack{};
     ::pltxt2htm::Ast<ndebug> result{};
 
     ::std::size_t start_index{};
@@ -58,7 +58,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
         if (has_new_frame == false) {
             break;
         }
-        ::pltxt2htm::NodeKind const type_of_subast{call_stack.template top<ndebug>().get_nested_tag_type()};
+        ::pltxt2htm::NodeKind const type_of_subast{call_stack.top().get_nested_tag_type()};
         auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
         switch (type_of_subast) {
         case ::pltxt2htm::NodeKind::md_atx_h1: {
@@ -110,7 +110,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
 
     if (start_index < pltext.size()) {
         // other common cases
-        call_stack.template push<ndebug>(::pltxt2htm::details::ParserFrameContext<ndebug>(
+        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
             ::pltxt2htm::details::FrontendContextVariant<ndebug>{
                 ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index)},

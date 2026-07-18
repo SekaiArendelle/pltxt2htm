@@ -83,7 +83,8 @@ int main() {
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<a href=\"https://example.com@evil.invalid/path\">click</a>");
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"<a href=\"https://example.com@evil.invalid/path\">click</a>");
         auto answer = ::fast_io::u8string_view{
             u8"&lt;a&nbsp;href=&quot;<a href=\"https://example.com\">https://example.com</a>@evil.invalid/"
             u8"path&quot;&gt;click&lt;/a&gt;"};
