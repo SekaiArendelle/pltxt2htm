@@ -8,11 +8,11 @@
 #include <concepts>
 #include <cstddef>
 #include <cstdint>
-#include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
 #include <exception/exception.hh>
+#include "../call_stack.hh"
 #include "../utils.hh"
 #include "../../contracts.hh"
 #include "../../ast/ast.hh"
@@ -824,7 +824,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::ToMdListAstResult<ndebug>> {
-    ::fast_io::stack<::pltxt2htm::details::MdListFrameContext<ndebug>> call_stack{};
+    ::pltxt2htm::details::CallStack<::pltxt2htm::details::MdListFrameContext<ndebug>> call_stack{};
 
     // manually managing stack to avoid stack-overflow
     {
@@ -848,14 +848,14 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
                                      ? ::pltxt2htm::NodeKind::md_ol
                                      : ::pltxt2htm::NodeKind::md_ul};
             }
-            call_stack.push(::std::move(current_frame));
+            call_stack.template push<ndebug>(::std::move(current_frame));
         }
         else {
             return ::exception::nullopt_t{};
         }
     }
     while (true) {
-        auto&& top_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+        auto&& top_frame = call_stack.template top<ndebug>();
         auto&& current_index = top_frame.current_index;
         auto&& result = top_frame.md_list_ast;
         ::std::size_t const pltext_size{top_frame.pltext.size()};
@@ -866,7 +866,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
                                                    .item_kind = top_frame.get_item_kind()});
         if (opt_list_item.has_value() == false) {
             auto frame = ::std::move(top_frame);
-            call_stack.pop();
+            call_stack.template pop<ndebug>();
             if (call_stack.empty()) {
                 return ::pltxt2htm::details::ToMdListAstResult<ndebug>{
                     .ast = ::std::move(frame.md_list_ast),
@@ -875,7 +875,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
                                      ? ::pltxt2htm::NodeKind::md_ol
                                      : ::pltxt2htm::NodeKind::md_ul};
             }
-            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+            auto& parent_frame = call_stack.template top<ndebug>();
             switch (frame.get_item_kind()) {
             case ::pltxt2htm::details::MdUlListItemKind::ordered_item: {
                 parent_frame.md_list_ast.emplace_back(
@@ -905,10 +905,10 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
             opt_list_item.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
         current_index += advance_count;
         if (space_hierarchy > top_frame.space_hierarchy + 1) {
-            call_stack.push(::pltxt2htm::details::MdListFrameContext<ndebug>{
+            call_stack.template push<ndebug>(::pltxt2htm::details::MdListFrameContext<ndebug>{
                 item_kind, space_hierarchy,
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(top_frame.pltext, current_index)});
-            auto&& child_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+            auto&& child_frame = call_stack.template top<ndebug>();
             if (checkbox) {
                 child_frame.md_list_ast.emplace_back(
                     ::pltxt2htm::details::MdListLiCheckboxNode(::std::move(text), checked));
@@ -929,8 +929,8 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
         if (current_index < pltext_size) {
             continue;
         }
-        auto frame = ::std::move(::pltxt2htm::details::stack_top<ndebug>(call_stack));
-        call_stack.pop();
+        auto frame = ::std::move(call_stack.template top<ndebug>());
+        call_stack.template pop<ndebug>();
         if (call_stack.empty()) {
             return ::pltxt2htm::details::ToMdListAstResult<ndebug>{
                 .ast = ::std::move(frame.md_list_ast),
@@ -939,7 +939,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
                                  ? ::pltxt2htm::NodeKind::md_ol
                                  : ::pltxt2htm::NodeKind::md_ul};
         }
-        auto&& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+        auto&& parent_frame = call_stack.template top<ndebug>();
         switch (frame.get_item_kind()) {
         case ::pltxt2htm::details::MdUlListItemKind::ordered_item: {
             parent_frame.md_list_ast.emplace_back(

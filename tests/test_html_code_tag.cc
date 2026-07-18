@@ -97,8 +97,7 @@ int main() {
     }
     // reject language suffix characters that can break out of the class attribute
     {
-        auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<code class='language-\" onmouseover=\"alert(1)'>x</code>");
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code class='language-\" onmouseover=\"alert(1)'>x</code>");
         auto answer = ::fast_io::u8string_view{
             u8"&lt;code&nbsp;class=&apos;language-&quot;&nbsp;onmouseover=&quot;alert(1)&apos;&gt;x&lt;/code&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
