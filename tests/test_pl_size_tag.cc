@@ -14,7 +14,26 @@ int main() {
     }
 
     {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<size=0>hello</size>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;size=0&gt;hello&lt;/size&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<size=00>hello</size>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;size=00&gt;hello&lt;/size&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
         auto html = ::pltxt2htm_test::pltxt2nolatex_htmld(u8"<size=1>hello</size>");
+        auto reparsed_html = ::pltxt2htm_test::pltxt4htmlunittest(
+            ::fast_io::u8string_view{html.data(), html.size()});
+        pltxt2htm_test_assert_equal(reparsed_html, html);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2nolatex_htmld(u8"<size=00>hello</size>");
         auto reparsed_html = ::pltxt2htm_test::pltxt4htmlunittest(
             ::fast_io::u8string_view{html.data(), html.size()});
         pltxt2htm_test_assert_equal(reparsed_html, html);

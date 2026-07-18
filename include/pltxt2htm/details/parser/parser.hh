@@ -1257,7 +1257,8 @@ entry:
                         auto&& [tag_len, id_] = opt_size_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                         ::exception::optional<::std::size_t> id{
                             ::pltxt2htm::details::u8str2size_t(::fast_io::u8string_view{id_.data(), id_.size()})};
-                        if (id.has_value() == false) [[unlikely]] {
+                        if (id.has_value() == false ||
+                            id.template value<ndebug == ::pltxt2htm::Contracts::ignore>() == 0) [[unlikely]] {
                             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
                             ++current_index;
                             goto entry;
