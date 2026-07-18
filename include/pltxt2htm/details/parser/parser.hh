@@ -123,7 +123,8 @@ constexpr auto find_next_block_after_line_break(
             return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{
                 .advance_count = current_index + advance_count, .new_frame_been_pushed_into_call_stack = false};
         }
-        if (auto opt_block_quote = ::pltxt2htm::details::try_parse_md_block_quotes<ndebug>(pltext);
+        if (auto opt_block_quote = ::pltxt2htm::details::try_parse_md_block_quotes<ndebug>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
             opt_block_quote.has_value()) {
             auto&& [advance_count, subpltext] =
                 opt_block_quote.template value<ndebug == ::pltxt2htm::Contracts::ignore>();

@@ -53,6 +53,18 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"# \n> quote");
+        auto answer = ::fast_io::u8string_view{u8"<h1></h1><blockquote>quote</blockquote>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"---\n> quote");
+        auto answer = ::fast_io::u8string_view{u8"<hr><blockquote>quote</blockquote>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     // empty block quotes is undocumented in spec.commonmark.org, this is an implement defined behavior
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8">");
