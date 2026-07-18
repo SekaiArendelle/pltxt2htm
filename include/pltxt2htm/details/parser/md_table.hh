@@ -63,6 +63,7 @@ constexpr auto try_parse_md_table_row(::fast_io::u8string_view pltext) noexcept
     ++current_index; // skip the first |
 
     ::fast_io::vector<::fast_io::u8string> row{};
+    bool has_trailing_pipe{};
     while (current_index < pltext_size) {
         // skip spaces before cell content
         for (; current_index < pltext_size; ++current_index) {
@@ -79,6 +80,7 @@ constexpr auto try_parse_md_table_row(::fast_io::u8string_view pltext) noexcept
             ++current_index;
             break;
         }
+        has_trailing_pipe = false;
         // parse cell content until unescaped | or \n or end of view
         ::fast_io::u8string cell{};
         bool prev_was_backslash{};
@@ -107,6 +109,7 @@ constexpr auto try_parse_md_table_row(::fast_io::u8string_view pltext) noexcept
         row.push_back(::std::move(cell));
         if (current_index < pltext_size &&
             ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) == u8'|') {
+            has_trailing_pipe = true;
             ++current_index; // skip |
         }
     }
@@ -115,24 +118,9 @@ constexpr auto try_parse_md_table_row(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt_t{};
     }
 
-    // Require trailing |: the row text must end with | (possibly followed
-    // by spaces/tabs and at most one \n).  A row like "|cell" (no trailing |)
-    // is rejected.
-    {
-        ::std::size_t end_idx = current_index;
-        if (end_idx > 0 && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, end_idx - 1) == u8'\n') {
-            --end_idx;
-        }
-        while (end_idx > 0) {
-            auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, end_idx - 1);
-            if (chr != u8' ' && chr != u8'\t') {
-                break;
-            }
-            --end_idx;
-        }
-        if (end_idx == 0 || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, end_idx - 1) != u8'|') {
-            return ::exception::nullopt_t{};
-        }
+    // A row like "|cell" (no trailing |) is rejected.
+    if (has_trailing_pipe == false) {
+        return ::exception::nullopt_t{};
     }
 
     return ::pltxt2htm::details::TryParseMdTableRowResult{::std::move(row), current_index};
