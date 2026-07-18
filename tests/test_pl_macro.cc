@@ -25,5 +25,11 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"{Project}", u8"localhost", u8"'", u8"", u8"", u8"");
+        auto answer = ::fast_io::u8string_view{u8"&apos;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }

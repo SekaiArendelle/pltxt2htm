@@ -154,6 +154,26 @@ int main() {
     }
 
     {
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"*text*");
+        auto answer = ::fast_io::u8string_view{u8"<em>text</em>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2common_html(
+            u8"<span style=\"font-size:12px\"><span style=\"font-size:12px\">text</span></span>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:12px;\">text</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html =
+            ::pltxt2htm_test::pltxt2common_html(u8"<span style=\"font-size:12px\"><color=red>text</color></span>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"color:red;font-size:12px;\">text</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
         auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"<strong>text</strong>");
         auto answer = ::fast_io::u8string_view{u8"<strong>text</strong>"};
         pltxt2htm_test_assert_equal(html, answer);

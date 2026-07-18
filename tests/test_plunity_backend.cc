@@ -358,5 +358,27 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<!-- note -->");
+        auto answer = ::fast_io::u8string_view{u8""};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(
+            u8"<table><tr><th style=\"text-align:right\">head</th><td "
+            u8"style=\"text-align:center\">data</td></tr></table>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><tr><th style=\"text-align:right\">head</th><td "
+            u8"style=\"text-align:center\">data</td></tr></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"- parent\n  - [x] child");
+        auto answer = ::fast_io::u8string_view{u8"• parent\n  [x] child\n"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }

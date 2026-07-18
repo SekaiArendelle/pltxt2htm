@@ -326,5 +326,54 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // Invalid opening tags are preserved as escaped text.
+    {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(
+            u8"<del invalid><hr invalid><li><ol invalid><pre invalid><table invalid><!invalid>");
+        auto answer = ::fast_io::u8string_view{
+            u8"&lt;del&nbsp;invalid&gt;&lt;hr&nbsp;invalid&gt;&lt;li&gt;&lt;ol&nbsp;invalid&gt;&lt;pre&nbsp;invalid&gt;"
+            u8"&lt;table&nbsp;invalid&gt;&lt;!invalid&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Mismatched closing tags are preserved inside otherwise valid elements.
+    {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(
+            u8"<span style=\"color:red\"></x></span><a href=\"https://example.com\"></x></a><p></x></p>"
+            u8"<h1></x></h1><h2></x></h2><h3></x></h3><h4></x></h4><h5></x></h5><h6></x></h6>"
+            u8"<del></x></del><em></x></em><strong></x></strong><code></x></code><pre></x></pre>"
+            u8"<blockquote></x></blockquote>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<span style=\"color:red;\">&lt;/x&gt;</span><a href=\"https://example.com\">&lt;/x&gt;</a>"
+            u8"<p>&lt;/x&gt;</p><h1>&lt;/x&gt;</h1><h2>&lt;/x&gt;</h2><h3>&lt;/x&gt;</h3><h4>&lt;/x&gt;</h4>"
+            u8"<h5>&lt;/x&gt;</h5><h6>&lt;/x&gt;</h6><del>&lt;/x&gt;</del><em>&lt;/x&gt;</em>"
+            u8"<strong>&lt;/x&gt;</strong><code>&lt;/x&gt;</code><pre>&lt;/x&gt;</pre>"
+            u8"<blockquote>&lt;/x&gt;</blockquote>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(
+            u8"<ul></x></ul><ol></x></ol><ul><li></x></li></ul><ol><li></x></li></ol>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<ul>&lt;/x&gt;</ul><ol>&lt;/x&gt;</ol><ul><li>&lt;/x&gt;</li></ul><ol><li>&lt;/x&gt;</li></ol>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(
+            u8"<table></x></table><table><tr></x></tr></table><table><tr><td></x></td></tr></table>"
+            u8"<table><tr><th></x></th></tr></table><table><thead></x></thead></table>"
+            u8"<table><tbody></x></tbody></table><table><tfoot></x></tfoot></table>"
+            u8"<table><caption></x></caption></table><table><colgroup></x></colgroup></table>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table>&lt;/x&gt;</table><table><tr>&lt;/x&gt;</tr></table>"
+            u8"<table><tr><td>&lt;/x&gt;</td></tr></table><table><tr><th>&lt;/x&gt;</th></tr></table>"
+            u8"<table><thead>&lt;/x&gt;</thead></table><table><tbody>&lt;/x&gt;</tbody></table>"
+            u8"<table><tfoot>&lt;/x&gt;</tfoot></table><table><caption>&lt;/x&gt;</caption></table>"
+            u8"<table><colgroup>&lt;/x&gt;</colgroup></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }
