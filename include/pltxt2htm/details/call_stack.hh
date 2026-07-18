@@ -15,7 +15,7 @@
 
 namespace pltxt2htm::details {
 
-template<typename T, ::std::size_t Capacity = 1024>
+template<typename T, ::std::size_t Capacity = 128>
 class CallStack {
     static_assert(Capacity != 0);
 
