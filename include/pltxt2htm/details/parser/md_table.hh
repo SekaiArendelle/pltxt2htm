@@ -139,81 +139,54 @@ constexpr auto try_parse_md_table_row(::fast_io::u8string_view pltext) noexcept
 }
 
 /**
- * @brief Check whether a single non-empty delimiter cell is syntactically valid.
+ * @brief Parse a single non-empty delimiter cell and determine its alignment.
  *
  * A valid cell matches `:? -+ :?`.
  *
  * @tparam ndebug Contract checking mode
  * @param cell The delimiter cell text (e.g. `":---:"`)
- * @return true if the cell is a valid delimiter cell
+ * @return The parsed alignment, or nullopt if the cell is invalid.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto is_delimiter_cell_valid(::fast_io::u8string_view cell) noexcept -> bool {
+constexpr auto try_parse_table_align(::fast_io::u8string_view cell) noexcept
+    -> ::exception::optional<::pltxt2htm::TableAlign> {
     if (cell.empty()) {
-        return false;
+        return ::exception::nullopt_t{};
     }
-    ::std::size_t i{};
-    if (::pltxt2htm::details::u8string_view_index<ndebug>(cell, i) == u8':') {
-        ++i;
-    }
-    bool has_dash{};
-    for (; i < cell.size(); ++i) {
-        auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(cell, i);
-        if (chr == u8'-') {
-            has_dash = true;
-        }
-        else {
-            break;
-        }
-    }
-    if (i >= cell.size()) {
-        return has_dash;
-    }
-    if (::pltxt2htm::details::u8string_view_index<ndebug>(cell, i) == u8':') {
-        return i + 1 == cell.size();
-    }
-    return false;
-}
 
-/**
- * @brief Parse alignment from a single delimiter cell.
- *
- * Recognises `:---` (left), `---:` (right), `:---:` (center), and
- * plain `---` (left, the default).
- *
- * @tparam ndebug Contract checking mode
- * @param cell_text The delimiter cell text (e.g. `":---:"`)
- * @return TableAlign::left, TableAlign::center, or TableAlign::right
- */
-template<::pltxt2htm::Contracts ndebug>
-[[nodiscard]]
-constexpr auto try_parse_table_align(::fast_io::u8string_view cell_text) noexcept -> ::pltxt2htm::TableAlign {
-    bool left = false;
-    bool right = false;
-    ::std::size_t i{};
-    if (i < cell_text.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(cell_text, i) == u8':') {
+    ::std::size_t current_index{};
+    bool left{};
+    if (::pltxt2htm::details::u8string_view_index<ndebug>(cell, current_index) == u8':') {
         left = true;
-        ++i;
+        ++current_index;
     }
-    for (; i < cell_text.size(); ++i) {
-        auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(cell_text, i);
-        if (chr == u8':') {
-            right = true;
-            break;
-        }
-        if (chr != u8'-') {
-            return ::pltxt2htm::TableAlign::left;
-        }
+
+    bool has_dash{};
+    while (current_index < cell.size() &&
+           ::pltxt2htm::details::u8string_view_index<ndebug>(cell, current_index) == u8'-') {
+        has_dash = true;
+        ++current_index;
     }
+    if (has_dash == false) {
+        return ::exception::nullopt_t{};
+    }
+
+    bool right{};
+    if (current_index < cell.size() &&
+        ::pltxt2htm::details::u8string_view_index<ndebug>(cell, current_index) == u8':') {
+        right = true;
+        ++current_index;
+    }
+    if (current_index != cell.size()) {
+        return ::exception::nullopt_t{};
+    }
+
     if (left && right) {
         return ::pltxt2htm::TableAlign::center;
     }
     if (right) {
         return ::pltxt2htm::TableAlign::right;
-    }
-    if (left) {
-        return ::pltxt2htm::TableAlign::left;
     }
     return ::pltxt2htm::TableAlign::left;
 }
@@ -341,13 +314,16 @@ constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
     bool has_delimiter_content{};
     for (auto const& cell : delim_row) {
         auto cell_view = ::fast_io::u8string_view{cell.data(), cell.size()};
-        if (cell_view.empty() == false) {
-            if (::pltxt2htm::details::is_delimiter_cell_valid<ndebug>(cell_view) == false) {
-                return ::exception::nullopt_t{};
-            }
-            has_delimiter_content = true;
+        if (cell_view.empty()) {
+            aligns.push_back(::pltxt2htm::TableAlign::left);
+            continue;
         }
-        aligns.push_back(::pltxt2htm::details::try_parse_table_align<ndebug>(cell_view));
+        auto opt_align = ::pltxt2htm::details::try_parse_table_align<ndebug>(cell_view);
+        if (opt_align.has_value() == false) {
+            return ::exception::nullopt_t{};
+        }
+        has_delimiter_content = true;
+        aligns.push_back(opt_align.template value<ndebug == ::pltxt2htm::Contracts::ignore>());
     }
     if (has_delimiter_content == false) {
         return ::exception::nullopt_t{};
