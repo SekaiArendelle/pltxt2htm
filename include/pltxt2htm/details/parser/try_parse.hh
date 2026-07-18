@@ -1276,8 +1276,8 @@ struct TryParseCodeTagResult {
 
 [[nodiscard]]
 constexpr bool is_code_language_suffix_char(char8_t const chr) noexcept {
-    return ::pltxt2htm::details::is_ascii_alpha(chr) || ::pltxt2htm::details::is_ascii_digit(chr) ||
-           chr == u8'+' || chr == u8'#' || chr == u8'.' || chr == u8'_' || chr == u8'-';
+    return ::pltxt2htm::details::is_ascii_alpha(chr) || ::pltxt2htm::details::is_ascii_digit(chr) || chr == u8'+' ||
+           chr == u8'#' || chr == u8'.' || chr == u8'_' || chr == u8'-';
 }
 
 /**
@@ -2083,7 +2083,7 @@ constexpr auto simply_parse_pltext(::fast_io::u8string_view pltext) noexcept
             if (auto const opt_entity_len = ::pltxt2htm::details::try_parse_entity_reference<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
                 opt_entity_len.has_value()) {
-                auto const entity_len = opt_entity_len.value();
+                auto const entity_len = opt_entity_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                 ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::EntityReference{::fast_io::u8string{
                     pltext.data() + current_index + 1, pltext.data() + current_index + entity_len - 1}}));
                 current_index += entity_len;

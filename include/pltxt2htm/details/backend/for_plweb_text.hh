@@ -216,7 +216,7 @@ constexpr void append_html_attr_escaped(::fast_io::u8string& result, ::fast_io::
             if (auto const opt_entity_len = ::pltxt2htm::details::try_parse_entity_reference<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(value, index));
                 opt_entity_len.has_value()) {
-                auto const entity_len = opt_entity_len.value();
+                auto const entity_len = opt_entity_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                 result.append(::fast_io::u8string_view{value.data() + index, entity_len});
                 index += entity_len - 1;
                 break;
@@ -443,8 +443,8 @@ entry:
             case ::pltxt2htm::NodeKind::pl_user: {
                 ++current_index;
                 if constexpr (mode == PlWebTextBackendMode::roundtrip) {
-                    call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                        node.as_pl_user().get_subast(), ::pltxt2htm::NodeKind::text, 0));
+                    call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_pl_user().get_subast(),
+                                                                                      ::pltxt2htm::NodeKind::text, 0));
                     goto entry;
                 }
                 else {

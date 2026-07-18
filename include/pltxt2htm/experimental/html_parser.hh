@@ -46,7 +46,7 @@ entry:
                 if (auto const opt_entity_len = ::pltxt2htm::details::try_parse_entity_reference<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
                     opt_entity_len.has_value()) {
-                    auto const entity_len = opt_entity_len.value();
+                    auto const entity_len = opt_entity_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::EntityReference{::fast_io::u8string{
                         pltext.data() + current_index + 1, pltext.data() + current_index + entity_len - 1}}));
                     current_index += entity_len;
