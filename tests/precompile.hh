@@ -64,7 +64,7 @@ auto pltxt2fixedadv_htmld(::fast_io::u8string_view pltext, ::fast_io::u8string_v
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-auto pltxt2nolatex_htmld(::fast_io::u8string_view) noexcept -> ::fast_io::u8string;
+auto pltxt2roundtrip_htmld(::fast_io::u8string_view) noexcept -> ::fast_io::u8string;
 
 void assert_true_impl(::fast_io::u8string_view file, ::std::size_t line, ::fast_io::u8string_view expr,
                       bool cond) noexcept;
