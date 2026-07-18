@@ -261,6 +261,14 @@ int main() {
     }
 
     {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"<table><tr><td style=\" ; broken ; :ignored ; text-align \t : \t center \t ; ; "
+            u8"\">cell</td></tr></table>");
+        auto answer = ::fast_io::u8string_view{u8"<table><tr><td style=\"text-align:center\">cell</td></tr></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
         // <td> with multiple attributes — unknown attributes (class, id) -> tag rejected, escaped
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<table><tr><td class=\"foo\" style=\"text-align:center\" id=\"bar\">cell</td></tr></table>");
