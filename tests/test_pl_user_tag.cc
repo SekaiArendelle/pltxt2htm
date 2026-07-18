@@ -99,5 +99,11 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt2roundtrip_htmld(u8"<user=xxx><i>test</i></user>");
+        auto answer = ::fast_io::u8string_view{u8"<em>test</em>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }

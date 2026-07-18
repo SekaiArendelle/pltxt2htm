@@ -62,18 +62,18 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
-    // no_latex mode must not double-skip nodes after $...$
+    // roundtrip mode must not double-skip nodes after $...$
     // regression test for roundtrip fuzzer finding
     {
         auto pltext = ::fast_io::u8string_view{u8"$a$b"};
-        auto html = ::pltxt2htm_test::pltxt2nolatex_htmld(pltext);
+        auto html = ::pltxt2htm_test::pltxt2roundtrip_htmld(pltext);
         auto answer = ::fast_io::u8string_view{u8"b"};
         pltxt2htm_test_assert_equal(html, answer);
     }
     // same for md_latex_block
     {
         auto pltext = ::fast_io::u8string_view{u8"$$a$$b"};
-        auto html = ::pltxt2htm_test::pltxt2nolatex_htmld(pltext);
+        auto html = ::pltxt2htm_test::pltxt2roundtrip_htmld(pltext);
         auto answer = ::fast_io::u8string_view{u8"b"};
         pltxt2htm_test_assert_equal(html, answer);
     }

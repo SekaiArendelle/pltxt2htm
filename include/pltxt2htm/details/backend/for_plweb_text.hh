@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file for_plweb_text.hh
  * @brief Advanced HTML backend for pltxt2htm
  * @details Generates full-featured HTML output with comprehensive support for
@@ -245,7 +245,7 @@ constexpr void append_html_attr_escaped(::fast_io::u8string& result, ::fast_io::
 enum class PlWebTextBackendMode : unsigned {
     pltxt4unittest = 0,
     fixedadv_html,
-    no_latex,
+    roundtrip,
 };
 
 /**
@@ -442,28 +442,36 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_user: {
-                call_stack.template push<ndebug>(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                    node.as_pl_user().get_subast(), ::pltxt2htm::NodeKind::pl_user, 0));
                 ++current_index;
-                result.append(u8"<span class='RUser' data-user='");
-                auto const& user_id = node.as_pl_user().get_id();
-                // Under normal circumstances, `user_id` should never contain characters that could enable XSS in HTML
-                // attributes. To avoid masking upstream bugs (and to keep release-path performance), we only assert
-                // this in debug mode. Do not try to hide such errors by routing output through
-                // `append_html_attr_escaped`.
-                if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
-                    ::fast_io::u8string purified_user_id{};
-                    ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                        purified_user_id, ::fast_io::u8string_view{user_id.data(), user_id.size()});
-                    bool const is_valid_user_id{purified_user_id == user_id};
-                    pltxt2htm_assert(is_valid_user_id,
-                                     u8"User ID contains characters that cannot be directly used in HTML attributes. "
-                                     u8"Please check the "
-                                     u8"user ID or use a different backend that supports escaping.");
+                if constexpr (mode == PlWebTextBackendMode::roundtrip) {
+                    call_stack.template push<ndebug>(::pltxt2htm::details::BackendFrameContext<ndebug>(
+                        node.as_pl_user().get_subast(), ::pltxt2htm::NodeKind::text, 0));
+                    goto entry;
                 }
-                result.append(user_id);
-                result.append(u8"'>");
-                goto entry;
+                else {
+                    call_stack.template push<ndebug>(::pltxt2htm::details::BackendFrameContext<ndebug>(
+                        node.as_pl_user().get_subast(), ::pltxt2htm::NodeKind::pl_user, 0));
+                    result.append(u8"<span class='RUser' data-user='");
+                    auto const& user_id = node.as_pl_user().get_id();
+                    // Under normal circumstances, `user_id` should never contain characters that could enable XSS in
+                    // HTML attributes. To avoid masking upstream bugs (and to keep release-path performance), we only
+                    // assert this in debug mode. Do not try to hide such errors by routing output through
+                    // `append_html_attr_escaped`.
+                    if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
+                        ::fast_io::u8string purified_user_id{};
+                        ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                            purified_user_id, ::fast_io::u8string_view{user_id.data(), user_id.size()});
+                        bool const is_valid_user_id{purified_user_id == user_id};
+                        pltxt2htm_assert(
+                            is_valid_user_id,
+                            u8"User ID contains characters that cannot be directly used in HTML attributes. Please "
+                            u8"check the "
+                            u8"user ID or use a different backend that supports escaping.");
+                    }
+                    result.append(user_id);
+                    result.append(u8"'>");
+                    goto entry;
+                }
             }
             case ::pltxt2htm::NodeKind::pl_size: {
                 call_stack.template push<ndebug>(::pltxt2htm::details::BackendFrameContext<ndebug>(
@@ -802,7 +810,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_latex_inline: {
-                if constexpr (mode == PlWebTextBackendMode::no_latex) {
+                if constexpr (mode == PlWebTextBackendMode::roundtrip) {
                     continue;
                 }
                 else {
@@ -814,7 +822,7 @@ entry:
                 }
             }
             case ::pltxt2htm::NodeKind::md_latex_block: {
-                if constexpr (mode == PlWebTextBackendMode::no_latex) {
+                if constexpr (mode == PlWebTextBackendMode::roundtrip) {
                     continue;
                 }
                 else {
@@ -1374,14 +1382,14 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_latex_inline: {
-                pltxt2htm_assert(mode != PlWebTextBackendMode::no_latex,
-                                 u8"Unexpected md_latex_inline node in no_latex mode");
+                pltxt2htm_assert(mode != PlWebTextBackendMode::roundtrip,
+                                 u8"Unexpected md_latex_inline node in roundtrip mode");
                 result.push_back(u8'$');
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_latex_block: {
-                pltxt2htm_assert(mode != PlWebTextBackendMode::no_latex,
-                                 u8"Unexpected md_latex_block node in no_latex mode");
+                pltxt2htm_assert(mode != PlWebTextBackendMode::roundtrip,
+                                 u8"Unexpected md_latex_block node in roundtrip mode");
                 result.append(u8"$$");
                 goto entry;
             }

@@ -28,8 +28,8 @@ extern "C" int LLVMFuzzerTestOneInput(::std::uint8_t const* const data, ::std::s
     auto html1_ast = ::pltxt2htm::parse_pltxt<::pltxt2htm::Contracts::quick_enforce>(::fast_io::mnp::os_c_str(str));
     ::pltxt2htm::optimize_ast<::pltxt2htm::Contracts::quick_enforce>(html1_ast);
     auto const html1 = ::pltxt2htm::details::plweb_text_backend<::pltxt2htm::Contracts::quick_enforce,
-                                                                ::pltxt2htm::details::PlWebTextBackendMode::no_latex>(
-        html1_ast, u8"_", u8"_", u8"_", u8"_", u8"_");
+                                                                ::pltxt2htm::details::PlWebTextBackendMode::roundtrip>(
+        html1_ast, u8"https://plweb.turtlesim.com", u8"_", u8"_", u8"_", u8"_");
 
     auto const html2_ast = ::pltxt2htm::experimental::parse_pltxt_html<::pltxt2htm::Contracts::quick_enforce>(
         ::fast_io::mnp::os_c_str(html1));

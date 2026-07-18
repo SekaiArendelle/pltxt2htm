@@ -147,7 +147,7 @@ int main() {
     // roundtrip idempotency for ' in auto-link URL
     {
         auto pass1 =
-            ::pltxt2htm_test::pltxt2nolatex_htmld(::fast_io::u8string_view{u8"https://example.com/path'with'quote"});
+            ::pltxt2htm_test::pltxt2roundtrip_htmld(::fast_io::u8string_view{u8"https://example.com/path'with'quote"});
         auto pass2 = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::mnp::os_c_str(pass1));
         pltxt2htm_test_assert_equal(pass2, pass1);
     }
