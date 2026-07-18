@@ -1,3 +1,4 @@
+#include <fast_io/fast_io_dsal/array.h>
 #include "precompile.hh"
 
 int main() {
@@ -214,6 +215,146 @@ int main() {
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"~~~py\ntest\n~~~");
         auto answer = ::fast_io::u8string_view{u8"```py\ntest\n```"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        constexpr auto data = ::fast_io::array{char8_t(0xc3)};
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(::fast_io::u8string_view{data.data(), data.size()});
+        auto answer = ::fast_io::u8string_view{u8"\uFFFD"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"&amp;\t'\"");
+        auto answer = ::fast_io::u8string_view{u8"&amp;\t'\""};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<color=red>text</color>");
+        auto answer = ::fast_io::u8string_view{u8"<color=red>text</color>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<a>text</a>");
+        auto answer = ::fast_io::u8string_view{u8"<color=#0000AA>text</color>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<experiment=id>text</experiment>");
+        auto answer = ::fast_io::u8string_view{u8"<experiment=id>text</experiment>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<discussion=id>text</discussion>");
+        auto answer = ::fast_io::u8string_view{u8"<discussion=id>text</discussion>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<user=id>text</user>");
+        auto answer = ::fast_io::u8string_view{u8"<user=id>text</user>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<size=12>text</size>");
+        auto answer = ::fast_io::u8string_view{u8"<size=12>text</size>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"__bold__");
+        auto answer = ::fast_io::u8string_view{u8"<b>bold</b>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"_italic_");
+        auto answer = ::fast_io::u8string_view{u8"<i>italic</i>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"## heading");
+        auto answer = ::fast_io::u8string_view{u8"<size=37><b>heading</b></size>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"### heading");
+        auto answer = ::fast_io::u8string_view{u8"<size=36><b>heading</b></size>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"#### heading");
+        auto answer = ::fast_io::u8string_view{u8"<size=35><b>heading</b></size>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"##### heading");
+        auto answer = ::fast_io::u8string_view{u8"<b>heading</b>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"###### heading");
+        auto answer = ::fast_io::u8string_view{u8"<b>heading</b>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(
+            u8"| left | center | right |\n"
+            u8"|:-----|:------:|------:|\n"
+            u8"| a | b | c |");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><thead><tr><th>left</th><th style=\"text-align:center\">center</th><th "
+            u8"style=\"text-align:right\">right</th></tr></thead><tbody><tr><td>a</td><td "
+            u8"style=\"text-align:center\">b</td><td style=\"text-align:right\">c</td></tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(
+            u8"<table><caption>caption</caption><colgroup><col></colgroup><thead><tr><th "
+            u8"style=\"text-align:center\">head</th></tr></thead><tbody><tr><td "
+            u8"style=\"text-align:right\">body</td></tr></tbody><tfoot><tr><td>foot</td></tr></tfoot></table>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><caption>caption</caption><colgroup><col></colgroup><thead><tr><th "
+            u8"style=\"text-align:center\">head</th></tr></thead><tbody><tr><td "
+            u8"style=\"text-align:right\">body</td></tr></tbody><tfoot><tr><td>foot</td></tr></tfoot></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<code class=\"language-cpp\">code</code>");
+        auto answer = ::fast_io::u8string_view{u8"<code class=\"language-cpp\">code</code>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"1. [x] item");
+        auto answer = ::fast_io::u8string_view{u8"1. item\n"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"{Project}{Visitor}{Author}{CoAuthors}", u8"project",
+                                                                 u8"visitor", u8"author", u8"coauthors");
+        auto answer = ::fast_io::u8string_view{u8"projectvisitorauthorcoauthors"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"![&amp;](https://example.com/image.png)");
+        auto answer = ::fast_io::u8string_view{u8"![&amp;](https://example.com/image.png)"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

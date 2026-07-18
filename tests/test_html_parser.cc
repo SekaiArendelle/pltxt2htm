@@ -284,5 +284,47 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<h1><h2><h3><h4><h5><h6>heading");
+        auto answer = ::fast_io::u8string_view{u8"<h1><h2><h3><h4><h5><h6>heading</h6></h5></h4></h3></h2></h1>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<del><pre>text");
+        auto answer = ::fast_io::u8string_view{u8"<del><pre>text</pre></del>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<ul><li><ol><li>item");
+        auto answer = ::fast_io::u8string_view{u8"<ul><li><ol><li>item</li></ol></li></ul>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<table><tbody><tr><td>body");
+        auto answer = ::fast_io::u8string_view{u8"<table><tbody><tr><td>body</td></tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<table><tfoot><tr><td>foot");
+        auto answer = ::fast_io::u8string_view{u8"<table><tfoot><tr><td>foot</td></tr></tfoot></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<table><caption>caption");
+        auto answer = ::fast_io::u8string_view{u8"<table><caption>caption</caption></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<table><colgroup><col>");
+        auto answer = ::fast_io::u8string_view{u8"<table><colgroup><col></colgroup></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }
