@@ -2539,33 +2539,23 @@ constexpr auto try_parse_md_latex_block_dollar(::fast_io::u8string_view pltext) 
 
     auto body = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 2);
     ::std::size_t const body_size{body.size()};
-    ::std::size_t close_pos{body_size};
-    for (::std::size_t i{}; i < body_size; ++i) {
-        if (::pltxt2htm::details::is_prefix_match<ndebug, double_dollar>(
-                ::pltxt2htm::details::u8string_view_subview<ndebug>(body, i))) {
-            close_pos = i;
-            break;
-        }
-    }
-    if (close_pos == body_size) {
-        return ::exception::nullopt_t{};
-    }
-
     ::pltxt2htm::Ast<ndebug> ast{};
-    for (::std::size_t idx{}; idx < close_pos;) {
-        if (::pltxt2htm::details::u8string_view_index<ndebug>(body, idx) == u8'\n') {
+    for (::std::size_t current_index{}; current_index < body_size;) {
+        if (::pltxt2htm::details::is_prefix_match<ndebug, double_dollar>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(body, current_index))) {
+            return ::pltxt2htm::details::TryParseMdLatexResult<ndebug>{.advance_count = current_index + 4,
+                                                                       .subast = ::std::move(ast)};
+        }
+        if (::pltxt2htm::details::u8string_view_index<ndebug>(body, current_index) == u8'\n') {
             ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'\n'}));
-            ++idx;
+            ++current_index;
         }
         else {
-            auto forward = ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
-                ::pltxt2htm::details::u8string_view_subview<ndebug>(body, idx), ast);
-            idx += forward;
+            current_index += ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(body, current_index), ast);
         }
     }
-
-    return ::pltxt2htm::details::TryParseMdLatexResult<ndebug>{.advance_count = close_pos + 4,
-                                                               .subast = ::std::move(ast)};
+    return ::exception::nullopt_t{};
 }
 
 /**
@@ -2595,33 +2585,23 @@ constexpr auto try_parse_md_latex_inline(::fast_io::u8string_view pltext) noexce
 
     auto body = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 1);
     ::std::size_t const body_size{body.size()};
-    ::std::size_t close_pos{body_size};
-    for (::std::size_t i{}; i < body_size; ++i) {
-        auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(body, i);
+    ::pltxt2htm::Ast<ndebug> ast{};
+    for (::std::size_t current_index{}; current_index < body_size;) {
+        auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(body, current_index);
         if (chr == u8'\n') {
             return ::exception::nullopt_t{};
         }
         if (chr == u8'$') {
-            close_pos = i;
-            break;
+            if (current_index == 0) {
+                return ::exception::nullopt_t{};
+            }
+            return ::pltxt2htm::details::TryParseMdLatexResult<ndebug>{.advance_count = current_index + 2,
+                                                                       .subast = ::std::move(ast)};
         }
+        current_index += ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
+            ::pltxt2htm::details::u8string_view_subview<ndebug>(body, current_index), ast);
     }
-    if (close_pos == body_size) {
-        return ::exception::nullopt_t{};
-    }
-    if (close_pos == 0) {
-        return ::exception::nullopt_t{};
-    }
-
-    ::pltxt2htm::Ast<ndebug> ast{};
-    for (::std::size_t idx{}; idx < close_pos;) {
-        auto&& sub = ::pltxt2htm::details::u8string_view_subview<ndebug>(body, idx);
-        auto forward = ::pltxt2htm::details::parse_utf8_code_point<ndebug>(sub, ast);
-        idx += forward;
-    }
-
-    return ::pltxt2htm::details::TryParseMdLatexResult<ndebug>{.advance_count = close_pos + 2,
-                                                               .subast = ::std::move(ast)};
+    return ::exception::nullopt_t{};
 }
 
 /**
