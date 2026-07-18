@@ -283,6 +283,40 @@ constexpr auto size_t2str(::std::size_t num) noexcept -> ::fast_io::u8string {
 }
 
 /**
+ * @brief Incrementally parse an ASCII decimal value into std::size_t.
+ * @details Rejects non-digits and values that overflow std::size_t.
+ */
+class SizeTDecimalParser {
+    ::std::size_t parsed_value{};
+    bool has_digit{};
+
+public:
+    [[nodiscard]]
+    constexpr bool operator()(char8_t const chr) noexcept {
+        if (::pltxt2htm::details::is_ascii_digit(chr) == false) {
+            return false;
+        }
+        auto const digit{static_cast<::std::size_t>(chr - u8'0')};
+        if (this->parsed_value > (::std::numeric_limits<::std::size_t>::max() - digit) / 10) {
+            return false;
+        }
+        this->parsed_value = this->parsed_value * 10 + digit;
+        this->has_digit = true;
+        return true;
+    }
+
+    [[nodiscard]]
+    constexpr bool is_valid(this SizeTDecimalParser const& self) noexcept {
+        return self.has_digit;
+    }
+
+    [[nodiscard]]
+    constexpr auto value(this SizeTDecimalParser const& self) noexcept -> ::std::size_t {
+        return self.parsed_value;
+    }
+};
+
+/**
  * @brief Convert a UTF-8 string to std::size_t
  * @param[in] str The string to convert (must contain only digits)
  * @return Optional containing the converted number, or nullopt if conversion fails
@@ -295,24 +329,16 @@ constexpr auto size_t2str(::std::size_t num) noexcept -> ::fast_io::u8string {
 [[__gnu__::__pure__]]
 #endif
 constexpr auto u8str2size_t(::fast_io::u8string_view str) noexcept -> ::exception::optional<std::size_t> {
-    if (str.empty()) {
+    ::pltxt2htm::details::SizeTDecimalParser parser{};
+    for (auto const chr : str) {
+        if (parser(chr) == false) {
+            return ::exception::nullopt_t{};
+        }
+    }
+    if (parser.is_valid() == false) {
         return ::exception::nullopt_t{};
     }
-
-    ::std::size_t result{};
-    for (auto&& c : str) {
-        if (c < u8'0' || c > u8'9') {
-            return ::exception::nullopt_t{};
-        }
-        ::std::size_t const digit = static_cast<::std::size_t>(c - u8'0');
-        // Reject overflow: result would exceed ::std::size_t max
-        if (result > (::std::numeric_limits<::std::size_t>::max() - digit) / 10) {
-            return ::exception::nullopt_t{};
-        }
-        result = result * 10 + digit;
-    }
-
-    return result;
+    return parser.value();
 }
 
 } // namespace pltxt2htm::details
