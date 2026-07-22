@@ -24,11 +24,11 @@ namespace exception {
 inline void terminate() noexcept {
     // https://llvm.org/doxygen/Compiler_8h_source.html
 #if defined(__has_builtin)
-#if __has_builtin(__builtin_trap)
+    #if __has_builtin(__builtin_trap)
     __builtin_trap();
-#else
+    #else
     ::std::terminate();
-#endif
+    #endif
 #else
     ::std::terminate();
 #endif
@@ -42,11 +42,11 @@ template<bool ndebug = false>
 inline void unreachable() noexcept {
     if constexpr (ndebug) {
 #if defined(__has_builtin)
-#if __has_builtin(__builtin_unreachable)
+    #if __has_builtin(__builtin_unreachable)
         __builtin_unreachable();
-#else
+    #else
         ::std::unreachable();
-#endif
+    #endif
 #else
         ::std::unreachable();
 #endif
@@ -94,7 +94,25 @@ constexpr bool is_unexpected_v<::exception::unexpected<T>> = true;
 } // namespace details
 
 template<typename T>
-concept is_unexpected = ::exception::details::is_unexpected_v<::std::remove_cvref_t<T>>;
+concept is_unexpected = details::is_unexpected_v<::std::remove_cvref_t<T>>;
+
+template<typename Ok, typename Fail>
+class expected;
+
+namespace details {
+
+struct nullopt_t_ {
+    constexpr bool operator==(this nullopt_t_ const&, nullopt_t_ const&) noexcept = default;
+};
+
+} // namespace details
+
+template<typename T>
+using optional = ::exception::expected<T, details::nullopt_t_>;
+
+using nullopt_t = ::exception::unexpected<details::nullopt_t_>;
+
+inline constexpr auto nullopt = nullopt_t{};
 
 template<typename Ok, typename Fail>
 class expected {
@@ -185,7 +203,7 @@ public:
     template<typename T>
         requires (::std::same_as<::std::remove_cvref_t<T>, Ok> &&
                   (::std::is_copy_assignable_v<T> || ::std::is_move_assignable_v<T>))
-    constexpr auto&& operator=(this ::exception::expected<Ok, Fail>& self, T&& ok) noexcept {
+    constexpr auto&& operator=(this expected<Ok, Fail>& self, T&& ok) noexcept {
         if (self.has_value()) {
             self.ok_ = ::std::forward<T>(ok);
         } else {
@@ -197,21 +215,20 @@ public:
     }
 
     template<::exception::is_unexpected T>
-    constexpr auto&& operator=(this ::exception::expected<Ok, Fail>& self, T const& fail) noexcept {
+    constexpr auto&& operator=(this expected<Ok, Fail>& self, T const& fail) noexcept {
         self.has_value_ = false;
         self.fail_ = fail.val_;
         return self;
     }
 
     template<::exception::is_unexpected T>
-    constexpr auto&& operator=(this ::exception::expected<Ok, Fail>& self, T&& fail) noexcept {
+    constexpr auto&& operator=(this expected<Ok, Fail>& self, T&& fail) noexcept {
         self.has_value_ = false;
         self.fail_ = ::std::move(fail.val_);
         return self;
     }
 
-    constexpr auto&& operator=(this ::exception::expected<Ok, Fail>& self,
-                               ::exception::expected<Ok, Fail> const& other) noexcept {
+    constexpr auto&& operator=(this expected<Ok, Fail>& self, ::exception::expected<Ok, Fail> const& other) noexcept {
         ::exception::expected<Ok, Fail> tmp(other);
         tmp.swap(self);
         return self;
@@ -358,19 +375,6 @@ public:
 
 namespace details {
 
-struct nullopt_t_ {
-    constexpr bool operator==(this nullopt_t_ const&, nullopt_t_ const&) noexcept = default;
-};
-
-} // namespace details
-
-template<typename T>
-using optional = ::exception::expected<T, ::exception::details::nullopt_t_>;
-
-using nullopt_t = ::exception::unexpected<::exception::details::nullopt_t_>;
-
-namespace details {
-
 template<typename T>
 constexpr bool is_expected_ = false;
 
@@ -386,9 +390,9 @@ constexpr bool is_optional_<optional<T>> = true;
 } // namespace details
 
 template<typename T>
-concept is_expected = ::exception::details::is_expected_<::std::remove_cvref_t<T>>;
+concept is_expected = details::is_expected_<::std::remove_cvref_t<T>>;
 
 template<typename T>
-concept is_optional = ::exception::details::is_optional_<::std::remove_cvref_t<T>>;
+concept is_optional = details::is_optional_<::std::remove_cvref_t<T>>;
 
 } // namespace exception
