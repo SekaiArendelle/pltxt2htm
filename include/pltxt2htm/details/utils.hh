@@ -244,33 +244,42 @@ constexpr bool is_prefix_match(::fast_io::u8string_view str) noexcept {
         return false;
     }
 
-    // Return whether the `prefix_str` is a prefix of the str.
-    // libc++ does not implement std::ranges::enumerate yet
 #if __cpp_expansion_statements >= 202506L
+    // TODO use `template for (constexpr auto [I, expect] : prefix_str | ::std::views::enumerate)` instead
     template for (constexpr ::std::size_t I : ::std::ranges::views::iota(::std::size_t{}, prefix_str.size())) {
-#else
-    return [str]<::std::size_t... Is>(::std::index_sequence<Is...>) {
-        return ([str]<::std::size_t I>() {
-#endif
         constexpr auto expect = prefix_str[I];
         if constexpr ('a' <= expect && expect <= 'z') {
             // ASCII between lowercase and uppercase is 32 (e.g. 'a' - 'A' == 32)
             constexpr ::std::uint8_t diff{32};
             // (expect != str[I] && expect != str[I] + diff) <=> (expect != (str[I] | diff))
-            return expect == (::pltxt2htm::details::u8string_view_index<ndebug>(str, I) | diff);
+            if (expect != (::pltxt2htm::details::u8string_view_index<ndebug>(str, I) | diff)) {
+                return false;
+            }
         }
         else {
-            return expect == ::pltxt2htm::details::u8string_view_index<ndebug>(str, I);
+            if (expect != ::pltxt2htm::details::u8string_view_index<ndebug>(str, I)) {
+                return false;
+            }
         }
-#if __cpp_expansion_statements >= 202506L
     }
+    return true;
 #else
+    return [str]<::std::size_t... Is>(::std::index_sequence<Is...>) {
+        return ([str]<::std::size_t I>() {
+            constexpr auto expect = prefix_str[I];
+            if constexpr ('a' <= expect && expect <= 'z') {
+                // ASCII between lowercase and uppercase is 32 (e.g. 'a' - 'A' == 32)
+                constexpr ::std::uint8_t diff{32};
+                // (expect != str[I] && expect != str[I] + diff) <=> (expect != (str[I] | diff))
+                return expect == (::pltxt2htm::details::u8string_view_index<ndebug>(str, I) | diff);
+            }
+            else {
+                return expect == ::pltxt2htm::details::u8string_view_index<ndebug>(str, I);
+            }
         }.template operator()<Is>() &&
                 ...);
     }(::std::make_index_sequence<prefix_str.size()>{});
 #endif
-    // suppress GCC -Wreturn-type warning
-    pltxt2htm_unreachable(u8"Unreachable - all cases return above");
 }
 
 /**
