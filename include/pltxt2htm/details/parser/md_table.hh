@@ -44,7 +44,7 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr auto try_parse_md_table_row(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseMdTableRowResult> {
     if (pltext.empty()) {
-        return ::exception::nullopt_t{};
+        return ::exception::nullopt;
     }
     ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t current_index{};
@@ -58,7 +58,7 @@ constexpr auto try_parse_md_table_row(::fast_io::u8string_view pltext) noexcept
     // must start with |
     if (current_index >= pltext_size ||
         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8'|') {
-        return ::exception::nullopt_t{};
+        return ::exception::nullopt;
     }
     ++current_index; // skip the first |
 
@@ -115,12 +115,12 @@ constexpr auto try_parse_md_table_row(::fast_io::u8string_view pltext) noexcept
     }
 
     if (row.empty()) {
-        return ::exception::nullopt_t{};
+        return ::exception::nullopt;
     }
 
     // A row like "|cell" (no trailing |) is rejected.
     if (has_trailing_pipe == false) {
-        return ::exception::nullopt_t{};
+        return ::exception::nullopt;
     }
 
     return ::pltxt2htm::details::TryParseMdTableRowResult{::std::move(row), current_index};
@@ -140,7 +140,7 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr auto try_parse_table_align(::fast_io::u8string_view cell) noexcept
     -> ::exception::optional<::pltxt2htm::TableAlign> {
     if (cell.empty()) {
-        return ::exception::nullopt_t{};
+        return ::exception::nullopt;
     }
 
     ::std::size_t current_index{};
@@ -157,7 +157,7 @@ constexpr auto try_parse_table_align(::fast_io::u8string_view cell) noexcept
         ++current_index;
     }
     if (has_dash == false) {
-        return ::exception::nullopt_t{};
+        return ::exception::nullopt;
     }
 
     bool right{};
@@ -167,7 +167,7 @@ constexpr auto try_parse_table_align(::fast_io::u8string_view cell) noexcept
         ++current_index;
     }
     if (current_index != cell.size()) {
-        return ::exception::nullopt_t{};
+        return ::exception::nullopt;
     }
 
     if (left && right) {
@@ -284,7 +284,7 @@ constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
     // parse header row
     auto header_opt = ::pltxt2htm::details::try_parse_md_table_row<ndebug>(pltext);
     if (header_opt.has_value() == false) {
-        return ::exception::nullopt_t{};
+        return ::exception::nullopt;
     }
     auto&& [header_row, header_forward] = header_opt.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
     current_index += header_forward;
@@ -294,7 +294,7 @@ constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
     auto delim_opt = ::pltxt2htm::details::try_parse_md_table_row<ndebug>(
         ::fast_io::u8string_view{pltext.data() + current_index, pltext.size() - current_index});
     if (delim_opt.has_value() == false) {
-        return ::exception::nullopt_t{};
+        return ::exception::nullopt;
     }
     auto&& [delim_row, delim_forward] = delim_opt.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
     current_index += delim_forward;
@@ -308,18 +308,18 @@ constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
         }
         auto opt_align = ::pltxt2htm::details::try_parse_table_align<ndebug>(cell_view);
         if (opt_align.has_value() == false) {
-            return ::exception::nullopt_t{};
+            return ::exception::nullopt;
         }
         has_delimiter_content = true;
         aligns.push_back(opt_align.template value<ndebug == ::pltxt2htm::Contracts::ignore>());
     }
     if (has_delimiter_content == false) {
-        return ::exception::nullopt_t{};
+        return ::exception::nullopt;
     }
 
     // delimiter row must have the same column count as the header row
     if (aligns.size() != header_row.size()) {
-        return ::exception::nullopt_t{};
+        return ::exception::nullopt;
     }
 
     // build raw header cells
@@ -344,7 +344,7 @@ constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
 
         // each body row must have exactly num_cols cells
         if (row.size() != num_cols) {
-            return ::exception::nullopt_t{};
+            return ::exception::nullopt;
         }
         ::fast_io::vector<::pltxt2htm::details::MdTableCellRaw> body_cells{};
         for (::std::size_t col{}; col < row.size(); ++col) {

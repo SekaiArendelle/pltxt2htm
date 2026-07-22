@@ -329,12 +329,12 @@ constexpr auto try_parse_size_t_decimal_value(::fast_io::u8string_view str, ::st
         }
         auto const digit = static_cast<::std::size_t>(chr - u8'0');
         if (parsed_value > (::std::numeric_limits<::std::size_t>::max() - digit) / 10) {
-            return ::exception::nullopt_t{};
+            return ::exception::nullopt;
         }
         parsed_value = parsed_value * 10 + digit;
     }
     if (pos == start) {
-        return ::exception::nullopt_t{};
+        return ::exception::nullopt;
     }
     return ::pltxt2htm::details::TryParseSizeTDecimalValueResult{pos, parsed_value};
 }
@@ -354,11 +354,11 @@ constexpr auto try_parse_size_t_decimal_value(::fast_io::u8string_view str, ::st
 constexpr auto u8str2size_t(::fast_io::u8string_view str) noexcept -> ::exception::optional<std::size_t> {
     auto result = ::pltxt2htm::details::try_parse_size_t_decimal_value<::pltxt2htm::Contracts::quick_enforce>(str, 0);
     if (result.has_value() == false) {
-        return ::exception::nullopt_t{};
+        return ::exception::nullopt;
     }
     auto const parsed = result.template value<false>();
     if (parsed.end != str.size()) {
-        return ::exception::nullopt_t{};
+        return ::exception::nullopt;
     }
     return parsed.value;
 }

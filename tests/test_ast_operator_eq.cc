@@ -188,9 +188,9 @@ int main() {
         ast_b.emplace_back(::pltxt2htm::U8Char{u8'a'});
 
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdCodeFenceBacktick<nd::quick_enforce>(
-            ::std::move(ast_a), ::exception::optional<::fast_io::u8string>(::exception::nullopt_t{})));
+            ::std::move(ast_a), ::exception::optional<::fast_io::u8string>(::exception::nullopt)));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdCodeFenceBacktick<nd::quick_enforce>(
-            ::std::move(ast_b), ::exception::optional<::fast_io::u8string>(::exception::nullopt_t{})));
+            ::std::move(ast_b), ::exception::optional<::fast_io::u8string>(::exception::nullopt)));
         ::exception::assert_true<false>(a == b);
     }
 
@@ -233,7 +233,7 @@ int main() {
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdCodeFenceBacktick<nd::quick_enforce>(
             ::std::move(ast_a), ::exception::optional<::fast_io::u8string>(::fast_io::u8string{u8"cpp"})));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdCodeFenceBacktick<nd::quick_enforce>(
-            ::std::move(ast_b), ::exception::optional<::fast_io::u8string>(::exception::nullopt_t{})));
+            ::std::move(ast_b), ::exception::optional<::fast_io::u8string>(::exception::nullopt)));
         ::exception::assert_false<false>(a == b);
     }
 
@@ -244,9 +244,9 @@ int main() {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
 
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdCodeFenceTilde<nd::quick_enforce>(
-            ::std::move(ast_a), ::exception::optional<::fast_io::u8string>(::exception::nullopt_t{})));
+            ::std::move(ast_a), ::exception::optional<::fast_io::u8string>(::exception::nullopt)));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdCodeFenceTilde<nd::quick_enforce>(
-            ::std::move(ast_b), ::exception::optional<::fast_io::u8string>(::exception::nullopt_t{})));
+            ::std::move(ast_b), ::exception::optional<::fast_io::u8string>(::exception::nullopt)));
         ::exception::assert_true<false>(a == b);
     }
 
@@ -285,7 +285,7 @@ int main() {
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdCodeFenceTilde<nd::quick_enforce>(
             ::std::move(ast_a), ::exception::optional<::fast_io::u8string>(::fast_io::u8string{u8"cpp"})));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdCodeFenceTilde<nd::quick_enforce>(
-            ::std::move(ast_b), ::exception::optional<::fast_io::u8string>(::exception::nullopt_t{})));
+            ::std::move(ast_b), ::exception::optional<::fast_io::u8string>(::exception::nullopt)));
         ::exception::assert_false<false>(a == b);
     }
 

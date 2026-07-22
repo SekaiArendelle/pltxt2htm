@@ -632,11 +632,11 @@ constexpr auto is_valid_md_ol_list_hierarchy(
     -> ::exception::optional<::std::size_t> {
     ::std::size_t const pltext_size{pltext.size()};
     if (pltext_size < 4) {
-        return ::exception::nullopt_t{};
+        return ::exception::nullopt;
     }
     if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, space_hierarchy) < u8'0' ||
         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, space_hierarchy) > u8'9') {
-        return ::exception::nullopt_t{};
+        return ::exception::nullopt;
     }
     {
         ::std::size_t i{space_hierarchy + 1};
@@ -647,13 +647,13 @@ constexpr auto is_valid_md_ol_list_hierarchy(
             }
         }
         if (i == pltext_size) {
-            return ::exception::nullopt_t{};
+            return ::exception::nullopt;
         }
         if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i) != u8'.') {
-            return ::exception::nullopt_t{};
+            return ::exception::nullopt;
         }
         if (++i >= pltext_size) {
-            return ::exception::nullopt_t{};
+            return ::exception::nullopt;
         }
         if ( // parsing the first line
             !expect.has_value() ||
@@ -678,7 +678,7 @@ constexpr auto is_valid_md_ol_list_hierarchy(
             return i;
         }
     }
-    return ::exception::nullopt_t{};
+    return ::exception::nullopt;
 }
 
 /**
@@ -704,7 +704,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_item(
     ::fast_io::u8string_view pltext,
-    ::exception::optional<::pltxt2htm::details::PreviousItemInfo> const expect = ::exception::nullopt_t{}) noexcept
+    ::exception::optional<::pltxt2htm::details::PreviousItemInfo> const expect = ::exception::nullopt) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseItemResult> {
     ::std::size_t current_index{};
     // parsing spaces before - or + or *
@@ -715,7 +715,7 @@ constexpr auto try_parse_item(
         }
     }
     if (current_index == pltext.size()) {
-        return ::exception::nullopt_t{};
+        return ::exception::nullopt;
     }
     ::std::size_t const space_hierarchy{current_index};
 
@@ -750,16 +750,16 @@ constexpr auto try_parse_item(
         current_index = opt_size.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
     }
     else {
-        return ::exception::nullopt_t{};
+        return ::exception::nullopt;
     }
 
     // - or + or * must be followed by space
     if (current_index == pltext.size()) {
-        return ::exception::nullopt_t{};
+        return ::exception::nullopt;
     }
     if (char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index)};
         chr != u8' ' && chr != u8'\t') {
-        return ::exception::nullopt_t{};
+        return ::exception::nullopt;
     }
     // parsing spaces after - or + or *
     for (; current_index < pltext.size(); ++current_index) {
@@ -851,7 +851,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
             call_stack.push(::std::move(current_frame));
         }
         else {
-            return ::exception::nullopt_t{};
+            return ::exception::nullopt;
         }
     }
     while (true) {

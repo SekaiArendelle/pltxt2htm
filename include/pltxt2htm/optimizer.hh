@@ -428,7 +428,7 @@ entry:
                         auto const& inner_color = subnode.as_html_span().get_color();
                         auto const inner_fs = subnode.as_html_span().get_font_size();
                         auto merged_color = ::fast_io::u8string{inner_color.empty() ? outer_color : inner_color};
-                        ::exception::optional<::std::size_t> merged_fs{::exception::nullopt_t{}};
+                        ::exception::optional<::std::size_t> merged_fs{::exception::nullopt};
                         if (inner_fs.has_value()) {
                             merged_fs = inner_fs.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                         }
@@ -444,7 +444,7 @@ entry:
                     }
                     if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_color) {
                         auto const outer_fs = node.as_html_span().get_font_size();
-                        ::exception::optional<::std::size_t> merged_fs{::exception::nullopt_t{}};
+                        ::exception::optional<::std::size_t> merged_fs{::exception::nullopt};
                         if (outer_fs.has_value()) {
                             merged_fs = outer_fs.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                         }
