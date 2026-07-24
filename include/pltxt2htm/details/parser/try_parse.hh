@@ -2517,21 +2517,8 @@ constexpr auto try_parse_md_code_span(::fast_io::u8string_view pltext) noexcept
     auto&& [advance_count, ast] = ::pltxt2htm::details::simply_parse_pltext<ndebug, embraced_string>(
         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, embraced_size));
 
-    if constexpr (embraced_size == 1) {
-        return ::pltxt2htm::details::TryParseMdCodeSpanResult<ndebug>{.advance_count = advance_count + embraced_size,
-                                                                      .subast = ::std::move(ast)};
-    }
-    else if constexpr (embraced_size == 2) {
-        return ::pltxt2htm::details::TryParseMdCodeSpanResult<ndebug>{.advance_count = advance_count + embraced_size,
-                                                                      .subast = ::std::move(ast)};
-    }
-    else if constexpr (embraced_size == 3) {
-        return ::pltxt2htm::details::TryParseMdCodeSpanResult<ndebug>{.advance_count = advance_count + embraced_size,
-                                                                      .subast = ::std::move(ast)};
-    }
-    else {
-        pltxt2htm_unreachable(u8"Unexpected embraced size for code span");
-    }
+    return ::pltxt2htm::details::TryParseMdCodeSpanResult<ndebug>{.advance_count = advance_count + embraced_size,
+                                                                  .subast = ::std::move(ast)};
 }
 
 template<::pltxt2htm::Contracts ndebug>
