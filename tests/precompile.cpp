@@ -3,6 +3,10 @@
  * @brief To improve build performance, we precompile the pltxt2htm.cpp file as static library
  */
 
+#ifdef NDEBUG
+    #error "Test fail: NDEBUG is defined"
+#endif
+
 #include <cstdint>
 #include <fast_io/fast_io.h>
 #include <fast_io/fast_io_dsal/string_view.h>
