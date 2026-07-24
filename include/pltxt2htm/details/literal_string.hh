@@ -49,7 +49,7 @@ class BasicLiteralString {
 public:
     using value_type = CharType;
     using size_type = ::std::size_t;
-    using diffrence_type = ::std::ptrdiff_t;
+    using difference_type = ::std::ptrdiff_t;
     using iterator = value_type*;
     using const_iterator = value_type const*;
     using reference = value_type&;
