@@ -87,16 +87,14 @@ int main() noexcept {
         pltxt2htm_test_assert_true(number.has_value() && number.value() == 42);
 
         auto overflow{::pltxt2htm::details::size_t2str(::std::numeric_limits<::std::size_t>::max())};
-        auto const maximum{
-            ::pltxt2htm::details::u8str2size_t<::pltxt2htm::Contracts::quick_enforce>(
-                ::fast_io::u8string_view{overflow.data(), overflow.size()})};
+        auto const maximum{::pltxt2htm::details::u8str2size_t<::pltxt2htm::Contracts::quick_enforce>(
+            ::fast_io::u8string_view{overflow.data(), overflow.size()})};
         pltxt2htm_test_assert_true(maximum.has_value() &&
                                    maximum.value() == ::std::numeric_limits<::std::size_t>::max());
         overflow.push_back(u8'0');
-        pltxt2htm_test_assert_true(
-            ::pltxt2htm::details::u8str2size_t<::pltxt2htm::Contracts::quick_enforce>(
-                ::fast_io::u8string_view{overflow.data(), overflow.size()})
-                .has_value() == false);
+        pltxt2htm_test_assert_true(::pltxt2htm::details::u8str2size_t<::pltxt2htm::Contracts::quick_enforce>(
+                                       ::fast_io::u8string_view{overflow.data(), overflow.size()})
+                                       .has_value() == false);
     }
 
     return 0;
