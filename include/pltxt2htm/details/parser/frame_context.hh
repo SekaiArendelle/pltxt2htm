@@ -20,6 +20,23 @@
 
 namespace pltxt2htm::details {
 
+#pragma push_macro("pltxt2htm_assert_context_branch")
+#undef pltxt2htm_assert_context_branch
+#ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
+    #define pltxt2htm_assert_context_branch(self, expected) \
+        do { \
+            if ((self).context_branch != (expected)) [[unlikely]] { \
+                constexpr auto source_location = ::std::source_location::current(); \
+                ::pltxt2htm::details::panic<::pltxt2htm::details::U8LiteralString{u8"context branch mismatch"}, \
+                                            ::pltxt2htm::details::U8LiteralString{u8"" __FILE__}, \
+                                            source_location.line(), source_location.column(), \
+                                            ::pltxt2htm::details::U8LiteralString{u8"context branch mismatch"}>(); \
+            } \
+        } while (0)
+#else
+    #define pltxt2htm_assert_context_branch(self, expected)
+#endif
+
 /**
  * @brief Context for frames that only store raw pl-text (e.g., emphasis, headings).
  */
@@ -166,7 +183,7 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class FrontendContextVariant {
 public:
-#ifndef NDEBUG
+#ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
     enum class ContextBranch : unsigned {
         equal_sign_tag,
         html_a_tag,
@@ -198,7 +215,7 @@ public:
         ::pltxt2htm::details::ParserFrameContextWithMdTableInfo<ndebug> md_table;
     };
 
-#ifndef NDEBUG
+#ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
     ContextBranch context_branch;
 #endif
     ::pltxt2htm::NodeKind kind;
@@ -206,7 +223,7 @@ public:
     constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithPltextInfo&& pltext_context,
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
         : pltext{::std::move(pltext_context)},
-#ifndef NDEBUG
+#ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
           context_branch{ContextBranch::pltext},
 #endif
           kind{node_kind_} {
@@ -216,7 +233,7 @@ public:
         ::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo&& equal_sign_tag_context,
         ::pltxt2htm::NodeKind node_kind_) noexcept
         : equal_sign_tag{::std::move(equal_sign_tag_context)},
-#ifndef NDEBUG
+#ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
           context_branch{ContextBranch::equal_sign_tag},
 #endif
           kind{node_kind_} {
@@ -225,7 +242,7 @@ public:
     constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithHtmlSpanInfo&& html_span_context,
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
         : html_span_info{::std::move(html_span_context)},
-#ifndef NDEBUG
+#ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
           context_branch{ContextBranch::html_span_info},
 #endif
           kind{node_kind_} {
@@ -234,7 +251,7 @@ public:
     constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithHtmlCodeInfo&& html_code_context,
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
         : html_code_info{::std::move(html_code_context)},
-#ifndef NDEBUG
+#ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
           context_branch{ContextBranch::html_code_info},
 #endif
           kind{node_kind_} {
@@ -243,7 +260,7 @@ public:
     constexpr FrontendContextVariant(
         ::pltxt2htm::details::ParserFrameContextWithHtmlATagInfo<ndebug>&& html_a_tag_context) noexcept
         : html_a_tag_info{::std::move(html_a_tag_context)},
-#ifndef NDEBUG
+#ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
           context_branch{ContextBranch::html_a_tag},
 #endif
           kind{::pltxt2htm::NodeKind::html_a} {
@@ -252,7 +269,7 @@ public:
     constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithUrlInfo<ndebug>&& url_context,
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
         : url_info{::std::move(url_context)},
-#ifndef NDEBUG
+#ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
           context_branch{ContextBranch::url_info},
 #endif
           kind{node_kind_} {
@@ -261,7 +278,7 @@ public:
     constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithPlSizeTagInfo&& pl_size_tag_context,
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
         : pl_size_tag{::std::move(pl_size_tag_context)},
-#ifndef NDEBUG
+#ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
           context_branch{ContextBranch::pl_size_tag},
 #endif
           kind{node_kind_} {
@@ -271,7 +288,7 @@ public:
         ::pltxt2htm::details::ParserFrameContextWithMdBlockQuotesInfo&& md_block_quotes_context,
         ::pltxt2htm::NodeKind node_kind_) noexcept
         : md_block_quotes{::std::move(md_block_quotes_context)},
-#ifndef NDEBUG
+#ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
           context_branch{ContextBranch::md_block_quotes},
 #endif
           kind{node_kind_} {
@@ -280,7 +297,7 @@ public:
     constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithMdListInfo<ndebug>&& md_list_context,
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
         : md_list{::std::move(md_list_context)},
-#ifndef NDEBUG
+#ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
           context_branch{ContextBranch::md_list},
 #endif
           kind{node_kind_} {
@@ -289,7 +306,7 @@ public:
     constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithCellInfo&& cell_context,
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
         : cell{::std::move(cell_context)},
-#ifndef NDEBUG
+#ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
           context_branch{ContextBranch::cell},
 #endif
           kind{node_kind_} {
@@ -299,7 +316,7 @@ public:
         ::pltxt2htm::details::ParserFrameContextWithMdLiCheckboxInfo&& md_li_checkbox_context,
         ::pltxt2htm::NodeKind node_kind_) noexcept
         : md_li_checkbox{::std::move(md_li_checkbox_context)},
-#ifndef NDEBUG
+#ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
           context_branch{ContextBranch::md_li_checkbox},
 #endif
           kind{node_kind_} {
@@ -308,7 +325,7 @@ public:
     constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithMdTableInfo<ndebug>&& md_table_context,
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
         : md_table{::std::move(md_table_context)},
-#ifndef NDEBUG
+#ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
           context_branch{ContextBranch::md_table},
 #endif
           kind{node_kind_} {
@@ -318,7 +335,7 @@ public:
 
     constexpr FrontendContextVariant(::pltxt2htm::details::FrontendContextVariant<ndebug>&& other) noexcept
         :
-#ifndef NDEBUG
+#ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
           context_branch{other.context_branch},
 #endif
           kind{other.kind} {
@@ -330,60 +347,51 @@ public:
         case ::pltxt2htm::NodeKind::pl_discussion:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_user: {
-            pltxt2htm_assert(this->context_branch == ContextBranch::equal_sign_tag,
-                             u8"FrontendContextVariant: context branch mismatch in move");
+            pltxt2htm_assert_context_branch(*this, ContextBranch::equal_sign_tag);
             ::std::construct_at(::std::addressof(this->equal_sign_tag), ::std::move(other.equal_sign_tag));
             return;
         }
         case ::pltxt2htm::NodeKind::html_a: {
-            pltxt2htm_assert(this->context_branch == ContextBranch::html_a_tag,
-                             u8"FrontendContextVariant: context branch mismatch in move");
+            pltxt2htm_assert_context_branch(*this, ContextBranch::html_a_tag);
             ::std::construct_at(::std::addressof(this->html_a_tag_info), ::std::move(other.html_a_tag_info));
             return;
         }
         case ::pltxt2htm::NodeKind::pl_external:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_link: {
-            pltxt2htm_assert(this->context_branch == ContextBranch::url_info,
-                             u8"FrontendContextVariant: context branch mismatch in move");
+            pltxt2htm_assert_context_branch(*this, ContextBranch::url_info);
             ::std::construct_at(::std::addressof(this->url_info), ::std::move(other.url_info));
             return;
         }
         case ::pltxt2htm::NodeKind::pl_size: {
-            pltxt2htm_assert(this->context_branch == ContextBranch::pl_size_tag,
-                             u8"FrontendContextVariant: context branch mismatch in move");
+            pltxt2htm_assert_context_branch(*this, ContextBranch::pl_size_tag);
             ::std::construct_at(::std::addressof(this->pl_size_tag), ::std::move(other.pl_size_tag));
             return;
         }
         case ::pltxt2htm::NodeKind::html_span: {
-            pltxt2htm_assert(this->context_branch == ContextBranch::html_span_info,
-                             u8"FrontendContextVariant: context branch mismatch in move");
+            pltxt2htm_assert_context_branch(*this, ContextBranch::html_span_info);
             ::std::construct_at(::std::addressof(this->html_span_info), ::std::move(other.html_span_info));
             return;
         }
         case ::pltxt2htm::NodeKind::html_code: {
-            pltxt2htm_assert(this->context_branch == ContextBranch::html_code_info,
-                             u8"FrontendContextVariant: context branch mismatch in move");
+            pltxt2htm_assert_context_branch(*this, ContextBranch::html_code_info);
             ::std::construct_at(::std::addressof(this->html_code_info), ::std::move(other.html_code_info));
             return;
         }
         case ::pltxt2htm::NodeKind::md_block_quotes: {
-            pltxt2htm_assert(this->context_branch == ContextBranch::md_block_quotes,
-                             u8"FrontendContextVariant: context branch mismatch in move");
+            pltxt2htm_assert_context_branch(*this, ContextBranch::md_block_quotes);
             ::std::construct_at(::std::addressof(this->md_block_quotes), ::std::move(other.md_block_quotes));
             return;
         }
         case ::pltxt2htm::NodeKind::md_ul:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_ol: {
-            pltxt2htm_assert(this->context_branch == ContextBranch::md_list,
-                             u8"FrontendContextVariant: context branch mismatch in move");
+            pltxt2htm_assert_context_branch(*this, ContextBranch::md_list);
             ::std::construct_at(::std::addressof(this->md_list), ::std::move(other.md_list));
             return;
         }
         case ::pltxt2htm::NodeKind::md_li_checkbox: {
-            pltxt2htm_assert(this->context_branch == ContextBranch::md_li_checkbox,
-                             u8"FrontendContextVariant: context branch mismatch in move");
+            pltxt2htm_assert_context_branch(*this, ContextBranch::md_li_checkbox);
             ::std::construct_at(::std::addressof(this->md_li_checkbox), ::std::move(other.md_li_checkbox));
             return;
         }
@@ -466,8 +474,7 @@ public:
         case ::pltxt2htm::NodeKind::md_del:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_li: {
-            pltxt2htm_assert(this->context_branch == ContextBranch::pltext,
-                             u8"FrontendContextVariant: context branch mismatch in move");
+            pltxt2htm_assert_context_branch(*this, ContextBranch::pltext);
             ::std::construct_at(::std::addressof(this->pltext), ::std::move(other.pltext));
             return;
         }
@@ -478,14 +485,12 @@ public:
         case ::pltxt2htm::NodeKind::md_th:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_td: {
-            pltxt2htm_assert(this->context_branch == ContextBranch::cell,
-                             u8"FrontendContextVariant: context branch mismatch in move");
+            pltxt2htm_assert_context_branch(*this, ContextBranch::cell);
             ::std::construct_at(::std::addressof(this->cell), ::std::move(other.cell));
             return;
         }
         case ::pltxt2htm::NodeKind::md_table: {
-            pltxt2htm_assert(this->context_branch == ContextBranch::md_table,
-                             u8"FrontendContextVariant: context branch mismatch in move");
+            pltxt2htm_assert_context_branch(*this, ContextBranch::md_table);
             ::std::construct_at(::std::addressof(this->md_table), ::std::move(other.md_table));
             return;
         }
@@ -640,54 +645,46 @@ public:
         case ::pltxt2htm::NodeKind::pl_discussion:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_user: {
-            pltxt2htm_assert(this->context_branch == ContextBranch::equal_sign_tag,
-                             u8"FrontendContextVariant: context branch mismatch in destructor");
+            pltxt2htm_assert_context_branch(*this, ContextBranch::equal_sign_tag);
             ::std::destroy_at(::std::addressof(this->equal_sign_tag));
             return;
         }
         case ::pltxt2htm::NodeKind::html_a: {
-            pltxt2htm_assert(this->context_branch == ContextBranch::html_a_tag,
-                             u8"FrontendContextVariant: context branch mismatch in destructor");
+            pltxt2htm_assert_context_branch(*this, ContextBranch::html_a_tag);
             ::std::destroy_at(::std::addressof(this->html_a_tag_info));
             return;
         }
         case ::pltxt2htm::NodeKind::pl_external:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_link: {
-            pltxt2htm_assert(this->context_branch == ContextBranch::url_info,
-                             u8"FrontendContextVariant: context branch mismatch in destructor");
+            pltxt2htm_assert_context_branch(*this, ContextBranch::url_info);
             ::std::destroy_at(::std::addressof(this->url_info));
             return;
         }
         case ::pltxt2htm::NodeKind::pl_size: {
-            pltxt2htm_assert(this->context_branch == ContextBranch::pl_size_tag,
-                             u8"FrontendContextVariant: context branch mismatch in destructor");
+            pltxt2htm_assert_context_branch(*this, ContextBranch::pl_size_tag);
             ::std::destroy_at(::std::addressof(this->pl_size_tag));
             return;
         }
         case ::pltxt2htm::NodeKind::html_span: {
-            pltxt2htm_assert(this->context_branch == ContextBranch::html_span_info,
-                             u8"FrontendContextVariant: context branch mismatch in destructor");
+            pltxt2htm_assert_context_branch(*this, ContextBranch::html_span_info);
             ::std::destroy_at(::std::addressof(this->html_span_info));
             return;
         }
         case ::pltxt2htm::NodeKind::html_code: {
-            pltxt2htm_assert(this->context_branch == ContextBranch::html_code_info,
-                             u8"FrontendContextVariant: context branch mismatch in destructor");
+            pltxt2htm_assert_context_branch(*this, ContextBranch::html_code_info);
             ::std::destroy_at(::std::addressof(this->html_code_info));
             return;
         }
         case ::pltxt2htm::NodeKind::md_block_quotes: {
-            pltxt2htm_assert(this->context_branch == ContextBranch::md_block_quotes,
-                             u8"FrontendContextVariant: context branch mismatch in destructor");
+            pltxt2htm_assert_context_branch(*this, ContextBranch::md_block_quotes);
             ::std::destroy_at(::std::addressof(this->md_block_quotes));
             return;
         }
         case ::pltxt2htm::NodeKind::md_ul:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_ol: {
-            pltxt2htm_assert(this->context_branch == ContextBranch::md_list,
-                             u8"FrontendContextVariant: context branch mismatch in destructor");
+            pltxt2htm_assert_context_branch(*this, ContextBranch::md_list);
             ::std::destroy_at(::std::addressof(this->md_list));
             return;
         }
@@ -770,8 +767,7 @@ public:
         case ::pltxt2htm::NodeKind::md_del:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_li: {
-            pltxt2htm_assert(this->context_branch == ContextBranch::pltext,
-                             u8"FrontendContextVariant: context branch mismatch in destructor");
+            pltxt2htm_assert_context_branch(*this, ContextBranch::pltext);
             ::std::destroy_at(::std::addressof(this->pltext));
             return;
         }
@@ -782,20 +778,17 @@ public:
         case ::pltxt2htm::NodeKind::md_th:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_td: {
-            pltxt2htm_assert(this->context_branch == ContextBranch::cell,
-                             u8"FrontendContextVariant: context branch mismatch in destructor");
+            pltxt2htm_assert_context_branch(*this, ContextBranch::cell);
             ::std::destroy_at(::std::addressof(this->cell));
             return;
         }
         case ::pltxt2htm::NodeKind::md_table: {
-            pltxt2htm_assert(this->context_branch == ContextBranch::md_table,
-                             u8"FrontendContextVariant: context branch mismatch in destructor");
+            pltxt2htm_assert_context_branch(*this, ContextBranch::md_table);
             ::std::destroy_at(::std::addressof(this->md_table));
             return;
         }
         case ::pltxt2htm::NodeKind::md_li_checkbox: {
-            pltxt2htm_assert(this->context_branch == ContextBranch::md_li_checkbox,
-                             u8"FrontendContextVariant: context branch mismatch in destructor");
+            pltxt2htm_assert_context_branch(*this, ContextBranch::md_li_checkbox);
             ::std::destroy_at(::std::addressof(this->md_li_checkbox));
             return;
         }
@@ -1117,15 +1110,13 @@ public:
         case ::pltxt2htm::NodeKind::md_latex_inline:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_latex_block: {
-            pltxt2htm_assert(context_data_ref.context_branch ==
-                                 ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::pltext,
-                             u8"get_pltext: context branch mismatch");
+            pltxt2htm_assert_context_branch(
+                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::pltext);
             return context_data_ref.pltext.pltext;
         }
         case ::pltxt2htm::NodeKind::md_li_checkbox: {
-            pltxt2htm_assert(context_data_ref.context_branch ==
-                                 ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::md_li_checkbox,
-                             u8"get_pltext: context branch mismatch");
+            pltxt2htm_assert_context_branch(
+                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::md_li_checkbox);
             return context_data_ref.md_li_checkbox.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_color:
@@ -1135,52 +1126,44 @@ public:
         case ::pltxt2htm::NodeKind::pl_discussion:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_user: {
-            pltxt2htm_assert(context_data_ref.context_branch ==
-                                 ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::equal_sign_tag,
-                             u8"get_pltext: context branch mismatch");
+            pltxt2htm_assert_context_branch(
+                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::equal_sign_tag);
             return context_data_ref.equal_sign_tag.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_external: {
-            pltxt2htm_assert(context_data_ref.context_branch ==
-                                 ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::url_info,
-                             u8"get_pltext: context branch mismatch");
+            pltxt2htm_assert_context_branch(
+                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::url_info);
             return context_data_ref.url_info.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_size: {
-            pltxt2htm_assert(context_data_ref.context_branch ==
-                                 ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::pl_size_tag,
-                             u8"get_pltext: context branch mismatch");
+            pltxt2htm_assert_context_branch(
+                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::pl_size_tag);
             return context_data_ref.pl_size_tag.pltext;
         }
         case ::pltxt2htm::NodeKind::html_span: {
-            pltxt2htm_assert(context_data_ref.context_branch ==
-                                 ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::html_span_info,
-                             u8"get_pltext: context branch mismatch");
+            pltxt2htm_assert_context_branch(
+                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::html_span_info);
             return context_data_ref.html_span_info.pltext;
         }
         case ::pltxt2htm::NodeKind::html_code: {
-            pltxt2htm_assert(context_data_ref.context_branch ==
-                                 ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::html_code_info,
-                             u8"get_pltext: context branch mismatch");
+            pltxt2htm_assert_context_branch(
+                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::html_code_info);
             return context_data_ref.html_code_info.pltext;
         }
         case ::pltxt2htm::NodeKind::html_a: {
-            pltxt2htm_assert(context_data_ref.context_branch ==
-                                 ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::html_a_tag,
-                             u8"get_pltext: context branch mismatch");
+            pltxt2htm_assert_context_branch(
+                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::html_a_tag);
             return context_data_ref.html_a_tag_info.pltext;
         }
         case ::pltxt2htm::NodeKind::md_block_quotes: {
-            pltxt2htm_assert(context_data_ref.context_branch ==
-                                 ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::md_block_quotes,
-                             u8"get_pltext: context branch mismatch");
+            pltxt2htm_assert_context_branch(
+                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::md_block_quotes);
             auto const& pltext = context_data_ref.md_block_quotes.pltext;
             return ::fast_io::u8string_view{pltext.data(), pltext.size()};
         }
         case ::pltxt2htm::NodeKind::md_link: {
-            pltxt2htm_assert(context_data_ref.context_branch ==
-                                 ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::url_info,
-                             u8"get_pltext: context branch mismatch");
+            pltxt2htm_assert_context_branch(
+                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::url_info);
             return context_data_ref.url_info.pltext;
         }
         case ::pltxt2htm::NodeKind::html_th:
@@ -1190,9 +1173,8 @@ public:
         case ::pltxt2htm::NodeKind::md_th:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_td: {
-            pltxt2htm_assert(context_data_ref.context_branch ==
-                                 ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::cell,
-                             u8"get_pltext: context branch mismatch");
+            pltxt2htm_assert_context_branch(context_data_ref,
+                                            ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::cell);
             return context_data_ref.cell.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_macro_project:
@@ -1438,4 +1420,5 @@ public:
 
 } // namespace pltxt2htm::details
 
+#pragma pop_macro("pltxt2htm_assert_context_branch")
 #include "../pop_macro.hh"

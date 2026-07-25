@@ -7,6 +7,10 @@
     #error "Test fail: NDEBUG is defined"
 #endif
 
+#ifndef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
+    #error "Test fail: PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT is not defined"
+#endif
+
 #include <cstdint>
 #include <fast_io/fast_io.h>
 #include <fast_io/fast_io_dsal/string_view.h>
@@ -16,6 +20,10 @@
 
 #if defined(pltxt2htm_assert)
     #error "Test fail: pltxt2htm_assert is defined"
+#endif
+
+#if defined(pltxt2htm_assert_context_branch)
+    #error "Test fail: pltxt2htm_assert_context_branch is defined"
 #endif
 
 #if defined __GNUC__ || defined __clang__

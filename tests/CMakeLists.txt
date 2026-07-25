@@ -22,6 +22,8 @@ if(PLTXT2HTM_ENABLE_STACKTRACE)
     target_compile_definitions(pltxt2htm_base INTERFACE PLTXT2HTM_EXPERIMENTAL_ENABLE_STACKTRACE)
 endif()
 
+target_compile_definitions(pltxt2htm_base INTERFACE PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT)
+
 if(PLTXT2HTM_SANITIZER)
     if(NOT PLTXT2HTM_SANITIZER MATCHES "^(address|undefined|memory)$")
         message(FATAL_ERROR "PLTXT2HTM_SANITIZER must be one of: address, undefined, memory (got: ${PLTXT2HTM_SANITIZER})")
