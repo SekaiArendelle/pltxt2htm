@@ -195,4 +195,24 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::PlB<ndebug>::operator==(this ::pltxt2htm::PlB<ndebug> const&,
                                                     ::pltxt2htm::PlB<ndebug> const&) noexcept -> bool = default;
 
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlU<ndebug>::PlU(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
+    : subast(::std::move(subast_)) {
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlU<ndebug>::PlU(::pltxt2htm::PlU<ndebug> const&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlU<ndebug>::PlU(::pltxt2htm::PlU<ndebug>&&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlU<ndebug>::~PlU() noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::PlU<ndebug>::operator=(this ::pltxt2htm::PlU<ndebug>& self,
+                                                   ::pltxt2htm::PlU<ndebug>&&) noexcept
+    -> ::pltxt2htm::PlU<ndebug>& = default;
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::PlU<ndebug>::operator==(this ::pltxt2htm::PlU<ndebug> const&,
+                                                    ::pltxt2htm::PlU<ndebug> const&) noexcept -> bool = default;
+
 } // namespace pltxt2htm

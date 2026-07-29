@@ -526,6 +526,13 @@ entry:
                 result.append(u8"<del>");
                 goto entry;
             }
+            case ::pltxt2htm::NodeKind::pl_u: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_pl_u().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::pl_u, 0));
+                ++current_index;
+                result.append(u8"<u>");
+                goto entry;
+            }
             case ::pltxt2htm::NodeKind::md_single_emphasis_underscore: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_md_single_emphasis_underscore().get_subast(),
@@ -1244,6 +1251,10 @@ entry:
             }
             case ::pltxt2htm::NodeKind::html_del: {
                 result.append(u8"</del>");
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::pl_u: {
+                result.append(u8"</u>");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_ul:
