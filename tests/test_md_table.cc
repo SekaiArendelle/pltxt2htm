@@ -740,5 +740,17 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(
+            u8"| left | center | right |\n"
+            u8"|:-----|:------:|------:|\n"
+            u8"| a | b | c |");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><thead><tr><th>left</th><th style=\"text-align:center\">center</th><th "
+            u8"style=\"text-align:right\">right</th></tr></thead><tbody><tr><td>a</td><td "
+            u8"style=\"text-align:center\">b</td><td style=\"text-align:right\">c</td></tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }

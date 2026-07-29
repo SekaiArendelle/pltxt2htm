@@ -155,5 +155,11 @@ int main() {
         pltxt2htm_test_assert_equal(second_pass, u8"&lt;");
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"&amp;\t'\"");
+        auto answer = ::fast_io::u8string_view{u8"&amp;\t'\""};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }

@@ -63,15 +63,14 @@ int main() {
     }
 
     {
-        // <ul> and <user=...> must not be parsed as <u>
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ul>t</ul>");
-        auto answer = ::fast_io::u8string_view{u8"<ul>t</ul>"};
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab<u>test</u>cd");
+        auto answer = ::fast_io::u8string_view{u8"ab<u>test</u>cd"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<user=123>name</user>");
-        auto answer = ::fast_io::u8string_view{u8"<span class='RUser' data-user='123'>name</span>"};
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<u>t1<u>t2</u></u>");
+        auto answer = ::fast_io::u8string_view{u8"<u>t1t2</u>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

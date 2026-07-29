@@ -200,5 +200,29 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab**test**cd");
+        auto answer = ::fast_io::u8string_view{u8"ab<b>test</b>cd"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab*test*cd");
+        auto answer = ::fast_io::u8string_view{u8"ab<i>test</i>cd"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"__bold__");
+        auto answer = ::fast_io::u8string_view{u8"<b>bold</b>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"_italic_");
+        auto answer = ::fast_io::u8string_view{u8"<i>italic</i>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }

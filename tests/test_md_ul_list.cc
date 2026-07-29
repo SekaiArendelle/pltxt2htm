@@ -190,5 +190,19 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"- test\n- text");
+        // TODO maybe the tail linebreak should be removed
+        auto answer = ::fast_io::u8string_view{u8"• test\n• text\n"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"* test\n  - text\n    + test");
+        // TODO maybe the tail linebreak should be removed
+        auto answer = ::fast_io::u8string_view{u8"• test\n  ∘ text\n    ▫ test\n"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }

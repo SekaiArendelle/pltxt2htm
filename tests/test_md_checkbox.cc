@@ -52,5 +52,17 @@ int main() {
         auto answer = ::fast_io::u8string_view(u8"<ul><li>[x]not&nbsp;a&nbsp;checkbox</li></ul>");
         pltxt2htm_test_assert_equal(html, answer);
     }
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"1. [x] item");
+        auto answer = ::fast_io::u8string_view{u8"1. item\n"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"- parent\n  - [x] child");
+        auto answer = ::fast_io::u8string_view{u8"• parent\n  [x] child\n"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }

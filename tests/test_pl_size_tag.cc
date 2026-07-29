@@ -116,5 +116,11 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<size=12>text</size>");
+        auto answer = ::fast_io::u8string_view{u8"<size=12>text</size>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }
