@@ -181,5 +181,12 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        constexpr auto data = ::fast_io::array{char8_t(0xc3)};
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(::fast_io::u8string_view{data.data(), data.size()});
+        auto answer = ::fast_io::u8string_view{u8"\uFFFD"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }

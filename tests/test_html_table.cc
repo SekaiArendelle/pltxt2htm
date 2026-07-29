@@ -456,5 +456,27 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(
+            u8"<table><caption>caption</caption><colgroup><col></colgroup><thead><tr><th "
+            u8"style=\"text-align:center\">head</th></tr></thead><tbody><tr><td "
+            u8"style=\"text-align:right\">body</td></tr></tbody><tfoot><tr><td>foot</td></tr></tfoot></table>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><caption>caption</caption><colgroup><col></colgroup><thead><tr><th "
+            u8"style=\"text-align:center\">head</th></tr></thead><tbody><tr><td "
+            u8"style=\"text-align:right\">body</td></tr></tbody><tfoot><tr><td>foot</td></tr></tfoot></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(
+            u8"<table><tr><th style=\"text-align:right\">head</th><td "
+            u8"style=\"text-align:center\">data</td></tr></table>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><tr><th style=\"text-align:right\">head</th><td "
+            u8"style=\"text-align:center\">data</td></tr></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }

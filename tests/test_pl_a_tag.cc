@@ -104,5 +104,11 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<a>text</a>");
+        auto answer = ::fast_io::u8string_view{u8"<color=#0000AA>text</color>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }

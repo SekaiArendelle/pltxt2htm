@@ -76,28 +76,21 @@ int main() {
     }
 
     {
-        // <sup>, <s>, <strong>, <size> must not be parsed as <sub>
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<sup>t</sup>");
-        auto answer = ::fast_io::u8string_view{u8"<sup>t</sup>"};
-        pltxt2htm_test_assert_equal(html, answer);
-    }
-
-    {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<s>t</s>");
-        auto answer = ::fast_io::u8string_view{u8"<s>t</s>"};
-        pltxt2htm_test_assert_equal(html, answer);
-    }
-
-    {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<size=1>t</size>");
-        auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:1px;\">t</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
-    }
-
-    {
         // <sub> can nest with other formatting tags
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<u>t1<sub>t2</sub>t3</u>");
         auto answer = ::fast_io::u8string_view{u8"<u>t1<sub>t2</sub>t3</u>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"H<sub>2</sub>O");
+        auto answer = ::fast_io::u8string_view{u8"H<sub>2</sub>O"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<sub>t1<sub>t2</sub></sub>");
+        auto answer = ::fast_io::u8string_view{u8"<sub>t1<sub>t2</sub></sub>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

@@ -200,5 +200,35 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"## heading");
+        auto answer = ::fast_io::u8string_view{u8"<size=37><b>heading</b></size>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"### heading");
+        auto answer = ::fast_io::u8string_view{u8"<size=36><b>heading</b></size>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"#### heading");
+        auto answer = ::fast_io::u8string_view{u8"<size=35><b>heading</b></size>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"##### heading");
+        auto answer = ::fast_io::u8string_view{u8"<b>heading</b>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"###### heading");
+        auto answer = ::fast_io::u8string_view{u8"<b>heading</b>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }

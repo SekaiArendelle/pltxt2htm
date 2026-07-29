@@ -103,5 +103,17 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab<code>test</code>cd");
+        auto answer = ::fast_io::u8string_view{u8"ab<code>test</code>cd"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<code class=\"language-cpp\">code</code>");
+        auto answer = ::fast_io::u8string_view{u8"<code class=\"language-cpp\">code</code>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }

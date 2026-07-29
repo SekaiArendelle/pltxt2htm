@@ -57,5 +57,31 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto plrichtext = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<li>test</li>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<size=20>＜</size>li<size=20>＞</size>test<size=20>＜</size>/li<size=20>＞</size>"};
+        pltxt2htm_test_assert_equal(plrichtext, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<ul><li><ul><li>xxx</li></ul></li></ul>");
+        auto answer = ::fast_io::u8string_view{u8"\u2022 \n  \u2218 xxx\n\n"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<ul><li>text<ul><li>sub</li></ul></li></ul>");
+        auto answer = ::fast_io::u8string_view{u8"\u2022 text\n  \u2218 sub\n\n"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // <ul> without <li> must not be parsed as the <u> underline tag
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ul>t</ul>");
+        auto answer = ::fast_io::u8string_view{u8"<ul>t</ul>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }

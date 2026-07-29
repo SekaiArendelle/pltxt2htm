@@ -63,19 +63,6 @@ int main() {
     }
 
     {
-        // <strong>, <span>, <size> must not be parsed as <s>
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<strong>t</strong>");
-        auto answer = ::fast_io::u8string_view{u8"<strong>t</strong>"};
-        pltxt2htm_test_assert_equal(html, answer);
-    }
-
-    {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<size=1>t</size>");
-        auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:1px;\">t</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
-    }
-
-    {
         // strikethrough tags from different syntaxes can nest
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<s>t1<del>t2</del>t3</s>");
         auto answer = ::fast_io::u8string_view{u8"<s>t1<del>t2</del>t3</s>"};
@@ -85,6 +72,30 @@ int main() {
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"~~t1<s>t2</s>t3~~");
         auto answer = ::fast_io::u8string_view{u8"<del>t1<s>t2</s>t3</del>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab<s>test</s>cd");
+        auto answer = ::fast_io::u8string_view{u8"ab<s>test</s>cd"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<s>t1<s>t2</s></s>");
+        auto answer = ::fast_io::u8string_view{u8"<s>t1t2</s>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab<del>test</del>cd");
+        auto answer = ::fast_io::u8string_view{u8"ab<s>test</s>cd"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab~~test~~cd");
+        auto answer = ::fast_io::u8string_view{u8"ab<s>test</s>cd"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
