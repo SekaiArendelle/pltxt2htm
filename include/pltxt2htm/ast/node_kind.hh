@@ -49,6 +49,7 @@ enum class NodeKind : unsigned {
     pl_b, ///< Bold text: &lt;b&gt;...&lt;/b&gt;, Markdown double emphasis, &lt;strong&gt; in HTML
     pl_i, ///< Italic text: &lt;i&gt;...&lt;/i&gt;, Markdown single emphasis, &lt;em&gt; in HTML
     pl_u, ///< Underline text: &lt;u&gt;...&lt;/u&gt; (Unity TextMeshPro rich text), &lt;u&gt; in HTML
+    pl_s, ///< Strikethrough text: &lt;s&gt;...&lt;/s&gt; (Unity TextMeshPro rich text), &lt;s&gt; in HTML
 
     // Physics-Lab specific macros
     pl_macro_project, // {Project}
