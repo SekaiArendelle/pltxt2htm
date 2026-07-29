@@ -907,6 +907,25 @@ entry:
                 ++current_iter;
                 continue;
             }
+            case ::pltxt2htm::NodeKind::pl_s: {
+                auto&& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
+                auto&& subast = node.as_pl_s().get_subast();
+                bool const is_different_tag{nested_tag_type != ::pltxt2htm::NodeKind::pl_s};
+                if (is_different_tag) {
+                    if (subast.empty()) {
+                        ast.erase(current_iter);
+                        continue;
+                    }
+                    call_stack.push(
+                        ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator,
+                                                                    ndebug>(
+                            ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_s, subast.begin()));
+                    goto entry;
+                }
+                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
+                ++current_iter;
+                continue;
+            }
             case ::pltxt2htm::NodeKind::md_single_emphasis_underscore:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_single_emphasis_asterisk:

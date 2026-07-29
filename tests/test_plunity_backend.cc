@@ -172,13 +172,13 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab<del>test</del>cd");
-        auto answer = ::fast_io::u8string_view{u8"ab<del>test</del>cd"};
+        auto answer = ::fast_io::u8string_view{u8"ab<s>test</s>cd"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab~~test~~cd");
-        auto answer = ::fast_io::u8string_view{u8"ab~~test~~cd"};
+        auto answer = ::fast_io::u8string_view{u8"ab<s>test</s>cd"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -389,6 +389,18 @@ int main() {
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<u>t1<u>t2</u></u>");
         auto answer = ::fast_io::u8string_view{u8"<u>t1t2</u>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab<s>test</s>cd");
+        auto answer = ::fast_io::u8string_view{u8"ab<s>test</s>cd"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<s>t1<s>t2</s></s>");
+        auto answer = ::fast_io::u8string_view{u8"<s>t1t2</s>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

@@ -516,14 +516,21 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_del().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::md_del, 0));
                 ++current_index;
-                result.append(u8"~~");
+                result.append(u8"<s>");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_del: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_del().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::html_del, 0));
                 ++current_index;
-                result.append(u8"<del>");
+                result.append(u8"<s>");
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::pl_s: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_pl_s().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::pl_s, 0));
+                ++current_index;
+                result.append(u8"<s>");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_u: {
@@ -1245,12 +1252,12 @@ entry:
                 result.append(u8"</b>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::md_del: {
-                result.append(u8"~~");
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_del: {
-                result.append(u8"</del>");
+            case ::pltxt2htm::NodeKind::md_del:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_del:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::pl_s: {
+                result.append(u8"</s>");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_u: {
