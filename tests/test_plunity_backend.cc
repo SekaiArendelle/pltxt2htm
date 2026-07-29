@@ -416,5 +416,17 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"H<sub>2</sub>O");
+        auto answer = ::fast_io::u8string_view{u8"H<sub>2</sub>O"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<sub>t1<sub>t2</sub></sub>");
+        auto answer = ::fast_io::u8string_view{u8"<sub>t1t2</sub>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }

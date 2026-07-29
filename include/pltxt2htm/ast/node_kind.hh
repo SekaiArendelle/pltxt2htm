@@ -51,6 +51,7 @@ enum class NodeKind : unsigned {
     pl_u, ///< Underline text: &lt;u&gt;...&lt;/u&gt; (Unity TextMeshPro rich text), &lt;u&gt; in HTML
     pl_s, ///< Strikethrough text: &lt;s&gt;...&lt;/s&gt; (Unity TextMeshPro rich text), &lt;s&gt; in HTML
     pl_sup, ///< Superscript text: &lt;sup&gt;...&lt;/sup&gt; (Unity TextMeshPro rich text), &lt;sup&gt; in HTML
+    pl_sub, ///< Subscript text: &lt;sub&gt;...&lt;/sub&gt; (Unity TextMeshPro rich text), &lt;sub&gt; in HTML
 
     // Physics-Lab specific macros
     pl_macro_project, // {Project}

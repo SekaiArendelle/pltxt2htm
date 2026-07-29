@@ -377,6 +377,32 @@ public:
 };
 
 /**
+ * @brief Physics-Lab subscript text tag node
+ * @details Represents &lt;sub&gt;...&lt;/sub&gt; (Unity TextMeshPro rich text) with sub-AST content.
+ */
+template<::pltxt2htm::Contracts ndebug>
+class PlSub {
+    ::pltxt2htm::Ast<ndebug> subast;
+
+public:
+    constexpr PlSub(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr PlSub(::pltxt2htm::PlSub<ndebug> const&) noexcept;
+    constexpr PlSub(::pltxt2htm::PlSub<ndebug>&&) noexcept;
+    constexpr ~PlSub() noexcept;
+    constexpr auto operator=(::pltxt2htm::PlSub<ndebug> const&) noexcept -> ::pltxt2htm::PlSub<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::PlSub<ndebug>& self, ::pltxt2htm::PlSub<ndebug>&&) noexcept
+        -> ::pltxt2htm::PlSub<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this PlSub const&, PlSub const&) noexcept -> bool;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+};
+
+/**
  * @brief Physics-Lab {Project} macro node
  * @details Represents the {Project} template placeholder.
  */

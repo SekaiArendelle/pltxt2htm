@@ -178,6 +178,7 @@ using ::pltxt2htm::PlB;
 using ::pltxt2htm::PlU;
 using ::pltxt2htm::PlS;
 using ::pltxt2htm::PlSup;
+using ::pltxt2htm::PlSub;
 using ::pltxt2htm::PlMacroProject;
 using ::pltxt2htm::PlMacroVisitor;
 using ::pltxt2htm::PlMacroAuthor;

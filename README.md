@@ -62,6 +62,7 @@ Quantum-Physics tags:
 | `u` (Unity TextMeshPro underline) | Supported |
 | `s` (Unity TextMeshPro strikethrough) | Supported |
 | `sup` (Unity TextMeshPro superscript) | Supported |
+| `sub` (Unity TextMeshPro subscript) | Supported |
 | `{Project}` / `{Visitor}` / `{Author}` / `{CoAuthors}` | Supported macros |
 
 > Any new features (e.g. markdown extensions) may break existing Quantum-Physics texts, but compatibility concerns do not block progress.
