@@ -1252,14 +1252,10 @@ entry:
                 result.append(u8"</b>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::md_del: {
-                result.append(u8"</s>");
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_del: {
-                result.append(u8"</s>");
-                goto entry;
-            }
+            case ::pltxt2htm::NodeKind::md_del:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_del:
+                [[fallthrough]];
             case ::pltxt2htm::NodeKind::pl_s: {
                 result.append(u8"</s>");
                 goto entry;
