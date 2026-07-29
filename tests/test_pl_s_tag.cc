@@ -87,5 +87,17 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab<del>test</del>cd");
+        auto answer = ::fast_io::u8string_view{u8"ab<s>test</s>cd"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab~~test~~cd");
+        auto answer = ::fast_io::u8string_view{u8"ab<s>test</s>cd"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }
