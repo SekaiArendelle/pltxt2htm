@@ -32,8 +32,15 @@ int main() {
     }
 
     {
+        // nested <sub> must NOT be flattened: the inner text shifts the baseline further
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<sub>text<sub>text</sub></sub>");
-        auto answer = ::fast_io::u8string_view{u8"<sub>texttext</sub>"};
+        auto answer = ::fast_io::u8string_view{u8"<sub>text<sub>text</sub></sub>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<sub>text<sub>text</sub>text</sub>");
+        auto answer = ::fast_io::u8string_view{u8"<sub>text<sub>text</sub>text</sub>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

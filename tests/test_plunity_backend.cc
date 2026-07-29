@@ -412,7 +412,7 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<sup>t1<sup>t2</sup></sup>");
-        auto answer = ::fast_io::u8string_view{u8"<sup>t1t2</sup>"};
+        auto answer = ::fast_io::u8string_view{u8"<sup>t1<sup>t2</sup></sup>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -424,7 +424,7 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<sub>t1<sub>t2</sub></sub>");
-        auto answer = ::fast_io::u8string_view{u8"<sub>t1t2</sub>"};
+        auto answer = ::fast_io::u8string_view{u8"<sub>t1<sub>t2</sub></sub>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

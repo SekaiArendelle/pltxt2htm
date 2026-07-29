@@ -927,42 +927,28 @@ entry:
                 continue;
             }
             case ::pltxt2htm::NodeKind::pl_sup: {
-                auto&& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
+                // nested <sup> shifts the baseline further, so same-tag nesting must NOT be flattened
                 auto&& subast = node.as_pl_sup().get_subast();
-                bool const is_different_tag{nested_tag_type != ::pltxt2htm::NodeKind::pl_sup};
-                if (is_different_tag) {
-                    if (subast.empty()) {
-                        ast.erase(current_iter);
-                        continue;
-                    }
-                    call_stack.push(
-                        ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator,
-                                                                    ndebug>(
-                            ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_sup, subast.begin()));
-                    goto entry;
+                if (subast.empty()) {
+                    ast.erase(current_iter);
+                    continue;
                 }
-                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
-                ++current_iter;
-                continue;
+                call_stack.push(
+                    ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_sup, subast.begin()));
+                goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_sub: {
-                auto&& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
+                // nested <sub> shifts the baseline further, so same-tag nesting must NOT be flattened
                 auto&& subast = node.as_pl_sub().get_subast();
-                bool const is_different_tag{nested_tag_type != ::pltxt2htm::NodeKind::pl_sub};
-                if (is_different_tag) {
-                    if (subast.empty()) {
-                        ast.erase(current_iter);
-                        continue;
-                    }
-                    call_stack.push(
-                        ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator,
-                                                                    ndebug>(
-                            ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_sub, subast.begin()));
-                    goto entry;
+                if (subast.empty()) {
+                    ast.erase(current_iter);
+                    continue;
                 }
-                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
-                ++current_iter;
-                continue;
+                call_stack.push(
+                    ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_sub, subast.begin()));
+                goto entry;
             }
             case ::pltxt2htm::NodeKind::md_single_emphasis_underscore:
                 [[fallthrough]];
