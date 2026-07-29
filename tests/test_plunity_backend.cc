@@ -404,5 +404,17 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"x<sup>2</sup>+y<sup>2</sup>");
+        auto answer = ::fast_io::u8string_view{u8"x<sup>2</sup>+y<sup>2</sup>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<sup>t1<sup>t2</sup></sup>");
+        auto answer = ::fast_io::u8string_view{u8"<sup>t1t2</sup>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }
