@@ -165,6 +165,7 @@ class PlTxtNode {
         ::pltxt2htm::PlU<ndebug> pl_u_node;
         ::pltxt2htm::PlS<ndebug> pl_s_node;
         ::pltxt2htm::PlSup<ndebug> pl_sup_node;
+        ::pltxt2htm::PlSub<ndebug> pl_sub_node;
         ::pltxt2htm::PlMacroProject pl_macro_project_node;
         ::pltxt2htm::PlMacroVisitor pl_macro_visitor_node;
         ::pltxt2htm::PlMacroAuthor pl_macro_author_node;
@@ -247,6 +248,11 @@ public:
     constexpr PlTxtNode(::pltxt2htm::PlSup<ndebug>&& node) noexcept
         : pl_sup_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::pl_sup} {
+    }
+
+    constexpr PlTxtNode(::pltxt2htm::PlSub<ndebug>&& node) noexcept
+        : pl_sub_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::pl_sub} {
     }
 
     constexpr PlTxtNode(::pltxt2htm::PlMacroProject node) noexcept
@@ -881,6 +887,10 @@ public:
             new (::std::addressof(pl_sup_node))::pltxt2htm::PlSup(other.pl_sup_node);
             break;
         }
+        case ::pltxt2htm::NodeKind::pl_sub: {
+            new (::std::addressof(pl_sub_node))::pltxt2htm::PlSub(other.pl_sub_node);
+            break;
+        }
         case ::pltxt2htm::NodeKind::pl_macro_project: {
             new (::std::addressof(pl_macro_project_node))::pltxt2htm::PlMacroProject(other.pl_macro_project_node);
             break;
@@ -1433,6 +1443,10 @@ public:
         }
         case ::pltxt2htm::NodeKind::pl_sup: {
             new (::std::addressof(pl_sup_node))::pltxt2htm::PlSup(::std::move(other.pl_sup_node));
+            break;
+        }
+        case ::pltxt2htm::NodeKind::pl_sub: {
+            new (::std::addressof(pl_sub_node))::pltxt2htm::PlSub(::std::move(other.pl_sub_node));
             break;
         }
         case ::pltxt2htm::NodeKind::pl_macro_project: {
@@ -2052,6 +2066,10 @@ public:
             pl_sup_node.~PlSup();
             break;
         }
+        case ::pltxt2htm::NodeKind::pl_sub: {
+            pl_sub_node.~PlSub();
+            break;
+        }
         case ::pltxt2htm::NodeKind::pl_macro_project: {
             pl_macro_project_node.~PlMacroProject();
             break;
@@ -2574,6 +2592,9 @@ public:
         }
         case ::pltxt2htm::NodeKind::pl_sup: {
             return self.pl_sup_node == other.pl_sup_node;
+        }
+        case ::pltxt2htm::NodeKind::pl_sub: {
+            return self.pl_sub_node == other.pl_sub_node;
         }
         case ::pltxt2htm::NodeKind::pl_macro_project: {
             return self.pl_macro_project_node == other.pl_macro_project_node;
@@ -3794,6 +3815,13 @@ public:
         bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_sup};
         pltxt2htm_assert(is_type, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_sup_node);
+    }
+
+    [[nodiscard]]
+    constexpr auto as_pl_sub(this auto&& self) noexcept -> decltype(auto) {
+        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_sub};
+        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.pl_sub_node);
     }
 
     [[nodiscard]]

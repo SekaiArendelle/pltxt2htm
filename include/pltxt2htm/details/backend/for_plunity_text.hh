@@ -540,6 +540,13 @@ entry:
                 result.append(u8"<sup>");
                 goto entry;
             }
+            case ::pltxt2htm::NodeKind::pl_sub: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_pl_sub().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::pl_sub, 0));
+                ++current_index;
+                result.append(u8"<sub>");
+                goto entry;
+            }
             case ::pltxt2htm::NodeKind::pl_u: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_pl_u().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::pl_u, 0));
@@ -1269,6 +1276,10 @@ entry:
             }
             case ::pltxt2htm::NodeKind::pl_sup: {
                 result.append(u8"</sup>");
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::pl_sub: {
+                result.append(u8"</sub>");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_u: {
