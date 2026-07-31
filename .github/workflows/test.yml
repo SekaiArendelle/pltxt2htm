@@ -113,6 +113,21 @@ jobs:
         run: |
           docker build -f tests/docker/x86_64-linux-gnu-msan/Dockerfile -t x86_64-linux-gnu-test-msan .
 
+  x86_64-linux-gnu-scan-build:
+    strategy:
+      fail-fast: false
+
+    name: x86_64-linux-gnu (tests/, clang scan-build)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build docker image (scan-build runs during build)
+        run: |
+          docker build -f tests/docker/x86_64-linux-gnu-scan_build/Dockerfile -t x86_64-linux-gnu-scan-build .
+
   x86_64-windows-msvc-cmd:
     strategy:
       fail-fast: false

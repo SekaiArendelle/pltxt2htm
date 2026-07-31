@@ -98,6 +98,7 @@ A: Memory safety is a matter of engineering practice, not language choice alone.
 * Extensive assertions in debug builds for memory and logic correctness.
 * Over 95% test coverage.
 * CI asan testing on every commit with both Clang and GCC.
+* CI clang scan-build static analysis that fails the build on any reported bug.
 * At least 6 hours of Clang fuzzing (with ASan or UBSan) before every release.
 
 > Q: Why use C++ instead of a language with VM?
