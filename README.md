@@ -28,13 +28,13 @@ Markdown extension based on [CommonMark](https://spec.commonmark.org/0.31.2/):
 
 | Feature | Support | Details |
 |---------|---------|---------|
-| **Line breaks** | Supported | Carriage return → line break (no trailing-space requirement) |
+| **Line breaks** | Supported | line break (no trailing-space requirement) |
 | **ATX headers** | Supported | `#`–`######` → `<h1>`–`<h6>`. Trailing `#` not stripped. |
-| **Setext headers** | Not planned | |
+| **Setext headers** | Not supported | |
 | **Escape characters** | Supported | Backslash escape for all ASCII punctuation |
-| **Indented code blocks** | Not planned | |
+| **Indented code blocks** | Not supported | |
 | **Code fences** | Basic | ` ``` ` / `~~~` → `<pre><code>`. Optional language annotation. Fixed 3-delimiter only. |
-| **Code spans** | Basic | No intra-span backtick balancing. |
+| **Code spans** | Basic | Nested backticks not supported. |
 | **Emphasis** | Basic | `*`/`_` → `<em>`, `**`/`__` → `<strong>`, `***`/`___` → `<em><strong>`. No intra-word emphasis or delimiter-run rules. |
 | **Block quotes** | Basic | `>` lines → `<blockquote>`. Single-level only. No lazy continuation. |
 | **Links** | Basic | `[text](url)` → `<a href="...">`. HTTP(S) only, TLD-restricted. No reference-style or title attribute. |
@@ -44,7 +44,7 @@ Markdown extension based on [CommonMark](https://spec.commonmark.org/0.31.2/):
 | **Lists** | Supported | `-`/`+`/`*` → `<ul>`, `1.` → `<ol>`, with nesting and checkbox items (`- [ ]` / `- [x]`). No tight/loose distinction. |
 | **Tables** | Supported | Pipe tables with alignment (`:---`, `:---:`, `---:`). Backslash-escaped pipes. |
 | **LaTeX** | Basic | Inline `$...$` and block `$$...$$`. Raw passthrough, no delimiter escaping. |
-| **HTML blocks** | Partial | Individual HTML tags parsed inline (bare tags, no generic attributes). PL-specific key=value attributes supported. |
+| **Inline HTML** | Basic | Raw HTML tags. Generic attributes not supported. |
 
 Quantum-Physics tags:
 
@@ -75,7 +75,7 @@ All distributions share the same version of `pltxt2htm::version`
 
 `pltxt2htm` only maintains the trunk, and the release versions are only snapshots.
 
-For Linux users, the `$ARCH-linux-musl-pltxt2htm-cmd-{debug|release}` distribution has static-linked musl-libc. You can also use `wine pltxt2htm.exe`, `wavm run pltxt2htm.wasm` or compile and install `pltxt2htm`.
+For Linux users, the `$ARCH-linux-musl-pltxt2htm-cmd-{debug|release}` distribution is statically linked against musl-libc. You can also use `wine pltxt2htm.exe`, `wavm run pltxt2htm.wasm` or compile and install `pltxt2htm`.
 
 ## Contributing
 
@@ -85,21 +85,20 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, running tests, cod
 
 > Q: Is this the time to use C++20 module?
 
-A: Not exactly. Although clang, gcc and msvc all support C++20 modules, the compiler crashes more frequently than with header-only. At the same time, C++20 modules heavily rely on build systems, which makes it more painful than header-only.
+A: Not exactly. Compiler support has matured, but modules still require build-system cooperation, making them more painful to integrate than header-only. We ship a C++20 module interface as an optional alternative, yet header-only remains the primary distribution for maximum portability.
 
 > Q: Why not use the NDEBUG macro in include/pltxt2htm?
 
 A: Conditional compilation in a function body will cause [ODR violation](https://en.cppreference.com/w/cpp/language/definition) and [C++26 Contracts](https://en.cppreference.com/w/cpp/language/contracts) has the same problem. Therefore, to give functions different symbols in debug / release mode, I use `template<pltxt2htm::Contracts ndebug>` to achieve it.
 
-> Q: Why use C++ instead of a "memory safe" language like Rust?
+> Q: Does using C++ mean this project is memory-unsafe?
 
-A: I appreciate Rust but not for its "safety". Basically, safety should always be guaranteed by the programmer, because most logic errors can't be detected at compile time — not even type safety can be fully handled, which is why RTTI exists, while Rust relies on `unsafe` blocks.
+A: Memory safety is a matter of engineering practice, not language choice alone. This project mitigates risks through:
 
-At the same time, `pltxt2htm` is absolutely safe:
-* Lots of assertions are enabled in debug mode to assure memory safety and logic correctness.
+* Extensive assertions in debug builds for memory and logic correctness.
 * Over 95% test coverage.
-* Every commit in main undergoes testing with asan under both clang and gcc in ci.
-* Every release undergoes at least 6 hours of fuzzing with clang, with asan or ubsan enabled.
+* CI asan testing on every commit with both Clang and GCC.
+* At least 6 hours of Clang fuzzing (with ASan or UBSan) before every release.
 
 > Q: Why use C++ instead of a language with VM?
 
