@@ -34,6 +34,7 @@ using ::pltxt2htm::TableAlign;
 
 // size tag / font-size unit
 using ::pltxt2htm::SizeUnit;
+using ::pltxt2htm::FontSizeValue;
 
 // ast2 types
 using ::pltxt2htm::PlTxtNode;

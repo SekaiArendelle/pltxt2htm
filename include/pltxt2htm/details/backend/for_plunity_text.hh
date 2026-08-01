@@ -351,8 +351,9 @@ entry:
                                                                                   ::pltxt2htm::NodeKind::pl_size, 0));
                 ++current_index;
                 result.append(u8"<size=");
-                result.append(::pltxt2htm::details::size_t2str(node.as_pl_size().get_size()));
-                if (node.as_pl_size().get_unit() == ::pltxt2htm::SizeUnit::percent) {
+                auto const& pl_size = node.as_pl_size().get_font_size_value();
+                result.append(::pltxt2htm::details::size_t2str(pl_size.value));
+                if (pl_size.unit == ::pltxt2htm::SizeUnit::percent) {
                     result.push_back(u8'%');
                 }
                 result.push_back(u8'>');
@@ -373,9 +374,10 @@ entry:
                     result.push_back(u8'>');
                 }
                 if (has_font_size) {
+                    auto const& font_size = span_font_size.value();
                     result.append(u8"<size=");
-                    result.append(::pltxt2htm::details::size_t2str(span_font_size.value()));
-                    if (node.as_html_span().get_font_size_unit() == ::pltxt2htm::SizeUnit::percent) {
+                    result.append(::pltxt2htm::details::size_t2str(font_size.value));
+                    if (font_size.unit == ::pltxt2htm::SizeUnit::percent) {
                         result.push_back(u8'%');
                     }
                     result.push_back(u8'>');
