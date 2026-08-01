@@ -106,9 +106,8 @@ public:
           current_index{current_index_} {
     }
 
-    constexpr BackendFrameContext(
-        ::pltxt2htm::Ast<ndebug> const& ast_, ::std::size_t current_index_,
-        ::pltxt2htm::details::BackendContextWithHtmlSpanInfo html_span_info_context) noexcept
+    constexpr BackendFrameContext(::pltxt2htm::Ast<ndebug> const& ast_, ::std::size_t current_index_,
+                                  ::pltxt2htm::details::BackendContextWithHtmlSpanInfo html_span_info_context) noexcept
         : context_data{::std::move(html_span_info_context)},
           ast(::std::addressof(ast_)),
           current_index{current_index_} {

@@ -798,11 +798,13 @@ entry:
                         goto entry;
                     }
                     // parsing html <a href="URL"> tag
-                    if (auto opt_a_tag = ::pltxt2htm::details::try_parse_html_a_tag<ndebug>(
+                    if (auto a_tag = ::pltxt2htm::details::try_parse_html_a_tag<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
-                        opt_a_tag.has_value()) {
-                        auto&& [tag_len, url, internal] =
-                            opt_a_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                        a_tag.is_valid()) {
+                        auto tag_len = a_tag.tag_len;
+                        ::pltxt2htm::Url url =
+                            ::std::move(a_tag.url.template value<ndebug == ::pltxt2htm::Contracts::ignore>());
+                        auto const internal = a_tag.internal;
                         current_index += tag_len + 2;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                             ::pltxt2htm::details::FrontendContextVariant<ndebug>{
@@ -812,6 +814,19 @@ entry:
                                     internal}}, // ::pltxt2htm::NodeKind::html_a is automatically set in ctor
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
+                    }
+                    else if (a_tag.is_invalid_url()) {
+                        // the <a href="..."> opening tag was recognized but its URL is invalid:
+                        // consume the whole span as literal text (no auto-link / tag dispatch inside).
+                        auto const tag_len = a_tag.tag_len;
+                        auto span =
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index, tag_len + 2);
+                        auto&& [_, literal_ast] =
+                            ::pltxt2htm::details::simply_parse_pltext<ndebug,
+                                                                      ::pltxt2htm::details::U8LiteralString<0>{}>(span);
+                        result.append_range(::std::move(literal_ast));
+                        current_index += tag_len + 2;
+                        continue;
                     }
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
                     ++current_index;
@@ -1008,11 +1023,12 @@ entry:
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
-                    if (auto opt_external_tag = ::pltxt2htm::details::try_parse_external_tag<ndebug>(
+                    if (auto external_tag = ::pltxt2htm::details::try_parse_external_tag<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), call_stack);
-                        opt_external_tag.has_value()) {
-                        auto&& [tag_len, url] =
-                            opt_external_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                        external_tag.is_valid()) {
+                        auto tag_len = external_tag.tag_len;
+                        ::pltxt2htm::Url url =
+                            ::std::move(external_tag.url.template value<ndebug == ::pltxt2htm::Contracts::ignore>());
                         current_index += tag_len + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                             ::pltxt2htm::details::FrontendContextVariant<ndebug>{
@@ -1022,6 +1038,19 @@ entry:
                                 ::pltxt2htm::NodeKind::pl_external},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
+                    }
+                    else if (external_tag.is_invalid_url()) {
+                        // the <external=...> opening tag was recognized but its URL is invalid:
+                        // consume the whole span as literal text (no auto-link / tag dispatch inside).
+                        auto const tag_len = external_tag.tag_len;
+                        auto span =
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index, tag_len + 3);
+                        auto&& [_, literal_ast] =
+                            ::pltxt2htm::details::simply_parse_pltext<ndebug,
+                                                                      ::pltxt2htm::details::U8LiteralString<0>{}>(span);
+                        result.append_range(::std::move(literal_ast));
+                        current_index += tag_len + 3;
+                        continue;
                     }
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"m">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
@@ -1194,11 +1223,13 @@ entry:
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
-                    if (auto opt_link_tag = ::pltxt2htm::details::try_parse_link_tag<ndebug>(
+                    if (auto link_tag = ::pltxt2htm::details::try_parse_link_tag<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), call_stack);
-                        opt_link_tag.has_value()) {
+                        link_tag.is_valid()) {
                         // parsing: <link="url">$1</link>
-                        auto&& [tag_len, url] = opt_link_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                        auto tag_len = link_tag.tag_len;
+                        ::pltxt2htm::Url url =
+                            ::std::move(link_tag.url.template value<ndebug == ::pltxt2htm::Contracts::ignore>());
                         current_index += tag_len + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                             ::pltxt2htm::details::FrontendContextVariant<ndebug>{
@@ -1208,6 +1239,19 @@ entry:
                                 ::pltxt2htm::NodeKind::pl_link},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
+                    }
+                    else if (link_tag.is_invalid_url()) {
+                        // the <link="..."> opening tag was recognized but its URL is invalid:
+                        // consume the whole span as literal text (no auto-link / tag dispatch inside).
+                        auto const tag_len = link_tag.tag_len;
+                        auto span =
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index, tag_len + 3);
+                        auto&& [_, literal_ast] =
+                            ::pltxt2htm::details::simply_parse_pltext<ndebug,
+                                                                      ::pltxt2htm::details::U8LiteralString<0>{}>(span);
+                        result.append_range(::std::move(literal_ast));
+                        current_index += tag_len + 3;
+                        continue;
                     }
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
                     ++current_index;

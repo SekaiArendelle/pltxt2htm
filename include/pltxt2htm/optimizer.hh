@@ -78,9 +78,8 @@ public:
           kind{kind_} {
     }
 
-    constexpr OptimizerContextVariant(
-        ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo equal_sign_tag_context,
-        ::pltxt2htm::NodeKind const kind_) noexcept
+    constexpr OptimizerContextVariant(::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo equal_sign_tag_context,
+                                      ::pltxt2htm::NodeKind const kind_) noexcept
         : equal_sign_tag{equal_sign_tag_context},
           kind{kind_} {
     }
