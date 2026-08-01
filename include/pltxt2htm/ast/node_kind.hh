@@ -236,16 +236,6 @@ constexpr auto is_url_link_tag_type(::pltxt2htm::NodeKind const node_type) noexc
            node_type == ::pltxt2htm::NodeKind::md_link || node_type == ::pltxt2htm::NodeKind::html_a;
 }
 
-[[nodiscard]]
-constexpr auto is_plain_pltext_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
-    return !(::pltxt2htm::details::is_equal_sign_tag_type(node_type) ||
-             node_type == ::pltxt2htm::NodeKind::pl_external || node_type == ::pltxt2htm::NodeKind::pl_link ||
-             node_type == ::pltxt2htm::NodeKind::pl_size || node_type == ::pltxt2htm::NodeKind::md_block_quotes ||
-             node_type == ::pltxt2htm::NodeKind::md_link || node_type == ::pltxt2htm::NodeKind::html_span ||
-             node_type == ::pltxt2htm::NodeKind::html_a || node_type == ::pltxt2htm::NodeKind::html_td ||
-             ::pltxt2htm::details::is_md_list_ul_or_ol_type(node_type));
-}
-
 } // namespace details
 
 /**

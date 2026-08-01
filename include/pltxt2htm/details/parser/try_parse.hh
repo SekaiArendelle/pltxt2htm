@@ -2792,7 +2792,6 @@ constexpr auto try_parse_url_authority(::fast_io::u8string_view pltext, ::std::s
  * @param[in] consumed_size The number of bytes consumed (may differ from parsed_url.size() due to trailing garbage).
  * @return A TryParseUrlResult containing the URL object and consumed size.
  */
-template<::pltxt2htm::Contracts ndebug>
 struct TryParseUrlResult {
     ::std::size_t consumed_size;
     ::pltxt2htm::Url url;
@@ -2802,7 +2801,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto make_try_parse_url_result(::fast_io::u8string_view const parsed_url,
                                          ::std::size_t consumed_size) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseUrlResult<ndebug>> {
+    -> ::exception::optional<::pltxt2htm::details::TryParseUrlResult> {
     ::fast_io::u8string url_str{};
     url_str.reserve(parsed_url.size());
     for (::std::size_t index{}; index < parsed_url.size(); ++index) {
@@ -2845,8 +2844,8 @@ constexpr auto make_try_parse_url_result(::fast_io::u8string_view const parsed_u
             break;
         }
     }
-    return ::pltxt2htm::details::TryParseUrlResult<ndebug>{.consumed_size = consumed_size,
-                                                           .url = ::pltxt2htm::Url{::std::move(url_str)}};
+    return ::pltxt2htm::details::TryParseUrlResult{.consumed_size = consumed_size,
+                                                   .url = ::pltxt2htm::Url{::std::move(url_str)}};
 }
 
 /**
@@ -2906,6 +2905,18 @@ constexpr auto try_parse_url_path_unicode(::fast_io::u8string_view pltext, ::std
     return start_index;
 }
 
+/**
+ * @brief Result of parsing a URL-bearing opening tag.
+ * @details The three return states are encoded by the payload members `tag_len` and `url`:
+ *          - `valid` — `url` is engaged (`tag_len` is the opening-tag length the caller
+ *            skips to reach the tag content);
+ *          - `invalid_url` — `url` is disengaged and `tag_len` != 0: the opening tag was
+ *            recognized but its URL failed validation, so the caller consumes the first
+ *            `tag_len` characters as one literal span;
+ *          - `not_a_tag` — `tag_len` == 0: keep the char-by-char fallback.
+ *          A recognized opening tag always has `tag_len` != 0, which keeps the three
+ *          states distinguishable.
+ */
 struct TryParseHtmlATagResult {
     ::std::size_t tag_len; ///< Opening-tag length in the input view (valid for valid/invalid_url).
     ::exception::optional<::pltxt2htm::Url> url; ///< Extracted URL; engaged only when valid.
@@ -2939,11 +2950,6 @@ struct TryParseHtmlATagResult {
     [[nodiscard]]
     constexpr auto is_invalid_url(this auto const& self) noexcept -> bool {
         return self.url.has_value() == false && self.tag_len != 0;
-    }
-
-    [[nodiscard]]
-    constexpr auto is_not_a_tag(this auto const& self) noexcept -> bool {
-        return self.tag_len == 0;
     }
 };
 
@@ -3049,7 +3055,7 @@ constexpr auto try_parse_html_a_tag(::fast_io::u8string_view pltext) noexcept ->
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_auto_url(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseUrlResult<ndebug>> {
+    -> ::exception::optional<::pltxt2htm::details::TryParseUrlResult> {
     auto opt_scheme_end = ::pltxt2htm::details::try_parse_url_scheme<ndebug>(pltext);
     if (opt_scheme_end.has_value() == false) {
         return ::exception::nullopt;
@@ -3073,6 +3079,18 @@ constexpr auto try_parse_auto_url(::fast_io::u8string_view pltext) noexcept
  * @param[in] call_stack Active parser frames used to reject invalid nested contexts.
  * @return `valid` with tag length + URL on success; `invalid_url` with the tag length when the
  *         opening tag was recognized but its URL failed validation; `not_a_tag` otherwise.
+ */
+/**
+ * @brief Result of parsing a URL-bearing opening tag.
+ * @details The three return states are encoded by the payload members `tag_len` and `url`:
+ *          - `valid` — `url` is engaged (`tag_len` is the opening-tag length the caller
+ *            skips to reach the tag content);
+ *          - `invalid_url` — `url` is disengaged and `tag_len` != 0: the opening tag was
+ *            recognized but its URL failed validation, so the caller consumes the first
+ *            `tag_len` characters as one literal span;
+ *          - `not_a_tag` — `tag_len` == 0: keep the char-by-char fallback.
+ *          A recognized opening tag always has `tag_len` != 0, which keeps the three
+ *          states distinguishable.
  */
 struct TryParseExternalTagResult {
     ::std::size_t tag_len; ///< Opening-tag length in the input view (valid for valid/invalid_url).
@@ -3103,11 +3121,6 @@ struct TryParseExternalTagResult {
     [[nodiscard]]
     constexpr auto is_invalid_url(this auto const& self) noexcept -> bool {
         return self.url.has_value() == false && self.tag_len != 0;
-    }
-
-    [[nodiscard]]
-    constexpr auto is_not_a_tag(this auto const& self) noexcept -> bool {
-        return self.tag_len == 0;
     }
 };
 
@@ -3156,6 +3169,18 @@ constexpr auto try_parse_external_tag(
  * @note The Unity TextMeshPro link tag uses a quoted value: &lt;link=&quot;url&quot;&gt;. A value
  *       without surrounding double quotes is rejected so that unquoted `<link=url>` stays plain text.
  */
+/**
+ * @brief Result of parsing a URL-bearing opening tag.
+ * @details The three return states are encoded by the payload members `tag_len` and `url`:
+ *          - `valid` — `url` is engaged (`tag_len` is the opening-tag length the caller
+ *            skips to reach the tag content);
+ *          - `invalid_url` — `url` is disengaged and `tag_len` != 0: the opening tag was
+ *            recognized but its URL failed validation, so the caller consumes the first
+ *            `tag_len` characters as one literal span;
+ *          - `not_a_tag` — `tag_len` == 0: keep the char-by-char fallback.
+ *          A recognized opening tag always has `tag_len` != 0, which keeps the three
+ *          states distinguishable.
+ */
 struct TryParseLinkTagResult {
     ::std::size_t tag_len; ///< Opening-tag length in the input view (valid for valid/invalid_url).
     ::exception::optional<::pltxt2htm::Url> url; ///< Extracted URL; engaged only when valid.
@@ -3185,11 +3210,6 @@ struct TryParseLinkTagResult {
     [[nodiscard]]
     constexpr auto is_invalid_url(this auto const& self) noexcept -> bool {
         return self.url.has_value() == false && self.tag_len != 0;
-    }
-
-    [[nodiscard]]
-    constexpr auto is_not_a_tag(this auto const& self) noexcept -> bool {
-        return self.tag_len == 0;
     }
 };
 
@@ -3233,7 +3253,6 @@ constexpr auto try_parse_link_tag(
                                  ::std::move(opt_url.template value<ndebug == ::pltxt2htm::Contracts::ignore>().url)};
 }
 
-template<::pltxt2htm::Contracts ndebug>
 struct TryParseMdUrlResult {
     ::std::size_t consumed_size;
     ::pltxt2htm::Url url;
@@ -3242,7 +3261,7 @@ struct TryParseMdUrlResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_url(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseMdUrlResult<ndebug>> {
+    -> ::exception::optional<::pltxt2htm::details::TryParseMdUrlResult> {
     // First attempt: authority + path with `)` as terminator, then verify `)` follows
     auto opt_auth_end = ::pltxt2htm::details::try_parse_url_authority<ndebug>(
         pltext, ::pltxt2htm::details::try_parse_url_scheme<ndebug>(pltext).value_or(::std::size_t{}));
@@ -3272,8 +3291,8 @@ constexpr auto try_parse_md_url(::fast_io::u8string_view pltext) noexcept
                 auto opt_result = ::pltxt2htm::details::make_try_parse_url_result<ndebug>(url_vw, path_end);
                 if (opt_result.has_value()) {
                     auto&& result = opt_result.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-                    return ::pltxt2htm::details::TryParseMdUrlResult<ndebug>{.consumed_size = path_end,
-                                                                             .url = ::std::move(result.url)};
+                    return ::pltxt2htm::details::TryParseMdUrlResult{.consumed_size = path_end,
+                                                                     .url = ::std::move(result.url)};
                 }
             }
         }
@@ -3318,12 +3337,11 @@ constexpr auto try_parse_md_url(::fast_io::u8string_view pltext) noexcept
     if (opt_result.has_value() == false) {
         return ::exception::nullopt;
     }
-    return ::pltxt2htm::details::TryParseMdUrlResult<ndebug>{
+    return ::pltxt2htm::details::TryParseMdUrlResult{
         .consumed_size = raw_len,
         .url = ::std::move(opt_result.template value<ndebug == ::pltxt2htm::Contracts::ignore>().url)};
 }
 
-template<::pltxt2htm::Contracts ndebug>
 struct TryParseMdLinkResult {
     ::std::size_t advance_count;
     ::fast_io::u8string_view link_text;
@@ -3350,7 +3368,7 @@ struct TryParseMdLinkResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_link(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseMdLinkResult<ndebug>> {
+    -> ::exception::optional<::pltxt2htm::details::TryParseMdLinkResult> {
     if (pltext.size() < 4 || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 0) != u8'[') {
         return ::exception::nullopt;
     }
@@ -3400,9 +3418,9 @@ constexpr auto try_parse_md_link(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt;
     }
     ++current_index;
-    return ::pltxt2htm::details::TryParseMdLinkResult<ndebug>{.advance_count = current_index,
-                                                              .link_text = pltext.subview(1, link_text_end - 1),
-                                                              .link_url = ::std::move(md_url_result.url)};
+    return ::pltxt2htm::details::TryParseMdLinkResult{.advance_count = current_index,
+                                                      .link_text = pltext.subview(1, link_text_end - 1),
+                                                      .link_url = ::std::move(md_url_result.url)};
 }
 
 template<::pltxt2htm::Contracts ndebug>

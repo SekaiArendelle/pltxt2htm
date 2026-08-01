@@ -99,7 +99,7 @@ entry:
                         current_index += tag_len + 2;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                             ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                                ::pltxt2htm::details::ParserFrameContextWithHtmlATagInfo<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithHtmlATagInfo{
                                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
                                     ::std::move(url), internal}},
                             ::pltxt2htm::Ast<ndebug>{}));

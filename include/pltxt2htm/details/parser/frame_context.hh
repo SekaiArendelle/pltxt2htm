@@ -77,7 +77,6 @@ public:
 /**
  * @brief Context for URL frames during parsing; stores the raw text and parsed URL.
  */
-template<::pltxt2htm::Contracts ndebug>
 class ParserFrameContextWithUrlInfo {
 public:
     ::fast_io::u8string_view pltext;
@@ -87,7 +86,6 @@ public:
 /**
  * @brief Context for HTML <a> tag frames during parsing.
  */
-template<::pltxt2htm::Contracts ndebug>
 class ParserFrameContextWithHtmlATagInfo {
 public:
     ::fast_io::u8string_view pltext;
@@ -206,8 +204,8 @@ public:
         ::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo equal_sign_tag;
         ::pltxt2htm::details::ParserFrameContextWithHtmlSpanInfo html_span_info;
         ::pltxt2htm::details::ParserFrameContextWithHtmlCodeInfo html_code_info;
-        ::pltxt2htm::details::ParserFrameContextWithUrlInfo<ndebug> url_info;
-        ::pltxt2htm::details::ParserFrameContextWithHtmlATagInfo<ndebug> html_a_tag_info;
+        ::pltxt2htm::details::ParserFrameContextWithUrlInfo url_info;
+        ::pltxt2htm::details::ParserFrameContextWithHtmlATagInfo html_a_tag_info;
         ::pltxt2htm::details::ParserFrameContextWithPlSizeTagInfo pl_size_tag;
         ::pltxt2htm::details::ParserFrameContextWithMdBlockQuotesInfo md_block_quotes;
         ::pltxt2htm::details::ParserFrameContextWithMdListInfo<ndebug> md_list;
@@ -259,7 +257,7 @@ public:
     }
 
     constexpr FrontendContextVariant(
-        ::pltxt2htm::details::ParserFrameContextWithHtmlATagInfo<ndebug>&& html_a_tag_context) noexcept
+        ::pltxt2htm::details::ParserFrameContextWithHtmlATagInfo&& html_a_tag_context) noexcept
         : html_a_tag_info{::std::move(html_a_tag_context)},
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
           context_branch{ContextBranch::html_a_tag},
@@ -267,7 +265,7 @@ public:
           kind{::pltxt2htm::NodeKind::html_a} {
     }
 
-    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithUrlInfo<ndebug>&& url_context,
+    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithUrlInfo&& url_context,
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
         : url_info{::std::move(url_context)},
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
