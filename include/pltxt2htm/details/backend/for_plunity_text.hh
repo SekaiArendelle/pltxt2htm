@@ -352,6 +352,9 @@ entry:
                 ++current_index;
                 result.append(u8"<size=");
                 result.append(::pltxt2htm::details::size_t2str(node.as_pl_size().get_size()));
+                if (node.as_pl_size().get_unit() == ::pltxt2htm::SizeUnit::percent) {
+                    result.push_back(u8'%');
+                }
                 result.push_back(u8'>');
                 goto entry;
             }
@@ -372,6 +375,9 @@ entry:
                 if (has_font_size) {
                     result.append(u8"<size=");
                     result.append(::pltxt2htm::details::size_t2str(span_font_size.value()));
+                    if (node.as_html_span().get_font_size_unit() == ::pltxt2htm::SizeUnit::percent) {
+                        result.push_back(u8'%');
+                    }
                     result.push_back(u8'>');
                 }
                 goto entry;

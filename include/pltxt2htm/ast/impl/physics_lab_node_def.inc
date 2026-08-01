@@ -135,9 +135,11 @@ constexpr auto ::pltxt2htm::PlExternal<ndebug>::operator==(this ::pltxt2htm::PlE
     -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::PlSize<ndebug>::PlSize(::pltxt2htm::Ast<ndebug>&& subast_, ::std::size_t size_) noexcept
+constexpr ::pltxt2htm::PlSize<ndebug>::PlSize(::pltxt2htm::Ast<ndebug>&& subast_, ::std::size_t size_,
+                                              ::pltxt2htm::SizeUnit unit_) noexcept
     : subast(::std::move(subast_)),
-      size(size_) {
+      size(size_),
+      unit(unit_) {
 }
 
 template<::pltxt2htm::Contracts ndebug>

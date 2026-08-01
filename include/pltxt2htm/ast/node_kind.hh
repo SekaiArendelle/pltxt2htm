@@ -244,4 +244,14 @@ enum class TableAlign : unsigned {
     right,
 };
 
+/**
+ * @brief Unit of a font-size value
+ * @details Distinguishes absolute sizes from percentages in &lt;size=N&gt; /
+ *          &lt;size=N%&gt; (TMP_Text rich text) and &lt;span style="font-size:..."&gt;.
+ */
+enum class SizeUnit : unsigned {
+    px = 0, ///< Absolute size (CSS px; TMP_Text unitless value)
+    percent, ///< Percentage of the default font size (TMP_Text / CSS %)
+};
+
 } // namespace pltxt2htm

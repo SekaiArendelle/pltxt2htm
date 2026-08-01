@@ -511,17 +511,20 @@ public:
  * @brief HTML &lt;span style="color:...;font-size:..."&gt; node
  * @details Represents an HTML span element with color and/or font-size style attributes.
  *          color stores the CSS color value (e.g. "red" or "#FF0000").
- *          font_size stores the numeric font-size value if present (e.g. 20 for 20px).
+ *          font_size stores the numeric font-size value if present (e.g. 20 for 20px),
+ *          font_size_unit stores its unit (px or %).
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlSpan {
     ::pltxt2htm::Ast<ndebug> subast;
     ::fast_io::u8string color;
     ::exception::optional<::std::size_t> font_size;
+    ::pltxt2htm::SizeUnit font_size_unit;
 
 public:
     constexpr HtmlSpan(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& color_,
-                       ::exception::optional<::std::size_t>&& font_size_) noexcept;
+                       ::exception::optional<::std::size_t>&& font_size_,
+                       ::pltxt2htm::SizeUnit font_size_unit_) noexcept;
     constexpr HtmlSpan(::pltxt2htm::HtmlSpan<ndebug> const&) noexcept;
     constexpr HtmlSpan(::pltxt2htm::HtmlSpan<ndebug>&&) noexcept;
     constexpr ~HtmlSpan() noexcept;
@@ -545,6 +548,11 @@ public:
     [[nodiscard]]
     constexpr auto get_font_size(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.font_size);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_font_size_unit(this auto&& self) noexcept -> ::pltxt2htm::SizeUnit {
+        return self.font_size_unit;
     }
 };
 

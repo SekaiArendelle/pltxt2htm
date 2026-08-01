@@ -42,8 +42,9 @@ BENCHMARK_DEFINE_F(MicroFixture, NodeCreate_HtmlSpan)(benchmark::State& st) {
     for (auto _ : st) {
         ::pltxt2htm::Ast<ndebug> sub;
         sub.push_back(::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::U8Char{u8't'}});
-        ::pltxt2htm::PlTxtNode<ndebug> node{::pltxt2htm::HtmlSpan<ndebug>{
-            ::std::move(sub), ::fast_io::u8string{u8"color:red;"}, ::exception::optional<::std::size_t>{}}};
+        ::pltxt2htm::PlTxtNode<ndebug> node{
+            ::pltxt2htm::HtmlSpan<ndebug>{::std::move(sub), ::fast_io::u8string{u8"color:red;"},
+                                          ::exception::optional<::std::size_t>{}, ::pltxt2htm::SizeUnit::px}};
         ::benchmark::DoNotOptimize(node);
     }
 }

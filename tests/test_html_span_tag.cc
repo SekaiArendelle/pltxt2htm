@@ -110,6 +110,25 @@ int main() {
     }
 
     {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:80%\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:80%;\">text</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"color:blue;font-size:80%\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"color:blue;font-size:80%;\">text</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:80%;font-size:30px\">text</span>");
+        auto answer = ::fast_io::u8string_view{
+            u8"&lt;span&nbsp;style=&quot;font-size:80%;font-size:30px&quot;&gt;text&lt;/span&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<span style=\"color:red\"></span>t");
         auto answer = ::fast_io::u8string_view{u8"tt"};
         pltxt2htm_test_assert_equal(html, answer);

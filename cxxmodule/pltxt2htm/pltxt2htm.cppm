@@ -32,6 +32,9 @@ using ::pltxt2htm::NodeKind;
 // table cell alignment
 using ::pltxt2htm::TableAlign;
 
+// size tag / font-size unit
+using ::pltxt2htm::SizeUnit;
+
 // ast2 types
 using ::pltxt2htm::PlTxtNode;
 using ::pltxt2htm::Ast;

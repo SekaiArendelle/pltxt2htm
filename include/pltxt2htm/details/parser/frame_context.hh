@@ -62,6 +62,7 @@ public:
     ::fast_io::u8string_view pltext;
     ::fast_io::u8string color;
     ::exception::optional<::std::size_t> font_size;
+    ::pltxt2htm::SizeUnit font_size_unit;
 };
 
 /**
@@ -101,6 +102,7 @@ class ParserFrameContextWithPlSizeTagInfo {
 public:
     ::fast_io::u8string_view pltext;
     ::std::size_t id;
+    ::pltxt2htm::SizeUnit unit;
 };
 
 /**
@@ -1315,6 +1317,14 @@ public:
     }
 
     [[nodiscard]]
+    constexpr auto get_pl_size_tag_unit(this auto&& self) noexcept -> ::pltxt2htm::SizeUnit {
+        auto&& context_data_ref = self.context_data;
+        bool const is_pl_size_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_size};
+        pltxt2htm_assert(is_pl_size_tag_type, u8"context kind mismatch");
+        return context_data_ref.pl_size_tag.unit;
+    }
+
+    [[nodiscard]]
     constexpr auto get_html_span_color(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
         bool const is_html_span_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_span};
@@ -1328,6 +1338,14 @@ public:
         bool const is_html_span_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_span};
         pltxt2htm_assert(is_html_span_type, u8"context kind mismatch");
         return ::std::forward_like<decltype(self)>(context_data_ref.html_span_info.font_size);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_html_span_font_size_unit(this auto&& self) noexcept -> ::pltxt2htm::SizeUnit {
+        auto&& context_data_ref = self.context_data;
+        bool const is_html_span_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_span};
+        pltxt2htm_assert(is_html_span_type, u8"context kind mismatch");
+        return context_data_ref.html_span_info.font_size_unit;
     }
 
     [[nodiscard]]

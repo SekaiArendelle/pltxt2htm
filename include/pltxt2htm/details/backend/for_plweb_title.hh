@@ -148,7 +148,13 @@ entry:
                 if (has_font_size) {
                     result.append(u8"font-size:");
                     result.append(::pltxt2htm::details::size_t2str(span_font_size.value()));
-                    result.append(u8"px;");
+                    if (node.as_html_span().get_font_size_unit() == ::pltxt2htm::SizeUnit::percent) {
+                        result.push_back(u8'%');
+                    }
+                    else {
+                        result.append(u8"px");
+                    }
+                    result.push_back(u8';');
                 }
                 result.append(u8"\">");
                 goto entry;

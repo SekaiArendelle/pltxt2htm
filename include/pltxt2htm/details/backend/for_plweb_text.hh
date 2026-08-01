@@ -478,9 +478,15 @@ entry:
                 ++current_index;
                 result.append(u8"<span style=\"font-size:");
                 auto const pl_size{node.as_pl_size().get_size()};
-                // Use division plus remainder for ceil(pl_size / 2) to avoid overflow at size_t max.
-                result.append(::pltxt2htm::details::size_t2str(pl_size / 2 + pl_size % 2));
-                result.append(u8"px;\">");
+                if (node.as_pl_size().get_unit() == ::pltxt2htm::SizeUnit::percent) {
+                    result.append(::pltxt2htm::details::size_t2str(pl_size));
+                    result.append(u8"%;\">");
+                }
+                else {
+                    // Use division plus remainder for ceil(pl_size / 2) to avoid overflow at size_t max.
+                    result.append(::pltxt2htm::details::size_t2str(pl_size / 2 + pl_size % 2));
+                    result.append(u8"px;\">");
+                }
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_span: {
@@ -509,7 +515,13 @@ entry:
                 if (has_font_size) {
                     result.append(u8"font-size:");
                     result.append(::pltxt2htm::details::size_t2str(span_font_size.value()));
-                    result.append(u8"px;");
+                    if (node.as_html_span().get_font_size_unit() == ::pltxt2htm::SizeUnit::percent) {
+                        result.push_back(u8'%');
+                    }
+                    else {
+                        result.append(u8"px");
+                    }
+                    result.push_back(u8';');
                 }
                 result.append(u8"\">");
                 goto entry;

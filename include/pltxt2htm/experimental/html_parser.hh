@@ -432,14 +432,14 @@ entry:
                     if (auto opt_span_tag = ::pltxt2htm::details::try_parse_span_tag<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_span_tag.has_value()) {
-                        auto&& [tag_len, color, font_size] =
+                        auto&& [tag_len, color, font_size, font_size_unit] =
                             opt_span_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                         current_index += tag_len + 2;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                             ::pltxt2htm::details::FrontendContextVariant<ndebug>{
                                 ::pltxt2htm::details::ParserFrameContextWithHtmlSpanInfo{
                                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                                    ::std::move(color), ::std::move(font_size)},
+                                    ::std::move(color), ::std::move(font_size), font_size_unit},
                                 ::pltxt2htm::NodeKind::html_span},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -663,9 +663,9 @@ entry:
                                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
-                            ::pltxt2htm::HtmlSpan staged_node(::std::move(result),
-                                                              ::std::move(frame.get_html_span_color()),
-                                                              ::std::move(frame.get_html_span_font_size()));
+                            ::pltxt2htm::HtmlSpan staged_node(
+                                ::std::move(result), ::std::move(frame.get_html_span_color()),
+                                ::std::move(frame.get_html_span_font_size()), frame.get_html_span_font_size_unit());
                             call_stack.pop();
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
@@ -1295,9 +1295,9 @@ entry:
             parent_frame.current_index += pltext_size;
             switch (frame.get_nested_tag_type()) {
             case ::pltxt2htm::NodeKind::html_span: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                    ::pltxt2htm::HtmlSpan<ndebug>{::std::move(subast), ::std::move(frame.get_html_span_color()),
-                                                  ::std::move(frame.get_html_span_font_size())}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlSpan<ndebug>{
+                    ::std::move(subast), ::std::move(frame.get_html_span_color()),
+                    ::std::move(frame.get_html_span_font_size()), frame.get_html_span_font_size_unit()}));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_a: {
