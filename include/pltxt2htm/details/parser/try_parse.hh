@@ -2906,7 +2906,6 @@ constexpr auto try_parse_url_path_unicode(::fast_io::u8string_view pltext, ::std
     return start_index;
 }
 
-template<::pltxt2htm::Contracts ndebug>
 struct TryParseHtmlATagResult {
     ::std::size_t tag_len; ///< Opening-tag length in the input view (valid for valid/invalid_url).
     ::exception::optional<::pltxt2htm::Url> url; ///< Extracted URL; engaged only when valid.
@@ -2950,7 +2949,7 @@ struct TryParseHtmlATagResult {
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_html_a_tag(::fast_io::u8string_view pltext) noexcept -> TryParseHtmlATagResult<ndebug> {
+constexpr auto try_parse_html_a_tag(::fast_io::u8string_view pltext) noexcept -> TryParseHtmlATagResult {
     ::std::size_t pos{};
     while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
                                    ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t')) {
@@ -3018,18 +3017,18 @@ constexpr auto try_parse_html_a_tag(::fast_io::u8string_view pltext) noexcept ->
     auto opt_auth_end = ::pltxt2htm::details::try_parse_url_authority<ndebug>(
         attr_val, ::pltxt2htm::details::try_parse_url_scheme<ndebug>(attr_val).value_or(::std::size_t{}));
     if (opt_auth_end.has_value() == false) {
-        return TryParseHtmlATagResult<ndebug>{pos + 1};
+        return TryParseHtmlATagResult{pos + 1};
     }
     auto auth_end = opt_auth_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
     auto path_end = ::pltxt2htm::details::try_parse_url_path_unicode<ndebug>(attr_val, auth_end);
     if (path_end != attr_val.size()) {
-        return TryParseHtmlATagResult<ndebug>{pos + 1};
+        return TryParseHtmlATagResult{pos + 1};
     }
     auto opt_url_result = ::pltxt2htm::details::make_try_parse_url_result<ndebug>(attr_val, path_end);
     if (opt_url_result.has_value() == false) {
-        return TryParseHtmlATagResult<ndebug>{pos + 1};
+        return TryParseHtmlATagResult{pos + 1};
     }
-    return TryParseHtmlATagResult<ndebug>{
+    return TryParseHtmlATagResult{
         pos + 1, ::std::move(opt_url_result.template value<ndebug == ::pltxt2htm::Contracts::ignore>().url), internal};
 }
 
@@ -3075,7 +3074,6 @@ constexpr auto try_parse_auto_url(::fast_io::u8string_view pltext) noexcept
  * @return `valid` with tag length + URL on success; `invalid_url` with the tag length when the
  *         opening tag was recognized but its URL failed validation; `not_a_tag` otherwise.
  */
-template<::pltxt2htm::Contracts ndebug>
 struct TryParseExternalTagResult {
     ::std::size_t tag_len; ///< Opening-tag length in the input view (valid for valid/invalid_url).
     ::exception::optional<::pltxt2htm::Url> url; ///< Extracted URL; engaged only when valid.
@@ -3118,7 +3116,7 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr auto try_parse_external_tag(
     ::fast_io::u8string_view pltext,
     ::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>> const& call_stack) noexcept
-    -> TryParseExternalTagResult<ndebug> {
+    -> TryParseExternalTagResult {
     auto result = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<ndebug, u8"xternal",
                                                                               ::pltxt2htm::details::is_url_value_char>(
         pltext, call_stack);
@@ -3132,19 +3130,19 @@ constexpr auto try_parse_external_tag(
     auto opt_auth_end = ::pltxt2htm::details::try_parse_url_authority<ndebug>(
         url_vw, ::pltxt2htm::details::try_parse_url_scheme<ndebug>(url_vw).value_or(::std::size_t{}));
     if (opt_auth_end.has_value() == false) {
-        return TryParseExternalTagResult<ndebug>{tag_len};
+        return TryParseExternalTagResult{tag_len};
     }
     auto auth_end = opt_auth_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
     auto path_end = ::pltxt2htm::details::try_parse_url_path_unicode<ndebug>(url_vw, auth_end);
     if (path_end != url_vw.size()) {
-        return TryParseExternalTagResult<ndebug>{tag_len};
+        return TryParseExternalTagResult{tag_len};
     }
     auto opt_url = ::pltxt2htm::details::make_try_parse_url_result<ndebug>(url_vw, url_vw.size());
     if (opt_url.has_value() == false) {
-        return TryParseExternalTagResult<ndebug>{tag_len};
+        return TryParseExternalTagResult{tag_len};
     }
 
-    return TryParseExternalTagResult<ndebug>{
+    return TryParseExternalTagResult{
         tag_len, ::std::move(opt_url.template value<ndebug == ::pltxt2htm::Contracts::ignore>().url)};
 }
 
@@ -3158,7 +3156,6 @@ constexpr auto try_parse_external_tag(
  * @note The Unity TextMeshPro link tag uses a quoted value: &lt;link=&quot;url&quot;&gt;. A value
  *       without surrounding double quotes is rejected so that unquoted `<link=url>` stays plain text.
  */
-template<::pltxt2htm::Contracts ndebug>
 struct TryParseLinkTagResult {
     ::std::size_t tag_len; ///< Opening-tag length in the input view (valid for valid/invalid_url).
     ::exception::optional<::pltxt2htm::Url> url; ///< Extracted URL; engaged only when valid.
@@ -3201,7 +3198,7 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr auto try_parse_link_tag(
     ::fast_io::u8string_view pltext,
     ::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>> const& call_stack) noexcept
-    -> TryParseLinkTagResult<ndebug> {
+    -> TryParseLinkTagResult {
     auto result = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<ndebug, u8"ink",
                                                                               ::pltxt2htm::details::is_url_value_char>(
         pltext, call_stack);
@@ -3220,20 +3217,20 @@ constexpr auto try_parse_link_tag(
     auto opt_auth_end = ::pltxt2htm::details::try_parse_url_authority<ndebug>(
         url_vw, ::pltxt2htm::details::try_parse_url_scheme<ndebug>(url_vw).value_or(::std::size_t{}));
     if (opt_auth_end.has_value() == false) {
-        return TryParseLinkTagResult<ndebug>{tag_len};
+        return TryParseLinkTagResult{tag_len};
     }
     auto auth_end = opt_auth_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
     auto path_end = ::pltxt2htm::details::try_parse_url_path_unicode<ndebug>(url_vw, auth_end);
     if (path_end != url_vw.size()) {
-        return TryParseLinkTagResult<ndebug>{tag_len};
+        return TryParseLinkTagResult{tag_len};
     }
     auto opt_url = ::pltxt2htm::details::make_try_parse_url_result<ndebug>(url_vw, url_vw.size());
     if (opt_url.has_value() == false) {
-        return TryParseLinkTagResult<ndebug>{tag_len};
+        return TryParseLinkTagResult{tag_len};
     }
 
-    return TryParseLinkTagResult<ndebug>{
-        tag_len, ::std::move(opt_url.template value<ndebug == ::pltxt2htm::Contracts::ignore>().url)};
+    return TryParseLinkTagResult{tag_len,
+                                 ::std::move(opt_url.template value<ndebug == ::pltxt2htm::Contracts::ignore>().url)};
 }
 
 template<::pltxt2htm::Contracts ndebug>
