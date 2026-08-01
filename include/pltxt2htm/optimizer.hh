@@ -79,15 +79,15 @@ public:
     }
 
     constexpr OptimizerContextVariant(
-        ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo&& equal_sign_tag_context,
+        ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo equal_sign_tag_context,
         ::pltxt2htm::NodeKind const kind_) noexcept
-        : equal_sign_tag{::std::move(equal_sign_tag_context)},
+        : equal_sign_tag{equal_sign_tag_context},
           kind{kind_} {
     }
 
     constexpr OptimizerContextVariant(
-        ::pltxt2htm::details::OptimizerContextWithPlSizeTagInfo&& pl_size_tag_context) noexcept
-        : pl_size_tag{::std::move(pl_size_tag_context)},
+        ::pltxt2htm::details::OptimizerContextWithPlSizeTagInfo pl_size_tag_context) noexcept
+        : pl_size_tag{pl_size_tag_context},
           kind{::pltxt2htm::NodeKind::pl_size} {
     }
 
@@ -177,15 +177,15 @@ public:
 
     constexpr OptimizerFrameContext(
         ::pltxt2htm::Ast<ndebug>* ast_, ::pltxt2htm::NodeKind const nested_tag_type_, Iter&& iter_,
-        ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo&& equal_sign_tag_context_) noexcept
-        : context_data{::std::move(equal_sign_tag_context_), nested_tag_type_},
+        ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo equal_sign_tag_context_) noexcept
+        : context_data{equal_sign_tag_context_, nested_tag_type_},
           ast(ast_),
           iter{iter_} {
     }
 
     constexpr OptimizerFrameContext(
         ::pltxt2htm::Ast<ndebug>* ast_, Iter&& iter_,
-        ::pltxt2htm::details::OptimizerContextWithPlSizeTagInfo&& pl_size_tag_context_) noexcept
+        ::pltxt2htm::details::OptimizerContextWithPlSizeTagInfo pl_size_tag_context_) noexcept
         : context_data{::std::move(pl_size_tag_context_)},
           ast(ast_),
           iter{iter_} {

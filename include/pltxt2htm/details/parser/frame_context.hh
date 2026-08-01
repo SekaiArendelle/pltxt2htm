@@ -221,9 +221,9 @@ public:
 #endif
     ::pltxt2htm::NodeKind kind;
 
-    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithPltextInfo&& pltext_context,
+    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithPltextInfo pltext_context,
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
-        : pltext{::std::move(pltext_context)},
+        : pltext{pltext_context},
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
           context_branch{ContextBranch::pltext},
 #endif

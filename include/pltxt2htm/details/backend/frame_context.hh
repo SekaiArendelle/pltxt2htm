@@ -60,13 +60,13 @@ public:
     }
 
     constexpr BackendContextVariant(::pltxt2htm::NodeKind const kind_,
-                                    ::pltxt2htm::details::BackendContextWithOlInfo&& ol_info_context) noexcept
+                                    ::pltxt2htm::details::BackendContextWithOlInfo ol_info_context) noexcept
         : ol_info{::std::move(ol_info_context)},
           kind{kind_} {
     }
 
     constexpr BackendContextVariant(
-        ::pltxt2htm::details::BackendContextWithHtmlSpanInfo&& html_span_info_context) noexcept
+        ::pltxt2htm::details::BackendContextWithHtmlSpanInfo html_span_info_context) noexcept
         : html_span_info{::std::move(html_span_info_context)},
           kind{::pltxt2htm::NodeKind::html_span} {
     }
@@ -100,7 +100,7 @@ public:
 
     constexpr BackendFrameContext(::pltxt2htm::Ast<ndebug> const& ast_, ::pltxt2htm::NodeKind const nested_tag_type,
                                   ::std::size_t current_index_,
-                                  ::pltxt2htm::details::BackendContextWithOlInfo&& ol_info_context) noexcept
+                                  ::pltxt2htm::details::BackendContextWithOlInfo ol_info_context) noexcept
         : context_data{nested_tag_type, ::std::move(ol_info_context)},
           ast(::std::addressof(ast_)),
           current_index{current_index_} {
@@ -108,7 +108,7 @@ public:
 
     constexpr BackendFrameContext(
         ::pltxt2htm::Ast<ndebug> const& ast_, ::std::size_t current_index_,
-        ::pltxt2htm::details::BackendContextWithHtmlSpanInfo&& html_span_info_context) noexcept
+        ::pltxt2htm::details::BackendContextWithHtmlSpanInfo html_span_info_context) noexcept
         : context_data{::std::move(html_span_info_context)},
           ast(::std::addressof(ast_)),
           current_index{current_index_} {
