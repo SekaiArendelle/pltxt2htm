@@ -22,12 +22,16 @@ int main() {
     }
 
     {
+        // md_link fails (invalid URL), and with the '](' auto-link guard removed the
+        // URL inside the parentheses is now auto-linked
         auto pltext = ::fast_io::u8string_view{u8"[text](https://example.com@evil.invalid/path)"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = pltext;
+        auto answer = ::fast_io::u8string_view{
+            u8"[text](<a href=\"https://example.com\">https://example.com</a>@evil.invalid/path)"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = pltext;
+        auto plunity_richtext_answer = ::fast_io::u8string_view{
+            u8"[text](<external=https://example.com>https://example.com</external>@evil.invalid/path)"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 

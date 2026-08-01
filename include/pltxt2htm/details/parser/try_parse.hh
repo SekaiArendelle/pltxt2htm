@@ -3036,8 +3036,7 @@ constexpr auto try_parse_html_a_tag(::fast_io::u8string_view pltext) noexcept ->
 /**
  * @brief Parse an auto-detected bare URL (http/https) with context guards.
  *
- * Detects a URL starting with `http://` or `https://` at `current_index` and rejects it
- * when preceded by `](` (i.e. inside markdown link syntax).
+ * Detects a URL starting with `http://` or `https://` at `current_index`.
  *
  * Only `http://`/`https://` schemes are accepted.  Bare domains (e.g. `example.com`) are
  * intentionally not supported because the parser calls this function at every character
@@ -3045,33 +3044,27 @@ constexpr auto try_parse_html_a_tag(::fast_io::u8string_view pltext) noexcept ->
  * behaviour on long lines without whitespace.
  *
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
- * @param[in] pltext The full input text view.
- * @param[in] current_index Offset into `pltext` at which to probe for a URL.
+ * @param[in] pltext The input text view starting at the URL to parse.
  * @return Parsed URL payload on success; nullopt if no valid auto-link is found.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_auto_url(::fast_io::u8string_view pltext, ::std::size_t current_index) noexcept
+constexpr auto try_parse_auto_url(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseUrlResult<ndebug>> {
-    auto url_vw = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index);
-    auto opt_scheme_end = ::pltxt2htm::details::try_parse_url_scheme<ndebug>(url_vw);
+    auto opt_scheme_end = ::pltxt2htm::details::try_parse_url_scheme<ndebug>(pltext);
     if (opt_scheme_end.has_value() == false) {
         return ::exception::nullopt;
     }
     auto scheme_end = opt_scheme_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    auto opt_auth_end = ::pltxt2htm::details::try_parse_url_authority<ndebug>(url_vw, scheme_end);
+    auto opt_auth_end = ::pltxt2htm::details::try_parse_url_authority<ndebug>(pltext, scheme_end);
     if (opt_auth_end.has_value() == false) {
         return ::exception::nullopt;
     }
     auto auth_end = opt_auth_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    if (current_index >= 2 && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index - 1) == u8'(' &&
-        ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index - 2) == u8']') {
-        return ::exception::nullopt;
-    }
 
-    auto path_end = ::pltxt2htm::details::try_parse_url_path_simple<ndebug>(url_vw, auth_end);
+    auto path_end = ::pltxt2htm::details::try_parse_url_path_simple<ndebug>(pltext, auth_end);
     return ::pltxt2htm::details::make_try_parse_url_result<ndebug>(
-        ::pltxt2htm::details::u8string_view_subview<ndebug>(url_vw, 0, path_end), path_end);
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 0, path_end), path_end);
 }
 
 /**

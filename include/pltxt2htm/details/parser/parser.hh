@@ -739,7 +739,8 @@ entry:
                     ::pltxt2htm::Ast<ndebug>{}));
                 goto entry;
             }
-            if (auto opt_url = ::pltxt2htm::details::try_parse_auto_url<ndebug>(pltext, current_index);
+            if (auto opt_url = ::pltxt2htm::details::try_parse_auto_url<ndebug>(
+                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
                 opt_url.has_value()) {
                 // Suppress auto-link when inside a URL-link container frame (pl_link,
                 // pl_external, md_link, html_a): a bare URL there would otherwise nest
