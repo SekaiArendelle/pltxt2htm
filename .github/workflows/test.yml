@@ -109,9 +109,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build docker image (tests run during build)
+      - name: Build docker image
         run: |
-          docker build -f tests/docker/x86_64-linux-gnu-msan/Dockerfile -t x86_64-linux-gnu-test-msan .
+          docker build -f tests/docker/x86_64-linux-gnu-msan/Dockerfile -t x86_64-linux-gnu-tests-msan .
+
+      - name: Run tests
+        run: |
+          docker run --rm --security-opt seccomp=unconfined x86_64-linux-gnu-tests-msan
 
   x86_64-linux-gnu-scan-build:
     strategy:
