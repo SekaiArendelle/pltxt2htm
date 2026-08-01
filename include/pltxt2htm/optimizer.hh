@@ -17,6 +17,7 @@
 #include <fast_io/fast_io_dsal/list.h>
 #include <fast_io/fast_io_dsal/stack.h>
 #include "ast/ast.hh"
+#include "ast/font_size_value.hh"
 #include "contracts.hh"
 #include "details/utils.hh"
 #include "details/push_macro.hh"
@@ -39,21 +40,20 @@ public:
 };
 
 /**
- * @brief Context for optimizer <size=N> tags.
+ * @brief Context for optimizer <size=N> / <size=N%> tags.
  */
 class OptimizerContextWithPlSizeTagInfo {
 public:
-    ::std::size_t id_; ///< Numeric size value (e.g., 12 in size=12)
+    ::pltxt2htm::FontSizeValue value; ///< Font size value+unit (e.g., {12, px} in size=12)
 };
 
 /**
- * @brief Context for optimizer html_span frames, remembers color and font-size flags.
+ * @brief Context for optimizer html_span frames, remembers color and font-size.
  */
 class OptimizerContextWithHtmlSpanInfo {
 public:
     ::fast_io::u8string_view color{};
-    ::std::size_t font_size_value{};
-    bool has_font_size{false};
+    ::exception::optional<::pltxt2htm::FontSizeValue> font_size{::exception::nullopt};
 };
 
 /**
@@ -227,11 +227,11 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_pl_size_tag_id(this auto&& self) noexcept -> ::std::size_t {
+    constexpr auto get_pl_size_tag_value(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
         bool const is_pl_size_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_size};
         pltxt2htm_assert(is_pl_size_tag_type, u8"context kind mismatch");
-        return context_data_ref.pl_size_tag.id_;
+        return ::std::forward_like<decltype(self)>(context_data_ref.pl_size_tag.value);
     }
 
     [[nodiscard]]
@@ -243,19 +243,11 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_html_span_has_font_size(this auto&& self) noexcept -> bool {
+    constexpr auto get_html_span_font_size(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
         bool const is_html_span_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_span};
         pltxt2htm_assert(is_html_span_type, u8"context kind mismatch");
-        return context_data_ref.html_span_info.has_font_size;
-    }
-
-    [[nodiscard]]
-    constexpr auto get_html_span_font_size_value(this auto&& self) noexcept -> ::std::size_t {
-        auto&& context_data_ref = self.context_data;
-        bool const is_html_span_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_span};
-        pltxt2htm_assert(is_html_span_type, u8"context kind mismatch");
-        return context_data_ref.html_span_info.font_size_value;
+        return ::std::forward_like<decltype(self)>(context_data_ref.html_span_info.font_size);
     }
 };
 
@@ -428,7 +420,7 @@ entry:
                         auto const& inner_color = subnode.as_html_span().get_color();
                         auto const inner_fs = subnode.as_html_span().get_font_size();
                         auto merged_color = ::fast_io::u8string{inner_color.empty() ? outer_color : inner_color};
-                        ::exception::optional<::std::size_t> merged_fs{::exception::nullopt};
+                        ::exception::optional<::pltxt2htm::FontSizeValue> merged_fs{::exception::nullopt};
                         if (inner_fs.has_value()) {
                             merged_fs = inner_fs.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                         }
@@ -444,7 +436,7 @@ entry:
                     }
                     if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_color) {
                         auto const outer_fs = node.as_html_span().get_font_size();
-                        ::exception::optional<::std::size_t> merged_fs{::exception::nullopt};
+                        ::exception::optional<::pltxt2htm::FontSizeValue> merged_fs{::exception::nullopt};
                         if (outer_fs.has_value()) {
                             merged_fs = outer_fs.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                         }
@@ -477,11 +469,7 @@ entry:
                         auto const& node_color = node.as_html_span().get_color();
                         ::fast_io::u8string_view const node_color_view{node_color.data(), node_color.size()};
                         auto const& node_fs = node.as_html_span().get_font_size();
-                        bool const same_font_size =
-                            node_fs.has_value() == parent_frame.get_html_span_has_font_size() &&
-                            (!node_fs.has_value() ||
-                             node_fs.template value<ndebug == ::pltxt2htm::Contracts::ignore>() ==
-                                 parent_frame.get_html_span_font_size_value());
+                        bool const same_font_size = node_fs == parent_frame.get_html_span_font_size();
                         if (node_color_view == parent_frame.get_html_span_color() && same_font_size) {
                             node = ::pltxt2htm::PlTxtNode<ndebug>{
                                 ::pltxt2htm::Text<ndebug>{::std::move(node.as_html_span().get_subast())}};
@@ -525,11 +513,7 @@ entry:
                                                                     ndebug>(
                             ::std::addressof(subast), subast.begin(),
                             ::pltxt2htm::details::OptimizerContextWithHtmlSpanInfo{
-                                ::fast_io::u8string_view{span_color.data(), span_color.size()},
-                                span_font_size.has_value()
-                                    ? span_font_size.template value<ndebug == ::pltxt2htm::Contracts::ignore>()
-                                    : 0,
-                                span_font_size.has_value()}));
+                                ::fast_io::u8string_view{span_color.data(), span_color.size()}, span_font_size}));
                     goto entry;
                 }
             }
@@ -698,18 +682,17 @@ entry:
                         }
                     }
                 }
-                auto&& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
-                // Optimization: If the size is the same as the parent node, then ignore the nested tag.
-                bool const is_different_tag =
-                    nested_tag_type != ::pltxt2htm::NodeKind::pl_size ||
-                    node.as_pl_size().get_size() !=
-                        ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_pl_size_tag_id();
+                auto&& frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                // Optimization: If the size (value and unit) is the same as the parent node, ignore the nested tag.
+                bool const is_different_tag = frame.get_nested_tag_type() != ::pltxt2htm::NodeKind::pl_size ||
+                                              node.as_pl_size().get_font_size_value() != frame.get_pl_size_tag_value();
                 if (is_different_tag) {
                     call_stack.push(
                         ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator,
                                                                     ndebug>(
                             ::std::addressof(subast), subast.begin(),
-                            ::pltxt2htm::details::OptimizerContextWithPlSizeTagInfo{node.as_pl_size().get_size()}));
+                            ::pltxt2htm::details::OptimizerContextWithPlSizeTagInfo{
+                                node.as_pl_size().get_font_size_value()}));
                     goto entry;
                 }
                 node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};

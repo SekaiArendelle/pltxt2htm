@@ -16,6 +16,7 @@
 #include "md_table.hh"
 #include "../../contracts.hh"
 #include "../../ast/ast.hh"
+#include "../../ast/font_size_value.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::details {
@@ -61,7 +62,7 @@ class ParserFrameContextWithHtmlSpanInfo {
 public:
     ::fast_io::u8string_view pltext;
     ::fast_io::u8string color;
-    ::exception::optional<::std::size_t> font_size;
+    ::exception::optional<::pltxt2htm::FontSizeValue> font_size;
 };
 
 /**
@@ -100,7 +101,7 @@ public:
 class ParserFrameContextWithPlSizeTagInfo {
 public:
     ::fast_io::u8string_view pltext;
-    ::std::size_t id;
+    ::pltxt2htm::FontSizeValue value;
 };
 
 /**
@@ -1307,11 +1308,11 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_pl_size_tag_id(this auto&& self) noexcept -> ::std::size_t {
+    constexpr auto get_pl_size_tag_value(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
         bool const is_pl_size_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_size};
         pltxt2htm_assert(is_pl_size_tag_type, u8"context kind mismatch");
-        return context_data_ref.pl_size_tag.id;
+        return ::std::forward_like<decltype(self)>(context_data_ref.pl_size_tag.value);
     }
 
     [[nodiscard]]

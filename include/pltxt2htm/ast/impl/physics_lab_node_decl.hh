@@ -15,6 +15,8 @@
 #include "../../details/literal_string.hh"
 #include "ast_decl.hh"
 #include "basic_node_decl.hh"
+#include "../font_size_value.hh"
+#include "../node_kind.hh"
 #include "../../contracts.hh"
 
 namespace pltxt2htm {
@@ -216,15 +218,16 @@ public:
 
 /**
  * @brief Physics-Lab font size tag node
- * @details Represents &lt;size=value&gt;...&lt;/size&gt; with a font size value.
+ * @details Represents &lt;size=value&gt;...&lt;/size&gt; or &lt;size=value%&gt;...&lt;/size&gt;
+ *          (TMP_Text rich text) with a font size value and its unit.
  */
 template<::pltxt2htm::Contracts ndebug>
 class PlSize {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::std::size_t size;
+    ::pltxt2htm::FontSizeValue value;
 
 public:
-    constexpr PlSize(::pltxt2htm::Ast<ndebug>&& subast_, ::std::size_t size_) noexcept;
+    constexpr PlSize(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::FontSizeValue value_) noexcept;
     constexpr PlSize(::pltxt2htm::PlSize<ndebug> const&) noexcept;
     constexpr PlSize(::pltxt2htm::PlSize<ndebug>&&) noexcept;
     constexpr ~PlSize() noexcept;
@@ -242,7 +245,17 @@ public:
 
     [[nodiscard]]
     constexpr auto get_size(this auto&& self) noexcept -> ::std::size_t {
-        return self.size;
+        return self.value.font_size;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_unit(this auto&& self) noexcept -> ::pltxt2htm::SizeUnit {
+        return self.value.unit;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_font_size_value(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.value);
     }
 };
 

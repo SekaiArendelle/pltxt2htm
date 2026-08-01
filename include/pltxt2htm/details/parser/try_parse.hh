@@ -14,6 +14,7 @@
 #include "../utils.hh"
 #include "../../contracts.hh"
 #include "../../ast/ast.hh"
+#include "../../ast/font_size_value.hh"
 #include "../push_macro.hh"
 
 /**
@@ -1009,15 +1010,15 @@ constexpr auto try_parse_color_tag(::fast_io::u8string_view pltext) noexcept
 }
 
 /**
- * @brief Return type of try_parse_size_tag: tag length and parsed size.
+ * @brief Return type of try_parse_size_tag: tag length and the parsed font-size value.
  */
 struct TryParseSizeTagResult {
     ::std::size_t tag_len;
-    ::std::size_t value;
+    ::pltxt2htm::FontSizeValue value;
 };
 
 /**
- * @brief Parse a `<size=N>` opening tag.
+ * @brief Parse a `<size=N>` or `<size=N%>` opening tag.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
@@ -1033,12 +1034,18 @@ constexpr auto try_parse_size_tag(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt;
     }
     auto const value = opt_value.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    auto opt_tag = ::pltxt2htm::details::try_parse_equal_sign_tag_suffix<ndebug>(pltext, value_start, value.end);
+    auto value_end = value.end;
+    auto unit = ::pltxt2htm::SizeUnit::px;
+    if (value_end < pltext.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, value_end) == u8'%') {
+        unit = ::pltxt2htm::SizeUnit::percent;
+        ++value_end;
+    }
+    auto opt_tag = ::pltxt2htm::details::try_parse_equal_sign_tag_suffix<ndebug>(pltext, value_start, value_end);
     if (opt_tag.has_value() == false) {
         return ::exception::nullopt;
     }
     return ::pltxt2htm::details::TryParseSizeTagResult{
-        opt_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>().tag_len, value.value};
+        opt_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>().tag_len, {value.value, unit}};
 }
 
 /**
@@ -1047,7 +1054,7 @@ constexpr auto try_parse_size_tag(::fast_io::u8string_view pltext) noexcept
 struct TryParseSpanTagResult {
     ::std::size_t tag_len; ///< Length of the matched tag.
     ::fast_io::u8string color; ///< Extracted color value.
-    ::exception::optional<::std::size_t> font_size; ///< Extracted font-size (if present).
+    ::exception::optional<::pltxt2htm::FontSizeValue> font_size; ///< Extracted font-size value+unit (if present).
 };
 
 /**
@@ -1055,11 +1062,11 @@ struct TryParseSpanTagResult {
  */
 struct TryParseFontSizeValueResult {
     ::std::size_t end;
-    ::std::size_t value;
+    ::pltxt2htm::FontSizeValue font_size;
 };
 
 /**
- * @brief Parse a non-zero integer optionally followed by lowercase `px`.
+ * @brief Parse a non-zero integer optionally followed by lowercase `px` or `%`.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
@@ -1074,6 +1081,7 @@ constexpr auto try_parse_font_size_value(::fast_io::u8string_view pltext, ::std:
         return ::exception::nullopt;
     }
     auto pos = decimal.end;
+    auto unit = ::pltxt2htm::SizeUnit::px;
     if (pos < pltext.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'p') {
         ++pos;
         if (pos >= pltext.size() || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'x') {
@@ -1081,7 +1089,11 @@ constexpr auto try_parse_font_size_value(::fast_io::u8string_view pltext, ::std:
         }
         ++pos;
     }
-    return ::pltxt2htm::details::TryParseFontSizeValueResult{pos, decimal.value};
+    else if (pos < pltext.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'%') {
+        unit = ::pltxt2htm::SizeUnit::percent;
+        ++pos;
+    }
+    return ::pltxt2htm::details::TryParseFontSizeValueResult{pos, {decimal.value, unit}};
 }
 
 /**
@@ -1106,7 +1118,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr bool try_parse_span_style(::fast_io::u8string_view pltext, ::std::size_t& pos, char8_t const quote,
                                     ::fast_io::u8string& color,
-                                    ::exception::optional<::std::size_t>& font_size) noexcept {
+                                    ::exception::optional<::pltxt2htm::FontSizeValue>& font_size) noexcept {
     while (pos < pltext.size()) {
         while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
                                        ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t')) {
@@ -1180,7 +1192,7 @@ constexpr bool try_parse_span_style(::fast_io::u8string_view pltext, ::std::size
             if (::pltxt2htm::details::try_parse_span_style_property_suffix<ndebug>(pltext, pos, quote) == false) {
                 return false;
             }
-            font_size = value.value;
+            font_size = value.font_size;
         }
         else {
             return false;
@@ -1219,7 +1231,7 @@ constexpr auto try_parse_span_tag(::fast_io::u8string_view pltext) noexcept
     ::std::size_t pos{4}; // skip past "span" (the 's' was consumed by the trie dispatch)
     bool found_style{false};
     ::fast_io::u8string color{};
-    ::exception::optional<::std::size_t> font_size{::exception::nullopt};
+    ::exception::optional<::pltxt2htm::FontSizeValue> font_size{::exception::nullopt};
 
     while (pos < pltext.size()) {
         // skip whitespace

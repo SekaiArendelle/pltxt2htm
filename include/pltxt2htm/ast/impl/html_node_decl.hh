@@ -13,6 +13,7 @@
 #include <exception/exception.hh>
 #include "ast_decl.hh"
 #include "basic_node_decl.hh"
+#include "../font_size_value.hh"
 #include "../node_kind.hh"
 
 namespace pltxt2htm {
@@ -511,17 +512,17 @@ public:
  * @brief HTML &lt;span style="color:...;font-size:..."&gt; node
  * @details Represents an HTML span element with color and/or font-size style attributes.
  *          color stores the CSS color value (e.g. "red" or "#FF0000").
- *          font_size stores the numeric font-size value if present (e.g. 20 for 20px).
+ *          font_size stores the font-size value+unit if present (e.g. {20, px} for 20px).
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlSpan {
     ::pltxt2htm::Ast<ndebug> subast;
     ::fast_io::u8string color;
-    ::exception::optional<::std::size_t> font_size;
+    ::exception::optional<::pltxt2htm::FontSizeValue> font_size;
 
 public:
     constexpr HtmlSpan(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& color_,
-                       ::exception::optional<::std::size_t>&& font_size_) noexcept;
+                       ::exception::optional<::pltxt2htm::FontSizeValue> font_size_) noexcept;
     constexpr HtmlSpan(::pltxt2htm::HtmlSpan<ndebug> const&) noexcept;
     constexpr HtmlSpan(::pltxt2htm::HtmlSpan<ndebug>&&) noexcept;
     constexpr ~HtmlSpan() noexcept;

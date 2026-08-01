@@ -122,5 +122,78 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<size=80%>hello</size>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:80%;\">hello</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<SIZE=80%>hello</siZE>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:80%;\">hello</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<size=100%>hello</size>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:100%;\">hello</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<size=80%>hello");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:80%;\">hello</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<size=0%>hello</size>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;size=0%&gt;hello&lt;/size&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<size=00%>hello</size>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;size=00%&gt;hello&lt;/size&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<size=80%>hello<size=80%>world</size></size>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:80%;\">helloworld</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<size=80%>hello<size=80>world</size></size>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<span style=\"font-size:80%;\">hello<span style=\"font-size:40px;\">world</span></span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<size=80%><i>test</i></size>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:80%;\"><em>test</em></span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<size=80%>text</size>");
+        auto answer = ::fast_io::u8string_view{u8"<size=80%>text</size>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<span style=\"font-size:80%\">x</span>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:80%;\">x</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2roundtrip_htmld(u8"<size=80%>hello</size>");
+        auto reparsed_html = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
+        pltxt2htm_test_assert_equal(reparsed_html, html);
+    }
+
     return 0;
 }

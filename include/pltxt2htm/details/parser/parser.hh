@@ -1246,9 +1246,9 @@ entry:
                     if (auto opt_size_tag = ::pltxt2htm::details::try_parse_size_tag<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_size_tag.has_value()) {
-                        auto const [tag_len, id] =
+                        auto const [tag_len, value] =
                             opt_size_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-                        if (id == 0) {
+                        if (value.font_size == 0) {
                             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
                             ++current_index;
                             goto entry;
@@ -1258,7 +1258,7 @@ entry:
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                             ::pltxt2htm::details::FrontendContextVariant<ndebug>{
                                 ::pltxt2htm::details::ParserFrameContextWithPlSizeTagInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), id},
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), value},
                                 ::pltxt2htm::NodeKind::pl_size},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -1705,7 +1705,7 @@ entry:
                                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
-                            ::pltxt2htm::PlSize staged_node(::std::move(result), frame.get_pl_size_tag_id());
+                            ::pltxt2htm::PlSize staged_node(::std::move(result), frame.get_pl_size_tag_value());
                             call_stack.pop();
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(
@@ -2612,9 +2612,8 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_size: {
-                auto&& id = frame.get_pl_size_tag_id();
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::PlSize<ndebug>{::std::move(subast), id}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
+                    ::pltxt2htm::PlSize<ndebug>{::std::move(subast), frame.get_pl_size_tag_value()}));
                 parent_index += staged_index;
                 goto entry;
             }
