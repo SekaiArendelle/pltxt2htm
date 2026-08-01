@@ -83,9 +83,11 @@ int main() {
     }
 
     {
-        // unquoted value is not a Unity TextMeshPro link tag, so it stays plain text
+        // unquoted value is not a Unity TextMeshPro link tag; with the '=' auto-link guard
+        // removed, the URL inside the rejected tag is now auto-linked
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<link=https://example.com>text</link>");
-        auto answer = ::fast_io::u8string_view{u8"&lt;link=https://example.com&gt;text&lt;/link&gt;"};
+        auto answer = ::fast_io::u8string_view{
+            u8"&lt;link=<a href=\"https://example.com\">https://example.com</a>&gt;text&lt;/link&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

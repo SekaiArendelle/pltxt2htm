@@ -143,11 +143,13 @@ int main() {
     }
 
     {
+        // the space after the value makes this a structural failure (not invalid_url), so with
+        // the '=' auto-link guard removed the URL inside the rejected tag is auto-linked
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<external=https://main.com\" onmouseover=\"alert('XSS')\">content</external>");
         auto answer = ::fast_io::u8string_view{
-            u8"&lt;external=https://main.com&quot;&nbsp;onmouseover=&quot;alert(&apos;XSS&apos;)&quot;&gt;content&lt;/"
-            u8"external&gt;"};
+            u8"&lt;external=<a href=\"https://main.com\">https://main.com</a>&quot;&nbsp;onmouseover=&quot;alert(&apos;"
+            u8"XSS&apos;)&quot;&gt;content&lt;/external&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

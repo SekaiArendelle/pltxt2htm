@@ -3037,8 +3037,7 @@ constexpr auto try_parse_html_a_tag(::fast_io::u8string_view pltext) noexcept ->
  * @brief Parse an auto-detected bare URL (http/https) with context guards.
  *
  * Detects a URL starting with `http://` or `https://` at `current_index` and rejects it
- * when preceded by `](` (i.e. inside markdown link syntax) or `=` (i.e. inside
- * `<tag=url...>`).
+ * when preceded by `](` (i.e. inside markdown link syntax).
  *
  * Only `http://`/`https://` schemes are accepted.  Bare domains (e.g. `example.com`) are
  * intentionally not supported because the parser calls this function at every character
@@ -3069,9 +3068,7 @@ constexpr auto try_parse_auto_url(::fast_io::u8string_view pltext, ::std::size_t
         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index - 2) == u8']') {
         return ::exception::nullopt;
     }
-    if (current_index >= 1 && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index - 1) == u8'=') {
-        return ::exception::nullopt;
-    }
+
     auto path_end = ::pltxt2htm::details::try_parse_url_path_simple<ndebug>(url_vw, auth_end);
     return ::pltxt2htm::details::make_try_parse_url_result<ndebug>(
         ::pltxt2htm::details::u8string_view_subview<ndebug>(url_vw, 0, path_end), path_end);
