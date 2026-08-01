@@ -146,12 +146,11 @@ int main() {
     }
 
     {
-        // At the root there is no URL-link outer frame, so the URL inside this rejected
-        // tag is still auto-linked.
+        // The opening tag is recognized but its URL fails validation, so the whole span
+        // becomes literal text (no auto-link inside).
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<link=\"https://a.com\"onclick=\"alert(1)\">x</link>");
         auto answer = ::fast_io::u8string_view{
-            u8"&lt;link=&quot;<a href=\"https://a.com\">https://a.com</a>&quot;onclick=&quot;alert(1)&quot;&gt;x&lt;/"
-            u8"link&gt;"};
+            u8"&lt;link=&quot;https://a.com&quot;onclick=&quot;alert(1)&quot;&gt;x&lt;/link&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -198,6 +197,53 @@ int main() {
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab<link=\"https://example.com\">example</link>cd");
         auto answer = ::fast_io::u8string_view{u8"ab<link=\"https://example.com\">example</link>cd"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // --- rejected <link="..."> tags (recognized structure, invalid URL) become one literal span ---
+
+    {
+        // a '<' inside the rejected value no longer dispatches as a real tag
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<link=\"a<b\">x</link>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;link=&quot;a&lt;b&quot;&gt;x&lt;/link&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // '&amp;' inside the rejected span stays an entity (no double escaping)
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<link=\"javascript:alert(&amp;x)\">x</link>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;link=&quot;javascript:alert(&amp;x)&quot;&gt;x&lt;/link&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // macros inside the rejected span are not expanded
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<link=\"javascript:alert({Project})\">x</link>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;link=&quot;javascript:alert({Project})&quot;&gt;x&lt;/link&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // backslash escapes are still processed inside the rejected span
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<link=\"javascript:\\*\">x</link>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;link=&quot;javascript:*&quot;&gt;x&lt;/link&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // markdown link syntax inside the rejected span is not interpreted
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<link=\"javascript:[a](https://x.com)\">x</link>");
+        auto answer =
+            ::fast_io::u8string_view{u8"&lt;link=&quot;javascript:[a](https://x.com)&quot;&gt;x&lt;/link&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // the PLUnity backend escapes the rejected span's angle brackets as full-width chars
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<link=\"javascript:x\">x</link>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<size=20>\uff1c</size>link=\"javascript:x\"<size=20>\uff1e</size>x<size=20>\uff1c</size>/link<size=20>"
+            u8"\uff1e</size>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

@@ -83,10 +83,11 @@ int main() {
     }
 
     {
+        // The opening tag is recognized but its URL fails validation, so the whole span
+        // becomes literal text (no auto-link inside).
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<a href=\"https://example.com@evil.invalid/path\">click</a>");
         auto answer = ::fast_io::u8string_view{
-            u8"&lt;a&nbsp;href=&quot;<a href=\"https://example.com\">https://example.com</a>@evil.invalid/"
-            u8"path&quot;&gt;click&lt;/a&gt;"};
+            u8"&lt;a&nbsp;href=&quot;https://example.com@evil.invalid/path&quot;&gt;click&lt;/a&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -152,6 +153,30 @@ int main() {
         pltxt2htm_test_assert_equal(pass2, pass1);
     }
 
+    // --- rejected <a href="..."> tags (recognized structure, invalid URL) become one literal span ---
+
+    {
+        // a '>' inside the quoted value: the span ends at the real closing '>' found
+        // by the parser, not the first '>'
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<a href=\"https://x.com/a>b\">click</a>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;a&nbsp;href=&quot;https://x.com/a&gt;b&quot;&gt;click&lt;/a&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // single-quoted href value
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<a href='javascript:x'>click</a>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;a&nbsp;href=&apos;javascript:x&apos;&gt;click&lt;/a&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // a newline inside the rejected span becomes a line break; no block re-scan
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<a href=\"https://x\n.com\">click</a>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;a&nbsp;href=&quot;https://x<br>.com&quot;&gt;click&lt;/a&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     {
         // non-ASCII (CJK) in the path is accepted and percent-encoded
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<a href=\"https://x.com/中文\">click</a>");
@@ -160,10 +185,27 @@ int main() {
     }
 
     {
-        // non-ASCII in the authority (domain) is still rejected; the tag stays literal
+        // non-ASCII in the authority (domain) is still rejected; the span stays literal
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<a href=\"https://中文.com/path\">click</a>");
         auto answer =
             ::fast_io::u8string_view{u8"&lt;a&nbsp;href=&quot;https://中文.com/path&quot;&gt;click&lt;/a&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // a valid tag right after the rejected span still parses normally
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<a href=\"https://example.com@evil.invalid/path\"><i>ok</i>");
+        auto answer = ::fast_io::u8string_view{
+            u8"&lt;a&nbsp;href=&quot;https://example.com@evil.invalid/path&quot;&gt;<em>ok</em>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // the boolean "internal" attribute is part of the span when the URL is invalid
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"<a href=\"https://example.com@evil.invalid/path\" internal>click</a>");
+        auto answer = ::fast_io::u8string_view{
+            u8"&lt;a&nbsp;href=&quot;https://example.com@evil.invalid/path&quot;&nbsp;internal&gt;click&lt;/a&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

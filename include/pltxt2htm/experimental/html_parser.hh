@@ -89,11 +89,13 @@ entry:
                 case u8'a':
                     [[fallthrough]];
                 case u8'A': {
-                    if (auto opt_a_tag = ::pltxt2htm::details::try_parse_html_a_tag<ndebug>(
+                    if (auto a_tag = ::pltxt2htm::details::try_parse_html_a_tag<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
-                        opt_a_tag.has_value()) {
-                        auto&& [tag_len, url, internal] =
-                            opt_a_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                        a_tag.kind == ::pltxt2htm::details::TryParseTagOutcomeKind::valid) {
+                        auto tag_len = a_tag.tag_len;
+                        ::pltxt2htm::Url url =
+                            ::std::move(a_tag.url).template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                        auto const internal = a_tag.internal;
                         current_index += tag_len + 2;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                             ::pltxt2htm::details::FrontendContextVariant<ndebug>{
