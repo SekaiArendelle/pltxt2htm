@@ -276,12 +276,12 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_size(this auto&& self) noexcept -> ::std::size_t {
+    constexpr auto get_size(this auto const& self) noexcept -> ::std::size_t {
         return self.value.font_size;
     }
 
     [[nodiscard]]
-    constexpr auto get_unit(this auto&& self) noexcept -> ::pltxt2htm::SizeUnit {
+    constexpr auto get_unit(this auto const& self) noexcept -> ::pltxt2htm::SizeUnit {
         return self.value.unit;
     }
 

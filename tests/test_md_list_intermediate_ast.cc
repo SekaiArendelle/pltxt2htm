@@ -12,7 +12,7 @@ template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce,
 constexpr auto md_list(Nodes&&... nodes) noexcept {
     ::pltxt2htm::details::MdListAst<ndebug> result{};
 
-    ((result.emplace_back(::std::forward<Nodes>(nodes))), ...);
+    (result.emplace_back(::std::forward<Nodes>(nodes)), ...);
 
     return result;
 }
