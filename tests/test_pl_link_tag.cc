@@ -26,11 +26,31 @@ int main() {
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<Link=\"https://main.com\"><link=\"https://nested.com\">physicslab</link></Link>");
-        // The rejected nested tag becomes literal text, and its quoted URL is auto-linked
-        // (unlike pl_external, where the '=' guard suppresses auto-link).
+        // The rejected nested tag becomes literal text; auto-link is suppressed because the
+        // URL is inside a URL-link frame (pl_link), matching pl_external's behavior.
         auto answer = ::fast_io::u8string_view{
-            u8"<a href=\"https://main.com\">&lt;link=&quot;<a href=\"https://nested.com\">https://nested.com</a>"
-            u8"&quot;&gt;physicslab</a>&lt;/Link&gt;"};
+            u8"<a href=\"https://main.com\">&lt;link=&quot;https://nested.com&quot;&gt;physicslab</a>&lt;/Link&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // A bare URL in a link tag's text is not auto-linked (no nested <a> inside <a>).
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<link=\"https://a.com\">visit https://b.com here</link>");
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"https://a.com\">visit&nbsp;https://b.com&nbsp;here</a>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // Same suppression applies inside pl_external.
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<external=https://a.com>see https://b.com</external>");
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"https://a.com\">see&nbsp;https://b.com</a>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // Control: outside any URL-link frame auto-link still works.
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"x https://a.com y");
+        auto answer = ::fast_io::u8string_view{u8"x&nbsp;<a href=\"https://a.com\">https://a.com</a>&nbsp;y"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -38,8 +58,8 @@ int main() {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"ab<Link=\"https://first.com\">te<link=\"https://second.com\">physicslab</link>st</Link>cd");
         auto answer = ::fast_io::u8string_view{
-            u8"ab<a href=\"https://first.com\">te&lt;link=&quot;<a href=\"https://second.com\">https://second.com</a>"
-            u8"&quot;&gt;physicslab</a>st&lt;/Link&gt;cd"};
+            u8"ab<a href=\"https://first.com\">te&lt;link=&quot;https://second.com&quot;&gt;physicslab</a>st&lt;/"
+            u8"Link&gt;cd"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -73,8 +93,8 @@ int main() {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<link=\"https://example.com\">text<link=\"https://another-example.com\">text</link></link>");
         auto answer = ::fast_io::u8string_view{
-            u8"<a href=\"https://example.com\">text&lt;link=&quot;<a href=\"https://another-example.com\">https://"
-            u8"another-example.com</a>&quot;&gt;text</a>&lt;/link&gt;"};
+            u8"<a href=\"https://example.com\">text&lt;link=&quot;https://another-example.com&quot;&gt;text</a>&lt;/"
+            u8"link&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -82,8 +102,8 @@ int main() {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<link=\"https://example.com\">physics<link=\"https://another-site.org\">L</link>ab</link>");
         auto answer = ::fast_io::u8string_view{
-            u8"<a href=\"https://example.com\">physics&lt;link=&quot;<a href=\"https://another-site.org\">https://"
-            u8"another-site.org</a>&quot;&gt;L</a>ab&lt;/link&gt;"};
+            u8"<a href=\"https://example.com\">physics&lt;link=&quot;https://another-site.org&quot;&gt;L</a>ab&lt;/"
+            u8"link&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -115,8 +135,7 @@ int main() {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<link=\"https://main.com\"><i><link=\"https://nested.com\">c</link></i></link>");
         auto answer = ::fast_io::u8string_view{
-            u8"<a href=\"https://main.com\"><em>&lt;link=&quot;<a href=\"https://nested.com\">https://nested.com</a>"
-            u8"&quot;&gt;c&lt;/link&gt;</em></a>"};
+            u8"<a href=\"https://main.com\"><em>&lt;link=&quot;https://nested.com&quot;&gt;c&lt;/link&gt;</em></a>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -127,6 +146,8 @@ int main() {
     }
 
     {
+        // At the root there is no URL-link outer frame, so the URL inside this rejected
+        // tag is still auto-linked.
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<link=\"https://a.com\"onclick=\"alert(1)\">x</link>");
         auto answer = ::fast_io::u8string_view{
             u8"&lt;link=&quot;<a href=\"https://a.com\">https://a.com</a>&quot;onclick=&quot;alert(1)&quot;&gt;x&lt;/"
@@ -151,6 +172,7 @@ int main() {
     }
 
     {
+        // Same as above: rejected at the root, so the URL is auto-linked.
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<link=\"https://main.com\" onmouseover=\"alert('XSS')\">content</link>");
         auto answer = ::fast_io::u8string_view{

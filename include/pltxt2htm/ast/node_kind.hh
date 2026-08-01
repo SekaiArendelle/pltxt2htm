@@ -225,6 +225,17 @@ constexpr auto is_md_list_ul_or_ol_type(::pltxt2htm::NodeKind const node_type) n
     return node_type == ::pltxt2htm::NodeKind::md_ul || node_type == ::pltxt2htm::NodeKind::md_ol;
 }
 
+/**
+ * @brief Whether the node kind is a URL-link container tag.
+ * @details Auto-detected bare URLs inside these tags are suppressed to avoid
+ *          nested anchors (e.g. an `<a>` inside `<link="url">...</link>`).
+ */
+[[nodiscard]]
+constexpr auto is_url_link_tag_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
+    return node_type == ::pltxt2htm::NodeKind::pl_link || node_type == ::pltxt2htm::NodeKind::pl_external ||
+           node_type == ::pltxt2htm::NodeKind::md_link || node_type == ::pltxt2htm::NodeKind::html_a;
+}
+
 [[nodiscard]]
 constexpr auto is_plain_pltext_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
     return !(::pltxt2htm::details::is_equal_sign_tag_type(node_type) ||

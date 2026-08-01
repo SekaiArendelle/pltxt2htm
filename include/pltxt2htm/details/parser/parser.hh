@@ -741,10 +741,23 @@ entry:
             }
             if (auto opt_url = ::pltxt2htm::details::try_parse_auto_url<ndebug>(pltext, current_index);
                 opt_url.has_value()) {
-                auto&& [consumed_size, url_obj] = opt_url.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-                result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(url_obj)));
-                current_index += consumed_size;
-                continue;
+                // Suppress auto-link when inside a URL-link container frame (pl_link,
+                // pl_external, md_link, html_a): a bare URL there would otherwise nest
+                // an <a> inside another <a>.  The URL then falls through to literal text.
+                bool in_url_link_frame{false};
+                for (auto const& v : call_stack.container) {
+                    if (::pltxt2htm::details::is_url_link_tag_type(v.get_nested_tag_type())) {
+                        in_url_link_frame = true;
+                        break;
+                    }
+                }
+                if (in_url_link_frame == false) {
+                    auto&& [consumed_size, url_obj] =
+                        opt_url.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(url_obj)));
+                    current_index += consumed_size;
+                    continue;
+                }
             }
             if (auto opt_md_image = ::pltxt2htm::details::try_parse_md_image<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
