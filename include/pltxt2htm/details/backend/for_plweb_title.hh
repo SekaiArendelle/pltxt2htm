@@ -148,7 +148,7 @@ entry:
                 if (has_font_size) {
                     auto const& font_size = span_font_size.value();
                     result.append(u8"font-size:");
-                    result.append(::pltxt2htm::details::size_t2str(font_size.value));
+                    result.append(::pltxt2htm::details::size_t2str(font_size.font_size));
                     if (font_size.unit == ::pltxt2htm::SizeUnit::percent) {
                         result.push_back(u8'%');
                     }

@@ -245,7 +245,7 @@ public:
 
     [[nodiscard]]
     constexpr auto get_size(this auto&& self) noexcept -> ::std::size_t {
-        return self.value.value;
+        return self.value.font_size;
     }
 
     [[nodiscard]]

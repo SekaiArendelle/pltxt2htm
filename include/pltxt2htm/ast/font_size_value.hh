@@ -29,7 +29,7 @@ enum class SizeUnit : unsigned {
  *          unit when no font-size is present (the value is then simply absent).
  */
 struct FontSizeValue {
-    ::std::size_t value; ///< Numeric font-size value
+    ::std::size_t font_size; ///< Numeric font-size value
     ::pltxt2htm::SizeUnit unit; ///< Unit of the value (px or %)
 
     [[nodiscard]]

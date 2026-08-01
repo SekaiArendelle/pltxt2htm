@@ -1248,7 +1248,7 @@ entry:
                         opt_size_tag.has_value()) {
                         auto const [tag_len, value] =
                             opt_size_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-                        if (value.value == 0) {
+                        if (value.font_size == 0) {
                             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
                             ++current_index;
                             goto entry;

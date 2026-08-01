@@ -353,7 +353,7 @@ entry:
                 ++current_index;
                 result.append(u8"<size=");
                 auto const& pl_size = node.as_pl_size().get_font_size_value();
-                result.append(::pltxt2htm::details::size_t2str(pl_size.value));
+                result.append(::pltxt2htm::details::size_t2str(pl_size.font_size));
                 if (pl_size.unit == ::pltxt2htm::SizeUnit::percent) {
                     result.push_back(u8'%');
                 }
@@ -377,7 +377,7 @@ entry:
                 if (has_font_size) {
                     auto const& font_size = span_font_size.value();
                     result.append(u8"<size=");
-                    result.append(::pltxt2htm::details::size_t2str(font_size.value));
+                    result.append(::pltxt2htm::details::size_t2str(font_size.font_size));
                     if (font_size.unit == ::pltxt2htm::SizeUnit::percent) {
                         result.push_back(u8'%');
                     }
