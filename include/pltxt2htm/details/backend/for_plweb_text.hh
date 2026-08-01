@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file for_plweb_text.hh
  * @brief Advanced HTML backend for pltxt2htm
  * @details Generates full-featured HTML output with comprehensive support for
@@ -1108,6 +1108,17 @@ entry:
                 ++current_index;
                 goto entry;
             }
+            case ::pltxt2htm::NodeKind::pl_link: {
+                result.append(u8"<a href=\"");
+                auto const& link_url = node.as_pl_link().get_url().as_string();
+                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                    result, ::fast_io::u8string_view{link_url.data(), link_url.size()});
+                result.append(u8"\">");
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_pl_link().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::pl_link, 0));
+                ++current_index;
+                goto entry;
+            }
             case ::pltxt2htm::NodeKind::md_image: {
                 result.append(u8"<img src=\"");
                 auto const& img_url = node.as_md_image().get_url().as_string();
@@ -1516,6 +1527,8 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_external:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::pl_link:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_link:
                 [[fallthrough]];

@@ -159,6 +159,7 @@ class PlTxtNode {
         ::pltxt2htm::PlDiscussion<ndebug> pl_discussion_node;
         ::pltxt2htm::PlUser<ndebug> pl_user_node;
         ::pltxt2htm::PlExternal<ndebug> pl_external_node;
+        ::pltxt2htm::PlLink<ndebug> pl_link_node;
         ::pltxt2htm::PlSize<ndebug> pl_size_node;
         ::pltxt2htm::PlI<ndebug> pl_i_node;
         ::pltxt2htm::PlB<ndebug> pl_b_node;
@@ -218,6 +219,11 @@ public:
     constexpr PlTxtNode(::pltxt2htm::PlExternal<ndebug>&& node) noexcept
         : pl_external_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::pl_external} {
+    }
+
+    constexpr PlTxtNode(::pltxt2htm::PlLink<ndebug>&& node) noexcept
+        : pl_link_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::pl_link} {
     }
 
     constexpr PlTxtNode(::pltxt2htm::PlSize<ndebug>&& node) noexcept
@@ -863,6 +869,10 @@ public:
             new (::std::addressof(pl_external_node))::pltxt2htm::PlExternal(other.pl_external_node);
             break;
         }
+        case ::pltxt2htm::NodeKind::pl_link: {
+            new (::std::addressof(pl_link_node))::pltxt2htm::PlLink(other.pl_link_node);
+            break;
+        }
         case ::pltxt2htm::NodeKind::pl_size: {
             new (::std::addressof(pl_size_node))::pltxt2htm::PlSize(other.pl_size_node);
             break;
@@ -1419,6 +1429,10 @@ public:
         }
         case ::pltxt2htm::NodeKind::pl_external: {
             new (::std::addressof(pl_external_node))::pltxt2htm::PlExternal(::std::move(other.pl_external_node));
+            break;
+        }
+        case ::pltxt2htm::NodeKind::pl_link: {
+            new (::std::addressof(pl_link_node))::pltxt2htm::PlLink(::std::move(other.pl_link_node));
             break;
         }
         case ::pltxt2htm::NodeKind::pl_size: {
@@ -2042,6 +2056,10 @@ public:
             pl_external_node.~PlExternal();
             break;
         }
+        case ::pltxt2htm::NodeKind::pl_link: {
+            pl_link_node.~PlLink();
+            break;
+        }
         case ::pltxt2htm::NodeKind::pl_size: {
             pl_size_node.~PlSize();
             break;
@@ -2574,6 +2592,9 @@ public:
         }
         case ::pltxt2htm::NodeKind::pl_external: {
             return self.pl_external_node == other.pl_external_node;
+        }
+        case ::pltxt2htm::NodeKind::pl_link: {
+            return self.pl_link_node == other.pl_link_node;
         }
         case ::pltxt2htm::NodeKind::pl_size: {
             return self.pl_size_node == other.pl_size_node;
@@ -3773,6 +3794,13 @@ public:
         bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_external};
         pltxt2htm_assert(is_type, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_external_node);
+    }
+
+    [[nodiscard]]
+    constexpr auto as_pl_link(this auto&& self) noexcept -> decltype(auto) {
+        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_link};
+        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.pl_link_node);
     }
 
     [[nodiscard]]

@@ -741,10 +741,23 @@ entry:
             }
             if (auto opt_url = ::pltxt2htm::details::try_parse_auto_url<ndebug>(pltext, current_index);
                 opt_url.has_value()) {
-                auto&& [consumed_size, url_obj] = opt_url.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-                result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(url_obj)));
-                current_index += consumed_size;
-                continue;
+                // Suppress auto-link when inside a URL-link container frame (pl_link,
+                // pl_external, md_link, html_a): a bare URL there would otherwise nest
+                // an <a> inside another <a>.  The URL then falls through to literal text.
+                bool in_url_link_frame{false};
+                for (auto const& v : call_stack.container) {
+                    if (::pltxt2htm::details::is_url_link_tag_type(v.get_nested_tag_type())) {
+                        in_url_link_frame = true;
+                        break;
+                    }
+                }
+                if (in_url_link_frame == false) {
+                    auto&& [consumed_size, url_obj] =
+                        opt_url.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(url_obj)));
+                    current_index += consumed_size;
+                    continue;
+                }
             }
             if (auto opt_md_image = ::pltxt2htm::details::try_parse_md_image<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
@@ -1178,6 +1191,21 @@ entry:
                                 ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
                                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
                                 ::pltxt2htm::NodeKind::html_li},
+                            ::pltxt2htm::Ast<ndebug>{}));
+                        goto entry;
+                    }
+                    if (auto opt_link_tag = ::pltxt2htm::details::try_parse_link_tag<ndebug>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), call_stack);
+                        opt_link_tag.has_value()) {
+                        // parsing: <link="url">$1</link>
+                        auto&& [tag_len, url] = opt_link_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                        current_index += tag_len + 3;
+                        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithUrlInfo<ndebug>{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                                    ::std::move(url)},
+                                ::pltxt2htm::NodeKind::pl_link},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
@@ -1669,6 +1697,26 @@ entry:
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
                                 ::pltxt2htm::PlExternal<ndebug>{::std::move(staged_node)}));
+                            parent_frame.current_index +=
+                                staged_index + opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() +
+                                3;
+                            goto entry;
+                        }
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        ++current_index;
+                        continue;
+                    }
+                    case ::pltxt2htm::NodeKind::pl_link: {
+                        // parsing </link>
+                        if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"link">(
+                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                            opt_tag_len.has_value()) {
+                            ::std::size_t const staged_index{current_index};
+                            ::pltxt2htm::PlLink staged_node(::std::move(result), ::std::move(frame.get_link_tag_url()));
+                            call_stack.pop();
+                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::PlLink<ndebug>{::std::move(staged_node)}));
                             parent_frame.current_index +=
                                 staged_index + opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() +
                                 3;
@@ -2608,6 +2656,13 @@ entry:
                 auto&& url = frame.get_external_tag_url();
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
                     ::pltxt2htm::PlExternal<ndebug>{::std::move(subast), ::std::move(url)}));
+                parent_index += staged_index;
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::pl_link: {
+                auto&& url = frame.get_link_tag_url();
+                parent_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::PlLink<ndebug>{::std::move(subast), ::std::move(url)}));
                 parent_index += staged_index;
                 goto entry;
             }

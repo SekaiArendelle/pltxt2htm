@@ -57,6 +57,7 @@ Quantum-Physics tags:
 | `user` | Supported |
 | `size` | Supported |
 | `external` | Supported |
+| `link` (Unity TextMeshPro link) | Supported |
 | `i` | Supported |
 | `b` | Supported |
 | `u` (Unity TextMeshPro underline) | Supported |

@@ -217,6 +217,38 @@ public:
 };
 
 /**
+ * @brief Physics-Lab link tag node (Unity TextMeshPro rich text)
+ * @details Represents &lt;link=&quot;url&quot;&gt;...&lt;/link&gt; with a URL.
+ */
+template<::pltxt2htm::Contracts ndebug>
+class PlLink {
+    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Url url;
+
+public:
+    constexpr PlLink(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::Url&& url_) noexcept;
+    constexpr PlLink(::pltxt2htm::PlLink<ndebug> const&) noexcept;
+    constexpr PlLink(::pltxt2htm::PlLink<ndebug>&&) noexcept;
+    constexpr ~PlLink() noexcept;
+    constexpr auto operator=(::pltxt2htm::PlLink<ndebug> const&) noexcept -> ::pltxt2htm::PlLink<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::PlLink<ndebug>& self, ::pltxt2htm::PlLink<ndebug>&&) noexcept
+        -> ::pltxt2htm::PlLink<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this PlLink const&, PlLink const&) noexcept -> bool;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_url(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.url);
+    }
+};
+
+/**
  * @brief Physics-Lab font size tag node
  * @details Represents &lt;size=value&gt;...&lt;/size&gt; or &lt;size=value%&gt;...&lt;/size&gt;
  *          (TMP_Text rich text) with a font size value and its unit.

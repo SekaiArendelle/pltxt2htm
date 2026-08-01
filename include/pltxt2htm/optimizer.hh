@@ -658,6 +658,18 @@ entry:
                         ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_external, subast.begin()));
                 goto entry;
             }
+            case ::pltxt2htm::NodeKind::pl_link: {
+                auto&& subast = node.as_pl_link().get_subast();
+                if (subast.empty()) {
+                    // <link="url"></link> can be omitted
+                    ast.erase(current_iter);
+                    continue;
+                }
+                call_stack.push(
+                    ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_link, subast.begin()));
+                goto entry;
+            }
             case ::pltxt2htm::NodeKind::pl_size: {
                 auto&& subast = node.as_pl_size().get_subast();
                 {
