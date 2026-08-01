@@ -868,10 +868,10 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class MdLiCheckbox {
     ::pltxt2htm::Ast<ndebug> subast;
-    bool checked_;
+    bool checked;
 
 public:
-    constexpr explicit MdLiCheckbox(::pltxt2htm::Ast<ndebug>&& subast_, bool checked) noexcept;
+    constexpr explicit MdLiCheckbox(::pltxt2htm::Ast<ndebug>&& subast_, bool checked_) noexcept;
     constexpr MdLiCheckbox(::pltxt2htm::MdLiCheckbox<ndebug> const&) noexcept;
     constexpr MdLiCheckbox(::pltxt2htm::MdLiCheckbox<ndebug>&&) noexcept;
     constexpr ~MdLiCheckbox() noexcept;
@@ -890,7 +890,7 @@ public:
 
     [[nodiscard]]
     constexpr auto is_checked(this auto&& self) noexcept -> bool {
-        return self.checked_;
+        return self.checked;
     }
 };
 

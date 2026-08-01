@@ -60,7 +60,7 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class PlA {
     ::pltxt2htm::Ast<ndebug> subast;
-    static constexpr ::pltxt2htm::details::U8LiteralString<7> color_{u8"#0000AA"};
+    static constexpr ::pltxt2htm::details::U8LiteralString<7> color{u8"#0000AA"};
 
 public:
     constexpr PlA(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
@@ -81,7 +81,7 @@ public:
 
     [[nodiscard]]
     static constexpr auto const& get_color_literal() noexcept {
-        return color_;
+        return color;
     }
 };
 

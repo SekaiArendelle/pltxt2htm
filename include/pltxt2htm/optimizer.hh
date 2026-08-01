@@ -36,7 +36,7 @@ class OptimizerContextWithoutInfo {};
  */
 class OptimizerContextWithEqualSignTagInfo {
 public:
-    ::fast_io::u8string_view id_; ///< The value part of the attribute (e.g., "red" in color=red)
+    ::fast_io::u8string_view id; ///< The value part of the attribute (e.g., "red" in color=red)
 };
 
 /**
@@ -223,7 +223,7 @@ public:
         auto&& context_data_ref = self.context_data;
         bool const is_equal_sign_tag_type{::pltxt2htm::details::is_equal_sign_tag_type(context_data_ref.kind)};
         pltxt2htm_assert(is_equal_sign_tag_type, u8"context kind mismatch");
-        return ::std::forward_like<decltype(self)>(context_data_ref.equal_sign_tag.id_);
+        return ::std::forward_like<decltype(self)>(context_data_ref.equal_sign_tag.id);
     }
 
     [[nodiscard]]

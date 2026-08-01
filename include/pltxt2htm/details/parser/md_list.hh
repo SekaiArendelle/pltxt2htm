@@ -102,12 +102,12 @@ public:
  */
 class MdListLiCheckboxNode {
     ::fast_io::u8string text;
-    bool checked_{};
+    bool checked{};
 
 public:
-    constexpr MdListLiCheckboxNode(::fast_io::u8string&& text_, bool checked) noexcept
+    constexpr MdListLiCheckboxNode(::fast_io::u8string&& text_, bool checked_) noexcept
         : text(::std::move(text_)),
-          checked_(checked) {
+          checked(checked_) {
     }
 
     constexpr MdListLiCheckboxNode(::pltxt2htm::details::MdListLiCheckboxNode const&) noexcept = default;
@@ -130,12 +130,12 @@ public:
 #endif
     constexpr auto operator==(this ::pltxt2htm::details::MdListLiCheckboxNode const& self,
                               ::pltxt2htm::details::MdListLiCheckboxNode const& other) noexcept -> bool {
-        return self.text == other.text && self.checked_ == other.checked_;
+        return self.text == other.text && self.checked == other.checked;
     }
 
     [[nodiscard]]
     constexpr auto is_checked(this auto const& self) noexcept -> bool {
-        return self.checked_;
+        return self.checked;
     }
 
     [[nodiscard]]
@@ -233,34 +233,34 @@ class MdListBaseNode {
         ::pltxt2htm::details::MdListOlNode<ndebug> ol_node;
     };
 
-    ::pltxt2htm::details::MdListNodeType type_;
+    ::pltxt2htm::details::MdListNodeType type;
 
 public:
     constexpr MdListBaseNode(::pltxt2htm::details::MdListLiNode&& node) noexcept
         : li_node(::std::move(node)),
-          type_{::pltxt2htm::details::MdListNodeType::md_li} {
+          type{::pltxt2htm::details::MdListNodeType::md_li} {
     }
 
     constexpr MdListBaseNode(::pltxt2htm::details::MdListLiCheckboxNode&& node) noexcept
         : li_checkbox_node(::std::move(node)),
-          type_{::pltxt2htm::details::MdListNodeType::md_li_checkbox} {
+          type{::pltxt2htm::details::MdListNodeType::md_li_checkbox} {
     }
 
     constexpr MdListBaseNode(::pltxt2htm::details::MdListUlNode<ndebug>&& node) noexcept
         : ul_node(::std::move(node)),
-          type_{::pltxt2htm::details::MdListNodeType::md_ul} {
+          type{::pltxt2htm::details::MdListNodeType::md_ul} {
     }
 
     constexpr MdListBaseNode(::pltxt2htm::details::MdListOlNode<ndebug>&& node) noexcept
         : ol_node(::std::move(node)),
-          type_{::pltxt2htm::details::MdListNodeType::md_ol} {
+          type{::pltxt2htm::details::MdListNodeType::md_ol} {
     }
 
     constexpr MdListBaseNode(::pltxt2htm::details::MdListBaseNode<ndebug> const&) noexcept = delete;
 
     constexpr MdListBaseNode(::pltxt2htm::details::MdListBaseNode<ndebug>&& other) noexcept
-        : type_(other.type_) {
-        switch (type_) /* -Werror=switch */ {
+        : type(other.type) {
+        switch (type) /* -Werror=switch */ {
         case ::pltxt2htm::details::MdListNodeType::md_li: {
             new (::std::addressof(li_node))::pltxt2htm::details::MdListLiNode(::std::move(other.li_node));
             break;
@@ -288,7 +288,7 @@ public:
     }
 
     constexpr ~MdListBaseNode() noexcept {
-        switch (type_) /* -Werror=switch */ {
+        switch (type) /* -Werror=switch */ {
         case ::pltxt2htm::details::MdListNodeType::md_li: {
             li_node.~MdListLiNode();
             break;
@@ -330,12 +330,12 @@ public:
 
     [[nodiscard]]
     constexpr auto get_type(this auto&& self) noexcept -> ::pltxt2htm::details::MdListNodeType {
-        return self.type_;
+        return self.type;
     }
 
     [[nodiscard]]
     constexpr auto get_text(this auto&& self) noexcept -> decltype(auto) {
-        switch (self.type_) /* -Werror=switch */ {
+        switch (self.type) /* -Werror=switch */ {
         case ::pltxt2htm::details::MdListNodeType::md_li: {
             return ::std::forward_like<decltype(self)>(self.li_node).get_text();
         }
@@ -354,7 +354,7 @@ public:
 
     [[nodiscard]]
     constexpr auto get_text_view(this auto&& self) noexcept -> ::fast_io::u8string_view {
-        switch (self.type_) /* -Werror=switch */ {
+        switch (self.type) /* -Werror=switch */ {
         case ::pltxt2htm::details::MdListNodeType::md_li: {
             return self.li_node.get_text_view();
         }
@@ -373,7 +373,7 @@ public:
 
     [[nodiscard]]
     constexpr auto get_sublist(this auto&& self) noexcept -> decltype(auto) {
-        switch (self.type_) /* -Werror=switch */ {
+        switch (self.type) /* -Werror=switch */ {
         case ::pltxt2htm::details::MdListNodeType::md_ul: {
             return ::std::forward_like<decltype(self)>(self.ul_node).get_sublist();
         }
@@ -392,18 +392,18 @@ public:
 
     [[nodiscard]]
     constexpr auto is_checked(this auto const& self) noexcept -> bool {
-        pltxt2htm_assert(self.type_ == ::pltxt2htm::details::MdListNodeType::md_li_checkbox, u8"node type mismatch");
+        pltxt2htm_assert(self.type == ::pltxt2htm::details::MdListNodeType::md_li_checkbox, u8"node type mismatch");
         return self.li_checkbox_node.is_checked();
     }
 
     [[nodiscard]]
     friend constexpr auto operator==(::pltxt2htm::details::MdListBaseNode<ndebug> const& self,
                                      ::pltxt2htm::details::MdListBaseNode<ndebug> const& other) noexcept -> bool {
-        if (self.type_ != other.type_) {
+        if (self.type != other.type) {
             return false;
         }
 
-        switch (self.type_) {
+        switch (self.type) {
         case ::pltxt2htm::details::MdListNodeType::md_li: {
             return self.li_node == other.li_node;
         }

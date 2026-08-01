@@ -200,40 +200,40 @@ struct MdTableCellRaw {
  */
 template<::pltxt2htm::Contracts ndebug>
 class MdTableAstRaw {
-    ::std::size_t num_cols_{}; ///< number of columns (= header cells count)
-    ::fast_io::vector<::pltxt2htm::details::MdTableCellRaw> cells_{}; ///< flat storage: header then body (row-major)
+    ::std::size_t num_cols{}; ///< number of columns (= header cells count)
+    ::fast_io::vector<::pltxt2htm::details::MdTableCellRaw> cells{}; ///< flat storage: header then body (row-major)
 
 public:
     /// @return number of header cells (= column count for every row)
     [[nodiscard]]
     constexpr auto header_cells_count(this auto&& self) noexcept -> ::std::size_t {
-        return self.num_cols_;
+        return self.num_cols;
     }
 
     /// @param col column index
     /// @return const/non-const reference to the header cell at @p col
     [[nodiscard]]
     constexpr auto header_cell_at(this auto&& self, ::std::size_t col) noexcept -> decltype(auto) {
-        return ::pltxt2htm::details::vector_index<ndebug>(self.cells_, col);
+        return ::pltxt2htm::details::vector_index<ndebug>(self.cells, col);
     }
 
     /// Append one header cell.  Increments internal column counter.
     constexpr void add_header_cell(this MdTableAstRaw& self, ::pltxt2htm::details::MdTableCellRaw&& cell) noexcept {
-        self.cells_.push_back(::std::move(cell));
-        ++self.num_cols_;
+        self.cells.push_back(::std::move(cell));
+        ++self.num_cols;
     }
 
     /// @return number of body rows (derived from flat vector size and column count)
     [[nodiscard]]
     constexpr auto body_rows_count(this auto&& self) noexcept -> ::std::size_t {
-        pltxt2htm_assert(self.num_cols_ != 0, u8"num_cols_ should be > 0 when calculating body rows count");
-        return (self.cells_.size() - self.num_cols_) / self.num_cols_;
+        pltxt2htm_assert(self.num_cols != 0, u8"num_cols should be > 0 when calculating body rows count");
+        return (self.cells.size() - self.num_cols) / self.num_cols;
     }
 
-    /// @return cells per body row (= num_cols_, all rows have equal length)
+    /// @return cells per body row (= num_cols, all rows have equal length)
     [[nodiscard]]
     constexpr auto body_cells_count(this auto&& self) noexcept -> ::std::size_t {
-        return self.num_cols_;
+        return self.num_cols;
     }
 
     /// @param row body row index
@@ -241,15 +241,15 @@ public:
     /// @return const/non-const reference to the body cell at (@p row, @p col)
     [[nodiscard]]
     constexpr auto body_cell_at(this auto&& self, ::std::size_t row, ::std::size_t col) noexcept -> decltype(auto) {
-        return ::pltxt2htm::details::vector_index<ndebug>(self.cells_, self.num_cols_ + row * self.num_cols_ + col);
+        return ::pltxt2htm::details::vector_index<ndebug>(self.cells, self.num_cols + row * self.num_cols + col);
     }
 
     /// Append one body row (all its cells) to the flat vector.
     constexpr void add_body_row(this MdTableAstRaw& self,
                                 ::fast_io::vector<::pltxt2htm::details::MdTableCellRaw>&& row_cells) noexcept {
-        bool const is_cow_cell_size_correct{row_cells.size() == self.num_cols_};
-        pltxt2htm_assert(is_cow_cell_size_correct, u8"row_cells size should match num_cols_ when adding a body row");
-        self.cells_.append_range(::std::move(row_cells));
+        bool const is_cow_cell_size_correct{row_cells.size() == self.num_cols};
+        pltxt2htm_assert(is_cow_cell_size_correct, u8"row_cells size should match num_cols when adding a body row");
+        self.cells.append_range(::std::move(row_cells));
     }
 };
 

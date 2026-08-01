@@ -533,9 +533,9 @@ constexpr auto ::pltxt2htm::MdLi<ndebug>::operator==(this ::pltxt2htm::MdLi<ndeb
                                                      ::pltxt2htm::MdLi<ndebug> const&) noexcept -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdLiCheckbox<ndebug>::MdLiCheckbox(::pltxt2htm::Ast<ndebug>&& subast_, bool checked) noexcept
+constexpr ::pltxt2htm::MdLiCheckbox<ndebug>::MdLiCheckbox(::pltxt2htm::Ast<ndebug>&& subast_, bool checked_) noexcept
     : subast(::std::move(subast_)),
-      checked_(checked) {
+      checked(checked_) {
 }
 
 template<::pltxt2htm::Contracts ndebug>
