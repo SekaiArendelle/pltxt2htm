@@ -177,6 +177,7 @@ using ::pltxt2htm::PlDiscussion;
 using ::pltxt2htm::PlUser;
 using ::pltxt2htm::PlSize;
 using ::pltxt2htm::PlExternal;
+using ::pltxt2htm::PlLink;
 using ::pltxt2htm::PlI;
 using ::pltxt2htm::PlB;
 using ::pltxt2htm::PlU;

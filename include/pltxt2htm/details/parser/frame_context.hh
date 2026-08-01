@@ -359,6 +359,8 @@ public:
         }
         case ::pltxt2htm::NodeKind::pl_external:
             [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_link:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_link: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::url_info);
             ::std::construct_at(::std::addressof(this->url_info), ::std::move(other.url_info));
@@ -664,6 +666,8 @@ public:
             return;
         }
         case ::pltxt2htm::NodeKind::pl_external:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_link:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_link: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::url_info);
@@ -1160,6 +1164,11 @@ public:
                 context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::url_info);
             return context_data_ref.url_info.pltext;
         }
+        case ::pltxt2htm::NodeKind::pl_link: {
+            pltxt2htm_assert_context_branch(
+                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::url_info);
+            return context_data_ref.url_info.pltext;
+        }
         case ::pltxt2htm::NodeKind::pl_size: {
             pltxt2htm_assert_context_branch(
                 context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::pl_size_tag);
@@ -1304,6 +1313,14 @@ public:
         auto&& context_data_ref = self.context_data;
         bool const is_external_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_external};
         pltxt2htm_assert(is_external_tag_type, u8"context kind mismatch");
+        return ::std::forward_like<decltype(self)>(context_data_ref.url_info.url);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_link_tag_url(this auto&& self) noexcept -> decltype(auto) {
+        auto&& context_data_ref = self.context_data;
+        bool const is_link_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_link};
+        pltxt2htm_assert(is_link_tag_type, u8"context kind mismatch");
         return ::std::forward_like<decltype(self)>(context_data_ref.url_info.url);
     }
 

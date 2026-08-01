@@ -135,6 +135,27 @@ constexpr auto ::pltxt2htm::PlExternal<ndebug>::operator==(this ::pltxt2htm::PlE
     -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlLink<ndebug>::PlLink(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::Url&& url_) noexcept
+    : subast(::std::move(subast_)),
+      url(::std::move(url_)) {
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlLink<ndebug>::PlLink(::pltxt2htm::PlLink<ndebug> const&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlLink<ndebug>::PlLink(::pltxt2htm::PlLink<ndebug>&&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlLink<ndebug>::~PlLink() noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::PlLink<ndebug>::operator=(this ::pltxt2htm::PlLink<ndebug>& self,
+                                                      ::pltxt2htm::PlLink<ndebug>&&) noexcept
+    -> ::pltxt2htm::PlLink<ndebug>& = default;
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::PlLink<ndebug>::operator==(this ::pltxt2htm::PlLink<ndebug> const&,
+                                                       ::pltxt2htm::PlLink<ndebug> const&) noexcept -> bool = default;
+
+template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::PlSize<ndebug>::PlSize(::pltxt2htm::Ast<ndebug>&& subast_,
                                               ::pltxt2htm::FontSizeValue value_) noexcept
     : subast(::std::move(subast_)),

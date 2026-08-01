@@ -950,7 +950,8 @@ constexpr auto try_parse_non_nestable_equal_sign_tag(
         auto const nested_tag_type = v.get_nested_tag_type();
         if (nested_tag_type == ::pltxt2htm::NodeKind::pl_experiment ||
             nested_tag_type == ::pltxt2htm::NodeKind::pl_discussion ||
-            nested_tag_type == ::pltxt2htm::NodeKind::pl_external) {
+            nested_tag_type == ::pltxt2htm::NodeKind::pl_external ||
+            nested_tag_type == ::pltxt2htm::NodeKind::pl_link) {
             return ::exception::nullopt;
         }
     }
@@ -3044,6 +3045,60 @@ constexpr auto try_parse_external_tag(
     }
 
     return ::pltxt2htm::details::TryParseExternalTagResult<ndebug>{
+        result.template value<ndebug == ::pltxt2htm::Contracts::ignore>().tag_len,
+        ::std::move(opt_url.template value<ndebug == ::pltxt2htm::Contracts::ignore>().url)};
+}
+
+/**
+ * @brief Parse `<link="...">` tag (Unity TextMeshPro rich text) and validate its URL payload.
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
+ * @param[in] pltext The input text starting at the `link` tag payload.
+ * @param[in] call_stack Active parser frames used to reject invalid nested contexts.
+ * @return Parsed tag length and extracted URL on success; nullopt if invalid or disallowed nesting.
+ * @note The Unity TextMeshPro link tag uses a quoted value: &lt;link=&quot;url&quot;&gt;. A value
+ *       without surrounding double quotes is rejected so that unquoted `<link=url>` stays plain text.
+ */
+template<::pltxt2htm::Contracts ndebug>
+struct TryParseLinkTagResult {
+    ::std::size_t tag_len;
+    ::pltxt2htm::Url url;
+};
+
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_link_tag(
+    ::fast_io::u8string_view pltext,
+    ::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>> const& call_stack) noexcept
+    -> ::exception::optional<::pltxt2htm::details::TryParseLinkTagResult<ndebug>> {
+    auto result = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<ndebug, u8"ink",
+                                                                              ::pltxt2htm::details::is_ascii_graphic>(
+        pltext, call_stack);
+    if (result.has_value() == false) {
+        return ::exception::nullopt;
+    }
+
+    auto&& [_, raw_value] = result.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+    if (raw_value.size() < 2 || ::pltxt2htm::details::u8string_view_index<ndebug>(raw_value, 0) != u8'"' ||
+        ::pltxt2htm::details::u8string_view_index<ndebug>(raw_value, raw_value.size() - 1) != u8'"') {
+        return ::exception::nullopt;
+    }
+    auto url_vw = ::pltxt2htm::details::u8string_view_subview<ndebug>(raw_value, 1, raw_value.size() - 2);
+    auto opt_auth_end = ::pltxt2htm::details::try_parse_url_authority<ndebug>(
+        url_vw, ::pltxt2htm::details::try_parse_url_scheme<ndebug>(url_vw).value_or(::std::size_t{}));
+    if (opt_auth_end.has_value() == false) {
+        return ::exception::nullopt;
+    }
+    auto auth_end = opt_auth_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+    auto path_end = ::pltxt2htm::details::try_parse_url_path_simple<ndebug>(url_vw, auth_end);
+    if (path_end != url_vw.size()) {
+        return ::exception::nullopt;
+    }
+    auto opt_url = ::pltxt2htm::details::make_try_parse_url_result<ndebug>(url_vw, url_vw.size());
+    if (opt_url.has_value() == false) {
+        return ::exception::nullopt;
+    }
+
+    return ::pltxt2htm::details::TryParseLinkTagResult<ndebug>{
         result.template value<ndebug == ::pltxt2htm::Contracts::ignore>().tag_len,
         ::std::move(opt_url.template value<ndebug == ::pltxt2htm::Contracts::ignore>().url)};
 }

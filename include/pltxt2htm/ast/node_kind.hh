@@ -44,6 +44,7 @@ enum class NodeKind : unsigned {
     pl_user, ///< Physics-Lab user reference: &lt;user=id&gt;...&lt;/user&gt;
     pl_size, ///< Physics-Lab font size: &lt;size=value&gt;...&lt;/size&gt;
     pl_external, ///< Physics-Lab external link: &lt;external=url&gt;...&lt;/external&gt;
+    pl_link, ///< Physics-Lab link (Unity TextMeshPro rich text): &lt;link=&quot;url&quot;&gt;...&lt;/link&gt;
 
     // Text formatting (shared across Physics-Lab, HTML, and Markdown)
     pl_b, ///< Bold text: &lt;b&gt;...&lt;/b&gt;, Markdown double emphasis, &lt;strong&gt; in HTML
@@ -227,10 +228,11 @@ constexpr auto is_md_list_ul_or_ol_type(::pltxt2htm::NodeKind const node_type) n
 [[nodiscard]]
 constexpr auto is_plain_pltext_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
     return !(::pltxt2htm::details::is_equal_sign_tag_type(node_type) ||
-             node_type == ::pltxt2htm::NodeKind::pl_external || node_type == ::pltxt2htm::NodeKind::pl_size ||
-             node_type == ::pltxt2htm::NodeKind::md_block_quotes || node_type == ::pltxt2htm::NodeKind::md_link ||
-             node_type == ::pltxt2htm::NodeKind::html_span || node_type == ::pltxt2htm::NodeKind::html_a ||
-             node_type == ::pltxt2htm::NodeKind::html_td || ::pltxt2htm::details::is_md_list_ul_or_ol_type(node_type));
+             node_type == ::pltxt2htm::NodeKind::pl_external || node_type == ::pltxt2htm::NodeKind::pl_link ||
+             node_type == ::pltxt2htm::NodeKind::pl_size || node_type == ::pltxt2htm::NodeKind::md_block_quotes ||
+             node_type == ::pltxt2htm::NodeKind::md_link || node_type == ::pltxt2htm::NodeKind::html_span ||
+             node_type == ::pltxt2htm::NodeKind::html_a || node_type == ::pltxt2htm::NodeKind::html_td ||
+             ::pltxt2htm::details::is_md_list_ul_or_ol_type(node_type));
 }
 
 } // namespace details
