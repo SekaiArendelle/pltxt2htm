@@ -803,7 +803,7 @@ entry:
                         a_tag.is_valid()) {
                         auto tag_len = a_tag.tag_len;
                         ::pltxt2htm::Url url =
-                            ::std::move(a_tag.url).template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                            ::std::move(a_tag.url.template value<ndebug == ::pltxt2htm::Contracts::ignore>());
                         auto const internal = a_tag.internal;
                         current_index += tag_len + 2;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
@@ -1028,7 +1028,7 @@ entry:
                         external_tag.is_valid()) {
                         auto tag_len = external_tag.tag_len;
                         ::pltxt2htm::Url url =
-                            ::std::move(external_tag.url).template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                            ::std::move(external_tag.url.template value<ndebug == ::pltxt2htm::Contracts::ignore>());
                         current_index += tag_len + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                             ::pltxt2htm::details::FrontendContextVariant<ndebug>{
@@ -1229,7 +1229,7 @@ entry:
                         // parsing: <link="url">$1</link>
                         auto tag_len = link_tag.tag_len;
                         ::pltxt2htm::Url url =
-                            ::std::move(link_tag.url).template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                            ::std::move(link_tag.url.template value<ndebug == ::pltxt2htm::Contracts::ignore>());
                         current_index += tag_len + 3;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                             ::pltxt2htm::details::FrontendContextVariant<ndebug>{

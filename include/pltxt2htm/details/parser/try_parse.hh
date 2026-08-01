@@ -2091,7 +2091,8 @@ constexpr auto try_parse_entity_reference(::fast_io::u8string_view text) noexcep
  * @note When end_string is non-empty, the function consumes it and stops parsing immediately after.
  */
 template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::U8LiteralString end_string>
-[[nodiscard]] constexpr auto simply_parse_pltext(::fast_io::u8string_view pltext) noexcept
+[[nodiscard]]
+constexpr auto simply_parse_pltext(::fast_io::u8string_view pltext) noexcept
     -> ::pltxt2htm::details::SimplyParsePLtextResult<ndebug> {
     ::pltxt2htm::Ast<ndebug> ast{};
     ::std::size_t current_index{};
