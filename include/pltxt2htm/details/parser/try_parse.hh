@@ -2811,6 +2811,15 @@ constexpr auto make_try_parse_url_result(::fast_io::u8string_view const parsed_u
                 index += 4;
             }
         }
+        if (chr > u8'~') {
+            // non-ASCII byte (e.g. UTF-8 CJK): percent-encode it so tag URLs keep the raw characters
+            url_str.push_back(u8'%');
+            auto const hi = static_cast<unsigned>(chr) >> 4;
+            auto const lo = static_cast<unsigned>(chr) & 0x0F;
+            url_str.push_back(hi < 10 ? u8'0' + hi : u8'A' + (hi - 10));
+            url_str.push_back(lo < 10 ? u8'0' + lo : u8'A' + (lo - 10));
+            continue;
+        }
         switch (chr) {
         case u8'\'': {
             url_str.append(u8"%27");
@@ -2857,6 +2866,36 @@ constexpr auto try_parse_url_path_simple(::fast_io::u8string_view pltext, ::std:
     while (start_index < pltext.size()) {
         auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, start_index);
         if (chr < u8'!' || chr > u8'~' || chr == u8'<' || chr == u8'>' || chr == u8'\"') {
+            break;
+        }
+        ++start_index;
+    }
+    return start_index;
+}
+
+/**
+ * @brief Parse a URL path that may contain non-ASCII bytes (percent-encoded later).
+ * @details Like try_parse_url_path_simple but also accepts bytes >= 0x7F so tag URLs
+ *          (html_a / pl_external / pl_link) can carry UTF-8 characters (e.g. CJK);
+ *          make_try_parse_url_result percent-encodes them. Auto-detected URLs stay ASCII-only.
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
+ * @param[in] pltext The full input text view.
+ * @param[in] start_index The index at which to start parsing the path (typically after authority).
+ * @return The index at which the path ends.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_url_path_unicode(::fast_io::u8string_view pltext, ::std::size_t start_index) noexcept
+    -> ::std::size_t {
+    if (start_index < pltext.size()) {
+        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, start_index);
+        if (chr != u8'/' && chr != u8'?' && chr != u8'#') {
+            return start_index;
+        }
+    }
+    while (start_index < pltext.size()) {
+        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, start_index);
+        if (chr < u8'!' || chr == u8'<' || chr == u8'>' || chr == u8'\"') {
             break;
         }
         ++start_index;
@@ -2945,7 +2984,7 @@ constexpr auto try_parse_html_a_tag(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt;
     }
     auto auth_end = opt_auth_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    auto path_end = ::pltxt2htm::details::try_parse_url_path_simple<ndebug>(attr_val, auth_end);
+    auto path_end = ::pltxt2htm::details::try_parse_url_path_unicode<ndebug>(attr_val, auth_end);
     if (path_end != attr_val.size()) {
         return ::exception::nullopt;
     }
@@ -3021,7 +3060,7 @@ constexpr auto try_parse_external_tag(
     ::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>> const& call_stack) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseExternalTagResult<ndebug>> {
     auto result = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<ndebug, u8"xternal",
-                                                                              ::pltxt2htm::details::is_ascii_graphic>(
+                                                                              ::pltxt2htm::details::is_url_value_char>(
         pltext, call_stack);
     if (result.has_value() == false) {
         return ::exception::nullopt;
@@ -3035,7 +3074,7 @@ constexpr auto try_parse_external_tag(
         return ::exception::nullopt;
     }
     auto auth_end = opt_auth_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    auto path_end = ::pltxt2htm::details::try_parse_url_path_simple<ndebug>(url_vw, auth_end);
+    auto path_end = ::pltxt2htm::details::try_parse_url_path_unicode<ndebug>(url_vw, auth_end);
     if (path_end != url_vw.size()) {
         return ::exception::nullopt;
     }
@@ -3071,7 +3110,7 @@ constexpr auto try_parse_link_tag(
     ::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>> const& call_stack) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseLinkTagResult<ndebug>> {
     auto result = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<ndebug, u8"ink",
-                                                                              ::pltxt2htm::details::is_ascii_graphic>(
+                                                                              ::pltxt2htm::details::is_url_value_char>(
         pltext, call_stack);
     if (result.has_value() == false) {
         return ::exception::nullopt;
@@ -3089,7 +3128,7 @@ constexpr auto try_parse_link_tag(
         return ::exception::nullopt;
     }
     auto auth_end = opt_auth_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    auto path_end = ::pltxt2htm::details::try_parse_url_path_simple<ndebug>(url_vw, auth_end);
+    auto path_end = ::pltxt2htm::details::try_parse_url_path_unicode<ndebug>(url_vw, auth_end);
     if (path_end != url_vw.size()) {
         return ::exception::nullopt;
     }

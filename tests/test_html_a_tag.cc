@@ -152,5 +152,20 @@ int main() {
         pltxt2htm_test_assert_equal(pass2, pass1);
     }
 
+    {
+        // non-ASCII (CJK) in the path is accepted and percent-encoded
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<a href=\"https://x.com/中文\">click</a>");
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"https://x.com/%E4%B8%AD%E6%96%87\">click</a>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // non-ASCII in the authority (domain) is still rejected; the tag stays literal
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<a href=\"https://中文.com/path\">click</a>");
+        auto answer =
+            ::fast_io::u8string_view{u8"&lt;a&nbsp;href=&quot;https://中文.com/path&quot;&gt;click&lt;/a&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }

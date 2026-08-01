@@ -208,5 +208,12 @@ int main() {
         auto answer = ::fast_io::u8string_view{u8"https://example-.com/a/path"};
         pltxt2htm_test_assert_equal(html, answer);
     }
+    {
+        // non-ASCII is not auto-linked: only the ASCII prefix becomes a link
+        auto pltext = ::fast_io::u8string_view{u8"x https://x.com/中文 y"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer = ::fast_io::u8string_view{u8"x&nbsp;<a href=\"https://x.com/\">https://x.com/</a>中文&nbsp;y"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
     return 0;
 }

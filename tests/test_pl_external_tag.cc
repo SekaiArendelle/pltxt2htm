@@ -171,5 +171,12 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        // non-ASCII (CJK) in the external path is accepted and percent-encoded
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<external=https://x.com/中文>x</external>");
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"https://x.com/%E4%B8%AD%E6%96%87\">x</a>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }
