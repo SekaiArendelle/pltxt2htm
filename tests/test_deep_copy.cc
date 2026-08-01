@@ -107,7 +107,7 @@ int main() {
 
     // Copy an Ast (vector of PlTxtNode)
     {
-        ::pltxt2htm::Ast<nd::quick_enforce> original{::pltxt2htm::U8Char{u8'A'}, ::pltxt2htm::U8Char{u8'B'}};
+        ::pltxt2htm::Ast<nd::quick_enforce> const original{::pltxt2htm::U8Char{u8'A'}, ::pltxt2htm::U8Char{u8'B'}};
 
         auto const copy = original;
         ::exception::assert_true<false>(original == copy);
