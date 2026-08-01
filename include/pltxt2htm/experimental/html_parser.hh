@@ -91,7 +91,7 @@ entry:
                 case u8'A': {
                     if (auto a_tag = ::pltxt2htm::details::try_parse_html_a_tag<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
-                        a_tag.kind == ::pltxt2htm::details::TryParseTagOutcomeKind::valid) {
+                        a_tag.is_valid()) {
                         auto tag_len = a_tag.tag_len;
                         ::pltxt2htm::Url url =
                             ::std::move(a_tag.url).template value<ndebug == ::pltxt2htm::Contracts::ignore>();
