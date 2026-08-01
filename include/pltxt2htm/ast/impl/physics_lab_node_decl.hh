@@ -15,6 +15,7 @@
 #include "../../details/literal_string.hh"
 #include "ast_decl.hh"
 #include "basic_node_decl.hh"
+#include "../font_size_value.hh"
 #include "../node_kind.hh"
 #include "../../contracts.hh"
 

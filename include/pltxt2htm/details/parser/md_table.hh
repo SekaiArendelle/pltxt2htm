@@ -14,6 +14,7 @@
 #include <exception/exception.hh>
 #include "../utils.hh"
 #include "../../contracts.hh"
+#include "../../ast/font_size_value.hh"
 #include "../../ast/node_kind.hh"
 #include "../../details/push_macro.hh"
 

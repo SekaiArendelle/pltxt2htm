@@ -6,6 +6,7 @@
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
 #include <exception/exception.hh>
+#include "../ast/font_size_value.hh"
 #include "../ast/node_kind.hh"
 #include "../ast/ast.hh"
 #include "../contracts.hh"

@@ -13,6 +13,7 @@
 #include <exception/exception.hh>
 #include "ast_decl.hh"
 #include "basic_node_decl.hh"
+#include "../font_size_value.hh"
 #include "../node_kind.hh"
 
 namespace pltxt2htm {
@@ -521,7 +522,7 @@ class HtmlSpan {
 
 public:
     constexpr HtmlSpan(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& color_,
-                       ::exception::optional<::pltxt2htm::FontSizeValue>&& font_size_) noexcept;
+                       ::exception::optional<::pltxt2htm::FontSizeValue> font_size_) noexcept;
     constexpr HtmlSpan(::pltxt2htm::HtmlSpan<ndebug> const&) noexcept;
     constexpr HtmlSpan(::pltxt2htm::HtmlSpan<ndebug>&&) noexcept;
     constexpr ~HtmlSpan() noexcept;

@@ -16,6 +16,7 @@
 #include "md_table.hh"
 #include "../../contracts.hh"
 #include "../../ast/ast.hh"
+#include "../../ast/font_size_value.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::details {
