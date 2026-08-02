@@ -358,7 +358,7 @@ constexpr auto try_parse_size_t_decimal_value(::fast_io::u8string_view str, ::st
     if (pos == start) {
         return ::exception::nullopt;
     }
-    return ::pltxt2htm::details::TryParseSizeTDecimalValueResult{pos, parsed_value};
+    return ::pltxt2htm::details::TryParseSizeTDecimalValueResult{.end = pos, .value = parsed_value};
 }
 
 /**
