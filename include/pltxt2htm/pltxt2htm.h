@@ -38,7 +38,7 @@ template<auto Func, typename... Args>
 constexpr char8_t const* c_ptr_style_wrapper(Args&&... args) noexcept(
     noexcept((Func(::std::forward<Args&&>(args)...)))) {
     auto const html = Func(::std::forward<Args&&>(args)...);
-    char8_t* result = static_cast<char8_t*>(::std::malloc(html.size() + 1));
+    auto result = static_cast<char8_t*>(::std::malloc(html.size() + 1));
     if (result == nullptr) [[unlikely]] {
         // bad alloc error should never be an exception or err-code
         ::exception::terminate();
