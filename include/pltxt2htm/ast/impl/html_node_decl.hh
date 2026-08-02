@@ -573,12 +573,12 @@ class HtmlSpan {
     ::pltxt2htm::Ast<ndebug> subast;
     ::fast_io::u8string color;
     ::exception::optional<::pltxt2htm::FontSizeValue> font_size;
-    ::exception::optional<::pltxt2htm::VerticalAlignValue> vertical_align;
+    ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align;
 
 public:
     constexpr HtmlSpan(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& color_,
                        ::exception::optional<::pltxt2htm::FontSizeValue> font_size_,
-                       ::exception::optional<::pltxt2htm::VerticalAlignValue> vertical_align_) noexcept;
+                       ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align_) noexcept;
     constexpr HtmlSpan(::pltxt2htm::HtmlSpan<ndebug> const&) noexcept;
     constexpr HtmlSpan(::pltxt2htm::HtmlSpan<ndebug>&&) noexcept;
     constexpr ~HtmlSpan() noexcept;

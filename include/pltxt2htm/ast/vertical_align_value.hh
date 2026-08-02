@@ -46,8 +46,10 @@ enum class VerticalAlignKind : unsigned {
  *          active member is `keyword`; when `kind == length`, the active member
  *          is `length` (a ::pltxt2htm::FontSizeValue). Exactly one member is
  *          active at any time. The `kind` is derived from the constructor used
- *          and needs no explicit argument.
+ *          and needs no explicit argument. Template parameter `ndebug` selects
+ *          whether the accessor contract checks are enforced at runtime.
  */
+template<::pltxt2htm::Contracts ndebug>
 class VerticalAlignValue {
     ::pltxt2htm::VerticalAlignKind kind; ///< Discriminator of the value.
 
@@ -68,7 +70,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto operator==(::pltxt2htm::VerticalAlignValue const& other) const noexcept -> bool {
+    constexpr auto operator==(::pltxt2htm::VerticalAlignValue<ndebug> const& other) const noexcept -> bool {
         if (kind != other.kind) {
             return false;
         }
@@ -85,11 +87,15 @@ public:
 
     [[nodiscard]]
     constexpr auto get_keyword(this auto const& self) noexcept -> VerticalAlignKeyword {
+        bool const is_keyword{self.kind == ::pltxt2htm::VerticalAlignKind::keyword};
+        pltxt2htm_assert(is_keyword, u8"vertical-align kind mismatch");
         return self.keyword;
     }
 
     [[nodiscard]]
     constexpr auto get_length(this auto&& self) noexcept -> decltype(auto) {
+        bool const is_length{self.kind == ::pltxt2htm::VerticalAlignKind::length};
+        pltxt2htm_assert(is_length, u8"vertical-align kind mismatch");
         return ::std::forward_like<decltype(self)>(self.length);
     }
 };

@@ -51,11 +51,12 @@ public:
 /**
  * @brief Context for optimizer html_span frames, remembers color, font-size and vertical-align.
  */
+template<::pltxt2htm::Contracts ndebug>
 class OptimizerContextWithHtmlSpanInfo {
 public:
     ::fast_io::u8string_view color{};
     ::exception::optional<::pltxt2htm::FontSizeValue> font_size{::exception::nullopt};
-    ::exception::optional<::pltxt2htm::VerticalAlignValue> vertical_align{::exception::nullopt};
+    ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align{::exception::nullopt};
 };
 
 /**
@@ -70,7 +71,7 @@ public:
         ::pltxt2htm::details::OptimizerContextWithoutInfo without_info;
         ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo equal_sign_tag;
         ::pltxt2htm::details::OptimizerContextWithPlSizeTagInfo pl_size_tag;
-        ::pltxt2htm::details::OptimizerContextWithHtmlSpanInfo html_span_info;
+        ::pltxt2htm::details::OptimizerContextWithHtmlSpanInfo<ndebug> html_span_info;
     };
 
     ::pltxt2htm::NodeKind kind; ///< Type of the current nested tag context
@@ -93,7 +94,7 @@ public:
     }
 
     constexpr OptimizerContextVariant(
-        ::pltxt2htm::details::OptimizerContextWithHtmlSpanInfo&& html_span_context) noexcept
+        ::pltxt2htm::details::OptimizerContextWithHtmlSpanInfo<ndebug>&& html_span_context) noexcept
         : html_span_info{::std::move(html_span_context)},
           kind{::pltxt2htm::NodeKind::html_span} {
     }
@@ -194,7 +195,7 @@ public:
 
     constexpr OptimizerFrameContext(
         ::pltxt2htm::Ast<ndebug>* ast_, Iter&& iter_,
-        ::pltxt2htm::details::OptimizerContextWithHtmlSpanInfo&& html_span_context_) noexcept
+        ::pltxt2htm::details::OptimizerContextWithHtmlSpanInfo<ndebug>&& html_span_context_) noexcept
         : context_data{::std::move(html_span_context_)},
           ast(ast_),
           iter{iter_} {
@@ -438,7 +439,7 @@ entry:
                         else if (outer_fs.has_value()) {
                             merged_fs = outer_fs.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                         }
-                        ::exception::optional<::pltxt2htm::VerticalAlignValue> merged_va{::exception::nullopt};
+                        ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> merged_va{::exception::nullopt};
                         if (inner_va.has_value()) {
                             merged_va = inner_va.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                         }
@@ -539,7 +540,7 @@ entry:
                         ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator,
                                                                     ndebug>(
                             ::std::addressof(subast), subast.begin(),
-                            ::pltxt2htm::details::OptimizerContextWithHtmlSpanInfo{
+                            ::pltxt2htm::details::OptimizerContextWithHtmlSpanInfo<ndebug>{
                                 ::fast_io::u8string_view{span_color.data(), span_color.size()}, span_font_size,
                                 span_vertical_align}));
                     goto entry;
