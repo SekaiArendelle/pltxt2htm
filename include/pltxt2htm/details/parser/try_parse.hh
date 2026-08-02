@@ -1465,10 +1465,10 @@ constexpr auto try_parse_span_tag(::fast_io::u8string_view pltext) noexcept
         if (opt_style.has_value() == false) {
             return ::exception::nullopt;
         }
-        auto const& style = opt_style.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-        color = style.color;
-        font_size = style.font_size;
-        vertical_align = style.vertical_align;
+        auto& style = opt_style.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        color = ::std::move(style.color);
+        font_size = ::std::move(style.font_size);
+        vertical_align = ::std::move(style.vertical_align);
         pos += style.end;
     }
 
