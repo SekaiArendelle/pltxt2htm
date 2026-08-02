@@ -15,6 +15,7 @@
 #include "../../contracts.hh"
 #include "../../ast/ast.hh"
 #include "../../ast/font_size_value.hh"
+#include "../../ast/vertical_align_value.hh"
 #include "../push_macro.hh"
 
 /**
@@ -1050,12 +1051,15 @@ constexpr auto try_parse_size_tag(::fast_io::u8string_view pltext) noexcept
 }
 
 /**
- * @brief Return type of try_parse_span_tag: tag length, color, and optional font-size.
+ * @brief Return type of try_parse_span_tag: tag length, color, and optional font-size/vertical-align.
  */
+template<::pltxt2htm::Contracts ndebug>
 struct TryParseSpanTagResult {
     ::std::size_t tag_len; ///< Length of the matched tag.
     ::fast_io::u8string color; ///< Extracted color value.
     ::exception::optional<::pltxt2htm::FontSizeValue> font_size; ///< Extracted font-size value+unit (if present).
+    ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>>
+        vertical_align; ///< Extracted vertical-align value (if present).
 };
 
 /**
@@ -1098,6 +1102,87 @@ constexpr auto try_parse_font_size_value(::fast_io::u8string_view pltext, ::std:
 }
 
 /**
+ * @brief Result of parsing a CSS vertical-align value.
+ */
+template<::pltxt2htm::Contracts ndebug>
+struct TryParseVerticalAlignValueResult {
+    ::std::size_t end;
+    ::pltxt2htm::VerticalAlignValue<ndebug> value;
+};
+
+/**
+ * @brief Try to match a lowercase CSS vertical-align keyword at the start of `pltext`.
+ * @details `pltext` must be a view starting at the candidate keyword (the caller subviews
+ *          it). Rejects the keyword when the following character is an ASCII letter or
+ *          digit, so that e.g. "superx" or "sub2" do not silently parse as keywords.
+ * @param[in] pltext The input text view starting at the candidate keyword.
+ * @param[in] keyword The keyword spelling to match.
+ * @return The consumed length (`keyword.size()`) on success; nullopt on mismatch.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_vertical_align_keyword(::fast_io::u8string_view pltext,
+                                                ::fast_io::u8string_view const keyword) noexcept
+    -> ::exception::optional<::std::size_t> {
+    if (pltext.size() < keyword.size()) {
+        return ::exception::nullopt;
+    }
+    if (::fast_io::u8string_view{pltext.data(), keyword.size()} != keyword) {
+        return ::exception::nullopt;
+    }
+    if (pltext.size() > keyword.size()) {
+        auto const next = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, keyword.size());
+        if (::pltxt2htm::details::is_ascii_alpha(next) || ::pltxt2htm::details::is_ascii_digit(next)) {
+            return ::exception::nullopt;
+        }
+    }
+    return keyword.size();
+}
+
+/**
+ * @brief Parse a CSS vertical-align value: a lowercase keyword or a non-zero px/% length.
+ * @param[in] pltext Input text starting at the value.
+ * @param[in] start Position of the first value character (whitespace already skipped).
+ * @return Parsed value with its end position on success; nullopt on failure.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_vertical_align_value(::fast_io::u8string_view pltext, ::std::size_t const start) noexcept
+    -> ::exception::optional<::pltxt2htm::details::TryParseVerticalAlignValueResult<ndebug>> {
+    struct VerticalAlignKeywordEntry {
+        ::pltxt2htm::VerticalAlignKeyword keyword;
+        ::fast_io::u8string_view spelling;
+    };
+
+    static constexpr VerticalAlignKeywordEntry keywords[]{
+        {::pltxt2htm::VerticalAlignKeyword::baseline, ::fast_io::u8string_view{u8"baseline"}},
+        {::pltxt2htm::VerticalAlignKeyword::text_bottom, ::fast_io::u8string_view{u8"text-bottom"}},
+        {::pltxt2htm::VerticalAlignKeyword::text_top, ::fast_io::u8string_view{u8"text-top"}},
+        {::pltxt2htm::VerticalAlignKeyword::super, ::fast_io::u8string_view{u8"super"}},
+        {::pltxt2htm::VerticalAlignKeyword::sub, ::fast_io::u8string_view{u8"sub"}},
+        {::pltxt2htm::VerticalAlignKeyword::middle, ::fast_io::u8string_view{u8"middle"}},
+        {::pltxt2htm::VerticalAlignKeyword::bottom, ::fast_io::u8string_view{u8"bottom"}},
+        {::pltxt2htm::VerticalAlignKeyword::top, ::fast_io::u8string_view{u8"top"}},
+    };
+    for (auto const& entry : keywords) {
+        auto opt_len = ::pltxt2htm::details::try_parse_vertical_align_keyword<ndebug>(
+            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start), entry.spelling);
+        if (opt_len.has_value()) {
+            auto const len = opt_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            return TryParseVerticalAlignValueResult<ndebug>{
+                .end = start + len, .value = ::pltxt2htm::VerticalAlignValue<ndebug>{entry.keyword}};
+        }
+    }
+    auto opt_length = ::pltxt2htm::details::try_parse_font_size_value<ndebug>(pltext, start);
+    if (opt_length.has_value() == false) {
+        return ::exception::nullopt;
+    }
+    auto const length = opt_length.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+    return TryParseVerticalAlignValueResult<ndebug>{.end = length.end,
+                                                    .value = ::pltxt2htm::VerticalAlignValue<ndebug>{length.font_size}};
+}
+
+/**
  * @brief Skip trailing whitespace and require a CSS property delimiter.
  */
 template<::pltxt2htm::Contracts ndebug>
@@ -1117,9 +1202,10 @@ constexpr bool try_parse_span_style_property_suffix(::fast_io::u8string_view plt
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr bool try_parse_span_style(::fast_io::u8string_view pltext, ::std::size_t& pos, char8_t const quote,
-                                    ::fast_io::u8string& color,
-                                    ::exception::optional<::pltxt2htm::FontSizeValue>& font_size) noexcept {
+constexpr bool try_parse_span_style(
+    ::fast_io::u8string_view pltext, ::std::size_t& pos, char8_t const quote, ::fast_io::u8string& color,
+    ::exception::optional<::pltxt2htm::FontSizeValue>& font_size,
+    ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>>& vertical_align) noexcept {
     while (pos < pltext.size()) {
         while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
                                        ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t')) {
@@ -1195,6 +1281,21 @@ constexpr bool try_parse_span_style(::fast_io::u8string_view pltext, ::std::size
             }
             font_size = value.font_size;
         }
+        else if (property == ::fast_io::u8string_view{u8"vertical-align"}) {
+            if (vertical_align.has_value()) {
+                return false;
+            }
+            auto opt_value = ::pltxt2htm::details::try_parse_vertical_align_value<ndebug>(pltext, pos);
+            if (opt_value.has_value() == false) {
+                return false;
+            }
+            auto const value = opt_value.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            pos = value.end;
+            if (::pltxt2htm::details::try_parse_span_style_property_suffix<ndebug>(pltext, pos, quote) == false) {
+                return false;
+            }
+            vertical_align = value.value;
+        }
         else {
             return false;
         }
@@ -1215,14 +1316,15 @@ constexpr bool try_parse_span_style(::fast_io::u8string_view pltext, ::std::size
  * @brief Parse &lt;span style="color:V;font-size:S"&gt; and reject any other attributes or CSS properties.
  * @tparam ndebug When set to Contracts::ignore, runtime assertions are disabled for performance.
  * @param[in] pltext Input text starting at "pan ..." (after "<s").
- * @return Parsed tag result with color and/or font_size on success; nullopt on failure.
- * @note Only the lowercase "style" attribute is accepted. Within style, only lowercase "color" and
- *       "font-size" CSS properties are accepted. Any other attribute or CSS property causes parse failure.
+ * @return Parsed tag result with color and/or font_size/vertical-align on success; nullopt on failure.
+ * @note Only the lowercase "style" attribute is accepted. Within style, only lowercase "color",
+ *       "font-size" and "vertical-align" CSS properties are accepted. Any other attribute or
+ *       CSS property causes parse failure.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_span_tag(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<TryParseSpanTagResult> {
+    -> ::exception::optional<TryParseSpanTagResult<ndebug>> {
     // match "pan" prefix (case-insensitive)
     if (::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"pan"}>(pltext) ==
         false) {
@@ -1233,6 +1335,7 @@ constexpr auto try_parse_span_tag(::fast_io::u8string_view pltext) noexcept
     bool found_style{false};
     ::fast_io::u8string color{};
     ::exception::optional<::pltxt2htm::FontSizeValue> font_size{::exception::nullopt};
+    ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align{::exception::nullopt};
 
     while (pos < pltext.size()) {
         // skip whitespace
@@ -1288,19 +1391,23 @@ constexpr auto try_parse_span_tag(::fast_io::u8string_view pltext) noexcept
         }
         found_style = true;
         ++pos;
-        if (::pltxt2htm::details::try_parse_span_style<ndebug>(pltext, pos, quote, color, font_size) == false) {
+        if (::pltxt2htm::details::try_parse_span_style<ndebug>(pltext, pos, quote, color, font_size, vertical_align) ==
+            false) {
             return ::exception::nullopt;
         }
         ++pos;
     }
 
-    if (found_style == false || (color.empty() && !font_size.has_value())) {
+    if (found_style == false || (color.empty() && !font_size.has_value() && !vertical_align.has_value())) {
         return ::exception::nullopt;
     }
     if (pos >= pltext.size() || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'>') {
         return ::exception::nullopt;
     }
-    return TryParseSpanTagResult{.tag_len = pos + 1, .color = ::std::move(color), .font_size = ::std::move(font_size)};
+    return TryParseSpanTagResult{.tag_len = pos + 1,
+                                 .color = ::std::move(color),
+                                 .font_size = ::std::move(font_size),
+                                 .vertical_align = ::std::move(vertical_align)};
 }
 
 /**

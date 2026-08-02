@@ -36,6 +36,11 @@ using ::pltxt2htm::TableAlign;
 using ::pltxt2htm::SizeUnit;
 using ::pltxt2htm::FontSizeValue;
 
+// vertical-align keywords and value
+using ::pltxt2htm::VerticalAlignKeyword;
+using ::pltxt2htm::VerticalAlignKind;
+using ::pltxt2htm::VerticalAlignValue;
+
 // ast2 types
 using ::pltxt2htm::PlTxtNode;
 using ::pltxt2htm::Ast;

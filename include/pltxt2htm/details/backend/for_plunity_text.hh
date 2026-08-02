@@ -16,6 +16,7 @@
 #include <fast_io/fast_io_dsal/string_view.h>
 #include <exception/exception.hh>
 #include "../../ast/font_size_value.hh"
+#include "../../ast/vertical_align_value.hh"
 #include "frame_context.hh"
 #include "../../contracts.hh"
 #include "../../details/utils.hh"
@@ -372,12 +373,23 @@ entry:
             case ::pltxt2htm::NodeKind::html_span: {
                 auto const& span_color = node.as_html_span().get_color();
                 auto const& span_font_size = node.as_html_span().get_font_size();
+                auto const& span_vertical_align = node.as_html_span().get_vertical_align();
                 bool const has_color = !span_color.empty();
                 bool const has_font_size = span_font_size.has_value();
+                // Only px lengths map to <voffset>; keywords/percent have no TMP_Text equivalent.
+                bool const has_vertical_align = [&] {
+                    if (span_vertical_align.has_value() == false) {
+                        return false;
+                    }
+                    auto const& val = span_vertical_align.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    return val.get_kind() == ::pltxt2htm::VerticalAlignKind::length &&
+                           val.get_length().unit == ::pltxt2htm::SizeUnit::px;
+                }();
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_html_span().get_subast(), 0,
                     ::pltxt2htm::details::BackendContextWithHtmlSpanInfo{.has_color = has_color,
-                                                                         .has_font_size = has_font_size}));
+                                                                         .has_font_size = has_font_size,
+                                                                         .has_vertical_align = has_vertical_align}));
                 ++current_index;
                 if (has_color) {
                     result.append(u8"<color=");
@@ -385,12 +397,20 @@ entry:
                     result.push_back(u8'>');
                 }
                 if (has_font_size) {
-                    auto const& font_size = span_font_size.value();
+                    auto const& font_size = span_font_size.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                     result.append(u8"<size=");
                     result.append(::pltxt2htm::details::size_t2str(font_size.font_size));
                     if (font_size.unit == ::pltxt2htm::SizeUnit::percent) {
                         result.push_back(u8'%');
                     }
+                    result.push_back(u8'>');
+                }
+                if (has_vertical_align) {
+                    result.append(u8"<voffset=");
+                    result.append(::pltxt2htm::details::size_t2str(
+                        span_vertical_align.template value<ndebug == ::pltxt2htm::Contracts::ignore>()
+                            .get_length()
+                            .font_size));
                     result.push_back(u8'>');
                 }
                 goto entry;
@@ -1197,6 +1217,9 @@ entry:
             }
             case ::pltxt2htm::NodeKind::html_span: {
                 auto const& span_info = top_frame.get_html_span_info();
+                if (span_info.has_vertical_align) {
+                    result.append(u8"</voffset>");
+                }
                 if (span_info.has_font_size) {
                     result.append(u8"</size>");
                 }

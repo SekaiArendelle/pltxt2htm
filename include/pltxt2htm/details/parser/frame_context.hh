@@ -17,6 +17,7 @@
 #include "../../contracts.hh"
 #include "../../ast/ast.hh"
 #include "../../ast/font_size_value.hh"
+#include "../../ast/vertical_align_value.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::details {
@@ -58,11 +59,13 @@ public:
 /**
  * @brief Context for html_span frames during parsing.
  */
+template<::pltxt2htm::Contracts ndebug>
 class ParserFrameContextWithHtmlSpanInfo {
 public:
     ::fast_io::u8string_view pltext;
     ::fast_io::u8string color;
     ::exception::optional<::pltxt2htm::FontSizeValue> font_size;
+    ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align;
 };
 
 /**
@@ -202,7 +205,7 @@ public:
     union {
         ::pltxt2htm::details::ParserFrameContextWithPltextInfo pltext;
         ::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo equal_sign_tag;
-        ::pltxt2htm::details::ParserFrameContextWithHtmlSpanInfo html_span_info;
+        ::pltxt2htm::details::ParserFrameContextWithHtmlSpanInfo<ndebug> html_span_info;
         ::pltxt2htm::details::ParserFrameContextWithHtmlCodeInfo html_code_info;
         ::pltxt2htm::details::ParserFrameContextWithUrlInfo url_info;
         ::pltxt2htm::details::ParserFrameContextWithHtmlATagInfo html_a_tag_info;
@@ -238,8 +241,9 @@ public:
           kind{node_kind_} {
     }
 
-    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithHtmlSpanInfo&& html_span_context,
-                                     ::pltxt2htm::NodeKind node_kind_) noexcept
+    constexpr FrontendContextVariant(
+        ::pltxt2htm::details::ParserFrameContextWithHtmlSpanInfo<ndebug>&& html_span_context,
+        ::pltxt2htm::NodeKind node_kind_) noexcept
         : html_span_info{::std::move(html_span_context)},
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
           context_branch{ContextBranch::html_span_info},
@@ -1344,6 +1348,14 @@ public:
         bool const is_html_span_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_span};
         pltxt2htm_assert(is_html_span_type, u8"context kind mismatch");
         return ::std::forward_like<decltype(self)>(context_data_ref.html_span_info.font_size);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_html_span_vertical_align(this auto&& self) noexcept -> decltype(auto) {
+        auto&& context_data_ref = self.context_data;
+        bool const is_html_span_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_span};
+        pltxt2htm_assert(is_html_span_type, u8"context kind mismatch");
+        return ::std::forward_like<decltype(self)>(context_data_ref.html_span_info.vertical_align);
     }
 
     [[nodiscard]]

@@ -412,5 +412,223 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:super\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:super;\">text</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:sub\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:sub;\">text</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:baseline\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:baseline;\">text</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:text-top\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:text-top;\">text</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:text-bottom\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:text-bottom;\">text</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:middle\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:middle;\">text</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:top\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:top;\">text</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:bottom\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:bottom;\">text</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:5px\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:5px;\">text</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:20%\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:20%;\">text</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"<span style=\"color:red;font-size:20px;vertical-align:super\">text</span>");
+        auto answer =
+            ::fast_io::u8string_view{u8"<span style=\"color:red;font-size:20px;vertical-align:super;\">text</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:20\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:20px;\">text</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // uppercase vertical-align property rejected (lowercase only)
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"VERTICAL-ALIGN:super\">text</span>");
+        auto answer =
+            ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;VERTICAL-ALIGN:super&quot;&gt;text&lt;/span&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // uppercase keyword rejected (lowercase only)
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:SUPER\">text</span>");
+        auto answer =
+            ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;vertical-align:SUPER&quot;&gt;text&lt;/span&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // keyword with trailing alphanumeric rejected ("superx" is not a keyword)
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:superx\">text</span>");
+        auto answer =
+            ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;vertical-align:superx&quot;&gt;text&lt;/span&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // unknown keyword rejected
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:foo\">text</span>");
+        auto answer =
+            ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;vertical-align:foo&quot;&gt;text&lt;/span&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // zero length rejected
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:0\">text</span>");
+        auto answer =
+            ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;vertical-align:0&quot;&gt;text&lt;/span&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // negative length rejected
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:-5px\">text</span>");
+        auto answer =
+            ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;vertical-align:-5px&quot;&gt;text&lt;/span&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // unsupported unit rejected (only px/% are accepted)
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:10em\">text</span>");
+        auto answer =
+            ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;vertical-align:10em&quot;&gt;text&lt;/span&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // duplicate vertical-align rejected
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:super;vertical-align:sub\">text</span>");
+        auto answer = ::fast_io::u8string_view{
+            u8"&lt;span&nbsp;style=&quot;vertical-align:super;vertical-align:sub&quot;&gt;text&lt;/span&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // matched nested vertical-align: should flatten
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"<span style=\"vertical-align:super\"><span style=\"vertical-align:super\">text</span></span>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:super;\">text</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // differing nested vertical-align: inner wins
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"<span style=\"vertical-align:super\"><span style=\"vertical-align:sub\">text</span></span>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:sub;\">text</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // differing nested vertical-align lengths: inner wins
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"<span style=\"vertical-align:5px\"><span style=\"vertical-align:10px\">text</span></span>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:10px;\">text</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // non-overlapping nested attrs: merge outer color with inner vertical-align
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"<span style=\"color:red\"><span style=\"vertical-align:super\">text</span></span>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"color:red;vertical-align:super;\">text</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // span with matching color AND vertical-align inside <color=red> should NOT flatten
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"<color=red>a<span style=\"color:red;vertical-align:super\">b</span>c</color>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<span style=\"color:red;\">a<span style=\"color:red;vertical-align:super;\">b</span>c</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // span with matching color AND vertical-align inside <a> should NOT flatten
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"<a>a<span style=\"color:#0000AA;vertical-align:super\">b</span>c</a>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<span style=\"color:#0000AA;\">a<span style=\"color:#0000AA;vertical-align:super;\">b</span>c</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // px vertical-align maps to <voffset> in Unity output
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<span style=\"vertical-align:5px\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"<voffset=5>text</voffset>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // keyword vertical-align is ignored in Unity output
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<span style=\"vertical-align:super\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"text"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // percent vertical-align is ignored in Unity output
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<span style=\"vertical-align:20%\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"text"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // color+font-size+px vertical-align combined in Unity output
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(
+            u8"<span style=\"color:red;font-size:16px;vertical-align:5px\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"<color=red><size=16><voffset=5>text</voffset></size></color>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }
