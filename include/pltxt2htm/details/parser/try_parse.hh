@@ -1111,28 +1111,32 @@ struct TryParseVerticalAlignValueResult {
 };
 
 /**
- * @brief Try to match a lowercase CSS vertical-align keyword at `pos`.
- * @details Rejects the keyword when the following character is an ASCII letter or
+ * @brief Try to match a lowercase CSS vertical-align keyword at the start of `pltext`.
+ * @details `pltext` must be a view starting at the candidate keyword (the caller subviews
+ *          it). Rejects the keyword when the following character is an ASCII letter or
  *          digit, so that e.g. "superx" or "sub2" do not silently parse as keywords.
+ * @param[in] pltext The input text view starting at the candidate keyword.
+ * @param[in] keyword The keyword spelling to match.
+ * @return The consumed length (`keyword.size()`) on success; nullopt on mismatch.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr bool try_parse_vertical_align_keyword(::fast_io::u8string_view pltext, ::std::size_t& pos,
-                                                ::fast_io::u8string_view const keyword) noexcept {
-    for (::std::size_t offset{0}; offset < keyword.size(); ++offset) {
-        if (pos + offset >= pltext.size() || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos + offset) !=
-                                                 ::pltxt2htm::details::u8string_view_index<ndebug>(keyword, offset)) {
-            return false;
-        }
+constexpr auto try_parse_vertical_align_keyword(::fast_io::u8string_view pltext,
+                                                ::fast_io::u8string_view const keyword) noexcept
+    -> ::exception::optional<::std::size_t> {
+    if (pltext.size() < keyword.size()) {
+        return ::exception::nullopt;
     }
-    if (pos + keyword.size() < pltext.size()) {
-        auto const next = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos + keyword.size());
+    if (::fast_io::u8string_view{pltext.data(), keyword.size()} != keyword) {
+        return ::exception::nullopt;
+    }
+    if (pltext.size() > keyword.size()) {
+        auto const next = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, keyword.size());
         if (::pltxt2htm::details::is_ascii_alpha(next) || ::pltxt2htm::details::is_ascii_digit(next)) {
-            return false;
+            return ::exception::nullopt;
         }
     }
-    pos += keyword.size();
-    return true;
+    return keyword.size();
 }
 
 /**
@@ -1160,11 +1164,13 @@ constexpr auto try_parse_vertical_align_value(::fast_io::u8string_view pltext, :
         {::pltxt2htm::VerticalAlignKeyword::bottom, ::fast_io::u8string_view{u8"bottom"}},
         {::pltxt2htm::VerticalAlignKeyword::top, ::fast_io::u8string_view{u8"top"}},
     };
-    auto pos = start;
     for (auto const& entry : keywords) {
-        if (::pltxt2htm::details::try_parse_vertical_align_keyword<ndebug>(pltext, pos, entry.spelling)) {
+        auto opt_len = ::pltxt2htm::details::try_parse_vertical_align_keyword<ndebug>(
+            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start), entry.spelling);
+        if (opt_len.has_value()) {
+            auto const len = opt_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             return TryParseVerticalAlignValueResult<ndebug>{
-                .end = pos, .value = ::pltxt2htm::VerticalAlignValue<ndebug>{entry.keyword}};
+                .end = start + len, .value = ::pltxt2htm::VerticalAlignValue<ndebug>{entry.keyword}};
         }
     }
     auto opt_length = ::pltxt2htm::details::try_parse_font_size_value<ndebug>(pltext, start);
