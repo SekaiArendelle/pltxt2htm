@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file for_plweb_text.hh
  * @brief Advanced HTML backend for pltxt2htm
  * @details Generates full-featured HTML output with comprehensive support for
@@ -519,7 +519,7 @@ entry:
                     result.push_back(u8';');
                 }
                 if (has_font_size) {
-                    auto const& font_size = span_font_size.value();
+                    auto const& font_size = span_font_size.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                     result.append(u8"font-size:");
                     result.append(::pltxt2htm::details::size_t2str(font_size.font_size));
                     if (font_size.unit == ::pltxt2htm::SizeUnit::percent) {
@@ -531,7 +531,8 @@ entry:
                     result.push_back(u8';');
                 }
                 if (has_vertical_align) {
-                    auto const& vertical_align = span_vertical_align.value();
+                    auto const& vertical_align =
+                        span_vertical_align.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                     result.append(u8"vertical-align:");
                     if (vertical_align.get_kind() == ::pltxt2htm::VerticalAlignKind::keyword) {
                         result.append(::pltxt2htm::vertical_align_keyword_string<ndebug>(vertical_align.get_keyword()));
