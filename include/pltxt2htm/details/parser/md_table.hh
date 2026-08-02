@@ -123,7 +123,7 @@ constexpr auto try_parse_md_table_row(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt;
     }
 
-    return ::pltxt2htm::details::TryParseMdTableRowResult{::std::move(row), current_index};
+    return ::pltxt2htm::details::TryParseMdTableRowResult{.cells = ::std::move(row), .advance_count = current_index};
 }
 
 /**
