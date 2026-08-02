@@ -129,7 +129,8 @@ entry:
                 bool const has_font_size = span_font_size.has_value();
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_html_span().get_subast(), 0,
-                    ::pltxt2htm::details::BackendContextWithHtmlSpanInfo{has_color, has_font_size}));
+                    ::pltxt2htm::details::BackendContextWithHtmlSpanInfo{.has_color = has_color,
+                                                                          .has_font_size = has_font_size}));
                 ++current_index;
                 result.append(u8"<span style=\"");
                 if (has_color) {
