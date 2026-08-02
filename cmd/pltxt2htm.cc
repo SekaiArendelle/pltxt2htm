@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <cstring>
 #include <cassert>
+#include <utility>
 #include <exception/exception.hh>
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
@@ -82,7 +83,7 @@ int main(int argc, char const* const* const argv) noexcept {
     char8_t const* coauthors = nullptr;
     // store output file path, can be optional
     char const* output_file_path = nullptr;
-    for (::std::size_t i{1}; i < static_cast<::std::size_t>(argc); ++i) {
+    for (::std::size_t i{1}; ::std::cmp_less(i, argc); ++i) {
         if (::std::strcmp(argv[i], "--host") == 0) {
             if (i == static_cast<::std::size_t>(argc) - 1) [[unlikely]] {
                 ::fast_io::perrln("You must specify host name after `--host`");
