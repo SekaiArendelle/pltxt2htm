@@ -367,6 +367,9 @@ entry:
                 if (pl_size.unit == ::pltxt2htm::Unit::percent) {
                     result.push_back(u8'%');
                 }
+                else if (pl_size.unit == ::pltxt2htm::Unit::em) {
+                    result.append(u8"em");
+                }
                 result.push_back(u8'>');
                 goto entry;
             }
