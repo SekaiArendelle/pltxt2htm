@@ -1161,7 +1161,8 @@ constexpr auto try_parse_vertical_align_value(::fast_io::u8string_view pltext, :
     auto pos = start;
     for (auto const& entry : keywords) {
         if (::pltxt2htm::details::try_parse_vertical_align_keyword<ndebug>(pltext, pos, entry.spelling)) {
-            return TryParseVerticalAlignValueResult{pos, ::pltxt2htm::VerticalAlignValue{entry.keyword}};
+            return TryParseVerticalAlignValueResult{.end = pos,
+                                                    .value = ::pltxt2htm::VerticalAlignValue{entry.keyword}};
         }
     }
     auto opt_length = ::pltxt2htm::details::try_parse_font_size_value<ndebug>(pltext, start);
@@ -1169,7 +1170,8 @@ constexpr auto try_parse_vertical_align_value(::fast_io::u8string_view pltext, :
         return ::exception::nullopt;
     }
     auto const length = opt_length.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    return TryParseVerticalAlignValueResult{length.end, ::pltxt2htm::VerticalAlignValue{length.font_size}};
+    return TryParseVerticalAlignValueResult{.end = length.end,
+                                            .value = ::pltxt2htm::VerticalAlignValue{length.font_size}};
 }
 
 /**
