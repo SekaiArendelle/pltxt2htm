@@ -16,7 +16,7 @@
 #include "md_table.hh"
 #include "../../contracts.hh"
 #include "../../ast/ast.hh"
-#include "../../ast/font_size_value.hh"
+#include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"
 #include "../push_macro.hh"
 
@@ -64,7 +64,7 @@ class ParserFrameContextWithHtmlSpanInfo {
 public:
     ::fast_io::u8string_view pltext;
     ::fast_io::u8string color;
-    ::exception::optional<::pltxt2htm::FontSizeValue> font_size;
+    ::exception::optional<::pltxt2htm::ValueWithUnit> font_size;
     ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align;
 };
 
@@ -102,7 +102,7 @@ public:
 class ParserFrameContextWithPlSizeTagInfo {
 public:
     ::fast_io::u8string_view pltext;
-    ::pltxt2htm::FontSizeValue value;
+    ::pltxt2htm::ValueWithUnit value;
 };
 
 /**

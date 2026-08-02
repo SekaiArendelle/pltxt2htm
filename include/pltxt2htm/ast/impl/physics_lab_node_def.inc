@@ -157,9 +157,9 @@ constexpr auto ::pltxt2htm::PlLink<ndebug>::operator==(this ::pltxt2htm::PlLink<
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::PlSize<ndebug>::PlSize(::pltxt2htm::Ast<ndebug>&& subast_,
-                                              ::pltxt2htm::FontSizeValue value_) noexcept
+                                              ::pltxt2htm::ValueWithUnit font_size_) noexcept
     : subast(::std::move(subast_)),
-      value(value_) {
+      font_size(font_size_) {
 }
 
 template<::pltxt2htm::Contracts ndebug>

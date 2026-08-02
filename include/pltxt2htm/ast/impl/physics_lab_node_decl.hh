@@ -15,7 +15,7 @@
 #include "../../details/literal_string.hh"
 #include "ast_decl.hh"
 #include "basic_node_decl.hh"
-#include "../font_size_value.hh"
+#include "../value_unit.hh"
 #include "../node_kind.hh"
 #include "../../contracts.hh"
 
@@ -256,10 +256,10 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class PlSize {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::pltxt2htm::FontSizeValue value;
+    ::pltxt2htm::ValueWithUnit font_size;
 
 public:
-    constexpr PlSize(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::FontSizeValue value_) noexcept;
+    constexpr PlSize(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::ValueWithUnit font_size_) noexcept;
     constexpr PlSize(::pltxt2htm::PlSize<ndebug> const&) noexcept;
     constexpr PlSize(::pltxt2htm::PlSize<ndebug>&&) noexcept;
     constexpr ~PlSize() noexcept;
@@ -277,17 +277,17 @@ public:
 
     [[nodiscard]]
     constexpr auto get_size(this auto const& self) noexcept -> ::std::size_t {
-        return self.value.font_size;
+        return self.font_size.value;
     }
 
     [[nodiscard]]
-    constexpr auto get_unit(this auto const& self) noexcept -> ::pltxt2htm::SizeUnit {
-        return self.value.unit;
+    constexpr auto get_unit(this auto const& self) noexcept -> ::pltxt2htm::Unit {
+        return self.font_size.unit;
     }
 
     [[nodiscard]]
-    constexpr auto get_font_size_value(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.value);
+    constexpr auto get_font_size(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.font_size);
     }
 };
 

@@ -33,8 +33,8 @@ using ::pltxt2htm::NodeKind;
 using ::pltxt2htm::TableAlign;
 
 // size tag / font-size unit
-using ::pltxt2htm::SizeUnit;
-using ::pltxt2htm::FontSizeValue;
+using ::pltxt2htm::Unit;
+using ::pltxt2htm::ValueWithUnit;
 
 // vertical-align keywords and value
 using ::pltxt2htm::VerticalAlignKeyword;

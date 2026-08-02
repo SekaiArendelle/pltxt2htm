@@ -3,14 +3,14 @@
  * @brief Vertical-align value type definitions for pltxt2htm
  * @details Defines the vertical-align value used by &lt;span style="vertical-align:..."&gt;
  *          so the keyword (e.g. super/sub) or numeric length and its unit never
- *          travel independently. Percent/px lengths reuse ::pltxt2htm::FontSizeValue.
+ *          travel independently. Percent/px lengths reuse ::pltxt2htm::ValueWithUnit.
  */
 
 #pragma once
 
 #include <cstddef>
 #include <fast_io/fast_io_dsal/string_view.h>
-#include "font_size_value.hh"
+#include "value_unit.hh"
 #include "../contracts.hh"
 #include "../details/push_macro.hh"
 
@@ -44,7 +44,7 @@ enum class VerticalAlignKind : unsigned {
  * @brief A vertical-align value.
  * @details A tagged union discriminated by `kind`: when `kind == keyword`, the
  *          active member is `keyword`; when `kind == length`, the active member
- *          is `length` (a ::pltxt2htm::FontSizeValue). Exactly one member is
+ *          is `length` (a ::pltxt2htm::ValueWithUnit). Exactly one member is
  *          active at any time. The `kind` is derived from the constructor used
  *          and needs no explicit argument. Template parameter `ndebug` selects
  *          whether the accessor contract checks are enforced at runtime.
@@ -55,7 +55,7 @@ class VerticalAlignValue {
 
     union {
         ::pltxt2htm::VerticalAlignKeyword keyword; ///< Keyword value (kind == keyword).
-        ::pltxt2htm::FontSizeValue length; ///< Length value+unit (kind == length).
+        ::pltxt2htm::ValueWithUnit length; ///< Length value+unit (kind == length).
     };
 
 public:
@@ -64,7 +64,7 @@ public:
           keyword(keyword_) {
     }
 
-    constexpr VerticalAlignValue(::pltxt2htm::FontSizeValue length_) noexcept
+    constexpr VerticalAlignValue(::pltxt2htm::ValueWithUnit length_) noexcept
         : kind(::pltxt2htm::VerticalAlignKind::length),
           length(length_) {
     }
