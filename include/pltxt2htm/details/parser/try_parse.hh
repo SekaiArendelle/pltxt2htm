@@ -1184,20 +1184,30 @@ constexpr auto try_parse_vertical_align_value(::fast_io::u8string_view pltext, :
 
 /**
  * @brief Skip trailing whitespace and require a CSS property delimiter.
+ * @details `pltext` must start right after a property value (the caller subviews it); the
+ *          returned offset is relative to `pltext`.
+ * @param[in] pltext The input text view starting after a property value.
+ * @param[in] quote The quote character that terminates the style value.
+ * @return The offset of the `;`/quote delimiter after skipped whitespace; nullopt when
+ *         no delimiter follows.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr bool try_parse_span_style_property_suffix(::fast_io::u8string_view pltext, ::std::size_t& pos,
-                                                    char8_t const quote) noexcept {
+constexpr auto try_parse_span_style_property_suffix(::fast_io::u8string_view pltext, char8_t const quote) noexcept
+    -> ::exception::optional<::std::size_t> {
+    ::std::size_t pos{};
     while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
                                    ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t')) {
         ++pos;
     }
     if (pos >= pltext.size()) {
-        return false;
+        return ::exception::nullopt;
     }
     auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos);
-    return chr == u8';' || chr == quote;
+    if (chr != u8';' && chr != quote) {
+        return ::exception::nullopt;
+    }
+    return pos;
 }
 
 template<::pltxt2htm::Contracts ndebug>
@@ -1261,9 +1271,12 @@ constexpr bool try_parse_span_style(
             }
             auto const value_end = opt_value_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             pos = value_end;
-            if (::pltxt2htm::details::try_parse_span_style_property_suffix<ndebug>(pltext, pos, quote) == false) {
+            auto opt_delimiter_pos = ::pltxt2htm::details::try_parse_span_style_property_suffix<ndebug>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, pos), quote);
+            if (opt_delimiter_pos.has_value() == false) {
                 return false;
             }
+            pos += opt_delimiter_pos.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             color = ::fast_io::u8string{::fast_io::u8string_view{pltext.data() + value_start, value_end - value_start}};
         }
         else if (property == ::fast_io::u8string_view{u8"font-size"}) {
@@ -1276,9 +1289,12 @@ constexpr bool try_parse_span_style(
             }
             auto const value = opt_value.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             pos = value.end;
-            if (::pltxt2htm::details::try_parse_span_style_property_suffix<ndebug>(pltext, pos, quote) == false) {
+            auto opt_delimiter_pos = ::pltxt2htm::details::try_parse_span_style_property_suffix<ndebug>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, pos), quote);
+            if (opt_delimiter_pos.has_value() == false) {
                 return false;
             }
+            pos += opt_delimiter_pos.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             font_size = value.font_size;
         }
         else if (property == ::fast_io::u8string_view{u8"vertical-align"}) {
@@ -1291,9 +1307,12 @@ constexpr bool try_parse_span_style(
             }
             auto const value = opt_value.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             pos = value.end;
-            if (::pltxt2htm::details::try_parse_span_style_property_suffix<ndebug>(pltext, pos, quote) == false) {
+            auto opt_delimiter_pos = ::pltxt2htm::details::try_parse_span_style_property_suffix<ndebug>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, pos), quote);
+            if (opt_delimiter_pos.has_value() == false) {
                 return false;
             }
+            pos += opt_delimiter_pos.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             vertical_align = value.value;
         }
         else {
