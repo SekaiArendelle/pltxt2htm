@@ -479,7 +479,7 @@ entry:
                                                                                   ::pltxt2htm::NodeKind::pl_size, 0));
                 ++current_index;
                 result.append(u8"<span style=\"font-size:");
-                auto const& pl_size = node.as_pl_size().get_value();
+                auto const& pl_size = node.as_pl_size().get_font_size();
                 if (pl_size.unit == ::pltxt2htm::Unit::percent) {
                     result.append(::pltxt2htm::details::size_t2str(pl_size.value));
                     result.append(u8"%;\">");

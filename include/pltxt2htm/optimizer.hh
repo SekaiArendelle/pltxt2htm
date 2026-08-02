@@ -726,14 +726,14 @@ entry:
                 auto&& frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                 // Optimization: If the size (value and unit) is the same as the parent node, ignore the nested tag.
                 bool const is_different_tag = frame.get_nested_tag_type() != ::pltxt2htm::NodeKind::pl_size ||
-                                              node.as_pl_size().get_value() != frame.get_pl_size_tag_value();
+                                              node.as_pl_size().get_font_size() != frame.get_pl_size_tag_value();
                 if (is_different_tag) {
                     call_stack.push(
                         ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator,
                                                                     ndebug>(
                             ::std::addressof(subast), subast.begin(),
                             ::pltxt2htm::details::OptimizerContextWithPlSizeTagInfo{
-                                node.as_pl_size().get_value()}));
+                                node.as_pl_size().get_font_size()}));
                     goto entry;
                 }
                 node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
