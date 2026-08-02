@@ -15,7 +15,7 @@
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
 #include <exception/exception.hh>
-#include "../../ast/font_size_value.hh"
+#include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"
 #include "frame_context.hh"
 #include "../../contracts.hh"
@@ -362,9 +362,9 @@ entry:
                                                                                   ::pltxt2htm::NodeKind::pl_size, 0));
                 ++current_index;
                 result.append(u8"<size=");
-                auto const& pl_size = node.as_pl_size().get_font_size_value();
-                result.append(::pltxt2htm::details::size_t2str(pl_size.font_size));
-                if (pl_size.unit == ::pltxt2htm::SizeUnit::percent) {
+                auto const& pl_size = node.as_pl_size().get_value();
+                result.append(::pltxt2htm::details::size_t2str(pl_size.value));
+                if (pl_size.unit == ::pltxt2htm::Unit::percent) {
                     result.push_back(u8'%');
                 }
                 result.push_back(u8'>');
@@ -383,7 +383,7 @@ entry:
                     }
                     auto const& val = span_vertical_align.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                     return val.get_kind() == ::pltxt2htm::VerticalAlignKind::length &&
-                           val.get_length().unit == ::pltxt2htm::SizeUnit::px;
+                           val.get_length().unit == ::pltxt2htm::Unit::px;
                 }();
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_html_span().get_subast(), 0,
@@ -399,8 +399,8 @@ entry:
                 if (has_font_size) {
                     auto const& font_size = span_font_size.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                     result.append(u8"<size=");
-                    result.append(::pltxt2htm::details::size_t2str(font_size.font_size));
-                    if (font_size.unit == ::pltxt2htm::SizeUnit::percent) {
+                    result.append(::pltxt2htm::details::size_t2str(font_size.value));
+                    if (font_size.unit == ::pltxt2htm::Unit::percent) {
                         result.push_back(u8'%');
                     }
                     result.push_back(u8'>');
@@ -410,7 +410,7 @@ entry:
                     result.append(::pltxt2htm::details::size_t2str(
                         span_vertical_align.template value<ndebug == ::pltxt2htm::Contracts::ignore>()
                             .get_length()
-                            .font_size));
+                            .value));
                     result.push_back(u8'>');
                 }
                 goto entry;

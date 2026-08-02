@@ -17,7 +17,7 @@
 #include <fast_io/fast_io_dsal/list.h>
 #include <fast_io/fast_io_dsal/stack.h>
 #include "ast/ast.hh"
-#include "ast/font_size_value.hh"
+#include "ast/value_unit.hh"
 #include "ast/vertical_align_value.hh"
 #include "contracts.hh"
 #include "details/utils.hh"
@@ -45,7 +45,7 @@ public:
  */
 class OptimizerContextWithPlSizeTagInfo {
 public:
-    ::pltxt2htm::FontSizeValue value; ///< Font size value+unit (e.g., {12, px} in size=12)
+    ::pltxt2htm::ValueWithUnit value; ///< Font size value+unit (e.g., {12, px} in size=12)
 };
 
 /**
@@ -55,7 +55,7 @@ template<::pltxt2htm::Contracts ndebug>
 class OptimizerContextWithHtmlSpanInfo {
 public:
     ::fast_io::u8string_view color{};
-    ::exception::optional<::pltxt2htm::FontSizeValue> font_size{::exception::nullopt};
+    ::exception::optional<::pltxt2htm::ValueWithUnit> font_size{::exception::nullopt};
     ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align{::exception::nullopt};
 };
 
@@ -432,7 +432,7 @@ entry:
                         auto const inner_fs = subnode.as_html_span().get_font_size();
                         auto const inner_va = subnode.as_html_span().get_vertical_align();
                         auto merged_color = ::fast_io::u8string{inner_color.empty() ? outer_color : inner_color};
-                        ::exception::optional<::pltxt2htm::FontSizeValue> merged_fs{::exception::nullopt};
+                        ::exception::optional<::pltxt2htm::ValueWithUnit> merged_fs{::exception::nullopt};
                         if (inner_fs.has_value()) {
                             merged_fs = inner_fs.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                         }
@@ -457,7 +457,7 @@ entry:
                     if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_color) {
                         auto const outer_fs = node.as_html_span().get_font_size();
                         auto const outer_va = node.as_html_span().get_vertical_align();
-                        ::exception::optional<::pltxt2htm::FontSizeValue> merged_fs{::exception::nullopt};
+                        ::exception::optional<::pltxt2htm::ValueWithUnit> merged_fs{::exception::nullopt};
                         if (outer_fs.has_value()) {
                             merged_fs = outer_fs.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                         }
@@ -726,14 +726,14 @@ entry:
                 auto&& frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                 // Optimization: If the size (value and unit) is the same as the parent node, ignore the nested tag.
                 bool const is_different_tag = frame.get_nested_tag_type() != ::pltxt2htm::NodeKind::pl_size ||
-                                              node.as_pl_size().get_font_size_value() != frame.get_pl_size_tag_value();
+                                              node.as_pl_size().get_value() != frame.get_pl_size_tag_value();
                 if (is_different_tag) {
                     call_stack.push(
                         ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator,
                                                                     ndebug>(
                             ::std::addressof(subast), subast.begin(),
                             ::pltxt2htm::details::OptimizerContextWithPlSizeTagInfo{
-                                node.as_pl_size().get_font_size_value()}));
+                                node.as_pl_size().get_value()}));
                     goto entry;
                 }
                 node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};

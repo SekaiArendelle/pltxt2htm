@@ -13,7 +13,7 @@
 #include <exception/exception.hh>
 #include "ast_decl.hh"
 #include "basic_node_decl.hh"
-#include "../font_size_value.hh"
+#include "../value_unit.hh"
 #include "../vertical_align_value.hh"
 #include "../node_kind.hh"
 
@@ -572,12 +572,12 @@ template<::pltxt2htm::Contracts ndebug>
 class HtmlSpan {
     ::pltxt2htm::Ast<ndebug> subast;
     ::fast_io::u8string color;
-    ::exception::optional<::pltxt2htm::FontSizeValue> font_size;
+    ::exception::optional<::pltxt2htm::ValueWithUnit> font_size;
     ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align;
 
 public:
     constexpr HtmlSpan(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& color_,
-                       ::exception::optional<::pltxt2htm::FontSizeValue> font_size_,
+                       ::exception::optional<::pltxt2htm::ValueWithUnit> font_size_,
                        ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align_) noexcept;
     constexpr HtmlSpan(::pltxt2htm::HtmlSpan<ndebug> const&) noexcept;
     constexpr HtmlSpan(::pltxt2htm::HtmlSpan<ndebug>&&) noexcept;

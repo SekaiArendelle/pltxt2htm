@@ -153,8 +153,8 @@ entry:
                 if (has_font_size) {
                     auto const& font_size = span_font_size.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                     result.append(u8"font-size:");
-                    result.append(::pltxt2htm::details::size_t2str(font_size.font_size));
-                    if (font_size.unit == ::pltxt2htm::SizeUnit::percent) {
+                    result.append(::pltxt2htm::details::size_t2str(font_size.value));
+                    if (font_size.unit == ::pltxt2htm::Unit::percent) {
                         result.push_back(u8'%');
                     }
                     else {
@@ -170,8 +170,8 @@ entry:
                         result.append(::pltxt2htm::vertical_align_keyword_string<ndebug>(vertical_align.get_keyword()));
                     }
                     else {
-                        result.append(::pltxt2htm::details::size_t2str(vertical_align.get_length().font_size));
-                        if (vertical_align.get_length().unit == ::pltxt2htm::SizeUnit::percent) {
+                        result.append(::pltxt2htm::details::size_t2str(vertical_align.get_length().value));
+                        if (vertical_align.get_length().unit == ::pltxt2htm::Unit::percent) {
                             result.push_back(u8'%');
                         }
                         else {

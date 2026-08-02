@@ -13,7 +13,7 @@
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
 #include <exception/exception.hh>
-#include "../../ast/font_size_value.hh"
+#include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"
 #include "frame_context.hh"
 #include "../../contracts.hh"
@@ -479,14 +479,14 @@ entry:
                                                                                   ::pltxt2htm::NodeKind::pl_size, 0));
                 ++current_index;
                 result.append(u8"<span style=\"font-size:");
-                auto const& pl_size = node.as_pl_size().get_font_size_value();
-                if (pl_size.unit == ::pltxt2htm::SizeUnit::percent) {
-                    result.append(::pltxt2htm::details::size_t2str(pl_size.font_size));
+                auto const& pl_size = node.as_pl_size().get_value();
+                if (pl_size.unit == ::pltxt2htm::Unit::percent) {
+                    result.append(::pltxt2htm::details::size_t2str(pl_size.value));
                     result.append(u8"%;\">");
                 }
                 else {
                     // Use division plus remainder for ceil(pl_size / 2) to avoid overflow at size_t max.
-                    result.append(::pltxt2htm::details::size_t2str(pl_size.font_size / 2 + pl_size.font_size % 2));
+                    result.append(::pltxt2htm::details::size_t2str(pl_size.value / 2 + pl_size.value % 2));
                     result.append(u8"px;\">");
                 }
                 goto entry;
@@ -521,8 +521,8 @@ entry:
                 if (has_font_size) {
                     auto const& font_size = span_font_size.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                     result.append(u8"font-size:");
-                    result.append(::pltxt2htm::details::size_t2str(font_size.font_size));
-                    if (font_size.unit == ::pltxt2htm::SizeUnit::percent) {
+                    result.append(::pltxt2htm::details::size_t2str(font_size.value));
+                    if (font_size.unit == ::pltxt2htm::Unit::percent) {
                         result.push_back(u8'%');
                     }
                     else {
@@ -538,8 +538,8 @@ entry:
                         result.append(::pltxt2htm::vertical_align_keyword_string<ndebug>(vertical_align.get_keyword()));
                     }
                     else {
-                        result.append(::pltxt2htm::details::size_t2str(vertical_align.get_length().font_size));
-                        if (vertical_align.get_length().unit == ::pltxt2htm::SizeUnit::percent) {
+                        result.append(::pltxt2htm::details::size_t2str(vertical_align.get_length().value));
+                        if (vertical_align.get_length().unit == ::pltxt2htm::Unit::percent) {
                             result.push_back(u8'%');
                         }
                         else {

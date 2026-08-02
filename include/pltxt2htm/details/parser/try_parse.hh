@@ -14,7 +14,7 @@
 #include "../utils.hh"
 #include "../../contracts.hh"
 #include "../../ast/ast.hh"
-#include "../../ast/font_size_value.hh"
+#include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"
 #include "../push_macro.hh"
 
@@ -1016,7 +1016,7 @@ constexpr auto try_parse_color_tag(::fast_io::u8string_view pltext) noexcept
  */
 struct TryParseSizeTagResult {
     ::std::size_t tag_len;
-    ::pltxt2htm::FontSizeValue value;
+    ::pltxt2htm::ValueWithUnit value;
 };
 
 /**
@@ -1037,9 +1037,9 @@ constexpr auto try_parse_size_tag(::fast_io::u8string_view pltext) noexcept
     }
     auto const value = opt_value.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
     auto value_end = value.end;
-    auto unit = ::pltxt2htm::SizeUnit::px;
+    auto unit = ::pltxt2htm::Unit::px;
     if (value_end < pltext.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, value_end) == u8'%') {
-        unit = ::pltxt2htm::SizeUnit::percent;
+        unit = ::pltxt2htm::Unit::percent;
         ++value_end;
     }
     auto opt_tag = ::pltxt2htm::details::try_parse_equal_sign_tag_suffix<ndebug>(pltext, value_start, value_end);
@@ -1057,7 +1057,7 @@ template<::pltxt2htm::Contracts ndebug>
 struct TryParseSpanTagResult {
     ::std::size_t tag_len; ///< Length of the matched tag.
     ::fast_io::u8string color; ///< Extracted color value.
-    ::exception::optional<::pltxt2htm::FontSizeValue> font_size; ///< Extracted font-size value+unit (if present).
+    ::exception::optional<::pltxt2htm::ValueWithUnit> font_size; ///< Extracted font-size value+unit (if present).
     ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>>
         vertical_align; ///< Extracted vertical-align value (if present).
 };
@@ -1067,7 +1067,7 @@ struct TryParseSpanTagResult {
  */
 struct TryParseFontSizeValueResult {
     ::std::size_t end;
-    ::pltxt2htm::FontSizeValue font_size;
+    ::pltxt2htm::ValueWithUnit value;
 };
 
 /**
@@ -1086,7 +1086,7 @@ constexpr auto try_parse_font_size_value(::fast_io::u8string_view pltext, ::std:
         return ::exception::nullopt;
     }
     auto pos = decimal.end;
-    auto unit = ::pltxt2htm::SizeUnit::px;
+    auto unit = ::pltxt2htm::Unit::px;
     if (pos < pltext.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'p') {
         ++pos;
         if (pos >= pltext.size() || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'x') {
@@ -1095,7 +1095,7 @@ constexpr auto try_parse_font_size_value(::fast_io::u8string_view pltext, ::std:
         ++pos;
     }
     else if (pos < pltext.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'%') {
-        unit = ::pltxt2htm::SizeUnit::percent;
+        unit = ::pltxt2htm::Unit::percent;
         ++pos;
     }
     return ::pltxt2htm::details::TryParseFontSizeValueResult{pos, {decimal.value, unit}};
@@ -1179,7 +1179,7 @@ constexpr auto try_parse_vertical_align_value(::fast_io::u8string_view pltext, :
     }
     auto const length = opt_length.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
     return TryParseVerticalAlignValueResult<ndebug>{.end = length.end,
-                                                    .value = ::pltxt2htm::VerticalAlignValue<ndebug>{length.font_size}};
+                                                    .value = ::pltxt2htm::VerticalAlignValue<ndebug>{length.value}};
 }
 
 /**
@@ -1214,7 +1214,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr bool try_parse_span_style(
     ::fast_io::u8string_view pltext, ::std::size_t& pos, char8_t const quote, ::fast_io::u8string& color,
-    ::exception::optional<::pltxt2htm::FontSizeValue>& font_size,
+    ::exception::optional<::pltxt2htm::ValueWithUnit>& font_size,
     ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>>& vertical_align) noexcept {
     while (pos < pltext.size()) {
         while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
@@ -1295,7 +1295,7 @@ constexpr bool try_parse_span_style(
                 return false;
             }
             pos += opt_delimiter_pos.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-            font_size = value.font_size;
+            font_size = value.value;
         }
         else if (property == ::fast_io::u8string_view{u8"vertical-align"}) {
             if (vertical_align.has_value()) {
@@ -1353,7 +1353,7 @@ constexpr auto try_parse_span_tag(::fast_io::u8string_view pltext) noexcept
     ::std::size_t pos{4}; // skip past "span" (the 's' was consumed by the trie dispatch)
     bool found_style{false};
     ::fast_io::u8string color{};
-    ::exception::optional<::pltxt2htm::FontSizeValue> font_size{::exception::nullopt};
+    ::exception::optional<::pltxt2htm::ValueWithUnit> font_size{::exception::nullopt};
     ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align{::exception::nullopt};
 
     while (pos < pltext.size()) {
