@@ -301,6 +301,58 @@ public:
 };
 
 /**
+ * @brief HTML &lt;sup&gt; superscript text node
+ * @details Represents &lt;sup&gt;...&lt;/sup&gt; with sub-AST content.
+ */
+template<::pltxt2htm::Contracts ndebug>
+class HtmlSup {
+    ::pltxt2htm::Ast<ndebug> subast;
+
+public:
+    constexpr HtmlSup(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlSup(::pltxt2htm::HtmlSup<ndebug> const&) noexcept;
+    constexpr HtmlSup(::pltxt2htm::HtmlSup<ndebug>&&) noexcept;
+    constexpr ~HtmlSup() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlSup<ndebug> const&) noexcept -> ::pltxt2htm::HtmlSup<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlSup<ndebug>& self, ::pltxt2htm::HtmlSup<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlSup<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this HtmlSup const&, HtmlSup const&) noexcept -> bool;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+};
+
+/**
+ * @brief HTML &lt;sub&gt; subscript text node
+ * @details Represents &lt;sub&gt;...&lt;/sub&gt; with sub-AST content.
+ */
+template<::pltxt2htm::Contracts ndebug>
+class HtmlSub {
+    ::pltxt2htm::Ast<ndebug> subast;
+
+public:
+    constexpr HtmlSub(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlSub(::pltxt2htm::HtmlSub<ndebug> const&) noexcept;
+    constexpr HtmlSub(::pltxt2htm::HtmlSub<ndebug>&&) noexcept;
+    constexpr ~HtmlSub() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlSub<ndebug> const&) noexcept -> ::pltxt2htm::HtmlSub<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlSub<ndebug>& self, ::pltxt2htm::HtmlSub<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlSub<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this HtmlSub const&, HtmlSub const&) noexcept -> bool;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+};
+
+/**
  * @brief HTML &lt;note&gt; custom note node
  */
 template<::pltxt2htm::Contracts ndebug>

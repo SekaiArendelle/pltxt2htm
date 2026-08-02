@@ -707,16 +707,16 @@ entry:
                 result.append(u8"<s>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::pl_sup: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_pl_sup().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::pl_sup, 0));
+            case ::pltxt2htm::NodeKind::html_sup: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_sup().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::html_sup, 0));
                 ++current_index;
                 result.append(u8"<sup>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::pl_sub: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_pl_sub().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::pl_sub, 0));
+            case ::pltxt2htm::NodeKind::html_sub: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_sub().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::html_sub, 0));
                 ++current_index;
                 result.append(u8"<sub>");
                 goto entry;
@@ -1411,11 +1411,11 @@ entry:
                 result.append(u8"</s>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::pl_sup: {
+            case ::pltxt2htm::NodeKind::html_sup: {
                 result.append(u8"</sup>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::pl_sub: {
+            case ::pltxt2htm::NodeKind::html_sub: {
                 result.append(u8"</sub>");
                 goto entry;
             }

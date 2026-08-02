@@ -920,28 +920,28 @@ entry:
                 ++current_iter;
                 continue;
             }
-            case ::pltxt2htm::NodeKind::pl_sup: {
+            case ::pltxt2htm::NodeKind::html_sup: {
                 // nested <sup> shifts the baseline further, so same-tag nesting must NOT be flattened
-                auto&& subast = node.as_pl_sup().get_subast();
+                auto&& subast = node.as_html_sup().get_subast();
                 if (subast.empty()) {
                     ast.erase(current_iter);
                     continue;
                 }
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_sup, subast.begin()));
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_sup, subast.begin()));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::pl_sub: {
+            case ::pltxt2htm::NodeKind::html_sub: {
                 // nested <sub> shifts the baseline further, so same-tag nesting must NOT be flattened
-                auto&& subast = node.as_pl_sub().get_subast();
+                auto&& subast = node.as_html_sub().get_subast();
                 if (subast.empty()) {
                     ast.erase(current_iter);
                     continue;
                 }
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_sub, subast.begin()));
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_sub, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_single_emphasis_underscore:

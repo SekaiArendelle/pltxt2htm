@@ -51,8 +51,6 @@ enum class NodeKind : unsigned {
     pl_i, ///< Italic text: &lt;i&gt;...&lt;/i&gt;, Markdown single emphasis, &lt;em&gt; in HTML
     pl_u, ///< Underline text: &lt;u&gt;...&lt;/u&gt; (Unity TextMeshPro rich text), &lt;u&gt; in HTML
     pl_s, ///< Strikethrough text: &lt;s&gt;...&lt;/s&gt; (Unity TextMeshPro rich text), &lt;s&gt; in HTML
-    pl_sup, ///< Superscript text: &lt;sup&gt;...&lt;/sup&gt; (Unity TextMeshPro rich text), &lt;sup&gt; in HTML
-    pl_sub, ///< Subscript text: &lt;sub&gt;...&lt;/sub&gt; (Unity TextMeshPro rich text), &lt;sub&gt; in HTML
 
     // Physics-Lab specific macros
     pl_macro_project, // {Project}
@@ -74,6 +72,8 @@ enum class NodeKind : unsigned {
 
     // HTML formatting elements
     html_del, ///< Deleted/strikethrough text: &lt;del&gt;...&lt;/del&gt;
+    html_sup, ///< Superscript text: &lt;sup&gt;...&lt;/sup&gt;
+    html_sub, ///< Subscript text: &lt;sub&gt;...&lt;/sub&gt;
     html_hr, ///< Horizontal rule: &lt;hr&gt; (HTML), --- (Markdown)
     html_note, ///< HTML comment/note (not rendered in output)
     html_em, ///< Emphasis: &lt;em&gt;...&lt;/em&gt; (HTML equivalent of &lt;i&gt;)
