@@ -11,6 +11,8 @@
 #include <cstddef>
 #include <fast_io/fast_io_dsal/string_view.h>
 #include "font_size_value.hh"
+#include "../contracts.hh"
+#include "../details/push_macro.hh"
 
 namespace pltxt2htm {
 
@@ -97,6 +99,7 @@ public:
  * @param keyword The keyword to stringify.
  * @return The CSS keyword spelling; baseline for any invalid value.
  */
+template<::pltxt2htm::Contracts ndebug>
 constexpr auto vertical_align_keyword_string(::pltxt2htm::VerticalAlignKeyword const keyword) noexcept
     -> ::fast_io::u8string_view {
     switch (keyword) /* -Werror=switch */ {
@@ -127,10 +130,13 @@ constexpr auto vertical_align_keyword_string(::pltxt2htm::VerticalAlignKeyword c
 #ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
     default:
         [[unlikely]] {
-            pltxt2htm_unreachable();
+            pltxt2htm_unreachable(u8"Unexpected vertical-align keyword");
         }
 #endif
     }
+    pltxt2htm_unreachable(u8"Unreachable code after exhaustive switch on vertical-align keyword");
 }
 
 } // namespace pltxt2htm
+
+#include "../details/pop_macro.hh"

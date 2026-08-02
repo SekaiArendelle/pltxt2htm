@@ -166,7 +166,7 @@ entry:
                     auto const& vertical_align = span_vertical_align.value();
                     result.append(u8"vertical-align:");
                     if (vertical_align.get_kind() == ::pltxt2htm::VerticalAlignKind::keyword) {
-                        result.append(::pltxt2htm::vertical_align_keyword_string(vertical_align.get_keyword()));
+                        result.append(::pltxt2htm::vertical_align_keyword_string<ndebug>(vertical_align.get_keyword()));
                     }
                     else {
                         result.append(::pltxt2htm::details::size_t2str(vertical_align.get_length().font_size));
