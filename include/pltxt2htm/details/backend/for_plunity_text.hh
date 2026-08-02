@@ -377,10 +377,14 @@ entry:
                 bool const has_color = !span_color.empty();
                 bool const has_font_size = span_font_size.has_value();
                 // Only px lengths map to <voffset>; keywords/percent have no TMP_Text equivalent.
-                bool const has_vertical_align =
-                    span_vertical_align.has_value() &&
-                    span_vertical_align.value().get_kind() == ::pltxt2htm::VerticalAlignKind::length &&
-                    span_vertical_align.value().get_length().unit == ::pltxt2htm::SizeUnit::px;
+                bool const has_vertical_align = [&] {
+                    if (span_vertical_align.has_value() == false) {
+                        return false;
+                    }
+                    auto const& val = span_vertical_align.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    return val.get_kind() == ::pltxt2htm::VerticalAlignKind::length &&
+                           val.get_length().unit == ::pltxt2htm::SizeUnit::px;
+                }();
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_html_span().get_subast(), 0,
                     ::pltxt2htm::details::BackendContextWithHtmlSpanInfo{.has_color = has_color,
@@ -393,7 +397,7 @@ entry:
                     result.push_back(u8'>');
                 }
                 if (has_font_size) {
-                    auto const& font_size = span_font_size.value();
+                    auto const& font_size = span_font_size.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                     result.append(u8"<size=");
                     result.append(::pltxt2htm::details::size_t2str(font_size.font_size));
                     if (font_size.unit == ::pltxt2htm::SizeUnit::percent) {
@@ -403,7 +407,10 @@ entry:
                 }
                 if (has_vertical_align) {
                     result.append(u8"<voffset=");
-                    result.append(::pltxt2htm::details::size_t2str(span_vertical_align.value().get_length().font_size));
+                    result.append(::pltxt2htm::details::size_t2str(
+                        span_vertical_align.template value<ndebug == ::pltxt2htm::Contracts::ignore>()
+                            .get_length()
+                            .font_size));
                     result.push_back(u8'>');
                 }
                 goto entry;
