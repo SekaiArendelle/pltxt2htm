@@ -97,7 +97,7 @@ public:
 };
 
 /**
- * @brief Context for <size=N> frames during parsing.
+ * @brief Context for <size=N> / <size=N%> / <size=Nem> frames during parsing.
  */
 class ParserFrameContextWithPlSizeTagInfo {
 public:

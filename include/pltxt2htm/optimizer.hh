@@ -41,7 +41,7 @@ public:
 };
 
 /**
- * @brief Context for optimizer <size=N> / <size=N%> tags.
+ * @brief Context for optimizer <size=N> / <size=N%> / <size=Nem> tags.
  */
 class OptimizerContextWithPlSizeTagInfo {
 public:

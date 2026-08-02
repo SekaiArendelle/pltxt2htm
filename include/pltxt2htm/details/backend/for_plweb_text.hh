@@ -484,6 +484,10 @@ entry:
                     result.append(::pltxt2htm::details::size_t2str(pl_size.value));
                     result.append(u8"%;\">");
                 }
+                else if (pl_size.unit == ::pltxt2htm::Unit::em) {
+                    result.append(::pltxt2htm::details::size_t2str(pl_size.value));
+                    result.append(u8"em;\">");
+                }
                 else {
                     // Use division plus remainder for ceil(pl_size / 2) to avoid overflow at size_t max.
                     result.append(::pltxt2htm::details::size_t2str(pl_size.value / 2 + pl_size.value % 2));

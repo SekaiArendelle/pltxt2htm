@@ -1020,7 +1020,7 @@ struct TryParseSizeTagResult {
 };
 
 /**
- * @brief Parse a `<size=N>` or `<size=N%>` opening tag.
+ * @brief Parse a `<size=N>`, `<size=N%>` or `<size=Nem>` opening tag.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
@@ -1041,6 +1041,12 @@ constexpr auto try_parse_size_tag(::fast_io::u8string_view pltext) noexcept
     if (value_end < pltext.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, value_end) == u8'%') {
         unit = ::pltxt2htm::Unit::percent;
         ++value_end;
+    }
+    else if (value_end + 1 < pltext.size() &&
+             ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, value_end) == u8'e' &&
+             ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, value_end + 1) == u8'm') {
+        unit = ::pltxt2htm::Unit::em;
+        value_end += 2;
     }
     auto opt_tag = ::pltxt2htm::details::try_parse_equal_sign_tag_suffix<ndebug>(pltext, value_start, value_end);
     if (opt_tag.has_value() == false) {
