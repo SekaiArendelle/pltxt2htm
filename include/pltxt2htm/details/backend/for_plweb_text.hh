@@ -14,6 +14,7 @@
 #include <fast_io/fast_io_dsal/string_view.h>
 #include <exception/exception.hh>
 #include "../../ast/font_size_value.hh"
+#include "../../ast/vertical_align_value.hh"
 #include "frame_context.hh"
 #include "../../contracts.hh"
 #include "../../details/utils.hh"
@@ -493,12 +494,15 @@ entry:
             case ::pltxt2htm::NodeKind::html_span: {
                 auto const& span_color = node.as_html_span().get_color();
                 auto const& span_font_size = node.as_html_span().get_font_size();
+                auto const& span_vertical_align = node.as_html_span().get_vertical_align();
                 bool const has_color = !span_color.empty();
                 bool const has_font_size = span_font_size.has_value();
+                bool const has_vertical_align = span_vertical_align.has_value();
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_html_span().get_subast(), 0,
                     ::pltxt2htm::details::BackendContextWithHtmlSpanInfo{.has_color = has_color,
-                                                                         .has_font_size = has_font_size}));
+                                                                         .has_font_size = has_font_size,
+                                                                         .has_vertical_align = has_vertical_align}));
                 ++current_index;
                 result.append(u8"<span style=\"");
                 if (has_color) {
@@ -523,6 +527,23 @@ entry:
                     }
                     else {
                         result.append(u8"px");
+                    }
+                    result.push_back(u8';');
+                }
+                if (has_vertical_align) {
+                    auto const& vertical_align = span_vertical_align.value();
+                    result.append(u8"vertical-align:");
+                    if (vertical_align.get_kind() == ::pltxt2htm::VerticalAlignKind::keyword) {
+                        result.append(::pltxt2htm::vertical_align_keyword_string(vertical_align.get_keyword()));
+                    }
+                    else {
+                        result.append(::pltxt2htm::details::size_t2str(vertical_align.get_length().font_size));
+                        if (vertical_align.get_length().unit == ::pltxt2htm::SizeUnit::percent) {
+                            result.push_back(u8'%');
+                        }
+                        else {
+                            result.append(u8"px");
+                        }
                     }
                     result.push_back(u8';');
                 }

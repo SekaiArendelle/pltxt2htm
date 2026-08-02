@@ -18,6 +18,7 @@
 #include <fast_io/fast_io_dsal/stack.h>
 #include "ast/ast.hh"
 #include "ast/font_size_value.hh"
+#include "ast/vertical_align_value.hh"
 #include "contracts.hh"
 #include "details/utils.hh"
 #include "details/push_macro.hh"
@@ -48,12 +49,13 @@ public:
 };
 
 /**
- * @brief Context for optimizer html_span frames, remembers color and font-size.
+ * @brief Context for optimizer html_span frames, remembers color, font-size and vertical-align.
  */
 class OptimizerContextWithHtmlSpanInfo {
 public:
     ::fast_io::u8string_view color{};
     ::exception::optional<::pltxt2htm::FontSizeValue> font_size{::exception::nullopt};
+    ::exception::optional<::pltxt2htm::VerticalAlignValue> vertical_align{::exception::nullopt};
 };
 
 /**
@@ -248,6 +250,14 @@ public:
         pltxt2htm_assert(is_html_span_type, u8"context kind mismatch");
         return ::std::forward_like<decltype(self)>(context_data_ref.html_span_info.font_size);
     }
+
+    [[nodiscard]]
+    constexpr auto get_html_span_vertical_align(this auto&& self) noexcept -> decltype(auto) {
+        auto&& context_data_ref = self.context_data;
+        bool const is_html_span_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_span};
+        pltxt2htm_assert(is_html_span_type, u8"context kind mismatch");
+        return ::std::forward_like<decltype(self)>(context_data_ref.html_span_info.vertical_align);
+    }
 };
 
 } // namespace details
@@ -416,8 +426,10 @@ entry:
                     if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::html_span) {
                         auto const& outer_color = node.as_html_span().get_color();
                         auto const outer_fs = node.as_html_span().get_font_size();
+                        auto const outer_va = node.as_html_span().get_vertical_align();
                         auto const& inner_color = subnode.as_html_span().get_color();
                         auto const inner_fs = subnode.as_html_span().get_font_size();
+                        auto const inner_va = subnode.as_html_span().get_vertical_align();
                         auto merged_color = ::fast_io::u8string{inner_color.empty() ? outer_color : inner_color};
                         ::exception::optional<::pltxt2htm::FontSizeValue> merged_fs{::exception::nullopt};
                         if (inner_fs.has_value()) {
@@ -426,23 +438,33 @@ entry:
                         else if (outer_fs.has_value()) {
                             merged_fs = outer_fs.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                         }
+                        ::exception::optional<::pltxt2htm::VerticalAlignValue> merged_va{::exception::nullopt};
+                        if (inner_va.has_value()) {
+                            merged_va = inner_va.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                        }
+                        else if (outer_va.has_value()) {
+                            merged_va = outer_va.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                        }
                         // SAFETY: Move inner's subast to a temporary first to break aliasing.
                         // `subnode` is a reference into `node.get_subast()`.
                         auto inner_subast = ::std::move(subnode.as_html_span().get_subast());
-                        node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::HtmlSpan<ndebug>{
-                            ::std::move(inner_subast), ::std::move(merged_color), ::std::move(merged_fs)}};
+                        node = ::pltxt2htm::PlTxtNode<ndebug>{
+                            ::pltxt2htm::HtmlSpan<ndebug>{::std::move(inner_subast), ::std::move(merged_color),
+                                                          ::std::move(merged_fs), ::std::move(merged_va)}};
                         continue;
                     }
                     if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_color) {
                         auto const outer_fs = node.as_html_span().get_font_size();
+                        auto const outer_va = node.as_html_span().get_vertical_align();
                         ::exception::optional<::pltxt2htm::FontSizeValue> merged_fs{::exception::nullopt};
                         if (outer_fs.has_value()) {
                             merged_fs = outer_fs.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                         }
                         auto inner_subast = ::std::move(subnode.as_pl_color().get_subast());
                         auto const& inner_color = subnode.as_pl_color().get_color();
-                        node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::HtmlSpan<ndebug>{
-                            ::std::move(inner_subast), ::fast_io::u8string{inner_color}, ::std::move(merged_fs)}};
+                        node = ::pltxt2htm::PlTxtNode<ndebug>{
+                            ::pltxt2htm::HtmlSpan<ndebug>{::std::move(inner_subast), ::fast_io::u8string{inner_color},
+                                                          ::std::move(merged_fs), ::std::move(outer_va)}};
                         continue;
                     }
                     if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_a) {
@@ -468,8 +490,11 @@ entry:
                         auto const& node_color = node.as_html_span().get_color();
                         ::fast_io::u8string_view const node_color_view{node_color.data(), node_color.size()};
                         auto const& node_fs = node.as_html_span().get_font_size();
+                        auto const& node_va = node.as_html_span().get_vertical_align();
                         bool const same_font_size = node_fs == parent_frame.get_html_span_font_size();
-                        if (node_color_view == parent_frame.get_html_span_color() && same_font_size) {
+                        bool const same_vertical_align = node_va == parent_frame.get_html_span_vertical_align();
+                        if (node_color_view == parent_frame.get_html_span_color() && same_font_size &&
+                            same_vertical_align) {
                             node = ::pltxt2htm::PlTxtNode<ndebug>{
                                 ::pltxt2htm::Text<ndebug>{::std::move(node.as_html_span().get_subast())}};
                             ++current_iter;
@@ -482,7 +507,8 @@ entry:
                         auto const& node_color = node.as_html_span().get_color();
                         ::fast_io::u8string_view const node_color_view{node_color.data(), node_color.size()};
                         auto const& node_fs = node.as_html_span().get_font_size();
-                        if (node_color_view == parent_color_id && !node_fs.has_value()) {
+                        auto const& node_va = node.as_html_span().get_vertical_align();
+                        if (node_color_view == parent_color_id && !node_fs.has_value() && !node_va.has_value()) {
                             node = ::pltxt2htm::PlTxtNode<ndebug>{
                                 ::pltxt2htm::Text<ndebug>{::std::move(node.as_html_span().get_subast())}};
                             ++current_iter;
@@ -496,7 +522,8 @@ entry:
                         auto const& node_color = node.as_html_span().get_color();
                         ::fast_io::u8string_view const node_color_view{node_color.data(), node_color.size()};
                         auto const& node_fs = node.as_html_span().get_font_size();
-                        if (node_color_view == anchor_color && !node_fs.has_value()) {
+                        auto const& node_va = node.as_html_span().get_vertical_align();
+                        if (node_color_view == anchor_color && !node_fs.has_value() && !node_va.has_value()) {
                             node = ::pltxt2htm::PlTxtNode<ndebug>{
                                 ::pltxt2htm::Text<ndebug>{::std::move(node.as_html_span().get_subast())}};
                             ++current_iter;
@@ -507,12 +534,14 @@ entry:
                 {
                     auto const& span_color = node.as_html_span().get_color();
                     auto const span_font_size = node.as_html_span().get_font_size();
+                    auto const span_vertical_align = node.as_html_span().get_vertical_align();
                     call_stack.push(
                         ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator,
                                                                     ndebug>(
                             ::std::addressof(subast), subast.begin(),
                             ::pltxt2htm::details::OptimizerContextWithHtmlSpanInfo{
-                                ::fast_io::u8string_view{span_color.data(), span_color.size()}, span_font_size}));
+                                ::fast_io::u8string_view{span_color.data(), span_color.size()}, span_font_size,
+                                span_vertical_align}));
                     goto entry;
                 }
             }

@@ -37,6 +37,7 @@ class BackendContextWithHtmlSpanInfo {
 public:
     bool has_color{}; ///< Whether the span has a color.
     bool has_font_size{}; ///< Whether the span has a font-size.
+    bool has_vertical_align{}; ///< Whether the span has a vertical-align.
 };
 
 /**
