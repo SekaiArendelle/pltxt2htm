@@ -906,9 +906,8 @@ constexpr auto try_parse_equal_sign_tag_suffix(::fast_io::u8string_view pltext, 
     if (pos >= pltext.size() || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'>') {
         return ::exception::nullopt;
     }
-    return ::pltxt2htm::details::TryParseEqualSignTagResult{.tag_len = pos,
-                                                            .substr = ::fast_io::u8string_view{pltext.data() + value_start,
-                                                                                               value_size}};
+    return ::pltxt2htm::details::TryParseEqualSignTagResult{
+        .tag_len = pos, .substr = ::fast_io::u8string_view{pltext.data() + value_start, value_size}};
 }
 
 /**
@@ -1301,9 +1300,7 @@ constexpr auto try_parse_span_tag(::fast_io::u8string_view pltext) noexcept
     if (pos >= pltext.size() || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'>') {
         return ::exception::nullopt;
     }
-    return TryParseSpanTagResult{.tag_len = pos + 1,
-                                 .color = ::std::move(color),
-                                 .font_size = ::std::move(font_size)};
+    return TryParseSpanTagResult{.tag_len = pos + 1, .color = ::std::move(color), .font_size = ::std::move(font_size)};
 }
 
 /**
@@ -1790,9 +1787,7 @@ constexpr auto try_parse_img_tag(::fast_io::u8string_view pltext) noexcept
     if (pos >= pltext.size() || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'>') {
         return ::exception::nullopt;
     }
-    return TryParseImgTagResult{.tag_len = pos + 1,
-                                .src = ::std::move(src),
-                                .alt = ::std::move(alt)};
+    return TryParseImgTagResult{.tag_len = pos + 1, .src = ::std::move(src), .alt = ::std::move(alt)};
 }
 
 /**
