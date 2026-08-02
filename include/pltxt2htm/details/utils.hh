@@ -321,7 +321,7 @@ constexpr auto size_t2str(::std::size_t num) noexcept -> ::fast_io::u8string {
         num /= 10;
     }
 
-    ::std::reverse(result.begin(), result.end());
+    ::std::ranges::reverse(result);
 
     return result;
 }
