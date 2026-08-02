@@ -70,14 +70,15 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto operator==(::pltxt2htm::VerticalAlignValue<ndebug> const& other) const noexcept -> bool {
-        if (kind != other.kind) {
+    constexpr auto operator==(this VerticalAlignValue<ndebug> const& self,
+                              VerticalAlignValue<ndebug> const& other) noexcept -> bool {
+        if (self.kind != other.kind) {
             return false;
         }
-        if (kind == ::pltxt2htm::VerticalAlignKind::keyword) {
-            return keyword == other.keyword;
+        if (self.kind == ::pltxt2htm::VerticalAlignKind::keyword) {
+            return self.keyword == other.keyword;
         }
-        return length == other.length;
+        return self.length == other.length;
     }
 
     [[nodiscard]]
