@@ -1,10 +1,6 @@
 Checks: >
-  modernize-use-constexpr,
-  modernize-use-noexcept,
-  modernize-use-braced-init-list,
-  modernize-use-nodiscard,
-  modernize-use-nullptr,
-  modernize-use-using,
+  modernize-use-*,
+  -modernize-use-trailing-return-type,
   modernize-avoid-bind,
   cppcoreguidelines-pro-type-typeid,
   cppcoreguidelines-narrowing-conversions,
