@@ -15,12 +15,13 @@ namespace pltxt2htm {
 
 /**
  * @brief Unit of a value
- * @details Distinguishes absolute sizes from percentages in &lt;size=N&gt; /
+ * @details Distinguishes absolute sizes from relative ones in &lt;size=N&gt; /
  *          &lt;size=N%&gt; (TMP_Text rich text) and &lt;span style="font-size:..."&gt;.
  */
 enum class Unit : unsigned {
     px = 0, ///< Absolute size (CSS px; TMP_Text unitless value)
     percent, ///< Percentage of the default font size (TMP_Text / CSS %)
+    em, ///< Relative to the current font size (CSS em; TMP_Text font unit)
 };
 
 /**
@@ -31,7 +32,7 @@ enum class Unit : unsigned {
  */
 struct ValueWithUnit {
     ::std::size_t value; ///< Numeric value
-    ::pltxt2htm::Unit unit; ///< Unit of the value (px or %)
+    ::pltxt2htm::Unit unit; ///< Unit of the value (px, % or em)
 
     [[nodiscard]]
     constexpr auto operator==(::pltxt2htm::ValueWithUnit const& other) const noexcept -> bool = default;
