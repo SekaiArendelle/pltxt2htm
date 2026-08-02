@@ -91,7 +91,7 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:1em\">text</span>");
-        auto answer = ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;font-size:1em&quot;&gt;text&lt;/span&gt;"};
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:1em;\">text</span>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -535,10 +535,9 @@ int main() {
     }
 
     {
-        // unsupported unit rejected (only px/% are accepted)
+        // em length is supported
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:10em\">text</span>");
-        auto answer =
-            ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;vertical-align:10em&quot;&gt;text&lt;/span&gt;"};
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:10em;\">text</span>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -627,6 +626,98 @@ int main() {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(
             u8"<span style=\"color:red;font-size:16px;vertical-align:5px\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"<color=red><size=16><voffset=5>text</voffset></size></color>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // em font-size is supported
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:20em\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:20em;\">text</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"color:blue;font-size:16em\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"color:blue;font-size:16em;\">text</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // uppercase em unit rejected (lowercase "em" only)
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:20EM\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;font-size:20EM&quot;&gt;text&lt;/span&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // partial em rejected
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:1e\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;font-size:1e&quot;&gt;text&lt;/span&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // em with trailing character rejected
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:1emx\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;font-size:1emx&quot;&gt;text&lt;/span&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // duplicate 'm' rejected
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:1emm\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;font-size:1emm&quot;&gt;text&lt;/span&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // font-size:0em rejected (zero is not a valid font-size)
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:0em\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;font-size:0em&quot;&gt;text&lt;/span&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // em font-size maps to <size=Nem> in Unity output
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<span style=\"font-size:16em\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"<size=16em>text</size>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // color+em font-size combined in Unity output
+        auto html =
+            ::pltxt2htm_test::pltxt2plunity_introduction(u8"<span style=\"color:blue;font-size:16em\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"<color=blue><size=16em>text</size></color>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // em vertical-align is ignored in Unity output (TMP voffset is px-only)
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<span style=\"vertical-align:10em\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"text"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // em font-size roundtrip through the HTML parser
+        auto html = ::pltxt2htm_test::pltxt2roundtrip_htmld(u8"<span style=\"font-size:16em\">text</span>");
+        auto reparsed_html = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
+        pltxt2htm_test_assert_equal(reparsed_html, html);
+    }
+
+    {
+        // em vertical-align roundtrip through the HTML parser
+        auto html = ::pltxt2htm_test::pltxt2roundtrip_htmld(u8"<span style=\"vertical-align:10em\">text</span>");
+        auto reparsed_html = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
+        pltxt2htm_test_assert_equal(reparsed_html, html);
+    }
+
+    {
+        // matched nested em font-size: should flatten
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"<span style=\"font-size:1em\"><span style=\"font-size:1em\">text</span></span>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:1em;\">text</span>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

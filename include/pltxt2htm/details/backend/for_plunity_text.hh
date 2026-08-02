@@ -403,6 +403,9 @@ entry:
                     if (font_size.unit == ::pltxt2htm::Unit::percent) {
                         result.push_back(u8'%');
                     }
+                    else if (font_size.unit == ::pltxt2htm::Unit::em) {
+                        result.append(u8"em");
+                    }
                     result.push_back(u8'>');
                 }
                 if (has_vertical_align) {

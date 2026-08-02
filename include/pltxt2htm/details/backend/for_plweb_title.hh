@@ -157,6 +157,9 @@ entry:
                     if (font_size.unit == ::pltxt2htm::Unit::percent) {
                         result.push_back(u8'%');
                     }
+                    else if (font_size.unit == ::pltxt2htm::Unit::em) {
+                        result.append(u8"em");
+                    }
                     else {
                         result.append(u8"px");
                     }
@@ -173,6 +176,9 @@ entry:
                         result.append(::pltxt2htm::details::size_t2str(vertical_align.get_length().value));
                         if (vertical_align.get_length().unit == ::pltxt2htm::Unit::percent) {
                             result.push_back(u8'%');
+                        }
+                        else if (vertical_align.get_length().unit == ::pltxt2htm::Unit::em) {
+                            result.append(u8"em");
                         }
                         else {
                             result.append(u8"px");

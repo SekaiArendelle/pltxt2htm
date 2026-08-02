@@ -1071,7 +1071,7 @@ struct TryParseFontSizeValueResult {
 };
 
 /**
- * @brief Parse a non-zero integer optionally followed by lowercase `px` or `%`.
+ * @brief Parse a non-zero integer optionally followed by lowercase `px`, `em` or `%`.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
@@ -1097,6 +1097,11 @@ constexpr auto try_parse_font_size_value(::fast_io::u8string_view pltext, ::std:
     else if (pos < pltext.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'%') {
         unit = ::pltxt2htm::Unit::percent;
         ++pos;
+    }
+    else if (pos + 1 < pltext.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'e' &&
+             ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos + 1) == u8'm') {
+        unit = ::pltxt2htm::Unit::em;
+        pos += 2;
     }
     return ::pltxt2htm::details::TryParseFontSizeValueResult{pos, {decimal.value, unit}};
 }
@@ -1140,7 +1145,7 @@ constexpr auto try_parse_vertical_align_keyword(::fast_io::u8string_view pltext,
 }
 
 /**
- * @brief Parse a CSS vertical-align value: a lowercase keyword or a non-zero px/% length.
+ * @brief Parse a CSS vertical-align value: a lowercase keyword or a non-zero px/em/% length.
  * @param[in] pltext Input text starting at the value.
  * @param[in] start Position of the first value character (whitespace already skipped).
  * @return Parsed value with its end position on success; nullopt on failure.
