@@ -78,6 +78,7 @@ enum class NodeKind : unsigned {
     html_note, ///< HTML comment/note (not rendered in output)
     html_em, ///< Emphasis: &lt;em&gt;...&lt;/em&gt; (HTML equivalent of &lt;i&gt;)
     html_strong, ///< Strong emphasis: &lt;strong&gt;...&lt;/strong&gt; (HTML equivalent of &lt;b&gt;)
+    html_mark, ///< Marked/highlighted text: &lt;mark&gt;...&lt;/mark&gt;
     html_span,
     ///< HTML span with style attributes: &lt;span style="color:...;font-size:...;vertical-align:..."&gt;
     html_a, ///< HTML anchor/link: &lt;a href="URL"&gt;...&lt;/a&gt;

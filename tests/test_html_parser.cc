@@ -18,6 +18,16 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<mark>text</mark>");
+        auto answer = ::fast_io::u8string_view{u8"<mark>text</mark>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<MARK  >text</MaRk>");
+        auto answer = ::fast_io::u8string_view{u8"<mark>text</mark>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<h1>Title</h1>");
         auto answer = ::fast_io::u8string_view{u8"<h1>Title</h1>"};
         pltxt2htm_test_assert_equal(html, answer);

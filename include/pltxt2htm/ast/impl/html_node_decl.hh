@@ -430,6 +430,32 @@ public:
 };
 
 /**
+ * @brief HTML &lt;mark&gt; marked/highlighted text node
+ */
+template<::pltxt2htm::Contracts ndebug>
+class HtmlMark {
+    ::pltxt2htm::Ast<ndebug> subast;
+
+public:
+    constexpr explicit HtmlMark(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlMark(::pltxt2htm::HtmlMark<ndebug> const&) noexcept;
+    constexpr HtmlMark(::pltxt2htm::HtmlMark<ndebug>&&) noexcept;
+    constexpr ~HtmlMark() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlMark<ndebug> const&) noexcept
+        -> ::pltxt2htm::HtmlMark<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlMark<ndebug>& self, ::pltxt2htm::HtmlMark<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlMark<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this HtmlMark const&, HtmlMark const&) noexcept -> bool;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+};
+
+/**
  * @brief HTML &lt;ul&gt; unordered list node
  */
 template<::pltxt2htm::Contracts ndebug>
