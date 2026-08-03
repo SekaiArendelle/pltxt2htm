@@ -431,20 +431,26 @@ public:
 
 /**
  * @brief HTML &lt;mark&gt; marked/highlighted text node
+ * @details Represents &lt;mark&gt;...&lt;/mark&gt;. `background_color` stores the CSS
+ *          background-color value. Defaults to the standard highlight color "#FFFF00";
+ *          an explicitly provided style value (e.g. "red" or "#FF0000") overrides it.
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlMark {
     ::pltxt2htm::Ast<ndebug> subast;
+    ::fast_io::u8string background_color;
 
 public:
-    constexpr explicit HtmlMark(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr HtmlMark(::pltxt2htm::HtmlMark<ndebug> const&) noexcept;
-    constexpr HtmlMark(::pltxt2htm::HtmlMark<ndebug>&&) noexcept;
+    static constexpr auto default_background_color = ::fast_io::u8string_view{u8"#FFFF00"};
+
+    constexpr explicit HtmlMark(::pltxt2htm::Ast<ndebug>&& subast_,
+                                ::fast_io::u8string&& background_color_ = ::fast_io::u8string{
+                                    default_background_color}) noexcept;
+    constexpr HtmlMark(HtmlMark<ndebug> const&) noexcept;
+    constexpr HtmlMark(HtmlMark<ndebug>&&) noexcept;
     constexpr ~HtmlMark() noexcept;
-    constexpr auto operator=(::pltxt2htm::HtmlMark<ndebug> const&) noexcept
-        -> ::pltxt2htm::HtmlMark<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::HtmlMark<ndebug>& self, ::pltxt2htm::HtmlMark<ndebug>&&) noexcept
-        -> ::pltxt2htm::HtmlMark<ndebug>&;
+    constexpr auto operator=(HtmlMark<ndebug> const&) noexcept -> HtmlMark<ndebug>& = delete;
+    constexpr auto operator=(this HtmlMark<ndebug>& self, HtmlMark<ndebug>&&) noexcept -> HtmlMark<ndebug>&;
 
     [[nodiscard]]
     constexpr auto operator==(this HtmlMark const&, HtmlMark const&) noexcept -> bool;
@@ -452,6 +458,11 @@ public:
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_background_color(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.background_color);
     }
 };
 

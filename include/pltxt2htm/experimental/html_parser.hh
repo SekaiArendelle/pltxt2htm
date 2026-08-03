@@ -379,14 +379,17 @@ entry:
                 case u8'm':
                     [[fallthrough]];
                 case u8'M': {
-                    if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"ark">(
+                    if (auto opt_mark_tag = ::pltxt2htm::details::try_parse_mark_tag<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
-                        opt_tag_len.has_value()) {
-                        current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
+                        opt_mark_tag.has_value()) {
+                        auto&& [tag_len, background_color] =
+                            opt_mark_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                        current_index += tag_len + 2;
                         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                             ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ::pltxt2htm::details::ParserFrameContextWithHtmlMarkInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                                    ::std::move(background_color)},
                                 ::pltxt2htm::NodeKind::html_mark},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -997,11 +1000,12 @@ entry:
                                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
-                            ::pltxt2htm::HtmlMark staged_node(::std::move(result));
+                            ::pltxt2htm::HtmlMark staged_node(::std::move(result),
+                                                              ::std::move(frame.get_html_mark_background_color()));
                             call_stack.pop();
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
-                            parent_frame.subast.push_back(
-                                ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlMark<ndebug>{::std::move(staged_node)}));
+                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
+                                ::pltxt2htm::HtmlMark<ndebug>{::std::move(staged_node)}));
                             parent_frame.current_index +=
                                 staged_index + opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() +
                                 3;
@@ -1405,8 +1409,8 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_mark: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlMark<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlMark<ndebug>{
+                    ::std::move(subast), ::std::move(frame.get_html_mark_background_color())}));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_ul: {
