@@ -2,7 +2,7 @@
 #include <pltxt2htm/pltxt2htm.hh> // in include/pltxt2htm
 
 int main() {
-    auto html = ::pltxt2htm::pltxt2plunity_introduction(
+    auto const html = ::pltxt2htm::pltxt2plunity_introduction(
         u8R"(
 # Hello Quantum PhysicsLab
 [Visit project](https://example.com)

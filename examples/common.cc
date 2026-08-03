@@ -2,7 +2,7 @@
 #include <pltxt2htm/pltxt2htm.hh> // in include/pltxt2htm
 
 int main() {
-    auto html = ::pltxt2htm::pltxt2common_html(
+    auto const html = ::pltxt2htm::pltxt2common_html(
         u8R"(
 <color=red>Hello Quantum PhysicsLab</color>
 <b>Common HTML output</b>

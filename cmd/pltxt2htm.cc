@@ -353,7 +353,7 @@ int main(int argc, char const* const* const argv) noexcept {
             ::fast_io::println(::fast_io::u8c_stdout(), html);
         }
         else {
-            auto output_file =
+            auto const output_file =
                 ::fast_io::native_file{::fast_io::mnp::os_c_str(output_file_path), ::fast_io::open_mode::out};
             auto output_file_handle = ::fast_io::u8native_io_observer{output_file.native_handle()};
             ::fast_io::println(output_file_handle, html);

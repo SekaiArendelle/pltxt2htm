@@ -30,8 +30,6 @@ def find_cpp_files(root_dirs):
             dirs[:] = [d for d in dirs if d not in skip_dir_components]
 
             for filename in filenames:
-                if filename == "precompile.cpp":
-                    continue
                 if os.path.splitext(filename)[1] in extensions:
                     files.append(f"{rel_root}/{filename}")
 
@@ -68,7 +66,6 @@ def main():
     SCRIPT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     search_dirs = [
-        "tests",
         "examples",
         "cmd",
         "c",

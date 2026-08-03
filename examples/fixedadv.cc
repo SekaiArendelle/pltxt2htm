@@ -2,7 +2,7 @@
 #include <pltxt2htm/pltxt2htm.hh> // in include/pltxt2htm
 
 int main() {
-    auto html = ::pltxt2htm::pltxt2fixedadv_html(
+    auto const html = ::pltxt2htm::pltxt2fixedadv_html(
         u8R"(
 # Hello Quantum PhysicsLab
 [Physics-Lab-Web2](https://github.com/NetLogo-Mobile/plweb2)

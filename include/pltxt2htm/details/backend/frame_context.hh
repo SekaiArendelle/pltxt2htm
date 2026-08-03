@@ -136,8 +136,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_html_span_info(this auto&& self) noexcept
-        -> ::pltxt2htm::details::BackendContextWithHtmlSpanInfo& {
+    constexpr auto get_html_span_info(this auto const& self) noexcept -> BackendContextWithHtmlSpanInfo {
         bool const is_html_span_type{self.context_data.kind == ::pltxt2htm::NodeKind::html_span};
         pltxt2htm_assert(is_html_span_type, u8"context kind mismatch");
         return self.context_data.html_span_info;
