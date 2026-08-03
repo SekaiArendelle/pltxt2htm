@@ -138,7 +138,7 @@ constexpr auto pltxt2plunity_introduction(::fast_io::u8string_view pltext, ::fas
 template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, bool optimize = false>
 [[nodiscard]]
 constexpr auto pltxt2common_html(::fast_io::u8string_view pltext) noexcept {
-    auto const ast = ::pltxt2htm::parse_pltxt<ndebug>(pltext);
+    auto ast = ::pltxt2htm::parse_pltxt<ndebug>(pltext);
     if constexpr (optimize) {
         ::pltxt2htm::optimize_ast<ndebug>(ast);
     }
