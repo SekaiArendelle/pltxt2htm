@@ -641,7 +641,7 @@ constexpr auto is_valid_md_ol_list_hierarchy(
     {
         ::std::size_t i{space_hierarchy + 1};
         for (; i < pltext_size; ++i) {
-            auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i);
+            auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i);
             if (chr < u8'0' || chr > u8'9') {
                 break;
             }
@@ -709,7 +709,7 @@ constexpr auto try_parse_item(
     ::std::size_t current_index{};
     // parsing spaces before - or + or *
     for (; current_index < pltext.size(); ++current_index) {
-        auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
+        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
         if (chr != u8' ' && chr != u8'\t') {
             break;
         }
@@ -763,7 +763,7 @@ constexpr auto try_parse_item(
     }
     // parsing spaces after - or + or *
     for (; current_index < pltext.size(); ++current_index) {
-        auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
+        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
         if (chr != u8' ' && chr != u8'\t') {
             break;
         }
@@ -787,7 +787,7 @@ constexpr auto try_parse_item(
     // parsing text after - or + or *
     ::fast_io::u8string text{};
     for (; current_index < pltext.size(); ++current_index) {
-        auto chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
+        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
         if (chr == u8'\n') {
             ++current_index;
             break;

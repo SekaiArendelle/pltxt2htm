@@ -36,7 +36,7 @@ template<::pltxt2htm::details::U8LiteralString expression, ::pltxt2htm::details:
 #endif
 [[noreturn]]
 inline void panic() noexcept {
-    auto to_be_printed = ::pltxt2htm::details::concat(
+    auto const to_be_printed = ::pltxt2htm::details::concat(
         pltxt2htm::details::U8LiteralString{u8"Program panicked because "}, expression,
         pltxt2htm::details::U8LiteralString{
             u8", please file a bug at \"https://github.com/SekaiArendelle/pltxt2htm/issues\" and attach the "

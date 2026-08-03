@@ -58,7 +58,7 @@ constexpr auto find_next_block_after_line_break(
             auto&& [start_index, sublength, advance_count, md_atx_heading_type] =
                 opt_md_atx_heading.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             if (sublength != 0) {
-                auto subtext =
+                auto const subtext =
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + start_index, sublength);
                 call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                     ::pltxt2htm::details::FrontendContextVariant<ndebug>{
@@ -211,7 +211,7 @@ entry:
                 auto&& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                 if (::pltxt2htm::details::is_md_list_ul_or_ol_type(parent_frame.get_nested_tag_type()) == false) {
                     ::std::size_t& parent_index = parent_frame.current_index;
-                    auto parent_text = parent_frame.get_pltext();
+                    auto const parent_text = parent_frame.get_pltext();
                     auto&& [fwd, restart] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(parent_text, parent_index), call_stack,
                         parent_frame.subast);
@@ -288,7 +288,7 @@ entry:
                 auto&& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                 if (::pltxt2htm::details::is_md_list_ul_or_ol_type(parent_frame.get_nested_tag_type()) == false) {
                     ::std::size_t& parent_index = parent_frame.current_index;
-                    auto parent_text = parent_frame.get_pltext();
+                    auto const parent_text = parent_frame.get_pltext();
                     auto&& [fwd, restart] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(parent_text, parent_index), call_stack,
                         parent_frame.subast);
@@ -349,9 +349,9 @@ entry:
             ::pltxt2htm::NodeKind::md_table) {
             auto&& frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
             auto&& raw_ast = frame.get_md_table_raw_ast();
-            auto state = frame.get_md_table_state();
-            auto row_index = frame.get_md_table_row_index();
-            auto cell_index = frame.get_md_table_cell_index();
+            auto const state = frame.get_md_table_state();
+            auto const row_index = frame.get_md_table_row_index();
+            auto const cell_index = frame.get_md_table_cell_index();
 
             switch (state) /* -Werror=switch */ {
             case ::pltxt2htm::details::MdTableParsePhase::header: {
@@ -802,7 +802,7 @@ entry:
                     if (auto a_tag = ::pltxt2htm::details::try_parse_html_a_tag<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         a_tag.is_valid()) {
-                        auto tag_len = a_tag.tag_len;
+                        auto const tag_len = a_tag.tag_len;
                         ::pltxt2htm::Url url =
                             ::std::move(a_tag.url.template value<ndebug == ::pltxt2htm::Contracts::ignore>());
                         auto const internal = a_tag.internal;
@@ -820,7 +820,7 @@ entry:
                         // the <a href="..."> opening tag was recognized but its URL is invalid:
                         // consume the whole span as literal text (no auto-link / tag dispatch inside).
                         auto const tag_len = a_tag.tag_len;
-                        auto span =
+                        auto const span =
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index, tag_len + 2);
                         auto&& [_, literal_ast] =
                             ::pltxt2htm::details::simply_parse_pltext<ndebug,
@@ -1027,7 +1027,7 @@ entry:
                     if (auto external_tag = ::pltxt2htm::details::try_parse_external_tag<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), call_stack);
                         external_tag.is_valid()) {
-                        auto tag_len = external_tag.tag_len;
+                        auto const tag_len = external_tag.tag_len;
                         ::pltxt2htm::Url url =
                             ::std::move(external_tag.url.template value<ndebug == ::pltxt2htm::Contracts::ignore>());
                         current_index += tag_len + 3;
@@ -1044,7 +1044,7 @@ entry:
                         // the <external=...> opening tag was recognized but its URL is invalid:
                         // consume the whole span as literal text (no auto-link / tag dispatch inside).
                         auto const tag_len = external_tag.tag_len;
-                        auto span =
+                        auto const span =
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index, tag_len + 3);
                         auto&& [_, literal_ast] =
                             ::pltxt2htm::details::simply_parse_pltext<ndebug,
@@ -1228,7 +1228,7 @@ entry:
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), call_stack);
                         link_tag.is_valid()) {
                         // parsing: <link="url">$1</link>
-                        auto tag_len = link_tag.tag_len;
+                        auto const tag_len = link_tag.tag_len;
                         ::pltxt2htm::Url url =
                             ::std::move(link_tag.url.template value<ndebug == ::pltxt2htm::Contracts::ignore>());
                         current_index += tag_len + 3;
@@ -1245,7 +1245,7 @@ entry:
                         // the <link="..."> opening tag was recognized but its URL is invalid:
                         // consume the whole span as literal text (no auto-link / tag dispatch inside).
                         auto const tag_len = link_tag.tag_len;
-                        auto span =
+                        auto const span =
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index, tag_len + 3);
                         auto&& [_, literal_ast] =
                             ::pltxt2htm::details::simply_parse_pltext<ndebug,
@@ -2285,7 +2285,7 @@ entry:
                             opt_tag_len.has_value()) {
                             // parsing end tag </td> successed
                             ::std::size_t const staged_index{current_index};
-                            auto align = frame.get_cell_align();
+                            auto const align = frame.get_cell_align();
                             ::pltxt2htm::HtmlTd staged_node(::std::move(result), align);
                             call_stack.pop();
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
@@ -2306,7 +2306,7 @@ entry:
                             opt_tag_len.has_value()) {
                             // parsing end tag </th> successed
                             ::std::size_t const staged_index{current_index};
-                            auto align = frame.get_cell_align();
+                            auto const align = frame.get_cell_align();
                             ::pltxt2htm::HtmlTh staged_node(::std::move(result), align);
                             call_stack.pop();
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
@@ -2636,7 +2636,7 @@ entry:
 
                 pltxt2htm_unreachable(u8"Unreachable after outer switch");
             }
-            auto advance_count = ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
+            auto const advance_count = ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), result);
             current_index += advance_count;
             continue;
@@ -2829,21 +2829,21 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_li_checkbox: {
-                auto checked = frame.get_checked();
+                auto const checked = frame.get_checked();
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdLiCheckbox<ndebug>{::std::move(subast), checked}));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_th: {
-                auto align = frame.get_cell_align();
+                auto const align = frame.get_cell_align();
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTh<ndebug>{::std::move(subast), align}));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_td: {
-                auto align = frame.get_cell_align();
+                auto const align = frame.get_cell_align();
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTd<ndebug>{::std::move(subast), align}));
                 parent_index += staged_index;
@@ -2872,14 +2872,14 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_td: {
-                auto align = frame.get_cell_align();
+                auto const align = frame.get_cell_align();
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlTd<ndebug>{::std::move(subast), align}));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_th: {
-                auto align = frame.get_cell_align();
+                auto const align = frame.get_cell_align();
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlTh<ndebug>{::std::move(subast), align}));
                 parent_index += staged_index;
