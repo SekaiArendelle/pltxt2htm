@@ -265,6 +265,27 @@ constexpr auto ::pltxt2htm::HtmlStrong<ndebug>::operator==(this ::pltxt2htm::Htm
     -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::HtmlMark<ndebug>::HtmlMark(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
+    : subast(::std::move(subast_)) {
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::HtmlMark<ndebug>::HtmlMark(::pltxt2htm::HtmlMark<ndebug> const&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::HtmlMark<ndebug>::HtmlMark(::pltxt2htm::HtmlMark<ndebug>&&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::HtmlMark<ndebug>::~HtmlMark() noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::HtmlMark<ndebug>::operator=(this ::pltxt2htm::HtmlMark<ndebug>& self,
+                                                       ::pltxt2htm::HtmlMark<ndebug>&&) noexcept
+    -> ::pltxt2htm::HtmlMark<ndebug>& = default;
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::HtmlMark<ndebug>::operator==(this ::pltxt2htm::HtmlMark<ndebug> const&,
+                                                        ::pltxt2htm::HtmlMark<ndebug> const&) noexcept
+    -> bool = default;
+
+template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::HtmlUl<ndebug>::HtmlUl(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
     : subast(::std::move(subast_)) {
 }
