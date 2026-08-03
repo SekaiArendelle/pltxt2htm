@@ -1485,6 +1485,225 @@ constexpr auto try_parse_span_tag(::fast_io::u8string_view pltext) noexcept
 }
 
 /**
+ * @brief Result of parsing the CSS declarations inside a mark style attribute value.
+ */
+template<::pltxt2htm::Contracts ndebug>
+struct TryParseMarkStyleResult {
+    ::std::size_t end; ///< Byte offset just past the closing quote, relative to the input subview.
+    ::fast_io::u8string background_color; ///< Extracted background-color value.
+};
+
+/**
+ * @brief Parse the CSS declarations inside a mark style attribute value.
+ * @details Only the lowercase "background-color" CSS property is accepted; its value must
+ *          match the strict color grammar of try_parse_color_value. Any other property,
+ *          a duplicate "background-color", or an empty value causes parse failure.
+ * @param[in] pltext The input text view starting at the first style declaration character.
+ * @param[in] quote The quote character that terminates the style value.
+ * @return The byte offset just past the closing quote and the extracted color on success;
+ *         nullopt on failure.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_mark_style(::fast_io::u8string_view pltext, char8_t const quote) noexcept
+    -> ::exception::optional<TryParseMarkStyleResult<ndebug>> {
+    ::std::size_t p{};
+    ::fast_io::u8string background_color{};
+
+    while (p < pltext.size()) {
+        while (p < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, p) == u8' ' ||
+                                     ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, p) == u8'\t')) {
+            ++p;
+        }
+        if (p >= pltext.size()) {
+            return ::exception::nullopt;
+        }
+        auto const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, p)};
+        if (chr == quote) {
+            if (background_color.empty()) {
+                return ::exception::nullopt;
+            }
+            return TryParseMarkStyleResult<ndebug>{.end = p + 1, .background_color = ::std::move(background_color)};
+        }
+        if (chr == u8';') {
+            ++p;
+            continue;
+        }
+
+        // parse the property name up to ':'
+        auto const property_start{p};
+        auto property_end{p};
+        while (p < pltext.size()) {
+            auto const property_chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, p)};
+            if (property_chr == u8':') {
+                break;
+            }
+            if (property_chr == u8';' || property_chr == quote) {
+                return ::exception::nullopt;
+            }
+            if (property_chr != u8' ' && property_chr != u8'\t') {
+                property_end = p + 1;
+            }
+            ++p;
+        }
+        if (p >= pltext.size() || property_end == property_start) {
+            return ::exception::nullopt;
+        }
+        auto const property{::fast_io::u8string_view{pltext.data() + property_start, property_end - property_start}};
+        ++p;
+        while (p < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, p) == u8' ' ||
+                                     ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, p) == u8'\t')) {
+            ++p;
+        }
+
+        if (property != ::fast_io::u8string_view{u8"background-color"}) {
+            return ::exception::nullopt;
+        }
+        if (background_color.empty() == false) {
+            return ::exception::nullopt;
+        }
+        auto const value_start{p};
+        auto opt_value_end = ::pltxt2htm::details::try_parse_color_value<ndebug>(pltext, value_start);
+        if (opt_value_end.has_value() == false) {
+            return ::exception::nullopt;
+        }
+        auto const value_end = opt_value_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        p = value_end;
+        auto opt_delimiter_pos = ::pltxt2htm::details::try_parse_span_style_property_suffix<ndebug>(
+            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, p), quote);
+        if (opt_delimiter_pos.has_value() == false) {
+            return ::exception::nullopt;
+        }
+        p += opt_delimiter_pos.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        background_color =
+            ::fast_io::u8string{::fast_io::u8string_view{pltext.data() + value_start, value_end - value_start}};
+
+        if (p >= pltext.size()) {
+            return ::exception::nullopt;
+        }
+        if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, p) == u8';') {
+            ++p;
+            continue;
+        }
+        if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, p) == quote) {
+            return TryParseMarkStyleResult<ndebug>{.end = p + 1, .background_color = ::std::move(background_color)};
+        }
+        return ::exception::nullopt;
+    }
+    return ::exception::nullopt;
+}
+
+/**
+ * @brief Return type of try_parse_mark_tag: tag length and optional background-color.
+ */
+struct TryParseMarkTagResult {
+    ::std::size_t tag_len; ///< Length of the matched tag.
+    ::fast_io::u8string background_color; ///< Extracted background-color value, empty if none.
+};
+
+/**
+ * @brief Parse &lt;mark&gt; or &lt;mark style="background-color:V"&gt; and reject any other attributes.
+ * @tparam ndebug When set to Contracts::ignore, runtime assertions are disabled for performance.
+ * @param[in] pltext Input text starting at "ark ..." (after "<m").
+ * @return Parsed tag result with an optional background-color on success; nullopt on failure.
+ * @note The bare &lt;mark&gt; form is accepted. If a "style" attribute is present, only the
+ *       lowercase "background-color" CSS property is accepted; any other attribute or CSS
+ *       property causes parse failure.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_mark_tag(::fast_io::u8string_view pltext) noexcept
+    -> ::exception::optional<TryParseMarkTagResult> {
+    // match "ark" prefix (case-insensitive)
+    if (::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"ark"}>(pltext) ==
+        false) {
+        return ::exception::nullopt;
+    }
+
+    ::std::size_t pos{3}; // skip past "ark" (the 'm' was consumed by the trie dispatch)
+    bool found_style{false};
+    ::fast_io::u8string background_color{};
+
+    while (pos < pltext.size()) {
+        // skip whitespace
+        while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
+                                       ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t')) {
+            ++pos;
+        }
+        if (pos >= pltext.size()) {
+            return ::exception::nullopt;
+        }
+        if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'>') {
+            if (found_style == false) {
+                return TryParseMarkTagResult{.tag_len = pos + 1, .background_color = ::std::move(background_color)};
+            }
+            break;
+        }
+        if (found_style) {
+            return ::exception::nullopt;
+        }
+
+        // parse attribute name
+        ::std::size_t const attr_start{pos};
+        while (pos < pltext.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'=' &&
+               ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'>' &&
+               ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8' ' &&
+               ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'\t' &&
+               ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'/') {
+            ++pos;
+        }
+        ::fast_io::u8string_view const attr_name{pltext.data() + attr_start, pos - attr_start};
+
+        // skip whitespace before '='
+        while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
+                                       ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t')) {
+            ++pos;
+        }
+        if (pos >= pltext.size() || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'=') {
+            return ::exception::nullopt;
+        }
+        ++pos; // skip '='
+
+        // skip whitespace after '='
+        while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
+                                       ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t')) {
+            ++pos;
+        }
+        if (pos >= pltext.size()) {
+            return ::exception::nullopt;
+        }
+
+        // parse quoted attribute value
+        char8_t const quote{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos)};
+        if (quote != u8'"' && quote != u8'\'') {
+            return ::exception::nullopt;
+        }
+        // only lowercase "style" attribute is allowed
+        if (attr_name != ::fast_io::u8string_view{u8"style"}) {
+            return ::exception::nullopt;
+        }
+        found_style = true;
+        ++pos;
+        auto opt_style = ::pltxt2htm::details::try_parse_mark_style<ndebug>(
+            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, pos), quote);
+        if (opt_style.has_value() == false) {
+            return ::exception::nullopt;
+        }
+        auto& style = opt_style.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        background_color = ::std::move(style.background_color);
+        pos += style.end;
+    }
+
+    if (found_style == false || background_color.empty()) {
+        return ::exception::nullopt;
+    }
+    if (pos >= pltext.size() || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'>') {
+        return ::exception::nullopt;
+    }
+    return TryParseMarkTagResult{.tag_len = pos + 1, .background_color = ::std::move(background_color)};
+}
+
+/**
  * @brief Result of parsing a <code class="language-..."> tag.
  */
 struct TryParseCodeTagResult {

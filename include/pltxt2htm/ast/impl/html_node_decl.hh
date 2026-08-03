@@ -431,13 +431,18 @@ public:
 
 /**
  * @brief HTML &lt;mark&gt; marked/highlighted text node
+ * @details Represents &lt;mark&gt;...&lt;/mark&gt;. `background_color` stores the CSS
+ *          background-color value. Defaults to the standard highlight color "#FFFF00";
+ *          an explicitly provided style value (e.g. "red" or "#FF0000") overrides it.
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlMark {
     ::pltxt2htm::Ast<ndebug> subast;
+    ::fast_io::u8string background_color;
 
 public:
-    constexpr explicit HtmlMark(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr explicit HtmlMark(::pltxt2htm::Ast<ndebug>&& subast_,
+                                ::fast_io::u8string&& background_color_ = ::fast_io::u8string{u8"#FFFF00"}) noexcept;
     constexpr HtmlMark(::pltxt2htm::HtmlMark<ndebug> const&) noexcept;
     constexpr HtmlMark(::pltxt2htm::HtmlMark<ndebug>&&) noexcept;
     constexpr ~HtmlMark() noexcept;
@@ -452,6 +457,11 @@ public:
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_background_color(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.background_color);
     }
 };
 

@@ -265,8 +265,10 @@ constexpr auto ::pltxt2htm::HtmlStrong<ndebug>::operator==(this ::pltxt2htm::Htm
     -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::HtmlMark<ndebug>::HtmlMark(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
-    : subast(::std::move(subast_)) {
+constexpr ::pltxt2htm::HtmlMark<ndebug>::HtmlMark(::pltxt2htm::Ast<ndebug>&& subast_,
+                                                  ::fast_io::u8string&& background_color_) noexcept
+    : subast(::std::move(subast_)),
+      background_color(::std::move(background_color_)) {
 }
 
 template<::pltxt2htm::Contracts ndebug>
