@@ -51,7 +51,8 @@ namespace pltxt2htm {
 template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, bool optimize = true>
 [[nodiscard]]
 constexpr auto pltxt4unittest(::fast_io::u8string_view pltext) noexcept {
-    auto ast = ::pltxt2htm::parse_pltxt<ndebug>(pltext);
+    using parser_result_type = ::std::conditional_t<optimize, ::pltxt2htm::Ast<ndebug>, ::pltxt2htm::Ast<ndebug> const>;
+    parser_result_type ast{::pltxt2htm::parse_pltxt<ndebug>(pltext)};
     if constexpr (optimize) {
         ::pltxt2htm::optimize_ast<ndebug>(ast);
     }
@@ -78,7 +79,8 @@ template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, 
 constexpr auto pltxt2fixedadv_html(::fast_io::u8string_view pltext, ::fast_io::u8string_view host,
                                    ::fast_io::u8string_view project, ::fast_io::u8string_view visitor,
                                    ::fast_io::u8string_view author, ::fast_io::u8string_view coauthors) noexcept {
-    auto ast = ::pltxt2htm::parse_pltxt<ndebug>(pltext);
+    using parser_result_type = ::std::conditional_t<optimize, ::pltxt2htm::Ast<ndebug>, ::pltxt2htm::Ast<ndebug> const>;
+    parser_result_type ast{::pltxt2htm::parse_pltxt<ndebug>(pltext)};
     if constexpr (optimize) {
         ::pltxt2htm::optimize_ast<ndebug>(ast);
     }
@@ -107,7 +109,8 @@ template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, 
 constexpr auto pltxt2plunity_introduction(::fast_io::u8string_view pltext, ::fast_io::u8string_view project,
                                           ::fast_io::u8string_view visitor, ::fast_io::u8string_view author,
                                           ::fast_io::u8string_view coauthors) noexcept {
-    auto ast = ::pltxt2htm::parse_pltxt<ndebug>(pltext);
+    using parser_result_type = ::std::conditional_t<optimize, ::pltxt2htm::Ast<ndebug>, ::pltxt2htm::Ast<ndebug> const>;
+    parser_result_type ast{::pltxt2htm::parse_pltxt<ndebug>(pltext)};
     if constexpr (optimize) {
         ::pltxt2htm::optimize_ast<ndebug>(ast);
     }
@@ -138,7 +141,8 @@ constexpr auto pltxt2plunity_introduction(::fast_io::u8string_view pltext, ::fas
 template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, bool optimize = false>
 [[nodiscard]]
 constexpr auto pltxt2common_html(::fast_io::u8string_view pltext) noexcept {
-    auto ast = ::pltxt2htm::parse_pltxt<ndebug>(pltext);
+    using parser_result_type = ::std::conditional_t<optimize, ::pltxt2htm::Ast<ndebug>, ::pltxt2htm::Ast<ndebug> const>;
+    parser_result_type ast{::pltxt2htm::parse_pltxt<ndebug>(pltext)};
     if constexpr (optimize) {
         ::pltxt2htm::optimize_ast<ndebug>(ast);
     }
