@@ -2680,8 +2680,7 @@ constexpr auto try_parse_md_block_quotes(::fast_io::u8string_view pltext) noexce
     if (subpltext.back_unchecked() == u8'\n') {
         subpltext.pop_back();
     }
-    return ::pltxt2htm::details::TryParseMdBlockQuotesResult{.advance_count = current_index,
-                                                             .subpltext = ::std::move(subpltext)};
+    return TryParseMdBlockQuotesResult{.advance_count = current_index, .subpltext = ::std::move(subpltext)};
 }
 
 template<::pltxt2htm::Contracts ndebug>
