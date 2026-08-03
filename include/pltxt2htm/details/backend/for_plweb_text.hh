@@ -626,6 +626,25 @@ entry:
                 result.append(u8";\">");
                 goto entry;
             }
+            case ::pltxt2htm::NodeKind::pl_mark: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_pl_mark().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::pl_mark, 0));
+                ++current_index;
+                auto const& mark_background_color = node.as_pl_mark().get_background_color();
+                result.append(u8"<mark style=\"background-color:");
+                if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
+                    ::fast_io::u8string purified_color{};
+                    ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                        purified_color,
+                        ::fast_io::u8string_view{mark_background_color.data(), mark_background_color.size()});
+                    pltxt2htm_assert(purified_color == mark_background_color,
+                                     u8"Color value contains characters that cannot be directly used in HTML "
+                                     u8"attributes.");
+                }
+                result.append(mark_background_color);
+                result.append(u8";\">");
+                goto entry;
+            }
             case ::pltxt2htm::NodeKind::html_p: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_p().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::html_p, 0));
@@ -1395,6 +1414,10 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_mark: {
+                result.append(u8"</mark>");
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::pl_mark: {
                 result.append(u8"</mark>");
                 goto entry;
             }

@@ -1708,6 +1708,43 @@ constexpr auto try_parse_mark_tag(::fast_io::u8string_view pltext) noexcept
 }
 
 /**
+ * @brief Parse &lt;mark=Xxx&gt; (TMP rich text) with a strict color value grammar.
+ * @tparam ndebug When set to Contracts::ignore, runtime assertions are disabled for performance.
+ * @param[in] pltext Input text starting at "ark=Xxx>..." (after "<m").
+ * @return Parsed tag result with the background color on success; nullopt on failure.
+ * @note The value is validated with the same grammar as &lt;color=Xxx&gt; (ascii-alpha
+ *       named colors or #hex 3/4/6/8). Any other value, trailing attribute, missing
+ *       closing bracket, or malformed form causes parse failure so the whole &lt;...&gt;
+ *       degrades to escaped literal text.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_mark_equal_sign_tag(::fast_io::u8string_view pltext) noexcept
+    -> ::exception::optional<TryParseMarkTagResult> {
+    // match "ark" prefix (case-insensitive)
+    if (::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"ark"}>(pltext) ==
+        false) {
+        return ::exception::nullopt;
+    }
+    if (pltext.size() <= 3 || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 3) != u8'=') {
+        return ::exception::nullopt;
+    }
+    constexpr ::std::size_t value_start{4};
+    auto opt_value_end = ::pltxt2htm::details::try_parse_color_value<ndebug>(pltext, value_start);
+    if (opt_value_end.has_value() == false) {
+        return ::exception::nullopt;
+    }
+    auto suffix = ::pltxt2htm::details::try_parse_equal_sign_tag_suffix<ndebug>(
+        pltext, value_start, opt_value_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>());
+    if (suffix.has_value() == false) {
+        return ::exception::nullopt;
+    }
+    auto const& suffix_value = suffix.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+    return TryParseMarkTagResult{
+        .tag_len = suffix_value.tag_len + 1, .background_color = ::fast_io::u8string{suffix_value.substr}};
+}
+
+/**
  * @brief Result of parsing a <code class="language-..."> tag.
  */
 struct TryParseCodeTagResult {

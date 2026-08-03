@@ -69,6 +69,15 @@ public:
 };
 
 /**
+ * @brief Context for optimizer pl_mark frames, remembers the background-color.
+ */
+template<::pltxt2htm::Contracts ndebug>
+class OptimizerContextWithPlMarkInfo {
+public:
+    ::fast_io::u8string_view background_color{};
+};
+
+/**
  * @brief Tagged-union variant of optimizer context payloads.
  * @details Dispatched on `kind` (::pltxt2htm::NodeKind) – used inside
  *          ::pltxt2htm::details::OptimizerFrameContext.
@@ -82,6 +91,7 @@ public:
         ::pltxt2htm::details::OptimizerContextWithPlSizeTagInfo pl_size_tag;
         ::pltxt2htm::details::OptimizerContextWithHtmlSpanInfo<ndebug> html_span_info;
         ::pltxt2htm::details::OptimizerContextWithHtmlMarkInfo<ndebug> html_mark_info;
+        ::pltxt2htm::details::OptimizerContextWithPlMarkInfo<ndebug> pl_mark_info;
     };
 
     ::pltxt2htm::NodeKind kind; ///< Type of the current nested tag context
@@ -115,6 +125,12 @@ public:
           kind{::pltxt2htm::NodeKind::html_mark} {
     }
 
+    constexpr OptimizerContextVariant(
+        ::pltxt2htm::details::OptimizerContextWithPlMarkInfo<ndebug>&& pl_mark_context) noexcept
+        : pl_mark_info{::std::move(pl_mark_context)},
+          kind{::pltxt2htm::NodeKind::pl_mark} {
+    }
+
     constexpr OptimizerContextVariant(::pltxt2htm::details::OptimizerContextVariant<ndebug> const&) noexcept = delete;
 
     constexpr OptimizerContextVariant(::pltxt2htm::details::OptimizerContextVariant<ndebug>&& other) noexcept
@@ -142,6 +158,10 @@ public:
             ::std::construct_at(::std::addressof(this->html_mark_info), ::std::move(other.html_mark_info));
             return;
         }
+        case ::pltxt2htm::NodeKind::pl_mark: {
+            ::std::construct_at(::std::addressof(this->pl_mark_info), ::std::move(other.pl_mark_info));
+            return;
+        }
         default:
             ::std::construct_at(::std::addressof(this->without_info), ::std::move(other.without_info));
             return;
@@ -153,6 +173,7 @@ public:
     static_assert(::std::is_trivially_destructible_v<decltype(pl_size_tag)>);
     static_assert(::std::is_trivially_destructible_v<decltype(html_span_info)>);
     static_assert(::std::is_trivially_destructible_v<decltype(html_mark_info)>);
+    static_assert(::std::is_trivially_destructible_v<decltype(pl_mark_info)>);
 
     constexpr ~OptimizerContextVariant() noexcept = default;
 
@@ -230,6 +251,14 @@ public:
           iter{iter_} {
     }
 
+    constexpr OptimizerFrameContext(
+        ::pltxt2htm::Ast<ndebug>* ast_, Iter&& iter_,
+        ::pltxt2htm::details::OptimizerContextWithPlMarkInfo<ndebug>&& pl_mark_context_) noexcept
+        : context_data{::std::move(pl_mark_context_)},
+          ast(ast_),
+          iter{iter_} {
+    }
+
     constexpr OptimizerFrameContext(::pltxt2htm::details::OptimizerFrameContext<Iter, ndebug> const&) noexcept = delete;
 
     constexpr OptimizerFrameContext(::pltxt2htm::details::OptimizerFrameContext<Iter, ndebug>&&) noexcept = default;
@@ -297,6 +326,14 @@ public:
         bool const is_html_mark_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_mark};
         pltxt2htm_assert(is_html_mark_type, u8"context kind mismatch");
         return context_data_ref.html_mark_info.background_color;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_pl_mark_background_color(this auto&& self) noexcept -> ::fast_io::u8string_view {
+        auto&& context_data_ref = self.context_data;
+        bool const is_pl_mark_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_mark};
+        pltxt2htm_assert(is_pl_mark_type, u8"context kind mismatch");
+        return context_data_ref.pl_mark_info.background_color;
     }
 };
 
@@ -984,6 +1021,43 @@ entry:
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
                         ::std::addressof(subast), subast.begin(),
                         ::pltxt2htm::details::OptimizerContextWithHtmlMarkInfo<ndebug>{node_background_color_view}));
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::pl_mark: {
+                auto&& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
+                auto&& subast = node.as_pl_mark().get_subast();
+                auto const& node_background_color = node.as_pl_mark().get_background_color();
+                ::fast_io::u8string_view const node_background_color_view{node_background_color.data(),
+                                                                          node_background_color.size()};
+                if (nested_tag_type != ::pltxt2htm::NodeKind::pl_mark) {
+                    if (subast.empty()) {
+                        ast.erase(current_iter);
+                        continue;
+                    }
+                    call_stack.push(::pltxt2htm::details::OptimizerFrameContext<
+                                    typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
+                        ::std::addressof(subast), subast.begin(),
+                        ::pltxt2htm::details::OptimizerContextWithPlMarkInfo<ndebug>{node_background_color_view}));
+                    goto entry;
+                }
+                // Optimization: same-tag pl_mark with an identical background color is flattened.
+                // <mark=yellow>a<mark=yellow>b</mark>c</mark>
+                // -> <mark=yellow>abc</mark>
+                if (node_background_color_view ==
+                    ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_pl_mark_background_color()) {
+                    node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
+                    ++current_iter;
+                    continue;
+                }
+                // Different background-color: keep the nesting and recurse into the inner mark.
+                if (subast.empty()) {
+                    ast.erase(current_iter);
+                    continue;
+                }
+                call_stack.push(
+                    ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
+                        ::std::addressof(subast), subast.begin(),
+                        ::pltxt2htm::details::OptimizerContextWithPlMarkInfo<ndebug>{node_background_color_view}));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_u: {

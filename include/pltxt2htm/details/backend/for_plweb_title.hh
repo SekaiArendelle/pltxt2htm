@@ -506,6 +506,12 @@ entry:
                 ++current_index;
                 goto entry;
             }
+            case ::pltxt2htm::NodeKind::pl_mark: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_pl_mark().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::text, 0));
+                ++current_index;
+                goto entry;
+            }
             case ::pltxt2htm::NodeKind::pl_u: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_pl_u().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::text, 0));
