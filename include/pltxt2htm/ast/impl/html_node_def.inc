@@ -279,12 +279,12 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::HtmlMark<ndebug>::~HtmlMark() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::HtmlMark<ndebug>::operator=(this ::pltxt2htm::HtmlMark<ndebug>& self,
-                                                       ::pltxt2htm::HtmlMark<ndebug>&&) noexcept
+                                                        ::pltxt2htm::HtmlMark<ndebug>&&) noexcept
     -> ::pltxt2htm::HtmlMark<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::HtmlMark<ndebug>::operator==(this ::pltxt2htm::HtmlMark<ndebug> const&,
-                                                        ::pltxt2htm::HtmlMark<ndebug> const&) noexcept
+                                                         ::pltxt2htm::HtmlMark<ndebug> const&) noexcept
     -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>

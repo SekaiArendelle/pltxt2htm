@@ -2087,12 +2087,12 @@ entry:
                             opt_tag_len.has_value()) {
                             // parsing end tag </mark> successed
                             ::std::size_t const staged_index{current_index};
-                            ::pltxt2htm::HtmlMark staged_node(::std::move(result));
+                            ::pltxt2htm::HtmlMark staged_node(::std::move(result),
+                                                              ::std::move(frame.get_html_mark_background_color()));
                             call_stack.pop();
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                                ::pltxt2htm::HtmlMark<ndebug>{::std::move(staged_node),
-                                                              ::std::move(frame.get_html_mark_background_color())}));
+                                ::pltxt2htm::HtmlMark<ndebug>{::std::move(staged_node)}));
                             parent_frame.current_index +=
                                 staged_index + opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() +
                                 3;
@@ -2854,8 +2854,8 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_mark: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                    ::pltxt2htm::HtmlMark<ndebug>{::std::move(subast), ::std::move(frame.get_html_mark_background_color())}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlMark<ndebug>{
+                    ::std::move(subast), ::std::move(frame.get_html_mark_background_color())}));
                 parent_index += staged_index;
                 goto entry;
             }

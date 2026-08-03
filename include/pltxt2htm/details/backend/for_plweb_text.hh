@@ -608,8 +608,8 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_mark: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                    node.as_html_mark().get_subast(), ::pltxt2htm::NodeKind::html_mark, 0));
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_mark().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::html_mark, 0));
                 ++current_index;
                 auto const& mark_background_color = node.as_html_mark().get_background_color();
                 result.append(u8"<mark style=\"background-color:");

@@ -441,15 +441,16 @@ class HtmlMark {
     ::fast_io::u8string background_color;
 
 public:
+    static constexpr auto default_background_color = ::fast_io::u8string_view{u8"#FFFF00"};
+
     constexpr explicit HtmlMark(::pltxt2htm::Ast<ndebug>&& subast_,
-                                ::fast_io::u8string&& background_color_ = ::fast_io::u8string{u8"#FFFF00"}) noexcept;
-    constexpr HtmlMark(::pltxt2htm::HtmlMark<ndebug> const&) noexcept;
-    constexpr HtmlMark(::pltxt2htm::HtmlMark<ndebug>&&) noexcept;
+                                ::fast_io::u8string&& background_color_ = ::fast_io::u8string{
+                                    default_background_color}) noexcept;
+    constexpr HtmlMark(HtmlMark<ndebug> const&) noexcept;
+    constexpr HtmlMark(HtmlMark<ndebug>&&) noexcept;
     constexpr ~HtmlMark() noexcept;
-    constexpr auto operator=(::pltxt2htm::HtmlMark<ndebug> const&) noexcept
-        -> ::pltxt2htm::HtmlMark<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::HtmlMark<ndebug>& self, ::pltxt2htm::HtmlMark<ndebug>&&) noexcept
-        -> ::pltxt2htm::HtmlMark<ndebug>&;
+    constexpr auto operator=(HtmlMark<ndebug> const&) noexcept -> HtmlMark<ndebug>& = delete;
+    constexpr auto operator=(this HtmlMark<ndebug>& self, HtmlMark<ndebug>&&) noexcept -> HtmlMark<ndebug>&;
 
     [[nodiscard]]
     constexpr auto operator==(this HtmlMark const&, HtmlMark const&) noexcept -> bool;

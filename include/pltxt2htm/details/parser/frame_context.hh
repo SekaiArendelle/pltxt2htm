@@ -262,9 +262,8 @@ public:
           kind{node_kind_} {
     }
 
-    constexpr FrontendContextVariant(
-        ::pltxt2htm::details::ParserFrameContextWithHtmlMarkInfo&& html_mark_context,
-        ::pltxt2htm::NodeKind node_kind_) noexcept
+    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithHtmlMarkInfo&& html_mark_context,
+                                     ::pltxt2htm::NodeKind node_kind_) noexcept
         : html_mark_info{::std::move(html_mark_context)},
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
           context_branch{ContextBranch::html_mark_info},

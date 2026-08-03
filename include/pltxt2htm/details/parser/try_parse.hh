@@ -1594,19 +1594,21 @@ constexpr auto try_parse_mark_style(::fast_io::u8string_view pltext, char8_t con
 }
 
 /**
- * @brief Return type of try_parse_mark_tag: tag length and optional background-color.
+ * @brief Return type of try_parse_mark_tag: tag length and effective background-color.
  */
 struct TryParseMarkTagResult {
     ::std::size_t tag_len; ///< Length of the matched tag.
-    ::fast_io::u8string background_color; ///< Extracted background-color value, empty if none.
+    ::fast_io::u8string background_color; ///< Effective background-color; the standard highlight color
+                                          ///< when the tag has no style attribute.
 };
 
 /**
  * @brief Parse &lt;mark&gt; or &lt;mark style="background-color:V"&gt; and reject any other attributes.
  * @tparam ndebug When set to Contracts::ignore, runtime assertions are disabled for performance.
  * @param[in] pltext Input text starting at "ark ..." (after "<m").
- * @return Parsed tag result with an optional background-color on success; nullopt on failure.
- * @note The bare &lt;mark&gt; form is accepted. If a "style" attribute is present, only the
+ * @return Parsed tag result with the effective background-color on success; nullopt on failure.
+ * @note The bare &lt;mark&gt; form is accepted and carries the default background-color.
+ *       If a "style" attribute is present, only the
  *       lowercase "background-color" CSS property is accepted; any other attribute or CSS
  *       property causes parse failure.
  */
@@ -1635,7 +1637,9 @@ constexpr auto try_parse_mark_tag(::fast_io::u8string_view pltext) noexcept
         }
         if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'>') {
             if (found_style == false) {
-                return TryParseMarkTagResult{.tag_len = pos + 1, .background_color = ::std::move(background_color)};
+                return TryParseMarkTagResult{
+                    .tag_len = pos + 1,
+                    .background_color = ::fast_io::u8string{::pltxt2htm::HtmlMark<ndebug>::default_background_color}};
             }
             break;
         }

@@ -34,8 +34,7 @@ int main() {
     }
     {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<mark style=\"color:red\">text</mark>");
-        auto answer =
-            ::fast_io::u8string_view{u8"&lt;mark&nbsp;style=&quot;color:red&quot;&gt;text&lt;/mark&gt;"};
+        auto answer = ::fast_io::u8string_view{u8"&lt;mark&nbsp;style=&quot;color:red&quot;&gt;text&lt;/mark&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
     {

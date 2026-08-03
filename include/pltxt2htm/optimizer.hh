@@ -960,12 +960,10 @@ entry:
                         ast.erase(current_iter);
                         continue;
                     }
-                    call_stack.push(
-                        ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator,
-                                                                    ndebug>(
-                            ::std::addressof(subast), subast.begin(),
-                            ::pltxt2htm::details::OptimizerContextWithHtmlMarkInfo<ndebug>{
-                                node_background_color_view}));
+                    call_stack.push(::pltxt2htm::details::OptimizerFrameContext<
+                                    typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
+                        ::std::addressof(subast), subast.begin(),
+                        ::pltxt2htm::details::OptimizerContextWithHtmlMarkInfo<ndebug>{node_background_color_view}));
                     goto entry;
                 }
                 // Optimization: same-tag mark with an identical background-color is flattened.
@@ -982,10 +980,10 @@ entry:
                     ast.erase(current_iter);
                     continue;
                 }
-                call_stack.push(::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator,
-                                                                            ndebug>(
-                    ::std::addressof(subast), subast.begin(),
-                    ::pltxt2htm::details::OptimizerContextWithHtmlMarkInfo<ndebug>{node_background_color_view}));
+                call_stack.push(
+                    ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
+                        ::std::addressof(subast), subast.begin(),
+                        ::pltxt2htm::details::OptimizerContextWithHtmlMarkInfo<ndebug>{node_background_color_view}));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_u: {
