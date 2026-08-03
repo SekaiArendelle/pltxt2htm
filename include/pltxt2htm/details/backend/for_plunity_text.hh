@@ -1206,7 +1206,8 @@ entry:
         }
 
         {
-            auto top_frame = ::std::move(::pltxt2htm::details::stack_top<ndebug>(call_stack));
+            auto top_frame = ::pltxt2htm::details::BackendFrameContext<ndebug>{
+                ::std::move(::pltxt2htm::details::stack_top<ndebug>(call_stack))};
             call_stack.pop();
             if (call_stack.empty()) {
                 return result;
