@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <exception/exception.hh>
+#include <fast_io/fast_io_dsal/array.h>
 #include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/string_view.h>
 #include "frame_context.hh"
@@ -1174,21 +1175,22 @@ constexpr auto try_parse_vertical_align_keyword(::fast_io::u8string_view pltext,
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_vertical_align_value(::fast_io::u8string_view pltext, ::std::size_t const start) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseVerticalAlignValueResult<ndebug>> {
+    -> ::exception::optional<TryParseVerticalAlignValueResult<ndebug>> {
     struct VerticalAlignKeywordEntry {
         ::pltxt2htm::VerticalAlignKeyword keyword;
         ::fast_io::u8string_view spelling;
     };
 
-    static constexpr VerticalAlignKeywordEntry keywords[]{
-        {::pltxt2htm::VerticalAlignKeyword::baseline, ::fast_io::u8string_view{u8"baseline"}},
-        {::pltxt2htm::VerticalAlignKeyword::text_bottom, ::fast_io::u8string_view{u8"text-bottom"}},
-        {::pltxt2htm::VerticalAlignKeyword::text_top, ::fast_io::u8string_view{u8"text-top"}},
-        {::pltxt2htm::VerticalAlignKeyword::super, ::fast_io::u8string_view{u8"super"}},
-        {::pltxt2htm::VerticalAlignKeyword::sub, ::fast_io::u8string_view{u8"sub"}},
-        {::pltxt2htm::VerticalAlignKeyword::middle, ::fast_io::u8string_view{u8"middle"}},
-        {::pltxt2htm::VerticalAlignKeyword::bottom, ::fast_io::u8string_view{u8"bottom"}},
-        {::pltxt2htm::VerticalAlignKeyword::top, ::fast_io::u8string_view{u8"top"}},
+    static constexpr auto keywords = ::fast_io::array{
+        VerticalAlignKeywordEntry{::pltxt2htm::VerticalAlignKeyword::baseline, ::fast_io::u8string_view{u8"baseline"}},
+        VerticalAlignKeywordEntry{::pltxt2htm::VerticalAlignKeyword::text_bottom,
+                                  ::fast_io::u8string_view{u8"text-bottom"}},
+        VerticalAlignKeywordEntry{::pltxt2htm::VerticalAlignKeyword::text_top, ::fast_io::u8string_view{u8"text-top"}},
+        VerticalAlignKeywordEntry{::pltxt2htm::VerticalAlignKeyword::super, ::fast_io::u8string_view{u8"super"}},
+        VerticalAlignKeywordEntry{::pltxt2htm::VerticalAlignKeyword::sub, ::fast_io::u8string_view{u8"sub"}},
+        VerticalAlignKeywordEntry{::pltxt2htm::VerticalAlignKeyword::middle, ::fast_io::u8string_view{u8"middle"}},
+        VerticalAlignKeywordEntry{::pltxt2htm::VerticalAlignKeyword::bottom, ::fast_io::u8string_view{u8"bottom"}},
+        VerticalAlignKeywordEntry{::pltxt2htm::VerticalAlignKeyword::top, ::fast_io::u8string_view{u8"top"}},
     };
     for (auto const& entry : keywords) {
         auto opt_len = ::pltxt2htm::details::try_parse_vertical_align_keyword<ndebug>(
@@ -1740,8 +1742,8 @@ constexpr auto try_parse_mark_equal_sign_tag(::fast_io::u8string_view pltext) no
         return ::exception::nullopt;
     }
     auto const& suffix_value = suffix.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    return TryParseMarkTagResult{
-        .tag_len = suffix_value.tag_len + 1, .background_color = ::fast_io::u8string{suffix_value.substr}};
+    return TryParseMarkTagResult{.tag_len = suffix_value.tag_len + 1,
+                                 .background_color = ::fast_io::u8string{suffix_value.substr}};
 }
 
 /**

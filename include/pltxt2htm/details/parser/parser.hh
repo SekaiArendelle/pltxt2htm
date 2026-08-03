@@ -1850,7 +1850,7 @@ entry:
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlMark staged_node(::std::move(result),
-                                                             ::std::move(frame.get_pl_mark_background_color()));
+                                                            ::std::move(frame.get_pl_mark_background_color()));
                             call_stack.pop();
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(
