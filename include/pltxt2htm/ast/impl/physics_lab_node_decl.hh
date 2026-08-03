@@ -292,6 +292,39 @@ public:
 };
 
 /**
+ * @brief Physics-Lab mark tag node
+ * @details Represents &lt;mark=value&gt;...&lt;/mark&gt; (TMP rich text) with a background
+ *          color string and sub-AST.
+ */
+template<::pltxt2htm::Contracts ndebug>
+class PlMark {
+    ::pltxt2htm::Ast<ndebug> subast;
+    ::fast_io::u8string background_color;
+
+public:
+    constexpr PlMark(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& background_color_) noexcept;
+    constexpr PlMark(::pltxt2htm::PlMark<ndebug> const&) noexcept;
+    constexpr PlMark(::pltxt2htm::PlMark<ndebug>&&) noexcept;
+    constexpr ~PlMark() noexcept;
+    constexpr auto operator=(::pltxt2htm::PlMark<ndebug> const&) noexcept -> ::pltxt2htm::PlMark<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::PlMark<ndebug>& self, ::pltxt2htm::PlMark<ndebug>&&) noexcept
+        -> ::pltxt2htm::PlMark<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this PlMark const&, PlMark const&) noexcept -> bool;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_background_color(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.background_color);
+    }
+};
+
+/**
  * @brief Physics-Lab italic text tag node
  * @details Represents &lt;i&gt;...&lt;/i&gt; with sub-AST content.
  */

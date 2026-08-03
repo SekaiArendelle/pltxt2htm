@@ -159,6 +159,11 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<mark=red>text</mark>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;mark=red&gt;text&lt;/mark&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"{project}");
         auto answer = ::fast_io::u8string_view{u8"{project}"};
         pltxt2htm_test_assert_equal(html, answer);

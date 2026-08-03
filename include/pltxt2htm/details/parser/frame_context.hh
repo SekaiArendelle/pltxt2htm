@@ -115,6 +115,15 @@ public:
 };
 
 /**
+ * @brief Context for pl_mark frames during parsing; stores the background color.
+ */
+class ParserFrameContextWithPlMarkInfo {
+public:
+    ::fast_io::u8string_view pltext;
+    ::fast_io::u8string background_color;
+};
+
+/**
  * @brief Context for block-quote frames; stores the owned sub-text.
  */
 class ParserFrameContextWithMdBlockQuotesInfo {
@@ -209,6 +218,7 @@ public:
         md_table,
         pltext,
         html_mark_info,
+        pl_mark_info,
     };
 #endif
 
@@ -217,6 +227,7 @@ public:
         ::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo equal_sign_tag;
         ::pltxt2htm::details::ParserFrameContextWithHtmlSpanInfo<ndebug> html_span_info;
         ::pltxt2htm::details::ParserFrameContextWithHtmlMarkInfo html_mark_info;
+        ::pltxt2htm::details::ParserFrameContextWithPlMarkInfo pl_mark_info;
         ::pltxt2htm::details::ParserFrameContextWithHtmlCodeInfo html_code_info;
         ::pltxt2htm::details::ParserFrameContextWithUrlInfo url_info;
         ::pltxt2htm::details::ParserFrameContextWithHtmlATagInfo html_a_tag_info;
@@ -267,6 +278,15 @@ public:
         : html_mark_info{::std::move(html_mark_context)},
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
           context_branch{ContextBranch::html_mark_info},
+#endif
+          kind{node_kind_} {
+    }
+
+    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithPlMarkInfo&& pl_mark_context,
+                                     ::pltxt2htm::NodeKind node_kind_) noexcept
+        : pl_mark_info{::std::move(pl_mark_context)},
+#ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
+          context_branch{ContextBranch::pl_mark_info},
 #endif
           kind{node_kind_} {
     }
@@ -401,6 +421,11 @@ public:
         case ::pltxt2htm::NodeKind::html_mark: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::html_mark_info);
             ::std::construct_at(::std::addressof(this->html_mark_info), ::std::move(other.html_mark_info));
+            return;
+        }
+        case ::pltxt2htm::NodeKind::pl_mark: {
+            pltxt2htm_assert_context_branch(*this, ContextBranch::pl_mark_info);
+            ::std::construct_at(::std::addressof(this->pl_mark_info), ::std::move(other.pl_mark_info));
             return;
         }
         case ::pltxt2htm::NodeKind::html_code: {
@@ -714,6 +739,11 @@ public:
         case ::pltxt2htm::NodeKind::html_mark: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::html_mark_info);
             ::std::destroy_at(::std::addressof(this->html_mark_info));
+            return;
+        }
+        case ::pltxt2htm::NodeKind::pl_mark: {
+            pltxt2htm_assert_context_branch(*this, ContextBranch::pl_mark_info);
+            ::std::destroy_at(::std::addressof(this->pl_mark_info));
             return;
         }
         case ::pltxt2htm::NodeKind::html_code: {
@@ -1216,6 +1246,11 @@ public:
                 context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::html_mark_info);
             return context_data_ref.html_mark_info.pltext;
         }
+        case ::pltxt2htm::NodeKind::pl_mark: {
+            pltxt2htm_assert_context_branch(
+                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::pl_mark_info);
+            return context_data_ref.pl_mark_info.pltext;
+        }
         case ::pltxt2htm::NodeKind::html_code: {
             pltxt2htm_assert_context_branch(
                 context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::html_code_info);
@@ -1401,6 +1436,14 @@ public:
         bool const is_html_mark_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_mark};
         pltxt2htm_assert(is_html_mark_type, u8"context kind mismatch");
         return ::std::forward_like<decltype(self)>(context_data_ref.html_mark_info.background_color);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_pl_mark_background_color(this auto&& self) noexcept -> decltype(auto) {
+        auto&& context_data_ref = self.context_data;
+        bool const is_pl_mark_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_mark};
+        pltxt2htm_assert(is_pl_mark_type, u8"context kind mismatch");
+        return ::std::forward_like<decltype(self)>(context_data_ref.pl_mark_info.background_color);
     }
 
     [[nodiscard]]

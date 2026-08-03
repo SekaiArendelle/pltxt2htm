@@ -178,6 +178,28 @@ constexpr auto ::pltxt2htm::PlSize<ndebug>::operator==(this ::pltxt2htm::PlSize<
                                                        ::pltxt2htm::PlSize<ndebug> const&) noexcept -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlMark<ndebug>::PlMark(::pltxt2htm::Ast<ndebug>&& subast_,
+                                              ::fast_io::u8string&& background_color_) noexcept
+    : subast(::std::move(subast_)),
+      background_color(::std::move(background_color_)) {
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlMark<ndebug>::PlMark(::pltxt2htm::PlMark<ndebug> const&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlMark<ndebug>::PlMark(::pltxt2htm::PlMark<ndebug>&&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlMark<ndebug>::~PlMark() noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::PlMark<ndebug>::operator=(this ::pltxt2htm::PlMark<ndebug>& self,
+                                                      ::pltxt2htm::PlMark<ndebug>&&) noexcept
+    -> ::pltxt2htm::PlMark<ndebug>& = default;
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::PlMark<ndebug>::operator==(this ::pltxt2htm::PlMark<ndebug> const&,
+                                                       ::pltxt2htm::PlMark<ndebug> const&) noexcept -> bool = default;
+
+template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::PlI<ndebug>::PlI(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
     : subast(::std::move(subast_)) {
 }
