@@ -94,10 +94,10 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_length(this auto&& self) noexcept -> decltype(auto) {
+    constexpr auto get_length(this auto&& self) noexcept -> ::pltxt2htm::ValueWithUnit {
         bool const is_length{self.kind == ::pltxt2htm::VerticalAlignKind::length};
         pltxt2htm_assert(is_length, u8"vertical-align kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.length);
+        return self.length;
     }
 };
 

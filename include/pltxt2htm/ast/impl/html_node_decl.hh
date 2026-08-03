@@ -600,13 +600,14 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_font_size(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.font_size);
+    constexpr auto get_font_size(this auto&& self) noexcept -> ::exception::optional<::pltxt2htm::ValueWithUnit> {
+        return self.font_size;
     }
 
     [[nodiscard]]
-    constexpr auto get_vertical_align(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.vertical_align);
+    constexpr auto get_vertical_align(this auto&& self) noexcept
+        -> ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> {
+        return self.vertical_align;
     }
 };
 

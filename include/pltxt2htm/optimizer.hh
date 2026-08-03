@@ -229,11 +229,11 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_pl_size_tag_value(this auto&& self) noexcept -> decltype(auto) {
+    constexpr auto get_pl_size_tag_value(this auto&& self) noexcept -> ::pltxt2htm::ValueWithUnit {
         auto&& context_data_ref = self.context_data;
         bool const is_pl_size_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_size};
         pltxt2htm_assert(is_pl_size_tag_type, u8"context kind mismatch");
-        return ::std::forward_like<decltype(self)>(context_data_ref.pl_size_tag.value);
+        return context_data_ref.pl_size_tag.value;
     }
 
     [[nodiscard]]
@@ -245,19 +245,21 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_html_span_font_size(this auto&& self) noexcept -> decltype(auto) {
+    constexpr auto get_html_span_font_size(this auto&& self) noexcept
+        -> ::exception::optional<::pltxt2htm::ValueWithUnit> {
         auto&& context_data_ref = self.context_data;
         bool const is_html_span_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_span};
         pltxt2htm_assert(is_html_span_type, u8"context kind mismatch");
-        return ::std::forward_like<decltype(self)>(context_data_ref.html_span_info.font_size);
+        return context_data_ref.html_span_info.font_size;
     }
 
     [[nodiscard]]
-    constexpr auto get_html_span_vertical_align(this auto&& self) noexcept -> decltype(auto) {
+    constexpr auto get_html_span_vertical_align(this auto&& self) noexcept
+        -> ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> {
         auto&& context_data_ref = self.context_data;
         bool const is_html_span_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_span};
         pltxt2htm_assert(is_html_span_type, u8"context kind mismatch");
-        return ::std::forward_like<decltype(self)>(context_data_ref.html_span_info.vertical_align);
+        return context_data_ref.html_span_info.vertical_align;
     }
 };
 

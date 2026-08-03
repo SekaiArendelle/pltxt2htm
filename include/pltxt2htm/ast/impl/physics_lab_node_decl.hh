@@ -286,8 +286,8 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_font_size(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.font_size);
+    constexpr auto get_font_size(this auto&& self) noexcept -> ::pltxt2htm::ValueWithUnit {
+        return self.font_size;
     }
 };
 
