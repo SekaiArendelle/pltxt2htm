@@ -377,8 +377,13 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_pl_voffset().get_subast(), ::pltxt2htm::NodeKind::pl_voffset, 0));
                 ++current_index;
+                auto const voffset = node.as_pl_voffset().get_value();
+                pltxt2htm_assert(voffset.unit != ::pltxt2htm::Unit::percent, u8"voffset does not support percent");
                 result.append(u8"<voffset=");
-                result.append(::pltxt2htm::details::ptrdiff_t2str(node.as_pl_voffset().get_value()));
+                result.append(::pltxt2htm::details::ptrdiff_t2str(voffset.value));
+                if (voffset.unit == ::pltxt2htm::Unit::em) {
+                    result.append(u8"em");
+                }
                 result.push_back(u8'>');
                 goto entry;
             }

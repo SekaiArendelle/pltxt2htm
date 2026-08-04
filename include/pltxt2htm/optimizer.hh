@@ -53,7 +53,7 @@ public:
  */
 class OptimizerContextWithPlVoffsetTagInfo {
 public:
-    ::std::ptrdiff_t value; ///< Vertical offset in pixels (e.g., 5 in voffset=5)
+    ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> value; ///< Vertical offset value+unit (e.g., 5px in voffset=5)
 };
 
 /**
@@ -315,7 +315,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_pl_size_tag_value(this auto&& self) noexcept -> ::pltxt2htm::ValueWithUnit<::std::size_t> {
+    constexpr auto get_pl_size_tag_value(this auto const& self) noexcept -> ::pltxt2htm::ValueWithUnit<::std::size_t> {
         auto&& context_data_ref = self.context_data;
         bool const is_pl_size_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_size};
         pltxt2htm_assert(is_pl_size_tag_type, u8"context kind mismatch");
@@ -323,7 +323,8 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_pl_voffset_tag_value(this auto&& self) noexcept -> ::std::ptrdiff_t {
+    constexpr auto get_pl_voffset_tag_value(this auto const& self) noexcept
+        -> ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> {
         auto&& context_data_ref = self.context_data;
         bool const is_pl_voffset_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_voffset};
         pltxt2htm_assert(is_pl_voffset_tag_type, u8"context kind mismatch");
@@ -331,7 +332,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_html_span_color(this auto&& self) noexcept -> ::fast_io::u8string_view {
+    constexpr auto get_html_span_color(this auto const& self) noexcept -> ::fast_io::u8string_view {
         auto&& context_data_ref = self.context_data;
         bool const is_html_span_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_span};
         pltxt2htm_assert(is_html_span_type, u8"context kind mismatch");
@@ -339,7 +340,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_html_span_font_size(this auto&& self) noexcept
+    constexpr auto get_html_span_font_size(this auto const& self) noexcept
         -> ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
         auto&& context_data_ref = self.context_data;
         bool const is_html_span_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_span};
@@ -348,7 +349,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_html_span_vertical_align(this auto&& self) noexcept
+    constexpr auto get_html_span_vertical_align(this auto const& self) noexcept
         -> ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> {
         auto&& context_data_ref = self.context_data;
         bool const is_html_span_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_span};
@@ -357,7 +358,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_html_mark_background_color(this auto&& self) noexcept -> ::fast_io::u8string_view {
+    constexpr auto get_html_mark_background_color(this auto const& self) noexcept -> ::fast_io::u8string_view {
         auto&& context_data_ref = self.context_data;
         bool const is_html_mark_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_mark};
         pltxt2htm_assert(is_html_mark_type, u8"context kind mismatch");
@@ -365,7 +366,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_pl_mark_background_color(this auto&& self) noexcept -> ::fast_io::u8string_view {
+    constexpr auto get_pl_mark_background_color(this auto const& self) noexcept -> ::fast_io::u8string_view {
         auto&& context_data_ref = self.context_data;
         bool const is_pl_mark_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_mark};
         pltxt2htm_assert(is_pl_mark_type, u8"context kind mismatch");

@@ -294,15 +294,17 @@ public:
 /**
  * @brief Physics-Lab vertical offset tag node
  * @details Represents &lt;voffset=value&gt;...&lt;/voffset&gt; (Unity TextMeshPro rich text)
- *          with a signed pixel offset (negative shifts text down) and sub-AST.
+ *          with a signed px/em offset (negative shifts text down; the unit defaults to px)
+ *          and sub-AST.
  */
 template<::pltxt2htm::Contracts ndebug>
 class PlVoffset {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::std::ptrdiff_t value;
+    ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> value;
 
 public:
-    constexpr PlVoffset(::pltxt2htm::Ast<ndebug>&& subast_, ::std::ptrdiff_t value_) noexcept;
+    constexpr PlVoffset(::pltxt2htm::Ast<ndebug>&& subast_,
+                        ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> value_) noexcept;
     constexpr PlVoffset(::pltxt2htm::PlVoffset<ndebug> const&) noexcept;
     constexpr PlVoffset(::pltxt2htm::PlVoffset<ndebug>&&) noexcept;
     constexpr ~PlVoffset() noexcept;
@@ -320,7 +322,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_value(this auto const& self) noexcept -> ::std::ptrdiff_t {
+    constexpr auto get_value(this auto const& self) noexcept -> ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> {
         return self.value;
     }
 };
