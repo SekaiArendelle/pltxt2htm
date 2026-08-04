@@ -378,11 +378,25 @@ entry:
                     node.as_pl_voffset().get_subast(), ::pltxt2htm::NodeKind::pl_voffset, 0));
                 ++current_index;
                 auto const voffset = node.as_pl_voffset().get_value();
-                pltxt2htm_assert(voffset.unit != ::pltxt2htm::Unit::percent, u8"voffset does not support percent");
                 result.append(u8"<voffset=");
                 result.append(::pltxt2htm::details::ptrdiff_t2str(voffset.value));
-                if (voffset.unit == ::pltxt2htm::Unit::em) {
+                switch (voffset.unit) /* -Werror=switch */ {
+                case ::pltxt2htm::Unit::em: {
                     result.append(u8"em");
+                    break;
+                }
+                case ::pltxt2htm::Unit::px: {
+                    result.append(u8"px");
+                    break;
+                }
+                case ::pltxt2htm::Unit::percent:
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
+                    [[fallthrough]];
+                default:
+#endif
+                    [[unlikely]] {
+                        pltxt2htm_unreachable(u8"Unexpected unit for voffset");
+                    }
                 }
                 result.push_back(u8'>');
                 goto entry;

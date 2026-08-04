@@ -202,19 +202,19 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<voffset=5>text</voffset>");
-        auto answer = ::fast_io::u8string_view{u8"<voffset=5>text</voffset>"};
+        auto answer = ::fast_io::u8string_view{u8"<voffset=5px>text</voffset>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<voffset=-5>text</voffset>");
-        auto answer = ::fast_io::u8string_view{u8"<voffset=-5>text</voffset>"};
+        auto answer = ::fast_io::u8string_view{u8"<voffset=-5px>text</voffset>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<voffset=5px>text</voffset>");
-        auto answer = ::fast_io::u8string_view{u8"<voffset=5>text</voffset>"};
+        auto answer = ::fast_io::u8string_view{u8"<voffset=5px>text</voffset>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
