@@ -373,6 +373,15 @@ entry:
                 result.push_back(u8'>');
                 goto entry;
             }
+            case ::pltxt2htm::NodeKind::pl_voffset: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
+                    node.as_pl_voffset().get_subast(), ::pltxt2htm::NodeKind::pl_voffset, 0));
+                ++current_index;
+                result.append(u8"<voffset=");
+                result.append(::pltxt2htm::details::ptrdiff_t2str(node.as_pl_voffset().get_value()));
+                result.push_back(u8'>');
+                goto entry;
+            }
             case ::pltxt2htm::NodeKind::html_span: {
                 auto const& span_color = node.as_html_span().get_color();
                 auto const& span_font_size = node.as_html_span().get_font_size();
@@ -413,7 +422,7 @@ entry:
                 }
                 if (has_vertical_align) {
                     result.append(u8"<voffset=");
-                    result.append(::pltxt2htm::details::size_t2str(
+                    result.append(::pltxt2htm::details::ptrdiff_t2str(
                         span_vertical_align.template value<ndebug == ::pltxt2htm::Contracts::ignore>()
                             .get_length()
                             .value));
@@ -1295,6 +1304,10 @@ entry:
             }
             case ::pltxt2htm::NodeKind::pl_size: {
                 result.append(u8"</size>");
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::pl_voffset: {
+                result.append(u8"</voffset>");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_double_emphasis_underscore:

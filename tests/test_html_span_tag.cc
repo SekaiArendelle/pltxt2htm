@@ -527,10 +527,9 @@ int main() {
     }
 
     {
-        // negative length rejected
+        // negative length supported (vertical-align: -5px)
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:-5px\">text</span>");
-        auto answer =
-            ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;vertical-align:-5px&quot;&gt;text&lt;/span&gt;"};
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:-5px;\">text</span>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

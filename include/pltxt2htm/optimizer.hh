@@ -45,7 +45,15 @@ public:
  */
 class OptimizerContextWithPlSizeTagInfo {
 public:
-    ::pltxt2htm::ValueWithUnit value; ///< Font size value+unit (e.g., {12, px} in size=12)
+    ::pltxt2htm::ValueWithUnit<::std::size_t> value; ///< Font size value+unit (e.g., {12, px} in size=12)
+};
+
+/**
+ * @brief Context for optimizer <voffset=N> tags.
+ */
+class OptimizerContextWithPlVoffsetTagInfo {
+public:
+    ::std::ptrdiff_t value; ///< Vertical offset in pixels (e.g., 5 in voffset=5)
 };
 
 /**
@@ -55,7 +63,7 @@ template<::pltxt2htm::Contracts ndebug>
 class OptimizerContextWithHtmlSpanInfo {
 public:
     ::fast_io::u8string_view color{};
-    ::exception::optional<::pltxt2htm::ValueWithUnit> font_size{::exception::nullopt};
+    ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> font_size{::exception::nullopt};
     ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align{::exception::nullopt};
 };
 
@@ -89,6 +97,7 @@ public:
         ::pltxt2htm::details::OptimizerContextWithoutInfo without_info;
         ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo equal_sign_tag;
         ::pltxt2htm::details::OptimizerContextWithPlSizeTagInfo pl_size_tag;
+        ::pltxt2htm::details::OptimizerContextWithPlVoffsetTagInfo pl_voffset_tag;
         ::pltxt2htm::details::OptimizerContextWithHtmlSpanInfo<ndebug> html_span_info;
         ::pltxt2htm::details::OptimizerContextWithHtmlMarkInfo<ndebug> html_mark_info;
         ::pltxt2htm::details::OptimizerContextWithPlMarkInfo<ndebug> pl_mark_info;
@@ -111,6 +120,12 @@ public:
         ::pltxt2htm::details::OptimizerContextWithPlSizeTagInfo pl_size_tag_context) noexcept
         : pl_size_tag{pl_size_tag_context},
           kind{::pltxt2htm::NodeKind::pl_size} {
+    }
+
+    constexpr OptimizerContextVariant(
+        ::pltxt2htm::details::OptimizerContextWithPlVoffsetTagInfo pl_voffset_tag_context) noexcept
+        : pl_voffset_tag{pl_voffset_tag_context},
+          kind{::pltxt2htm::NodeKind::pl_voffset} {
     }
 
     constexpr OptimizerContextVariant(
@@ -150,6 +165,10 @@ public:
             ::std::construct_at(::std::addressof(this->pl_size_tag), ::std::move(other.pl_size_tag));
             return;
         }
+        case ::pltxt2htm::NodeKind::pl_voffset: {
+            ::std::construct_at(::std::addressof(this->pl_voffset_tag), ::std::move(other.pl_voffset_tag));
+            return;
+        }
         case ::pltxt2htm::NodeKind::html_span: {
             ::std::construct_at(::std::addressof(this->html_span_info), ::std::move(other.html_span_info));
             return;
@@ -171,6 +190,7 @@ public:
     static_assert(::std::is_trivially_destructible_v<decltype(without_info)>);
     static_assert(::std::is_trivially_destructible_v<decltype(equal_sign_tag)>);
     static_assert(::std::is_trivially_destructible_v<decltype(pl_size_tag)>);
+    static_assert(::std::is_trivially_destructible_v<decltype(pl_voffset_tag)>);
     static_assert(::std::is_trivially_destructible_v<decltype(html_span_info)>);
     static_assert(::std::is_trivially_destructible_v<decltype(html_mark_info)>);
     static_assert(::std::is_trivially_destructible_v<decltype(pl_mark_info)>);
@@ -237,6 +257,14 @@ public:
 
     constexpr OptimizerFrameContext(
         ::pltxt2htm::Ast<ndebug>* ast_, Iter&& iter_,
+        ::pltxt2htm::details::OptimizerContextWithPlVoffsetTagInfo pl_voffset_tag_context_) noexcept
+        : context_data{::std::move(pl_voffset_tag_context_)},
+          ast(ast_),
+          iter{iter_} {
+    }
+
+    constexpr OptimizerFrameContext(
+        ::pltxt2htm::Ast<ndebug>* ast_, Iter&& iter_,
         ::pltxt2htm::details::OptimizerContextWithHtmlSpanInfo<ndebug>&& html_span_context_) noexcept
         : context_data{::std::move(html_span_context_)},
           ast(ast_),
@@ -287,11 +315,19 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_pl_size_tag_value(this auto&& self) noexcept -> ::pltxt2htm::ValueWithUnit {
+    constexpr auto get_pl_size_tag_value(this auto&& self) noexcept -> ::pltxt2htm::ValueWithUnit<::std::size_t> {
         auto&& context_data_ref = self.context_data;
         bool const is_pl_size_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_size};
         pltxt2htm_assert(is_pl_size_tag_type, u8"context kind mismatch");
         return context_data_ref.pl_size_tag.value;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_pl_voffset_tag_value(this auto&& self) noexcept -> ::std::ptrdiff_t {
+        auto&& context_data_ref = self.context_data;
+        bool const is_pl_voffset_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_voffset};
+        pltxt2htm_assert(is_pl_voffset_tag_type, u8"context kind mismatch");
+        return context_data_ref.pl_voffset_tag.value;
     }
 
     [[nodiscard]]
@@ -304,7 +340,7 @@ public:
 
     [[nodiscard]]
     constexpr auto get_html_span_font_size(this auto&& self) noexcept
-        -> ::exception::optional<::pltxt2htm::ValueWithUnit> {
+        -> ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
         auto&& context_data_ref = self.context_data;
         bool const is_html_span_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_span};
         pltxt2htm_assert(is_html_span_type, u8"context kind mismatch");
@@ -508,7 +544,8 @@ entry:
                         auto const inner_fs = subnode.as_html_span().get_font_size();
                         auto const inner_va = subnode.as_html_span().get_vertical_align();
                         auto merged_color = ::fast_io::u8string{inner_color.empty() ? outer_color : inner_color};
-                        ::exception::optional<::pltxt2htm::ValueWithUnit> merged_fs{::exception::nullopt};
+                        ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> merged_fs{
+                            ::exception::nullopt};
                         if (inner_fs.has_value()) {
                             merged_fs = inner_fs.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                         }
@@ -533,7 +570,8 @@ entry:
                     if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_color) {
                         auto const outer_fs = node.as_html_span().get_font_size();
                         auto const outer_va = node.as_html_span().get_vertical_align();
-                        ::exception::optional<::pltxt2htm::ValueWithUnit> merged_fs{::exception::nullopt};
+                        ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> merged_fs{
+                            ::exception::nullopt};
                         if (outer_fs.has_value()) {
                             merged_fs = outer_fs.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                         }
@@ -808,6 +846,43 @@ entry:
                                     typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
                         ::std::addressof(subast), subast.begin(),
                         ::pltxt2htm::details::OptimizerContextWithPlSizeTagInfo{node.as_pl_size().get_font_size()}));
+                    goto entry;
+                }
+                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
+                ++current_iter;
+                continue;
+            }
+            case ::pltxt2htm::NodeKind::pl_voffset: {
+                auto&& subast = node.as_pl_voffset().get_subast();
+                if (subast.empty()) {
+                    // <voffset=5></voffset> can be omitted
+                    ast.erase(current_iter);
+                    continue;
+                }
+                if (subast.size() == 1) {
+                    // <voffset=5><voffset=3>physicsLab</voffset></voffset> can be
+                    auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
+                    if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_voffset) {
+                        // SAFETY: We must NOT write `node = ::std::move(subnode);` directly.
+                        // `subnode` is a reference into `node.get_subast()`. When the move-assignment
+                        // operator of the node runs, it first destructs the old value at `node`, which
+                        // in turn destructs `subnode` (since `subnode` lives inside that sub-AST). That means
+                        // `subnode` is destroyed *before* its contents are moved -- a use-after-free.
+                        // By moving `subnode` into a temporary first, we extract the value before the
+                        // destination is touched, breaking the aliasing.
+                        auto tmp = ::std::move(subnode);
+                        node = ::std::move(tmp);
+                    }
+                }
+                auto&& frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                // Optimization: If the offset is the same as the parent node, ignore the nested tag.
+                bool const is_different_tag = frame.get_nested_tag_type() != ::pltxt2htm::NodeKind::pl_voffset ||
+                                              node.as_pl_voffset().get_value() != frame.get_pl_voffset_tag_value();
+                if (is_different_tag) {
+                    call_stack.push(::pltxt2htm::details::OptimizerFrameContext<
+                                    typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
+                        ::std::addressof(subast), subast.begin(),
+                        ::pltxt2htm::details::OptimizerContextWithPlVoffsetTagInfo{node.as_pl_voffset().get_value()}));
                     goto entry;
                 }
                 node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};

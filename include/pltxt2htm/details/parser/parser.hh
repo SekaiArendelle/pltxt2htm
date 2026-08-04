@@ -1598,6 +1598,29 @@ entry:
                     continue;
                 }
 
+                case u8'v':
+                    [[fallthrough]];
+                case u8'V': {
+                    // parsing pl <voffset=$1>$2</voffset> tag (Unity TextMeshPro rich text)
+                    if (auto opt_voffset_tag = ::pltxt2htm::details::try_parse_voffset_tag<ndebug>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                        opt_voffset_tag.has_value()) {
+                        auto const [tag_len, value] =
+                            opt_voffset_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                        current_index += tag_len + 3;
+                        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithPlVoffsetTagInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), value},
+                                ::pltxt2htm::NodeKind::pl_voffset},
+                            ::pltxt2htm::Ast<ndebug>{}));
+                        goto entry;
+                    }
+                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                    ++current_index;
+                    continue;
+                }
+
                 case u8'!': {
                     // parsing: <!--$1-->
                     if (::pltxt2htm::details::is_prefix_match<ndebug, u8"--">(
@@ -1831,6 +1854,25 @@ entry:
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlSize staged_node(::std::move(result), frame.get_pl_size_tag_value());
+                            call_stack.pop();
+                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.current_index +=
+                                staged_index + opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() +
+                                3;
+                            goto entry;
+                        }
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        ++current_index;
+                        continue;
+                    }
+                    case ::pltxt2htm::NodeKind::pl_voffset: {
+                        // parsing </voffset>
+                        if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"voffset">(
+                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                            opt_tag_len.has_value()) {
+                            ::std::size_t const staged_index{current_index};
+                            ::pltxt2htm::PlVoffset staged_node(::std::move(result), frame.get_pl_voffset_tag_value());
                             call_stack.pop();
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
@@ -2755,6 +2797,12 @@ entry:
             case ::pltxt2htm::NodeKind::pl_size: {
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
                     ::pltxt2htm::PlSize<ndebug>{::std::move(subast), frame.get_pl_size_tag_value()}));
+                parent_index += staged_index;
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::pl_voffset: {
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
+                    ::pltxt2htm::PlVoffset<ndebug>{::std::move(subast), frame.get_pl_voffset_tag_value()}));
                 parent_index += staged_index;
                 goto entry;
             }

@@ -173,7 +173,7 @@ entry:
                         result.append(::pltxt2htm::vertical_align_keyword_string<ndebug>(vertical_align.get_keyword()));
                     }
                     else {
-                        result.append(::pltxt2htm::details::size_t2str(vertical_align.get_length().value));
+                        result.append(::pltxt2htm::details::ptrdiff_t2str(vertical_align.get_length().value));
                         if (vertical_align.get_length().unit == ::pltxt2htm::Unit::percent) {
                             result.push_back(u8'%');
                         }
@@ -442,6 +442,12 @@ entry:
             }
             case ::pltxt2htm::NodeKind::pl_size: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_pl_size().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::text, 0));
+                ++current_index;
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::pl_voffset: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_pl_voffset().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::text, 0));
                 ++current_index;
                 goto entry;

@@ -495,6 +495,15 @@ entry:
                 }
                 goto entry;
             }
+            case ::pltxt2htm::NodeKind::pl_voffset: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
+                    node.as_pl_voffset().get_subast(), ::pltxt2htm::NodeKind::pl_voffset, 0));
+                ++current_index;
+                result.append(u8"<span style=\"vertical-align:");
+                result.append(::pltxt2htm::details::ptrdiff_t2str(node.as_pl_voffset().get_value()));
+                result.append(u8"px;\">");
+                goto entry;
+            }
             case ::pltxt2htm::NodeKind::html_span: {
                 auto const& span_color = node.as_html_span().get_color();
                 auto const& span_font_size = node.as_html_span().get_font_size();
@@ -545,7 +554,7 @@ entry:
                         result.append(::pltxt2htm::vertical_align_keyword_string<ndebug>(vertical_align.get_keyword()));
                     }
                     else {
-                        result.append(::pltxt2htm::details::size_t2str(vertical_align.get_length().value));
+                        result.append(::pltxt2htm::details::ptrdiff_t2str(vertical_align.get_length().value));
                         if (vertical_align.get_length().unit == ::pltxt2htm::Unit::percent) {
                             result.push_back(u8'%');
                         }
@@ -1400,6 +1409,10 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_size: {
+                result.append(u8"</span>");
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::pl_voffset: {
                 result.append(u8"</span>");
                 goto entry;
             }

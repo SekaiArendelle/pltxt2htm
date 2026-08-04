@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include <concepts>
 #include <cstddef>
 
 namespace pltxt2htm {
@@ -29,13 +30,17 @@ enum class Unit : unsigned {
  * @details Pairs the numeric value with its ::pltxt2htm::Unit so the two
  *          never travel independently. This avoids carrying an invalid/undefined
  *          unit when no value is present (the value is then simply absent).
+ * @tparam T The numeric type of the value. Use ::std::size_t for non-negative
+ *           quantities (font size) and a signed type such as ::std::ptrdiff_t
+ *           where a negative value is meaningful (e.g. `vertical-align:-5px`).
  */
+template<::std::integral T>
 struct ValueWithUnit {
-    ::std::size_t value; ///< Numeric value
+    T value; ///< Numeric value
     ::pltxt2htm::Unit unit; ///< Unit of the value (px, % or em)
 
     [[nodiscard]]
-    constexpr auto operator==(::pltxt2htm::ValueWithUnit const& other) const noexcept -> bool = default;
+    constexpr auto operator==(::pltxt2htm::ValueWithUnit<T> const& other) const noexcept -> bool = default;
 };
 
 } // namespace pltxt2htm

@@ -3,7 +3,8 @@
  * @brief Vertical-align value type definitions for pltxt2htm
  * @details Defines the vertical-align value used by &lt;span style="vertical-align:..."&gt;
  *          so the keyword (e.g. super/sub) or numeric length and its unit never
- *          travel independently. Percent/px lengths reuse ::pltxt2htm::ValueWithUnit.
+ *          travel independently. Percent/px lengths reuse ::pltxt2htm::ValueWithUnit
+ *          with a signed value type (::std::ptrdiff_t) so negatives are representable.
  */
 
 #pragma once
@@ -44,7 +45,7 @@ enum class VerticalAlignKind : unsigned {
  * @brief A vertical-align value.
  * @details A tagged union discriminated by `kind`: when `kind == keyword`, the
  *          active member is `keyword`; when `kind == length`, the active member
- *          is `length` (a ::pltxt2htm::ValueWithUnit). Exactly one member is
+ *          is `length` (a ::pltxt2htm::ValueWithUnit&lt;::std::ptrdiff_t&gt;). Exactly one member is
  *          active at any time. The `kind` is derived from the constructor used
  *          and needs no explicit argument. Template parameter `ndebug` selects
  *          whether the accessor contract checks are enforced at runtime.
@@ -55,7 +56,7 @@ class VerticalAlignValue {
 
     union {
         ::pltxt2htm::VerticalAlignKeyword keyword; ///< Keyword value (kind == keyword).
-        ::pltxt2htm::ValueWithUnit length; ///< Length value+unit (kind == length).
+        ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> length; ///< Signed length value+unit (kind == length).
     };
 
 public:
@@ -64,7 +65,7 @@ public:
           keyword(keyword_) {
     }
 
-    constexpr VerticalAlignValue(::pltxt2htm::ValueWithUnit length_) noexcept
+    constexpr VerticalAlignValue(::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> length_) noexcept
         : kind(::pltxt2htm::VerticalAlignKind::length),
           length(length_) {
     }
@@ -94,7 +95,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_length(this auto&& self) noexcept -> ::pltxt2htm::ValueWithUnit {
+    constexpr auto get_length(this auto&& self) noexcept -> ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> {
         bool const is_length{self.kind == ::pltxt2htm::VerticalAlignKind::length};
         pltxt2htm_assert(is_length, u8"vertical-align kind mismatch");
         return self.length;
