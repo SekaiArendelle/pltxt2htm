@@ -459,32 +459,6 @@ constexpr auto try_parse_ptrdiff_t_decimal_value(::fast_io::u8string_view str) n
     return TryParsePtrdiffTDecimalValueResult{.end = digit_pos, .value = value};
 }
 
-/**
- * @brief Convert a UTF-8 string to std::size_t
- * @tparam ndebug Contract checking mode controlling assertion behavior.
- * @param[in] str The string to convert (must contain only digits)
- * @return Optional containing the converted number, or nullopt if conversion fails
- * @retval exception::optional<std::size_t> Optional containing the converted number
- * @note This function only accepts strings containing ASCII digits (0-9).
- *       Empty strings or strings with non-digit characters return nullopt
- */
-template<::pltxt2htm::Contracts ndebug>
-[[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
-constexpr auto u8str2size_t(::fast_io::u8string_view str) noexcept -> ::exception::optional<::std::size_t> {
-    auto result = ::pltxt2htm::details::try_parse_size_t_decimal_value<ndebug>(str);
-    if (result.has_value() == false) {
-        return ::exception::nullopt;
-    }
-    auto const parsed = result.template value<false>();
-    if (parsed.end != str.size()) {
-        return ::exception::nullopt;
-    }
-    return parsed.value;
-}
-
 } // namespace pltxt2htm::details
 
 #include "pop_macro.hh"
