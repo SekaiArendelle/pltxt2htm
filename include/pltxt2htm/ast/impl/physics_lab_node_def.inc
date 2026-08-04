@@ -179,7 +179,7 @@ constexpr auto ::pltxt2htm::PlSize<ndebug>::operator==(this ::pltxt2htm::PlSize<
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::PlVoffset<ndebug>::PlVoffset(::pltxt2htm::Ast<ndebug>&& subast_,
-                                                    ::std::ptrdiff_t value_) noexcept
+                                                    ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> value_) noexcept
     : subast(::std::move(subast_)),
       value(value_) {
 }

@@ -377,8 +377,27 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_pl_voffset().get_subast(), ::pltxt2htm::NodeKind::pl_voffset, 0));
                 ++current_index;
+                auto const voffset = node.as_pl_voffset().get_value();
                 result.append(u8"<voffset=");
-                result.append(::pltxt2htm::details::ptrdiff_t2str(node.as_pl_voffset().get_value()));
+                result.append(::pltxt2htm::details::ptrdiff_t2str(voffset.value));
+                switch (voffset.unit) /* -Werror=switch */ {
+                case ::pltxt2htm::Unit::em: {
+                    result.append(u8"em");
+                    break;
+                }
+                case ::pltxt2htm::Unit::px: {
+                    result.append(u8"px");
+                    break;
+                }
+                case ::pltxt2htm::Unit::percent:
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
+                    [[fallthrough]];
+                default:
+#endif
+                    [[unlikely]] {
+                        pltxt2htm_unreachable(u8"Unexpected unit for voffset");
+                    }
+                }
                 result.push_back(u8'>');
                 goto entry;
             }

@@ -120,7 +120,7 @@ public:
 class ParserFrameContextWithPlVoffsetTagInfo {
 public:
     ::fast_io::u8string_view pltext;
-    ::std::ptrdiff_t value;
+    ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> value;
 };
 
 /**
@@ -1441,7 +1441,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_pl_voffset_tag_value(this auto&& self) noexcept -> ::std::ptrdiff_t {
+    constexpr auto get_pl_voffset_tag_value(this auto&& self) noexcept -> ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> {
         auto&& context_data_ref = self.context_data;
         bool const is_pl_voffset_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_voffset};
         pltxt2htm_assert(is_pl_voffset_tag_type, u8"context kind mismatch");

@@ -1098,47 +1098,6 @@ constexpr auto try_parse_size_tag(::fast_io::u8string_view pltext) noexcept
 }
 
 /**
- * @brief Return type of try_parse_voffset_tag: tag length and the parsed offset value.
- */
-struct TryParseVoffsetTagResult {
-    ::std::size_t tag_len;
-    ::std::ptrdiff_t value;
-};
-
-/**
- * @brief Parse a `<voffset=N>` opening tag.
- * @details N is a signed non-zero decimal pixel offset (Unity TextMeshPro rich text).
- *          A zero value is rejected so `<voffset=0>` renders as literal text.
- */
-template<::pltxt2htm::Contracts ndebug>
-[[nodiscard]]
-constexpr auto try_parse_voffset_tag(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseVoffsetTagResult> {
-    constexpr auto prefix_str = ::pltxt2htm::details::U8LiteralString{u8"offset"};
-    if (::pltxt2htm::details::is_equal_sign_tag_prefix<ndebug, prefix_str>(pltext) == false) {
-        return ::exception::nullopt;
-    }
-    constexpr auto value_start = prefix_str.size() + 1;
-    auto opt_value = ::pltxt2htm::details::try_parse_ptrdiff_t_decimal_value<ndebug>(
-        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_start));
-    if (opt_value.has_value() == false) {
-        return ::exception::nullopt;
-    }
-    auto const value = opt_value.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    if (value.value == 0) {
-        return ::exception::nullopt;
-    }
-    auto const value_end = value_start + value.end;
-    auto opt_close = ::pltxt2htm::details::try_parse_equal_sign_tag_suffix<ndebug>(
-        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_end));
-    if (opt_close.has_value() == false) {
-        return ::exception::nullopt;
-    }
-    auto const tag_len = value_end + opt_close.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    return ::pltxt2htm::details::TryParseVoffsetTagResult{tag_len, value.value};
-}
-
-/**
  * @brief Return type of try_parse_span_tag: tag length, color, and optional font-size/vertical-align.
  */
 template<::pltxt2htm::Contracts ndebug>
@@ -1243,6 +1202,50 @@ constexpr auto try_parse_signed_length_value(::fast_io::u8string_view pltext) no
         pos += 2;
     }
     return ::pltxt2htm::details::TryParseSignedLengthValueResult{pos, {decimal.value, unit}};
+}
+
+/**
+ * @brief Return type of try_parse_voffset_tag: tag length and the parsed offset value+unit.
+ */
+struct TryParseVoffsetTagResult {
+    ::std::size_t tag_len;
+    ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> value;
+};
+
+/**
+ * @brief Parse a `<voffset=N>` opening tag.
+ * @details N is a signed non-zero length with an optional lowercase `px` or `em` unit
+ *          (Unity TextMeshPro rich text); the unit defaults to `px` when omitted. A zero
+ *          value is rejected so `<voffset=0>` renders as literal text. A percent unit is
+ *          also rejected so `<voffset=50%>` renders as literal text (the backend asserts
+ *          the no-percent invariant as a safety net).
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_voffset_tag(::fast_io::u8string_view pltext) noexcept
+    -> ::exception::optional<::pltxt2htm::details::TryParseVoffsetTagResult> {
+    constexpr auto prefix_str = ::pltxt2htm::details::U8LiteralString{u8"offset"};
+    if (::pltxt2htm::details::is_equal_sign_tag_prefix<ndebug, prefix_str>(pltext) == false) {
+        return ::exception::nullopt;
+    }
+    constexpr auto value_start = prefix_str.size() + 1;
+    auto opt_value = ::pltxt2htm::details::try_parse_signed_length_value<ndebug>(
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_start));
+    if (opt_value.has_value() == false) {
+        return ::exception::nullopt;
+    }
+    auto const value = opt_value.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+    if (value.value.unit == ::pltxt2htm::Unit::percent) {
+        return ::exception::nullopt;
+    }
+    auto const value_end = value_start + value.end;
+    auto opt_close = ::pltxt2htm::details::try_parse_equal_sign_tag_suffix<ndebug>(
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_end));
+    if (opt_close.has_value() == false) {
+        return ::exception::nullopt;
+    }
+    auto const tag_len = value_end + opt_close.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+    return ::pltxt2htm::details::TryParseVoffsetTagResult{tag_len, value.value};
 }
 
 /**

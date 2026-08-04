@@ -14,6 +14,24 @@ int main() {
     }
 
     {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<voffset=5px>hello</voffset>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:5px;\">hello</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<voffset=5em>hello</voffset>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:5em;\">hello</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<voffset=-5em>hello</voffset>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:-5em;\">hello</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<voffset=0>hello</voffset>");
         auto answer = ::fast_io::u8string_view{u8"&lt;voffset=0&gt;hello&lt;/voffset&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
@@ -39,6 +57,12 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2roundtrip_htmld(u8"<voffset=-5>hello</voffset>");
+        auto reparsed_html = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
+        pltxt2htm_test_assert_equal(reparsed_html, html);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2roundtrip_htmld(u8"<voffset=5em>hello</voffset>");
         auto reparsed_html = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
         pltxt2htm_test_assert_equal(reparsed_html, html);
     }
@@ -87,6 +111,21 @@ int main() {
     }
 
     {
+        // unitless defaults to px, so 5 and 5px merge
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<voffset=5>hello<voffset=5px>world</voffset></voffset>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:5px;\">helloworld</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // em and px are distinct units: no merge
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<voffset=5em>hello<voffset=5>world</voffset></voffset>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<span style=\"vertical-align:5em;\">hello<span style=\"vertical-align:5px;\">world</span></span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<voffset=-5>hello<voffset=-5>world</voffset></voffset>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:-5px;\">helloworld</span>"};
         pltxt2htm_test_assert_equal(html, answer);
@@ -122,6 +161,32 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<voffset=em>text");
+        auto answer = ::fast_io::u8string_view{u8"&lt;voffset=em&gt;text"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<voffset=px>text");
+        auto answer = ::fast_io::u8string_view{u8"&lt;voffset=px&gt;text"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // units are case-sensitive: 5EM is not a valid length
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<voffset=5EM>text");
+        auto answer = ::fast_io::u8string_view{u8"&lt;voffset=5EM&gt;text"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // trailing junk after a valid unit is rejected
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<voffset=5pxx>text");
+        auto answer = ::fast_io::u8string_view{u8"&lt;voffset=5pxx&gt;text"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     if constexpr (sizeof(::std::ptrdiff_t) <= 8) {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<voffset=999999999999999999999999>hello</voffset>");
         auto answer = ::fast_io::u8string_view{u8"&lt;voffset=999999999999999999999999&gt;hello&lt;/voffset&gt;"};
@@ -137,13 +202,31 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<voffset=5>text</voffset>");
-        auto answer = ::fast_io::u8string_view{u8"<voffset=5>text</voffset>"};
+        auto answer = ::fast_io::u8string_view{u8"<voffset=5px>text</voffset>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<voffset=-5>text</voffset>");
-        auto answer = ::fast_io::u8string_view{u8"<voffset=-5>text</voffset>"};
+        auto answer = ::fast_io::u8string_view{u8"<voffset=-5px>text</voffset>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<voffset=5px>text</voffset>");
+        auto answer = ::fast_io::u8string_view{u8"<voffset=5px>text</voffset>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<voffset=5em>text</voffset>");
+        auto answer = ::fast_io::u8string_view{u8"<voffset=5em>text</voffset>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<voffset=-5em>text</voffset>");
+        auto answer = ::fast_io::u8string_view{u8"<voffset=-5em>text</voffset>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -158,6 +241,12 @@ int main() {
         // tag content can contain HTML which is not interpreted
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<voffset=5><b>test</b></voffset>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:5px;\"><strong>test</strong></span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<voffset=5%>test</voffset>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;voffset=5%&gt;test&lt;/voffset&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
