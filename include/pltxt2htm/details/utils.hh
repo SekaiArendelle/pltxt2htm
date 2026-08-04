@@ -405,17 +405,18 @@ struct TryParsePtrdiffTDecimalValueResult {
 };
 
 /**
- * @brief Parse a signed ASCII decimal value starting at a given position.
+ * @brief Parse a signed ASCII decimal value.
  * @details Accepts an optional leading U+002D '-' sign (negative values), stops at
- *          the first non-digit, and rejects empty or overflowing values.
+ *          the first non-digit, and returns nullopt for empty or overflowing values.
+ *          Callers that need to skip a prefix should pass `str` pre-subviewed.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_ptrdiff_t_decimal_value(::fast_io::u8string_view str, ::std::size_t const start) noexcept
+constexpr auto try_parse_ptrdiff_t_decimal_value(::fast_io::u8string_view str) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParsePtrdiffTDecimalValueResult> {
     using unsigned_type = ::std::make_unsigned_t<::std::ptrdiff_t>;
 
-    auto pos = start;
+    auto pos = ::std::size_t{0};
     bool const negative = pos < str.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(str, pos) == u8'-';
     if (negative) {
         ++pos;

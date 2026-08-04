@@ -1094,7 +1094,8 @@ constexpr auto try_parse_voffset_tag(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt;
     }
     constexpr auto value_start = prefix_str.size() + 1;
-    auto opt_value = ::pltxt2htm::details::try_parse_ptrdiff_t_decimal_value<ndebug>(pltext, value_start);
+    auto opt_value = ::pltxt2htm::details::try_parse_ptrdiff_t_decimal_value<ndebug>(
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_start));
     if (opt_value.has_value() == false) {
         return ::exception::nullopt;
     }
@@ -1102,7 +1103,8 @@ constexpr auto try_parse_voffset_tag(::fast_io::u8string_view pltext) noexcept
     if (value.value == 0) {
         return ::exception::nullopt;
     }
-    auto opt_tag = ::pltxt2htm::details::try_parse_equal_sign_tag_suffix<ndebug>(pltext, value_start, value.end);
+    auto const value_end = value_start + value.end;
+    auto opt_tag = ::pltxt2htm::details::try_parse_equal_sign_tag_suffix<ndebug>(pltext, value_start, value_end);
     if (opt_tag.has_value() == false) {
         return ::exception::nullopt;
     }
@@ -1184,7 +1186,8 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_signed_length_value(::fast_io::u8string_view pltext, ::std::size_t const start) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseSignedLengthValueResult> {
-    auto opt_decimal = ::pltxt2htm::details::try_parse_ptrdiff_t_decimal_value<ndebug>(pltext, start);
+    auto opt_decimal = ::pltxt2htm::details::try_parse_ptrdiff_t_decimal_value<ndebug>(
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start));
     if (opt_decimal.has_value() == false) {
         return ::exception::nullopt;
     }
@@ -1192,7 +1195,7 @@ constexpr auto try_parse_signed_length_value(::fast_io::u8string_view pltext, ::
     if (decimal.value == 0) {
         return ::exception::nullopt;
     }
-    auto pos = decimal.end;
+    auto pos = start + decimal.end;
     auto unit = ::pltxt2htm::Unit::px;
     if (pos < pltext.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'p') {
         ++pos;
@@ -3953,7 +3956,8 @@ constexpr auto try_parse_md_link(::fast_io::u8string_view pltext) noexcept
     }
     ++current_index;
     return ::pltxt2htm::details::TryParseMdLinkResult{.advance_count = current_index,
-                                                      .link_text = pltext.subview(1, link_text_end - 1),
+                                                      .link_text = ::pltxt2htm::details::u8string_view_subview<ndebug>(
+                                                          pltext, 1, link_text_end - 1),
                                                       .link_url = ::std::move(md_url_result.url)};
 }
 
