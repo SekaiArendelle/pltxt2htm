@@ -9,8 +9,8 @@
 
 #include <limits>
 #include <cstddef>
-#include <type_traits>
 #include <ranges>
+#include <type_traits>
 #include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
@@ -344,7 +344,7 @@ struct TryParseSizeTDecimalValueResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_size_t_decimal_value(::fast_io::u8string_view str) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseSizeTDecimalValueResult> {
+    -> ::exception::optional<TryParseSizeTDecimalValueResult> {
     ::std::size_t parsed_value{};
     auto pos = ::std::size_t{0};
     for (; pos < str.size(); ++pos) {
@@ -361,7 +361,7 @@ constexpr auto try_parse_size_t_decimal_value(::fast_io::u8string_view str) noex
     if (pos == 0) {
         return ::exception::nullopt;
     }
-    return ::pltxt2htm::details::TryParseSizeTDecimalValueResult{.end = pos, .value = parsed_value};
+    return TryParseSizeTDecimalValueResult{.end = pos, .value = parsed_value};
 }
 
 /**
@@ -415,7 +415,7 @@ struct TryParsePtrdiffTDecimalValueResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_ptrdiff_t_decimal_value(::fast_io::u8string_view str) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParsePtrdiffTDecimalValueResult> {
+    -> ::exception::optional<TryParsePtrdiffTDecimalValueResult> {
     using unsigned_type = ::std::make_unsigned_t<::std::ptrdiff_t>;
 
     auto pos = ::std::size_t{0};
@@ -456,7 +456,7 @@ constexpr auto try_parse_ptrdiff_t_decimal_value(::fast_io::u8string_view str) n
         value = static_cast<::std::ptrdiff_t>(parsed_value);
     }
 
-    return ::pltxt2htm::details::TryParsePtrdiffTDecimalValueResult{.end = digit_pos, .value = value};
+    return TryParsePtrdiffTDecimalValueResult{.end = digit_pos, .value = value};
 }
 
 /**
@@ -473,7 +473,7 @@ template<::pltxt2htm::Contracts ndebug>
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-constexpr auto u8str2size_t(::fast_io::u8string_view str) noexcept -> ::exception::optional<std::size_t> {
+constexpr auto u8str2size_t(::fast_io::u8string_view str) noexcept -> ::exception::optional<::std::size_t> {
     auto result = ::pltxt2htm::details::try_parse_size_t_decimal_value<ndebug>(str);
     if (result.has_value() == false) {
         return ::exception::nullopt;
