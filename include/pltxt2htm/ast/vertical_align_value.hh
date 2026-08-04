@@ -55,7 +55,7 @@ class VerticalAlignValue {
 
     union {
         ::pltxt2htm::VerticalAlignKeyword keyword; ///< Keyword value (kind == keyword).
-        ::pltxt2htm::ValueWithUnit length; ///< Length value+unit (kind == length).
+        ::pltxt2htm::SignedValueWithUnit length; ///< Signed length value+unit (kind == length).
     };
 
 public:
@@ -64,7 +64,7 @@ public:
           keyword(keyword_) {
     }
 
-    constexpr VerticalAlignValue(::pltxt2htm::ValueWithUnit length_) noexcept
+    constexpr VerticalAlignValue(::pltxt2htm::SignedValueWithUnit length_) noexcept
         : kind(::pltxt2htm::VerticalAlignKind::length),
           length(length_) {
     }
@@ -94,7 +94,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_length(this auto&& self) noexcept -> ::pltxt2htm::ValueWithUnit {
+    constexpr auto get_length(this auto&& self) noexcept -> ::pltxt2htm::SignedValueWithUnit {
         bool const is_length{self.kind == ::pltxt2htm::VerticalAlignKind::length};
         pltxt2htm_assert(is_length, u8"vertical-align kind mismatch");
         return self.length;

@@ -115,6 +115,15 @@ public:
 };
 
 /**
+ * @brief Context for <voffset=N> frames during parsing.
+ */
+class ParserFrameContextWithPlVoffsetTagInfo {
+public:
+    ::fast_io::u8string_view pltext;
+    ::std::ptrdiff_t value;
+};
+
+/**
  * @brief Context for pl_mark frames during parsing; stores the background color.
  */
 class ParserFrameContextWithPlMarkInfo {
@@ -209,6 +218,7 @@ public:
         html_a_tag,
         url_info,
         pl_size_tag,
+        pl_voffset_tag,
         html_span_info,
         html_code_info,
         md_block_quotes,
@@ -232,6 +242,7 @@ public:
         ::pltxt2htm::details::ParserFrameContextWithUrlInfo url_info;
         ::pltxt2htm::details::ParserFrameContextWithHtmlATagInfo html_a_tag_info;
         ::pltxt2htm::details::ParserFrameContextWithPlSizeTagInfo pl_size_tag;
+        ::pltxt2htm::details::ParserFrameContextWithPlVoffsetTagInfo pl_voffset_tag;
         ::pltxt2htm::details::ParserFrameContextWithMdBlockQuotesInfo md_block_quotes;
         ::pltxt2htm::details::ParserFrameContextWithMdListInfo<ndebug> md_list;
         ::pltxt2htm::details::ParserFrameContextWithCellInfo cell;
@@ -328,6 +339,16 @@ public:
     }
 
     constexpr FrontendContextVariant(
+        ::pltxt2htm::details::ParserFrameContextWithPlVoffsetTagInfo&& pl_voffset_tag_context,
+        ::pltxt2htm::NodeKind node_kind_) noexcept
+        : pl_voffset_tag{::std::move(pl_voffset_tag_context)},
+#ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
+          context_branch{ContextBranch::pl_voffset_tag},
+#endif
+          kind{node_kind_} {
+    }
+
+    constexpr FrontendContextVariant(
         ::pltxt2htm::details::ParserFrameContextWithMdBlockQuotesInfo&& md_block_quotes_context,
         ::pltxt2htm::NodeKind node_kind_) noexcept
         : md_block_quotes{::std::move(md_block_quotes_context)},
@@ -411,6 +432,11 @@ public:
         case ::pltxt2htm::NodeKind::pl_size: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::pl_size_tag);
             ::std::construct_at(::std::addressof(this->pl_size_tag), ::std::move(other.pl_size_tag));
+            return;
+        }
+        case ::pltxt2htm::NodeKind::pl_voffset: {
+            pltxt2htm_assert_context_branch(*this, ContextBranch::pl_voffset_tag);
+            ::std::construct_at(::std::addressof(this->pl_voffset_tag), ::std::move(other.pl_voffset_tag));
             return;
         }
         case ::pltxt2htm::NodeKind::html_span: {
@@ -729,6 +755,11 @@ public:
         case ::pltxt2htm::NodeKind::pl_size: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::pl_size_tag);
             ::std::destroy_at(::std::addressof(this->pl_size_tag));
+            return;
+        }
+        case ::pltxt2htm::NodeKind::pl_voffset: {
+            pltxt2htm_assert_context_branch(*this, ContextBranch::pl_voffset_tag);
+            ::std::destroy_at(::std::addressof(this->pl_voffset_tag));
             return;
         }
         case ::pltxt2htm::NodeKind::html_span: {
@@ -1236,6 +1267,11 @@ public:
                 context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::pl_size_tag);
             return context_data_ref.pl_size_tag.pltext;
         }
+        case ::pltxt2htm::NodeKind::pl_voffset: {
+            pltxt2htm_assert_context_branch(
+                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::pl_voffset_tag);
+            return context_data_ref.pl_voffset_tag.pltext;
+        }
         case ::pltxt2htm::NodeKind::html_span: {
             pltxt2htm_assert_context_branch(
                 context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::html_span_info);
@@ -1402,6 +1438,14 @@ public:
         bool const is_pl_size_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_size};
         pltxt2htm_assert(is_pl_size_tag_type, u8"context kind mismatch");
         return context_data_ref.pl_size_tag.value;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_pl_voffset_tag_value(this auto&& self) noexcept -> ::std::ptrdiff_t {
+        auto&& context_data_ref = self.context_data;
+        bool const is_pl_voffset_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_voffset};
+        pltxt2htm_assert(is_pl_voffset_tag_type, u8"context kind mismatch");
+        return context_data_ref.pl_voffset_tag.value;
     }
 
     [[nodiscard]]

@@ -178,6 +178,29 @@ constexpr auto ::pltxt2htm::PlSize<ndebug>::operator==(this ::pltxt2htm::PlSize<
                                                        ::pltxt2htm::PlSize<ndebug> const&) noexcept -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlVoffset<ndebug>::PlVoffset(::pltxt2htm::Ast<ndebug>&& subast_,
+                                                    ::std::ptrdiff_t value_) noexcept
+    : subast(::std::move(subast_)),
+      value(value_) {
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlVoffset<ndebug>::PlVoffset(::pltxt2htm::PlVoffset<ndebug> const&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlVoffset<ndebug>::PlVoffset(::pltxt2htm::PlVoffset<ndebug>&&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlVoffset<ndebug>::~PlVoffset() noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::PlVoffset<ndebug>::operator=(this ::pltxt2htm::PlVoffset<ndebug>& self,
+                                                         ::pltxt2htm::PlVoffset<ndebug>&&) noexcept
+    -> ::pltxt2htm::PlVoffset<ndebug>& = default;
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::PlVoffset<ndebug>::operator==(this ::pltxt2htm::PlVoffset<ndebug> const&,
+                                                          ::pltxt2htm::PlVoffset<ndebug> const&) noexcept
+    -> bool = default;
+
+template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::PlMark<ndebug>::PlMark(::pltxt2htm::Ast<ndebug>&& subast_,
                                               ::fast_io::u8string&& background_color_) noexcept
     : subast(::std::move(subast_)),

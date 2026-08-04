@@ -43,6 +43,7 @@ enum class NodeKind : unsigned {
     pl_discussion, ///< Physics-Lab discussion reference: &lt;discussion=id&gt;...&lt;/discussion&gt;
     pl_user, ///< Physics-Lab user reference: &lt;user=id&gt;...&lt;/user&gt;
     pl_size, ///< Physics-Lab font size: &lt;size=value&gt;...&lt;/size&gt;
+    pl_voffset, ///< Physics-Lab vertical offset (Unity TMP rich text): &lt;voffset=value&gt;...&lt;/voffset&gt;
     pl_mark, ///< Physics-Lab mark (TMP rich text): &lt;mark=Xxx&gt;...&lt;/mark&gt;
     pl_external, ///< Physics-Lab external link: &lt;external=url&gt;...&lt;/external&gt;
     pl_link, ///< Physics-Lab link (Unity TextMeshPro rich text): &lt;link=&quot;url&quot;&gt;...&lt;/link&gt;

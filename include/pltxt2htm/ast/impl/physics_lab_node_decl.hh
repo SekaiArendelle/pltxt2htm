@@ -292,6 +292,40 @@ public:
 };
 
 /**
+ * @brief Physics-Lab vertical offset tag node
+ * @details Represents &lt;voffset=value&gt;...&lt;/voffset&gt; (Unity TextMeshPro rich text)
+ *          with a signed pixel offset (negative shifts text down) and sub-AST.
+ */
+template<::pltxt2htm::Contracts ndebug>
+class PlVoffset {
+    ::pltxt2htm::Ast<ndebug> subast;
+    ::std::ptrdiff_t value;
+
+public:
+    constexpr PlVoffset(::pltxt2htm::Ast<ndebug>&& subast_, ::std::ptrdiff_t value_) noexcept;
+    constexpr PlVoffset(::pltxt2htm::PlVoffset<ndebug> const&) noexcept;
+    constexpr PlVoffset(::pltxt2htm::PlVoffset<ndebug>&&) noexcept;
+    constexpr ~PlVoffset() noexcept;
+    constexpr auto operator=(::pltxt2htm::PlVoffset<ndebug> const&) noexcept
+        -> ::pltxt2htm::PlVoffset<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::PlVoffset<ndebug>& self, ::pltxt2htm::PlVoffset<ndebug>&&) noexcept
+        -> ::pltxt2htm::PlVoffset<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this PlVoffset const&, PlVoffset const&) noexcept -> bool;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_value(this auto const& self) noexcept -> ::std::ptrdiff_t {
+        return self.value;
+    }
+};
+
+/**
  * @brief Physics-Lab mark tag node
  * @details Represents &lt;mark=value&gt;...&lt;/mark&gt; (TMP rich text) with a background
  *          color string and sub-AST.

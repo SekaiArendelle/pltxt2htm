@@ -9,6 +9,7 @@
 
 #include <limits>
 #include <cstddef>
+#include <type_traits>
 #include <ranges>
 #include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/vector.h>
@@ -359,6 +360,100 @@ constexpr auto try_parse_size_t_decimal_value(::fast_io::u8string_view str, ::st
         return ::exception::nullopt;
     }
     return ::pltxt2htm::details::TryParseSizeTDecimalValueResult{.end = pos, .value = parsed_value};
+}
+
+/**
+ * @brief Convert a signed integer (::std::ptrdiff_t) to a UTF-8 string.
+ * @details Handles negative values with a leading U+002D '-' sign. Mirrors
+ *          ::pltxt2htm::details::size_t2str but for signed values.
+ */
+[[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
+constexpr auto ptrdiff_t2str(::std::ptrdiff_t num) noexcept -> ::fast_io::u8string {
+    if (num == 0) {
+        return ::fast_io::u8string{u8"0"};
+    }
+
+    auto magnitude = static_cast<::std::make_unsigned_t<::std::ptrdiff_t>>(num);
+    if (num < 0) {
+        magnitude = static_cast<::std::make_unsigned_t<::std::ptrdiff_t>>(0) - magnitude;
+    }
+
+    ::fast_io::u8string result{};
+    while (magnitude > 0) {
+        char8_t const digit = (magnitude % 10) + u8'0';
+        result.push_back(digit);
+        magnitude /= 10;
+    }
+    ::std::ranges::reverse(result);
+
+    if (num < 0) {
+        result.insert(result.begin(), ::fast_io::u8string_view{u8"-"});
+    }
+
+    return result;
+}
+
+/**
+ * @brief Result of parsing a signed ASCII decimal value.
+ */
+struct TryParsePtrdiffTDecimalValueResult {
+    ::std::size_t end;
+    ::std::ptrdiff_t value;
+};
+
+/**
+ * @brief Parse a signed ASCII decimal value starting at a given position.
+ * @details Accepts an optional leading U+002D '-' sign (negative values), stops at
+ *          the first non-digit, and rejects empty or overflowing values.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_ptrdiff_t_decimal_value(::fast_io::u8string_view str, ::std::size_t const start) noexcept
+    -> ::exception::optional<::pltxt2htm::details::TryParsePtrdiffTDecimalValueResult> {
+    using unsigned_type = ::std::make_unsigned_t<::std::ptrdiff_t>;
+
+    auto pos = start;
+    bool const negative = pos < str.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(str, pos) == u8'-';
+    if (negative) {
+        ++pos;
+    }
+
+    unsigned_type parsed_value{};
+    auto digit_pos = pos;
+    for (; digit_pos < str.size(); ++digit_pos) {
+        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(str, digit_pos);
+        if (::pltxt2htm::details::is_ascii_digit(chr) == false) {
+            break;
+        }
+        auto const digit = static_cast<unsigned_type>(chr - u8'0');
+        if (parsed_value > (::std::numeric_limits<unsigned_type>::max() - digit) / 10) {
+            return ::exception::nullopt;
+        }
+        parsed_value = parsed_value * 10 + digit;
+    }
+    if (digit_pos == pos) {
+        return ::exception::nullopt;
+    }
+
+    auto const min_magnitude = static_cast<unsigned_type>(::std::numeric_limits<::std::ptrdiff_t>::max()) + 1;
+    if (parsed_value >
+        (negative ? min_magnitude : static_cast<unsigned_type>(::std::numeric_limits<::std::ptrdiff_t>::max()))) {
+        return ::exception::nullopt;
+    }
+
+    ::std::ptrdiff_t value{};
+    if (negative) {
+        value = parsed_value == min_magnitude ? ::std::numeric_limits<::std::ptrdiff_t>::min()
+                                              : -static_cast<::std::ptrdiff_t>(parsed_value);
+    }
+    else {
+        value = static_cast<::std::ptrdiff_t>(parsed_value);
+    }
+
+    return ::pltxt2htm::details::TryParsePtrdiffTDecimalValueResult{.end = digit_pos, .value = value};
 }
 
 /**

@@ -38,4 +38,17 @@ struct ValueWithUnit {
     constexpr auto operator==(::pltxt2htm::ValueWithUnit const& other) const noexcept -> bool = default;
 };
 
+/**
+ * @brief A signed numeric value together with its unit.
+ * @details Like ::pltxt2htm::ValueWithUnit but with a signed value, used where a
+ *          negative number is meaningful (e.g. `vertical-align:-5px`).
+ */
+struct SignedValueWithUnit {
+    ::std::ptrdiff_t value; ///< Signed numeric value
+    ::pltxt2htm::Unit unit; ///< Unit of the value (px, % or em)
+
+    [[nodiscard]]
+    constexpr auto operator==(::pltxt2htm::SignedValueWithUnit const& other) const noexcept -> bool = default;
+};
+
 } // namespace pltxt2htm
