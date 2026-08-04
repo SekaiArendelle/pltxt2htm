@@ -992,31 +992,30 @@ constexpr auto try_parse_non_nestable_equal_sign_tag(
 }
 
 /**
- * @brief Parse a color value and return the first character after it.
+ * @brief Parse a color value and return the relative end within `pltext`.
+ * @details `pltext` must start at the value (the caller subviews it); the returned end is
+ *          relative to `pltext`, so the caller re-adds its absolute offset.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_color_value(::fast_io::u8string_view pltext, ::std::size_t const start) noexcept
-    -> ::exception::optional<::std::size_t> {
-    if (start >= pltext.size()) {
+constexpr auto try_parse_color_value(::fast_io::u8string_view pltext) noexcept -> ::exception::optional<::std::size_t> {
+    if (pltext.empty()) {
         return ::exception::nullopt;
     }
-    if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, start) != u8'#') {
-        auto const end_rel = ::pltxt2htm::details::find_value_end<ndebug, ::pltxt2htm::details::is_ascii_alpha>(
-            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start));
-        if (end_rel == 0) {
+    if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 0) != u8'#') {
+        auto const end = ::pltxt2htm::details::find_value_end<ndebug, ::pltxt2htm::details::is_ascii_alpha>(pltext);
+        if (end == 0) {
             return ::exception::nullopt;
         }
-        return start + end_rel;
+        return end;
     }
 
-    auto const hex_start = start + 1;
     auto const hex_size = ::pltxt2htm::details::find_value_end<ndebug, ::pltxt2htm::details::is_ascii_hexdigit>(
-        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, hex_start));
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 1));
     if (hex_size != 3 && hex_size != 4 && hex_size != 6 && hex_size != 8) {
         return ::exception::nullopt;
     }
-    return hex_start + hex_size;
+    return hex_size + 1;
 }
 
 /**
@@ -1034,11 +1033,12 @@ constexpr auto try_parse_color_tag(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt;
     }
     constexpr auto value_start = prefix_str.size() + 1;
-    auto opt_value_end = ::pltxt2htm::details::try_parse_color_value<ndebug>(pltext, value_start);
+    auto opt_value_end = ::pltxt2htm::details::try_parse_color_value<ndebug>(
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_start));
     if (opt_value_end.has_value() == false) {
         return ::exception::nullopt;
     }
-    auto const value_end = opt_value_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+    auto const value_end = opt_value_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + value_start;
     auto opt_close = ::pltxt2htm::details::try_parse_equal_sign_tag_suffix<ndebug>(
         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_end));
     if (opt_close.has_value() == false) {
@@ -1285,13 +1285,14 @@ constexpr auto try_parse_vertical_align_keyword(::fast_io::u8string_view pltext,
 
 /**
  * @brief Parse a CSS vertical-align value: a lowercase keyword or a non-zero px/em/% length.
+ * @details `pltext` must start at the value (the caller subviews past whitespace); the returned
+ *          `end` is relative to `pltext`, so the caller re-adds its absolute offset.
  * @param[in] pltext Input text starting at the value.
- * @param[in] start Position of the first value character (whitespace already skipped).
- * @return Parsed value with its end position on success; nullopt on failure.
+ * @return Parsed value with its relative end on success; nullopt on failure.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_vertical_align_value(::fast_io::u8string_view pltext, ::std::size_t const start) noexcept
+constexpr auto try_parse_vertical_align_value(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<TryParseVerticalAlignValueResult<ndebug>> {
     struct VerticalAlignKeywordEntry {
         ::pltxt2htm::VerticalAlignKeyword keyword;
@@ -1310,21 +1311,19 @@ constexpr auto try_parse_vertical_align_value(::fast_io::u8string_view pltext, :
         VerticalAlignKeywordEntry{::pltxt2htm::VerticalAlignKeyword::top, ::fast_io::u8string_view{u8"top"}},
     };
     for (auto const& entry : keywords) {
-        auto opt_len = ::pltxt2htm::details::try_parse_vertical_align_keyword<ndebug>(
-            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start), entry.spelling);
+        auto opt_len = ::pltxt2htm::details::try_parse_vertical_align_keyword<ndebug>(pltext, entry.spelling);
         if (opt_len.has_value()) {
             auto const len = opt_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             return TryParseVerticalAlignValueResult<ndebug>{
-                .end = start + len, .value = ::pltxt2htm::VerticalAlignValue<ndebug>{entry.keyword}};
+                .end = len, .value = ::pltxt2htm::VerticalAlignValue<ndebug>{entry.keyword}};
         }
     }
-    auto opt_length = ::pltxt2htm::details::try_parse_signed_length_value<ndebug>(
-        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start));
+    auto opt_length = ::pltxt2htm::details::try_parse_signed_length_value<ndebug>(pltext);
     if (opt_length.has_value() == false) {
         return ::exception::nullopt;
     }
     auto const length = opt_length.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    return TryParseVerticalAlignValueResult<ndebug>{.end = start + length.end,
+    return TryParseVerticalAlignValueResult<ndebug>{.end = length.end,
                                                     .value = ::pltxt2htm::VerticalAlignValue<ndebug>{length.value}};
 }
 
@@ -1430,11 +1429,13 @@ constexpr auto try_parse_span_style(::fast_io::u8string_view pltext, char8_t con
                 return ::exception::nullopt;
             }
             auto const value_start = p;
-            auto opt_value_end = ::pltxt2htm::details::try_parse_color_value<ndebug>(pltext, value_start);
+            auto opt_value_end = ::pltxt2htm::details::try_parse_color_value<ndebug>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_start));
             if (opt_value_end.has_value() == false) {
                 return ::exception::nullopt;
             }
-            auto const value_end = opt_value_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            auto const value_end =
+                opt_value_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + value_start;
             p = value_end;
             auto opt_delimiter_pos = ::pltxt2htm::details::try_parse_span_style_property_suffix<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, p), quote);
@@ -1467,12 +1468,13 @@ constexpr auto try_parse_span_style(::fast_io::u8string_view pltext, char8_t con
             if (vertical_align.has_value()) {
                 return ::exception::nullopt;
             }
-            auto opt_value = ::pltxt2htm::details::try_parse_vertical_align_value<ndebug>(pltext, p);
+            auto opt_value = ::pltxt2htm::details::try_parse_vertical_align_value<ndebug>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, p));
             if (opt_value.has_value() == false) {
                 return ::exception::nullopt;
             }
             auto const value = opt_value.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-            p = value.end;
+            p += value.end;
             auto opt_delimiter_pos = ::pltxt2htm::details::try_parse_span_style_property_suffix<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, p), quote);
             if (opt_delimiter_pos.has_value() == false) {
@@ -1685,11 +1687,12 @@ constexpr auto try_parse_mark_style(::fast_io::u8string_view pltext, char8_t con
             return ::exception::nullopt;
         }
         auto const value_start{p};
-        auto opt_value_end = ::pltxt2htm::details::try_parse_color_value<ndebug>(pltext, value_start);
+        auto opt_value_end = ::pltxt2htm::details::try_parse_color_value<ndebug>(
+            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_start));
         if (opt_value_end.has_value() == false) {
             return ::exception::nullopt;
         }
-        auto const value_end = opt_value_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        auto const value_end = opt_value_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + value_start;
         p = value_end;
         auto opt_delimiter_pos = ::pltxt2htm::details::try_parse_span_style_property_suffix<ndebug>(
             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, p), quote);
@@ -1852,11 +1855,12 @@ constexpr auto try_parse_mark_equal_sign_tag(::fast_io::u8string_view pltext) no
         return ::exception::nullopt;
     }
     constexpr ::std::size_t value_start{4};
-    auto opt_value_end = ::pltxt2htm::details::try_parse_color_value<ndebug>(pltext, value_start);
+    auto opt_value_end = ::pltxt2htm::details::try_parse_color_value<ndebug>(
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_start));
     if (opt_value_end.has_value() == false) {
         return ::exception::nullopt;
     }
-    auto const value_end = opt_value_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+    auto const value_end = opt_value_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + value_start;
     auto opt_close = ::pltxt2htm::details::try_parse_equal_sign_tag_suffix<ndebug>(
         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_end));
     if (opt_close.has_value() == false) {
@@ -3223,13 +3227,15 @@ constexpr bool has_allowed_url_tld(::fast_io::u8string_view domain) noexcept {
 
 /**
  * @brief Parse and validate a URL domain in one pass.
- * @return The first index after the domain, or nullopt when a label or TLD is invalid.
+ * @details `pltext` must start at the domain (the caller subviews past the scheme, if any);
+ *          the returned index is relative to `pltext`.
+ * @param[in] pltext Input text starting at the domain.
+ * @return The relative index after the domain, or nullopt when a label or TLD is invalid.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_url_domain(::fast_io::u8string_view pltext, ::std::size_t domain_start) noexcept
-    -> ::exception::optional<::std::size_t> {
-    ::std::size_t current_index{domain_start};
+constexpr auto try_parse_url_domain(::fast_io::u8string_view pltext) noexcept -> ::exception::optional<::std::size_t> {
+    ::std::size_t current_index{};
     bool label_has_char{};
     bool label_ended_with_hyphen{};
     while (current_index < pltext.size()) {
@@ -3260,8 +3266,7 @@ constexpr auto try_parse_url_domain(::fast_io::u8string_view pltext, ::std::size
     if (label_has_char == false || label_ended_with_hyphen) {
         return ::exception::nullopt;
     }
-    auto const domain =
-        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, domain_start, current_index - domain_start);
+    auto const domain = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 0, current_index);
     if (::pltxt2htm::details::has_allowed_url_tld(domain) == false) {
         return ::exception::nullopt;
     }
@@ -3270,14 +3275,16 @@ constexpr auto try_parse_url_domain(::fast_io::u8string_view pltext, ::std::size
 
 /**
  * @brief Parse and validate a URL port and its following delimiter.
- * @return The first index after the port, or nullopt when the port is invalid.
+ * @details `pltext` must start at the port digits (the caller subviews past the `:`); the
+ *          returned index is relative to `pltext`.
+ * @param[in] pltext Input text starting at the port.
+ * @return The relative index after the port, or nullopt when the port is invalid.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_url_port(::fast_io::u8string_view pltext, ::std::size_t port_start) noexcept
-    -> ::exception::optional<::std::size_t> {
+constexpr auto try_parse_url_port(::fast_io::u8string_view pltext) noexcept -> ::exception::optional<::std::size_t> {
     ::std::uint_least32_t port{};
-    ::std::size_t current_index{port_start};
+    ::std::size_t current_index{};
     ::std::size_t port_size{};
     while (current_index < pltext.size()) {
         auto const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index)};
@@ -3331,21 +3338,21 @@ constexpr auto try_parse_url_scheme(::fast_io::u8string_view pltext) noexcept ->
 /**
  * @brief Parse and validate the authority part (domain + port) of a URL.
  *
- * Does NOT detect the scheme — the caller must supply `domain_start` (use 0 when
- * no scheme is present). Supports domain validation and optional port.
- * Does NOT parse the path, query, or fragment — that is the caller's responsibility.
+ * Does NOT detect the scheme — the caller must pass a view starting at the domain (e.g. a
+ * subview past the scheme, or the whole candidate when no scheme is present). Supports
+ * domain validation and optional port. Does NOT parse the path, query, or fragment — that
+ * is the caller's responsibility.
  *
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
- * @param[in] pltext The input text that begins at a URL candidate.
- * @param[in] domain_start The offset within pltext where the domain starts (0 when no scheme).
- * @return The index after the port (or after the domain if no port), or nullopt when
+ * @param[in] pltext The input text starting at the domain.
+ * @return The relative index after the port (or after the domain if no port), or nullopt when
  *         domain/port validation fails.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_url_authority(::fast_io::u8string_view pltext, ::std::size_t domain_start) noexcept
+constexpr auto try_parse_url_authority(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::std::size_t> {
-    auto const opt_domain_end{::pltxt2htm::details::try_parse_url_domain<ndebug>(pltext, domain_start)};
+    auto const opt_domain_end{::pltxt2htm::details::try_parse_url_domain<ndebug>(pltext)};
     if (opt_domain_end.has_value() == false) {
         return ::exception::nullopt;
     }
@@ -3353,7 +3360,12 @@ constexpr auto try_parse_url_authority(::fast_io::u8string_view pltext, ::std::s
     if (domain_end >= pltext.size() || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, domain_end) != u8':') {
         return domain_end;
     }
-    return ::pltxt2htm::details::try_parse_url_port<ndebug>(pltext, domain_end + 1);
+    auto const opt_port_end{::pltxt2htm::details::try_parse_url_port<ndebug>(
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, domain_end + 1))};
+    if (opt_port_end.has_value() == false) {
+        return ::exception::nullopt;
+    }
+    return domain_end + 1 + opt_port_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
 }
 
 /**
@@ -3421,29 +3433,30 @@ constexpr auto make_try_parse_url_result(::fast_io::u8string_view const parsed_u
 
 /**
  * @brief Parse the simple URL path: printable ASCII, stops at `<` `>` `"` or non-printable characters.
+ * @details `pltext` must start at the path (the caller subviews past the authority); the
+ *          returned index is relative to `pltext`.
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
- * @param[in] pltext The full input text view.
- * @param[in] start_index The index at which to start parsing the path (typically after authority).
- * @return The index at which the path ends.
+ * @param[in] pltext The input text view starting at the path.
+ * @return The relative index at which the path ends.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_url_path_simple(::fast_io::u8string_view pltext, ::std::size_t start_index) noexcept
-    -> ::std::size_t {
-    if (start_index < pltext.size()) {
-        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, start_index);
+constexpr auto try_parse_url_path_simple(::fast_io::u8string_view pltext) noexcept -> ::std::size_t {
+    if (pltext.empty() == false) {
+        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 0);
         if (chr != u8'/' && chr != u8'?' && chr != u8'#') {
-            return start_index;
+            return 0;
         }
     }
-    while (start_index < pltext.size()) {
-        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, start_index);
+    ::std::size_t current_index{};
+    while (current_index < pltext.size()) {
+        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
         if (chr < u8'!' || chr > u8'~' || chr == u8'<' || chr == u8'>' || chr == u8'\"') {
             break;
         }
-        ++start_index;
+        ++current_index;
     }
-    return start_index;
+    return current_index;
 }
 
 /**
@@ -3451,29 +3464,30 @@ constexpr auto try_parse_url_path_simple(::fast_io::u8string_view pltext, ::std:
  * @details Like try_parse_url_path_simple but also accepts bytes >= 0x7F so tag URLs
  *          (html_a / pl_external / pl_link) can carry UTF-8 characters (e.g. CJK);
  *          make_try_parse_url_result percent-encodes them. Auto-detected URLs stay ASCII-only.
+ *          `pltext` must start at the path (the caller subviews past the authority); the
+ *          returned index is relative to `pltext`.
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
- * @param[in] pltext The full input text view.
- * @param[in] start_index The index at which to start parsing the path (typically after authority).
- * @return The index at which the path ends.
+ * @param[in] pltext The input text view starting at the path.
+ * @return The relative index at which the path ends.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_url_path_unicode(::fast_io::u8string_view pltext, ::std::size_t start_index) noexcept
-    -> ::std::size_t {
-    if (start_index < pltext.size()) {
-        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, start_index);
+constexpr auto try_parse_url_path_unicode(::fast_io::u8string_view pltext) noexcept -> ::std::size_t {
+    if (pltext.empty() == false) {
+        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 0);
         if (chr != u8'/' && chr != u8'?' && chr != u8'#') {
-            return start_index;
+            return 0;
         }
     }
-    while (start_index < pltext.size()) {
-        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, start_index);
+    ::std::size_t current_index{};
+    while (current_index < pltext.size()) {
+        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
         if (chr < u8'!' || chr == u8'<' || chr == u8'>' || chr == u8'\"') {
             break;
         }
-        ++start_index;
+        ++current_index;
     }
-    return start_index;
+    return current_index;
 }
 
 /**
@@ -3591,13 +3605,16 @@ constexpr auto try_parse_html_a_tag(::fast_io::u8string_view pltext) noexcept ->
     if (pos >= pltext.size() || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'>') {
         return {};
     }
+    auto const scheme_end = ::pltxt2htm::details::try_parse_url_scheme<ndebug>(attr_val).value_or(::std::size_t{});
     auto opt_auth_end = ::pltxt2htm::details::try_parse_url_authority<ndebug>(
-        attr_val, ::pltxt2htm::details::try_parse_url_scheme<ndebug>(attr_val).value_or(::std::size_t{}));
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(attr_val, scheme_end));
     if (opt_auth_end.has_value() == false) {
         return TryParseHtmlATagResult{pos + 1};
     }
-    auto const auth_end = opt_auth_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    auto const path_end = ::pltxt2htm::details::try_parse_url_path_unicode<ndebug>(attr_val, auth_end);
+    auto const auth_end = opt_auth_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + scheme_end;
+    auto const path_end = ::pltxt2htm::details::try_parse_url_path_unicode<ndebug>(
+                              ::pltxt2htm::details::u8string_view_subview<ndebug>(attr_val, auth_end)) +
+                          auth_end;
     if (path_end != attr_val.size()) {
         return TryParseHtmlATagResult{pos + 1};
     }
@@ -3632,13 +3649,16 @@ constexpr auto try_parse_auto_url(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt;
     }
     auto const scheme_end = opt_scheme_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    auto opt_auth_end = ::pltxt2htm::details::try_parse_url_authority<ndebug>(pltext, scheme_end);
+    auto opt_auth_end = ::pltxt2htm::details::try_parse_url_authority<ndebug>(
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, scheme_end));
     if (opt_auth_end.has_value() == false) {
         return ::exception::nullopt;
     }
-    auto const auth_end = opt_auth_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+    auto const auth_end = opt_auth_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + scheme_end;
 
-    auto const path_end = ::pltxt2htm::details::try_parse_url_path_simple<ndebug>(pltext, auth_end);
+    auto const path_end = ::pltxt2htm::details::try_parse_url_path_simple<ndebug>(
+                              ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, auth_end)) +
+                          auth_end;
     return ::pltxt2htm::details::make_try_parse_url_result<ndebug>(
         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 0, path_end), path_end);
 }
@@ -3711,13 +3731,16 @@ constexpr auto try_parse_external_tag(
 
     auto&& [_, url_str] = result.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
     auto const url_vw = ::fast_io::u8string_view{url_str.data(), url_str.size()};
+    auto const scheme_end = ::pltxt2htm::details::try_parse_url_scheme<ndebug>(url_vw).value_or(::std::size_t{});
     auto opt_auth_end = ::pltxt2htm::details::try_parse_url_authority<ndebug>(
-        url_vw, ::pltxt2htm::details::try_parse_url_scheme<ndebug>(url_vw).value_or(::std::size_t{}));
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(url_vw, scheme_end));
     if (opt_auth_end.has_value() == false) {
         return TryParseExternalTagResult{tag_len};
     }
-    auto const auth_end = opt_auth_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    auto const path_end = ::pltxt2htm::details::try_parse_url_path_unicode<ndebug>(url_vw, auth_end);
+    auto const auth_end = opt_auth_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + scheme_end;
+    auto const path_end = ::pltxt2htm::details::try_parse_url_path_unicode<ndebug>(
+                              ::pltxt2htm::details::u8string_view_subview<ndebug>(url_vw, auth_end)) +
+                          auth_end;
     if (path_end != url_vw.size()) {
         return TryParseExternalTagResult{tag_len};
     }
@@ -3805,13 +3828,16 @@ constexpr auto try_parse_link_tag(
         return {};
     }
     auto const url_vw = ::pltxt2htm::details::u8string_view_subview<ndebug>(raw_value, 1, raw_value.size() - 2);
+    auto const scheme_end = ::pltxt2htm::details::try_parse_url_scheme<ndebug>(url_vw).value_or(::std::size_t{});
     auto opt_auth_end = ::pltxt2htm::details::try_parse_url_authority<ndebug>(
-        url_vw, ::pltxt2htm::details::try_parse_url_scheme<ndebug>(url_vw).value_or(::std::size_t{}));
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(url_vw, scheme_end));
     if (opt_auth_end.has_value() == false) {
         return TryParseLinkTagResult{tag_len};
     }
-    auto const auth_end = opt_auth_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    auto const path_end = ::pltxt2htm::details::try_parse_url_path_unicode<ndebug>(url_vw, auth_end);
+    auto const auth_end = opt_auth_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + scheme_end;
+    auto const path_end = ::pltxt2htm::details::try_parse_url_path_unicode<ndebug>(
+                              ::pltxt2htm::details::u8string_view_subview<ndebug>(url_vw, auth_end)) +
+                          auth_end;
     if (path_end != url_vw.size()) {
         return TryParseLinkTagResult{tag_len};
     }
@@ -3834,10 +3860,11 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr auto try_parse_md_url(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseMdUrlResult> {
     // First attempt: authority + path with `)` as terminator, then verify `)` follows
+    auto const scheme_end = ::pltxt2htm::details::try_parse_url_scheme<ndebug>(pltext).value_or(::std::size_t{});
     auto opt_auth_end = ::pltxt2htm::details::try_parse_url_authority<ndebug>(
-        pltext, ::pltxt2htm::details::try_parse_url_scheme<ndebug>(pltext).value_or(::std::size_t{}));
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, scheme_end));
     if (opt_auth_end.has_value()) {
-        auto const auth_end = opt_auth_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        auto const auth_end = opt_auth_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + scheme_end;
         bool const has_path_start =
             auth_end < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, auth_end) == u8'/' ||
                                          ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, auth_end) == u8'?' ||
@@ -3894,13 +3921,18 @@ constexpr auto try_parse_md_url(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt;
     }
     auto const encoded_vw = ::fast_io::u8string_view{encoded.data(), encoded.size()};
+    auto const retry_scheme_end =
+        ::pltxt2htm::details::try_parse_url_scheme<ndebug>(encoded_vw).value_or(::std::size_t{});
     auto opt_retry_auth = ::pltxt2htm::details::try_parse_url_authority<ndebug>(
-        encoded_vw, ::pltxt2htm::details::try_parse_url_scheme<ndebug>(encoded_vw).value_or(::std::size_t{}));
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(encoded_vw, retry_scheme_end));
     if (opt_retry_auth.has_value() == false) {
         return ::exception::nullopt;
     }
-    auto const retry_auth_end = opt_retry_auth.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    auto const retry_path_end = ::pltxt2htm::details::try_parse_url_path_simple<ndebug>(encoded_vw, retry_auth_end);
+    auto const retry_auth_end =
+        opt_retry_auth.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + retry_scheme_end;
+    auto const retry_path_end = ::pltxt2htm::details::try_parse_url_path_simple<ndebug>(
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(encoded_vw, retry_auth_end)) +
+                                retry_auth_end;
     if (retry_path_end != encoded_vw.size()) {
         return ::exception::nullopt;
     }
