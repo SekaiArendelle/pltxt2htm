@@ -181,6 +181,17 @@ Please follow the existing low-runtime, cross-platform style used in core header
 - Use deducing-`this` for `operator=`:
   - All non-`= delete` `operator=` overloads must use the C++23 deducing-`this` form with an lvalue reference object parameter (`this X& self`) to prevent assignment to temporaries.
   - `= delete` overloads are exempt since they already prevent any use.
+- Avoid the redundant `(string_view, offset)` parameter pair:
+  - A `string_view` already carries both a pointer and a length, so a signature like
+    `parse_value(::fast_io::u8string_view s, ::std::size_t pos)` is redundant — the
+    offset is implicit in the view.
+  - When a helper must skip a prefix, pass a pre-subviewed view (via
+    `::pltxt2htm::details::u8string_view_subview<ndebug>(...)`) and let the function
+    operate from index `0`. Have the returned `end` be relative to that subview and
+    let the caller re-add the offset when absolute coordinates are needed.
+  - This keeps each parser "parse the given view from the start", avoids offset
+    arithmetic and empty-check (`pos == 0`) inside helpers, and keeps the call
+    sites' intent explicit.
 
 ## Pull Requests
 

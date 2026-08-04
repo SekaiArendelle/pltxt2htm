@@ -336,15 +336,17 @@ struct TryParseSizeTDecimalValueResult {
 };
 
 /**
- * @brief Parse an ASCII decimal value starting at a given position.
+ * @brief Parse an ASCII decimal value.
  * @details Stops at the first non-digit and rejects empty or overflowing values.
+ *          Callers that need to skip a prefix should pass `str` pre-subviewed;
+ *          the returned `end` is the run length relative to `str`.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_size_t_decimal_value(::fast_io::u8string_view str, ::std::size_t const start) noexcept
+constexpr auto try_parse_size_t_decimal_value(::fast_io::u8string_view str) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseSizeTDecimalValueResult> {
     ::std::size_t parsed_value{};
-    auto pos = start;
+    auto pos = ::std::size_t{0};
     for (; pos < str.size(); ++pos) {
         auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(str, pos);
         if (::pltxt2htm::details::is_ascii_digit(chr) == false) {
@@ -356,7 +358,7 @@ constexpr auto try_parse_size_t_decimal_value(::fast_io::u8string_view str, ::st
         }
         parsed_value = parsed_value * 10 + digit;
     }
-    if (pos == start) {
+    if (pos == 0) {
         return ::exception::nullopt;
     }
     return ::pltxt2htm::details::TryParseSizeTDecimalValueResult{.end = pos, .value = parsed_value};
@@ -472,7 +474,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[__gnu__::__pure__]]
 #endif
 constexpr auto u8str2size_t(::fast_io::u8string_view str) noexcept -> ::exception::optional<std::size_t> {
-    auto result = ::pltxt2htm::details::try_parse_size_t_decimal_value<ndebug>(str, 0);
+    auto result = ::pltxt2htm::details::try_parse_size_t_decimal_value<ndebug>(str);
     if (result.has_value() == false) {
         return ::exception::nullopt;
     }
