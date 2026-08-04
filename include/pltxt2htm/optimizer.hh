@@ -465,32 +465,32 @@ entry:
             }
             case ::pltxt2htm::NodeKind::pl_color: {
                 auto&& subast = node.as_pl_color().get_subast();
-                {
-                    // Optimization: <color=red><color=blue>text</color></color>
-                    // simplifies to <color=blue>text</color>.
-                    // The inner color attribute overrides the outer one.
-                    //
-                    // Optimization: <color=red><a>text</a></color>
-                    // simplifies to <a>text</a>.
-                    // The inner anchor tag's styling takes precedence over the outer color.
-                    if (subast.size() == 1) {
-                        auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
-                        if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_color ||
-                            subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_a ||
-                            subnode.get_node_kind() == ::pltxt2htm::NodeKind::html_span) {
-                            // SAFETY: We must NOT write `node = ::std::move(subnode);` directly.
-                            // `subnode` is a reference into `node.get_subast()`. When the move-assignment
-                            // operator of the node runs, it first destructs the old value at `*current_iter`, which
-                            // in turn destructs `subnode` (since `subnode` lives inside that sub-AST). That means
-                            // `subnode` is destroyed *before* its contents are moved -- a use-after-free.
-                            // By moving `subnode` into a temporary first, we extract the value before the
-                            // destination is touched, breaking the aliasing.
-                            auto tmp = ::std::move(subnode);
-                            node = ::std::move(tmp);
-                            continue;
-                        }
+
+                // Optimization: <color=red><color=blue>text</color></color>
+                // simplifies to <color=blue>text</color>.
+                // The inner color attribute overrides the outer one.
+                //
+                // Optimization: <color=red><a>text</a></color>
+                // simplifies to <a>text</a>.
+                // The inner anchor tag's styling takes precedence over the outer color.
+                if (subast.size() == 1) {
+                    auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
+                    if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_color ||
+                        subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_a ||
+                        subnode.get_node_kind() == ::pltxt2htm::NodeKind::html_span) {
+                        // SAFETY: We must NOT write `node = ::std::move(subnode);` directly.
+                        // `subnode` is a reference into `node.get_subast()`. When the move-assignment
+                        // operator of the node runs, it first destructs the old value at `*current_iter`, which
+                        // in turn destructs `subnode` (since `subnode` lives inside that sub-AST). That means
+                        // `subnode` is destroyed *before* its contents are moved -- a use-after-free.
+                        // By moving `subnode` into a temporary first, we extract the value before the
+                        // destination is touched, breaking the aliasing.
+                        auto tmp = ::std::move(subnode);
+                        node = ::std::move(tmp);
+                        continue;
                     }
                 }
+
                 ::pltxt2htm::NodeKind const nested_tag_type{
                     ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type()};
                 // Optimization: If this color matches the parent color, flatten the nesting
@@ -592,73 +592,70 @@ entry:
                     ast.erase(current_iter);
                     continue;
                 }
+
                 // Optimization: If the same attrs as parent html_span or color tag, flatten.
                 // <span style="color:red">a<span style="color:red">b</span>c</span>
                 // -> <span style="color:red">abc</span>
                 // <color=red>a<span style="color:red">b</span>c</color>
                 // -> <span style="color:red">abc</span>
-                {
-                    ::pltxt2htm::NodeKind const nested_tag_type{
-                        ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type()};
-                    if (nested_tag_type == ::pltxt2htm::NodeKind::html_span) {
-                        auto const& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
-                        auto const& node_color = node.as_html_span().get_color();
-                        ::fast_io::u8string_view const node_color_view{node_color.data(), node_color.size()};
-                        auto const& node_fs = node.as_html_span().get_font_size();
-                        auto const& node_va = node.as_html_span().get_vertical_align();
-                        bool const same_font_size = node_fs == parent_frame.get_html_span_font_size();
-                        bool const same_vertical_align = node_va == parent_frame.get_html_span_vertical_align();
-                        if (node_color_view == parent_frame.get_html_span_color() && same_font_size &&
-                            same_vertical_align) {
-                            node = ::pltxt2htm::PlTxtNode<ndebug>{
-                                ::pltxt2htm::Text<ndebug>{::std::move(node.as_html_span().get_subast())}};
-                            ++current_iter;
-                            continue;
-                        }
-                    }
-                    if (nested_tag_type == ::pltxt2htm::NodeKind::pl_color) {
-                        auto const& parent_color_id =
-                            ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_equal_sign_tag_id();
-                        auto const& node_color = node.as_html_span().get_color();
-                        ::fast_io::u8string_view const node_color_view{node_color.data(), node_color.size()};
-                        auto const& node_fs = node.as_html_span().get_font_size();
-                        auto const& node_va = node.as_html_span().get_vertical_align();
-                        if (node_color_view == parent_color_id && !node_fs.has_value() && !node_va.has_value()) {
-                            node = ::pltxt2htm::PlTxtNode<ndebug>{
-                                ::pltxt2htm::Text<ndebug>{::std::move(node.as_html_span().get_subast())}};
-                            ++current_iter;
-                            continue;
-                        }
-                    }
-                    if (nested_tag_type == ::pltxt2htm::NodeKind::pl_a) {
-                        static constexpr auto anchor_color_literal = ::pltxt2htm::PlA<ndebug>::get_color_literal();
-                        static constexpr auto anchor_color =
-                            ::fast_io::u8string_view{anchor_color_literal.data(), anchor_color_literal.size()};
-                        auto const& node_color = node.as_html_span().get_color();
-                        ::fast_io::u8string_view const node_color_view{node_color.data(), node_color.size()};
-                        auto const& node_fs = node.as_html_span().get_font_size();
-                        auto const& node_va = node.as_html_span().get_vertical_align();
-                        if (node_color_view == anchor_color && !node_fs.has_value() && !node_va.has_value()) {
-                            node = ::pltxt2htm::PlTxtNode<ndebug>{
-                                ::pltxt2htm::Text<ndebug>{::std::move(node.as_html_span().get_subast())}};
-                            ++current_iter;
-                            continue;
-                        }
+                ::pltxt2htm::NodeKind const nested_tag_type{
+                    ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type()};
+                if (nested_tag_type == ::pltxt2htm::NodeKind::html_span) {
+                    auto const& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                    auto const& node_color = node.as_html_span().get_color();
+                    ::fast_io::u8string_view const node_color_view{node_color.data(), node_color.size()};
+                    auto const& node_fs = node.as_html_span().get_font_size();
+                    auto const& node_va = node.as_html_span().get_vertical_align();
+                    bool const same_font_size = node_fs == parent_frame.get_html_span_font_size();
+                    bool const same_vertical_align = node_va == parent_frame.get_html_span_vertical_align();
+                    if (node_color_view == parent_frame.get_html_span_color() && same_font_size &&
+                        same_vertical_align) {
+                        node = ::pltxt2htm::PlTxtNode<ndebug>{
+                            ::pltxt2htm::Text<ndebug>{::std::move(node.as_html_span().get_subast())}};
+                        ++current_iter;
+                        continue;
                     }
                 }
-                {
-                    auto const& span_color = node.as_html_span().get_color();
-                    auto const span_font_size = node.as_html_span().get_font_size();
-                    auto const span_vertical_align = node.as_html_span().get_vertical_align();
-                    call_stack.push(
-                        ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator,
-                                                                    ndebug>(
-                            ::std::addressof(subast), subast.begin(),
-                            ::pltxt2htm::details::OptimizerContextWithHtmlSpanInfo<ndebug>{
-                                ::fast_io::u8string_view{span_color.data(), span_color.size()}, span_font_size,
-                                span_vertical_align}));
-                    goto entry;
+                if (nested_tag_type == ::pltxt2htm::NodeKind::pl_color) {
+                    auto const& parent_color_id =
+                        ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_equal_sign_tag_id();
+                    auto const& node_color = node.as_html_span().get_color();
+                    ::fast_io::u8string_view const node_color_view{node_color.data(), node_color.size()};
+                    auto const& node_fs = node.as_html_span().get_font_size();
+                    auto const& node_va = node.as_html_span().get_vertical_align();
+                    if (node_color_view == parent_color_id && !node_fs.has_value() && !node_va.has_value()) {
+                        node = ::pltxt2htm::PlTxtNode<ndebug>{
+                            ::pltxt2htm::Text<ndebug>{::std::move(node.as_html_span().get_subast())}};
+                        ++current_iter;
+                        continue;
+                    }
                 }
+                if (nested_tag_type == ::pltxt2htm::NodeKind::pl_a) {
+                    static constexpr auto anchor_color_literal = ::pltxt2htm::PlA<ndebug>::get_color_literal();
+                    static constexpr auto anchor_color =
+                        ::fast_io::u8string_view{anchor_color_literal.data(), anchor_color_literal.size()};
+                    auto const& node_color = node.as_html_span().get_color();
+                    ::fast_io::u8string_view const node_color_view{node_color.data(), node_color.size()};
+                    auto const& node_fs = node.as_html_span().get_font_size();
+                    auto const& node_va = node.as_html_span().get_vertical_align();
+                    if (node_color_view == anchor_color && !node_fs.has_value() && !node_va.has_value()) {
+                        node = ::pltxt2htm::PlTxtNode<ndebug>{
+                            ::pltxt2htm::Text<ndebug>{::std::move(node.as_html_span().get_subast())}};
+                        ++current_iter;
+                        continue;
+                    }
+                }
+
+                auto const& span_color = node.as_html_span().get_color();
+                auto const span_font_size = node.as_html_span().get_font_size();
+                auto const span_vertical_align = node.as_html_span().get_vertical_align();
+                call_stack.push(
+                    ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
+                        ::std::addressof(subast), subast.begin(),
+                        ::pltxt2htm::details::OptimizerContextWithHtmlSpanInfo<ndebug>{
+                            ::fast_io::u8string_view{span_color.data(), span_color.size()}, span_font_size,
+                            span_vertical_align}));
+                goto entry;
             }
             case ::pltxt2htm::NodeKind::html_a: {
                 auto&& subast = node.as_html_a().get_subast();
@@ -669,27 +666,27 @@ entry:
             }
             case ::pltxt2htm::NodeKind::pl_a: {
                 auto&& subast = node.as_pl_a().get_subast();
-                {
-                    // Optimization: <a><color=blue>text</color></a>
-                    // can be simplified to <color=blue>text</color>
-                    // The inner color takes precedence over the outer color
-                    if (subast.size() == 1) {
-                        auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
-                        if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_color ||
-                            subnode.get_node_kind() == ::pltxt2htm::NodeKind::html_span) {
-                            // SAFETY: We must NOT write `node = ::std::move(subnode);` directly.
-                            // `subnode` is a reference into `node.get_subast()`. When the move-assignment
-                            // operator of the node runs, it first destructs the old value at `*current_iter`, which
-                            // in turn destructs `subnode` (since `subnode` lives inside that sub-AST). That means
-                            // `subnode` is destroyed *before* its contents are moved -- a use-after-free.
-                            // By moving `subnode` into a temporary first, we extract the value before the
-                            // destination is touched, breaking the aliasing.
-                            auto tmp = ::std::move(subnode);
-                            node = ::std::move(tmp);
-                            continue;
-                        }
+
+                // Optimization: <a><color=blue>text</color></a>
+                // can be simplified to <color=blue>text</color>
+                // The inner color takes precedence over the outer color
+                if (subast.size() == 1) {
+                    auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
+                    if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_color ||
+                        subnode.get_node_kind() == ::pltxt2htm::NodeKind::html_span) {
+                        // SAFETY: We must NOT write `node = ::std::move(subnode);` directly.
+                        // `subnode` is a reference into `node.get_subast()`. When the move-assignment
+                        // operator of the node runs, it first destructs the old value at `*current_iter`, which
+                        // in turn destructs `subnode` (since `subnode` lives inside that sub-AST). That means
+                        // `subnode` is destroyed *before* its contents are moved -- a use-after-free.
+                        // By moving `subnode` into a temporary first, we extract the value before the
+                        // destination is touched, breaking the aliasing.
+                        auto tmp = ::std::move(subnode);
+                        node = ::std::move(tmp);
+                        continue;
                     }
                 }
+
                 ::pltxt2htm::NodeKind const nested_tag_type{
                     ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type()};
                 // Optimization: If this color matches the parent color, flatten the nesting
@@ -748,26 +745,24 @@ entry:
             }
             case ::pltxt2htm::NodeKind::pl_user: {
                 auto&& subast = node.as_pl_user().get_subast();
-                {
-                    if (subast.empty()) {
-                        // <user=123></user> can be omitted
-                        ast.erase(current_iter);
-                        continue;
-                    }
-                    if (subast.size() == 1) {
-                        // <User=123><user=642cf37a494746375aae306a>physicsLab</user></User> can be
-                        auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
-                        if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_user) {
-                            // SAFETY: We must NOT write `node = ::std::move(subnode);` directly.
-                            // `subnode` is a reference into `node.get_subast()`. When the move-assignment
-                            // operator of the node runs, it first destructs the old value at `node`, which
-                            // in turn destructs `subnode` (since `subnode` lives inside that sub-AST). That means
-                            // `subnode` is destroyed *before* its contents are moved -- a use-after-free.
-                            // By moving `subnode` into a temporary first, we extract the value before the
-                            // destination is touched, breaking the aliasing.
-                            auto tmp = ::std::move(subnode);
-                            node = ::std::move(tmp);
-                        }
+                if (subast.empty()) {
+                    // <user=123></user> can be omitted
+                    ast.erase(current_iter);
+                    continue;
+                }
+                if (subast.size() == 1) {
+                    // <User=123><user=642cf37a494746375aae306a>physicsLab</user></User> can be
+                    auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
+                    if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_user) {
+                        // SAFETY: We must NOT write `node = ::std::move(subnode);` directly.
+                        // `subnode` is a reference into `node.get_subast()`. When the move-assignment
+                        // operator of the node runs, it first destructs the old value at `node`, which
+                        // in turn destructs `subnode` (since `subnode` lives inside that sub-AST). That means
+                        // `subnode` is destroyed *before* its contents are moved -- a use-after-free.
+                        // By moving `subnode` into a temporary first, we extract the value before the
+                        // destination is touched, breaking the aliasing.
+                        auto tmp = ::std::move(subnode);
+                        node = ::std::move(tmp);
                     }
                 }
                 auto&& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
@@ -815,26 +810,24 @@ entry:
             }
             case ::pltxt2htm::NodeKind::pl_size: {
                 auto&& subast = node.as_pl_size().get_subast();
-                {
-                    if (subast.empty()) {
-                        // <size=123></size> can be omitted
-                        ast.erase(current_iter);
-                        continue;
-                    }
-                    if (subast.size() == 1) {
-                        // <size=12><size=3>physicsLab</size></size> can be
-                        auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
-                        if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_size) {
-                            // SAFETY: We must NOT write `node = ::std::move(subnode);` directly.
-                            // `subnode` is a reference into `node.get_subast()`. When the move-assignment
-                            // operator of the node runs, it first destructs the old value at `node`, which
-                            // in turn destructs `subnode` (since `subnode` lives inside that sub-AST). That means
-                            // `subnode` is destroyed *before* its contents are moved -- a use-after-free.
-                            // By moving `subnode` into a temporary first, we extract the value before the
-                            // destination is touched, breaking the aliasing.
-                            auto tmp = ::std::move(subnode);
-                            node = ::std::move(tmp);
-                        }
+                if (subast.empty()) {
+                    // <size=123></size> can be omitted
+                    ast.erase(current_iter);
+                    continue;
+                }
+                if (subast.size() == 1) {
+                    // <size=12><size=3>physicsLab</size></size> can be
+                    auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
+                    if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_size) {
+                        // SAFETY: We must NOT write `node = ::std::move(subnode);` directly.
+                        // `subnode` is a reference into `node.get_subast()`. When the move-assignment
+                        // operator of the node runs, it first destructs the old value at `node`, which
+                        // in turn destructs `subnode` (since `subnode` lives inside that sub-AST). That means
+                        // `subnode` is destroyed *before* its contents are moved -- a use-after-free.
+                        // By moving `subnode` into a temporary first, we extract the value before the
+                        // destination is touched, breaking the aliasing.
+                        auto tmp = ::std::move(subnode);
+                        node = ::std::move(tmp);
                     }
                 }
                 auto&& frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
