@@ -876,13 +876,17 @@ struct TryParseEqualSignTagResult {
 
 /**
  * @brief Find the end of a value whose characters are accepted by a named predicate.
+ * @details `pltext` must already be subviewed so that it starts at the value, and
+ *          the returned value is the relative end (i.e. the run length). Callers
+ *          re-add the value-start offset when they need absolute coordinates.
  */
 template<::pltxt2htm::Contracts ndebug, auto value_char_predicate>
     requires requires(char8_t chr) {
         { value_char_predicate(chr) } -> ::std::same_as<bool>;
     }
 [[nodiscard]]
-constexpr auto find_value_end(::fast_io::u8string_view pltext, ::std::size_t pos) noexcept -> ::std::size_t {
+constexpr auto find_value_end(::fast_io::u8string_view pltext) noexcept -> ::std::size_t {
+    auto pos = ::std::size_t{0};
     while (pos < pltext.size()) {
         auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos);
         if (chr == u8'>' || chr == u8' ' || chr == u8'\t' || value_char_predicate(chr) == false) {
@@ -937,10 +941,12 @@ constexpr auto try_parse_equal_sign_tag(::fast_io::u8string_view pltext) noexcep
         return ::exception::nullopt;
     }
     constexpr auto value_start = prefix_str.size() + 1;
-    auto const value_end = ::pltxt2htm::details::find_value_end<ndebug, value_char_predicate>(pltext, value_start);
-    if (value_end == value_start) {
+    auto const value_end_rel = ::pltxt2htm::details::find_value_end<ndebug, value_char_predicate>(
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_start));
+    if (value_end_rel == 0) {
         return ::exception::nullopt;
     }
+    auto const value_end = value_start + value_end_rel;
     auto opt_close = ::pltxt2htm::details::try_parse_equal_sign_tag_suffix<ndebug>(
         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_end));
     if (opt_close.has_value() == false) {
@@ -949,7 +955,7 @@ constexpr auto try_parse_equal_sign_tag(::fast_io::u8string_view pltext) noexcep
     auto const close_rel = opt_close.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
     return ::pltxt2htm::details::TryParseEqualSignTagResult{
         .tag_len = value_end + close_rel,
-        .substr = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_start, value_end - value_start)};
+        .substr = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_start, value_end_rel)};
 }
 
 /**
@@ -996,22 +1002,21 @@ constexpr auto try_parse_color_value(::fast_io::u8string_view pltext, ::std::siz
         return ::exception::nullopt;
     }
     if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, start) != u8'#') {
-        auto const end =
-            ::pltxt2htm::details::find_value_end<ndebug, ::pltxt2htm::details::is_ascii_alpha>(pltext, start);
-        if (end == start) {
+        auto const end_rel = ::pltxt2htm::details::find_value_end<ndebug, ::pltxt2htm::details::is_ascii_alpha>(
+            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start));
+        if (end_rel == 0) {
             return ::exception::nullopt;
         }
-        return end;
+        return start + end_rel;
     }
 
     auto const hex_start = start + 1;
-    auto const end =
-        ::pltxt2htm::details::find_value_end<ndebug, ::pltxt2htm::details::is_ascii_hexdigit>(pltext, hex_start);
-    auto const hex_size = end - hex_start;
+    auto const hex_size = ::pltxt2htm::details::find_value_end<ndebug, ::pltxt2htm::details::is_ascii_hexdigit>(
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, hex_start));
     if (hex_size != 3 && hex_size != 4 && hex_size != 6 && hex_size != 8) {
         return ::exception::nullopt;
     }
-    return end;
+    return hex_start + hex_size;
 }
 
 /**
