@@ -1128,12 +1128,13 @@ constexpr auto try_parse_voffset_tag(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt;
     }
     auto const value_end = value_start + value.end;
-    auto opt_tag = ::pltxt2htm::details::try_parse_equal_sign_tag_suffix<ndebug>(pltext, value_start, value_end);
-    if (opt_tag.has_value() == false) {
+    auto opt_close = ::pltxt2htm::details::try_parse_equal_sign_tag_suffix<ndebug>(
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_end));
+    if (opt_close.has_value() == false) {
         return ::exception::nullopt;
     }
-    return ::pltxt2htm::details::TryParseVoffsetTagResult{
-        opt_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>().tag_len, value.value};
+    auto const tag_len = value_end + opt_close.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+    return ::pltxt2htm::details::TryParseVoffsetTagResult{tag_len, value.value};
 }
 
 /**
@@ -3982,10 +3983,10 @@ constexpr auto try_parse_md_link(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt;
     }
     ++current_index;
-    return ::pltxt2htm::details::TryParseMdLinkResult{.advance_count = current_index,
-                                                      .link_text = ::pltxt2htm::details::u8string_view_subview<ndebug>(
-                                                          pltext, 1, link_text_end - 1),
-                                                      .link_url = ::std::move(md_url_result.url)};
+    return ::pltxt2htm::details::TryParseMdLinkResult{
+        .advance_count = current_index,
+        .link_text = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 1, link_text_end - 1),
+        .link_url = ::std::move(md_url_result.url)};
 }
 
 template<::pltxt2htm::Contracts ndebug>
