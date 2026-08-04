@@ -1070,12 +1070,13 @@ constexpr auto try_parse_size_tag(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt;
     }
     constexpr auto value_start = prefix_str.size() + 1;
-    auto opt_value = ::pltxt2htm::details::try_parse_size_t_decimal_value<ndebug>(pltext, value_start);
+    auto opt_value = ::pltxt2htm::details::try_parse_size_t_decimal_value<ndebug>(
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_start));
     if (opt_value.has_value() == false) {
         return ::exception::nullopt;
     }
     auto const value = opt_value.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    auto value_end = value.end;
+    auto value_end = value_start + value.end;
     auto unit = ::pltxt2htm::Unit::px;
     if (value_end < pltext.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, value_end) == u8'%') {
         unit = ::pltxt2htm::Unit::percent;
@@ -1123,7 +1124,8 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_font_size_value(::fast_io::u8string_view pltext, ::std::size_t const start) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseFontSizeValueResult> {
-    auto opt_decimal = ::pltxt2htm::details::try_parse_size_t_decimal_value<ndebug>(pltext, start);
+    auto opt_decimal = ::pltxt2htm::details::try_parse_size_t_decimal_value<ndebug>(
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start));
     if (opt_decimal.has_value() == false) {
         return ::exception::nullopt;
     }
@@ -1131,7 +1133,7 @@ constexpr auto try_parse_font_size_value(::fast_io::u8string_view pltext, ::std:
     if (decimal.value == 0) {
         return ::exception::nullopt;
     }
-    auto pos = decimal.end;
+    auto pos = start + decimal.end;
     auto unit = ::pltxt2htm::Unit::px;
     if (pos < pltext.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'p') {
         ++pos;
