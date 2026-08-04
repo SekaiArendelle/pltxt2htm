@@ -906,16 +906,16 @@ constexpr bool is_equal_sign_tag_prefix(::fast_io::u8string_view pltext) noexcep
 
 /**
  * @brief Parse trailing whitespace and the closing bracket of an equals-sign tag.
+ * @details `pltext` must already be subviewed so that it starts at the end of the
+ *          tag value. The returned value is the index of the closing `>` relative
+ *          to that subview; callers re-add the value-end offset when they need
+ *          absolute coordinates. The caller is responsible for the value substring.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_equal_sign_tag_suffix(::fast_io::u8string_view pltext, ::std::size_t const value_start,
-                                               ::std::size_t pos) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseEqualSignTagResult> {
-    if (pos == value_start) {
-        return ::exception::nullopt;
-    }
-    auto const value_size = pos - value_start;
+constexpr auto try_parse_equal_sign_tag_suffix(::fast_io::u8string_view pltext) noexcept
+    -> ::exception::optional<::std::size_t> {
+    auto pos = ::std::size_t{0};
     while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
                                    ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t')) {
         ++pos;
@@ -923,8 +923,7 @@ constexpr auto try_parse_equal_sign_tag_suffix(::fast_io::u8string_view pltext, 
     if (pos >= pltext.size() || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'>') {
         return ::exception::nullopt;
     }
-    return ::pltxt2htm::details::TryParseEqualSignTagResult{
-        .tag_len = pos, .substr = ::fast_io::u8string_view{pltext.data() + value_start, value_size}};
+    return pos;
 }
 
 /**
@@ -939,7 +938,18 @@ constexpr auto try_parse_equal_sign_tag(::fast_io::u8string_view pltext) noexcep
     }
     constexpr auto value_start = prefix_str.size() + 1;
     auto const value_end = ::pltxt2htm::details::find_value_end<ndebug, value_char_predicate>(pltext, value_start);
-    return ::pltxt2htm::details::try_parse_equal_sign_tag_suffix<ndebug>(pltext, value_start, value_end);
+    if (value_end == value_start) {
+        return ::exception::nullopt;
+    }
+    auto opt_close = ::pltxt2htm::details::try_parse_equal_sign_tag_suffix<ndebug>(
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_end));
+    if (opt_close.has_value() == false) {
+        return ::exception::nullopt;
+    }
+    auto const close_rel = opt_close.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+    return ::pltxt2htm::details::TryParseEqualSignTagResult{
+        .tag_len = value_end + close_rel,
+        .substr = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_start, value_end - value_start)};
 }
 
 /**
@@ -1023,8 +1033,16 @@ constexpr auto try_parse_color_tag(::fast_io::u8string_view pltext) noexcept
     if (opt_value_end.has_value() == false) {
         return ::exception::nullopt;
     }
-    return ::pltxt2htm::details::try_parse_equal_sign_tag_suffix<ndebug>(
-        pltext, value_start, opt_value_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>());
+    auto const value_end = opt_value_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+    auto opt_close = ::pltxt2htm::details::try_parse_equal_sign_tag_suffix<ndebug>(
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_end));
+    if (opt_close.has_value() == false) {
+        return ::exception::nullopt;
+    }
+    auto const close_rel = opt_close.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+    return ::pltxt2htm::details::TryParseEqualSignTagResult{
+        .tag_len = value_end + close_rel,
+        .substr = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_start, value_end - value_start)};
 }
 
 /**
@@ -1064,12 +1082,13 @@ constexpr auto try_parse_size_tag(::fast_io::u8string_view pltext) noexcept
         unit = ::pltxt2htm::Unit::em;
         value_end += 2;
     }
-    auto opt_tag = ::pltxt2htm::details::try_parse_equal_sign_tag_suffix<ndebug>(pltext, value_start, value_end);
-    if (opt_tag.has_value() == false) {
+    auto opt_close = ::pltxt2htm::details::try_parse_equal_sign_tag_suffix<ndebug>(
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_end));
+    if (opt_close.has_value() == false) {
         return ::exception::nullopt;
     }
-    return ::pltxt2htm::details::TryParseSizeTagResult{
-        opt_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>().tag_len, {value.value, unit}};
+    auto const tag_len = value_end + opt_close.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+    return ::pltxt2htm::details::TryParseSizeTagResult{tag_len, {value.value, unit}};
 }
 
 /**
@@ -1736,14 +1755,17 @@ constexpr auto try_parse_mark_equal_sign_tag(::fast_io::u8string_view pltext) no
     if (opt_value_end.has_value() == false) {
         return ::exception::nullopt;
     }
-    auto suffix = ::pltxt2htm::details::try_parse_equal_sign_tag_suffix<ndebug>(
-        pltext, value_start, opt_value_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>());
-    if (suffix.has_value() == false) {
+    auto const value_end = opt_value_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+    auto opt_close = ::pltxt2htm::details::try_parse_equal_sign_tag_suffix<ndebug>(
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_end));
+    if (opt_close.has_value() == false) {
         return ::exception::nullopt;
     }
-    auto const& suffix_value = suffix.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    return TryParseMarkTagResult{.tag_len = suffix_value.tag_len + 1,
-                                 .background_color = ::fast_io::u8string{suffix_value.substr}};
+    auto const close_rel = opt_close.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+    return TryParseMarkTagResult{
+        .tag_len = value_end + close_rel + 1,
+        .background_color = ::fast_io::u8string{
+            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_start, value_end - value_start)}};
 }
 
 /**
