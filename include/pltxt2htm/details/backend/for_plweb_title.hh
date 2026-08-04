@@ -154,14 +154,25 @@ entry:
                     auto const& font_size = span_font_size.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                     result.append(u8"font-size:");
                     result.append(::pltxt2htm::details::size_t2str(font_size.value));
-                    if (font_size.unit == ::pltxt2htm::Unit::percent) {
+                    switch (font_size.unit) /* -Werror=switch */ {
+                    case ::pltxt2htm::Unit::percent: {
                         result.push_back(u8'%');
+                        break;
                     }
-                    else if (font_size.unit == ::pltxt2htm::Unit::em) {
+                    case ::pltxt2htm::Unit::em: {
                         result.append(u8"em");
+                        break;
                     }
-                    else {
+                    case ::pltxt2htm::Unit::px: {
                         result.append(u8"px");
+                        break;
+                    }
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
+                    default:
+                        [[unlikely]] {
+                            pltxt2htm_unreachable(u8"Unexpected unit for font size");
+                        }
+#endif
                     }
                     result.push_back(u8';');
                 }
@@ -174,14 +185,25 @@ entry:
                     }
                     else {
                         result.append(::pltxt2htm::details::ptrdiff_t2str(vertical_align.get_length().value));
-                        if (vertical_align.get_length().unit == ::pltxt2htm::Unit::percent) {
+                        switch (vertical_align.get_length().unit) /* -Werror=switch */ {
+                        case ::pltxt2htm::Unit::percent: {
                             result.push_back(u8'%');
+                            break;
                         }
-                        else if (vertical_align.get_length().unit == ::pltxt2htm::Unit::em) {
+                        case ::pltxt2htm::Unit::em: {
                             result.append(u8"em");
+                            break;
                         }
-                        else {
+                        case ::pltxt2htm::Unit::px: {
                             result.append(u8"px");
+                            break;
+                        }
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
+                        default:
+                            [[unlikely]] {
+                                pltxt2htm_unreachable(u8"Unexpected unit for vertical-align");
+                            }
+#endif
                         }
                     }
                     result.push_back(u8';');
