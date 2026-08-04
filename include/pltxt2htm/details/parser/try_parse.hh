@@ -1032,7 +1032,7 @@ constexpr auto try_parse_color_tag(::fast_io::u8string_view pltext) noexcept
  */
 struct TryParseSizeTagResult {
     ::std::size_t tag_len;
-    ::pltxt2htm::ValueWithUnit value;
+    ::pltxt2htm::ValueWithUnit<::std::size_t> value;
 };
 
 /**
@@ -1117,7 +1117,8 @@ template<::pltxt2htm::Contracts ndebug>
 struct TryParseSpanTagResult {
     ::std::size_t tag_len; ///< Length of the matched tag.
     ::fast_io::u8string color; ///< Extracted color value.
-    ::exception::optional<::pltxt2htm::ValueWithUnit> font_size; ///< Extracted font-size value+unit (if present).
+    ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>>
+        font_size; ///< Extracted font-size value+unit (if present).
     ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>>
         vertical_align; ///< Extracted vertical-align value (if present).
 };
@@ -1127,7 +1128,7 @@ struct TryParseSpanTagResult {
  */
 struct TryParseFontSizeValueResult {
     ::std::size_t end;
-    ::pltxt2htm::ValueWithUnit value;
+    ::pltxt2htm::ValueWithUnit<::std::size_t> value;
 };
 
 /**
@@ -1171,7 +1172,7 @@ constexpr auto try_parse_font_size_value(::fast_io::u8string_view pltext, ::std:
  */
 struct TryParseSignedLengthValueResult {
     ::std::size_t end;
-    ::pltxt2htm::SignedValueWithUnit value;
+    ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> value;
 };
 
 /**
@@ -1329,7 +1330,8 @@ template<::pltxt2htm::Contracts ndebug>
 struct TryParseSpanStyleResult {
     ::std::size_t end; ///< Byte offset just past the closing quote, relative to the input subview.
     ::fast_io::u8string color; ///< Extracted color value, empty if none was present.
-    ::exception::optional<::pltxt2htm::ValueWithUnit> font_size; ///< Extracted font-size value+unit, if present.
+    ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>>
+        font_size; ///< Extracted font-size value+unit, if present.
     ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>>
         vertical_align; ///< Extracted vertical-align value, if present.
 };
@@ -1340,7 +1342,7 @@ constexpr auto try_parse_span_style(::fast_io::u8string_view pltext, char8_t con
     -> ::exception::optional<TryParseSpanStyleResult<ndebug>> {
     ::std::size_t p{};
     ::fast_io::u8string color{};
-    ::exception::optional<::pltxt2htm::ValueWithUnit> font_size{::exception::nullopt};
+    ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> font_size{::exception::nullopt};
     ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align{::exception::nullopt};
 
     while (p < pltext.size()) {
@@ -1489,7 +1491,7 @@ constexpr auto try_parse_span_tag(::fast_io::u8string_view pltext) noexcept
     ::std::size_t pos{4}; // skip past "span" (the 's' was consumed by the trie dispatch)
     bool found_style{false};
     ::fast_io::u8string color{};
-    ::exception::optional<::pltxt2htm::ValueWithUnit> font_size{::exception::nullopt};
+    ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> font_size{::exception::nullopt};
     ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align{::exception::nullopt};
 
     while (pos < pltext.size()) {

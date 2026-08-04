@@ -173,7 +173,7 @@ entry:
                         result.append(::pltxt2htm::vertical_align_keyword_string<ndebug>(vertical_align.get_keyword()));
                     }
                     else {
-                        result.append(::pltxt2htm::details::size_t2str(vertical_align.get_length().value));
+                        result.append(::pltxt2htm::details::ptrdiff_t2str(vertical_align.get_length().value));
                         if (vertical_align.get_length().unit == ::pltxt2htm::Unit::percent) {
                             result.push_back(u8'%');
                         }

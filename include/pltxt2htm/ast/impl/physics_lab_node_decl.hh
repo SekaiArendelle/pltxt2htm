@@ -256,10 +256,10 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class PlSize {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::pltxt2htm::ValueWithUnit font_size;
+    ::pltxt2htm::ValueWithUnit<::std::size_t> font_size;
 
 public:
-    constexpr PlSize(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::ValueWithUnit font_size_) noexcept;
+    constexpr PlSize(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::ValueWithUnit<::std::size_t> font_size_) noexcept;
     constexpr PlSize(::pltxt2htm::PlSize<ndebug> const&) noexcept;
     constexpr PlSize(::pltxt2htm::PlSize<ndebug>&&) noexcept;
     constexpr ~PlSize() noexcept;
@@ -286,7 +286,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_font_size(this auto&& self) noexcept -> ::pltxt2htm::ValueWithUnit {
+    constexpr auto get_font_size(this auto&& self) noexcept -> ::pltxt2htm::ValueWithUnit<::std::size_t> {
         return self.font_size;
     }
 };

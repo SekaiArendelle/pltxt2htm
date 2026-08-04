@@ -609,12 +609,12 @@ template<::pltxt2htm::Contracts ndebug>
 class HtmlSpan {
     ::pltxt2htm::Ast<ndebug> subast;
     ::fast_io::u8string color;
-    ::exception::optional<::pltxt2htm::ValueWithUnit> font_size;
+    ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> font_size;
     ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align;
 
 public:
     constexpr HtmlSpan(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& color_,
-                       ::exception::optional<::pltxt2htm::ValueWithUnit> font_size_,
+                       ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> font_size_,
                        ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align_) noexcept;
     constexpr HtmlSpan(::pltxt2htm::HtmlSpan<ndebug> const&) noexcept;
     constexpr HtmlSpan(::pltxt2htm::HtmlSpan<ndebug>&&) noexcept;
@@ -637,7 +637,8 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_font_size(this auto&& self) noexcept -> ::exception::optional<::pltxt2htm::ValueWithUnit> {
+    constexpr auto get_font_size(this auto&& self) noexcept
+        -> ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
         return self.font_size;
     }
 

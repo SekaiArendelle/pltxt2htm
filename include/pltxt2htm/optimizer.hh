@@ -45,7 +45,7 @@ public:
  */
 class OptimizerContextWithPlSizeTagInfo {
 public:
-    ::pltxt2htm::ValueWithUnit value; ///< Font size value+unit (e.g., {12, px} in size=12)
+    ::pltxt2htm::ValueWithUnit<::std::size_t> value; ///< Font size value+unit (e.g., {12, px} in size=12)
 };
 
 /**
@@ -63,7 +63,7 @@ template<::pltxt2htm::Contracts ndebug>
 class OptimizerContextWithHtmlSpanInfo {
 public:
     ::fast_io::u8string_view color{};
-    ::exception::optional<::pltxt2htm::ValueWithUnit> font_size{::exception::nullopt};
+    ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> font_size{::exception::nullopt};
     ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align{::exception::nullopt};
 };
 
@@ -315,7 +315,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_pl_size_tag_value(this auto&& self) noexcept -> ::pltxt2htm::ValueWithUnit {
+    constexpr auto get_pl_size_tag_value(this auto&& self) noexcept -> ::pltxt2htm::ValueWithUnit<::std::size_t> {
         auto&& context_data_ref = self.context_data;
         bool const is_pl_size_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_size};
         pltxt2htm_assert(is_pl_size_tag_type, u8"context kind mismatch");
@@ -340,7 +340,7 @@ public:
 
     [[nodiscard]]
     constexpr auto get_html_span_font_size(this auto&& self) noexcept
-        -> ::exception::optional<::pltxt2htm::ValueWithUnit> {
+        -> ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
         auto&& context_data_ref = self.context_data;
         bool const is_html_span_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_span};
         pltxt2htm_assert(is_html_span_type, u8"context kind mismatch");
@@ -544,7 +544,8 @@ entry:
                         auto const inner_fs = subnode.as_html_span().get_font_size();
                         auto const inner_va = subnode.as_html_span().get_vertical_align();
                         auto merged_color = ::fast_io::u8string{inner_color.empty() ? outer_color : inner_color};
-                        ::exception::optional<::pltxt2htm::ValueWithUnit> merged_fs{::exception::nullopt};
+                        ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> merged_fs{
+                            ::exception::nullopt};
                         if (inner_fs.has_value()) {
                             merged_fs = inner_fs.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                         }
@@ -569,7 +570,8 @@ entry:
                     if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_color) {
                         auto const outer_fs = node.as_html_span().get_font_size();
                         auto const outer_va = node.as_html_span().get_vertical_align();
-                        ::exception::optional<::pltxt2htm::ValueWithUnit> merged_fs{::exception::nullopt};
+                        ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> merged_fs{
+                            ::exception::nullopt};
                         if (outer_fs.has_value()) {
                             merged_fs = outer_fs.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                         }
