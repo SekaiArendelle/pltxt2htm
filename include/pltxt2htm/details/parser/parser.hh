@@ -162,21 +162,46 @@ constexpr auto find_next_block_after_line_break(
             return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{
                 .advance_count = current_index + advance_count, .new_frame_been_pushed_into_call_stack = true};
         }
+        // Check for HTML <p> tag at line start
+        if (auto opt_p_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<p">(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            opt_p_tag_len.has_value()) {
+            current_index += opt_p_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1;
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                    ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                    ::pltxt2htm::NodeKind::html_p},
+                ::pltxt2htm::Ast<ndebug>{}));
+            return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{
+                .advance_count = current_index, .new_frame_been_pushed_into_call_stack = true};
+        }
         return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{.advance_count = current_index,
                                                                        .new_frame_been_pushed_into_call_stack = false};
     }
 }
 
 /**
+ * @brief Return type of parse_pltxt.
+ * @tparam ndebug Contract checking mode.
+ */
+template<::pltxt2htm::Contracts ndebug>
+struct ParsePlTxtResult {
+    ::pltxt2htm::Ast<ndebug> subast; ///< Parsed AST for the bottom frame.
+    ///< Bytes consumed from the bottom frame's pltext (the caller uses it to advance past html_p blocks).
+    ::std::size_t consumed_bytes{};
+};
+
+/**
  * @brief Parse pl-text to nodes.
  * @tparam ndebug Contract checking mode; `::pltxt2htm::Contracts::ignore` disables checks.
  * @param call_stack: use `call_stack` + `goto entry` to avoid stack overflow.
- * @return Quantum-Physics text's ast.
+ * @return The parsed ast and how many bytes of the bottom frame's pltext were consumed.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto parse_pltxt(::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>>& call_stack) noexcept
-    -> ::pltxt2htm::Ast<ndebug> {
+    -> ParsePlTxtResult<ndebug> {
 entry:
     while (true) {
         if (::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type() == ::pltxt2htm::NodeKind::md_ul) {
@@ -188,7 +213,7 @@ entry:
                 ::pltxt2htm::details::ParserFrameContext<ndebug> previous_frame(::std::move(frame));
                 call_stack.pop();
                 if (call_stack.empty()) {
-                    return ::std::move(previous_frame.subast);
+                    return ::pltxt2htm::details::ParsePlTxtResult<ndebug>{.subast = ::std::move(previous_frame.subast)};
                 }
                 ::pltxt2htm::details::stack_top<ndebug>(call_stack)
                     .subast.emplace_back(
@@ -278,7 +303,7 @@ entry:
                 ::pltxt2htm::details::ParserFrameContext<ndebug> previous_frame(::std::move(frame));
                 call_stack.pop();
                 if (call_stack.empty()) {
-                    return ::std::move(previous_frame.subast);
+                    return ::pltxt2htm::details::ParsePlTxtResult<ndebug>{.subast = ::std::move(previous_frame.subast)};
                 }
                 ::pltxt2htm::details::stack_top<ndebug>(call_stack)
                     .subast.emplace_back(
@@ -432,7 +457,7 @@ entry:
                 }
 
                 if (call_stack.empty()) {
-                    return table_ast;
+                    return ::pltxt2htm::details::ParsePlTxtResult<ndebug>{.subast = ::std::move(table_ast)};
                 }
 
                 auto&& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
@@ -1322,29 +1347,6 @@ entry:
                 case u8'p':
                     [[fallthrough]];
                 case u8'P': {
-                    // parsing html <p></p> tag
-                    if (auto opt_p_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
-                        opt_p_tag_len.has_value()) {
-                        bool in_p_frame{false};
-                        for (auto const& v : call_stack.container) {
-                            if (v.get_nested_tag_type() == ::pltxt2htm::NodeKind::html_p) {
-                                in_p_frame = true;
-                                break;
-                            }
-                        }
-                        if (in_p_frame == false) {
-                            current_index +=
-                                opt_p_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-                            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                                ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                                    ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
-                                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
-                                    ::pltxt2htm::NodeKind::html_p},
-                                ::pltxt2htm::Ast<ndebug>{}));
-                            goto entry;
-                        }
-                    }
                     if (auto opt_pre_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"re">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_pre_tag_len.has_value()) {
@@ -1962,6 +1964,13 @@ entry:
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlP staged_node(::std::move(result));
                             call_stack.pop();
+                            if (call_stack.empty()) {
+                                return ::pltxt2htm::details::ParsePlTxtResult<ndebug>{
+                                    .subast = ::std::move(staged_node.get_subast()),
+                                    .consumed_bytes =
+                                        staged_index +
+                                        opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3};
+                            }
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index +=
@@ -2745,7 +2754,8 @@ entry:
                 // <b>e</b>xample
                 // ```
                 // Text without any tag in the end will hit this branch.
-                return ::std::move(frame.subast);
+                return ::pltxt2htm::details::ParsePlTxtResult<ndebug>{.subast = ::std::move(frame.subast),
+                                                                      .consumed_bytes = staged_index};
             }
             // Considering the following markdown:
             // ```md
