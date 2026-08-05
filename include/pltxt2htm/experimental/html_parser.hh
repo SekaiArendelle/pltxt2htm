@@ -425,14 +425,24 @@ entry:
                     if (auto opt_p_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_p_tag_len.has_value()) {
-                        current_index += opt_p_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-                        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
-                                ::pltxt2htm::NodeKind::html_p},
-                            ::pltxt2htm::Ast<ndebug>{}));
-                        goto entry;
+                        bool in_p_frame{false};
+                        for (auto const& v : call_stack.container) {
+                            if (v.get_nested_tag_type() == ::pltxt2htm::NodeKind::html_p) {
+                                in_p_frame = true;
+                                break;
+                            }
+                        }
+                        if (in_p_frame == false) {
+                            current_index +=
+                                opt_p_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
+                            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                                ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                                    ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                    ::pltxt2htm::NodeKind::html_p},
+                                ::pltxt2htm::Ast<ndebug>{}));
+                            goto entry;
+                        }
                     }
                     if (auto opt_pre_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"re">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));

@@ -45,10 +45,11 @@ int main() {
     {
         auto pltext = ::fast_io::u8string_view{u8"<p>text<p>text</p></p>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"<p>text<p>text</p></p>"};
+        auto answer = ::fast_io::u8string_view{u8"<p>text&lt;p&gt;text</p>&lt;/p&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<p>text<p>text</p></p>"};
+        auto plunity_richtext_answer = ::fast_io::u8string_view{
+            u8"<p>text<size=20>\uFF1C</size>p<size=20>\uFF1E</size>text</p><size=20>\uFF1C</size>/p<size=20>\uFF1E</size>"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
