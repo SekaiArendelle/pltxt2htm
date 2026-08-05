@@ -59,7 +59,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
             break;
         }
         ::pltxt2htm::NodeKind const type_of_subast{call_stack.top().get_nested_tag_type()};
-        auto subast = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
+        auto&& [subast, consumed_bytes] = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
         switch (type_of_subast) {
         case ::pltxt2htm::NodeKind::md_atx_h1: {
             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH1<ndebug>{::std::move(subast)}));
@@ -101,6 +101,14 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTable<ndebug>{::std::move(subast)}));
             continue;
         }
+        case ::pltxt2htm::NodeKind::html_p: {
+            // details::parse_pltxt reported how many bytes of the html_p frame's pltext it
+            // consumed (up to the matching </p>, or all of it if unclosed). Advance start_index
+            // past it so the remaining text handler doesn't re-process the consumed content.
+            start_index += consumed_bytes;
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlP<ndebug>{::std::move(subast)}));
+            continue;
+        }
         default:
             [[unlikely]] {
                 pltxt2htm_unreachable(u8"Unexpected node kind");
@@ -116,7 +124,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index)},
                 ::pltxt2htm::NodeKind::text},
             ::std::move(result)));
-        result = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
+        result = ::std::move(::pltxt2htm::details::parse_pltxt<ndebug>(call_stack).subast);
     }
 
     bool const call_stack_is_empty{call_stack.empty()};

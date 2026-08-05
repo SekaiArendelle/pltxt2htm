@@ -17,6 +17,44 @@
 namespace pltxt2htm::experimental {
 namespace details {
 
+/**
+ * @brief Return type of find_next_block_after_line_break.
+ */
+struct FindNextBlockAfterLineBreakResult {
+    ::std::size_t advance_count; ///< Bytes consumed from the input subview.
+    bool new_frame_been_pushed_into_call_stack; ///< Whether a new frame was pushed.
+};
+
+/**
+ * @brief Scan for a block-level frame at the current position and push it onto the call stack.
+ * @tparam ndebug Contract checking mode.
+ * @param pltext Input subview starting at the candidate block position.
+ * @param call_stack Active parser call stack.
+ * @return How many bytes were consumed and whether a new frame was created.
+ * @note Only handles the `<p>` block for now; other block elements are out of scope for the html parser.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto find_next_block_after_line_break(
+    ::fast_io::u8string_view pltext,
+    ::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>>& call_stack) noexcept
+    -> ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult {
+    if (auto opt_p_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<p">(pltext);
+        opt_p_tag_len.has_value()) {
+        ::std::size_t const consumed{opt_p_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1};
+        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, consumed)},
+                ::pltxt2htm::NodeKind::html_p},
+            ::pltxt2htm::Ast<ndebug>{}));
+        return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
+            .advance_count = consumed, .new_frame_been_pushed_into_call_stack = true};
+    }
+    return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
+        .advance_count = 0, .new_frame_been_pushed_into_call_stack = false};
+}
+
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto parse_pltxt_html(::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>>& call_stack) noexcept
@@ -29,12 +67,29 @@ entry:
         auto&& result = top_frame.subast;
         ::std::size_t const pltext_size{pltext.size()};
 
+        // Check for block-level <p> tag at line start (start of input or after frame completion)
+        auto&& [entry_advance, entry_new_frame] =
+            ::pltxt2htm::experimental::details::find_next_block_after_line_break<ndebug>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), call_stack);
+        current_index += entry_advance;
+        if (entry_new_frame) {
+            goto entry;
+        }
+
         while (current_index < pltext_size) {
             char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index)};
 
             if (chr == u8'\n') {
                 result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LineBreak{}));
                 ++current_index;
+                // Check for block-level <p> tag after newline
+                auto&& [nl_advance, nl_new_frame] =
+                    ::pltxt2htm::experimental::details::find_next_block_after_line_break<ndebug>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), call_stack);
+                current_index += nl_advance;
+                if (nl_new_frame) {
+                    goto entry;
+                }
                 continue;
             }
             if (chr == u8' ') {
@@ -118,6 +173,17 @@ entry:
                         opt_br_tag_len.has_value()) {
                         current_index += opt_br_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1;
                         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlBr{}));
+                        // Check for block-level <p> tag right after <br>. current_index currently sits
+                        // on the '>' of <br>, so the candidate block starts at current_index + 1.
+                        auto&& [br_advance, br_new_frame] =
+                            ::pltxt2htm::experimental::details::find_next_block_after_line_break<ndebug>(
+                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1),
+                                call_stack);
+                        current_index += br_advance;
+                        if (br_new_frame) {
+                            current_index += 1;
+                            goto entry;
+                        }
                         ++current_index;
                         continue;
                     }
@@ -422,28 +488,6 @@ entry:
                 case u8'p':
                     [[fallthrough]];
                 case u8'P': {
-                    if (auto opt_p_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
-                        opt_p_tag_len.has_value()) {
-                        bool in_p_frame{false};
-                        for (auto const& v : call_stack.container) {
-                            if (v.get_nested_tag_type() == ::pltxt2htm::NodeKind::html_p) {
-                                in_p_frame = true;
-                                break;
-                            }
-                        }
-                        if (in_p_frame == false) {
-                            current_index +=
-                                opt_p_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-                            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                                ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                                    ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
-                                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
-                                    ::pltxt2htm::NodeKind::html_p},
-                                ::pltxt2htm::Ast<ndebug>{}));
-                            goto entry;
-                        }
-                    }
                     if (auto opt_pre_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"re">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_pre_tag_len.has_value()) {
