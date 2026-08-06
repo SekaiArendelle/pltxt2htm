@@ -743,8 +743,8 @@ entry:
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlSpan staged_node(::std::move(result),
                                                               ::std::move(frame.get_html_span_color()),
-                                                              ::std::move(frame.get_html_span_font_size()),
-                                                              ::std::move(frame.get_html_span_vertical_align()));
+                                                              frame.get_html_span_font_size(),
+                                                              frame.get_html_span_vertical_align());
                             call_stack.pop();
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
@@ -1396,7 +1396,7 @@ entry:
             case ::pltxt2htm::NodeKind::html_span: {
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlSpan<ndebug>{
                     ::std::move(subast), ::std::move(frame.get_html_span_color()),
-                    ::std::move(frame.get_html_span_font_size()), ::std::move(frame.get_html_span_vertical_align())}));
+                    frame.get_html_span_font_size(), frame.get_html_span_vertical_align()}));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_a: {
