@@ -237,7 +237,7 @@ int main() {
     {
         auto html =
             ::pltxt2htm_test::pltxt2common_htmld(u8"<code>code</code><pre>pre</pre><blockquote>quote</blockquote>");
-        auto answer = ::fast_io::u8string_view{u8"codepre&lt;blockquote&gt;quote&lt;/blockquote&gt;"};
+        auto answer = ::fast_io::u8string_view{u8"codeprequote"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
