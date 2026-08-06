@@ -115,6 +115,12 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlH1<ndebug>{::std::move(subast)}));
             continue;
         }
+        case ::pltxt2htm::NodeKind::html_h2: {
+            // Same as html_p: advance start_index past the consumed html_h2 content.
+            start_index += consumed_bytes;
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlH2<ndebug>{::std::move(subast)}));
+            continue;
+        }
         default:
             [[unlikely]] {
                 pltxt2htm_unreachable(u8"Unexpected node kind");

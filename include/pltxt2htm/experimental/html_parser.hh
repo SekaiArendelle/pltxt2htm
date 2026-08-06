@@ -31,7 +31,7 @@ struct FindNextBlockAfterLineBreakResult {
  * @param pltext Input subview starting at the candidate block position.
  * @param call_stack Active parser call stack.
  * @return How many bytes were consumed and whether a new frame was created.
- * @note Only handles the `<p>` and `<h1>` blocks for now; other block elements are out of scope for the html parser.
+ * @note Only handles the `<p>`, `<h1>`, and `<h2>` blocks for now; other block elements are out of scope for the html parser.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
@@ -59,6 +59,18 @@ constexpr auto find_next_block_after_line_break(
                 ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, consumed)},
                 ::pltxt2htm::NodeKind::html_h1},
+            ::pltxt2htm::Ast<ndebug>{}));
+        return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
+            .advance_count = consumed, .new_frame_been_pushed_into_call_stack = true};
+    }
+    if (auto opt_h2_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<h2">(pltext);
+        opt_h2_tag_len.has_value()) {
+        ::std::size_t const consumed{opt_h2_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1};
+        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, consumed)},
+                ::pltxt2htm::NodeKind::html_h2},
             ::pltxt2htm::Ast<ndebug>{}));
         return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
             .advance_count = consumed, .new_frame_been_pushed_into_call_stack = true};
@@ -319,18 +331,6 @@ entry:
                 case u8'h':
                     [[fallthrough]];
                 case u8'H': {
-                    if (auto opt_h2_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"2">(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
-                        opt_h2_tag_len.has_value()) {
-                        current_index += opt_h2_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-                        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
-                                ::pltxt2htm::NodeKind::html_h2},
-                            ::pltxt2htm::Ast<ndebug>{}));
-                        goto entry;
-                    }
                     if (auto opt_h3_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"3">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_h3_tag_len.has_value()) {
