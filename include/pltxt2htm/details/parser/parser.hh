@@ -274,6 +274,34 @@ constexpr auto find_next_block_after_line_break(
             return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{
                 .advance_count = current_index, .new_frame_been_pushed_into_call_stack = true};
         }
+        // Check for HTML <ul> tag at line start
+        if (auto opt_ul_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<ul">(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            opt_ul_tag_len.has_value()) {
+            current_index += opt_ul_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1;
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                    ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                    ::pltxt2htm::NodeKind::html_ul},
+                ::pltxt2htm::Ast<ndebug>{}));
+            return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{
+                .advance_count = current_index, .new_frame_been_pushed_into_call_stack = true};
+        }
+        // Check for HTML <ol> tag at line start
+        if (auto opt_ol_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<ol">(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            opt_ol_tag_len.has_value()) {
+            current_index += opt_ol_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1;
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                    ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                    ::pltxt2htm::NodeKind::html_ol},
+                ::pltxt2htm::Ast<ndebug>{}));
+            return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{
+                .advance_count = current_index, .new_frame_been_pushed_into_call_stack = true};
+        }
         return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{.advance_count = current_index,
                                                                        .new_frame_been_pushed_into_call_stack = false};
     }
@@ -1333,18 +1361,6 @@ entry:
                 case u8'o':
                     [[fallthrough]];
                 case u8'O': {
-                    if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"l">(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
-                        opt_tag_len.has_value()) {
-                        current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-                        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
-                                ::pltxt2htm::NodeKind::html_ol},
-                            ::pltxt2htm::Ast<ndebug>{}));
-                        goto entry;
-                    }
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
                     ++current_index;
                     continue;
@@ -1583,18 +1599,6 @@ entry:
                                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
                                     ::fast_io::u8string{id}},
                                 ::pltxt2htm::NodeKind::pl_user},
-                            ::pltxt2htm::Ast<ndebug>{}));
-                        goto entry;
-                    }
-                    if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"l">(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
-                        opt_tag_len.has_value()) {
-                        current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-                        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
-                                ::pltxt2htm::NodeKind::html_ul},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
@@ -2309,6 +2313,13 @@ entry:
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlUl staged_node(::std::move(result));
                             call_stack.pop();
+                            if (call_stack.empty()) {
+                                return ::pltxt2htm::details::ParsePlTxtResult<ndebug>{
+                                    .subast = ::std::move(staged_node.get_subast()),
+                                    .consumed_bytes =
+                                        staged_index +
+                                        opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3};
+                            }
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index +=
@@ -2328,6 +2339,13 @@ entry:
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlOl staged_node(::std::move(result));
                             call_stack.pop();
+                            if (call_stack.empty()) {
+                                return ::pltxt2htm::details::ParsePlTxtResult<ndebug>{
+                                    .subast = ::std::move(staged_node.get_subast()),
+                                    .consumed_bytes =
+                                        staged_index +
+                                        opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3};
+                            }
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index +=
