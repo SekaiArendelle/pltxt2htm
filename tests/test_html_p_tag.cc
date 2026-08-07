@@ -113,5 +113,12 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto pltext = ::fast_io::u8string_view{u8"<p>text</p>text"};
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
+        auto answer = ::fast_io::u8string_view{u8"<p>text</p>text"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }
