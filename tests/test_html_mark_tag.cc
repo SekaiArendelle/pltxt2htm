@@ -24,8 +24,8 @@ int main() {
     {
         auto pltext = ::fast_io::u8string_view{u8"<mark><color=red>text</color></mark>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer =
-            ::fast_io::u8string_view{u8"<mark style=\"background-color:#FFFF00;\"><span style=\"color:red;\">text</span></mark>"};
+        auto answer = ::fast_io::u8string_view{
+            u8"<mark style=\"background-color:#FFFF00;\"><span style=\"color:red;\">text</span></mark>"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<mark=#FFFF00><color=red>text</color></mark>"};
@@ -115,8 +115,8 @@ int main() {
     }
 
     {
-        auto pltext =
-            ::fast_io::u8string_view{u8"<mark style=\"background-color:yellow\">a<mark style=\"background-color:yellow\">b</mark>c</mark>"};
+        auto pltext = ::fast_io::u8string_view{
+            u8"<mark style=\"background-color:yellow\">a<mark style=\"background-color:yellow\">b</mark>c</mark>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"<mark style=\"background-color:yellow;\">abc</mark>"};
         pltxt2htm_test_assert_equal(html, answer);
@@ -126,8 +126,8 @@ int main() {
     }
 
     {
-        auto pltext =
-            ::fast_io::u8string_view{u8"<mark style=\"background-color:red\">a<mark style=\"background-color:blue\">b</mark>c</mark>"};
+        auto pltext = ::fast_io::u8string_view{
+            u8"<mark style=\"background-color:red\">a<mark style=\"background-color:blue\">b</mark>c</mark>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{
             u8"<mark style=\"background-color:red;\">a<mark style=\"background-color:blue;\">b</mark>c</mark>"};
@@ -149,7 +149,8 @@ int main() {
         // XSS: uppercase STYLE attribute is rejected
         auto pltext = ::fast_io::u8string_view{u8"<mark STYLE=\"background-color:red\">text</mark>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"&lt;mark&nbsp;STYLE=&quot;background-color:red&quot;&gt;text&lt;/mark&gt;"};
+        auto answer =
+            ::fast_io::u8string_view{u8"&lt;mark&nbsp;STYLE=&quot;background-color:red&quot;&gt;text&lt;/mark&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -183,7 +184,8 @@ int main() {
 
     {
         // XSS: url(...) color value is rejected
-        auto pltext = ::fast_io::u8string_view{u8"<mark style=\"background-color:url(javascript:alert(1))\">text</mark>"};
+        auto pltext =
+            ::fast_io::u8string_view{u8"<mark style=\"background-color:url(javascript:alert(1))\">text</mark>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{
             u8"&lt;mark&nbsp;style=&quot;background-color:url(javascript:alert(1))&quot;&gt;text&lt;/mark&gt;"};
@@ -194,7 +196,8 @@ int main() {
         // XSS: invalid hex color value is rejected
         auto pltext = ::fast_io::u8string_view{u8"<mark style=\"background-color:#GGG\">text</mark>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"&lt;mark&nbsp;style=&quot;background-color:#GGG&quot;&gt;text&lt;/mark&gt;"};
+        auto answer =
+            ::fast_io::u8string_view{u8"&lt;mark&nbsp;style=&quot;background-color:#GGG&quot;&gt;text&lt;/mark&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -257,8 +260,7 @@ int main() {
     }
 
     {
-        auto pltext =
-            ::fast_io::u8string_view{u8"<mark=yellow>a<mark=yellow>b</mark>c</mark>"};
+        auto pltext = ::fast_io::u8string_view{u8"<mark=yellow>a<mark=yellow>b</mark>c</mark>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"<mark style=\"background-color:yellow;\">abc</mark>"};
         pltxt2htm_test_assert_equal(html, answer);
