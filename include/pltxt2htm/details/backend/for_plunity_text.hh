@@ -583,7 +583,9 @@ entry:
                     node.as_html_p().get_subast(), ::pltxt2htm::NodeKind::html_p, 0,
                     ::pltxt2htm::details::BackendContextWithAlignInfo{.has_align = has_align}));
                 ++current_index;
-                result.append(u8"<p>");
+                if (result.empty() == false && result.back() != u8'\n') {
+                    result.push_back(u8'\n');
+                }
                 if (has_align) {
                     result.append(u8"<align=");
                     if (align == ::pltxt2htm::TextAlign::center) {
@@ -1440,7 +1442,6 @@ entry:
                 if (top_frame.get_align_info().has_align) {
                     result.append(u8"</align>");
                 }
-                result.append(u8"</p>");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h1:
