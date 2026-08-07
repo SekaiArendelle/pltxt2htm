@@ -710,7 +710,31 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_p().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::html_p, 0));
                 ++current_index;
-                result.append(u8"<p>");
+                auto const align = node.as_html_p().get_align();
+                switch (align) /* -Werror=switch */ {
+                case ::pltxt2htm::TextAlign::left: {
+                    result.append(u8"<p style=\"text-align:left\">");
+                    break;
+                }
+                case ::pltxt2htm::TextAlign::center: {
+                    result.append(u8"<p style=\"text-align:center\">");
+                    break;
+                }
+                case ::pltxt2htm::TextAlign::right: {
+                    result.append(u8"<p style=\"text-align:right\">");
+                    break;
+                }
+                case ::pltxt2htm::TextAlign::justify: {
+                    result.append(u8"<p style=\"text-align:justify\">");
+                    break;
+                }
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
+                default:
+                    [[unlikely]] {
+                        pltxt2htm_unreachable(u8"Unexpected text alignment");
+                    }
+#endif
+                }
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::line_break: {

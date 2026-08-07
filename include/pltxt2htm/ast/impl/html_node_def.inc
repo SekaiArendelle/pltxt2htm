@@ -123,8 +123,9 @@ constexpr auto ::pltxt2htm::HtmlH6<ndebug>::operator==(this ::pltxt2htm::HtmlH6<
                                                        ::pltxt2htm::HtmlH6<ndebug> const&) noexcept -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::HtmlP<ndebug>::HtmlP(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
-    : subast(::std::move(subast_)) {
+constexpr ::pltxt2htm::HtmlP<ndebug>::HtmlP(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::TextAlign align_) noexcept
+    : subast(::std::move(subast_)),
+      align(align_) {
 }
 
 template<::pltxt2htm::Contracts ndebug>

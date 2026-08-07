@@ -59,6 +59,12 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
             break;
         }
         ::pltxt2htm::NodeKind const type_of_subast{call_stack.top().get_nested_tag_type()};
+        auto const opt_html_p_align = [&] constexpr noexcept -> ::exception::optional<::pltxt2htm::TextAlign> {
+            if (type_of_subast == ::pltxt2htm::NodeKind::html_p) {
+                return call_stack.top().get_p_align();
+            }
+            return ::exception::nullopt;
+        }();
         auto&& [subast, consumed_bytes] = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
         switch (type_of_subast) {
         case ::pltxt2htm::NodeKind::md_atx_h1: {
@@ -106,7 +112,9 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
             // consumed (up to the matching </p>, or all of it if unclosed). Advance start_index
             // past it so the remaining text handler doesn't re-process the consumed content.
             start_index += consumed_bytes;
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlP<ndebug>{::std::move(subast)}));
+            auto html_p_align = opt_html_p_align.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            result.push_back(
+                ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlP<ndebug>{::std::move(subast), html_p_align}));
             continue;
         }
         case ::pltxt2htm::NodeKind::html_h1: {

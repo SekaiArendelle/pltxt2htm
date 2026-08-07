@@ -257,9 +257,11 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class HtmlP {
     ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::TextAlign align;
 
 public:
-    constexpr explicit HtmlP(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlP(::pltxt2htm::Ast<ndebug>&& subast_,
+                    ::pltxt2htm::TextAlign align_ = ::pltxt2htm::TextAlign::left) noexcept;
     constexpr HtmlP(::pltxt2htm::HtmlP<ndebug> const&) noexcept;
     constexpr HtmlP(::pltxt2htm::HtmlP<ndebug>&&) noexcept;
     constexpr ~HtmlP() noexcept;
@@ -273,6 +275,11 @@ public:
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_align(this HtmlP const& self) noexcept -> ::pltxt2htm::TextAlign {
+        return self.align;
     }
 };
 

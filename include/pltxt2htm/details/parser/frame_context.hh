@@ -167,6 +167,17 @@ public:
 };
 
 /**
+ * @brief Context for an HTML &lt;p&gt; paragraph during parsing.
+ *
+ * Stores the paragraph text content and its text alignment.
+ */
+class ParserFrameContextWithPInfo {
+public:
+    ::fast_io::u8string_view pltext;
+    ::pltxt2htm::TextAlign align;
+};
+
+/**
  * @brief Context for checkbox list-item frames during parsing.
  */
 class ParserFrameContextWithMdLiCheckboxInfo {
@@ -225,6 +236,7 @@ public:
         md_list,
         md_li_checkbox,
         cell,
+        p,
         md_table,
         pltext,
         html_mark_info,
@@ -246,6 +258,7 @@ public:
         ::pltxt2htm::details::ParserFrameContextWithMdBlockQuotesInfo md_block_quotes;
         ::pltxt2htm::details::ParserFrameContextWithMdListInfo<ndebug> md_list;
         ::pltxt2htm::details::ParserFrameContextWithCellInfo cell;
+        ::pltxt2htm::details::ParserFrameContextWithPInfo p;
         ::pltxt2htm::details::ParserFrameContextWithMdLiCheckboxInfo md_li_checkbox;
         ::pltxt2htm::details::ParserFrameContextWithMdTableInfo<ndebug> md_table;
     };
@@ -376,6 +389,15 @@ public:
           kind{node_kind_} {
     }
 
+    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithPInfo&& p_context,
+                                     ::pltxt2htm::NodeKind node_kind_) noexcept
+        : p{::std::move(p_context)},
+#ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
+          context_branch{ContextBranch::p},
+#endif
+          kind{node_kind_} {
+    }
+
     constexpr FrontendContextVariant(
         ::pltxt2htm::details::ParserFrameContextWithMdLiCheckboxInfo&& md_li_checkbox_context,
         ::pltxt2htm::NodeKind node_kind_) noexcept
@@ -484,8 +506,6 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_i:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_p:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_h1:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_h2:
@@ -565,6 +585,11 @@ public:
         case ::pltxt2htm::NodeKind::md_li: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::pltext);
             ::std::construct_at(::std::addressof(this->pltext), ::std::move(other.pltext));
+            return;
+        }
+        case ::pltxt2htm::NodeKind::html_p: {
+            pltxt2htm_assert_context_branch(*this, ContextBranch::p);
+            ::std::construct_at(::std::addressof(this->p), ::std::move(other.p));
             return;
         }
         case ::pltxt2htm::NodeKind::html_th:
@@ -802,8 +827,6 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_i:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_p:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_h1:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_h2:
@@ -883,6 +906,11 @@ public:
         case ::pltxt2htm::NodeKind::md_li: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::pltext);
             ::std::destroy_at(::std::addressof(this->pltext));
+            return;
+        }
+        case ::pltxt2htm::NodeKind::html_p: {
+            pltxt2htm_assert_context_branch(*this, ContextBranch::p);
+            ::std::destroy_at(::std::addressof(this->p));
             return;
         }
         case ::pltxt2htm::NodeKind::html_th:
@@ -1123,8 +1151,6 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_i:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_p:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_br:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_h1:
@@ -1307,6 +1333,11 @@ public:
             pltxt2htm_assert_context_branch(
                 context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::url_info);
             return context_data_ref.url_info.pltext;
+        }
+        case ::pltxt2htm::NodeKind::html_p: {
+            pltxt2htm_assert_context_branch(context_data_ref,
+                                            ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::p);
+            return context_data_ref.p.pltext;
         }
         case ::pltxt2htm::NodeKind::html_th:
             [[fallthrough]];
@@ -1593,6 +1624,13 @@ public:
                              context_data_ref.kind == ::pltxt2htm::NodeKind::md_td,
                          u8"context kind mismatch");
         return context_data_ref.cell.align;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_p_align(this auto&& self) noexcept -> ::pltxt2htm::TextAlign {
+        auto&& context_data_ref = self.context_data;
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_p, u8"context kind mismatch");
+        return context_data_ref.p.align;
     }
 
     [[nodiscard]]
