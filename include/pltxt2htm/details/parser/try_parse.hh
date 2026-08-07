@@ -867,6 +867,160 @@ constexpr auto try_parse_td_tag(::fast_io::u8string_view pltext, ::pltxt2htm::No
 }
 
 /**
+ * @brief Return type of try_parse_p_tag: tag length and alignment.
+ */
+struct TryParsePTagResult {
+    ::std::size_t tag_len; ///< Length of the matched tag up to the closing `>`.
+    ::pltxt2htm::TextAlign align; ///< Alignment parsed from `style="text-align:..."`.
+};
+
+/**
+ * @brief Parse &lt;p&gt;, optionally with `style="text-align:..."`.
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
+ * @param[in] pltext The input text to parse, starting after `<p`.
+ * @return Parsed tag length and alignment when valid; otherwise nullopt.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_p_tag(::fast_io::u8string_view pltext) noexcept -> ::exception::optional<TryParsePTagResult> {
+    if (::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"<p"}>(pltext) == false) {
+        return ::exception::nullopt;
+    }
+    ::std::size_t pos{2}; // skip past "<p"
+    ::pltxt2htm::TextAlign align{::pltxt2htm::TextAlign::left};
+
+    while (pos < pltext.size()) {
+        // skip whitespace
+        while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
+                                       ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t')) {
+            ++pos;
+        }
+        if (pos >= pltext.size()) {
+            return ::exception::nullopt;
+        }
+        if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'>') {
+            return TryParsePTagResult{.tag_len = pos, .align = align};
+        }
+
+        // parse attribute name
+        ::std::size_t const attr_start{pos};
+        while (pos < pltext.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'=' &&
+               ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'>' &&
+               ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8' ' &&
+               ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'\t' &&
+               ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'/') {
+            ++pos;
+        }
+        ::fast_io::u8string_view const attr_name{pltext.data() + attr_start, pos - attr_start};
+        if (attr_name != ::fast_io::u8string_view{u8"style"}) {
+            return ::exception::nullopt;
+        }
+
+        // skip whitespace before '='
+        while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
+                                       ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t')) {
+            ++pos;
+        }
+        if (pos >= pltext.size() || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'=') {
+            return ::exception::nullopt;
+        }
+        ++pos; // skip '='
+
+        // skip whitespace after '='
+        while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
+                                       ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t')) {
+            ++pos;
+        }
+        if (pos >= pltext.size()) {
+            return ::exception::nullopt;
+        }
+
+        // parse quoted attribute value
+        char8_t const quote{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos)};
+        if (quote != u8'\"' && quote != u8'\'') {
+            return ::exception::nullopt;
+        }
+        ++pos; // skip opening quote
+        ::std::size_t const val_start{pos};
+        while (pos < pltext.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != quote) {
+            ++pos;
+        }
+        if (pos >= pltext.size()) {
+            return ::exception::nullopt;
+        }
+        ::fast_io::u8string_view const attr_val{pltext.data() + val_start, pos - val_start};
+        ++pos; // skip closing quote
+
+        // parse CSS property:value pairs from the style value
+        ::std::size_t css_pos{};
+        while (css_pos < attr_val.size()) {
+            // skip leading whitespace
+            while (css_pos < attr_val.size() &&
+                   (::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, css_pos) == u8' ' ||
+                    ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, css_pos) == u8'\t')) {
+                ++css_pos;
+            }
+            if (css_pos >= attr_val.size()) {
+                break;
+            }
+
+            // parse CSS property name (text-align)
+            ::std::size_t const css_prop_start{css_pos};
+            while (css_pos < attr_val.size() &&
+                   ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, css_pos) != u8':') {
+                ++css_pos;
+            }
+            if (css_pos >= attr_val.size()) {
+                break;
+            }
+            ::fast_io::u8string_view const css_prop{attr_val.data() + css_prop_start, css_pos - css_prop_start};
+            ++css_pos; // skip ':'
+
+            // skip whitespace before value
+            while (css_pos < attr_val.size() &&
+                   (::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, css_pos) == u8' ' ||
+                    ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, css_pos) == u8'\t')) {
+                ++css_pos;
+            }
+
+            // parse CSS value
+            ::std::size_t const css_val_start{css_pos};
+            while (css_pos < attr_val.size() &&
+                   ::pltxt2htm::details::u8string_view_index<ndebug>(attr_val, css_pos) != u8';') {
+                ++css_pos;
+            }
+            ::fast_io::u8string_view const css_val{attr_val.data() + css_val_start, css_pos - css_val_start};
+            if (css_pos < attr_val.size()) {
+                ++css_pos; // skip ';'
+            }
+
+            // check text-align property
+            if (css_prop != ::fast_io::u8string_view{u8"text-align"}) {
+                return ::exception::nullopt;
+            }
+            // only exact lowercase values accepted
+            if (css_val == ::fast_io::u8string_view{u8"left"}) {
+                align = ::pltxt2htm::TextAlign::left;
+            }
+            else if (css_val == ::fast_io::u8string_view{u8"center"}) {
+                align = ::pltxt2htm::TextAlign::center;
+            }
+            else if (css_val == ::fast_io::u8string_view{u8"right"}) {
+                align = ::pltxt2htm::TextAlign::right;
+            }
+            else if (css_val == ::fast_io::u8string_view{u8"justify"}) {
+                align = ::pltxt2htm::TextAlign::justify;
+            }
+            else {
+                return ::exception::nullopt;
+            }
+        }
+    }
+
+    return ::exception::nullopt;
+}
+
+/**
  * @brief Return type of try_parse_equal_sign_tag: tag length and extracted value.
  */
 struct TryParseEqualSignTagResult {

@@ -149,7 +149,7 @@ int main() {
     // ============================================================
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<p><script>alert(1)</script></p>");
-        pltxt2htm_test_assert_equal(html, u8"<p>&lt;script&gt;alert(1)&lt;/script&gt;</p>");
+        pltxt2htm_test_assert_equal(html, u8"<p style=\"text-align:left\">&lt;script&gt;alert(1)&lt;/script&gt;</p>");
         assert_no_raw_xss_tags(to_view(html));
     }
     {

@@ -69,7 +69,7 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<p><code>t \nt \n</code> </p>");
-        auto answer = ::fast_io::u8string_view{u8"<p><code>t<br>t<br></code></p>"};
+        auto answer = ::fast_io::u8string_view{u8"<p style=\"text-align:left\"><code>t<br>t<br></code></p>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

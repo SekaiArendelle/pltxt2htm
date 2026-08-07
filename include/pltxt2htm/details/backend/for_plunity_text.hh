@@ -556,7 +556,18 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_p().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::html_p, 0));
                 ++current_index;
-                result.append(u8"<p>");
+                result.append(u8"<p");
+                auto const align = node.as_html_p().get_align();
+                if (align == ::pltxt2htm::TextAlign::center) {
+                    result.append(u8" style=\"text-align:center\"");
+                }
+                else if (align == ::pltxt2htm::TextAlign::right) {
+                    result.append(u8" style=\"text-align:right\"");
+                }
+                else if (align == ::pltxt2htm::TextAlign::justify) {
+                    result.append(u8" style=\"text-align:justify\"");
+                }
+                result.push_back(u8'>');
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_br:

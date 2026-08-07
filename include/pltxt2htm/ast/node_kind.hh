@@ -251,4 +251,14 @@ enum class TableAlign : unsigned {
     right,
 };
 
+/**
+ * @brief Paragraph text alignment
+ */
+enum class TextAlign : unsigned {
+    left = 0,
+    center,
+    right,
+    justify,
+};
+
 } // namespace pltxt2htm
