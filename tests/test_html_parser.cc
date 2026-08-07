@@ -4,7 +4,7 @@ int main() {
     // HTML elements that work identically to the original parser
     {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<p>text</p>");
-        auto answer = ::fast_io::u8string_view{u8"<p>text</p>"};
+        auto answer = ::fast_io::u8string_view{u8"<p style=\"text-align:left\">text</p>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
@@ -233,7 +233,7 @@ int main() {
     // Nested HTML tags
     {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<p><em>text</em></p>");
-        auto answer = ::fast_io::u8string_view{u8"<p><em>text</em></p>"};
+        auto answer = ::fast_io::u8string_view{u8"<p style=\"text-align:left\"><em>text</em></p>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
@@ -245,14 +245,14 @@ int main() {
     // Mixed: PL/MD tag nested inside HTML tag → PL/MD treated as text
     {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<p><color=red>text</color></p>");
-        auto answer = ::fast_io::u8string_view{u8"<p>&lt;color=red&gt;text&lt;/color&gt;</p>"};
+        auto answer = ::fast_io::u8string_view{u8"<p style=\"text-align:left\">&lt;color=red&gt;text&lt;/color&gt;</p>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     // Empty tags
     {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<p></p>");
-        auto answer = ::fast_io::u8string_view{u8"<p></p>"};
+        auto answer = ::fast_io::u8string_view{u8"<p style=\"text-align:left\"></p>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
@@ -291,7 +291,7 @@ int main() {
     // Nested tags without explicit closing tags are closed once at end of input.
     {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<blockquote><p><em><strong>text");
-        auto answer = ::fast_io::u8string_view{u8"<blockquote><p><em><strong>text</strong></em></p></blockquote>"};
+        auto answer = ::fast_io::u8string_view{u8"<blockquote><p style=\"text-align:left\"><em><strong>text</strong></em></p></blockquote>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -299,7 +299,7 @@ int main() {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(
             u8"<p><span style=\"color:red\"><a href=\"https://example.com\"><code>text");
         auto answer = ::fast_io::u8string_view{
-            u8"<p><span style=\"color:red;\"><a href=\"https://example.com\"><code>text</code></a></span></p>"};
+            u8"<p style=\"text-align:left\"><span style=\"color:red;\"><a href=\"https://example.com\"><code>text</code></a></span></p>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -370,7 +370,7 @@ int main() {
             u8"<blockquote></x></blockquote>");
         auto answer = ::fast_io::u8string_view{
             u8"<span style=\"color:red;\">&lt;/x&gt;</span><a href=\"https://example.com\">&lt;/x&gt;</a>"
-            u8"<p>&lt;/x&gt;</p><h1>&lt;/x&gt;</h1><h2>&lt;/x&gt;</h2><h3>&lt;/x&gt;</h3><h4>&lt;/x&gt;</h4>"
+            u8"<p style=\"text-align:left\">&lt;/x&gt;</p><h1>&lt;/x&gt;</h1><h2>&lt;/x&gt;</h2><h3>&lt;/x&gt;</h3><h4>&lt;/x&gt;</h4>"
             u8"<h5>&lt;/x&gt;</h5><h6>&lt;/x&gt;</h6><del>&lt;/x&gt;</del><em>&lt;/x&gt;</em>"
             u8"<strong>&lt;/x&gt;</strong><code>&lt;/x&gt;</code><pre>&lt;/x&gt;</pre>"
             u8"<blockquote>&lt;/x&gt;</blockquote>"};
