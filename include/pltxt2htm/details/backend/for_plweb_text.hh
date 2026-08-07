@@ -534,6 +534,30 @@ entry:
                 result.append(u8";\">");
                 goto entry;
             }
+            case ::pltxt2htm::NodeKind::pl_align: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
+                    node.as_pl_align().get_subast(), ::pltxt2htm::NodeKind::pl_align, 0));
+                ++current_index;
+                result.append(u8"<span style=\"text-align:");
+                auto const align = node.as_pl_align().get_align();
+                if (align == ::pltxt2htm::TextAlign::left) {
+                    result.append(u8"left");
+                }
+                else if (align == ::pltxt2htm::TextAlign::center) {
+                    result.append(u8"center");
+                }
+                else if (align == ::pltxt2htm::TextAlign::right) {
+                    result.append(u8"right");
+                }
+                else if (align == ::pltxt2htm::TextAlign::justify) {
+                    result.append(u8"justify");
+                }
+                else [[unlikely]] {
+                    pltxt2htm_unreachable(u8"Unexpected alignment value for align tag");
+                }
+                result.append(u8";\">");
+                goto entry;
+            }
             case ::pltxt2htm::NodeKind::html_span: {
                 auto const& span_color = node.as_html_span().get_color();
                 auto const& span_font_size = node.as_html_span().get_font_size();
@@ -1489,6 +1513,10 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_voffset: {
+                result.append(u8"</span>");
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::pl_align: {
                 result.append(u8"</span>");
                 goto entry;
             }

@@ -414,6 +414,30 @@ entry:
                 result.push_back(u8'>');
                 goto entry;
             }
+            case ::pltxt2htm::NodeKind::pl_align: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
+                    node.as_pl_align().get_subast(), ::pltxt2htm::NodeKind::pl_align, 0));
+                ++current_index;
+                result.append(u8"<align=");
+                auto const align = node.as_pl_align().get_align();
+                if (align == ::pltxt2htm::TextAlign::left) {
+                    result.append(u8"left");
+                }
+                else if (align == ::pltxt2htm::TextAlign::center) {
+                    result.append(u8"center");
+                }
+                else if (align == ::pltxt2htm::TextAlign::right) {
+                    result.append(u8"right");
+                }
+                else if (align == ::pltxt2htm::TextAlign::justify) {
+                    result.append(u8"justified");
+                }
+                else [[unlikely]] {
+                    pltxt2htm_unreachable(u8"Unexpected alignment value for align tag");
+                }
+                result.push_back(u8'>');
+                goto entry;
+            }
             case ::pltxt2htm::NodeKind::html_span: {
                 auto const& span_color = node.as_html_span().get_color();
                 auto const& span_font_size = node.as_html_span().get_font_size();
@@ -553,21 +577,29 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_p: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_p().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::html_p, 0));
-                ++current_index;
-                result.append(u8"<p");
                 auto const align = node.as_html_p().get_align();
-                if (align == ::pltxt2htm::TextAlign::center) {
-                    result.append(u8" style=\"text-align:center\"");
+                bool const has_align = align != ::pltxt2htm::TextAlign::left;
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
+                    node.as_html_p().get_subast(), ::pltxt2htm::NodeKind::html_p, 0,
+                    ::pltxt2htm::details::BackendContextWithAlignInfo{.has_align = has_align}));
+                ++current_index;
+                result.append(u8"<p>");
+                if (has_align) {
+                    result.append(u8"<align=");
+                    if (align == ::pltxt2htm::TextAlign::center) {
+                        result.append(u8"center");
+                    }
+                    else if (align == ::pltxt2htm::TextAlign::right) {
+                        result.append(u8"right");
+                    }
+                    else if (align == ::pltxt2htm::TextAlign::justify) {
+                        result.append(u8"justified");
+                    }
+                    else [[unlikely]] {
+                        pltxt2htm_unreachable(u8"Unexpected paragraph text alignment");
+                    }
+                    result.push_back(u8'>');
                 }
-                else if (align == ::pltxt2htm::TextAlign::right) {
-                    result.append(u8" style=\"text-align:right\"");
-                }
-                else if (align == ::pltxt2htm::TextAlign::justify) {
-                    result.append(u8" style=\"text-align:justify\"");
-                }
-                result.push_back(u8'>');
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_br:
@@ -1366,6 +1398,10 @@ entry:
                 result.append(u8"</voffset>");
                 goto entry;
             }
+            case ::pltxt2htm::NodeKind::pl_align: {
+                result.append(u8"</align>");
+                goto entry;
+            }
             case ::pltxt2htm::NodeKind::md_double_emphasis_underscore:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_double_emphasis_asterisk:
@@ -1401,6 +1437,9 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_p: {
+                if (top_frame.get_align_info().has_align) {
+                    result.append(u8"</align>");
+                }
                 result.append(u8"</p>");
                 goto entry;
             }

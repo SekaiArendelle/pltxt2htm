@@ -7,6 +7,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <utility>
 #include <exception/exception.hh>
 #include <fast_io/fast_io_dsal/array.h>
 #include <fast_io/fast_io_dsal/stack.h>
@@ -1400,6 +1401,79 @@ constexpr auto try_parse_voffset_tag(::fast_io::u8string_view pltext) noexcept
     }
     auto const tag_len = value_end + opt_close.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
     return ::pltxt2htm::details::TryParseVoffsetTagResult{tag_len, value.value};
+}
+
+/**
+ * @brief Return type of try_parse_align_tag: tag length and the parsed alignment keyword.
+ */
+struct TryParseAlignTagResult {
+    ::std::size_t tag_len;
+    ::pltxt2htm::TextAlign align;
+};
+
+/**
+ * @brief Parse a `<align=value>` opening tag (Unity TextMeshPro rich text).
+ * @details The value is a lowercase text-alignment keyword: `left`, `center`, `right`,
+ *          `justify` or `justified` (both mapped to ::pltxt2htm::TextAlign::justify).
+ *          Any other value makes the tag render as literal text. The tag name prefix is
+ *          `lign` because the caller has already consumed the leading `<a`.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_align_tag(::fast_io::u8string_view pltext) noexcept
+    -> ::exception::optional<::pltxt2htm::details::TryParseAlignTagResult> {
+    constexpr auto prefix_str = ::pltxt2htm::details::U8LiteralString{u8"lign"};
+    if (::pltxt2htm::details::is_equal_sign_tag_prefix<ndebug, prefix_str>(pltext) == false) {
+        return ::exception::nullopt;
+    }
+    constexpr auto value_start = prefix_str.size() + 1;
+    auto const value_view = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_start);
+    auto const match_keyword = [&](::fast_io::u8string_view const keyword) noexcept
+        -> ::exception::optional<::std::size_t> {
+        if (value_view.size() < keyword.size()) {
+            return ::exception::nullopt;
+        }
+        if (::fast_io::u8string_view{value_view.data(), keyword.size()} != keyword) {
+            return ::exception::nullopt;
+        }
+        if (value_view.size() > keyword.size()) {
+            auto const next = ::pltxt2htm::details::u8string_view_index<ndebug>(value_view, keyword.size());
+            if (::pltxt2htm::details::is_ascii_alpha(next) || ::pltxt2htm::details::is_ascii_digit(next)) {
+                return ::exception::nullopt;
+            }
+        }
+        return keyword.size();
+    };
+    ::pltxt2htm::TextAlign align{};
+    ::std::size_t value_end{0};
+    // Longest spellings first so "justified" wins over its prefix "justify".
+    constexpr ::std::pair<::fast_io::u8string_view, ::pltxt2htm::TextAlign> candidates[]{
+        {u8"justified", ::pltxt2htm::TextAlign::justify},
+        {u8"justify", ::pltxt2htm::TextAlign::justify},
+        {u8"left", ::pltxt2htm::TextAlign::left},
+        {u8"center", ::pltxt2htm::TextAlign::center},
+        {u8"right", ::pltxt2htm::TextAlign::right},
+    };
+    bool matched{false};
+    for (auto const& [keyword, candidate_align] : candidates) {
+        auto const opt_len = match_keyword(keyword);
+        if (opt_len.has_value()) {
+            align = candidate_align;
+            value_end = opt_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            matched = true;
+            break;
+        }
+    }
+    if (matched == false) {
+        return ::exception::nullopt;
+    }
+    auto opt_close = ::pltxt2htm::details::try_parse_equal_sign_tag_suffix<ndebug>(
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(value_view, value_end));
+    if (opt_close.has_value() == false) {
+        return ::exception::nullopt;
+    }
+    auto const tag_len = value_start + value_end + opt_close.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+    return ::pltxt2htm::details::TryParseAlignTagResult{tag_len, align};
 }
 
 /**

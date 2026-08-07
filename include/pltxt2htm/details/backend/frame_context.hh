@@ -41,6 +41,16 @@ public:
 };
 
 /**
+ * @brief Context for alignment frames: remembers whether a Unity <align> tag was opened.
+ * @details Used by ::pltxt2htm::NodeKind::html_p frames so the plunity backend can emit
+ *          the matching `</align>` closing tag.
+ */
+class BackendContextWithAlignInfo {
+public:
+    bool has_align{}; ///< Whether the frame opened a Unity <align> tag.
+};
+
+/**
  * @brief Tagged-union variant of backend context payloads.
  * @details Dispatched on `kind` (::pltxt2htm::NodeKind) – used inside
  *          ::pltxt2htm::details::BackendFrameContext.
@@ -51,6 +61,7 @@ public:
         ::pltxt2htm::details::BackendContextWithoutInfo without_info;
         ::pltxt2htm::details::BackendContextWithOlInfo ol_info;
         ::pltxt2htm::details::BackendContextWithHtmlSpanInfo html_span_info;
+        ::pltxt2htm::details::BackendContextWithAlignInfo align_info;
     };
 
     ::pltxt2htm::NodeKind kind;
@@ -70,6 +81,12 @@ public:
         ::pltxt2htm::details::BackendContextWithHtmlSpanInfo html_span_info_context) noexcept
         : html_span_info{::std::move(html_span_info_context)},
           kind{::pltxt2htm::NodeKind::html_span} {
+    }
+
+    constexpr BackendContextVariant(::pltxt2htm::NodeKind const kind_,
+                                    ::pltxt2htm::details::BackendContextWithAlignInfo align_info_context) noexcept
+        : align_info{::std::move(align_info_context)},
+          kind{kind_} {
     }
 
     constexpr ~BackendContextVariant() noexcept = default;
@@ -114,6 +131,14 @@ public:
           current_index{current_index_} {
     }
 
+    constexpr BackendFrameContext(::pltxt2htm::Ast<ndebug> const& ast_, ::pltxt2htm::NodeKind const nested_tag_type,
+                                  ::std::size_t current_index_,
+                                  ::pltxt2htm::details::BackendContextWithAlignInfo align_info_context) noexcept
+        : context_data{nested_tag_type, ::std::move(align_info_context)},
+          ast(::std::addressof(ast_)),
+          current_index{current_index_} {
+    }
+
     constexpr BackendFrameContext(::pltxt2htm::details::BackendFrameContext<ndebug> const&) noexcept = default;
     constexpr BackendFrameContext(::pltxt2htm::details::BackendFrameContext<ndebug>&&) noexcept = default;
 
@@ -140,6 +165,13 @@ public:
         bool const is_html_span_type{self.context_data.kind == ::pltxt2htm::NodeKind::html_span};
         pltxt2htm_assert(is_html_span_type, u8"context kind mismatch");
         return self.context_data.html_span_info;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_align_info(this auto const& self) noexcept -> BackendContextWithAlignInfo {
+        bool const is_align_type{self.context_data.kind == ::pltxt2htm::NodeKind::html_p};
+        pltxt2htm_assert(is_align_type, u8"context kind mismatch");
+        return self.context_data.align_info;
     }
 
     [[nodiscard]]

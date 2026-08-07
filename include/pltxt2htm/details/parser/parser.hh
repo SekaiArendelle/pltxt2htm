@@ -895,6 +895,21 @@ entry:
                 case u8'a':
                     [[fallthrough]];
                 case u8'A': {
+                    // parsing pl <align=value>$1</align> tag (Unity TextMeshPro rich text)
+                    if (auto opt_align_tag = ::pltxt2htm::details::try_parse_align_tag<ndebug>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                        opt_align_tag.has_value()) {
+                        auto const [tag_len, align] =
+                            opt_align_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                        current_index += tag_len + 3;
+                        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithPlAlignTagInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), align},
+                                ::pltxt2htm::NodeKind::pl_align},
+                            ::pltxt2htm::Ast<ndebug>{}));
+                        goto entry;
+                    }
                     // parsing pl <a>$1</a> tag (not html <a> tag)
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
@@ -1903,6 +1918,25 @@ entry:
                         ++current_index;
                         continue;
                     }
+                    case ::pltxt2htm::NodeKind::pl_align: {
+                        // parsing </align>
+                        if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"align">(
+                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                            opt_tag_len.has_value()) {
+                            ::std::size_t const staged_index{current_index};
+                            ::pltxt2htm::PlAlign staged_node(::std::move(result), frame.get_pl_align_tag_value());
+                            call_stack.pop();
+                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.current_index +=
+                                staged_index + opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() +
+                                3;
+                            goto entry;
+                        }
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        ++current_index;
+                        continue;
+                    }
                     case ::pltxt2htm::NodeKind::pl_mark: {
                         // parsing </mark>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"mark">(
@@ -2872,6 +2906,12 @@ entry:
             case ::pltxt2htm::NodeKind::pl_voffset: {
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
                     ::pltxt2htm::PlVoffset<ndebug>{::std::move(subast), frame.get_pl_voffset_tag_value()}));
+                parent_index += staged_index;
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::pl_align: {
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
+                    ::pltxt2htm::PlAlign<ndebug>{::std::move(subast), frame.get_pl_align_tag_value()}));
                 parent_index += staged_index;
                 goto entry;
             }
