@@ -7,7 +7,8 @@ int main() {
         auto answer = ::fast_io::u8string_view(u8"<input type=\"checkbox\" disabled>");
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<input type=\"checkbox\" disabled>");
-        auto plunity_answer = ::fast_io::u8string_view(u8"<input type=\"checkbox\" disabled>");
+        auto plunity_answer =
+            ::fast_io::u8string_view{u8"<size=20>\uff1c</size>input type=\"checkbox\" disabled<size=20>\uff1e</size>"};
         pltxt2htm_test_assert_equal(plunity, plunity_answer);
     }
     // ---- checked checkbox ----
@@ -16,7 +17,8 @@ int main() {
         auto answer = ::fast_io::u8string_view(u8"<input type=\"checkbox\" disabled checked>");
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<input type=\"checkbox\" disabled checked>");
-        auto plunity_answer = ::fast_io::u8string_view(u8"<input type=\"checkbox\" disabled checked>");
+        auto plunity_answer = ::fast_io::u8string_view{
+            u8"<size=20>\uff1c</size>input type=\"checkbox\" disabled checked<size=20>\uff1e</size>"};
         pltxt2htm_test_assert_equal(plunity, plunity_answer);
     }
     // ---- uppercase INPUT (tag name case-insensitive, attributes case-sensitive) ----

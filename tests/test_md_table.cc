@@ -746,9 +746,18 @@ int main() {
             u8"|:-----|:------:|------:|\n"
             u8"| a | b | c |");
         auto answer = ::fast_io::u8string_view{
-            u8"<table><thead><tr><th>left</th><th style=\"text-align:center\">center</th><th "
-            u8"style=\"text-align:right\">right</th></tr></thead><tbody><tr><td>a</td><td "
-            u8"style=\"text-align:center\">b</td><td style=\"text-align:right\">c</td></tr></tbody></table>"};
+            u8"<size=20>\uff1c</size>table<size=20>\uff1e</size><size=20>\uff1c</size>thead<size=20>\uff1e</size>"
+            u8"<size=20>\uff1c</size>tr<size=20>\uff1e</size><size=20>\uff1c</size>th<size=20>\uff1e</size>left"
+            u8"<size=20>\uff1c</size>/th<size=20>\uff1e</size><size=20>\uff1c</size>th style=\"text-align:center\""
+            u8"<size=20>\uff1e</size>center<size=20>\uff1c</size>/th<size=20>\uff1e</size><size=20>\uff1c</size>th "
+            u8"style=\"text-align:right\"<size=20>\uff1e</size>right<size=20>\uff1c</size>/th<size=20>\uff1e</size>"
+            u8"<size=20>\uff1c</size>/tr<size=20>\uff1e</size><size=20>\uff1c</size>/thead<size=20>\uff1e</size>"
+            u8"<size=20>\uff1c</size>tbody<size=20>\uff1e</size><size=20>\uff1c</size>tr<size=20>\uff1e</size>"
+            u8"<size=20>\uff1c</size>td<size=20>\uff1e</size>a<size=20>\uff1c</size>/td<size=20>\uff1e</size>"
+            u8"<size=20>\uff1c</size>td style=\"text-align:center\"<size=20>\uff1e</size>b<size=20>\uff1c</size>/td"
+            u8"<size=20>\uff1e</size><size=20>\uff1c</size>td style=\"text-align:right\"<size=20>\uff1e</size>c"
+            u8"<size=20>\uff1c</size>/td<size=20>\uff1e</size><size=20>\uff1c</size>/tr<size=20>\uff1e</size>"
+            u8"<size=20>\uff1c</size>/tbody<size=20>\uff1e</size><size=20>\uff1c</size>/table<size=20>\uff1e</size>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

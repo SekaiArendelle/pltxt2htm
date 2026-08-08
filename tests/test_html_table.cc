@@ -81,7 +81,11 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<table><tr><td>cell</td></tr></table>");
-        auto answer = ::fast_io::u8string_view{u8"<table><tr><td>cell</td></tr></table>"};
+        auto answer = ::fast_io::u8string_view{
+            u8"<size=20>\uff1c</size>table<size=20>\uff1e</size><size=20>\uff1c</size>tr<size=20>\uff1e</size><size=20>"
+            u8"\uff1c</size>td<size=20>\uff1e</size>cell<size=20>\uff1c</size>/td<size=20>\uff1e</"
+            u8"size><size=20>\uff1c</"
+            u8"size>/tr<size=20>\uff1e</size><size=20>\uff1c</size>/table<size=20>\uff1e</size>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -462,9 +466,23 @@ int main() {
             u8"style=\"text-align:center\">head</th></tr></thead><tbody><tr><td "
             u8"style=\"text-align:right\">body</td></tr></tbody><tfoot><tr><td>foot</td></tr></tfoot></table>");
         auto answer = ::fast_io::u8string_view{
-            u8"<table><caption>caption</caption><colgroup><col></colgroup><thead><tr><th "
-            u8"style=\"text-align:center\">head</th></tr></thead><tbody><tr><td "
-            u8"style=\"text-align:right\">body</td></tr></tbody><tfoot><tr><td>foot</td></tr></tfoot></table>"};
+            u8"<size=20>\uff1c</size>table<size=20>\uff1e</size><size=20>\uff1c</size>caption<size=20>\uff1e</size>"
+            u8"caption<size=20>\uff1c</size>/caption<size=20>\uff1e</size><size=20>\uff1c</"
+            u8"size>colgroup<size=20>\uff1e</"
+            u8"size><size=20>\uff1c</size>col<size=20>\uff1e</size><size=20>\uff1c</size>/colgroup<size=20>\uff1e</"
+            u8"size>"
+            u8"<size=20>\uff1c</size>thead<size=20>\uff1e</size><size=20>\uff1c</size>tr<size=20>\uff1e</size><size=20>"
+            u8"\uff1c</size>th style=\"text-align:center\"<size=20>\uff1e</size>head<size=20>\uff1c</size>/th<size=20>"
+            u8"\uff1e</size><size=20>\uff1c</size>/tr<size=20>\uff1e</size><size=20>\uff1c</size>/"
+            u8"thead<size=20>\uff1e</"
+            u8"size><size=20>\uff1c</size>tbody<size=20>\uff1e</size><size=20>\uff1c</size>tr<size=20>\uff1e</size>"
+            u8"<size=20>\uff1c</size>td style=\"text-align:right\"<size=20>\uff1e</size>body<size=20>\uff1c</size>/td"
+            u8"<size=20>\uff1e</size><size=20>\uff1c</size>/tr<size=20>\uff1e</size><size=20>\uff1c</size>/tbody"
+            u8"<size=20>\uff1e</size><size=20>\uff1c</size>tfoot<size=20>\uff1e</size><size=20>\uff1c</size>tr<size=20>"
+            u8"\uff1e</size><size=20>\uff1c</size>td<size=20>\uff1e</size>foot<size=20>\uff1c</size>/"
+            u8"td<size=20>\uff1e</"
+            u8"size><size=20>\uff1c</size>/tr<size=20>\uff1e</size><size=20>\uff1c</size>/tfoot<size=20>\uff1e</size>"
+            u8"<size=20>\uff1c</size>/table<size=20>\uff1e</size>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -473,8 +491,11 @@ int main() {
             u8"<table><tr><th style=\"text-align:right\">head</th><td "
             u8"style=\"text-align:center\">data</td></tr></table>");
         auto answer = ::fast_io::u8string_view{
-            u8"<table><tr><th style=\"text-align:right\">head</th><td "
-            u8"style=\"text-align:center\">data</td></tr></table>"};
+            u8"<size=20>\uff1c</size>table<size=20>\uff1e</size><size=20>\uff1c</size>tr<size=20>\uff1e</size><size=20>"
+            u8"\uff1c</size>th style=\"text-align:right\"<size=20>\uff1e</size>head<size=20>\uff1c</size>/th<size=20>"
+            u8"\uff1e</size><size=20>\uff1c</size>td style=\"text-align:center\"<size=20>\uff1e</size>data<size=20>"
+            u8"\uff1c</size>/td<size=20>\uff1e</size><size=20>\uff1c</size>/tr<size=20>\uff1e</size><size=20>\uff1c</"
+            u8"size>/table<size=20>\uff1e</size>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
