@@ -139,5 +139,104 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // newline separates two block-level <align> tags
+    {
+        auto pltext = ::fast_io::u8string_view{u8"<align=center>a</align>\n<align=right>b</align>"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer =
+            ::fast_io::u8string_view{u8"<p style=\"text-align:center\">a</p><br><p style=\"text-align:right\">b</p>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<align=center>a</align>\n<align=right>b</align>"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    // a blank line between two <align> tags renders as two <br>
+    {
+        auto pltext = ::fast_io::u8string_view{u8"<align=center>a</align>\n\n<align=right>b</align>"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer =
+            ::fast_io::u8string_view{u8"<p style=\"text-align:center\">a</p><br><br><p style=\"text-align:right\">b</p>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer =
+            ::fast_io::u8string_view{u8"<align=center>a</align>\n\n<align=right>b</align>"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    // text before and after a block-level <align>
+    {
+        auto pltext = ::fast_io::u8string_view{u8"a\n<align=center>b</align>\nc"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer =
+            ::fast_io::u8string_view{u8"a<br><p style=\"text-align:center\">b</p><br>c"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"a\n<align=center>b</align>\nc"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    // a newline inside an <align> block renders as <br>
+    {
+        auto pltext = ::fast_io::u8string_view{u8"<align=center>line1\nline2</align>"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer = ::fast_io::u8string_view{u8"<p style=\"text-align:center\">line1<br>line2</p>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<align=center>line1\nline2</align>"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    // a blank line inside an <align> block renders as two <br>
+    {
+        auto pltext = ::fast_io::u8string_view{u8"<align=center>line1\n\nline3</align>"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer = ::fast_io::u8string_view{u8"<p style=\"text-align:center\">line1<br><br>line3</p>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<align=center>line1\n\nline3</align>"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    // a <p> block followed by an <align> block on the next line
+    {
+        auto pltext = ::fast_io::u8string_view{u8"<p>a</p>\n<align=center>b</align>"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer =
+            ::fast_io::u8string_view{u8"<p style=\"text-align:left\">a</p><br><p style=\"text-align:center\">b</p>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"a\n<align=center>b</align>"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    // an <align> block followed by a <p> block on the next line
+    {
+        auto pltext = ::fast_io::u8string_view{u8"<align=center>a</align>\n<p>b</p>"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer =
+            ::fast_io::u8string_view{u8"<p style=\"text-align:center\">a</p><br><p style=\"text-align:left\">b</p>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<align=center>a</align>\nb"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    // a leading newline before a block-level <align>
+    {
+        auto pltext = ::fast_io::u8string_view{u8"\n<align=center>a</align>"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer = ::fast_io::u8string_view{u8"<br><p style=\"text-align:center\">a</p>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // a trailing newline after a closing </align>
+    {
+        auto pltext = ::fast_io::u8string_view{u8"<align=center>a</align>\n"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer = ::fast_io::u8string_view{u8"<p style=\"text-align:center\">a</p><br>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }
