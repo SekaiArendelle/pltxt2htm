@@ -812,12 +812,13 @@ entry:
                 result.append(u8"<i>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::md_hr: {
-                result.append(u8" ---\n");
-                continue;
-            }
+            case ::pltxt2htm::NodeKind::md_hr:
+                [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_hr: {
-                result.append(u8"<hr>");
+                if (result.empty() == false && result.back() != u8'\n') {
+                    result.push_back(u8'\n');
+                }
+                result.append(u8"---\n");
                 continue;
             }
             case ::pltxt2htm::NodeKind::html_note: {

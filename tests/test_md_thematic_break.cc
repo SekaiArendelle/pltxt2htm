@@ -43,7 +43,7 @@ int main() {
         auto answer = ::fast_io::u8string_view{u8"<hr>"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = ::fast_io::u8string_view{u8" ---\n"};
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"---\n"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
