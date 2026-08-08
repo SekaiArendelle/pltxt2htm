@@ -624,6 +624,9 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_h1().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::html_h1, 0));
                 ++current_index;
+                if (result.empty() == false && result.back() != u8'\n') {
+                    result.push_back(u8'\n');
+                }
                 result.append(u8"<size=38><b>");
                 goto entry;
             }
@@ -631,6 +634,9 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_atx_h1().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::md_atx_h1, 0));
                 ++current_index;
+                if (result.empty() == false && result.back() != u8'\n') {
+                    result.push_back(u8'\n');
+                }
                 result.append(u8"<size=38><b>");
                 goto entry;
             }
@@ -638,6 +644,9 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_h2().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::html_h2, 0));
                 ++current_index;
+                if (result.empty() == false && result.back() != u8'\n') {
+                    result.push_back(u8'\n');
+                }
                 result.append(u8"<size=37><b>");
                 goto entry;
             }
@@ -645,6 +654,9 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_atx_h2().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::md_atx_h2, 0));
                 ++current_index;
+                if (result.empty() == false && result.back() != u8'\n') {
+                    result.push_back(u8'\n');
+                }
                 result.append(u8"<size=37><b>");
                 goto entry;
             }
@@ -652,6 +664,9 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_h3().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::html_h3, 0));
                 ++current_index;
+                if (result.empty() == false && result.back() != u8'\n') {
+                    result.push_back(u8'\n');
+                }
                 result.append(u8"<size=36><b>");
                 goto entry;
             }
@@ -659,6 +674,9 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_atx_h3().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::md_atx_h3, 0));
                 ++current_index;
+                if (result.empty() == false && result.back() != u8'\n') {
+                    result.push_back(u8'\n');
+                }
                 result.append(u8"<size=36><b>");
                 goto entry;
             }
@@ -666,6 +684,9 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_h4().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::html_h4, 0));
                 ++current_index;
+                if (result.empty() == false && result.back() != u8'\n') {
+                    result.push_back(u8'\n');
+                }
                 result.append(u8"<size=35><b>");
                 goto entry;
             }
@@ -673,6 +694,9 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_atx_h4().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::md_atx_h4, 0));
                 ++current_index;
+                if (result.empty() == false && result.back() != u8'\n') {
+                    result.push_back(u8'\n');
+                }
                 result.append(u8"<size=35><b>");
                 goto entry;
             }
@@ -680,6 +704,9 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_h5().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::html_h5, 0));
                 ++current_index;
+                if (result.empty() == false && result.back() != u8'\n') {
+                    result.push_back(u8'\n');
+                }
                 result.append(u8"<b>");
                 goto entry;
             }
@@ -687,6 +714,9 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_atx_h5().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::md_atx_h5, 0));
                 ++current_index;
+                if (result.empty() == false && result.back() != u8'\n') {
+                    result.push_back(u8'\n');
+                }
                 result.append(u8"<b>");
                 goto entry;
             }
@@ -694,6 +724,9 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_h6().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::html_h6, 0));
                 ++current_index;
+                if (result.empty() == false && result.back() != u8'\n') {
+                    result.push_back(u8'\n');
+                }
                 result.append(u8"<b>");
                 goto entry;
             }
@@ -701,6 +734,9 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_atx_h6().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::md_atx_h6, 0));
                 ++current_index;
+                if (result.empty() == false && result.back() != u8'\n') {
+                    result.push_back(u8'\n');
+                }
                 result.append(u8"<b>");
                 goto entry;
             }
@@ -1492,18 +1528,51 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_h4: {
                 result.append(u8"</b></size>");
+                auto const& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                auto const& parent_ast = parent_frame.get_ast();
+                if (parent_frame.current_index < parent_ast.size()) {
+                    auto const next_kind =
+                        ::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_frame.current_index)
+                            .get_node_kind();
+                    if (next_kind != ::pltxt2htm::NodeKind::line_break && next_kind != ::pltxt2htm::NodeKind::html_br &&
+                        result.empty() == false && result.back() != u8'\n') {
+                        result.push_back(u8'\n');
+                    }
+                }
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h5:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_h5: {
                 result.append(u8"</b>");
+                auto const& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                auto const& parent_ast = parent_frame.get_ast();
+                if (parent_frame.current_index < parent_ast.size()) {
+                    auto const next_kind =
+                        ::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_frame.current_index)
+                            .get_node_kind();
+                    if (next_kind != ::pltxt2htm::NodeKind::line_break && next_kind != ::pltxt2htm::NodeKind::html_br &&
+                        result.empty() == false && result.back() != u8'\n') {
+                        result.push_back(u8'\n');
+                    }
+                }
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h6:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_h6: {
                 result.append(u8"</b>");
+                auto const& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                auto const& parent_ast = parent_frame.get_ast();
+                if (parent_frame.current_index < parent_ast.size()) {
+                    auto const next_kind =
+                        ::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_frame.current_index)
+                            .get_node_kind();
+                    if (next_kind != ::pltxt2htm::NodeKind::line_break && next_kind != ::pltxt2htm::NodeKind::html_br &&
+                        result.empty() == false && result.back() != u8'\n') {
+                        result.push_back(u8'\n');
+                    }
+                }
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_del:

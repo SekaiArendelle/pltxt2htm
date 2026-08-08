@@ -50,7 +50,7 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{
-            u8"<size=38><b>text<size=20>\uFF1C</size>h1<size=20>\uFF1E</size>text</b></size>"
+            u8"<size=38><b>text<size=20>\uFF1C</size>h1<size=20>\uFF1E</size>text</b></size>\n"
             u8"<size=20>\uFF1C</size>/h1<size=20>\uFF1E</size>"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
