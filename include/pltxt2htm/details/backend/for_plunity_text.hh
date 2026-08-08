@@ -415,30 +415,37 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_align: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                    node.as_pl_align().get_subast(), ::pltxt2htm::NodeKind::pl_align, 0));
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_pl_align().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::pl_align, 0));
                 ++current_index;
                 if (result.empty() == false && result.back() != u8'\n') {
                     result.push_back(u8'\n');
                 }
-                result.append(u8"<align=");
                 auto const align = node.as_pl_align().get_align();
-                if (align == ::pltxt2htm::TextAlign::left) {
-                    result.append(u8"left");
+                switch (align) /* -Werror=switch */ {
+                case ::pltxt2htm::TextAlign::left: {
+                    result.append(u8"<align=left>");
+                    break;
                 }
-                else if (align == ::pltxt2htm::TextAlign::center) {
-                    result.append(u8"center");
+                case ::pltxt2htm::TextAlign::center: {
+                    result.append(u8"<align=center>");
+                    break;
                 }
-                else if (align == ::pltxt2htm::TextAlign::right) {
-                    result.append(u8"right");
+                case ::pltxt2htm::TextAlign::right: {
+                    result.append(u8"<align=right>");
+                    break;
                 }
-                else if (align == ::pltxt2htm::TextAlign::justify) {
-                    result.append(u8"justified");
+                case ::pltxt2htm::TextAlign::justify: {
+                    result.append(u8"<align=justified>");
+                    break;
                 }
-                else [[unlikely]] {
-                    pltxt2htm_unreachable(u8"Unexpected alignment value for align tag");
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
+                default:
+                    [[unlikely]] {
+                        pltxtpltxt2htm_unreachable(u8"Unexpected unit for align");
+                    }
+#endif
                 }
-                result.push_back(u8'>');
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_span: {
@@ -1408,8 +1415,9 @@ entry:
                 auto const& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                 auto const& parent_ast = parent_frame.get_ast();
                 if (parent_frame.current_index < parent_ast.size()) {
-                    auto const next_kind = ::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_frame.current_index)
-                                               .get_node_kind();
+                    auto const next_kind =
+                        ::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_frame.current_index)
+                            .get_node_kind();
                     if (next_kind != ::pltxt2htm::NodeKind::line_break && next_kind != ::pltxt2htm::NodeKind::html_br &&
                         result.empty() == false && result.back() != u8'\n') {
                         result.push_back(u8'\n');
@@ -1458,8 +1466,9 @@ entry:
                 auto const& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                 auto const& parent_ast = parent_frame.get_ast();
                 if (parent_frame.current_index < parent_ast.size()) {
-                    auto const next_kind = ::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_frame.current_index)
-                                               .get_node_kind();
+                    auto const next_kind =
+                        ::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_frame.current_index)
+                            .get_node_kind();
                     if (next_kind != ::pltxt2htm::NodeKind::line_break && next_kind != ::pltxt2htm::NodeKind::html_br &&
                         result.empty() == false && result.back() != u8'\n') {
                         result.push_back(u8'\n');

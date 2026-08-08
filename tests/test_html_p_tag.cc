@@ -142,8 +142,8 @@ int main() {
     {
         auto pltext = ::fast_io::u8string_view{u8"<p>a</p>\n\n\n<p>b</p>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer =
-            ::fast_io::u8string_view{u8"<p style=\"text-align:left\">a</p><br><br><br><p style=\"text-align:left\">b</p>"};
+        auto answer = ::fast_io::u8string_view{
+            u8"<p style=\"text-align:left\">a</p><br><br><br><p style=\"text-align:left\">b</p>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -185,8 +185,8 @@ int main() {
     {
         auto pltext = ::fast_io::u8string_view{u8"<p>a</p>\ntext\n<p>b</p>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer =
-            ::fast_io::u8string_view{u8"<p style=\"text-align:left\">a</p><br>text<br><p style=\"text-align:left\">b</p>"};
+        auto answer = ::fast_io::u8string_view{
+            u8"<p style=\"text-align:left\">a</p><br>text<br><p style=\"text-align:left\">b</p>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

@@ -220,8 +220,7 @@ constexpr auto ::pltxt2htm::PlAlign<ndebug>::operator=(this ::pltxt2htm::PlAlign
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::PlAlign<ndebug>::operator==(this ::pltxt2htm::PlAlign<ndebug> const&,
-                                                        ::pltxt2htm::PlAlign<ndebug> const&) noexcept
-    -> bool = default;
+                                                        ::pltxt2htm::PlAlign<ndebug> const&) noexcept -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::PlMark<ndebug>::PlMark(::pltxt2htm::Ast<ndebug>&& subast_,

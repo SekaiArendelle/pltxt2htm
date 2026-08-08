@@ -1437,10 +1437,12 @@ constexpr auto try_parse_align_tag(::fast_io::u8string_view pltext) noexcept
     }
     ::pltxt2htm::TextAlign align{};
     ::std::size_t value_end{0};
+
     struct AlignCandidate {
         ::fast_io::u8string_view keyword;
         ::pltxt2htm::TextAlign align;
     };
+
     constexpr AlignCandidate candidates[]{
         {u8"justified", ::pltxt2htm::TextAlign::justify},
         {u8"left", ::pltxt2htm::TextAlign::left},

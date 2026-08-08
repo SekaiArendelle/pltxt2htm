@@ -181,8 +181,7 @@ constexpr auto find_next_block_after_line_break(
         if (auto opt_align_tag = ::pltxt2htm::details::try_parse_align_tag<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
             opt_align_tag.has_value()) {
-            auto const [tag_len, align] =
-                opt_align_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            auto const [tag_len, align] = opt_align_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             current_index += tag_len + 1;
             call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                 ::pltxt2htm::details::FrontendContextVariant<ndebug>{
@@ -2958,8 +2957,8 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_p: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                    ::pltxt2htm::HtmlP<ndebug>{::std::move(subast), frame.get_align()}));
+                parent_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlP<ndebug>{::std::move(subast), frame.get_align()}));
                 parent_index += staged_index;
                 goto entry;
             }

@@ -535,8 +535,8 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_align: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                    node.as_pl_align().get_subast(), ::pltxt2htm::NodeKind::pl_align, 0));
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_pl_align().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::pl_align, 0));
                 ++current_index;
                 auto const align = node.as_pl_align().get_align();
                 switch (align) /* -Werror=switch */ {
