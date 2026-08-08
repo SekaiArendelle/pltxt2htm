@@ -45,7 +45,7 @@ constexpr void convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast<nde
             continue;
         }
         case ::pltxt2htm::NodeKind::space: {
-            out.push_back(u8' ');
+            out.append(u8"\u00A0");
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_ampersand:
@@ -250,7 +250,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::space: {
-                result.push_back(u8' ');
+                result.append(u8"\u00A0");
                 continue;
             }
             case ::pltxt2htm::NodeKind::md_escape_ampersand:

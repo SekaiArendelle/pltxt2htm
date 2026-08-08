@@ -7,7 +7,7 @@ int main() {
         auto answer = ::fast_io::u8string_view{u8"<img src=\"https://example.com/image.png\" alt=\"alt&nbsp;text\">"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = pltext;
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"![alt\u00A0text](https://example.com/image.png)"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
@@ -47,7 +47,7 @@ int main() {
         auto answer = ::fast_io::u8string_view{u8"![text&nbsp;with&nbsp;spaces](image.gif)"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = pltext;
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"![text\u00A0with\u00A0spaces](image.gif)"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
@@ -112,7 +112,8 @@ int main() {
             u8"<img src=\"example.com/image.jpg\" alt=\"x&quot;&nbsp;onerror=&quot;alert(&apos;XSS&apos;)\">"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = pltext;
+        auto plunity_richtext_answer =
+            ::fast_io::u8string_view{u8"![x\"\u00A0onerror=\"alert('XSS')](example.com/image.jpg)"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
