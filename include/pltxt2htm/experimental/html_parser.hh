@@ -400,22 +400,6 @@ entry:
                     continue;
                 }
 
-                case u8'h':
-                    [[fallthrough]];
-                case u8'H': {
-                    if (auto opt_tag_len = ::pltxt2htm::details::try_parse_self_closing_tag<ndebug, u8"r">(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
-                        opt_tag_len.has_value()) {
-                        current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1;
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlHr{}));
-                        ++current_index;
-                        continue;
-                    }
-                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
-                    ++current_index;
-                    continue;
-                }
-
                 case u8'i':
                     [[fallthrough]];
                 case u8'I': {

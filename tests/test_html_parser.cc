@@ -79,8 +79,7 @@ int main() {
     }
     {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<hr><h1>Section</h1><hr><p>Paragraph</p>");
-        auto answer = ::fast_io::u8string_view{
-            u8"<hr><h1>Section</h1><hr><p style=\"text-align:left\">Paragraph</p>"};
+        auto answer = ::fast_io::u8string_view{u8"<hr><h1>Section</h1><hr><p style=\"text-align:left\">Paragraph</p>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
