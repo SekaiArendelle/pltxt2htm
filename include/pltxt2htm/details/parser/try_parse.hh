@@ -1431,14 +1431,12 @@ constexpr auto try_parse_align_tag(::fast_io::u8string_view pltext) noexcept
     auto const value_view = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_start);
     ::pltxt2htm::TextAlign align{};
     ::std::size_t value_end{0};
-    // Longest spellings first so "justified" wins over its prefix "justify".
     struct AlignCandidate {
         ::fast_io::u8string_view keyword;
         ::pltxt2htm::TextAlign align;
     };
     constexpr AlignCandidate candidates[]{
         {u8"justified", ::pltxt2htm::TextAlign::justify},
-        {u8"justify", ::pltxt2htm::TextAlign::justify},
         {u8"left", ::pltxt2htm::TextAlign::left},
         {u8"center", ::pltxt2htm::TextAlign::center},
         {u8"right", ::pltxt2htm::TextAlign::right},

@@ -20,8 +20,9 @@ int main() {
     }
 
     {
+        // "justify" is not a valid TMP align value; only "justified" is
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<align=justify>hello</align>");
-        auto answer = ::fast_io::u8string_view{u8"<p style=\"text-align:justify\">hello</p>"};
+        auto answer = ::fast_io::u8string_view{u8"&lt;align=justify&gt;hello&lt;/align&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -114,8 +115,9 @@ int main() {
     }
 
     {
+        // "justify" is not a valid TMP align value; renders as literal text
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<align=justify>text</align>");
-        auto answer = ::fast_io::u8string_view{u8"<align=justified>text</align>"};
+        auto answer = ::fast_io::u8string_view{u8"<size=20>＜</size>align=justify<size=20>＞</size>text<size=20>＜</size>/align<size=20>＞</size>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
