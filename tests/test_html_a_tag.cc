@@ -42,7 +42,7 @@ int main() {
     {
         auto html =
             ::pltxt2htm_test::pltxt2plunity_introduction(u8"<a href=\"https://www.example.com\">click here</a>");
-        auto answer = ::fast_io::u8string_view{u8"<external=https://www.example.com>click here</external>"};
+        auto answer = ::fast_io::u8string_view{u8"<external=https://www.example.com>click\u00A0here</external>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

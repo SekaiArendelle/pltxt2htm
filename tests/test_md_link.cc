@@ -72,7 +72,7 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer =
-            ::fast_io::u8string_view{u8"<external=https://example.com/path>text with spaces</external>"};
+            ::fast_io::u8string_view{u8"<external=https://example.com/path>text\u00A0with\u00A0spaces</external>"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
@@ -83,7 +83,7 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer =
-            ::fast_io::u8string_view{u8"<external=example.com>escaped [brackets]</external>"};
+            ::fast_io::u8string_view{u8"<external=example.com>escaped\u00A0[brackets]</external>"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
@@ -93,7 +93,7 @@ int main() {
         auto answer = ::fast_io::u8string_view{u8"[nested&nbsp;[link]](url)"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = pltext;
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"[nested\u00A0[link]](url)"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
@@ -103,7 +103,7 @@ int main() {
         auto answer = ::fast_io::u8string_view{u8"[nested&nbsp;[link]](example.com)"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = pltext;
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"[nested\u00A0[link]](example.com)"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 

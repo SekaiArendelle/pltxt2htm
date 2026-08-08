@@ -18,8 +18,8 @@ int main() {
             ::fast_io::u8string_view{u8"visit&nbsp;<a href=\"https://example.com\">https://example.com</a>&nbsp;now"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer =
-            ::fast_io::u8string_view{u8"visit <external=https://example.com>https://example.com</external> now"};
+        auto plunity_richtext_answer = ::fast_io::u8string_view{
+            u8"visit\u00A0<external=https://example.com>https://example.com</external>\u00A0now"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
     {
@@ -102,7 +102,7 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer =
-            ::fast_io::u8string_view{u8"<external=https://example.com/a>https://example.com/a</external> b"};
+            ::fast_io::u8string_view{u8"<external=https://example.com/a>https://example.com/a</external>\u00A0b"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
     {
