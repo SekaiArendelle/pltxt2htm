@@ -1429,26 +1429,14 @@ constexpr auto try_parse_align_tag(::fast_io::u8string_view pltext) noexcept
     }
     constexpr auto value_start = prefix_str.size() + 1;
     auto const value_view = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_start);
-    auto const match_keyword = [&](::fast_io::u8string_view const keyword) noexcept
-        -> ::exception::optional<::std::size_t> {
-        if (value_view.size() < keyword.size()) {
-            return ::exception::nullopt;
-        }
-        if (::fast_io::u8string_view{value_view.data(), keyword.size()} != keyword) {
-            return ::exception::nullopt;
-        }
-        if (value_view.size() > keyword.size()) {
-            auto const next = ::pltxt2htm::details::u8string_view_index<ndebug>(value_view, keyword.size());
-            if (::pltxt2htm::details::is_ascii_alpha(next) || ::pltxt2htm::details::is_ascii_digit(next)) {
-                return ::exception::nullopt;
-            }
-        }
-        return keyword.size();
-    };
     ::pltxt2htm::TextAlign align{};
     ::std::size_t value_end{0};
     // Longest spellings first so "justified" wins over its prefix "justify".
-    constexpr ::std::pair<::fast_io::u8string_view, ::pltxt2htm::TextAlign> candidates[]{
+    struct AlignCandidate {
+        ::fast_io::u8string_view keyword;
+        ::pltxt2htm::TextAlign align;
+    };
+    constexpr AlignCandidate candidates[]{
         {u8"justified", ::pltxt2htm::TextAlign::justify},
         {u8"justify", ::pltxt2htm::TextAlign::justify},
         {u8"left", ::pltxt2htm::TextAlign::left},
@@ -1456,14 +1444,25 @@ constexpr auto try_parse_align_tag(::fast_io::u8string_view pltext) noexcept
         {u8"right", ::pltxt2htm::TextAlign::right},
     };
     bool matched{false};
-    for (auto const& [keyword, candidate_align] : candidates) {
-        auto const opt_len = match_keyword(keyword);
-        if (opt_len.has_value()) {
-            align = candidate_align;
-            value_end = opt_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-            matched = true;
-            break;
+    for (auto const& candidate : candidates) {
+        auto const keyword = candidate.keyword;
+        auto const candidate_align = candidate.align;
+        if (value_view.size() < keyword.size()) {
+            continue;
         }
+        if (::fast_io::u8string_view{value_view.data(), keyword.size()} != keyword) {
+            continue;
+        }
+        if (value_view.size() > keyword.size()) {
+            auto const next = ::pltxt2htm::details::u8string_view_index<ndebug>(value_view, keyword.size());
+            if (::pltxt2htm::details::is_ascii_alpha(next) || ::pltxt2htm::details::is_ascii_digit(next)) {
+                continue;
+            }
+        }
+        align = candidate_align;
+        value_end = keyword.size();
+        matched = true;
+        break;
     }
     if (matched == false) {
         return ::exception::nullopt;
