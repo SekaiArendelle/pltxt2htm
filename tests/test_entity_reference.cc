@@ -160,6 +160,59 @@ int main() {
         auto answer = ::fast_io::u8string_view{u8"&amp;\t'\""};
         pltxt2htm_test_assert_equal(html, answer);
     }
+    // plunity backend decodes numeric character references to their characters
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"&#38;");
+        pltxt2htm_test_assert_equal(html, u8"&");
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"&#x26;");
+        pltxt2htm_test_assert_equal(html, u8"&");
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"&#X2A;");
+        pltxt2htm_test_assert_equal(html, u8"*");
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"&#34;");
+        pltxt2htm_test_assert_equal(html, u8"\"");
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"&#39;");
+        pltxt2htm_test_assert_equal(html, u8"'");
+    }
+    {
+        // '<' and '>' are emitted in TMP-escaped full-width form
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"&#60;");
+        pltxt2htm_test_assert_equal(html, u8"<size=20>\uff1c</size>");
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"&#62;");
+        pltxt2htm_test_assert_equal(html, u8"<size=20>\uff1e</size>");
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"&#160;");
+        pltxt2htm_test_assert_equal(html, u8"\u00A0");
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"a&#33;b");
+        pltxt2htm_test_assert_equal(html, u8"a!b");
+    }
+    {
+        // 4-byte UTF-8 code point
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"&#x1F600;");
+        pltxt2htm_test_assert_equal(html, u8"\U0001F600");
+    }
+    {
+        // Out-of-range code points fall back to the verbatim reference
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"&#1114112;");
+        pltxt2htm_test_assert_equal(html, u8"&#1114112;");
+    }
+    {
+        // Surrogate code points fall back to the verbatim reference
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"&#xD800;");
+        pltxt2htm_test_assert_equal(html, u8"&#xD800;");
+    }
 
     return 0;
 }
