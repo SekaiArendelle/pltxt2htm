@@ -2,12 +2,22 @@
 
 int main() {
     {
-        auto pltext = ::fast_io::u8string_view{u8"<h1>text</h1>"};
+        auto pltext = ::fast_io::u8string_view{u8"<h1>test</h1>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"<h1>text</h1>"};
+        auto answer = ::fast_io::u8string_view{u8"<h1>test</h1>"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<size=38><b>text</b></size>"};
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<size=38><b>test</b></size>"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    {
+        auto pltext = ::fast_io::u8string_view{u8"<h1>test</h1>text"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer = ::fast_io::u8string_view{u8"<h1>test</h1>text"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<size=38><b>test</b></size>\ntext"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
@@ -50,7 +60,7 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{
-            u8"<size=38><b>text<size=20>\uFF1C</size>h1<size=20>\uFF1E</size>text</b></size>"
+            u8"<size=38><b>text<size=20>\uFF1C</size>h1<size=20>\uFF1E</size>text</b></size>\n"
             u8"<size=20>\uFF1C</size>/h1<size=20>\uFF1E</size>"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
