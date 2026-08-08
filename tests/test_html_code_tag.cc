@@ -105,13 +105,17 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab<code>test</code>cd");
-        auto answer = ::fast_io::u8string_view{u8"ab<code>test</code>cd"};
+        auto answer = ::fast_io::u8string_view{
+            u8"ab<size=20>\uff1c</size>code<size=20>\uff1e</size>test<size=20>\uff1c</size>/code<size=20>\uff1e</"
+            u8"size>cd"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<code class=\"language-cpp\">code</code>");
-        auto answer = ::fast_io::u8string_view{u8"<code class=\"language-cpp\">code</code>"};
+        auto answer = ::fast_io::u8string_view{
+            u8"<size=20>\uff1c</size>code class=\"language-cpp\"<size=20>\uff1e</size>code<size=20>\uff1c</size>/code"
+            u8"<size=20>\uff1e</size>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

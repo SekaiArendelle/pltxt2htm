@@ -7,7 +7,9 @@ int main() {
         auto answer = ::fast_io::u8string_view{u8"<img src=\"https://example.com/image.png\" alt=\"description\">"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = pltext;
+        auto plunity_richtext_answer = ::fast_io::u8string_view{
+            u8"<size=20>\uff1c</size>img src=\"https://example.com/image.png\" alt=\"description\""
+            u8"<size=20>\uff1e</size>"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
@@ -17,8 +19,9 @@ int main() {
         auto answer = ::fast_io::u8string_view{u8"<img src=\"https://example.com/image.png\" alt=\"description\">"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer =
-            ::fast_io::u8string_view{u8"<img src=\"https://example.com/image.png\" alt=\"description\">"};
+        auto plunity_richtext_answer = ::fast_io::u8string_view{
+            u8"<size=20>\uff1c</size>img src=\"https://example.com/image.png\" alt=\"description\""
+            u8"<size=20>\uff1e</size>"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
@@ -28,8 +31,9 @@ int main() {
         auto answer = ::fast_io::u8string_view{u8"<img src=\"https://example.com/image.png\" alt=\"description\">"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer =
-            ::fast_io::u8string_view{u8"<img src=\"https://example.com/image.png\" alt=\"description\">"};
+        auto plunity_richtext_answer = ::fast_io::u8string_view{
+            u8"<size=20>\uff1c</size>img src=\"https://example.com/image.png\" alt=\"description\""
+            u8"<size=20>\uff1e</size>"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
@@ -46,7 +50,8 @@ int main() {
         auto answer = ::fast_io::u8string_view{u8"前<img src=\"a.jpg\" alt=\"中间\">后"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = pltext;
+        auto plunity_richtext_answer = ::fast_io::u8string_view{
+            u8"前<size=20>\uff1c</size>img src=\"a.jpg\" alt=\"中间\"<size=20>\uff1e</size>后"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
