@@ -7,7 +7,7 @@ int main() {
         auto answer = ::fast_io::u8string_view(u8"<ul><li><input type=\"checkbox\" disabled>task</li></ul>");
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity = ::pltxt2htm_test::pltxt2plunity_introduction(u8"- [ ] task");
-        auto plunity_answer = ::fast_io::u8string_view(u8"[ ] task\n");
+        auto plunity_answer = ::fast_io::u8string_view(u8"• ☐ task\n");
         pltxt2htm_test_assert_equal(plunity, plunity_answer);
     }
     // ---- checked checkbox ----
@@ -16,7 +16,7 @@ int main() {
         auto answer = ::fast_io::u8string_view(u8"<ul><li><input type=\"checkbox\" disabled checked>done</li></ul>");
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity = ::pltxt2htm_test::pltxt2plunity_introduction(u8"- [x] done");
-        auto plunity_answer = ::fast_io::u8string_view(u8"[x] done\n");
+        auto plunity_answer = ::fast_io::u8string_view(u8"• ☑ done\n");
         pltxt2htm_test_assert_equal(plunity, plunity_answer);
     }
     // ---- uppercase X ----
@@ -60,7 +60,7 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"- parent\n  - [x] child");
-        auto answer = ::fast_io::u8string_view{u8"• parent\n  [x] child\n"};
+        auto answer = ::fast_io::u8string_view{u8"• parent\n  ∘ ☑ child\n"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

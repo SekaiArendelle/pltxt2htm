@@ -949,11 +949,23 @@ entry:
                 }
                 else if (nested_tag_type == ::pltxt2htm::NodeKind::html_ul ||
                          nested_tag_type == ::pltxt2htm::NodeKind::md_ul) {
+                    if (indent_level % 3 == 1) {
+                        result.append(u8"\u2022 ");
+                    }
+                    else if (indent_level % 3 == 2) {
+                        result.append(u8"\u2218 ");
+                    }
+                    else if (indent_level % 3 == 0) {
+                        result.append(u8"\u25ab ");
+                    }
+                    else [[unlikely]] {
+                        pltxt2htm_unreachable(u8"Unexpected indent level remainder");
+                    }
                     if (node.as_md_li_checkbox().is_checked()) {
-                        result.append(u8"[x] ");
+                        result.append(u8"\u2611 ");
                     }
                     else {
-                        result.append(u8"[ ] ");
+                        result.append(u8"\u2610 ");
                     }
                 }
                 else [[unlikely]] {
