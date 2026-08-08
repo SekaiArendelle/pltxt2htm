@@ -1413,16 +1413,17 @@ struct TryParseAlignTagResult {
 
 /**
  * @brief Parse a `<align=value>` opening tag (Unity TextMeshPro rich text).
- * @details The value is a lowercase text-alignment keyword: `left`, `center`, `right`,
- *          `justify` or `justified` (both mapped to ::pltxt2htm::TextAlign::justify).
- *          Any other value makes the tag render as literal text. The tag name prefix is
- *          `lign` because the caller has already consumed the leading `<a`.
+ * @details The tag name prefix `<a`/`<A` and the `lign` name are matched here, so the
+ *          whole `<align=...>` tag is consumed. The value is a lowercase text-alignment
+ *          keyword: `left`, `center`, `right`, `justify` or `justified` (both mapped to
+ *          ::pltxt2htm::TextAlign::justify). Any other value makes the tag render as
+ *          literal text.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_align_tag(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseAlignTagResult> {
-    constexpr auto prefix_str = ::pltxt2htm::details::U8LiteralString{u8"lign"};
+    constexpr auto prefix_str = ::pltxt2htm::details::U8LiteralString{u8"<align"};
     if (::pltxt2htm::details::is_equal_sign_tag_prefix<ndebug, prefix_str>(pltext) == false) {
         return ::exception::nullopt;
     }

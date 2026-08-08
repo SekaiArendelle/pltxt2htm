@@ -178,25 +178,20 @@ constexpr auto find_next_block_after_line_break(
                 .advance_count = current_index, .new_frame_been_pushed_into_call_stack = true};
         }
         // Check for Unity TMP <align=...> tag at line start
-        if (current_index + 1 < pltext.size()) {
-            auto const next_chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index + 1);
-            if (next_chr == u8'a' || next_chr == u8'A') {
-                if (auto opt_align_tag = ::pltxt2htm::details::try_parse_align_tag<ndebug>(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
-                    opt_align_tag.has_value()) {
-                    auto const [tag_len, align] =
-                        opt_align_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-                    current_index += tag_len + 3;
-                    call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                        ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                            ::pltxt2htm::details::ParserFrameContextWithAlignInfo{
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), align},
-                            ::pltxt2htm::NodeKind::pl_align},
-                        ::pltxt2htm::Ast<ndebug>{}));
-                    return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{
-                        .advance_count = current_index, .new_frame_been_pushed_into_call_stack = true};
-                }
-            }
+        if (auto opt_align_tag = ::pltxt2htm::details::try_parse_align_tag<ndebug>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            opt_align_tag.has_value()) {
+            auto const [tag_len, align] =
+                opt_align_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            current_index += tag_len + 1;
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                    ::pltxt2htm::details::ParserFrameContextWithAlignInfo{
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), align},
+                    ::pltxt2htm::NodeKind::pl_align},
+                ::pltxt2htm::Ast<ndebug>{}));
+            return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{
+                .advance_count = current_index, .new_frame_been_pushed_into_call_stack = true};
         }
         // Check for HTML <h1> tag at line start
         if (auto opt_h1_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<h1">(
