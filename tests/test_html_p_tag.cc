@@ -51,7 +51,7 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{
-            u8"text<size=20>\uFF1C</size>p<size=20>\uFF1E</size>text<size=20>\uFF1C</size>/p<size=20>\uFF1E</size>"};
+            u8"text<size=20>\uFF1C</size>p<size=20>\uFF1E</size>text\n<size=20>\uFF1C</size>/p<size=20>\uFF1E</size>"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
@@ -147,7 +147,7 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
-    // trailing text after a closing </p> joins the same line
+    // trailing text after a closing </p> starts a new line
     {
         auto pltext = ::fast_io::u8string_view{u8"<p>a</p>text\n<p>b</p>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
@@ -155,7 +155,7 @@ int main() {
             ::fast_io::u8string_view{u8"<p style=\"text-align:left\">a</p>text<br><p style=\"text-align:left\">b</p>"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"atext\nb"};
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"a\ntext\nb"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
