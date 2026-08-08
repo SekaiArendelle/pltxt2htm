@@ -34,5 +34,12 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto pltext = ::fast_io::u8string_view{u8"<hr><h1>text</h1>"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer = ::fast_io::u8string_view{u8"<hr><h1>text</h1>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }
