@@ -275,5 +275,26 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // an empty <align> block is kept like an empty <p> (it carries the block
+    // boundary), not erased by the optimizer
+    {
+        auto pltext = ::fast_io::u8string_view{u8"<align=center></align>"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer = ::fast_io::u8string_view{u8"<p style=\"text-align:center\"></p>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<align=center></align>"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    // an empty <align> between two text lines preserves the empty paragraph
+    {
+        auto pltext = ::fast_io::u8string_view{u8"a\n<align=center></align>\nb"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer =
+            ::fast_io::u8string_view{u8"a<br><p style=\"text-align:center\"></p><br>b"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }
