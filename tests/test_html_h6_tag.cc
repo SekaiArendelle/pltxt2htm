@@ -49,7 +49,7 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{
-            u8"<b>text<size=20>\uFF1C</size>h6<size=20>\uFF1E</size>text</b>"
+            u8"<b>text<size=20>\uFF1C</size>h6<size=20>\uFF1E</size>text</b>\n"
             u8"<size=20>\uFF1C</size>/h6<size=20>\uFF1E</size>"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
@@ -114,7 +114,7 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{
-            u8"<b>text<size=20>\uFF1C</size>/h5<size=20>\uFF1E</size>text</b><size=20>\uFF1C</size>/"
+            u8"<b>text<size=20>\uFF1C</size>/h5<size=20>\uFF1E</size>text</b>\n<size=20>\uFF1C</size>/"
             u8"h6<size=20>\uFF1E</size>"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
