@@ -51,6 +51,15 @@ public:
 };
 
 /**
+ * @brief Context for <pre> frames: remembers whether the pre directly wraps a <code>
+ *        (the `<pre><code>` code-block pattern).
+ */
+class BackendContextWithHtmlPreInfo {
+public:
+    bool is_code_block{}; ///< Whether the pre is a `<pre><code>` code block.
+};
+
+/**
  * @brief Tagged-union variant of backend context payloads.
  * @details Dispatched on `kind` (::pltxt2htm::NodeKind) – used inside
  *          ::pltxt2htm::details::BackendFrameContext.
@@ -62,6 +71,7 @@ public:
         ::pltxt2htm::details::BackendContextWithOlInfo ol_info;
         ::pltxt2htm::details::BackendContextWithHtmlSpanInfo html_span_info;
         ::pltxt2htm::details::BackendContextWithAlignInfo align_info;
+        ::pltxt2htm::details::BackendContextWithHtmlPreInfo html_pre_info;
     };
 
     ::pltxt2htm::NodeKind kind;
@@ -86,6 +96,12 @@ public:
     constexpr BackendContextVariant(::pltxt2htm::NodeKind const kind_,
                                     ::pltxt2htm::details::BackendContextWithAlignInfo align_info_context) noexcept
         : align_info{::std::move(align_info_context)},
+          kind{kind_} {
+    }
+
+    constexpr BackendContextVariant(::pltxt2htm::NodeKind const kind_,
+                                    ::pltxt2htm::details::BackendContextWithHtmlPreInfo html_pre_info_context) noexcept
+        : html_pre_info{::std::move(html_pre_info_context)},
           kind{kind_} {
     }
 
@@ -139,6 +155,14 @@ public:
           current_index{current_index_} {
     }
 
+    constexpr BackendFrameContext(::pltxt2htm::Ast<ndebug> const& ast_, ::pltxt2htm::NodeKind const nested_tag_type,
+                                  ::std::size_t current_index_,
+                                  ::pltxt2htm::details::BackendContextWithHtmlPreInfo html_pre_info_context) noexcept
+        : context_data{nested_tag_type, ::std::move(html_pre_info_context)},
+          ast(::std::addressof(ast_)),
+          current_index{current_index_} {
+    }
+
     constexpr BackendFrameContext(::pltxt2htm::details::BackendFrameContext<ndebug> const&) noexcept = default;
     constexpr BackendFrameContext(::pltxt2htm::details::BackendFrameContext<ndebug>&&) noexcept = default;
 
@@ -172,6 +196,13 @@ public:
         bool const is_align_type{self.context_data.kind == ::pltxt2htm::NodeKind::html_p};
         pltxt2htm_assert(is_align_type, u8"context kind mismatch");
         return self.context_data.align_info;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_html_pre_info(this auto const& self) noexcept -> BackendContextWithHtmlPreInfo {
+        bool const is_pre_type{self.context_data.kind == ::pltxt2htm::NodeKind::html_pre};
+        pltxt2htm_assert(is_pre_type, u8"context kind mismatch");
+        return self.context_data.html_pre_info;
     }
 
     [[nodiscard]]

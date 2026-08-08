@@ -1011,8 +1011,23 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_pre: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_pre().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::html_pre, 0));
+                auto const& pre_subast = node.as_html_pre().get_subast();
+                bool const is_code_block = pre_subast.size() == 1 &&
+                                           ::pltxt2htm::details::vector_index<ndebug>(pre_subast, 0).get_node_kind() ==
+                                               ::pltxt2htm::NodeKind::html_code;
+                if (is_code_block) {
+                    auto const& code_subast =
+                        ::pltxt2htm::details::vector_index<ndebug>(pre_subast, 0).as_html_code().get_subast();
+                    call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
+                        code_subast, ::pltxt2htm::NodeKind::html_pre, 0,
+                        ::pltxt2htm::details::BackendContextWithHtmlPreInfo{.is_code_block = true}));
+                    ++current_index;
+                    result.append(u8"<font=\"PhysicsLab-NerdFont SDF\">\n");
+                    goto entry;
+                }
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
+                    pre_subast, ::pltxt2htm::NodeKind::html_pre, 0,
+                    ::pltxt2htm::details::BackendContextWithHtmlPreInfo{.is_code_block = false}));
                 ++current_index;
                 result.append(u8"<size=20>\uff1c</size>pre<size=20>\uff1e</size>");
                 goto entry;
@@ -1626,7 +1641,12 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_pre: {
-                result.append(u8"<size=20>\uff1c</size>/pre<size=20>\uff1e</size>");
+                if (top_frame.get_html_pre_info().is_code_block) {
+                    result.append(u8"\n</font>");
+                }
+                else {
+                    result.append(u8"<size=20>\uff1c</size>/pre<size=20>\uff1e</size>");
+                }
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_block_quotes: {
