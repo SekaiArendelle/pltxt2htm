@@ -1413,10 +1413,10 @@ struct TryParseAlignTagResult {
 
 /**
  * @brief Parse a `<align=value>` opening tag (Unity TextMeshPro rich text).
- * @details The tag name prefix `<a`/`<A` and the `lign` name are matched here, so the
- *          whole `<align=...>` tag is consumed. The value is a lowercase text-alignment
- *          keyword: `left`, `center`, `right`, `justify` or `justified` (both mapped to
- *          ::pltxt2htm::TextAlign::justify). Any other value makes the tag render as
+ * @details The whole `<align=...>` tag is consumed, matching the `lign` name (case
+ *          insensitive) after the leading `<`. The value is a text-alignment keyword,
+ *          optionally wrapped in double quotes: `left`, `center`, `right`, `justified`
+ *          (or `"left"`, `"center"`, etc.). Any other value makes the tag render as
  *          literal text.
  */
 template<::pltxt2htm::Contracts ndebug>
@@ -1428,7 +1428,13 @@ constexpr auto try_parse_align_tag(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt;
     }
     constexpr auto value_start = prefix_str.size() + 1;
-    auto const value_view = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_start);
+    auto value_view = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_start);
+    bool const quoted =
+        value_view.size() != 0 && ::pltxt2htm::details::u8string_view_index<ndebug>(value_view, 0) == u8'"';
+    ::std::size_t const quote_offset = quoted ? 1 : 0;
+    if (quoted) {
+        value_view = ::pltxt2htm::details::u8string_view_subview<ndebug>(value_view, 1);
+    }
     ::pltxt2htm::TextAlign align{};
     ::std::size_t value_end{0};
     struct AlignCandidate {
@@ -1465,12 +1471,27 @@ constexpr auto try_parse_align_tag(::fast_io::u8string_view pltext) noexcept
     if (matched == false) {
         return ::exception::nullopt;
     }
-    auto opt_close = ::pltxt2htm::details::try_parse_equal_sign_tag_suffix<ndebug>(
-        ::pltxt2htm::details::u8string_view_subview<ndebug>(value_view, value_end));
+    auto after_value = ::pltxt2htm::details::u8string_view_subview<ndebug>(value_view, value_end);
+    ::std::size_t quote_close_offset{0};
+    if (quoted) {
+        while (quote_close_offset < after_value.size() &&
+               (::pltxt2htm::details::u8string_view_index<ndebug>(after_value, quote_close_offset) == u8' ' ||
+                ::pltxt2htm::details::u8string_view_index<ndebug>(after_value, quote_close_offset) == u8'\t')) {
+            ++quote_close_offset;
+        }
+        if (quote_close_offset >= after_value.size() ||
+            ::pltxt2htm::details::u8string_view_index<ndebug>(after_value, quote_close_offset) != u8'"') {
+            return ::exception::nullopt;
+        }
+        ++quote_close_offset;
+        after_value = ::pltxt2htm::details::u8string_view_subview<ndebug>(after_value, quote_close_offset);
+    }
+    auto opt_close = ::pltxt2htm::details::try_parse_equal_sign_tag_suffix<ndebug>(after_value);
     if (opt_close.has_value() == false) {
         return ::exception::nullopt;
     }
-    auto const tag_len = value_start + value_end + opt_close.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+    auto const tag_len = value_start + quote_offset + value_end + quote_close_offset +
+                         opt_close.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
     return ::pltxt2htm::details::TryParseAlignTagResult{tag_len, align};
 }
 

@@ -39,6 +39,27 @@ int main() {
     }
 
     {
+        // double-quoted value (TMP allows <align="center">)
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<align=\"center\">hello</align>");
+        auto answer = ::fast_io::u8string_view{u8"<p style=\"text-align:center\">hello</p>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // quoted value with whitespace around the closing quote
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<align=\"right\" >hello</align  >");
+        auto answer = ::fast_io::u8string_view{u8"<p style=\"text-align:right\">hello</p>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // unmatched opening quote renders as literal text
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<align=\"center>hello</align>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;align=&quot;center&gt;hello&lt;/align&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<align=center   >hello</align  >");
         auto answer = ::fast_io::u8string_view{u8"<p style=\"text-align:center\">hello</p>"};
         pltxt2htm_test_assert_equal(html, answer);
@@ -131,6 +152,20 @@ int main() {
         // left is emitted verbatim for an explicit align tag
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<align=left>text</align>");
         auto answer = ::fast_io::u8string_view{u8"<align=left>text</align>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // plunity backend emits unquoted TMP align tags for a quoted input
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<align=\"right\">text</align>");
+        auto answer = ::fast_io::u8string_view{u8"<align=right>text</align>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // plunity backend emits unquoted TMP align tags for a quoted input
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<align=right\">text</align>");
+        auto answer = ::fast_io::u8string_view{u8"<size=20>＜</size>align=right\"<size=20>＞</size>text<size=20>＜</size>/align<size=20>＞</size>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
