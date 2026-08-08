@@ -418,6 +418,9 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_pl_align().get_subast(), ::pltxt2htm::NodeKind::pl_align, 0));
                 ++current_index;
+                if (result.empty() == false && result.back() != u8'\n') {
+                    result.push_back(u8'\n');
+                }
                 result.append(u8"<align=");
                 auto const align = node.as_pl_align().get_align();
                 if (align == ::pltxt2htm::TextAlign::left) {

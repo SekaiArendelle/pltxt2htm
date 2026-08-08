@@ -65,6 +65,12 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
             }
             return ::exception::nullopt;
         }();
+        auto const opt_pl_align = [&] constexpr noexcept -> ::exception::optional<::pltxt2htm::TextAlign> {
+            if (type_of_subast == ::pltxt2htm::NodeKind::pl_align) {
+                return call_stack.top().get_pl_align_tag_value();
+            }
+            return ::exception::nullopt;
+        }();
         auto&& [subast, consumed_bytes] = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
         switch (type_of_subast) {
         case ::pltxt2htm::NodeKind::md_atx_h1: {
@@ -115,6 +121,15 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
             auto html_p_align = opt_html_p_align.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             result.push_back(
                 ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlP<ndebug>{::std::move(subast), html_p_align}));
+            continue;
+        }
+        case ::pltxt2htm::NodeKind::pl_align: {
+            // Same as html_p: advance start_index past the consumed pl_align content, preserving
+            // the Textalign read from the frame top before the recursive parse popped it.
+            start_index += consumed_bytes;
+            auto pl_align_value = opt_pl_align.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            result.push_back(
+                ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::PlAlign<ndebug>{::std::move(subast), pl_align_value}));
             continue;
         }
         case ::pltxt2htm::NodeKind::html_h1: {

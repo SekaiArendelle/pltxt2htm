@@ -3,75 +3,76 @@
 int main() {
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<align=center>hello</align>");
-        auto answer = ::fast_io::u8string_view{u8"<span style=\"text-align:center;\">hello</span>"};
+        auto answer = ::fast_io::u8string_view{u8"<p style=\"text-align:center\">hello</p>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<align=left>hello</align>");
-        auto answer = ::fast_io::u8string_view{u8"<span style=\"text-align:left;\">hello</span>"};
+        auto answer = ::fast_io::u8string_view{u8"<p style=\"text-align:left\">hello</p>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<align=right>hello</align>");
-        auto answer = ::fast_io::u8string_view{u8"<span style=\"text-align:right;\">hello</span>"};
+        auto answer = ::fast_io::u8string_view{u8"<p style=\"text-align:right\">hello</p>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<align=justify>hello</align>");
-        auto answer = ::fast_io::u8string_view{u8"<span style=\"text-align:justify;\">hello</span>"};
+        auto answer = ::fast_io::u8string_view{u8"<p style=\"text-align:justify\">hello</p>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<align=justified>hello</align>");
-        auto answer = ::fast_io::u8string_view{u8"<span style=\"text-align:justify;\">hello</span>"};
+        auto answer = ::fast_io::u8string_view{u8"<p style=\"text-align:justify\">hello</p>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<Align=center>hello</align>");
-        auto answer = ::fast_io::u8string_view{u8"<span style=\"text-align:center;\">hello</span>"};
+        auto answer = ::fast_io::u8string_view{u8"<p style=\"text-align:center\">hello</p>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<align=center   >hello</align  >");
-        auto answer = ::fast_io::u8string_view{u8"<span style=\"text-align:center;\">hello</span>"};
+        auto answer = ::fast_io::u8string_view{u8"<p style=\"text-align:center\">hello</p>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
-        // empty content collapses
+        // mid-line <align> sequences are literal text, so nothing collapses
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<align=center></align>t");
-        auto answer = ::fast_io::u8string_view{u8"tt"};
+        auto answer = ::fast_io::u8string_view{u8"t&lt;align=center&gt;&lt;/align&gt;t"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"hello<align=center>");
-        auto answer = ::fast_io::u8string_view{u8"hello"};
+        auto answer = ::fast_io::u8string_view{u8"hello&lt;align=center&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<align=left>hello");
-        auto answer = ::fast_io::u8string_view{u8"<span style=\"text-align:left;\">hello</span>"};
+        auto answer = ::fast_io::u8string_view{u8"<p style=\"text-align:left\">hello</p>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
+        // inner inline <align=right> is literal text; only the outer block frame parses
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<align=center>hello<align=right>world</align></align>");
         auto answer = ::fast_io::u8string_view{
-            u8"<span style=\"text-align:center;\">hello<span style=\"text-align:right;\">world</span></span>"};
+            u8"<p style=\"text-align:center\">hello&lt;align=right&gt;world</p>&lt;/align&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<align=center><i>test</i></align>");
-        auto answer = ::fast_io::u8string_view{u8"<span style=\"text-align:center;\"><em>test</em></span>"};
+        auto answer = ::fast_io::u8string_view{u8"<p style=\"text-align:center\"><em>test</em></p>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -128,6 +129,13 @@ int main() {
         // left is emitted verbatim for an explicit align tag
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<align=left>text</align>");
         auto answer = ::fast_io::u8string_view{u8"<align=left>text</align>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // plunity block: a line break forces block context, preserving <align>
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"before\n<align=right>text</align>");
+        auto answer = ::fast_io::u8string_view{u8"before\n<align=right>text</align>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

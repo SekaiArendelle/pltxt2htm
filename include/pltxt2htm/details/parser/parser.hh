@@ -177,6 +177,27 @@ constexpr auto find_next_block_after_line_break(
             return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{
                 .advance_count = current_index, .new_frame_been_pushed_into_call_stack = true};
         }
+        // Check for Unity TMP <align=...> tag at line start
+        if (current_index + 1 < pltext.size()) {
+            auto const next_chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index + 1);
+            if (next_chr == u8'a' || next_chr == u8'A') {
+                if (auto opt_align_tag = ::pltxt2htm::details::try_parse_align_tag<ndebug>(
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                    opt_align_tag.has_value()) {
+                    auto const [tag_len, align] =
+                        opt_align_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    current_index += tag_len + 3;
+                    call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                        ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                            ::pltxt2htm::details::ParserFrameContextWithPlAlignTagInfo{
+                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), align},
+                            ::pltxt2htm::NodeKind::pl_align},
+                        ::pltxt2htm::Ast<ndebug>{}));
+                    return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{
+                        .advance_count = current_index, .new_frame_been_pushed_into_call_stack = true};
+                }
+            }
+        }
         // Check for HTML <h1> tag at line start
         if (auto opt_h1_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<h1">(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
@@ -895,22 +916,10 @@ entry:
                 case u8'a':
                     [[fallthrough]];
                 case u8'A': {
-                    // parsing pl <align=value>$1</align> tag (Unity TextMeshPro rich text)
-                    if (auto opt_align_tag = ::pltxt2htm::details::try_parse_align_tag<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
-                        opt_align_tag.has_value()) {
-                        auto const [tag_len, align] =
-                            opt_align_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-                        current_index += tag_len + 3;
-                        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                                ::pltxt2htm::details::ParserFrameContextWithPlAlignTagInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), align},
-                                ::pltxt2htm::NodeKind::pl_align},
-                            ::pltxt2htm::Ast<ndebug>{}));
-                        goto entry;
-                    }
                     // parsing pl <a>$1</a> tag (not html <a> tag)
+                    // Note: <align=...> (Unity TextMeshPro) is only parsed at line-start
+                    // block context via find_next_block_after_line_break; inline occurrences
+                    // render as literal text (same as inline <p>).
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
@@ -1926,6 +1935,13 @@ entry:
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlAlign staged_node(::std::move(result), frame.get_pl_align_tag_value());
                             call_stack.pop();
+                            if (call_stack.empty()) {
+                                return ::pltxt2htm::details::ParsePlTxtResult<ndebug>{
+                                    .subast = ::std::move(staged_node.get_subast()),
+                                    .consumed_bytes =
+                                        staged_index +
+                                        opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3};
+                            }
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index +=

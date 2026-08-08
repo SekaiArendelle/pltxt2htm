@@ -538,24 +538,31 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_pl_align().get_subast(), ::pltxt2htm::NodeKind::pl_align, 0));
                 ++current_index;
-                result.append(u8"<span style=\"text-align:");
                 auto const align = node.as_pl_align().get_align();
-                if (align == ::pltxt2htm::TextAlign::left) {
-                    result.append(u8"left");
+                switch (align) /* -Werror=switch */ {
+                case ::pltxt2htm::TextAlign::left: {
+                    result.append(u8"<p style=\"text-align:left\">");
+                    break;
                 }
-                else if (align == ::pltxt2htm::TextAlign::center) {
-                    result.append(u8"center");
+                case ::pltxt2htm::TextAlign::center: {
+                    result.append(u8"<p style=\"text-align:center\">");
+                    break;
                 }
-                else if (align == ::pltxt2htm::TextAlign::right) {
-                    result.append(u8"right");
+                case ::pltxt2htm::TextAlign::right: {
+                    result.append(u8"<p style=\"text-align:right\">");
+                    break;
                 }
-                else if (align == ::pltxt2htm::TextAlign::justify) {
-                    result.append(u8"justify");
+                case ::pltxt2htm::TextAlign::justify: {
+                    result.append(u8"<p style=\"text-align:justify\">");
+                    break;
                 }
-                else [[unlikely]] {
-                    pltxt2htm_unreachable(u8"Unexpected alignment value for align tag");
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
+                default:
+                    [[unlikely]] {
+                        pltxt2htm_unreachable(u8"Unexpected text alignment");
+                    }
+#endif
                 }
-                result.append(u8";\">");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_span: {
@@ -1517,7 +1524,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_align: {
-                result.append(u8"</span>");
+                result.append(u8"</p>");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_double_emphasis_underscore:
