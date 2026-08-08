@@ -30,102 +30,125 @@ struct FindNextBlockAfterLineBreakResult {
  * @tparam ndebug Contract checking mode.
  * @param pltext Input subview starting at the candidate block position.
  * @param call_stack Active parser call stack.
+ * @param result AST being built.
  * @return How many bytes were consumed and whether a new frame was created.
- * @note Only handles the `<p>` and `<h1>`–`<h6>` blocks for now; other block elements are out of scope for the html
- * parser.
+ * @note Only handles the `<p>`, `<h1>`–`<h6>` and `<hr>` blocks for now; other block elements are out of scope for
+ * the html parser.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto find_next_block_after_line_break(
-    ::fast_io::u8string_view pltext,
-    ::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>>& call_stack) noexcept
+    ::fast_io::u8string_view pltext, ::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>>& call_stack,
+    ::pltxt2htm::Ast<ndebug>& result) noexcept
     -> ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult {
-    if (auto opt_p_tag = ::pltxt2htm::details::try_parse_p_tag<ndebug>(pltext); opt_p_tag.has_value()) {
-        ::std::size_t const consumed{opt_p_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>().tag_len + 1};
-        auto const align = opt_p_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>().align;
-        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                ::pltxt2htm::details::ParserFrameContextWithAlignInfo{
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, consumed), align},
-                ::pltxt2htm::NodeKind::html_p},
-            ::pltxt2htm::Ast<ndebug>{}));
+    ::std::size_t current_index{};
+    while (true) {
+        // Check for HTML <hr> self-closing tag at block position. Emit it as a leaf and keep
+        // scanning so a following <h1>/<p> on the same line is recognized as a block (same as
+        // after a line break).
+        if (auto opt_hr_tag_len = ::pltxt2htm::details::try_parse_self_closing_tag<ndebug, u8"<hr">(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            opt_hr_tag_len.has_value()) {
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlHr{}));
+            current_index += opt_hr_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            continue;
+        }
+        if (auto opt_p_tag = ::pltxt2htm::details::try_parse_p_tag<ndebug>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            opt_p_tag.has_value()) {
+            ::std::size_t const consumed{opt_p_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>().tag_len +
+                                         1};
+            auto const align = opt_p_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>().align;
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                    ::pltxt2htm::details::ParserFrameContextWithAlignInfo{
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + consumed), align},
+                    ::pltxt2htm::NodeKind::html_p},
+                ::pltxt2htm::Ast<ndebug>{}));
+            return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
+                .advance_count = current_index + consumed, .new_frame_been_pushed_into_call_stack = true};
+        }
+        if (auto opt_h1_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<h1">(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            opt_h1_tag_len.has_value()) {
+            ::std::size_t const consumed{opt_h1_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1};
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                    ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + consumed)},
+                    ::pltxt2htm::NodeKind::html_h1},
+                ::pltxt2htm::Ast<ndebug>{}));
+            return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
+                .advance_count = current_index + consumed, .new_frame_been_pushed_into_call_stack = true};
+        }
+        if (auto opt_h2_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<h2">(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            opt_h2_tag_len.has_value()) {
+            ::std::size_t const consumed{opt_h2_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1};
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                    ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + consumed)},
+                    ::pltxt2htm::NodeKind::html_h2},
+                ::pltxt2htm::Ast<ndebug>{}));
+            return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
+                .advance_count = current_index + consumed, .new_frame_been_pushed_into_call_stack = true};
+        }
+        if (auto opt_h3_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<h3">(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            opt_h3_tag_len.has_value()) {
+            ::std::size_t const consumed{opt_h3_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1};
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                    ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + consumed)},
+                    ::pltxt2htm::NodeKind::html_h3},
+                ::pltxt2htm::Ast<ndebug>{}));
+            return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
+                .advance_count = current_index + consumed, .new_frame_been_pushed_into_call_stack = true};
+        }
+        if (auto opt_h4_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<h4">(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            opt_h4_tag_len.has_value()) {
+            ::std::size_t const consumed{opt_h4_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1};
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                    ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + consumed)},
+                    ::pltxt2htm::NodeKind::html_h4},
+                ::pltxt2htm::Ast<ndebug>{}));
+            return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
+                .advance_count = current_index + consumed, .new_frame_been_pushed_into_call_stack = true};
+        }
+        if (auto opt_h5_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<h5">(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            opt_h5_tag_len.has_value()) {
+            ::std::size_t const consumed{opt_h5_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1};
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                    ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + consumed)},
+                    ::pltxt2htm::NodeKind::html_h5},
+                ::pltxt2htm::Ast<ndebug>{}));
+            return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
+                .advance_count = current_index + consumed, .new_frame_been_pushed_into_call_stack = true};
+        }
+        if (auto opt_h6_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<h6">(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            opt_h6_tag_len.has_value()) {
+            ::std::size_t consumed{opt_h6_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1};
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                    ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + consumed)},
+                    ::pltxt2htm::NodeKind::html_h6},
+                ::pltxt2htm::Ast<ndebug>{}));
+            return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
+                .advance_count = current_index + consumed, .new_frame_been_pushed_into_call_stack = true};
+        }
         return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
-            .advance_count = consumed, .new_frame_been_pushed_into_call_stack = true};
+            .advance_count = current_index, .new_frame_been_pushed_into_call_stack = false};
     }
-    if (auto opt_h1_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<h1">(pltext);
-        opt_h1_tag_len.has_value()) {
-        ::std::size_t const consumed{opt_h1_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1};
-        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, consumed)},
-                ::pltxt2htm::NodeKind::html_h1},
-            ::pltxt2htm::Ast<ndebug>{}));
-        return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
-            .advance_count = consumed, .new_frame_been_pushed_into_call_stack = true};
-    }
-    if (auto opt_h2_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<h2">(pltext);
-        opt_h2_tag_len.has_value()) {
-        ::std::size_t const consumed{opt_h2_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1};
-        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, consumed)},
-                ::pltxt2htm::NodeKind::html_h2},
-            ::pltxt2htm::Ast<ndebug>{}));
-        return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
-            .advance_count = consumed, .new_frame_been_pushed_into_call_stack = true};
-    }
-    if (auto opt_h3_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<h3">(pltext);
-        opt_h3_tag_len.has_value()) {
-        ::std::size_t const consumed{opt_h3_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1};
-        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, consumed)},
-                ::pltxt2htm::NodeKind::html_h3},
-            ::pltxt2htm::Ast<ndebug>{}));
-        return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
-            .advance_count = consumed, .new_frame_been_pushed_into_call_stack = true};
-    }
-    if (auto opt_h4_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<h4">(pltext);
-        opt_h4_tag_len.has_value()) {
-        ::std::size_t const consumed{opt_h4_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1};
-        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, consumed)},
-                ::pltxt2htm::NodeKind::html_h4},
-            ::pltxt2htm::Ast<ndebug>{}));
-        return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
-            .advance_count = consumed, .new_frame_been_pushed_into_call_stack = true};
-    }
-    if (auto opt_h5_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<h5">(pltext);
-        opt_h5_tag_len.has_value()) {
-        ::std::size_t const consumed{opt_h5_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1};
-        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, consumed)},
-                ::pltxt2htm::NodeKind::html_h5},
-            ::pltxt2htm::Ast<ndebug>{}));
-        return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
-            .advance_count = consumed, .new_frame_been_pushed_into_call_stack = true};
-    }
-    if (auto opt_h6_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<h6">(pltext);
-        opt_h6_tag_len.has_value()) {
-        ::std::size_t const consumed{opt_h6_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1};
-        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, consumed)},
-                ::pltxt2htm::NodeKind::html_h6},
-            ::pltxt2htm::Ast<ndebug>{}));
-        return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
-            .advance_count = consumed, .new_frame_been_pushed_into_call_stack = true};
-    }
-    return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
-        .advance_count = 0, .new_frame_been_pushed_into_call_stack = false};
 }
 
 template<::pltxt2htm::Contracts ndebug>
@@ -143,7 +166,7 @@ entry:
         // Check for block-level <p> tag at line start (start of input or after frame completion)
         auto&& [entry_advance, entry_new_frame] =
             ::pltxt2htm::experimental::details::find_next_block_after_line_break<ndebug>(
-                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), call_stack);
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), call_stack, result);
         current_index += entry_advance;
         if (entry_new_frame) {
             goto entry;
@@ -158,7 +181,7 @@ entry:
                 // Check for block-level <p> tag after newline
                 auto&& [nl_advance, nl_new_frame] =
                     ::pltxt2htm::experimental::details::find_next_block_after_line_break<ndebug>(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), call_stack);
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), call_stack, result);
                 current_index += nl_advance;
                 if (nl_new_frame) {
                     goto entry;
@@ -251,7 +274,7 @@ entry:
                         auto&& [br_advance, br_new_frame] =
                             ::pltxt2htm::experimental::details::find_next_block_after_line_break<ndebug>(
                                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1),
-                                call_stack);
+                                call_stack, result);
                         current_index += br_advance;
                         if (br_new_frame) {
                             current_index += 1;
