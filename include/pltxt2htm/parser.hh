@@ -61,13 +61,13 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
         ::pltxt2htm::NodeKind const type_of_subast{call_stack.top().get_nested_tag_type()};
         auto const opt_html_p_align = [&] constexpr noexcept -> ::exception::optional<::pltxt2htm::TextAlign> {
             if (type_of_subast == ::pltxt2htm::NodeKind::html_p) {
-                return call_stack.top().get_p_align();
+                return call_stack.top().get_align();
             }
             return ::exception::nullopt;
         }();
         auto const opt_pl_align = [&] constexpr noexcept -> ::exception::optional<::pltxt2htm::TextAlign> {
             if (type_of_subast == ::pltxt2htm::NodeKind::pl_align) {
-                return call_stack.top().get_pl_align_tag_value();
+                return call_stack.top().get_align();
             }
             return ::exception::nullopt;
         }();

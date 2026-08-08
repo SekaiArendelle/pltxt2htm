@@ -170,7 +170,7 @@ constexpr auto find_next_block_after_line_break(
             current_index += tag_len + 1;
             call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                 ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                    ::pltxt2htm::details::ParserFrameContextWithPInfo{
+                    ::pltxt2htm::details::ParserFrameContextWithAlignInfo{
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), align},
                     ::pltxt2htm::NodeKind::html_p},
                 ::pltxt2htm::Ast<ndebug>{}));
@@ -189,7 +189,7 @@ constexpr auto find_next_block_after_line_break(
                     current_index += tag_len + 3;
                     call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                         ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                            ::pltxt2htm::details::ParserFrameContextWithPlAlignTagInfo{
+                            ::pltxt2htm::details::ParserFrameContextWithAlignInfo{
                                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), align},
                             ::pltxt2htm::NodeKind::pl_align},
                         ::pltxt2htm::Ast<ndebug>{}));
@@ -1933,7 +1933,7 @@ entry:
                                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
-                            ::pltxt2htm::PlAlign staged_node(::std::move(result), frame.get_pl_align_tag_value());
+                            ::pltxt2htm::PlAlign staged_node(::std::move(result), frame.get_align());
                             call_stack.pop();
                             if (call_stack.empty()) {
                                 return ::pltxt2htm::details::ParsePlTxtResult<ndebug>{
@@ -2018,7 +2018,7 @@ entry:
                             opt_tag_len.has_value()) {
                             // parsing end tag </p> successed
                             ::std::size_t const staged_index{current_index};
-                            auto const align = frame.get_p_align();
+                            auto const align = frame.get_align();
                             ::pltxt2htm::HtmlP staged_node(::std::move(result), align);
                             call_stack.pop();
                             if (call_stack.empty()) {
@@ -2927,7 +2927,7 @@ entry:
             }
             case ::pltxt2htm::NodeKind::pl_align: {
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                    ::pltxt2htm::PlAlign<ndebug>{::std::move(subast), frame.get_pl_align_tag_value()}));
+                    ::pltxt2htm::PlAlign<ndebug>{::std::move(subast), frame.get_align()}));
                 parent_index += staged_index;
                 goto entry;
             }
@@ -2964,7 +2964,7 @@ entry:
             }
             case ::pltxt2htm::NodeKind::html_p: {
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                    ::pltxt2htm::HtmlP<ndebug>{::std::move(subast), frame.get_p_align()}));
+                    ::pltxt2htm::HtmlP<ndebug>{::std::move(subast), frame.get_align()}));
                 parent_index += staged_index;
                 goto entry;
             }
