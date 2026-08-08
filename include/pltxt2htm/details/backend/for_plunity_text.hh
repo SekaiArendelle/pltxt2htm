@@ -965,21 +965,21 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_md_code_span_1_backtick().get_subast(), ::pltxt2htm::NodeKind::md_code_span_1_backtick, 0));
                 ++current_index;
-                result.push_back(u8' ');
+                result.append(u8"<font=\"PhysicsLab-NerdFont SDF\"> ");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_code_span_2_backtick: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_md_code_span_2_backtick().get_subast(), ::pltxt2htm::NodeKind::md_code_span_2_backtick, 0));
                 ++current_index;
-                result.push_back(u8' ');
+                result.append(u8"<font=\"PhysicsLab-NerdFont SDF\"> ");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_code_span_3_backtick: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_md_code_span_3_backtick().get_subast(), ::pltxt2htm::NodeKind::md_code_span_3_backtick, 0));
                 ++current_index;
-                result.push_back(u8' ');
+                result.append(u8"<font=\"PhysicsLab-NerdFont SDF\"> ");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_code: {
@@ -1341,24 +1341,14 @@ entry:
                 continue;
             }
             case ::pltxt2htm::NodeKind::md_code_fence_backtick: {
-                result.append(u8"```");
-                auto const& opt_language = node.as_md_code_fence_backtick().get_language();
-                if (opt_language.has_value()) {
-                    result.append(opt_language.template value<ndebug == ::pltxt2htm::Contracts::ignore>());
-                }
-                result.push_back(u8'\n');
+                result.append(u8"<font=\"PhysicsLab-NerdFont SDF\">\n");
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_md_code_fence_backtick().get_subast(), ::pltxt2htm::NodeKind::md_code_fence_backtick, 0));
                 ++current_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_code_fence_tilde: {
-                result.append(u8"```");
-                auto const& opt_language = node.as_md_code_fence_tilde().get_language();
-                if (opt_language.has_value()) {
-                    result.append(opt_language.template value<ndebug == ::pltxt2htm::Contracts::ignore>());
-                }
-                result.push_back(u8'\n');
+                result.append(u8"<font=\"PhysicsLab-NerdFont SDF\">\n");
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_md_code_fence_tilde().get_subast(), ::pltxt2htm::NodeKind::md_code_fence_tilde, 0));
                 ++current_index;
@@ -1619,7 +1609,7 @@ entry:
             case ::pltxt2htm::NodeKind::md_code_span_2_backtick:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_code_span_3_backtick: {
-                result.push_back(u8' ');
+                result.append(u8" </font>");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_code: {
@@ -1696,7 +1686,7 @@ entry:
             case ::pltxt2htm::NodeKind::md_code_fence_backtick:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_code_fence_tilde: {
-                result.append(u8"\n```");
+                result.append(u8"\n</font>");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_link:
