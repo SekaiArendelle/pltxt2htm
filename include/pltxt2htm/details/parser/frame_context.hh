@@ -167,11 +167,11 @@ public:
 };
 
 /**
- * @brief Context for an HTML &lt;p&gt; paragraph during parsing.
- *
- * Stores the paragraph text content and its text alignment.
+ * @brief Context for text-alignment frames during parsing.
+ * @details Shared by the HTML &lt;p&gt; paragraph and the Unity TMP &lt;align=...&gt; block
+ *          frame types. Stores the text content and its text alignment.
  */
-class ParserFrameContextWithPInfo {
+class ParserFrameContextWithAlignInfo {
 public:
     ::fast_io::u8string_view pltext;
     ::pltxt2htm::TextAlign align;
@@ -230,13 +230,13 @@ public:
         url_info,
         pl_size_tag,
         pl_voffset_tag,
+        align_info,
         html_span_info,
         html_code_info,
         md_block_quotes,
         md_list,
         md_li_checkbox,
         cell,
-        p,
         md_table,
         pltext,
         html_mark_info,
@@ -258,7 +258,7 @@ public:
         ::pltxt2htm::details::ParserFrameContextWithMdBlockQuotesInfo md_block_quotes;
         ::pltxt2htm::details::ParserFrameContextWithMdListInfo<ndebug> md_list;
         ::pltxt2htm::details::ParserFrameContextWithCellInfo cell;
-        ::pltxt2htm::details::ParserFrameContextWithPInfo p;
+        ::pltxt2htm::details::ParserFrameContextWithAlignInfo align_info;
         ::pltxt2htm::details::ParserFrameContextWithMdLiCheckboxInfo md_li_checkbox;
         ::pltxt2htm::details::ParserFrameContextWithMdTableInfo<ndebug> md_table;
     };
@@ -389,11 +389,11 @@ public:
           kind{node_kind_} {
     }
 
-    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithPInfo&& p_context,
+    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithAlignInfo&& align_context,
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
-        : p{::std::move(p_context)},
+        : align_info{::std::move(align_context)},
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
-          context_branch{ContextBranch::p},
+          context_branch{ContextBranch::align_info},
 #endif
           kind{node_kind_} {
     }
@@ -459,6 +459,11 @@ public:
         case ::pltxt2htm::NodeKind::pl_voffset: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::pl_voffset_tag);
             ::std::construct_at(::std::addressof(this->pl_voffset_tag), ::std::move(other.pl_voffset_tag));
+            return;
+        }
+        case ::pltxt2htm::NodeKind::pl_align: {
+            pltxt2htm_assert_context_branch(*this, ContextBranch::align_info);
+            ::std::construct_at(::std::addressof(this->align_info), ::std::move(other.align_info));
             return;
         }
         case ::pltxt2htm::NodeKind::html_span: {
@@ -588,8 +593,8 @@ public:
             return;
         }
         case ::pltxt2htm::NodeKind::html_p: {
-            pltxt2htm_assert_context_branch(*this, ContextBranch::p);
-            ::std::construct_at(::std::addressof(this->p), ::std::move(other.p));
+            pltxt2htm_assert_context_branch(*this, ContextBranch::align_info);
+            ::std::construct_at(::std::addressof(this->align_info), ::std::move(other.align_info));
             return;
         }
         case ::pltxt2htm::NodeKind::html_th:
@@ -787,6 +792,11 @@ public:
             ::std::destroy_at(::std::addressof(this->pl_voffset_tag));
             return;
         }
+        case ::pltxt2htm::NodeKind::pl_align: {
+            pltxt2htm_assert_context_branch(*this, ContextBranch::align_info);
+            ::std::destroy_at(::std::addressof(this->align_info));
+            return;
+        }
         case ::pltxt2htm::NodeKind::html_span: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::html_span_info);
             ::std::destroy_at(::std::addressof(this->html_span_info));
@@ -909,8 +919,8 @@ public:
             return;
         }
         case ::pltxt2htm::NodeKind::html_p: {
-            pltxt2htm_assert_context_branch(*this, ContextBranch::p);
-            ::std::destroy_at(::std::addressof(this->p));
+            pltxt2htm_assert_context_branch(*this, ContextBranch::align_info);
+            ::std::destroy_at(::std::addressof(this->align_info));
             return;
         }
         case ::pltxt2htm::NodeKind::html_th:
@@ -1298,6 +1308,11 @@ public:
                 context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::pl_voffset_tag);
             return context_data_ref.pl_voffset_tag.pltext;
         }
+        case ::pltxt2htm::NodeKind::pl_align: {
+            pltxt2htm_assert_context_branch(
+                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::align_info);
+            return context_data_ref.align_info.pltext;
+        }
         case ::pltxt2htm::NodeKind::html_span: {
             pltxt2htm_assert_context_branch(
                 context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::html_span_info);
@@ -1335,9 +1350,9 @@ public:
             return context_data_ref.url_info.pltext;
         }
         case ::pltxt2htm::NodeKind::html_p: {
-            pltxt2htm_assert_context_branch(context_data_ref,
-                                            ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::p);
-            return context_data_ref.p.pltext;
+            pltxt2htm_assert_context_branch(
+                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::align_info);
+            return context_data_ref.align_info.pltext;
         }
         case ::pltxt2htm::NodeKind::html_th:
             [[fallthrough]];
@@ -1477,6 +1492,15 @@ public:
         bool const is_pl_voffset_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_voffset};
         pltxt2htm_assert(is_pl_voffset_tag_type, u8"context kind mismatch");
         return context_data_ref.pl_voffset_tag.value;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_align(this auto&& self) noexcept -> ::pltxt2htm::TextAlign {
+        auto&& context_data_ref = self.context_data;
+        bool const is_align_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_p ||
+                                 context_data_ref.kind == ::pltxt2htm::NodeKind::pl_align};
+        pltxt2htm_assert(is_align_type, u8"context kind mismatch");
+        return context_data_ref.align_info.align;
     }
 
     [[nodiscard]]
@@ -1624,13 +1648,6 @@ public:
                              context_data_ref.kind == ::pltxt2htm::NodeKind::md_td,
                          u8"context kind mismatch");
         return context_data_ref.cell.align;
-    }
-
-    [[nodiscard]]
-    constexpr auto get_p_align(this auto&& self) noexcept -> ::pltxt2htm::TextAlign {
-        auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_p, u8"context kind mismatch");
-        return context_data_ref.p.align;
     }
 
     [[nodiscard]]

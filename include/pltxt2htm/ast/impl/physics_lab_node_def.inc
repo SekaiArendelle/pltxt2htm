@@ -201,6 +201,28 @@ constexpr auto ::pltxt2htm::PlVoffset<ndebug>::operator==(this ::pltxt2htm::PlVo
     -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlAlign<ndebug>::PlAlign(::pltxt2htm::Ast<ndebug>&& subast_,
+                                                ::pltxt2htm::TextAlign align_) noexcept
+    : subast(::std::move(subast_)),
+      align(align_) {
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlAlign<ndebug>::PlAlign(::pltxt2htm::PlAlign<ndebug> const&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlAlign<ndebug>::PlAlign(::pltxt2htm::PlAlign<ndebug>&&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlAlign<ndebug>::~PlAlign() noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::PlAlign<ndebug>::operator=(this ::pltxt2htm::PlAlign<ndebug>& self,
+                                                       ::pltxt2htm::PlAlign<ndebug>&&) noexcept
+    -> ::pltxt2htm::PlAlign<ndebug>& = default;
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::PlAlign<ndebug>::operator==(this ::pltxt2htm::PlAlign<ndebug> const&,
+                                                        ::pltxt2htm::PlAlign<ndebug> const&) noexcept -> bool = default;
+
+template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::PlMark<ndebug>::PlMark(::pltxt2htm::Ast<ndebug>&& subast_,
                                               ::fast_io::u8string&& background_color_) noexcept
     : subast(::std::move(subast_)),

@@ -165,6 +165,7 @@ class PlTxtNode {
         ::pltxt2htm::PlLink<ndebug> pl_link_node;
         ::pltxt2htm::PlSize<ndebug> pl_size_node;
         ::pltxt2htm::PlVoffset<ndebug> pl_voffset_node;
+        ::pltxt2htm::PlAlign<ndebug> pl_align_node;
         ::pltxt2htm::PlMark<ndebug> pl_mark_node;
         ::pltxt2htm::PlI<ndebug> pl_i_node;
         ::pltxt2htm::PlB<ndebug> pl_b_node;
@@ -237,6 +238,11 @@ public:
     constexpr PlTxtNode(::pltxt2htm::PlVoffset<ndebug>&& node) noexcept
         : pl_voffset_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::pl_voffset} {
+    }
+
+    constexpr PlTxtNode(::pltxt2htm::PlAlign<ndebug>&& node) noexcept
+        : pl_align_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::pl_align} {
     }
 
     constexpr PlTxtNode(::pltxt2htm::PlMark<ndebug>&& node) noexcept
@@ -899,6 +905,10 @@ public:
             new (::std::addressof(pl_voffset_node))::pltxt2htm::PlVoffset(other.pl_voffset_node);
             break;
         }
+        case ::pltxt2htm::NodeKind::pl_align: {
+            new (::std::addressof(pl_align_node))::pltxt2htm::PlAlign(other.pl_align_node);
+            break;
+        }
         case ::pltxt2htm::NodeKind::pl_mark: {
             new (::std::addressof(pl_mark_node))::pltxt2htm::PlMark(other.pl_mark_node);
             break;
@@ -1471,6 +1481,10 @@ public:
         }
         case ::pltxt2htm::NodeKind::pl_voffset: {
             new (::std::addressof(pl_voffset_node))::pltxt2htm::PlVoffset(::std::move(other.pl_voffset_node));
+            break;
+        }
+        case ::pltxt2htm::NodeKind::pl_align: {
+            new (::std::addressof(pl_align_node))::pltxt2htm::PlAlign(::std::move(other.pl_align_node));
             break;
         }
         case ::pltxt2htm::NodeKind::pl_mark: {
@@ -2113,6 +2127,10 @@ public:
             pl_voffset_node.~PlVoffset();
             break;
         }
+        case ::pltxt2htm::NodeKind::pl_align: {
+            pl_align_node.~PlAlign();
+            break;
+        }
         case ::pltxt2htm::NodeKind::pl_mark: {
             pl_mark_node.~PlMark();
             break;
@@ -2658,6 +2676,9 @@ public:
         }
         case ::pltxt2htm::NodeKind::pl_voffset: {
             return self.pl_voffset_node == other.pl_voffset_node;
+        }
+        case ::pltxt2htm::NodeKind::pl_align: {
+            return self.pl_align_node == other.pl_align_node;
         }
         case ::pltxt2htm::NodeKind::pl_mark: {
             return self.pl_mark_node == other.pl_mark_node;
@@ -3902,6 +3923,13 @@ public:
         bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_voffset};
         pltxt2htm_assert(is_type, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_voffset_node);
+    }
+
+    [[nodiscard]]
+    constexpr auto as_pl_align(this auto&& self) noexcept -> decltype(auto) {
+        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_align};
+        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.pl_align_node);
     }
 
     [[nodiscard]]

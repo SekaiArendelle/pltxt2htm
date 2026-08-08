@@ -328,6 +328,39 @@ public:
 };
 
 /**
+ * @brief Physics-Lab alignment tag node
+ * @details Represents &lt;align=value&gt;...&lt;/align&gt; (Unity TextMeshPro rich text)
+ *          with a text-alignment keyword and sub-AST.
+ */
+template<::pltxt2htm::Contracts ndebug>
+class PlAlign {
+    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::TextAlign align;
+
+public:
+    constexpr PlAlign(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::TextAlign align_) noexcept;
+    constexpr PlAlign(::pltxt2htm::PlAlign<ndebug> const&) noexcept;
+    constexpr PlAlign(::pltxt2htm::PlAlign<ndebug>&&) noexcept;
+    constexpr ~PlAlign() noexcept;
+    constexpr auto operator=(::pltxt2htm::PlAlign<ndebug> const&) noexcept -> ::pltxt2htm::PlAlign<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::PlAlign<ndebug>& self, ::pltxt2htm::PlAlign<ndebug>&&) noexcept
+        -> ::pltxt2htm::PlAlign<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this PlAlign const&, PlAlign const&) noexcept -> bool;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_align(this auto const& self) noexcept -> ::pltxt2htm::TextAlign {
+        return self.align;
+    }
+};
+
+/**
  * @brief Physics-Lab mark tag node
  * @details Represents &lt;mark=value&gt;...&lt;/mark&gt; (TMP rich text) with a background
  *          color string and sub-AST.

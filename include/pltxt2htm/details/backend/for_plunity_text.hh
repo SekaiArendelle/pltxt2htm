@@ -414,6 +414,40 @@ entry:
                 result.push_back(u8'>');
                 goto entry;
             }
+            case ::pltxt2htm::NodeKind::pl_align: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_pl_align().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::pl_align, 0));
+                ++current_index;
+                if (result.empty() == false && result.back() != u8'\n') {
+                    result.push_back(u8'\n');
+                }
+                auto const align = node.as_pl_align().get_align();
+                switch (align) /* -Werror=switch */ {
+                case ::pltxt2htm::TextAlign::left: {
+                    result.append(u8"<align=left>");
+                    break;
+                }
+                case ::pltxt2htm::TextAlign::center: {
+                    result.append(u8"<align=center>");
+                    break;
+                }
+                case ::pltxt2htm::TextAlign::right: {
+                    result.append(u8"<align=right>");
+                    break;
+                }
+                case ::pltxt2htm::TextAlign::justify: {
+                    result.append(u8"<align=justified>");
+                    break;
+                }
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
+                default:
+                    [[unlikely]] {
+                        pltxtpltxt2htm_unreachable(u8"Unexpected unit for align");
+                    }
+#endif
+                }
+                goto entry;
+            }
             case ::pltxt2htm::NodeKind::html_span: {
                 auto const& span_color = node.as_html_span().get_color();
                 auto const& span_font_size = node.as_html_span().get_font_size();
@@ -553,21 +587,31 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_p: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_p().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::html_p, 0));
-                ++current_index;
-                result.append(u8"<p");
                 auto const align = node.as_html_p().get_align();
-                if (align == ::pltxt2htm::TextAlign::center) {
-                    result.append(u8" style=\"text-align:center\"");
+                bool const has_align = align != ::pltxt2htm::TextAlign::left;
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
+                    node.as_html_p().get_subast(), ::pltxt2htm::NodeKind::html_p, 0,
+                    ::pltxt2htm::details::BackendContextWithAlignInfo{.has_align = has_align}));
+                ++current_index;
+                if (result.empty() == false && result.back() != u8'\n') {
+                    result.push_back(u8'\n');
                 }
-                else if (align == ::pltxt2htm::TextAlign::right) {
-                    result.append(u8" style=\"text-align:right\"");
+                if (has_align) {
+                    result.append(u8"<align=");
+                    if (align == ::pltxt2htm::TextAlign::center) {
+                        result.append(u8"center");
+                    }
+                    else if (align == ::pltxt2htm::TextAlign::right) {
+                        result.append(u8"right");
+                    }
+                    else if (align == ::pltxt2htm::TextAlign::justify) {
+                        result.append(u8"justified");
+                    }
+                    else [[unlikely]] {
+                        pltxt2htm_unreachable(u8"Unexpected paragraph text alignment");
+                    }
+                    result.push_back(u8'>');
                 }
-                else if (align == ::pltxt2htm::TextAlign::justify) {
-                    result.append(u8" style=\"text-align:justify\"");
-                }
-                result.push_back(u8'>');
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_br:
@@ -1366,6 +1410,21 @@ entry:
                 result.append(u8"</voffset>");
                 goto entry;
             }
+            case ::pltxt2htm::NodeKind::pl_align: {
+                result.append(u8"</align>");
+                auto const& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                auto const& parent_ast = parent_frame.get_ast();
+                if (parent_frame.current_index < parent_ast.size()) {
+                    auto const next_kind =
+                        ::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_frame.current_index)
+                            .get_node_kind();
+                    if (next_kind != ::pltxt2htm::NodeKind::line_break && next_kind != ::pltxt2htm::NodeKind::html_br &&
+                        result.empty() == false && result.back() != u8'\n') {
+                        result.push_back(u8'\n');
+                    }
+                }
+                goto entry;
+            }
             case ::pltxt2htm::NodeKind::md_double_emphasis_underscore:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_double_emphasis_asterisk:
@@ -1401,7 +1460,20 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_p: {
-                result.append(u8"</p>");
+                if (top_frame.get_align_info().has_align) {
+                    result.append(u8"</align>");
+                }
+                auto const& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                auto const& parent_ast = parent_frame.get_ast();
+                if (parent_frame.current_index < parent_ast.size()) {
+                    auto const next_kind =
+                        ::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_frame.current_index)
+                            .get_node_kind();
+                    if (next_kind != ::pltxt2htm::NodeKind::line_break && next_kind != ::pltxt2htm::NodeKind::html_br &&
+                        result.empty() == false && result.back() != u8'\n') {
+                        result.push_back(u8'\n');
+                    }
+                }
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h1:

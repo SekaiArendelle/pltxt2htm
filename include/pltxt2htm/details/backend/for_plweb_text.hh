@@ -534,6 +534,37 @@ entry:
                 result.append(u8";\">");
                 goto entry;
             }
+            case ::pltxt2htm::NodeKind::pl_align: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_pl_align().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::pl_align, 0));
+                ++current_index;
+                auto const align = node.as_pl_align().get_align();
+                switch (align) /* -Werror=switch */ {
+                case ::pltxt2htm::TextAlign::left: {
+                    result.append(u8"<p style=\"text-align:left\">");
+                    break;
+                }
+                case ::pltxt2htm::TextAlign::center: {
+                    result.append(u8"<p style=\"text-align:center\">");
+                    break;
+                }
+                case ::pltxt2htm::TextAlign::right: {
+                    result.append(u8"<p style=\"text-align:right\">");
+                    break;
+                }
+                case ::pltxt2htm::TextAlign::justify: {
+                    result.append(u8"<p style=\"text-align:justify\">");
+                    break;
+                }
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
+                default:
+                    [[unlikely]] {
+                        pltxt2htm_unreachable(u8"Unexpected text alignment");
+                    }
+#endif
+                }
+                goto entry;
+            }
             case ::pltxt2htm::NodeKind::html_span: {
                 auto const& span_color = node.as_html_span().get_color();
                 auto const& span_font_size = node.as_html_span().get_font_size();
@@ -1490,6 +1521,10 @@ entry:
             }
             case ::pltxt2htm::NodeKind::pl_voffset: {
                 result.append(u8"</span>");
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::pl_align: {
+                result.append(u8"</p>");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_double_emphasis_underscore:

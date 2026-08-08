@@ -7,6 +7,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <utility>
 #include <exception/exception.hh>
 #include <fast_io/fast_io_dsal/array.h>
 #include <fast_io/fast_io_dsal/stack.h>
@@ -1400,6 +1401,100 @@ constexpr auto try_parse_voffset_tag(::fast_io::u8string_view pltext) noexcept
     }
     auto const tag_len = value_end + opt_close.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
     return ::pltxt2htm::details::TryParseVoffsetTagResult{tag_len, value.value};
+}
+
+/**
+ * @brief Return type of try_parse_align_tag: tag length and the parsed alignment keyword.
+ */
+struct TryParseAlignTagResult {
+    ::std::size_t tag_len;
+    ::pltxt2htm::TextAlign align;
+};
+
+/**
+ * @brief Parse a `<align=value>` opening tag (Unity TextMeshPro rich text).
+ * @details The whole `<align=...>` tag is consumed, matching the `lign` name (case
+ *          insensitive) after the leading `<`. The value is a text-alignment keyword,
+ *          optionally wrapped in double quotes: `left`, `center`, `right`, `justified`
+ *          (or `"left"`, `"center"`, etc.). Any other value makes the tag render as
+ *          literal text.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_align_tag(::fast_io::u8string_view pltext) noexcept
+    -> ::exception::optional<::pltxt2htm::details::TryParseAlignTagResult> {
+    constexpr auto prefix_str = ::pltxt2htm::details::U8LiteralString{u8"<align"};
+    if (::pltxt2htm::details::is_equal_sign_tag_prefix<ndebug, prefix_str>(pltext) == false) {
+        return ::exception::nullopt;
+    }
+    constexpr auto value_start = prefix_str.size() + 1;
+    auto value_view = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_start);
+    bool const quoted =
+        value_view.size() != 0 && ::pltxt2htm::details::u8string_view_index<ndebug>(value_view, 0) == u8'"';
+    ::std::size_t const quote_offset = quoted ? 1 : 0;
+    if (quoted) {
+        value_view = ::pltxt2htm::details::u8string_view_subview<ndebug>(value_view, 1);
+    }
+    ::pltxt2htm::TextAlign align{};
+    ::std::size_t value_end{0};
+
+    struct AlignCandidate {
+        ::fast_io::u8string_view keyword;
+        ::pltxt2htm::TextAlign align;
+    };
+
+    constexpr AlignCandidate candidates[]{
+        {u8"justified", ::pltxt2htm::TextAlign::justify},
+        {u8"left", ::pltxt2htm::TextAlign::left},
+        {u8"center", ::pltxt2htm::TextAlign::center},
+        {u8"right", ::pltxt2htm::TextAlign::right},
+    };
+    bool matched{false};
+    for (auto const& candidate : candidates) {
+        auto const keyword = candidate.keyword;
+        auto const candidate_align = candidate.align;
+        if (value_view.size() < keyword.size()) {
+            continue;
+        }
+        if (::fast_io::u8string_view{value_view.data(), keyword.size()} != keyword) {
+            continue;
+        }
+        if (value_view.size() > keyword.size()) {
+            auto const next = ::pltxt2htm::details::u8string_view_index<ndebug>(value_view, keyword.size());
+            if (::pltxt2htm::details::is_ascii_alpha(next) || ::pltxt2htm::details::is_ascii_digit(next)) {
+                continue;
+            }
+        }
+        align = candidate_align;
+        value_end = keyword.size();
+        matched = true;
+        break;
+    }
+    if (matched == false) {
+        return ::exception::nullopt;
+    }
+    auto after_value = ::pltxt2htm::details::u8string_view_subview<ndebug>(value_view, value_end);
+    ::std::size_t quote_close_offset{0};
+    if (quoted) {
+        while (quote_close_offset < after_value.size() &&
+               (::pltxt2htm::details::u8string_view_index<ndebug>(after_value, quote_close_offset) == u8' ' ||
+                ::pltxt2htm::details::u8string_view_index<ndebug>(after_value, quote_close_offset) == u8'\t')) {
+            ++quote_close_offset;
+        }
+        if (quote_close_offset >= after_value.size() ||
+            ::pltxt2htm::details::u8string_view_index<ndebug>(after_value, quote_close_offset) != u8'"') {
+            return ::exception::nullopt;
+        }
+        ++quote_close_offset;
+        after_value = ::pltxt2htm::details::u8string_view_subview<ndebug>(after_value, quote_close_offset);
+    }
+    auto opt_close = ::pltxt2htm::details::try_parse_equal_sign_tag_suffix<ndebug>(after_value);
+    if (opt_close.has_value() == false) {
+        return ::exception::nullopt;
+    }
+    auto const tag_len = value_start + quote_offset + value_end + quote_close_offset +
+                         opt_close.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+    return ::pltxt2htm::details::TryParseAlignTagResult{tag_len, align};
 }
 
 /**
