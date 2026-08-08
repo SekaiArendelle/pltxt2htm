@@ -10,13 +10,14 @@ int main() {
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(text);
         auto answer = ::fast_io::u8string_view{
-            u8R"(<br>文本1<hr>文本2<hr>文本3<hr>文本4&lt;HR&nbsp;&nbsp;&nbsp;&nbsp;/<br>文本5&lt;hr<hr><br>)"};
+            u8R"(<br>文本1&lt;hR&nbsp;&nbsp;&nbsp;/&gt;文本2&lt;hr/&gt;文本3&lt;hr&nbsp;&nbsp;&nbsp;&gt;文本4&lt;HR&nbsp;&nbsp;&nbsp;&nbsp;/<br>文本5&lt;hr&lt;hr&gt;<br>)"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2common_htmld(text);
-        auto answer = ::fast_io::u8string_view{u8R"(文本1文本2文本3文本4&lt;HR&nbsp;&nbsp;&nbsp;&nbsp;/文本5&lt;hr)"};
+        auto answer = ::fast_io::u8string_view{
+            u8R"(文本1&lt;hR&nbsp;&nbsp;&nbsp;/&gt;文本2&lt;hr/&gt;文本3&lt;hr&nbsp;&nbsp;&nbsp;&gt;文本4&lt;HR&nbsp;&nbsp;&nbsp;&nbsp;/文本5&lt;hr&lt;hr&gt;)"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -31,6 +32,13 @@ int main() {
         auto pltext = ::fast_io::u8string_view{u8"<hr>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"<hr>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto pltext = ::fast_io::u8string_view{u8"<hr><h1>text</h1>"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer = ::fast_io::u8string_view{u8"<hr><h1>text</h1>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

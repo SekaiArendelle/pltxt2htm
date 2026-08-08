@@ -115,6 +115,16 @@ constexpr auto find_next_block_after_line_break(
             current_index += opt_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             continue;
         }
+        // Check for HTML <hr> self-closing tag at block position. Treating <hr> as a
+        // block-level element lets the scan continue after it, so a following <h1>/<p>/
+        // <align> on the same line is recognized as a block (same as after a line break).
+        if (auto opt_hr_tag_len = ::pltxt2htm::details::try_parse_self_closing_tag<ndebug, u8"<hr">(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            opt_hr_tag_len.has_value()) {
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlHr{}));
+            current_index += opt_hr_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            continue;
+        }
         if (auto opt_code_fence = ::pltxt2htm::details::try_parse_md_code_fence<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
             opt_code_fence.has_value()) {
@@ -1192,22 +1202,6 @@ entry:
                                 ::pltxt2htm::NodeKind::html_em},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
-                    }
-                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
-                    ++current_index;
-                    continue;
-                }
-
-                case u8'h':
-                    [[fallthrough]];
-                case u8'H': {
-                    if (auto opt_tag_len = ::pltxt2htm::details::try_parse_self_closing_tag<ndebug, u8"r">(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
-                        opt_tag_len.has_value()) {
-                        current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1;
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlHr{}));
-                        ++current_index;
-                        continue;
                     }
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
                     ++current_index;
