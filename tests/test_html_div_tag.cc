@@ -15,8 +15,7 @@ int main() {
     }
 
     {
-        auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<div style=\"margin-left:2em;margin-right:3em\">text</div>");
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<div style=\"margin-left:2em;margin-right:3em\">text</div>");
         auto answer = ::fast_io::u8string_view{u8"<div style=\"margin-left:2em;margin-right:3em;\">text</div>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
@@ -81,16 +80,14 @@ int main() {
     // non-numeric margin value renders as literal text
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<div style=\"margin-left:abc\">x</div>");
-        auto answer =
-            ::fast_io::u8string_view{u8"&lt;div&nbsp;style=&quot;margin-left:abc&quot;&gt;x&lt;/div&gt;"};
+        auto answer = ::fast_io::u8string_view{u8"&lt;div&nbsp;style=&quot;margin-left:abc&quot;&gt;x&lt;/div&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     // an unknown style declaration (e.g. color) makes the whole tag literal text
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<div style=\"color:red\">x</div>");
-        auto answer =
-            ::fast_io::u8string_view{u8"&lt;div&nbsp;style=&quot;color:red&quot;&gt;x&lt;/div&gt;"};
+        auto answer = ::fast_io::u8string_view{u8"&lt;div&nbsp;style=&quot;color:red&quot;&gt;x&lt;/div&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -126,7 +123,8 @@ int main() {
     // a missing ':' separator renders as literal text
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<div style=\"margin-left 2em\">x</div>");
-        auto answer = ::fast_io::u8string_view{u8"&lt;div&nbsp;style=&quot;margin-left&nbsp;2em&quot;&gt;x&lt;/div&gt;"};
+        auto answer =
+            ::fast_io::u8string_view{u8"&lt;div&nbsp;style=&quot;margin-left&nbsp;2em&quot;&gt;x&lt;/div&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

@@ -80,12 +80,12 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
             }
             return ::exception::nullopt;
         }();
-        auto const opt_html_div = [&] constexpr noexcept
-            -> ::exception::optional<::pltxt2htm::details::ParserFrameContextWithHtmlDivInfo> {
+        auto const opt_html_div =
+            [&] constexpr noexcept -> ::exception::optional<::pltxt2htm::details::ParserFrameContextWithHtmlDivInfo> {
             if (type_of_subast == ::pltxt2htm::NodeKind::html_div) {
-                return ::pltxt2htm::details::ParserFrameContextWithHtmlDivInfo{
-                    call_stack.top().get_pltext(), call_stack.top().get_html_div_left(),
-                    call_stack.top().get_html_div_right()};
+                return ::pltxt2htm::details::ParserFrameContextWithHtmlDivInfo{call_stack.top().get_pltext(),
+                                                                               call_stack.top().get_html_div_left(),
+                                                                               call_stack.top().get_html_div_right()};
             }
             return ::exception::nullopt;
         }();
@@ -150,7 +150,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
                 ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::PlAlign<ndebug>{::std::move(subast), pl_align_value}));
             continue;
         }
-case ::pltxt2htm::NodeKind::pl_margin: {
+        case ::pltxt2htm::NodeKind::pl_margin: {
             // Same as pl_align: advance start_index past the consumed pl_margin content, preserving
             // the left/right margins read from the frame top before the recursive parse popped it.
             start_index += consumed_bytes;
@@ -164,8 +164,8 @@ case ::pltxt2htm::NodeKind::pl_margin: {
             // the left/right margins read from the frame top before the recursive parse popped it.
             start_index += consumed_bytes;
             auto html_div_info = opt_html_div.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlDiv<ndebug>{
-                ::std::move(subast), html_div_info.left, html_div_info.right}));
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(
+                ::pltxt2htm::HtmlDiv<ndebug>{::std::move(subast), html_div_info.left, html_div_info.right}));
             continue;
         }
         case ::pltxt2htm::NodeKind::html_h1: {

@@ -941,7 +941,7 @@ entry:
                 ++current_iter;
                 continue;
             }
-case ::pltxt2htm::NodeKind::html_p: {
+            case ::pltxt2htm::NodeKind::html_p: {
                 auto&& subast = node.as_html_p().get_subast();
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(

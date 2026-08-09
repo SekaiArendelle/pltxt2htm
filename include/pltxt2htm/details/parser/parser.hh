@@ -222,8 +222,7 @@ constexpr auto find_next_block_after_line_break(
         if (auto opt_div_tag = ::pltxt2htm::details::try_parse_html_div_tag<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
             opt_div_tag.has_value()) {
-            auto const [tag_len, left, right] =
-                opt_div_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            auto const [tag_len, left, right] = opt_div_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             current_index += tag_len + 1;
             call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                 ::pltxt2htm::details::FrontendContextVariant<ndebug>{

@@ -322,9 +322,8 @@ public:
           kind{node_kind_} {
     }
 
-    constexpr FrontendContextVariant(
-        ::pltxt2htm::details::ParserFrameContextWithHtmlDivInfo&& html_div_context,
-        ::pltxt2htm::NodeKind node_kind_) noexcept
+    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithHtmlDivInfo&& html_div_context,
+                                     ::pltxt2htm::NodeKind node_kind_) noexcept
         : html_div_info{::std::move(html_div_context)},
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
           context_branch{ContextBranch::html_div_info},
@@ -516,16 +515,16 @@ public:
             ::std::construct_at(::std::addressof(this->align_info), ::std::move(other.align_info));
             return;
         }
-case ::pltxt2htm::NodeKind::html_span: {
-                pltxt2htm_assert_context_branch(*this, ContextBranch::html_span_info);
-                ::std::construct_at(::std::addressof(this->html_span_info), ::std::move(other.html_span_info));
-                return;
-            }
-            case ::pltxt2htm::NodeKind::html_div: {
-                pltxt2htm_assert_context_branch(*this, ContextBranch::html_div_info);
-                ::std::construct_at(::std::addressof(this->html_div_info), ::std::move(other.html_div_info));
-                return;
-            }
+        case ::pltxt2htm::NodeKind::html_span: {
+            pltxt2htm_assert_context_branch(*this, ContextBranch::html_span_info);
+            ::std::construct_at(::std::addressof(this->html_span_info), ::std::move(other.html_span_info));
+            return;
+        }
+        case ::pltxt2htm::NodeKind::html_div: {
+            pltxt2htm_assert_context_branch(*this, ContextBranch::html_div_info);
+            ::std::construct_at(::std::addressof(this->html_div_info), ::std::move(other.html_div_info));
+            return;
+        }
         case ::pltxt2htm::NodeKind::html_mark: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::html_mark_info);
             ::std::construct_at(::std::addressof(this->html_mark_info), ::std::move(other.html_mark_info));
