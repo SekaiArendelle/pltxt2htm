@@ -627,6 +627,68 @@ entry:
                 result.append(u8"\">");
                 goto entry;
             }
+            case ::pltxt2htm::NodeKind::html_div: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_div().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::html_div, 0));
+                ++current_index;
+                auto const margin_left = node.as_html_div().get_left();
+                auto const margin_right = node.as_html_div().get_right();
+                result.append(u8"<div style=\"");
+                if (margin_left.has_value()) {
+                    result.append(u8"margin-left:");
+                    auto const& margin_value = margin_left.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    result.append(::pltxt2htm::details::size_t2str(margin_value.value));
+                    switch (margin_value.unit) /* -Werror=switch */ {
+                    case ::pltxt2htm::Unit::percent: {
+                        result.push_back(u8'%');
+                        break;
+                    }
+                    case ::pltxt2htm::Unit::em: {
+                        result.append(u8"em");
+                        break;
+                    }
+                    case ::pltxt2htm::Unit::px: {
+                        result.append(u8"px");
+                        break;
+                    }
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
+                    default:
+                        [[unlikely]] {
+                            pltxt2htm_unreachable(u8"Unexpected unit for div");
+                        }
+#endif
+                    }
+                    result.push_back(u8';');
+                }
+                if (margin_right.has_value()) {
+                    result.append(u8"margin-right:");
+                    auto const& margin_value = margin_right.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    result.append(::pltxt2htm::details::size_t2str(margin_value.value));
+                    switch (margin_value.unit) /* -Werror=switch */ {
+                    case ::pltxt2htm::Unit::percent: {
+                        result.push_back(u8'%');
+                        break;
+                    }
+                    case ::pltxt2htm::Unit::em: {
+                        result.append(u8"em");
+                        break;
+                    }
+                    case ::pltxt2htm::Unit::px: {
+                        result.append(u8"px");
+                        break;
+                    }
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
+                    default:
+                        [[unlikely]] {
+                            pltxt2htm_unreachable(u8"Unexpected unit for div");
+                        }
+#endif
+                    }
+                    result.push_back(u8';');
+                }
+                result.append(u8"\">");
+                goto entry;
+            }
             case ::pltxt2htm::NodeKind::html_span: {
                 auto const& span_color = node.as_html_span().get_color();
                 auto const& span_font_size = node.as_html_span().get_font_size();
@@ -1590,6 +1652,10 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_margin: {
+                result.append(u8"</div>");
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::html_div: {
                 result.append(u8"</div>");
                 goto entry;
             }

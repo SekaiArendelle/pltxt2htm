@@ -85,6 +85,8 @@ enum class NodeKind : unsigned {
     html_mark, ///< Marked/highlighted text: &lt;mark&gt;...&lt;/mark&gt;
     html_span,
     ///< HTML span with style attributes: &lt;span style="color:...;font-size:...;vertical-align:..."&gt;
+    html_div,
+    ///< HTML div with style attributes: &lt;div style="margin-left:...;margin-right:..."&gt;
     html_a, ///< HTML anchor/link: &lt;a href="URL"&gt;...&lt;/a&gt;
 
     // HTML list elements

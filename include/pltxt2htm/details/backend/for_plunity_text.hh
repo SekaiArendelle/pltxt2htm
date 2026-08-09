@@ -525,7 +525,7 @@ entry:
 #ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
                 default:
                     [[unlikely]] {
-                        pltxtpltxt2htm_unreachable(u8"Unexpected unit for align");
+                        pltxt2htm_unreachable(u8"Unexpected unit for align");
                     }
 #endif
                 }
@@ -582,6 +582,65 @@ entry:
                     default:
                         [[unlikely]] {
                             pltxt2htm_unreachable(u8"Unexpected unit for margin");
+                        }
+#endif
+                    }
+                }
+                result.push_back(u8'>');
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::html_div: {
+                // An HTML <div style="margin-left:...;margin-right:..."> maps back to the Unity TMP margin tag.
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_div().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::html_div, 0));
+                ++current_index;
+                auto const margin_left = node.as_html_div().get_left();
+                auto const margin_right = node.as_html_div().get_right();
+                result.append(u8"<margin");
+                if (margin_left.has_value()) {
+                    result.append(u8" left=");
+                    auto const& margin_value = margin_left.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    result.append(::pltxt2htm::details::size_t2str(margin_value.value));
+                    switch (margin_value.unit) /* -Werror=switch */ {
+                    case ::pltxt2htm::Unit::percent: {
+                        result.push_back(u8'%');
+                        break;
+                    }
+                    case ::pltxt2htm::Unit::em: {
+                        result.append(u8"em");
+                        break;
+                    }
+                    case ::pltxt2htm::Unit::px: {
+                        break;
+                    }
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
+                    default:
+                        [[unlikely]] {
+                            pltxt2htm_unreachable(u8"Unexpected unit for div");
+                        }
+#endif
+                    }
+                }
+                if (margin_right.has_value()) {
+                    result.append(u8" right=");
+                    auto const& margin_value = margin_right.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    result.append(::pltxt2htm::details::size_t2str(margin_value.value));
+                    switch (margin_value.unit) /* -Werror=switch */ {
+                    case ::pltxt2htm::Unit::percent: {
+                        result.push_back(u8'%');
+                        break;
+                    }
+                    case ::pltxt2htm::Unit::em: {
+                        result.append(u8"em");
+                        break;
+                    }
+                    case ::pltxt2htm::Unit::px: {
+                        break;
+                    }
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
+                    default:
+                        [[unlikely]] {
+                            pltxt2htm_unreachable(u8"Unexpected unit for div");
                         }
 #endif
                     }
@@ -1622,6 +1681,21 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_margin: {
+                result.append(u8"</margin>");
+                auto const& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                auto const& parent_ast = parent_frame.get_ast();
+                if (parent_frame.current_index < parent_ast.size()) {
+                    auto const next_kind =
+                        ::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_frame.current_index)
+                            .get_node_kind();
+                    if (next_kind != ::pltxt2htm::NodeKind::line_break && next_kind != ::pltxt2htm::NodeKind::html_br &&
+                        result.empty() == false && result.back() != u8'\n') {
+                        result.push_back(u8'\n');
+                    }
+                }
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::html_div: {
                 result.append(u8"</margin>");
                 auto const& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                 auto const& parent_ast = parent_frame.get_ast();

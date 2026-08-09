@@ -941,11 +941,18 @@ entry:
                 ++current_iter;
                 continue;
             }
-            case ::pltxt2htm::NodeKind::html_p: {
+case ::pltxt2htm::NodeKind::html_p: {
                 auto&& subast = node.as_html_p().get_subast();
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
                         ::std::addressof(subast), ::pltxt2htm::NodeKind::html_p, subast.begin()));
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::html_div: {
+                auto&& subast = node.as_html_div().get_subast();
+                call_stack.push(
+                    ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_div, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::line_break:

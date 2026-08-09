@@ -64,6 +64,7 @@ class PlTxtNode {
         ::pltxt2htm::HtmlStrong<ndebug> html_strong_node;
         ::pltxt2htm::HtmlMark<ndebug> html_mark_node;
         ::pltxt2htm::HtmlSpan<ndebug> html_span_node;
+        ::pltxt2htm::HtmlDiv<ndebug> html_div_node;
         ::pltxt2htm::HtmlA<ndebug> html_a_node;
         ::pltxt2htm::HtmlUl<ndebug> html_ul_node;
         ::pltxt2htm::HtmlOl<ndebug> html_ol_node;
@@ -424,6 +425,11 @@ public:
     constexpr PlTxtNode(::pltxt2htm::HtmlSpan<ndebug>&& node) noexcept
         : html_span_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::html_span} {
+    }
+
+    constexpr PlTxtNode(::pltxt2htm::HtmlDiv<ndebug>&& node) noexcept
+        : html_div_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::html_div} {
     }
 
     constexpr PlTxtNode(::pltxt2htm::HtmlA<ndebug>&& node) noexcept
@@ -1059,6 +1065,10 @@ public:
             new (::std::addressof(html_span_node))::pltxt2htm::HtmlSpan(other.html_span_node);
             break;
         }
+        case ::pltxt2htm::NodeKind::html_div: {
+            new (::std::addressof(html_div_node))::pltxt2htm::HtmlDiv(other.html_div_node);
+            break;
+        }
         case ::pltxt2htm::NodeKind::html_a: {
             new (::std::addressof(html_a_node))::pltxt2htm::HtmlA<ndebug>(other.html_a_node);
             break;
@@ -1670,6 +1680,11 @@ public:
 
         case ::pltxt2htm::NodeKind::html_span: {
             new (::std::addressof(html_span_node))::pltxt2htm::HtmlSpan(::std::move(other.html_span_node));
+            break;
+        }
+
+        case ::pltxt2htm::NodeKind::html_div: {
+            new (::std::addressof(html_div_node))::pltxt2htm::HtmlDiv(::std::move(other.html_div_node));
             break;
         }
 
@@ -2289,6 +2304,10 @@ public:
             html_span_node.~HtmlSpan();
             break;
         }
+        case ::pltxt2htm::NodeKind::html_div: {
+            html_div_node.~HtmlDiv();
+            break;
+        }
         case ::pltxt2htm::NodeKind::html_a: {
             html_a_node.~HtmlA();
             break;
@@ -2805,6 +2824,9 @@ public:
         }
         case ::pltxt2htm::NodeKind::html_span: {
             return self.html_span_node == other.html_span_node;
+        }
+        case ::pltxt2htm::NodeKind::html_div: {
+            return self.html_div_node == other.html_div_node;
         }
         case ::pltxt2htm::NodeKind::html_a: {
             return self.html_a_node == other.html_a_node;
@@ -3790,6 +3812,13 @@ public:
         bool const is_span_type{self.node_kind == ::pltxt2htm::NodeKind::html_span};
         pltxt2htm_assert(is_span_type, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.html_span_node);
+    }
+
+    [[nodiscard]]
+    constexpr auto as_html_div(this auto&& self) noexcept -> decltype(auto) {
+        bool const is_div_type{self.node_kind == ::pltxt2htm::NodeKind::html_div};
+        pltxt2htm_assert(is_div_type, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.html_div_node);
     }
 
     [[nodiscard]]

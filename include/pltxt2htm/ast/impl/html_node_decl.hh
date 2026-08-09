@@ -657,6 +657,50 @@ public:
 };
 
 /**
+ * @brief HTML &lt;div style="margin-left:...;margin-right:..."&gt; node
+ * @details Represents an HTML div element whose only allowed style attributes are
+ *          margin-left and margin-right (each an optional px/em/% value). Any other
+ *          attribute or CSS declaration is rejected by the parser to prevent XSS.
+ */
+template<::pltxt2htm::Contracts ndebug>
+class HtmlDiv {
+    ::pltxt2htm::Ast<ndebug> subast;
+    ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left;
+    ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right;
+
+public:
+    constexpr HtmlDiv(::pltxt2htm::Ast<ndebug>&& subast_,
+                      ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left_,
+                      ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right_) noexcept;
+    constexpr HtmlDiv(::pltxt2htm::HtmlDiv<ndebug> const&) noexcept;
+    constexpr HtmlDiv(::pltxt2htm::HtmlDiv<ndebug>&&) noexcept;
+    constexpr ~HtmlDiv() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlDiv<ndebug> const&) noexcept -> ::pltxt2htm::HtmlDiv<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlDiv<ndebug>& self, ::pltxt2htm::HtmlDiv<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlDiv<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this HtmlDiv const&, HtmlDiv const&) noexcept -> bool;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_left(this auto const& self) noexcept
+        -> ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
+        return self.left;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_right(this auto const& self) noexcept
+        -> ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
+        return self.right;
+    }
+};
+
+/**
  * @brief HTML &lt;a href="URL"&gt; anchor/link node
  * @details Represents an HTML anchor element with href attribute.
  */

@@ -218,6 +218,22 @@ constexpr auto find_next_block_after_line_break(
             return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{
                 .advance_count = current_index, .new_frame_been_pushed_into_call_stack = true};
         }
+        // Check for HTML <div style="margin-left:...;margin-right:..."> tag at line start
+        if (auto opt_div_tag = ::pltxt2htm::details::try_parse_html_div_tag<ndebug>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            opt_div_tag.has_value()) {
+            auto const [tag_len, left, right] =
+                opt_div_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            current_index += tag_len + 1;
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                    ::pltxt2htm::details::ParserFrameContextWithHtmlDivInfo{
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), left, right},
+                    ::pltxt2htm::NodeKind::html_div},
+                ::pltxt2htm::Ast<ndebug>{}));
+            return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{
+                .advance_count = current_index, .new_frame_been_pushed_into_call_stack = true};
+        }
         // Check for HTML <h1> tag at line start
         if (auto opt_h1_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<h1">(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
@@ -609,11 +625,12 @@ entry:
         ::std::size_t const pltext_size{pltext.size()};
 
         if ((top_frame.get_nested_tag_type() == ::pltxt2htm::NodeKind::md_block_quotes ||
-             top_frame.get_nested_tag_type() == ::pltxt2htm::NodeKind::pl_margin) &&
+             top_frame.get_nested_tag_type() == ::pltxt2htm::NodeKind::pl_margin ||
+             top_frame.get_nested_tag_type() == ::pltxt2htm::NodeKind::html_div) &&
             current_index == 0) {
             // https://spec.commonmark.org/0.31.2/#example-228
             // to support parsing md-atx-heading e.t.c inside md-block-quotes
-            // (and nested <margin...> blocks right after a <margin...> opening tag)
+            // (and nested <margin...>/<div...> blocks right after the opening tag)
             auto&& [advance_count, require_restart] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), call_stack, result);
             current_index += advance_count;
@@ -2008,6 +2025,33 @@ entry:
                         ++current_index;
                         continue;
                     }
+                    case ::pltxt2htm::NodeKind::html_div: {
+                        // parsing </div>
+                        if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"div">(
+                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                            opt_tag_len.has_value()) {
+                            ::std::size_t const staged_index{current_index};
+                            ::pltxt2htm::HtmlDiv staged_node(::std::move(result), frame.get_html_div_left(),
+                                                             frame.get_html_div_right());
+                            call_stack.pop();
+                            if (call_stack.empty()) {
+                                return ::pltxt2htm::details::ParsePlTxtResult<ndebug>{
+                                    .subast = ::std::move(staged_node.get_subast()),
+                                    .consumed_bytes =
+                                        staged_index +
+                                        opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3};
+                            }
+                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.current_index +=
+                                staged_index + opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() +
+                                3;
+                            goto entry;
+                        }
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        ++current_index;
+                        continue;
+                    }
                     case ::pltxt2htm::NodeKind::pl_b: {
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"b">(
                                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
@@ -2968,6 +3012,12 @@ entry:
             case ::pltxt2htm::NodeKind::pl_margin: {
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::PlMargin<ndebug>{
                     ::std::move(subast), frame.get_pl_margin_tag_left(), frame.get_pl_margin_tag_right()}));
+                parent_index += staged_index;
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::html_div: {
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlDiv<ndebug>{
+                    ::std::move(subast), frame.get_html_div_left(), frame.get_html_div_right()}));
                 parent_index += staged_index;
                 goto entry;
             }

@@ -653,4 +653,30 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::HtmlA<ndebug>::operator==(this ::pltxt2htm::HtmlA<ndebug> const&,
                                                       ::pltxt2htm::HtmlA<ndebug> const&) noexcept -> bool = default;
 
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::HtmlDiv<ndebug>::HtmlDiv(
+    ::pltxt2htm::Ast<ndebug>&& subast_,
+    ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left_,
+    ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right_) noexcept
+    : subast(::std::move(subast_)),
+      left(left_),
+      right(right_) {
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::HtmlDiv<ndebug>::HtmlDiv(::pltxt2htm::HtmlDiv<ndebug> const&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::HtmlDiv<ndebug>::HtmlDiv(::pltxt2htm::HtmlDiv<ndebug>&&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::HtmlDiv<ndebug>::~HtmlDiv() noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::HtmlDiv<ndebug>::operator=(this ::pltxt2htm::HtmlDiv<ndebug>& self,
+                                                      ::pltxt2htm::HtmlDiv<ndebug>&&) noexcept
+    -> ::pltxt2htm::HtmlDiv<ndebug>& = default;
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::HtmlDiv<ndebug>::operator==(this ::pltxt2htm::HtmlDiv<ndebug> const&,
+                                                       ::pltxt2htm::HtmlDiv<ndebug> const&) noexcept
+    -> bool = default;
+
 } // namespace pltxt2htm
