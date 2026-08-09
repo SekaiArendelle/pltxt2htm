@@ -442,6 +442,17 @@ entry:
                 result.append(u8"\" internal>");
                 goto entry;
             }
+            case ::pltxt2htm::NodeKind::pl_trigger: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
+                    node.as_pl_trigger().get_subast(), ::pltxt2htm::NodeKind::pl_trigger, 0));
+                ++current_index;
+                result.append(u8"&lt;trigger=");
+                auto const& trigger_value = node.as_pl_trigger().get_value();
+                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                    result, ::fast_io::u8string_view{trigger_value.data(), trigger_value.size()});
+                result.append(u8"&gt;");
+                goto entry;
+            }
             case ::pltxt2htm::NodeKind::pl_user: {
                 ++current_index;
                 if constexpr (mode == PlWebTextBackendMode::roundtrip) {
@@ -1637,6 +1648,10 @@ entry:
             }
             case ::pltxt2htm::NodeKind::pl_user: {
                 result.append(u8"</span>");
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::pl_trigger: {
+                result.append(u8"&lt;/trigger&gt;");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_size: {
