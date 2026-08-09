@@ -12,12 +12,8 @@ fn profile_mode() -> &'static str {
     }
 }
 
-fn static_lib_name(target: &str) -> &'static str {
-    if target.contains("windows") && profile_mode() == "debug" {
-        "pltxt2htmd"
-    } else {
-        "pltxt2htm"
-    }
+fn static_lib_name(_target: &str) -> &'static str {
+    "pltxt2htm"
 }
 
 fn try_run_cmake(c_root: &Path, out_dir: &Path) -> Result<(), String> {
