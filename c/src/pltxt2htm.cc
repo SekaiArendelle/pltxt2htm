@@ -61,6 +61,11 @@ PLTXT2HTM_C_NAME_MANGLING(plrichtext_parser)(char8_t const* const text, char8_t 
 }
 
 PLTXT2HTM_C_SRC_EXPORT_FUNCTION
+PLTXT2HTM_C_NAME_MANGLING(free_u8string)(char8_t* const str) noexcept -> void {
+    ::free(static_cast<void*>(str));
+}
+
+PLTXT2HTM_C_SRC_EXPORT_FUNCTION
 pltxt2htm_version_major() noexcept -> ::std::size_t {
     return ::pltxt2htm::version::major;
 }

@@ -32,6 +32,12 @@ char const* PLTXT2HTM_C_NAME_MANGLING(plrichtext_parser)(char const* const text,
 #endif
     ;
 
+void PLTXT2HTM_C_NAME_MANGLING(free_u8string)(char const* str)
+#if __cpp_noexcept_function_type >= 201510L
+    noexcept
+#endif
+    ;
+
 size_t pltxt2htm_version_major(void)
 #if __cpp_noexcept_function_type >= 201510L
     noexcept

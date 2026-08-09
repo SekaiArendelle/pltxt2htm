@@ -6,7 +6,7 @@ int main(void) {
     char const* html = PLTXT2HTM_C_NAME_MANGLING(fixedadv_parser)("<a>example</a>", "localhost:5173", "$PROJECT",
                                                                   "$VISITOR", "$AUTHOR", "$CO_AUTHORS");
     printf("%s\n", html);
-    free((void*)html);
+    PLTXT2HTM_C_NAME_MANGLING(free_u8string)(html);
 
     return 0;
 }
