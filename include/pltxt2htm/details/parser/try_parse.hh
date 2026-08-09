@@ -1554,25 +1554,25 @@ struct TryParseMarginSingleResult {
 
 /**
  * @brief Parse the value and closing bracket of a single-value margin tag.
- * @details `pltext` starts at the whole opening tag; `value_start` is the offset right
- *          after the `=` sign. The returned `tag_len` spans through the closing `>`.
+ * @details `pltext` must start at the value (right after the `=` sign; the caller
+ *          subviews it). The returned `tag_len` is relative to `pltext`, so the
+ *          caller re-adds its absolute offset. The tag spans through the closing `>`.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_margin_single(::fast_io::u8string_view pltext, ::std::size_t value_start) noexcept
+constexpr auto try_parse_margin_single(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseMarginSingleResult> {
-    auto opt_value = ::pltxt2htm::details::try_parse_margin_value<ndebug>(
-        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_start));
+    auto opt_value = ::pltxt2htm::details::try_parse_margin_value<ndebug>(pltext);
     if (opt_value.has_value() == false) {
         return ::exception::nullopt;
     }
     auto const value = opt_value.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
     auto opt_close = ::pltxt2htm::details::try_parse_equal_sign_tag_suffix<ndebug>(
-        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_start + value.end));
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value.end));
     if (opt_close.has_value() == false) {
         return ::exception::nullopt;
     }
-    auto const tag_len = value_start + value.end + opt_close.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+    auto const tag_len = value.end + opt_close.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
     return ::pltxt2htm::details::TryParseMarginSingleResult{tag_len, value.value};
 }
 
@@ -1587,19 +1587,21 @@ struct TryParseMarginTagResult {
 
 /**
  * @brief Parse the space-separated attribute form `<margin left=V right=W>`.
- * @details `pltext` starts at the whole opening tag; `start` is the offset right after the
- *          `<margin` name. Attributes are `left=`/`right=` (case-insensitive) followed by
- *          a value with optional unit, separated by spaces or tabs. At least one recognized
- *          attribute is required; unknown names, missing `=`, or malformed values reject the
- *          tag. Repeated sides keep the last value (matching TMP's sequential application).
+ * @details `pltext` must start right after the `<margin` name (the caller subviews
+ *          it). The returned `tag_len` is relative to `pltext`, so the caller
+ *          re-adds its absolute offset. Attributes are `left=`/`right=`
+ *          (case-insensitive) followed by a value with optional unit, separated by
+ *          spaces or tabs. At least one recognized attribute is required; unknown
+ *          names, missing `=`, or malformed values reject the tag. Repeated sides
+ *          keep the last value (matching TMP's sequential application).
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_margin_attributes(::fast_io::u8string_view pltext, ::std::size_t start) noexcept
+constexpr auto try_parse_margin_attributes(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseMarginTagResult> {
     ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left = ::exception::nullopt;
     ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right = ::exception::nullopt;
-    auto pos = start;
+    auto pos = ::std::size_t{0};
     bool saw_attribute = false;
     while (true) {
         while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
@@ -1665,34 +1667,50 @@ constexpr auto try_parse_margin_tag(::fast_io::u8string_view pltext) noexcept
     constexpr auto left_prefix_str = ::pltxt2htm::details::U8LiteralString{u8"<margin-left"};
     constexpr auto right_prefix_str = ::pltxt2htm::details::U8LiteralString{u8"<margin-right"};
     if (::pltxt2htm::details::is_equal_sign_tag_prefix<ndebug, left_prefix_str>(pltext)) {
-        auto opt_single = ::pltxt2htm::details::try_parse_margin_single<ndebug>(pltext, left_prefix_str.size() + 1);
+        constexpr auto value_start = left_prefix_str.size() + 1;
+        auto opt_single = ::pltxt2htm::details::try_parse_margin_single<ndebug>(
+            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_start));
         if (opt_single.has_value() == false) {
             return ::exception::nullopt;
         }
         auto const single = opt_single.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-        return ::pltxt2htm::details::TryParseMarginTagResult{single.tag_len, single.value, ::exception::nullopt};
+        return ::pltxt2htm::details::TryParseMarginTagResult{value_start + single.tag_len, single.value,
+                                                             ::exception::nullopt};
     }
     if (::pltxt2htm::details::is_equal_sign_tag_prefix<ndebug, right_prefix_str>(pltext)) {
-        auto opt_single = ::pltxt2htm::details::try_parse_margin_single<ndebug>(pltext, right_prefix_str.size() + 1);
+        constexpr auto value_start = right_prefix_str.size() + 1;
+        auto opt_single = ::pltxt2htm::details::try_parse_margin_single<ndebug>(
+            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_start));
         if (opt_single.has_value() == false) {
             return ::exception::nullopt;
         }
         auto const single = opt_single.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-        return ::pltxt2htm::details::TryParseMarginTagResult{single.tag_len, ::exception::nullopt, single.value};
+        return ::pltxt2htm::details::TryParseMarginTagResult{value_start + single.tag_len, ::exception::nullopt,
+                                                             single.value};
     }
     if (::pltxt2htm::details::is_equal_sign_tag_prefix<ndebug, prefix_str>(pltext)) {
-        auto opt_single = ::pltxt2htm::details::try_parse_margin_single<ndebug>(pltext, prefix_str.size() + 1);
+        constexpr auto value_start = prefix_str.size() + 1;
+        auto opt_single = ::pltxt2htm::details::try_parse_margin_single<ndebug>(
+            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_start));
         if (opt_single.has_value() == false) {
             return ::exception::nullopt;
         }
         auto const single = opt_single.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-        return ::pltxt2htm::details::TryParseMarginTagResult{single.tag_len, single.value, single.value};
+        return ::pltxt2htm::details::TryParseMarginTagResult{value_start + single.tag_len, single.value, single.value};
     }
     if (::pltxt2htm::details::is_prefix_match<ndebug, prefix_str>(pltext)) {
         if (pltext.size() > prefix_str.size()) {
             auto const next = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, prefix_str.size());
             if (next == u8' ' || next == u8'\t') {
-                return ::pltxt2htm::details::try_parse_margin_attributes<ndebug>(pltext, prefix_str.size());
+                constexpr auto start = prefix_str.size();
+                auto opt_attributes = ::pltxt2htm::details::try_parse_margin_attributes<ndebug>(
+                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start));
+                if (opt_attributes.has_value() == false) {
+                    return ::exception::nullopt;
+                }
+                auto const attributes = opt_attributes.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                return ::pltxt2htm::details::TryParseMarginTagResult{start + attributes.tag_len, attributes.left,
+                                                                     attributes.right};
             }
         }
     }
