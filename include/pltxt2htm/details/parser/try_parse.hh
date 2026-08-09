@@ -1592,8 +1592,7 @@ struct TryParseMarginTagResult {
  *          re-adds its absolute offset. Attributes are `left=`/`right=`
  *          (case-insensitive) followed by a value with optional unit, separated by
  *          spaces or tabs. At least one recognized attribute is required; unknown
- *          names, missing `=`, or malformed values reject the tag. Repeated sides
- *          keep the last value (matching TMP's sequential application).
+ *          names, missing `=`, malformed values, or a repeated side reject the tag.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
@@ -1639,9 +1638,15 @@ constexpr auto try_parse_margin_attributes(::fast_io::u8string_view pltext) noex
         }
         auto const value = opt_value.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
         if (is_left) {
+            if (left.has_value()) {
+                return ::exception::nullopt;
+            }
             left = value.value;
         }
         else {
+            if (right.has_value()) {
+                return ::exception::nullopt;
+            }
             right = value.value;
         }
         pos += value.end;

@@ -219,10 +219,19 @@ int main() {
         pltxt2htm_test_assert_equal(html_attributes, answer);
     }
 
-    // repeated attributes keep the last value
+    // a repeated attribute is malformed and renders as literal text
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<margin left=1em left=2em>text</margin>");
-        auto answer = ::fast_io::u8string_view{u8"<margin left=2em>text</margin>"};
+        auto answer = ::fast_io::u8string_view{
+            u8"<size=20>\uff1c</size>margin\u00A0left=1em\u00A0left=2em<size=20>\uff1e</size>text"
+            u8"<size=20>\uff1c</size>/margin<size=20>\uff1e</size>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // a repeated attribute also renders as literal text in the web backend
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<margin left=1em left=2em>text</margin>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;margin&nbsp;left=1em&nbsp;left=2em&gt;text&lt;/margin&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
