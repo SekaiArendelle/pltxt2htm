@@ -245,6 +245,31 @@ constexpr auto ::pltxt2htm::PlMark<ndebug>::operator==(this ::pltxt2htm::PlMark<
                                                        ::pltxt2htm::PlMark<ndebug> const&) noexcept -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlMargin<ndebug>::PlMargin(
+    ::pltxt2htm::Ast<ndebug>&& subast_, ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left_,
+    ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right_) noexcept
+    : subast(::std::move(subast_)),
+      left(left_),
+      right(right_) {
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlMargin<ndebug>::PlMargin(::pltxt2htm::PlMargin<ndebug> const&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlMargin<ndebug>::PlMargin(::pltxt2htm::PlMargin<ndebug>&&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlMargin<ndebug>::~PlMargin() noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::PlMargin<ndebug>::operator=(this ::pltxt2htm::PlMargin<ndebug>& self,
+                                                        ::pltxt2htm::PlMargin<ndebug>&&) noexcept
+    -> ::pltxt2htm::PlMargin<ndebug>& = default;
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::PlMargin<ndebug>::operator==(this ::pltxt2htm::PlMargin<ndebug> const&,
+                                                         ::pltxt2htm::PlMargin<ndebug> const&) noexcept
+    -> bool = default;
+
+template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::PlI<ndebug>::PlI(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
     : subast(::std::move(subast_)) {
 }

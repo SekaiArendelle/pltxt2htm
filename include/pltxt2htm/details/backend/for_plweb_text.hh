@@ -565,6 +565,13 @@ entry:
                 }
                 goto entry;
             }
+            case ::pltxt2htm::NodeKind::pl_margin: {
+                // No CSS margin equivalent: render the enclosed text transparently.
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_pl_margin().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::pl_margin, 0));
+                ++current_index;
+                goto entry;
+            }
             case ::pltxt2htm::NodeKind::html_span: {
                 auto const& span_color = node.as_html_span().get_color();
                 auto const& span_font_size = node.as_html_span().get_font_size();
@@ -1525,6 +1532,10 @@ entry:
             }
             case ::pltxt2htm::NodeKind::pl_align: {
                 result.append(u8"</p>");
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::pl_margin: {
+                // No CSS margin equivalent: nothing to emit on close.
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_double_emphasis_underscore:

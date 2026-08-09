@@ -52,7 +52,7 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab<blockquote>test</blockquote>cd");
-        auto answer = ::fast_io::u8string_view{u8"ab<margin-left=2em>test</margin>cd"};
+        auto answer = ::fast_io::u8string_view{u8"ab<margin left=2em>test</margin>cd"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
