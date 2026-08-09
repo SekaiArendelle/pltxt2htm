@@ -28,7 +28,7 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<blockquote>text<blockquote>text</blockquote></blockquote>");
-        auto answer = ::fast_io::u8string_view{u8"<blockquote>text<blockquote>text</blockquote></blockquote>"};
+        auto answer = ::fast_io::u8string_view{u8"<blockquote>text&lt;blockquote&gt;text</blockquote>&lt;/blockquote&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -46,13 +46,25 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<blockquote></blockquote>t");
-        auto answer = ::fast_io::u8string_view{u8"t<blockquote></blockquote>t"};
+        auto answer = ::fast_io::u8string_view{u8"t&lt;blockquote&gt;&lt;/blockquote&gt;t"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab<blockquote>test</blockquote>cd");
-        auto answer = ::fast_io::u8string_view{u8"ab<margin left=2em>test</margin>cd"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"ab<blockquote>test</blockquote>cd");
+        auto answer = ::fast_io::u8string_view{u8"ab&lt;blockquote&gt;test&lt;/blockquote&gt;cd"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"text\n<blockquote>text</blockquote>");
+        auto answer = ::fast_io::u8string_view{u8"text<br><blockquote>text</blockquote>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"text<br><blockquote>text</blockquote>");
+        auto answer = ::fast_io::u8string_view{u8"text<br><blockquote>text</blockquote>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
