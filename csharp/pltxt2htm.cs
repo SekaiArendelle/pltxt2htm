@@ -1,3 +1,7 @@
+/// <summary>
+/// Source repository: https://github.com/SekaiArendelle/pltxt2htm
+/// </summary>
+
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -32,25 +36,21 @@ public static class Pltxt2Htm
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
     public static extern UIntPtr pltxt2htm_version_patch();
 
-    public static string GetStringFromIntPtr(IntPtr ptr)
-    {
+    public static string GetStringFromIntPtr(IntPtr ptr) {
         var result = Marshal.PtrToStringAnsi(ptr);
         Debug.Assert(result != null);
         return result;
     }
 
-    public static string CommonParser(string text)
-    {
+    public static string CommonParser(string text) {
         return GetStringFromIntPtr(pltxt2htm_common_parser(text));
     }
 
-    public static string FixedAdvParser(string text, string host, string project, string visitor, string author, string coauthors)
-    {
+    public static string FixedAdvParser(string text, string host, string project, string visitor, string author, string coauthors) {
         return GetStringFromIntPtr(pltxt2htm_fixedadv_parser(text, host, project, visitor, author, coauthors));
     }
 
-    public static string PlRichTextParser(string text, string project, string visitor, string author, string coauthors)
-    {
+    public static string PlRichTextParser(string text, string project, string visitor, string author, string coauthors) {
         return GetStringFromIntPtr(pltxt2htm_plrichtext_parser(text, project, visitor, author, coauthors));
     }
 }
