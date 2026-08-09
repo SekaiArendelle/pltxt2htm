@@ -126,7 +126,7 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::PlTrigger<ndebug>::~PlTrigger() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::PlTrigger<ndebug>::operator=(this ::pltxt2htm::PlTrigger<ndebug>& self,
-                                                          ::pltxt2htm::PlTrigger<ndebug>&&) noexcept
+                                                         ::pltxt2htm::PlTrigger<ndebug>&&) noexcept
     -> ::pltxt2htm::PlTrigger<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>

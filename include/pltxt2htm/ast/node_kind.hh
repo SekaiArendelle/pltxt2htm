@@ -49,7 +49,8 @@ enum class NodeKind : unsigned {
     pl_margin, ///< Physics-Lab margin (Unity TMP rich text): &lt;margin left=v right=v&gt;...&lt;/margin&gt;
     pl_external, ///< Physics-Lab external link: &lt;external=url&gt;...&lt;/external&gt;
     pl_link, ///< Physics-Lab link (Unity TextMeshPro rich text): &lt;link=&quot;url&quot;&gt;...&lt;/link&gt;
-    pl_trigger, ///< Physics-Lab trigger tag: &lt;trigger=value&gt;...&lt;/trigger&gt; (legacy NetLogo-style interaction tag)
+    pl_trigger, ///< Physics-Lab trigger tag: &lt;trigger=value&gt;...&lt;/trigger&gt; (legacy NetLogo-style interaction
+                ///< tag)
 
     // Text formatting (shared across Physics-Lab, HTML, and Markdown)
     pl_b, ///< Bold text: &lt;b&gt;...&lt;/b&gt;, Markdown double emphasis, &lt;strong&gt; in HTML

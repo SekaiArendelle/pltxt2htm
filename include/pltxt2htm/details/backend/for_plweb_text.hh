@@ -443,8 +443,8 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_trigger: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_pl_trigger().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::pl_trigger, 0));
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
+                    node.as_pl_trigger().get_subast(), ::pltxt2htm::NodeKind::pl_trigger, 0));
                 ++current_index;
                 result.append(u8"&lt;trigger=");
                 auto const& trigger_value = node.as_pl_trigger().get_value();

@@ -1139,8 +1139,7 @@ constexpr auto try_parse_non_nestable_equal_sign_tag(
         if (nested_tag_type == ::pltxt2htm::NodeKind::pl_experiment ||
             nested_tag_type == ::pltxt2htm::NodeKind::pl_discussion ||
             nested_tag_type == ::pltxt2htm::NodeKind::pl_external ||
-            nested_tag_type == ::pltxt2htm::NodeKind::pl_link ||
-            nested_tag_type == ::pltxt2htm::NodeKind::pl_trigger) {
+            nested_tag_type == ::pltxt2htm::NodeKind::pl_link || nested_tag_type == ::pltxt2htm::NodeKind::pl_trigger) {
             return ::exception::nullopt;
         }
     }

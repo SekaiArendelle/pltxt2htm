@@ -197,7 +197,8 @@ public:
     constexpr PlTrigger(::pltxt2htm::PlTrigger<ndebug> const&) noexcept;
     constexpr PlTrigger(::pltxt2htm::PlTrigger<ndebug>&&) noexcept;
     constexpr ~PlTrigger() noexcept;
-    constexpr auto operator=(::pltxt2htm::PlTrigger<ndebug> const&) noexcept -> ::pltxt2htm::PlTrigger<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::PlTrigger<ndebug> const&) noexcept
+        -> ::pltxt2htm::PlTrigger<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::PlTrigger<ndebug>& self, ::pltxt2htm::PlTrigger<ndebug>&&) noexcept
         -> ::pltxt2htm::PlTrigger<ndebug>&;
 

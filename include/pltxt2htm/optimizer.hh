@@ -795,9 +795,8 @@ entry:
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
                         ::std::addressof(subast), node.get_node_kind(), subast.begin(),
-                        ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{
-                            ::fast_io::u8string_view{node.as_pl_trigger().get_value().data(),
-                                                     node.as_pl_trigger().get_value().size()}}));
+                        ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{::fast_io::u8string_view{
+                            node.as_pl_trigger().get_value().data(), node.as_pl_trigger().get_value().size()}}));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_external: {
