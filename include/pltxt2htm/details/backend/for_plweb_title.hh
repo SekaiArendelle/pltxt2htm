@@ -462,6 +462,12 @@ entry:
                 ++current_index;
                 goto entry;
             }
+            case ::pltxt2htm::NodeKind::pl_trigger: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_pl_trigger().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::text, 0));
+                ++current_index;
+                goto entry;
+            }
             case ::pltxt2htm::NodeKind::pl_size: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_pl_size().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::text, 0));
@@ -920,6 +926,9 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::text: {
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::pl_trigger: {
                 goto entry;
             }
             default:

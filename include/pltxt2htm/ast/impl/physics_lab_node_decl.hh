@@ -184,6 +184,38 @@ public:
 };
 
 /**
+ * @brief Physics-Lab trigger tag node
+ * @details Represents &lt;trigger=value&gt;...&lt;/trigger&gt; with a string value.
+ */
+template<::pltxt2htm::Contracts ndebug>
+class PlTrigger {
+    ::pltxt2htm::Ast<ndebug> subast;
+    ::fast_io::u8string value;
+
+public:
+    constexpr PlTrigger(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& value_) noexcept;
+    constexpr PlTrigger(::pltxt2htm::PlTrigger<ndebug> const&) noexcept;
+    constexpr PlTrigger(::pltxt2htm::PlTrigger<ndebug>&&) noexcept;
+    constexpr ~PlTrigger() noexcept;
+    constexpr auto operator=(::pltxt2htm::PlTrigger<ndebug> const&) noexcept -> ::pltxt2htm::PlTrigger<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::PlTrigger<ndebug>& self, ::pltxt2htm::PlTrigger<ndebug>&&) noexcept
+        -> ::pltxt2htm::PlTrigger<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this PlTrigger const&, PlTrigger const&) noexcept -> bool;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_value(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.value);
+    }
+};
+
+/**
  * @brief Physics-Lab external link tag node
  * @details Represents &lt;external=url&gt;...&lt;/external&gt; with a URL.
  */

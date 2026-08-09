@@ -112,6 +112,29 @@ constexpr auto ::pltxt2htm::PlUser<ndebug>::operator==(this ::pltxt2htm::PlUser<
                                                        ::pltxt2htm::PlUser<ndebug> const&) noexcept -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlTrigger<ndebug>::PlTrigger(::pltxt2htm::Ast<ndebug>&& subast_,
+                                                    ::fast_io::u8string&& value_) noexcept
+    : subast(::std::move(subast_)),
+      value(::std::move(value_)) {
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlTrigger<ndebug>::PlTrigger(::pltxt2htm::PlTrigger<ndebug> const&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlTrigger<ndebug>::PlTrigger(::pltxt2htm::PlTrigger<ndebug>&&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlTrigger<ndebug>::~PlTrigger() noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::PlTrigger<ndebug>::operator=(this ::pltxt2htm::PlTrigger<ndebug>& self,
+                                                          ::pltxt2htm::PlTrigger<ndebug>&&) noexcept
+    -> ::pltxt2htm::PlTrigger<ndebug>& = default;
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::PlTrigger<ndebug>::operator==(this ::pltxt2htm::PlTrigger<ndebug> const&,
+                                                          ::pltxt2htm::PlTrigger<ndebug> const&) noexcept
+    -> bool = default;
+
+template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::PlExternal<ndebug>::PlExternal(::pltxt2htm::Ast<ndebug>&& subast_,
                                                       ::pltxt2htm::Url&& url_) noexcept
     : subast(::std::move(subast_)),

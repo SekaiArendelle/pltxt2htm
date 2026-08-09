@@ -440,6 +440,15 @@ entry:
                 result.push_back(u8'>');
                 goto entry;
             }
+            case ::pltxt2htm::NodeKind::pl_trigger: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_pl_trigger().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::pl_trigger, 0));
+                ++current_index;
+                result.append(u8"<trigger=");
+                result.append(node.as_pl_trigger().get_value());
+                result.push_back(u8'>');
+                goto entry;
+            }
             case ::pltxt2htm::NodeKind::pl_size: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_pl_size().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::pl_size, 0));
@@ -1655,6 +1664,10 @@ entry:
             }
             case ::pltxt2htm::NodeKind::pl_user: {
                 result.append(u8"</user>");
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::pl_trigger: {
+                result.append(u8"</trigger>");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_size: {
