@@ -1,36 +1,36 @@
 #include "precompile.hh"
 
 int main() {
-    // web backend renders <margin...> transparently (no CSS margin equivalent)
+    // web backend renders <margin...> as a block-level div with CSS margins
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<margin-left=2em>text</margin>");
-        auto answer = ::fast_io::u8string_view{u8"text"};
+        auto answer = ::fast_io::u8string_view{u8"<div style=\"margin-left:2em;\">text</div>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<margin-right=1em>text</margin>");
-        auto answer = ::fast_io::u8string_view{u8"text"};
+        auto answer = ::fast_io::u8string_view{u8"<div style=\"margin-right:1em;\">text</div>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<margin=2em>text</margin>");
-        auto answer = ::fast_io::u8string_view{u8"text"};
+        auto answer = ::fast_io::u8string_view{u8"<div style=\"margin-left:2em;margin-right:2em;\">text</div>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     // a newline inside a margin block still renders as <br>
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<margin-left=2em>line1\nline2</margin>");
-        auto answer = ::fast_io::u8string_view{u8"line1<br>line2"};
+        auto answer = ::fast_io::u8string_view{u8"<div style=\"margin-left:2em;\">line1<br>line2</div>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     // text after the closing </margin> stays on its own content line
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<margin-left=2em>a</margin>\nb");
-        auto answer = ::fast_io::u8string_view{u8"a<br>b"};
+        auto answer = ::fast_io::u8string_view{u8"<div style=\"margin-left:2em;\">a</div><br>b"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -51,14 +51,14 @@ int main() {
     // an empty margin block is kept, not erased by the optimizer
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<margin-left=2em></margin>");
-        auto answer = ::fast_io::u8string_view{u8""};
+        auto answer = ::fast_io::u8string_view{u8"<div style=\"margin-left:2em;\"></div>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     // an unclosed margin block still parses
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<margin-left=2em>text");
-        auto answer = ::fast_io::u8string_view{u8"text"};
+        auto answer = ::fast_io::u8string_view{u8"<div style=\"margin-left:2em;\">text</div>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -95,6 +95,19 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // web backend emits px and percent CSS units explicitly
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<margin=10px>text</margin>");
+        auto answer = ::fast_io::u8string_view{u8"<div style=\"margin-left:10px;margin-right:10px;\">text</div>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<margin=5%>text</margin>");
+        auto answer = ::fast_io::u8string_view{u8"<div style=\"margin-left:5%;margin-right:5%;\">text</div>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     // zero is a valid margin value
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<margin=0>text</margin>");
@@ -127,7 +140,8 @@ int main() {
     {
         auto pltext = ::fast_io::u8string_view{u8"<margin-left=1em>a</margin>\n<margin-right=2em>b</margin>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"a<br>b"};
+        auto answer = ::fast_io::u8string_view{
+            u8"<div style=\"margin-left:1em;\">a</div><br><div style=\"margin-right:2em;\">b</div>"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer =
@@ -139,7 +153,7 @@ int main() {
     {
         auto pltext = ::fast_io::u8string_view{u8"a\n<margin-left=2em>b</margin>\nc"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"a<br>b<br>c"};
+        auto answer = ::fast_io::u8string_view{u8"a<br><div style=\"margin-left:2em;\">b</div><br>c"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"a\n<margin left=2em>b</margin>\nc"};
@@ -150,7 +164,7 @@ int main() {
     {
         auto pltext = ::fast_io::u8string_view{u8"a\n<margin-left=2em></margin>\nb"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"a<br><br>b"};
+        auto answer = ::fast_io::u8string_view{u8"a<br><div style=\"margin-left:2em;\"></div><br>b"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"a\n<margin left=2em></margin>\nb"};
@@ -161,7 +175,7 @@ int main() {
     {
         auto pltext = ::fast_io::u8string_view{u8"<margin left=2em right=2em>text</margin>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"text"};
+        auto answer = ::fast_io::u8string_view{u8"<div style=\"margin-left:2em;margin-right:2em;\">text</div>"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<margin left=2em right=2em>text</margin>"};
@@ -215,7 +229,8 @@ int main() {
     // a newline inside an attribute-form margin block still renders as <br>
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<margin left=2em right=3em>line1\nline2</margin>");
-        auto answer = ::fast_io::u8string_view{u8"line1<br>line2"};
+        auto answer =
+            ::fast_io::u8string_view{u8"<div style=\"margin-left:2em;margin-right:3em;\">line1<br>line2</div>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
