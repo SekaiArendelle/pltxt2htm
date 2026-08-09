@@ -24,7 +24,6 @@ if(PLTXT2HTM_ENABLE_STACKTRACE)
 endif()
 
 if(WIN32)
-    set_target_properties(pltxt2htm PROPERTIES DEBUG_POSTFIX "d")
     target_link_libraries(pltxt2htm PRIVATE ntdll)
 endif()
 
