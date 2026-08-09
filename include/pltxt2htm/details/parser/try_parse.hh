@@ -1723,6 +1723,169 @@ constexpr auto try_parse_margin_tag(::fast_io::u8string_view pltext) noexcept
 }
 
 /**
+ * @brief Return type of try_parse_html_div_tag: tag length plus optional left/right margins.
+ */
+struct TryParseHtmlDivTagResult {
+    ::std::size_t tag_len;
+    ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left;
+    ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right;
+};
+
+/**
+ * @brief Parse an HTML &lt;div style="margin-left:V;margin-right:W"&gt; opening tag.
+ * @details `pltext` must start at the `<` of the tag (the caller subviews it). Only the
+ *          `style` attribute is accepted, and inside it only `margin-left` and/or
+ *          `margin-right` declarations (each with an unsigned px/em/% value, parsed via
+ *          ::pltxt2htm::details::try_parse_margin_value) are allowed. Any other attribute
+ *          or CSS declaration makes the whole tag invalid so the caller falls back to
+ *          treating it as literal text, keeping the emitted HTML XSS-safe.
+ * @param[in] pltext The input text view starting at the candidate tag.
+ * @return The consumed tag length (the index of the closing `>` relative to `pltext`,
+ *          i.e. excluding the `>` itself) plus the optional left/right margins.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_html_div_tag(::fast_io::u8string_view pltext) noexcept
+    -> ::exception::optional<::pltxt2htm::details::TryParseHtmlDivTagResult> {
+    if (::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"<div"}>(pltext) ==
+        false) {
+        return ::exception::nullopt;
+    }
+    ::std::size_t pos{4}; // skip past "<div"
+
+    // match the single allowed attribute name "style" (case-sensitive, like the span parser)
+    while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
+                                   ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t')) {
+        ++pos;
+    }
+    constexpr auto style_str = ::pltxt2htm::details::U8LiteralString{u8"style"};
+    if (pltext.size() - pos < style_str.size() ||
+        ::pltxt2htm::details::is_prefix_match<ndebug, style_str>(
+            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, pos)) == false) {
+        return ::exception::nullopt;
+    }
+    pos += style_str.size();
+
+    while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
+                                   ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t')) {
+        ++pos;
+    }
+    if (pos >= pltext.size() || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'=') {
+        return ::exception::nullopt;
+    }
+    ++pos;
+    while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
+                                   ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t')) {
+        ++pos;
+    }
+    if (pos >= pltext.size()) {
+        return ::exception::nullopt;
+    }
+    char8_t const quote{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos)};
+    if (quote != u8'"' && quote != u8'\'') {
+        return ::exception::nullopt;
+    }
+    ++pos;
+
+    ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left{::exception::nullopt};
+    ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right{::exception::nullopt};
+
+    while (true) {
+        while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
+                                       ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t')) {
+            ++pos;
+        }
+        if (pos >= pltext.size()) {
+            return ::exception::nullopt;
+        }
+        if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == quote) {
+            ++pos;
+            break;
+        }
+
+        // property name: only margin-left / margin-right are allowed
+        constexpr auto left_str = ::pltxt2htm::details::U8LiteralString{u8"margin-left"};
+        constexpr auto right_str = ::pltxt2htm::details::U8LiteralString{u8"margin-right"};
+        bool const is_left = pltext.size() - pos >= left_str.size() &&
+                             ::pltxt2htm::details::is_prefix_match<ndebug, left_str>(
+                                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, pos));
+        bool const is_right = is_left == false && pltext.size() - pos >= right_str.size() &&
+                              ::pltxt2htm::details::is_prefix_match<ndebug, right_str>(
+                                  ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, pos));
+        if (is_left == false && is_right == false) {
+            return ::exception::nullopt;
+        }
+        pos += is_left ? left_str.size() : right_str.size();
+
+        while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
+                                       ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t')) {
+            ++pos;
+        }
+        if (pos >= pltext.size() || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8':') {
+            return ::exception::nullopt;
+        }
+        ++pos;
+        while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
+                                       ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t')) {
+            ++pos;
+        }
+
+        auto opt_value = ::pltxt2htm::details::try_parse_margin_value<ndebug>(
+            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, pos));
+        if (opt_value.has_value() == false) {
+            return ::exception::nullopt;
+        }
+        auto const value = opt_value.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        pos += value.end;
+
+        if (is_left) {
+            if (left.has_value()) {
+                return ::exception::nullopt; // duplicate margin-left declaration
+            }
+            left = value.value;
+        }
+        else {
+            if (right.has_value()) {
+                return ::exception::nullopt; // duplicate margin-right declaration
+            }
+            right = value.value;
+        }
+
+        while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
+                                       ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t')) {
+            ++pos;
+        }
+        if (pos >= pltext.size()) {
+            return ::exception::nullopt;
+        }
+        if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8';') {
+            ++pos;
+            continue;
+        }
+        if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == quote) {
+            ++pos;
+            break;
+        }
+        return ::exception::nullopt;
+    }
+
+    // a div must declare at least one margin (style must contain margin-left/right only)
+    if (left.has_value() == false && right.has_value() == false) {
+        return ::exception::nullopt;
+    }
+
+    while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
+                                   ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t')) {
+        ++pos;
+    }
+    if (pos >= pltext.size() || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'>') {
+        return ::exception::nullopt;
+    }
+
+    return ::pltxt2htm::details::TryParseHtmlDivTagResult{pos, left, right};
+}
+
+/**
  * @brief Result of parsing a CSS vertical-align value.
  */
 template<::pltxt2htm::Contracts ndebug>
