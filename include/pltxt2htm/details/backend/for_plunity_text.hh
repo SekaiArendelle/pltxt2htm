@@ -537,37 +537,54 @@ entry:
                 ++current_index;
                 auto const margin_left = node.as_pl_margin().get_left();
                 auto const margin_right = node.as_pl_margin().get_right();
-                auto const append_margin_value =
-                    [&result](::pltxt2htm::ValueWithUnit<::std::size_t> const margin_value) constexpr noexcept {
-                        result.append(::pltxt2htm::details::size_t2str(margin_value.value));
-                        switch (margin_value.unit) /* -Werror=switch */ {
-                        case ::pltxt2htm::Unit::percent: {
-                            result.push_back(u8'%');
-                            break;
-                        }
-                        case ::pltxt2htm::Unit::em: {
-                            result.append(u8"em");
-                            break;
-                        }
-                        case ::pltxt2htm::Unit::px: {
-                            break;
-                        }
-#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
-                        default:
-                            [[unlikely]] {
-                                pltxt2htm_unreachable(u8"Unexpected unit for margin");
-                            }
-#endif
-                        }
-                    };
                 result.append(u8"<margin");
                 if (margin_left.has_value()) {
                     result.append(u8" left=");
-                    append_margin_value(margin_left.template value<ndebug == ::pltxt2htm::Contracts::ignore>());
+                    auto const& margin_value = margin_left.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    result.append(::pltxt2htm::details::size_t2str(margin_value.value));
+                    switch (margin_value.unit) /* -Werror=switch */ {
+                    case ::pltxt2htm::Unit::percent: {
+                        result.push_back(u8'%');
+                        break;
+                    }
+                    case ::pltxt2htm::Unit::em: {
+                        result.append(u8"em");
+                        break;
+                    }
+                    case ::pltxt2htm::Unit::px: {
+                        break;
+                    }
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
+                    default:
+                        [[unlikely]] {
+                            pltxt2htm_unreachable(u8"Unexpected unit for margin");
+                        }
+#endif
+                    }
                 }
                 if (margin_right.has_value()) {
                     result.append(u8" right=");
-                    append_margin_value(margin_right.template value<ndebug == ::pltxt2htm::Contracts::ignore>());
+                    auto const& margin_value = margin_right.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    result.append(::pltxt2htm::details::size_t2str(margin_value.value));
+                    switch (margin_value.unit) /* -Werror=switch */ {
+                    case ::pltxt2htm::Unit::percent: {
+                        result.push_back(u8'%');
+                        break;
+                    }
+                    case ::pltxt2htm::Unit::em: {
+                        result.append(u8"em");
+                        break;
+                    }
+                    case ::pltxt2htm::Unit::px: {
+                        break;
+                    }
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
+                    default:
+                        [[unlikely]] {
+                            pltxt2htm_unreachable(u8"Unexpected unit for margin");
+                        }
+#endif
+                    }
                 }
                 result.push_back(u8'>');
                 goto entry;
