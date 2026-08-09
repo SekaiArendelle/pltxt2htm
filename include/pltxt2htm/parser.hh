@@ -71,6 +71,15 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
             }
             return ::exception::nullopt;
         }();
+        auto const opt_pl_margin = [&] constexpr noexcept
+            -> ::exception::optional<::pltxt2htm::details::ParserFrameContextWithPlMarginTagInfo> {
+            if (type_of_subast == ::pltxt2htm::NodeKind::pl_margin) {
+                return ::pltxt2htm::details::ParserFrameContextWithPlMarginTagInfo{
+                    call_stack.top().get_pltext(), call_stack.top().get_pl_margin_tag_left(),
+                    call_stack.top().get_pl_margin_tag_right()};
+            }
+            return ::exception::nullopt;
+        }();
         auto&& [subast, consumed_bytes] = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
         switch (type_of_subast) {
         case ::pltxt2htm::NodeKind::md_atx_h1: {
@@ -130,6 +139,15 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
             auto pl_align_value = opt_pl_align.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             result.push_back(
                 ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::PlAlign<ndebug>{::std::move(subast), pl_align_value}));
+            continue;
+        }
+        case ::pltxt2htm::NodeKind::pl_margin: {
+            // Same as pl_align: advance start_index past the consumed pl_margin content, preserving
+            // the left/right margins read from the frame top before the recursive parse popped it.
+            start_index += consumed_bytes;
+            auto pl_margin_info = opt_pl_margin.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(
+                ::pltxt2htm::PlMargin<ndebug>{::std::move(subast), pl_margin_info.left, pl_margin_info.right}));
             continue;
         }
         case ::pltxt2htm::NodeKind::html_h1: {

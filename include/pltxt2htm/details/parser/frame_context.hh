@@ -124,6 +124,17 @@ public:
 };
 
 /**
+ * @brief Context for <margin-left=N> / <margin-right=N> / <margin=N> /
+ *        <margin left=N right=M> frames during parsing.
+ */
+class ParserFrameContextWithPlMarginTagInfo {
+public:
+    ::fast_io::u8string_view pltext;
+    ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left;
+    ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right;
+};
+
+/**
  * @brief Context for pl_mark frames during parsing; stores the background color.
  */
 class ParserFrameContextWithPlMarkInfo {
@@ -230,6 +241,7 @@ public:
         url_info,
         pl_size_tag,
         pl_voffset_tag,
+        pl_margin_tag,
         align_info,
         html_span_info,
         html_code_info,
@@ -255,6 +267,7 @@ public:
         ::pltxt2htm::details::ParserFrameContextWithHtmlATagInfo html_a_tag_info;
         ::pltxt2htm::details::ParserFrameContextWithPlSizeTagInfo pl_size_tag;
         ::pltxt2htm::details::ParserFrameContextWithPlVoffsetTagInfo pl_voffset_tag;
+        ::pltxt2htm::details::ParserFrameContextWithPlMarginTagInfo pl_margin_tag;
         ::pltxt2htm::details::ParserFrameContextWithMdBlockQuotesInfo md_block_quotes;
         ::pltxt2htm::details::ParserFrameContextWithMdListInfo<ndebug> md_list;
         ::pltxt2htm::details::ParserFrameContextWithCellInfo cell;
@@ -362,6 +375,16 @@ public:
     }
 
     constexpr FrontendContextVariant(
+        ::pltxt2htm::details::ParserFrameContextWithPlMarginTagInfo&& pl_margin_tag_context,
+        ::pltxt2htm::NodeKind node_kind_) noexcept
+        : pl_margin_tag{::std::move(pl_margin_tag_context)},
+#ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
+          context_branch{ContextBranch::pl_margin_tag},
+#endif
+          kind{node_kind_} {
+    }
+
+    constexpr FrontendContextVariant(
         ::pltxt2htm::details::ParserFrameContextWithMdBlockQuotesInfo&& md_block_quotes_context,
         ::pltxt2htm::NodeKind node_kind_) noexcept
         : md_block_quotes{::std::move(md_block_quotes_context)},
@@ -459,6 +482,11 @@ public:
         case ::pltxt2htm::NodeKind::pl_voffset: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::pl_voffset_tag);
             ::std::construct_at(::std::addressof(this->pl_voffset_tag), ::std::move(other.pl_voffset_tag));
+            return;
+        }
+        case ::pltxt2htm::NodeKind::pl_margin: {
+            pltxt2htm_assert_context_branch(*this, ContextBranch::pl_margin_tag);
+            ::std::construct_at(::std::addressof(this->pl_margin_tag), ::std::move(other.pl_margin_tag));
             return;
         }
         case ::pltxt2htm::NodeKind::pl_align: {
@@ -790,6 +818,11 @@ public:
         case ::pltxt2htm::NodeKind::pl_voffset: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::pl_voffset_tag);
             ::std::destroy_at(::std::addressof(this->pl_voffset_tag));
+            return;
+        }
+        case ::pltxt2htm::NodeKind::pl_margin: {
+            pltxt2htm_assert_context_branch(*this, ContextBranch::pl_margin_tag);
+            ::std::destroy_at(::std::addressof(this->pl_margin_tag));
             return;
         }
         case ::pltxt2htm::NodeKind::pl_align: {
@@ -1308,6 +1341,11 @@ public:
                 context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::pl_voffset_tag);
             return context_data_ref.pl_voffset_tag.pltext;
         }
+        case ::pltxt2htm::NodeKind::pl_margin: {
+            pltxt2htm_assert_context_branch(
+                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::pl_margin_tag);
+            return context_data_ref.pl_margin_tag.pltext;
+        }
         case ::pltxt2htm::NodeKind::pl_align: {
             pltxt2htm_assert_context_branch(
                 context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::align_info);
@@ -1492,6 +1530,24 @@ public:
         bool const is_pl_voffset_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_voffset};
         pltxt2htm_assert(is_pl_voffset_tag_type, u8"context kind mismatch");
         return context_data_ref.pl_voffset_tag.value;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_pl_margin_tag_left(this auto&& self) noexcept
+        -> ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
+        auto&& context_data_ref = self.context_data;
+        bool const is_pl_margin_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_margin};
+        pltxt2htm_assert(is_pl_margin_tag_type, u8"context kind mismatch");
+        return context_data_ref.pl_margin_tag.left;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_pl_margin_tag_right(this auto&& self) noexcept
+        -> ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
+        auto&& context_data_ref = self.context_data;
+        bool const is_pl_margin_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_margin};
+        pltxt2htm_assert(is_pl_margin_tag_type, u8"context kind mismatch");
+        return context_data_ref.pl_margin_tag.right;
     }
 
     [[nodiscard]]

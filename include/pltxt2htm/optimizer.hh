@@ -890,6 +890,13 @@ entry:
                         ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_align, subast.begin()));
                 goto entry;
             }
+            case ::pltxt2htm::NodeKind::pl_margin: {
+                auto&& subast = node.as_pl_margin().get_subast();
+                call_stack.push(
+                    ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_margin, subast.begin()));
+                goto entry;
+            }
             case ::pltxt2htm::NodeKind::md_double_emphasis_underscore:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_double_emphasis_asterisk:

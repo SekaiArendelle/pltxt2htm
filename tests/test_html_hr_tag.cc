@@ -45,7 +45,8 @@ int main() {
     {
         auto pltext = ::fast_io::u8string_view{u8"<p>text</p><hr><p>text</p>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"<p style=\"text-align:left\">text</p><hr><p style=\"text-align:left\">text</p>"};
+        auto answer = ::fast_io::u8string_view{
+            u8"<p style=\"text-align:left\">text</p><hr><p style=\"text-align:left\">text</p>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

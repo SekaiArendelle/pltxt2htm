@@ -394,6 +394,51 @@ public:
 };
 
 /**
+ * @brief Physics-Lab margin tag node
+ * @details Represents &lt;margin left=v right=v&gt; / &lt;margin-left=v&gt; /
+ *          &lt;margin-right=v&gt; / &lt;margin=v&gt; ... &lt;/margin&gt; (Unity TextMeshPro rich
+ *          text) with optional left and right unsigned px/em/% values (the unit
+ *          defaults to px), and sub-AST.
+ */
+template<::pltxt2htm::Contracts ndebug>
+class PlMargin {
+    ::pltxt2htm::Ast<ndebug> subast;
+    ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left;
+    ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right;
+
+public:
+    constexpr PlMargin(::pltxt2htm::Ast<ndebug>&& subast_,
+                       ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left_,
+                       ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right_) noexcept;
+    constexpr PlMargin(::pltxt2htm::PlMargin<ndebug> const&) noexcept;
+    constexpr PlMargin(::pltxt2htm::PlMargin<ndebug>&&) noexcept;
+    constexpr ~PlMargin() noexcept;
+    constexpr auto operator=(::pltxt2htm::PlMargin<ndebug> const&) noexcept -> ::pltxt2htm::PlMargin<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::PlMargin<ndebug>& self, ::pltxt2htm::PlMargin<ndebug>&&) noexcept
+        -> ::pltxt2htm::PlMargin<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this PlMargin const&, PlMargin const&) noexcept -> bool;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_left(this auto const& self) noexcept
+        -> ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
+        return self.left;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_right(this auto const& self) noexcept
+        -> ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
+        return self.right;
+    }
+};
+
+/**
  * @brief Physics-Lab italic text tag node
  * @details Represents &lt;i&gt;...&lt;/i&gt; with sub-AST content.
  */
