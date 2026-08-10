@@ -131,48 +131,48 @@ int main() {
     // plunity backend maps the div back to a TMP margin tag
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<div style=\"margin-left:2em\">text</div>");
-        auto answer = ::fast_io::u8string_view{u8"<margin left=2em>text</margin>"};
+        auto answer = ::fast_io::u8string_view{u8"<margin left=2em>text</margin>\n"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<div style=\"margin-right:1em\">text</div>");
-        auto answer = ::fast_io::u8string_view{u8"<margin right=1em>text</margin>"};
+        auto answer = ::fast_io::u8string_view{u8"<margin right=1em>text</margin>\n"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(
             u8"<div style=\"margin-left:2em;margin-right:3em\">text</div>");
-        auto answer = ::fast_io::u8string_view{u8"<margin left=2em right=3em>text</margin>"};
+        auto answer = ::fast_io::u8string_view{u8"<margin left=2em right=3em>text</margin>\n"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     // px is the default unit and is emitted without a suffix in the unity backend
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<div style=\"margin-left:10px\">text</div>");
-        auto answer = ::fast_io::u8string_view{u8"<margin left=10>text</margin>"};
+        auto answer = ::fast_io::u8string_view{u8"<margin left=10>text</margin>\n"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     // percent unit is preserved in the unity backend
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<div style=\"margin-left:5%\">text</div>");
-        auto answer = ::fast_io::u8string_view{u8"<margin left=5%>text</margin>"};
+        auto answer = ::fast_io::u8string_view{u8"<margin left=5%>text</margin>\n"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     // an unclosed div still emits a closing margin tag in the unity backend
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<div style=\"margin-left:2em\">text");
-        auto answer = ::fast_io::u8string_view{u8"<margin left=2em>text</margin>"};
+        auto answer = ::fast_io::u8string_view{u8"<margin left=2em>text</margin>\n"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     // an empty div round-trips in the unity backend
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<div style=\"margin-left:2em\"></div>");
-        auto answer = ::fast_io::u8string_view{u8"<margin left=2em></margin>"};
+        auto answer = ::fast_io::u8string_view{u8"<margin left=2em></margin>\n"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -180,14 +180,14 @@ int main() {
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(
             u8"<div style=\"margin-left:2em\"><div style=\"margin-right:1em\">x</div></div>");
-        auto answer = ::fast_io::u8string_view{u8"<margin left=2em><margin right=1em>x</margin></margin>"};
+        auto answer = ::fast_io::u8string_view{u8"<margin left=2em><margin right=1em>x</margin>\n</margin>\n"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     // the plunity front except for unity maps to plain text (title/plain frontends drop the tag)
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<div style=\"margin-left:2em\">text</div>");
-        auto answer = ::fast_io::u8string_view{u8"<margin left=2em>text</margin>"};
+        auto answer = ::fast_io::u8string_view{u8"<margin left=2em>text</margin>\n"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

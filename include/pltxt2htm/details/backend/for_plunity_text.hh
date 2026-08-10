@@ -1679,48 +1679,15 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_align: {
-                result.append(u8"</align>");
-                auto const& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
-                auto const& parent_ast = parent_frame.get_ast();
-                if (parent_frame.current_index < parent_ast.size()) {
-                    auto const next_kind =
-                        ::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_frame.current_index)
-                            .get_node_kind();
-                    if (next_kind != ::pltxt2htm::NodeKind::line_break && next_kind != ::pltxt2htm::NodeKind::html_br &&
-                        result.empty() == false && result.back() != u8'\n') {
-                        result.push_back(u8'\n');
-                    }
-                }
+                result.append(u8"</align>\n");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_margin: {
-                result.append(u8"</margin>");
-                auto const& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
-                auto const& parent_ast = parent_frame.get_ast();
-                if (parent_frame.current_index < parent_ast.size()) {
-                    auto const next_kind =
-                        ::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_frame.current_index)
-                            .get_node_kind();
-                    if (next_kind != ::pltxt2htm::NodeKind::line_break && next_kind != ::pltxt2htm::NodeKind::html_br &&
-                        result.empty() == false && result.back() != u8'\n') {
-                        result.push_back(u8'\n');
-                    }
-                }
+                result.append(u8"</margin>\n");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_div: {
-                result.append(u8"</margin>");
-                auto const& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
-                auto const& parent_ast = parent_frame.get_ast();
-                if (parent_frame.current_index < parent_ast.size()) {
-                    auto const next_kind =
-                        ::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_frame.current_index)
-                            .get_node_kind();
-                    if (next_kind != ::pltxt2htm::NodeKind::line_break && next_kind != ::pltxt2htm::NodeKind::html_br &&
-                        result.empty() == false && result.back() != u8'\n') {
-                        result.push_back(u8'\n');
-                    }
-                }
+                result.append(u8"</margin>\n");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_double_emphasis_underscore:
@@ -1789,52 +1756,17 @@ entry:
             case ::pltxt2htm::NodeKind::md_atx_h4:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_h4: {
-                result.append(u8"</b></size>");
-                auto const& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
-                auto const& parent_ast = parent_frame.get_ast();
-                if (parent_frame.current_index < parent_ast.size()) {
-                    auto const next_kind =
-                        ::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_frame.current_index)
-                            .get_node_kind();
-                    if (next_kind != ::pltxt2htm::NodeKind::line_break && next_kind != ::pltxt2htm::NodeKind::html_br &&
-                        result.empty() == false && result.back() != u8'\n') {
-                        result.push_back(u8'\n');
-                    }
-                }
+                result.append(u8"</b></size>\n");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h5:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_h5: {
-                result.append(u8"</b>");
-                auto const& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
-                auto const& parent_ast = parent_frame.get_ast();
-                if (parent_frame.current_index < parent_ast.size()) {
-                    auto const next_kind =
-                        ::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_frame.current_index)
-                            .get_node_kind();
-                    if (next_kind != ::pltxt2htm::NodeKind::line_break && next_kind != ::pltxt2htm::NodeKind::html_br &&
-                        result.empty() == false && result.back() != u8'\n') {
-                        result.push_back(u8'\n');
-                    }
-                }
-                goto entry;
-            }
+            case ::pltxt2htm::NodeKind::html_h5:
+                [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_atx_h6:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_h6: {
-                result.append(u8"</b>");
-                auto const& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
-                auto const& parent_ast = parent_frame.get_ast();
-                if (parent_frame.current_index < parent_ast.size()) {
-                    auto const next_kind =
-                        ::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_frame.current_index)
-                            .get_node_kind();
-                    if (next_kind != ::pltxt2htm::NodeKind::line_break && next_kind != ::pltxt2htm::NodeKind::html_br &&
-                        result.empty() == false && result.back() != u8'\n') {
-                        result.push_back(u8'\n');
-                    }
-                }
+                result.append(u8"</b>\n");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_del:
@@ -1905,18 +1837,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_block_quotes: {
-                result.append(u8"</margin>");
-                auto const& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
-                auto const& parent_ast = parent_frame.get_ast();
-                if (parent_frame.current_index < parent_ast.size()) {
-                    auto const next_kind =
-                        ::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_frame.current_index)
-                            .get_node_kind();
-                    if (next_kind != ::pltxt2htm::NodeKind::line_break && next_kind != ::pltxt2htm::NodeKind::html_br &&
-                        result.empty() == false && result.back() != u8'\n') {
-                        result.push_back(u8'\n');
-                    }
-                }
+                result.append(u8"</margin>\n");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_table:
@@ -1968,18 +1889,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_blockquote: {
-                result.append(u8"</margin>");
-                auto const& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
-                auto const& parent_ast = parent_frame.get_ast();
-                if (parent_frame.current_index < parent_ast.size()) {
-                    auto const next_kind =
-                        ::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_frame.current_index)
-                            .get_node_kind();
-                    if (next_kind != ::pltxt2htm::NodeKind::line_break && next_kind != ::pltxt2htm::NodeKind::html_br &&
-                        result.empty() == false && result.back() != u8'\n') {
-                        result.push_back(u8'\n');
-                    }
-                }
+                result.append(u8"</margin>\n");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_code_fence_backtick:

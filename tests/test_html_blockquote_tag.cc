@@ -82,13 +82,13 @@ int main() {
 
     {
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<blockquote><blockquote>text</blockquote>text</blockquote>");
-        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<margin left=2em><margin left=2em>text</margin>\ntext</margin>"};
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<margin left=2em><margin left=2em>text</margin>\ntext</margin>\n"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
     {
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<br>\n<blockquote>text</blockquote>");
-        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"\n\n<margin left=2em>text</margin>"};
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"\n\n<margin left=2em>text</margin>\n"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 

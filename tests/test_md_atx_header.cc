@@ -98,7 +98,7 @@ int main() {
         auto answer = ::fast_io::u8string_view{u8"<h1>test</h1>"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<size=38><b>test</b></size>"};
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<size=38><b>test</b></size>\n"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
@@ -119,7 +119,7 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer =
-            ::fast_io::u8string_view{u8"<size=38><b>test</b></size>\n<size=38><b>more</b></size>"};
+            ::fast_io::u8string_view{u8"<size=38><b>test</b></size>\n<size=38><b>more</b></size>\n"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
@@ -223,31 +223,31 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"## heading");
-        auto answer = ::fast_io::u8string_view{u8"<size=37><b>heading</b></size>"};
+        auto answer = ::fast_io::u8string_view{u8"<size=37><b>heading</b></size>\n"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"### heading");
-        auto answer = ::fast_io::u8string_view{u8"<size=36><b>heading</b></size>"};
+        auto answer = ::fast_io::u8string_view{u8"<size=36><b>heading</b></size>\n"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"#### heading");
-        auto answer = ::fast_io::u8string_view{u8"<size=35><b>heading</b></size>"};
+        auto answer = ::fast_io::u8string_view{u8"<size=35><b>heading</b></size>\n"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"##### heading");
-        auto answer = ::fast_io::u8string_view{u8"<b>heading</b>"};
+        auto answer = ::fast_io::u8string_view{u8"<b>heading</b>\n"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"###### heading");
-        auto answer = ::fast_io::u8string_view{u8"<b>heading</b>"};
+        auto answer = ::fast_io::u8string_view{u8"<b>heading</b>\n"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
