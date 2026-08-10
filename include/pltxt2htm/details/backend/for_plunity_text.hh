@@ -1155,6 +1155,12 @@ entry:
                     result.append(::pltxt2htm::details::size_t2str(ol_li_count));
                     result.append(u8". ");
                     ++ol_li_count;
+                    if (node.as_md_li_checkbox().is_checked()) {
+                        result.append(u8"\u2611 ");
+                    }
+                    else {
+                        result.append(u8"\u2610 ");
+                    }
                 }
                 else if (nested_tag_type == ::pltxt2htm::NodeKind::html_ul ||
                          nested_tag_type == ::pltxt2htm::NodeKind::md_ul) {

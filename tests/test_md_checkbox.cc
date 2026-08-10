@@ -54,7 +54,12 @@ int main() {
     }
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"1. [x] item");
-        auto answer = ::fast_io::u8string_view{u8"1. item\n"};
+        auto answer = ::fast_io::u8string_view{u8"1. ☑ item\n"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"1. [ ] item");
+        auto answer = ::fast_io::u8string_view{u8"1. ☐ item\n"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
