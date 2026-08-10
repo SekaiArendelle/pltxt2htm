@@ -1519,6 +1519,7 @@ entry:
                 case u8't':
                     [[fallthrough]];
                 case u8'T': {
+#ifdef PLTXT2HTM_ENABLE_TRIGGER_TAG
                     // parsing: <trigger=$1>$2</trigger>
                     if (auto opt_trigger_tag = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<
                             ndebug, u8"rigger", ::pltxt2htm::details::is_ascii_graphic>(
@@ -1536,6 +1537,7 @@ entry:
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
+#endif
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"able">(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {

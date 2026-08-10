@@ -1,6 +1,7 @@
 #include "precompile.hh"
 
 int main() {
+#ifdef PLTXT2HTM_ENABLE_TRIGGER_TAG
     // ---- plunity backend: <trigger=value> is output verbatim ----
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<trigger=run>运行</trigger>");
@@ -80,6 +81,38 @@ int main() {
         auto answer = ::fast_io::u8string_view{u8"tt"};
         pltxt2htm_test_assert_equal(html, answer);
     }
+#else
+    // ---- feature off: <trigger> is not a reserved tag, output as literal text ----
+
+    // plunity backend: literal <trigger=value> is output with fullwidth angle brackets.
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<trigger=run>运行</trigger>");
+        auto answer = ::fast_io::u8string_view{u8"<size=20>\uff1c</size>trigger=run<size=20>\uff1e</size>运行"
+                                               u8"<size=20>\uff1c</size>/trigger<size=20>\uff1e</size>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // web backend: <trigger=value> is escaped to literal &lt;trigger&gt;.
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<trigger=run>运行</trigger>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;trigger=run&gt;运行&lt;/trigger&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Empty <trigger></trigger> is NOT omitted (no trigger node is produced).
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<trigger=run></trigger>t");
+        auto answer = ::fast_io::u8string_view{u8"t&lt;trigger=run&gt;&lt;/trigger&gt;t"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"t<trigger=run></trigger>t");
+        auto answer = ::fast_io::u8string_view{u8"t<size=20>\uff1c</size>trigger=run<size=20>\uff1e</size>"
+                                               u8"<size=20>\uff1c</size>/trigger<size=20>\uff1e</size>t"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+#endif
 
     // ---- malformed / non-matching input falls back to literal text ----
     {
