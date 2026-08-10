@@ -146,6 +146,20 @@ constexpr auto find_next_block_after_line_break(
             return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
                 .advance_count = current_index + consumed, .new_frame_been_pushed_into_call_stack = true};
         }
+        if (auto opt_blockquote_tag = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<blockquote">(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            opt_blockquote_tag.has_value()) {
+            ::std::size_t const consumed{
+                opt_blockquote_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1};
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                    ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + consumed)},
+                    ::pltxt2htm::NodeKind::html_blockquote},
+                ::pltxt2htm::Ast<ndebug>{}));
+            return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
+                .advance_count = current_index + consumed, .new_frame_been_pushed_into_call_stack = true};
+        }
         return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
             .advance_count = current_index, .new_frame_been_pushed_into_call_stack = false};
     }
@@ -282,19 +296,6 @@ entry:
                         }
                         ++current_index;
                         continue;
-                    }
-                    if (auto opt_blockquote_tag = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"lockquote">(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
-                        opt_blockquote_tag.has_value()) {
-                        current_index +=
-                            opt_blockquote_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-                        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
-                                ::pltxt2htm::NodeKind::html_blockquote},
-                            ::pltxt2htm::Ast<ndebug>{}));
-                        goto entry;
                     }
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
                     ++current_index;

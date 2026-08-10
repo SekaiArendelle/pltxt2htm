@@ -317,6 +317,20 @@ constexpr auto find_next_block_after_line_break(
             return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{
                 .advance_count = current_index, .new_frame_been_pushed_into_call_stack = true};
         }
+        // Check for HTML <blockquote> tag at line start
+        if (auto opt_blockquote_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<blockquote">(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            opt_blockquote_tag_len.has_value()) {
+            current_index += opt_blockquote_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1;
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                    ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                    ::pltxt2htm::NodeKind::html_blockquote},
+                ::pltxt2htm::Ast<ndebug>{}));
+            return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{
+                .advance_count = current_index, .new_frame_been_pushed_into_call_stack = true};
+        }
         return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{.advance_count = current_index,
                                                                        .new_frame_been_pushed_into_call_stack = false};
     }
@@ -625,11 +639,12 @@ entry:
 
         if ((top_frame.get_nested_tag_type() == ::pltxt2htm::NodeKind::md_block_quotes ||
              top_frame.get_nested_tag_type() == ::pltxt2htm::NodeKind::pl_margin ||
-             top_frame.get_nested_tag_type() == ::pltxt2htm::NodeKind::html_div) &&
+             top_frame.get_nested_tag_type() == ::pltxt2htm::NodeKind::html_div ||
+             top_frame.get_nested_tag_type() == ::pltxt2htm::NodeKind::html_blockquote) &&
             current_index == 0) {
             // https://spec.commonmark.org/0.31.2/#example-228
             // to support parsing md-atx-heading e.t.c inside md-block-quotes
-            // (and nested <margin...>/<div...> blocks right after the opening tag)
+            // (and nested <margin...>/<div...>/<blockquote> blocks right after the opening tag)
             auto&& [advance_count, require_restart] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), call_stack, result);
             current_index += advance_count;
@@ -1040,20 +1055,6 @@ entry:
                         }
                         ++current_index;
                         continue;
-                    }
-                    if (auto opt_blockquote_tag = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"lockquote">(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
-                        opt_blockquote_tag.has_value()) {
-                        // parsing pl&html <b> tag
-                        current_index +=
-                            opt_blockquote_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-                        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
-                                ::pltxt2htm::NodeKind::html_blockquote},
-                            ::pltxt2htm::Ast<ndebug>{}));
-                        goto entry;
                     }
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
                     ++current_index;
@@ -2744,6 +2745,13 @@ entry:
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlBlockquote staged_node(::std::move(result));
                             call_stack.pop();
+                            if (call_stack.empty()) {
+                                return ::pltxt2htm::details::ParsePlTxtResult<ndebug>{
+                                    .subast = ::std::move(staged_node.get_subast()),
+                                    .consumed_bytes =
+                                        staged_index +
+                                        opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3};
+                            }
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index +=
