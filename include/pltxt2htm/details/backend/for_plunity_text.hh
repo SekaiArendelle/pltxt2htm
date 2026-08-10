@@ -1906,6 +1906,17 @@ entry:
             }
             case ::pltxt2htm::NodeKind::md_block_quotes: {
                 result.append(u8"</margin>");
+                auto const& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                auto const& parent_ast = parent_frame.get_ast();
+                if (parent_frame.current_index < parent_ast.size()) {
+                    auto const next_kind =
+                        ::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_frame.current_index)
+                            .get_node_kind();
+                    if (next_kind != ::pltxt2htm::NodeKind::line_break && next_kind != ::pltxt2htm::NodeKind::html_br &&
+                        result.empty() == false && result.back() != u8'\n') {
+                        result.push_back(u8'\n');
+                    }
+                }
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_table:
@@ -1958,6 +1969,17 @@ entry:
             }
             case ::pltxt2htm::NodeKind::html_blockquote: {
                 result.append(u8"</margin>");
+                auto const& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                auto const& parent_ast = parent_frame.get_ast();
+                if (parent_frame.current_index < parent_ast.size()) {
+                    auto const next_kind =
+                        ::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_frame.current_index)
+                            .get_node_kind();
+                    if (next_kind != ::pltxt2htm::NodeKind::line_break && next_kind != ::pltxt2htm::NodeKind::html_br &&
+                        result.empty() == false && result.back() != u8'\n') {
+                        result.push_back(u8'\n');
+                    }
+                }
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_code_fence_backtick:

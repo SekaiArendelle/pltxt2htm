@@ -639,11 +639,12 @@ entry:
 
         if ((top_frame.get_nested_tag_type() == ::pltxt2htm::NodeKind::md_block_quotes ||
              top_frame.get_nested_tag_type() == ::pltxt2htm::NodeKind::pl_margin ||
-             top_frame.get_nested_tag_type() == ::pltxt2htm::NodeKind::html_div) &&
+             top_frame.get_nested_tag_type() == ::pltxt2htm::NodeKind::html_div ||
+             top_frame.get_nested_tag_type() == ::pltxt2htm::NodeKind::html_blockquote) &&
             current_index == 0) {
             // https://spec.commonmark.org/0.31.2/#example-228
             // to support parsing md-atx-heading e.t.c inside md-block-quotes
-            // (and nested <margin...>/<div...> blocks right after the opening tag)
+            // (and nested <margin...>/<div...>/<blockquote> blocks right after the opening tag)
             auto&& [advance_count, require_restart] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), call_stack, result);
             current_index += advance_count;
