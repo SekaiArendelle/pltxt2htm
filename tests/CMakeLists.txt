@@ -11,7 +11,6 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.28)
 endif()
 
 option(PLTXT2HTM_ENABLE_STACKTRACE "Enable C++23 <stacktrace>" OFF)
-option(PLTXT2HTM_ENABLE_TRIGGER_TAG "Enable parsing of the reserved Physics-Lab <trigger> tag" OFF)
 option(PLTXT2HTM_ENABLE_COVERAGE "Enable code coverage" OFF)
 
 set(PLTXT2HTM_SANITIZER "" CACHE STRING "Sanitizer: address, undefined, memory")
@@ -21,10 +20,6 @@ target_include_directories(pltxt2htm_base INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}
 
 if(PLTXT2HTM_ENABLE_STACKTRACE)
     target_compile_definitions(pltxt2htm_base INTERFACE PLTXT2HTM_EXPERIMENTAL_ENABLE_STACKTRACE)
-endif()
-
-if(PLTXT2HTM_ENABLE_TRIGGER_TAG)
-    target_compile_definitions(pltxt2htm_base INTERFACE PLTXT2HTM_ENABLE_TRIGGER_TAG)
 endif()
 
 target_compile_definitions(pltxt2htm_base INTERFACE PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT)
