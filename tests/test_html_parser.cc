@@ -109,7 +109,22 @@ int main() {
     }
     {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<pre>pre</pre>");
-        auto answer = ::fast_io::u8string_view{u8"<pre>pre</pre>"};
+        auto answer = ::fast_io::u8string_view{u8"&lt;pre&gt;pre&lt;/pre&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<pre><code>code</code></pre>");
+        auto answer = ::fast_io::u8string_view{u8"<pre><code>code</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<pre><code class=\"language-cpp\">int x;</code></pre>");
+        auto answer = ::fast_io::u8string_view{u8"<pre><code class=\"language-cpp\">int&nbsp;x;</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"ab<pre><code>c</code></pre>de");
+        auto answer = ::fast_io::u8string_view{u8"ab&lt;pre&gt;<code>c</code>&lt;/pre&gt;de"};
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
@@ -335,7 +350,7 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<del><pre>text");
-        auto answer = ::fast_io::u8string_view{u8"<del><pre>text</pre></del>"};
+        auto answer = ::fast_io::u8string_view{u8"<del>&lt;pre&gt;text</del>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -392,8 +407,8 @@ int main() {
             u8"style=\"text-align:left\">&lt;/x&gt;</p><h1>&lt;/x&gt;</h1><h2>&lt;/x&gt;</h2><h3>&lt;/x&gt;</"
             u8"h3><h4>&lt;/x&gt;</h4>"
             u8"<h5>&lt;/x&gt;</h5><h6>&lt;/x&gt;</h6><del>&lt;/x&gt;</del><em>&lt;/x&gt;</em>"
-            u8"<strong>&lt;/x&gt;</strong><code>&lt;/x&gt;</code><pre>&lt;/x&gt;</pre>"
-            u8"<blockquote>&lt;/x&gt;</blockquote>"};
+            u8"<strong>&lt;/x&gt;</strong><code>&lt;/x&gt;</code>&lt;pre&gt;&lt;/x&gt;&lt;/pre&gt;"
+            u8"&lt;blockquote&gt;&lt;/x&gt;&lt;/blockquote&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

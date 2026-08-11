@@ -459,11 +459,9 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class HtmlCode {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::exception::optional<::fast_io::u8string> language;
 
 public:
-    constexpr explicit HtmlCode(::pltxt2htm::Ast<ndebug>&& subast_,
-                                ::exception::optional<::fast_io::u8string>&& language_) noexcept;
+    constexpr explicit HtmlCode(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr HtmlCode(::pltxt2htm::HtmlCode<ndebug> const&) noexcept;
     constexpr HtmlCode(::pltxt2htm::HtmlCode<ndebug>&&) noexcept;
     constexpr ~HtmlCode() noexcept;
@@ -473,36 +471,6 @@ public:
 
     [[nodiscard]]
     constexpr auto operator==(this HtmlCode const&, HtmlCode const&) noexcept -> bool;
-
-    [[nodiscard]]
-    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.subast);
-    }
-
-    [[nodiscard]]
-    constexpr auto get_language(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.language);
-    }
-};
-
-/**
- * @brief HTML &lt;pre&gt; preformatted text node
- */
-template<::pltxt2htm::Contracts ndebug>
-class HtmlPre {
-    ::pltxt2htm::Ast<ndebug> subast;
-
-public:
-    constexpr explicit HtmlPre(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr HtmlPre(::pltxt2htm::HtmlPre<ndebug> const&) noexcept;
-    constexpr HtmlPre(::pltxt2htm::HtmlPre<ndebug>&&) noexcept;
-    constexpr ~HtmlPre() noexcept;
-    constexpr auto operator=(::pltxt2htm::HtmlPre<ndebug> const&) noexcept -> ::pltxt2htm::HtmlPre<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::HtmlPre<ndebug>& self, ::pltxt2htm::HtmlPre<ndebug>&&) noexcept
-        -> ::pltxt2htm::HtmlPre<ndebug>&;
-
-    [[nodiscard]]
-    constexpr auto operator==(this HtmlPre const&, HtmlPre const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {

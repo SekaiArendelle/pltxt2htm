@@ -50,7 +50,7 @@ using ::pltxt2htm::Ast;
 using ::pltxt2htm::U8Char;
 using ::pltxt2htm::InvalidU8Char;
 using ::pltxt2htm::Text;
-using ::pltxt2htm::Code;
+using ::pltxt2htm::CodeFence;
 using ::pltxt2htm::Url;
 
 using ::pltxt2htm::LineBreak;
@@ -90,7 +90,6 @@ using ::pltxt2htm::ListLi;
 using ::pltxt2htm::ListLiCheckbox;
 
 using ::pltxt2htm::HtmlCode;
-using ::pltxt2htm::HtmlPre;
 using ::pltxt2htm::HtmlBlockquote;
 
 // html table nodes

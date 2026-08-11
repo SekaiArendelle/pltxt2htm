@@ -80,12 +80,12 @@ int main() {
         ::exception::assert_true<false>(original == copy);
     }
 
-    // Copy of a node with optional language (Code)
+    // Copy of a node with optional language (CodeFence)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast{};
         ast.emplace_back(::pltxt2htm::U8Char{u8'x'});
 
-        auto const original = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Code<nd::quick_enforce>(
+        auto const original = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::CodeFence<nd::quick_enforce>(
             ::std::move(ast), ::exception::optional<::fast_io::u8string>(::fast_io::u8string{u8"cpp"})));
 
         auto const copy = original;

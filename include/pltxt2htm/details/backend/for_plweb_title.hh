@@ -551,6 +551,12 @@ entry:
                 ++current_index;
                 goto entry;
             }
+            case ::pltxt2htm::NodeKind::html_code: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_code().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::text, 0));
+                ++current_index;
+                goto entry;
+            }
             case ::pltxt2htm::NodeKind::html_mark: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_mark().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::text, 0));
@@ -617,12 +623,6 @@ entry:
                 ++current_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_code: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_code().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::text, 0));
-                ++current_index;
-                goto entry;
-            }
             case ::pltxt2htm::NodeKind::md_latex_inline: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_md_latex_inline().get_subast(), ::pltxt2htm::NodeKind::text, 0));
@@ -667,12 +667,6 @@ entry:
             }
             case ::pltxt2htm::NodeKind::md_atx_h6: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_atx_h6().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::text, 0));
-                ++current_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_pre: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_pre().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::text, 0));
                 ++current_index;
                 goto entry;
@@ -779,8 +773,8 @@ entry:
                 ++current_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::code: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_code().get_subast(),
+            case ::pltxt2htm::NodeKind::code_fence: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_code_fence().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::text, 0));
                 ++current_index;
                 goto entry;

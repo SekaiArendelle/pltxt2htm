@@ -169,7 +169,7 @@ public:
  * @details Contains code content and an optional language identifier.
  */
 template<::pltxt2htm::Contracts ndebug>
-class Code {
+class CodeFence {
     ::pltxt2htm::Ast<ndebug> subast;
     ::exception::optional<::fast_io::u8string> lang;
 
@@ -179,17 +179,17 @@ public:
      * @param subast The code content as an AST.
      * @param lang Optional language string.
      */
-    constexpr explicit Code(::pltxt2htm::Ast<ndebug>&& subast_,
-                            ::exception::optional<::fast_io::u8string>&& lang_) noexcept;
-    constexpr Code(::pltxt2htm::Code<ndebug> const&) noexcept;
-    constexpr Code(::pltxt2htm::Code<ndebug>&&) noexcept;
-    constexpr ~Code() noexcept;
-    constexpr auto operator=(::pltxt2htm::Code<ndebug> const&) noexcept -> ::pltxt2htm::Code<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::Code<ndebug>& self, ::pltxt2htm::Code<ndebug>&&) noexcept
-        -> ::pltxt2htm::Code<ndebug>&;
+    constexpr explicit CodeFence(::pltxt2htm::Ast<ndebug>&& subast_,
+                                 ::exception::optional<::fast_io::u8string>&& lang_) noexcept;
+    constexpr CodeFence(::pltxt2htm::CodeFence<ndebug> const&) noexcept;
+    constexpr CodeFence(::pltxt2htm::CodeFence<ndebug>&&) noexcept;
+    constexpr ~CodeFence() noexcept;
+    constexpr auto operator=(::pltxt2htm::CodeFence<ndebug> const&) noexcept -> ::pltxt2htm::CodeFence<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::CodeFence<ndebug>& self, ::pltxt2htm::CodeFence<ndebug>&&) noexcept
+        -> ::pltxt2htm::CodeFence<ndebug>&;
 
     [[nodiscard]]
-    constexpr auto operator==(this Code const& self, Code const& other) noexcept -> bool;
+    constexpr auto operator==(this CodeFence const& self, CodeFence const& other) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
