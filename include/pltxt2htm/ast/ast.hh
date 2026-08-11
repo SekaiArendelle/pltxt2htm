@@ -3170,17 +3170,17 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto as_html_blockquote(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_blockquote};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.html_blockquote_node);
-    }
-
-    [[nodiscard]]
     constexpr auto as_html_code(this auto&& self) noexcept -> decltype(auto) {
         bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_code};
         pltxt2htm_assert(is_type, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.html_code_node);
+    }
+
+    [[nodiscard]]
+    constexpr auto as_html_blockquote(this auto&& self) noexcept -> decltype(auto) {
+        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_blockquote};
+        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.html_blockquote_node);
     }
 
     [[nodiscard]]
