@@ -673,9 +673,7 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_note:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_code_fence_backtick:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_code_fence_tilde:
+        case ::pltxt2htm::NodeKind::code:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_code_span_1_backtick:
             [[fallthrough]];
@@ -1008,9 +1006,7 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_note:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_code_fence_backtick:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_code_fence_tilde:
+        case ::pltxt2htm::NodeKind::code:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_code_span_1_backtick:
             [[fallthrough]];
@@ -1279,9 +1275,7 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_atx_h6:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_code_fence_backtick:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_code_fence_tilde:
+        case ::pltxt2htm::NodeKind::code:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_code_span_1_backtick:
             [[fallthrough]];

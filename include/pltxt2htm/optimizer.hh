@@ -1577,9 +1577,7 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_escape_tilde:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_code_fence_backtick:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_code_fence_tilde: {
+            case ::pltxt2htm::NodeKind::code: {
                 ++current_iter;
                 continue;
             }
