@@ -538,8 +538,7 @@ constexpr auto long_double_to_size_t_ceil(long double value) noexcept -> ::std::
 [[nodiscard]]
 constexpr auto long_double2str(long double value) noexcept -> ::fast_io::u8string {
     constexpr ::std::size_t max_fractional_digits{17};
-    constexpr long double max_scaled{
-        static_cast<long double>(::std::numeric_limits<::std::ptrdiff_t>::max()) + 1};
+    constexpr long double max_scaled{static_cast<long double>(::std::numeric_limits<::std::ptrdiff_t>::max()) + 1};
     ::fast_io::u8string fallback{};
     for (::std::size_t fractional_digits{0}; fractional_digits <= max_fractional_digits; ++fractional_digits) {
         long double scale{1};
@@ -572,10 +571,10 @@ constexpr auto long_double2str(long double value) noexcept -> ::fast_io::u8strin
             }
             candidate.append(digit_str);
         }
-        auto opt_reparsed = ::pltxt2htm::details::try_parse_long_double_decimal_value<
-            ::pltxt2htm::Contracts::quick_enforce>(::fast_io::u8string_view{candidate.data(), candidate.size()});
-        bool const round_trips =
-            opt_reparsed.has_value() && (opt_reparsed.template value<true>().value == value);
+        auto opt_reparsed =
+            ::pltxt2htm::details::try_parse_long_double_decimal_value<::pltxt2htm::Contracts::quick_enforce>(
+                ::fast_io::u8string_view{candidate.data(), candidate.size()});
+        bool const round_trips = opt_reparsed.has_value() && (opt_reparsed.template value<true>().value == value);
         if (round_trips) {
             return candidate;
         }

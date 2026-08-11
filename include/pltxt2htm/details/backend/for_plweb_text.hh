@@ -760,7 +760,8 @@ entry:
                         span_vertical_align.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                     result.append(u8"vertical-align:");
                     if (vertical_align.get_kind() == ::pltxt2htm::VerticalAlignKind::keyword) {
-                        result.append(::pltxt2htm::details::vertical_align_keyword_string<ndebug>(vertical_align.get_keyword()));
+                        result.append(
+                            ::pltxt2htm::details::vertical_align_keyword_string<ndebug>(vertical_align.get_keyword()));
                     }
                     else {
                         result.append(::pltxt2htm::details::ptrdiff_t2str(vertical_align.get_length().value));

@@ -292,8 +292,7 @@ class PlSize {
     ::pltxt2htm::ValueWithUnit<long double> font_size;
 
 public:
-    constexpr PlSize(::pltxt2htm::Ast<ndebug>&& subast_,
-                     ::pltxt2htm::ValueWithUnit<long double> font_size_) noexcept;
+    constexpr PlSize(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::ValueWithUnit<long double> font_size_) noexcept;
     constexpr PlSize(::pltxt2htm::PlSize<ndebug> const&) noexcept;
     constexpr PlSize(::pltxt2htm::PlSize<ndebug>&&) noexcept;
     constexpr ~PlSize() noexcept;

@@ -37,7 +37,7 @@ enum class Unit : unsigned {
  *           is meaningful (e.g. `<size=12.5>`).
  */
 template<typename T>
-requires(::std::integral<T> || ::std::floating_point<T>)
+    requires (::std::integral<T> || ::std::floating_point<T>)
 struct ValueWithUnit {
     T value; ///< Numeric value
     ::pltxt2htm::Unit unit; ///< Unit of the value (px, % or em)
