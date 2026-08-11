@@ -1378,7 +1378,6 @@ public:
             new (::std::addressof(md_block_quotes_node))::pltxt2htm::MdBlockQuotes(other.md_block_quotes_node);
             break;
         }
-
         case ::pltxt2htm::NodeKind::md_table: {
             new (::std::addressof(md_table_node))::pltxt2htm::MdTable(other.md_table_node);
             break;
@@ -1527,240 +1526,193 @@ public:
                 ::std::move(other.pl_macro_coauthors_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::line_break: {
             new (::std::addressof(line_break_node))::pltxt2htm::LineBreak(::std::move(other.line_break_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_br: {
             new (::std::addressof(br_node))::pltxt2htm::HtmlBr(::std::move(other.br_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::space: {
             new (::std::addressof(space_node))::pltxt2htm::Space(::std::move(other.space_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::less_than: {
             new (::std::addressof(less_than_node))::pltxt2htm::LessThan(::std::move(other.less_than_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::greater_than: {
             new (::std::addressof(greater_than_node))::pltxt2htm::GreaterThan(::std::move(other.greater_than_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::tab: {
             new (::std::addressof(tab_node))::pltxt2htm::Tab(::std::move(other.tab_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::ampersand: {
             new (::std::addressof(ampersand_node))::pltxt2htm::Ampersand(::std::move(other.ampersand_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::entity_reference: {
             new (::std::addressof(entity_reference_node))::pltxt2htm::EntityReference(
                 ::std::move(other.entity_reference_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::single_quote: {
             new (::std::addressof(single_quote_node))::pltxt2htm::SingleQuote(::std::move(other.single_quote_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::double_quote: {
             new (::std::addressof(double_quote_node))::pltxt2htm::DoubleQuote(::std::move(other.double_quote_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_hr: {
             new (::std::addressof(html_hr_node))::pltxt2htm::HtmlHr(::std::move(other.html_hr_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_h1: {
             new (::std::addressof(html_h1_node))::pltxt2htm::HtmlH1(::std::move(other.html_h1_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_h2: {
             new (::std::addressof(html_h2_node))::pltxt2htm::HtmlH2(::std::move(other.html_h2_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_h3: {
             new (::std::addressof(html_h3_node))::pltxt2htm::HtmlH3(::std::move(other.html_h3_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_h4: {
             new (::std::addressof(html_h4_node))::pltxt2htm::HtmlH4(::std::move(other.html_h4_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_h5: {
             new (::std::addressof(html_h5_node))::pltxt2htm::HtmlH5(::std::move(other.html_h5_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_h6: {
             new (::std::addressof(html_h6_node))::pltxt2htm::HtmlH6(::std::move(other.html_h6_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_p: {
             new (::std::addressof(html_p_node))::pltxt2htm::HtmlP(::std::move(other.html_p_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_del: {
             new (::std::addressof(html_del_node))::pltxt2htm::HtmlDel(::std::move(other.html_del_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_sup: {
             new (::std::addressof(html_sup_node))::pltxt2htm::HtmlSup(::std::move(other.html_sup_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_sub: {
             new (::std::addressof(html_sub_node))::pltxt2htm::HtmlSub(::std::move(other.html_sub_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_note: {
             new (::std::addressof(html_note_node))::pltxt2htm::HtmlNote(::std::move(other.html_note_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_em: {
             new (::std::addressof(html_em_node))::pltxt2htm::HtmlEm(::std::move(other.html_em_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_strong: {
             new (::std::addressof(html_strong_node))::pltxt2htm::HtmlStrong(::std::move(other.html_strong_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_mark: {
             new (::std::addressof(html_mark_node))::pltxt2htm::HtmlMark(::std::move(other.html_mark_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_span: {
             new (::std::addressof(html_span_node))::pltxt2htm::HtmlSpan(::std::move(other.html_span_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_div: {
             new (::std::addressof(html_div_node))::pltxt2htm::HtmlDiv(::std::move(other.html_div_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_a: {
             new (::std::addressof(html_a_node))::pltxt2htm::HtmlA<ndebug>(::std::move(other.html_a_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::list_ul: {
             new (::std::addressof(list_ul_node))::pltxt2htm::ListUl(::std::move(other.list_ul_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::list_ol: {
             new (::std::addressof(list_ol_node))::pltxt2htm::ListOl(::std::move(other.list_ol_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::list_li: {
             new (::std::addressof(list_li_node))::pltxt2htm::ListLi(::std::move(other.list_li_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::list_li_checkbox: {
             new (::std::addressof(list_li_checkbox_node))::pltxt2htm::ListLiCheckbox(
                 ::std::move(other.list_li_checkbox_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_code: {
             new (::std::addressof(html_code_node))::pltxt2htm::HtmlCode(::std::move(other.html_code_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_pre: {
             new (::std::addressof(html_pre_node))::pltxt2htm::HtmlPre(::std::move(other.html_pre_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_blockquote: {
             new (::std::addressof(html_blockquote_node))::pltxt2htm::HtmlBlockquote(
                 ::std::move(other.html_blockquote_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_col: {
             new (::std::addressof(html_col_node))::pltxt2htm::HtmlCol(::std::move(other.html_col_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_img: {
             new (::std::addressof(html_img_node))::pltxt2htm::HtmlImg(::std::move(other.html_img_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_table: {
             new (::std::addressof(html_table_node))::pltxt2htm::HtmlTable(::std::move(other.html_table_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_caption: {
             new (::std::addressof(html_caption_node))::pltxt2htm::HtmlCaption(::std::move(other.html_caption_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_colgroup: {
             new (::std::addressof(html_colgroup_node))::pltxt2htm::HtmlColgroup(::std::move(other.html_colgroup_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_thead: {
             new (::std::addressof(html_thead_node))::pltxt2htm::HtmlThead(::std::move(other.html_thead_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_tbody: {
             new (::std::addressof(html_tbody_node))::pltxt2htm::HtmlTbody(::std::move(other.html_tbody_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_tfoot: {
             new (::std::addressof(html_tfoot_node))::pltxt2htm::HtmlTfoot(::std::move(other.html_tfoot_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_tr: {
             new (::std::addressof(html_tr_node))::pltxt2htm::HtmlTr(::std::move(other.html_tr_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_th: {
             new (::std::addressof(html_th_node))::pltxt2htm::HtmlTh(::std::move(other.html_th_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::html_td: {
             new (::std::addressof(html_td_node))::pltxt2htm::HtmlTd(::std::move(other.html_td_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::md_atx_h1: {
             new (::std::addressof(md_atx_h1_node))::pltxt2htm::MdAtxH1(::std::move(other.md_atx_h1_node));
             break;
@@ -2023,7 +1975,6 @@ public:
                 ::std::move(other.md_block_quotes_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::md_table: {
             new (::std::addressof(md_table_node))::pltxt2htm::MdTable(::std::move(other.md_table_node));
             break;
@@ -2569,7 +2520,6 @@ public:
             md_block_quotes_node.~MdBlockQuotes();
             break;
         }
-
         case ::pltxt2htm::NodeKind::md_table: {
             md_table_node.~MdTable();
             break;
@@ -3003,7 +2953,6 @@ public:
         case ::pltxt2htm::NodeKind::md_block_quotes: {
             return self.md_block_quotes_node == other.md_block_quotes_node;
         }
-
         case ::pltxt2htm::NodeKind::md_table: {
             return self.md_table_node == other.md_table_node;
         }
