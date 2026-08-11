@@ -546,7 +546,7 @@ constexpr auto ::pltxt2htm::HtmlColgroup<ndebug>::operator==(this ::pltxt2htm::H
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::HtmlSpan<ndebug>::HtmlSpan(
     ::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& color_,
-    ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> font_size_,
+    ::exception::optional<::pltxt2htm::ValueWithUnit<double>> font_size_,
     ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align_) noexcept
     : subast(::std::move(subast_)),
       color(::std::move(color_)),

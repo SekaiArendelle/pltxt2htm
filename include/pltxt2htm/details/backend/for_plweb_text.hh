@@ -732,7 +732,7 @@ entry:
                 if (has_font_size) {
                     auto const& font_size = span_font_size.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                     result.append(u8"font-size:");
-                    result.append(::pltxt2htm::details::size_t2str(font_size.value));
+                    result.append(::pltxt2htm::details::double2str(font_size.value));
                     switch (font_size.unit) /* -Werror=switch */ {
                     case ::pltxt2htm::Unit::percent: {
                         result.push_back(u8'%');

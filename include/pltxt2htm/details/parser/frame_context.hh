@@ -64,7 +64,7 @@ class ParserFrameContextWithHtmlSpanInfo {
 public:
     ::fast_io::u8string_view pltext;
     ::fast_io::u8string color;
-    ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> font_size;
+    ::exception::optional<::pltxt2htm::ValueWithUnit<double>> font_size;
     ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align;
 };
 
@@ -1606,7 +1606,7 @@ public:
 
     [[nodiscard]]
     constexpr auto get_html_span_font_size(this auto&& self) noexcept
-        -> ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
+        -> ::exception::optional<::pltxt2htm::ValueWithUnit<double>> {
         auto&& context_data_ref = self.context_data;
         bool const is_html_span_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_span};
         pltxt2htm_assert(is_html_span_type, u8"context kind mismatch");

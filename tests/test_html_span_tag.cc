@@ -387,9 +387,60 @@ int main() {
     }
 
     {
-        // maximum valid font-size value (boundary of overflow detection)
+        // font-size that cannot be represented in double/std::size_t stays literal
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:18446744073709551614px\">text</span>");
-        auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:18446744073709551614px;\">text</span>"};
+        auto answer = ::fast_io::u8string_view{
+            u8"&lt;span&nbsp;style=&quot;font-size:18446744073709551614px&quot;&gt;text&lt;/span&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // fractional font-size accepted and round-tripped
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:12.5px\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:12.5px;\">text</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // fractional font-size with em unit
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:1.5em\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:1.5em;\">text</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // fractional font-size with percent unit
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:87.5%\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:87.5%;\">text</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // leading-dot font-size rejected (stays literal)
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:.5px\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;font-size:.5px&quot;&gt;text&lt;/span&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // font-size with empty fractional part rejected (stays literal)
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:12.px\">text</span>");
+        auto answer =
+            ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;font-size:12.px&quot;&gt;text&lt;/span&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // fractional font-size -> plunity
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<span style=\"font-size:12.5px\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"<size=12.5>text</size>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // fractional font-size -> plunity with em unit
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<span style=\"font-size:1.5em\">text</span>");
+        auto answer = ::fast_io::u8string_view{u8"<size=1.5em>text</size>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
