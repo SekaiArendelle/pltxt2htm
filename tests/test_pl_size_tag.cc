@@ -307,6 +307,12 @@ int main() {
     }
 
     {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<size=0.8em>text</size>");
+        auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:0.8em;\">text</span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<size=12.5><size=12.5>world</size></size>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:7px;\">world</span>"};
         pltxt2htm_test_assert_equal(html, answer);
