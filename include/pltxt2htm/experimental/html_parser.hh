@@ -186,7 +186,7 @@ entry:
     while (true) {
         // List frames hold an intermediate ListAst; iterate it like the main parser does.
         if (auto const list_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
-            ::pltxt2htm::details::is_list_ul_or_ol_type(list_tag_type)) {
+            list_tag_type == ::pltxt2htm::NodeKind::list_ul || list_tag_type == ::pltxt2htm::NodeKind::list_ol) {
             auto&& list_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
             auto&& frame_list_ast = list_frame.get_list_ast();
             auto&& frame_iter = list_frame.get_list_iter();

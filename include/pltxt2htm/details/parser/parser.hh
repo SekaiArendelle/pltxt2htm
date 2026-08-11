@@ -374,7 +374,7 @@ constexpr auto parse_pltxt(::fast_io::stack<::pltxt2htm::details::ParserFrameCon
 entry:
     while (true) {
         if (auto const nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
-            ::pltxt2htm::details::is_list_ul_or_ol_type(nested_tag_type)) {
+            nested_tag_type == ::pltxt2htm::NodeKind::list_ul || nested_tag_type == ::pltxt2htm::NodeKind::list_ol) {
             // ::pltxt2htm::details::ListAst to ::pltxt2htm::Ast<ndebug>
             auto&& frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
             auto&& frame_list_ast = frame.get_list_ast();
@@ -411,7 +411,8 @@ entry:
                 // When the parent is another list (child nested inside a parent list):
                 // no re-scan needed -- the parent iterates its own AST.
                 auto&& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
-                if (::pltxt2htm::details::is_list_ul_or_ol_type(parent_frame.get_nested_tag_type()) == false) {
+                if (parent_frame.get_nested_tag_type() != ::pltxt2htm::NodeKind::list_ul &&
+                    parent_frame.get_nested_tag_type() != ::pltxt2htm::NodeKind::list_ol) {
                     ::std::size_t& parent_index = parent_frame.current_index;
                     auto const parent_text = parent_frame.get_pltext();
                     auto&& [fwd, restart] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(

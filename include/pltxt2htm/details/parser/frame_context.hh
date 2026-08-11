@@ -1676,7 +1676,8 @@ public:
     [[nodiscard]]
     constexpr auto get_list_ast(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
-        bool const is_list_ul_or_ol_type{::pltxt2htm::details::is_list_ul_or_ol_type(context_data_ref.kind)};
+        bool const is_list_ul_or_ol_type{context_data_ref.kind == ::pltxt2htm::NodeKind::list_ul ||
+                                         context_data_ref.kind == ::pltxt2htm::NodeKind::list_ol};
         pltxt2htm_assert(is_list_ul_or_ol_type, u8"context kind mismatch");
         return ::std::forward_like<decltype(self)>(context_data_ref.list_info.list_ast);
     }
@@ -1684,7 +1685,8 @@ public:
     [[nodiscard]]
     constexpr auto get_list_iter(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
-        bool const is_list_ul_or_ol_type{::pltxt2htm::details::is_list_ul_or_ol_type(context_data_ref.kind)};
+        bool const is_list_ul_or_ol_type{context_data_ref.kind == ::pltxt2htm::NodeKind::list_ul ||
+                                         context_data_ref.kind == ::pltxt2htm::NodeKind::list_ol};
         pltxt2htm_assert(is_list_ul_or_ol_type, u8"context kind mismatch");
         return ::std::forward_like<decltype(self)>(context_data_ref.list_info.iter);
     }

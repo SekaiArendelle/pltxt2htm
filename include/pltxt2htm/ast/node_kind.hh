@@ -227,11 +227,6 @@ constexpr auto is_strong_like(::pltxt2htm::NodeKind const node_type) noexcept ->
            node_type == ::pltxt2htm::NodeKind::md_triple_emphasis_underscore;
 }
 
-[[nodiscard]]
-constexpr auto is_list_ul_or_ol_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
-    return node_type == ::pltxt2htm::NodeKind::list_ul || node_type == ::pltxt2htm::NodeKind::list_ol;
-}
-
 /**
  * @brief Whether the node kind is a URL-link container tag.
  * @details Auto-detected bare URLs inside these tags are suppressed to avoid
