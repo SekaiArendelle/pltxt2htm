@@ -1034,6 +1034,7 @@ entry:
                 continue;
             }
             case ::pltxt2htm::NodeKind::list_ul: {
+                pltxt2htm_assert(node.as_list_ul().get_subast().empty() == false, u8"List container must not be empty");
                 auto const parent_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
                 if (parent_tag_type == ::pltxt2htm::NodeKind::list_li ||
                     parent_tag_type == ::pltxt2htm::NodeKind::list_li_checkbox) {
@@ -1046,6 +1047,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::list_ol: {
+                pltxt2htm_assert(node.as_list_ol().get_subast().empty() == false, u8"List container must not be empty");
                 auto const parent_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
                 if (parent_tag_type == ::pltxt2htm::NodeKind::list_li ||
                     parent_tag_type == ::pltxt2htm::NodeKind::list_li_checkbox) {

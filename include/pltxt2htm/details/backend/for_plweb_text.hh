@@ -1083,6 +1083,7 @@ entry:
                 continue;
             }
             case ::pltxt2htm::NodeKind::list_ul: {
+                pltxt2htm_assert(node.as_list_ul().get_subast().empty() == false, u8"List container must not be empty");
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_list_ul().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::list_ul, 0));
                 ++current_index;
@@ -1090,6 +1091,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::list_ol: {
+                pltxt2htm_assert(node.as_list_ol().get_subast().empty() == false, u8"List container must not be empty");
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_list_ol().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::list_ol, 0));
                 ++current_index;
