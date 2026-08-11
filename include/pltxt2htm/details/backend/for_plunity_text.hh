@@ -1034,27 +1034,31 @@ entry:
                 continue;
             }
             case ::pltxt2htm::NodeKind::list_ul: {
-                pltxt2htm_assert(node.as_list_ul().get_subast().empty() == false, u8"List container must not be empty");
+                auto const& list_ul = node.as_list_ul();
+                bool const is_empty{list_ul.get_subast().empty()};
+                pltxt2htm_assert(is_empty == false, u8"List container must not be empty");
                 auto const parent_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
                 if (parent_tag_type == ::pltxt2htm::NodeKind::list_li ||
                     parent_tag_type == ::pltxt2htm::NodeKind::list_li_checkbox) {
                     result.push_back(u8'\n');
                 }
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_list_ul().get_subast(),
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(list_ul.get_subast(),
                                                                                   ::pltxt2htm::NodeKind::list_ul, 0));
                 ++current_index;
                 ++list_nesting_depth;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::list_ol: {
-                pltxt2htm_assert(node.as_list_ol().get_subast().empty() == false, u8"List container must not be empty");
+                auto const& list_ol = node.as_list_ol();
+                bool const is_empty{list_ol.get_subast().empty()};
+                pltxt2htm_assert(is_empty == false, u8"List container must not be empty");
                 auto const parent_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
                 if (parent_tag_type == ::pltxt2htm::NodeKind::list_li ||
                     parent_tag_type == ::pltxt2htm::NodeKind::list_li_checkbox) {
                     result.push_back(u8'\n');
                 }
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                    node.as_list_ol().get_subast(), ::pltxt2htm::NodeKind::list_ol, 0,
+                    list_ol.get_subast(), ::pltxt2htm::NodeKind::list_ol, 0,
                     ::pltxt2htm::details::BackendContextWithOlInfo{}));
                 ++current_index;
                 ++list_nesting_depth;
