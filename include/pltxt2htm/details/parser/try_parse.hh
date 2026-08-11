@@ -3778,37 +3778,6 @@ constexpr auto try_parse_md_code_span(::fast_io::u8string_view pltext) noexcept
                                                                   .subast = ::std::move(ast)};
 }
 
-/**
- * @brief Parse an inline HTML `<code>` element as a code span.
- *
- * This function parses a bare `<code>` tag (no attributes, so no language/class
- * support) followed by its content, ending at the first `</code>` end tag. The
- * content is parsed as plain text, mirroring how Markdown code spans work.
- *
- * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
- * @param[in] pltext The input text to parse, starting at the opening `<code>` tag.
- * @return The parsed result containing the code content AST and continuation index, or nullopt if parsing fails.
- */
-template<::pltxt2htm::Contracts ndebug>
-[[nodiscard]]
-constexpr auto try_parse_html_code_tag(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseMdCodeSpanResult<ndebug>> {
-    // <code> must be a bare tag (no attributes).
-    auto opt_code_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<code">(pltext);
-    if (opt_code_tag_len.has_value() == false) {
-        return ::exception::nullopt;
-    }
-    ::std::size_t pos{opt_code_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1};
-
-    // parse content until the closing </code>
-    constexpr auto end_string = ::pltxt2htm::details::U8LiteralString{u8"</code>"};
-    auto&& [advance_count, ast] = ::pltxt2htm::details::simply_parse_pltext<ndebug, end_string>(
-        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, pos));
-    pos += advance_count;
-
-    return ::pltxt2htm::details::TryParseMdCodeSpanResult<ndebug>{.advance_count = pos, .subast = ::std::move(ast)};
-}
-
 template<::pltxt2htm::Contracts ndebug>
 struct TryParseMdLatexResult {
     ::std::size_t advance_count; ///< Number of characters consumed (includes both delimiters).

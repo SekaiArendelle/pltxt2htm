@@ -1,44 +1,44 @@
 #include "precompile.hh"
 
 int main() {
-    // bare <code> renders as an inline code span (same as Markdown code span)
+    // bare <code> renders as an inline <code> element (like other inline HTML tags)
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code>text</code>");
         auto answer = ::fast_io::u8string_view{u8"<code>text</code>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
-    // opening tag allows spaces before '>'; the closing tag must be exactly </code> (case-insensitive)
+    // opening and closing tags allow spaces before '>' (case-insensitive)
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<CODE    >text</CODE  >");
-        auto answer = ::fast_io::u8string_view{u8"<code>text&lt;/CODE&nbsp;&nbsp;&gt;</code>"};
+        auto answer = ::fast_io::u8string_view{u8"<code>text</code>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
-    // content is parsed as plain text (no nested inline tags, like a code span)
+    // content is parsed as inline markup (nested tags are processed normally)
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code><color=red>text</color></code>");
-        auto answer = ::fast_io::u8string_view{u8"<code>&lt;color=red&gt;text&lt;/color&gt;</code>"};
+        auto answer = ::fast_io::u8string_view{u8"<code><span style=\"color:red;\">text</span></code>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code><color=red>text</code></color>");
-        auto answer = ::fast_io::u8string_view{u8"<code>&lt;color=red&gt;text</code>&lt;/color&gt;"};
+        auto answer = ::fast_io::u8string_view{u8"<code><span style=\"color:red;\">text&lt;/code&gt;</span></code>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
-    // the first </code> closes the span; nested <code> is treated as literal text
+    // nested <code> is flattened (same-tag optimization, like other inline HTML tags)
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code>text<code>text</code></code>");
-        auto answer = ::fast_io::u8string_view{u8"<code>text&lt;code&gt;text</code>&lt;/code&gt;"};
+        auto answer = ::fast_io::u8string_view{u8"<code>texttext</code>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
-    // unclosed <code> auto-closes at end of input
+    // unclosed <code> auto-closes at end of input; empty content is dropped
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code>");
-        auto answer = ::fast_io::u8string_view{u8"<code></code>"};
+        auto answer = ::fast_io::u8string_view{u8""};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -49,9 +49,10 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // empty <code></code> is dropped
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<code></code>t");
-        auto answer = ::fast_io::u8string_view{u8"t<code></code>t"};
+        auto answer = ::fast_io::u8string_view{u8"tt"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

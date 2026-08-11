@@ -71,6 +71,7 @@ class PlTxtNode {
         ::pltxt2htm::ListOl<ndebug> list_ol_node;
         ::pltxt2htm::ListLi<ndebug> list_li_node;
         ::pltxt2htm::ListLiCheckbox<ndebug> list_li_checkbox_node;
+        ::pltxt2htm::HtmlCode<ndebug> html_code_node;
         ::pltxt2htm::HtmlBlockquote<ndebug> html_blockquote_node;
 
         // html table node
@@ -390,6 +391,11 @@ public:
     constexpr PlTxtNode(::pltxt2htm::HtmlDel<ndebug>&& node) noexcept
         : html_del_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::html_del} {
+    }
+
+    constexpr PlTxtNode(::pltxt2htm::HtmlCode<ndebug>&& node) noexcept
+        : html_code_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::html_code} {
     }
 
     constexpr PlTxtNode(::pltxt2htm::HtmlSup<ndebug>&& node) noexcept
@@ -1062,6 +1068,10 @@ public:
             new (::std::addressof(html_blockquote_node))::pltxt2htm::HtmlBlockquote(other.html_blockquote_node);
             break;
         }
+        case ::pltxt2htm::NodeKind::html_code: {
+            new (::std::addressof(html_code_node))::pltxt2htm::HtmlCode(other.html_code_node);
+            break;
+        }
         case ::pltxt2htm::NodeKind::html_col: {
             new (::std::addressof(html_col_node))::pltxt2htm::HtmlCol(other.html_col_node);
             break;
@@ -1627,6 +1637,10 @@ public:
         case ::pltxt2htm::NodeKind::html_blockquote: {
             new (::std::addressof(html_blockquote_node))::pltxt2htm::HtmlBlockquote(
                 ::std::move(other.html_blockquote_node));
+            break;
+        }
+        case ::pltxt2htm::NodeKind::html_code: {
+            new (::std::addressof(html_code_node))::pltxt2htm::HtmlCode(::std::move(other.html_code_node));
             break;
         }
         case ::pltxt2htm::NodeKind::html_col: {
@@ -2202,6 +2216,10 @@ public:
             html_blockquote_node.~HtmlBlockquote();
             break;
         }
+        case ::pltxt2htm::NodeKind::html_code: {
+            html_code_node.~HtmlCode();
+            break;
+        }
         case ::pltxt2htm::NodeKind::html_col: {
             html_col_node.~HtmlCol();
             break;
@@ -2691,6 +2709,9 @@ public:
         case ::pltxt2htm::NodeKind::html_blockquote: {
             return self.html_blockquote_node == other.html_blockquote_node;
         }
+        case ::pltxt2htm::NodeKind::html_code: {
+            return self.html_code_node == other.html_code_node;
+        }
         case ::pltxt2htm::NodeKind::html_col: {
             return self.html_col_node == other.html_col_node;
         }
@@ -3153,6 +3174,13 @@ public:
         bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_blockquote};
         pltxt2htm_assert(is_type, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.html_blockquote_node);
+    }
+
+    [[nodiscard]]
+    constexpr auto as_html_code(this auto&& self) noexcept -> decltype(auto) {
+        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_code};
+        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.html_code_node);
     }
 
     [[nodiscard]]

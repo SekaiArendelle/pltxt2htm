@@ -587,6 +587,31 @@ public:
 };
 
 /**
+ * @brief HTML &lt;code&gt; inline code node
+ */
+template<::pltxt2htm::Contracts ndebug>
+class HtmlCode {
+    ::pltxt2htm::Ast<ndebug> subast;
+
+public:
+    constexpr explicit HtmlCode(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlCode(::pltxt2htm::HtmlCode<ndebug> const&) noexcept;
+    constexpr HtmlCode(::pltxt2htm::HtmlCode<ndebug>&&) noexcept;
+    constexpr ~HtmlCode() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlCode<ndebug> const&) noexcept -> ::pltxt2htm::HtmlCode<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlCode<ndebug>& self, ::pltxt2htm::HtmlCode<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlCode<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this HtmlCode const&, HtmlCode const&) noexcept -> bool;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+};
+
+/**
  * @brief HTML &lt;blockquote&gt; block quotation node
  */
 template<::pltxt2htm::Contracts ndebug>
