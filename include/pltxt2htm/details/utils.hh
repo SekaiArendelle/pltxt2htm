@@ -459,6 +459,137 @@ constexpr auto try_parse_ptrdiff_t_decimal_value(::fast_io::u8string_view str) n
     return TryParsePtrdiffTDecimalValueResult{.end = digit_pos, .value = value};
 }
 
+/**
+ * @brief Result of parsing a non-negative ASCII decimal value that may be fractional.
+ */
+struct TryParseDoubleDecimalValueResult {
+    ::std::size_t end;
+    double value;
+};
+
+/**
+ * @brief Parse a non-negative ASCII decimal value that may contain a fractional part.
+ * @details Accepts `[0-9]+` with an optional `.` followed by one or more `[0-9]`; a bare `.`
+ *          without digits is rejected. Stops at the first character that is neither a digit nor
+ *          the fraction dot; the returned `end` is the run length relative to `str`. The value is
+ *          stored as double so `<size=12.5>` keeps its fractional part exact enough to
+ *          round-trip when emitted again.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_double_decimal_value(::fast_io::u8string_view str) noexcept
+    -> ::exception::optional<TryParseDoubleDecimalValueResult> {
+    double parsed_value{};
+    auto pos = ::std::size_t{0};
+    for (; pos < str.size(); ++pos) {
+        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(str, pos);
+        if (::pltxt2htm::details::is_ascii_digit(chr) == false) {
+            break;
+        }
+        parsed_value = parsed_value * 10 + static_cast<double>(chr - u8'0');
+    }
+    if (pos < str.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(str, pos) == u8'.') {
+        if (pos == 0) {
+            return ::exception::nullopt;
+        }
+        auto const dot_pos = pos;
+        auto frac_pos = dot_pos + 1;
+        double scale{10};
+        for (; frac_pos < str.size(); ++frac_pos) {
+            auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(str, frac_pos);
+            if (::pltxt2htm::details::is_ascii_digit(chr) == false) {
+                break;
+            }
+            parsed_value += static_cast<double>(chr - u8'0') / scale;
+            scale *= 10;
+        }
+        if (frac_pos == dot_pos + 1) {
+            return ::exception::nullopt;
+        }
+        pos = frac_pos;
+    }
+    if (pos == 0) {
+        return ::exception::nullopt;
+    }
+    // Reject values that overflow ::std::size_t so oversized tags stay literal text
+    // (preserving the historical behavior of try_parse_size_t_decimal_value).
+    if (parsed_value > static_cast<double>(::std::numeric_limits<::std::size_t>::max())) {
+        return ::exception::nullopt;
+    }
+    return TryParseDoubleDecimalValueResult{.end = pos, .value = parsed_value};
+}
+
+/**
+ * @brief Round a non-negative double up to the nearest integer.
+ */
+[[nodiscard]]
+constexpr auto double_to_size_t_ceil(double value) noexcept -> ::std::size_t {
+    auto const truncated = static_cast<::std::size_t>(value);
+    return static_cast<double>(truncated) < value ? truncated + 1 : truncated;
+}
+
+/**
+ * @brief Convert a non-negative double to a UTF-8 decimal string that round-trips.
+ * @details Tries fixed-point representations with 0 through 17 fractional digits and keeps the
+ *          first one that parses back to exactly `value`. Integral values therefore print without
+ *          a decimal point (e.g. 12.0 -> "12"), while fractional values print with the minimal
+ *          number of digits (e.g. 12.5 -> "12.5").
+ */
+[[nodiscard]]
+constexpr auto double2str(double value) noexcept -> ::fast_io::u8string {
+    constexpr ::std::size_t max_fractional_digits{17};
+    constexpr double max_scaled{static_cast<double>(::std::numeric_limits<::std::ptrdiff_t>::max()) + 1};
+    ::fast_io::u8string fallback{};
+    for (::std::size_t fractional_digits{0}; fractional_digits <= max_fractional_digits; ++fractional_digits) {
+        double scale{1};
+        for (::std::size_t i{0}; i < fractional_digits; ++i) {
+            scale *= 10;
+        }
+        double const scaled = value * scale;
+        if (scaled > max_scaled) {
+            continue;
+        }
+        auto rounded = static_cast<::std::ptrdiff_t>(scaled);
+        if (static_cast<double>(rounded) < scaled) {
+            ++rounded;
+        }
+        auto const digit_str = ::pltxt2htm::details::size_t2str(static_cast<::std::size_t>(rounded));
+        ::fast_io::u8string candidate{};
+        if (fractional_digits == 0) {
+            candidate = digit_str;
+        }
+        else if (digit_str.size() > fractional_digits) {
+            auto const frac_start = digit_str.size() - fractional_digits;
+            candidate.append(::fast_io::u8string_view{digit_str.data(), frac_start});
+            candidate.push_back(u8'.');
+            candidate.append(::fast_io::u8string_view{digit_str.data() + frac_start, fractional_digits});
+        }
+        else {
+            candidate.append(u8"0.");
+            for (::std::size_t i{0}; i < fractional_digits - digit_str.size(); ++i) {
+                candidate.push_back(u8'0');
+            }
+            candidate.append(digit_str);
+        }
+        auto opt_reparsed =
+            ::pltxt2htm::details::try_parse_double_decimal_value<::pltxt2htm::Contracts::quick_enforce>(
+                ::fast_io::u8string_view{candidate.data(), candidate.size()});
+        bool const round_trips = opt_reparsed.has_value() && (opt_reparsed.template value<true>().value == value);
+        if (round_trips) {
+            return candidate;
+        }
+        if (fractional_digits == max_fractional_digits) {
+            fallback = ::std::move(candidate);
+        }
+    }
+    if (fallback.empty() == false) {
+        return fallback;
+    }
+    // Values too large for a signed 64-bit integer cannot be round-tripped above; emit the
+    // truncated integer part instead of failing (the parser guarantees value <= size_t max).
+    return ::pltxt2htm::details::size_t2str(static_cast<::std::size_t>(value));
+}
+
 } // namespace pltxt2htm::details
 
 #include "pop_macro.hh"

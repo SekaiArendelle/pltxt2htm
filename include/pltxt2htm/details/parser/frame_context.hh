@@ -111,7 +111,7 @@ public:
 class ParserFrameContextWithPlSizeTagInfo {
 public:
     ::fast_io::u8string_view pltext;
-    ::pltxt2htm::ValueWithUnit<::std::size_t> value;
+    ::pltxt2htm::ValueWithUnit<double> value;
 };
 
 /**
@@ -1536,7 +1536,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_pl_size_tag_value(this auto&& self) noexcept -> ::pltxt2htm::ValueWithUnit<::std::size_t> {
+    constexpr auto get_pl_size_tag_value(this auto&& self) noexcept -> ::pltxt2htm::ValueWithUnit<double> {
         auto&& context_data_ref = self.context_data;
         bool const is_pl_size_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_size};
         pltxt2htm_assert(is_pl_size_tag_type, u8"context kind mismatch");

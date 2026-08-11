@@ -455,7 +455,7 @@ entry:
                 ++current_index;
                 result.append(u8"<size=");
                 auto const& pl_size = node.as_pl_size().get_font_size();
-                result.append(::pltxt2htm::details::size_t2str(pl_size.value));
+                result.append(::pltxt2htm::details::double2str(pl_size.value));
                 switch (pl_size.unit) /* -Werror=switch */ {
                 case ::pltxt2htm::Unit::percent: {
                     result.push_back(u8'%');

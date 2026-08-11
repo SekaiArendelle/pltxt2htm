@@ -147,7 +147,7 @@ constexpr auto vertical_align_keyword_string(::pltxt2htm::VerticalAlignKeyword c
     pltxt2htm_unreachable(u8"Unreachable code after exhaustive switch on vertical-align keyword");
 }
 
-}
+} // namespace details
 
 } // namespace pltxt2htm
 

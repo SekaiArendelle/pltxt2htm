@@ -31,10 +31,13 @@ enum class Unit : unsigned {
  *          never travel independently. This avoids carrying an invalid/undefined
  *          unit when no value is present (the value is then simply absent).
  * @tparam T The numeric type of the value. Use ::std::size_t for non-negative
- *           quantities (font size) and a signed type such as ::std::ptrdiff_t
- *           where a negative value is meaningful (e.g. `vertical-align:-5px`).
+ *           integer quantities, a signed type such as ::std::ptrdiff_t where a
+ *           negative value is meaningful (e.g. `vertical-align:-5px`), or a
+ *           floating-point type such as double where a fractional value
+ *           is meaningful (e.g. `<size=12.5>`).
  */
-template<::std::integral T>
+template<typename T>
+    requires (::std::integral<T> || ::std::floating_point<T>)
 struct ValueWithUnit {
     T value; ///< Numeric value
     ::pltxt2htm::Unit unit; ///< Unit of the value (px, % or em)

@@ -493,18 +493,20 @@ entry:
                 auto const& pl_size = node.as_pl_size().get_font_size();
                 switch (pl_size.unit) /* -Werror=switch */ {
                 case ::pltxt2htm::Unit::percent: {
-                    result.append(::pltxt2htm::details::size_t2str(pl_size.value));
+                    result.append(::pltxt2htm::details::double2str(pl_size.value));
                     result.append(u8"%;\">");
                     break;
                 }
                 case ::pltxt2htm::Unit::em: {
-                    result.append(::pltxt2htm::details::size_t2str(pl_size.value));
+                    result.append(::pltxt2htm::details::double2str(pl_size.value));
                     result.append(u8"em;\">");
                     break;
                 }
                 case ::pltxt2htm::Unit::px: {
-                    // Use division plus remainder for ceil(pl_size / 2) to avoid overflow at size_t max.
-                    result.append(::pltxt2htm::details::size_t2str(pl_size.value / 2 + pl_size.value % 2));
+                    // Round ceil(pl_size / 2) up to preserve the historical integer mapping
+                    // (e.g. size=11 -> 6px) while accepting fractional sizes such as 12.5 -> 7px.
+                    result.append(::pltxt2htm::details::size_t2str(
+                        ::pltxt2htm::details::double_to_size_t_ceil(pl_size.value / 2)));
                     result.append(u8"px;\">");
                     break;
                 }
@@ -758,7 +760,8 @@ entry:
                         span_vertical_align.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                     result.append(u8"vertical-align:");
                     if (vertical_align.get_kind() == ::pltxt2htm::VerticalAlignKind::keyword) {
-                        result.append(::pltxt2htm::details::vertical_align_keyword_string<ndebug>(vertical_align.get_keyword()));
+                        result.append(
+                            ::pltxt2htm::details::vertical_align_keyword_string<ndebug>(vertical_align.get_keyword()));
                     }
                     else {
                         result.append(::pltxt2htm::details::ptrdiff_t2str(vertical_align.get_length().value));
