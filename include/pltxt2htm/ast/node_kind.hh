@@ -91,10 +91,11 @@ enum class NodeKind : unsigned {
     ///< HTML div with style attributes: &lt;div style="margin-left:...;margin-right:..."&gt;
     html_a, ///< HTML anchor/link: &lt;a href="URL"&gt;...&lt;/a&gt;
 
-    // HTML list elements
-    html_ul, ///< Unordered list: &lt;ul&gt;...&lt;/ul&gt;
-    html_ol, ///< Ordered list: &lt;ol&gt;...&lt;/ol&gt;
-    html_li, ///< List item: &lt;li&gt;...&lt;/li&gt;
+    // List elements (shared by HTML <ul>/<ol>/<li> and Markdown lists)
+    list_ul, ///< Unordered list: &lt;ul&gt;...&lt;/ul&gt; or Markdown `- item`
+    list_ol, ///< Ordered list: &lt;ol&gt;...&lt;/ol&gt; or Markdown `1. item`
+    list_li, ///< List item: &lt;li&gt;...&lt;/li&gt; or Markdown list item
+    list_li_checkbox, ///< Checkbox list item (Markdown - [ ] / - [x])
 
     // HTML code and quote elements
     html_code, ///< Inline code: &lt;code&gt;...&lt;/code&gt;
@@ -112,7 +113,6 @@ enum class NodeKind : unsigned {
     html_caption, ///< HTML table caption: &lt;caption&gt;...&lt;/caption&gt;
     html_colgroup, ///< HTML table column group: &lt;colgroup&gt;...&lt;/colgroup&gt;
     html_col, ///< HTML table column: &lt;col&gt; (self-closing)
-    html_input, ///< HTML checkbox input: &lt;input type=&quot;checkbox&quot; disabled&gt;
     html_img, ///< HTML image: &lt;img src=&quot;...&quot; alt=&quot;...&quot;&gt;
 
     // Markdown ATX-style headers (# ## ### #### ##### ######)
@@ -186,10 +186,6 @@ enum class NodeKind : unsigned {
 
     // Markdown block quotes and lists
     md_block_quotes, ///< Block quote: > quote text
-    md_ul, ///< Unordered list marker
-    md_ol, ///< Ordered list marker
-    md_li, ///< List item
-    md_li_checkbox, ///< Checkbox list item (- [ ] / - [x])
 
     // Markdown table nodes (markdown pipe-table syntax)
     md_table, ///< Markdown table: | ... |
@@ -229,11 +225,6 @@ constexpr auto is_strong_like(::pltxt2htm::NodeKind const node_type) noexcept ->
            node_type == ::pltxt2htm::NodeKind::md_double_emphasis_underscore ||
            node_type == ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk ||
            node_type == ::pltxt2htm::NodeKind::md_triple_emphasis_underscore;
-}
-
-[[nodiscard]]
-constexpr auto is_md_list_ul_or_ol_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
-    return node_type == ::pltxt2htm::NodeKind::md_ul || node_type == ::pltxt2htm::NodeKind::md_ol;
 }
 
 /**

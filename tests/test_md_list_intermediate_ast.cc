@@ -4,13 +4,13 @@ inline namespace pltxt2htm_test {
 
 template<::std::size_t N>
 constexpr auto text_item(char8_t const (&text)[N]) noexcept {
-    return ::pltxt2htm::details::MdListLiNode{::fast_io::u8string{text}};
+    return ::pltxt2htm::details::ListLiNode{::fast_io::u8string{text}};
 }
 
 template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce,
-         ::pltxt2htm::details::is_md_list_node_type... Nodes>
+         ::pltxt2htm::details::is_list_node_type... Nodes>
 constexpr auto md_list(Nodes&&... nodes) noexcept {
-    ::pltxt2htm::details::MdListAst<ndebug> result{};
+    ::pltxt2htm::details::ListAst<ndebug> result{};
 
     (result.emplace_back(::std::forward<Nodes>(nodes)), ...);
 
@@ -18,45 +18,43 @@ constexpr auto md_list(Nodes&&... nodes) noexcept {
 }
 
 template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce,
-         ::pltxt2htm::details::is_md_list_node_type... Nodes>
+         ::pltxt2htm::details::is_list_node_type... Nodes>
 constexpr auto ul_item(Nodes&&... nodes) noexcept {
-    return ::pltxt2htm::details::MdListUlNode<ndebug>(
-        ::pltxt2htm_test::md_list<ndebug>(::std::forward<Nodes>(nodes)...));
+    return ::pltxt2htm::details::ListUlNode<ndebug>(::pltxt2htm_test::md_list<ndebug>(::std::forward<Nodes>(nodes)...));
 }
 
 template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce,
-         ::pltxt2htm::details::is_md_list_node_type... Nodes>
+         ::pltxt2htm::details::is_list_node_type... Nodes>
 constexpr auto ol_item(Nodes&&... nodes) noexcept {
-    return ::pltxt2htm::details::MdListOlNode<ndebug>(
-        ::pltxt2htm_test::md_list<ndebug>(::std::forward<Nodes>(nodes)...));
+    return ::pltxt2htm::details::ListOlNode<ndebug>(::pltxt2htm_test::md_list<ndebug>(::std::forward<Nodes>(nodes)...));
 }
 
 } // namespace pltxt2htm_test
 
 int main() {
     {
-        ::pltxt2htm::details::MdListLiNode const node1{::fast_io::u8string{u8"test"}};
-        ::pltxt2htm::details::MdListLiNode const node2{::fast_io::u8string{u8"test"}};
+        ::pltxt2htm::details::ListLiNode const node1{::fast_io::u8string{u8"test"}};
+        ::pltxt2htm::details::ListLiNode const node2{::fast_io::u8string{u8"test"}};
         ::exception::assert_true<false>(node1 == node2);
     }
     {
-        ::pltxt2htm::details::MdListUlNode<::pltxt2htm::Contracts::quick_enforce> const node1{
-            ::pltxt2htm::details::MdListAst<::pltxt2htm::Contracts::quick_enforce>{}};
-        ::pltxt2htm::details::MdListUlNode<::pltxt2htm::Contracts::quick_enforce> const node2{
-            ::pltxt2htm::details::MdListAst<::pltxt2htm::Contracts::quick_enforce>{}};
+        ::pltxt2htm::details::ListUlNode<::pltxt2htm::Contracts::quick_enforce> const node1{
+            ::pltxt2htm::details::ListAst<::pltxt2htm::Contracts::quick_enforce>{}};
+        ::pltxt2htm::details::ListUlNode<::pltxt2htm::Contracts::quick_enforce> const node2{
+            ::pltxt2htm::details::ListAst<::pltxt2htm::Contracts::quick_enforce>{}};
         ::exception::assert_true<false>(node1 == node2);
     }
     {
-        ::pltxt2htm::details::MdListLiNode text_node{::fast_io::u8string{u8"test"}};
-        ::pltxt2htm::details::MdListUlNode<::pltxt2htm::Contracts::quick_enforce> ul_node{
-            ::pltxt2htm::details::MdListAst<::pltxt2htm::Contracts::quick_enforce>{}};
+        ::pltxt2htm::details::ListLiNode text_node{::fast_io::u8string{u8"test"}};
+        ::pltxt2htm::details::ListUlNode<::pltxt2htm::Contracts::quick_enforce> ul_node{
+            ::pltxt2htm::details::ListAst<::pltxt2htm::Contracts::quick_enforce>{}};
         ::exception::assert_false<false>(
-            ::pltxt2htm::details::MdListBaseNode<::pltxt2htm::Contracts::quick_enforce>(::std::move(text_node)) ==
-            ::pltxt2htm::details::MdListBaseNode<::pltxt2htm::Contracts::quick_enforce>(::std::move(ul_node)));
+            ::pltxt2htm::details::ListBaseNode<::pltxt2htm::Contracts::quick_enforce>(::std::move(text_node)) ==
+            ::pltxt2htm::details::ListBaseNode<::pltxt2htm::Contracts::quick_enforce>(::std::move(ul_node)));
     }
     {
-        ::pltxt2htm::details::MdListAst<::pltxt2htm::Contracts::quick_enforce> const ast1{};
-        ::pltxt2htm::details::MdListAst<::pltxt2htm::Contracts::quick_enforce> const ast2{};
+        ::pltxt2htm::details::ListAst<::pltxt2htm::Contracts::quick_enforce> const ast1{};
+        ::pltxt2htm::details::ListAst<::pltxt2htm::Contracts::quick_enforce> const ast2{};
         ::exception::assert_true<false>(ast1 == ast2);
     }
     {

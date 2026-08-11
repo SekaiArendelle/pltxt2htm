@@ -1082,40 +1082,32 @@ entry:
             case ::pltxt2htm::NodeKind::html_note: {
                 continue;
             }
-            case ::pltxt2htm::NodeKind::md_ul: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_ul().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::md_ul, 0));
+            case ::pltxt2htm::NodeKind::list_ul: {
+                auto const& list_ul = node.as_list_ul();
+                bool const is_empty = list_ul.get_subast().empty();
+                pltxt2htm_assert(is_empty == false, u8"List container must not be empty");
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(list_ul.get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::list_ul, 0));
                 ++current_index;
                 result.append(u8"<ul>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_ul: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_ul().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::html_ul, 0));
-                ++current_index;
-                result.append(u8"<ul>");
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_ol: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_ol().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::md_ol, 0));
+            case ::pltxt2htm::NodeKind::list_ol: {
+                auto const& list_ol = node.as_list_ol();
+                bool const is_empty = list_ol.get_subast().empty();
+                pltxt2htm_assert(is_empty == false, u8"List container must not be empty");
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(list_ol.get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::list_ol, 0));
                 ++current_index;
                 result.append(u8"<ol>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_ol: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_ol().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::html_ol, 0));
-                ++current_index;
-                result.append(u8"<ol>");
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_li_checkbox: {
+            case ::pltxt2htm::NodeKind::list_li_checkbox: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                    node.as_md_li_checkbox().get_subast(), ::pltxt2htm::NodeKind::md_li_checkbox, 0));
+                    node.as_list_li_checkbox().get_subast(), ::pltxt2htm::NodeKind::list_li_checkbox, 0));
                 ++current_index;
                 result.append(u8"<li>");
-                if (node.as_md_li_checkbox().is_checked()) {
+                if (node.as_list_li_checkbox().is_checked()) {
                     result.append(u8"<input type=\"checkbox\" disabled checked>");
                 }
                 else {
@@ -1123,16 +1115,9 @@ entry:
                 }
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::md_li: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_li().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::md_li, 0));
-                ++current_index;
-                result.append(u8"<li>");
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_li: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_li().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::html_li, 0));
+            case ::pltxt2htm::NodeKind::list_li: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_list_li().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::list_li, 0));
                 ++current_index;
                 result.append(u8"<li>");
                 goto entry;
@@ -1357,15 +1342,6 @@ entry:
             }
             case ::pltxt2htm::NodeKind::html_col: {
                 result.append(u8"<col>");
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::html_input: {
-                if (node.as_html_input().is_checked()) {
-                    result.append(u8"<input type=\"checkbox\" disabled checked>");
-                }
-                else {
-                    result.append(u8"<input type=\"checkbox\" disabled>");
-                }
                 continue;
             }
             case ::pltxt2htm::NodeKind::html_img: {
@@ -1770,23 +1746,42 @@ entry:
                 result.append(u8"</sub>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::md_ul:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_ul: {
+            case ::pltxt2htm::NodeKind::list_ul: {
                 result.append(u8"</ul>");
+                if (::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type() ==
+                        ::pltxt2htm::NodeKind::list_ul ||
+                    ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type() ==
+                        ::pltxt2htm::NodeKind::list_ol) {
+                    // A sibling-nested list defers the parent item's </li>; close it here.
+                    result.append(u8"</li>");
+                }
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::md_ol:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_ol: {
+            case ::pltxt2htm::NodeKind::list_ol: {
                 result.append(u8"</ol>");
+                if (::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type() ==
+                        ::pltxt2htm::NodeKind::list_ul ||
+                    ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type() ==
+                        ::pltxt2htm::NodeKind::list_ol) {
+                    result.append(u8"</li>");
+                }
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::md_li_checkbox:
+            case ::pltxt2htm::NodeKind::list_li_checkbox:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_li:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_li: {
+            case ::pltxt2htm::NodeKind::list_li: {
+                // If the next sibling in the parent list is itself a list (the Markdown
+                // nested-list shape), defer </li> so the nested list renders inside this
+                // item; the nested list's closing appends the deferred </li>.
+                auto const& parent_ast = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_ast();
+                auto const parent_index = ::pltxt2htm::details::stack_top<ndebug>(call_stack).current_index;
+                if (parent_index < parent_ast.size()) {
+                    auto const next_kind =
+                        ::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_index).get_node_kind();
+                    if (next_kind == ::pltxt2htm::NodeKind::list_ul || next_kind == ::pltxt2htm::NodeKind::list_ol) {
+                        goto entry;
+                    }
+                }
                 result.append(u8"</li>");
                 goto entry;
             }

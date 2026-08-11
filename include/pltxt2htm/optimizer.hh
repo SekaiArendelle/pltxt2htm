@@ -1275,53 +1275,32 @@ entry:
                 ast.erase(current_iter);
                 continue;
             }
-            case ::pltxt2htm::NodeKind::md_ul: {
-                auto&& subast = node.as_md_ul().get_subast();
+            case ::pltxt2htm::NodeKind::list_ul: {
+                auto&& subast = node.as_list_ul().get_subast();
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::md_ul, subast.begin()));
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::list_ul, subast.begin()));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_ul: {
-                auto&& subast = node.as_html_ul().get_subast();
+            case ::pltxt2htm::NodeKind::list_ol: {
+                auto&& subast = node.as_list_ol().get_subast();
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_ul, subast.begin()));
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::list_ol, subast.begin()));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::md_ol: {
-                auto&& subast = node.as_md_ol().get_subast();
+            case ::pltxt2htm::NodeKind::list_li_checkbox: {
+                auto&& subast = node.as_list_li_checkbox().get_subast();
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::md_ol, subast.begin()));
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::list_li_checkbox, subast.begin()));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_ol: {
-                auto&& subast = node.as_html_ol().get_subast();
+            case ::pltxt2htm::NodeKind::list_li: {
+                auto&& subast = node.as_list_li().get_subast();
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_ol, subast.begin()));
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_li_checkbox: {
-                auto&& subast = node.as_md_li_checkbox().get_subast();
-                call_stack.push(
-                    ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_li, subast.begin()));
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_li: {
-                auto&& subast = node.as_md_li().get_subast();
-                call_stack.push(
-                    ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::md_li, subast.begin()));
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_li: {
-                auto&& subast = node.as_html_li().get_subast();
-                call_stack.push(
-                    ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_li, subast.begin()));
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::list_li, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_code_span_1_backtick: {
@@ -1527,8 +1506,6 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_col:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_input:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_img:
                 [[fallthrough]];

@@ -119,12 +119,12 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdBlockQuotes<ndebug>{::std::move(subast)}));
             continue;
         }
-        case ::pltxt2htm::NodeKind::md_ul: {
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdUl<ndebug>{::std::move(subast)}));
+        case ::pltxt2htm::NodeKind::list_ul: {
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::ListUl<ndebug>{::std::move(subast)}));
             continue;
         }
-        case ::pltxt2htm::NodeKind::md_ol: {
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdOl<ndebug>{::std::move(subast)}));
+        case ::pltxt2htm::NodeKind::list_ol: {
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::ListOl<ndebug>{::std::move(subast)}));
             continue;
         }
         case ::pltxt2htm::NodeKind::md_table: {

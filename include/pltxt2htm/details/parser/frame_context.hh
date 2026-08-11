@@ -12,7 +12,7 @@
 #include <exception/exception.hh>
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
-#include "md_list.hh"
+#include "list_ast.hh"
 #include "md_table.hh"
 #include "../../contracts.hh"
 #include "../../ast/ast.hh"
@@ -165,14 +165,14 @@ public:
  * @brief Context for ordered/unordered list frames; owns the intermediate list AST + iterator.
  */
 template<::pltxt2htm::Contracts ndebug>
-class ParserFrameContextWithMdListInfo {
+class ParserFrameContextWithListInfo {
 public:
-    ::pltxt2htm::details::MdListAst<ndebug> md_list_ast;
-    typename ::pltxt2htm::details::MdListAst<ndebug>::iterator iter;
+    ::pltxt2htm::details::ListAst<ndebug> list_ast;
+    typename ::pltxt2htm::details::ListAst<ndebug>::iterator iter;
 
-    constexpr explicit ParserFrameContextWithMdListInfo(::pltxt2htm::details::MdListAst<ndebug>&& md_list_ast_) noexcept
-        : md_list_ast(::std::move(md_list_ast_)),
-          iter(md_list_ast.begin()) {
+    constexpr explicit ParserFrameContextWithListInfo(::pltxt2htm::details::ListAst<ndebug>&& list_ast_) noexcept
+        : list_ast(::std::move(list_ast_)),
+          iter(list_ast.begin()) {
     }
 };
 
@@ -201,7 +201,7 @@ public:
 /**
  * @brief Context for checkbox list-item frames during parsing.
  */
-class ParserFrameContextWithMdLiCheckboxInfo {
+class ParserFrameContextWithListLiCheckboxInfo {
 public:
     ::fast_io::u8string_view pltext;
     bool checked;
@@ -257,8 +257,8 @@ public:
         html_div_info,
         html_code_info,
         md_block_quotes,
-        md_list,
-        md_li_checkbox,
+        list_info,
+        list_li_checkbox,
         cell,
         md_table,
         pltext,
@@ -281,10 +281,10 @@ public:
         ::pltxt2htm::details::ParserFrameContextWithPlVoffsetTagInfo pl_voffset_tag;
         ::pltxt2htm::details::ParserFrameContextWithPlMarginTagInfo pl_margin_tag;
         ::pltxt2htm::details::ParserFrameContextWithMdBlockQuotesInfo md_block_quotes;
-        ::pltxt2htm::details::ParserFrameContextWithMdListInfo<ndebug> md_list;
+        ::pltxt2htm::details::ParserFrameContextWithListInfo<ndebug> list_info;
         ::pltxt2htm::details::ParserFrameContextWithCellInfo cell;
         ::pltxt2htm::details::ParserFrameContextWithAlignInfo align_info;
-        ::pltxt2htm::details::ParserFrameContextWithMdLiCheckboxInfo md_li_checkbox;
+        ::pltxt2htm::details::ParserFrameContextWithListLiCheckboxInfo list_li_checkbox;
         ::pltxt2htm::details::ParserFrameContextWithMdTableInfo<ndebug> md_table;
     };
 
@@ -415,11 +415,11 @@ public:
           kind{node_kind_} {
     }
 
-    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithMdListInfo<ndebug>&& md_list_context,
+    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithListInfo<ndebug>&& list_info_context,
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
-        : md_list{::std::move(md_list_context)},
+        : list_info{::std::move(list_info_context)},
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
-          context_branch{ContextBranch::md_list},
+          context_branch{ContextBranch::list_info},
 #endif
           kind{node_kind_} {
     }
@@ -443,11 +443,11 @@ public:
     }
 
     constexpr FrontendContextVariant(
-        ::pltxt2htm::details::ParserFrameContextWithMdLiCheckboxInfo&& md_li_checkbox_context,
+        ::pltxt2htm::details::ParserFrameContextWithListLiCheckboxInfo&& list_li_checkbox_context,
         ::pltxt2htm::NodeKind node_kind_) noexcept
-        : md_li_checkbox{::std::move(md_li_checkbox_context)},
+        : list_li_checkbox{::std::move(list_li_checkbox_context)},
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
-          context_branch{ContextBranch::md_li_checkbox},
+          context_branch{ContextBranch::list_li_checkbox},
 #endif
           kind{node_kind_} {
     }
@@ -547,16 +547,16 @@ public:
             ::std::construct_at(::std::addressof(this->md_block_quotes), ::std::move(other.md_block_quotes));
             return;
         }
-        case ::pltxt2htm::NodeKind::md_ul:
+        case ::pltxt2htm::NodeKind::list_ul:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_ol: {
-            pltxt2htm_assert_context_branch(*this, ContextBranch::md_list);
-            ::std::construct_at(::std::addressof(this->md_list), ::std::move(other.md_list));
+        case ::pltxt2htm::NodeKind::list_ol: {
+            pltxt2htm_assert_context_branch(*this, ContextBranch::list_info);
+            ::std::construct_at(::std::addressof(this->list_info), ::std::move(other.list_info));
             return;
         }
-        case ::pltxt2htm::NodeKind::md_li_checkbox: {
-            pltxt2htm_assert_context_branch(*this, ContextBranch::md_li_checkbox);
-            ::std::construct_at(::std::addressof(this->md_li_checkbox), ::std::move(other.md_li_checkbox));
+        case ::pltxt2htm::NodeKind::list_li_checkbox: {
+            pltxt2htm_assert_context_branch(*this, ContextBranch::list_li_checkbox);
+            ::std::construct_at(::std::addressof(this->list_li_checkbox), ::std::move(other.list_li_checkbox));
             return;
         }
         case ::pltxt2htm::NodeKind::text:
@@ -592,12 +592,6 @@ public:
         case ::pltxt2htm::NodeKind::html_em:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_strong:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_ul:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_ol:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_li:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_pre:
             [[fallthrough]];
@@ -643,7 +637,7 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_del:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_li: {
+        case ::pltxt2htm::NodeKind::list_li: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::pltext);
             ::std::construct_at(::std::addressof(this->pltext), ::std::move(other.pltext));
             return;
@@ -676,8 +670,6 @@ public:
         case ::pltxt2htm::NodeKind::html_hr:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_img:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_input:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_note:
             [[fallthrough]];
@@ -890,11 +882,11 @@ public:
             ::std::destroy_at(::std::addressof(this->md_block_quotes));
             return;
         }
-        case ::pltxt2htm::NodeKind::md_ul:
+        case ::pltxt2htm::NodeKind::list_ul:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_ol: {
-            pltxt2htm_assert_context_branch(*this, ContextBranch::md_list);
-            ::std::destroy_at(::std::addressof(this->md_list));
+        case ::pltxt2htm::NodeKind::list_ol: {
+            pltxt2htm_assert_context_branch(*this, ContextBranch::list_info);
+            ::std::destroy_at(::std::addressof(this->list_info));
             return;
         }
         case ::pltxt2htm::NodeKind::text:
@@ -930,12 +922,6 @@ public:
         case ::pltxt2htm::NodeKind::html_em:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_strong:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_ul:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_ol:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_li:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_pre:
             [[fallthrough]];
@@ -981,7 +967,7 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_del:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_li: {
+        case ::pltxt2htm::NodeKind::list_li: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::pltext);
             ::std::destroy_at(::std::addressof(this->pltext));
             return;
@@ -1007,9 +993,9 @@ public:
             ::std::destroy_at(::std::addressof(this->md_table));
             return;
         }
-        case ::pltxt2htm::NodeKind::md_li_checkbox: {
-            pltxt2htm_assert_context_branch(*this, ContextBranch::md_li_checkbox);
-            ::std::destroy_at(::std::addressof(this->md_li_checkbox));
+        case ::pltxt2htm::NodeKind::list_li_checkbox: {
+            pltxt2htm_assert_context_branch(*this, ContextBranch::list_li_checkbox);
+            ::std::destroy_at(::std::addressof(this->list_li_checkbox));
             return;
         }
         case ::pltxt2htm::NodeKind::html_br:
@@ -1019,8 +1005,6 @@ public:
         case ::pltxt2htm::NodeKind::html_hr:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_img:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_input:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_note:
             [[fallthrough]];
@@ -1261,12 +1245,6 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_strong:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_ul:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_ol:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_li:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_pre:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_blockquote:
@@ -1288,8 +1266,6 @@ public:
         case ::pltxt2htm::NodeKind::html_col:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_img:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_input:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_atx_h1:
             [[fallthrough]];
@@ -1331,7 +1307,7 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::url:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_li:
+        case ::pltxt2htm::NodeKind::list_li:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_latex_inline:
             [[fallthrough]];
@@ -1340,10 +1316,11 @@ public:
                 context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::pltext);
             return context_data_ref.pltext.pltext;
         }
-        case ::pltxt2htm::NodeKind::md_li_checkbox: {
+        case ::pltxt2htm::NodeKind::list_li_checkbox: {
             pltxt2htm_assert_context_branch(
-                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::md_li_checkbox);
-            return context_data_ref.md_li_checkbox.pltext;
+                context_data_ref,
+                ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::list_li_checkbox);
+            return context_data_ref.list_li_checkbox.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_color:
             [[fallthrough]];
@@ -1523,9 +1500,9 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_hr:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_ul:
+        case ::pltxt2htm::NodeKind::list_ul:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_ol:
+        case ::pltxt2htm::NodeKind::list_ol:
             [[unlikely]] {
                 pltxt2htm_unreachable(u8"Unexpected node kind in context-kind switch");
             }
@@ -1694,19 +1671,21 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_md_list_ast(this auto&& self) noexcept -> decltype(auto) {
+    constexpr auto get_list_ast(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
-        bool const is_md_ul_or_ol_type{::pltxt2htm::details::is_md_list_ul_or_ol_type(context_data_ref.kind)};
-        pltxt2htm_assert(is_md_ul_or_ol_type, u8"context kind mismatch");
-        return ::std::forward_like<decltype(self)>(context_data_ref.md_list.md_list_ast);
+        bool const is_list_ul_or_ol_type{context_data_ref.kind == ::pltxt2htm::NodeKind::list_ul ||
+                                         context_data_ref.kind == ::pltxt2htm::NodeKind::list_ol};
+        pltxt2htm_assert(is_list_ul_or_ol_type, u8"context kind mismatch");
+        return ::std::forward_like<decltype(self)>(context_data_ref.list_info.list_ast);
     }
 
     [[nodiscard]]
-    constexpr auto get_md_list_iter(this auto&& self) noexcept -> decltype(auto) {
+    constexpr auto get_list_iter(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
-        bool const is_md_ul_or_ol_type{::pltxt2htm::details::is_md_list_ul_or_ol_type(context_data_ref.kind)};
-        pltxt2htm_assert(is_md_ul_or_ol_type, u8"context kind mismatch");
-        return ::std::forward_like<decltype(self)>(context_data_ref.md_list.iter);
+        bool const is_list_ul_or_ol_type{context_data_ref.kind == ::pltxt2htm::NodeKind::list_ul ||
+                                         context_data_ref.kind == ::pltxt2htm::NodeKind::list_ol};
+        pltxt2htm_assert(is_list_ul_or_ol_type, u8"context kind mismatch");
+        return ::std::forward_like<decltype(self)>(context_data_ref.list_info.iter);
     }
 
     [[nodiscard]]
@@ -1768,8 +1747,8 @@ public:
 
     [[nodiscard]]
     constexpr auto get_checked(this auto&& self) noexcept -> bool {
-        pltxt2htm_assert(self.context_data.kind == ::pltxt2htm::NodeKind::md_li_checkbox, u8"context kind mismatch");
-        return self.context_data.md_li_checkbox.checked;
+        pltxt2htm_assert(self.context_data.kind == ::pltxt2htm::NodeKind::list_li_checkbox, u8"context kind mismatch");
+        return self.context_data.list_li_checkbox.checked;
     }
 };
 

@@ -528,26 +528,26 @@ int main() {
     }
 
     // ============================================================
-    //  22. Raw <input> tag parsing (checkbox only, others escaped)
+    //  22. <input> is literal inline; checkbox inputs only render inside list items
     // ============================================================
     {
-        // unchecked checkbox should be parsed as raw <input>
+        // inline <input> is literal; checkbox inputs only render inside list items
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<input type=\"checkbox\" disabled>");
-        pltxt2htm_test_assert_equal(html, u8"<input type=\"checkbox\" disabled>");
+        pltxt2htm_test_assert_equal(html, u8"&lt;input&nbsp;type=&quot;checkbox&quot;&nbsp;disabled&gt;");
         // still no dangerous tags
         pltxt2htm_test_assert_true(!has_unescaped_tag(to_view(html), u8"script"));
         pltxt2htm_test_assert_true(!has_unescaped_tag(to_view(html), u8"iframe"));
         pltxt2htm_test_assert_true(!has_unescaped_tag(to_view(html), u8"svg"));
     }
     {
-        // checked checkbox
+        // checked checkbox inline is still literal
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<input type=\"checkbox\" disabled checked>");
-        pltxt2htm_test_assert_equal(html, u8"<input type=\"checkbox\" disabled checked>");
+        pltxt2htm_test_assert_equal(html, u8"&lt;input&nbsp;type=&quot;checkbox&quot;&nbsp;disabled&nbsp;checked&gt;");
     }
     {
-        // reversed order: checked before disabled is still valid
+        // reversed attribute order inline is still literal
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<input disabled checked type=\"checkbox\">");
-        pltxt2htm_test_assert_equal(html, u8"<input type=\"checkbox\" disabled checked>");
+        pltxt2htm_test_assert_equal(html, u8"&lt;input&nbsp;disabled&nbsp;checked&nbsp;type=&quot;checkbox&quot;&gt;");
     }
     {
         // <input type="text"> should be escaped (not a checkbox)

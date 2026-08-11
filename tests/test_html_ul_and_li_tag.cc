@@ -22,8 +22,8 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ul><li><color=red>item1</li></ul></color>");
-        auto answer = ::fast_io::u8string_view{
-            u8"<ul><li><span style=\"color:red;\">item1&lt;/li&gt;&lt;/ul&gt;</span></li></ul>"};
+        auto answer =
+            ::fast_io::u8string_view{u8"<ul><li><span style=\"color:red;\">item1</span></li></ul>&lt;/color&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -35,13 +35,13 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ul>");
-        auto answer = ::fast_io::u8string_view{u8"<ul></ul>"};
+        auto answer = ::fast_io::u8string_view{u8"&lt;ul&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<ul></ul>t");
-        auto answer = ::fast_io::u8string_view{u8"t<ul></ul>t"};
+        auto answer = ::fast_io::u8string_view{u8"t&lt;ul&gt;&lt;/ul&gt;t"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -53,7 +53,7 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ul><li>item1</li><del>test</del></ul>");
-        auto answer = ::fast_io::u8string_view{u8"<ul><li>item1</li><del>test</del></ul>"};
+        auto answer = ::fast_io::u8string_view{u8"&lt;ul&gt;&lt;li&gt;item1&lt;/li&gt;<del>test</del>&lt;/ul&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -66,20 +66,85 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<ul><li><ul><li>xxx</li></ul></li></ul>");
-        auto answer = ::fast_io::u8string_view{u8"\u2022 \n  \u2218 xxx\n\n"};
+        auto answer = ::fast_io::u8string_view{u8"\u2022 \n  \u2218 xxx\n"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<ul><li>text<ul><li>sub</li></ul></li></ul>");
-        auto answer = ::fast_io::u8string_view{u8"\u2022 text\n  \u2218 sub\n\n"};
+        auto answer = ::fast_io::u8string_view{u8"\u2022 text\n  \u2218 sub\n"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         // <ul> without <li> must not be parsed as the <u> underline tag
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ul>t</ul>");
-        auto answer = ::fast_io::u8string_view{u8"<ul>t</ul>"};
+        auto answer = ::fast_io::u8string_view{u8"&lt;ul&gt;t&lt;/ul&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // ---- block-level lists: whitespace/newlines inside <ul> are ignored ----
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ul>\n<li>a</li>\n<li>b</li>\n</ul>");
+        auto answer = ::fast_io::u8string_view{u8"<ul><li>a</li><li>b</li></ul>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ul> <li>a</li>\t<li>b</li> </ul>");
+        auto answer = ::fast_io::u8string_view{u8"<ul><li>a</li><li>b</li></ul>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    // ---- a list after a line break is still a block ----
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"a\n<ul><li>b</li></ul>");
+        auto answer = ::fast_io::u8string_view{u8"a<br><ul><li>b</li></ul>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    // ---- non-<li> interior content makes the whole list literal ----
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ul><li>a</li> text <li>b</li></ul>");
+        auto answer = ::fast_io::u8string_view{
+            u8"&lt;ul&gt;&lt;li&gt;a&lt;/li&gt;&nbsp;text&nbsp;&lt;li&gt;b&lt;/li&gt;&lt;/ul&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    // ---- <li> outside a list context is literal ----
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<li>a</li>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;li&gt;a&lt;/li&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    // ---- whitespace/newlines inside items are HTML formatting, not content ----
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ul><li>\n<ol>\n  <li>text</li></ol></li></ul>");
+        auto answer = ::fast_io::u8string_view{u8"<ul><li><ol><li>text</li></ol></li></ul>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ul><li>\n  text</li></ul>");
+        auto answer = ::fast_io::u8string_view{u8"<ul><li>text</li></ul>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        // a newline in the middle of the item text is real content
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ul><li>first\nsecond</li></ul>");
+        auto answer = ::fast_io::u8string_view{u8"<ul><li>first<br>second</li></ul>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ul><li>text\n</li></ul>");
+        auto answer = ::fast_io::u8string_view{u8"<ul><li>text</li></ul>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ul><li>\n</li></ul>");
+        auto answer = ::fast_io::u8string_view{u8"<ul><li></li></ul>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // ---- mismatched closing tag makes the list literal ----
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ul><li>a</li></ol>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;ul&gt;&lt;li&gt;a&lt;/li&gt;&lt;/ol&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

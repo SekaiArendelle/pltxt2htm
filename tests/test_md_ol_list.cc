@@ -27,23 +27,23 @@ int main() {
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"1. test\n 2. test\n   1. text");
-        auto answer = ::fast_io::u8string_view(u8"<ol><li>test</li><li>test</li><ol><li>text</li></ol></ol>");
+        auto answer = ::fast_io::u8string_view(u8"<ol><li>test</li><li>test<ol><li>text</li></ol></li></ol>");
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"1. test\n 2. test\n   - text");
-        auto answer = ::fast_io::u8string_view(u8"<ol><li>test</li><li>test</li><ul><li>text</li></ul></ol>");
+        auto answer = ::fast_io::u8string_view(u8"<ol><li>test</li><li>test<ul><li>text</li></ul></li></ol>");
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"- test\n - test\n   1. text");
-        auto answer = ::fast_io::u8string_view(u8"<ul><li>test</li><li>test</li><ol><li>text</li></ol></ul>");
+        auto answer = ::fast_io::u8string_view(u8"<ul><li>test</li><li>test<ol><li>text</li></ol></li></ul>");
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"1. test\n 1. test\n   1. text\n     1. test");
         auto answer = ::fast_io::u8string_view(
-            u8"<ol><li>test</li><li>test</li><ol><li>text</li><ol><li>test</li></ol></ol></ol>");
+            u8"<ol><li>test</li><li>test<ol><li>text<ol><li>test</li></ol></li></ol></li></ol>");
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
@@ -59,7 +59,7 @@ int main() {
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"1. test\n 2. test\n   1. t**ex**t");
         auto answer =
-            ::fast_io::u8string_view(u8"<ol><li>test</li><li>test</li><ol><li>t<strong>ex</strong>t</li></ol></ol>");
+            ::fast_io::u8string_view(u8"<ol><li>test</li><li>test<ol><li>t<strong>ex</strong>t</li></ol></li></ol>");
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
@@ -77,7 +77,7 @@ int main() {
     // ---- mixed ul inside ol ----
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"1. test\n 2. test\n   * text");
-        auto answer = ::fast_io::u8string_view(u8"<ol><li>test</li><li>test</li><ul><li>text</li></ul></ol>");
+        auto answer = ::fast_io::u8string_view(u8"<ol><li>test</li><li>test<ul><li>text</li></ul></li></ol>");
         pltxt2htm_test_assert_equal(html, answer);
     }
     {

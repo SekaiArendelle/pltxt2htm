@@ -129,7 +129,7 @@ int main() {
     }
     {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<input type=\"checkbox\" disabled>");
-        auto answer = ::fast_io::u8string_view{u8"<input type=\"checkbox\" disabled>"};
+        auto answer = ::fast_io::u8string_view{u8"&lt;input&nbsp;type=&quot;checkbox&quot;&nbsp;disabled&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -341,7 +341,7 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<ul><li><ol><li>item");
-        auto answer = ::fast_io::u8string_view{u8"<ul><li><ol><li>item</li></ol></li></ul>"};
+        auto answer = ::fast_io::u8string_view{u8"&lt;ul&gt;&lt;li&gt;&lt;ol&gt;&lt;li&gt;item"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -401,7 +401,9 @@ int main() {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(
             u8"<ul></x></ul><ol></x></ol><ul><li></x></li></ul><ol><li></x></li></ol>");
         auto answer = ::fast_io::u8string_view{
-            u8"<ul>&lt;/x&gt;</ul><ol>&lt;/x&gt;</ol><ul><li>&lt;/x&gt;</li></ul><ol><li>&lt;/x&gt;</li></ol>"};
+            u8"&lt;ul&gt;&lt;/x&gt;&lt;/ul&gt;&lt;ol&gt;&lt;/x&gt;&lt;/ol&gt;"
+            u8"&lt;ul&gt;&lt;li&gt;&lt;/x&gt;&lt;/li&gt;&lt;/ul&gt;&lt;ol&gt;&lt;li&gt;&lt;/x&gt;&lt;/li&gt;&lt;/"
+            u8"ol&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

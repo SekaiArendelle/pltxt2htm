@@ -1033,76 +1033,44 @@ entry:
             case ::pltxt2htm::NodeKind::html_note: {
                 continue;
             }
-            case ::pltxt2htm::NodeKind::md_ul: {
+            case ::pltxt2htm::NodeKind::list_ul: {
+                auto const& list_ul = node.as_list_ul();
+                bool const is_empty{list_ul.get_subast().empty()};
+                pltxt2htm_assert(is_empty == false, u8"List container must not be empty");
                 auto const parent_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
-                if (parent_tag_type == ::pltxt2htm::NodeKind::html_li ||
-                    parent_tag_type == ::pltxt2htm::NodeKind::md_li ||
-                    parent_tag_type == ::pltxt2htm::NodeKind::md_li_checkbox) {
+                if (parent_tag_type == ::pltxt2htm::NodeKind::list_li ||
+                    parent_tag_type == ::pltxt2htm::NodeKind::list_li_checkbox) {
                     result.push_back(u8'\n');
                 }
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_ul().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::md_ul, 0));
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(list_ul.get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::list_ul, 0));
                 ++current_index;
                 ++list_nesting_depth;
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_ul: {
+            case ::pltxt2htm::NodeKind::list_ol: {
+                auto const& list_ol = node.as_list_ol();
+                bool const is_empty{list_ol.get_subast().empty()};
+                pltxt2htm_assert(is_empty == false, u8"List container must not be empty");
                 auto const parent_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
-                if (parent_tag_type == ::pltxt2htm::NodeKind::html_li ||
-                    parent_tag_type == ::pltxt2htm::NodeKind::md_li ||
-                    parent_tag_type == ::pltxt2htm::NodeKind::md_li_checkbox) {
-                    result.push_back(u8'\n');
-                }
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_ul().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::html_ul, 0));
-                ++current_index;
-                ++list_nesting_depth;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_ol: {
-                auto const parent_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
-                if (parent_tag_type == ::pltxt2htm::NodeKind::html_li ||
-                    parent_tag_type == ::pltxt2htm::NodeKind::md_li ||
-                    parent_tag_type == ::pltxt2htm::NodeKind::md_li_checkbox) {
+                if (parent_tag_type == ::pltxt2htm::NodeKind::list_li ||
+                    parent_tag_type == ::pltxt2htm::NodeKind::list_li_checkbox) {
                     result.push_back(u8'\n');
                 }
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                    node.as_md_ol().get_subast(), ::pltxt2htm::NodeKind::md_ol, 0,
+                    list_ol.get_subast(), ::pltxt2htm::NodeKind::list_ol, 0,
                     ::pltxt2htm::details::BackendContextWithOlInfo{}));
                 ++current_index;
                 ++list_nesting_depth;
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_ol: {
-                auto const parent_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
-                if (parent_tag_type == ::pltxt2htm::NodeKind::html_li ||
-                    parent_tag_type == ::pltxt2htm::NodeKind::md_li ||
-                    parent_tag_type == ::pltxt2htm::NodeKind::md_li_checkbox) {
-                    result.push_back(u8'\n');
-                }
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                    node.as_html_ol().get_subast(), ::pltxt2htm::NodeKind::html_ol, 0,
-                    ::pltxt2htm::details::BackendContextWithOlInfo{}));
-                ++current_index;
-                ++list_nesting_depth;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_li: {
+            case ::pltxt2htm::NodeKind::list_li: {
                 auto const nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
-                pltxt2htm_assert(nested_tag_type == ::pltxt2htm::NodeKind::html_ol ||
-                                     nested_tag_type == ::pltxt2htm::NodeKind::html_ul,
+                pltxt2htm_assert(nested_tag_type == ::pltxt2htm::NodeKind::list_ol ||
+                                     nested_tag_type == ::pltxt2htm::NodeKind::list_ul,
                                  u8"Invalid tag type");
-                [[fallthrough]];
-            }
-            case ::pltxt2htm::NodeKind::md_li: {
-                if (node.get_node_kind() == ::pltxt2htm::NodeKind::html_li) {
-                    call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                        node.as_html_li().get_subast(), ::pltxt2htm::NodeKind::html_li, 0));
-                }
-                else {
-                    call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_li().get_subast(),
-                                                                                      ::pltxt2htm::NodeKind::md_li, 0));
-                }
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_list_li().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::list_li, 0));
                 ++current_index;
                 auto const indent_level = list_nesting_depth;
                 for (::std::size_t i = 1; i < indent_level; ++i) {
@@ -1110,16 +1078,14 @@ entry:
                 }
                 auto reverse_iter = call_stack.container.rbegin();
                 ::pltxt2htm::details::BackendFrameContext<ndebug>& the_second_to_last_frame{*(++reverse_iter)};
-                auto const nested_tag_type = the_second_to_last_frame.get_nested_tag_type();
-                if (nested_tag_type == ::pltxt2htm::NodeKind::html_ol ||
-                    nested_tag_type == ::pltxt2htm::NodeKind::md_ol) {
+                auto const container_tag_type = the_second_to_last_frame.get_nested_tag_type();
+                if (container_tag_type == ::pltxt2htm::NodeKind::list_ol) {
                     ::std::size_t& ol_li_count = the_second_to_last_frame.get_ol_li_count();
                     result.append(::pltxt2htm::details::size_t2str(ol_li_count));
                     result.append(u8". ");
                     ++ol_li_count;
                 }
-                else if (nested_tag_type == ::pltxt2htm::NodeKind::html_ul ||
-                         nested_tag_type == ::pltxt2htm::NodeKind::md_ul) {
+                else if (container_tag_type == ::pltxt2htm::NodeKind::list_ul) {
                     if (indent_level % 3 == 1) {
                         result.append(u8"\u2022 ");
                     }
@@ -1138,9 +1104,9 @@ entry:
                 }
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::md_li_checkbox: {
+            case ::pltxt2htm::NodeKind::list_li_checkbox: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                    node.as_md_li_checkbox().get_subast(), ::pltxt2htm::NodeKind::md_li_checkbox, 0));
+                    node.as_list_li_checkbox().get_subast(), ::pltxt2htm::NodeKind::list_li_checkbox, 0));
                 ++current_index;
                 auto const indent_level = list_nesting_depth;
                 for (::std::size_t i = 1; i < indent_level; ++i) {
@@ -1149,21 +1115,21 @@ entry:
                 auto reverse_iter = call_stack.container.rbegin();
                 ::pltxt2htm::details::BackendFrameContext<ndebug>& the_second_to_last_frame{*(++reverse_iter)};
                 auto const nested_tag_type = the_second_to_last_frame.get_nested_tag_type();
-                if (nested_tag_type == ::pltxt2htm::NodeKind::html_ol ||
-                    nested_tag_type == ::pltxt2htm::NodeKind::md_ol) {
+                if (nested_tag_type == ::pltxt2htm::NodeKind::list_ol ||
+                    nested_tag_type == ::pltxt2htm::NodeKind::list_ol) {
                     ::std::size_t& ol_li_count = the_second_to_last_frame.get_ol_li_count();
                     result.append(::pltxt2htm::details::size_t2str(ol_li_count));
                     result.append(u8". ");
                     ++ol_li_count;
-                    if (node.as_md_li_checkbox().is_checked()) {
+                    if (node.as_list_li_checkbox().is_checked()) {
                         result.append(u8"\u2611 ");
                     }
                     else {
                         result.append(u8"\u2610 ");
                     }
                 }
-                else if (nested_tag_type == ::pltxt2htm::NodeKind::html_ul ||
-                         nested_tag_type == ::pltxt2htm::NodeKind::md_ul) {
+                else if (nested_tag_type == ::pltxt2htm::NodeKind::list_ul ||
+                         nested_tag_type == ::pltxt2htm::NodeKind::list_ul) {
                     if (indent_level % 3 == 1) {
                         result.append(u8"\u2022 ");
                     }
@@ -1176,7 +1142,7 @@ entry:
                     else [[unlikely]] {
                         pltxt2htm_unreachable(u8"Unexpected indent level remainder");
                     }
-                    if (node.as_md_li_checkbox().is_checked()) {
+                    if (node.as_list_li_checkbox().is_checked()) {
                         result.append(u8"\u2611 ");
                     }
                     else {
@@ -1412,16 +1378,6 @@ entry:
             }
             case ::pltxt2htm::NodeKind::html_col: {
                 result.append(u8"<size=20>\uff1c</size>col<size=20>\uff1e</size>");
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::html_input: {
-                if (node.as_html_input().is_checked()) {
-                    result.append(
-                        u8"<size=20>\uff1c</size>input type=\"checkbox\" disabled checked<size=20>\uff1e</size>");
-                }
-                else {
-                    result.append(u8"<size=20>\uff1c</size>input type=\"checkbox\" disabled<size=20>\uff1e</size>");
-                }
                 continue;
             }
             case ::pltxt2htm::NodeKind::html_img: {
@@ -1795,21 +1751,15 @@ entry:
                 result.append(u8"</u>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::md_ul:
+            case ::pltxt2htm::NodeKind::list_ul:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_ul:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_ol:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_ol: {
+            case ::pltxt2htm::NodeKind::list_ol: {
                 --list_nesting_depth;
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::md_li_checkbox:
+            case ::pltxt2htm::NodeKind::list_li_checkbox:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_li:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_li: {
+            case ::pltxt2htm::NodeKind::list_li: {
                 result.push_back(u8'\n');
                 goto entry;
             }

@@ -12,6 +12,7 @@
 #include "../details/utils.hh"
 #include "../details/parser/frame_context.hh"
 #include "../details/parser/try_parse.hh"
+#include "../details/parser/html_list.hh"
 #include "../details/push_macro.hh"
 
 namespace pltxt2htm::experimental {
@@ -32,8 +33,7 @@ struct FindNextBlockAfterLineBreakResult {
  * @param call_stack Active parser call stack.
  * @param result AST being built.
  * @return How many bytes were consumed and whether a new frame was created.
- * @note Only handles the `<p>`, `<h1>`–`<h6>` and `<hr>` blocks for now; other block elements are out of scope for
- * the html parser.
+ * @note Handles the `<p>`, `<h1>`–`<h6>`, `<hr>`, `<blockquote>` and `<ul>`/`<ol>` blocks.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
@@ -149,8 +149,8 @@ constexpr auto find_next_block_after_line_break(
         if (auto opt_blockquote_tag = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<blockquote">(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
             opt_blockquote_tag.has_value()) {
-            ::std::size_t const consumed{
-                opt_blockquote_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1};
+            ::std::size_t const consumed{opt_blockquote_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>() +
+                                         1};
             call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                 ::pltxt2htm::details::FrontendContextVariant<ndebug>{
                     ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
@@ -159,6 +159,19 @@ constexpr auto find_next_block_after_line_break(
                 ::pltxt2htm::Ast<ndebug>{}));
             return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
                 .advance_count = current_index + consumed, .new_frame_been_pushed_into_call_stack = true};
+        }
+        // Check for HTML <ul>/<ol> list at a block position (block-level lists).
+        if (auto opt_html_list_ast = ::pltxt2htm::details::optionally_to_html_list_ast<ndebug>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            opt_html_list_ast.has_value()) {
+            auto&& [list_ast, advance_count, item_kind] =
+                opt_html_list_ast.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                    ::pltxt2htm::details::ParserFrameContextWithListInfo<ndebug>{::std::move(list_ast)}, item_kind},
+                ::pltxt2htm::Ast<ndebug>{}));
+            return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
+                .advance_count = current_index + advance_count, .new_frame_been_pushed_into_call_stack = true};
         }
         return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
             .advance_count = current_index, .new_frame_been_pushed_into_call_stack = false};
@@ -171,6 +184,78 @@ constexpr auto parse_pltxt_html(::fast_io::stack<::pltxt2htm::details::ParserFra
     -> ::pltxt2htm::Ast<ndebug> {
 entry:
     while (true) {
+        // List frames hold an intermediate ListAst; iterate it like the main parser does.
+        if (auto const list_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
+            list_tag_type == ::pltxt2htm::NodeKind::list_ul || list_tag_type == ::pltxt2htm::NodeKind::list_ol) {
+            auto&& list_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+            auto&& frame_list_ast = list_frame.get_list_ast();
+            auto&& frame_iter = list_frame.get_list_iter();
+            if (frame_iter == frame_list_ast.end()) {
+                ::pltxt2htm::details::ParserFrameContext<ndebug> previous_frame(::std::move(list_frame));
+                call_stack.pop();
+                if (call_stack.empty()) {
+                    return ::std::move(previous_frame.subast);
+                }
+                if (list_tag_type == ::pltxt2htm::NodeKind::list_ul) {
+                    ::pltxt2htm::details::stack_top<ndebug>(call_stack)
+                        .subast.emplace_back(::pltxt2htm::PlTxtNode<ndebug>(
+                            ::pltxt2htm::ListUl<ndebug>{::std::move(previous_frame.subast)}));
+                }
+                else {
+                    ::pltxt2htm::details::stack_top<ndebug>(call_stack)
+                        .subast.emplace_back(::pltxt2htm::PlTxtNode<ndebug>(
+                            ::pltxt2htm::ListOl<ndebug>{::std::move(previous_frame.subast)}));
+                }
+                goto entry;
+            }
+            switch (frame_iter->get_type()) {
+            case ::pltxt2htm::details::ListNodeType::list_li: {
+                call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                    ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                        ::pltxt2htm::details::ParserFrameContextWithPltextInfo{frame_iter->get_text_view()},
+                        ::pltxt2htm::NodeKind::list_li},
+                    ::pltxt2htm::Ast<ndebug>{}));
+                break;
+            }
+            case ::pltxt2htm::details::ListNodeType::list_li_checkbox: {
+                // HTML lists never produce checkbox items, but the branch must exist for
+                // exhaustive switch checking.
+                call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                    ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                        ::pltxt2htm::details::ParserFrameContextWithListLiCheckboxInfo{frame_iter->get_text_view(),
+                                                                                       frame_iter->is_checked()},
+                        ::pltxt2htm::NodeKind::list_li_checkbox},
+                    ::pltxt2htm::Ast<ndebug>{}));
+                break;
+            }
+            case ::pltxt2htm::details::ListNodeType::list_ul: {
+                call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                    ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                        ::pltxt2htm::details::ParserFrameContextWithListInfo<ndebug>{
+                            ::std::move(frame_iter->get_sublist())},
+                        ::pltxt2htm::NodeKind::list_ul},
+                    ::pltxt2htm::Ast<ndebug>{}));
+                break;
+            }
+            case ::pltxt2htm::details::ListNodeType::list_ol: {
+                call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                    ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                        ::pltxt2htm::details::ParserFrameContextWithListInfo<ndebug>{
+                            ::std::move(frame_iter->get_sublist())},
+                        ::pltxt2htm::NodeKind::list_ol},
+                    ::pltxt2htm::Ast<ndebug>{}));
+                break;
+            }
+#if PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
+            default:
+                [[unlikely]] {
+                    pltxt2htm_unreachable(u8"Unexpected ListNodeType in html parser");
+                }
+#endif
+            }
+            ++frame_iter;
+            goto entry;
+        }
         auto&& top_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
         auto&& current_index = top_frame.current_index;
         ::fast_io::u8string_view const pltext{top_frame.get_pltext()};
@@ -404,16 +489,8 @@ entry:
                 case u8'i':
                     [[fallthrough]];
                 case u8'I': {
-                    if (auto opt_input_tag = ::pltxt2htm::details::try_parse_input_checkbox_tag<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
-                        opt_input_tag.has_value()) {
-                        auto&& [tag_len, checked] =
-                            opt_input_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-                        current_index += tag_len + 1;
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlInput{checked}));
-                        ++current_index;
-                        continue;
-                    }
+                    // <input> is only recognized inside block-level <ul>/<ol> items
+                    // (parsed by html_list.hh); inline occurrences are literal text.
                     if (auto opt_img_tag = ::pltxt2htm::details::try_parse_img_tag<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_img_tag.has_value()) {
@@ -433,19 +510,7 @@ entry:
                 case u8'l':
                     [[fallthrough]];
                 case u8'L': {
-                    if (auto opt_tag_len = ::pltxt2htm::details::try_parse_li_tag<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                            ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type());
-                        opt_tag_len.has_value()) {
-                        current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-                        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
-                                ::pltxt2htm::NodeKind::html_li},
-                            ::pltxt2htm::Ast<ndebug>{}));
-                        goto entry;
-                    }
+                    // <li> is only valid inside a block-level <ul>/<ol>; elsewhere it is literal.
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
                     ++current_index;
                     continue;
@@ -477,18 +542,7 @@ entry:
                 case u8'o':
                     [[fallthrough]];
                 case u8'O': {
-                    if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"l">(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
-                        opt_tag_len.has_value()) {
-                        current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-                        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
-                                ::pltxt2htm::NodeKind::html_ol},
-                            ::pltxt2htm::Ast<ndebug>{}));
-                        goto entry;
-                    }
+                    // <ol> is a block-level list; inline occurrences are plain literal text.
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
                     ++current_index;
                     continue;
@@ -688,18 +742,8 @@ entry:
                 case u8'u':
                     [[fallthrough]];
                 case u8'U': {
-                    if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"l">(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
-                        opt_tag_len.has_value()) {
-                        current_index += opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-                        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
-                                ::pltxt2htm::NodeKind::html_ul},
-                            ::pltxt2htm::Ast<ndebug>{}));
-                        goto entry;
-                    }
+                    // <ul> is a block-level list; inline occurrences are plain literal text
+                    // (except <u> underline below).
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_tag_len.has_value()) {
@@ -1078,63 +1122,6 @@ entry:
                         ++current_index;
                         continue;
                     }
-                    case ::pltxt2htm::NodeKind::html_ul: {
-                        if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"ul">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
-                            opt_tag_len.has_value()) {
-                            ::std::size_t const staged_index{current_index};
-                            ::pltxt2htm::HtmlUl staged_node(::std::move(result));
-                            call_stack.pop();
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
-                            parent_frame.subast.push_back(
-                                ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlUl<ndebug>{::std::move(staged_node)}));
-                            parent_frame.current_index +=
-                                staged_index + opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() +
-                                3;
-                            goto entry;
-                        }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
-                        ++current_index;
-                        continue;
-                    }
-                    case ::pltxt2htm::NodeKind::html_ol: {
-                        if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"ol">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
-                            opt_tag_len.has_value()) {
-                            ::std::size_t const staged_index{current_index};
-                            ::pltxt2htm::HtmlOl staged_node(::std::move(result));
-                            call_stack.pop();
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
-                            parent_frame.subast.push_back(
-                                ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlOl<ndebug>{::std::move(staged_node)}));
-                            parent_frame.current_index +=
-                                staged_index + opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() +
-                                3;
-                            goto entry;
-                        }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
-                        ++current_index;
-                        continue;
-                    }
-                    case ::pltxt2htm::NodeKind::html_li: {
-                        if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"li">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
-                            opt_tag_len.has_value()) {
-                            ::std::size_t const staged_index{current_index};
-                            ::pltxt2htm::HtmlLi staged_node(::std::move(result));
-                            call_stack.pop();
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
-                            parent_frame.subast.push_back(
-                                ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlLi<ndebug>{::std::move(staged_node)}));
-                            parent_frame.current_index +=
-                                staged_index + opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() +
-                                3;
-                            goto entry;
-                        }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
-                        ++current_index;
-                        continue;
-                    }
                     case ::pltxt2htm::NodeKind::html_code: {
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"code">(
                                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
@@ -1477,16 +1464,14 @@ entry:
                     ::std::move(subast), ::std::move(frame.get_html_mark_background_color())}));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_ul: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlUl<ndebug>{::std::move(subast)}));
+            case ::pltxt2htm::NodeKind::list_li_checkbox: {
+                auto const checked = frame.get_checked();
+                parent_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::ListLiCheckbox<ndebug>{::std::move(subast), checked}));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_ol: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlOl<ndebug>{::std::move(subast)}));
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_li: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlLi<ndebug>{::std::move(subast)}));
+            case ::pltxt2htm::NodeKind::list_li: {
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::ListLi<ndebug>{::std::move(subast)}));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_code: {

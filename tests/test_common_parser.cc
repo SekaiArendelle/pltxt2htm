@@ -253,7 +253,7 @@ int main() {
     {
         auto html = ::pltxt2htm_test::pltxt2common_htmld(
             u8"<hr><input type=\"checkbox\" disabled><img src=\"a.png\" alt=\"a\"><!-- note -->");
-        auto answer = ::fast_io::u8string_view{u8""};
+        auto answer = ::fast_io::u8string_view{u8"&lt;input&nbsp;type=&quot;checkbox&quot;&nbsp;disabled&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

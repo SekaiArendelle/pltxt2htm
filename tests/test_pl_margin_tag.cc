@@ -178,8 +178,7 @@ int main() {
         auto answer = ::fast_io::u8string_view{u8"<div style=\"margin-left:2em;margin-right:2em;\">text</div>"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-auto plunity_richtext_answer =
-            ::fast_io::u8string_view{u8"<margin left=2em right=2em>text</margin>\n"};
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<margin left=2em right=2em>text</margin>\n"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 

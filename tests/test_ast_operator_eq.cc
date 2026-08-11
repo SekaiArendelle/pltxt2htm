@@ -334,7 +334,7 @@ int main() {
         ::exception::assert_true<false>(a == b);
     }
 
-    // MdLiCheckbox (sub-AST + bool checked)
+    // ListLiCheckbox (sub-AST + bool checked)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ast_a.emplace_back(::pltxt2htm::U8Char{u8't'});
@@ -343,9 +343,9 @@ int main() {
         ast_b.emplace_back(::pltxt2htm::U8Char{u8't'});
 
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::MdLiCheckbox<nd::quick_enforce>(::std::move(ast_a), true));
+            ::pltxt2htm::ListLiCheckbox<nd::quick_enforce>(::std::move(ast_a), true));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::MdLiCheckbox<nd::quick_enforce>(::std::move(ast_b), true));
+            ::pltxt2htm::ListLiCheckbox<nd::quick_enforce>(::std::move(ast_b), true));
         ::exception::assert_true<false>(a == b);
     }
     {
@@ -354,9 +354,9 @@ int main() {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
 
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::MdLiCheckbox<nd::quick_enforce>(::std::move(ast_a), true));
+            ::pltxt2htm::ListLiCheckbox<nd::quick_enforce>(::std::move(ast_a), true));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::MdLiCheckbox<nd::quick_enforce>(::std::move(ast_b), false));
+            ::pltxt2htm::ListLiCheckbox<nd::quick_enforce>(::std::move(ast_b), false));
         ::exception::assert_false<false>(a == b);
     }
 
