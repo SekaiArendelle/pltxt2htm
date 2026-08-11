@@ -29,8 +29,9 @@ using ::pltxt2htm::version::patch;
 // exported nodes
 using ::pltxt2htm::NodeKind;
 
-// table cell alignment
+// table cell / text alignment
 using ::pltxt2htm::TableAlign;
+using ::pltxt2htm::TextAlign;
 
 // size tag / font-size unit
 using ::pltxt2htm::Unit;
@@ -80,6 +81,7 @@ using ::pltxt2htm::HtmlNote;
 
 using ::pltxt2htm::HtmlEm;
 using ::pltxt2htm::HtmlStrong;
+using ::pltxt2htm::HtmlMark;
 
 using ::pltxt2htm::ListUl;
 using ::pltxt2htm::ListOl;
@@ -103,6 +105,7 @@ using ::pltxt2htm::HtmlColgroup;
 using ::pltxt2htm::HtmlCol;
 
 using ::pltxt2htm::HtmlSpan;
+using ::pltxt2htm::HtmlDiv;
 using ::pltxt2htm::HtmlA;
 using ::pltxt2htm::HtmlImg;
 
@@ -179,9 +182,14 @@ using ::pltxt2htm::PlA;
 using ::pltxt2htm::PlExperiment;
 using ::pltxt2htm::PlDiscussion;
 using ::pltxt2htm::PlUser;
+using ::pltxt2htm::PlTrigger;
 using ::pltxt2htm::PlSize;
+using ::pltxt2htm::PlVoffset;
 using ::pltxt2htm::PlExternal;
 using ::pltxt2htm::PlLink;
+using ::pltxt2htm::PlAlign;
+using ::pltxt2htm::PlMargin;
+using ::pltxt2htm::PlMark;
 using ::pltxt2htm::PlI;
 using ::pltxt2htm::PlB;
 using ::pltxt2htm::PlU;

@@ -102,6 +102,8 @@ public:
     }
 };
 
+namespace details {
+
 /**
  * @brief Lowercase CSS spelling of a vertical-align keyword.
  * @param keyword The keyword to stringify.
@@ -143,6 +145,8 @@ constexpr auto vertical_align_keyword_string(::pltxt2htm::VerticalAlignKeyword c
 #endif
     }
     pltxt2htm_unreachable(u8"Unreachable code after exhaustive switch on vertical-align keyword");
+}
+
 }
 
 } // namespace pltxt2htm
