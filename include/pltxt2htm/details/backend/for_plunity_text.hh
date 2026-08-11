@@ -686,17 +686,21 @@ entry:
                 if (has_font_size) {
                     auto const& font_size = span_font_size.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                     result.append(u8"<size=");
-                    result.append(::pltxt2htm::details::size_t2str(font_size.value));
                     switch (font_size.unit) /* -Werror=switch */ {
                     case ::pltxt2htm::Unit::percent: {
+                        result.append(::pltxt2htm::details::double2str(font_size.value));
                         result.push_back(u8'%');
                         break;
                     }
                     case ::pltxt2htm::Unit::em: {
+                        result.append(::pltxt2htm::details::double2str(font_size.value));
                         result.append(u8"em");
                         break;
                     }
                     case ::pltxt2htm::Unit::px: {
+                        // plunity <size> counts two scale units per CSS px; match the /2 applied
+                        // by the plunity->plweb mapping (e.g. 12.5px -> <size=25>, size=11 -> 6px).
+                        result.append(::pltxt2htm::details::double2str(font_size.value * 2));
                         break;
                     }
 #ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK

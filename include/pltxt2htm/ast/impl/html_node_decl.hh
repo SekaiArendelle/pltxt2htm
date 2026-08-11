@@ -514,19 +514,19 @@ public:
  * @brief HTML &lt;span style="color:...;font-size:...;vertical-align:..."&gt; node
  * @details Represents an HTML span element with color/font-size/vertical-align style attributes.
  *          color stores the CSS color value (e.g. "red" or "#FF0000").
- *          font_size stores the font-size value+unit if present (e.g. {20, px} for 20px).
+ *          font_size stores the font-size value+unit if present (e.g. {20.5, px} for 20.5px).
  *          vertical_align stores the vertical-align value+unit if present (e.g. {super} or {5, px}).
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlSpan {
     ::pltxt2htm::Ast<ndebug> subast;
     ::fast_io::u8string color;
-    ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> font_size;
+    ::exception::optional<::pltxt2htm::ValueWithUnit<double>> font_size;
     ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align;
 
 public:
     constexpr HtmlSpan(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& color_,
-                       ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> font_size_,
+                       ::exception::optional<::pltxt2htm::ValueWithUnit<double>> font_size_,
                        ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align_) noexcept;
     constexpr HtmlSpan(::pltxt2htm::HtmlSpan<ndebug> const&) noexcept;
     constexpr HtmlSpan(::pltxt2htm::HtmlSpan<ndebug>&&) noexcept;
@@ -550,7 +550,7 @@ public:
 
     [[nodiscard]]
     constexpr auto get_font_size(this auto&& self) noexcept
-        -> ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
+        -> ::exception::optional<::pltxt2htm::ValueWithUnit<double>> {
         return self.font_size;
     }
 

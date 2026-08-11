@@ -511,9 +511,10 @@ constexpr auto try_parse_double_decimal_value(::fast_io::u8string_view str) noex
     if (pos == 0) {
         return ::exception::nullopt;
     }
-    // Reject values that overflow ::std::size_t so oversized tags stay literal text
-    // (preserving the historical behavior of try_parse_size_t_decimal_value).
-    if (parsed_value > static_cast<double>(::std::numeric_limits<::std::size_t>::max())) {
+    // Reject values that cannot be represented in ::std::size_t so oversized tags stay literal
+    // text (preserving the historical behavior of try_parse_size_t_decimal_value). `>=` is used
+    // because double(std::size_t max) rounds up to 2^64, and any double >= 2^64 cannot fit.
+    if (parsed_value >= static_cast<double>(::std::numeric_limits<::std::size_t>::max())) {
         return ::exception::nullopt;
     }
     return TryParseDoubleDecimalValueResult{.end = pos, .value = parsed_value};
@@ -571,9 +572,8 @@ constexpr auto double2str(double value) noexcept -> ::fast_io::u8string {
             }
             candidate.append(digit_str);
         }
-        auto opt_reparsed =
-            ::pltxt2htm::details::try_parse_double_decimal_value<::pltxt2htm::Contracts::quick_enforce>(
-                ::fast_io::u8string_view{candidate.data(), candidate.size()});
+        auto opt_reparsed = ::pltxt2htm::details::try_parse_double_decimal_value<::pltxt2htm::Contracts::quick_enforce>(
+            ::fast_io::u8string_view{candidate.data(), candidate.size()});
         bool const round_trips = opt_reparsed.has_value() && (opt_reparsed.template value<true>().value == value);
         if (round_trips) {
             return candidate;
