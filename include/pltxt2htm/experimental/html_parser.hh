@@ -246,10 +246,12 @@ entry:
                     ::pltxt2htm::Ast<ndebug>{}));
                 break;
             }
+#if PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
             default:
                 [[unlikely]] {
                     pltxt2htm_unreachable(u8"Unexpected ListNodeType in html parser");
                 }
+#endif
             }
             ++frame_iter;
             goto entry;
