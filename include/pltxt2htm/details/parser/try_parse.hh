@@ -1188,7 +1188,7 @@ constexpr auto try_parse_color_tag(::fast_io::u8string_view pltext) noexcept
  */
 struct TryParseSizeTagResult {
     ::std::size_t tag_len;
-    ::pltxt2htm::ValueWithUnit<long double> value;
+    ::pltxt2htm::ValueWithUnit<double> value;
 };
 
 /**
@@ -1204,7 +1204,7 @@ constexpr auto try_parse_size_tag(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt;
     }
     constexpr auto value_start = prefix_str.size() + 1;
-    auto opt_value = ::pltxt2htm::details::try_parse_long_double_decimal_value<ndebug>(
+    auto opt_value = ::pltxt2htm::details::try_parse_double_decimal_value<ndebug>(
         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_start));
     if (opt_value.has_value() == false) {
         return ::exception::nullopt;

@@ -45,7 +45,7 @@ public:
  */
 class OptimizerContextWithPlSizeTagInfo {
 public:
-    ::pltxt2htm::ValueWithUnit<long double> value; ///< Font size value+unit (e.g., {12, px} in size=12)
+    ::pltxt2htm::ValueWithUnit<double> value; ///< Font size value+unit (e.g., {12, px} in size=12)
 };
 
 /**
@@ -315,7 +315,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_pl_size_tag_value(this auto const& self) noexcept -> ::pltxt2htm::ValueWithUnit<long double> {
+    constexpr auto get_pl_size_tag_value(this auto const& self) noexcept -> ::pltxt2htm::ValueWithUnit<double> {
         auto&& context_data_ref = self.context_data;
         bool const is_pl_size_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_size};
         pltxt2htm_assert(is_pl_size_tag_type, u8"context kind mismatch");

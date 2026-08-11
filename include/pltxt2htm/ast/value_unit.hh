@@ -33,7 +33,7 @@ enum class Unit : unsigned {
  * @tparam T The numeric type of the value. Use ::std::size_t for non-negative
  *           integer quantities, a signed type such as ::std::ptrdiff_t where a
  *           negative value is meaningful (e.g. `vertical-align:-5px`), or a
- *           floating-point type such as long double where a fractional value
+ *           floating-point type such as double where a fractional value
  *           is meaningful (e.g. `<size=12.5>`).
  */
 template<typename T>

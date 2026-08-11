@@ -462,9 +462,9 @@ constexpr auto try_parse_ptrdiff_t_decimal_value(::fast_io::u8string_view str) n
 /**
  * @brief Result of parsing a non-negative ASCII decimal value that may be fractional.
  */
-struct TryParseLongDoubleDecimalValueResult {
+struct TryParseDoubleDecimalValueResult {
     ::std::size_t end;
-    long double value;
+    double value;
 };
 
 /**
@@ -472,21 +472,21 @@ struct TryParseLongDoubleDecimalValueResult {
  * @details Accepts `[0-9]+` with an optional `.` followed by one or more `[0-9]`; a bare `.`
  *          without digits is rejected. Stops at the first character that is neither a digit nor
  *          the fraction dot; the returned `end` is the run length relative to `str`. The value is
- *          stored as long double so `<size=12.5>` keeps its fractional part exact enough to
+ *          stored as double so `<size=12.5>` keeps its fractional part exact enough to
  *          round-trip when emitted again.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_long_double_decimal_value(::fast_io::u8string_view str) noexcept
-    -> ::exception::optional<TryParseLongDoubleDecimalValueResult> {
-    long double parsed_value{};
+constexpr auto try_parse_double_decimal_value(::fast_io::u8string_view str) noexcept
+    -> ::exception::optional<TryParseDoubleDecimalValueResult> {
+    double parsed_value{};
     auto pos = ::std::size_t{0};
     for (; pos < str.size(); ++pos) {
         auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(str, pos);
         if (::pltxt2htm::details::is_ascii_digit(chr) == false) {
             break;
         }
-        parsed_value = parsed_value * 10 + static_cast<long double>(chr - u8'0');
+        parsed_value = parsed_value * 10 + static_cast<double>(chr - u8'0');
     }
     if (pos < str.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(str, pos) == u8'.') {
         if (pos == 0) {
@@ -494,13 +494,13 @@ constexpr auto try_parse_long_double_decimal_value(::fast_io::u8string_view str)
         }
         auto const dot_pos = pos;
         auto frac_pos = dot_pos + 1;
-        long double scale{10};
+        double scale{10};
         for (; frac_pos < str.size(); ++frac_pos) {
             auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(str, frac_pos);
             if (::pltxt2htm::details::is_ascii_digit(chr) == false) {
                 break;
             }
-            parsed_value += static_cast<long double>(chr - u8'0') / scale;
+            parsed_value += static_cast<double>(chr - u8'0') / scale;
             scale *= 10;
         }
         if (frac_pos == dot_pos + 1) {
@@ -513,44 +513,44 @@ constexpr auto try_parse_long_double_decimal_value(::fast_io::u8string_view str)
     }
     // Reject values that overflow ::std::size_t so oversized tags stay literal text
     // (preserving the historical behavior of try_parse_size_t_decimal_value).
-    if (parsed_value > static_cast<long double>(::std::numeric_limits<::std::size_t>::max())) {
+    if (parsed_value > static_cast<double>(::std::numeric_limits<::std::size_t>::max())) {
         return ::exception::nullopt;
     }
-    return TryParseLongDoubleDecimalValueResult{.end = pos, .value = parsed_value};
+    return TryParseDoubleDecimalValueResult{.end = pos, .value = parsed_value};
 }
 
 /**
- * @brief Round a non-negative long double up to the nearest integer.
+ * @brief Round a non-negative double up to the nearest integer.
  */
 [[nodiscard]]
-constexpr auto long_double_to_size_t_ceil(long double value) noexcept -> ::std::size_t {
+constexpr auto double_to_size_t_ceil(double value) noexcept -> ::std::size_t {
     auto const truncated = static_cast<::std::size_t>(value);
-    return static_cast<long double>(truncated) < value ? truncated + 1 : truncated;
+    return static_cast<double>(truncated) < value ? truncated + 1 : truncated;
 }
 
 /**
- * @brief Convert a non-negative long double to a UTF-8 decimal string that round-trips.
+ * @brief Convert a non-negative double to a UTF-8 decimal string that round-trips.
  * @details Tries fixed-point representations with 0 through 17 fractional digits and keeps the
  *          first one that parses back to exactly `value`. Integral values therefore print without
  *          a decimal point (e.g. 12.0 -> "12"), while fractional values print with the minimal
  *          number of digits (e.g. 12.5 -> "12.5").
  */
 [[nodiscard]]
-constexpr auto long_double2str(long double value) noexcept -> ::fast_io::u8string {
+constexpr auto double2str(double value) noexcept -> ::fast_io::u8string {
     constexpr ::std::size_t max_fractional_digits{17};
-    constexpr long double max_scaled{static_cast<long double>(::std::numeric_limits<::std::ptrdiff_t>::max()) + 1};
+    constexpr double max_scaled{static_cast<double>(::std::numeric_limits<::std::ptrdiff_t>::max()) + 1};
     ::fast_io::u8string fallback{};
     for (::std::size_t fractional_digits{0}; fractional_digits <= max_fractional_digits; ++fractional_digits) {
-        long double scale{1};
+        double scale{1};
         for (::std::size_t i{0}; i < fractional_digits; ++i) {
             scale *= 10;
         }
-        long double const scaled = value * scale;
+        double const scaled = value * scale;
         if (scaled > max_scaled) {
             continue;
         }
         auto rounded = static_cast<::std::ptrdiff_t>(scaled);
-        if (static_cast<long double>(rounded) < scaled) {
+        if (static_cast<double>(rounded) < scaled) {
             ++rounded;
         }
         auto const digit_str = ::pltxt2htm::details::size_t2str(static_cast<::std::size_t>(rounded));
@@ -572,7 +572,7 @@ constexpr auto long_double2str(long double value) noexcept -> ::fast_io::u8strin
             candidate.append(digit_str);
         }
         auto opt_reparsed =
-            ::pltxt2htm::details::try_parse_long_double_decimal_value<::pltxt2htm::Contracts::quick_enforce>(
+            ::pltxt2htm::details::try_parse_double_decimal_value<::pltxt2htm::Contracts::quick_enforce>(
                 ::fast_io::u8string_view{candidate.data(), candidate.size()});
         bool const round_trips = opt_reparsed.has_value() && (opt_reparsed.template value<true>().value == value);
         if (round_trips) {
