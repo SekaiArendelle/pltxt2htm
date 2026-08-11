@@ -907,8 +907,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::line_break: {
-                if (pre_depth > 0 || nested_tag_type == ::pltxt2htm::NodeKind::md_code_fence_backtick ||
-                    nested_tag_type == ::pltxt2htm::NodeKind::md_code_fence_tilde) {
+                if (pre_depth > 0 || nested_tag_type == ::pltxt2htm::NodeKind::code) {
                     result.push_back(u8'\n');
                 }
                 else {
@@ -1539,8 +1538,8 @@ entry:
                 result.push_back(u8'~');
                 continue;
             }
-            case ::pltxt2htm::NodeKind::md_code_fence_backtick: {
-                auto const& opt_language = node.as_md_code_fence_backtick().get_language();
+            case ::pltxt2htm::NodeKind::code: {
+                auto const& opt_language = node.as_code().get_language();
                 if (opt_language.has_value()) {
                     auto const& language = opt_language.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                     result.append(u8"<pre><code class=\"language-");
@@ -1551,25 +1550,8 @@ entry:
                 else {
                     result.append(u8"<pre><code>");
                 }
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                    node.as_md_code_fence_backtick().get_subast(), ::pltxt2htm::NodeKind::md_code_fence_backtick, 0));
-                ++current_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_code_fence_tilde: {
-                auto const& opt_language = node.as_md_code_fence_tilde().get_language();
-                if (opt_language.has_value()) {
-                    auto const& language = opt_language.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-                    result.append(u8"<pre><code class=\"language-");
-                    ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                        result, ::fast_io::u8string_view{language.data(), language.size()});
-                    result.append(u8"\">");
-                }
-                else {
-                    result.append(u8"<pre><code>");
-                }
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                    node.as_md_code_fence_tilde().get_subast(), ::pltxt2htm::NodeKind::md_code_fence_tilde, 0));
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_code().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::code, 0));
                 ++current_index;
                 goto entry;
             }
@@ -1869,9 +1851,7 @@ entry:
                 result.append(u8"</colgroup>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::md_code_fence_backtick:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_code_fence_tilde: {
+            case ::pltxt2htm::NodeKind::code: {
                 result.append(u8"</code></pre>");
                 goto entry;
             }

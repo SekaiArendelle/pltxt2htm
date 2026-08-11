@@ -3446,20 +3446,10 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
                 if (lang.empty() == false) {
                     opt_lang = ::std::move(lang);
                 }
-                if constexpr (is_backtick) {
-                    return ::pltxt2htm::details::TryParseMdCodeFenceResult<ndebug>{
-                        .node =
-                            ::pltxt2htm::MdCodeFenceBacktick<ndebug>{::pltxt2htm::Ast<ndebug>{}, ::std::move(opt_lang)},
-                        .advance_count = current_index + 3,
-                    };
-                }
-                else {
-                    return ::pltxt2htm::details::TryParseMdCodeFenceResult<ndebug>{
-                        .node =
-                            ::pltxt2htm::MdCodeFenceTilde<ndebug>{::pltxt2htm::Ast<ndebug>{}, ::std::move(opt_lang)},
-                        .advance_count = current_index + 3,
-                    };
-                }
+                return ::pltxt2htm::details::TryParseMdCodeFenceResult<ndebug>{
+                    .node = ::pltxt2htm::Code<ndebug>{::pltxt2htm::Ast<ndebug>{}, ::std::move(opt_lang)},
+                    .advance_count = current_index + 3,
+                };
             }
             break;
         }
@@ -3522,16 +3512,8 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
     if (lang.empty() == false) {
         opt_lang = ::std::move(lang);
     }
-    if constexpr (is_backtick) {
-        return ::pltxt2htm::details::TryParseMdCodeFenceResult<ndebug>{
-            .node = ::pltxt2htm::MdCodeFenceBacktick<ndebug>{::std::move(ast), ::std::move(opt_lang)},
-            .advance_count = current_index};
-    }
-    else {
-        return ::pltxt2htm::details::TryParseMdCodeFenceResult<ndebug>{
-            .node = ::pltxt2htm::MdCodeFenceTilde<ndebug>{::std::move(ast), ::std::move(opt_lang)},
-            .advance_count = current_index};
-    }
+    return ::pltxt2htm::details::TryParseMdCodeFenceResult<ndebug>{
+        .node = ::pltxt2htm::Code<ndebug>{::std::move(ast), ::std::move(opt_lang)}, .advance_count = current_index};
 }
 
 /**

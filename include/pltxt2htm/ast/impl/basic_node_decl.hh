@@ -7,6 +7,7 @@
 #pragma once
 
 #include <utility>
+#include <exception/exception.hh>
 #include <fast_io/fast_io_dsal/string.h>
 #include "ast_decl.hh"
 
@@ -160,6 +161,44 @@ public:
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
+    }
+};
+
+/**
+ * @brief Markdown fenced code block
+ * @details Contains code content and an optional language identifier.
+ */
+template<::pltxt2htm::Contracts ndebug>
+class Code {
+    ::pltxt2htm::Ast<ndebug> subast;
+    ::exception::optional<::fast_io::u8string> lang;
+
+public:
+    /**
+     * @brief Construct a fenced code block.
+     * @param subast The code content as an AST.
+     * @param lang Optional language string.
+     */
+    constexpr explicit Code(::pltxt2htm::Ast<ndebug>&& subast_,
+                            ::exception::optional<::fast_io::u8string>&& lang_) noexcept;
+    constexpr Code(::pltxt2htm::Code<ndebug> const&) noexcept;
+    constexpr Code(::pltxt2htm::Code<ndebug>&&) noexcept;
+    constexpr ~Code() noexcept;
+    constexpr auto operator=(::pltxt2htm::Code<ndebug> const&) noexcept -> ::pltxt2htm::Code<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::Code<ndebug>& self, ::pltxt2htm::Code<ndebug>&&) noexcept
+        -> ::pltxt2htm::Code<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this Code const& self, Code const& other) noexcept -> bool;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_language(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.lang);
     }
 };
 

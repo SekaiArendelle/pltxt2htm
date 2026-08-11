@@ -160,8 +160,7 @@ enum class NodeKind : unsigned {
     md_hr, ///< Thematic break/horizontal rule: ---, ***, ___
 
     // Markdown code blocks (fenced code)
-    md_code_fence_backtick, ///< Code fence with backticks: ```
-    md_code_fence_tilde, ///< Code fence with tildes: ~~~
+    code, ///< Code fence: ``` or ~~~
 
     // Markdown inline code spans
     md_code_span_1_backtick, ///< Inline code with 1 backtick: `code`

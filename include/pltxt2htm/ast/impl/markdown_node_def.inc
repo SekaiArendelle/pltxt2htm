@@ -123,56 +123,6 @@ constexpr auto ::pltxt2htm::MdAtxH6<ndebug>::operator==(this ::pltxt2htm::MdAtxH
                                                         ::pltxt2htm::MdAtxH6<ndebug> const&) noexcept -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdCodeFenceBacktick<ndebug>::MdCodeFenceBacktick(
-    ::pltxt2htm::Ast<ndebug>&& subast_, ::exception::optional<::fast_io::u8string>&& lang_) noexcept
-    : subast(::std::move(subast_)),
-      lang(::std::move(lang_)) {
-}
-
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdCodeFenceBacktick<ndebug>::MdCodeFenceBacktick(
-    ::pltxt2htm::MdCodeFenceBacktick<ndebug> const&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdCodeFenceBacktick<ndebug>::MdCodeFenceBacktick(
-    ::pltxt2htm::MdCodeFenceBacktick<ndebug>&&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdCodeFenceBacktick<ndebug>::~MdCodeFenceBacktick() noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::MdCodeFenceBacktick<ndebug>::operator=(this ::pltxt2htm::MdCodeFenceBacktick<ndebug>& self,
-                                                                   ::pltxt2htm::MdCodeFenceBacktick<ndebug>&&) noexcept
-    -> ::pltxt2htm::MdCodeFenceBacktick<ndebug>& = default;
-
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::MdCodeFenceBacktick<ndebug>::operator==(
-    this ::pltxt2htm::MdCodeFenceBacktick<ndebug> const&, ::pltxt2htm::MdCodeFenceBacktick<ndebug> const&) noexcept
-    -> bool = default;
-
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdCodeFenceTilde<ndebug>::MdCodeFenceTilde(
-    ::pltxt2htm::Ast<ndebug>&& subast_, ::exception::optional<::fast_io::u8string>&& lang_) noexcept
-    : subast(::std::move(subast_)),
-      lang(::std::move(lang_)) {
-}
-
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdCodeFenceTilde<ndebug>::MdCodeFenceTilde(
-    ::pltxt2htm::MdCodeFenceTilde<ndebug> const&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdCodeFenceTilde<ndebug>::MdCodeFenceTilde(::pltxt2htm::MdCodeFenceTilde<ndebug>&&) noexcept =
-    default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdCodeFenceTilde<ndebug>::~MdCodeFenceTilde() noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::MdCodeFenceTilde<ndebug>::operator=(this ::pltxt2htm::MdCodeFenceTilde<ndebug>& self,
-                                                                ::pltxt2htm::MdCodeFenceTilde<ndebug>&&) noexcept
-    -> ::pltxt2htm::MdCodeFenceTilde<ndebug>& = default;
-
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::MdCodeFenceTilde<ndebug>::operator==(this ::pltxt2htm::MdCodeFenceTilde<ndebug> const&,
-                                                                 ::pltxt2htm::MdCodeFenceTilde<ndebug> const&) noexcept
-    -> bool = default;
-
-template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdCodeSpan1Backtick<ndebug>::MdCodeSpan1Backtick(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
     : subast(::std::move(subast_)) {
 }

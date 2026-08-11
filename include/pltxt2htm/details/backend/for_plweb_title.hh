@@ -779,15 +779,9 @@ entry:
                 ++current_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::md_code_fence_backtick: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                    node.as_md_code_fence_backtick().get_subast(), ::pltxt2htm::NodeKind::text, 0));
-                ++current_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_code_fence_tilde: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                    node.as_md_code_fence_tilde().get_subast(), ::pltxt2htm::NodeKind::text, 0));
+            case ::pltxt2htm::NodeKind::code: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_code().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::text, 0));
                 ++current_index;
                 goto entry;
             }

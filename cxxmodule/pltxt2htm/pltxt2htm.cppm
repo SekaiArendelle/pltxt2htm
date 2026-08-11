@@ -50,6 +50,7 @@ using ::pltxt2htm::Ast;
 using ::pltxt2htm::U8Char;
 using ::pltxt2htm::InvalidU8Char;
 using ::pltxt2htm::Text;
+using ::pltxt2htm::Code;
 using ::pltxt2htm::Url;
 
 using ::pltxt2htm::LineBreak;
@@ -149,8 +150,6 @@ using ::pltxt2htm::MdEscapePipe;
 using ::pltxt2htm::MdEscapeRightBrace;
 using ::pltxt2htm::MdEscapeTilde;
 using ::pltxt2htm::MdHr;
-using ::pltxt2htm::MdCodeFenceBacktick;
-using ::pltxt2htm::MdCodeFenceTilde;
 using ::pltxt2htm::MdCodeSpan1Backtick;
 using ::pltxt2htm::MdCodeSpan2Backtick;
 using ::pltxt2htm::MdCodeSpan3Backtick;
