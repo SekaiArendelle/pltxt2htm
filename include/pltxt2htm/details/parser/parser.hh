@@ -1310,25 +1310,6 @@ entry:
                     continue;
                 }
 
-                case u8'o':
-                    [[fallthrough]];
-                case u8'O': {
-                    // <ol> is a block-level list; inline occurrences are plain literal text.
-                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
-                    ++current_index;
-                    continue;
-                }
-
-                case u8'p':
-                    [[fallthrough]];
-                case u8'P': {
-                    // <pre> is only recognized as part of a block-level <pre><code> block;
-                    // inline occurrences are plain literal text.
-                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
-                    ++current_index;
-                    continue;
-                }
-
                 case u8's':
                     [[fallthrough]];
                 case u8'S': {
