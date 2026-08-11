@@ -431,9 +431,9 @@ int main() {
     }
 
     {
-        // fractional font-size -> plunity
+        // fractional font-size -> plunity (css px count double plunity size units)
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<span style=\"font-size:12.5px\">text</span>");
-        auto answer = ::fast_io::u8string_view{u8"<size=12.5>text</size>"};
+        auto answer = ::fast_io::u8string_view{u8"<size=25>text</size>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -452,14 +452,14 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<span style=\"font-size:20px\">text</span>");
-        auto answer = ::fast_io::u8string_view{u8"<size=20>text</size>"};
+        auto answer = ::fast_io::u8string_view{u8"<size=40>text</size>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html =
             ::pltxt2htm_test::pltxt2plunity_introduction(u8"<span style=\"color:blue;font-size:16px\">text</span>");
-        auto answer = ::fast_io::u8string_view{u8"<color=blue><size=16>text</size></color>"};
+        auto answer = ::fast_io::u8string_view{u8"<color=blue><size=32>text</size></color>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -675,7 +675,7 @@ int main() {
         // color+font-size+px vertical-align combined in Unity output
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(
             u8"<span style=\"color:red;font-size:16px;vertical-align:5px\">text</span>");
-        auto answer = ::fast_io::u8string_view{u8"<color=red><size=16><voffset=5>text</voffset></size></color>"};
+        auto answer = ::fast_io::u8string_view{u8"<color=red><size=32><voffset=5>text</voffset></size></color>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
