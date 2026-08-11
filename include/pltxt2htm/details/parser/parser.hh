@@ -2568,7 +2568,7 @@ entry:
                     }
                     case ::pltxt2htm::NodeKind::md_block_quotes:
                         [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::code:
+                    case ::pltxt2htm::NodeKind::code_fence:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::md_del:
                         [[fallthrough]];
@@ -3312,7 +3312,7 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_hr:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::code:
+            case ::pltxt2htm::NodeKind::code_fence:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_note:
                 [[fallthrough]];

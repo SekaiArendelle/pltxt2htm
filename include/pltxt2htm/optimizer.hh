@@ -1582,7 +1582,7 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_escape_tilde:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::code: {
+            case ::pltxt2htm::NodeKind::code_fence: {
                 ++current_iter;
                 continue;
             }

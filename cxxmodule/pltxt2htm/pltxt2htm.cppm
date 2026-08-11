@@ -50,7 +50,7 @@ using ::pltxt2htm::Ast;
 using ::pltxt2htm::U8Char;
 using ::pltxt2htm::InvalidU8Char;
 using ::pltxt2htm::Text;
-using ::pltxt2htm::Code;
+using ::pltxt2htm::CodeFence;
 using ::pltxt2htm::Url;
 
 using ::pltxt2htm::LineBreak;

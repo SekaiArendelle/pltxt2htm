@@ -127,7 +127,7 @@ class PlTxtNode {
         ::pltxt2htm::MdEscapeRightBrace md_escape_right_brace_node;
         ::pltxt2htm::MdEscapeTilde md_escape_tilde_node;
         ::pltxt2htm::MdHr md_hr_node;
-        ::pltxt2htm::Code<ndebug> code_node;
+        ::pltxt2htm::CodeFence<ndebug> code_fence_node;
         ::pltxt2htm::MdCodeSpan1Backtick<ndebug> md_code_span_1_backtick_node;
         ::pltxt2htm::MdCodeSpan2Backtick<ndebug> md_code_span_2_backtick_node;
         ::pltxt2htm::MdCodeSpan3Backtick<ndebug> md_code_span_3_backtick_node;
@@ -718,9 +718,9 @@ public:
           node_kind{::pltxt2htm::NodeKind::md_hr} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::Code<ndebug>&& node) noexcept
-        : code_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::code} {
+    constexpr PlTxtNode(::pltxt2htm::CodeFence<ndebug>&& node) noexcept
+        : code_fence_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::code_fence} {
     }
 
     constexpr PlTxtNode(::pltxt2htm::MdCodeSpan1Backtick<ndebug>&& node) noexcept
@@ -1287,8 +1287,8 @@ public:
             new (::std::addressof(md_hr_node))::pltxt2htm::MdHr(other.md_hr_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::code: {
-            new (::std::addressof(code_node))::pltxt2htm::Code<ndebug>(other.code_node);
+        case ::pltxt2htm::NodeKind::code_fence: {
+            new (::std::addressof(code_fence_node))::pltxt2htm::CodeFence<ndebug>(other.code_fence_node);
             break;
         }
         case ::pltxt2htm::NodeKind::md_code_span_1_backtick: {
@@ -1873,8 +1873,8 @@ public:
             new (::std::addressof(md_hr_node))::pltxt2htm::MdHr(::std::move(other.md_hr_node));
             break;
         }
-        case ::pltxt2htm::NodeKind::code: {
-            new (::std::addressof(code_node))::pltxt2htm::Code<ndebug>(::std::move(other.code_node));
+        case ::pltxt2htm::NodeKind::code_fence: {
+            new (::std::addressof(code_fence_node))::pltxt2htm::CodeFence<ndebug>(::std::move(other.code_fence_node));
             break;
         }
         case ::pltxt2htm::NodeKind::md_code_span_1_backtick: {
@@ -2420,8 +2420,8 @@ public:
             md_hr_node.~MdHr();
             break;
         }
-        case ::pltxt2htm::NodeKind::code: {
-            code_node.~Code();
+        case ::pltxt2htm::NodeKind::code_fence: {
+            code_fence_node.~CodeFence();
             break;
         }
         case ::pltxt2htm::NodeKind::md_code_span_1_backtick: {
@@ -2862,8 +2862,8 @@ public:
         case ::pltxt2htm::NodeKind::md_hr: {
             return self.md_hr_node == other.md_hr_node;
         }
-        case ::pltxt2htm::NodeKind::code: {
-            return self.code_node == other.code_node;
+        case ::pltxt2htm::NodeKind::code_fence: {
+            return self.code_fence_node == other.code_fence_node;
         }
         case ::pltxt2htm::NodeKind::md_code_span_1_backtick: {
             return self.md_code_span_1_backtick_node == other.md_code_span_1_backtick_node;
@@ -3534,10 +3534,10 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto as_code(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::code};
+    constexpr auto as_code_fence(this auto&& self) noexcept -> decltype(auto) {
+        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::code_fence};
         pltxt2htm_assert(is_type, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.code_node);
+        return ::std::forward_like<decltype(self)>(self.code_fence_node);
     }
 
     [[nodiscard]]

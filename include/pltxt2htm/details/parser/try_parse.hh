@@ -3376,16 +3376,16 @@ struct TryParseMdCodeFenceResult {
 };
 
 /**
- * @brief Parse a block-level HTML <pre><code>...</code></pre> code block into a Code node.
+ * @brief Parse a block-level HTML <pre><code>...</code></pre> code block into a CodeFence node.
  *
  * This function attempts to parse the full `<pre><code>` block: a bare `<pre>` tag,
  * optionally followed by spaces/tabs and a `<code>` tag (bare or with a
  * `class="language-..."` attribute). The content up to the matching `</code></pre>`
- * is parsed as plain text and stored in a ::pltxt2htm::Code node.
+ * is parsed as plain text and stored in a ::pltxt2htm::CodeFence node.
  *
  * @tparam ndebug When set to Contracts::ignore, runtime assertions are disabled for performance.
  * @param[in] pltext Input text starting at "<pre>".
- * @return The parsed Code node and continuation index on success; nullopt on any deviation.
+ * @return The parsed CodeFence node and continuation index on success; nullopt on any deviation.
  * @note The `<pre>` tag must be bare (no attributes) and `<code>` must immediately
  *       follow it (allowing only spaces/tabs in between).
  */
@@ -3429,7 +3429,7 @@ constexpr auto try_parse_html_pre_code_block(::fast_io::u8string_view pltext) no
         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, pos));
     pos += advance_count;
 
-    // <code class="language-..."> stores the full class value; Code stores only the suffix
+    // <code class="language-..."> stores the full class value; CodeFence stores only the suffix
     // after the "language-" prefix (the backends prepend it again when rendering).
     ::exception::optional<::fast_io::u8string> opt_lang{::exception::nullopt};
     if (language.has_value()) {
@@ -3437,7 +3437,7 @@ constexpr auto try_parse_html_pre_code_block(::fast_io::u8string_view pltext) no
         opt_lang = ::fast_io::u8string{full_language.data() + 9, full_language.data() + full_language.size()};
     }
     return ::pltxt2htm::details::TryParseMdCodeFenceResult<ndebug>{
-        .node = ::pltxt2htm::Code<ndebug>{::std::move(ast), ::std::move(opt_lang)}, .advance_count = pos};
+        .node = ::pltxt2htm::CodeFence<ndebug>{::std::move(ast), ::std::move(opt_lang)}, .advance_count = pos};
 }
 
 [[nodiscard]]
@@ -3512,7 +3512,7 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
                     opt_lang = ::std::move(lang);
                 }
                 return ::pltxt2htm::details::TryParseMdCodeFenceResult<ndebug>{
-                    .node = ::pltxt2htm::Code<ndebug>{::pltxt2htm::Ast<ndebug>{}, ::std::move(opt_lang)},
+                    .node = ::pltxt2htm::CodeFence<ndebug>{::pltxt2htm::Ast<ndebug>{}, ::std::move(opt_lang)},
                     .advance_count = current_index + 3,
                 };
             }
@@ -3578,7 +3578,7 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
         opt_lang = ::std::move(lang);
     }
     return ::pltxt2htm::details::TryParseMdCodeFenceResult<ndebug>{
-        .node = ::pltxt2htm::Code<ndebug>{::std::move(ast), ::std::move(opt_lang)}, .advance_count = current_index};
+        .node = ::pltxt2htm::CodeFence<ndebug>{::std::move(ast), ::std::move(opt_lang)}, .advance_count = current_index};
 }
 
 /**

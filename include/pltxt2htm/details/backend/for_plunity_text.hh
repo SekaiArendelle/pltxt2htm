@@ -1514,10 +1514,11 @@ entry:
                 result.push_back(u8'~');
                 continue;
             }
-            case ::pltxt2htm::NodeKind::code: {
+            case ::pltxt2htm::NodeKind::code_fence: {
                 result.append(u8"<font=\"PhysicsLab-NerdFont SDF\">\n");
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_code().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::code, 0));
+                call_stack.push(
+                    ::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_code_fence().get_subast(),
+                                                                      ::pltxt2htm::NodeKind::code_fence, 0));
                 ++current_index;
                 goto entry;
             }
@@ -1807,7 +1808,7 @@ entry:
                 result.append(u8"</margin>\n");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::code: {
+            case ::pltxt2htm::NodeKind::code_fence: {
                 result.append(u8"\n</font>");
                 goto entry;
             }

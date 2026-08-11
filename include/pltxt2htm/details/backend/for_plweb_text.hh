@@ -906,7 +906,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::line_break: {
-                if (nested_tag_type == ::pltxt2htm::NodeKind::code) {
+                if (nested_tag_type == ::pltxt2htm::NodeKind::code_fence) {
                     result.push_back(u8'\n');
                 }
                 else {
@@ -1522,8 +1522,8 @@ entry:
                 result.push_back(u8'~');
                 continue;
             }
-            case ::pltxt2htm::NodeKind::code: {
-                auto const& opt_language = node.as_code().get_language();
+            case ::pltxt2htm::NodeKind::code_fence: {
+                auto const& opt_language = node.as_code_fence().get_language();
                 if (opt_language.has_value()) {
                     auto const& language = opt_language.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                     result.append(u8"<pre><code class=\"language-");
@@ -1534,8 +1534,8 @@ entry:
                 else {
                     result.append(u8"<pre><code>");
                 }
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_code().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::code, 0));
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_code_fence().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::code_fence, 0));
                 ++current_index;
                 goto entry;
             }
@@ -1832,7 +1832,7 @@ entry:
                 result.append(u8"</colgroup>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::code: {
+            case ::pltxt2htm::NodeKind::code_fence: {
                 result.append(u8"</code></pre>");
                 goto entry;
             }
