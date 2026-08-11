@@ -104,7 +104,7 @@ int main() {
     }
     {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<code>code</code>");
-        auto answer = ::fast_io::u8string_view{u8"&lt;code&gt;code&lt;/code&gt;"};
+        auto answer = ::fast_io::u8string_view{u8"<code>code</code>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
@@ -124,7 +124,7 @@ int main() {
     }
     {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"ab<pre><code>c</code></pre>de");
-        auto answer = ::fast_io::u8string_view{u8"ab&lt;pre&gt;&lt;code&gt;c&lt;/code&gt;&lt;/pre&gt;de"};
+        auto answer = ::fast_io::u8string_view{u8"ab&lt;pre&gt;<code>c</code>&lt;/pre&gt;de"};
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
@@ -332,7 +332,7 @@ int main() {
             u8"<p><span style=\"color:red\"><a href=\"https://example.com\"><code>text");
         auto answer = ::fast_io::u8string_view{
             u8"<p style=\"text-align:left\"><span style=\"color:red;\"><a "
-            u8"href=\"https://example.com\">&lt;code&gt;text</a></span></p>"};
+            u8"href=\"https://example.com\"><code>text</code></a></span></p>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -407,7 +407,7 @@ int main() {
             u8"style=\"text-align:left\">&lt;/x&gt;</p><h1>&lt;/x&gt;</h1><h2>&lt;/x&gt;</h2><h3>&lt;/x&gt;</"
             u8"h3><h4>&lt;/x&gt;</h4>"
             u8"<h5>&lt;/x&gt;</h5><h6>&lt;/x&gt;</h6><del>&lt;/x&gt;</del><em>&lt;/x&gt;</em>"
-            u8"<strong>&lt;/x&gt;</strong>&lt;code&gt;&lt;/x&gt;&lt;/code&gt;&lt;pre&gt;&lt;/x&gt;&lt;/pre&gt;"
+            u8"<strong>&lt;/x&gt;</strong><code>&lt;/x&gt;</code>&lt;pre&gt;&lt;/x&gt;&lt;/pre&gt;"
             u8"&lt;blockquote&gt;&lt;/x&gt;&lt;/blockquote&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }

@@ -400,6 +400,18 @@ entry:
                 case u8'c':
                     [[fallthrough]];
                 case u8'C': {
+                    // parsing: inline <code>$1</code> element (renders like a Markdown code span,
+                    // no language/class support)
+                    if (auto opt_code_tag = ::pltxt2htm::details::try_parse_html_code_tag<ndebug>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                        opt_code_tag.has_value()) {
+                        auto&& [advance_count, subast] =
+                            opt_code_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                        current_index += advance_count;
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(
+                            ::pltxt2htm::MdCodeSpan1Backtick<ndebug>{::std::move(subast)}));
+                        continue;
+                    }
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_caption_tag<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
                             ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type());

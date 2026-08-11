@@ -1,42 +1,48 @@
 #include "precompile.hh"
 
 int main() {
+    // bare <code> renders as an inline code span (same as Markdown code span)
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code>text</code>");
-        auto answer = ::fast_io::u8string_view{u8"&lt;code&gt;text&lt;/code&gt;"};
+        auto answer = ::fast_io::u8string_view{u8"<code>text</code>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // opening tag allows spaces before '>'; the closing tag must be exactly </code> (case-insensitive)
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<CODE    >text</CODE  >");
-        auto answer = ::fast_io::u8string_view{u8"&lt;CODE&nbsp;&nbsp;&nbsp;&nbsp;&gt;text&lt;/CODE&nbsp;&nbsp;&gt;"};
+        auto answer = ::fast_io::u8string_view{u8"<code>text&lt;/CODE&nbsp;&nbsp;&gt;</code>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // content is parsed as plain text (no nested inline tags, like a code span)
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code><color=red>text</color></code>");
-        auto answer = ::fast_io::u8string_view{u8"&lt;code&gt;<span style=\"color:red;\">text</span>&lt;/code&gt;"};
+        auto answer = ::fast_io::u8string_view{u8"<code>&lt;color=red&gt;text&lt;/color&gt;</code>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code><color=red>text</code></color>");
-        auto answer = ::fast_io::u8string_view{u8"&lt;code&gt;<span style=\"color:red;\">text&lt;/code&gt;</span>"};
+        auto answer = ::fast_io::u8string_view{u8"<code>&lt;color=red&gt;text</code>&lt;/color&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // the first </code> closes the span; nested <code> is treated as literal text
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code>text<code>text</code></code>");
-        auto answer = ::fast_io::u8string_view{u8"&lt;code&gt;text&lt;code&gt;text&lt;/code&gt;&lt;/code&gt;"};
+        auto answer = ::fast_io::u8string_view{u8"<code>text&lt;code&gt;text</code>&lt;/code&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // unclosed <code> auto-closes at end of input
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code>");
-        auto answer = ::fast_io::u8string_view{u8"&lt;code&gt;"};
+        auto answer = ::fast_io::u8string_view{u8"<code></code>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // incomplete <code (no '>') stays literal escaped text
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code");
         auto answer = ::fast_io::u8string_view{u8"&lt;code"};
@@ -45,7 +51,7 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<code></code>t");
-        auto answer = ::fast_io::u8string_view{u8"t&lt;code&gt;&lt;/code&gt;t"};
+        auto answer = ::fast_io::u8string_view{u8"t<code></code>t"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -105,9 +111,7 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab<code>test</code>cd");
-        auto answer = ::fast_io::u8string_view{
-            u8"ab<size=20>\uff1c</size>code<size=20>\uff1e</size>test<size=20>\uff1c</size>/code<size=20>\uff1e</"
-            u8"size>cd"};
+        auto answer = ::fast_io::u8string_view{u8"ab<font=\"PhysicsLab-NerdFont SDF\"> test </font>cd"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

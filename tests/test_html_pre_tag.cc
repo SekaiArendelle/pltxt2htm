@@ -59,16 +59,16 @@ int main() {
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
-    // <pre>\n<code> (newline before code) is NOT a code block -> literal escaped form
+    // <pre>\n<code> (newline before code) is NOT a code block: <pre> is literal, <code> is an inline code span
     {
         auto pltext = ::fast_io::u8string_view{u8"<pre>\n<code>test</code>\n</pre>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"&lt;pre&gt;<br>&lt;code&gt;test&lt;/code&gt;<br>&lt;/pre&gt;"};
+        auto answer = ::fast_io::u8string_view{u8"&lt;pre&gt;<br><code>test</code><br>&lt;/pre&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{
             u8"<size=20>\uff1c</size>pre<size=20>\uff1e</size>\n"
-            u8"<size=20>\uff1c</size>code<size=20>\uff1e</size>test<size=20>\uff1c</size>/code<size=20>\uff1e</size>\n"
+            u8"<font=\"PhysicsLab-NerdFont SDF\"> test </font>\n"
             u8"<size=20>\uff1c</size>/pre<size=20>\uff1e</size>"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
@@ -132,7 +132,8 @@ int main() {
     // \n inside literal-escaped <pre><color> becomes <br>
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<pre><color=red>line1\nline2</color></pre>");
-        auto answer = ::fast_io::u8string_view{u8"&lt;pre&gt;<span style=\"color:red;\">line1<br>line2</span>&lt;/pre&gt;"};
+        auto answer =
+            ::fast_io::u8string_view{u8"&lt;pre&gt;<span style=\"color:red;\">line1<br>line2</span>&lt;/pre&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -143,10 +144,10 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
-    // inline <pre><code> mid-text is literal escaped text
+    // inline <pre><code> mid-text: <pre> is literal, <code> is an inline code span
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"ab<pre><code>c</code></pre>de");
-        auto answer = ::fast_io::u8string_view{u8"ab&lt;pre&gt;&lt;code&gt;c&lt;/code&gt;&lt;/pre&gt;de"};
+        auto answer = ::fast_io::u8string_view{u8"ab&lt;pre&gt;<code>c</code>&lt;/pre&gt;de"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
