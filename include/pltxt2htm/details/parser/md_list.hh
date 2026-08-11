@@ -21,68 +21,67 @@
 namespace pltxt2htm::details {
 
 /**
- * @brief Internal markdown-list AST node discriminator.
+ * @brief Internal list AST node discriminator (shared by Markdown and HTML lists).
  */
-enum class MdListNodeType : unsigned {
-    md_li = 0,
-    md_li_checkbox,
-    md_ul,
-    md_ol,
+enum class ListNodeType : unsigned {
+    list_li = 0,
+    list_li_checkbox,
+    list_ul,
+    list_ol,
 };
 
-// Forward declaration for recursive MdListAst
+// Forward declaration for recursive ListAst
 template<::pltxt2htm::Contracts ndebug>
-class MdListBaseNode;
+class ListBaseNode;
 
 /**
- * @brief Internal markdown-list AST container type.
+ * @brief Internal list AST container type (shared by Markdown and HTML lists).
  *
- * @details The intermediate MdListAst is necessary because parsing a list requires a
+ * @details The intermediate ListAst is necessary because parsing a list requires a
  *          two-phase approach: first, `optionally_to_md_list_ast` calls `try_parse_item`
  *          once per item to build the full nested AST (determining hierarchy boundaries,
  *          marker types, and extracting item text). Second, `parse_pltxt` iterates the
  *          pre-built AST without re-parsing.
  *
- *          Without MdListAst, `parse_pltxt` would need to call `try_parse_item` twice
+ *          Without ListAst, `parse_pltxt` would need to call `try_parse_item` twice
  *          for each item: once during a pre-scan (to determine the list boundary / item
  *          hierarchy before creating child frames) and again when actually producing the
  *          output. The pre-built AST avoids this redundant work — each item is parsed
  *          exactly once.
  */
 template<::pltxt2htm::Contracts ndebug>
-using MdListAst = ::fast_io::vector<::pltxt2htm::details::MdListBaseNode<ndebug>>;
+using ListAst = ::fast_io::vector<::pltxt2htm::details::ListBaseNode<ndebug>>;
 
 /**
- * @brief Leaf markdown-list node that stores a single list-item text payload.
+ * @brief Leaf list node that stores a single list-item text payload.
  */
-class MdListLiNode {
+class ListLiNode {
     ::fast_io::u8string text;
 
 public:
-    constexpr MdListLiNode(::fast_io::u8string&& text_) noexcept
+    constexpr ListLiNode(::fast_io::u8string&& text_) noexcept
         : text(::std::move(text_)) {
     }
 
-    constexpr MdListLiNode(::pltxt2htm::details::MdListLiNode const&) noexcept = default;
+    constexpr ListLiNode(::pltxt2htm::details::ListLiNode const&) noexcept = default;
 
-    constexpr MdListLiNode(::pltxt2htm::details::MdListLiNode&&) noexcept = default;
+    constexpr ListLiNode(::pltxt2htm::details::ListLiNode&&) noexcept = default;
 
-    constexpr ~MdListLiNode() noexcept = default;
+    constexpr ~ListLiNode() noexcept = default;
 
-    constexpr auto operator=(this ::pltxt2htm::details::MdListLiNode& self,
-                             ::pltxt2htm::details::MdListLiNode const& other) noexcept
-        -> ::pltxt2htm::details::MdListLiNode& = default;
+    constexpr auto operator=(this ::pltxt2htm::details::ListLiNode& self,
+                             ::pltxt2htm::details::ListLiNode const& other) noexcept
+        -> ::pltxt2htm::details::ListLiNode& = default;
 
-    constexpr auto operator=(this ::pltxt2htm::details::MdListLiNode& self,
-                             ::pltxt2htm::details::MdListLiNode&&) noexcept
-        -> ::pltxt2htm::details::MdListLiNode& = default;
+    constexpr auto operator=(this ::pltxt2htm::details::ListLiNode& self, ::pltxt2htm::details::ListLiNode&&) noexcept
+        -> ::pltxt2htm::details::ListLiNode& = default;
 
     [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
     [[__gnu__::__pure__]]
 #endif
-    constexpr auto operator==(this ::pltxt2htm::details::MdListLiNode const& self,
-                              ::pltxt2htm::details::MdListLiNode const& other) noexcept -> bool {
+    constexpr auto operator==(this ::pltxt2htm::details::ListLiNode const& self,
+                              ::pltxt2htm::details::ListLiNode const& other) noexcept -> bool {
         return self.text == other.text;
     }
 
@@ -92,44 +91,44 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_text_view(this ::pltxt2htm::details::MdListLiNode const& self) noexcept {
+    constexpr auto get_text_view(this ::pltxt2htm::details::ListLiNode const& self) noexcept {
         return ::fast_io::u8string_view{self.text.data(), self.text.size()};
     }
 };
 
 /**
- * @brief Leaf markdown-list node for checkbox items (- [ ] / - [x]).
+ * @brief Leaf list node for checkbox items (- [ ] / - [x]).
  */
-class MdListLiCheckboxNode {
+class ListLiCheckboxNode {
     ::fast_io::u8string text;
     bool checked{};
 
 public:
-    constexpr MdListLiCheckboxNode(::fast_io::u8string&& text_, bool checked_) noexcept
+    constexpr ListLiCheckboxNode(::fast_io::u8string&& text_, bool checked_) noexcept
         : text(::std::move(text_)),
           checked(checked_) {
     }
 
-    constexpr MdListLiCheckboxNode(::pltxt2htm::details::MdListLiCheckboxNode const&) noexcept = default;
+    constexpr ListLiCheckboxNode(::pltxt2htm::details::ListLiCheckboxNode const&) noexcept = default;
 
-    constexpr MdListLiCheckboxNode(::pltxt2htm::details::MdListLiCheckboxNode&&) noexcept = default;
+    constexpr ListLiCheckboxNode(::pltxt2htm::details::ListLiCheckboxNode&&) noexcept = default;
 
-    constexpr ~MdListLiCheckboxNode() noexcept = default;
+    constexpr ~ListLiCheckboxNode() noexcept = default;
 
-    constexpr auto operator=(this ::pltxt2htm::details::MdListLiCheckboxNode& self,
-                             ::pltxt2htm::details::MdListLiCheckboxNode const& other) noexcept
-        -> ::pltxt2htm::details::MdListLiCheckboxNode& = default;
+    constexpr auto operator=(this ::pltxt2htm::details::ListLiCheckboxNode& self,
+                             ::pltxt2htm::details::ListLiCheckboxNode const& other) noexcept
+        -> ::pltxt2htm::details::ListLiCheckboxNode& = default;
 
-    constexpr auto operator=(this ::pltxt2htm::details::MdListLiCheckboxNode& self,
-                             ::pltxt2htm::details::MdListLiCheckboxNode&&) noexcept
-        -> ::pltxt2htm::details::MdListLiCheckboxNode& = default;
+    constexpr auto operator=(this ::pltxt2htm::details::ListLiCheckboxNode& self,
+                             ::pltxt2htm::details::ListLiCheckboxNode&&) noexcept
+        -> ::pltxt2htm::details::ListLiCheckboxNode& = default;
 
     [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
     [[__gnu__::__pure__]]
 #endif
-    constexpr auto operator==(this ::pltxt2htm::details::MdListLiCheckboxNode const& self,
-                              ::pltxt2htm::details::MdListLiCheckboxNode const& other) noexcept -> bool {
+    constexpr auto operator==(this ::pltxt2htm::details::ListLiCheckboxNode const& self,
+                              ::pltxt2htm::details::ListLiCheckboxNode const& other) noexcept -> bool {
         return self.text == other.text && self.checked == other.checked;
     }
 
@@ -144,39 +143,39 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_text_view(this ::pltxt2htm::details::MdListLiCheckboxNode const& self) noexcept {
+    constexpr auto get_text_view(this ::pltxt2htm::details::ListLiCheckboxNode const& self) noexcept {
         return ::fast_io::u8string_view{self.text.data(), self.text.size()};
     }
 };
 
-// ---- MdListUlNode declaration (members defined after MdListBaseNode) ----
+// ---- ListUlNode declaration (members defined after ListBaseNode) ----
 
 /**
  * @brief Internal unordered-list node containing nested list items.
  */
 template<::pltxt2htm::Contracts ndebug>
-class MdListUlNode {
-    ::pltxt2htm::details::MdListAst<ndebug> sublist;
+class ListUlNode {
+    ::pltxt2htm::details::ListAst<ndebug> sublist;
 
 public:
-    constexpr MdListUlNode(::pltxt2htm::details::MdListAst<ndebug>&& sublist_) noexcept;
+    constexpr ListUlNode(::pltxt2htm::details::ListAst<ndebug>&& sublist_) noexcept;
 
-    constexpr MdListUlNode(::pltxt2htm::details::MdListUlNode<ndebug> const&) noexcept = delete;
+    constexpr ListUlNode(::pltxt2htm::details::ListUlNode<ndebug> const&) noexcept = delete;
 
-    constexpr MdListUlNode(::pltxt2htm::details::MdListUlNode<ndebug>&&) noexcept;
+    constexpr ListUlNode(::pltxt2htm::details::ListUlNode<ndebug>&&) noexcept;
 
-    constexpr ~MdListUlNode() noexcept;
+    constexpr ~ListUlNode() noexcept;
 
-    constexpr auto operator=(this ::pltxt2htm::details::MdListUlNode<ndebug>& self,
-                             ::pltxt2htm::details::MdListUlNode<ndebug> const& other) noexcept
-        -> ::pltxt2htm::details::MdListUlNode<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::details::ListUlNode<ndebug>& self,
+                             ::pltxt2htm::details::ListUlNode<ndebug> const& other) noexcept
+        -> ::pltxt2htm::details::ListUlNode<ndebug>& = delete;
 
-    constexpr auto operator=(this ::pltxt2htm::details::MdListUlNode<ndebug>& self,
-                             ::pltxt2htm::details::MdListUlNode<ndebug>&&) noexcept
-        -> ::pltxt2htm::details::MdListUlNode<ndebug>&;
+    constexpr auto operator=(this ::pltxt2htm::details::ListUlNode<ndebug>& self,
+                             ::pltxt2htm::details::ListUlNode<ndebug>&&) noexcept
+        -> ::pltxt2htm::details::ListUlNode<ndebug>&;
 
     [[nodiscard]]
-    constexpr auto operator==(::pltxt2htm::details::MdListUlNode<ndebug> const& other) const noexcept -> bool;
+    constexpr auto operator==(::pltxt2htm::details::ListUlNode<ndebug> const& other) const noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_sublist(this auto&& self) noexcept -> decltype(auto) {
@@ -184,34 +183,34 @@ public:
     }
 };
 
-// ---- MdListOlNode declaration (members defined after MdListBaseNode) ----
+// ---- ListOlNode declaration (members defined after ListBaseNode) ----
 
 /**
  * @brief Internal ordered-list node containing nested list items.
  */
 template<::pltxt2htm::Contracts ndebug>
-class MdListOlNode {
-    ::pltxt2htm::details::MdListAst<ndebug> sublist;
+class ListOlNode {
+    ::pltxt2htm::details::ListAst<ndebug> sublist;
 
 public:
-    constexpr MdListOlNode(::pltxt2htm::details::MdListAst<ndebug>&& sublist_) noexcept;
+    constexpr ListOlNode(::pltxt2htm::details::ListAst<ndebug>&& sublist_) noexcept;
 
-    constexpr MdListOlNode(::pltxt2htm::details::MdListOlNode<ndebug> const&) noexcept = delete;
+    constexpr ListOlNode(::pltxt2htm::details::ListOlNode<ndebug> const&) noexcept = delete;
 
-    constexpr MdListOlNode(::pltxt2htm::details::MdListOlNode<ndebug>&&) noexcept;
+    constexpr ListOlNode(::pltxt2htm::details::ListOlNode<ndebug>&&) noexcept;
 
-    constexpr ~MdListOlNode() noexcept;
+    constexpr ~ListOlNode() noexcept;
 
-    constexpr auto operator=(this ::pltxt2htm::details::MdListOlNode<ndebug>& self,
-                             ::pltxt2htm::details::MdListOlNode<ndebug> const& other) noexcept
-        -> ::pltxt2htm::details::MdListOlNode<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::details::ListOlNode<ndebug>& self,
+                             ::pltxt2htm::details::ListOlNode<ndebug> const& other) noexcept
+        -> ::pltxt2htm::details::ListOlNode<ndebug>& = delete;
 
-    constexpr auto operator=(this ::pltxt2htm::details::MdListOlNode<ndebug>& self,
-                             ::pltxt2htm::details::MdListOlNode<ndebug>&&) noexcept
-        -> ::pltxt2htm::details::MdListOlNode<ndebug>&;
+    constexpr auto operator=(this ::pltxt2htm::details::ListOlNode<ndebug>& self,
+                             ::pltxt2htm::details::ListOlNode<ndebug>&&) noexcept
+        -> ::pltxt2htm::details::ListOlNode<ndebug>&;
 
     [[nodiscard]]
-    constexpr auto operator==(::pltxt2htm::details::MdListOlNode<ndebug> const& other) const noexcept -> bool;
+    constexpr auto operator==(::pltxt2htm::details::ListOlNode<ndebug> const& other) const noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_sublist(this auto&& self) noexcept -> decltype(auto) {
@@ -219,134 +218,134 @@ public:
     }
 };
 
-// ---- MdListBaseNode (variant-style) ----
+// ---- ListBaseNode (variant-style) ----
 
 /**
- * @brief Variant-style base type for all internal markdown-list nodes.
+ * @brief Variant-style base type for all internal list nodes.
  */
 template<::pltxt2htm::Contracts ndebug>
-class MdListBaseNode {
+class ListBaseNode {
     union {
-        ::pltxt2htm::details::MdListLiNode li_node;
-        ::pltxt2htm::details::MdListLiCheckboxNode li_checkbox_node;
-        ::pltxt2htm::details::MdListUlNode<ndebug> ul_node;
-        ::pltxt2htm::details::MdListOlNode<ndebug> ol_node;
+        ::pltxt2htm::details::ListLiNode li_node;
+        ::pltxt2htm::details::ListLiCheckboxNode li_checkbox_node;
+        ::pltxt2htm::details::ListUlNode<ndebug> ul_node;
+        ::pltxt2htm::details::ListOlNode<ndebug> ol_node;
     };
 
-    ::pltxt2htm::details::MdListNodeType type;
+    ::pltxt2htm::details::ListNodeType type;
 
 public:
-    constexpr MdListBaseNode(::pltxt2htm::details::MdListLiNode&& node) noexcept
+    constexpr ListBaseNode(::pltxt2htm::details::ListLiNode&& node) noexcept
         : li_node(::std::move(node)),
-          type{::pltxt2htm::details::MdListNodeType::md_li} {
+          type{::pltxt2htm::details::ListNodeType::list_li} {
     }
 
-    constexpr MdListBaseNode(::pltxt2htm::details::MdListLiCheckboxNode&& node) noexcept
+    constexpr ListBaseNode(::pltxt2htm::details::ListLiCheckboxNode&& node) noexcept
         : li_checkbox_node(::std::move(node)),
-          type{::pltxt2htm::details::MdListNodeType::md_li_checkbox} {
+          type{::pltxt2htm::details::ListNodeType::list_li_checkbox} {
     }
 
-    constexpr MdListBaseNode(::pltxt2htm::details::MdListUlNode<ndebug>&& node) noexcept
+    constexpr ListBaseNode(::pltxt2htm::details::ListUlNode<ndebug>&& node) noexcept
         : ul_node(::std::move(node)),
-          type{::pltxt2htm::details::MdListNodeType::md_ul} {
+          type{::pltxt2htm::details::ListNodeType::list_ul} {
     }
 
-    constexpr MdListBaseNode(::pltxt2htm::details::MdListOlNode<ndebug>&& node) noexcept
+    constexpr ListBaseNode(::pltxt2htm::details::ListOlNode<ndebug>&& node) noexcept
         : ol_node(::std::move(node)),
-          type{::pltxt2htm::details::MdListNodeType::md_ol} {
+          type{::pltxt2htm::details::ListNodeType::list_ol} {
     }
 
-    constexpr MdListBaseNode(::pltxt2htm::details::MdListBaseNode<ndebug> const&) noexcept = delete;
+    constexpr ListBaseNode(::pltxt2htm::details::ListBaseNode<ndebug> const&) noexcept = delete;
 
-    constexpr MdListBaseNode(::pltxt2htm::details::MdListBaseNode<ndebug>&& other) noexcept
+    constexpr ListBaseNode(::pltxt2htm::details::ListBaseNode<ndebug>&& other) noexcept
         : type(other.type) {
         switch (type) /* -Werror=switch */ {
-        case ::pltxt2htm::details::MdListNodeType::md_li: {
-            new (::std::addressof(li_node))::pltxt2htm::details::MdListLiNode(::std::move(other.li_node));
+        case ::pltxt2htm::details::ListNodeType::list_li: {
+            new (::std::addressof(li_node))::pltxt2htm::details::ListLiNode(::std::move(other.li_node));
             break;
         }
-        case ::pltxt2htm::details::MdListNodeType::md_li_checkbox: {
-            new (::std::addressof(li_checkbox_node))::pltxt2htm::details::MdListLiCheckboxNode(
+        case ::pltxt2htm::details::ListNodeType::list_li_checkbox: {
+            new (::std::addressof(li_checkbox_node))::pltxt2htm::details::ListLiCheckboxNode(
                 ::std::move(other.li_checkbox_node));
             break;
         }
-        case ::pltxt2htm::details::MdListNodeType::md_ul: {
-            new (::std::addressof(ul_node))::pltxt2htm::details::MdListUlNode<ndebug>(::std::move(other.ul_node));
+        case ::pltxt2htm::details::ListNodeType::list_ul: {
+            new (::std::addressof(ul_node))::pltxt2htm::details::ListUlNode<ndebug>(::std::move(other.ul_node));
             break;
         }
-        case ::pltxt2htm::details::MdListNodeType::md_ol: {
-            new (::std::addressof(ol_node))::pltxt2htm::details::MdListOlNode<ndebug>(::std::move(other.ol_node));
+        case ::pltxt2htm::details::ListNodeType::list_ol: {
+            new (::std::addressof(ol_node))::pltxt2htm::details::ListOlNode<ndebug>(::std::move(other.ol_node));
             break;
         }
 #ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
         default:
             [[unlikely]] {
-                pltxt2htm_unreachable(u8"Unexpected MdListNodeType in move constructor");
+                pltxt2htm_unreachable(u8"Unexpected ListNodeType in move constructor");
             }
 #endif
         }
     }
 
-    constexpr ~MdListBaseNode() noexcept {
+    constexpr ~ListBaseNode() noexcept {
         switch (type) /* -Werror=switch */ {
-        case ::pltxt2htm::details::MdListNodeType::md_li: {
-            li_node.~MdListLiNode();
+        case ::pltxt2htm::details::ListNodeType::list_li: {
+            li_node.~ListLiNode();
             break;
         }
-        case ::pltxt2htm::details::MdListNodeType::md_li_checkbox: {
-            li_checkbox_node.~MdListLiCheckboxNode();
+        case ::pltxt2htm::details::ListNodeType::list_li_checkbox: {
+            li_checkbox_node.~ListLiCheckboxNode();
             break;
         }
-        case ::pltxt2htm::details::MdListNodeType::md_ul: {
-            ul_node.~MdListUlNode<ndebug>();
+        case ::pltxt2htm::details::ListNodeType::list_ul: {
+            ul_node.~ListUlNode<ndebug>();
             break;
         }
-        case ::pltxt2htm::details::MdListNodeType::md_ol: {
-            ol_node.~MdListOlNode<ndebug>();
+        case ::pltxt2htm::details::ListNodeType::list_ol: {
+            ol_node.~ListOlNode<ndebug>();
             break;
         }
 #ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
         default:
             [[unlikely]] {
-                pltxt2htm_unreachable(u8"Unexpected MdListNodeType in destructor");
+                pltxt2htm_unreachable(u8"Unexpected ListNodeType in destructor");
             }
 #endif
         }
     }
 
-    constexpr auto operator=(this ::pltxt2htm::details::MdListBaseNode<ndebug>& self,
-                             ::pltxt2htm::details::MdListBaseNode<ndebug> const& other) noexcept
-        -> ::pltxt2htm::details::MdListBaseNode<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::details::ListBaseNode<ndebug>& self,
+                             ::pltxt2htm::details::ListBaseNode<ndebug> const& other) noexcept
+        -> ::pltxt2htm::details::ListBaseNode<ndebug>& = delete;
 
-    constexpr auto operator=(this ::pltxt2htm::details::MdListBaseNode<ndebug>& self,
-                             ::pltxt2htm::details::MdListBaseNode<ndebug>&& other) noexcept
-        -> ::pltxt2htm::details::MdListBaseNode<ndebug>& {
+    constexpr auto operator=(this ::pltxt2htm::details::ListBaseNode<ndebug>& self,
+                             ::pltxt2htm::details::ListBaseNode<ndebug>&& other) noexcept
+        -> ::pltxt2htm::details::ListBaseNode<ndebug>& {
         if (::std::addressof(other) != ::std::addressof(self)) {
-            self.~MdListBaseNode();
+            self.~ListBaseNode();
             ::std::construct_at(::std::addressof(self), ::std::move(other));
         }
         return self;
     }
 
     [[nodiscard]]
-    constexpr auto get_type(this auto&& self) noexcept -> ::pltxt2htm::details::MdListNodeType {
+    constexpr auto get_type(this auto&& self) noexcept -> ::pltxt2htm::details::ListNodeType {
         return self.type;
     }
 
     [[nodiscard]]
     constexpr auto get_text(this auto&& self) noexcept -> decltype(auto) {
         switch (self.type) /* -Werror=switch */ {
-        case ::pltxt2htm::details::MdListNodeType::md_li: {
+        case ::pltxt2htm::details::ListNodeType::list_li: {
             return ::std::forward_like<decltype(self)>(self.li_node).get_text();
         }
-        case ::pltxt2htm::details::MdListNodeType::md_li_checkbox: {
+        case ::pltxt2htm::details::ListNodeType::list_li_checkbox: {
             return ::std::forward_like<decltype(self)>(self.li_checkbox_node).get_text();
         }
-        case ::pltxt2htm::details::MdListNodeType::md_ul:
+        case ::pltxt2htm::details::ListNodeType::list_ul:
             [[fallthrough]];
-        case ::pltxt2htm::details::MdListNodeType::md_ol:
+        case ::pltxt2htm::details::ListNodeType::list_ol:
             [[unlikely]] {
-                pltxt2htm_unreachable(u8"Unexpected md_ul/md_ol in get_text()");
+                pltxt2htm_unreachable(u8"Unexpected list_ul/list_ol in get_text()");
             }
         }
         pltxt2htm_unreachable(u8"Unreachable after get_text() switch");
@@ -355,17 +354,17 @@ public:
     [[nodiscard]]
     constexpr auto get_text_view(this auto&& self) noexcept -> ::fast_io::u8string_view {
         switch (self.type) /* -Werror=switch */ {
-        case ::pltxt2htm::details::MdListNodeType::md_li: {
+        case ::pltxt2htm::details::ListNodeType::list_li: {
             return self.li_node.get_text_view();
         }
-        case ::pltxt2htm::details::MdListNodeType::md_li_checkbox: {
+        case ::pltxt2htm::details::ListNodeType::list_li_checkbox: {
             return self.li_checkbox_node.get_text_view();
         }
-        case ::pltxt2htm::details::MdListNodeType::md_ul:
+        case ::pltxt2htm::details::ListNodeType::list_ul:
             [[fallthrough]];
-        case ::pltxt2htm::details::MdListNodeType::md_ol:
+        case ::pltxt2htm::details::ListNodeType::list_ol:
             [[unlikely]] {
-                pltxt2htm_unreachable(u8"Unexpected md_ul/md_ol in get_text_view()");
+                pltxt2htm_unreachable(u8"Unexpected list_ul/list_ol in get_text_view()");
             }
         }
         pltxt2htm_unreachable(u8"Unreachable after get_text_view() switch");
@@ -374,17 +373,17 @@ public:
     [[nodiscard]]
     constexpr auto get_sublist(this auto&& self) noexcept -> decltype(auto) {
         switch (self.type) /* -Werror=switch */ {
-        case ::pltxt2htm::details::MdListNodeType::md_ul: {
+        case ::pltxt2htm::details::ListNodeType::list_ul: {
             return ::std::forward_like<decltype(self)>(self.ul_node).get_sublist();
         }
-        case ::pltxt2htm::details::MdListNodeType::md_ol: {
+        case ::pltxt2htm::details::ListNodeType::list_ol: {
             return ::std::forward_like<decltype(self)>(self.ol_node).get_sublist();
         }
-        case ::pltxt2htm::details::MdListNodeType::md_li:
+        case ::pltxt2htm::details::ListNodeType::list_li:
             [[fallthrough]];
-        case ::pltxt2htm::details::MdListNodeType::md_li_checkbox:
+        case ::pltxt2htm::details::ListNodeType::list_li_checkbox:
             [[unlikely]] {
-                pltxt2htm_unreachable(u8"Unexpected md_li/md_li_checkbox in get_sublist()");
+                pltxt2htm_unreachable(u8"Unexpected list_li/list_li_checkbox in get_sublist()");
             }
         }
         pltxt2htm_unreachable(u8"Unreachable after get_sublist() switch");
@@ -392,111 +391,111 @@ public:
 
     [[nodiscard]]
     constexpr auto is_checked(this auto const& self) noexcept -> bool {
-        pltxt2htm_assert(self.type == ::pltxt2htm::details::MdListNodeType::md_li_checkbox, u8"node type mismatch");
+        pltxt2htm_assert(self.type == ::pltxt2htm::details::ListNodeType::list_li_checkbox, u8"node type mismatch");
         return self.li_checkbox_node.is_checked();
     }
 
     [[nodiscard]]
-    friend constexpr auto operator==(::pltxt2htm::details::MdListBaseNode<ndebug> const& self,
-                                     ::pltxt2htm::details::MdListBaseNode<ndebug> const& other) noexcept -> bool {
+    friend constexpr auto operator==(::pltxt2htm::details::ListBaseNode<ndebug> const& self,
+                                     ::pltxt2htm::details::ListBaseNode<ndebug> const& other) noexcept -> bool {
         if (self.type != other.type) {
             return false;
         }
 
         switch (self.type) {
-        case ::pltxt2htm::details::MdListNodeType::md_li: {
+        case ::pltxt2htm::details::ListNodeType::list_li: {
             return self.li_node == other.li_node;
         }
-        case ::pltxt2htm::details::MdListNodeType::md_li_checkbox: {
+        case ::pltxt2htm::details::ListNodeType::list_li_checkbox: {
             return self.li_checkbox_node == other.li_checkbox_node;
         }
-        case ::pltxt2htm::details::MdListNodeType::md_ul: {
+        case ::pltxt2htm::details::ListNodeType::list_ul: {
             return self.ul_node == other.ul_node;
         }
-        case ::pltxt2htm::details::MdListNodeType::md_ol: {
+        case ::pltxt2htm::details::ListNodeType::list_ol: {
             return self.ol_node == other.ol_node;
         }
 #ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
         default:
             [[unlikely]] {
-                pltxt2htm_unreachable(u8"Unexpected MdListNodeType in operator==");
+                pltxt2htm_unreachable(u8"Unexpected ListNodeType in operator==");
             }
 #endif
         }
-        pltxt2htm_unreachable(u8"Unreachable after MdListNodeType operator== switch");
+        pltxt2htm_unreachable(u8"Unreachable after ListNodeType operator== switch");
     }
 };
 
-// ---- MdListUlNode member definitions (MdListBaseNode is now complete) ----
+// ---- ListUlNode member definitions (ListBaseNode is now complete) ----
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr MdListUlNode<ndebug>::MdListUlNode(::pltxt2htm::details::MdListAst<ndebug>&& sublist_) noexcept
+constexpr ListUlNode<ndebug>::ListUlNode(::pltxt2htm::details::ListAst<ndebug>&& sublist_) noexcept
     : sublist(::std::move(sublist_)) {
 }
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr MdListUlNode<ndebug>::MdListUlNode(::pltxt2htm::details::MdListUlNode<ndebug>&&) noexcept = default;
+constexpr ListUlNode<ndebug>::ListUlNode(::pltxt2htm::details::ListUlNode<ndebug>&&) noexcept = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr MdListUlNode<ndebug>::~MdListUlNode() noexcept = default;
+constexpr ListUlNode<ndebug>::~ListUlNode() noexcept = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto MdListUlNode<ndebug>::operator=(this ::pltxt2htm::details::MdListUlNode<ndebug>& self,
-                                               ::pltxt2htm::details::MdListUlNode<ndebug>&& other) noexcept
-    -> ::pltxt2htm::details::MdListUlNode<ndebug>& = default;
+constexpr auto ListUlNode<ndebug>::operator=(this ::pltxt2htm::details::ListUlNode<ndebug>& self,
+                                             ::pltxt2htm::details::ListUlNode<ndebug>&& other) noexcept
+    -> ::pltxt2htm::details::ListUlNode<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto MdListUlNode<ndebug>::operator==(::pltxt2htm::details::MdListUlNode<ndebug> const& other) const noexcept
+constexpr auto ListUlNode<ndebug>::operator==(::pltxt2htm::details::ListUlNode<ndebug> const& other) const noexcept
     -> bool {
     return sublist == other.sublist;
 }
 
-// ---- MdListOlNode member definitions (MdListBaseNode is now complete) ----
+// ---- ListOlNode member definitions (ListBaseNode is now complete) ----
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr MdListOlNode<ndebug>::MdListOlNode(::pltxt2htm::details::MdListAst<ndebug>&& sublist_) noexcept
+constexpr ListOlNode<ndebug>::ListOlNode(::pltxt2htm::details::ListAst<ndebug>&& sublist_) noexcept
     : sublist(::std::move(sublist_)) {
 }
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr MdListOlNode<ndebug>::MdListOlNode(::pltxt2htm::details::MdListOlNode<ndebug>&&) noexcept = default;
+constexpr ListOlNode<ndebug>::ListOlNode(::pltxt2htm::details::ListOlNode<ndebug>&&) noexcept = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr MdListOlNode<ndebug>::~MdListOlNode() noexcept = default;
+constexpr ListOlNode<ndebug>::~ListOlNode() noexcept = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto MdListOlNode<ndebug>::operator=(this ::pltxt2htm::details::MdListOlNode<ndebug>& self,
-                                               ::pltxt2htm::details::MdListOlNode<ndebug>&& other) noexcept
-    -> ::pltxt2htm::details::MdListOlNode<ndebug>& = default;
+constexpr auto ListOlNode<ndebug>::operator=(this ::pltxt2htm::details::ListOlNode<ndebug>& self,
+                                             ::pltxt2htm::details::ListOlNode<ndebug>&& other) noexcept
+    -> ::pltxt2htm::details::ListOlNode<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto MdListOlNode<ndebug>::operator==(::pltxt2htm::details::MdListOlNode<ndebug> const& other) const noexcept
+constexpr auto ListOlNode<ndebug>::operator==(::pltxt2htm::details::ListOlNode<ndebug> const& other) const noexcept
     -> bool {
     return sublist == other.sublist;
 }
 
 template<typename T>
-constexpr bool is_md_list_ul_node_ = false;
+constexpr bool is_list_ul_node_ = false;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr bool is_md_list_ul_node_<::pltxt2htm::details::MdListUlNode<ndebug>> = true;
+constexpr bool is_list_ul_node_<::pltxt2htm::details::ListUlNode<ndebug>> = true;
 
 template<typename T>
-constexpr bool is_md_list_ol_node_ = false;
+constexpr bool is_list_ol_node_ = false;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr bool is_md_list_ol_node_<::pltxt2htm::details::MdListOlNode<ndebug>> = true;
+constexpr bool is_list_ol_node_<::pltxt2htm::details::ListOlNode<ndebug>> = true;
 
 /**
- * @brief Concept matching the concrete node types stored in MdListBaseNode.
+ * @brief Concept matching the concrete node types stored in ListBaseNode.
  */
 template<typename T>
-concept is_md_list_node_type = ::std::is_same_v<::std::remove_cvref_t<T>, ::pltxt2htm::details::MdListLiNode> ||
-                               ::std::is_same_v<::std::remove_cvref_t<T>, ::pltxt2htm::details::MdListLiCheckboxNode> ||
-                               ::pltxt2htm::details::is_md_list_ul_node_<::std::remove_cvref_t<T>> ||
-                               ::pltxt2htm::details::is_md_list_ol_node_<::std::remove_cvref_t<T>>;
+concept is_list_node_type = ::std::is_same_v<::std::remove_cvref_t<T>, ::pltxt2htm::details::ListLiNode> ||
+                            ::std::is_same_v<::std::remove_cvref_t<T>, ::pltxt2htm::details::ListLiCheckboxNode> ||
+                            ::pltxt2htm::details::is_list_ul_node_<::std::remove_cvref_t<T>> ||
+                            ::pltxt2htm::details::is_list_ol_node_<::std::remove_cvref_t<T>>;
 
 /**
  * @brief Marker describing parsed markdown list item style.
@@ -519,7 +518,7 @@ public:
     ::std::size_t space_hierarchy;
     ::fast_io::u8string_view pltext;
     ::std::size_t current_index{};
-    ::pltxt2htm::details::MdListAst<ndebug> md_list_ast{};
+    ::pltxt2htm::details::ListAst<ndebug> md_list_ast{};
 
     constexpr MdListFrameContext(::pltxt2htm::details::MdUlListItemKind item_kind_, ::std::size_t space_hierarchy_,
                                  ::fast_io::u8string_view pltext_) noexcept
@@ -808,8 +807,8 @@ constexpr auto try_parse_item(
  * @brief Result of markdown-list AST conversion attempt.
  */
 template<::pltxt2htm::Contracts ndebug>
-struct ToMdListAstResult {
-    ::pltxt2htm::details::MdListAst<ndebug> ast;
+struct ToListAstResult {
+    ::pltxt2htm::details::ListAst<ndebug> ast;
     ::std::size_t advance_count;
     ::pltxt2htm::NodeKind item_kind;
 };
@@ -823,7 +822,7 @@ struct ToMdListAstResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::ToMdListAstResult<ndebug>> {
+    -> ::exception::optional<::pltxt2htm::details::ToListAstResult<ndebug>> {
     ::fast_io::stack<::pltxt2htm::details::MdListFrameContext<ndebug>> call_stack{};
 
     // manually managing stack to avoid stack-overflow
@@ -835,18 +834,18 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
                                                                            advance_count};
             if (checkbox) {
                 current_frame.md_list_ast.emplace_back(
-                    ::pltxt2htm::details::MdListLiCheckboxNode(::std::move(text), checked));
+                    ::pltxt2htm::details::ListLiCheckboxNode(::std::move(text), checked));
             }
             else {
-                current_frame.md_list_ast.emplace_back(::pltxt2htm::details::MdListLiNode(::std::move(text)));
+                current_frame.md_list_ast.emplace_back(::pltxt2htm::details::ListLiNode(::std::move(text)));
             }
             if (advance_count >= current_frame.pltext.size()) {
-                return ::pltxt2htm::details::ToMdListAstResult<ndebug>{
+                return ::pltxt2htm::details::ToListAstResult<ndebug>{
                     .ast = ::std::move(current_frame.md_list_ast),
                     .advance_count = advance_count,
                     .item_kind = item_kind == ::pltxt2htm::details::MdUlListItemKind::ordered_item
-                                     ? ::pltxt2htm::NodeKind::md_ol
-                                     : ::pltxt2htm::NodeKind::md_ul};
+                                     ? ::pltxt2htm::NodeKind::list_ol
+                                     : ::pltxt2htm::NodeKind::list_ul};
             }
             call_stack.push(::std::move(current_frame));
         }
@@ -868,18 +867,18 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
             auto frame = ::std::move(top_frame);
             call_stack.pop();
             if (call_stack.empty()) {
-                return ::pltxt2htm::details::ToMdListAstResult<ndebug>{
+                return ::pltxt2htm::details::ToListAstResult<ndebug>{
                     .ast = ::std::move(frame.md_list_ast),
                     .advance_count = frame.current_index,
                     .item_kind = frame.get_item_kind() == ::pltxt2htm::details::MdUlListItemKind::ordered_item
-                                     ? ::pltxt2htm::NodeKind::md_ol
-                                     : ::pltxt2htm::NodeKind::md_ul};
+                                     ? ::pltxt2htm::NodeKind::list_ol
+                                     : ::pltxt2htm::NodeKind::list_ul};
             }
             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
             switch (frame.get_item_kind()) {
             case ::pltxt2htm::details::MdUlListItemKind::ordered_item: {
                 parent_frame.md_list_ast.emplace_back(
-                    ::pltxt2htm::details::MdListOlNode<ndebug>(::std::move(frame.md_list_ast)));
+                    ::pltxt2htm::details::ListOlNode<ndebug>(::std::move(frame.md_list_ast)));
                 break;
             }
             case ::pltxt2htm::details::MdUlListItemKind::hyphen:
@@ -888,7 +887,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
                 [[fallthrough]];
             case ::pltxt2htm::details::MdUlListItemKind::asterisk: {
                 parent_frame.md_list_ast.emplace_back(
-                    ::pltxt2htm::details::MdListUlNode<ndebug>(::std::move(frame.md_list_ast)));
+                    ::pltxt2htm::details::ListUlNode<ndebug>(::std::move(frame.md_list_ast)));
                 break;
             }
 #ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
@@ -911,18 +910,18 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
             auto&& child_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
             if (checkbox) {
                 child_frame.md_list_ast.emplace_back(
-                    ::pltxt2htm::details::MdListLiCheckboxNode(::std::move(text), checked));
+                    ::pltxt2htm::details::ListLiCheckboxNode(::std::move(text), checked));
             }
             else {
-                child_frame.md_list_ast.emplace_back(::pltxt2htm::details::MdListLiNode(::std::move(text)));
+                child_frame.md_list_ast.emplace_back(::pltxt2htm::details::ListLiNode(::std::move(text)));
             }
             continue;
         }
         if (checkbox) {
-            result.emplace_back(::pltxt2htm::details::MdListLiCheckboxNode(::std::move(text), checked));
+            result.emplace_back(::pltxt2htm::details::ListLiCheckboxNode(::std::move(text), checked));
         }
         else {
-            result.emplace_back(::pltxt2htm::details::MdListLiNode(::std::move(text)));
+            result.emplace_back(::pltxt2htm::details::ListLiNode(::std::move(text)));
         }
         top_frame.space_hierarchy = space_hierarchy;
 
@@ -932,18 +931,18 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
         auto frame = ::std::move(::pltxt2htm::details::stack_top<ndebug>(call_stack));
         call_stack.pop();
         if (call_stack.empty()) {
-            return ::pltxt2htm::details::ToMdListAstResult<ndebug>{
+            return ::pltxt2htm::details::ToListAstResult<ndebug>{
                 .ast = ::std::move(frame.md_list_ast),
                 .advance_count = pltext_size,
                 .item_kind = frame.get_item_kind() == ::pltxt2htm::details::MdUlListItemKind::ordered_item
-                                 ? ::pltxt2htm::NodeKind::md_ol
-                                 : ::pltxt2htm::NodeKind::md_ul};
+                                 ? ::pltxt2htm::NodeKind::list_ol
+                                 : ::pltxt2htm::NodeKind::list_ul};
         }
         auto&& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
         switch (frame.get_item_kind()) {
         case ::pltxt2htm::details::MdUlListItemKind::ordered_item: {
             parent_frame.md_list_ast.emplace_back(
-                ::pltxt2htm::details::MdListOlNode<ndebug>(::std::move(frame.md_list_ast)));
+                ::pltxt2htm::details::ListOlNode<ndebug>(::std::move(frame.md_list_ast)));
             break;
         }
         case ::pltxt2htm::details::MdUlListItemKind::hyphen:
@@ -952,7 +951,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
             [[fallthrough]];
         case ::pltxt2htm::details::MdUlListItemKind::asterisk: {
             parent_frame.md_list_ast.emplace_back(
-                ::pltxt2htm::details::MdListUlNode<ndebug>(::std::move(frame.md_list_ast)));
+                ::pltxt2htm::details::ListUlNode<ndebug>(::std::move(frame.md_list_ast)));
             break;
         }
 #ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK

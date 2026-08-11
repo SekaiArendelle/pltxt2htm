@@ -81,9 +81,10 @@ using ::pltxt2htm::HtmlNote;
 using ::pltxt2htm::HtmlEm;
 using ::pltxt2htm::HtmlStrong;
 
-using ::pltxt2htm::HtmlUl;
-using ::pltxt2htm::HtmlOl;
-using ::pltxt2htm::HtmlLi;
+using ::pltxt2htm::ListUl;
+using ::pltxt2htm::ListOl;
+using ::pltxt2htm::ListLi;
+using ::pltxt2htm::ListLiCheckbox;
 
 using ::pltxt2htm::HtmlCode;
 using ::pltxt2htm::HtmlPre;
@@ -161,10 +162,7 @@ using ::pltxt2htm::MdDel;
 using ::pltxt2htm::MdLink;
 using ::pltxt2htm::MdImage;
 using ::pltxt2htm::MdBlockQuotes;
-using ::pltxt2htm::MdUl;
-using ::pltxt2htm::MdOl;
-using ::pltxt2htm::MdLi;
-using ::pltxt2htm::MdLiCheckbox;
+
 using ::pltxt2htm::MdLatexInline;
 using ::pltxt2htm::MdLatexBlock;
 

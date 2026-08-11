@@ -193,7 +193,7 @@ struct MdTableCellRaw {
  * Stores all cells in a single flat vector:
  *   `[header_cell_0, …, header_cell_N, row0_cell_0, …, row0_cell_N, row1_cell_0, …]`
  *
- * This is analogous to MdListAst: raw text will be re-parsed through the
+ * This is analogous to ListAst: raw text will be re-parsed through the
  * inline parser when the table frame is processed.
  *
  * @tparam ndebug Contract checking mode

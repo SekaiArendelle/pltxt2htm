@@ -207,8 +207,7 @@ public:
 
     [[nodiscard]]
     constexpr auto get_ol_li_count(this auto&& self) noexcept -> ::std::size_t& {
-        bool const is_ol_type{self.context_data.kind == ::pltxt2htm::NodeKind::html_ol ||
-                              self.context_data.kind == ::pltxt2htm::NodeKind::md_ol};
+        bool const is_ol_type{self.context_data.kind == ::pltxt2htm::NodeKind::list_ol};
         pltxt2htm_assert(is_ol_type, u8"context kind mismatch");
         return self.context_data.ol_info.ol_li_count;
     }

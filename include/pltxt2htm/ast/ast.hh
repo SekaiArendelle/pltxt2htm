@@ -17,6 +17,7 @@
 
 #include "impl/basic_node_decl.hh"
 #include "impl/html_node_decl.hh"
+#include "impl/list_node_decl.hh"
 #include "impl/markdown_node_decl.hh"
 #include "impl/physics_lab_node_decl.hh"
 #include "../details/push_macro.hh"
@@ -66,9 +67,10 @@ class PlTxtNode {
         ::pltxt2htm::HtmlSpan<ndebug> html_span_node;
         ::pltxt2htm::HtmlDiv<ndebug> html_div_node;
         ::pltxt2htm::HtmlA<ndebug> html_a_node;
-        ::pltxt2htm::HtmlUl<ndebug> html_ul_node;
-        ::pltxt2htm::HtmlOl<ndebug> html_ol_node;
-        ::pltxt2htm::HtmlLi<ndebug> html_li_node;
+        ::pltxt2htm::ListUl<ndebug> list_ul_node;
+        ::pltxt2htm::ListOl<ndebug> list_ol_node;
+        ::pltxt2htm::ListLi<ndebug> list_li_node;
+        ::pltxt2htm::ListLiCheckbox<ndebug> list_li_checkbox_node;
         ::pltxt2htm::HtmlCode<ndebug> html_code_node;
         ::pltxt2htm::HtmlPre<ndebug> html_pre_node;
         ::pltxt2htm::HtmlBlockquote<ndebug> html_blockquote_node;
@@ -143,10 +145,6 @@ class PlTxtNode {
         ::pltxt2htm::Url url_node;
         ::pltxt2htm::MdImage<ndebug> md_image_node;
         ::pltxt2htm::MdBlockQuotes<ndebug> md_block_quotes_node;
-        ::pltxt2htm::MdUl<ndebug> md_ul_node;
-        ::pltxt2htm::MdOl<ndebug> md_ol_node;
-        ::pltxt2htm::MdLi<ndebug> md_li_node;
-        ::pltxt2htm::MdLiCheckbox<ndebug> md_li_checkbox_node;
         ::pltxt2htm::MdTable<ndebug> md_table_node;
         ::pltxt2htm::MdThead<ndebug> md_thead_node;
         ::pltxt2htm::MdTbody<ndebug> md_tbody_node;
@@ -443,19 +441,24 @@ public:
           node_kind{::pltxt2htm::NodeKind::html_a} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::HtmlUl<ndebug>&& node) noexcept
-        : html_ul_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::html_ul} {
+    constexpr PlTxtNode(::pltxt2htm::ListUl<ndebug>&& node) noexcept
+        : list_ul_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::list_ul} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::HtmlOl<ndebug>&& node) noexcept
-        : html_ol_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::html_ol} {
+    constexpr PlTxtNode(::pltxt2htm::ListOl<ndebug>&& node) noexcept
+        : list_ol_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::list_ol} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::HtmlLi<ndebug>&& node) noexcept
-        : html_li_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::html_li} {
+    constexpr PlTxtNode(::pltxt2htm::ListLi<ndebug>&& node) noexcept
+        : list_li_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::list_li} {
+    }
+
+    constexpr PlTxtNode(::pltxt2htm::ListLiCheckbox<ndebug>&& node) noexcept
+        : list_li_checkbox_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::list_li_checkbox} {
     }
 
     constexpr PlTxtNode(::pltxt2htm::HtmlCode<ndebug>&& node) noexcept
@@ -808,26 +811,6 @@ public:
           node_kind{::pltxt2htm::NodeKind::md_block_quotes} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdUl<ndebug>&& node) noexcept
-        : md_ul_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::md_ul} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdOl<ndebug>&& node) noexcept
-        : md_ol_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::md_ol} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdLi<ndebug>&& node) noexcept
-        : md_li_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::md_li} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdLiCheckbox<ndebug>&& node) noexcept
-        : md_li_checkbox_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::md_li_checkbox} {
-    }
-
     constexpr PlTxtNode(::pltxt2htm::MdTable<ndebug>&& node) noexcept
         : md_table_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::md_table} {
@@ -1083,16 +1066,20 @@ public:
             new (::std::addressof(html_a_node))::pltxt2htm::HtmlA<ndebug>(other.html_a_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::html_ul: {
-            new (::std::addressof(html_ul_node))::pltxt2htm::HtmlUl(other.html_ul_node);
+        case ::pltxt2htm::NodeKind::list_ul: {
+            new (::std::addressof(list_ul_node))::pltxt2htm::ListUl(other.list_ul_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::html_ol: {
-            new (::std::addressof(html_ol_node))::pltxt2htm::HtmlOl(other.html_ol_node);
+        case ::pltxt2htm::NodeKind::list_ol: {
+            new (::std::addressof(list_ol_node))::pltxt2htm::ListOl(other.list_ol_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::html_li: {
-            new (::std::addressof(html_li_node))::pltxt2htm::HtmlLi(other.html_li_node);
+        case ::pltxt2htm::NodeKind::list_li: {
+            new (::std::addressof(list_li_node))::pltxt2htm::ListLi(other.list_li_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::list_li_checkbox: {
+            new (::std::addressof(list_li_checkbox_node))::pltxt2htm::ListLiCheckbox(other.list_li_checkbox_node);
             break;
         }
         case ::pltxt2htm::NodeKind::html_code: {
@@ -1401,22 +1388,7 @@ public:
             new (::std::addressof(md_block_quotes_node))::pltxt2htm::MdBlockQuotes(other.md_block_quotes_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::md_ul: {
-            new (::std::addressof(md_ul_node))::pltxt2htm::MdUl(other.md_ul_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_ol: {
-            new (::std::addressof(md_ol_node))::pltxt2htm::MdOl(other.md_ol_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_li: {
-            new (::std::addressof(md_li_node))::pltxt2htm::MdLi(other.md_li_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_li_checkbox: {
-            new (::std::addressof(md_li_checkbox_node))::pltxt2htm::MdLiCheckbox(other.md_li_checkbox_node);
-            break;
-        }
+
         case ::pltxt2htm::NodeKind::md_table: {
             new (::std::addressof(md_table_node))::pltxt2htm::MdTable(other.md_table_node);
             break;
@@ -1707,18 +1679,24 @@ public:
             break;
         }
 
-        case ::pltxt2htm::NodeKind::html_ul: {
-            new (::std::addressof(html_ul_node))::pltxt2htm::HtmlUl(::std::move(other.html_ul_node));
+        case ::pltxt2htm::NodeKind::list_ul: {
+            new (::std::addressof(list_ul_node))::pltxt2htm::ListUl(::std::move(other.list_ul_node));
             break;
         }
 
-        case ::pltxt2htm::NodeKind::html_ol: {
-            new (::std::addressof(html_ol_node))::pltxt2htm::HtmlOl(::std::move(other.html_ol_node));
+        case ::pltxt2htm::NodeKind::list_ol: {
+            new (::std::addressof(list_ol_node))::pltxt2htm::ListOl(::std::move(other.list_ol_node));
             break;
         }
 
-        case ::pltxt2htm::NodeKind::html_li: {
-            new (::std::addressof(html_li_node))::pltxt2htm::HtmlLi(::std::move(other.html_li_node));
+        case ::pltxt2htm::NodeKind::list_li: {
+            new (::std::addressof(list_li_node))::pltxt2htm::ListLi(::std::move(other.list_li_node));
+            break;
+        }
+
+        case ::pltxt2htm::NodeKind::list_li_checkbox: {
+            new (::std::addressof(list_li_checkbox_node))::pltxt2htm::ListLiCheckbox(
+                ::std::move(other.list_li_checkbox_node));
             break;
         }
 
@@ -2060,23 +2038,7 @@ public:
                 ::std::move(other.md_block_quotes_node));
             break;
         }
-        case ::pltxt2htm::NodeKind::md_ul: {
-            new (::std::addressof(md_ul_node))::pltxt2htm::MdUl(::std::move(other.md_ul_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_ol: {
-            new (::std::addressof(md_ol_node))::pltxt2htm::MdOl(::std::move(other.md_ol_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_li: {
-            new (::std::addressof(md_li_node))::pltxt2htm::MdLi(::std::move(other.md_li_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_li_checkbox: {
-            new (::std::addressof(md_li_checkbox_node))::pltxt2htm::MdLiCheckbox(
-                ::std::move(other.md_li_checkbox_node));
-            break;
-        }
+
         case ::pltxt2htm::NodeKind::md_table: {
             new (::std::addressof(md_table_node))::pltxt2htm::MdTable(::std::move(other.md_table_node));
             break;
@@ -2330,16 +2292,20 @@ public:
             html_a_node.~HtmlA();
             break;
         }
-        case ::pltxt2htm::NodeKind::html_ul: {
-            html_ul_node.~HtmlUl();
+        case ::pltxt2htm::NodeKind::list_ul: {
+            list_ul_node.~ListUl();
             break;
         }
-        case ::pltxt2htm::NodeKind::html_ol: {
-            html_ol_node.~HtmlOl();
+        case ::pltxt2htm::NodeKind::list_ol: {
+            list_ol_node.~ListOl();
             break;
         }
-        case ::pltxt2htm::NodeKind::html_li: {
-            html_li_node.~HtmlLi();
+        case ::pltxt2htm::NodeKind::list_li: {
+            list_li_node.~ListLi();
+            break;
+        }
+        case ::pltxt2htm::NodeKind::list_li_checkbox: {
+            list_li_checkbox_node.~ListLiCheckbox();
             break;
         }
         case ::pltxt2htm::NodeKind::html_code: {
@@ -2622,22 +2588,7 @@ public:
             md_block_quotes_node.~MdBlockQuotes();
             break;
         }
-        case ::pltxt2htm::NodeKind::md_ul: {
-            md_ul_node.~MdUl();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_ol: {
-            md_ol_node.~MdOl();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_li: {
-            md_li_node.~MdLi();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_li_checkbox: {
-            md_li_checkbox_node.~MdLiCheckbox();
-            break;
-        }
+
         case ::pltxt2htm::NodeKind::md_table: {
             md_table_node.~MdTable();
             break;
@@ -2852,14 +2803,17 @@ public:
         case ::pltxt2htm::NodeKind::html_a: {
             return self.html_a_node == other.html_a_node;
         }
-        case ::pltxt2htm::NodeKind::html_ul: {
-            return self.html_ul_node == other.html_ul_node;
+        case ::pltxt2htm::NodeKind::list_ul: {
+            return self.list_ul_node == other.list_ul_node;
         }
-        case ::pltxt2htm::NodeKind::html_ol: {
-            return self.html_ol_node == other.html_ol_node;
+        case ::pltxt2htm::NodeKind::list_ol: {
+            return self.list_ol_node == other.list_ol_node;
         }
-        case ::pltxt2htm::NodeKind::html_li: {
-            return self.html_li_node == other.html_li_node;
+        case ::pltxt2htm::NodeKind::list_li: {
+            return self.list_li_node == other.list_li_node;
+        }
+        case ::pltxt2htm::NodeKind::list_li_checkbox: {
+            return self.list_li_checkbox_node == other.list_li_checkbox_node;
         }
         case ::pltxt2htm::NodeKind::html_code: {
             return self.html_code_node == other.html_code_node;
@@ -3071,18 +3025,7 @@ public:
         case ::pltxt2htm::NodeKind::md_block_quotes: {
             return self.md_block_quotes_node == other.md_block_quotes_node;
         }
-        case ::pltxt2htm::NodeKind::md_ul: {
-            return self.md_ul_node == other.md_ul_node;
-        }
-        case ::pltxt2htm::NodeKind::md_ol: {
-            return self.md_ol_node == other.md_ol_node;
-        }
-        case ::pltxt2htm::NodeKind::md_li: {
-            return self.md_li_node == other.md_li_node;
-        }
-        case ::pltxt2htm::NodeKind::md_li_checkbox: {
-            return self.md_li_checkbox_node == other.md_li_checkbox_node;
-        }
+
         case ::pltxt2htm::NodeKind::md_table: {
             return self.md_table_node == other.md_table_node;
         }
@@ -3318,24 +3261,31 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto as_html_ul(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_ul};
+    constexpr auto as_list_ul(this auto&& self) noexcept -> decltype(auto) {
+        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::list_ul};
         pltxt2htm_assert(is_type, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.html_ul_node);
+        return ::std::forward_like<decltype(self)>(self.list_ul_node);
     }
 
     [[nodiscard]]
-    constexpr auto as_html_ol(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_ol};
+    constexpr auto as_list_ol(this auto&& self) noexcept -> decltype(auto) {
+        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::list_ol};
         pltxt2htm_assert(is_type, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.html_ol_node);
+        return ::std::forward_like<decltype(self)>(self.list_ol_node);
     }
 
     [[nodiscard]]
-    constexpr auto as_html_li(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_li};
+    constexpr auto as_list_li(this auto&& self) noexcept -> decltype(auto) {
+        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::list_li};
         pltxt2htm_assert(is_type, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.html_li_node);
+        return ::std::forward_like<decltype(self)>(self.list_li_node);
+    }
+
+    [[nodiscard]]
+    constexpr auto as_list_li_checkbox(this auto&& self) noexcept -> decltype(auto) {
+        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::list_li_checkbox};
+        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.list_li_checkbox_node);
     }
 
     [[nodiscard]]
@@ -3850,32 +3800,6 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto as_md_ul(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_ul};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_ul_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_ol(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_ol};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_ol_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_li(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_li};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_li_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_li_checkbox(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_li_checkbox};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_li_checkbox_node);
-    }
 
     [[nodiscard]]
     constexpr auto as_md_table(this auto&& self) noexcept -> decltype(auto) {
@@ -4093,5 +4017,6 @@ public:
 #include "../details/pop_macro.hh"
 #include "impl/basic_node_def.inc"
 #include "impl/html_node_def.inc"
+#include "impl/list_node_def.inc"
 #include "impl/markdown_node_def.inc"
 #include "impl/physics_lab_node_def.inc"

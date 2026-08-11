@@ -22,26 +22,26 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ol><li><color=red>item1</li></ol></color>");
-        auto answer = ::fast_io::u8string_view{
-            u8"<ol><li><span style=\"color:red;\">item1&lt;/li&gt;&lt;/ol&gt;</span></li></ol>"};
+        auto answer =
+            ::fast_io::u8string_view{u8"<ol><li><span style=\"color:red;\">item1</span></li></ol>&lt;/color&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ol><li>item1<ol><li>item2</li></ol></li></ol>");
-        auto answer = ::fast_io::u8string_view{u8"<ol><li>item1<ol><li>item2</li></ol></li></ol>"};
+        auto answer = ::fast_io::u8string_view{u8"<ol><li>item1</li><li><ol><li>item2</li></ol></li></ol>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ol>");
-        auto answer = ::fast_io::u8string_view{u8"<ol></ol>"};
+        auto answer = ::fast_io::u8string_view{u8"&lt;ol&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<ol></ol>t");
-        auto answer = ::fast_io::u8string_view{u8"t<ol></ol>t"};
+        auto answer = ::fast_io::u8string_view{u8"t&lt;ol&gt;&lt;/ol&gt;t"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -65,20 +65,20 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<ol><li><ol><li>xxx</li></ol></li></ol>");
-        auto answer = ::fast_io::u8string_view{u8"1. \n  1. xxx\n\n"};
+        auto answer = ::fast_io::u8string_view{u8"1. \n  1. xxx\n"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html =
             ::pltxt2htm_test::pltxt2plunity_introduction(u8"<ul><li>a<ul><li>b<ul><li>c</li></ul></li></ul></li></ul>");
-        auto answer = ::fast_io::u8string_view{u8"\u2022 a\n  \u2218 b\n    \u25ab c\n\n\n"};
+        auto answer = ::fast_io::u8string_view{u8"\u2022 a\n  \u2218 b\n    \u25ab c\n"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<ul><li>a<ol><li>b</li></ol></li></ul>");
-        auto answer = ::fast_io::u8string_view{u8"\u2022 a\n  1. b\n\n"};
+        auto answer = ::fast_io::u8string_view{u8"\u2022 a\n  1. b\n"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
