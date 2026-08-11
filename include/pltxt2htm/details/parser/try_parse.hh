@@ -2722,8 +2722,8 @@ constexpr auto try_parse_col_tag(::fast_io::u8string_view pltext, ::pltxt2htm::N
 /**
  * @brief Parse &lt;input type=&quot;checkbox&quot; disabled [checked]&gt; tag.
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
- * @param[in] pltext The input text to parse, starting after `<i`.
- * @return Tag length and checked state if matched; otherwise nullopt.
+ * @param[in] pltext The input text to parse, starting at the opening `<`.
+ * @return Total tag length (from the `<`) and checked state if matched; otherwise nullopt.
  */
 struct TryParseInputCheckboxTagResult {
     ::std::size_t tag_len;
@@ -2734,12 +2734,12 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_input_checkbox_tag(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<TryParseInputCheckboxTagResult> {
-    // match "nput" (case-insensitive)
-    if (::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"nput"}>(pltext) ==
-        false) {
+    // match "<input" (case-insensitive)
+    constexpr auto input_tag_prefix = ::pltxt2htm::details::U8LiteralString{u8"<input"};
+    if (::pltxt2htm::details::is_prefix_match<ndebug, input_tag_prefix>(pltext) == false) {
         return ::exception::nullopt;
     }
-    ::std::size_t pos{4};
+    ::std::size_t pos{input_tag_prefix.size()};
     bool found_type_checkbox{false};
     bool found_disabled{false};
     bool checked{false};

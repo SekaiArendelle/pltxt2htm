@@ -104,7 +104,6 @@ using ::pltxt2htm::HtmlCol;
 
 using ::pltxt2htm::HtmlSpan;
 using ::pltxt2htm::HtmlA;
-using ::pltxt2htm::HtmlInput;
 using ::pltxt2htm::HtmlImg;
 
 // markdown_node

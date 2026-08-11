@@ -46,26 +46,6 @@ public:
 };
 
 /**
- * @brief HTML &lt;input&gt; checkbox input node (self-closing)
- * @details Represents &lt;input type=&quot;checkbox&quot; disabled&gt; or
- *          &lt;input type=&quot;checkbox&quot; disabled checked&gt;.
- */
-class HtmlInput {
-public:
-    bool checked;
-
-    [[nodiscard]]
-    constexpr auto operator==(this HtmlInput const& self, HtmlInput const& other) noexcept -> bool {
-        return self.checked == other.checked;
-    }
-
-    [[nodiscard]]
-    constexpr auto is_checked(this auto&& self) noexcept -> bool {
-        return self.checked;
-    }
-};
-
-/**
  * @brief HTML &lt;img&gt; image node (self-closing)
  * @details Represents &lt;img src=&quot;...&quot; alt=&quot;...&quot;&gt;.
  */

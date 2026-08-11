@@ -487,16 +487,8 @@ entry:
                 case u8'i':
                     [[fallthrough]];
                 case u8'I': {
-                    if (auto opt_input_tag = ::pltxt2htm::details::try_parse_input_checkbox_tag<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
-                        opt_input_tag.has_value()) {
-                        auto&& [tag_len, checked] =
-                            opt_input_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-                        current_index += tag_len + 1;
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlInput{checked}));
-                        ++current_index;
-                        continue;
-                    }
+                    // <input> is only recognized inside block-level <ul>/<ol> items
+                    // (parsed by html_list.hh); inline occurrences are literal text.
                     if (auto opt_img_tag = ::pltxt2htm::details::try_parse_img_tag<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_img_tag.has_value()) {

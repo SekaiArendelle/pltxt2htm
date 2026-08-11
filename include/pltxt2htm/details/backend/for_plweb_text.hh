@@ -1352,15 +1352,6 @@ entry:
                 result.append(u8"<col>");
                 continue;
             }
-            case ::pltxt2htm::NodeKind::html_input: {
-                if (node.as_html_input().is_checked()) {
-                    result.append(u8"<input type=\"checkbox\" disabled checked>");
-                }
-                else {
-                    result.append(u8"<input type=\"checkbox\" disabled>");
-                }
-                continue;
-            }
             case ::pltxt2htm::NodeKind::html_img: {
                 result.append(u8"<img src=\"");
                 auto const& src = node.as_html_img().get_src();

@@ -1374,16 +1374,6 @@ entry:
                 result.append(u8"<size=20>\uff1c</size>col<size=20>\uff1e</size>");
                 continue;
             }
-            case ::pltxt2htm::NodeKind::html_input: {
-                if (node.as_html_input().is_checked()) {
-                    result.append(
-                        u8"<size=20>\uff1c</size>input type=\"checkbox\" disabled checked<size=20>\uff1e</size>");
-                }
-                else {
-                    result.append(u8"<size=20>\uff1c</size>input type=\"checkbox\" disabled<size=20>\uff1e</size>");
-                }
-                continue;
-            }
             case ::pltxt2htm::NodeKind::html_img: {
                 result.append(u8"<size=20>\uff1c</size>img src=\"");
                 result.append(node.as_html_img().get_src());

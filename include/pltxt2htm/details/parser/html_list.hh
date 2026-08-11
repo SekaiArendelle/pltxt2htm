@@ -106,6 +106,28 @@ constexpr auto optionally_to_html_list_ast(::fast_io::u8string_view pltext) noex
             return ::exception::nullopt;
         }
 
+        // A checkbox <input type="checkbox" disabled [checked]> may start the item
+        // (the HTML equivalent of Markdown `- [ ]` / `- [x]`).  It is parsed here so
+        // that inline occurrences of <input> stay literal text.
+        bool checkbox{};
+        bool checkbox_checked{};
+        if (auto opt_input = ::pltxt2htm::details::try_parse_input_checkbox_tag<ndebug>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            opt_input.has_value()) {
+            auto&& [input_len, checked] = opt_input.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            current_index += input_len;
+            checkbox = true;
+            checkbox_checked = checked;
+            // Skip whitespace between the checkbox input and the item text.
+            while (current_index < pltext_size) {
+                auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
+                if (chr != u8' ' && chr != u8'\t' && chr != u8'\n') {
+                    break;
+                }
+                ++current_index;
+            }
+        }
+
         // Collect the raw <li> content up to the matching </li>.  Nested <ul>/<ol> are
         // parsed recursively into sibling sublist nodes (appended after the item), so the
         // item text itself never contains list markup and no inline recognition is needed.
@@ -154,7 +176,12 @@ constexpr auto optionally_to_html_list_ast(::fast_io::u8string_view pltext) noex
             text.push_back(::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index));
             ++current_index;
         }
-        ast.emplace_back(::pltxt2htm::details::ListLiNode(::std::move(text)));
+        if (checkbox) {
+            ast.emplace_back(::pltxt2htm::details::ListLiCheckboxNode(::std::move(text), checkbox_checked));
+        }
+        else {
+            ast.emplace_back(::pltxt2htm::details::ListLiNode(::std::move(text)));
+        }
         // Append the nested lists as siblings after the item (the Markdown sibling shape),
         // so the shared list frame handling and backends apply uniformly.
         for (auto& node : pending_nested) {
