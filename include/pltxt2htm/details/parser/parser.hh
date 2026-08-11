@@ -3362,7 +3362,6 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_hr:
                 [[fallthrough]];
-
             case ::pltxt2htm::NodeKind::md_code_fence_backtick:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_code_fence_tilde:
