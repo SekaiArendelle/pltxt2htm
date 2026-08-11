@@ -454,6 +454,31 @@ public:
 };
 
 /**
+ * @brief HTML &lt;code&gt; inline code node
+ */
+template<::pltxt2htm::Contracts ndebug>
+class HtmlCode {
+    ::pltxt2htm::Ast<ndebug> subast;
+
+public:
+    constexpr explicit HtmlCode(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlCode(::pltxt2htm::HtmlCode<ndebug> const&) noexcept;
+    constexpr HtmlCode(::pltxt2htm::HtmlCode<ndebug>&&) noexcept;
+    constexpr ~HtmlCode() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlCode<ndebug> const&) noexcept -> ::pltxt2htm::HtmlCode<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::HtmlCode<ndebug>& self, ::pltxt2htm::HtmlCode<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlCode<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this HtmlCode const&, HtmlCode const&) noexcept -> bool;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+};
+
+/**
  * @brief HTML &lt;span style="color:...;font-size:...;vertical-align:..."&gt; node
  * @details Represents an HTML span element with color/font-size/vertical-align style attributes.
  *          color stores the CSS color value (e.g. "red" or "#FF0000").
@@ -583,31 +608,6 @@ public:
     [[nodiscard]]
     constexpr auto get_internal(this HtmlA const& self) noexcept -> bool {
         return self.internal;
-    }
-};
-
-/**
- * @brief HTML &lt;code&gt; inline code node
- */
-template<::pltxt2htm::Contracts ndebug>
-class HtmlCode {
-    ::pltxt2htm::Ast<ndebug> subast;
-
-public:
-    constexpr explicit HtmlCode(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr HtmlCode(::pltxt2htm::HtmlCode<ndebug> const&) noexcept;
-    constexpr HtmlCode(::pltxt2htm::HtmlCode<ndebug>&&) noexcept;
-    constexpr ~HtmlCode() noexcept;
-    constexpr auto operator=(::pltxt2htm::HtmlCode<ndebug> const&) noexcept -> ::pltxt2htm::HtmlCode<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::HtmlCode<ndebug>& self, ::pltxt2htm::HtmlCode<ndebug>&&) noexcept
-        -> ::pltxt2htm::HtmlCode<ndebug>&;
-
-    [[nodiscard]]
-    constexpr auto operator==(this HtmlCode const&, HtmlCode const&) noexcept -> bool;
-
-    [[nodiscard]]
-    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.subast);
     }
 };
 
