@@ -71,8 +71,6 @@ class PlTxtNode {
         ::pltxt2htm::ListOl<ndebug> list_ol_node;
         ::pltxt2htm::ListLi<ndebug> list_li_node;
         ::pltxt2htm::ListLiCheckbox<ndebug> list_li_checkbox_node;
-        ::pltxt2htm::HtmlCode<ndebug> html_code_node;
-        ::pltxt2htm::HtmlPre<ndebug> html_pre_node;
         ::pltxt2htm::HtmlBlockquote<ndebug> html_blockquote_node;
 
         // html table node
@@ -457,16 +455,6 @@ public:
     constexpr PlTxtNode(::pltxt2htm::ListLiCheckbox<ndebug>&& node) noexcept
         : list_li_checkbox_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::list_li_checkbox} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::HtmlCode<ndebug>&& node) noexcept
-        : html_code_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::html_code} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::HtmlPre<ndebug>&& node) noexcept
-        : html_pre_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::html_pre} {
     }
 
     constexpr PlTxtNode(::pltxt2htm::HtmlBlockquote<ndebug>&& node) noexcept
@@ -1070,14 +1058,6 @@ public:
             new (::std::addressof(list_li_checkbox_node))::pltxt2htm::ListLiCheckbox(other.list_li_checkbox_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::html_code: {
-            new (::std::addressof(html_code_node))::pltxt2htm::HtmlCode(other.html_code_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::html_pre: {
-            new (::std::addressof(html_pre_node))::pltxt2htm::HtmlPre(other.html_pre_node);
-            break;
-        }
         case ::pltxt2htm::NodeKind::html_blockquote: {
             new (::std::addressof(html_blockquote_node))::pltxt2htm::HtmlBlockquote(other.html_blockquote_node);
             break;
@@ -1642,14 +1622,6 @@ public:
         case ::pltxt2htm::NodeKind::list_li_checkbox: {
             new (::std::addressof(list_li_checkbox_node))::pltxt2htm::ListLiCheckbox(
                 ::std::move(other.list_li_checkbox_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::html_code: {
-            new (::std::addressof(html_code_node))::pltxt2htm::HtmlCode(::std::move(other.html_code_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::html_pre: {
-            new (::std::addressof(html_pre_node))::pltxt2htm::HtmlPre(::std::move(other.html_pre_node));
             break;
         }
         case ::pltxt2htm::NodeKind::html_blockquote: {
@@ -2226,14 +2198,6 @@ public:
             list_li_checkbox_node.~ListLiCheckbox();
             break;
         }
-        case ::pltxt2htm::NodeKind::html_code: {
-            html_code_node.~HtmlCode();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::html_pre: {
-            html_pre_node.~HtmlPre();
-            break;
-        }
         case ::pltxt2htm::NodeKind::html_blockquote: {
             html_blockquote_node.~HtmlBlockquote();
             break;
@@ -2724,12 +2688,6 @@ public:
         case ::pltxt2htm::NodeKind::list_li_checkbox: {
             return self.list_li_checkbox_node == other.list_li_checkbox_node;
         }
-        case ::pltxt2htm::NodeKind::html_code: {
-            return self.html_code_node == other.html_code_node;
-        }
-        case ::pltxt2htm::NodeKind::html_pre: {
-            return self.html_pre_node == other.html_pre_node;
-        }
         case ::pltxt2htm::NodeKind::html_blockquote: {
             return self.html_blockquote_node == other.html_blockquote_node;
         }
@@ -3188,20 +3146,6 @@ public:
         bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::list_li_checkbox};
         pltxt2htm_assert(is_type, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.list_li_checkbox_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_html_code(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_code};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.html_code_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_html_pre(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_pre};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.html_pre_node);
     }
 
     [[nodiscard]]

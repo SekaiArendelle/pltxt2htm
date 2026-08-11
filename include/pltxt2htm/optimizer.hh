@@ -1322,20 +1322,6 @@ entry:
                         ::std::addressof(subast), ::pltxt2htm::NodeKind::md_code_span_3_backtick, subast.begin()));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_code: {
-                auto&& subast = node.as_html_code().get_subast();
-                call_stack.push(
-                    ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_code, subast.begin()));
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_pre: {
-                auto&& subast = node.as_html_pre().get_subast();
-                call_stack.push(
-                    ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_pre, subast.begin()));
-                goto entry;
-            }
             case ::pltxt2htm::NodeKind::html_blockquote: {
                 auto&& subast = node.as_html_blockquote().get_subast();
                 call_stack.push(

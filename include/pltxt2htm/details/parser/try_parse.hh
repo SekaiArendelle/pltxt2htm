@@ -3375,6 +3375,71 @@ struct TryParseMdCodeFenceResult {
     ::std::size_t advance_count; ///< Number of characters consumed.
 };
 
+/**
+ * @brief Parse a block-level HTML <pre><code>...</code></pre> code block into a Code node.
+ *
+ * This function attempts to parse the full `<pre><code>` block: a bare `<pre>` tag,
+ * optionally followed by spaces/tabs and a `<code>` tag (bare or with a
+ * `class="language-..."` attribute). The content up to the matching `</code></pre>`
+ * is parsed as plain text and stored in a ::pltxt2htm::Code node.
+ *
+ * @tparam ndebug When set to Contracts::ignore, runtime assertions are disabled for performance.
+ * @param[in] pltext Input text starting at "<pre>".
+ * @return The parsed Code node and continuation index on success; nullopt on any deviation.
+ * @note The `<pre>` tag must be bare (no attributes) and `<code>` must immediately
+ *       follow it (allowing only spaces/tabs in between).
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_html_pre_code_block(::fast_io::u8string_view pltext) noexcept
+    -> ::exception::optional<::pltxt2htm::details::TryParseMdCodeFenceResult<ndebug>> {
+    // <pre> must be a bare tag (no attributes).
+    auto opt_pre_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<pre">(pltext);
+    if (opt_pre_tag_len.has_value() == false) {
+        return ::exception::nullopt;
+    }
+    ::std::size_t pos{opt_pre_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1};
+
+    // allow spaces/tabs between <pre> and <code>
+    while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
+                                   ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t')) {
+        ++pos;
+    }
+    if (pos + 1 >= pltext.size()) {
+        return ::exception::nullopt;
+    }
+    if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'<') {
+        return ::exception::nullopt;
+    }
+    char8_t const code_first_chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos + 1)};
+    if (code_first_chr != u8'c' && code_first_chr != u8'C') {
+        return ::exception::nullopt;
+    }
+    auto opt_code_tag = ::pltxt2htm::details::try_parse_code_tag<ndebug>(
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, pos + 2));
+    if (opt_code_tag.has_value() == false) {
+        return ::exception::nullopt;
+    }
+    auto&& [code_tag_len, language] = opt_code_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+    pos += 2 + code_tag_len;
+
+    // parse content until the closing </code></pre>
+    constexpr auto end_string = ::pltxt2htm::details::U8LiteralString{u8"</code></pre>"};
+    auto&& [advance_count, ast] = ::pltxt2htm::details::simply_parse_pltext<ndebug, end_string>(
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, pos));
+    pos += advance_count;
+
+    // <code class="language-..."> stores the full class value; Code stores only the suffix
+    // after the "language-" prefix (the backends prepend it again when rendering).
+    ::exception::optional<::fast_io::u8string> opt_lang{::exception::nullopt};
+    if (language.has_value()) {
+        auto const& full_language = language.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        opt_lang = ::fast_io::u8string{full_language.data() + 9, full_language.data() + full_language.size()};
+    }
+    return ::pltxt2htm::details::TryParseMdCodeFenceResult<ndebug>{
+        .node = ::pltxt2htm::Code<ndebug>{::std::move(ast), ::std::move(opt_lang)}, .advance_count = pos};
+}
+
 [[nodiscard]]
 constexpr bool is_allowed_in_language(char8_t const chr) noexcept {
     return (chr >= u8'a' && chr <= u8'z') || (chr >= u8'A' && chr <= u8'Z') || (chr >= u8'0' && chr <= u8'9') ||

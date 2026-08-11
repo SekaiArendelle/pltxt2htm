@@ -3,37 +3,37 @@
 int main() {
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code>text</code>");
-        auto answer = ::fast_io::u8string_view{u8"<code>text</code>"};
+        auto answer = ::fast_io::u8string_view{u8"&lt;code&gt;text&lt;/code&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<CODE    >text</CODE  >");
-        auto answer = ::fast_io::u8string_view{u8"<code>text</code>"};
+        auto answer = ::fast_io::u8string_view{u8"&lt;CODE&nbsp;&nbsp;&nbsp;&nbsp;&gt;text&lt;/CODE&nbsp;&nbsp;&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code><color=red>text</color></code>");
-        auto answer = ::fast_io::u8string_view{u8"<code><span style=\"color:red;\">text</span></code>"};
+        auto answer = ::fast_io::u8string_view{u8"&lt;code&gt;<span style=\"color:red;\">text</span>&lt;/code&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code><color=red>text</code></color>");
-        auto answer = ::fast_io::u8string_view{u8"<code><span style=\"color:red;\">text&lt;/code&gt;</span></code>"};
+        auto answer = ::fast_io::u8string_view{u8"&lt;code&gt;<span style=\"color:red;\">text&lt;/code&gt;</span>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code>text<code>text</code></code>");
-        auto answer = ::fast_io::u8string_view{u8"<code>text<code>text</code></code>"};
+        auto answer = ::fast_io::u8string_view{u8"&lt;code&gt;text&lt;code&gt;text&lt;/code&gt;&lt;/code&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code>");
-        auto answer = ::fast_io::u8string_view{u8"<code></code>"};
+        auto answer = ::fast_io::u8string_view{u8"&lt;code&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -45,24 +45,24 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<code></code>t");
-        auto answer = ::fast_io::u8string_view{u8"t<code></code>t"};
+        auto answer = ::fast_io::u8string_view{u8"t&lt;code&gt;&lt;/code&gt;t"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
-    // --- <code class="language-..."> tests ---
+    // --- standalone <code class="language-..."> stays literal escaped text ---
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code class=\"language-bash\">echo</code>");
-        auto answer = ::fast_io::u8string_view{u8"<code class=\"language-bash\">echo</code>"};
+        auto answer = ::fast_io::u8string_view{u8"&lt;code&nbsp;class=&quot;language-bash&quot;&gt;echo&lt;/code&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code class=\"language-cpp\">fn()</code>");
-        auto answer = ::fast_io::u8string_view{u8"<code class=\"language-cpp\">fn()</code>"};
+        auto answer = ::fast_io::u8string_view{u8"&lt;code&nbsp;class=&quot;language-cpp&quot;&gt;fn()&lt;/code&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code class='language-c++'>fn()</code>");
-        auto answer = ::fast_io::u8string_view{u8"<code class=\"language-c++\">fn()</code>"};
+        auto answer = ::fast_io::u8string_view{u8"&lt;code&nbsp;class=&apos;language-c++&apos;&gt;fn()&lt;/code&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
     // case-sensitive: Language- vs language-
@@ -83,19 +83,19 @@ int main() {
         auto answer = ::fast_io::u8string_view{u8"&lt;code&nbsp;class=&quot;&quot;&gt;echo&lt;/code&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
-    // unknown attribute (style) — should fall back
+    // unknown attribute (style)
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code style=\"color:red\">echo</code>");
         auto answer = ::fast_io::u8string_view{u8"&lt;code&nbsp;style=&quot;color:red&quot;&gt;echo&lt;/code&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
-    // language- with empty language suffix — should fall back
+    // language- with empty language suffix
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code class=\"language-\">echo</code>");
         auto answer = ::fast_io::u8string_view{u8"&lt;code&nbsp;class=&quot;language-&quot;&gt;echo&lt;/code&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
-    // reject language suffix characters that can break out of the class attribute
+    // attribute injection attempts stay escaped
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code class='language-\" onmouseover=\"alert(1)'>x</code>");
         auto answer = ::fast_io::u8string_view{
@@ -114,8 +114,8 @@ int main() {
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<code class=\"language-cpp\">code</code>");
         auto answer = ::fast_io::u8string_view{
-            u8"<size=20>\uff1c</size>code class=\"language-cpp\"<size=20>\uff1e</size>code<size=20>\uff1c</size>/code"
-            u8"<size=20>\uff1e</size>"};
+            u8"<size=20>\uff1c</size>code\u00A0class=\"language-cpp\"<size=20>\uff1e</size>code<size=20>\uff1c</size>/"
+            u8"code<size=20>\uff1e</size>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

@@ -97,9 +97,7 @@ enum class NodeKind : unsigned {
     list_li, ///< List item: &lt;li&gt;...&lt;/li&gt; or Markdown list item
     list_li_checkbox, ///< Checkbox list item (Markdown - [ ] / - [x])
 
-    // HTML code and quote elements
-    html_code, ///< Inline code: &lt;code&gt;...&lt;/code&gt;
-    html_pre, ///< Preformatted text: &lt;pre&gt;...&lt;/pre&gt;
+    // HTML quote elements
     html_blockquote, ///< Block quote: &lt;blockquote&gt;...&lt;/blockquote&gt;
 
     // HTML table elements

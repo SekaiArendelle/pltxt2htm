@@ -276,7 +276,6 @@ constexpr auto plweb_text_backend(::pltxt2htm::Ast<ndebug> const& ast_init, ::fa
     -> ::fast_io::u8string {
     ::fast_io::u8string result{};
     ::fast_io::stack<::pltxt2htm::details::BackendFrameContext<ndebug>> call_stack{};
-    ::std::size_t pre_depth{};
     call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(ast_init, ::pltxt2htm::NodeKind::text, 0));
 
 entry:
@@ -907,7 +906,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::line_break: {
-                if (pre_depth > 0 || nested_tag_type == ::pltxt2htm::NodeKind::code) {
+                if (nested_tag_type == ::pltxt2htm::NodeKind::code) {
                     result.push_back(u8'\n');
                 }
                 else {
@@ -1145,20 +1144,6 @@ entry:
                 result.append(u8"<code>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_code: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_code().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::html_code, 0));
-                ++current_index;
-                result.append(u8"<code");
-                auto const& language = node.as_html_code().get_language();
-                if (language.has_value()) {
-                    result.append(u8" class=\"");
-                    result.append(language.template value<ndebug == ::pltxt2htm::Contracts::ignore>());
-                    result.push_back(u8'\"');
-                }
-                result.push_back(u8'>');
-                goto entry;
-            }
             case ::pltxt2htm::NodeKind::md_latex_inline: {
                 if constexpr (mode == PlWebTextBackendMode::roundtrip) {
                     continue;
@@ -1182,14 +1167,6 @@ entry:
                     result.append(u8"$$");
                     goto entry;
                 }
-            }
-            case ::pltxt2htm::NodeKind::html_pre: {
-                ++pre_depth;
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_pre().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::html_pre, 0));
-                ++current_index;
-                result.append(u8"<pre>");
-                goto entry;
             }
             case ::pltxt2htm::NodeKind::md_block_quotes: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
@@ -1774,9 +1751,7 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_code_span_2_backtick:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_code_span_3_backtick:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_code: {
+            case ::pltxt2htm::NodeKind::md_code_span_3_backtick: {
                 result.append(u8"</code>");
                 goto entry;
             }
@@ -1790,11 +1765,6 @@ entry:
                 pltxt2htm_assert(mode != PlWebTextBackendMode::roundtrip,
                                  u8"Unexpected md_latex_block node in roundtrip mode");
                 result.append(u8"$$");
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_pre: {
-                --pre_depth;
-                result.append(u8"</pre>");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_block_quotes:

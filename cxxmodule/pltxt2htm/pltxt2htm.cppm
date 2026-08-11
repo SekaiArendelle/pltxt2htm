@@ -89,8 +89,6 @@ using ::pltxt2htm::ListOl;
 using ::pltxt2htm::ListLi;
 using ::pltxt2htm::ListLiCheckbox;
 
-using ::pltxt2htm::HtmlCode;
-using ::pltxt2htm::HtmlPre;
 using ::pltxt2htm::HtmlBlockquote;
 
 // html table nodes

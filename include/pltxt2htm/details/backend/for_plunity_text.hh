@@ -1179,20 +1179,6 @@ entry:
                 result.append(u8"<font=\"PhysicsLab-NerdFont SDF\"> ");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_code: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_code().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::html_code, 0));
-                ++current_index;
-                result.append(u8"<size=20>\uff1c</size>code");
-                auto const& language = node.as_html_code().get_language();
-                if (language.has_value()) {
-                    result.append(u8" class=\"");
-                    result.append(language.template value<ndebug == ::pltxt2htm::Contracts::ignore>());
-                    result.push_back(u8'\"');
-                }
-                result.append(u8"<size=20>\uff1e</size>");
-                goto entry;
-            }
             case ::pltxt2htm::NodeKind::md_latex_inline: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_md_latex_inline().get_subast(), ::pltxt2htm::NodeKind::md_latex_inline, 0));
@@ -1205,28 +1191,6 @@ entry:
                     node.as_md_latex_block().get_subast(), ::pltxt2htm::NodeKind::md_latex_block, 0));
                 ++current_index;
                 result.append(u8"$$");
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_pre: {
-                auto const& pre_subast = node.as_html_pre().get_subast();
-                bool const is_code_block = pre_subast.size() == 1 &&
-                                           ::pltxt2htm::details::vector_index<ndebug>(pre_subast, 0).get_node_kind() ==
-                                               ::pltxt2htm::NodeKind::html_code;
-                if (is_code_block) {
-                    auto const& code_subast =
-                        ::pltxt2htm::details::vector_index<ndebug>(pre_subast, 0).as_html_code().get_subast();
-                    call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                        code_subast, ::pltxt2htm::NodeKind::html_pre, 0,
-                        ::pltxt2htm::details::BackendContextWithHtmlPreInfo{.is_code_block = true}));
-                    ++current_index;
-                    result.append(u8"<font=\"PhysicsLab-NerdFont SDF\">\n");
-                    goto entry;
-                }
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                    pre_subast, ::pltxt2htm::NodeKind::html_pre, 0,
-                    ::pltxt2htm::details::BackendContextWithHtmlPreInfo{.is_code_block = false}));
-                ++current_index;
-                result.append(u8"<size=20>\uff1c</size>pre<size=20>\uff1e</size>");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_block_quotes: {
@@ -1768,25 +1732,12 @@ entry:
                 result.append(u8" </font>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_code: {
-                result.append(u8"<size=20>\uff1c</size>/code<size=20>\uff1e</size>");
-                goto entry;
-            }
             case ::pltxt2htm::NodeKind::md_latex_inline: {
                 result.push_back(u8'$');
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_latex_block: {
                 result.append(u8"$$");
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_pre: {
-                if (top_frame.get_html_pre_info().is_code_block) {
-                    result.append(u8"\n</font>");
-                }
-                else {
-                    result.append(u8"<size=20>\uff1c</size>/pre<size=20>\uff1e</size>");
-                }
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_block_quotes: {
