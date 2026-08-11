@@ -16,6 +16,7 @@
 #include "../utils.hh"
 #include "../../contracts.hh"
 #include "../../ast/ast.hh"
+#include "list_ast.hh"
 #include "md_list.hh"
 #include "html_list.hh"
 #include "md_table.hh"
