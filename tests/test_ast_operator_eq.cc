@@ -451,9 +451,11 @@ int main() {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
 
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlSize<nd::quick_enforce>(
-            ::std::move(ast_a), ::pltxt2htm::ValueWithUnit<::std::size_t>{.value = 14, .unit = ::pltxt2htm::Unit::px}));
+            ::std::move(ast_a),
+            ::pltxt2htm::ValueWithUnit<long double>{.value = 14, .unit = ::pltxt2htm::Unit::px}));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlSize<nd::quick_enforce>(
-            ::std::move(ast_b), ::pltxt2htm::ValueWithUnit<::std::size_t>{.value = 14, .unit = ::pltxt2htm::Unit::px}));
+            ::std::move(ast_b),
+            ::pltxt2htm::ValueWithUnit<long double>{.value = 14, .unit = ::pltxt2htm::Unit::px}));
         ::exception::assert_true<false>(a == b);
     }
     {
@@ -461,9 +463,11 @@ int main() {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
 
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlSize<nd::quick_enforce>(
-            ::std::move(ast_a), ::pltxt2htm::ValueWithUnit<::std::size_t>{.value = 14, .unit = ::pltxt2htm::Unit::px}));
+            ::std::move(ast_a),
+            ::pltxt2htm::ValueWithUnit<long double>{.value = 14, .unit = ::pltxt2htm::Unit::px}));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlSize<nd::quick_enforce>(
-            ::std::move(ast_b), ::pltxt2htm::ValueWithUnit<::std::size_t>{.value = 16, .unit = ::pltxt2htm::Unit::px}));
+            ::std::move(ast_b),
+            ::pltxt2htm::ValueWithUnit<long double>{.value = 16, .unit = ::pltxt2htm::Unit::px}));
         ::exception::assert_false<false>(a == b);
     }
     {
@@ -471,10 +475,11 @@ int main() {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
 
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlSize<nd::quick_enforce>(
-            ::std::move(ast_a), ::pltxt2htm::ValueWithUnit<::std::size_t>{.value = 14, .unit = ::pltxt2htm::Unit::px}));
+            ::std::move(ast_a),
+            ::pltxt2htm::ValueWithUnit<long double>{.value = 14, .unit = ::pltxt2htm::Unit::px}));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlSize<nd::quick_enforce>(
             ::std::move(ast_b),
-            ::pltxt2htm::ValueWithUnit<::std::size_t>{.value = 14, .unit = ::pltxt2htm::Unit::percent}));
+            ::pltxt2htm::ValueWithUnit<long double>{.value = 14, .unit = ::pltxt2htm::Unit::percent}));
         ::exception::assert_false<false>(a == b);
     }
 
