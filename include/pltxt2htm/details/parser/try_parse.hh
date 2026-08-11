@@ -1592,7 +1592,7 @@ constexpr auto try_parse_margin_attributes(::fast_io::u8string_view pltext) noex
             if (saw_attribute == false) {
                 return ::exception::nullopt;
             }
-            return ::pltxt2htm::details::TryParseMarginTagResult{pos, left, right};
+            return TryParseMarginTagResult{.tag_len = pos, .left = left, .right = right};
         }
         bool const is_left =
             ::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"left"}>(
@@ -1860,7 +1860,7 @@ constexpr auto try_parse_html_div_tag(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt;
     }
 
-    return ::pltxt2htm::details::TryParseHtmlDivTagResult{pos, left, right};
+    return TryParseHtmlDivTagResult{.tag_len = pos, .left = left, .right = right};
 }
 
 /**
