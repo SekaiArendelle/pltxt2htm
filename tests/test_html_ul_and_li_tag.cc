@@ -113,6 +113,34 @@ int main() {
         auto answer = ::fast_io::u8string_view{u8"&lt;li&gt;a&lt;/li&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
+    // ---- whitespace/newlines inside items are HTML formatting, not content ----
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ul><li>\n<ol>\n  <li>text</li></ol></li></ul>");
+        auto answer = ::fast_io::u8string_view{u8"<ul><li><ol><li>text</li></ol></li></ul>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ul><li>\n  text</li></ul>");
+        auto answer = ::fast_io::u8string_view{u8"<ul><li>text</li></ul>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        // a newline in the middle of the item text is real content
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ul><li>first\nsecond</li></ul>");
+        auto answer = ::fast_io::u8string_view{u8"<ul><li>first<br>second</li></ul>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ul><li>text\n</li></ul>");
+        auto answer = ::fast_io::u8string_view{u8"<ul><li>text</li></ul>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ul><li>\n</li></ul>");
+        auto answer = ::fast_io::u8string_view{u8"<ul><li></li></ul>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     // ---- mismatched closing tag makes the list literal ----
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ul><li>a</li></ol>");

@@ -106,6 +106,16 @@ constexpr auto optionally_to_html_list_ast(::fast_io::u8string_view pltext) noex
             return ::exception::nullopt;
         }
 
+        // Under the HTML block content model, leading whitespace/newlines inside an
+        // item are just formatting for readability and are not rendered.
+        while (current_index < pltext_size) {
+            auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
+            if (chr != u8' ' && chr != u8'\t' && chr != u8'\n') {
+                break;
+            }
+            ++current_index;
+        }
+
         // A checkbox <input type="checkbox" disabled [checked]> may start the item
         // (the HTML equivalent of Markdown `- [ ]` / `- [x]`).  It is parsed here so
         // that inline occurrences of <input> stay literal text.
@@ -175,6 +185,14 @@ constexpr auto optionally_to_html_list_ast(::fast_io::u8string_view pltext) noex
             // Ordinary content character.
             text.push_back(::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index));
             ++current_index;
+        }
+        // Trailing whitespace/newlines are formatting as well (see the leading-skip above).
+        while (text.empty() == false) {
+            auto const chr = text[text.size() - 1];
+            if (chr != u8' ' && chr != u8'\t' && chr != u8'\n') {
+                break;
+            }
+            text.pop_back();
         }
         if (checkbox) {
             ast.emplace_back(::pltxt2htm::details::ListLiCheckboxNode(::std::move(text), checkbox_checked));
