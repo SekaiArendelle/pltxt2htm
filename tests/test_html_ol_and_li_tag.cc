@@ -29,7 +29,7 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ol><li>item1<ol><li>item2</li></ol></li></ol>");
-        auto answer = ::fast_io::u8string_view{u8"<ol><li>item1</li><li><ol><li>item2</li></ol></li></ol>"};
+        auto answer = ::fast_io::u8string_view{u8"<ol><li>item1<ol><li>item2</li></ol></li></ol>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

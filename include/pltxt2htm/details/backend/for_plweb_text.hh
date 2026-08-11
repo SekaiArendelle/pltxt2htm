@@ -1083,14 +1083,6 @@ entry:
                 continue;
             }
             case ::pltxt2htm::NodeKind::list_ul: {
-                if (::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type() ==
-                        ::pltxt2htm::NodeKind::list_ul ||
-                    ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type() ==
-                        ::pltxt2htm::NodeKind::list_ol) {
-                    // A nested list that is a sibling of the parent's items (the Markdown
-                    // nested-list shape) must be wrapped in an <li> to stay valid HTML.
-                    result.append(u8"<li>");
-                }
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_list_ul().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::list_ul, 0));
                 ++current_index;
@@ -1098,12 +1090,6 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::list_ol: {
-                if (::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type() ==
-                        ::pltxt2htm::NodeKind::list_ul ||
-                    ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type() ==
-                        ::pltxt2htm::NodeKind::list_ol) {
-                    result.append(u8"<li>");
-                }
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_list_ol().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::list_ol, 0));
                 ++current_index;
@@ -1760,7 +1746,7 @@ entry:
                         ::pltxt2htm::NodeKind::list_ul ||
                     ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type() ==
                         ::pltxt2htm::NodeKind::list_ol) {
-                    // Close the synthetic <li> wrapper added for the sibling-nested list.
+                    // A sibling-nested list defers the parent item's </li>; close it here.
                     result.append(u8"</li>");
                 }
                 goto entry;
@@ -1778,6 +1764,18 @@ entry:
             case ::pltxt2htm::NodeKind::list_li_checkbox:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::list_li: {
+                // If the next sibling in the parent list is itself a list (the Markdown
+                // nested-list shape), defer </li> so the nested list renders inside this
+                // item; the nested list's closing appends the deferred </li>.
+                auto const& parent_ast = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_ast();
+                auto const parent_index = ::pltxt2htm::details::stack_top<ndebug>(call_stack).current_index;
+                if (parent_index < parent_ast.size()) {
+                    auto const next_kind =
+                        ::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_index).get_node_kind();
+                    if (next_kind == ::pltxt2htm::NodeKind::list_ul || next_kind == ::pltxt2htm::NodeKind::list_ol) {
+                        goto entry;
+                    }
+                }
                 result.append(u8"</li>");
                 goto entry;
             }
