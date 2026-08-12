@@ -1116,6 +1116,8 @@ constexpr auto try_parse_non_nestable_equal_sign_tag(
         auto const nested_tag_type = v.get_nested_tag_type();
         if (nested_tag_type == ::pltxt2htm::NodeKind::pl_experiment ||
             nested_tag_type == ::pltxt2htm::NodeKind::pl_discussion ||
+            nested_tag_type == ::pltxt2htm::NodeKind::pl_experiments ||
+            nested_tag_type == ::pltxt2htm::NodeKind::pl_discussions ||
             nested_tag_type == ::pltxt2htm::NodeKind::pl_external ||
             nested_tag_type == ::pltxt2htm::NodeKind::pl_link || nested_tag_type == ::pltxt2htm::NodeKind::pl_trigger) {
             return ::exception::nullopt;

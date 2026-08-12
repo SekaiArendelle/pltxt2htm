@@ -152,6 +152,74 @@ public:
 };
 
 /**
+ * @brief Physics-Lab experiments list-entry tag node
+ * @details Represents &lt;experiments=params&gt;...&lt;/experiments&gt; with a slash-separated
+ *          key-value parameter string (e.g. `UserID/123/UserName/...`) and sub-AST.
+ */
+template<::pltxt2htm::Contracts ndebug>
+class PlExperiments {
+    ::pltxt2htm::Ast<ndebug> subast;
+    ::fast_io::u8string value;
+
+public:
+    constexpr PlExperiments(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& value_) noexcept;
+    constexpr PlExperiments(::pltxt2htm::PlExperiments<ndebug> const&) noexcept;
+    constexpr PlExperiments(::pltxt2htm::PlExperiments<ndebug>&&) noexcept;
+    constexpr ~PlExperiments() noexcept;
+    constexpr auto operator=(::pltxt2htm::PlExperiments<ndebug> const&) noexcept
+        -> ::pltxt2htm::PlExperiments<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::PlExperiments<ndebug>& self,
+                            ::pltxt2htm::PlExperiments<ndebug>&&) noexcept -> ::pltxt2htm::PlExperiments<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this PlExperiments const&, PlExperiments const&) noexcept -> bool;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_value(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.value);
+    }
+};
+
+/**
+ * @brief Physics-Lab discussions list-entry tag node
+ * @details Represents &lt;discussions=params&gt;...&lt;/discussions&gt; with a slash-separated
+ *          key-value parameter string (e.g. `UserID/123/UserName/...`) and sub-AST.
+ */
+template<::pltxt2htm::Contracts ndebug>
+class PlDiscussions {
+    ::pltxt2htm::Ast<ndebug> subast;
+    ::fast_io::u8string value;
+
+public:
+    constexpr PlDiscussions(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& value_) noexcept;
+    constexpr PlDiscussions(::pltxt2htm::PlDiscussions<ndebug> const&) noexcept;
+    constexpr PlDiscussions(::pltxt2htm::PlDiscussions<ndebug>&&) noexcept;
+    constexpr ~PlDiscussions() noexcept;
+    constexpr auto operator=(::pltxt2htm::PlDiscussions<ndebug> const&) noexcept
+        -> ::pltxt2htm::PlDiscussions<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::PlDiscussions<ndebug>& self,
+                            ::pltxt2htm::PlDiscussions<ndebug>&&) noexcept -> ::pltxt2htm::PlDiscussions<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this PlDiscussions const&, PlDiscussions const&) noexcept -> bool;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_value(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.value);
+    }
+};
+
+/**
  * @brief Physics-Lab user reference tag node
  * @details Represents &lt;user=id&gt;...&lt;/user&gt; with a user ID.
  */

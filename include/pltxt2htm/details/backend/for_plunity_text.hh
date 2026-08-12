@@ -413,6 +413,24 @@ entry:
                 result.push_back(u8'>');
                 goto entry;
             }
+            case ::pltxt2htm::NodeKind::pl_experiments: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
+                    node.as_pl_experiments().get_subast(), ::pltxt2htm::NodeKind::pl_experiments, 0));
+                ++current_index;
+                result.append(u8"<experiments=");
+                result.append(node.as_pl_experiments().get_value());
+                result.push_back(u8'>');
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::pl_discussions: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
+                    node.as_pl_discussions().get_subast(), ::pltxt2htm::NodeKind::pl_discussions, 0));
+                ++current_index;
+                result.append(u8"<discussions=");
+                result.append(node.as_pl_discussions().get_value());
+                result.push_back(u8'>');
+                goto entry;
+            }
             case ::pltxt2htm::NodeKind::pl_external: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_pl_external().get_subast(), ::pltxt2htm::NodeKind::pl_external, 0));
@@ -1583,6 +1601,14 @@ entry:
             }
             case ::pltxt2htm::NodeKind::pl_discussion: {
                 result.append(u8"</discussion>");
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::pl_experiments: {
+                result.append(u8"</experiments>");
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::pl_discussions: {
+                result.append(u8"</discussions>");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_external: {

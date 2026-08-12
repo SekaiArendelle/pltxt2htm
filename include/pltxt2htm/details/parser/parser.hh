@@ -1111,6 +1111,23 @@ entry:
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
+                    // parsing: <discussions=$1>$2</discussions>
+                    if (auto opt_discussions_tag = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<
+                            ndebug, u8"iscussions", ::pltxt2htm::details::is_url_value_char>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), call_stack);
+                        opt_discussions_tag.has_value()) {
+                        auto&& [tag_len, value] =
+                            opt_discussions_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                        current_index += tag_len + 3;
+                        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                                    ::fast_io::u8string{value}},
+                                ::pltxt2htm::NodeKind::pl_discussions},
+                            ::pltxt2htm::Ast<ndebug>{}));
+                        goto entry;
+                    }
                     // parsing: <discussion=$1>$2</discussion>
                     if (auto opt_discussion_tag = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<
                             ndebug, u8"iscussion", ::pltxt2htm::details::is_ascii_lowercase_alphanumeric>(
@@ -1136,6 +1153,23 @@ entry:
                 case u8'e':
                     [[fallthrough]];
                 case u8'E': {
+                    // parsing: <experiments=$1>$2</experiments>
+                    if (auto opt_experiments_tag = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<
+                            ndebug, u8"xperiments", ::pltxt2htm::details::is_url_value_char>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), call_stack);
+                        opt_experiments_tag.has_value()) {
+                        auto&& [tag_len, value] =
+                            opt_experiments_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                        current_index += tag_len + 3;
+                        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                                    ::fast_io::u8string{value}},
+                                ::pltxt2htm::NodeKind::pl_experiments},
+                            ::pltxt2htm::Ast<ndebug>{}));
+                        goto entry;
+                    }
                     if (auto opt_experiment_tag = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<
                             ndebug, u8"xperiment", ::pltxt2htm::details::is_ascii_lowercase_alphanumeric>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), call_stack);
@@ -1730,6 +1764,27 @@ entry:
                         ++current_index;
                         continue;
                     }
+                    case ::pltxt2htm::NodeKind::pl_experiments: {
+                        // parsing </experiments>
+                        if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"experiments">(
+                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                            opt_tag_len.has_value()) {
+                            // Whether or not extern_index is out of range, extern for loop will handle it correctly.
+                            ::std::size_t const staged_index{current_index};
+                            ::pltxt2htm::PlExperiments staged_node(::std::move(result),
+                                                                   ::std::move(frame.get_equal_sign_tag_id()));
+                            call_stack.pop();
+                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.current_index +=
+                                staged_index + opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() +
+                                3;
+                            goto entry;
+                        }
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        ++current_index;
+                        continue;
+                    }
                     case ::pltxt2htm::NodeKind::pl_discussion: {
                         // parsing </discussion>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"discussion">(
@@ -1739,6 +1794,27 @@ entry:
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlDiscussion staged_node(::std::move(result),
                                                                   ::std::move(frame.get_equal_sign_tag_id()));
+                            call_stack.pop();
+                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.current_index +=
+                                staged_index + opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() +
+                                3;
+                            goto entry;
+                        }
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        ++current_index;
+                        continue;
+                    }
+                    case ::pltxt2htm::NodeKind::pl_discussions: {
+                        // parsing </discussions>
+                        if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"discussions">(
+                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                            opt_tag_len.has_value()) {
+                            // Whether or not extern_index is out of range, extern for loop will handle it correctly.
+                            ::std::size_t const staged_index{current_index};
+                            ::pltxt2htm::PlDiscussions staged_node(::std::move(result),
+                                                                   ::std::move(frame.get_equal_sign_tag_id()));
                             call_stack.pop();
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
@@ -2806,10 +2882,24 @@ entry:
                 parent_index += staged_index;
                 goto entry;
             }
+            case ::pltxt2htm::NodeKind::pl_experiments: {
+                auto&& value = frame.get_equal_sign_tag_id();
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
+                    ::pltxt2htm::PlExperiments<ndebug>{::std::move(subast), ::std::move(value)}));
+                parent_index += staged_index;
+                goto entry;
+            }
             case ::pltxt2htm::NodeKind::pl_discussion: {
                 auto&& id = frame.get_equal_sign_tag_id();
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
                     ::pltxt2htm::PlDiscussion<ndebug>{::std::move(subast), ::std::move(id)}));
+                parent_index += staged_index;
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::pl_discussions: {
+                auto&& value = frame.get_equal_sign_tag_id();
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
+                    ::pltxt2htm::PlDiscussions<ndebug>{::std::move(subast), ::std::move(value)}));
                 parent_index += staged_index;
                 goto entry;
             }

@@ -156,6 +156,8 @@ class PlTxtNode {
         ::pltxt2htm::PlA<ndebug> pl_a_node;
         ::pltxt2htm::PlExperiment<ndebug> pl_experiment_node;
         ::pltxt2htm::PlDiscussion<ndebug> pl_discussion_node;
+        ::pltxt2htm::PlExperiments<ndebug> pl_experiments_node;
+        ::pltxt2htm::PlDiscussions<ndebug> pl_discussions_node;
         ::pltxt2htm::PlUser<ndebug> pl_user_node;
         ::pltxt2htm::PlTrigger<ndebug> pl_trigger_node;
         ::pltxt2htm::PlExternal<ndebug> pl_external_node;
@@ -211,6 +213,16 @@ public:
     constexpr PlTxtNode(::pltxt2htm::PlDiscussion<ndebug>&& node) noexcept
         : pl_discussion_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::pl_discussion} {
+    }
+
+    constexpr PlTxtNode(::pltxt2htm::PlExperiments<ndebug>&& node) noexcept
+        : pl_experiments_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::pl_experiments} {
+    }
+
+    constexpr PlTxtNode(::pltxt2htm::PlDiscussions<ndebug>&& node) noexcept
+        : pl_discussions_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::pl_discussions} {
     }
 
     constexpr PlTxtNode(::pltxt2htm::PlUser<ndebug>&& node) noexcept
@@ -868,6 +880,14 @@ public:
             new (::std::addressof(pl_discussion_node))::pltxt2htm::PlDiscussion(other.pl_discussion_node);
             break;
         }
+        case ::pltxt2htm::NodeKind::pl_experiments: {
+            new (::std::addressof(pl_experiments_node))::pltxt2htm::PlExperiments(other.pl_experiments_node);
+            break;
+        }
+        case ::pltxt2htm::NodeKind::pl_discussions: {
+            new (::std::addressof(pl_discussions_node))::pltxt2htm::PlDiscussions(other.pl_discussions_node);
+            break;
+        }
         case ::pltxt2htm::NodeKind::pl_user: {
             new (::std::addressof(pl_user_node))::pltxt2htm::PlUser(other.pl_user_node);
             break;
@@ -1430,6 +1450,16 @@ public:
         }
         case ::pltxt2htm::NodeKind::pl_discussion: {
             new (::std::addressof(pl_discussion_node))::pltxt2htm::PlDiscussion(::std::move(other.pl_discussion_node));
+            break;
+        }
+        case ::pltxt2htm::NodeKind::pl_experiments: {
+            new (::std::addressof(pl_experiments_node))::pltxt2htm::PlExperiments(
+                ::std::move(other.pl_experiments_node));
+            break;
+        }
+        case ::pltxt2htm::NodeKind::pl_discussions: {
+            new (::std::addressof(pl_discussions_node))::pltxt2htm::PlDiscussions(
+                ::std::move(other.pl_discussions_node));
             break;
         }
         case ::pltxt2htm::NodeKind::pl_user: {
@@ -2016,6 +2046,14 @@ public:
             pl_discussion_node.~PlDiscussion();
             break;
         }
+        case ::pltxt2htm::NodeKind::pl_experiments: {
+            pl_experiments_node.~PlExperiments();
+            break;
+        }
+        case ::pltxt2htm::NodeKind::pl_discussions: {
+            pl_discussions_node.~PlDiscussions();
+            break;
+        }
         case ::pltxt2htm::NodeKind::pl_user: {
             pl_user_node.~PlUser();
             break;
@@ -2558,6 +2596,12 @@ public:
         }
         case ::pltxt2htm::NodeKind::pl_discussion: {
             return self.pl_discussion_node == other.pl_discussion_node;
+        }
+        case ::pltxt2htm::NodeKind::pl_experiments: {
+            return self.pl_experiments_node == other.pl_experiments_node;
+        }
+        case ::pltxt2htm::NodeKind::pl_discussions: {
+            return self.pl_discussions_node == other.pl_discussions_node;
         }
         case ::pltxt2htm::NodeKind::pl_user: {
             return self.pl_user_node == other.pl_user_node;
@@ -3743,6 +3787,20 @@ public:
         bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_discussion};
         pltxt2htm_assert(is_type, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_discussion_node);
+    }
+
+    [[nodiscard]]
+    constexpr auto as_pl_experiments(this auto&& self) noexcept -> decltype(auto) {
+        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_experiments};
+        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.pl_experiments_node);
+    }
+
+    [[nodiscard]]
+    constexpr auto as_pl_discussions(this auto&& self) noexcept -> decltype(auto) {
+        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_discussions};
+        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.pl_discussions_node);
     }
 
     [[nodiscard]]

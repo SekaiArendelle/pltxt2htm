@@ -155,7 +155,11 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_experiment:
             [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_experiments:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_discussion:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_discussions:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_user: {
             ::std::construct_at(::std::addressof(this->equal_sign_tag), ::std::move(other.equal_sign_tag));
@@ -725,16 +729,43 @@ entry:
             }
             case ::pltxt2htm::NodeKind::pl_experiment:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::pl_discussion: {
-                auto const is_experiment = node.get_node_kind() == ::pltxt2htm::NodeKind::pl_experiment;
-                auto&& subast =
-                    is_experiment ? node.as_pl_experiment().get_subast() : node.as_pl_discussion().get_subast();
+            case ::pltxt2htm::NodeKind::pl_experiments:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::pl_discussion:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::pl_discussions: {
+                auto&& subast = [&]() -> decltype(auto) {
+                    switch (node.get_node_kind()) {
+                    case ::pltxt2htm::NodeKind::pl_experiment:
+                        return node.as_pl_experiment().get_subast();
+                    case ::pltxt2htm::NodeKind::pl_experiments:
+                        return node.as_pl_experiments().get_subast();
+                    case ::pltxt2htm::NodeKind::pl_discussion:
+                        return node.as_pl_discussion().get_subast();
+                    case ::pltxt2htm::NodeKind::pl_discussions:
+                        return node.as_pl_discussions().get_subast();
+                    default:
+                        pltxt2htm_unreachable(u8"Unreachable in optimizer experiment/discussion subast switch");
+                    }
+                }();
                 if (subast.empty()) {
                     ast.erase(current_iter);
                     continue;
                 }
-                auto const& equal_sign_tag_id =
-                    is_experiment ? node.as_pl_experiment().get_id() : node.as_pl_discussion().get_id();
+                auto const& equal_sign_tag_id = [&]() -> decltype(auto) {
+                    switch (node.get_node_kind()) {
+                    case ::pltxt2htm::NodeKind::pl_experiment:
+                        return node.as_pl_experiment().get_id();
+                    case ::pltxt2htm::NodeKind::pl_experiments:
+                        return node.as_pl_experiments().get_value();
+                    case ::pltxt2htm::NodeKind::pl_discussion:
+                        return node.as_pl_discussion().get_id();
+                    case ::pltxt2htm::NodeKind::pl_discussions:
+                        return node.as_pl_discussions().get_value();
+                    default:
+                        pltxt2htm_unreachable(u8"Unreachable in optimizer experiment/discussion value switch");
+                    }
+                }();
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
                         ::std::addressof(subast), node.get_node_kind(), subast.begin(),

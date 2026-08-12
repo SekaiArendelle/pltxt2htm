@@ -91,6 +91,54 @@ constexpr auto ::pltxt2htm::PlDiscussion<ndebug>::operator==(this ::pltxt2htm::P
     -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlExperiments<ndebug>::PlExperiments(::pltxt2htm::Ast<ndebug>&& subast_,
+                                                            ::fast_io::u8string&& value_) noexcept
+    : subast(::std::move(subast_)),
+      value(::std::move(value_)) {
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlExperiments<ndebug>::PlExperiments(::pltxt2htm::PlExperiments<ndebug> const&) noexcept =
+    default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlExperiments<ndebug>::PlExperiments(::pltxt2htm::PlExperiments<ndebug>&&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlExperiments<ndebug>::~PlExperiments() noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::PlExperiments<ndebug>::operator=(this ::pltxt2htm::PlExperiments<ndebug>& self,
+                                                             ::pltxt2htm::PlExperiments<ndebug>&&) noexcept
+    -> ::pltxt2htm::PlExperiments<ndebug>& = default;
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::PlExperiments<ndebug>::operator==(this ::pltxt2htm::PlExperiments<ndebug> const&,
+                                                              ::pltxt2htm::PlExperiments<ndebug> const&) noexcept
+    -> bool = default;
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlDiscussions<ndebug>::PlDiscussions(::pltxt2htm::Ast<ndebug>&& subast_,
+                                                            ::fast_io::u8string&& value_) noexcept
+    : subast(::std::move(subast_)),
+      value(::std::move(value_)) {
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlDiscussions<ndebug>::PlDiscussions(::pltxt2htm::PlDiscussions<ndebug> const&) noexcept =
+    default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlDiscussions<ndebug>::PlDiscussions(::pltxt2htm::PlDiscussions<ndebug>&&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::PlDiscussions<ndebug>::~PlDiscussions() noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::PlDiscussions<ndebug>::operator=(this ::pltxt2htm::PlDiscussions<ndebug>& self,
+                                                             ::pltxt2htm::PlDiscussions<ndebug>&&) noexcept
+    -> ::pltxt2htm::PlDiscussions<ndebug>& = default;
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::PlDiscussions<ndebug>::operator==(this ::pltxt2htm::PlDiscussions<ndebug> const&,
+                                                              ::pltxt2htm::PlDiscussions<ndebug> const&) noexcept
+    -> bool = default;
+
+template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::PlUser<ndebug>::PlUser(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& id_) noexcept
     : subast(::std::move(subast_)),
       id(::std::move(id_)) {

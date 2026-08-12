@@ -454,7 +454,11 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_experiment:
             [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_experiments:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_discussion:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_discussions:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_trigger:
             [[fallthrough]];
@@ -782,7 +786,11 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_experiment:
             [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_experiments:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_discussion:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_discussions:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_trigger:
             [[fallthrough]];
@@ -1290,7 +1298,11 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_experiment:
             [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_experiments:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_discussion:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_discussions:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_trigger:
             [[fallthrough]];
