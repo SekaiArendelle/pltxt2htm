@@ -127,6 +127,18 @@ int main() {
         auto answer = ::fast_io::u8string_view{u8"ab&lt;pre&gt;<code>c</code>&lt;/pre&gt;de"};
         pltxt2htm_test_assert_equal(html, answer);
     }
+    // Backslash is literal inside <pre><code>; \ before </code></pre> must not swallow the
+    // closing tag (regression: shared try_parse infra re-introduced MD-escape parsing here).
+    {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<pre><code>&amp;\\</code></pre>");
+        auto answer = ::fast_io::u8string_view{u8"<pre><code>&amp;\\</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<pre><code>a\\&b\\</code></pre>");
+        auto answer = ::fast_io::u8string_view{u8"<pre><code>a\\&amp;b\\</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
     {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<blockquote>quote</blockquote>");
         auto answer = ::fast_io::u8string_view{u8"<blockquote>quote</blockquote>"};

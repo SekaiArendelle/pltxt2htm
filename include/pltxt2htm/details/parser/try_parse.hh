@@ -3287,7 +3287,7 @@ constexpr auto try_parse_entity_reference(::fast_io::u8string_view text) noexcep
  * @note UTF-8 multi-byte characters are properly handled and converted to U8Char nodes.
  * @note When end_string is non-empty, the function consumes it and stops parsing immediately after.
  */
-template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::U8LiteralString end_string>
+template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::U8LiteralString end_string, bool process_md_escape = true>
 [[nodiscard]]
 constexpr auto simply_parse_pltext(::fast_io::u8string_view pltext) noexcept
     -> ::pltxt2htm::details::SimplyParsePLtextResult<ndebug> {
@@ -3350,13 +3350,15 @@ constexpr auto simply_parse_pltext(::fast_io::u8string_view pltext) noexcept
             ++current_index;
             continue;
         }
-        if (auto opt_escape = ::pltxt2htm::details::try_parse_md_escape<ndebug>(
-                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
-            opt_escape.has_value()) {
-            auto&& [node, advance_count] = opt_escape.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-            ast.push_back(::std::move(node));
-            current_index += advance_count;
-            continue;
+        if constexpr (process_md_escape) {
+            if (auto opt_escape = ::pltxt2htm::details::try_parse_md_escape<ndebug>(
+                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                opt_escape.has_value()) {
+                auto&& [node, advance_count] = opt_escape.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                ast.push_back(::std::move(node));
+                current_index += advance_count;
+                continue;
+            }
         }
         if (chr == u8'<') {
             ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
@@ -3391,7 +3393,7 @@ struct TryParseMdCodeFenceResult {
  * @note The `<pre>` tag must be bare (no attributes) and `<code>` must immediately
  *       follow it (allowing only spaces/tabs in between).
  */
-template<::pltxt2htm::Contracts ndebug>
+template<::pltxt2htm::Contracts ndebug, bool process_md_escape = true>
 [[nodiscard]]
 constexpr auto try_parse_html_pre_code_block(::fast_io::u8string_view pltext) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseMdCodeFenceResult<ndebug>> {
@@ -3427,7 +3429,7 @@ constexpr auto try_parse_html_pre_code_block(::fast_io::u8string_view pltext) no
 
     // parse content until the closing </code></pre>
     constexpr auto end_string = ::pltxt2htm::details::U8LiteralString{u8"</code></pre>"};
-    auto&& [advance_count, ast] = ::pltxt2htm::details::simply_parse_pltext<ndebug, end_string>(
+    auto&& [advance_count, ast] = ::pltxt2htm::details::simply_parse_pltext<ndebug, end_string, process_md_escape>(
         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, pos));
     pos += advance_count;
 

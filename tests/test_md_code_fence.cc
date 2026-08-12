@@ -249,5 +249,18 @@ print("Hello World")
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        // regression: roundtrip fuzzer crash. A fenced code block whose content ends in
+        // "\&\" yields "<pre><code>...&amp;\</code></pre>". The trailing backslash before
+        // "</code></pre>" must not be parsed as an MD escape by the HTML parser, so
+        // re-parsing the first-pass HTML must be idempotent.
+        auto pltext = ::fast_io::u8string_view{u8"```\n\\&\\\n```"};
+        auto once = ::pltxt2htm_test::pltxt2roundtrip_htmld(pltext);
+        auto once_answer = ::fast_io::u8string_view{u8"<pre><code>&amp;\\</code></pre>"};
+        pltxt2htm_test_assert_equal(once, once_answer);
+        auto twice = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{once.data(), once.size()});
+        pltxt2htm_test_assert_equal(twice, once);
+    }
+
     return 0;
 }
