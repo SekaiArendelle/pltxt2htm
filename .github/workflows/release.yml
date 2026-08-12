@@ -348,6 +348,35 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  i686-windows-msvc-c:
+    strategy:
+      fail-fast: false
+      matrix:
+        build-mode: [debug, release]
+
+    name: i686-windows-msvc (c/, ${{ matrix.build-mode }} mode)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build docker image
+        run: |
+          docker build -f c/docker/i686-windows-msvc/Dockerfile \
+            --build-arg mode=${{ matrix.build-mode }} \
+            -t i686-windows-msvc-pltxt2htm-c-${{ matrix.build-mode }} .
+          docker run --rm i686-windows-msvc-pltxt2htm-c-${{ matrix.build-mode }} \
+            cat /pltxt2htm/c/i686-windows-msvc-pltxt2htm-c-${{ matrix.build-mode }}.zip \
+            > c/i686-windows-msvc-pltxt2htm-c-${{ matrix.build-mode }}.zip
+
+      - name: Upload binary
+        uses: softprops/action-gh-release@v2
+        with:
+          files: c/i686-windows-msvc-pltxt2htm-c-${{ matrix.build-mode }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   x86_64-linux-musl-cmd:
     strategy:
       fail-fast: false
