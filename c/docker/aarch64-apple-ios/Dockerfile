@@ -1,6 +1,6 @@
 FROM alpine:3.23
 
-RUN apk add --no-cache ca-certificates wget unzip cmake ninja llvm clang lld
+RUN apk add --no-cache ca-certificates wget unzip xz cmake ninja llvm clang lld
 
 ARG IOS_SDK_URL=https://github.com/xybp888/iOS-SDKs/releases/download/iOS26.5-SDKs/iPhoneOS26.5.sdk.zip
 RUN wget -q "${IOS_SDK_URL}" -O /tmp/iphoneos-sdk.zip \
