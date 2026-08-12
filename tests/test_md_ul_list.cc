@@ -192,16 +192,30 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"- test\n- text");
-        // TODO maybe the tail linebreak should be removed
         auto answer = ::fast_io::u8string_view{u8"• test\n• text\n"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"* test\n  - text\n    + test");
-        // TODO maybe the tail linebreak should be removed
         auto answer = ::fast_io::u8string_view{u8"• test\n  ∘ text\n    ▫ test\n"};
         pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // regression: roundtrip fuzzer finding. Consecutive sibling-nested lists
+    // ([li, ul, ul]) must keep the parent item's </li> open across the whole run and
+    // emit it only once, otherwise the emitted HTML (<ul> directly inside <ul> plus a
+    // stray </li>) is rejected by the HTML list scanner and the roundtrip diverges.
+    {
+        auto pltext =
+            ::fast_io::u8string_view{u8"*\t&\n\t\t\t\t*\t&*\t\t&*\t&\n\t\t*\t\n\t\t*\t\t\t~~~\t \"  & \n"};
+        auto once = ::pltxt2htm_test::pltxt2roundtrip_htmld(pltext);
+        auto once_answer = ::fast_io::u8string_view{
+            u8"<ul><li>&amp;<ul><li>&amp;<em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&amp;</em>&nbsp;&nbsp;&nbsp;&nbsp;"
+            u8"&amp;</li></ul><ul><li></li><li>~~~&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;&nbsp;&nbsp;&amp;</li></ul></li></ul>"};
+        pltxt2htm_test_assert_equal(once, once_answer);
+        auto twice = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{once.data(), once.size()});
+        pltxt2htm_test_assert_equal(twice, once);
     }
 
     return 0;

@@ -1751,22 +1751,41 @@ entry:
             }
             case ::pltxt2htm::NodeKind::list_ul: {
                 result.append(u8"</ul>");
-                if (::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type() ==
-                        ::pltxt2htm::NodeKind::list_ul ||
-                    ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type() ==
-                        ::pltxt2htm::NodeKind::list_ol) {
-                    // A sibling-nested list defers the parent item's </li>; close it here.
-                    result.append(u8"</li>");
+                auto const parent_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
+                if (parent_tag_type == ::pltxt2htm::NodeKind::list_ul ||
+                    parent_tag_type == ::pltxt2htm::NodeKind::list_ol) {
+                    // A sibling-nested list defers the parent item's </li>. Consecutive
+                    // sibling lists ([li, ul, ul]) share one deferred </li>, so keep it open
+                    // while another list follows as the next sibling and emit it only after
+                    // the last list of the run.
+                    auto const& parent_ast = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_ast();
+                    auto const parent_index = ::pltxt2htm::details::stack_top<ndebug>(call_stack).current_index;
+                    if (parent_index >= parent_ast.size() ||
+                        (::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_index).get_node_kind() !=
+                             ::pltxt2htm::NodeKind::list_ul &&
+                         ::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_index).get_node_kind() !=
+                             ::pltxt2htm::NodeKind::list_ol)) {
+                        result.append(u8"</li>");
+                    }
                 }
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::list_ol: {
                 result.append(u8"</ol>");
-                if (::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type() ==
-                        ::pltxt2htm::NodeKind::list_ul ||
-                    ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type() ==
-                        ::pltxt2htm::NodeKind::list_ol) {
-                    result.append(u8"</li>");
+                auto const parent_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
+                if (parent_tag_type == ::pltxt2htm::NodeKind::list_ul ||
+                    parent_tag_type == ::pltxt2htm::NodeKind::list_ol) {
+                    // See the list_ul case above: keep the deferred </li> open across
+                    // consecutive sibling lists and close it after the last one.
+                    auto const& parent_ast = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_ast();
+                    auto const parent_index = ::pltxt2htm::details::stack_top<ndebug>(call_stack).current_index;
+                    if (parent_index >= parent_ast.size() ||
+                        (::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_index).get_node_kind() !=
+                             ::pltxt2htm::NodeKind::list_ul &&
+                         ::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_index).get_node_kind() !=
+                             ::pltxt2htm::NodeKind::list_ol)) {
+                        result.append(u8"</li>");
+                    }
                 }
                 goto entry;
             }
