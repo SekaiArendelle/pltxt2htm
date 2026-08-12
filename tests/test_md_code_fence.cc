@@ -273,6 +273,7 @@ print("Hello World")
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer =
             ::fast_io::u8string_view{u8"text\n<font=\"PhysicsLab-NerdFont SDF\">\nprint(1)\n</font>"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
     return 0;

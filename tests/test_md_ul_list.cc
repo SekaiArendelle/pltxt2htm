@@ -121,18 +121,18 @@ int main() {
     // ---- list mixed with text ----
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"hello\n- foo\n- bar\nworld");
-        auto answer = ::fast_io::u8string_view(u8"hello<br><ul><li>foo</li><li>bar</li></ul>world");
+        auto answer = ::fast_io::u8string_view(u8"hello<ul><li>foo</li><li>bar</li></ul>world");
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"before\n- item\nbetween\n+ another\n- last\nafter");
         auto answer = ::fast_io::u8string_view(
-            u8"before<br><ul><li>item</li></ul>between<br><ul><li>another</li></ul><ul><li>last</li></ul>after");
+            u8"before<ul><li>item</li></ul>between<ul><li>another</li></ul><ul><li>last</li></ul>after");
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"first\n- a\n- b\n- c\nlast");
-        auto answer = ::fast_io::u8string_view(u8"first<br><ul><li>a</li><li>b</li><li>c</li></ul>last");
+        auto answer = ::fast_io::u8string_view(u8"first<ul><li>a</li><li>b</li><li>c</li></ul>last");
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
@@ -142,7 +142,7 @@ int main() {
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"text\n- item");
-        auto answer = ::fast_io::u8string_view(u8"text<br><ul><li>item</li></ul>");
+        auto answer = ::fast_io::u8string_view(u8"text<ul><li>item</li></ul>");
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
@@ -167,7 +167,7 @@ int main() {
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"a\n- 1\nb\n- 2\nc\n- 3");
         auto answer =
-            ::fast_io::u8string_view(u8"a<br><ul><li>1</li></ul>b<br><ul><li>2</li></ul>c<br><ul><li>3</li></ul>");
+            ::fast_io::u8string_view(u8"a<ul><li>1</li></ul>b<ul><li>2</li></ul>c<ul><li>3</li></ul>");
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -200,6 +200,40 @@ int main() {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"* test\n  - text\n    + test");
         auto answer = ::fast_io::u8string_view{u8"• test\n  ∘ text\n    ▫ test\n"};
         pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // ---- plunity newline rendering around a list ----
+
+    // plunity: a newline before a list puts the list on its own line
+    {
+        auto pltext = ::fast_io::u8string_view{u8"text\n- a\n- b"};
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"text\n• a\n• b\n"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    // plunity: text after the list starts on a new line
+    {
+        auto pltext = ::fast_io::u8string_view{u8"- a\n- b\ntext"};
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"• a\n• b\ntext"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    // plunity: a blank line before a list keeps the blank line
+    {
+        auto pltext = ::fast_io::u8string_view{u8"text\n\n- a\n- b"};
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"text\n\n• a\n• b\n"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    // plunity: a leading newline before a list is swallowed
+    {
+        auto pltext = ::fast_io::u8string_view{u8"\n- a\n- b"};
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"• a\n• b\n"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
     // regression: roundtrip fuzzer finding. Consecutive sibling-nested lists

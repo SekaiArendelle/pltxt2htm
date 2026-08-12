@@ -121,7 +121,7 @@ int main() {
     {
         auto pltext = ::fast_io::u8string_view{u8"text\n<h1>text</h1>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"text<br><h1>text</h1>"};
+        auto answer = ::fast_io::u8string_view{u8"text<h1>text</h1>"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"text\n<size=38><b>text</b></size>\n"};

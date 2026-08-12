@@ -97,7 +97,7 @@ int main() {
     // ---- a list after a line break is still a block ----
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"a\n<ul><li>b</li></ul>");
-        auto answer = ::fast_io::u8string_view{u8"a<br><ul><li>b</li></ul>"};
+        auto answer = ::fast_io::u8string_view{u8"a<ul><li>b</li></ul>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
     // ---- non-<li> interior content makes the whole list literal ----

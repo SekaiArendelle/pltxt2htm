@@ -111,5 +111,39 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // ---- plunity newline rendering around an ordered list ----
+
+    // plunity: a newline before a list puts the list on its own line
+    {
+        auto pltext = ::fast_io::u8string_view{u8"text\n1. a\n2. b"};
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"text\n1. a\n2. b\n"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    // plunity: text after the list starts on a new line
+    {
+        auto pltext = ::fast_io::u8string_view{u8"1. a\n2. b\ntext"};
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"1. a\n2. b\ntext"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    // plunity: a blank line before a list keeps the blank line
+    {
+        auto pltext = ::fast_io::u8string_view{u8"text\n\n1. a\n2. b"};
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"text\n\n1. a\n2. b\n"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    // plunity: a leading newline before a list is swallowed
+    {
+        auto pltext = ::fast_io::u8string_view{u8"\n1. a\n2. b"};
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"1. a\n2. b\n"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
     return 0;
 }

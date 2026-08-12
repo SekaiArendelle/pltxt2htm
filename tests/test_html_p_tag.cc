@@ -90,7 +90,7 @@ int main() {
     {
         auto pltext = ::fast_io::u8string_view{u8"text\n<p>text</p>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"text<br><p style=\"text-align:left\">text</p>"};
+        auto answer = ::fast_io::u8string_view{u8"text<p style=\"text-align:left\">text</p>"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"text\ntext"};
@@ -119,7 +119,7 @@ int main() {
         auto pltext = ::fast_io::u8string_view{u8"<p>a</p>\n<p>b</p>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer =
-            ::fast_io::u8string_view{u8"<p style=\"text-align:left\">a</p><br><p style=\"text-align:left\">b</p>"};
+            ::fast_io::u8string_view{u8"<p style=\"text-align:left\">a</p><p style=\"text-align:left\">b</p>"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"a\nb"};
@@ -131,7 +131,7 @@ int main() {
         auto pltext = ::fast_io::u8string_view{u8"<p>a</p>\n\n<p>b</p>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer =
-            ::fast_io::u8string_view{u8"<p style=\"text-align:left\">a</p><br><br><p style=\"text-align:left\">b</p>"};
+            ::fast_io::u8string_view{u8"<p style=\"text-align:left\">a</p><br><p style=\"text-align:left\">b</p>"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"a\n\nb"};
@@ -143,7 +143,7 @@ int main() {
         auto pltext = ::fast_io::u8string_view{u8"<p>a</p>\n\n\n<p>b</p>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{
-            u8"<p style=\"text-align:left\">a</p><br><br><br><p style=\"text-align:left\">b</p>"};
+            u8"<p style=\"text-align:left\">a</p><br><br><p style=\"text-align:left\">b</p>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -152,7 +152,7 @@ int main() {
         auto pltext = ::fast_io::u8string_view{u8"<p>a</p>text\n<p>b</p>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer =
-            ::fast_io::u8string_view{u8"<p style=\"text-align:left\">a</p>text<br><p style=\"text-align:left\">b</p>"};
+            ::fast_io::u8string_view{u8"<p style=\"text-align:left\">a</p>text<p style=\"text-align:left\">b</p>"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"a\ntext\nb"};
@@ -186,7 +186,7 @@ int main() {
         auto pltext = ::fast_io::u8string_view{u8"<p>a</p>\ntext\n<p>b</p>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{
-            u8"<p style=\"text-align:left\">a</p><br>text<br><p style=\"text-align:left\">b</p>"};
+            u8"<p style=\"text-align:left\">a</p><br>text<p style=\"text-align:left\">b</p>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -194,7 +194,7 @@ int main() {
     {
         auto pltext = ::fast_io::u8string_view{u8"\n<p>a</p>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"<br><p style=\"text-align:left\">a</p>"};
+        auto answer = ::fast_io::u8string_view{u8"<p style=\"text-align:left\">a</p>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -211,7 +211,7 @@ int main() {
         auto pltext = ::fast_io::u8string_view{u8"<p>a\n<p>b</p>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer =
-            ::fast_io::u8string_view{u8"<p style=\"text-align:left\">a<br><p style=\"text-align:left\">b</p></p>"};
+            ::fast_io::u8string_view{u8"<p style=\"text-align:left\">a<p style=\"text-align:left\">b</p></p>"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"a\nb"};

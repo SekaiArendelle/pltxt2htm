@@ -183,7 +183,7 @@ int main() {
         auto pltext = ::fast_io::u8string_view{u8"<align=center>a</align>\n<align=right>b</align>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer =
-            ::fast_io::u8string_view{u8"<p style=\"text-align:center\">a</p><br><p style=\"text-align:right\">b</p>"};
+            ::fast_io::u8string_view{u8"<p style=\"text-align:center\">a</p><p style=\"text-align:right\">b</p>"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer =
@@ -196,7 +196,7 @@ int main() {
         auto pltext = ::fast_io::u8string_view{u8"<align=center>a</align>\n\n<align=right>b</align>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{
-            u8"<p style=\"text-align:center\">a</p><br><br><p style=\"text-align:right\">b</p>"};
+            u8"<p style=\"text-align:center\">a</p><br><p style=\"text-align:right\">b</p>"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer =
@@ -208,7 +208,7 @@ int main() {
     {
         auto pltext = ::fast_io::u8string_view{u8"a\n<align=center>b</align>\nc"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"a<br><p style=\"text-align:center\">b</p><br>c"};
+        auto answer = ::fast_io::u8string_view{u8"a<p style=\"text-align:center\">b</p><br>c"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"a\n<align=center>b</align>\n\nc"};
@@ -253,7 +253,7 @@ int main() {
         auto pltext = ::fast_io::u8string_view{u8"<p>a</p>\n<align=center>b</align>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer =
-            ::fast_io::u8string_view{u8"<p style=\"text-align:left\">a</p><br><p style=\"text-align:center\">b</p>"};
+            ::fast_io::u8string_view{u8"<p style=\"text-align:left\">a</p><p style=\"text-align:center\">b</p>"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"a\n<align=center>b</align>\n"};
@@ -265,7 +265,7 @@ int main() {
         auto pltext = ::fast_io::u8string_view{u8"<align=center>a</align>\n<p>b</p>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer =
-            ::fast_io::u8string_view{u8"<p style=\"text-align:center\">a</p><br><p style=\"text-align:left\">b</p>"};
+            ::fast_io::u8string_view{u8"<p style=\"text-align:center\">a</p><p style=\"text-align:left\">b</p>"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<align=center>a</align>\n\nb"};
@@ -276,7 +276,7 @@ int main() {
     {
         auto pltext = ::fast_io::u8string_view{u8"\n<align=center>a</align>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"<br><p style=\"text-align:center\">a</p>"};
+        auto answer = ::fast_io::u8string_view{u8"<p style=\"text-align:center\">a</p>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -304,7 +304,7 @@ int main() {
     {
         auto pltext = ::fast_io::u8string_view{u8"a\n<align=center></align>\nb"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"a<br><p style=\"text-align:center\"></p><br>b"};
+        auto answer = ::fast_io::u8string_view{u8"a<p style=\"text-align:center\"></p><br>b"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

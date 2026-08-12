@@ -66,7 +66,7 @@ int main() {
     {
         auto pltext = ::fast_io::u8string_view{u8"a\n<div style=\"margin-left:2em\">b</div>\nc"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"a<br><div style=\"margin-left:2em;\">b</div><br>c"};
+        auto answer = ::fast_io::u8string_view{u8"a<div style=\"margin-left:2em;\">b</div><br>c"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -196,6 +196,76 @@ int main() {
         auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"<div style=\"margin-left:2em\">text</div>");
         auto answer = ::fast_io::u8string_view{u8"text"};
         pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // ---- plunity newline rendering around a block-level div ----
+
+    // plunity: a newline before a div puts the margin block on its own line
+    {
+        auto pltext = ::fast_io::u8string_view{u8"a\n<div style=\"margin-left:2em\">b</div>\nc"};
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"a\n<margin left=2em>b</margin>\n\nc"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    // plunity: two div blocks separated by a single newline
+    {
+        auto pltext = ::fast_io::u8string_view{
+            u8"<div style=\"margin-left:2em\">a</div>\n<div style=\"margin-left:3em\">b</div>"};
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer =
+            ::fast_io::u8string_view{u8"<margin left=2em>a</margin>\n\n<margin left=3em>b</margin>\n"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    // plunity: a blank line between two div blocks keeps an extra blank line
+    {
+        auto pltext = ::fast_io::u8string_view{
+            u8"<div style=\"margin-left:2em\">a</div>\n\n<div style=\"margin-left:3em\">b</div>"};
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer =
+            ::fast_io::u8string_view{u8"<margin left=2em>a</margin>\n\n\n<margin left=3em>b</margin>\n"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    // plunity: text followed by a div on the next line
+    {
+        auto pltext = ::fast_io::u8string_view{u8"text\n<div style=\"margin-left:2em\">b</div>"};
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"text\n<margin left=2em>b</margin>\n"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    // plunity: a leading newline before a div is swallowed
+    {
+        auto pltext = ::fast_io::u8string_view{u8"\n<div style=\"margin-left:2em\">b</div>"};
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<margin left=2em>b</margin>\n"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    // plunity: a newline after the closing </div> starts a new text line
+    {
+        auto pltext = ::fast_io::u8string_view{u8"<div style=\"margin-left:2em\">a</div>\nb"};
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<margin left=2em>a</margin>\n\nb"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    // plunity: a blank line after a div then text keeps the blank line
+    {
+        auto pltext = ::fast_io::u8string_view{u8"<div style=\"margin-left:2em\">a</div>\n\nb"};
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<margin left=2em>a</margin>\n\n\nb"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    // plunity: a newline inside a div renders as a line break
+    {
+        auto pltext = ::fast_io::u8string_view{u8"<div style=\"margin-left:2em\">line1\nline2</div>"};
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<margin left=2em>line1\nline2</margin>\n"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
     return 0;

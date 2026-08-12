@@ -37,7 +37,7 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"> hello\n\n > text");
-        auto answer = ::fast_io::u8string_view{u8"<blockquote>hello</blockquote><br><blockquote>text</blockquote>"};
+        auto answer = ::fast_io::u8string_view{u8"<blockquote>hello</blockquote><blockquote>text</blockquote>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -49,7 +49,7 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"\n> text");
-        auto answer = ::fast_io::u8string_view{u8"<br><blockquote>text</blockquote>"};
+        auto answer = ::fast_io::u8string_view{u8"<blockquote>text</blockquote>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

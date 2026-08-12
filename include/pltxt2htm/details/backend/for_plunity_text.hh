@@ -528,7 +528,7 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_pl_align().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::pl_align, 0));
                 ++current_index;
-                if (result.empty() == false && result.back() != u8'\n') {
+                if (result.empty() == false && result.back() != u8'>') {
                     result.push_back(u8'\n');
                 }
                 auto const align = node.as_pl_align().get_align();
@@ -562,6 +562,9 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_pl_margin().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::pl_margin, 0));
                 ++current_index;
+                if (result.empty() == false && result.back() != u8'>') {
+                    result.push_back(u8'\n');
+                }
                 auto const margin_left = node.as_pl_margin().get_left();
                 auto const margin_right = node.as_pl_margin().get_right();
                 result.append(u8"<margin");
@@ -621,6 +624,9 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_div().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::html_div, 0));
                 ++current_index;
+                if (result.empty() == false && result.back() != u8'>') {
+                    result.push_back(u8'\n');
+                }
                 auto const margin_left = node.as_html_div().get_left();
                 auto const margin_right = node.as_html_div().get_right();
                 result.append(u8"<margin");
@@ -820,11 +826,33 @@ entry:
             case ::pltxt2htm::NodeKind::html_p: {
                 auto const align = node.as_html_p().get_align();
                 bool const has_align = align != ::pltxt2htm::TextAlign::left;
+                auto const& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                auto const& parent_ast = parent_frame.get_ast();
+                bool prev_is_self_leading_block = false;
+                if (current_index != 0) {
+                    auto const prev_kind =
+                        ::pltxt2htm::details::vector_index<ndebug>(parent_ast, current_index - 1).get_node_kind();
+                    switch (prev_kind) {
+                    case ::pltxt2htm::NodeKind::pl_align:
+                    case ::pltxt2htm::NodeKind::pl_margin:
+                    case ::pltxt2htm::NodeKind::html_div:
+                    case ::pltxt2htm::NodeKind::md_block_quotes:
+                    case ::pltxt2htm::NodeKind::html_blockquote:
+                    case ::pltxt2htm::NodeKind::md_table:
+                    case ::pltxt2htm::NodeKind::html_table:
+                    case ::pltxt2htm::NodeKind::list_ul:
+                    case ::pltxt2htm::NodeKind::list_ol:
+                        prev_is_self_leading_block = true;
+                        break;
+                    default:
+                        break;
+                    }
+                }
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_html_p().get_subast(), ::pltxt2htm::NodeKind::html_p, 0,
                     ::pltxt2htm::details::BackendContextWithAlignInfo{.has_align = has_align}));
                 ++current_index;
-                if (result.empty() == false && result.back() != u8'\n') {
+                if (result.empty() == false && (result.back() != u8'\n' || prev_is_self_leading_block)) {
                     result.push_back(u8'\n');
                 }
                 if (has_align) {
@@ -1071,6 +1099,12 @@ entry:
                     parent_tag_type == ::pltxt2htm::NodeKind::list_li_checkbox) {
                     result.push_back(u8'\n');
                 }
+                else if (parent_tag_type != ::pltxt2htm::NodeKind::list_ul &&
+                         parent_tag_type != ::pltxt2htm::NodeKind::list_ol) {
+                    if (result.empty() == false && result.back() != u8'>') {
+                        result.push_back(u8'\n');
+                    }
+                }
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(list_ul.get_subast(),
                                                                                   ::pltxt2htm::NodeKind::list_ul, 0));
                 ++current_index;
@@ -1085,6 +1119,12 @@ entry:
                 if (parent_tag_type == ::pltxt2htm::NodeKind::list_li ||
                     parent_tag_type == ::pltxt2htm::NodeKind::list_li_checkbox) {
                     result.push_back(u8'\n');
+                }
+                else if (parent_tag_type != ::pltxt2htm::NodeKind::list_ul &&
+                         parent_tag_type != ::pltxt2htm::NodeKind::list_ol) {
+                    if (result.empty() == false && result.back() != u8'>') {
+                        result.push_back(u8'\n');
+                    }
                 }
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     list_ol.get_subast(), ::pltxt2htm::NodeKind::list_ol, 0,
@@ -1222,6 +1262,9 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_md_block_quotes().get_subast(), ::pltxt2htm::NodeKind::md_block_quotes, 0));
                 ++current_index;
+                if (result.empty() == false && result.back() != u8'>') {
+                    result.push_back(u8'\n');
+                }
                 result.append(u8"<margin left=2em>");
                 goto entry;
             }
@@ -1229,6 +1272,9 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_html_blockquote().get_subast(), ::pltxt2htm::NodeKind::html_blockquote, 0));
                 ++current_index;
+                if (result.empty() == false && result.back() != u8'>') {
+                    result.push_back(u8'\n');
+                }
                 result.append(u8"<margin left=2em>");
                 goto entry;
             }
@@ -1236,6 +1282,9 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_table().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::md_table, 0));
                 ++current_index;
+                if (result.empty() == false && result.back() != u8'>') {
+                    result.push_back(u8'\n');
+                }
                 result.append(u8"<size=20>\uff1c</size>table<size=20>\uff1e</size>");
                 goto entry;
             }
@@ -1243,6 +1292,9 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_html_table().get_subast(), ::pltxt2htm::NodeKind::html_table, 0));
                 ++current_index;
+                if (result.empty() == false && result.back() != u8'>') {
+                    result.push_back(u8'\n');
+                }
                 result.append(u8"<size=20>\uff1c</size>table<size=20>\uff1e</size>");
                 goto entry;
             }
@@ -1687,14 +1739,36 @@ entry:
                 }
                 auto const& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                 auto const& parent_ast = parent_frame.get_ast();
-                if (parent_frame.current_index < parent_ast.size()) {
+                bool add_newline = false;
+                ::std::size_t look_index = parent_frame.current_index;
+                while (look_index < parent_ast.size()) {
                     auto const next_kind =
-                        ::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_frame.current_index)
-                            .get_node_kind();
-                    if (next_kind != ::pltxt2htm::NodeKind::line_break && next_kind != ::pltxt2htm::NodeKind::html_br &&
-                        result.empty() == false && result.back() != u8'\n') {
-                        result.push_back(u8'\n');
+                        ::pltxt2htm::details::vector_index<ndebug>(parent_ast, look_index).get_node_kind();
+                    if (next_kind == ::pltxt2htm::NodeKind::line_break ||
+                        next_kind == ::pltxt2htm::NodeKind::html_br) {
+                        ++look_index;
+                        continue;
                     }
+                    add_newline = true;
+                    switch (next_kind) {
+                    case ::pltxt2htm::NodeKind::pl_align:
+                    case ::pltxt2htm::NodeKind::pl_margin:
+                    case ::pltxt2htm::NodeKind::html_div:
+                    case ::pltxt2htm::NodeKind::md_block_quotes:
+                    case ::pltxt2htm::NodeKind::html_blockquote:
+                    case ::pltxt2htm::NodeKind::md_table:
+                    case ::pltxt2htm::NodeKind::html_table:
+                    case ::pltxt2htm::NodeKind::list_ul:
+                    case ::pltxt2htm::NodeKind::list_ol:
+                        add_newline = false;
+                        break;
+                    default:
+                        break;
+                    }
+                    break;
+                }
+                if (add_newline && result.empty() == false && result.back() != u8'\n') {
+                    result.push_back(u8'\n');
                 }
                 goto entry;
             }

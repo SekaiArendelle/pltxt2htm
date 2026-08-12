@@ -154,7 +154,7 @@ int main() {
     // <pre><code> after a line break is a code block
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"x\n<pre><code>c</code></pre>");
-        auto answer = ::fast_io::u8string_view{u8"x<br><pre><code>c</code></pre>"};
+        auto answer = ::fast_io::u8string_view{u8"x<pre><code>c</code></pre>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

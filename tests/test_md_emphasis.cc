@@ -78,7 +78,7 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"te***st\n***");
-        auto answer = ::fast_io::u8string_view{u8"te***st<br><hr>"};
+        auto answer = ::fast_io::u8string_view{u8"te***st<hr>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

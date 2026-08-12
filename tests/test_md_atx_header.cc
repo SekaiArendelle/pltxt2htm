@@ -3,7 +3,7 @@
 int main() {
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"\n# test<br>text");
-        auto answer = ::fast_io::u8string_view{u8"<br><h1>test</h1>text"};
+        auto answer = ::fast_io::u8string_view{u8"<h1>test</h1>text"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -131,7 +131,7 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"\n# ");
-        auto answer = ::fast_io::u8string_view{u8"<br><h1></h1>"};
+        auto answer = ::fast_io::u8string_view{u8"<h1></h1>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -149,7 +149,7 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"\n##");
-        auto answer = ::fast_io::u8string_view{u8"<br><h2></h2>"};
+        auto answer = ::fast_io::u8string_view{u8"<h2></h2>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -249,6 +249,32 @@ int main() {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"###### heading");
         auto answer = ::fast_io::u8string_view{u8"<b>heading</b>\n"};
         pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // ---- plunity newline rendering around an atx header ----
+
+    // plunity: a newline before a header puts the header on its own line
+    {
+        auto pltext = ::fast_io::u8string_view{u8"text\n# h"};
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"text\n<size=38><b>h</b></size>\n"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    // plunity: a blank line before a header keeps the blank line
+    {
+        auto pltext = ::fast_io::u8string_view{u8"text\n\n# h"};
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"text\n<size=38><b>h</b></size>\n"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    // plunity: a leading newline before a header is swallowed
+    {
+        auto pltext = ::fast_io::u8string_view{u8"\n# h"};
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<size=38><b>h</b></size>\n"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
     return 0;

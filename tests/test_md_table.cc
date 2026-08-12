@@ -22,7 +22,7 @@ int main() {
             u8"|---|---|\n"
             u8"| 1 | 2 |");
         auto answer = ::fast_io::u8string_view{
-            u8"<br><table><thead><tr><th>A</th><th>B</th></tr></thead>"
+            u8"<table><thead><tr><th>A</th><th>B</th></tr></thead>"
             u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
@@ -106,7 +106,7 @@ int main() {
             u8"| C |\n"
             u8"after");
         auto answer = ::fast_io::u8string_view{
-            u8"before<br><table><thead><tr><th>H</th></tr></thead>"
+            u8"before<table><thead><tr><th>H</th></tr></thead>"
             u8"<tbody><tr><td>C</td></tr></tbody></table>"
             u8"after"};
         pltxt2htm_test_assert_equal(html, answer);
@@ -759,6 +759,68 @@ int main() {
             u8"<size=20>\uff1c</size>/td<size=20>\uff1e</size><size=20>\uff1c</size>/tr<size=20>\uff1e</size>"
             u8"<size=20>\uff1c</size>/tbody<size=20>\uff1e</size><size=20>\uff1c</size>/table<size=20>\uff1e</size>"};
         pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // ---- plunity newline rendering around a table ----
+
+    // plunity: a newline before a table puts the table on its own line
+    {
+        auto pltext = ::fast_io::u8string_view{
+            u8"text\n"
+            u8"| A |\n"
+            u8"|---|\n"
+            u8"| 1 |"};
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{
+            u8"text\n"
+            u8"<size=20>\uff1c</size>table<size=20>\uff1e</size><size=20>\uff1c</size>thead<size=20>\uff1e</size>"
+            u8"<size=20>\uff1c</size>tr<size=20>\uff1e</size><size=20>\uff1c</size>th<size=20>\uff1e</size>A"
+            u8"<size=20>\uff1c</size>/th<size=20>\uff1e</size><size=20>\uff1c</size>/tr<size=20>\uff1e</size>"
+            u8"<size=20>\uff1c</size>/thead<size=20>\uff1e</size><size=20>\uff1c</size>tbody<size=20>\uff1e</size>"
+            u8"<size=20>\uff1c</size>tr<size=20>\uff1e</size><size=20>\uff1c</size>td<size=20>\uff1e</size>1"
+            u8"<size=20>\uff1c</size>/td<size=20>\uff1e</size><size=20>\uff1c</size>/tr<size=20>\uff1e</size>"
+            u8"<size=20>\uff1c</size>/tbody<size=20>\uff1e</size><size=20>\uff1c</size>/table<size=20>\uff1e</size>"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    // plunity: text after the table starts on a new line
+    {
+        auto pltext = ::fast_io::u8string_view{
+            u8"| A |\n"
+            u8"|---|\n"
+            u8"| 1 |\n"
+            u8"after"};
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{
+            u8"<size=20>\uff1c</size>table<size=20>\uff1e</size><size=20>\uff1c</size>thead<size=20>\uff1e</size>"
+            u8"<size=20>\uff1c</size>tr<size=20>\uff1e</size><size=20>\uff1c</size>th<size=20>\uff1e</size>A"
+            u8"<size=20>\uff1c</size>/th<size=20>\uff1e</size><size=20>\uff1c</size>/tr<size=20>\uff1e</size>"
+            u8"<size=20>\uff1c</size>/thead<size=20>\uff1e</size><size=20>\uff1c</size>tbody<size=20>\uff1e</size>"
+            u8"<size=20>\uff1c</size>tr<size=20>\uff1e</size><size=20>\uff1c</size>td<size=20>\uff1e</size>1"
+            u8"<size=20>\uff1c</size>/td<size=20>\uff1e</size><size=20>\uff1c</size>/tr<size=20>\uff1e</size>"
+            u8"<size=20>\uff1c</size>/tbody<size=20>\uff1e</size><size=20>\uff1c</size>/table<size=20>\uff1e</size>"
+            u8"after"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    // plunity: a blank line before a table keeps the blank line
+    {
+        auto pltext = ::fast_io::u8string_view{
+            u8"text\n\n"
+            u8"| A |\n"
+            u8"|---|\n"
+            u8"| 1 |"};
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{
+            u8"text\n\n"
+            u8"<size=20>\uff1c</size>table<size=20>\uff1e</size><size=20>\uff1c</size>thead<size=20>\uff1e</size>"
+            u8"<size=20>\uff1c</size>tr<size=20>\uff1e</size><size=20>\uff1c</size>th<size=20>\uff1e</size>A"
+            u8"<size=20>\uff1c</size>/th<size=20>\uff1e</size><size=20>\uff1c</size>/tr<size=20>\uff1e</size>"
+            u8"<size=20>\uff1c</size>/thead<size=20>\uff1e</size><size=20>\uff1c</size>tbody<size=20>\uff1e</size>"
+            u8"<size=20>\uff1c</size>tr<size=20>\uff1e</size><size=20>\uff1c</size>td<size=20>\uff1e</size>1"
+            u8"<size=20>\uff1c</size>/td<size=20>\uff1e</size><size=20>\uff1c</size>/tr<size=20>\uff1e</size>"
+            u8"<size=20>\uff1c</size>/tbody<size=20>\uff1e</size><size=20>\uff1c</size>/table<size=20>\uff1e</size>"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
     return 0;

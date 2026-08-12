@@ -141,7 +141,7 @@ int main() {
         auto pltext = ::fast_io::u8string_view{u8"<margin-left=1em>a</margin>\n<margin-right=2em>b</margin>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{
-            u8"<div style=\"margin-left:1em;\">a</div><br><div style=\"margin-right:2em;\">b</div>"};
+            u8"<div style=\"margin-left:1em;\">a</div><div style=\"margin-right:2em;\">b</div>"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer =
@@ -153,7 +153,7 @@ int main() {
     {
         auto pltext = ::fast_io::u8string_view{u8"a\n<margin-left=2em>b</margin>\nc"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"a<br><div style=\"margin-left:2em;\">b</div><br>c"};
+        auto answer = ::fast_io::u8string_view{u8"a<div style=\"margin-left:2em;\">b</div><br>c"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"a\n<margin left=2em>b</margin>\n\nc"};
@@ -164,7 +164,7 @@ int main() {
     {
         auto pltext = ::fast_io::u8string_view{u8"a\n<margin-left=2em></margin>\nb"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"a<br><div style=\"margin-left:2em;\"></div><br>b"};
+        auto answer = ::fast_io::u8string_view{u8"a<div style=\"margin-left:2em;\"></div><br>b"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"a\n<margin left=2em></margin>\n\nb"};
