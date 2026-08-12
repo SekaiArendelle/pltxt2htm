@@ -341,6 +341,18 @@ jobs:
         run: |
           docker build -f c/docker/x86_64-windows-msvc/Dockerfile --build-arg mode=release -t x86_64-windows-msvc-pltxt2htm-c-debug .
 
+  i686-windows-msvc-c-release:
+    name: i686-windows-msvc (c/, release mode)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build docker image
+        run: |
+          docker build -f c/docker/i686-windows-msvc/Dockerfile --build-arg mode=release -t i686-windows-msvc-pltxt2htm-c-debug .
+
   aarch64-apple-ios-c-release:
     name: aarch64-apple-ios (c/, release mode)
     runs-on: ubuntu-latest
