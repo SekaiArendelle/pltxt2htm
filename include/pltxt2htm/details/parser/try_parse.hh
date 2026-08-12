@@ -3612,13 +3612,11 @@ constexpr auto try_parse_md_code_fence(::fast_io::u8string_view pltext) noexcept
     return ::pltxt2htm::details::try_parse_md_code_fence_<ndebug, false>(pltext);
 #else
     // Above code equals to below code
-    else if (auto opt_code_fence_tilde = ::pltxt2htm::details::try_parse_md_code_fence_<ndebug, false>(pltext);
+    if (auto opt_code_fence_tilde = ::pltxt2htm::details::try_parse_md_code_fence_<ndebug, false>(pltext);
              opt_code_fence_tilde.has_value()) {
         return opt_code_fence_tilde;
     }
-    else {
-        return ::exception::nullopt;
-    }
+    return ::exception::nullopt;
 #endif
 }
 
