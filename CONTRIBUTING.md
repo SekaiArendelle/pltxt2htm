@@ -76,6 +76,8 @@ Configuration is in `.clang-tidy` at the project root. Re-generate `tidy_cpp.nin
 python scripts/gen_tidy_ninja.py
 ```
 
+clang-tidy also enforces several of the C++ Style Conventions below, so they are not spelled out in this document: `const`-correctness (`misc-const-correctness` / `readability-make-member-function-const`), `[[nodiscard]]` (`modernize-use-nodiscard`), `noexcept` (`modernize-use-noexcept`), no `typeid` (`cppcoreguidelines-pro-type-typeid`), no implicit narrowing conversions (`cppcoreguidelines-narrowing-conversions`), no mutable global state (`cppcoreguidelines-avoid-non-const-global-variables`), and no `else` after `return` (`readability-else-after-return`).
+
 ## Running Tests
 
 Run all tests from the repository root:
@@ -132,9 +134,8 @@ Please follow the existing low-runtime, cross-platform style used in core header
 - No exception-based control flow:
   - Do not throw/catch exceptions in core code paths.
   - Use existing assertion + terminate/panic patterns for unrecoverable states.
-  - Since exceptions are not used, prefer marking functions/methods `noexcept` whenever valid.
 - No RTTI / dynamic polymorphism patterns:
-  - Do not use `typeid`, `dynamic_cast`, or virtual dispatch for new logic.
+  - Do not use `dynamic_cast` or virtual dispatch for new logic.
 - Avoid macros:
   - Do not introduce new macros for regular logic, constants, or API design.
   - Prefer `constexpr`/`consteval`, templates, and inline functions.
@@ -144,9 +145,6 @@ Please follow the existing low-runtime, cross-platform style used in core header
 - Prefer C++23 deducing-this:
   - For member functions, prefer explicit object parameters (deducing-`this`) over implicit `this` pointer style when practical.
   - Keep const/ref-qualified overload behavior explicit via the object parameter form.
-- Avoid mutable global state:
-  - Do not add global variables or other shared mutable state that can create hidden side effects.
-  - Compile-time constants (`constexpr`/`consteval`, including class static constants) are acceptable.
 - Keep side effects separated from algorithms:
   - Put pure algorithmic logic in headers under `include/` whenever practical.
   - Keep I/O and other side-effectful operations (file access, console output, process exits, etc.) in implementation files in module directories.
@@ -161,7 +159,6 @@ Please follow the existing low-runtime, cross-platform style used in core header
   - Prefer `::ns::fn_or_cls` for function/class references to avoid ADL-based calls.
 - Prefer unambiguous initialization:
   - Prefer brace initialization (`T x{...}`) when constructing typed instances.
-  - Avoid copy-initialization (`T x = ...`) when it can hide implicit narrowing conversions.
   - Avoid initialization forms that look like declarations but actually construct objects (the "most vexing parse" style).
 - Mark terminal error branches as cold paths:
   - For branches that call `exit`/`terminate`, mark the branch with `[[unlikely]]`.
@@ -170,11 +167,7 @@ Please follow the existing low-runtime, cross-platform style used in core header
   - Return early on failure (for example, `if (!ok) { return err; }`) and keep the normal path unindented below.
 - No `else` after `return`/`continue`/`break`/`goto`:
   - When a branch ends unconditionally with a jump statement, the `else` is unnecessary dead indentation; drop it and unindent the subsequent block.
-- Require `[[nodiscard]]` on meaningful return values:
-  - For all non-`void`, non-`[[noreturn]]` functions/methods, add `[[nodiscard]]` to the declaration/definition (except `operator=`).
-- Prefer `const` for non-mutating locals:
-  - For local variables that are not reassigned after initialization, declare them as `const`.
-  - In particular, when reviewing `include/pltxt2htm`, add missing `const` qualifiers whenever semantics allow.
+  - clang-tidy flags the `return` case automatically (`readability-else-after-return`); `continue`/`break`/`goto` require manual review.
 - Prefer `::std::addressof` over `operator&`:
   - Do not use the built-in `&` operator to obtain the address of an object, because `operator&` can be overloaded.
   - Use `::std::addressof(...)` instead, which correctly returns the address even for types with overloaded `operator&`.
