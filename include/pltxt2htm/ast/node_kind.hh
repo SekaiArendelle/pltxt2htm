@@ -41,6 +41,10 @@ enum class NodeKind : unsigned {
     pl_a, ///< Physics-Lab anchor tag: &lt;a&gt;...&lt;/a&gt; (styled like a link)
     pl_experiment, ///< Physics-Lab experiment reference: &lt;experiment=id&gt;...&lt;/experiment&gt;
     pl_discussion, ///< Physics-Lab discussion reference: &lt;discussion=id&gt;...&lt;/discussion&gt;
+    pl_experiments,
+    ///< Physics-Lab experiment list-entry reference: &lt;experiments=params&gt;...&lt;/experiments&gt;
+    pl_discussions,
+    ///< Physics-Lab discussion list-entry reference: &lt;discussions=params&gt;...&lt;/discussions&gt;
     pl_user, ///< Physics-Lab user reference: &lt;user=id&gt;...&lt;/user&gt;
     pl_size, ///< Physics-Lab font size: &lt;size=value&gt;...&lt;/size&gt;
     pl_voffset, ///< Physics-Lab vertical offset (Unity TMP rich text): &lt;voffset=value&gt;...&lt;/voffset&gt;
@@ -203,7 +207,8 @@ namespace details {
 [[nodiscard]]
 constexpr auto is_equal_sign_tag_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
     return node_type == ::pltxt2htm::NodeKind::pl_color || node_type == ::pltxt2htm::NodeKind::pl_experiment ||
-           node_type == ::pltxt2htm::NodeKind::pl_discussion || node_type == ::pltxt2htm::NodeKind::pl_user ||
+           node_type == ::pltxt2htm::NodeKind::pl_discussion || node_type == ::pltxt2htm::NodeKind::pl_experiments ||
+           node_type == ::pltxt2htm::NodeKind::pl_discussions || node_type == ::pltxt2htm::NodeKind::pl_user ||
            node_type == ::pltxt2htm::NodeKind::pl_trigger;
 }
 

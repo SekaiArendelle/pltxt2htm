@@ -441,6 +441,28 @@ entry:
                 result.append(u8"\" internal>");
                 goto entry;
             }
+            case ::pltxt2htm::NodeKind::pl_experiments: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
+                    node.as_pl_experiments().get_subast(), ::pltxt2htm::NodeKind::pl_experiments, 0));
+                ++current_index;
+                result.append(u8"&lt;experiments=");
+                auto const& experiments_value = node.as_pl_experiments().get_value();
+                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                    result, ::fast_io::u8string_view{experiments_value.data(), experiments_value.size()});
+                result.append(u8"&gt;");
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::pl_discussions: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
+                    node.as_pl_discussions().get_subast(), ::pltxt2htm::NodeKind::pl_discussions, 0));
+                ++current_index;
+                result.append(u8"&lt;discussions=");
+                auto const& discussions_value = node.as_pl_discussions().get_value();
+                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                    result, ::fast_io::u8string_view{discussions_value.data(), discussions_value.size()});
+                result.append(u8"&gt;");
+                goto entry;
+            }
             case ::pltxt2htm::NodeKind::pl_trigger: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_pl_trigger().get_subast(), ::pltxt2htm::NodeKind::pl_trigger, 0));
@@ -1589,6 +1611,14 @@ entry:
             }
             case ::pltxt2htm::NodeKind::pl_discussion: {
                 result.append(u8"</a>");
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::pl_experiments: {
+                result.append(u8"&lt;/experiments&gt;");
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::pl_discussions: {
+                result.append(u8"&lt;/discussions&gt;");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_user: {

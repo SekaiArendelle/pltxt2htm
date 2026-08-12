@@ -351,6 +351,14 @@ int main() {
         assert_no_raw_xss_tags(to_view(html));
     }
     {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<experiments=abc\"onclick=\"alert(1)>text</experiments>");
+        assert_no_raw_xss_tags(to_view(html));
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<discussions=abc\"onclick=\"alert(1)>text</discussions>");
+        assert_no_raw_xss_tags(to_view(html));
+    }
+    {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<user=abc\"onclick=\"alert(1)>text</user>");
         assert_no_raw_xss_tags(to_view(html));
     }
