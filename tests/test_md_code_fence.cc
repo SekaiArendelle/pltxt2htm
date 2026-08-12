@@ -50,7 +50,7 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"\n```\ntest\n```");
-        auto answer = ::fast_io::u8string_view{u8"<br><pre><code>test</code></pre>"};
+        auto answer = ::fast_io::u8string_view{u8"<pre><code>test</code></pre>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -62,7 +62,7 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"\n```py\nprint(1)\n```");
-        auto answer = ::fast_io::u8string_view{u8"<br><pre><code class=\"language-py\">print(1)</code></pre>"};
+        auto answer = ::fast_io::u8string_view{u8"<pre><code class=\"language-py\">print(1)</code></pre>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -101,7 +101,7 @@ print("Hello World")
 ```)"};
         auto html = ::pltxt2htm_test::pltxt4unittest(data);
         auto answer = ::fast_io::u8string_view{
-            u8"<br><pre><code class=\"language-py\">print(&quot;Hello&nbsp;World&quot;)</code></pre><br><pre><code "
+            u8"<pre><code class=\"language-py\">print(&quot;Hello&nbsp;World&quot;)</code></pre><pre><code "
             u8"class=\"language-py\">print(&quot;Hello&nbsp;World&quot;)</code></pre>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
@@ -115,21 +115,21 @@ print("Hello World")
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t\n```\n```t");
         // TODO reduce <br> tag before <pre> tag
-        auto answer = ::fast_io::u8string_view{u8"t<br><pre><code></code></pre>t"};
+        auto answer = ::fast_io::u8string_view{u8"t<pre><code></code></pre>t"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t\n```py\n```t");
         // TODO reduce <br> tag before <pre> tag
-        auto answer = ::fast_io::u8string_view{u8"t<br><pre><code class=\"language-py\"></code></pre>t"};
+        auto answer = ::fast_io::u8string_view{u8"t<pre><code class=\"language-py\"></code></pre>t"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t\n~~~py\n~~~t");
         // TODO reduce <br> tag before <pre> tag
-        auto answer = ::fast_io::u8string_view{u8"t<br><pre><code class=\"language-py\"></code></pre>t"};
+        auto answer = ::fast_io::u8string_view{u8"t<pre><code class=\"language-py\"></code></pre>t"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -260,6 +260,19 @@ print("Hello World")
         pltxt2htm_test_assert_equal(once, once_answer);
         auto twice = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{once.data(), once.size()});
         pltxt2htm_test_assert_equal(twice, once);
+    }
+
+    {
+        auto pltext = ::fast_io::u8string_view{u8"text\n\n"
+                                                u8"```py\n"
+                                                u8"print(1)\n"
+                                                u8"```"};
+        auto html = ::pltxt2htm_test::pltxt2roundtrip_htmld(pltext);
+        auto answer = ::fast_io::u8string_view{u8"text<br><pre><code class=\"language-py\">print(1)</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer =
+            ::fast_io::u8string_view{u8"text\n<font=\"PhysicsLab-NerdFont SDF\">\nprint(1)\n</font>"};
     }
 
     return 0;

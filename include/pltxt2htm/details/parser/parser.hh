@@ -614,18 +614,17 @@ entry:
             char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index)};
 
             if (chr == u8'\n') {
-                result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LineBreak{}));
-
                 auto&& [advance_count, require_restart] =
                     ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1), call_stack,
                         result);
-                current_index += advance_count;
+                current_index += advance_count + 1;
                 if (require_restart) {
-                    current_index += 1;
                     goto entry;
                 }
-                ++current_index;
+                if (advance_count == 0) {
+                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LineBreak{}));
+                }
                 continue;
             }
             if (chr == u8' ') {
