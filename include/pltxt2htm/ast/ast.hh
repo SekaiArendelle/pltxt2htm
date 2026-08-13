@@ -160,6 +160,7 @@ class PlTxtNode {
         ::pltxt2htm::PlDiscussions<ndebug> pl_discussions_node;
         ::pltxt2htm::PlUser<ndebug> pl_user_node;
         ::pltxt2htm::PlTrigger<ndebug> pl_trigger_node;
+        ::pltxt2htm::PlInternal<ndebug> pl_internal_node;
         ::pltxt2htm::PlExternal<ndebug> pl_external_node;
         ::pltxt2htm::PlLink<ndebug> pl_link_node;
         ::pltxt2htm::PlSize<ndebug> pl_size_node;
@@ -233,6 +234,11 @@ public:
     constexpr PlTxtNode(::pltxt2htm::PlTrigger<ndebug>&& node) noexcept
         : pl_trigger_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::pl_trigger} {
+    }
+
+    constexpr PlTxtNode(::pltxt2htm::PlInternal<ndebug>&& node) noexcept
+        : pl_internal_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::pl_internal} {
     }
 
     constexpr PlTxtNode(::pltxt2htm::PlExternal<ndebug>&& node) noexcept
@@ -896,6 +902,10 @@ public:
             new (::std::addressof(pl_trigger_node))::pltxt2htm::PlTrigger(other.pl_trigger_node);
             break;
         }
+        case ::pltxt2htm::NodeKind::pl_internal: {
+            new (::std::addressof(pl_internal_node))::pltxt2htm::PlInternal(other.pl_internal_node);
+            break;
+        }
         case ::pltxt2htm::NodeKind::pl_external: {
             new (::std::addressof(pl_external_node))::pltxt2htm::PlExternal(other.pl_external_node);
             break;
@@ -1468,6 +1478,10 @@ public:
         }
         case ::pltxt2htm::NodeKind::pl_trigger: {
             new (::std::addressof(pl_trigger_node))::pltxt2htm::PlTrigger(::std::move(other.pl_trigger_node));
+            break;
+        }
+        case ::pltxt2htm::NodeKind::pl_internal: {
+            new (::std::addressof(pl_internal_node))::pltxt2htm::PlInternal(::std::move(other.pl_internal_node));
             break;
         }
         case ::pltxt2htm::NodeKind::pl_external: {
@@ -2062,6 +2076,10 @@ public:
             pl_trigger_node.~PlTrigger();
             break;
         }
+        case ::pltxt2htm::NodeKind::pl_internal: {
+            pl_internal_node.~PlInternal();
+            break;
+        }
         case ::pltxt2htm::NodeKind::pl_external: {
             pl_external_node.~PlExternal();
             break;
@@ -2608,6 +2626,9 @@ public:
         }
         case ::pltxt2htm::NodeKind::pl_trigger: {
             return self.pl_trigger_node == other.pl_trigger_node;
+        }
+        case ::pltxt2htm::NodeKind::pl_internal: {
+            return self.pl_internal_node == other.pl_internal_node;
         }
         case ::pltxt2htm::NodeKind::pl_external: {
             return self.pl_external_node == other.pl_external_node;
@@ -3815,6 +3836,13 @@ public:
         bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_trigger};
         pltxt2htm_assert(is_type, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_trigger_node);
+    }
+
+    [[nodiscard]]
+    constexpr auto as_pl_internal(this auto&& self) noexcept -> decltype(auto) {
+        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_internal};
+        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.pl_internal_node);
     }
 
     [[nodiscard]]

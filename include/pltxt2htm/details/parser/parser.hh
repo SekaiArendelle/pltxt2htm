@@ -1236,6 +1236,24 @@ entry:
                 case u8'i':
                     [[fallthrough]];
                 case u8'I': {
+                    // parsing: <internal=$1>$2</internal>
+                    if (auto opt_internal_tag = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<
+                            ndebug, u8"nternal", ::pltxt2htm::details::is_ascii_graphic>(
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
+                            call_stack);
+                        opt_internal_tag.has_value()) {
+                        auto&& [tag_len, value] =
+                            opt_internal_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                        current_index += tag_len + 3;
+                        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                                ::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo{
+                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
+                                    ::fast_io::u8string{value}},
+                                ::pltxt2htm::NodeKind::pl_internal},
+                            ::pltxt2htm::Ast<ndebug>{}));
+                        goto entry;
+                    }
                     // parsing pl&html <i>$1</i> tag
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug>(
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
@@ -1875,6 +1893,26 @@ entry:
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlTrigger staged_node(::std::move(result),
                                                                ::std::move(frame.get_equal_sign_tag_id()));
+                            call_stack.pop();
+                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.current_index +=
+                                staged_index + opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() +
+                                3;
+                            goto entry;
+                        }
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        ++current_index;
+                        continue;
+                    }
+                    case ::pltxt2htm::NodeKind::pl_internal: {
+                        // parsing </internal>
+                        if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"internal">(
+                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                            opt_tag_len.has_value()) {
+                            ::std::size_t const staged_index{current_index};
+                            ::pltxt2htm::PlInternal staged_node(::std::move(result),
+                                                                ::std::move(frame.get_equal_sign_tag_id()));
                             call_stack.pop();
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
@@ -2914,6 +2952,13 @@ entry:
                 auto&& value = frame.get_equal_sign_tag_id();
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
                     ::pltxt2htm::PlTrigger<ndebug>{::std::move(subast), ::std::move(value)}));
+                parent_index += staged_index;
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::pl_internal: {
+                auto&& value = frame.get_equal_sign_tag_id();
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
+                    ::pltxt2htm::PlInternal<ndebug>{::std::move(subast), ::std::move(value)}));
                 parent_index += staged_index;
                 goto entry;
             }
