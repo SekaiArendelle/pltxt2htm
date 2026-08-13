@@ -828,6 +828,20 @@ entry:
                             node.as_pl_trigger().get_value().data(), node.as_pl_trigger().get_value().size()}}));
                 goto entry;
             }
+            case ::pltxt2htm::NodeKind::pl_internal: {
+                auto&& subast = node.as_pl_internal().get_subast();
+                if (subast.empty()) {
+                    // <internal=...></internal> can be omitted
+                    ast.erase(current_iter);
+                    continue;
+                }
+                call_stack.push(
+                    ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
+                        ::std::addressof(subast), node.get_node_kind(), subast.begin(),
+                        ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{::fast_io::u8string_view{
+                            node.as_pl_internal().get_value().data(), node.as_pl_internal().get_value().size()}}));
+                goto entry;
+            }
             case ::pltxt2htm::NodeKind::pl_external: {
                 auto&& subast = node.as_pl_external().get_subast();
                 if (subast.empty()) {

@@ -55,6 +55,7 @@ enum class NodeKind : unsigned {
     pl_link, ///< Physics-Lab link (Unity TextMeshPro rich text): &lt;link=&quot;url&quot;&gt;...&lt;/link&gt;
     pl_trigger, ///< Physics-Lab trigger tag: &lt;trigger=value&gt;...&lt;/trigger&gt; (legacy NetLogo-style interaction
                 ///< tag)
+    pl_internal, ///< Physics-Lab internal tag: &lt;internal=value&gt;...&lt;/internal&gt; (rendered verbatim)
 
     // Text formatting (shared across Physics-Lab, HTML, and Markdown)
     pl_b, ///< Bold text: &lt;b&gt;...&lt;/b&gt;, Markdown double emphasis, &lt;strong&gt; in HTML
@@ -209,7 +210,7 @@ constexpr auto is_equal_sign_tag_type(::pltxt2htm::NodeKind const node_type) noe
     return node_type == ::pltxt2htm::NodeKind::pl_color || node_type == ::pltxt2htm::NodeKind::pl_experiment ||
            node_type == ::pltxt2htm::NodeKind::pl_discussion || node_type == ::pltxt2htm::NodeKind::pl_experiments ||
            node_type == ::pltxt2htm::NodeKind::pl_discussions || node_type == ::pltxt2htm::NodeKind::pl_user ||
-           node_type == ::pltxt2htm::NodeKind::pl_trigger;
+           node_type == ::pltxt2htm::NodeKind::pl_trigger || node_type == ::pltxt2htm::NodeKind::pl_internal;
 }
 
 [[nodiscard]]

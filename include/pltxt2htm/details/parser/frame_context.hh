@@ -462,6 +462,8 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_trigger:
             [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_internal:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_user: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::equal_sign_tag);
             ::std::construct_at(::std::addressof(this->equal_sign_tag), ::std::move(other.equal_sign_tag));
@@ -793,6 +795,8 @@ public:
         case ::pltxt2htm::NodeKind::pl_discussions:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_trigger:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_internal:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_user: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::equal_sign_tag);
@@ -1305,6 +1309,8 @@ public:
         case ::pltxt2htm::NodeKind::pl_discussions:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_trigger:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_internal:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_user: {
             pltxt2htm_assert_context_branch(

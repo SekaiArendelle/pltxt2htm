@@ -285,6 +285,39 @@ public:
 };
 
 /**
+ * @brief Physics-Lab internal tag node
+ * @details Represents &lt;internal=value&gt;...&lt;/internal&gt; with a string value, rendered verbatim.
+ */
+template<::pltxt2htm::Contracts ndebug>
+class PlInternal {
+    ::pltxt2htm::Ast<ndebug> subast;
+    ::fast_io::u8string value;
+
+public:
+    constexpr PlInternal(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& value_) noexcept;
+    constexpr PlInternal(::pltxt2htm::PlInternal<ndebug> const&) noexcept;
+    constexpr PlInternal(::pltxt2htm::PlInternal<ndebug>&&) noexcept;
+    constexpr ~PlInternal() noexcept;
+    constexpr auto operator=(::pltxt2htm::PlInternal<ndebug> const&) noexcept
+        -> ::pltxt2htm::PlInternal<ndebug>& = delete;
+    constexpr auto operator=(this ::pltxt2htm::PlInternal<ndebug>& self, ::pltxt2htm::PlInternal<ndebug>&&) noexcept
+        -> ::pltxt2htm::PlInternal<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this PlInternal const&, PlInternal const&) noexcept -> bool;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_value(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.value);
+    }
+};
+
+/**
  * @brief Physics-Lab external link tag node
  * @details Represents &lt;external=url&gt;...&lt;/external&gt; with a URL.
  */

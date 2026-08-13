@@ -181,6 +181,7 @@ using ::pltxt2htm::PlExperiment;
 using ::pltxt2htm::PlDiscussion;
 using ::pltxt2htm::PlUser;
 using ::pltxt2htm::PlTrigger;
+using ::pltxt2htm::PlInternal;
 using ::pltxt2htm::PlSize;
 using ::pltxt2htm::PlVoffset;
 using ::pltxt2htm::PlExternal;
