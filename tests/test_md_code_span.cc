@@ -7,7 +7,7 @@ int main() {
         auto answer = ::fast_io::u8string_view{u8"<code>test</code>"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<font=\"PhysicsLab-NerdFont SDF\"> test </font>"};
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<font=\"PhysicsLab-SarasaMonoSC SDF\"> test </font>"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
@@ -75,19 +75,19 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab`test`cd");
-        auto answer = ::fast_io::u8string_view{u8"ab<font=\"PhysicsLab-NerdFont SDF\"> test </font>cd"};
+        auto answer = ::fast_io::u8string_view{u8"ab<font=\"PhysicsLab-SarasaMonoSC SDF\"> test </font>cd"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab``test``cd");
-        auto answer = ::fast_io::u8string_view{u8"ab<font=\"PhysicsLab-NerdFont SDF\"> test </font>cd"};
+        auto answer = ::fast_io::u8string_view{u8"ab<font=\"PhysicsLab-SarasaMonoSC SDF\"> test </font>cd"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab```test```cd");
-        auto answer = ::fast_io::u8string_view{u8"ab<font=\"PhysicsLab-NerdFont SDF\"> test </font>cd"};
+        auto answer = ::fast_io::u8string_view{u8"ab<font=\"PhysicsLab-SarasaMonoSC SDF\"> test </font>cd"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

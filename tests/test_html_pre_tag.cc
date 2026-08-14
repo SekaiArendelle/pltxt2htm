@@ -20,7 +20,7 @@ int main() {
         auto answer = ::fast_io::u8string_view{u8"<pre><code>test</code></pre>"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<font=\"PhysicsLab-NerdFont SDF\">\ntest\n</font>"};
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\ntest\n</font>"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
@@ -31,7 +31,7 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer =
-            ::fast_io::u8string_view{u8"<font=\"PhysicsLab-NerdFont SDF\">\nint\u00A0x;\n</font>"};
+            ::fast_io::u8string_view{u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\nint\u00A0x;\n</font>"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
@@ -42,7 +42,7 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer =
-            ::fast_io::u8string_view{u8"<font=\"PhysicsLab-NerdFont SDF\">\nline1\nline2\n</font>"};
+            ::fast_io::u8string_view{u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\nline1\nline2\n</font>"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
@@ -68,7 +68,7 @@ int main() {
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{
             u8"<size=20>\uff1c</size>pre<size=20>\uff1e</size>\n"
-            u8"<font=\"PhysicsLab-NerdFont SDF\"> test </font>\n"
+            u8"<font=\"PhysicsLab-SarasaMonoSC SDF\"> test </font>\n"
             u8"<size=20>\uff1c</size>/pre<size=20>\uff1e</size>"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }

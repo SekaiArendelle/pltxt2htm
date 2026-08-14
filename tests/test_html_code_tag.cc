@@ -112,7 +112,7 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab<code>test</code>cd");
-        auto answer = ::fast_io::u8string_view{u8"ab<font=\"PhysicsLab-NerdFont SDF\"> test </font>cd"};
+        auto answer = ::fast_io::u8string_view{u8"ab<font=\"PhysicsLab-SarasaMonoSC SDF\"> test </font>cd"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
