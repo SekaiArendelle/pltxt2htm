@@ -998,7 +998,7 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_code().get_subast(),
                                                                                   ::pltxt2htm::NodeKind::html_code, 0));
                 ++current_index;
-                result.append(u8"<font=\"PhysicsLab-NerdFont SDF\"> ");
+                result.append(u8"<font=\"PhysicsLab-SarasaMonoSC SDF\"> ");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_s: {
@@ -1196,21 +1196,21 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_md_code_span_1_backtick().get_subast(), ::pltxt2htm::NodeKind::md_code_span_1_backtick, 0));
                 ++current_index;
-                result.append(u8"<font=\"PhysicsLab-NerdFont SDF\"> ");
+                result.append(u8"<font=\"PhysicsLab-SarasaMonoSC SDF\"> ");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_code_span_2_backtick: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_md_code_span_2_backtick().get_subast(), ::pltxt2htm::NodeKind::md_code_span_2_backtick, 0));
                 ++current_index;
-                result.append(u8"<font=\"PhysicsLab-NerdFont SDF\"> ");
+                result.append(u8"<font=\"PhysicsLab-SarasaMonoSC SDF\"> ");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_code_span_3_backtick: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     node.as_md_code_span_3_backtick().get_subast(), ::pltxt2htm::NodeKind::md_code_span_3_backtick, 0));
                 ++current_index;
-                result.append(u8"<font=\"PhysicsLab-NerdFont SDF\"> ");
+                result.append(u8"<font=\"PhysicsLab-SarasaMonoSC SDF\"> ");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_latex_inline: {
@@ -1542,7 +1542,7 @@ entry:
                 continue;
             }
             case ::pltxt2htm::NodeKind::code_fence: {
-                result.append(u8"<font=\"PhysicsLab-NerdFont SDF\">\n");
+                result.append(u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\n");
                 call_stack.push(
                     ::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_code_fence().get_subast(),
                                                                       ::pltxt2htm::NodeKind::code_fence, 0));
