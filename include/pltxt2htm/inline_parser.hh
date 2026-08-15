@@ -26,17 +26,6 @@
 namespace pltxt2htm::details {
 
 /**
- * @brief Return type of inline_parse_pltxt.
- * @tparam ndebug Contract checking mode.
- */
-template<::pltxt2htm::Contracts ndebug>
-struct InlineParsePlTxtResult {
-    ::pltxt2htm::Ast<ndebug> subast; ///< Parsed AST for the bottom frame.
-    ///< Bytes consumed from the bottom frame's pltext.
-    ::std::size_t consumed_bytes{};
-};
-
-/**
  * @brief Check whether a code-span content is a valid inline code span.
  * @details The inline-only parser renders fenced code blocks (`` ```...``` ``) as
  *          literal text, so a code span whose content is empty or spans multiple
@@ -59,16 +48,34 @@ constexpr auto is_inline_code_span_content(::fast_io::u8string_view content) noe
     return true;
 }
 
+} // namespace pltxt2htm::details
+
+namespace pltxt2htm {
+
 /**
- * @brief Parse pl-text to nodes (inline constructs only).
- * @tparam ndebug Contract checking mode; `::pltxt2htm::Contracts::ignore` disables checks.
- * @param call_stack: use `call_stack` + `goto entry` to avoid stack overflow.
- * @return The parsed ast and how many bytes of the bottom frame's pltext were consumed.
+ * @brief Parse pl-text into an Abstract Syntax Tree (AST), inline constructs only.
+ * @details This is the inline-only counterpart of ::pltxt2htm::parse_pltxt.  It
+ *          parses only inline syntax; block-level syntax is preserved as literal
+ *          text.  A single text frame is pushed on an explicit call stack and the
+ *          `goto entry` trampoline keeps nested-tag handling free of recursion.
+ * @tparam ndebug Contract-checking mode for parsing, using `::pltxt2htm::Contracts`
+ *                 values such as `::pltxt2htm::Contracts::quick_enforce` or
+ *                 `::pltxt2htm::Contracts::ignore`
+ * @param[in] input_pltext The Physics-Lab text content to parse
+ * @return An AST representing the parsed inline structure of the input text
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto inline_parse_pltxt(::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>>& call_stack) noexcept
-    -> InlineParsePlTxtResult<ndebug> {
+constexpr auto inline_parse_pltxt(::fast_io::u8string_view input_pltext) noexcept -> ::pltxt2htm::Ast<ndebug> {
+    using namespace ::pltxt2htm::details;
+    // This stack is used to track nested tag contexts during parsing
+    ::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>> call_stack{};
+
+    call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+        ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+            ::pltxt2htm::details::ParserFrameContextWithPltextInfo{input_pltext}, ::pltxt2htm::NodeKind::text},
+        ::pltxt2htm::Ast<ndebug>{}));
+
 entry:
     while (true) {
 
@@ -1454,11 +1461,7 @@ entry:
                             ::pltxt2htm::PlAlign staged_node(::std::move(result), frame.get_align());
                             call_stack.pop();
                             if (call_stack.empty()) {
-                                return ::pltxt2htm::details::InlineParsePlTxtResult<ndebug>{
-                                    .subast = ::std::move(staged_node.get_subast()),
-                                    .consumed_bytes =
-                                        staged_index +
-                                        opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3};
+                                return ::std::move(staged_node.get_subast());
                             }
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
@@ -1502,11 +1505,7 @@ entry:
                                                               frame.get_pl_margin_tag_right());
                             call_stack.pop();
                             if (call_stack.empty()) {
-                                return ::pltxt2htm::details::InlineParsePlTxtResult<ndebug>{
-                                    .subast = ::std::move(staged_node.get_subast()),
-                                    .consumed_bytes =
-                                        staged_index +
-                                        opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3};
+                                return ::std::move(staged_node.get_subast());
                             }
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
@@ -1529,11 +1528,7 @@ entry:
                                                              frame.get_html_div_right());
                             call_stack.pop();
                             if (call_stack.empty()) {
-                                return ::pltxt2htm::details::InlineParsePlTxtResult<ndebug>{
-                                    .subast = ::std::move(staged_node.get_subast()),
-                                    .consumed_bytes =
-                                        staged_index +
-                                        opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3};
+                                return ::std::move(staged_node.get_subast());
                             }
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
@@ -1594,11 +1589,7 @@ entry:
                             ::pltxt2htm::HtmlP staged_node(::std::move(result), align);
                             call_stack.pop();
                             if (call_stack.empty()) {
-                                return ::pltxt2htm::details::InlineParsePlTxtResult<ndebug>{
-                                    .subast = ::std::move(staged_node.get_subast()),
-                                    .consumed_bytes =
-                                        staged_index +
-                                        opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3};
+                                return ::std::move(staged_node.get_subast());
                             }
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
@@ -1620,11 +1611,7 @@ entry:
                             ::pltxt2htm::HtmlH1 staged_node(::std::move(result));
                             call_stack.pop();
                             if (call_stack.empty()) {
-                                return ::pltxt2htm::details::InlineParsePlTxtResult<ndebug>{
-                                    .subast = ::std::move(staged_node.get_subast()),
-                                    .consumed_bytes =
-                                        staged_index +
-                                        opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3};
+                                return ::std::move(staged_node.get_subast());
                             }
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
@@ -1646,11 +1633,7 @@ entry:
                             ::pltxt2htm::HtmlH2 staged_node(::std::move(result));
                             call_stack.pop();
                             if (call_stack.empty()) {
-                                return ::pltxt2htm::details::InlineParsePlTxtResult<ndebug>{
-                                    .subast = ::std::move(staged_node.get_subast()),
-                                    .consumed_bytes =
-                                        staged_index +
-                                        opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3};
+                                return ::std::move(staged_node.get_subast());
                             }
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
@@ -1672,11 +1655,7 @@ entry:
                             ::pltxt2htm::HtmlH3 staged_node(::std::move(result));
                             call_stack.pop();
                             if (call_stack.empty()) {
-                                return ::pltxt2htm::details::InlineParsePlTxtResult<ndebug>{
-                                    .subast = ::std::move(staged_node.get_subast()),
-                                    .consumed_bytes =
-                                        staged_index +
-                                        opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3};
+                                return ::std::move(staged_node.get_subast());
                             }
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
@@ -1698,11 +1677,7 @@ entry:
                             ::pltxt2htm::HtmlH4 staged_node(::std::move(result));
                             call_stack.pop();
                             if (call_stack.empty()) {
-                                return ::pltxt2htm::details::InlineParsePlTxtResult<ndebug>{
-                                    .subast = ::std::move(staged_node.get_subast()),
-                                    .consumed_bytes =
-                                        staged_index +
-                                        opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3};
+                                return ::std::move(staged_node.get_subast());
                             }
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
@@ -1724,11 +1699,7 @@ entry:
                             ::pltxt2htm::HtmlH5 staged_node(::std::move(result));
                             call_stack.pop();
                             if (call_stack.empty()) {
-                                return ::pltxt2htm::details::InlineParsePlTxtResult<ndebug>{
-                                    .subast = ::std::move(staged_node.get_subast()),
-                                    .consumed_bytes =
-                                        staged_index +
-                                        opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3};
+                                return ::std::move(staged_node.get_subast());
                             }
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
@@ -1750,11 +1721,7 @@ entry:
                             ::pltxt2htm::HtmlH6 staged_node(::std::move(result));
                             call_stack.pop();
                             if (call_stack.empty()) {
-                                return ::pltxt2htm::details::InlineParsePlTxtResult<ndebug>{
-                                    .subast = ::std::move(staged_node.get_subast()),
-                                    .consumed_bytes =
-                                        staged_index +
-                                        opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3};
+                                return ::std::move(staged_node.get_subast());
                             }
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
@@ -2125,11 +2092,7 @@ entry:
                             ::pltxt2htm::HtmlBlockquote staged_node(::std::move(result));
                             call_stack.pop();
                             if (call_stack.empty()) {
-                                return ::pltxt2htm::details::InlineParsePlTxtResult<ndebug>{
-                                    .subast = ::std::move(staged_node.get_subast()),
-                                    .consumed_bytes =
-                                        staged_index +
-                                        opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3};
+                                return ::std::move(staged_node.get_subast());
                             }
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
@@ -2349,8 +2312,7 @@ entry:
                 // <b>e</b>xample
                 // ```
                 // Text without any tag in the end will hit this branch.
-                return ::pltxt2htm::details::InlineParsePlTxtResult<ndebug>{.subast = ::std::move(frame.subast),
-                                                                      .consumed_bytes = staged_index};
+                return ::std::move(frame.subast);
             }
             // Considering the following markdown:
             // ```md
@@ -2888,41 +2850,6 @@ entry:
             pltxt2htm_unreachable(u8"Unreachable after block-node-in-inline switch");
         }
     }
-}
-
-} // namespace pltxt2htm::details
-
-namespace pltxt2htm {
-
-/**
- * @brief Parse pl-text into an Abstract Syntax Tree (AST), inline constructs only.
- * @details This is the inline-only counterpart of ::pltxt2htm::parse_pltxt.  It
- *          pushes a single text frame and parses only inline syntax; block-level
- *          syntax is preserved as literal text.
- * @tparam ndebug Contract-checking mode for parsing, using `::pltxt2htm::Contracts`
- *                 values such as `::pltxt2htm::Contracts::quick_enforce` or
- *                 `::pltxt2htm::Contracts::ignore`
- * @param[in] pltext The Physics-Lab text content to parse
- * @return An AST representing the parsed inline structure of the input text
- * @see pltxt2htm::details::inline_parse_pltxt for the internal implementation
- */
-template<::pltxt2htm::Contracts ndebug>
-[[nodiscard]]
-constexpr auto inline_parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2htm::Ast<ndebug> {
-    // This stack is used to track nested tag contexts during parsing
-    ::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>> call_stack{};
-
-    call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-        ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-            ::pltxt2htm::details::ParserFrameContextWithPltextInfo{pltext}, ::pltxt2htm::NodeKind::text},
-        ::pltxt2htm::Ast<ndebug>{}));
-
-    auto&& [subast, consumed_bytes] = ::pltxt2htm::details::inline_parse_pltxt<ndebug>(call_stack);
-
-    bool const call_stack_is_empty{call_stack.empty()};
-    pltxt2htm_assert(call_stack_is_empty, u8"call_stack is not empty");
-
-    return ::std::move(subast);
 }
 
 } // namespace pltxt2htm
