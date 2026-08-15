@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <cstddef>
 #include <utility>
 #include "ast_decl.hh"
 
@@ -40,13 +41,16 @@ public:
 
 /**
  * @brief Ordered list node (&lt;ol&gt;...&lt;/ol&gt; or Markdown `1. item`)
+ * @details The `start` member records the value of the HTML `start` attribute
+ *          (Markdown lists always start at 1).
  */
 template<::pltxt2htm::Contracts ndebug>
 class ListOl {
     ::pltxt2htm::Ast<ndebug> subast;
+    ::std::size_t start{1};
 
 public:
-    constexpr explicit ListOl(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr ListOl(::pltxt2htm::Ast<ndebug>&& subast_, ::std::size_t start_ = 1) noexcept;
     constexpr ListOl(::pltxt2htm::ListOl<ndebug> const&) noexcept;
     constexpr ListOl(::pltxt2htm::ListOl<ndebug>&&) noexcept;
     constexpr ~ListOl() noexcept;
@@ -60,6 +64,11 @@ public:
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_start(this ListOl const& self) noexcept -> ::std::size_t {
+        return self.start;
     }
 };
 

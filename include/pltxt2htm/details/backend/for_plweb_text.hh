@@ -1140,7 +1140,13 @@ entry:
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(list_ol.get_subast(),
                                                                                   ::pltxt2htm::NodeKind::list_ol, 0));
                 ++current_index;
-                result.append(u8"<ol>");
+                result.append(u8"<ol");
+                if (list_ol.get_start() != 1) {
+                    result.append(u8" start=\"");
+                    result.append(::pltxt2htm::details::size_t2str(list_ol.get_start()));
+                    result.append(u8"\"");
+                }
+                result.append(u8">");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::list_li_checkbox: {

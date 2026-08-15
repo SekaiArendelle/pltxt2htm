@@ -82,5 +82,80 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ol start=\"5\"><li>item1</li><li>item2</li></ol>");
+        auto answer = ::fast_io::u8string_view{u8"<ol start=\"5\"><li>item1</li><li>item2</li></ol>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ol start=\"1\"><li>item1</li></ol>");
+        auto answer = ::fast_io::u8string_view{u8"<ol><li>item1</li></ol>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ol start=\"0\"><li>item1</li></ol>");
+        auto answer = ::fast_io::u8string_view{u8"<ol start=\"0\"><li>item1</li></ol>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ol><li>item1<ol start=\"3\"><li>item2</li></ol></li></ol>");
+        auto answer = ::fast_io::u8string_view{u8"<ol><li>item1<ol start=\"3\"><li>item2</li></ol></li></ol>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<OL START=\"5\" ><LI>item1</LI></OL>");
+        auto answer = ::fast_io::u8string_view{u8"<ol start=\"5\"><li>item1</li></ol>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ol start='7'><li>item1</li></ol>");
+        auto answer = ::fast_io::u8string_view{u8"<ol start=\"7\"><li>item1</li></ol>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<ol start=\"5\"><li>a</li><li>b</li></ol>");
+        auto answer = ::fast_io::u8string_view{u8"5. a\n6. b\n"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html =
+            ::pltxt2htm_test::pltxt2plunity_introduction(u8"<ol><li>a<ol start=\"2\"><li>b</li></ol></li></ol>");
+        auto answer = ::fast_io::u8string_view{u8"1. a\n  2. b\n"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2roundtrip_htmld(u8"<ol start=\"5\"><li>a</li><li>b</li></ol>");
+        auto answer = ::fast_io::u8string_view{u8"<ol start=\"5\"><li>a</li><li>b</li></ol>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ol start=\"abc\"><li>a</li></ol>");
+        auto answer =
+            ::fast_io::u8string_view{u8"&lt;ol&nbsp;start=&quot;abc&quot;&gt;&lt;li&gt;a&lt;/li&gt;&lt;/ol&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ol class=\"x\"><li>a</li></ol>");
+        auto answer =
+            ::fast_io::u8string_view{u8"&lt;ol&nbsp;class=&quot;x&quot;&gt;&lt;li&gt;a&lt;/li&gt;&lt;/ol&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ol start=\"5\">");
+        auto answer = ::fast_io::u8string_view{u8"&lt;ol&nbsp;start=&quot;5&quot;&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }
