@@ -107,8 +107,15 @@ int main() {
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<OL START=\"5\" ><LI>item1</LI></OL>");
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<OL start=\"5\" ><LI>item1</LI></OL>");
         auto answer = ::fast_io::u8string_view{u8"<ol start=\"5\"><li>item1</li></ol>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ol START=\"5\"><li>item1</li></ol>");
+        auto answer =
+            ::fast_io::u8string_view{u8"&lt;ol&nbsp;START=&quot;5&quot;&gt;&lt;li&gt;item1&lt;/li&gt;&lt;/ol&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

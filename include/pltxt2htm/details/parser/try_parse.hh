@@ -2863,9 +2863,9 @@ struct TryParseOlTagResult {
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @param[in] pltext Input text starting at the opening `<`.
  * @return Tag length (from the `<`) and the start value (default 1) if matched; otherwise nullopt.
- * @note Only the `start` attribute is supported; any other attribute makes the whole tag
- *       invalid so it falls back to literal text.  Attribute order is flexible, and both
- *       `>` and `/>` are accepted as the closing delimiter.
+ * @note Only the lowercase `start` attribute is supported; any other attribute makes the
+ *       whole tag invalid so it falls back to literal text.  Attribute order is flexible,
+ *       and both `>` and `/>` are accepted as the closing delimiter.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
@@ -2908,15 +2908,8 @@ constexpr auto try_parse_ol_tag(::fast_io::u8string_view pltext) noexcept
         }
         ::fast_io::u8string_view const attr_name{pltext.data() + attr_start, pos - attr_start};
 
-        // only the `start` attribute is supported (case-insensitive), and it must have a value
-        auto const is_start_attr = [](::fast_io::u8string_view name) noexcept -> bool {
-            if (name.size() != 5) {
-                return false;
-            }
-            return (name[0] | 32) == u8's' && (name[1] | 32) == u8't' && (name[2] | 32) == u8'a' &&
-                   (name[3] | 32) == u8'r' && (name[4] | 32) == u8't';
-        };
-        if (is_start_attr(attr_name) == false) {
+        // only the `start` attribute is supported (lowercase), and it must have a value
+        if (attr_name != ::fast_io::u8string_view{u8"start"}) {
             return ::exception::nullopt;
         }
         if (pos >= pltext.size() || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'=') {
