@@ -3,15 +3,23 @@
 int main() {
     // ---- plunity backend: <internal=value> is output verbatim ----
     {
-        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<internal=run>运行</internal>");
-        auto answer = ::fast_io::u8string_view{u8"<internal=run>运行</internal>"};
+        auto pltext = ::fast_io::u8string_view{u8"<internal=run>运行</internal>"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer = ::fast_io::u8string_view{u8"&lt;internal=run&gt;运行&lt;/internal&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<internal=run>运行</internal>"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<internal=English>点击这里</internal>");
-        auto answer = ::fast_io::u8string_view{u8"<internal=English>点击这里</internal>"};
+        auto pltext = ::fast_io::u8string_view{u8"<internal=English>点击这里</internal>"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer = ::fast_io::u8string_view{u8"&lt;internal=English&gt;点击这里&lt;/internal&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<internal=English>点击这里</internal>"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
     {
@@ -23,24 +31,16 @@ int main() {
 
     {
         // Nested inline formatting inside the internal content is kept.
-        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<internal=run><i>运行</i></internal>");
-        auto answer = ::fast_io::u8string_view{u8"<internal=run><i>运行</i></internal>"};
+        auto pltext = ::fast_io::u8string_view{u8"<internal=run><i>运行</i></internal>"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer = ::fast_io::u8string_view{u8"&lt;internal=run&gt;<em>运行</em>&lt;/internal&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<internal=run><i>运行</i></internal>"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
     // ---- web backend: <internal=value> is escaped to literal &lt;internal&gt; ----
-    {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<internal=run>运行</internal>");
-        auto answer = ::fast_io::u8string_view{u8"&lt;internal=run&gt;运行&lt;/internal&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
-    }
-
-    {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<internal=English>点击这里</internal>");
-        auto answer = ::fast_io::u8string_view{u8"&lt;internal=English&gt;点击这里&lt;/internal&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
-    }
-
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<INTERNAL=run>运行</INTERNAL>");
         auto answer = ::fast_io::u8string_view{u8"&lt;internal=run&gt;运行&lt;/internal&gt;"};
@@ -55,13 +55,6 @@ int main() {
     }
 
     {
-        // Nested inline formatting is rendered inside the escaped wrapper.
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<internal=run><i>运行</i></internal>");
-        auto answer = ::fast_io::u8string_view{u8"&lt;internal=run&gt;<em>运行</em>&lt;/internal&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
-    }
-
-    {
         // fixedadv web backend escapes identically.
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<internal=run>运行</internal>");
         auto answer = ::fast_io::u8string_view{u8"&lt;internal=run&gt;运行&lt;/internal&gt;"};
@@ -70,15 +63,13 @@ int main() {
 
     // ---- optimizer: empty internal tag is omitted ----
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<internal=run></internal>t");
+        auto pltext = ::fast_io::u8string_view{u8"t<internal=run></internal>t"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"tt"};
         pltxt2htm_test_assert_equal(html, answer);
-    }
-
-    {
-        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"t<internal=run></internal>t");
-        auto answer = ::fast_io::u8string_view{u8"tt"};
-        pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"tt"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
     // ---- malformed / non-matching input falls back to literal text ----

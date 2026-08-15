@@ -4,20 +4,22 @@ int main() {
     // ---- inline <input> is always literal; checkbox inputs are only recognized
     //      inside a block-level <ul>/<ol> item (see the list tests below) ----
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<input type=\"checkbox\" disabled>");
+        auto pltext = ::fast_io::u8string_view{u8"<input type=\"checkbox\" disabled>"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view(u8"&lt;input&nbsp;type=&quot;checkbox&quot;&nbsp;disabled&gt;");
         pltxt2htm_test_assert_equal(html, answer);
-        auto plunity = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<input type=\"checkbox\" disabled>");
+        auto plunity = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_answer = ::fast_io::u8string_view{
             u8"<size=20>\uff1c</size>input\u00a0type=\"checkbox\"\u00a0disabled<size=20>\uff1e</size>"};
         pltxt2htm_test_assert_equal(plunity, plunity_answer);
     }
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<input type=\"checkbox\" disabled checked>");
+        auto pltext = ::fast_io::u8string_view{u8"<input type=\"checkbox\" disabled checked>"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer =
             ::fast_io::u8string_view(u8"&lt;input&nbsp;type=&quot;checkbox&quot;&nbsp;disabled&nbsp;checked&gt;");
         pltxt2htm_test_assert_equal(html, answer);
-        auto plunity = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<input type=\"checkbox\" disabled checked>");
+        auto plunity = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_answer = ::fast_io::u8string_view{
             u8"<size=20>\uff1c</size>input\u00a0type=\"checkbox\"\u00a0disabled\u00a0checked<size=20>\uff1e</size>"};
         pltxt2htm_test_assert_equal(plunity, plunity_answer);
@@ -77,21 +79,20 @@ int main() {
 
     // ---- checkbox <input> at the start of a <ul>/<ol> item is valid ----
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ul><li><input type=\"checkbox\" disabled>task</li></ul>");
+        auto pltext = ::fast_io::u8string_view{u8"<ul><li><input type=\"checkbox\" disabled>task</li></ul>"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view(u8"<ul><li><input type=\"checkbox\" disabled>task</li></ul>");
         pltxt2htm_test_assert_equal(html, answer);
-        auto plunity =
-            ::pltxt2htm_test::pltxt2plunity_introduction(u8"<ul><li><input type=\"checkbox\" disabled>task</li></ul>");
+        auto plunity = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_answer = ::fast_io::u8string_view{u8"\u2022 \u2610 task\n"};
         pltxt2htm_test_assert_equal(plunity, plunity_answer);
     }
     {
-        auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<ul><li><input type=\"checkbox\" disabled checked>done</li></ul>");
+        auto pltext = ::fast_io::u8string_view{u8"<ul><li><input type=\"checkbox\" disabled checked>done</li></ul>"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view(u8"<ul><li><input type=\"checkbox\" disabled checked>done</li></ul>");
         pltxt2htm_test_assert_equal(html, answer);
-        auto plunity = ::pltxt2htm_test::pltxt2plunity_introduction(
-            u8"<ul><li><input type=\"checkbox\" disabled checked>done</li></ul>");
+        auto plunity = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_answer = ::fast_io::u8string_view{u8"\u2022 \u2611 done\n"};
         pltxt2htm_test_assert_equal(plunity, plunity_answer);
     }

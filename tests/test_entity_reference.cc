@@ -105,16 +105,25 @@ int main() {
         pltxt2htm_test_assert_equal(html, u8"&apos;");
     }
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"&#38;");
+        auto pltext = ::fast_io::u8string_view{u8"&#38;"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         pltxt2htm_test_assert_equal(html, u8"&#38;");
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        pltxt2htm_test_assert_equal(plunity_richtext, u8"&");
     }
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"&#x26;");
+        auto pltext = ::fast_io::u8string_view{u8"&#x26;"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         pltxt2htm_test_assert_equal(html, u8"&#x26;");
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        pltxt2htm_test_assert_equal(plunity_richtext, u8"&");
     }
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"&#X2A;");
+        auto pltext = ::fast_io::u8string_view{u8"&#X2A;"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         pltxt2htm_test_assert_equal(html, u8"&#X2A;");
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        pltxt2htm_test_assert_equal(plunity_richtext, u8"*");
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"&QUOT;");
@@ -160,19 +169,7 @@ int main() {
         auto answer = ::fast_io::u8string_view{u8"&amp;\t'\""};
         pltxt2htm_test_assert_equal(html, answer);
     }
-    // plunity backend decodes numeric character references to their characters
-    {
-        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"&#38;");
-        pltxt2htm_test_assert_equal(html, u8"&");
-    }
-    {
-        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"&#x26;");
-        pltxt2htm_test_assert_equal(html, u8"&");
-    }
-    {
-        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"&#X2A;");
-        pltxt2htm_test_assert_equal(html, u8"*");
-    }
+    // plunity backend decodes numeric character references to their characters (see above)
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"&#34;");
         pltxt2htm_test_assert_equal(html, u8"\"");

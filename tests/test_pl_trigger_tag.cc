@@ -3,15 +3,23 @@
 int main() {
     // ---- plunity backend: <trigger=value> is output verbatim ----
     {
-        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<trigger=run>运行</trigger>");
-        auto answer = ::fast_io::u8string_view{u8"<trigger=run>运行</trigger>"};
+        auto pltext = ::fast_io::u8string_view{u8"<trigger=run>运行</trigger>"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer = ::fast_io::u8string_view{u8"&lt;trigger=run&gt;运行&lt;/trigger&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<trigger=run>运行</trigger>"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<trigger=English>点击这里</trigger>");
-        auto answer = ::fast_io::u8string_view{u8"<trigger=English>点击这里</trigger>"};
+        auto pltext = ::fast_io::u8string_view{u8"<trigger=English>点击这里</trigger>"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer = ::fast_io::u8string_view{u8"&lt;trigger=English&gt;点击这里&lt;/trigger&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<trigger=English>点击这里</trigger>"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
     {
@@ -23,24 +31,16 @@ int main() {
 
     {
         // Nested inline formatting inside the trigger content is kept.
-        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<trigger=run><i>运行</i></trigger>");
-        auto answer = ::fast_io::u8string_view{u8"<trigger=run><i>运行</i></trigger>"};
+        auto pltext = ::fast_io::u8string_view{u8"<trigger=run><i>运行</i></trigger>"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer = ::fast_io::u8string_view{u8"&lt;trigger=run&gt;<em>运行</em>&lt;/trigger&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<trigger=run><i>运行</i></trigger>"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
     // ---- web backend: <trigger=value> is escaped to literal &lt;trigger&gt; ----
-    {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<trigger=run>运行</trigger>");
-        auto answer = ::fast_io::u8string_view{u8"&lt;trigger=run&gt;运行&lt;/trigger&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
-    }
-
-    {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<trigger=English>点击这里</trigger>");
-        auto answer = ::fast_io::u8string_view{u8"&lt;trigger=English&gt;点击这里&lt;/trigger&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
-    }
-
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<TRIGGER=run>运行</TRIGGER>");
         auto answer = ::fast_io::u8string_view{u8"&lt;trigger=run&gt;运行&lt;/trigger&gt;"};
@@ -55,13 +55,6 @@ int main() {
     }
 
     {
-        // Nested inline formatting is rendered inside the escaped wrapper.
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<trigger=run><i>运行</i></trigger>");
-        auto answer = ::fast_io::u8string_view{u8"&lt;trigger=run&gt;<em>运行</em>&lt;/trigger&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
-    }
-
-    {
         // fixedadv web backend escapes identically.
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<trigger=run>运行</trigger>");
         auto answer = ::fast_io::u8string_view{u8"&lt;trigger=run&gt;运行&lt;/trigger&gt;"};
@@ -70,15 +63,13 @@ int main() {
 
     // ---- optimizer: empty trigger tag is omitted ----
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<trigger=run></trigger>t");
+        auto pltext = ::fast_io::u8string_view{u8"t<trigger=run></trigger>t"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"tt"};
         pltxt2htm_test_assert_equal(html, answer);
-    }
-
-    {
-        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"t<trigger=run></trigger>t");
-        auto answer = ::fast_io::u8string_view{u8"tt"};
-        pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"tt"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
     // ---- malformed / non-matching input falls back to literal text ----
