@@ -34,7 +34,7 @@ struct ToHtmlListAstResult {
     ::pltxt2htm::details::ListAst<ndebug> ast;
     ::std::size_t advance_count;
     ::pltxt2htm::NodeKind item_kind;
-    ::std::size_t start{1}; ///< `<ol start="N">` value (defaults to 1).
+    ::std::size_t start; ///< `<ol start="N">` value (defaults to 1).
 };
 
 /**
