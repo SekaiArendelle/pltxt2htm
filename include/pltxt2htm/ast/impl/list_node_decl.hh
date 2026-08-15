@@ -47,7 +47,7 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class ListOl {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::std::size_t start{1};
+    ::std::size_t start;
 
 public:
     constexpr ListOl(::pltxt2htm::Ast<ndebug>&& subast_, ::std::size_t start_ = 1) noexcept;
