@@ -193,7 +193,7 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class ListOlNode {
     ::pltxt2htm::details::ListAst<ndebug> sublist;
-    ::std::size_t start{1};
+    ::std::size_t start;
 
 public:
     constexpr ListOlNode(::pltxt2htm::details::ListAst<ndebug>&& sublist_, ::std::size_t start_ = 1) noexcept;
