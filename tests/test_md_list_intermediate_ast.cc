@@ -29,6 +29,13 @@ constexpr auto ol_item(Nodes&&... nodes) noexcept {
     return ::pltxt2htm::details::ListOlNode<ndebug>(::pltxt2htm_test::md_list<ndebug>(::std::forward<Nodes>(nodes)...));
 }
 
+template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce,
+         ::pltxt2htm::details::is_list_node_type... Nodes>
+constexpr auto ol_item(::std::size_t start, Nodes&&... nodes) noexcept {
+    return ::pltxt2htm::details::ListOlNode<ndebug>(::pltxt2htm_test::md_list<ndebug>(::std::forward<Nodes>(nodes)...),
+                                                    start);
+}
+
 } // namespace pltxt2htm_test
 
 int main() {
@@ -321,6 +328,34 @@ int main() {
                        .ast;
         auto answer = md_list(text_item(u8"test"), text_item(u8"test"), ol_item(text_item(u8"text")));
         ::exception::assert_true<false>(ast == answer);
+    }
+
+    {
+        // start equals the first item number
+        auto result = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(
+            u8"3. test\n 4. test");
+        ::exception::assert_true<false>(result.value().start == 3);
+    }
+    {
+        // nested ordered list keeps its own start
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(
+                       u8"1. test\n 2. test\n   3. text")
+                       .value()
+                       .ast;
+        auto answer = md_list(text_item(u8"test"), text_item(u8"test"), ol_item(3, text_item(u8"text")));
+        ::exception::assert_true<false>(ast == answer);
+    }
+    {
+        // ) delimiter start
+        auto result = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(
+            u8"5) test\n 6) test");
+        ::exception::assert_true<false>(result.value().start == 5);
+    }
+    {
+        // unordered lists keep the default start of 1
+        auto result =
+            ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(u8"- text\n - text");
+        ::exception::assert_true<false>(result.value().start == 1);
     }
 
     return 0;

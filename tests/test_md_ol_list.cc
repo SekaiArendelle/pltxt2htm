@@ -128,9 +128,10 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
-        // . and ) are different marker types -> separate lists (CommonMark rule)
+        // . and ) are different marker types -> separate lists (CommonMark rule);
+        // each list starts at its own first item number
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"1. test\n 2) test");
-        auto answer = ::fast_io::u8string_view(u8"<ol><li>test</li></ol><ol><li>test</li></ol>");
+        auto answer = ::fast_io::u8string_view(u8"<ol><li>test</li></ol><ol start=\"2\"><li>test</li></ol>");
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
@@ -149,6 +150,70 @@ int main() {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"1) test\n2) text");
         auto answer = ::fast_io::u8string_view{u8"1. test\n2. text\n"};
         pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // ---- start attribute from the first item number ----
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"3. test\n 4. test");
+        auto answer = ::fast_io::u8string_view(u8"<ol start=\"3\"><li>test</li><li>test</li></ol>");
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        // subsequent item numbers are ignored; items renumber sequentially from start
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"3. test\n 1. test");
+        auto answer = ::fast_io::u8string_view(u8"<ol start=\"3\"><li>test</li><li>test</li></ol>");
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        // ) delimiter start
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"5) test\n 6) test");
+        auto answer = ::fast_io::u8string_view(u8"<ol start=\"5\"><li>test</li><li>test</li></ol>");
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        // nested ordered list keeps its own start
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"1. test\n 2. test\n   3. text");
+        auto answer =
+            ::fast_io::u8string_view(u8"<ol><li>test</li><li>test<ol start=\"3\"><li>text</li></ol></li></ol>");
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        // ordered list nested inside an unordered list keeps its start
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"- test\n - test\n   4. text");
+        auto answer =
+            ::fast_io::u8string_view(u8"<ul><li>test</li><li>test<ol start=\"4\"><li>text</li></ol></li></ul>");
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        // start=1 is normalized away
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"1. test\n 1. test");
+        auto answer = ::fast_io::u8string_view(u8"<ol><li>test</li><li>test</li></ol>");
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        // plunity numbering follows start
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"3. test\n4. text\n5. test");
+        auto answer = ::fast_io::u8string_view{u8"3. test\n4. text\n5. test\n"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        // plunity numbering of a ) list follows start
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"3) test\n4) text");
+        auto answer = ::fast_io::u8string_view{u8"3. test\n4. text\n"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        // plunity nested list numbering follows its own start
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"1. test\n2. text\n  3. test\n  4. text");
+        auto answer = ::fast_io::u8string_view{u8"1. test\n2. text\n  3. test\n  4. text\n"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        // roundtrip: generated <ol start> re-parses back to the same list
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"3. test\n 4. test");
+        auto roundtrip = ::pltxt2htm_test::pltxt4unittest(
+            ::fast_io::u8string_view(u8"<ol start=\"3\"><li>test</li><li>test</li></ol>"));
+        pltxt2htm_test_assert_equal(html, roundtrip);
     }
 
     return 0;

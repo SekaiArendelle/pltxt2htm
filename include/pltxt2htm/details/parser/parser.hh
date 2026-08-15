@@ -161,11 +161,12 @@ constexpr auto find_next_block_after_line_break(
         if (auto opt_md_list_ast = ::pltxt2htm::details::optionally_to_md_list_ast<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
             opt_md_list_ast.has_value()) {
-            auto&& [list_ast, advance_count, item_kind] =
+            auto&& [list_ast, advance_count, item_kind, start] =
                 opt_md_list_ast.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                 ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                    ::pltxt2htm::details::ParserFrameContextWithListInfo<ndebug>{::std::move(list_ast)}, item_kind},
+                    ::pltxt2htm::details::ParserFrameContextWithListInfo<ndebug>{::std::move(list_ast), start},
+                    item_kind},
                 ::pltxt2htm::Ast<ndebug>{}));
             return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{
                 .advance_count = current_index + advance_count, .new_frame_been_pushed_into_call_stack = true};
