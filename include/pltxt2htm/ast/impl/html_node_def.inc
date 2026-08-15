@@ -306,7 +306,8 @@ constexpr auto ::pltxt2htm::HtmlCode<ndebug>::operator=(this ::pltxt2htm::HtmlCo
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::HtmlCode<ndebug>::operator==(this ::pltxt2htm::HtmlCode<ndebug> const&,
-                                                         ::pltxt2htm::HtmlCode<ndebug> const&) noexcept -> bool = default;
+                                                         ::pltxt2htm::HtmlCode<ndebug> const&) noexcept
+    -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::HtmlBlockquote<ndebug>::HtmlBlockquote(::pltxt2htm::Ast<ndebug>&& subast_) noexcept

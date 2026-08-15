@@ -141,7 +141,8 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ul><li>text<ul><li>text</li></ul><ul><li>text</li></ul></li></ul>");
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"<ul><li>text<ul><li>text</li></ul><ul><li>text</li></ul></li></ul>");
         auto answer = ::fast_io::u8string_view{u8"<ul><li>text<ul><li>text</li></ul><ul><li>text</li></ul></li></ul>"};
         pltxt2htm_test_assert_equal(html, answer);
     }

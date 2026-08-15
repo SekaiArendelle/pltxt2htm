@@ -1567,8 +1567,8 @@ entry:
                 else {
                     result.append(u8"<pre><code>");
                 }
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_code_fence().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::code_fence, 0));
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
+                    node.as_code_fence().get_subast(), ::pltxt2htm::NodeKind::code_fence, 0));
                 ++current_index;
                 goto entry;
             }

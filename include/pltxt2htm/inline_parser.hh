@@ -67,7 +67,6 @@ namespace pltxt2htm {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto inline_parse_pltxt(::fast_io::u8string_view input_pltext) noexcept -> ::pltxt2htm::Ast<ndebug> {
-    using namespace ::pltxt2htm::details;
     // This stack is used to track nested tag contexts during parsing
     ::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>> call_stack{};
 
@@ -506,7 +505,7 @@ entry:
                     }
                     // parsing: <color=$1>$2</color>
                     if (auto opt_color_tag = ::pltxt2htm::details::try_parse_color_tag<ndebug>(
-                            u8string_view_subview<ndebug>(pltext, current_index + 2));
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                         opt_color_tag.has_value()) {
                         auto&& [tag_len, color] =
                             opt_color_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();

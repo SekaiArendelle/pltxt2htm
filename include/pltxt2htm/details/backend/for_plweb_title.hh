@@ -457,14 +457,14 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_experiments: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                    node.as_pl_experiments().get_subast(), ::pltxt2htm::NodeKind::text, 0));
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_pl_experiments().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::text, 0));
                 ++current_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_discussions: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                    node.as_pl_discussions().get_subast(), ::pltxt2htm::NodeKind::text, 0));
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_pl_discussions().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::text, 0));
                 ++current_index;
                 goto entry;
             }

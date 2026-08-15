@@ -169,7 +169,7 @@ public:
     constexpr auto operator=(::pltxt2htm::PlExperiments<ndebug> const&) noexcept
         -> ::pltxt2htm::PlExperiments<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::PlExperiments<ndebug>& self,
-                            ::pltxt2htm::PlExperiments<ndebug>&&) noexcept -> ::pltxt2htm::PlExperiments<ndebug>&;
+                             ::pltxt2htm::PlExperiments<ndebug>&&) noexcept -> ::pltxt2htm::PlExperiments<ndebug>&;
 
     [[nodiscard]]
     constexpr auto operator==(this PlExperiments const&, PlExperiments const&) noexcept -> bool;
@@ -203,7 +203,7 @@ public:
     constexpr auto operator=(::pltxt2htm::PlDiscussions<ndebug> const&) noexcept
         -> ::pltxt2htm::PlDiscussions<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::PlDiscussions<ndebug>& self,
-                            ::pltxt2htm::PlDiscussions<ndebug>&&) noexcept -> ::pltxt2htm::PlDiscussions<ndebug>&;
+                             ::pltxt2htm::PlDiscussions<ndebug>&&) noexcept -> ::pltxt2htm::PlDiscussions<ndebug>&;
 
     [[nodiscard]]
     constexpr auto operator==(this PlDiscussions const&, PlDiscussions const&) noexcept -> bool;

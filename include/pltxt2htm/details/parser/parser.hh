@@ -1239,8 +1239,7 @@ entry:
                     // parsing: <internal=$1>$2</internal>
                     if (auto opt_internal_tag = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<
                             ndebug, u8"nternal", ::pltxt2htm::details::is_ascii_graphic>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                            call_stack);
+                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), call_stack);
                         opt_internal_tag.has_value()) {
                         auto&& [tag_len, value] =
                             opt_internal_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
@@ -3079,7 +3078,8 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_code: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlCode<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlCode<ndebug>{::std::move(subast)}));
                 parent_index += staged_index;
                 goto entry;
             }
