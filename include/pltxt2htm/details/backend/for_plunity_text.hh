@@ -1097,7 +1097,7 @@ entry:
                 }
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
                     list_ol.get_subast(), ::pltxt2htm::NodeKind::list_ol, 0,
-                    ::pltxt2htm::details::BackendContextWithOlInfo{}));
+                    ::pltxt2htm::details::BackendContextWithOlInfo{.ol_li_count = list_ol.get_start()}));
                 ++current_index;
                 ++list_nesting_depth;
                 goto entry;

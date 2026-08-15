@@ -193,9 +193,10 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class ListOlNode {
     ::pltxt2htm::details::ListAst<ndebug> sublist;
+    ::std::size_t start;
 
 public:
-    constexpr ListOlNode(::pltxt2htm::details::ListAst<ndebug>&& sublist_) noexcept;
+    constexpr ListOlNode(::pltxt2htm::details::ListAst<ndebug>&& sublist_, ::std::size_t start_ = 1) noexcept;
 
     constexpr ListOlNode(::pltxt2htm::details::ListOlNode<ndebug> const&) noexcept = delete;
 
@@ -217,6 +218,11 @@ public:
     [[nodiscard]]
     constexpr auto get_sublist(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.sublist);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_start(this auto const& self) noexcept -> ::std::size_t {
+        return self.start;
     }
 };
 
@@ -392,6 +398,25 @@ public:
     }
 
     [[nodiscard]]
+    constexpr auto get_start(this auto const& self) noexcept -> ::std::size_t {
+        switch (self.type) /* -Werror=switch */ {
+        case ::pltxt2htm::details::ListNodeType::list_ol: {
+            return self.ol_node.get_start();
+        }
+        case ::pltxt2htm::details::ListNodeType::list_ul: {
+            return 1;
+        }
+        case ::pltxt2htm::details::ListNodeType::list_li:
+            [[fallthrough]];
+        case ::pltxt2htm::details::ListNodeType::list_li_checkbox:
+            [[unlikely]] {
+                pltxt2htm_unreachable(u8"Unexpected list_li/list_li_checkbox in get_start()");
+            }
+        }
+        pltxt2htm_unreachable(u8"Unreachable after get_start() switch");
+    }
+
+    [[nodiscard]]
     constexpr auto is_checked(this auto const& self) noexcept -> bool {
         pltxt2htm_assert(self.type == ::pltxt2htm::details::ListNodeType::list_li_checkbox, u8"node type mismatch");
         return self.li_checkbox_node.is_checked();
@@ -456,8 +481,10 @@ constexpr auto ListUlNode<ndebug>::operator==(::pltxt2htm::details::ListUlNode<n
 // ---- ListOlNode member definitions (ListBaseNode is now complete) ----
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ListOlNode<ndebug>::ListOlNode(::pltxt2htm::details::ListAst<ndebug>&& sublist_) noexcept
-    : sublist(::std::move(sublist_)) {
+constexpr ListOlNode<ndebug>::ListOlNode(::pltxt2htm::details::ListAst<ndebug>&& sublist_,
+                                         ::std::size_t start_) noexcept
+    : sublist(::std::move(sublist_)),
+      start(start_) {
 }
 
 template<::pltxt2htm::Contracts ndebug>
@@ -475,7 +502,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto ListOlNode<ndebug>::operator==(::pltxt2htm::details::ListOlNode<ndebug> const& other) const noexcept
     -> bool {
-    return sublist == other.sublist;
+    return sublist == other.sublist && start == other.start;
 }
 
 template<typename T>

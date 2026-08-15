@@ -2851,6 +2851,111 @@ constexpr auto try_parse_input_checkbox_tag(::fast_io::u8string_view pltext) noe
 }
 
 /**
+ * @brief Result of parsing an `<ol>` tag.
+ */
+struct TryParseOlTagResult {
+    ::std::size_t tag_len;
+    ::std::size_t start;
+};
+
+/**
+ * @brief Parse `<ol [start="N"]>` tag.
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
+ * @param[in] pltext Input text starting at the opening `<`.
+ * @return Tag length (from the `<`) and the start value (default 1) if matched; otherwise nullopt.
+ * @note Only the lowercase `start` attribute is supported; any other attribute makes the
+ *       whole tag invalid so it falls back to literal text.  Attribute order is flexible,
+ *       and both `>` and `/>` are accepted as the closing delimiter.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_ol_tag(::fast_io::u8string_view pltext) noexcept
+    -> ::exception::optional<TryParseOlTagResult> {
+    // match "<ol" (case-insensitive)
+    constexpr auto ol_tag_prefix = ::pltxt2htm::details::U8LiteralString{u8"<ol"};
+    if (::pltxt2htm::details::is_prefix_match<ndebug, ol_tag_prefix>(pltext) == false) {
+        return ::exception::nullopt;
+    }
+    ::std::size_t pos{ol_tag_prefix.size()};
+    ::std::size_t start{1};
+
+    while (pos < pltext.size()) {
+        // skip whitespace
+        while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
+                                       ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t')) {
+            ++pos;
+        }
+        if (pos >= pltext.size()) {
+            return ::exception::nullopt;
+        }
+        // end of tag
+        if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'>') {
+            return TryParseOlTagResult{.tag_len = pos + 1, .start = start};
+        }
+        if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'/' && pos + 1 < pltext.size() &&
+            ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos + 1) == u8'>') {
+            return TryParseOlTagResult{.tag_len = pos + 2, .start = start};
+        }
+
+        // parse attribute name
+        ::std::size_t const attr_start = pos;
+        while (pos < pltext.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'=' &&
+               ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'>' &&
+               ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8' ' &&
+               ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'\t' &&
+               ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'/') {
+            ++pos;
+        }
+        ::fast_io::u8string_view const attr_name{pltext.data() + attr_start, pos - attr_start};
+
+        // only the `start` attribute is supported (lowercase), and it must have a value
+        if (attr_name != ::fast_io::u8string_view{u8"start"}) {
+            return ::exception::nullopt;
+        }
+        if (pos >= pltext.size() || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != u8'=') {
+            return ::exception::nullopt;
+        }
+        ++pos; // skip '='
+
+        // skip whitespace after '='
+        while (pos < pltext.size() && (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8' ' ||
+                                       ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) == u8'\t')) {
+            ++pos;
+        }
+        if (pos >= pltext.size()) {
+            return ::exception::nullopt;
+        }
+
+        // parse quoted attribute value
+        char8_t const quote{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos)};
+        if (quote != u8'"' && quote != u8'\'') {
+            return ::exception::nullopt;
+        }
+        ++pos; // skip opening quote
+        ::std::size_t const val_start = pos;
+        while (pos < pltext.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, pos) != quote) {
+            ++pos;
+        }
+        if (pos >= pltext.size()) {
+            return ::exception::nullopt;
+        }
+        ::fast_io::u8string_view const attr_val{pltext.data() + val_start, pos - val_start};
+        ++pos; // skip closing quote
+
+        auto opt_value = ::pltxt2htm::details::try_parse_size_t_decimal_value<ndebug>(attr_val);
+        if (opt_value.has_value() == false) {
+            return ::exception::nullopt;
+        }
+        auto const [value_end, value] = opt_value.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        if (value_end != attr_val.size()) {
+            return ::exception::nullopt;
+        }
+        start = value;
+    }
+    return ::exception::nullopt;
+}
+
+/**
  * @brief Result of parsing an `<img>` tag.
  */
 struct TryParseImgTagResult {

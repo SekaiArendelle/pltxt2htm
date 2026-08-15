@@ -23,8 +23,9 @@ constexpr auto ::pltxt2htm::ListUl<ndebug>::operator==(this ::pltxt2htm::ListUl<
                                                        ::pltxt2htm::ListUl<ndebug> const&) noexcept -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::ListOl<ndebug>::ListOl(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
-    : subast(::std::move(subast_)) {
+constexpr ::pltxt2htm::ListOl<ndebug>::ListOl(::pltxt2htm::Ast<ndebug>&& subast_, ::std::size_t start_) noexcept
+    : subast(::std::move(subast_)),
+      start(start_) {
 }
 
 template<::pltxt2htm::Contracts ndebug>

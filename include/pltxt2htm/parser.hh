@@ -80,6 +80,12 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
             }
             return ::exception::nullopt;
         }();
+        auto const opt_list_start = [&] constexpr noexcept -> ::exception::optional<::std::size_t> {
+            if (type_of_subast == ::pltxt2htm::NodeKind::list_ol) {
+                return call_stack.top().get_list_start();
+            }
+            return ::exception::nullopt;
+        }();
         auto const opt_html_div =
             [&] constexpr noexcept -> ::exception::optional<::pltxt2htm::details::ParserFrameContextWithHtmlDivInfo> {
             if (type_of_subast == ::pltxt2htm::NodeKind::html_div) {
@@ -124,7 +130,9 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
             continue;
         }
         case ::pltxt2htm::NodeKind::list_ol: {
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::ListOl<ndebug>{::std::move(subast)}));
+            auto const list_start = opt_list_start.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            result.push_back(
+                ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::ListOl<ndebug>{::std::move(subast), list_start}));
             continue;
         }
         case ::pltxt2htm::NodeKind::md_table: {

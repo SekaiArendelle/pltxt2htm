@@ -174,11 +174,12 @@ constexpr auto find_next_block_after_line_break(
         if (auto opt_html_list_ast = ::pltxt2htm::details::optionally_to_html_list_ast<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
             opt_html_list_ast.has_value()) {
-            auto&& [list_ast, advance_count, item_kind] =
+            auto&& [list_ast, advance_count, item_kind, start] =
                 opt_html_list_ast.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                 ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                    ::pltxt2htm::details::ParserFrameContextWithListInfo<ndebug>{::std::move(list_ast)}, item_kind},
+                    ::pltxt2htm::details::ParserFrameContextWithListInfo<ndebug>{::std::move(list_ast), start},
+                    item_kind},
                 ::pltxt2htm::Ast<ndebug>{}));
             return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{
                 .advance_count = current_index + advance_count, .new_frame_been_pushed_into_call_stack = true};
@@ -402,8 +403,8 @@ entry:
                 }
                 else {
                     ::pltxt2htm::details::stack_top<ndebug>(call_stack)
-                        .subast.emplace_back(::pltxt2htm::PlTxtNode<ndebug>(
-                            ::pltxt2htm::ListOl<ndebug>{::std::move(previous_frame.subast)}));
+                        .subast.emplace_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::ListOl<ndebug>{
+                            ::std::move(previous_frame.subast), previous_frame.get_list_start()}));
                 }
                 // Given "before\n- item\nbetween\n+ another\n- last\nafter":
                 //   find_next_block_after_line_break first sees "- item\nbetween\n...",
@@ -466,7 +467,7 @@ entry:
                 call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                     ::pltxt2htm::details::FrontendContextVariant<ndebug>{
                         ::pltxt2htm::details::ParserFrameContextWithListInfo<ndebug>{
-                            ::std::move(frame_iter->get_sublist())},
+                            ::std::move(frame_iter->get_sublist()), frame_iter->get_start()},
                         ::pltxt2htm::NodeKind::list_ol},
                     ::pltxt2htm::Ast<ndebug>{}));
                 break;

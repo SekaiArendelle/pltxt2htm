@@ -93,6 +93,11 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<ol start=\"5\"><li>item</li></ol>");
+        auto answer = ::fast_io::u8string_view{u8"<ol start=\"5\"><li>item</li></ol>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<table><tr><td>cell</td></tr></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><tr><td>cell</td></tr></table>"};
         pltxt2htm_test_assert_equal(html, answer);

@@ -160,10 +160,13 @@ class ParserFrameContextWithListInfo {
 public:
     ::pltxt2htm::details::ListAst<ndebug> list_ast;
     typename ::pltxt2htm::details::ListAst<ndebug>::iterator iter;
+    ::std::size_t list_start{1}; ///< `<ol start="N">` value (defaults to 1).
 
-    constexpr explicit ParserFrameContextWithListInfo(::pltxt2htm::details::ListAst<ndebug>&& list_ast_) noexcept
+    constexpr ParserFrameContextWithListInfo(::pltxt2htm::details::ListAst<ndebug>&& list_ast_,
+                                             ::std::size_t list_start_ = 1) noexcept
         : list_ast(::std::move(list_ast_)),
-          iter(list_ast.begin()) {
+          iter(list_ast.begin()),
+          list_start(list_start_) {
     }
 };
 
@@ -1655,6 +1658,15 @@ public:
                                          context_data_ref.kind == ::pltxt2htm::NodeKind::list_ol};
         pltxt2htm_assert(is_list_ul_or_ol_type, u8"context kind mismatch");
         return ::std::forward_like<decltype(self)>(context_data_ref.list_info.iter);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_list_start(this auto&& self) noexcept -> ::std::size_t {
+        auto&& context_data_ref = self.context_data;
+        bool const is_list_ul_or_ol_type{context_data_ref.kind == ::pltxt2htm::NodeKind::list_ul ||
+                                         context_data_ref.kind == ::pltxt2htm::NodeKind::list_ol};
+        pltxt2htm_assert(is_list_ul_or_ol_type, u8"context kind mismatch");
+        return context_data_ref.list_info.list_start;
     }
 
     [[nodiscard]]
