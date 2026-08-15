@@ -282,6 +282,46 @@ int main() {
         auto answer = md_list(text_item(u8"test"), text_item(u8"test"), ol_item(text_item(u8"text")));
         ::exception::assert_true<false>(html == answer);
     }
+    {
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(u8"1) test")
+                       .value()
+                       .ast;
+        auto answer = md_list(text_item(u8"test"));
+        ::exception::assert_true<false>(ast == answer);
+    }
+    {
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(
+                       u8"1) test\n 2) test")
+                       .value()
+                       .ast;
+        auto answer = md_list(text_item(u8"test"), text_item(u8"test"));
+        ::exception::assert_true<false>(ast == answer);
+    }
+    {
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(
+                       u8"1) test\n 2) test\n   1) text")
+                       .value()
+                       .ast;
+        auto answer = md_list(text_item(u8"test"), text_item(u8"test"), ol_item(text_item(u8"text")));
+        ::exception::assert_true<false>(ast == answer);
+    }
+    {
+        // . and ) are different marker types -> the list ends at the second line
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(
+                       u8"1. test\n 2) test")
+                       .value()
+                       .ast;
+        auto answer = md_list(text_item(u8"test"));
+        ::exception::assert_true<false>(ast == answer);
+    }
+    {
+        auto ast = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(
+                       u8"1) test\n 2) test\n   1. text")
+                       .value()
+                       .ast;
+        auto answer = md_list(text_item(u8"test"), text_item(u8"test"), ol_item(text_item(u8"text")));
+        ::exception::assert_true<false>(ast == answer);
+    }
 
     return 0;
 }
