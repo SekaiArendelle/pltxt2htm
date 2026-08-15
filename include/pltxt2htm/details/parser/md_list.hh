@@ -25,7 +25,25 @@ enum class MdUlListItemKind : char8_t {
     hyphen = u8'-',
     plus = u8'+',
     asterisk = u8'*',
-    ordered_item = u8',',
+    ordered_item = u8'.',
+    ordered_item_paren = u8')',
+};
+
+/**
+ * @brief Whether the item kind is one of the ordered-list kinds (`.` or `)` delimiter).
+ */
+[[nodiscard]]
+constexpr auto is_ordered_item_kind(::pltxt2htm::details::MdUlListItemKind const item_kind) noexcept -> bool {
+    return item_kind == ::pltxt2htm::details::MdUlListItemKind::ordered_item ||
+           item_kind == ::pltxt2htm::details::MdUlListItemKind::ordered_item_paren;
+}
+
+/**
+ * @brief Parsed ordered-list marker: delimiter kind and position right after the delimiter.
+ */
+struct MdOlListMarkerResult {
+    ::std::size_t advance_to;
+    ::pltxt2htm::details::MdUlListItemKind item_kind;
 };
 
 /**
@@ -137,19 +155,19 @@ constexpr auto is_valid_md_ul_list_hierarchy(
 }
 
 /**
- * @brief Validate that the current position starts a valid ordered-list item (e.g., "1.").
+ * @brief Validate that the current position starts a valid ordered-list item (e.g., "1." or "1)").
  * @tparam ndebug Contract checking mode.
  * @param pltext Input text starting at the candidate marker.
  * @param space_hierarchy Number of leading whitespace characters.
  * @param expect Previous item info for hierarchy validation.
- * @return Position after the dot if valid; nullopt otherwise.
+ * @return Parsed marker (delimiter kind and position after it) if valid; nullopt otherwise.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto is_valid_md_ol_list_hierarchy(
     ::fast_io::u8string_view pltext, ::std::size_t const space_hierarchy,
     ::exception::optional<::pltxt2htm::details::PreviousItemInfo> const expect) noexcept
-    -> ::exception::optional<::std::size_t> {
+    -> ::exception::optional<::pltxt2htm::details::MdOlListMarkerResult> {
     ::std::size_t const pltext_size{pltext.size()};
     if (pltext_size < 4) {
         return ::exception::nullopt;
@@ -169,8 +187,19 @@ constexpr auto is_valid_md_ol_list_hierarchy(
         if (i == pltext_size) {
             return ::exception::nullopt;
         }
-        if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i) != u8'.') {
+        ::pltxt2htm::details::MdUlListItemKind ordered_kind;
+        switch (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i)) {
+        case u8'.': {
+            ordered_kind = ::pltxt2htm::details::MdUlListItemKind::ordered_item;
+            break;
+        }
+        case u8')': {
+            ordered_kind = ::pltxt2htm::details::MdUlListItemKind::ordered_item_paren;
+            break;
+        }
+        default: {
             return ::exception::nullopt;
+        }
         }
         if (++i >= pltext_size) {
             return ::exception::nullopt;
@@ -193,9 +222,8 @@ constexpr auto is_valid_md_ol_list_hierarchy(
             // - test
             // 1. test <== here, this line is invalid markdown list
             (expect.template value<ndebug == ::pltxt2htm::Contracts::ignore>().call_stack_is_single &&
-             expect.template value<ndebug == ::pltxt2htm::Contracts::ignore>().item_kind ==
-                 ::pltxt2htm::details::MdUlListItemKind::ordered_item)) {
-            return i;
+             expect.template value<ndebug == ::pltxt2htm::Contracts::ignore>().item_kind == ordered_kind)) {
+            return ::pltxt2htm::details::MdOlListMarkerResult{.advance_to = i, .item_kind = ordered_kind};
         }
     }
     return ::exception::nullopt;
@@ -263,11 +291,12 @@ constexpr auto try_parse_item(
         item_kind = ::pltxt2htm::details::MdUlListItemKind::asterisk;
         ++current_index;
     }
-    else if (auto opt_size =
+    else if (auto opt_marker =
                  ::pltxt2htm::details::is_valid_md_ol_list_hierarchy<ndebug>(pltext, space_hierarchy, expect);
-             opt_size.has_value()) {
-        item_kind = ::pltxt2htm::details::MdUlListItemKind::ordered_item;
-        current_index = opt_size.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+             opt_marker.has_value()) {
+        auto const marker = opt_marker.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        item_kind = marker.item_kind;
+        current_index = marker.advance_to;
     }
     else {
         return ::exception::nullopt;
@@ -364,7 +393,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
                 return ::pltxt2htm::details::ToListAstResult<ndebug>{
                     .ast = ::std::move(current_frame.md_list_ast),
                     .advance_count = advance_count,
-                    .item_kind = item_kind == ::pltxt2htm::details::MdUlListItemKind::ordered_item
+                    .item_kind = ::pltxt2htm::details::is_ordered_item_kind(item_kind)
                                      ? ::pltxt2htm::NodeKind::list_ol
                                      : ::pltxt2htm::NodeKind::list_ul};
             }
@@ -391,13 +420,15 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
                 return ::pltxt2htm::details::ToListAstResult<ndebug>{
                     .ast = ::std::move(frame.md_list_ast),
                     .advance_count = frame.current_index,
-                    .item_kind = frame.get_item_kind() == ::pltxt2htm::details::MdUlListItemKind::ordered_item
+                    .item_kind = ::pltxt2htm::details::is_ordered_item_kind(frame.get_item_kind())
                                      ? ::pltxt2htm::NodeKind::list_ol
                                      : ::pltxt2htm::NodeKind::list_ul};
             }
             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
             switch (frame.get_item_kind()) {
-            case ::pltxt2htm::details::MdUlListItemKind::ordered_item: {
+            case ::pltxt2htm::details::MdUlListItemKind::ordered_item:
+                [[fallthrough]];
+            case ::pltxt2htm::details::MdUlListItemKind::ordered_item_paren: {
                 parent_frame.md_list_ast.emplace_back(
                     ::pltxt2htm::details::ListOlNode<ndebug>(::std::move(frame.md_list_ast)));
                 break;
@@ -455,13 +486,15 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
             return ::pltxt2htm::details::ToListAstResult<ndebug>{
                 .ast = ::std::move(frame.md_list_ast),
                 .advance_count = pltext_size,
-                .item_kind = frame.get_item_kind() == ::pltxt2htm::details::MdUlListItemKind::ordered_item
+                .item_kind = ::pltxt2htm::details::is_ordered_item_kind(frame.get_item_kind())
                                  ? ::pltxt2htm::NodeKind::list_ol
                                  : ::pltxt2htm::NodeKind::list_ul};
         }
         auto&& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
         switch (frame.get_item_kind()) {
-        case ::pltxt2htm::details::MdUlListItemKind::ordered_item: {
+        case ::pltxt2htm::details::MdUlListItemKind::ordered_item:
+            [[fallthrough]];
+        case ::pltxt2htm::details::MdUlListItemKind::ordered_item_paren: {
             parent_frame.md_list_ast.emplace_back(
                 ::pltxt2htm::details::ListOlNode<ndebug>(::std::move(frame.md_list_ast)));
             break;
