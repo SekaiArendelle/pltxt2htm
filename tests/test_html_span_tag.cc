@@ -530,7 +530,7 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
-{
+    {
         auto pltext = ::fast_io::u8string_view{u8"<span style=\"vertical-align:10em\">text</span>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:10em;\">text</span>"};

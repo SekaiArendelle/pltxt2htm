@@ -89,8 +89,7 @@ int main() {
     }
     {
         auto pltext = ::fast_io::u8string_view{u8"<ul><li><input type=\"checkbox\" disabled checked>done</li></ul>"};
-        auto html =
-            ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view(u8"<ul><li><input type=\"checkbox\" disabled checked>done</li></ul>");
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
