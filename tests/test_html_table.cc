@@ -80,13 +80,17 @@ int main() {
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<table><tr><td>cell</td></tr></table>");
-        auto answer = ::fast_io::u8string_view{
+        auto pltext = ::fast_io::u8string_view{u8"<table><tr><td>cell</td></tr></table>"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer = ::fast_io::u8string_view{u8"<table><tr><td>cell</td></tr></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{
             u8"<size=20>\uff1c</size>table<size=20>\uff1e</size><size=20>\uff1c</size>tr<size=20>\uff1e</size><size=20>"
             u8"\uff1c</size>td<size=20>\uff1e</size>cell<size=20>\uff1c</size>/td<size=20>\uff1e</"
             u8"size><size=20>\uff1c</"
             u8"size>/tr<size=20>\uff1e</size><size=20>\uff1c</size>/table<size=20>\uff1e</size>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
     // ── Rejection of table-internal tags outside their valid context ──
@@ -232,13 +236,6 @@ int main() {
     }
 
     // ── <td style="text-align:..."> ──
-
-    {
-        // <td> without style -> no style attribute
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><td>cell</td></tr></table>");
-        auto answer = ::fast_io::u8string_view{u8"<table><tr><td>cell</td></tr></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
-    }
 
     {
         // <td style="text-align:center">

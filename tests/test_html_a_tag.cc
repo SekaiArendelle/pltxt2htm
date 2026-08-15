@@ -2,9 +2,14 @@
 
 int main() {
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<a href=\"https://www.example.com\">click here</a>");
+        auto pltext = ::fast_io::u8string_view{u8"<a href=\"https://www.example.com\">click here</a>"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"<a href=\"https://www.example.com\">click&nbsp;here</a>"};
         pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer =
+            ::fast_io::u8string_view{u8"<external=https://www.example.com>click\u00A0here</external>"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
     {
@@ -36,13 +41,6 @@ int main() {
     {
         auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"<a href=\"https://www.example.com\">click here</a>");
         auto answer = ::fast_io::u8string_view{u8"<a href=\"https://www.example.com\">click&nbsp;here</a>"};
-        pltxt2htm_test_assert_equal(html, answer);
-    }
-
-    {
-        auto html =
-            ::pltxt2htm_test::pltxt2plunity_introduction(u8"<a href=\"https://www.example.com\">click here</a>");
-        auto answer = ::fast_io::u8string_view{u8"<external=https://www.example.com>click\u00A0here</external>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

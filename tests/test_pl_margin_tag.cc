@@ -3,21 +3,33 @@
 int main() {
     // web backend renders <margin...> as a block-level div with CSS margins
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<margin-left=2em>text</margin>");
+        auto pltext = ::fast_io::u8string_view{u8"<margin-left=2em>text</margin>"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"<div style=\"margin-left:2em;\">text</div>"};
         pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<margin left=2em>text</margin>\n"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<margin-right=1em>text</margin>");
+        auto pltext = ::fast_io::u8string_view{u8"<margin-right=1em>text</margin>"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"<div style=\"margin-right:1em;\">text</div>"};
         pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<margin right=1em>text</margin>\n"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<margin=2em>text</margin>");
+        auto pltext = ::fast_io::u8string_view{u8"<margin=2em>text</margin>"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"<div style=\"margin-left:2em;margin-right:2em;\">text</div>"};
         pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<margin left=2em right=2em>text</margin>\n"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
     // a newline inside a margin block still renders as <br>
@@ -57,56 +69,40 @@ int main() {
 
     // an unclosed margin block still parses
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<margin-left=2em>text");
+        auto pltext = ::fast_io::u8string_view{u8"<margin-left=2em>text"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"<div style=\"margin-left:2em;\">text</div>"};
         pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<margin left=2em>text</margin>\n"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
-    // plunity backend emits TMP margin tags
-    {
-        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<margin-left=2em>text</margin>");
-        auto answer = ::fast_io::u8string_view{u8"<margin left=2em>text</margin>\n"};
-        pltxt2htm_test_assert_equal(html, answer);
-    }
-
-    {
-        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<margin-right=1em>text</margin>");
-        auto answer = ::fast_io::u8string_view{u8"<margin right=1em>text</margin>\n"};
-        pltxt2htm_test_assert_equal(html, answer);
-    }
-
-    {
-        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<margin=2em>text</margin>");
-        auto answer = ::fast_io::u8string_view{u8"<margin left=2em right=2em>text</margin>\n"};
-        pltxt2htm_test_assert_equal(html, answer);
-    }
+    // plunity backend emits TMP margin tags (see the blocks above)
 
     // px is the default unit and is emitted without a suffix
     {
-        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<margin=10px>text</margin>");
+        auto pltext = ::fast_io::u8string_view{u8"<margin=10px>text</margin>"};
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto answer = ::fast_io::u8string_view{u8"<margin left=10 right=10>text</margin>\n"};
         pltxt2htm_test_assert_equal(html, answer);
+        auto web_html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto web_answer = ::fast_io::u8string_view{u8"<div style=\"margin-left:10px;margin-right:10px;\">text</div>"};
+        pltxt2htm_test_assert_equal(web_html, web_answer);
     }
 
     // percent unit is preserved
     {
-        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<margin=5%>text</margin>");
+        auto pltext = ::fast_io::u8string_view{u8"<margin=5%>text</margin>"};
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto answer = ::fast_io::u8string_view{u8"<margin left=5% right=5%>text</margin>\n"};
         pltxt2htm_test_assert_equal(html, answer);
+        auto web_html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto web_answer = ::fast_io::u8string_view{u8"<div style=\"margin-left:5%;margin-right:5%;\">text</div>"};
+        pltxt2htm_test_assert_equal(web_html, web_answer);
     }
 
-    // web backend emits px and percent CSS units explicitly
-    {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<margin=10px>text</margin>");
-        auto answer = ::fast_io::u8string_view{u8"<div style=\"margin-left:10px;margin-right:10px;\">text</div>"};
-        pltxt2htm_test_assert_equal(html, answer);
-    }
-
-    {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<margin=5%>text</margin>");
-        auto answer = ::fast_io::u8string_view{u8"<div style=\"margin-left:5%;margin-right:5%;\">text</div>"};
-        pltxt2htm_test_assert_equal(html, answer);
-    }
+    // web backend emits px and percent CSS units explicitly (see the blocks above)
 
     // zero is a valid margin value
     {
@@ -118,13 +114,6 @@ int main() {
     // tag name matching is case-insensitive (TMP accepts <MARGIN-LEFT>)
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<MARGIN-LEFT=2em>text</MARGIN>");
-        auto answer = ::fast_io::u8string_view{u8"<margin left=2em>text</margin>\n"};
-        pltxt2htm_test_assert_equal(html, answer);
-    }
-
-    // an unclosed margin block still emits a closing tag in the plunity backend
-    {
-        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<margin-left=2em>text");
         auto answer = ::fast_io::u8string_view{u8"<margin left=2em>text</margin>\n"};
         pltxt2htm_test_assert_equal(html, answer);
     }
@@ -221,18 +210,15 @@ int main() {
 
     // a repeated attribute is malformed and renders as literal text
     {
-        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<margin left=1em left=2em>text</margin>");
+        auto pltext = ::fast_io::u8string_view{u8"<margin left=1em left=2em>text</margin>"};
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto answer = ::fast_io::u8string_view{
             u8"<size=20>\uff1c</size>margin\u00A0left=1em\u00A0left=2em<size=20>\uff1e</size>text"
             u8"<size=20>\uff1c</size>/margin<size=20>\uff1e</size>"};
         pltxt2htm_test_assert_equal(html, answer);
-    }
-
-    // a repeated attribute also renders as literal text in the web backend
-    {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<margin left=1em left=2em>text</margin>");
-        auto answer = ::fast_io::u8string_view{u8"&lt;margin&nbsp;left=1em&nbsp;left=2em&gt;text&lt;/margin&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        auto web_html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto web_answer = ::fast_io::u8string_view{u8"&lt;margin&nbsp;left=1em&nbsp;left=2em&gt;text&lt;/margin&gt;"};
+        pltxt2htm_test_assert_equal(web_html, web_answer);
     }
 
     // a newline inside an attribute-form margin block still renders as <br>
