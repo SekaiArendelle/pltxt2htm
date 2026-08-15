@@ -15,7 +15,7 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"<h3>test");
-        auto answer = ::fast_io::u8string_view{u8"test"};
+        auto answer = ::fast_io::u8string_view{u8"&lt;h3&gt;test"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -211,14 +211,16 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"<p>text</p>");
-        auto answer = ::fast_io::u8string_view{u8"text"};
+        auto answer = ::fast_io::u8string_view{u8"&lt;p&gt;text&lt;/p&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html =
             ::pltxt2htm_test::pltxt2common_htmld(u8"<h1>1</h1><h2>2</h2><h3>3</h3><h4>4</h4><h5>5</h5><h6>6</h6>");
-        auto answer = ::fast_io::u8string_view{u8"123456"};
+        auto answer = ::fast_io::u8string_view{
+            u8"&lt;h1&gt;1&lt;/h1&gt;&lt;h2&gt;2&lt;/h2&gt;&lt;h3&gt;3&lt;/h3&gt;"
+            u8"&lt;h4&gt;4&lt;/h4&gt;&lt;h5&gt;5&lt;/h5&gt;&lt;h6&gt;6&lt;/h6&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -230,7 +232,8 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"<ul><li>u</li></ul><ol><li>o</li></ol>");
-        auto answer = ::fast_io::u8string_view{u8"uo"};
+        auto answer = ::fast_io::u8string_view{
+            u8"&lt;ul&gt;&lt;li&gt;u&lt;/li&gt;&lt;/ul&gt;&lt;ol&gt;&lt;li&gt;o&lt;/li&gt;&lt;/ol&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -254,7 +257,8 @@ int main() {
     {
         auto html = ::pltxt2htm_test::pltxt2common_htmld(
             u8"<hr><input type=\"checkbox\" disabled><img src=\"a.png\" alt=\"a\"><!-- note -->");
-        auto answer = ::fast_io::u8string_view{u8"&lt;input&nbsp;type=&quot;checkbox&quot;&nbsp;disabled&gt;"};
+        auto answer =
+            ::fast_io::u8string_view{u8"&lt;hr&gt;&lt;input&nbsp;type=&quot;checkbox&quot;&nbsp;disabled&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -266,37 +270,37 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"- item");
-        auto answer = ::fast_io::u8string_view{u8"item"};
+        auto answer = ::fast_io::u8string_view{u8"-&nbsp;item"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"1. item");
-        auto answer = ::fast_io::u8string_view{u8"item"};
+        auto answer = ::fast_io::u8string_view{u8"1.&nbsp;item"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"- [x] item");
-        auto answer = ::fast_io::u8string_view{u8"item"};
+        auto answer = ::fast_io::u8string_view{u8"-&nbsp;[x]&nbsp;item"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"# 1\n## 2\n### 3\n#### 4\n##### 5\n###### 6");
-        auto answer = ::fast_io::u8string_view{u8"123456"};
+        auto answer = ::fast_io::u8string_view{u8"#&nbsp;1##&nbsp;2###&nbsp;3####&nbsp;4#####&nbsp;5######&nbsp;6"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"> quote");
-        auto answer = ::fast_io::u8string_view{u8"quote"};
+        auto answer = ::fast_io::u8string_view{u8"&gt;&nbsp;quote"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"| h |\n|-|\n| d |");
-        auto answer = ::fast_io::u8string_view{u8"hd"};
+        auto answer = ::fast_io::u8string_view{u8"|&nbsp;h&nbsp;||-||&nbsp;d&nbsp;|"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -308,7 +312,7 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"```\ncode\n```\n~~~\nmore\n~~~");
-        auto answer = ::fast_io::u8string_view{u8"codemore"};
+        auto answer = ::fast_io::u8string_view{u8"```code```~~~more~~~"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -326,7 +330,7 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"---");
-        auto answer = ::fast_io::u8string_view{u8""};
+        auto answer = ::fast_io::u8string_view{u8"---"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

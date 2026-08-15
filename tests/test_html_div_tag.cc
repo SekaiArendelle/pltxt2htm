@@ -191,10 +191,10 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
-    // the title backend (pltxt2common_html) keeps the div content but drops the tag itself
+    // the title backend (pltxt2common_html) renders the block-level div literally
     {
         auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"<div style=\"margin-left:2em\">text</div>");
-        auto answer = ::fast_io::u8string_view{u8"text"};
+        auto answer = ::fast_io::u8string_view{u8"&lt;div&nbsp;style=&quot;margin-left:2em&quot;&gt;text&lt;/div&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

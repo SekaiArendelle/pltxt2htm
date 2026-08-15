@@ -184,7 +184,8 @@ public:
     constexpr CodeFence(::pltxt2htm::CodeFence<ndebug> const&) noexcept;
     constexpr CodeFence(::pltxt2htm::CodeFence<ndebug>&&) noexcept;
     constexpr ~CodeFence() noexcept;
-    constexpr auto operator=(::pltxt2htm::CodeFence<ndebug> const&) noexcept -> ::pltxt2htm::CodeFence<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::CodeFence<ndebug> const&) noexcept
+        -> ::pltxt2htm::CodeFence<ndebug>& = delete;
     constexpr auto operator=(this ::pltxt2htm::CodeFence<ndebug>& self, ::pltxt2htm::CodeFence<ndebug>&&) noexcept
         -> ::pltxt2htm::CodeFence<ndebug>&;
 

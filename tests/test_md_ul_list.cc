@@ -207,12 +207,13 @@ int main() {
     // emit it only once, otherwise the emitted HTML (<ul> directly inside <ul> plus a
     // stray </li>) is rejected by the HTML list scanner and the roundtrip diverges.
     {
-        auto pltext =
-            ::fast_io::u8string_view{u8"*\t&\n\t\t\t\t*\t&*\t\t&*\t&\n\t\t*\t\n\t\t*\t\t\t~~~\t \"  & \n"};
+        auto pltext = ::fast_io::u8string_view{u8"*\t&\n\t\t\t\t*\t&*\t\t&*\t&\n\t\t*\t\n\t\t*\t\t\t~~~\t \"  & \n"};
         auto once = ::pltxt2htm_test::pltxt2roundtrip_htmld(pltext);
         auto once_answer = ::fast_io::u8string_view{
-            u8"<ul><li>&amp;<ul><li>&amp;<em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&amp;</em>&nbsp;&nbsp;&nbsp;&nbsp;"
-            u8"&amp;</li></ul><ul><li></li><li>~~~&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;&nbsp;&nbsp;&amp;</li></ul></li></ul>"};
+            u8"<ul><li>&amp;<ul><li>&amp;<em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&amp;</"
+            u8"em>&nbsp;&nbsp;&nbsp;&nbsp;"
+            u8"&amp;</li></ul><ul><li></li><li>~~~&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;&nbsp;&nbsp;&amp;</li></ul></"
+            u8"li></ul>"};
         pltxt2htm_test_assert_equal(once, once_answer);
         auto twice = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{once.data(), once.size()});
         pltxt2htm_test_assert_equal(twice, once);

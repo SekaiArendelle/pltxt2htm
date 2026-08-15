@@ -21,6 +21,7 @@
 #include <exception/exception.hh>
 #include "contracts.hh"
 #include "parser.hh"
+#include "inline_parser.hh"
 #include "optimizer.hh"
 #include "details/backend/for_plweb_text.hh"
 #include "details/backend/for_plweb_title.hh"
@@ -124,6 +125,10 @@ constexpr auto pltxt2plunity_introduction(::fast_io::u8string_view pltext, ::fas
  *          - Bold (&lt;b&gt;) and italic (&lt;i&gt;) tags only
  *          - Basic HTML escaping and formatting
  *
+ *          The text is parsed with the inline-only parser: block-level syntax
+ *          (md-atx headings, md-block-quotes, md-list, md-table, code fences and
+ *          HTML block tags) is preserved as literal text.
+ *
  *          This function is suitable for:
  *          - Simple text formatting needs
  *          - Header rendering where complex formatting isn't needed
@@ -135,14 +140,14 @@ constexpr auto pltxt2plunity_introduction(::fast_io::u8string_view pltext, ::fas
  * @return Generated HTML string with basic formatting support
  * @retval fast_io::u8string UTF-8 string containing the generated basic HTML
  * @note This function is faster than the advanced versions but supports fewer features
- * @warning Markdown syntax and advanced HTML features are not supported in this mode
+ * @note Markdown block syntax and block-level HTML tags render as literal text in this mode
  * @warning AST optimization is disabled by default for this function
  */
 template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, bool optimize = false>
 [[nodiscard]]
 constexpr auto pltxt2common_html(::fast_io::u8string_view pltext) noexcept {
     using parser_result_type = ::std::conditional_t<optimize, ::pltxt2htm::Ast<ndebug>, ::pltxt2htm::Ast<ndebug> const>;
-    parser_result_type ast{::pltxt2htm::parse_pltxt<ndebug>(pltext)};
+    parser_result_type ast{::pltxt2htm::inline_parse_pltxt<ndebug>(pltext)};
     if constexpr (optimize) {
         ::pltxt2htm::optimize_ast<ndebug>(ast);
     }

@@ -428,8 +428,9 @@ entry:
             }
             case ::pltxt2htm::NodeKind::md_hr:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_hr:
-                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_hr: {
+                pltxt2htm_unreachable(u8"Unexpected block node kind in title backend");
+            }
             case ::pltxt2htm::NodeKind::html_note:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_col:
@@ -456,14 +457,14 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_experiments: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                    node.as_pl_experiments().get_subast(), ::pltxt2htm::NodeKind::text, 0));
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_pl_experiments().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::text, 0));
                 ++current_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_discussions: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                    node.as_pl_discussions().get_subast(), ::pltxt2htm::NodeKind::text, 0));
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_pl_discussions().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::text, 0));
                 ++current_index;
                 goto entry;
             }
@@ -509,53 +510,22 @@ entry:
                 ++current_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_div: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_div().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::text, 0));
-                ++current_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_p: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_p().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::text, 0));
-                ++current_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_h1: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_h1().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::text, 0));
-                ++current_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_h2: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_h2().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::text, 0));
-                ++current_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_h3: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_h3().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::text, 0));
-                ++current_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_h4: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_h4().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::text, 0));
-                ++current_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_h5: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_h5().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::text, 0));
-                ++current_index;
-                goto entry;
-            }
+            case ::pltxt2htm::NodeKind::html_div:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_p:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_h1:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_h2:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_h3:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_h4:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_h5:
+                [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_h6: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_h6().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::text, 0));
-                ++current_index;
-                goto entry;
+                pltxt2htm_unreachable(u8"Unexpected block node kind in title backend");
             }
             case ::pltxt2htm::NodeKind::md_del: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_del().get_subast(),
@@ -611,35 +581,14 @@ entry:
                 ++current_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::list_ul: {
-                auto const& list_ul = node.as_list_ul();
-                bool const is_empty{list_ul.get_subast().empty()};
-                pltxt2htm_assert(is_empty == false, u8"List container must not be empty");
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(list_ul.get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::text, 0));
-                ++current_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::list_ol: {
-                auto const& list_ol = node.as_list_ol();
-                bool const is_empty{list_ol.get_subast().empty()};
-                pltxt2htm_assert(is_empty == false, u8"List container must not be empty");
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(list_ol.get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::text, 0));
-                ++current_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::list_li_checkbox: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                    node.as_list_li_checkbox().get_subast(), ::pltxt2htm::NodeKind::text, 0));
-                ++current_index;
-                goto entry;
-            }
+            case ::pltxt2htm::NodeKind::list_ul:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::list_ol:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::list_li_checkbox:
+                [[fallthrough]];
             case ::pltxt2htm::NodeKind::list_li: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_list_li().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::text, 0));
-                ++current_index;
-                goto entry;
+                pltxt2htm_unreachable(u8"Unexpected block node kind in title backend");
             }
             case ::pltxt2htm::NodeKind::md_latex_inline: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
@@ -653,83 +602,33 @@ entry:
                 ++current_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::md_atx_h1: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_atx_h1().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::text, 0));
-                ++current_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_atx_h2: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_atx_h2().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::text, 0));
-                ++current_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_atx_h3: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_atx_h3().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::text, 0));
-                ++current_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_atx_h4: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_atx_h4().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::text, 0));
-                ++current_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_atx_h5: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_atx_h5().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::text, 0));
-                ++current_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_atx_h6: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_atx_h6().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::text, 0));
-                ++current_index;
-                goto entry;
-            }
+            case ::pltxt2htm::NodeKind::md_atx_h1:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_atx_h2:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_atx_h3:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_atx_h4:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_atx_h5:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_atx_h6:
+                [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_blockquote: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                    node.as_html_blockquote().get_subast(), ::pltxt2htm::NodeKind::text, 0));
-                ++current_index;
-                goto entry;
+                pltxt2htm_unreachable(u8"Unexpected block node kind in title backend");
             }
-            case ::pltxt2htm::NodeKind::md_table: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_table().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::text, 0));
-                ++current_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_thead: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_thead().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::text, 0));
-                ++current_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_tbody: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_tbody().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::text, 0));
-                ++current_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_tr: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_tr().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::text, 0));
-                ++current_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_th: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_th().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::text, 0));
-                ++current_index;
-                goto entry;
-            }
+            case ::pltxt2htm::NodeKind::md_table:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_thead:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_tbody:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_tr:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_th:
+                [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_td: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_td().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::text, 0));
-                ++current_index;
-                goto entry;
+                pltxt2htm_unreachable(u8"Unexpected block node kind in title backend");
             }
             case ::pltxt2htm::NodeKind::html_table: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_table().get_subast(),
@@ -785,17 +684,10 @@ entry:
                 ++current_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::md_block_quotes: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                    node.as_md_block_quotes().get_subast(), ::pltxt2htm::NodeKind::text, 0));
-                ++current_index;
-                goto entry;
-            }
+            case ::pltxt2htm::NodeKind::md_block_quotes:
+                [[fallthrough]];
             case ::pltxt2htm::NodeKind::code_fence: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_code_fence().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::text, 0));
-                ++current_index;
-                goto entry;
+                pltxt2htm_unreachable(u8"Unexpected block node kind in title backend");
             }
             case ::pltxt2htm::NodeKind::md_code_span_1_backtick: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(

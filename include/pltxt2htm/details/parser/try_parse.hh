@@ -3583,7 +3583,8 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
         opt_lang = ::std::move(lang);
     }
     return ::pltxt2htm::details::TryParseMdCodeFenceResult<ndebug>{
-        .node = ::pltxt2htm::CodeFence<ndebug>{::std::move(ast), ::std::move(opt_lang)}, .advance_count = current_index};
+        .node = ::pltxt2htm::CodeFence<ndebug>{::std::move(ast), ::std::move(opt_lang)},
+        .advance_count = current_index};
 }
 
 /**
@@ -3614,7 +3615,7 @@ constexpr auto try_parse_md_code_fence(::fast_io::u8string_view pltext) noexcept
 #else
     // Above code equals to below code
     if (auto opt_code_fence_tilde = ::pltxt2htm::details::try_parse_md_code_fence_<ndebug, false>(pltext);
-             opt_code_fence_tilde.has_value()) {
+        opt_code_fence_tilde.has_value()) {
         return opt_code_fence_tilde;
     }
     return ::exception::nullopt;
