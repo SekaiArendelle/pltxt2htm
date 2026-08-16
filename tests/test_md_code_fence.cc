@@ -289,5 +289,17 @@ print("Hello World")
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"```\ntest\n``` \t");
+        auto answer = ::fast_io::u8string_view{u8"<pre><code>test</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"```\ntest\n``` \t\nrest");
+        auto answer = ::fast_io::u8string_view{u8"<pre><code>test</code></pre><br>rest"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }
