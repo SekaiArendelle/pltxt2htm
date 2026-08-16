@@ -259,7 +259,6 @@ int main() {
         auto result = ::pltxt2htm::details::optionally_to_md_list_ast<::pltxt2htm::Contracts::quick_enforce>(
                           u8" - text\n   - text\n   * text")
                           .value();
-        // TODO can this be fixed?
         auto answer = ul_top(text_item(u8"text"), ul_item(text_item(u8"text"), text_item(u8"text")));
         ::exception::assert_true<false>(result.top_node == answer);
     }

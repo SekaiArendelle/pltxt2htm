@@ -1737,7 +1737,7 @@ public:
  * @brief Push a list frame for a freshly parsed top-level ListUlNode/ListOlNode.
  */
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto push_list_frame(::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>>& call_stack,
+constexpr void push_list_frame(::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>>& call_stack,
                                ::pltxt2htm::details::ListBaseNode<ndebug>&& top_node) noexcept {
     switch (top_node.get_type()) {
     case ::pltxt2htm::details::ListNodeType::list_ul: {

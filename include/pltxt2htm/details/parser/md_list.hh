@@ -44,7 +44,7 @@ constexpr auto is_ordered_item_kind(::pltxt2htm::details::MdUlListItemKind const
 struct MdOlListMarkerResult {
     ::std::size_t advance_to;
     ::pltxt2htm::details::MdUlListItemKind item_kind;
-    ::std::size_t number{1};
+    ::std::size_t number;
 };
 
 /**
