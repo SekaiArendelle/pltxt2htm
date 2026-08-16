@@ -95,8 +95,10 @@ int main() {
     }
 
     {
+        // A line that starts with a fence but has content after it is NOT a valid
+        // closing fence (CommonMark §4.5), so the block runs to the end of the input.
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```\ntest\n```test");
-        auto answer = ::fast_io::u8string_view{u8"<pre><code>test</code></pre>test"};
+        auto answer = ::fast_io::u8string_view{u8"<pre><code>test\n```test</code></pre>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -123,23 +125,25 @@ print("Hello World")
     }
 
     {
+        // "```t" is not a valid closing fence (content after the fence on the same line),
+        // so it is kept as code content and the block runs to the end of the input.
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t\n```\n```t");
         // TODO reduce <br> tag before <pre> tag
-        auto answer = ::fast_io::u8string_view{u8"t<br><pre><code></code></pre>t"};
+        auto answer = ::fast_io::u8string_view{u8"t<br><pre><code>```t</code></pre>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t\n```py\n```t");
         // TODO reduce <br> tag before <pre> tag
-        auto answer = ::fast_io::u8string_view{u8"t<br><pre><code class=\"language-py\"></code></pre>t"};
+        auto answer = ::fast_io::u8string_view{u8"t<br><pre><code class=\"language-py\">```t</code></pre>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t\n~~~py\n~~~t");
         // TODO reduce <br> tag before <pre> tag
-        auto answer = ::fast_io::u8string_view{u8"t<br><pre><code class=\"language-py\"></code></pre>t"};
+        auto answer = ::fast_io::u8string_view{u8"t<br><pre><code class=\"language-py\">~~~t</code></pre>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -258,6 +262,43 @@ print("Hello World")
         pltxt2htm_test_assert_equal(once, once_answer);
         auto twice = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{once.data(), once.size()});
         pltxt2htm_test_assert_equal(twice, once);
+    }
+
+    {
+        // regression: a line that merely starts with a fence (e.g. a nested markdown fence)
+        // inside the code content is NOT a valid closing fence, so it stays as content and
+        // only a proper closing fence on its own line ends the block.
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"```md\n```js\ncode\n```");
+        auto answer = ::fast_io::u8string_view{u8"<pre><code class=\"language-md\">```js\ncode</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // regression: a closing fence may be followed by spaces/tabs on the same line
+        // (CommonMark §4.5), and must still close the block.
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"```\ntest\n``` \nrest");
+        auto answer = ::fast_io::u8string_view{u8"<pre><code>test</code></pre><br>rest"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // regression: this project only supports fixed 3-delimiter fences, so a longer
+        // closing fence (4+ delimiters) is NOT a valid closing fence and stays as content.
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"```\ntest\n````\nrest");
+        auto answer = ::fast_io::u8string_view{u8"<pre><code>test\n````\nrest</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"```\ntest\n``` \t");
+        auto answer = ::fast_io::u8string_view{u8"<pre><code>test</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"```\ntest\n``` \t\nrest");
+        auto answer = ::fast_io::u8string_view{u8"<pre><code>test</code></pre><br>rest"};
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     return 0;
