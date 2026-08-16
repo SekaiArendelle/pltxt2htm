@@ -3557,6 +3557,14 @@ constexpr bool is_allowed_in_language(char8_t const chr) noexcept {
 }
 
 /**
+ * @brief Result of locating the closing fence line of a fenced code block.
+ */
+struct MdCodeFenceEndResult {
+    ::std::size_t content_end; ///< Offset (relative to content) at which the code content ends.
+    ::std::size_t consumed; ///< Total content bytes to consume, including the closing fence line.
+};
+
+/**
  * @brief Find the first valid closing fence line in fenced code block content.
  *
  * @details A valid closing fence is a line that starts with exactly three
@@ -3571,10 +3579,12 @@ constexpr bool is_allowed_in_language(char8_t const chr) noexcept {
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @tparam is_backtick When true, uses backtick delimiters; otherwise uses tilde delimiters.
  * @param[in] content The code block content, starting right after the opening fence line.
- * @return The byte offset (relative to `content`) at which the content ends: `0` if the
- *         closing fence line is at the very start of `content`, or the offset of the `\n`
- *         that precedes the closing fence line. Returns `::exception::nullopt` if no valid
- *         closing fence exists.
+ * @return A ::pltxt2htm::details::MdCodeFenceEndResult with `content_end` set to the offset
+ *         (relative to `content`) at which the content ends (the leading `\n` of the closing
+ *         fence line, or `0` when the closing fence is at the very start of `content`) and
+ *         `consumed` set to the total number of bytes to consume, including the closing fence
+ *         line (leading `\n` if any, the three delimiters and any trailing spaces/tabs, but not
+ *         the trailing `\n`). Returns `::exception::nullopt` if no valid closing fence exists.
  * @note The closing fence must be exactly three delimiters long and use the same
  *       delimiter character as the opening fence.
  * @note A line like "```text" (content after the fence on the same line) or "````"
@@ -3584,7 +3594,7 @@ constexpr bool is_allowed_in_language(char8_t const chr) noexcept {
 template<::pltxt2htm::Contracts ndebug, bool is_backtick>
 [[nodiscard]]
 constexpr auto find_md_code_fence_end(::fast_io::u8string_view content) noexcept
-    -> ::exception::optional<::std::size_t> {
+    -> ::exception::optional<::pltxt2htm::details::MdCodeFenceEndResult> {
     constexpr char8_t fence_char{is_backtick ? u8'`' : u8'~'};
     ::std::size_t const size{content.size()};
     ::std::size_t line_start{0};
@@ -3605,8 +3615,10 @@ constexpr auto find_md_code_fence_end(::fast_io::u8string_view content) noexcept
             }
             if (j == size || ::pltxt2htm::details::u8string_view_index<ndebug>(content, j) == u8'\n') {
                 // Valid closing fence line. Content ends at the leading '\n' (or 0 when the
-                // closing fence is at the very start of the content).
-                return ::exception::optional<::std::size_t>{line_start == 0 ? 0 : line_start - 1};
+                // closing fence is at the very start of the content), and all bytes up to `j`
+                // (the fence run and any trailing spaces/tabs) are consumed.
+                return ::pltxt2htm::details::MdCodeFenceEndResult{.content_end = line_start == 0 ? 0 : line_start - 1,
+                                                                  .consumed = j};
             }
         }
         // Move to the next line start.
@@ -3721,34 +3733,14 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
     // parsing context of code fence
     ::pltxt2htm::Ast<ndebug> ast{};
     ::fast_io::u8string_view const content{::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)};
-    ::std::size_t const content_size{content.size()};
     if (auto opt_fence_end = ::pltxt2htm::details::find_md_code_fence_end<ndebug, is_backtick>(content);
         opt_fence_end.has_value()) {
-        ::std::size_t const content_end = opt_fence_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        auto&& [content_end, consumed] = opt_fence_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
         auto&& [_, ast_] =
             ::pltxt2htm::details::simply_parse_pltext<ndebug, ::pltxt2htm::details::U8LiteralString<0>{}>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(content, 0, content_end));
         ast = ::std::move(ast_);
-        // Skip the closing fence line: the leading '\n' (if any), the fence run, and any
-        // trailing spaces/tabs. The trailing '\n' is left for the caller, preserving the
-        // existing behavior where the newline after a closing fence is parsed as a line break.
-        ::std::size_t fence_start{content_end};
-        if (fence_start < content_size &&
-            ::pltxt2htm::details::u8string_view_index<ndebug>(content, fence_start) == u8'\n') {
-            ++fence_start;
-        }
-        constexpr char8_t fence_char{is_backtick ? u8'`' : u8'~'};
-        ::std::size_t fence_end{fence_start};
-        while (fence_end < content_size &&
-               ::pltxt2htm::details::u8string_view_index<ndebug>(content, fence_end) == fence_char) {
-            ++fence_end;
-        }
-        while (fence_end < content_size &&
-               (::pltxt2htm::details::u8string_view_index<ndebug>(content, fence_end) == u8' ' ||
-                ::pltxt2htm::details::u8string_view_index<ndebug>(content, fence_end) == u8'\t')) {
-            ++fence_end;
-        }
-        current_index += fence_end;
+        current_index += consumed;
     }
     else {
         // No valid closing fence: content runs to the end of the input.
