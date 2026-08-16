@@ -2581,7 +2581,7 @@ public:
 
     constexpr auto operator=(this ::pltxt2htm::PlTxtNode<ndebug>& self, ::pltxt2htm::PlTxtNode<ndebug>&& other) noexcept
         -> PlTxtNode& {
-        pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other), u8"self assignment is not allowed");
+        pltxt2htm_assert(__builtin_addressof(self) != __builtin_addressof(other), u8"self assignment is not allowed");
         self.~PlTxtNode();
         ::std::construct_at(::std::addressof(self), ::std::move(other));
         return self;
