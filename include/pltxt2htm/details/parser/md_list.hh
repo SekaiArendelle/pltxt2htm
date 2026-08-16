@@ -13,7 +13,6 @@
 #include "list_ast.hh"
 #include "../utils.hh"
 #include "../../contracts.hh"
-#include "../../ast/ast.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::details {
@@ -371,17 +370,31 @@ constexpr auto try_parse_item(
  */
 template<::pltxt2htm::Contracts ndebug>
 struct ToListAstResult {
-    ::pltxt2htm::details::ListAst<ndebug> ast;
+    ::pltxt2htm::details::ListBaseNode<ndebug> top_node;
     ::std::size_t advance_count;
-    ::pltxt2htm::NodeKind item_kind;
-    ::std::size_t start{1};
 };
+
+/**
+ * @brief Wrap a completed top-level list's items into the matching ListUlNode/ListOlNode.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto to_top_list_node(::pltxt2htm::details::ListAst<ndebug>&& items,
+                                ::pltxt2htm::details::MdUlListItemKind item_kind, ::std::size_t start) noexcept
+    -> ::pltxt2htm::details::ListBaseNode<ndebug> {
+    if (::pltxt2htm::details::is_ordered_item_kind(item_kind)) {
+        return ::pltxt2htm::details::ListBaseNode<ndebug>{
+            ::pltxt2htm::details::ListOlNode<ndebug>(::std::move(items), start)};
+    }
+    return ::pltxt2htm::details::ListBaseNode<ndebug>{::pltxt2htm::details::ListUlNode<ndebug>(::std::move(items))};
+}
 
 /**
  * @brief Try to parse one or more consecutive markdown list lines into an intermediate AST.
  * @tparam ndebug Contract checking mode.
  * @param pltext Input text to parse.
- * @return Parsed list AST, advance count, and item kind on success; nullopt otherwise.
+ * @return Parsed list as the top-level ListUlNode/ListOlNode and the advance count on success;
+ *         nullopt otherwise.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
@@ -405,11 +418,9 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
             }
             if (advance_count >= current_frame.pltext.size()) {
                 return ::pltxt2htm::details::ToListAstResult<ndebug>{
-                    .ast = ::std::move(current_frame.md_list_ast),
-                    .advance_count = advance_count,
-                    .item_kind = ::pltxt2htm::details::is_ordered_item_kind(item_kind) ? ::pltxt2htm::NodeKind::list_ol
-                                                                                       : ::pltxt2htm::NodeKind::list_ul,
-                    .start = current_frame.get_start()};
+                    .top_node = ::pltxt2htm::details::to_top_list_node<ndebug>(::std::move(current_frame.md_list_ast),
+                                                                               item_kind, current_frame.get_start()),
+                    .advance_count = advance_count};
             }
             call_stack.push(::std::move(current_frame));
         }
@@ -432,12 +443,9 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
             call_stack.pop();
             if (call_stack.empty()) {
                 return ::pltxt2htm::details::ToListAstResult<ndebug>{
-                    .ast = ::std::move(frame.md_list_ast),
-                    .advance_count = frame.current_index,
-                    .item_kind = ::pltxt2htm::details::is_ordered_item_kind(frame.get_item_kind())
-                                     ? ::pltxt2htm::NodeKind::list_ol
-                                     : ::pltxt2htm::NodeKind::list_ul,
-                    .start = frame.get_start()};
+                    .top_node = ::pltxt2htm::details::to_top_list_node<ndebug>(
+                        ::std::move(frame.md_list_ast), frame.get_item_kind(), frame.get_start()),
+                    .advance_count = frame.current_index};
             }
             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
             switch (frame.get_item_kind()) {
@@ -500,12 +508,9 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
         call_stack.pop();
         if (call_stack.empty()) {
             return ::pltxt2htm::details::ToListAstResult<ndebug>{
-                .ast = ::std::move(frame.md_list_ast),
-                .advance_count = pltext_size,
-                .item_kind = ::pltxt2htm::details::is_ordered_item_kind(frame.get_item_kind())
-                                 ? ::pltxt2htm::NodeKind::list_ol
-                                 : ::pltxt2htm::NodeKind::list_ul,
-                .start = frame.get_start()};
+                .top_node = ::pltxt2htm::details::to_top_list_node<ndebug>(::std::move(frame.md_list_ast),
+                                                                           frame.get_item_kind(), frame.get_start()),
+                .advance_count = pltext_size};
         }
         auto&& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
         switch (frame.get_item_kind()) {

@@ -1733,6 +1733,39 @@ public:
     }
 };
 
+/**
+ * @brief Push a list frame for a freshly parsed top-level ListUlNode/ListOlNode.
+ */
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto push_list_frame(::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>>& call_stack,
+                               ::pltxt2htm::details::ListBaseNode<ndebug>&& top_node) noexcept {
+    switch (top_node.get_type()) {
+    case ::pltxt2htm::details::ListNodeType::list_ul: {
+        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                ::pltxt2htm::details::ParserFrameContextWithListInfo<ndebug>{::std::move(top_node).get_sublist()},
+                ::pltxt2htm::NodeKind::list_ul},
+            ::pltxt2htm::Ast<ndebug>{}));
+        break;
+    }
+    case ::pltxt2htm::details::ListNodeType::list_ol: {
+        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                ::pltxt2htm::details::ParserFrameContextWithListInfo<ndebug>{::std::move(top_node).get_sublist(),
+                                                                             top_node.get_start()},
+                ::pltxt2htm::NodeKind::list_ol},
+            ::pltxt2htm::Ast<ndebug>{}));
+        break;
+    }
+    case ::pltxt2htm::details::ListNodeType::list_li:
+        [[fallthrough]];
+    case ::pltxt2htm::details::ListNodeType::list_li_checkbox:
+        [[unlikely]] {
+            pltxt2htm_unreachable(u8"Unexpected list_li/list_li_checkbox in push_list_frame()");
+        }
+    }
+}
+
 } // namespace pltxt2htm::details
 
 #pragma pop_macro("pltxt2htm_assert_context_branch")
