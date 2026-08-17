@@ -156,12 +156,12 @@ constexpr auto optionally_to_html_list_ast(::fast_io::u8string_view pltext) noex
                 break;
             }
             ::pltxt2htm::NodeKind nested_list_kind{};
-            if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<ul">(
+            if (auto const opt_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<ul">(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
                 opt_len.has_value()) {
                 nested_list_kind = ::pltxt2htm::NodeKind::list_ul;
             }
-            else if (auto opt_ol_tag = ::pltxt2htm::details::try_parse_ol_tag<ndebug>(
+            else if (auto const opt_ol_tag = ::pltxt2htm::details::try_parse_ol_tag<ndebug>(
                          ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
                      opt_ol_tag.has_value()) {
                 nested_list_kind = ::pltxt2htm::NodeKind::list_ol;

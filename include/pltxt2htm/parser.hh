@@ -144,7 +144,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
             // consumed (up to the matching </p>, or all of it if unclosed). Advance start_index
             // past it so the remaining text handler doesn't re-process the consumed content.
             start_index += consumed_bytes;
-            auto html_p_align = opt_html_p_align.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            auto const html_p_align = opt_html_p_align.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             result.push_back(
                 ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlP<ndebug>{::std::move(subast), html_p_align}));
             continue;
@@ -153,7 +153,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
             // Same as html_p: advance start_index past the consumed pl_align content, preserving
             // the Textalign read from the frame top before the recursive parse popped it.
             start_index += consumed_bytes;
-            auto pl_align_value = opt_pl_align.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            auto const pl_align_value = opt_pl_align.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             result.push_back(
                 ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::PlAlign<ndebug>{::std::move(subast), pl_align_value}));
             continue;
@@ -162,7 +162,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
             // Same as pl_align: advance start_index past the consumed pl_margin content, preserving
             // the left/right margins read from the frame top before the recursive parse popped it.
             start_index += consumed_bytes;
-            auto pl_margin_info = opt_pl_margin.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            auto const pl_margin_info = opt_pl_margin.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(
                 ::pltxt2htm::PlMargin<ndebug>{::std::move(subast), pl_margin_info.left, pl_margin_info.right}));
             continue;
@@ -171,7 +171,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
             // Same as pl_margin: advance start_index past the consumed html_div content, preserving
             // the left/right margins read from the frame top before the recursive parse popped it.
             start_index += consumed_bytes;
-            auto html_div_info = opt_html_div.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            auto const html_div_info = opt_html_div.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(
                 ::pltxt2htm::HtmlDiv<ndebug>{::std::move(subast), html_div_info.left, html_div_info.right}));
             continue;

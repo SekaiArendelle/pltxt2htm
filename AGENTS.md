@@ -151,6 +151,9 @@ Follow the existing low-runtime, cross-platform style used in core headers:
 - **Prefer `constexpr` function definitions by default:**
   - Prefix function/method definitions with `constexpr` whenever the language permits (the entrypoint `main` is the exception).
   - Do not write `inline constexpr`; use `constexpr` directly (it is already inline).
+- **Avoid leading `const` (use postfix `const`):**
+  - Write the cv-qualifier after the type it qualifies (`int const`, `T const&`, `auto const`) rather than before it (`const int`, `const T&`, `const auto`).
+  - `const` always binds to the declaration to its left, so postfix placement makes `int const*` (pointer to const int) vs `int* const` (const pointer to int) unambiguous at a glance.
 - **Avoid C++ runtime-heavy standard library components:**
   - Do not introduce dependencies such as iostream/locale/RTTI-driven facilities for core logic.
   - Prefer existing project choices (`fast_io` containers/string types and `exception` utilities).
