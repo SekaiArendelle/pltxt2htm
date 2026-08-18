@@ -20,6 +20,7 @@
 #include "contracts.hh"
 #include "details/utils.hh"
 #include "details/parser/frame_context.hh"
+#include "details/parser/non_nestable_tag.hh"
 #include "details/parser/try_parse.hh"
 #include "details/push_macro.hh"
 

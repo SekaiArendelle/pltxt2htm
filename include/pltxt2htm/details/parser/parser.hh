@@ -22,6 +22,7 @@
 #include "md_table.hh"
 #include "html_table.hh"
 #include "frame_context.hh"
+#include "non_nestable_tag.hh"
 #include "try_parse.hh"
 #include "../push_macro.hh"
 
