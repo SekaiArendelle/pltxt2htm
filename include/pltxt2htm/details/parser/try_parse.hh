@@ -12,13 +12,21 @@
 #include <fast_io/fast_io_dsal/array.h>
 #include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/string_view.h>
-#include "frame_context.hh"
 #include "../utils.hh"
 #include "../../contracts.hh"
 #include "../../ast/ast.hh"
 #include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"
 #include "../push_macro.hh"
+
+// ParserFrameContext is defined in frame_context.hh (which in turn includes
+// html_table.hh, which includes this header).  This forward declaration lets
+// the probe helpers that only pass ParserFrameContext by const reference be
+// declared here, before the full frame-context definition is available.
+namespace pltxt2htm::details {
+template<::pltxt2htm::Contracts ndebug>
+class ParserFrameContext;
+} // namespace pltxt2htm::details
 
 /**
  * @brief Namespace for internal implementation details.

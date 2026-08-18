@@ -250,7 +250,12 @@ int main() {
             u8"<table><caption>c</caption><colgroup><col></colgroup><thead><tr><th>h</th></tr></"
             u8"thead><tbody><tr><td>d</"
             u8"td></tr></tbody><tfoot><tr><td>f</td></tr></tfoot></table>");
-        auto answer = ::fast_io::u8string_view{u8"chdf"};
+        auto answer = ::fast_io::u8string_view{
+            u8"&lt;table&gt;&lt;caption&gt;c&lt;/caption&gt;&lt;colgroup&gt;&lt;col&gt;&lt;/"
+            u8"colgroup&gt;&lt;thead&gt;&lt;"
+            u8"tr&gt;&lt;th&gt;h&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;d&lt;/td&gt;&lt;/"
+            u8"tr&gt;&"
+            u8"lt;/tbody&gt;&lt;tfoot&gt;&lt;tr&gt;&lt;td&gt;f&lt;/td&gt;&lt;/tr&gt;&lt;/tfoot&gt;&lt;/table&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

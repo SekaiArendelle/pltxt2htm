@@ -355,7 +355,7 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<table><thead><tr><th>head");
-        auto answer = ::fast_io::u8string_view{u8"<table><thead><tr><th>head</th></tr></thead></table>"};
+        auto answer = ::fast_io::u8string_view{u8"&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;head"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -379,25 +379,25 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<table><tbody><tr><td>body");
-        auto answer = ::fast_io::u8string_view{u8"<table><tbody><tr><td>body</td></tr></tbody></table>"};
+        auto answer = ::fast_io::u8string_view{u8"&lt;table&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;body"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<table><tfoot><tr><td>foot");
-        auto answer = ::fast_io::u8string_view{u8"<table><tfoot><tr><td>foot</td></tr></tfoot></table>"};
+        auto answer = ::fast_io::u8string_view{u8"&lt;table&gt;&lt;tfoot&gt;&lt;tr&gt;&lt;td&gt;foot"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<table><caption>caption");
-        auto answer = ::fast_io::u8string_view{u8"<table><caption>caption</caption></table>"};
+        auto answer = ::fast_io::u8string_view{u8"&lt;table&gt;&lt;caption&gt;caption"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<table><colgroup><col>");
-        auto answer = ::fast_io::u8string_view{u8"<table><colgroup><col></colgroup></table>"};
+        auto answer = ::fast_io::u8string_view{u8"&lt;table&gt;&lt;colgroup&gt;&lt;col&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -446,11 +446,14 @@ int main() {
             u8"<table><tbody></x></tbody></table><table><tfoot></x></tfoot></table>"
             u8"<table><caption></x></caption></table><table><colgroup></x></colgroup></table>");
         auto answer = ::fast_io::u8string_view{
-            u8"<table>&lt;/x&gt;</table><table><tr>&lt;/x&gt;</tr></table>"
-            u8"<table><tr><td>&lt;/x&gt;</td></tr></table><table><tr><th>&lt;/x&gt;</th></tr></table>"
-            u8"<table><thead>&lt;/x&gt;</thead></table><table><tbody>&lt;/x&gt;</tbody></table>"
-            u8"<table><tfoot>&lt;/x&gt;</tfoot></table><table><caption>&lt;/x&gt;</caption></table>"
-            u8"<table><colgroup>&lt;/x&gt;</colgroup></table>"};
+            u8"&lt;table&gt;&lt;/x&gt;&lt;/table&gt;&lt;table&gt;&lt;tr&gt;&lt;/x&gt;&lt;/tr&gt;&lt;/table&gt;"
+            u8"&lt;table&gt;&lt;tr&gt;&lt;td&gt;&lt;/x&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;"
+            u8"&lt;table&gt;&lt;tr&gt;&lt;th&gt;&lt;/x&gt;&lt;/th&gt;&lt;/tr&gt;&lt;/table&gt;"
+            u8"&lt;table&gt;&lt;thead&gt;&lt;/x&gt;&lt;/thead&gt;&lt;/table&gt;"
+            u8"&lt;table&gt;&lt;tbody&gt;&lt;/x&gt;&lt;/tbody&gt;&lt;/table&gt;"
+            u8"&lt;table&gt;&lt;tfoot&gt;&lt;/x&gt;&lt;/tfoot&gt;&lt;/table&gt;"
+            u8"&lt;table&gt;&lt;caption&gt;&lt;/x&gt;&lt;/caption&gt;&lt;/table&gt;"
+            u8"&lt;table&gt;&lt;colgroup&gt;&lt;/x&gt;&lt;/colgroup&gt;&lt;/table&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

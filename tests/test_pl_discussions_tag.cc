@@ -19,11 +19,12 @@ int main() {
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<discussions=UserID/abc/UserName/\u5C0F\u660E>\u66F4\u591A"
-                                                     u8"\u8BA8\u8BBA</discussions>");
-        auto answer =
-            ::fast_io::u8string_view{u8"&lt;discussions=UserID/abc/UserName/\u5C0F\u660E&gt;\u66F4\u591A\u8BA8\u8BBA"
-                                     u8"&lt;/discussions&gt;"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"<discussions=UserID/abc/UserName/\u5C0F\u660E>\u66F4\u591A"
+            u8"\u8BA8\u8BBA</discussions>");
+        auto answer = ::fast_io::u8string_view{
+            u8"&lt;discussions=UserID/abc/UserName/\u5C0F\u660E&gt;\u66F4\u591A\u8BA8\u8BBA"
+            u8"&lt;/discussions&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -64,16 +65,14 @@ int main() {
 
     // non-nestable mutual exclusion with singular tags: inner equal-sign tag is literal
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
-            u8"<discussions=a>t<discussion=b>ex</discussion>t</discussions>");
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<discussions=a>t<discussion=b>ex</discussion>t</discussions>");
         auto answer = ::fast_io::u8string_view{
             u8"&lt;discussions=a&gt;t&lt;discussion=b&gt;ex&lt;/discussion&gt;t&lt;/discussions&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
-            u8"<discussions=a>t<experiment=b>ex</experiment>t</discussions>");
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<discussions=a>t<experiment=b>ex</experiment>t</discussions>");
         auto answer = ::fast_io::u8string_view{
             u8"&lt;discussions=a&gt;t&lt;experiment=b&gt;ex&lt;/experiment&gt;t&lt;/discussions&gt;"};
         pltxt2htm_test_assert_equal(html, answer);

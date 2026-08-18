@@ -377,38 +377,6 @@ struct ParsePlTxtResult {
 };
 
 /**
- * @brief Append a &lt;thead&gt;/&lt;tbody&gt;/&lt;tfoot&gt; section node to a table AST.
- * @tparam ndebug Contract checking mode.
- * @param table_ast Target table AST.
- * @param section_kind Section node kind (html_thead / html_tbody / html_tfoot).
- * @param section_ast Inner AST (the section's rows).
- */
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto push_html_section_node(::pltxt2htm::Ast<ndebug>& table_ast, ::pltxt2htm::NodeKind const section_kind,
-                                      ::pltxt2htm::Ast<ndebug>&& section_ast) noexcept -> void {
-    switch (section_kind) {
-    case ::pltxt2htm::NodeKind::text:
-        return;
-    case ::pltxt2htm::NodeKind::html_thead: {
-        table_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlThead<ndebug>{::std::move(section_ast)}));
-        return;
-    }
-    case ::pltxt2htm::NodeKind::html_tbody: {
-        table_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlTbody<ndebug>{::std::move(section_ast)}));
-        return;
-    }
-    case ::pltxt2htm::NodeKind::html_tfoot: {
-        table_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlTfoot<ndebug>{::std::move(section_ast)}));
-        return;
-    }
-    default:
-        [[unlikely]] {
-            pltxt2htm_unreachable(u8"Unexpected section node kind");
-        }
-    }
-}
-
-/**
  * @brief Parse pl-text to nodes.
  * @tparam ndebug Contract checking mode; `::pltxt2htm::Contracts::ignore` disables checks.
  * @param call_stack: use `call_stack` + `goto entry` to avoid stack overflow.
@@ -653,8 +621,7 @@ entry:
                             ::pltxt2htm::details::FrontendContextVariant<ndebug>{
                                 ::pltxt2htm::details::ParserFrameContextWithCellInfo{
                                     ::fast_io::u8string_view{cell.text.data(), cell.text.size()}, cell.align},
-                                cell.is_header ? ::pltxt2htm::NodeKind::html_th
-                                               : ::pltxt2htm::NodeKind::html_td},
+                                cell.is_header ? ::pltxt2htm::NodeKind::html_th : ::pltxt2htm::NodeKind::html_td},
                             ::pltxt2htm::Ast<ndebug>{}));
                         frame.set_html_table_cell_index(cell_index + 1);
                         goto entry;
@@ -699,22 +666,21 @@ entry:
                 for (::std::size_t r{}; r < prev_raw_ast.rows_count(); ++r) {
                     ::pltxt2htm::Ast<ndebug> tr_ast{};
                     auto const row_cells = prev_raw_ast.row_cells(r);
-                    for (::std::size_t c{}; c < row_cells.size() && cell_cursor < flat_ast.size();
-                         ++c, ++cell_cursor) {
-                        tr_ast.push_back(::std::move(::pltxt2htm::details::vector_index<ndebug>(flat_ast, cell_cursor)));
+                    for (::std::size_t c{}; c < row_cells.size() && cell_cursor < flat_ast.size(); ++c, ++cell_cursor) {
+                        tr_ast.push_back(
+                            ::std::move(::pltxt2htm::details::vector_index<ndebug>(flat_ast, cell_cursor)));
                     }
                     auto const section = prev_raw_ast.row_section(r);
-                    auto const section_kind =
-                        section == ::pltxt2htm::details::HtmlTableRowSection::thead
-                            ? ::pltxt2htm::NodeKind::html_thead
-                            : (section == ::pltxt2htm::details::HtmlTableRowSection::tbody
-                                   ? ::pltxt2htm::NodeKind::html_tbody
-                                   : (section == ::pltxt2htm::details::HtmlTableRowSection::tfoot
-                                          ? ::pltxt2htm::NodeKind::html_tfoot
-                                          : ::pltxt2htm::NodeKind::text));
+                    auto const section_kind = section == ::pltxt2htm::details::HtmlTableRowSection::thead
+                                                  ? ::pltxt2htm::NodeKind::html_thead
+                                                  : (section == ::pltxt2htm::details::HtmlTableRowSection::tbody
+                                                         ? ::pltxt2htm::NodeKind::html_tbody
+                                                         : (section == ::pltxt2htm::details::HtmlTableRowSection::tfoot
+                                                                ? ::pltxt2htm::NodeKind::html_tfoot
+                                                                : ::pltxt2htm::NodeKind::text));
                     if (section_kind == ::pltxt2htm::NodeKind::text) {
-                        ::pltxt2htm::details::push_html_section_node<ndebug>(
-                            table_ast, active_section_kind, ::std::move(active_section_ast));
+                        ::pltxt2htm::details::push_html_section_node<ndebug>(table_ast, active_section_kind,
+                                                                             ::std::move(active_section_ast));
                         active_section_kind = ::pltxt2htm::NodeKind::text;
                         table_ast.push_back(
                             ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlTr<ndebug>{::std::move(tr_ast)}));
@@ -724,15 +690,15 @@ entry:
                             ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlTr<ndebug>{::std::move(tr_ast)}));
                     }
                     else {
-                        ::pltxt2htm::details::push_html_section_node<ndebug>(
-                            table_ast, active_section_kind, ::std::move(active_section_ast));
+                        ::pltxt2htm::details::push_html_section_node<ndebug>(table_ast, active_section_kind,
+                                                                             ::std::move(active_section_ast));
                         active_section_kind = section_kind;
                         active_section_ast.push_back(
                             ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlTr<ndebug>{::std::move(tr_ast)}));
                     }
                 }
-                ::pltxt2htm::details::push_html_section_node<ndebug>(
-                    table_ast, active_section_kind, ::std::move(active_section_ast));
+                ::pltxt2htm::details::push_html_section_node<ndebug>(table_ast, active_section_kind,
+                                                                     ::std::move(active_section_ast));
 
                 if (call_stack.empty()) {
                     return ::pltxt2htm::details::ParsePlTxtResult<ndebug>{.subast = ::std::move(table_ast)};
