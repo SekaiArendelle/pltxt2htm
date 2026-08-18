@@ -68,13 +68,13 @@ int main() {
         ::exception::assert_false<false>(copy == original);
     }
 
-    // Copy of a node with extra data (MdTh with align)
+    // Copy of a node with extra data (TableTh with align)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast{};
         ast.emplace_back(::pltxt2htm::U8Char{u8'c'});
 
         auto const original = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::MdTh<nd::quick_enforce>(::std::move(ast), ::pltxt2htm::TableAlign::center));
+            ::pltxt2htm::TableTh<nd::quick_enforce>(::std::move(ast), ::pltxt2htm::TableAlign::center));
 
         auto const copy = original;
         ::exception::assert_true<false>(original == copy);

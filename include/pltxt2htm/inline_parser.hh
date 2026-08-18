@@ -1847,39 +1847,27 @@ entry:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::md_latex_block:
                         [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::md_table:
+                    case ::pltxt2htm::NodeKind::table:
                         [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::md_thead:
+                    case ::pltxt2htm::NodeKind::table_thead:
                         [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::md_tbody:
+                    case ::pltxt2htm::NodeKind::table_tbody:
                         [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::md_tr:
+                    case ::pltxt2htm::NodeKind::table_tr:
                         [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::md_th:
+                    case ::pltxt2htm::NodeKind::table_th:
                         [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::md_td: {
+                    case ::pltxt2htm::NodeKind::table_td: {
                         // any tag contains `</` context would hit this branch
                         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
                         ++current_index;
                         continue;
                     }
-                    case ::pltxt2htm::NodeKind::html_table:
+                    case ::pltxt2htm::NodeKind::table_tfoot:
                         [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::html_tr:
+                    case ::pltxt2htm::NodeKind::table_caption:
                         [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::html_td:
-                        [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::html_th:
-                        [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::html_thead:
-                        [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::html_tbody:
-                        [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::html_tfoot:
-                        [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::html_caption:
-                        [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::html_colgroup:
+                    case ::pltxt2htm::NodeKind::table_colgroup:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::u8char:
                         [[fallthrough]];
@@ -1909,7 +1897,7 @@ entry:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::html_hr:
                         [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::html_col:
+                    case ::pltxt2htm::NodeKind::table_col:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::html_img:
                         [[fallthrough]];
@@ -2272,17 +2260,17 @@ entry:
                 parent_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::md_th: {
+            case ::pltxt2htm::NodeKind::table_th: {
                 auto const align = frame.get_cell_align();
                 parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTh<ndebug>{::std::move(subast), align}));
+                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableTh<ndebug>{::std::move(subast), align}));
                 parent_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::md_td: {
+            case ::pltxt2htm::NodeKind::table_td: {
                 auto const align = frame.get_cell_align();
                 parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTd<ndebug>{::std::move(subast), align}));
+                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableTd<ndebug>{::std::move(subast), align}));
                 parent_index += staged_index;
                 goto entry;
             }
@@ -2408,7 +2396,7 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_hr:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_col:
+            case ::pltxt2htm::NodeKind::table_col:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_img:
                 [[fallthrough]];
@@ -2476,31 +2464,19 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_escape_tilde:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_table:
+            case ::pltxt2htm::NodeKind::table:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_thead:
+            case ::pltxt2htm::NodeKind::table_thead:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_tbody:
+            case ::pltxt2htm::NodeKind::table_tbody:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_tr:
+            case ::pltxt2htm::NodeKind::table_tr:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_table:
+            case ::pltxt2htm::NodeKind::table_tfoot:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_tr:
+            case ::pltxt2htm::NodeKind::table_caption:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_td:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_th:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_thead:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_tbody:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_tfoot:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_caption:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_colgroup:
+            case ::pltxt2htm::NodeKind::table_colgroup:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_hr:
                 [[fallthrough]];

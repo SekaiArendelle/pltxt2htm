@@ -184,8 +184,7 @@ constexpr auto find_next_block_after_line_break(
             opt_md_table_raw.has_value()) {
             auto&& [raw_ast, advance_count] =
                 opt_md_table_raw.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-            ::pltxt2htm::details::push_table_frame<ndebug>(call_stack, ::std::move(raw_ast),
-                                                           ::pltxt2htm::NodeKind::md_table);
+            ::pltxt2htm::details::push_table_frame<ndebug>(call_stack, ::std::move(raw_ast));
             return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{
                 .advance_count = current_index + advance_count, .new_frame_been_pushed_into_call_stack = true};
         }
@@ -195,8 +194,7 @@ constexpr auto find_next_block_after_line_break(
             opt_html_table_ast.has_value()) {
             auto&& [raw_ast, advance_count] =
                 opt_html_table_ast.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-            ::pltxt2htm::details::push_table_frame<ndebug>(call_stack, ::std::move(raw_ast),
-                                                           ::pltxt2htm::NodeKind::html_table);
+            ::pltxt2htm::details::push_table_frame<ndebug>(call_stack, ::std::move(raw_ast));
             return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{
                 .advance_count = current_index + advance_count, .new_frame_been_pushed_into_call_stack = true};
         }
@@ -487,8 +485,7 @@ entry:
             goto entry;
         }
         if (auto nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
-            nested_tag_type == ::pltxt2htm::NodeKind::md_table ||
-            nested_tag_type == ::pltxt2htm::NodeKind::html_table) {
+            nested_tag_type == ::pltxt2htm::NodeKind::table || nested_tag_type == ::pltxt2htm::NodeKind::table) {
             auto opt_table_ast = ::pltxt2htm::details::process_table_frame<ndebug>(call_stack);
             if (opt_table_ast.has_value()) {
                 auto&& table_ast = opt_table_ast.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
@@ -2333,17 +2330,17 @@ entry:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::md_latex_block:
                         [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::md_table:
+                    case ::pltxt2htm::NodeKind::table:
                         [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::md_thead:
+                    case ::pltxt2htm::NodeKind::table_thead:
                         [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::md_tbody:
+                    case ::pltxt2htm::NodeKind::table_tbody:
                         [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::md_tr:
+                    case ::pltxt2htm::NodeKind::table_tr:
                         [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::md_th:
+                    case ::pltxt2htm::NodeKind::table_th:
                         [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::md_td: {
+                    case ::pltxt2htm::NodeKind::table_td: {
                         // any tag contains `</` context would hit this branch
                         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
                         ++current_index;
@@ -2377,7 +2374,7 @@ entry:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::html_hr:
                         [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::html_col:
+                    case ::pltxt2htm::NodeKind::table_col:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::html_img:
                         [[fallthrough]];
@@ -2749,72 +2746,57 @@ entry:
                 parent_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::md_th: {
+            case ::pltxt2htm::NodeKind::table: {
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Table<ndebug>{::std::move(subast)}));
+                parent_index += staged_index;
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::table_tr: {
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableTr<ndebug>{::std::move(subast)}));
+                parent_index += staged_index;
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::table_td: {
                 auto const align = frame.get_cell_align();
                 parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTh<ndebug>{::std::move(subast), align}));
+                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableTd<ndebug>{::std::move(subast), align}));
                 parent_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::md_td: {
+            case ::pltxt2htm::NodeKind::table_th: {
                 auto const align = frame.get_cell_align();
                 parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTd<ndebug>{::std::move(subast), align}));
+                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableTh<ndebug>{::std::move(subast), align}));
                 parent_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_table: {
+            case ::pltxt2htm::NodeKind::table_thead: {
                 parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlTable<ndebug>{::std::move(subast)}));
+                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableThead<ndebug>{::std::move(subast)}));
                 parent_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_tr: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlTr<ndebug>{::std::move(subast)}));
-                parent_index += staged_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_td: {
-                auto const align = frame.get_cell_align();
+            case ::pltxt2htm::NodeKind::table_tbody: {
                 parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlTd<ndebug>{::std::move(subast), align}));
+                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableTbody<ndebug>{::std::move(subast)}));
                 parent_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_th: {
-                auto const align = frame.get_cell_align();
+            case ::pltxt2htm::NodeKind::table_tfoot: {
                 parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlTh<ndebug>{::std::move(subast), align}));
+                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableTfoot<ndebug>{::std::move(subast)}));
                 parent_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_thead: {
+            case ::pltxt2htm::NodeKind::table_caption: {
                 parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlThead<ndebug>{::std::move(subast)}));
+                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableCaption<ndebug>{::std::move(subast)}));
                 parent_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_tbody: {
+            case ::pltxt2htm::NodeKind::table_colgroup: {
                 parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlTbody<ndebug>{::std::move(subast)}));
-                parent_index += staged_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_tfoot: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlTfoot<ndebug>{::std::move(subast)}));
-                parent_index += staged_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_caption: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlCaption<ndebug>{::std::move(subast)}));
-                parent_index += staged_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_colgroup: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlColgroup<ndebug>{::std::move(subast)}));
+                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableColgroup<ndebug>{::std::move(subast)}));
                 parent_index += staged_index;
                 goto entry;
             }
@@ -2982,7 +2964,7 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_hr:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_col:
+            case ::pltxt2htm::NodeKind::table_col:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_img:
                 [[fallthrough]];
@@ -3049,14 +3031,6 @@ entry:
             case ::pltxt2htm::NodeKind::md_escape_right_brace:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_escape_tilde:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_table:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_thead:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_tbody:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_tr:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_hr:
                 [[fallthrough]];

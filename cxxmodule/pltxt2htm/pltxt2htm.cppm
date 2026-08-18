@@ -94,16 +94,16 @@ using ::pltxt2htm::HtmlCode;
 using ::pltxt2htm::HtmlBlockquote;
 
 // html table nodes
-using ::pltxt2htm::HtmlTable;
-using ::pltxt2htm::HtmlTr;
-using ::pltxt2htm::HtmlTd;
-using ::pltxt2htm::HtmlTh;
-using ::pltxt2htm::HtmlThead;
-using ::pltxt2htm::HtmlTbody;
-using ::pltxt2htm::HtmlTfoot;
-using ::pltxt2htm::HtmlCaption;
-using ::pltxt2htm::HtmlColgroup;
-using ::pltxt2htm::HtmlCol;
+using ::pltxt2htm::Table;
+using ::pltxt2htm::TableTr;
+using ::pltxt2htm::TableTd;
+using ::pltxt2htm::TableTh;
+using ::pltxt2htm::TableThead;
+using ::pltxt2htm::TableTbody;
+using ::pltxt2htm::TableTfoot;
+using ::pltxt2htm::TableCaption;
+using ::pltxt2htm::TableColgroup;
+using ::pltxt2htm::TableCol;
 
 using ::pltxt2htm::HtmlSpan;
 using ::pltxt2htm::HtmlDiv;
@@ -168,12 +168,12 @@ using ::pltxt2htm::MdLatexInline;
 using ::pltxt2htm::MdLatexBlock;
 
 // md table nodes
-using ::pltxt2htm::MdTable;
-using ::pltxt2htm::MdTr;
-using ::pltxt2htm::MdTd;
-using ::pltxt2htm::MdTh;
-using ::pltxt2htm::MdThead;
-using ::pltxt2htm::MdTbody;
+using ::pltxt2htm::Table;
+using ::pltxt2htm::TableTr;
+using ::pltxt2htm::TableTd;
+using ::pltxt2htm::TableTh;
+using ::pltxt2htm::TableThead;
+using ::pltxt2htm::TableTbody;
 
 // physics_lab_node
 using ::pltxt2htm::PlColor;

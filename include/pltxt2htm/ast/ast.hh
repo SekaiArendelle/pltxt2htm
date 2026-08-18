@@ -20,6 +20,7 @@
 #include "impl/list_node_decl.hh"
 #include "impl/markdown_node_decl.hh"
 #include "impl/physics_lab_node_decl.hh"
+#include "impl/table_node_decl.hh"
 #include "../details/push_macro.hh"
 
 namespace pltxt2htm {
@@ -74,18 +75,20 @@ class PlTxtNode {
         ::pltxt2htm::HtmlCode<ndebug> html_code_node;
         ::pltxt2htm::HtmlBlockquote<ndebug> html_blockquote_node;
 
-        // html table node
-        ::pltxt2htm::HtmlCol html_col_node;
+        // html img node
         ::pltxt2htm::HtmlImg html_img_node;
-        ::pltxt2htm::HtmlTable<ndebug> html_table_node;
-        ::pltxt2htm::HtmlCaption<ndebug> html_caption_node;
-        ::pltxt2htm::HtmlColgroup<ndebug> html_colgroup_node;
-        ::pltxt2htm::HtmlThead<ndebug> html_thead_node;
-        ::pltxt2htm::HtmlTbody<ndebug> html_tbody_node;
-        ::pltxt2htm::HtmlTfoot<ndebug> html_tfoot_node;
-        ::pltxt2htm::HtmlTr<ndebug> html_tr_node;
-        ::pltxt2htm::HtmlTh<ndebug> html_th_node;
-        ::pltxt2htm::HtmlTd<ndebug> html_td_node;
+
+        // table node
+        ::pltxt2htm::TableCol col_node;
+        ::pltxt2htm::Table<ndebug> table_node;
+        ::pltxt2htm::TableTr<ndebug> tr_node;
+        ::pltxt2htm::TableTd<ndebug> td_node;
+        ::pltxt2htm::TableTh<ndebug> th_node;
+        ::pltxt2htm::TableThead<ndebug> thead_node;
+        ::pltxt2htm::TableTbody<ndebug> tbody_node;
+        ::pltxt2htm::TableTfoot<ndebug> tfoot_node;
+        ::pltxt2htm::TableCaption<ndebug> caption_node;
+        ::pltxt2htm::TableColgroup<ndebug> colgroup_node;
 
         // markdown node
         ::pltxt2htm::MdAtxH1<ndebug> md_atx_h1_node;
@@ -142,12 +145,6 @@ class PlTxtNode {
         ::pltxt2htm::Url url_node;
         ::pltxt2htm::MdImage<ndebug> md_image_node;
         ::pltxt2htm::MdBlockQuotes<ndebug> md_block_quotes_node;
-        ::pltxt2htm::MdTable<ndebug> md_table_node;
-        ::pltxt2htm::MdThead<ndebug> md_thead_node;
-        ::pltxt2htm::MdTbody<ndebug> md_tbody_node;
-        ::pltxt2htm::MdTr<ndebug> md_tr_node;
-        ::pltxt2htm::MdTh<ndebug> md_th_node;
-        ::pltxt2htm::MdTd<ndebug> md_td_node;
         ::pltxt2htm::MdLatexInline<ndebug> md_latex_inline_node;
         ::pltxt2htm::MdLatexBlock<ndebug> md_latex_block_node;
 
@@ -486,9 +483,9 @@ public:
           node_kind{::pltxt2htm::NodeKind::html_blockquote} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::HtmlCol node) noexcept
-        : html_col_node{node},
-          node_kind{::pltxt2htm::NodeKind::html_col} {
+    constexpr PlTxtNode(::pltxt2htm::TableCol node) noexcept
+        : col_node{node},
+          node_kind{::pltxt2htm::NodeKind::table_col} {
     }
 
     constexpr PlTxtNode(::pltxt2htm::HtmlImg node) noexcept
@@ -496,49 +493,49 @@ public:
           node_kind{::pltxt2htm::NodeKind::html_img} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::HtmlTable<ndebug>&& node) noexcept
-        : html_table_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::html_table} {
+    constexpr PlTxtNode(::pltxt2htm::Table<ndebug>&& node) noexcept
+        : table_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::table} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::HtmlCaption<ndebug>&& node) noexcept
-        : html_caption_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::html_caption} {
+    constexpr PlTxtNode(::pltxt2htm::TableCaption<ndebug>&& node) noexcept
+        : caption_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::table_caption} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::HtmlColgroup<ndebug>&& node) noexcept
-        : html_colgroup_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::html_colgroup} {
+    constexpr PlTxtNode(::pltxt2htm::TableColgroup<ndebug>&& node) noexcept
+        : colgroup_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::table_colgroup} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::HtmlThead<ndebug>&& node) noexcept
-        : html_thead_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::html_thead} {
+    constexpr PlTxtNode(::pltxt2htm::TableThead<ndebug>&& node) noexcept
+        : thead_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::table_thead} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::HtmlTbody<ndebug>&& node) noexcept
-        : html_tbody_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::html_tbody} {
+    constexpr PlTxtNode(::pltxt2htm::TableTbody<ndebug>&& node) noexcept
+        : tbody_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::table_tbody} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::HtmlTfoot<ndebug>&& node) noexcept
-        : html_tfoot_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::html_tfoot} {
+    constexpr PlTxtNode(::pltxt2htm::TableTfoot<ndebug>&& node) noexcept
+        : tfoot_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::table_tfoot} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::HtmlTr<ndebug>&& node) noexcept
-        : html_tr_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::html_tr} {
+    constexpr PlTxtNode(::pltxt2htm::TableTr<ndebug>&& node) noexcept
+        : tr_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::table_tr} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::HtmlTh<ndebug>&& node) noexcept
-        : html_th_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::html_th} {
+    constexpr PlTxtNode(::pltxt2htm::TableTh<ndebug>&& node) noexcept
+        : th_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::table_th} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::HtmlTd<ndebug>&& node) noexcept
-        : html_td_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::html_td} {
+    constexpr PlTxtNode(::pltxt2htm::TableTd<ndebug>&& node) noexcept
+        : td_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::table_td} {
     }
 
     constexpr PlTxtNode(::pltxt2htm::MdAtxH1<ndebug>&& node) noexcept
@@ -811,36 +808,6 @@ public:
           node_kind{::pltxt2htm::NodeKind::md_block_quotes} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdTable<ndebug>&& node) noexcept
-        : md_table_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::md_table} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdThead<ndebug>&& node) noexcept
-        : md_thead_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::md_thead} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdTbody<ndebug>&& node) noexcept
-        : md_tbody_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::md_tbody} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdTr<ndebug>&& node) noexcept
-        : md_tr_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::md_tr} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdTh<ndebug>&& node) noexcept
-        : md_th_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::md_th} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdTd<ndebug>&& node) noexcept
-        : md_td_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::md_td} {
-    }
-
     constexpr PlTxtNode(::pltxt2htm::MdLatexInline<ndebug>&& node) noexcept
         : md_latex_inline_node(::std::move(node)),
           node_kind{::pltxt2htm::NodeKind::md_latex_inline} {
@@ -1102,48 +1069,48 @@ public:
             new (::std::addressof(html_code_node))::pltxt2htm::HtmlCode(other.html_code_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::html_col: {
-            new (::std::addressof(html_col_node))::pltxt2htm::HtmlCol(other.html_col_node);
+        case ::pltxt2htm::NodeKind::table_col: {
+            new (::std::addressof(col_node))::pltxt2htm::TableCol(other.col_node);
             break;
         }
         case ::pltxt2htm::NodeKind::html_img: {
             new (::std::addressof(html_img_node))::pltxt2htm::HtmlImg(other.html_img_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::html_table: {
-            new (::std::addressof(html_table_node))::pltxt2htm::HtmlTable(other.html_table_node);
+        case ::pltxt2htm::NodeKind::table: {
+            new (::std::addressof(table_node))::pltxt2htm::Table(other.table_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::html_caption: {
-            new (::std::addressof(html_caption_node))::pltxt2htm::HtmlCaption(other.html_caption_node);
+        case ::pltxt2htm::NodeKind::table_caption: {
+            new (::std::addressof(caption_node))::pltxt2htm::TableCaption(other.caption_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::html_colgroup: {
-            new (::std::addressof(html_colgroup_node))::pltxt2htm::HtmlColgroup(other.html_colgroup_node);
+        case ::pltxt2htm::NodeKind::table_colgroup: {
+            new (::std::addressof(colgroup_node))::pltxt2htm::TableColgroup(other.colgroup_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::html_thead: {
-            new (::std::addressof(html_thead_node))::pltxt2htm::HtmlThead(other.html_thead_node);
+        case ::pltxt2htm::NodeKind::table_thead: {
+            new (::std::addressof(thead_node))::pltxt2htm::TableThead(other.thead_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::html_tbody: {
-            new (::std::addressof(html_tbody_node))::pltxt2htm::HtmlTbody(other.html_tbody_node);
+        case ::pltxt2htm::NodeKind::table_tbody: {
+            new (::std::addressof(tbody_node))::pltxt2htm::TableTbody(other.tbody_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::html_tfoot: {
-            new (::std::addressof(html_tfoot_node))::pltxt2htm::HtmlTfoot(other.html_tfoot_node);
+        case ::pltxt2htm::NodeKind::table_tfoot: {
+            new (::std::addressof(tfoot_node))::pltxt2htm::TableTfoot(other.tfoot_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::html_tr: {
-            new (::std::addressof(html_tr_node))::pltxt2htm::HtmlTr(other.html_tr_node);
+        case ::pltxt2htm::NodeKind::table_tr: {
+            new (::std::addressof(tr_node))::pltxt2htm::TableTr(other.tr_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::html_th: {
-            new (::std::addressof(html_th_node))::pltxt2htm::HtmlTh(other.html_th_node);
+        case ::pltxt2htm::NodeKind::table_th: {
+            new (::std::addressof(th_node))::pltxt2htm::TableTh(other.th_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::html_td: {
-            new (::std::addressof(html_td_node))::pltxt2htm::HtmlTd(other.html_td_node);
+        case ::pltxt2htm::NodeKind::table_td: {
+            new (::std::addressof(td_node))::pltxt2htm::TableTd(other.td_node);
             break;
         }
         case ::pltxt2htm::NodeKind::md_atx_h1: {
@@ -1386,30 +1353,7 @@ public:
             new (::std::addressof(md_block_quotes_node))::pltxt2htm::MdBlockQuotes(other.md_block_quotes_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::md_table: {
-            new (::std::addressof(md_table_node))::pltxt2htm::MdTable(other.md_table_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_thead: {
-            new (::std::addressof(md_thead_node))::pltxt2htm::MdThead(other.md_thead_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_tbody: {
-            new (::std::addressof(md_tbody_node))::pltxt2htm::MdTbody(other.md_tbody_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_tr: {
-            new (::std::addressof(md_tr_node))::pltxt2htm::MdTr(other.md_tr_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_th: {
-            new (::std::addressof(md_th_node))::pltxt2htm::MdTh(other.md_th_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_td: {
-            new (::std::addressof(md_td_node))::pltxt2htm::MdTd(other.md_td_node);
-            break;
-        }
+
         case ::pltxt2htm::NodeKind::md_latex_inline: {
             new (::std::addressof(md_latex_inline_node))::pltxt2htm::MdLatexInline(other.md_latex_inline_node);
             break;
@@ -1687,48 +1631,48 @@ public:
             new (::std::addressof(html_code_node))::pltxt2htm::HtmlCode(::std::move(other.html_code_node));
             break;
         }
-        case ::pltxt2htm::NodeKind::html_col: {
-            new (::std::addressof(html_col_node))::pltxt2htm::HtmlCol(::std::move(other.html_col_node));
+        case ::pltxt2htm::NodeKind::table_col: {
+            new (::std::addressof(col_node))::pltxt2htm::TableCol(::std::move(other.col_node));
             break;
         }
         case ::pltxt2htm::NodeKind::html_img: {
             new (::std::addressof(html_img_node))::pltxt2htm::HtmlImg(::std::move(other.html_img_node));
             break;
         }
-        case ::pltxt2htm::NodeKind::html_table: {
-            new (::std::addressof(html_table_node))::pltxt2htm::HtmlTable(::std::move(other.html_table_node));
+        case ::pltxt2htm::NodeKind::table: {
+            new (::std::addressof(table_node))::pltxt2htm::Table(::std::move(other.table_node));
             break;
         }
-        case ::pltxt2htm::NodeKind::html_caption: {
-            new (::std::addressof(html_caption_node))::pltxt2htm::HtmlCaption(::std::move(other.html_caption_node));
+        case ::pltxt2htm::NodeKind::table_caption: {
+            new (::std::addressof(caption_node))::pltxt2htm::TableCaption(::std::move(other.caption_node));
             break;
         }
-        case ::pltxt2htm::NodeKind::html_colgroup: {
-            new (::std::addressof(html_colgroup_node))::pltxt2htm::HtmlColgroup(::std::move(other.html_colgroup_node));
+        case ::pltxt2htm::NodeKind::table_colgroup: {
+            new (::std::addressof(colgroup_node))::pltxt2htm::TableColgroup(::std::move(other.colgroup_node));
             break;
         }
-        case ::pltxt2htm::NodeKind::html_thead: {
-            new (::std::addressof(html_thead_node))::pltxt2htm::HtmlThead(::std::move(other.html_thead_node));
+        case ::pltxt2htm::NodeKind::table_thead: {
+            new (::std::addressof(thead_node))::pltxt2htm::TableThead(::std::move(other.thead_node));
             break;
         }
-        case ::pltxt2htm::NodeKind::html_tbody: {
-            new (::std::addressof(html_tbody_node))::pltxt2htm::HtmlTbody(::std::move(other.html_tbody_node));
+        case ::pltxt2htm::NodeKind::table_tbody: {
+            new (::std::addressof(tbody_node))::pltxt2htm::TableTbody(::std::move(other.tbody_node));
             break;
         }
-        case ::pltxt2htm::NodeKind::html_tfoot: {
-            new (::std::addressof(html_tfoot_node))::pltxt2htm::HtmlTfoot(::std::move(other.html_tfoot_node));
+        case ::pltxt2htm::NodeKind::table_tfoot: {
+            new (::std::addressof(tfoot_node))::pltxt2htm::TableTfoot(::std::move(other.tfoot_node));
             break;
         }
-        case ::pltxt2htm::NodeKind::html_tr: {
-            new (::std::addressof(html_tr_node))::pltxt2htm::HtmlTr(::std::move(other.html_tr_node));
+        case ::pltxt2htm::NodeKind::table_tr: {
+            new (::std::addressof(tr_node))::pltxt2htm::TableTr(::std::move(other.tr_node));
             break;
         }
-        case ::pltxt2htm::NodeKind::html_th: {
-            new (::std::addressof(html_th_node))::pltxt2htm::HtmlTh(::std::move(other.html_th_node));
+        case ::pltxt2htm::NodeKind::table_th: {
+            new (::std::addressof(th_node))::pltxt2htm::TableTh(::std::move(other.th_node));
             break;
         }
-        case ::pltxt2htm::NodeKind::html_td: {
-            new (::std::addressof(html_td_node))::pltxt2htm::HtmlTd(::std::move(other.html_td_node));
+        case ::pltxt2htm::NodeKind::table_td: {
+            new (::std::addressof(td_node))::pltxt2htm::TableTd(::std::move(other.td_node));
             break;
         }
         case ::pltxt2htm::NodeKind::md_atx_h1: {
@@ -1987,30 +1931,7 @@ public:
                 ::std::move(other.md_block_quotes_node));
             break;
         }
-        case ::pltxt2htm::NodeKind::md_table: {
-            new (::std::addressof(md_table_node))::pltxt2htm::MdTable(::std::move(other.md_table_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_thead: {
-            new (::std::addressof(md_thead_node))::pltxt2htm::MdThead(::std::move(other.md_thead_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_tbody: {
-            new (::std::addressof(md_tbody_node))::pltxt2htm::MdTbody(::std::move(other.md_tbody_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_tr: {
-            new (::std::addressof(md_tr_node))::pltxt2htm::MdTr(::std::move(other.md_tr_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_th: {
-            new (::std::addressof(md_th_node))::pltxt2htm::MdTh(::std::move(other.md_th_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_td: {
-            new (::std::addressof(md_td_node))::pltxt2htm::MdTd(::std::move(other.md_td_node));
-            break;
-        }
+
         case ::pltxt2htm::NodeKind::md_latex_inline: {
             new (::std::addressof(md_latex_inline_node))::pltxt2htm::MdLatexInline(
                 ::std::move(other.md_latex_inline_node));
@@ -2276,48 +2197,48 @@ public:
             html_code_node.~HtmlCode();
             break;
         }
-        case ::pltxt2htm::NodeKind::html_col: {
-            html_col_node.~HtmlCol();
+        case ::pltxt2htm::NodeKind::table_col: {
+            col_node.~TableCol();
             break;
         }
         case ::pltxt2htm::NodeKind::html_img: {
             html_img_node.~HtmlImg();
             break;
         }
-        case ::pltxt2htm::NodeKind::html_table: {
-            html_table_node.~HtmlTable();
+        case ::pltxt2htm::NodeKind::table: {
+            table_node.~Table();
             break;
         }
-        case ::pltxt2htm::NodeKind::html_caption: {
-            html_caption_node.~HtmlCaption();
+        case ::pltxt2htm::NodeKind::table_caption: {
+            caption_node.~TableCaption();
             break;
         }
-        case ::pltxt2htm::NodeKind::html_colgroup: {
-            html_colgroup_node.~HtmlColgroup();
+        case ::pltxt2htm::NodeKind::table_colgroup: {
+            colgroup_node.~TableColgroup();
             break;
         }
-        case ::pltxt2htm::NodeKind::html_thead: {
-            html_thead_node.~HtmlThead();
+        case ::pltxt2htm::NodeKind::table_thead: {
+            thead_node.~TableThead();
             break;
         }
-        case ::pltxt2htm::NodeKind::html_tbody: {
-            html_tbody_node.~HtmlTbody();
+        case ::pltxt2htm::NodeKind::table_tbody: {
+            tbody_node.~TableTbody();
             break;
         }
-        case ::pltxt2htm::NodeKind::html_tfoot: {
-            html_tfoot_node.~HtmlTfoot();
+        case ::pltxt2htm::NodeKind::table_tfoot: {
+            tfoot_node.~TableTfoot();
             break;
         }
-        case ::pltxt2htm::NodeKind::html_tr: {
-            html_tr_node.~HtmlTr();
+        case ::pltxt2htm::NodeKind::table_tr: {
+            tr_node.~TableTr();
             break;
         }
-        case ::pltxt2htm::NodeKind::html_th: {
-            html_th_node.~HtmlTh();
+        case ::pltxt2htm::NodeKind::table_th: {
+            th_node.~TableTh();
             break;
         }
-        case ::pltxt2htm::NodeKind::html_td: {
-            html_td_node.~HtmlTd();
+        case ::pltxt2htm::NodeKind::table_td: {
+            td_node.~TableTd();
             break;
         }
         case ::pltxt2htm::NodeKind::md_atx_h1: {
@@ -2536,30 +2457,7 @@ public:
             md_block_quotes_node.~MdBlockQuotes();
             break;
         }
-        case ::pltxt2htm::NodeKind::md_table: {
-            md_table_node.~MdTable();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_thead: {
-            md_thead_node.~MdThead();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_tbody: {
-            md_tbody_node.~MdTbody();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_tr: {
-            md_tr_node.~MdTr();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_th: {
-            md_th_node.~MdTh();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_td: {
-            md_td_node.~MdTd();
-            break;
-        }
+
         case ::pltxt2htm::NodeKind::md_latex_inline: {
             md_latex_inline_node.~MdLatexInline();
             break;
@@ -2777,38 +2675,38 @@ public:
         case ::pltxt2htm::NodeKind::html_code: {
             return self.html_code_node == other.html_code_node;
         }
-        case ::pltxt2htm::NodeKind::html_col: {
-            return self.html_col_node == other.html_col_node;
+        case ::pltxt2htm::NodeKind::table_col: {
+            return self.col_node == other.col_node;
         }
         case ::pltxt2htm::NodeKind::html_img: {
             return self.html_img_node == other.html_img_node;
         }
-        case ::pltxt2htm::NodeKind::html_table: {
-            return self.html_table_node == other.html_table_node;
+        case ::pltxt2htm::NodeKind::table: {
+            return self.table_node == other.table_node;
         }
-        case ::pltxt2htm::NodeKind::html_caption: {
-            return self.html_caption_node == other.html_caption_node;
+        case ::pltxt2htm::NodeKind::table_caption: {
+            return self.caption_node == other.caption_node;
         }
-        case ::pltxt2htm::NodeKind::html_colgroup: {
-            return self.html_colgroup_node == other.html_colgroup_node;
+        case ::pltxt2htm::NodeKind::table_colgroup: {
+            return self.colgroup_node == other.colgroup_node;
         }
-        case ::pltxt2htm::NodeKind::html_thead: {
-            return self.html_thead_node == other.html_thead_node;
+        case ::pltxt2htm::NodeKind::table_thead: {
+            return self.thead_node == other.thead_node;
         }
-        case ::pltxt2htm::NodeKind::html_tbody: {
-            return self.html_tbody_node == other.html_tbody_node;
+        case ::pltxt2htm::NodeKind::table_tbody: {
+            return self.tbody_node == other.tbody_node;
         }
-        case ::pltxt2htm::NodeKind::html_tfoot: {
-            return self.html_tfoot_node == other.html_tfoot_node;
+        case ::pltxt2htm::NodeKind::table_tfoot: {
+            return self.tfoot_node == other.tfoot_node;
         }
-        case ::pltxt2htm::NodeKind::html_tr: {
-            return self.html_tr_node == other.html_tr_node;
+        case ::pltxt2htm::NodeKind::table_tr: {
+            return self.tr_node == other.tr_node;
         }
-        case ::pltxt2htm::NodeKind::html_th: {
-            return self.html_th_node == other.html_th_node;
+        case ::pltxt2htm::NodeKind::table_th: {
+            return self.th_node == other.th_node;
         }
-        case ::pltxt2htm::NodeKind::html_td: {
-            return self.html_td_node == other.html_td_node;
+        case ::pltxt2htm::NodeKind::table_td: {
+            return self.td_node == other.td_node;
         }
         case ::pltxt2htm::NodeKind::md_atx_h1: {
             return self.md_atx_h1_node == other.md_atx_h1_node;
@@ -2972,24 +2870,7 @@ public:
         case ::pltxt2htm::NodeKind::md_block_quotes: {
             return self.md_block_quotes_node == other.md_block_quotes_node;
         }
-        case ::pltxt2htm::NodeKind::md_table: {
-            return self.md_table_node == other.md_table_node;
-        }
-        case ::pltxt2htm::NodeKind::md_thead: {
-            return self.md_thead_node == other.md_thead_node;
-        }
-        case ::pltxt2htm::NodeKind::md_tbody: {
-            return self.md_tbody_node == other.md_tbody_node;
-        }
-        case ::pltxt2htm::NodeKind::md_tr: {
-            return self.md_tr_node == other.md_tr_node;
-        }
-        case ::pltxt2htm::NodeKind::md_th: {
-            return self.md_th_node == other.md_th_node;
-        }
-        case ::pltxt2htm::NodeKind::md_td: {
-            return self.md_td_node == other.md_td_node;
-        }
+
         case ::pltxt2htm::NodeKind::md_latex_inline: {
             return self.md_latex_inline_node == other.md_latex_inline_node;
         }
@@ -3249,10 +3130,10 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto as_html_col(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_col};
+    constexpr auto as_table_col(this auto&& self) noexcept -> decltype(auto) {
+        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::table_col};
         pltxt2htm_assert(is_type, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.html_col_node);
+        return ::std::forward_like<decltype(self)>(self.col_node);
     }
 
     [[nodiscard]]
@@ -3263,66 +3144,66 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto as_html_table(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_table};
+    constexpr auto as_table(this auto&& self) noexcept -> decltype(auto) {
+        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::table};
         pltxt2htm_assert(is_type, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.html_table_node);
+        return ::std::forward_like<decltype(self)>(self.table_node);
     }
 
     [[nodiscard]]
-    constexpr auto as_html_caption(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_caption};
+    constexpr auto as_table_caption(this auto&& self) noexcept -> decltype(auto) {
+        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::table_caption};
         pltxt2htm_assert(is_type, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.html_caption_node);
+        return ::std::forward_like<decltype(self)>(self.caption_node);
     }
 
     [[nodiscard]]
-    constexpr auto as_html_colgroup(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_colgroup};
+    constexpr auto as_table_colgroup(this auto&& self) noexcept -> decltype(auto) {
+        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::table_colgroup};
         pltxt2htm_assert(is_type, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.html_colgroup_node);
+        return ::std::forward_like<decltype(self)>(self.colgroup_node);
     }
 
     [[nodiscard]]
-    constexpr auto as_html_thead(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_thead};
+    constexpr auto as_table_thead(this auto&& self) noexcept -> decltype(auto) {
+        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::table_thead};
         pltxt2htm_assert(is_type, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.html_thead_node);
+        return ::std::forward_like<decltype(self)>(self.thead_node);
     }
 
     [[nodiscard]]
-    constexpr auto as_html_tbody(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_tbody};
+    constexpr auto as_table_tbody(this auto&& self) noexcept -> decltype(auto) {
+        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::table_tbody};
         pltxt2htm_assert(is_type, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.html_tbody_node);
+        return ::std::forward_like<decltype(self)>(self.tbody_node);
     }
 
     [[nodiscard]]
-    constexpr auto as_html_tfoot(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_tfoot};
+    constexpr auto as_table_tfoot(this auto&& self) noexcept -> decltype(auto) {
+        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::table_tfoot};
         pltxt2htm_assert(is_type, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.html_tfoot_node);
+        return ::std::forward_like<decltype(self)>(self.tfoot_node);
     }
 
     [[nodiscard]]
-    constexpr auto as_html_tr(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_tr};
+    constexpr auto as_table_tr(this auto&& self) noexcept -> decltype(auto) {
+        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::table_tr};
         pltxt2htm_assert(is_type, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.html_tr_node);
+        return ::std::forward_like<decltype(self)>(self.tr_node);
     }
 
     [[nodiscard]]
-    constexpr auto as_html_th(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_th};
+    constexpr auto as_table_th(this auto&& self) noexcept -> decltype(auto) {
+        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::table_th};
         pltxt2htm_assert(is_type, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.html_th_node);
+        return ::std::forward_like<decltype(self)>(self.th_node);
     }
 
     [[nodiscard]]
-    constexpr auto as_html_td(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_td};
+    constexpr auto as_table_td(this auto&& self) noexcept -> decltype(auto) {
+        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::table_td};
         pltxt2htm_assert(is_type, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.html_td_node);
+        return ::std::forward_like<decltype(self)>(self.td_node);
     }
 
     [[nodiscard]]
@@ -3727,48 +3608,6 @@ public:
     [[nodiscard]]
 
     [[nodiscard]]
-    constexpr auto as_md_table(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_table};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_table_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_thead(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_thead};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_thead_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_tbody(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_tbody};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_tbody_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_tr(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_tr};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_tr_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_th(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_th};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_th_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_td(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_td};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_td_node);
-    }
-
-    [[nodiscard]]
     constexpr auto as_md_latex_inline(this auto&& self) noexcept -> decltype(auto) {
         bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_latex_inline};
         pltxt2htm_assert(is_type, u8"node kind mismatch");
@@ -3966,3 +3805,4 @@ public:
 #include "impl/list_node_def.inc"
 #include "impl/markdown_node_def.inc"
 #include "impl/physics_lab_node_def.inc"
+#include "impl/table_node_def.inc"

@@ -364,7 +364,7 @@ constexpr auto try_parse_caption_tag(::fast_io::u8string_view pltext,
     if (opt_tag_len.has_value() == false) {
         return ::exception::nullopt;
     }
-    if (nested_tag_type != ::pltxt2htm::NodeKind::html_table) {
+    if (nested_tag_type != ::pltxt2htm::NodeKind::table) {
         return ::exception::nullopt;
     }
     return opt_tag_len;
@@ -387,7 +387,7 @@ constexpr auto try_parse_colgroup_tag(::fast_io::u8string_view pltext,
     if (opt_tag_len.has_value() == false) {
         return ::exception::nullopt;
     }
-    if (nested_tag_type != ::pltxt2htm::NodeKind::html_table) {
+    if (nested_tag_type != ::pltxt2htm::NodeKind::table) {
         return ::exception::nullopt;
     }
     return opt_tag_len;
@@ -410,7 +410,7 @@ constexpr auto try_parse_thead_tag(::fast_io::u8string_view pltext,
     if (opt_tag_len.has_value() == false) {
         return ::exception::nullopt;
     }
-    if (nested_tag_type != ::pltxt2htm::NodeKind::html_table) {
+    if (nested_tag_type != ::pltxt2htm::NodeKind::table) {
         return ::exception::nullopt;
     }
     return opt_tag_len;
@@ -433,7 +433,7 @@ constexpr auto try_parse_tbody_tag(::fast_io::u8string_view pltext,
     if (opt_tag_len.has_value() == false) {
         return ::exception::nullopt;
     }
-    if (nested_tag_type != ::pltxt2htm::NodeKind::html_table) {
+    if (nested_tag_type != ::pltxt2htm::NodeKind::table) {
         return ::exception::nullopt;
     }
     return opt_tag_len;
@@ -456,7 +456,7 @@ constexpr auto try_parse_tfoot_tag(::fast_io::u8string_view pltext,
     if (opt_tag_len.has_value() == false) {
         return ::exception::nullopt;
     }
-    if (nested_tag_type != ::pltxt2htm::NodeKind::html_table) {
+    if (nested_tag_type != ::pltxt2htm::NodeKind::table) {
         return ::exception::nullopt;
     }
     return opt_tag_len;
@@ -479,8 +479,9 @@ constexpr auto try_parse_tr_tag(::fast_io::u8string_view pltext, ::pltxt2htm::No
     if (opt_tag_len.has_value() == false) {
         return ::exception::nullopt;
     }
-    if (nested_tag_type != ::pltxt2htm::NodeKind::html_table && nested_tag_type != ::pltxt2htm::NodeKind::html_thead &&
-        nested_tag_type != ::pltxt2htm::NodeKind::html_tbody && nested_tag_type != ::pltxt2htm::NodeKind::html_tfoot) {
+    if (nested_tag_type != ::pltxt2htm::NodeKind::table && nested_tag_type != ::pltxt2htm::NodeKind::table_thead &&
+        nested_tag_type != ::pltxt2htm::NodeKind::table_tbody &&
+        nested_tag_type != ::pltxt2htm::NodeKind::table_tfoot) {
         return ::exception::nullopt;
     }
     return opt_tag_len;
@@ -631,7 +632,7 @@ constexpr auto try_parse_th_tag(::fast_io::u8string_view pltext, ::pltxt2htm::No
     if (::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"h"}>(pltext) == false) {
         return ::exception::nullopt;
     }
-    if (nested_tag_type != ::pltxt2htm::NodeKind::html_tr) {
+    if (nested_tag_type != ::pltxt2htm::NodeKind::table_tr) {
         return ::exception::nullopt;
     }
 
@@ -773,7 +774,7 @@ constexpr auto try_parse_td_tag(::fast_io::u8string_view pltext, ::pltxt2htm::No
     if (::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"d"}>(pltext) == false) {
         return ::exception::nullopt;
     }
-    if (nested_tag_type != ::pltxt2htm::NodeKind::html_tr) {
+    if (nested_tag_type != ::pltxt2htm::NodeKind::table_tr) {
         return ::exception::nullopt;
     }
 
@@ -2680,7 +2681,7 @@ constexpr auto try_parse_col_tag(::fast_io::u8string_view pltext, ::pltxt2htm::N
     if (opt_tag_len.has_value() == false) {
         return ::exception::nullopt;
     }
-    if (nested_tag_type != ::pltxt2htm::NodeKind::html_colgroup) {
+    if (nested_tag_type != ::pltxt2htm::NodeKind::table_colgroup) {
         return ::exception::nullopt;
     }
     return opt_tag_len;

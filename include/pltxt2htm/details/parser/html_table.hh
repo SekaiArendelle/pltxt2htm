@@ -157,7 +157,7 @@ constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noe
             }
             if (auto opt_th_tag = ::pltxt2htm::details::try_parse_th_tag<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                    ::pltxt2htm::NodeKind::html_tr);
+                    ::pltxt2htm::NodeKind::table_tr);
                 opt_th_tag.has_value()) {
                 auto&& [tag_len, align] = opt_th_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                 auto opt_cell = ::pltxt2htm::details::try_capture_until_tag<ndebug, u8"</th">(
@@ -174,7 +174,7 @@ constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noe
             }
             if (auto opt_td_tag = ::pltxt2htm::details::try_parse_td_tag<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                    ::pltxt2htm::NodeKind::html_tr);
+                    ::pltxt2htm::NodeKind::table_tr);
                 opt_td_tag.has_value()) {
                 auto&& [tag_len, align] = opt_td_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                 auto opt_cell = ::pltxt2htm::details::try_capture_until_tag<ndebug, u8"</td">(
@@ -216,7 +216,7 @@ constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noe
             }
             if (auto opt_col_len = ::pltxt2htm::details::try_parse_col_tag<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                    ::pltxt2htm::NodeKind::html_colgroup);
+                    ::pltxt2htm::NodeKind::table_colgroup);
                 opt_col_len.has_value()) {
                 current_index += opt_col_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 2;
                 raw_ast.add_col();
@@ -239,10 +239,10 @@ constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noe
                 continue;
             }
             auto const section_node_kind = active_section == ::pltxt2htm::details::TableRowSection::thead
-                                               ? ::pltxt2htm::NodeKind::html_thead
+                                               ? ::pltxt2htm::NodeKind::table_thead
                                                : (active_section == ::pltxt2htm::details::TableRowSection::tbody
-                                                      ? ::pltxt2htm::NodeKind::html_tbody
-                                                      : ::pltxt2htm::NodeKind::html_tfoot);
+                                                      ? ::pltxt2htm::NodeKind::table_tbody
+                                                      : ::pltxt2htm::NodeKind::table_tfoot);
             if (auto opt_tr_len = ::pltxt2htm::details::try_parse_tr_tag<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), section_node_kind);
                 opt_tr_len.has_value()) {
@@ -264,7 +264,7 @@ constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noe
         }
         if (auto opt_caption_len = ::pltxt2htm::details::try_parse_caption_tag<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                ::pltxt2htm::NodeKind::html_table);
+                ::pltxt2htm::NodeKind::table);
             opt_caption_len.has_value()) {
             current_index += opt_caption_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
             inside_caption = true;
@@ -272,7 +272,7 @@ constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noe
         }
         if (auto opt_colgroup_len = ::pltxt2htm::details::try_parse_colgroup_tag<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                ::pltxt2htm::NodeKind::html_table);
+                ::pltxt2htm::NodeKind::table);
             opt_colgroup_len.has_value()) {
             current_index += opt_colgroup_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
             inside_colgroup = true;
@@ -280,7 +280,7 @@ constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noe
         }
         if (auto opt_thead_len = ::pltxt2htm::details::try_parse_thead_tag<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                ::pltxt2htm::NodeKind::html_table);
+                ::pltxt2htm::NodeKind::table);
             opt_thead_len.has_value()) {
             current_index += opt_thead_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
             active_section = ::pltxt2htm::details::TableRowSection::thead;
@@ -289,7 +289,7 @@ constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noe
         }
         if (auto opt_tbody_len = ::pltxt2htm::details::try_parse_tbody_tag<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                ::pltxt2htm::NodeKind::html_table);
+                ::pltxt2htm::NodeKind::table);
             opt_tbody_len.has_value()) {
             current_index += opt_tbody_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
             active_section = ::pltxt2htm::details::TableRowSection::tbody;
@@ -298,7 +298,7 @@ constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noe
         }
         if (auto opt_tfoot_len = ::pltxt2htm::details::try_parse_tfoot_tag<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                ::pltxt2htm::NodeKind::html_table);
+                ::pltxt2htm::NodeKind::table);
             opt_tfoot_len.has_value()) {
             current_index += opt_tfoot_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
             active_section = ::pltxt2htm::details::TableRowSection::tfoot;
@@ -307,7 +307,7 @@ constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noe
         }
         if (auto opt_tr_len = ::pltxt2htm::details::try_parse_tr_tag<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                ::pltxt2htm::NodeKind::html_table);
+                ::pltxt2htm::NodeKind::table);
             opt_tr_len.has_value()) {
             current_index += opt_tr_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
             raw_ast.add_row(::pltxt2htm::details::TableRowRaw{.cells = {}, .section = active_section});
