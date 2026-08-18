@@ -1931,7 +1931,6 @@ public:
                 ::std::move(other.md_block_quotes_node));
             break;
         }
-
         case ::pltxt2htm::NodeKind::md_latex_inline: {
             new (::std::addressof(md_latex_inline_node))::pltxt2htm::MdLatexInline(
                 ::std::move(other.md_latex_inline_node));
@@ -2457,7 +2456,6 @@ public:
             md_block_quotes_node.~MdBlockQuotes();
             break;
         }
-
         case ::pltxt2htm::NodeKind::md_latex_inline: {
             md_latex_inline_node.~MdLatexInline();
             break;
@@ -2870,7 +2868,6 @@ public:
         case ::pltxt2htm::NodeKind::md_block_quotes: {
             return self.md_block_quotes_node == other.md_block_quotes_node;
         }
-
         case ::pltxt2htm::NodeKind::md_latex_inline: {
             return self.md_latex_inline_node == other.md_latex_inline_node;
         }
@@ -3604,8 +3601,6 @@ public:
         pltxt2htm_assert(is_a_type, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.html_a_node);
     }
-
-    [[nodiscard]]
 
     [[nodiscard]]
     constexpr auto as_md_latex_inline(this auto&& self) noexcept -> decltype(auto) {
