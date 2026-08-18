@@ -1,3 +1,5 @@
+#pragma once
+
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::Table<ndebug>::Table(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
     : subast(::std::move(subast_)) {
