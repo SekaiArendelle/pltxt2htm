@@ -167,14 +167,6 @@ using ::pltxt2htm::MdBlockQuotes;
 using ::pltxt2htm::MdLatexInline;
 using ::pltxt2htm::MdLatexBlock;
 
-// md table nodes
-using ::pltxt2htm::Table;
-using ::pltxt2htm::TableTr;
-using ::pltxt2htm::TableTd;
-using ::pltxt2htm::TableTh;
-using ::pltxt2htm::TableThead;
-using ::pltxt2htm::TableTbody;
-
 // physics_lab_node
 using ::pltxt2htm::PlColor;
 using ::pltxt2htm::PlA;
