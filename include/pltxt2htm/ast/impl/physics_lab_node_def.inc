@@ -1,7 +1,5 @@
 #pragma once
 
-namespace pltxt2htm {
-
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::PlColor<ndebug>::PlColor(::pltxt2htm::Ast<ndebug>&& subast_,
                                                 ::fast_io::u8string&& color_) noexcept
@@ -443,4 +441,3 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::PlS<ndebug>::operator==(this ::pltxt2htm::PlS<ndebug> const&,
                                                     ::pltxt2htm::PlS<ndebug> const&) noexcept -> bool = default;
 
-} // namespace pltxt2htm

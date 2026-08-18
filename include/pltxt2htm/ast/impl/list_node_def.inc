@@ -1,7 +1,5 @@
 #pragma once
 
-namespace pltxt2htm {
-
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::ListUl<ndebug>::ListUl(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
     : subast(::std::move(subast_)) {
@@ -87,4 +85,3 @@ constexpr auto ::pltxt2htm::ListLiCheckbox<ndebug>::operator==(this ::pltxt2htm:
                                                                ::pltxt2htm::ListLiCheckbox<ndebug> const&) noexcept
     -> bool = default;
 
-} // namespace pltxt2htm

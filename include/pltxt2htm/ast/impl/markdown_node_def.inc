@@ -1,7 +1,5 @@
 #pragma once
 
-namespace pltxt2htm {
-
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdAtxH1<ndebug>::MdAtxH1(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
     : subast(::std::move(subast_)) {
@@ -586,5 +584,3 @@ constexpr auto ::pltxt2htm::MdTd<ndebug>::operator=(this ::pltxt2htm::MdTd<ndebu
 template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::MdTd<ndebug>::operator==(this ::pltxt2htm::MdTd<ndebug> const&,
                                                      ::pltxt2htm::MdTd<ndebug> const&) noexcept -> bool = default;
-
-} // namespace pltxt2htm
