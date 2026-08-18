@@ -187,7 +187,8 @@ constexpr auto find_next_block_after_line_break(
             opt_html_table_ast.has_value()) {
             auto&& [raw_ast, advance_count] =
                 opt_html_table_ast.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-            ::pltxt2htm::details::push_table_frame<ndebug>(call_stack, ::std::move(raw_ast));
+            ::pltxt2htm::details::push_table_frame<ndebug>(call_stack, ::std::move(raw_ast),
+                                                           ::pltxt2htm::NodeKind::html_table);
             return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
                 .advance_count = current_index + advance_count, .new_frame_been_pushed_into_call_stack = true};
         }
@@ -274,133 +275,15 @@ entry:
             ++frame_iter;
             goto entry;
         }
-        // HTML table frames hold an intermediate HtmlTableAstRaw; iterate it like the list frames.
+        // HTML table frames hold an intermediate TableAstRaw; iterate them like the list frames.
         if (::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type() ==
             ::pltxt2htm::NodeKind::html_table) {
-            auto&& frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
-            auto&& raw_ast = frame.get_html_table_raw_ast();
-            auto const state = frame.get_html_table_state();
-            auto const row_index = frame.get_html_table_row_index();
-            auto const cell_index = frame.get_html_table_cell_index();
-
-            switch (state) /* -Werror=switch */ {
-            case ::pltxt2htm::details::HtmlTableParsePhase::caption: {
-                if (raw_ast.has_caption()) {
-                    call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                        ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                            ::pltxt2htm::details::ParserFrameContextWithPltextInfo{raw_ast.caption()},
-                            ::pltxt2htm::NodeKind::html_caption},
-                        ::pltxt2htm::Ast<ndebug>{}));
-                }
-                frame.set_html_table_state(::pltxt2htm::details::HtmlTableParsePhase::body);
-                goto entry;
+            auto opt_table_ast = ::pltxt2htm::details::process_table_frame<ndebug>(call_stack);
+            if (opt_table_ast.has_value()) {
+                auto&& table_ast = opt_table_ast.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                return ::std::move(table_ast);
             }
-            case ::pltxt2htm::details::HtmlTableParsePhase::body: {
-                if (row_index < raw_ast.rows_count()) {
-                    auto const row_cells = raw_ast.row_cells(row_index);
-                    if (cell_index < row_cells.size()) {
-                        auto const& cell = raw_ast.cell_at(row_index, cell_index);
-                        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                                ::pltxt2htm::details::ParserFrameContextWithCellInfo{
-                                    ::fast_io::u8string_view{cell.text.data(), cell.text.size()}, cell.align},
-                                cell.is_header ? ::pltxt2htm::NodeKind::html_th : ::pltxt2htm::NodeKind::html_td},
-                            ::pltxt2htm::Ast<ndebug>{}));
-                        frame.set_html_table_cell_index(cell_index + 1);
-                        goto entry;
-                    }
-                    frame.set_html_table_row_index(row_index + 1);
-                    frame.set_html_table_cell_index(0);
-                    goto entry;
-                }
-                frame.set_html_table_state(::pltxt2htm::details::HtmlTableParsePhase::finish);
-                goto entry;
-            }
-            case ::pltxt2htm::details::HtmlTableParsePhase::finish: {
-                auto previous_frame = ::std::move(frame);
-                call_stack.pop();
-
-                ::pltxt2htm::Ast<ndebug> flat_ast = ::std::move(previous_frame.subast);
-                auto&& prev_raw_ast = previous_frame.get_html_table_raw_ast();
-                ::pltxt2htm::Ast<ndebug> table_ast{};
-                ::std::size_t cell_cursor{};
-
-                // <caption> node (the caption frame was pushed first, so it is flat_ast[0]).
-                if (prev_raw_ast.has_caption()) {
-                    table_ast.push_back(::std::move(::pltxt2htm::details::vector_index<ndebug>(flat_ast, cell_cursor)));
-                    ++cell_cursor;
-                }
-
-                // <colgroup> node built directly from the collected <col> count.
-                if (prev_raw_ast.has_colgroup()) {
-                    ::pltxt2htm::Ast<ndebug> colgroup_ast{};
-                    for (::std::size_t c{}; c < prev_raw_ast.col_count(); ++c) {
-                        colgroup_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlCol{}));
-                    }
-                    table_ast.push_back(
-                        ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlColgroup<ndebug>{::std::move(colgroup_ast)}));
-                }
-
-                // Group cells into <tr> rows, then consecutive rows of the same section into
-                // <thead>/<tbody>/<tfoot>. Direct rows (section == none) are emitted as bare
-                // <tr> under <table>.
-                ::pltxt2htm::NodeKind active_section_kind{::pltxt2htm::NodeKind::text};
-                ::pltxt2htm::Ast<ndebug> active_section_ast{};
-                for (::std::size_t r{}; r < prev_raw_ast.rows_count(); ++r) {
-                    ::pltxt2htm::Ast<ndebug> tr_ast{};
-                    auto const row_cells = prev_raw_ast.row_cells(r);
-                    for (::std::size_t c{}; c < row_cells.size() && cell_cursor < flat_ast.size(); ++c, ++cell_cursor) {
-                        tr_ast.push_back(
-                            ::std::move(::pltxt2htm::details::vector_index<ndebug>(flat_ast, cell_cursor)));
-                    }
-                    auto const section = prev_raw_ast.row_section(r);
-                    auto const section_kind = section == ::pltxt2htm::details::HtmlTableRowSection::thead
-                                                  ? ::pltxt2htm::NodeKind::html_thead
-                                                  : (section == ::pltxt2htm::details::HtmlTableRowSection::tbody
-                                                         ? ::pltxt2htm::NodeKind::html_tbody
-                                                         : (section == ::pltxt2htm::details::HtmlTableRowSection::tfoot
-                                                                ? ::pltxt2htm::NodeKind::html_tfoot
-                                                                : ::pltxt2htm::NodeKind::text));
-                    if (section_kind == ::pltxt2htm::NodeKind::text) {
-                        ::pltxt2htm::details::push_html_section_node<ndebug>(table_ast, active_section_kind,
-                                                                             ::std::move(active_section_ast));
-                        active_section_kind = ::pltxt2htm::NodeKind::text;
-                        table_ast.push_back(
-                            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlTr<ndebug>{::std::move(tr_ast)}));
-                    }
-                    else if (section_kind == active_section_kind) {
-                        active_section_ast.push_back(
-                            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlTr<ndebug>{::std::move(tr_ast)}));
-                    }
-                    else {
-                        ::pltxt2htm::details::push_html_section_node<ndebug>(table_ast, active_section_kind,
-                                                                             ::std::move(active_section_ast));
-                        active_section_kind = section_kind;
-                        active_section_ast.push_back(
-                            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlTr<ndebug>{::std::move(tr_ast)}));
-                    }
-                }
-                ::pltxt2htm::details::push_html_section_node<ndebug>(table_ast, active_section_kind,
-                                                                     ::std::move(active_section_ast));
-
-                if (call_stack.empty()) {
-                    return ::std::move(table_ast);
-                }
-
-                auto&& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
-                parent_frame.subast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlTable<ndebug>{::std::move(table_ast)}));
-                goto entry;
-            }
-#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
-            default:
-                [[unlikely]] {
-                    pltxt2htm_unreachable(u8"Unexpected HtmlTableParsePhase");
-                }
-#endif
-            }
-
-            pltxt2htm_unreachable(u8"Unreachable after HtmlTableParsePhase switch");
+            goto entry;
         }
         auto&& top_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
         auto&& current_index = top_frame.current_index;

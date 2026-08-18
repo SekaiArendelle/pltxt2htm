@@ -1,6 +1,6 @@
 /**
  * @file html_table.hh
- * @brief HTML &lt;table&gt; block scanner that produces the shared intermediate HtmlTableAstRaw.
+ * @brief HTML &lt;table&gt; block scanner that produces the shared intermediate TableAstRaw.
  *
  * @details &lt;table&gt; is treated as a block-level construct: an opening
  *          &lt;table&gt; at a block position is scanned as a whole table.  The
@@ -35,131 +35,10 @@ class ParserFrameContext;
 } // namespace pltxt2htm::details
 
 #include "try_parse.hh"
+#include "table_ast.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::details {
-
-/**
- * @brief Raw cell data (text + alignment + header flag) for the intermediate table AST.
- */
-struct HtmlTableCellRaw {
-    ::fast_io::u8string text; ///< Cell raw content (to be inline-parsed later).
-    ::pltxt2htm::TableAlign align; ///< Cell alignment parsed from the tag.
-    bool is_header; ///< True for &lt;th&gt; cells, false for &lt;td&gt; cells.
-};
-
-/**
- * @brief Section a row belongs to, or `none` for rows directly under &lt;table&gt;.
- */
-enum class HtmlTableRowSection : unsigned {
-    none,
-    thead,
-    tbody,
-    tfoot
-};
-
-/**
- * @brief Raw row data for the intermediate table AST.
- */
-struct HtmlTableRowRaw {
-    ::fast_io::vector<::pltxt2htm::details::HtmlTableCellRaw> cells; ///< Row cells in authored order.
-    ::pltxt2htm::details::HtmlTableRowSection section; ///< thead/tbody/tfoot or none.
-};
-
-/**
- * @brief Intermediate table AST representing raw cell content.
- *
- * Stores rows (each with a section tag) plus an optional caption and colgroup
- * column count.  Analogous to ListAst and MdTableAstRaw: raw text is
- * re-parsed through the inline parser when the table frame is processed.
- *
- * @tparam ndebug Contract checking mode
- */
-template<::pltxt2htm::Contracts ndebug>
-class HtmlTableAstRaw {
-    ::fast_io::vector<::pltxt2htm::details::HtmlTableRowRaw> rows{};
-    ::fast_io::u8string caption_text{};
-    bool has_caption_{};
-    ::std::size_t col_count_{};
-    bool has_colgroup_{};
-
-public:
-    /// @return Whether a &lt;caption&gt; close tag was found.
-    [[nodiscard]]
-    constexpr auto has_caption(this auto&& self) noexcept -> bool {
-        return self.has_caption_;
-    }
-
-    /// @return Raw caption content (valid only when has_caption()).
-    [[nodiscard]]
-    constexpr auto caption(this auto&& self) noexcept -> ::fast_io::u8string_view {
-        return ::fast_io::u8string_view{self.caption_text.data(), self.caption_text.size()};
-    }
-
-    /// Record the table caption and that it was present.
-    constexpr void set_caption(this HtmlTableAstRaw& self, ::fast_io::u8string&& text) noexcept {
-        self.caption_text = ::std::move(text);
-        self.has_caption_ = true;
-    }
-
-    /// @return Whether a &lt;colgroup&gt; was present.
-    [[nodiscard]]
-    constexpr auto has_colgroup(this auto&& self) noexcept -> bool {
-        return self.has_colgroup_;
-    }
-
-    /// @return Number of &lt;col&gt; elements inside the colgroup.
-    [[nodiscard]]
-    constexpr auto col_count(this auto&& self) noexcept -> ::std::size_t {
-        return self.col_count_;
-    }
-
-    /// Record one &lt;col&gt; element.
-    constexpr void add_col(this HtmlTableAstRaw& self) noexcept {
-        self.has_colgroup_ = true;
-        ++self.col_count_;
-    }
-
-    /// @return Number of rows.
-    [[nodiscard]]
-    constexpr auto rows_count(this auto&& self) noexcept -> ::std::size_t {
-        return self.rows.size();
-    }
-
-    /// @param row Row index.
-    /// @return Cells in row @p row (const/non-const reference).
-    [[nodiscard]]
-    constexpr auto row_cells(this auto&& self, ::std::size_t row) noexcept -> decltype(auto) {
-        return ::pltxt2htm::details::vector_index<ndebug>(self.rows, row).cells;
-    }
-
-    /// @param row Row index.
-    /// @return Cell at (@p row, @p col) (const/non-const reference).
-    [[nodiscard]]
-    constexpr auto cell_at(this auto&& self, ::std::size_t row, ::std::size_t col) noexcept -> decltype(auto) {
-        return ::pltxt2htm::details::vector_index<ndebug>(
-            ::pltxt2htm::details::vector_index<ndebug>(self.rows, row).cells, col);
-    }
-
-    /// @param row Row index.
-    /// @return Section tag of row @p row.
-    [[nodiscard]]
-    constexpr auto row_section(this auto&& self, ::std::size_t row) noexcept
-        -> ::pltxt2htm::details::HtmlTableRowSection {
-        return ::pltxt2htm::details::vector_index<ndebug>(self.rows, row).section;
-    }
-
-    /// Append a row (its section tag is supplied by the scanner).
-    constexpr void add_row(this HtmlTableAstRaw& self, ::pltxt2htm::details::HtmlTableRowRaw&& row) noexcept {
-        self.rows.push_back(::std::move(row));
-    }
-
-    /// Append a cell to the most recently added row.
-    constexpr void add_cell_to_last_row(this HtmlTableAstRaw& self,
-                                        ::pltxt2htm::details::HtmlTableCellRaw&& cell) noexcept {
-        ::pltxt2htm::details::vector_index<ndebug>(self.rows, self.rows.size() - 1).cells.push_back(::std::move(cell));
-    }
-};
 
 /**
  * @brief Result of the HTML-table block scan attempt.
@@ -167,7 +46,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 struct ToHtmlTableAstResult {
-    ::pltxt2htm::details::HtmlTableAstRaw<ndebug> raw_ast; ///< Parsed table AST.
+    ::pltxt2htm::details::TableAstRaw<ndebug> raw_ast; ///< Parsed table AST.
     ::std::size_t advance_count; ///< Bytes consumed from the input up to the close tag.
 };
 
@@ -250,8 +129,8 @@ constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noe
         return ::exception::nullopt;
     }
 
-    ::pltxt2htm::details::HtmlTableAstRaw<ndebug> raw_ast{};
-    ::pltxt2htm::details::HtmlTableRowSection active_section{::pltxt2htm::details::HtmlTableRowSection::none};
+    ::pltxt2htm::details::TableAstRaw<ndebug> raw_ast{};
+    ::pltxt2htm::details::TableRowSection active_section{::pltxt2htm::details::TableRowSection::none};
     bool row_inside_section{};
     bool inside_caption{};
     bool inside_colgroup{};
@@ -297,7 +176,7 @@ constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noe
                 auto&& [cell_text, cell_advance] = opt_cell.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                 ::pltxt2htm::details::trim_table_content(cell_text);
                 current_index += tag_len + 3 + cell_advance;
-                raw_ast.add_cell_to_last_row(::pltxt2htm::details::HtmlTableCellRaw{
+                raw_ast.add_cell_to_last_row(::pltxt2htm::details::TableCellRaw{
                     .text = ::std::move(cell_text), .align = align, .is_header = true});
                 continue;
             }
@@ -314,7 +193,7 @@ constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noe
                 auto&& [cell_text, cell_advance] = opt_cell.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                 ::pltxt2htm::details::trim_table_content(cell_text);
                 current_index += tag_len + 3 + cell_advance;
-                raw_ast.add_cell_to_last_row(::pltxt2htm::details::HtmlTableCellRaw{
+                raw_ast.add_cell_to_last_row(::pltxt2htm::details::TableCellRaw{
                     .text = ::std::move(cell_text), .align = align, .is_header = false});
                 continue;
             }
@@ -357,9 +236,9 @@ constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noe
         if (inside_section) {
             // Directly under <thead>/<tbody>/<tfoot>: the matching close tag or <tr>.
             auto const opt_sec_len =
-                active_section == ::pltxt2htm::details::HtmlTableRowSection::thead
+                active_section == ::pltxt2htm::details::TableRowSection::thead
                     ? ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"</thead">(tag_view)
-                    : (active_section == ::pltxt2htm::details::HtmlTableRowSection::tbody
+                    : (active_section == ::pltxt2htm::details::TableRowSection::tbody
                            ? ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"</tbody">(tag_view)
                            : ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"</tfoot">(tag_view));
             if (opt_sec_len.has_value()) {
@@ -367,16 +246,16 @@ constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noe
                 inside_section = false;
                 continue;
             }
-            auto const section_node_kind = active_section == ::pltxt2htm::details::HtmlTableRowSection::thead
+            auto const section_node_kind = active_section == ::pltxt2htm::details::TableRowSection::thead
                                                ? ::pltxt2htm::NodeKind::html_thead
-                                               : (active_section == ::pltxt2htm::details::HtmlTableRowSection::tbody
+                                               : (active_section == ::pltxt2htm::details::TableRowSection::tbody
                                                       ? ::pltxt2htm::NodeKind::html_tbody
                                                       : ::pltxt2htm::NodeKind::html_tfoot);
             if (auto opt_tr_len = ::pltxt2htm::details::try_parse_tr_tag<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), section_node_kind);
                 opt_tr_len.has_value()) {
                 current_index += opt_tr_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-                raw_ast.add_row(::pltxt2htm::details::HtmlTableRowRaw{.cells = {}, .section = active_section});
+                raw_ast.add_row(::pltxt2htm::details::TableRowRaw{.cells = {}, .section = active_section});
                 inside_row = true;
                 row_inside_section = true;
                 continue;
@@ -412,7 +291,7 @@ constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noe
                 ::pltxt2htm::NodeKind::html_table);
             opt_thead_len.has_value()) {
             current_index += opt_thead_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-            active_section = ::pltxt2htm::details::HtmlTableRowSection::thead;
+            active_section = ::pltxt2htm::details::TableRowSection::thead;
             inside_section = true;
             continue;
         }
@@ -421,7 +300,7 @@ constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noe
                 ::pltxt2htm::NodeKind::html_table);
             opt_tbody_len.has_value()) {
             current_index += opt_tbody_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-            active_section = ::pltxt2htm::details::HtmlTableRowSection::tbody;
+            active_section = ::pltxt2htm::details::TableRowSection::tbody;
             inside_section = true;
             continue;
         }
@@ -430,7 +309,7 @@ constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noe
                 ::pltxt2htm::NodeKind::html_table);
             opt_tfoot_len.has_value()) {
             current_index += opt_tfoot_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-            active_section = ::pltxt2htm::details::HtmlTableRowSection::tfoot;
+            active_section = ::pltxt2htm::details::TableRowSection::tfoot;
             inside_section = true;
             continue;
         }
@@ -439,44 +318,12 @@ constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noe
                 ::pltxt2htm::NodeKind::html_table);
             opt_tr_len.has_value()) {
             current_index += opt_tr_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 3;
-            raw_ast.add_row(::pltxt2htm::details::HtmlTableRowRaw{.cells = {}, .section = active_section});
+            raw_ast.add_row(::pltxt2htm::details::TableRowRaw{.cells = {}, .section = active_section});
             inside_row = true;
             row_inside_section = false;
             continue;
         }
         return ::exception::nullopt;
-    }
-}
-
-/**
- * @brief Append a &lt;thead&gt;/&lt;tbody&gt;/&lt;tfoot&gt; section node to a table AST.
- * @tparam ndebug Contract checking mode.
- * @param table_ast Target table AST.
- * @param section_kind Section node kind (html_thead / html_tbody / html_tfoot).
- * @param section_ast Inner AST (the section's rows).
- */
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto push_html_section_node(::pltxt2htm::Ast<ndebug>& table_ast, ::pltxt2htm::NodeKind const section_kind,
-                                      ::pltxt2htm::Ast<ndebug>&& section_ast) noexcept -> void {
-    switch (section_kind) {
-    case ::pltxt2htm::NodeKind::text:
-        return;
-    case ::pltxt2htm::NodeKind::html_thead: {
-        table_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlThead<ndebug>{::std::move(section_ast)}));
-        return;
-    }
-    case ::pltxt2htm::NodeKind::html_tbody: {
-        table_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlTbody<ndebug>{::std::move(section_ast)}));
-        return;
-    }
-    case ::pltxt2htm::NodeKind::html_tfoot: {
-        table_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlTfoot<ndebug>{::std::move(section_ast)}));
-        return;
-    }
-    default:
-        [[unlikely]] {
-            pltxt2htm_unreachable(u8"Unexpected section node kind");
-        }
     }
 }
 
