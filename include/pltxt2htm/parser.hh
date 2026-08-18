@@ -139,6 +139,10 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTable<ndebug>{::std::move(subast)}));
             continue;
         }
+        case ::pltxt2htm::NodeKind::html_table: {
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlTable<ndebug>{::std::move(subast)}));
+            continue;
+        }
         case ::pltxt2htm::NodeKind::html_p: {
             // details::parse_pltxt reported how many bytes of the html_p frame's pltext it
             // consumed (up to the matching </p>, or all of it if unclosed). Advance start_index

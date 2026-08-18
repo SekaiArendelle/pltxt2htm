@@ -14,6 +14,7 @@
 #include <fast_io/fast_io_dsal/string_view.h>
 #include "list_ast.hh"
 #include "md_table.hh"
+#include "html_table.hh"
 #include "../../contracts.hh"
 #include "../../ast/ast.hh"
 #include "../../ast/value_unit.hh"
@@ -231,6 +232,35 @@ public:
 };
 
 /**
+ * @brief Parsing phase of the HTML &lt;table&gt; frame state machine.
+ */
+enum class HtmlTableParsePhase : unsigned {
+    caption, ///< Emit the caption frame if the table has one.
+    body, ///< Emit cell frames (html_th/html_td) in row-major order.
+    finish, ///< All cells emitted; assemble the table AST.
+};
+
+/**
+ * @brief Context for the HTML &lt;table&gt; parsing state machine.
+ *
+ * Holds the raw table AST, the parse phase (caption / body / finish), and the
+ * current row/cell index within the table.
+ */
+template<::pltxt2htm::Contracts ndebug>
+class ParserFrameContextWithHtmlTableInfo {
+public:
+    ::pltxt2htm::details::HtmlTableAstRaw<ndebug> raw_ast;
+    HtmlTableParsePhase state{HtmlTableParsePhase::caption};
+    ::std::size_t row_index{};
+    ::std::size_t cell_index{};
+
+    constexpr explicit ParserFrameContextWithHtmlTableInfo(
+        ::pltxt2htm::details::HtmlTableAstRaw<ndebug>&& raw_ast_) noexcept
+        : raw_ast(::std::move(raw_ast_)) {
+    }
+};
+
+/**
  * @brief Tagged-union variant of all parser frame context types.
  * @details Dispatched on `kind` (::pltxt2htm::NodeKind). Used inside
  *          ::pltxt2htm::details::ParserFrameContext.
@@ -254,6 +284,7 @@ public:
         list_li_checkbox,
         cell,
         md_table,
+        html_table,
         pltext,
         html_mark_info,
         pl_mark_info,
@@ -278,6 +309,7 @@ public:
         ::pltxt2htm::details::ParserFrameContextWithAlignInfo align_info;
         ::pltxt2htm::details::ParserFrameContextWithListLiCheckboxInfo list_li_checkbox;
         ::pltxt2htm::details::ParserFrameContextWithMdTableInfo<ndebug> md_table;
+        ::pltxt2htm::details::ParserFrameContextWithHtmlTableInfo<ndebug> html_table;
     };
 
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
@@ -444,6 +476,16 @@ public:
           kind{node_kind_} {
     }
 
+    constexpr FrontendContextVariant(
+        ::pltxt2htm::details::ParserFrameContextWithHtmlTableInfo<ndebug>&& html_table_context,
+        ::pltxt2htm::NodeKind node_kind_) noexcept
+        : html_table{::std::move(html_table_context)},
+#ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
+          context_branch{ContextBranch::html_table},
+#endif
+          kind{node_kind_} {
+    }
+
     constexpr FrontendContextVariant(::pltxt2htm::details::FrontendContextVariant<ndebug> const&) noexcept = delete;
 
     constexpr FrontendContextVariant(::pltxt2htm::details::FrontendContextVariant<ndebug>&& other) noexcept
@@ -581,8 +623,6 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_blockquote:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_table:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_tr:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_thead:
@@ -645,6 +685,11 @@ public:
         case ::pltxt2htm::NodeKind::md_table: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::md_table);
             ::std::construct_at(::std::addressof(this->md_table), ::std::move(other.md_table));
+            return;
+        }
+        case ::pltxt2htm::NodeKind::html_table: {
+            pltxt2htm_assert_context_branch(*this, ContextBranch::html_table);
+            ::std::construct_at(::std::addressof(this->html_table), ::std::move(other.html_table));
             return;
         }
         case ::pltxt2htm::NodeKind::html_br:
@@ -910,8 +955,6 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_blockquote:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_table:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_tr:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_thead:
@@ -974,6 +1017,11 @@ public:
         case ::pltxt2htm::NodeKind::md_table: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::md_table);
             ::std::destroy_at(::std::addressof(this->md_table));
+            return;
+        }
+        case ::pltxt2htm::NodeKind::html_table: {
+            pltxt2htm_assert_context_branch(*this, ContextBranch::html_table);
+            ::std::destroy_at(::std::addressof(this->html_table));
             return;
         }
         case ::pltxt2htm::NodeKind::list_li_checkbox: {
@@ -1230,8 +1278,6 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_blockquote:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_table:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_tr:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_thead:
@@ -1478,6 +1524,8 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_table:
             [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_table:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_hr:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::list_ul:
@@ -1716,6 +1764,52 @@ public:
     }
 
     [[nodiscard]]
+    constexpr auto get_html_table_raw_ast(this auto&& self) noexcept -> decltype(auto) {
+        auto&& context_data_ref = self.context_data;
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_table, u8"context kind mismatch");
+        return ::std::forward_like<decltype(self)>(context_data_ref.html_table.raw_ast);
+    }
+
+    [[nodiscard]]
+    constexpr auto get_html_table_state(this auto&& self) noexcept -> HtmlTableParsePhase {
+        auto&& context_data_ref = self.context_data;
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_table, u8"context kind mismatch");
+        return context_data_ref.html_table.state;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_html_table_row_index(this auto&& self) noexcept -> ::std::size_t {
+        auto&& context_data_ref = self.context_data;
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_table, u8"context kind mismatch");
+        return context_data_ref.html_table.row_index;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_html_table_cell_index(this auto&& self) noexcept -> ::std::size_t {
+        auto&& context_data_ref = self.context_data;
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_table, u8"context kind mismatch");
+        return context_data_ref.html_table.cell_index;
+    }
+
+    constexpr auto set_html_table_state(this auto&& self, HtmlTableParsePhase s) noexcept -> void {
+        auto&& context_data_ref = self.context_data;
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_table, u8"context kind mismatch");
+        context_data_ref.html_table.state = s;
+    }
+
+    constexpr auto set_html_table_row_index(this auto&& self, ::std::size_t r) noexcept -> void {
+        auto&& context_data_ref = self.context_data;
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_table, u8"context kind mismatch");
+        context_data_ref.html_table.row_index = r;
+    }
+
+    constexpr auto set_html_table_cell_index(this auto&& self, ::std::size_t c) noexcept -> void {
+        auto&& context_data_ref = self.context_data;
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_table, u8"context kind mismatch");
+        context_data_ref.html_table.cell_index = c;
+    }
+
+    [[nodiscard]]
     constexpr auto get_cell_align(this auto&& self) noexcept -> ::pltxt2htm::TableAlign {
         auto&& context_data_ref = self.context_data;
         pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_td ||
@@ -1764,6 +1858,19 @@ constexpr void push_list_frame(::fast_io::stack<::pltxt2htm::details::ParserFram
             pltxt2htm_unreachable(u8"Unexpected list_li/list_li_checkbox in push_list_frame()");
         }
     }
+}
+
+/**
+ * @brief Push an HTML table frame for a freshly parsed HtmlTableAstRaw.
+ */
+template<::pltxt2htm::Contracts ndebug>
+constexpr void push_table_frame(::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>>& call_stack,
+                                ::pltxt2htm::details::HtmlTableAstRaw<ndebug>&& raw_ast) noexcept {
+    call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+        ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+            ::pltxt2htm::details::ParserFrameContextWithHtmlTableInfo<ndebug>{::std::move(raw_ast)},
+            ::pltxt2htm::NodeKind::html_table},
+        ::pltxt2htm::Ast<ndebug>{}));
 }
 
 } // namespace pltxt2htm::details

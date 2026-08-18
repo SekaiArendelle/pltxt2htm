@@ -13,6 +13,7 @@
 #include "../details/parser/frame_context.hh"
 #include "../details/parser/try_parse.hh"
 #include "../details/parser/html_list.hh"
+#include "../details/parser/html_table.hh"
 #include "../details/push_macro.hh"
 
 namespace pltxt2htm::experimental {
@@ -177,6 +178,16 @@ constexpr auto find_next_block_after_line_break(
             auto&& [top_node, advance_count] =
                 opt_html_list_ast.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
             ::pltxt2htm::details::push_list_frame<ndebug>(call_stack, ::std::move(top_node));
+            return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
+                .advance_count = current_index + advance_count, .new_frame_been_pushed_into_call_stack = true};
+        }
+        // Check for an HTML <table> block at a block position (block-level tables).
+        if (auto opt_html_table_ast = ::pltxt2htm::details::optionally_to_html_table_ast<ndebug>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            opt_html_table_ast.has_value()) {
+            auto&& [raw_ast, advance_count] =
+                opt_html_table_ast.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            ::pltxt2htm::details::push_table_frame<ndebug>(call_stack, ::std::move(raw_ast));
             return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
                 .advance_count = current_index + advance_count, .new_frame_been_pushed_into_call_stack = true};
         }
