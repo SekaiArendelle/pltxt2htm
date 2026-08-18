@@ -1353,7 +1353,6 @@ public:
             new (::std::addressof(md_block_quotes_node))::pltxt2htm::MdBlockQuotes(other.md_block_quotes_node);
             break;
         }
-
         case ::pltxt2htm::NodeKind::md_latex_inline: {
             new (::std::addressof(md_latex_inline_node))::pltxt2htm::MdLatexInline(other.md_latex_inline_node);
             break;
