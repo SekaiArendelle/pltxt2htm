@@ -26,14 +26,6 @@
 #include "../../ast/ast.hh"
 #include "../../ast/node_kind.hh"
 
-// try_parse.hh refers to ParserFrameContext (defined later in frame_context.hh)
-// in the signatures of a few helper templates; a forward declaration lets the
-// probe helpers be included here before the full frame-context definition.
-namespace pltxt2htm::details {
-template<::pltxt2htm::Contracts ndebug>
-class ParserFrameContext;
-} // namespace pltxt2htm::details
-
 #include "try_parse.hh"
 #include "table_ast.hh"
 #include "../push_macro.hh"
