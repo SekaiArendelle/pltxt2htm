@@ -184,7 +184,11 @@ constexpr auto find_next_block_after_line_break(
             opt_md_table_raw.has_value()) {
             auto&& [raw_ast, advance_count] =
                 opt_md_table_raw.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-            ::pltxt2htm::details::push_table_frame<ndebug>(call_stack, ::std::move(raw_ast));
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                    ::pltxt2htm::details::ParserFrameContextWithTableInfo<ndebug>{::std::move(raw_ast)},
+                    ::pltxt2htm::NodeKind::table},
+                ::pltxt2htm::Ast<ndebug>{}));
             return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{
                 .advance_count = current_index + advance_count, .new_frame_been_pushed_into_call_stack = true};
         }
@@ -194,7 +198,11 @@ constexpr auto find_next_block_after_line_break(
             opt_html_table_ast.has_value()) {
             auto&& [raw_ast, advance_count] =
                 opt_html_table_ast.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-            ::pltxt2htm::details::push_table_frame<ndebug>(call_stack, ::std::move(raw_ast));
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                    ::pltxt2htm::details::ParserFrameContextWithTableInfo<ndebug>{::std::move(raw_ast)},
+                    ::pltxt2htm::NodeKind::table},
+                ::pltxt2htm::Ast<ndebug>{}));
             return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{
                 .advance_count = current_index + advance_count, .new_frame_been_pushed_into_call_stack = true};
         }

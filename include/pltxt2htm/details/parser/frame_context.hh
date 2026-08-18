@@ -1728,23 +1728,6 @@ constexpr void push_list_frame(::fast_io::stack<::pltxt2htm::details::ParserFram
 }
 
 /**
- * @brief Push a table frame for a freshly parsed TableAstRaw.
- *
- * @tparam ndebug Contract checking mode.
- * @param call_stack Frame call stack.
- * @param raw_ast The shared raw table AST.
- */
-template<::pltxt2htm::Contracts ndebug>
-constexpr void push_table_frame(::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>>& call_stack,
-                                ::pltxt2htm::details::TableAstRaw<ndebug>&& raw_ast) noexcept {
-    call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-        ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-            ::pltxt2htm::details::ParserFrameContextWithTableInfo<ndebug>{::std::move(raw_ast)},
-            ::pltxt2htm::NodeKind::table},
-        ::pltxt2htm::Ast<ndebug>{}));
-}
-
-/**
  * @brief Process the top table frame on the call stack.
  *
  * Implements the shared table state machine (caption / body / finish):
