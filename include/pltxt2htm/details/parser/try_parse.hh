@@ -3393,7 +3393,7 @@ constexpr auto simply_parse_pltext(::fast_io::u8string_view pltext) noexcept
     ::pltxt2htm::Ast<ndebug> ast{};
     ::std::size_t current_index{};
     constexpr ::std::size_t end_size{end_string.size()};
-    bool found_end{};
+    ::std::conditional_t<end_size == 0, bool const, bool> found_end{};
 
     while (current_index < pltext_size) {
         char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index)};
