@@ -71,7 +71,7 @@ public:
 
     template<::std::size_t M>
     [[nodiscard]]
-    constexpr auto operator==(this ::pltxt2htm::details::BasicLiteralString<value_type, N> const& self,
+    constexpr auto operator==(this BasicLiteralString<value_type, N> const& self,
                               ::pltxt2htm::details::BasicLiteralString<value_type, M> const& other) noexcept {
         if constexpr (N != M) {
             return false;
@@ -82,8 +82,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto&& operator[](this ::pltxt2htm::details::is_literal_string auto&& self,
-                                ::std::size_t index) noexcept {
+    constexpr auto&& operator[](this is_literal_string auto&& self, ::std::size_t index) noexcept {
         if (index >= N) [[unlikely]] {
             ::exception::terminate();
         }
@@ -96,32 +95,32 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto begin(this ::pltxt2htm::details::is_literal_string auto const& self) noexcept -> const_iterator {
+    constexpr auto begin(this is_literal_string auto const& self) noexcept -> const_iterator {
         return const_iterator(self.data_);
     }
 
     [[nodiscard]]
-    constexpr auto cbegin(this ::pltxt2htm::details::is_literal_string auto const& self) noexcept -> const_iterator {
+    constexpr auto cbegin(this is_literal_string auto const& self) noexcept -> const_iterator {
         return const_iterator(self.data_);
     }
 
     [[nodiscard]]
-    constexpr auto end(this ::pltxt2htm::details::is_literal_string auto const& self) noexcept -> const_iterator {
+    constexpr auto end(this is_literal_string auto const& self) noexcept -> const_iterator {
         return const_iterator(self.data_ + N);
     }
 
     [[nodiscard]]
-    constexpr auto cend(this ::pltxt2htm::details::is_literal_string auto const& self) noexcept -> const_iterator {
+    constexpr auto cend(this is_literal_string auto const& self) noexcept -> const_iterator {
         return const_iterator(self.data_ + N);
     }
 
     [[nodiscard]]
-    constexpr auto data(this ::pltxt2htm::details::is_literal_string auto const& self) noexcept -> const_pointer {
+    constexpr auto data(this is_literal_string auto const& self) noexcept -> const_pointer {
         return const_pointer(self.data_);
     }
 
     [[nodiscard]]
-    constexpr auto cdata(this ::pltxt2htm::details::is_literal_string auto const& self) noexcept -> const_pointer {
+    constexpr auto cdata(this is_literal_string auto const& self) noexcept -> const_pointer {
         return const_pointer(self.data_);
     }
 };

@@ -27,7 +27,7 @@ public:
     constexpr ListUl(::pltxt2htm::ListUl<ndebug>&&) noexcept;
     constexpr ~ListUl() noexcept;
     constexpr auto operator=(::pltxt2htm::ListUl<ndebug> const&) noexcept -> ::pltxt2htm::ListUl<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::ListUl<ndebug>& self, ::pltxt2htm::ListUl<ndebug>&&) noexcept
+    constexpr auto operator=(this ListUl<ndebug>& self, ::pltxt2htm::ListUl<ndebug>&&) noexcept
         -> ::pltxt2htm::ListUl<ndebug>&;
 
     [[nodiscard]]
@@ -55,7 +55,7 @@ public:
     constexpr ListOl(::pltxt2htm::ListOl<ndebug>&&) noexcept;
     constexpr ~ListOl() noexcept;
     constexpr auto operator=(::pltxt2htm::ListOl<ndebug> const&) noexcept -> ::pltxt2htm::ListOl<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::ListOl<ndebug>& self, ::pltxt2htm::ListOl<ndebug>&&) noexcept
+    constexpr auto operator=(this ListOl<ndebug>& self, ::pltxt2htm::ListOl<ndebug>&&) noexcept
         -> ::pltxt2htm::ListOl<ndebug>&;
 
     [[nodiscard]]
@@ -85,7 +85,7 @@ public:
     constexpr ListLi(::pltxt2htm::ListLi<ndebug>&&) noexcept;
     constexpr ~ListLi() noexcept;
     constexpr auto operator=(::pltxt2htm::ListLi<ndebug> const&) noexcept -> ::pltxt2htm::ListLi<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::ListLi<ndebug>& self, ::pltxt2htm::ListLi<ndebug>&&) noexcept
+    constexpr auto operator=(this ListLi<ndebug>& self, ::pltxt2htm::ListLi<ndebug>&&) noexcept
         -> ::pltxt2htm::ListLi<ndebug>&;
 
     [[nodiscard]]
@@ -112,8 +112,8 @@ public:
     constexpr ~ListLiCheckbox() noexcept;
     constexpr auto operator=(::pltxt2htm::ListLiCheckbox<ndebug> const&) noexcept
         -> ::pltxt2htm::ListLiCheckbox<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::ListLiCheckbox<ndebug>& self,
-                             ::pltxt2htm::ListLiCheckbox<ndebug>&&) noexcept -> ::pltxt2htm::ListLiCheckbox<ndebug>&;
+    constexpr auto operator=(this ListLiCheckbox<ndebug>& self, ::pltxt2htm::ListLiCheckbox<ndebug>&&) noexcept
+        -> ::pltxt2htm::ListLiCheckbox<ndebug>&;
 
     [[nodiscard]]
     constexpr auto operator==(this ListLiCheckbox const&, ListLiCheckbox const&) noexcept -> bool;

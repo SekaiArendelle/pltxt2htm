@@ -71,19 +71,18 @@ public:
 
     constexpr ~ListLiNode() noexcept = default;
 
-    constexpr auto operator=(this ::pltxt2htm::details::ListLiNode& self,
-                             ::pltxt2htm::details::ListLiNode const& other) noexcept
+    constexpr auto operator=(this ListLiNode& self, ::pltxt2htm::details::ListLiNode const& other) noexcept
         -> ::pltxt2htm::details::ListLiNode& = default;
 
-    constexpr auto operator=(this ::pltxt2htm::details::ListLiNode& self, ::pltxt2htm::details::ListLiNode&&) noexcept
+    constexpr auto operator=(this ListLiNode& self, ::pltxt2htm::details::ListLiNode&&) noexcept
         -> ::pltxt2htm::details::ListLiNode& = default;
 
     [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
     [[__gnu__::__pure__]]
 #endif
-    constexpr auto operator==(this ::pltxt2htm::details::ListLiNode const& self,
-                              ::pltxt2htm::details::ListLiNode const& other) noexcept -> bool {
+    constexpr auto operator==(this ListLiNode const& self, ::pltxt2htm::details::ListLiNode const& other) noexcept
+        -> bool {
         return self.text == other.text;
     }
 
@@ -93,7 +92,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_text_view(this ::pltxt2htm::details::ListLiNode const& self) noexcept {
+    constexpr auto get_text_view(this ListLiNode const& self) noexcept {
         return ::fast_io::u8string_view{self.text.data(), self.text.size()};
     }
 };
@@ -117,19 +116,18 @@ public:
 
     constexpr ~ListLiCheckboxNode() noexcept = default;
 
-    constexpr auto operator=(this ::pltxt2htm::details::ListLiCheckboxNode& self,
+    constexpr auto operator=(this ListLiCheckboxNode& self,
                              ::pltxt2htm::details::ListLiCheckboxNode const& other) noexcept
         -> ::pltxt2htm::details::ListLiCheckboxNode& = default;
 
-    constexpr auto operator=(this ::pltxt2htm::details::ListLiCheckboxNode& self,
-                             ::pltxt2htm::details::ListLiCheckboxNode&&) noexcept
+    constexpr auto operator=(this ListLiCheckboxNode& self, ::pltxt2htm::details::ListLiCheckboxNode&&) noexcept
         -> ::pltxt2htm::details::ListLiCheckboxNode& = default;
 
     [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
     [[__gnu__::__pure__]]
 #endif
-    constexpr auto operator==(this ::pltxt2htm::details::ListLiCheckboxNode const& self,
+    constexpr auto operator==(this ListLiCheckboxNode const& self,
                               ::pltxt2htm::details::ListLiCheckboxNode const& other) noexcept -> bool {
         return self.text == other.text && self.checked == other.checked;
     }
@@ -145,7 +143,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_text_view(this ::pltxt2htm::details::ListLiCheckboxNode const& self) noexcept {
+    constexpr auto get_text_view(this ListLiCheckboxNode const& self) noexcept {
         return ::fast_io::u8string_view{self.text.data(), self.text.size()};
     }
 };
@@ -168,12 +166,11 @@ public:
 
     constexpr ~ListUlNode() noexcept;
 
-    constexpr auto operator=(this ::pltxt2htm::details::ListUlNode<ndebug>& self,
+    constexpr auto operator=(this ListUlNode<ndebug>& self,
                              ::pltxt2htm::details::ListUlNode<ndebug> const& other) noexcept
         -> ::pltxt2htm::details::ListUlNode<ndebug>& = delete;
 
-    constexpr auto operator=(this ::pltxt2htm::details::ListUlNode<ndebug>& self,
-                             ::pltxt2htm::details::ListUlNode<ndebug>&&) noexcept
+    constexpr auto operator=(this ListUlNode<ndebug>& self, ::pltxt2htm::details::ListUlNode<ndebug>&&) noexcept
         -> ::pltxt2htm::details::ListUlNode<ndebug>&;
 
     [[nodiscard]]
@@ -204,12 +201,11 @@ public:
 
     constexpr ~ListOlNode() noexcept;
 
-    constexpr auto operator=(this ::pltxt2htm::details::ListOlNode<ndebug>& self,
+    constexpr auto operator=(this ListOlNode<ndebug>& self,
                              ::pltxt2htm::details::ListOlNode<ndebug> const& other) noexcept
         -> ::pltxt2htm::details::ListOlNode<ndebug>& = delete;
 
-    constexpr auto operator=(this ::pltxt2htm::details::ListOlNode<ndebug>& self,
-                             ::pltxt2htm::details::ListOlNode<ndebug>&&) noexcept
+    constexpr auto operator=(this ListOlNode<ndebug>& self, ::pltxt2htm::details::ListOlNode<ndebug>&&) noexcept
         -> ::pltxt2htm::details::ListOlNode<ndebug>&;
 
     [[nodiscard]]
@@ -321,11 +317,11 @@ public:
         }
     }
 
-    constexpr auto operator=(this ::pltxt2htm::details::ListBaseNode<ndebug>& self,
+    constexpr auto operator=(this ListBaseNode<ndebug>& self,
                              ::pltxt2htm::details::ListBaseNode<ndebug> const& other) noexcept
         -> ::pltxt2htm::details::ListBaseNode<ndebug>& = delete;
 
-    constexpr auto operator=(this ::pltxt2htm::details::ListBaseNode<ndebug>& self,
+    constexpr auto operator=(this ListBaseNode<ndebug>& self,
                              ::pltxt2htm::details::ListBaseNode<ndebug>&& other) noexcept
         -> ::pltxt2htm::details::ListBaseNode<ndebug>& {
         if (::std::addressof(other) != ::std::addressof(self)) {
@@ -467,7 +463,7 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr ListUlNode<ndebug>::~ListUlNode() noexcept = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ListUlNode<ndebug>::operator=(this ::pltxt2htm::details::ListUlNode<ndebug>& self,
+constexpr auto ListUlNode<ndebug>::operator=(this ListUlNode<ndebug>& self,
                                              ::pltxt2htm::details::ListUlNode<ndebug>&& other) noexcept
     -> ::pltxt2htm::details::ListUlNode<ndebug>& = default;
 
@@ -494,7 +490,7 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr ListOlNode<ndebug>::~ListOlNode() noexcept = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ListOlNode<ndebug>::operator=(this ::pltxt2htm::details::ListOlNode<ndebug>& self,
+constexpr auto ListOlNode<ndebug>::operator=(this ListOlNode<ndebug>& self,
                                              ::pltxt2htm::details::ListOlNode<ndebug>&& other) noexcept
     -> ::pltxt2htm::details::ListOlNode<ndebug>& = default;
 

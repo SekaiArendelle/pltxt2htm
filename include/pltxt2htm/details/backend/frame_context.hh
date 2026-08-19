@@ -150,13 +150,12 @@ public:
         ::pltxt2htm::details::BackendFrameContext<ndebug>&&) noexcept = default;
 
     [[nodiscard]]
-    constexpr auto get_nested_tag_type(this ::pltxt2htm::details::BackendFrameContext<ndebug> const& self) noexcept {
+    constexpr auto get_nested_tag_type(this BackendFrameContext<ndebug> const& self) noexcept {
         return self.context_data.kind;
     }
 
     [[nodiscard]]
-    constexpr auto get_ast(this ::pltxt2htm::details::BackendFrameContext<ndebug> const& self) noexcept
-        -> ::pltxt2htm::Ast<ndebug> const& {
+    constexpr auto get_ast(this BackendFrameContext<ndebug> const& self) noexcept -> ::pltxt2htm::Ast<ndebug> const& {
         return *(self.ast);
     }
 

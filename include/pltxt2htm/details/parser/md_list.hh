@@ -83,19 +83,18 @@ public:
 
     constexpr ~MdListFrameContext() noexcept = default;
 
-    constexpr auto operator=(this ::pltxt2htm::details::MdListFrameContext<ndebug>& self,
+    constexpr auto operator=(this MdListFrameContext<ndebug>& self,
                              ::pltxt2htm::details::MdListFrameContext<ndebug>&&) noexcept
         -> ::pltxt2htm::details::MdListFrameContext<ndebug>& = default;
 
     [[nodiscard]]
-    constexpr auto get_item_kind(this ::pltxt2htm::details::MdListFrameContext<ndebug> const& self) noexcept
+    constexpr auto get_item_kind(this MdListFrameContext<ndebug> const& self) noexcept
         -> ::pltxt2htm::details::MdUlListItemKind {
         return self.item_kind;
     }
 
     [[nodiscard]]
-    constexpr auto get_start(this ::pltxt2htm::details::MdListFrameContext<ndebug> const& self) noexcept
-        -> ::std::size_t {
+    constexpr auto get_start(this MdListFrameContext<ndebug> const& self) noexcept -> ::std::size_t {
         return self.start;
     }
 };

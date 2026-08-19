@@ -36,7 +36,7 @@ public:
     constexpr PlColor(::pltxt2htm::PlColor<ndebug>&&) noexcept;
     constexpr ~PlColor() noexcept;
     constexpr auto operator=(::pltxt2htm::PlColor<ndebug> const&) noexcept -> ::pltxt2htm::PlColor<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::PlColor<ndebug>& self, ::pltxt2htm::PlColor<ndebug>&&) noexcept
+    constexpr auto operator=(this PlColor<ndebug>& self, ::pltxt2htm::PlColor<ndebug>&&) noexcept
         -> ::pltxt2htm::PlColor<ndebug>&;
 
     [[nodiscard]]
@@ -68,8 +68,7 @@ public:
     constexpr PlA(::pltxt2htm::PlA<ndebug>&&) noexcept;
     constexpr ~PlA() noexcept;
     constexpr auto operator=(::pltxt2htm::PlA<ndebug> const&) noexcept -> ::pltxt2htm::PlA<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::PlA<ndebug>& self, ::pltxt2htm::PlA<ndebug>&&) noexcept
-        -> ::pltxt2htm::PlA<ndebug>&;
+    constexpr auto operator=(this PlA<ndebug>& self, ::pltxt2htm::PlA<ndebug>&&) noexcept -> ::pltxt2htm::PlA<ndebug>&;
 
     [[nodiscard]]
     constexpr auto operator==(this PlA const&, PlA const&) noexcept -> bool;
@@ -101,7 +100,7 @@ public:
     constexpr ~PlExperiment() noexcept;
     constexpr auto operator=(::pltxt2htm::PlExperiment<ndebug> const&) noexcept
         -> ::pltxt2htm::PlExperiment<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::PlExperiment<ndebug>& self, ::pltxt2htm::PlExperiment<ndebug>&&) noexcept
+    constexpr auto operator=(this PlExperiment<ndebug>& self, ::pltxt2htm::PlExperiment<ndebug>&&) noexcept
         -> ::pltxt2htm::PlExperiment<ndebug>&;
 
     [[nodiscard]]
@@ -134,7 +133,7 @@ public:
     constexpr ~PlDiscussion() noexcept;
     constexpr auto operator=(::pltxt2htm::PlDiscussion<ndebug> const&) noexcept
         -> ::pltxt2htm::PlDiscussion<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::PlDiscussion<ndebug>& self, ::pltxt2htm::PlDiscussion<ndebug>&&) noexcept
+    constexpr auto operator=(this PlDiscussion<ndebug>& self, ::pltxt2htm::PlDiscussion<ndebug>&&) noexcept
         -> ::pltxt2htm::PlDiscussion<ndebug>&;
 
     [[nodiscard]]
@@ -168,8 +167,8 @@ public:
     constexpr ~PlExperiments() noexcept;
     constexpr auto operator=(::pltxt2htm::PlExperiments<ndebug> const&) noexcept
         -> ::pltxt2htm::PlExperiments<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::PlExperiments<ndebug>& self,
-                             ::pltxt2htm::PlExperiments<ndebug>&&) noexcept -> ::pltxt2htm::PlExperiments<ndebug>&;
+    constexpr auto operator=(this PlExperiments<ndebug>& self, ::pltxt2htm::PlExperiments<ndebug>&&) noexcept
+        -> ::pltxt2htm::PlExperiments<ndebug>&;
 
     [[nodiscard]]
     constexpr auto operator==(this PlExperiments const&, PlExperiments const&) noexcept -> bool;
@@ -202,8 +201,8 @@ public:
     constexpr ~PlDiscussions() noexcept;
     constexpr auto operator=(::pltxt2htm::PlDiscussions<ndebug> const&) noexcept
         -> ::pltxt2htm::PlDiscussions<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::PlDiscussions<ndebug>& self,
-                             ::pltxt2htm::PlDiscussions<ndebug>&&) noexcept -> ::pltxt2htm::PlDiscussions<ndebug>&;
+    constexpr auto operator=(this PlDiscussions<ndebug>& self, ::pltxt2htm::PlDiscussions<ndebug>&&) noexcept
+        -> ::pltxt2htm::PlDiscussions<ndebug>&;
 
     [[nodiscard]]
     constexpr auto operator==(this PlDiscussions const&, PlDiscussions const&) noexcept -> bool;
@@ -234,7 +233,7 @@ public:
     constexpr PlUser(::pltxt2htm::PlUser<ndebug>&&) noexcept;
     constexpr ~PlUser() noexcept;
     constexpr auto operator=(::pltxt2htm::PlUser<ndebug> const&) noexcept -> ::pltxt2htm::PlUser<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::PlUser<ndebug>& self, ::pltxt2htm::PlUser<ndebug>&&) noexcept
+    constexpr auto operator=(this PlUser<ndebug>& self, ::pltxt2htm::PlUser<ndebug>&&) noexcept
         -> ::pltxt2htm::PlUser<ndebug>&;
 
     [[nodiscard]]
@@ -267,7 +266,7 @@ public:
     constexpr ~PlTrigger() noexcept;
     constexpr auto operator=(::pltxt2htm::PlTrigger<ndebug> const&) noexcept
         -> ::pltxt2htm::PlTrigger<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::PlTrigger<ndebug>& self, ::pltxt2htm::PlTrigger<ndebug>&&) noexcept
+    constexpr auto operator=(this PlTrigger<ndebug>& self, ::pltxt2htm::PlTrigger<ndebug>&&) noexcept
         -> ::pltxt2htm::PlTrigger<ndebug>&;
 
     [[nodiscard]]
@@ -300,7 +299,7 @@ public:
     constexpr ~PlInternal() noexcept;
     constexpr auto operator=(::pltxt2htm::PlInternal<ndebug> const&) noexcept
         -> ::pltxt2htm::PlInternal<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::PlInternal<ndebug>& self, ::pltxt2htm::PlInternal<ndebug>&&) noexcept
+    constexpr auto operator=(this PlInternal<ndebug>& self, ::pltxt2htm::PlInternal<ndebug>&&) noexcept
         -> ::pltxt2htm::PlInternal<ndebug>&;
 
     [[nodiscard]]
@@ -333,7 +332,7 @@ public:
     constexpr ~PlExternal() noexcept;
     constexpr auto operator=(::pltxt2htm::PlExternal<ndebug> const&) noexcept
         -> ::pltxt2htm::PlExternal<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::PlExternal<ndebug>& self, ::pltxt2htm::PlExternal<ndebug>&&) noexcept
+    constexpr auto operator=(this PlExternal<ndebug>& self, ::pltxt2htm::PlExternal<ndebug>&&) noexcept
         -> ::pltxt2htm::PlExternal<ndebug>&;
 
     [[nodiscard]]
@@ -365,7 +364,7 @@ public:
     constexpr PlLink(::pltxt2htm::PlLink<ndebug>&&) noexcept;
     constexpr ~PlLink() noexcept;
     constexpr auto operator=(::pltxt2htm::PlLink<ndebug> const&) noexcept -> ::pltxt2htm::PlLink<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::PlLink<ndebug>& self, ::pltxt2htm::PlLink<ndebug>&&) noexcept
+    constexpr auto operator=(this PlLink<ndebug>& self, ::pltxt2htm::PlLink<ndebug>&&) noexcept
         -> ::pltxt2htm::PlLink<ndebug>&;
 
     [[nodiscard]]
@@ -398,7 +397,7 @@ public:
     constexpr PlSize(::pltxt2htm::PlSize<ndebug>&&) noexcept;
     constexpr ~PlSize() noexcept;
     constexpr auto operator=(::pltxt2htm::PlSize<ndebug> const&) noexcept -> ::pltxt2htm::PlSize<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::PlSize<ndebug>& self, ::pltxt2htm::PlSize<ndebug>&&) noexcept
+    constexpr auto operator=(this PlSize<ndebug>& self, ::pltxt2htm::PlSize<ndebug>&&) noexcept
         -> ::pltxt2htm::PlSize<ndebug>&;
 
     [[nodiscard]]
@@ -444,7 +443,7 @@ public:
     constexpr ~PlVoffset() noexcept;
     constexpr auto operator=(::pltxt2htm::PlVoffset<ndebug> const&) noexcept
         -> ::pltxt2htm::PlVoffset<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::PlVoffset<ndebug>& self, ::pltxt2htm::PlVoffset<ndebug>&&) noexcept
+    constexpr auto operator=(this PlVoffset<ndebug>& self, ::pltxt2htm::PlVoffset<ndebug>&&) noexcept
         -> ::pltxt2htm::PlVoffset<ndebug>&;
 
     [[nodiscard]]
@@ -477,7 +476,7 @@ public:
     constexpr PlAlign(::pltxt2htm::PlAlign<ndebug>&&) noexcept;
     constexpr ~PlAlign() noexcept;
     constexpr auto operator=(::pltxt2htm::PlAlign<ndebug> const&) noexcept -> ::pltxt2htm::PlAlign<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::PlAlign<ndebug>& self, ::pltxt2htm::PlAlign<ndebug>&&) noexcept
+    constexpr auto operator=(this PlAlign<ndebug>& self, ::pltxt2htm::PlAlign<ndebug>&&) noexcept
         -> ::pltxt2htm::PlAlign<ndebug>&;
 
     [[nodiscard]]
@@ -510,7 +509,7 @@ public:
     constexpr PlMark(::pltxt2htm::PlMark<ndebug>&&) noexcept;
     constexpr ~PlMark() noexcept;
     constexpr auto operator=(::pltxt2htm::PlMark<ndebug> const&) noexcept -> ::pltxt2htm::PlMark<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::PlMark<ndebug>& self, ::pltxt2htm::PlMark<ndebug>&&) noexcept
+    constexpr auto operator=(this PlMark<ndebug>& self, ::pltxt2htm::PlMark<ndebug>&&) noexcept
         -> ::pltxt2htm::PlMark<ndebug>&;
 
     [[nodiscard]]
@@ -548,7 +547,7 @@ public:
     constexpr PlMargin(::pltxt2htm::PlMargin<ndebug>&&) noexcept;
     constexpr ~PlMargin() noexcept;
     constexpr auto operator=(::pltxt2htm::PlMargin<ndebug> const&) noexcept -> ::pltxt2htm::PlMargin<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::PlMargin<ndebug>& self, ::pltxt2htm::PlMargin<ndebug>&&) noexcept
+    constexpr auto operator=(this PlMargin<ndebug>& self, ::pltxt2htm::PlMargin<ndebug>&&) noexcept
         -> ::pltxt2htm::PlMargin<ndebug>&;
 
     [[nodiscard]]
@@ -586,8 +585,7 @@ public:
     constexpr PlI(::pltxt2htm::PlI<ndebug>&&) noexcept;
     constexpr ~PlI() noexcept;
     constexpr auto operator=(::pltxt2htm::PlI<ndebug> const&) noexcept -> ::pltxt2htm::PlI<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::PlI<ndebug>& self, ::pltxt2htm::PlI<ndebug>&&) noexcept
-        -> ::pltxt2htm::PlI<ndebug>&;
+    constexpr auto operator=(this PlI<ndebug>& self, ::pltxt2htm::PlI<ndebug>&&) noexcept -> ::pltxt2htm::PlI<ndebug>&;
 
     [[nodiscard]]
     constexpr auto operator==(this PlI const&, PlI const&) noexcept -> bool;
@@ -612,8 +610,7 @@ public:
     constexpr PlB(::pltxt2htm::PlB<ndebug>&&) noexcept;
     constexpr ~PlB() noexcept;
     constexpr auto operator=(::pltxt2htm::PlB<ndebug> const&) noexcept -> ::pltxt2htm::PlB<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::PlB<ndebug>& self, ::pltxt2htm::PlB<ndebug>&&) noexcept
-        -> ::pltxt2htm::PlB<ndebug>&;
+    constexpr auto operator=(this PlB<ndebug>& self, ::pltxt2htm::PlB<ndebug>&&) noexcept -> ::pltxt2htm::PlB<ndebug>&;
 
     [[nodiscard]]
     constexpr auto operator==(this PlB const&, PlB const&) noexcept -> bool;
@@ -638,8 +635,7 @@ public:
     constexpr PlU(::pltxt2htm::PlU<ndebug>&&) noexcept;
     constexpr ~PlU() noexcept;
     constexpr auto operator=(::pltxt2htm::PlU<ndebug> const&) noexcept -> ::pltxt2htm::PlU<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::PlU<ndebug>& self, ::pltxt2htm::PlU<ndebug>&&) noexcept
-        -> ::pltxt2htm::PlU<ndebug>&;
+    constexpr auto operator=(this PlU<ndebug>& self, ::pltxt2htm::PlU<ndebug>&&) noexcept -> ::pltxt2htm::PlU<ndebug>&;
 
     [[nodiscard]]
     constexpr auto operator==(this PlU const&, PlU const&) noexcept -> bool;
@@ -664,8 +660,7 @@ public:
     constexpr PlS(::pltxt2htm::PlS<ndebug>&&) noexcept;
     constexpr ~PlS() noexcept;
     constexpr auto operator=(::pltxt2htm::PlS<ndebug> const&) noexcept -> ::pltxt2htm::PlS<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::PlS<ndebug>& self, ::pltxt2htm::PlS<ndebug>&&) noexcept
-        -> ::pltxt2htm::PlS<ndebug>&;
+    constexpr auto operator=(this PlS<ndebug>& self, ::pltxt2htm::PlS<ndebug>&&) noexcept -> ::pltxt2htm::PlS<ndebug>&;
 
     [[nodiscard]]
     constexpr auto operator==(this PlS const&, PlS const&) noexcept -> bool;

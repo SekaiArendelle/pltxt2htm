@@ -30,7 +30,7 @@ public:
     constexpr Table(::pltxt2htm::Table<ndebug>&&) noexcept;
     constexpr ~Table() noexcept;
     constexpr auto operator=(::pltxt2htm::Table<ndebug> const&) noexcept -> ::pltxt2htm::Table<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::Table<ndebug>& self, ::pltxt2htm::Table<ndebug>&&) noexcept
+    constexpr auto operator=(this Table<ndebug>& self, ::pltxt2htm::Table<ndebug>&&) noexcept
         -> ::pltxt2htm::Table<ndebug>&;
 
     [[nodiscard]]
@@ -55,7 +55,7 @@ public:
     constexpr TableTr(::pltxt2htm::TableTr<ndebug>&&) noexcept;
     constexpr ~TableTr() noexcept;
     constexpr auto operator=(::pltxt2htm::TableTr<ndebug> const&) noexcept -> ::pltxt2htm::TableTr<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::TableTr<ndebug>& self, ::pltxt2htm::TableTr<ndebug>&&) noexcept
+    constexpr auto operator=(this TableTr<ndebug>& self, ::pltxt2htm::TableTr<ndebug>&&) noexcept
         -> ::pltxt2htm::TableTr<ndebug>&;
 
     [[nodiscard]]
@@ -81,7 +81,7 @@ public:
     constexpr TableTd(::pltxt2htm::TableTd<ndebug>&&) noexcept;
     constexpr ~TableTd() noexcept;
     constexpr auto operator=(::pltxt2htm::TableTd<ndebug> const&) noexcept -> ::pltxt2htm::TableTd<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::TableTd<ndebug>& self, ::pltxt2htm::TableTd<ndebug>&&) noexcept
+    constexpr auto operator=(this TableTd<ndebug>& self, ::pltxt2htm::TableTd<ndebug>&&) noexcept
         -> ::pltxt2htm::TableTd<ndebug>&;
 
     [[nodiscard]]
@@ -112,7 +112,7 @@ public:
     constexpr TableTh(::pltxt2htm::TableTh<ndebug>&&) noexcept;
     constexpr ~TableTh() noexcept;
     constexpr auto operator=(::pltxt2htm::TableTh<ndebug> const&) noexcept -> ::pltxt2htm::TableTh<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::TableTh<ndebug>& self, ::pltxt2htm::TableTh<ndebug>&&) noexcept
+    constexpr auto operator=(this TableTh<ndebug>& self, ::pltxt2htm::TableTh<ndebug>&&) noexcept
         -> ::pltxt2htm::TableTh<ndebug>&;
 
     [[nodiscard]]
@@ -143,7 +143,7 @@ public:
     constexpr ~TableThead() noexcept;
     constexpr auto operator=(::pltxt2htm::TableThead<ndebug> const&) noexcept
         -> ::pltxt2htm::TableThead<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::TableThead<ndebug>& self, ::pltxt2htm::TableThead<ndebug>&&) noexcept
+    constexpr auto operator=(this TableThead<ndebug>& self, ::pltxt2htm::TableThead<ndebug>&&) noexcept
         -> ::pltxt2htm::TableThead<ndebug>&;
 
     [[nodiscard]]
@@ -169,7 +169,7 @@ public:
     constexpr ~TableTbody() noexcept;
     constexpr auto operator=(::pltxt2htm::TableTbody<ndebug> const&) noexcept
         -> ::pltxt2htm::TableTbody<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::TableTbody<ndebug>& self, ::pltxt2htm::TableTbody<ndebug>&&) noexcept
+    constexpr auto operator=(this TableTbody<ndebug>& self, ::pltxt2htm::TableTbody<ndebug>&&) noexcept
         -> ::pltxt2htm::TableTbody<ndebug>&;
 
     [[nodiscard]]
@@ -195,7 +195,7 @@ public:
     constexpr ~TableTfoot() noexcept;
     constexpr auto operator=(::pltxt2htm::TableTfoot<ndebug> const&) noexcept
         -> ::pltxt2htm::TableTfoot<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::TableTfoot<ndebug>& self, ::pltxt2htm::TableTfoot<ndebug>&&) noexcept
+    constexpr auto operator=(this TableTfoot<ndebug>& self, ::pltxt2htm::TableTfoot<ndebug>&&) noexcept
         -> ::pltxt2htm::TableTfoot<ndebug>&;
 
     [[nodiscard]]
@@ -221,7 +221,7 @@ public:
     constexpr ~TableCaption() noexcept;
     constexpr auto operator=(::pltxt2htm::TableCaption<ndebug> const&) noexcept
         -> ::pltxt2htm::TableCaption<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::TableCaption<ndebug>& self, ::pltxt2htm::TableCaption<ndebug>&&) noexcept
+    constexpr auto operator=(this TableCaption<ndebug>& self, ::pltxt2htm::TableCaption<ndebug>&&) noexcept
         -> ::pltxt2htm::TableCaption<ndebug>&;
 
     [[nodiscard]]
@@ -247,8 +247,8 @@ public:
     constexpr ~TableColgroup() noexcept;
     constexpr auto operator=(::pltxt2htm::TableColgroup<ndebug> const&) noexcept
         -> ::pltxt2htm::TableColgroup<ndebug>& = delete;
-    constexpr auto operator=(this ::pltxt2htm::TableColgroup<ndebug>& self,
-                             ::pltxt2htm::TableColgroup<ndebug>&&) noexcept -> ::pltxt2htm::TableColgroup<ndebug>&;
+    constexpr auto operator=(this TableColgroup<ndebug>& self, ::pltxt2htm::TableColgroup<ndebug>&&) noexcept
+        -> ::pltxt2htm::TableColgroup<ndebug>&;
 
     [[nodiscard]]
     constexpr auto operator==(this TableColgroup const&, TableColgroup const&) noexcept -> bool;
