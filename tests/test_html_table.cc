@@ -580,5 +580,16 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // ── caption/cell text is parsed with the inline-only parser ──
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"<table><caption>cap\n# **title**</caption><tr><th>head\n<h1>x</h1></th><td>body\n- "
+            u8"*item*</td></tr></table>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><caption>cap<br>#&nbsp;<strong>title</strong></caption><tr><th>head<br>&lt;h1&gt;x&lt;/"
+            u8"h1&gt;</th><td>body<br>-&nbsp;<em>item</em></td></tr></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }
