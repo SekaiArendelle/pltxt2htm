@@ -1617,7 +1617,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_list_start(this auto&& self) noexcept -> ::std::size_t {
+    constexpr auto get_list_start(this auto const& self) noexcept -> ::std::size_t {
         auto&& context_data_ref = self.context_data;
         bool const is_list_ul_or_ol_type{context_data_ref.kind == ::pltxt2htm::NodeKind::list_ul ||
                                          context_data_ref.kind == ::pltxt2htm::NodeKind::list_ol};
@@ -1634,7 +1634,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_table_state(this auto&& self) noexcept -> ::pltxt2htm::details::TableParsePhase {
+    constexpr auto get_table_state(this auto const& self) noexcept -> ::pltxt2htm::details::TableParsePhase {
         auto&& context_data_ref = self.context_data;
         bool const is_table_type{context_data_ref.kind == ::pltxt2htm::NodeKind::table};
         pltxt2htm_assert(is_table_type, u8"context kind mismatch");
@@ -1642,7 +1642,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_table_row_index(this auto&& self) noexcept -> ::std::size_t {
+    constexpr auto get_table_row_index(this auto const& self) noexcept -> ::std::size_t {
         auto&& context_data_ref = self.context_data;
         bool const is_table_type{context_data_ref.kind == ::pltxt2htm::NodeKind::table};
         pltxt2htm_assert(is_table_type, u8"context kind mismatch");
@@ -1650,7 +1650,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_table_cell_index(this auto&& self) noexcept -> ::std::size_t {
+    constexpr auto get_table_cell_index(this auto const& self) noexcept -> ::std::size_t {
         auto&& context_data_ref = self.context_data;
         bool const is_table_type{context_data_ref.kind == ::pltxt2htm::NodeKind::table};
         pltxt2htm_assert(is_table_type, u8"context kind mismatch");
