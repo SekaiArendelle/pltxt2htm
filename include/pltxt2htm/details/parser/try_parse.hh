@@ -3919,8 +3919,6 @@ constexpr auto try_parse_md_block_quotes(::fast_io::u8string_view pltext) noexce
 
 template<::pltxt2htm::Contracts ndebug>
 struct TryParseMdCodeSpanResult {
-    ::std::size_t advance_count; ///< Number of characters consumed (both delimiters and content).
-    ::std::size_t content_begin; ///< Offset of the content within `pltext` (equals the delimiter size).
     ::std::size_t content_size; ///< Length of the content (excluding both delimiters).
     ::pltxt2htm::Ast<ndebug> subast; ///< Parsed AST for the code span content.
 };
@@ -3935,7 +3933,7 @@ struct TryParseMdCodeSpanResult {
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @tparam embraced_string The delimiter string enclosing the code span.
  * @param[in] pltext The input text to parse, starting at the opening delimiter.
- * @return The parsed result containing the code content AST and continuation index, or nullopt if parsing fails.
+ * @return The parsed result containing the content length and the code content AST, or nullopt if parsing fails.
  * @note The delimiter length determines the minimum number of consecutive backticks that can appear
  *       in the code content without prematurely ending the span.
  * @note The content is parsed as plain text and converted to appropriate AST nodes.
@@ -3962,9 +3960,7 @@ constexpr auto try_parse_md_code_span(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt;
     }
 
-    return ::pltxt2htm::details::TryParseMdCodeSpanResult<ndebug>{.advance_count = advance_count + embraced_size,
-                                                                  .content_begin = embraced_size,
-                                                                  .content_size = advance_count - embraced_size,
+    return ::pltxt2htm::details::TryParseMdCodeSpanResult<ndebug>{.content_size = advance_count - embraced_size,
                                                                   .subast = ::std::move(ast)};
 }
 

@@ -746,9 +746,9 @@ entry:
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
                 opt_code_span_3_backtick.has_value()) {
                 // parsing markdown ```example```
-                auto&& [advance_count, content_begin, content_size, subast] =
+                auto&& [content_size, subast] =
                     opt_code_span_3_backtick.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-                current_index += advance_count;
+                current_index += content_size + 6;
                 result.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdCodeSpan3Backtick<ndebug>{::std::move(subast)}));
                 continue;
@@ -757,9 +757,9 @@ entry:
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
                 opt_code_span_2_backtick.has_value()) {
                 // parsing markdown ``example``
-                auto&& [advance_count, content_begin, content_size, subast] =
+                auto&& [content_size, subast] =
                     opt_code_span_2_backtick.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-                current_index += advance_count;
+                current_index += content_size + 4;
                 result.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdCodeSpan2Backtick<ndebug>{::std::move(subast)}));
                 continue;
@@ -768,9 +768,9 @@ entry:
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
                 opt_code_span_1_backtick.has_value()) {
                 // parsing markdown `example`
-                auto&& [advance_count, content_begin, content_size, subast] =
+                auto&& [content_size, subast] =
                     opt_code_span_1_backtick.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-                current_index += advance_count;
+                current_index += content_size + 2;
                 result.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdCodeSpan1Backtick<ndebug>{::std::move(subast)}));
                 continue;
