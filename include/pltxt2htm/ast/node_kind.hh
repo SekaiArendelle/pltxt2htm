@@ -106,17 +106,17 @@ enum class NodeKind : unsigned {
     html_code, ///< Inline code: &lt;code&gt;...&lt;/code&gt;
     html_blockquote, ///< Block quote: &lt;blockquote&gt;...&lt;/blockquote&gt;
 
-    // HTML table elements
-    html_table, ///< HTML table: &lt;table&gt;...&lt;/table&gt;
-    html_tr, ///< HTML table row: &lt;tr&gt;...&lt;/tr&gt;
-    html_td, ///< HTML table cell: &lt;td&gt;...&lt;/td&gt;
-    html_th, ///< HTML table header cell: &lt;th&gt;...&lt;/th&gt;
-    html_thead, ///< HTML table head: &lt;thead&gt;...&lt;/thead&gt;
-    html_tbody, ///< HTML table body: &lt;tbody&gt;...&lt;/tbody&gt;
-    html_tfoot, ///< HTML table foot: &lt;tfoot&gt;...&lt;/tfoot&gt;
-    html_caption, ///< HTML table caption: &lt;caption&gt;...&lt;/caption&gt;
-    html_colgroup, ///< HTML table column group: &lt;colgroup&gt;...&lt;/colgroup&gt;
-    html_col, ///< HTML table column: &lt;col&gt; (self-closing)
+    // Table elements (shared by HTML <table> and Markdown pipe tables)
+    table, ///< Table: &lt;table&gt;...&lt;/table&gt; or Markdown pipe table
+    table_tr, ///< Table row: &lt;tr&gt;...&lt;/tr&gt;
+    table_td, ///< Table cell: &lt;td&gt;...&lt;/td&gt;
+    table_th, ///< Table header cell: &lt;th&gt;...&lt;/th&gt;
+    table_thead, ///< Table head: &lt;thead&gt;...&lt;/thead&gt;
+    table_tbody, ///< Table body: &lt;tbody&gt;...&lt;/tbody&gt;
+    table_tfoot, ///< Table foot: &lt;tfoot&gt;...&lt;/tfoot&gt;
+    table_caption, ///< Table caption: &lt;caption&gt;...&lt;/caption&gt;
+    table_colgroup, ///< Table column group: &lt;colgroup&gt;...&lt;/colgroup&gt;
+    table_col, ///< Table column: &lt;col&gt; (self-closing)
     html_img, ///< HTML image: &lt;img src=&quot;...&quot; alt=&quot;...&quot;&gt;
 
     // Markdown ATX-style headers (# ## ### #### ##### ######)
@@ -189,14 +189,6 @@ enum class NodeKind : unsigned {
 
     // Markdown block quotes and lists
     md_block_quotes, ///< Block quote: > quote text
-
-    // Markdown table nodes (markdown pipe-table syntax)
-    md_table, ///< Markdown table: | ... |
-    md_thead, ///< Markdown table header section
-    md_tbody, ///< Markdown table body section
-    md_tr, ///< Markdown table row
-    md_th, ///< Markdown table header cell
-    md_td, ///< Markdown table data cell
 
     // LaTeX support
     md_latex_inline, ///< Inline LaTeX math: $...$

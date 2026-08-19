@@ -14,6 +14,7 @@
 #include <fast_io/fast_io_dsal/string_view.h>
 #include "list_ast.hh"
 #include "md_table.hh"
+#include "html_table.hh"
 #include "../../contracts.hh"
 #include "../../ast/ast.hh"
 #include "../../ast/value_unit.hh"
@@ -173,7 +174,7 @@ public:
 /**
  * @brief Context for an individual table cell during parsing.
  *
- * Stores the cell text content and its alignment for md_th / md_td / html_th / html_td nodes.
+ * Stores the cell text content and its alignment for table_th / table_td nodes.
  */
 class ParserFrameContextWithCellInfo {
 public:
@@ -202,30 +203,21 @@ public:
 };
 
 /**
- * @brief State-machine phase for table-frame parsing.
- */
-enum class MdTableParsePhase : unsigned {
-    header = 0, ///< Currently parsing header cells.
-    body, ///< Currently parsing body cells.
-    finish, ///< All cells consumed; finalise the table AST.
-};
-
-/**
- * @brief Context for the top-level table parsing state machine.
+ * @brief Context for the shared table parsing state machine.
  *
- * Holds the raw AST, parse phase (header / body / finish), and the
- * current row/cell index within the table.
+ * Holds the raw table AST, the parse phase (caption / body / finish), and the
+ * current row/cell index within the table.  Used by both the Markdown
+ * pipe-table and the HTML &lt;table&gt; frames.
  */
 template<::pltxt2htm::Contracts ndebug>
-class ParserFrameContextWithMdTableInfo {
+class ParserFrameContextWithTableInfo {
 public:
-    ::pltxt2htm::details::MdTableAstRaw<ndebug> raw_ast;
-    MdTableParsePhase state{MdTableParsePhase::header};
+    ::pltxt2htm::details::TableAstRaw<ndebug> raw_ast;
+    ::pltxt2htm::details::TableParsePhase state{::pltxt2htm::details::TableParsePhase::caption};
     ::std::size_t row_index{};
     ::std::size_t cell_index{};
 
-    constexpr explicit ParserFrameContextWithMdTableInfo(
-        ::pltxt2htm::details::MdTableAstRaw<ndebug>&& raw_ast_) noexcept
+    constexpr explicit ParserFrameContextWithTableInfo(::pltxt2htm::details::TableAstRaw<ndebug>&& raw_ast_) noexcept
         : raw_ast(::std::move(raw_ast_)) {
     }
 };
@@ -253,7 +245,7 @@ public:
         list_info,
         list_li_checkbox,
         cell,
-        md_table,
+        table,
         pltext,
         html_mark_info,
         pl_mark_info,
@@ -277,7 +269,7 @@ public:
         ::pltxt2htm::details::ParserFrameContextWithCellInfo cell;
         ::pltxt2htm::details::ParserFrameContextWithAlignInfo align_info;
         ::pltxt2htm::details::ParserFrameContextWithListLiCheckboxInfo list_li_checkbox;
-        ::pltxt2htm::details::ParserFrameContextWithMdTableInfo<ndebug> md_table;
+        ::pltxt2htm::details::ParserFrameContextWithTableInfo<ndebug> table;
     };
 
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
@@ -435,11 +427,11 @@ public:
           kind{node_kind_} {
     }
 
-    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithMdTableInfo<ndebug>&& md_table_context,
+    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithTableInfo<ndebug>&& table_context,
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
-        : md_table{::std::move(md_table_context)},
+        : table{::std::move(table_context)},
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
-          context_branch{ContextBranch::md_table},
+          context_branch{ContextBranch::table},
 #endif
           kind{node_kind_} {
     }
@@ -581,19 +573,17 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_blockquote:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_table:
+        case ::pltxt2htm::NodeKind::table_tr:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_tr:
+        case ::pltxt2htm::NodeKind::table_thead:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_thead:
+        case ::pltxt2htm::NodeKind::table_tbody:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_tbody:
+        case ::pltxt2htm::NodeKind::table_tfoot:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_tfoot:
+        case ::pltxt2htm::NodeKind::table_caption:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_caption:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_colgroup:
+        case ::pltxt2htm::NodeKind::table_colgroup:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_atx_h1:
             [[fallthrough]];
@@ -631,25 +621,21 @@ public:
             ::std::construct_at(::std::addressof(this->align_info), ::std::move(other.align_info));
             return;
         }
-        case ::pltxt2htm::NodeKind::html_th:
+        case ::pltxt2htm::NodeKind::table_th:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_td:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_th:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_td: {
+        case ::pltxt2htm::NodeKind::table_td: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::cell);
             ::std::construct_at(::std::addressof(this->cell), ::std::move(other.cell));
             return;
         }
-        case ::pltxt2htm::NodeKind::md_table: {
-            pltxt2htm_assert_context_branch(*this, ContextBranch::md_table);
-            ::std::construct_at(::std::addressof(this->md_table), ::std::move(other.md_table));
+        case ::pltxt2htm::NodeKind::table: {
+            pltxt2htm_assert_context_branch(*this, ContextBranch::table);
+            ::std::construct_at(::std::addressof(this->table), ::std::move(other.table));
             return;
         }
         case ::pltxt2htm::NodeKind::html_br:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_col:
+        case ::pltxt2htm::NodeKind::table_col:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_hr:
             [[fallthrough]];
@@ -764,12 +750,6 @@ public:
         case ::pltxt2htm::NodeKind::md_escape_right_brace:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_escape_tilde:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_thead:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_tbody:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_tr:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::entity_reference:
             [[fallthrough]];
@@ -910,19 +890,17 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_blockquote:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_table:
+        case ::pltxt2htm::NodeKind::table_tr:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_tr:
+        case ::pltxt2htm::NodeKind::table_thead:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_thead:
+        case ::pltxt2htm::NodeKind::table_tbody:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_tbody:
+        case ::pltxt2htm::NodeKind::table_tfoot:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_tfoot:
+        case ::pltxt2htm::NodeKind::table_caption:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_caption:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_colgroup:
+        case ::pltxt2htm::NodeKind::table_colgroup:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_atx_h1:
             [[fallthrough]];
@@ -960,20 +938,16 @@ public:
             ::std::destroy_at(::std::addressof(this->align_info));
             return;
         }
-        case ::pltxt2htm::NodeKind::html_th:
+        case ::pltxt2htm::NodeKind::table_th:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_td:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_th:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_td: {
+        case ::pltxt2htm::NodeKind::table_td: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::cell);
             ::std::destroy_at(::std::addressof(this->cell));
             return;
         }
-        case ::pltxt2htm::NodeKind::md_table: {
-            pltxt2htm_assert_context_branch(*this, ContextBranch::md_table);
-            ::std::destroy_at(::std::addressof(this->md_table));
+        case ::pltxt2htm::NodeKind::table: {
+            pltxt2htm_assert_context_branch(*this, ContextBranch::table);
+            ::std::destroy_at(::std::addressof(this->table));
             return;
         }
         case ::pltxt2htm::NodeKind::list_li_checkbox: {
@@ -983,7 +957,7 @@ public:
         }
         case ::pltxt2htm::NodeKind::html_br:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_col:
+        case ::pltxt2htm::NodeKind::table_col:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_hr:
             [[fallthrough]];
@@ -1099,12 +1073,6 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_escape_tilde:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_thead:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_tbody:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_tr:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::entity_reference:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_hr:
@@ -1164,11 +1132,11 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::invalid_u8char:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_thead:
+        case ::pltxt2htm::NodeKind::table_thead:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_tbody:
+        case ::pltxt2htm::NodeKind::table_tbody:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_tr:
+        case ::pltxt2htm::NodeKind::table_tr:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::text:
             [[fallthrough]];
@@ -1230,21 +1198,13 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_blockquote:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_table:
+        case ::pltxt2htm::NodeKind::table_tfoot:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_tr:
+        case ::pltxt2htm::NodeKind::table_caption:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_thead:
+        case ::pltxt2htm::NodeKind::table_colgroup:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_tbody:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_tfoot:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_caption:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_colgroup:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_col:
+        case ::pltxt2htm::NodeKind::table_col:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_img:
             [[fallthrough]];
@@ -1391,13 +1351,9 @@ public:
                 context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::align_info);
             return context_data_ref.align_info.pltext;
         }
-        case ::pltxt2htm::NodeKind::html_th:
+        case ::pltxt2htm::NodeKind::table_th:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::html_td:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_th:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_td: {
+        case ::pltxt2htm::NodeKind::table_td: {
             pltxt2htm_assert_context_branch(context_data_ref,
                                             ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::cell);
             return context_data_ref.cell.pltext;
@@ -1476,7 +1432,7 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::entity_reference:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_table:
+        case ::pltxt2htm::NodeKind::table:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_hr:
             [[fallthrough]];
@@ -1661,7 +1617,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_list_start(this auto&& self) noexcept -> ::std::size_t {
+    constexpr auto get_list_start(this auto const& self) noexcept -> ::std::size_t {
         auto&& context_data_ref = self.context_data;
         bool const is_list_ul_or_ol_type{context_data_ref.kind == ::pltxt2htm::NodeKind::list_ul ||
                                          context_data_ref.kind == ::pltxt2htm::NodeKind::list_ol};
@@ -1670,58 +1626,63 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_md_table_raw_ast(this auto&& self) noexcept -> decltype(auto) {
+    constexpr auto get_table_raw_ast(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::md_table, u8"context kind mismatch");
-        return ::std::forward_like<decltype(self)>(context_data_ref.md_table.raw_ast);
+        bool const is_table_type{context_data_ref.kind == ::pltxt2htm::NodeKind::table};
+        pltxt2htm_assert(is_table_type, u8"context kind mismatch");
+        return ::std::forward_like<decltype(self)>(context_data_ref.table.raw_ast);
     }
 
     [[nodiscard]]
-    constexpr auto get_md_table_state(this auto&& self) noexcept -> MdTableParsePhase {
+    constexpr auto get_table_state(this auto const& self) noexcept -> ::pltxt2htm::details::TableParsePhase {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::md_table, u8"context kind mismatch");
-        return context_data_ref.md_table.state;
+        bool const is_table_type{context_data_ref.kind == ::pltxt2htm::NodeKind::table};
+        pltxt2htm_assert(is_table_type, u8"context kind mismatch");
+        return context_data_ref.table.state;
     }
 
     [[nodiscard]]
-    constexpr auto get_md_table_row_index(this auto&& self) noexcept -> ::std::size_t {
+    constexpr auto get_table_row_index(this auto const& self) noexcept -> ::std::size_t {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::md_table, u8"context kind mismatch");
-        return context_data_ref.md_table.row_index;
+        bool const is_table_type{context_data_ref.kind == ::pltxt2htm::NodeKind::table};
+        pltxt2htm_assert(is_table_type, u8"context kind mismatch");
+        return context_data_ref.table.row_index;
     }
 
     [[nodiscard]]
-    constexpr auto get_md_table_cell_index(this auto&& self) noexcept -> ::std::size_t {
+    constexpr auto get_table_cell_index(this auto const& self) noexcept -> ::std::size_t {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::md_table, u8"context kind mismatch");
-        return context_data_ref.md_table.cell_index;
+        bool const is_table_type{context_data_ref.kind == ::pltxt2htm::NodeKind::table};
+        pltxt2htm_assert(is_table_type, u8"context kind mismatch");
+        return context_data_ref.table.cell_index;
     }
 
-    constexpr auto set_md_table_state(this auto&& self, MdTableParsePhase s) noexcept -> void {
+    constexpr auto set_table_state(this auto&& self, ::pltxt2htm::details::TableParsePhase s) noexcept -> void {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::md_table, u8"context kind mismatch");
-        context_data_ref.md_table.state = s;
+        bool const is_table_type{context_data_ref.kind == ::pltxt2htm::NodeKind::table};
+        pltxt2htm_assert(is_table_type, u8"context kind mismatch");
+        context_data_ref.table.state = s;
     }
 
-    constexpr auto set_md_table_row_index(this auto&& self, ::std::size_t r) noexcept -> void {
+    constexpr auto set_table_row_index(this auto&& self, ::std::size_t r) noexcept -> void {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::md_table, u8"context kind mismatch");
-        context_data_ref.md_table.row_index = r;
+        bool const is_table_type{context_data_ref.kind == ::pltxt2htm::NodeKind::table};
+        pltxt2htm_assert(is_table_type, u8"context kind mismatch");
+        context_data_ref.table.row_index = r;
     }
 
-    constexpr auto set_md_table_cell_index(this auto&& self, ::std::size_t c) noexcept -> void {
+    constexpr auto set_table_cell_index(this auto&& self, ::std::size_t c) noexcept -> void {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::md_table, u8"context kind mismatch");
-        context_data_ref.md_table.cell_index = c;
+        bool const is_table_type{context_data_ref.kind == ::pltxt2htm::NodeKind::table};
+        pltxt2htm_assert(is_table_type, u8"context kind mismatch");
+        context_data_ref.table.cell_index = c;
     }
 
     [[nodiscard]]
     constexpr auto get_cell_align(this auto&& self) noexcept -> ::pltxt2htm::TableAlign {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_td ||
-                             context_data_ref.kind == ::pltxt2htm::NodeKind::html_th ||
-                             context_data_ref.kind == ::pltxt2htm::NodeKind::md_th ||
-                             context_data_ref.kind == ::pltxt2htm::NodeKind::md_td,
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::table_td ||
+                             context_data_ref.kind == ::pltxt2htm::NodeKind::table_th,
                          u8"context kind mismatch");
         return context_data_ref.cell.align;
     }
@@ -1764,6 +1725,142 @@ constexpr void push_list_frame(::fast_io::stack<::pltxt2htm::details::ParserFram
             pltxt2htm_unreachable(u8"Unexpected list_li/list_li_checkbox in push_list_frame()");
         }
     }
+}
+
+/**
+ * @brief Process the top table frame on the call stack.
+ *
+ * Implements the shared table state machine (caption / body / finish):
+ * - caption: push a caption frame when the table has one;
+ * - body: push one cell frame (th/td) per cell in row-major order;
+ * - finish: group cells into &lt;tr&gt; rows and consecutive same-section rows
+ *   into &lt;thead&gt;/&lt;tbody&gt;/&lt;tfoot&gt; nodes, wrap the table node
+ *   and pop the frame.
+ *
+ * @tparam ndebug Contract checking mode.
+ * @param call_stack Frame call stack whose top frame is a table frame.
+ * @return The finished table AST when the top-level table has been fully
+ *         consumed; nullopt otherwise (the caller should re-enter its parse
+ *         loop).
+ */
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto process_table_frame(
+    ::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>>& call_stack) noexcept
+    -> ::exception::optional<::pltxt2htm::Ast<ndebug>> {
+    auto&& frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+    auto&& raw_ast = frame.get_table_raw_ast();
+    auto const state = frame.get_table_state();
+    auto const row_index = frame.get_table_row_index();
+    auto const cell_index = frame.get_table_cell_index();
+
+    switch (state) /* -Werror=switch */ {
+    case ::pltxt2htm::details::TableParsePhase::caption: {
+        if (raw_ast.has_caption()) {
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                    ::pltxt2htm::details::ParserFrameContextWithPltextInfo{raw_ast.caption()},
+                    ::pltxt2htm::NodeKind::table_caption},
+                ::pltxt2htm::Ast<ndebug>{}));
+        }
+        frame.set_table_state(::pltxt2htm::details::TableParsePhase::body);
+        return ::exception::nullopt;
+    }
+    case ::pltxt2htm::details::TableParsePhase::body: {
+        if (row_index < raw_ast.rows_count()) {
+            auto const row_cells = raw_ast.row_cells(row_index);
+            if (cell_index < row_cells.size()) {
+                auto const& cell = raw_ast.cell_at(row_index, cell_index);
+                call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                    ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                        ::pltxt2htm::details::ParserFrameContextWithCellInfo{
+                            ::fast_io::u8string_view{cell.text.data(), cell.text.size()}, cell.align},
+                        cell.is_header ? ::pltxt2htm::NodeKind::table_th : ::pltxt2htm::NodeKind::table_td},
+                    ::pltxt2htm::Ast<ndebug>{}));
+                frame.set_table_cell_index(cell_index + 1);
+                return ::exception::nullopt;
+            }
+            frame.set_table_row_index(row_index + 1);
+            frame.set_table_cell_index(0);
+            return ::exception::nullopt;
+        }
+        frame.set_table_state(::pltxt2htm::details::TableParsePhase::finish);
+        return ::exception::nullopt;
+    }
+    case ::pltxt2htm::details::TableParsePhase::finish: {
+        auto previous_frame = ::std::move(frame);
+        call_stack.pop();
+
+        ::pltxt2htm::Ast<ndebug> flat_ast = ::std::move(previous_frame.subast);
+        auto&& prev_raw_ast = previous_frame.get_table_raw_ast();
+        ::pltxt2htm::Ast<ndebug> table_ast{};
+        ::std::size_t cell_cursor{};
+
+        // caption node (the caption frame is pushed first, so it is flat_ast[0]).
+        if (prev_raw_ast.has_caption()) {
+            table_ast.push_back(::std::move(::pltxt2htm::details::vector_index<ndebug>(flat_ast, cell_cursor)));
+            ++cell_cursor;
+        }
+
+        // colgroup node built directly from the collected col count.
+        if (prev_raw_ast.has_colgroup()) {
+            ::pltxt2htm::Ast<ndebug> colgroup_ast{};
+            for (::std::size_t c{}; c < prev_raw_ast.get_col_count(); ++c) {
+                colgroup_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableCol{}));
+            }
+            table_ast.push_back(
+                ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableColgroup<ndebug>{::std::move(colgroup_ast)}));
+        }
+
+        // Group cells into <tr> rows, then consecutive rows of the same section into
+        // <thead>/<tbody>/<tfoot>. Direct rows (section == none) are emitted as bare
+        // <tr> under <table>.
+        ::pltxt2htm::details::TableRowSection active_section{::pltxt2htm::details::TableRowSection::none};
+        ::pltxt2htm::Ast<ndebug> active_section_ast{};
+        for (::std::size_t r{}; r < prev_raw_ast.rows_count(); ++r) {
+            ::pltxt2htm::Ast<ndebug> tr_ast{};
+            auto const row_cells = prev_raw_ast.row_cells(r);
+            for (::std::size_t c{}; c < row_cells.size() && cell_cursor < flat_ast.size(); ++c, ++cell_cursor) {
+                tr_ast.push_back(::std::move(::pltxt2htm::details::vector_index<ndebug>(flat_ast, cell_cursor)));
+            }
+            auto const section = prev_raw_ast.row_section(r);
+            if (section == ::pltxt2htm::details::TableRowSection::none) {
+                ::pltxt2htm::details::push_table_section_node<ndebug>(table_ast, active_section,
+                                                                      ::std::move(active_section_ast));
+                active_section = ::pltxt2htm::details::TableRowSection::none;
+                table_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableTr<ndebug>{::std::move(tr_ast)}));
+            }
+            else if (section == active_section) {
+                active_section_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableTr<ndebug>{::std::move(tr_ast)}));
+            }
+            else {
+                ::pltxt2htm::details::push_table_section_node<ndebug>(table_ast, active_section,
+                                                                      ::std::move(active_section_ast));
+                active_section = section;
+                active_section_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableTr<ndebug>{::std::move(tr_ast)}));
+            }
+        }
+        ::pltxt2htm::details::push_table_section_node<ndebug>(table_ast, active_section,
+                                                              ::std::move(active_section_ast));
+
+        if (call_stack.empty()) {
+            return table_ast;
+        }
+
+        auto&& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+        parent_frame.subast.push_back(
+            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Table<ndebug>{::std::move(table_ast)}));
+        return ::exception::nullopt;
+    }
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
+    default:
+        [[unlikely]] {
+            pltxt2htm_unreachable(u8"Unexpected TableParsePhase");
+        }
+#endif
+    }
+    pltxt2htm_unreachable(u8"Unreachable after TableParsePhase switch");
 }
 
 } // namespace pltxt2htm::details

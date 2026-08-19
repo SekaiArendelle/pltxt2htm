@@ -1393,109 +1393,67 @@ entry:
                         ::std::addressof(subast), ::pltxt2htm::NodeKind::html_blockquote, subast.begin()));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::md_table: {
-                auto&& subast = node.as_md_table().get_subast();
+            case ::pltxt2htm::NodeKind::table: {
+                auto&& subast = node.as_table().get_subast();
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::md_table, subast.begin()));
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::table, subast.begin()));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_table: {
-                auto&& subast = node.as_html_table().get_subast();
+            case ::pltxt2htm::NodeKind::table_caption: {
+                auto&& subast = node.as_table_caption().get_subast();
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_table, subast.begin()));
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::table_caption, subast.begin()));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_caption: {
-                auto&& subast = node.as_html_caption().get_subast();
+            case ::pltxt2htm::NodeKind::table_colgroup: {
+                auto&& subast = node.as_table_colgroup().get_subast();
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_caption, subast.begin()));
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::table_colgroup, subast.begin()));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_colgroup: {
-                auto&& subast = node.as_html_colgroup().get_subast();
+            case ::pltxt2htm::NodeKind::table_thead: {
+                auto&& subast = node.as_table_thead().get_subast();
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_colgroup, subast.begin()));
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::table_thead, subast.begin()));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::md_thead: {
-                auto&& subast = node.as_md_thead().get_subast();
+            case ::pltxt2htm::NodeKind::table_tbody: {
+                auto&& subast = node.as_table_tbody().get_subast();
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::md_thead, subast.begin()));
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::table_tbody, subast.begin()));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_thead: {
-                auto&& subast = node.as_html_thead().get_subast();
+            case ::pltxt2htm::NodeKind::table_tfoot: {
+                auto&& subast = node.as_table_tfoot().get_subast();
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_thead, subast.begin()));
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::table_tfoot, subast.begin()));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::md_tbody: {
-                auto&& subast = node.as_md_tbody().get_subast();
+            case ::pltxt2htm::NodeKind::table_tr: {
+                auto&& subast = node.as_table_tr().get_subast();
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::md_tbody, subast.begin()));
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::table_tr, subast.begin()));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_tbody: {
-                auto&& subast = node.as_html_tbody().get_subast();
+            case ::pltxt2htm::NodeKind::table_th: {
+                auto&& subast = node.as_table_th().get_subast();
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_tbody, subast.begin()));
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::table_th, subast.begin()));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_tfoot: {
-                auto&& subast = node.as_html_tfoot().get_subast();
+            case ::pltxt2htm::NodeKind::table_td: {
+                auto&& subast = node.as_table_td().get_subast();
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_tfoot, subast.begin()));
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_tr: {
-                auto&& subast = node.as_md_tr().get_subast();
-                call_stack.push(
-                    ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::md_tr, subast.begin()));
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_tr: {
-                auto&& subast = node.as_html_tr().get_subast();
-                call_stack.push(
-                    ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_tr, subast.begin()));
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_th: {
-                auto&& subast = node.as_md_th().get_subast();
-                call_stack.push(
-                    ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::md_th, subast.begin()));
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_th: {
-                auto&& subast = node.as_html_th().get_subast();
-                call_stack.push(
-                    ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_th, subast.begin()));
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_td: {
-                auto&& subast = node.as_md_td().get_subast();
-                call_stack.push(
-                    ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::md_td, subast.begin()));
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_td: {
-                auto&& subast = node.as_html_td().get_subast();
-                call_stack.push(
-                    ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_td, subast.begin()));
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::table_td, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore:
@@ -1553,7 +1511,7 @@ entry:
                         ::std::addressof(subast), node.get_node_kind(), subast.begin()));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_col:
+            case ::pltxt2htm::NodeKind::table_col:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_img:
                 [[fallthrough]];

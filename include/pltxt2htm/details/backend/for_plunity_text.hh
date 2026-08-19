@@ -1241,40 +1241,26 @@ entry:
                 result.append(u8"<margin left=2em>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::md_table: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_table().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::md_table, 0));
+            case ::pltxt2htm::NodeKind::table: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_table().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::table, 0));
                 ++current_index;
                 result.append(u8"<size=20>\uff1c</size>table<size=20>\uff1e</size>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_table: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                    node.as_html_table().get_subast(), ::pltxt2htm::NodeKind::html_table, 0));
-                ++current_index;
-                result.append(u8"<size=20>\uff1c</size>table<size=20>\uff1e</size>");
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_tr: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_tr().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::md_tr, 0));
+            case ::pltxt2htm::NodeKind::table_tr: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_table_tr().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::table_tr, 0));
                 ++current_index;
                 result.append(u8"<size=20>\uff1c</size>tr<size=20>\uff1e</size>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_tr: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_tr().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::html_tr, 0));
-                ++current_index;
-                result.append(u8"<size=20>\uff1c</size>tr<size=20>\uff1e</size>");
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_td: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_td().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::md_td, 0));
+            case ::pltxt2htm::NodeKind::table_td: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_table_td().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::table_td, 0));
                 ++current_index;
                 result.append(u8"<size=20>\uff1c</size>td");
-                auto const align = node.as_md_td().get_align();
+                auto const align = node.as_table_td().get_align();
                 if (align == ::pltxt2htm::TableAlign::center) {
                     result.append(u8" style=\"text-align:center\"");
                 }
@@ -1284,27 +1270,12 @@ entry:
                 result.append(u8"<size=20>\uff1e</size>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_td: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_td().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::html_td, 0));
-                ++current_index;
-                result.append(u8"<size=20>\uff1c</size>td");
-                auto const align = node.as_html_td().get_align();
-                if (align == ::pltxt2htm::TableAlign::center) {
-                    result.append(u8" style=\"text-align:center\"");
-                }
-                else if (align == ::pltxt2htm::TableAlign::right) {
-                    result.append(u8" style=\"text-align:right\"");
-                }
-                result.append(u8"<size=20>\uff1e</size>");
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_th: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_th().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::md_th, 0));
+            case ::pltxt2htm::NodeKind::table_th: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_table_th().get_subast(),
+                                                                                  ::pltxt2htm::NodeKind::table_th, 0));
                 ++current_index;
                 result.append(u8"<size=20>\uff1c</size>th");
-                auto const align = node.as_md_th().get_align();
+                auto const align = node.as_table_th().get_align();
                 if (align == ::pltxt2htm::TableAlign::center) {
                     result.append(u8" style=\"text-align:center\"");
                 }
@@ -1314,71 +1285,42 @@ entry:
                 result.append(u8"<size=20>\uff1e</size>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_th: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_html_th().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::html_th, 0));
-                ++current_index;
-                result.append(u8"<size=20>\uff1c</size>th");
-                auto const align = node.as_html_th().get_align();
-                if (align == ::pltxt2htm::TableAlign::center) {
-                    result.append(u8" style=\"text-align:center\"");
-                }
-                else if (align == ::pltxt2htm::TableAlign::right) {
-                    result.append(u8" style=\"text-align:right\"");
-                }
-                result.append(u8"<size=20>\uff1e</size>");
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_thead: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_thead().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::md_thead, 0));
+            case ::pltxt2htm::NodeKind::table_thead: {
+                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
+                    node.as_table_thead().get_subast(), ::pltxt2htm::NodeKind::table_thead, 0));
                 ++current_index;
                 result.append(u8"<size=20>\uff1c</size>thead<size=20>\uff1e</size>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_thead: {
+            case ::pltxt2htm::NodeKind::table_tbody: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                    node.as_html_thead().get_subast(), ::pltxt2htm::NodeKind::html_thead, 0));
-                ++current_index;
-                result.append(u8"<size=20>\uff1c</size>thead<size=20>\uff1e</size>");
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_tbody: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(node.as_md_tbody().get_subast(),
-                                                                                  ::pltxt2htm::NodeKind::md_tbody, 0));
+                    node.as_table_tbody().get_subast(), ::pltxt2htm::NodeKind::table_tbody, 0));
                 ++current_index;
                 result.append(u8"<size=20>\uff1c</size>tbody<size=20>\uff1e</size>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_tbody: {
+            case ::pltxt2htm::NodeKind::table_tfoot: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                    node.as_html_tbody().get_subast(), ::pltxt2htm::NodeKind::html_tbody, 0));
-                ++current_index;
-                result.append(u8"<size=20>\uff1c</size>tbody<size=20>\uff1e</size>");
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_tfoot: {
-                call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                    node.as_html_tfoot().get_subast(), ::pltxt2htm::NodeKind::html_tfoot, 0));
+                    node.as_table_tfoot().get_subast(), ::pltxt2htm::NodeKind::table_tfoot, 0));
                 ++current_index;
                 result.append(u8"<size=20>\uff1c</size>tfoot<size=20>\uff1e</size>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_caption: {
+            case ::pltxt2htm::NodeKind::table_caption: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                    node.as_html_caption().get_subast(), ::pltxt2htm::NodeKind::html_caption, 0));
+                    node.as_table_caption().get_subast(), ::pltxt2htm::NodeKind::table_caption, 0));
                 ++current_index;
                 result.append(u8"<size=20>\uff1c</size>caption<size=20>\uff1e</size>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_colgroup: {
+            case ::pltxt2htm::NodeKind::table_colgroup: {
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(
-                    node.as_html_colgroup().get_subast(), ::pltxt2htm::NodeKind::html_colgroup, 0));
+                    node.as_table_colgroup().get_subast(), ::pltxt2htm::NodeKind::table_colgroup, 0));
                 ++current_index;
                 result.append(u8"<size=20>\uff1c</size>colgroup<size=20>\uff1e</size>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_col: {
+            case ::pltxt2htm::NodeKind::table_col: {
                 result.append(u8"<size=20>\uff1c</size>col<size=20>\uff1e</size>");
                 continue;
             }
@@ -1794,51 +1736,39 @@ entry:
                 result.append(u8"</margin>\n");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::md_table:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_table: {
+            case ::pltxt2htm::NodeKind::table: {
                 result.append(u8"<size=20>\uff1c</size>/table<size=20>\uff1e</size>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::md_tr:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_tr: {
+            case ::pltxt2htm::NodeKind::table_tr: {
                 result.append(u8"<size=20>\uff1c</size>/tr<size=20>\uff1e</size>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::md_td:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_td: {
+            case ::pltxt2htm::NodeKind::table_td: {
                 result.append(u8"<size=20>\uff1c</size>/td<size=20>\uff1e</size>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::md_th:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_th: {
+            case ::pltxt2htm::NodeKind::table_th: {
                 result.append(u8"<size=20>\uff1c</size>/th<size=20>\uff1e</size>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::md_thead:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_thead: {
+            case ::pltxt2htm::NodeKind::table_thead: {
                 result.append(u8"<size=20>\uff1c</size>/thead<size=20>\uff1e</size>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::md_tbody:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_tbody: {
+            case ::pltxt2htm::NodeKind::table_tbody: {
                 result.append(u8"<size=20>\uff1c</size>/tbody<size=20>\uff1e</size>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_tfoot: {
+            case ::pltxt2htm::NodeKind::table_tfoot: {
                 result.append(u8"<size=20>\uff1c</size>/tfoot<size=20>\uff1e</size>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_caption: {
+            case ::pltxt2htm::NodeKind::table_caption: {
                 result.append(u8"<size=20>\uff1c</size>/caption<size=20>\uff1e</size>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_colgroup: {
+            case ::pltxt2htm::NodeKind::table_colgroup: {
                 result.append(u8"<size=20>\uff1c</size>/colgroup<size=20>\uff1e</size>");
                 goto entry;
             }

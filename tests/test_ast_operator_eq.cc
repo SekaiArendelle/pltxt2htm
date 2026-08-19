@@ -25,8 +25,8 @@ int main() {
         ::exception::assert_true<false>(a == b);
     }
     {
-        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::HtmlCol{});
-        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::HtmlCol{});
+        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::TableCol{});
+        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::TableCol{});
         ::exception::assert_true<false>(a == b);
     }
     {
@@ -360,7 +360,7 @@ int main() {
         ::exception::assert_false<false>(a == b);
     }
 
-    // MdTh / MdTd (sub-AST + TableAlign)
+    // TableTh / TableTd (sub-AST + TableAlign)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ast_a.emplace_back(::pltxt2htm::U8Char{u8'h'});
@@ -369,9 +369,9 @@ int main() {
         ast_b.emplace_back(::pltxt2htm::U8Char{u8'h'});
 
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::MdTh<nd::quick_enforce>(::std::move(ast_a), ::pltxt2htm::TableAlign::center));
+            ::pltxt2htm::TableTh<nd::quick_enforce>(::std::move(ast_a), ::pltxt2htm::TableAlign::center));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::MdTh<nd::quick_enforce>(::std::move(ast_b), ::pltxt2htm::TableAlign::center));
+            ::pltxt2htm::TableTh<nd::quick_enforce>(::std::move(ast_b), ::pltxt2htm::TableAlign::center));
         ::exception::assert_true<false>(a == b);
     }
     {
@@ -382,9 +382,9 @@ int main() {
         ast_b.emplace_back(::pltxt2htm::U8Char{u8'h'});
 
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::MdTh<nd::quick_enforce>(::std::move(ast_a), ::pltxt2htm::TableAlign::left));
+            ::pltxt2htm::TableTh<nd::quick_enforce>(::std::move(ast_a), ::pltxt2htm::TableAlign::left));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::MdTh<nd::quick_enforce>(::std::move(ast_b), ::pltxt2htm::TableAlign::center));
+            ::pltxt2htm::TableTh<nd::quick_enforce>(::std::move(ast_b), ::pltxt2htm::TableAlign::center));
         ::exception::assert_false<false>(a == b);
     }
     {
@@ -395,9 +395,9 @@ int main() {
         ast_b.emplace_back(::pltxt2htm::U8Char{u8'd'});
 
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::MdTd<nd::quick_enforce>(::std::move(ast_a), ::pltxt2htm::TableAlign::right));
+            ::pltxt2htm::TableTd<nd::quick_enforce>(::std::move(ast_a), ::pltxt2htm::TableAlign::right));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::MdTd<nd::quick_enforce>(::std::move(ast_b), ::pltxt2htm::TableAlign::right));
+            ::pltxt2htm::TableTd<nd::quick_enforce>(::std::move(ast_b), ::pltxt2htm::TableAlign::right));
         ::exception::assert_true<false>(a == b);
     }
 

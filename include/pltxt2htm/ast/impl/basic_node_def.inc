@@ -45,4 +45,3 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::CodeFence<ndebug>::operator==(this ::pltxt2htm::CodeFence<ndebug> const&,
                                                           ::pltxt2htm::CodeFence<ndebug> const&) noexcept
     -> bool = default;
-

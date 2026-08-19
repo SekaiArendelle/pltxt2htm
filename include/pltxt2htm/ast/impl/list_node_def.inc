@@ -84,4 +84,3 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::ListLiCheckbox<ndebug>::operator==(this ::pltxt2htm::ListLiCheckbox<ndebug> const&,
                                                                ::pltxt2htm::ListLiCheckbox<ndebug> const&) noexcept
     -> bool = default;
-
