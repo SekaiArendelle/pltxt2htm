@@ -280,12 +280,11 @@ entry:
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
                 opt_code_span_3_backtick.has_value()) {
                 // parsing markdown ```example```
-                auto&& [advance_count, subast] =
+                auto&& [content_size, subast] =
                     opt_code_span_3_backtick.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                 if (::pltxt2htm::details::is_inline_code_span_content<ndebug>(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 3,
-                                                                            advance_count - 6))) {
-                    current_index += advance_count;
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 3, content_size))) {
+                    current_index += content_size + 6;
                     result.push_back(
                         ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdCodeSpan3Backtick<ndebug>{::std::move(subast)}));
                     continue;
@@ -295,12 +294,11 @@ entry:
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
                 opt_code_span_2_backtick.has_value()) {
                 // parsing markdown ``example``
-                auto&& [advance_count, subast] =
+                auto&& [content_size, subast] =
                     opt_code_span_2_backtick.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                 if (::pltxt2htm::details::is_inline_code_span_content<ndebug>(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2,
-                                                                            advance_count - 4))) {
-                    current_index += advance_count;
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2, content_size))) {
+                    current_index += content_size + 4;
                     result.push_back(
                         ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdCodeSpan2Backtick<ndebug>{::std::move(subast)}));
                     continue;
@@ -310,12 +308,11 @@ entry:
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
                 opt_code_span_1_backtick.has_value()) {
                 // parsing markdown `example`
-                auto&& [advance_count, subast] =
+                auto&& [content_size, subast] =
                     opt_code_span_1_backtick.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                 if (::pltxt2htm::details::is_inline_code_span_content<ndebug>(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1,
-                                                                            advance_count - 2))) {
-                    current_index += advance_count;
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1, content_size))) {
+                    current_index += content_size + 2;
                     result.push_back(
                         ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdCodeSpan1Backtick<ndebug>{::std::move(subast)}));
                     continue;
@@ -439,7 +436,7 @@ entry:
                         auto const tag_len = a_tag.tag_len;
                         auto const span =
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index, tag_len + 2);
-                        auto&& [_, literal_ast] =
+                        auto&& [_, literal_ast, found_end_] =
                             ::pltxt2htm::details::simply_parse_pltext<ndebug,
                                                                       ::pltxt2htm::details::U8LiteralString<0>{}>(span);
                         result.append_range(::std::move(literal_ast));
@@ -634,7 +631,7 @@ entry:
                         auto const tag_len = external_tag.tag_len;
                         auto const span =
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index, tag_len + 3);
-                        auto&& [_, literal_ast] =
+                        auto&& [_, literal_ast, found_end_] =
                             ::pltxt2htm::details::simply_parse_pltext<ndebug,
                                                                       ::pltxt2htm::details::U8LiteralString<0>{}>(span);
                         result.append_range(::std::move(literal_ast));
@@ -734,7 +731,7 @@ entry:
                         auto const tag_len = link_tag.tag_len;
                         auto const span =
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index, tag_len + 3);
-                        auto&& [_, literal_ast] =
+                        auto&& [_, literal_ast, found_end_] =
                             ::pltxt2htm::details::simply_parse_pltext<ndebug,
                                                                       ::pltxt2htm::details::U8LiteralString<0>{}>(span);
                         result.append_range(::std::move(literal_ast));
