@@ -74,13 +74,13 @@ python scripts/gen_format_ninja.py
 ### Static analysis
 
 ```sh
-ninja -f tidy_cpp.ninja
+python scripts/run_clang_tidy.py
 ```
 
-Configuration is in `.clang-tidy` at the project root. `tidy_cpp.ninja` is also a **generated artifact**. After adding new source files, regenerate it:
+Configuration is in `.clang-tidy` at the project root. The script configures each sub-project (`examples`, `cmd`, `c`, or as given) into `<sub>/build-tidy` with `-DCMAKE_EXPORT_COMPILE_COMMANDS=ON` and runs clang-tidy on every translation unit in the resulting compile database, so the flags match the real build. Re-run after adding source files; pass `--refresh` to force a re-configure (e.g. after editing `CMakeLists.txt`). Machine-specific flags go through the standard `CXXFLAGS` environment variable, for example:
 
 ```sh
-python scripts/gen_tidy_ninja.py
+CXXFLAGS=-stdlib=libc++ python scripts/run_clang_tidy.py
 ```
 
 ### Running tests
