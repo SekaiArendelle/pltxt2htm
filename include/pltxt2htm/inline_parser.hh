@@ -50,28 +50,6 @@ constexpr auto is_inline_code_span_content(::fast_io::u8string_view content) noe
 }
 
 /**
- * @brief Check whether a list/table parser frame contains inline-only text content.
- * @param[in] kind Parser frame node kind.
- * @return True for list/table text-content frames.
- */
-[[nodiscard]]
-constexpr auto is_inline_content_frame_kind(::pltxt2htm::NodeKind kind) noexcept -> bool {
-    return kind == ::pltxt2htm::NodeKind::list_li || kind == ::pltxt2htm::NodeKind::list_li_checkbox ||
-           kind == ::pltxt2htm::NodeKind::table_caption || kind == ::pltxt2htm::NodeKind::table_th ||
-           kind == ::pltxt2htm::NodeKind::table_td;
-}
-
-/**
- * @brief Check whether a parser frame is a supported inline-parser root.
- * @param[in] kind Parser frame node kind.
- * @return True for the public text root and list/table text-content frames.
- */
-[[nodiscard]]
-constexpr auto is_inline_parse_root_kind(::pltxt2htm::NodeKind kind) noexcept -> bool {
-    return kind == ::pltxt2htm::NodeKind::text || ::pltxt2htm::details::is_inline_content_frame_kind(kind);
-}
-
-/**
  * @brief Parse the top call-stack frame using inline constructs only.
  * @details Parses only inline syntax; block-level syntax is preserved as literal
  *          text. The stack may already contain parent frames. Nested inline frames
@@ -88,9 +66,10 @@ constexpr auto inline_parse_pltxt(
     ::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>>& call_stack) noexcept -> void {
     ::std::size_t const root_stack_size{call_stack.size()};
     pltxt2htm_assert(root_stack_size != 0, u8"inline parser call_stack is empty");
-    pltxt2htm_assert(::pltxt2htm::details::is_inline_parse_root_kind(
-                         ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type()),
-                     u8"unexpected inline parser root frame kind");
+    auto const root_kind = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
+    pltxt2htm_assert(
+        root_kind == ::pltxt2htm::NodeKind::text || ::pltxt2htm::details::is_inline_content_frame_kind(root_kind),
+        u8"unexpected inline parser root frame kind");
 
 entry:
     while (true) {

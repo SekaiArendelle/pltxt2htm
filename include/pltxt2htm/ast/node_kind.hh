@@ -224,6 +224,16 @@ constexpr auto is_strong_like(::pltxt2htm::NodeKind const node_type) noexcept ->
 }
 
 /**
+ * @brief Whether the node kind is a list/table frame containing inline-only text.
+ */
+[[nodiscard]]
+constexpr auto is_inline_content_frame_kind(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
+    return node_type == ::pltxt2htm::NodeKind::list_li || node_type == ::pltxt2htm::NodeKind::list_li_checkbox ||
+           node_type == ::pltxt2htm::NodeKind::table_caption || node_type == ::pltxt2htm::NodeKind::table_th ||
+           node_type == ::pltxt2htm::NodeKind::table_td;
+}
+
+/**
  * @brief Whether the node kind is a URL-link container tag.
  * @details Auto-detected bare URLs inside these tags are suppressed to avoid
  *          nested anchors (e.g. an `<a>` inside `<link="url">...</link>`).
