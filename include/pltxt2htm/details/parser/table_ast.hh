@@ -195,6 +195,12 @@ constexpr void push_table_section_node(::pltxt2htm::Ast<ndebug>& table_ast,
     case ::pltxt2htm::details::TableRowSection::none: {
         return;
     }
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
+    default:
+        [[unlikely]] {
+            pltxt2htm_unreachable(u8"Unexpected TableRowSection");
+        }
+#endif
     }
 }
 
