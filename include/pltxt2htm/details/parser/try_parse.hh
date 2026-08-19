@@ -3306,6 +3306,7 @@ template<::pltxt2htm::Contracts ndebug>
 struct SimplyParsePLtextResult {
     ::std::size_t advance_count; ///< Number of characters consumed.
     ::pltxt2htm::Ast<ndebug> ast; ///< Parsed AST.
+    bool found_end; ///< Whether `end_string` was actually matched (only meaningful when end_string is non-empty).
 };
 
 template<::pltxt2htm::Contracts ndebug>
@@ -3392,6 +3393,7 @@ constexpr auto simply_parse_pltext(::fast_io::u8string_view pltext) noexcept
     ::pltxt2htm::Ast<ndebug> ast{};
     ::std::size_t current_index{};
     constexpr ::std::size_t end_size{end_string.size()};
+    bool found_end{};
 
     while (current_index < pltext_size) {
         char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index)};
@@ -3400,6 +3402,7 @@ constexpr auto simply_parse_pltext(::fast_io::u8string_view pltext) noexcept
             if (::pltxt2htm::details::is_prefix_match<ndebug, end_string>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) {
                 current_index += end_size;
+                found_end = true;
                 break;
             }
         }
@@ -3468,7 +3471,7 @@ constexpr auto simply_parse_pltext(::fast_io::u8string_view pltext) noexcept
         current_index += advance_count;
         continue;
     }
-    return {.advance_count = current_index, .ast = ::std::move(ast)};
+    return {.advance_count = current_index, .ast = ::std::move(ast), .found_end = found_end};
 }
 
 template<::pltxt2htm::Contracts ndebug>
@@ -3528,8 +3531,14 @@ constexpr auto try_parse_html_pre_code_block(::fast_io::u8string_view pltext) no
 
     // parse content until the closing </code></pre>
     constexpr auto end_string = ::pltxt2htm::details::U8LiteralString{u8"</code></pre>"};
-    auto&& [advance_count, ast] = ::pltxt2htm::details::simply_parse_pltext<ndebug, end_string, process_md_escape>(
-        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, pos));
+    auto&& [advance_count, ast, found_end] =
+        ::pltxt2htm::details::simply_parse_pltext<ndebug, end_string, process_md_escape>(
+            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, pos));
+    if (found_end == false) {
+        // No closing </code></pre> in the input: treat the whole construct as literal
+        // text instead of an unterminated code block.
+        return ::exception::nullopt;
+    }
     pos += advance_count;
 
     // <code class="language-..."> stores the full class value; CodeFence stores only the suffix
@@ -3729,7 +3738,7 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
     if (auto opt_fence_end = ::pltxt2htm::details::find_md_code_fence_end<ndebug, is_backtick>(content);
         opt_fence_end.has_value()) {
         auto&& [content_end, consumed] = opt_fence_end.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-        auto&& [_, ast_] =
+        auto&& [_, ast_, found_end_] =
             ::pltxt2htm::details::simply_parse_pltext<ndebug, ::pltxt2htm::details::U8LiteralString<0>{}>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(content, 0, content_end));
         ast = ::std::move(ast_);
@@ -3737,7 +3746,7 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
     }
     else {
         // No valid closing fence: content runs to the end of the input.
-        auto&& [advance_count, ast_] =
+        auto&& [advance_count, ast_, found_end_] =
             ::pltxt2htm::details::simply_parse_pltext<ndebug, ::pltxt2htm::details::U8LiteralString<0>{}>(content);
         ast = ::std::move(ast_);
         current_index += advance_count;
@@ -3910,8 +3919,10 @@ constexpr auto try_parse_md_block_quotes(::fast_io::u8string_view pltext) noexce
 
 template<::pltxt2htm::Contracts ndebug>
 struct TryParseMdCodeSpanResult {
-    ::std::size_t advance_count; ///< Number of characters consumed.
-    ::pltxt2htm::Ast<ndebug> subast; ///< Parsed AST for the code span.
+    ::std::size_t advance_count; ///< Number of characters consumed (both delimiters and content).
+    ::std::size_t content_begin; ///< Offset of the content within `pltext` (equals the delimiter size).
+    ::std::size_t content_size; ///< Length of the content (excluding both delimiters).
+    ::pltxt2htm::Ast<ndebug> subast; ///< Parsed AST for the code span content.
 };
 
 /**
@@ -3930,6 +3941,8 @@ struct TryParseMdCodeSpanResult {
  * @note The content is parsed as plain text and converted to appropriate AST nodes.
  * @note Code spans cannot contain newline characters - they must be single-line.
  * @note Empty code spans are valid and will be parsed.
+ * @note An opening delimiter without a matching closing delimiter is NOT a code span;
+ *       the function returns nullopt so the input stays literal text.
  * @see https://spec.commonmark.org/0.31.2/#code-spans
  */
 template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::U8LiteralString embraced_string>
@@ -3941,10 +3954,17 @@ constexpr auto try_parse_md_code_span(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt;
     }
 
-    auto&& [advance_count, ast] = ::pltxt2htm::details::simply_parse_pltext<ndebug, embraced_string>(
+    auto&& [advance_count, ast, found_end] = ::pltxt2htm::details::simply_parse_pltext<ndebug, embraced_string>(
         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, embraced_size));
+    if (found_end == false) {
+        // The closing delimiter is missing: `advance_count` only reaches the end of the
+        // input, so treating this as a code span would silently drop the unclosed backticks.
+        return ::exception::nullopt;
+    }
 
     return ::pltxt2htm::details::TryParseMdCodeSpanResult<ndebug>{.advance_count = advance_count + embraced_size,
+                                                                  .content_begin = embraced_size,
+                                                                  .content_size = advance_count - embraced_size,
                                                                   .subast = ::std::move(ast)};
 }
 

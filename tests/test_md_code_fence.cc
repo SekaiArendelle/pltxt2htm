@@ -235,7 +235,7 @@ print("Hello World")
         // causes the block-level fence parser to bail out, falling through to
         // inline code span parsing.
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"`````a bc");
-        auto answer = ::fast_io::u8string_view{u8"<code>``a&nbsp;bc</code>"};
+        auto answer = ::fast_io::u8string_view{u8"<code></code>`a&nbsp;bc"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
