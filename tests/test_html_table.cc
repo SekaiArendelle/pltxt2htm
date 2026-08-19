@@ -217,7 +217,17 @@ int main() {
     }
 
     {
-        // <caption> inside <table> is valid
+        // section -> bare <tr> -> re-opened section: the section after the bare row is independent
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"<table><tbody><tr><td>a</td></tr></tbody><tr><td>b</td></tr>"
+            u8"<tbody><tr><td>c</td></tr></tbody></table>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><tbody><tr><td>a</td></tr></tbody><tr><td>b</td></tr>"
+            u8"<tbody><tr><td>c</td></tr></tbody></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><caption>title</caption></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><caption>title</caption></table>"};
         pltxt2htm_test_assert_equal(html, answer);
