@@ -147,6 +147,21 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // ---- list-item text is parsed with the inline-only parser ----
+    {
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"<ul><li>before\n# **heading**</li><li>after\n- *item*</li></ul>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<ul><li>before<br>#&nbsp;<strong>heading</strong></li><li>after<br>-&nbsp;<em>item</em></li></ul>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        // An unclosed inline tag must stop at the current list-item frame.
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ul><li><b>first</li><li>second</li></ul>");
+        auto answer = ::fast_io::u8string_view{u8"<ul><li><strong>first</strong></li><li>second</li></ul>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     // ---- mismatched closing tag makes the list literal ----
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ul><li>a</li></ol>");

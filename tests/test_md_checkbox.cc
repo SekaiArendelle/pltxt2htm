@@ -71,5 +71,12 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"- [x] # **done**");
+        auto answer = ::fast_io::u8string_view{
+            u8"<ul><li><input type=\"checkbox\" disabled checked>#&nbsp;<strong>done</strong></li></ul>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }

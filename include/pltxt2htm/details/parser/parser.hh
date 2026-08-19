@@ -16,6 +16,7 @@
 #include "../utils.hh"
 #include "../../contracts.hh"
 #include "../../ast/ast.hh"
+#include "../../inline_parser.hh"
 #include "list_ast.hh"
 #include "md_list.hh"
 #include "html_list.hh"
@@ -447,39 +448,47 @@ entry:
             }
             switch (frame_iter->get_type()) {
             case ::pltxt2htm::details::ListNodeType::list_li: {
+                auto const text = frame_iter->get_text_view();
+                ++frame_iter;
                 call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                     ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                        ::pltxt2htm::details::ParserFrameContextWithPltextInfo{frame_iter->get_text_view()},
-                        ::pltxt2htm::NodeKind::list_li},
+                        ::pltxt2htm::details::ParserFrameContextWithPltextInfo{text}, ::pltxt2htm::NodeKind::list_li},
                     ::pltxt2htm::Ast<ndebug>{}));
-                break;
+                ::pltxt2htm::details::inline_parse_pltxt<ndebug>(call_stack);
+                goto entry;
             }
             case ::pltxt2htm::details::ListNodeType::list_li_checkbox: {
+                auto const text = frame_iter->get_text_view();
+                auto const checked = frame_iter->is_checked();
+                ++frame_iter;
                 call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                     ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                        ::pltxt2htm::details::ParserFrameContextWithListLiCheckboxInfo{frame_iter->get_text_view(),
-                                                                                       frame_iter->is_checked()},
+                        ::pltxt2htm::details::ParserFrameContextWithListLiCheckboxInfo{text, checked},
                         ::pltxt2htm::NodeKind::list_li_checkbox},
                     ::pltxt2htm::Ast<ndebug>{}));
-                break;
+                ::pltxt2htm::details::inline_parse_pltxt<ndebug>(call_stack);
+                goto entry;
             }
             case ::pltxt2htm::details::ListNodeType::list_ul: {
+                auto sublist = ::std::move(frame_iter->get_sublist());
+                ++frame_iter;
                 call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                     ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                        ::pltxt2htm::details::ParserFrameContextWithListInfo<ndebug>{
-                            ::std::move(frame_iter->get_sublist())},
+                        ::pltxt2htm::details::ParserFrameContextWithListInfo<ndebug>{::std::move(sublist)},
                         ::pltxt2htm::NodeKind::list_ul},
                     ::pltxt2htm::Ast<ndebug>{}));
-                break;
+                goto entry;
             }
             case ::pltxt2htm::details::ListNodeType::list_ol: {
+                auto sublist = ::std::move(frame_iter->get_sublist());
+                auto const start = frame_iter->get_start();
+                ++frame_iter;
                 call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
                     ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                        ::pltxt2htm::details::ParserFrameContextWithListInfo<ndebug>{
-                            ::std::move(frame_iter->get_sublist()), frame_iter->get_start()},
+                        ::pltxt2htm::details::ParserFrameContextWithListInfo<ndebug>{::std::move(sublist), start},
                         ::pltxt2htm::NodeKind::list_ol},
                     ::pltxt2htm::Ast<ndebug>{}));
-                break;
+                goto entry;
             }
 #ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
             default:
@@ -488,16 +497,18 @@ entry:
                 }
 #endif
             }
-
-            ++frame_iter;
-            goto entry;
+            pltxt2htm_unreachable(u8"Unreachable after ListNodeType switch");
         }
         if (auto const nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
             nested_tag_type == ::pltxt2htm::NodeKind::table) {
+            ::std::size_t const previous_stack_size{call_stack.size()};
             auto opt_table_ast = ::pltxt2htm::details::process_table_frame<ndebug>(call_stack);
             if (opt_table_ast.has_value()) {
                 auto&& table_ast = opt_table_ast.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
                 return ::pltxt2htm::details::ParsePlTxtResult<ndebug>{.subast = ::std::move(table_ast)};
+            }
+            if (call_stack.size() > previous_stack_size) {
+                ::pltxt2htm::details::inline_parse_pltxt<ndebug>(call_stack);
             }
             goto entry;
         }

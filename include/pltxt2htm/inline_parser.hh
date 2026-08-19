@@ -49,32 +49,48 @@ constexpr auto is_inline_code_span_content(::fast_io::u8string_view content) noe
     return true;
 }
 
-} // namespace pltxt2htm::details
-
-namespace pltxt2htm {
+/**
+ * @brief Check whether a list/table parser frame contains inline-only text content.
+ * @param[in] kind Parser frame node kind.
+ * @return True for list/table text-content frames.
+ */
+[[nodiscard]]
+constexpr auto is_inline_content_frame_kind(::pltxt2htm::NodeKind kind) noexcept -> bool {
+    return kind == ::pltxt2htm::NodeKind::list_li || kind == ::pltxt2htm::NodeKind::list_li_checkbox ||
+           kind == ::pltxt2htm::NodeKind::table_caption || kind == ::pltxt2htm::NodeKind::table_th ||
+           kind == ::pltxt2htm::NodeKind::table_td;
+}
 
 /**
- * @brief Parse pl-text into an Abstract Syntax Tree (AST), inline constructs only.
- * @details This is the inline-only counterpart of ::pltxt2htm::parse_pltxt.  It
- *          parses only inline syntax; block-level syntax is preserved as literal
- *          text.  A single text frame is pushed on an explicit call stack and the
- *          `goto entry` trampoline keeps nested-tag handling free of recursion.
+ * @brief Check whether a parser frame is a supported inline-parser root.
+ * @param[in] kind Parser frame node kind.
+ * @return True for the public text root and list/table text-content frames.
+ */
+[[nodiscard]]
+constexpr auto is_inline_parse_root_kind(::pltxt2htm::NodeKind kind) noexcept -> bool {
+    return kind == ::pltxt2htm::NodeKind::text || ::pltxt2htm::details::is_inline_content_frame_kind(kind);
+}
+
+/**
+ * @brief Parse the top call-stack frame using inline constructs only.
+ * @details Parses only inline syntax; block-level syntax is preserved as literal
+ *          text. The stack may already contain parent frames. Nested inline frames
+ *          are pushed and popped normally, but the root frame present on entry is
+ *          left on the stack so its caller can preserve frame-specific metadata and
+ *          finish attaching it to its parent.
  * @tparam ndebug Contract-checking mode for parsing, using `::pltxt2htm::Contracts`
  *                 values such as `::pltxt2htm::Contracts::quick_enforce` or
  *                 `::pltxt2htm::Contracts::ignore`
- * @param[in] input_pltext The Physics-Lab text content to parse
- * @return An AST representing the parsed inline structure of the input text
+ * @param[in,out] call_stack Active parser call stack whose top frame is parsed.
  */
 template<::pltxt2htm::Contracts ndebug>
-[[nodiscard]]
-constexpr auto inline_parse_pltxt(::fast_io::u8string_view input_pltext) noexcept -> ::pltxt2htm::Ast<ndebug> {
-    // This stack is used to track nested tag contexts during parsing
-    ::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>> call_stack{};
-
-    call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-        ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-            ::pltxt2htm::details::ParserFrameContextWithPltextInfo{input_pltext}, ::pltxt2htm::NodeKind::text},
-        ::pltxt2htm::Ast<ndebug>{}));
+constexpr auto inline_parse_pltxt(
+    ::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>>& call_stack) noexcept -> void {
+    ::std::size_t const root_stack_size{call_stack.size()};
+    pltxt2htm_assert(root_stack_size != 0, u8"inline parser call_stack is empty");
+    pltxt2htm_assert(::pltxt2htm::details::is_inline_parse_root_kind(
+                         ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type()),
+                     u8"unexpected inline parser root frame kind");
 
 entry:
     while (true) {
@@ -1327,9 +1343,7 @@ entry:
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlAlign staged_node(::std::move(result), frame.get_align());
                             call_stack.pop();
-                            if (call_stack.empty()) {
-                                return ::std::move(staged_node.get_subast());
-                            }
+                            pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index +=
@@ -1371,9 +1385,7 @@ entry:
                             ::pltxt2htm::PlMargin staged_node(::std::move(result), frame.get_pl_margin_tag_left(),
                                                               frame.get_pl_margin_tag_right());
                             call_stack.pop();
-                            if (call_stack.empty()) {
-                                return ::std::move(staged_node.get_subast());
-                            }
+                            pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index +=
@@ -1394,9 +1406,7 @@ entry:
                             ::pltxt2htm::HtmlDiv staged_node(::std::move(result), frame.get_html_div_left(),
                                                              frame.get_html_div_right());
                             call_stack.pop();
-                            if (call_stack.empty()) {
-                                return ::std::move(staged_node.get_subast());
-                            }
+                            pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index +=
@@ -1455,9 +1465,7 @@ entry:
                             auto const align = frame.get_align();
                             ::pltxt2htm::HtmlP staged_node(::std::move(result), align);
                             call_stack.pop();
-                            if (call_stack.empty()) {
-                                return ::std::move(staged_node.get_subast());
-                            }
+                            pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index +=
@@ -1477,9 +1485,7 @@ entry:
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlH1 staged_node(::std::move(result));
                             call_stack.pop();
-                            if (call_stack.empty()) {
-                                return ::std::move(staged_node.get_subast());
-                            }
+                            pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index +=
@@ -1499,9 +1505,7 @@ entry:
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlH2 staged_node(::std::move(result));
                             call_stack.pop();
-                            if (call_stack.empty()) {
-                                return ::std::move(staged_node.get_subast());
-                            }
+                            pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index +=
@@ -1521,9 +1525,7 @@ entry:
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlH3 staged_node(::std::move(result));
                             call_stack.pop();
-                            if (call_stack.empty()) {
-                                return ::std::move(staged_node.get_subast());
-                            }
+                            pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index +=
@@ -1543,9 +1545,7 @@ entry:
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlH4 staged_node(::std::move(result));
                             call_stack.pop();
-                            if (call_stack.empty()) {
-                                return ::std::move(staged_node.get_subast());
-                            }
+                            pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index +=
@@ -1565,9 +1565,7 @@ entry:
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlH5 staged_node(::std::move(result));
                             call_stack.pop();
-                            if (call_stack.empty()) {
-                                return ::std::move(staged_node.get_subast());
-                            }
+                            pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index +=
@@ -1587,9 +1585,7 @@ entry:
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlH6 staged_node(::std::move(result));
                             call_stack.pop();
-                            if (call_stack.empty()) {
-                                return ::std::move(staged_node.get_subast());
-                            }
+                            pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index +=
@@ -1785,9 +1781,7 @@ entry:
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlBlockquote staged_node(::std::move(result));
                             call_stack.pop();
-                            if (call_stack.empty()) {
-                                return ::std::move(staged_node.get_subast());
-                            }
+                            pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index +=
@@ -1855,6 +1849,8 @@ entry:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::table_tr:
                         [[fallthrough]];
+                    case ::pltxt2htm::NodeKind::table_caption:
+                        [[fallthrough]];
                     case ::pltxt2htm::NodeKind::table_th:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::table_td: {
@@ -1864,8 +1860,6 @@ entry:
                         continue;
                     }
                     case ::pltxt2htm::NodeKind::table_tfoot:
-                        [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::table_caption:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::table_colgroup:
                         [[fallthrough]];
@@ -2002,18 +1996,14 @@ entry:
             continue;
         }
         {
+            if (call_stack.size() == root_stack_size) {
+                return;
+            }
             ::pltxt2htm::details::ParserFrameContext<ndebug> frame(
                 ::std::move(::pltxt2htm::details::stack_top<ndebug>(call_stack)));
             ::std::size_t const staged_index = pltext_size;
             call_stack.pop();
-            if (call_stack.empty()) {
-                // Considering the following markdown:
-                // ```md
-                // <b>e</b>xample
-                // ```
-                // Text without any tag in the end will hit this branch.
-                return ::std::move(frame.subast);
-            }
+            pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
             // Considering the following markdown:
             // ```md
             // <b>example
@@ -2502,6 +2492,34 @@ entry:
             pltxt2htm_unreachable(u8"Unreachable after block-node-in-inline switch");
         }
     }
+}
+
+} // namespace pltxt2htm::details
+
+namespace pltxt2htm {
+
+/**
+ * @brief Parse pl-text into an Abstract Syntax Tree (AST), inline constructs only.
+ * @details This is the inline-only counterpart of ::pltxt2htm::parse_pltxt. It
+ *          creates a root text frame and delegates to the shared-stack inline parser.
+ * @tparam ndebug Contract-checking mode for parsing.
+ * @param[in] input_pltext The Physics-Lab text content to parse.
+ * @return An AST representing the parsed inline structure of the input text.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto inline_parse_pltxt(::fast_io::u8string_view input_pltext) noexcept -> ::pltxt2htm::Ast<ndebug> {
+    ::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>> call_stack{};
+    call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+        ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+            ::pltxt2htm::details::ParserFrameContextWithPltextInfo{input_pltext}, ::pltxt2htm::NodeKind::text},
+        ::pltxt2htm::Ast<ndebug>{}));
+
+    ::pltxt2htm::details::inline_parse_pltxt<ndebug>(call_stack);
+    auto result = ::std::move(::pltxt2htm::details::stack_top<ndebug>(call_stack).subast);
+    call_stack.pop();
+    pltxt2htm_assert(call_stack.empty(), u8"inline parser call_stack is not empty");
+    return result;
 }
 
 } // namespace pltxt2htm
