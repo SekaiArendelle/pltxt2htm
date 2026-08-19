@@ -35,11 +35,10 @@ namespace pltxt2htm::details {
  * @param[in] call_stack Active parser stack used to detect forbidden nesting.
  * @return Parsed tag result on success, otherwise nullopt.
  */
-template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::U8LiteralString prefix_str, auto value_char_predicate>
+template<::pltxt2htm::Contracts ndebug, U8LiteralString prefix_str, auto value_char_predicate>
 [[nodiscard]]
 constexpr auto try_parse_non_nestable_equal_sign_tag(
-    ::fast_io::u8string_view pltext,
-    ::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>> const& call_stack) noexcept
+    ::fast_io::u8string_view pltext, ::fast_io::stack<ParserFrameContext<ndebug>> const& call_stack) noexcept
     -> ::exception::optional<TryParseEqualSignTagResult> {
     auto result = ::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, prefix_str, value_char_predicate>(pltext);
     if (result.has_value() == false) {
@@ -117,9 +116,8 @@ struct TryParseExternalTagResult {
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_external_tag(
-    ::fast_io::u8string_view pltext,
-    ::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>> const& call_stack) noexcept
+constexpr auto try_parse_external_tag(::fast_io::u8string_view pltext,
+                                      ::fast_io::stack<ParserFrameContext<ndebug>> const& call_stack) noexcept
     -> TryParseExternalTagResult {
     auto result = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<ndebug, u8"xternal",
                                                                               ::pltxt2htm::details::is_url_value_char>(
@@ -209,9 +207,8 @@ struct TryParseLinkTagResult {
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_link_tag(
-    ::fast_io::u8string_view pltext,
-    ::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>> const& call_stack) noexcept
+constexpr auto try_parse_link_tag(::fast_io::u8string_view pltext,
+                                  ::fast_io::stack<ParserFrameContext<ndebug>> const& call_stack) noexcept
     -> TryParseLinkTagResult {
     auto result = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<ndebug, u8"ink",
                                                                               ::pltxt2htm::details::is_url_value_char>(

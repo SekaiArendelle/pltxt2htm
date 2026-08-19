@@ -49,8 +49,8 @@ enum class TableRowSection : unsigned {
  * @brief Raw row data for the intermediate table AST.
  */
 struct TableRowRaw {
-    ::fast_io::vector<::pltxt2htm::details::TableCellRaw> cells; ///< Row cells in authored order.
-    ::pltxt2htm::details::TableRowSection section; ///< thead/tbody/tfoot or none.
+    ::fast_io::vector<TableCellRaw> cells; ///< Row cells in authored order.
+    TableRowSection section; ///< thead/tbody/tfoot or none.
 };
 
 /**
@@ -64,7 +64,7 @@ struct TableRowRaw {
  */
 template<::pltxt2htm::Contracts ndebug>
 class TableAstRaw {
-    ::fast_io::vector<::pltxt2htm::details::TableRowRaw> rows{};
+    ::fast_io::vector<TableRowRaw> rows{};
     ::exception::optional<::fast_io::u8string> caption_text{::exception::nullopt};
     ::std::size_t col_count{}; // <==> optional<non_zero_usize> col_count;
 
@@ -129,17 +129,17 @@ public:
     /// @param row Row index.
     /// @return Section tag of row @p row.
     [[nodiscard]]
-    constexpr auto row_section(this auto&& self, ::std::size_t row) noexcept -> ::pltxt2htm::details::TableRowSection {
+    constexpr auto row_section(this auto&& self, ::std::size_t row) noexcept -> TableRowSection {
         return ::pltxt2htm::details::vector_index<ndebug>(self.rows, row).section;
     }
 
     /// Append a row (its section tag is supplied by the scanner).
-    constexpr void add_row(this TableAstRaw& self, ::pltxt2htm::details::TableRowRaw&& row) noexcept {
+    constexpr void add_row(this TableAstRaw& self, TableRowRaw&& row) noexcept {
         self.rows.push_back(::std::move(row));
     }
 
     /// Append a cell to the most recently added row.
-    constexpr void add_cell_to_last_row(this TableAstRaw& self, ::pltxt2htm::details::TableCellRaw&& cell) noexcept {
+    constexpr void add_cell_to_last_row(this TableAstRaw& self, TableCellRaw&& cell) noexcept {
         ::pltxt2htm::details::vector_index<ndebug>(self.rows, self.rows.size() - 1).cells.push_back(::std::move(cell));
     }
 };
@@ -165,23 +165,22 @@ enum class TableParsePhase : unsigned {
  * @param section_ast The section's sub-AST.
  */
 template<::pltxt2htm::Contracts ndebug>
-constexpr void push_table_section_node(::pltxt2htm::Ast<ndebug>& table_ast,
-                                       ::pltxt2htm::details::TableRowSection const section,
+constexpr void push_table_section_node(::pltxt2htm::Ast<ndebug>& table_ast, TableRowSection const section,
                                        ::pltxt2htm::Ast<ndebug>&& section_ast) noexcept {
     switch (section) /* -Werror=switch */ {
-    case ::pltxt2htm::details::TableRowSection::thead: {
+    case TableRowSection::thead: {
         table_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableThead<ndebug>{::std::move(section_ast)}));
         return;
     }
-    case ::pltxt2htm::details::TableRowSection::tbody: {
+    case TableRowSection::tbody: {
         table_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableTbody<ndebug>{::std::move(section_ast)}));
         return;
     }
-    case ::pltxt2htm::details::TableRowSection::tfoot: {
+    case TableRowSection::tfoot: {
         table_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableTfoot<ndebug>{::std::move(section_ast)}));
         return;
     }
-    case ::pltxt2htm::details::TableRowSection::none: {
+    case TableRowSection::none: {
         return;
     }
 #ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK

@@ -43,7 +43,7 @@ struct TryParseMdTableRowResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_table_row(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseMdTableRowResult> {
+    -> ::exception::optional<TryParseMdTableRowResult> {
     if (pltext.empty()) {
         return ::exception::nullopt;
     }
@@ -124,7 +124,7 @@ constexpr auto try_parse_md_table_row(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt;
     }
 
-    return ::pltxt2htm::details::TryParseMdTableRowResult{.cells = ::std::move(row), .advance_count = current_index};
+    return TryParseMdTableRowResult{.cells = ::std::move(row), .advance_count = current_index};
 }
 
 /**
@@ -186,7 +186,7 @@ constexpr auto try_parse_table_align(::fast_io::u8string_view cell) noexcept
  */
 template<::pltxt2htm::Contracts ndebug>
 struct TryParseMdTableRawResult {
-    ::pltxt2htm::details::TableAstRaw<ndebug> raw_ast; ///< parsed table AST
+    TableAstRaw<ndebug> raw_ast; ///< parsed table AST
     ::std::size_t advance_count; ///< number of characters consumed from input
 };
 
@@ -205,7 +205,7 @@ struct TryParseMdTableRawResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseMdTableRawResult<ndebug>> {
+    -> ::exception::optional<TryParseMdTableRawResult<ndebug>> {
     ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t current_index{};
 
@@ -251,12 +251,11 @@ constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
     }
 
     // build raw header row (section=thead, cells marked as headers)
-    ::pltxt2htm::details::TableAstRaw<ndebug> raw_ast{};
-    ::pltxt2htm::details::TableRowRaw header_row_raw{.cells = {},
-                                                     .section = ::pltxt2htm::details::TableRowSection::thead};
+    TableAstRaw<ndebug> raw_ast{};
+    TableRowRaw header_row_raw{.cells = {}, .section = TableRowSection::thead};
     for (::std::size_t col{}; col < num_cols; ++col) {
         auto const align_val = ::pltxt2htm::details::vector_index<ndebug>(aligns, col);
-        header_row_raw.cells.push_back(::pltxt2htm::details::TableCellRaw{
+        header_row_raw.cells.push_back(TableCellRaw{
             .text = ::std::move(::pltxt2htm::details::vector_index<ndebug>(header_row, col)),
             .align = align_val,
             .is_header = true,
@@ -278,11 +277,10 @@ constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
         if (row.size() != num_cols) {
             return ::exception::nullopt;
         }
-        ::pltxt2htm::details::TableRowRaw body_row_raw{.cells = {},
-                                                       .section = ::pltxt2htm::details::TableRowSection::tbody};
+        TableRowRaw body_row_raw{.cells = {}, .section = TableRowSection::tbody};
         for (::std::size_t col{}; col < num_cols; ++col) {
             auto const align_val = ::pltxt2htm::details::vector_index<ndebug>(aligns, col);
-            body_row_raw.cells.push_back(::pltxt2htm::details::TableCellRaw{
+            body_row_raw.cells.push_back(TableCellRaw{
                 .text = ::std::move(::pltxt2htm::details::vector_index<ndebug>(row, col)),
                 .align = align_val,
                 .is_header = false,
@@ -291,8 +289,7 @@ constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
         raw_ast.add_row(::std::move(body_row_raw));
     }
 
-    return ::pltxt2htm::details::TryParseMdTableRawResult<ndebug>{.raw_ast = ::std::move(raw_ast),
-                                                                  .advance_count = current_index};
+    return TryParseMdTableRawResult<ndebug>{.raw_ast = ::std::move(raw_ast), .advance_count = current_index};
 }
 
 } // namespace pltxt2htm::details

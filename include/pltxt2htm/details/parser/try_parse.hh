@@ -49,7 +49,7 @@ struct TryParseMdEscapeResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_escape(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseMdEscapeResult<ndebug>> {
+    -> ::exception::optional<TryParseMdEscapeResult<ndebug>> {
     if (pltext.empty()) {
         return ::exception::nullopt;
     }
@@ -57,109 +57,75 @@ constexpr auto try_parse_md_escape(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt;
     }
     if (pltext.size() == 1) {
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'\\'}), 1};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'\\'}), 1};
     }
     switch (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 1)) {
     case u8'\\':
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeBackslash{}), 2};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeBackslash{}), 2};
     case u8'!':
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeExclamation{}), 2};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeExclamation{}), 2};
     case u8'\"':
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeDoubleQuote{}), 2};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeDoubleQuote{}), 2};
     case u8'#':
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeHash{}), 2};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeHash{}), 2};
     case u8'$':
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeDollar{}), 2};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeDollar{}), 2};
     case u8'%':
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapePercent{}), 2};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapePercent{}), 2};
     case u8'&':
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeAmpersand{}), 2};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeAmpersand{}), 2};
     case u8'\'':
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeSingleQuote{}), 2};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeSingleQuote{}), 2};
     case u8'(':
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeLeftParen{}), 2};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeLeftParen{}), 2};
     case u8')':
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeRightParen{}), 2};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeRightParen{}), 2};
     case u8'*':
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeAsterisk{}), 2};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeAsterisk{}), 2};
     case u8'+':
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapePlus{}), 2};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapePlus{}), 2};
     case u8',':
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeComma{}), 2};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeComma{}), 2};
     case u8'-':
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeHyphen{}), 2};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeHyphen{}), 2};
     case u8'.':
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeDot{}), 2};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeDot{}), 2};
     case u8'/':
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeSlash{}), 2};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeSlash{}), 2};
     case u8':':
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeColon{}), 2};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeColon{}), 2};
     case u8';':
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeSemicolon{}), 2};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeSemicolon{}), 2};
     case u8'<':
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeLessThan{}), 2};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeLessThan{}), 2};
     case u8'=':
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeEquals{}), 2};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeEquals{}), 2};
     case u8'>':
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeGreaterThan{}), 2};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeGreaterThan{}), 2};
     case u8'?':
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeQuestion{}), 2};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeQuestion{}), 2};
     case u8'@':
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeAt{}), 2};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeAt{}), 2};
     case u8'[':
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeLeftBracket{}), 2};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeLeftBracket{}), 2};
     case u8']':
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeRightBracket{}), 2};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeRightBracket{}), 2};
     case u8'^':
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeCaret{}), 2};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeCaret{}), 2};
     case u8'_':
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeUnderscore{}), 2};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeUnderscore{}), 2};
     case u8'`':
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeBacktick{}), 2};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeBacktick{}), 2};
     case u8'{':
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeLeftBrace{}), 2};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeLeftBrace{}), 2};
     case u8'|':
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapePipe{}), 2};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapePipe{}), 2};
     case u8'}':
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeRightBrace{}), 2};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeRightBrace{}), 2};
     case u8'~':
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeTilde{}), 2};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscapeTilde{}), 2};
     default:
-        return ::pltxt2htm::details::TryParseMdEscapeResult<ndebug>{
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'\\'}), 1};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'\\'}), 1};
     }
 }
 
@@ -1078,7 +1044,7 @@ constexpr auto try_parse_equal_sign_tag_suffix(::fast_io::u8string_view pltext) 
 template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::U8LiteralString prefix_str, auto value_char_predicate>
 [[nodiscard]]
 constexpr auto try_parse_equal_sign_tag(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseEqualSignTagResult> {
+    -> ::exception::optional<TryParseEqualSignTagResult> {
     if (::pltxt2htm::details::is_equal_sign_tag_prefix<ndebug, prefix_str>(pltext) == false) {
         return ::exception::nullopt;
     }
@@ -1095,7 +1061,7 @@ constexpr auto try_parse_equal_sign_tag(::fast_io::u8string_view pltext) noexcep
         return ::exception::nullopt;
     }
     auto const close_rel = opt_close.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    return ::pltxt2htm::details::TryParseEqualSignTagResult{
+    return TryParseEqualSignTagResult{
         .tag_len = value_end + close_rel,
         .substr = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_start, value_end_rel)};
 }
@@ -1154,7 +1120,7 @@ constexpr auto try_parse_color_tag(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt;
     }
     auto const close_rel = opt_close.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    return ::pltxt2htm::details::TryParseEqualSignTagResult{
+    return TryParseEqualSignTagResult{
         .tag_len = value_end + close_rel,
         .substr = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, value_start, value_end - value_start)};
 }
@@ -1174,7 +1140,7 @@ struct TryParseSizeTagResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_size_tag(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseSizeTagResult> {
+    -> ::exception::optional<TryParseSizeTagResult> {
     constexpr auto prefix_str = ::pltxt2htm::details::U8LiteralString{u8"ize"};
     if (::pltxt2htm::details::is_equal_sign_tag_prefix<ndebug, prefix_str>(pltext) == false) {
         return ::exception::nullopt;
@@ -1204,7 +1170,7 @@ constexpr auto try_parse_size_tag(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt;
     }
     auto const tag_len = value_end + opt_close.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    return ::pltxt2htm::details::TryParseSizeTagResult{tag_len, {value.value, unit}};
+    return TryParseSizeTagResult{tag_len, {value.value, unit}};
 }
 
 /**
@@ -1236,7 +1202,7 @@ struct TryParseFontSizeValueResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_font_size_value(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseFontSizeValueResult> {
+    -> ::exception::optional<TryParseFontSizeValueResult> {
     auto opt_decimal = ::pltxt2htm::details::try_parse_double_decimal_value<ndebug>(pltext);
     if (opt_decimal.has_value() == false) {
         return ::exception::nullopt;
@@ -1263,7 +1229,7 @@ constexpr auto try_parse_font_size_value(::fast_io::u8string_view pltext) noexce
         unit = ::pltxt2htm::Unit::em;
         pos += 2;
     }
-    return ::pltxt2htm::details::TryParseFontSizeValueResult{pos, {decimal.value, unit}};
+    return TryParseFontSizeValueResult{pos, {decimal.value, unit}};
 }
 
 /**
@@ -1284,7 +1250,7 @@ struct TryParseSignedLengthValueResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_signed_length_value(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseSignedLengthValueResult> {
+    -> ::exception::optional<TryParseSignedLengthValueResult> {
     auto opt_decimal = ::pltxt2htm::details::try_parse_ptrdiff_t_decimal_value<ndebug>(pltext);
     if (opt_decimal.has_value() == false) {
         return ::exception::nullopt;
@@ -1311,7 +1277,7 @@ constexpr auto try_parse_signed_length_value(::fast_io::u8string_view pltext) no
         unit = ::pltxt2htm::Unit::em;
         pos += 2;
     }
-    return ::pltxt2htm::details::TryParseSignedLengthValueResult{pos, {decimal.value, unit}};
+    return TryParseSignedLengthValueResult{pos, {decimal.value, unit}};
 }
 
 /**
@@ -1333,7 +1299,7 @@ struct TryParseVoffsetTagResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_voffset_tag(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseVoffsetTagResult> {
+    -> ::exception::optional<TryParseVoffsetTagResult> {
     constexpr auto prefix_str = ::pltxt2htm::details::U8LiteralString{u8"offset"};
     if (::pltxt2htm::details::is_equal_sign_tag_prefix<ndebug, prefix_str>(pltext) == false) {
         return ::exception::nullopt;
@@ -1355,7 +1321,7 @@ constexpr auto try_parse_voffset_tag(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt;
     }
     auto const tag_len = value_end + opt_close.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    return ::pltxt2htm::details::TryParseVoffsetTagResult{tag_len, value.value};
+    return TryParseVoffsetTagResult{tag_len, value.value};
 }
 
 /**
@@ -1377,7 +1343,7 @@ struct TryParseAlignTagResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_align_tag(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseAlignTagResult> {
+    -> ::exception::optional<TryParseAlignTagResult> {
     constexpr auto prefix_str = ::pltxt2htm::details::U8LiteralString{u8"<align"};
     if (::pltxt2htm::details::is_equal_sign_tag_prefix<ndebug, prefix_str>(pltext) == false) {
         return ::exception::nullopt;
@@ -1452,7 +1418,7 @@ constexpr auto try_parse_align_tag(::fast_io::u8string_view pltext) noexcept
     }
     auto const tag_len = value_start + quote_offset + value_end + quote_close_offset +
                          opt_close.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    return ::pltxt2htm::details::TryParseAlignTagResult{tag_len, align};
+    return TryParseAlignTagResult{tag_len, align};
 }
 
 /**
@@ -1472,7 +1438,7 @@ struct TryParseMarginValueResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_margin_value(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseMarginValueResult> {
+    -> ::exception::optional<TryParseMarginValueResult> {
     auto opt_value = ::pltxt2htm::details::try_parse_size_t_decimal_value<ndebug>(pltext);
     if (opt_value.has_value() == false) {
         return ::exception::nullopt;
@@ -1499,7 +1465,7 @@ constexpr auto try_parse_margin_value(::fast_io::u8string_view pltext) noexcept
         unit = ::pltxt2htm::Unit::em;
         value_end += 2;
     }
-    return ::pltxt2htm::details::TryParseMarginValueResult{value_end, {parsed.value, unit}};
+    return TryParseMarginValueResult{value_end, {parsed.value, unit}};
 }
 
 /**
@@ -1519,7 +1485,7 @@ struct TryParseMarginSingleResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_margin_single(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseMarginSingleResult> {
+    -> ::exception::optional<TryParseMarginSingleResult> {
     auto opt_value = ::pltxt2htm::details::try_parse_margin_value<ndebug>(pltext);
     if (opt_value.has_value() == false) {
         return ::exception::nullopt;
@@ -1531,7 +1497,7 @@ constexpr auto try_parse_margin_single(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt;
     }
     auto const tag_len = value.end + opt_close.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-    return ::pltxt2htm::details::TryParseMarginSingleResult{tag_len, value.value};
+    return TryParseMarginSingleResult{tag_len, value.value};
 }
 
 /**
@@ -1555,7 +1521,7 @@ struct TryParseMarginTagResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_margin_attributes(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseMarginTagResult> {
+    -> ::exception::optional<TryParseMarginTagResult> {
     ::std::size_t const pltext_size{pltext.size()};
     ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left = ::exception::nullopt;
     ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right = ::exception::nullopt;
@@ -1626,7 +1592,7 @@ constexpr auto try_parse_margin_attributes(::fast_io::u8string_view pltext) noex
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_margin_tag(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseMarginTagResult> {
+    -> ::exception::optional<TryParseMarginTagResult> {
     ::std::size_t const pltext_size{pltext.size()};
     constexpr auto prefix_str = ::pltxt2htm::details::U8LiteralString{u8"<margin"};
     constexpr auto left_prefix_str = ::pltxt2htm::details::U8LiteralString{u8"<margin-left"};
@@ -1639,8 +1605,7 @@ constexpr auto try_parse_margin_tag(::fast_io::u8string_view pltext) noexcept
             return ::exception::nullopt;
         }
         auto const single = opt_single.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-        return ::pltxt2htm::details::TryParseMarginTagResult{value_start + single.tag_len, single.value,
-                                                             ::exception::nullopt};
+        return TryParseMarginTagResult{value_start + single.tag_len, single.value, ::exception::nullopt};
     }
     if (::pltxt2htm::details::is_equal_sign_tag_prefix<ndebug, right_prefix_str>(pltext)) {
         constexpr auto value_start = right_prefix_str.size() + 1;
@@ -1650,8 +1615,7 @@ constexpr auto try_parse_margin_tag(::fast_io::u8string_view pltext) noexcept
             return ::exception::nullopt;
         }
         auto const single = opt_single.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-        return ::pltxt2htm::details::TryParseMarginTagResult{value_start + single.tag_len, ::exception::nullopt,
-                                                             single.value};
+        return TryParseMarginTagResult{value_start + single.tag_len, ::exception::nullopt, single.value};
     }
     if (::pltxt2htm::details::is_equal_sign_tag_prefix<ndebug, prefix_str>(pltext)) {
         constexpr auto value_start = prefix_str.size() + 1;
@@ -1661,7 +1625,7 @@ constexpr auto try_parse_margin_tag(::fast_io::u8string_view pltext) noexcept
             return ::exception::nullopt;
         }
         auto const single = opt_single.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-        return ::pltxt2htm::details::TryParseMarginTagResult{value_start + single.tag_len, single.value, single.value};
+        return TryParseMarginTagResult{value_start + single.tag_len, single.value, single.value};
     }
     if (::pltxt2htm::details::is_prefix_match<ndebug, prefix_str>(pltext)) {
         if (pltext_size > prefix_str.size()) {
@@ -1674,8 +1638,7 @@ constexpr auto try_parse_margin_tag(::fast_io::u8string_view pltext) noexcept
                     return ::exception::nullopt;
                 }
                 auto const attributes = opt_attributes.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-                return ::pltxt2htm::details::TryParseMarginTagResult{start + attributes.tag_len, attributes.left,
-                                                                     attributes.right};
+                return TryParseMarginTagResult{start + attributes.tag_len, attributes.left, attributes.right};
             }
         }
     }
@@ -1706,7 +1669,7 @@ struct TryParseHtmlDivTagResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_html_div_tag(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseHtmlDivTagResult> {
+    -> ::exception::optional<TryParseHtmlDivTagResult> {
     ::std::size_t const pltext_size{pltext.size()};
     if (::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"<div"}>(pltext) ==
         false) {
@@ -3126,7 +3089,7 @@ struct TryParseMdAtxHeadingResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_atx_heading(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseMdAtxHeadingResult> {
+    -> ::exception::optional<TryParseMdAtxHeadingResult> {
     ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t start_index{};
     // spaces before the first #
@@ -3148,7 +3111,7 @@ constexpr auto try_parse_md_atx_heading(::fast_io::u8string_view pltext) noexcep
             // https://spec.commonmark.org/0.31.2/#example-79
             if (static_cast<::std::size_t>(::pltxt2htm::NodeKind::md_atx_h1) <= md_atx_heading_type &&
                 md_atx_heading_type <= static_cast<::std::size_t>(::pltxt2htm::NodeKind::md_atx_h6)) {
-                return ::pltxt2htm::details::TryParseMdAtxHeadingResult{
+                return TryParseMdAtxHeadingResult{
                     .start_index = start_index,
                     .sublength = 0,
                     .advance_count = start_index,
@@ -3174,7 +3137,7 @@ constexpr auto try_parse_md_atx_heading(::fast_io::u8string_view pltext) noexcep
     while (true) {
         if (start_index >= pltext_size) {
             // https://spec.commonmark.org/0.31.2/#example-79
-            return ::pltxt2htm::details::TryParseMdAtxHeadingResult{
+            return TryParseMdAtxHeadingResult{
                 .start_index = start_index,
                 .sublength = 0,
                 .advance_count = start_index,
@@ -3197,11 +3160,10 @@ constexpr auto try_parse_md_atx_heading(::fast_io::u8string_view pltext) noexcep
             break;
         }
     }
-    return ::pltxt2htm::details::TryParseMdAtxHeadingResult{
-        .start_index = start_index,
-        .sublength = end_index - start_index,
-        .advance_count = end_index + extra_length,
-        .md_atx_heading_type = static_cast<::pltxt2htm::NodeKind>(md_atx_heading_type)};
+    return TryParseMdAtxHeadingResult{.start_index = start_index,
+                                      .sublength = end_index - start_index,
+                                      .advance_count = end_index + extra_length,
+                                      .md_atx_heading_type = static_cast<::pltxt2htm::NodeKind>(md_atx_heading_type)};
 }
 
 enum class ThematicBreakType : unsigned {
@@ -3497,7 +3459,7 @@ struct TryParseMdCodeFenceResult {
 template<::pltxt2htm::Contracts ndebug, bool process_md_escape = true>
 [[nodiscard]]
 constexpr auto try_parse_html_pre_code_block(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseMdCodeFenceResult<ndebug>> {
+    -> ::exception::optional<TryParseMdCodeFenceResult<ndebug>> {
     ::std::size_t const pltext_size{pltext.size()};
     // <pre> must be a bare tag (no attributes).
     auto opt_pre_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<pre">(pltext);
@@ -3548,7 +3510,7 @@ constexpr auto try_parse_html_pre_code_block(::fast_io::u8string_view pltext) no
         auto const& full_language = language.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
         opt_lang = ::fast_io::u8string{full_language.data() + 9, full_language.data() + full_language.size()};
     }
-    return ::pltxt2htm::details::TryParseMdCodeFenceResult<ndebug>{
+    return TryParseMdCodeFenceResult<ndebug>{
         .node = ::pltxt2htm::CodeFence<ndebug>{::std::move(ast), ::std::move(opt_lang)}, .advance_count = pos};
 }
 
@@ -3656,7 +3618,7 @@ constexpr auto find_md_code_fence_end(::fast_io::u8string_view content) noexcept
 template<::pltxt2htm::Contracts ndebug, bool is_backtick>
 [[nodiscard]]
 constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseMdCodeFenceResult<ndebug>> {
+    -> ::exception::optional<TryParseMdCodeFenceResult<ndebug>> {
     if (pltext.size() < 7) {
         return ::exception::nullopt;
     }
@@ -3756,7 +3718,7 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
     if (lang.empty() == false) {
         opt_lang = ::std::move(lang);
     }
-    return ::pltxt2htm::details::TryParseMdCodeFenceResult<ndebug>{
+    return TryParseMdCodeFenceResult<ndebug>{
         .node = ::pltxt2htm::CodeFence<ndebug>{::std::move(ast), ::std::move(opt_lang)},
         .advance_count = current_index};
 }
@@ -3779,7 +3741,7 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_code_fence(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseMdCodeFenceResult<ndebug>> {
+    -> ::exception::optional<TryParseMdCodeFenceResult<ndebug>> {
     if (auto opt_code_fence_backtick = ::pltxt2htm::details::try_parse_md_code_fence_<ndebug, true>(pltext);
         opt_code_fence_backtick.has_value()) {
         return opt_code_fence_backtick;
@@ -3864,7 +3826,7 @@ struct TryParseMdBlockQuotesResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_block_quotes(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseMdBlockQuotesResult> {
+    -> ::exception::optional<TryParseMdBlockQuotesResult> {
     ::fast_io::u8string subpltext{};
 
     ::std::size_t const pltext_size{pltext.size()};
@@ -3946,7 +3908,7 @@ struct TryParseMdCodeSpanResult {
 template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::U8LiteralString embraced_string>
 [[nodiscard]]
 constexpr auto try_parse_md_code_span(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseMdCodeSpanResult<ndebug>> {
+    -> ::exception::optional<TryParseMdCodeSpanResult<ndebug>> {
     constexpr ::std::size_t embraced_size{embraced_string.size()};
     if (::pltxt2htm::details::is_prefix_match<ndebug, embraced_string>(pltext) == false) {
         return ::exception::nullopt;
@@ -3965,8 +3927,7 @@ constexpr auto try_parse_md_code_span(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt;
     }
 
-    return ::pltxt2htm::details::TryParseMdCodeSpanResult<ndebug>{.content_size = content_size,
-                                                                  .subast = ::std::move(ast)};
+    return TryParseMdCodeSpanResult<ndebug>{.content_size = content_size, .subast = ::std::move(ast)};
 }
 
 template<::pltxt2htm::Contracts ndebug>
@@ -3995,7 +3956,7 @@ struct TryParseMdLatexResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_latex_block_dollar(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseMdLatexResult<ndebug>> {
+    -> ::exception::optional<TryParseMdLatexResult<ndebug>> {
     constexpr auto double_dollar = ::pltxt2htm::details::U8LiteralString{u8"$$"};
     if (pltext.size() < 4 || ::pltxt2htm::details::is_prefix_match<ndebug, double_dollar>(pltext) == false) {
         return ::exception::nullopt;
@@ -4007,8 +3968,7 @@ constexpr auto try_parse_md_latex_block_dollar(::fast_io::u8string_view pltext) 
     for (::std::size_t current_index{}; current_index < body_size;) {
         if (::pltxt2htm::details::is_prefix_match<ndebug, double_dollar>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(body, current_index))) {
-            return ::pltxt2htm::details::TryParseMdLatexResult<ndebug>{.advance_count = current_index + 4,
-                                                                       .subast = ::std::move(ast)};
+            return TryParseMdLatexResult<ndebug>{.advance_count = current_index + 4, .subast = ::std::move(ast)};
         }
         if (::pltxt2htm::details::u8string_view_index<ndebug>(body, current_index) == u8'\n') {
             ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'\n'}));
@@ -4042,7 +4002,7 @@ constexpr auto try_parse_md_latex_block_dollar(::fast_io::u8string_view pltext) 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_latex_inline(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseMdLatexResult<ndebug>> {
+    -> ::exception::optional<TryParseMdLatexResult<ndebug>> {
     if (pltext.size() < 3 || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 0) != u8'$') {
         return ::exception::nullopt;
     }
@@ -4059,8 +4019,7 @@ constexpr auto try_parse_md_latex_inline(::fast_io::u8string_view pltext) noexce
             if (current_index == 0) {
                 return ::exception::nullopt;
             }
-            return ::pltxt2htm::details::TryParseMdLatexResult<ndebug>{.advance_count = current_index + 2,
-                                                                       .subast = ::std::move(ast)};
+            return TryParseMdLatexResult<ndebug>{.advance_count = current_index + 2, .subast = ::std::move(ast)};
         }
         current_index += ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
             ::pltxt2htm::details::u8string_view_subview<ndebug>(body, current_index), ast);
@@ -4243,7 +4202,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto make_try_parse_url_result(::fast_io::u8string_view const parsed_url,
                                          ::std::size_t consumed_size) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseUrlResult> {
+    -> ::exception::optional<TryParseUrlResult> {
     ::std::size_t const parsed_url_size{parsed_url.size()};
     ::fast_io::u8string url_str{};
     url_str.reserve(parsed_url_size);
@@ -4287,8 +4246,7 @@ constexpr auto make_try_parse_url_result(::fast_io::u8string_view const parsed_u
             break;
         }
     }
-    return ::pltxt2htm::details::TryParseUrlResult{.consumed_size = consumed_size,
-                                                   .url = ::pltxt2htm::Url{::std::move(url_str)}};
+    return TryParseUrlResult{.consumed_size = consumed_size, .url = ::pltxt2htm::Url{::std::move(url_str)}};
 }
 
 /**
@@ -4506,7 +4464,7 @@ constexpr auto try_parse_html_a_tag(::fast_io::u8string_view pltext) noexcept ->
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_auto_url(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseUrlResult> {
+    -> ::exception::optional<TryParseUrlResult> {
     auto opt_scheme_end = ::pltxt2htm::details::try_parse_url_scheme<ndebug>(pltext);
     if (opt_scheme_end.has_value() == false) {
         return ::exception::nullopt;
@@ -4534,7 +4492,7 @@ struct TryParseMdUrlResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_url(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseMdUrlResult> {
+    -> ::exception::optional<TryParseMdUrlResult> {
     ::std::size_t const pltext_size{pltext.size()};
     // First attempt: authority + path with `)` as terminator, then verify `)` follows
     auto const scheme_end = ::pltxt2htm::details::try_parse_url_scheme<ndebug>(pltext).value_or(::std::size_t{});
@@ -4566,8 +4524,7 @@ constexpr auto try_parse_md_url(::fast_io::u8string_view pltext) noexcept
                 auto opt_result = ::pltxt2htm::details::make_try_parse_url_result<ndebug>(url_vw, path_end);
                 if (opt_result.has_value()) {
                     auto&& result = opt_result.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
-                    return ::pltxt2htm::details::TryParseMdUrlResult{.consumed_size = path_end,
-                                                                     .url = ::std::move(result.url)};
+                    return TryParseMdUrlResult{.consumed_size = path_end, .url = ::std::move(result.url)};
                 }
             }
         }
@@ -4616,7 +4573,7 @@ constexpr auto try_parse_md_url(::fast_io::u8string_view pltext) noexcept
     if (opt_result.has_value() == false) {
         return ::exception::nullopt;
     }
-    return ::pltxt2htm::details::TryParseMdUrlResult{
+    return TryParseMdUrlResult{
         .consumed_size = raw_len,
         .url = ::std::move(opt_result.template value<ndebug == ::pltxt2htm::Contracts::ignore>().url)};
 }
@@ -4647,7 +4604,7 @@ struct TryParseMdLinkResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_link(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseMdLinkResult> {
+    -> ::exception::optional<TryParseMdLinkResult> {
     ::std::size_t const pltext_size{pltext.size()};
     if (pltext_size < 4 || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 0) != u8'[') {
         return ::exception::nullopt;
@@ -4698,7 +4655,7 @@ constexpr auto try_parse_md_link(::fast_io::u8string_view pltext) noexcept
         return ::exception::nullopt;
     }
     ++current_index;
-    return ::pltxt2htm::details::TryParseMdLinkResult{
+    return TryParseMdLinkResult{
         .advance_count = current_index,
         .link_text = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, 1, link_text_end - 1),
         .link_url = ::std::move(md_url_result.url)};
@@ -4720,7 +4677,7 @@ struct TryParseMdImageResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_image(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::TryParseMdImageResult<ndebug>> {
+    -> ::exception::optional<TryParseMdImageResult<ndebug>> {
     ::std::size_t const pltext_size{pltext.size()};
     if (pltext_size < 5 || ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 0) != u8'!' ||
         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 1) != u8'[') {
@@ -4813,9 +4770,9 @@ constexpr auto try_parse_md_image(::fast_io::u8string_view pltext) noexcept
         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8')') {
         return ::exception::nullopt;
     }
-    return ::pltxt2htm::details::TryParseMdImageResult<ndebug>{.advance_count = current_index + 1,
-                                                               .link_text = ::std::move(link_text_ast),
-                                                               .link_url = ::std::move(md_url_result.url)};
+    return TryParseMdImageResult<ndebug>{.advance_count = current_index + 1,
+                                         .link_text = ::std::move(link_text_ast),
+                                         .link_url = ::std::move(md_url_result.url)};
 }
 
 } // namespace pltxt2htm::details
