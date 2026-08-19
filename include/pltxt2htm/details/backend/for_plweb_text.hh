@@ -400,8 +400,7 @@ entry:
                     ::fast_io::u8string purified_experiment_id{};
                     ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
                         purified_experiment_id, ::fast_io::u8string_view{experiment_id.data(), experiment_id.size()});
-                    bool const is_valid_experiment_id{purified_experiment_id == experiment_id};
-                    pltxt2htm_assert(is_valid_experiment_id,
+                    pltxt2htm_assert(purified_experiment_id == experiment_id,
                                      u8"Experiment ID contains characters that cannot be directly used in HTML "
                                      u8"attributes. Please check "
                                      u8"the experiment ID or use a different backend that supports escaping.");
@@ -431,8 +430,7 @@ entry:
                     ::fast_io::u8string purified_discussion_id{};
                     ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
                         purified_discussion_id, ::fast_io::u8string_view{discussion_id.data(), discussion_id.size()});
-                    bool const is_valid_discussion_id{purified_discussion_id == discussion_id};
-                    pltxt2htm_assert(is_valid_discussion_id,
+                    pltxt2htm_assert(purified_discussion_id == discussion_id,
                                      u8"Discussion ID contains characters that cannot be directly used in HTML "
                                      u8"attributes. Please check "
                                      u8"the discussion ID or use a different backend that supports escaping.");
@@ -1125,8 +1123,7 @@ entry:
             }
             case ::pltxt2htm::NodeKind::list_ul: {
                 auto const& list_ul = node.as_list_ul();
-                bool const is_empty = list_ul.get_subast().empty();
-                pltxt2htm_assert(is_empty == false, u8"List container must not be empty");
+                pltxt2htm_assert(list_ul.get_subast().empty() == false, u8"List container must not be empty");
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(list_ul.get_subast(),
                                                                                   ::pltxt2htm::NodeKind::list_ul, 0));
                 ++current_index;
@@ -1135,8 +1132,7 @@ entry:
             }
             case ::pltxt2htm::NodeKind::list_ol: {
                 auto const& list_ol = node.as_list_ol();
-                bool const is_empty = list_ol.get_subast().empty();
-                pltxt2htm_assert(is_empty == false, u8"List container must not be empty");
+                pltxt2htm_assert(list_ol.get_subast().empty() == false, u8"List container must not be empty");
                 call_stack.push(::pltxt2htm::details::BackendFrameContext<ndebug>(list_ol.get_subast(),
                                                                                   ::pltxt2htm::NodeKind::list_ol, 0));
                 ++current_index;

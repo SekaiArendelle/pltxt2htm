@@ -113,8 +113,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[__gnu__::__pure__]]
 #endif
 constexpr auto u8string_view_index(::fast_io::u8string_view pltext, ::std::size_t i) noexcept -> char8_t {
-    ::std::size_t const pltext_size{pltext.size()};
-    pltxt2htm_assert(i < pltext_size, u8"Index of u8string_view out of bound");
+    pltxt2htm_assert(i < pltext.size(), u8"Index of u8string_view out of bound");
 
     return pltext.index_unchecked(i);
 }
@@ -171,8 +170,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto vector_front(is_fast_io_vector auto&& vec) noexcept -> decltype(auto) {
     static_assert(::std::is_lvalue_reference_v<decltype(vec)>, "vector_front requires an lvalue reference");
-    bool const vec_is_not_empty{!vec.empty()};
-    pltxt2htm_assert(vec_is_not_empty, u8"Indexing front but vector is empty");
+    pltxt2htm_assert(!vec.empty(), u8"Indexing front but vector is empty");
 
     return ::std::forward_like<decltype(vec)>(vec.front_unchecked());
 }
@@ -188,8 +186,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto vector_index(is_fast_io_vector auto&& vec, ::std::size_t i) noexcept -> decltype(auto) {
     static_assert(::std::is_lvalue_reference_v<decltype(vec)>, "vector_index requires an lvalue reference");
-    bool const is_not_out_of_bound{i < vec.size()};
-    pltxt2htm_assert(is_not_out_of_bound, u8"Index of vector out of bound");
+    pltxt2htm_assert(i < vec.size(), u8"Index of vector out of bound");
 
     return ::std::forward_like<decltype(vec)>(vec.index_unchecked(i));
 }
@@ -204,8 +201,7 @@ constexpr auto vector_index(is_fast_io_vector auto&& vec, ::std::size_t i) noexc
 template<::pltxt2htm::Contracts ndebug, typename T>
 [[nodiscard]]
 constexpr auto& stack_top(::fast_io::containers::stack<T>& stack) noexcept {
-    bool const is_not_empty{stack.empty() == false};
-    pltxt2htm_assert(is_not_empty, u8"Accessing top but stack is empty");
+    pltxt2htm_assert(stack.empty() == false, u8"Accessing top but stack is empty");
 
     return stack.top_unchecked();
 }
@@ -223,8 +219,7 @@ template<::pltxt2htm::Contracts ndebug, typename T>
 [[__gnu__::__pure__]]
 #endif
 constexpr auto const& stack_top(::fast_io::containers::stack<T> const& stack) noexcept {
-    bool const is_not_empty{stack.empty() == false};
-    pltxt2htm_assert(is_not_empty, u8"Accessing top but stack is empty");
+    pltxt2htm_assert(stack.empty() == false, u8"Accessing top but stack is empty");
 
     return stack.top_unchecked();
 }

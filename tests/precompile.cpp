@@ -22,6 +22,10 @@
     #error "Test fail: pltxt2htm_assert is defined"
 #endif
 
+#if defined(pltxt2htm_assume)
+    #error "Test fail: pltxt2htm_assume is defined"
+#endif
+
 #if defined(pltxt2htm_assert_context_branch)
     #error "Test fail: pltxt2htm_assert_context_branch is defined"
 #endif

@@ -1223,8 +1223,7 @@ constexpr auto parse_pltxt_html(::fast_io::u8string_view html_text) noexcept -> 
 
     auto result = details::parse_pltxt_html<ndebug>(call_stack);
 
-    bool const call_stack_is_empty{call_stack.empty()};
-    pltxt2htm_assert(call_stack_is_empty, u8"call_stack is not empty");
+    pltxt2htm_assert(call_stack.empty(), u8"call_stack is not empty");
 
     return result;
 }

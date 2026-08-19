@@ -12,6 +12,15 @@
 #include "../contracts.hh"
 #include "panic.hh"
 
+#pragma push_macro("pltxt2htm_assume")
+#undef pltxt2htm_assume
+#if defined(__clang__)
+    // Clang diagnoses function calls in an assume expression as having side effects.
+    #define pltxt2htm_assume(condition)
+#else
+    #define pltxt2htm_assume(condition) [[assume(condition)]]
+#endif
+
 /**
  * @brief Assert whether the condition expression is true, if not, print
  *        the message and terminate the program.
@@ -44,7 +53,7 @@
             } \
         } \
         else { \
-            [[assume(condition)]]; \
+            pltxt2htm_assume(condition); \
         } \
     } while (0)
 

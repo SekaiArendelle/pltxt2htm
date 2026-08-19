@@ -2476,7 +2476,7 @@ public:
 
     constexpr auto operator=(this ::pltxt2htm::PlTxtNode<ndebug>& self, ::pltxt2htm::PlTxtNode<ndebug>&& other) noexcept
         -> PlTxtNode& {
-        pltxt2htm_assert(__builtin_addressof(self) != __builtin_addressof(other), u8"self assignment is not allowed");
+        pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other), u8"self assignment is not allowed");
         self.~PlTxtNode();
         ::std::construct_at(::std::addressof(self), ::std::move(other));
         return self;
@@ -2889,897 +2889,772 @@ public:
 
     [[nodiscard]]
     constexpr auto as_u8char(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::u8char};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::u8char, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.u8char_node);
     }
 
     [[nodiscard]]
     constexpr auto as_invalid_u8char(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::invalid_u8char};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::invalid_u8char, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.invalid_u8char_node);
     }
 
     [[nodiscard]]
     constexpr auto as_text(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::text};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::text, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.text_node);
     }
 
     [[nodiscard]]
     constexpr auto as_line_break(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::line_break};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::line_break, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.line_break_node);
     }
 
     [[nodiscard]]
     constexpr auto as_html_br(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_br};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::html_br, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.br_node);
     }
 
     [[nodiscard]]
     constexpr auto as_space(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::space};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::space, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.space_node);
     }
 
     [[nodiscard]]
     constexpr auto as_less_than(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::less_than};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::less_than, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.less_than_node);
     }
 
     [[nodiscard]]
     constexpr auto as_greater_than(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::greater_than};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::greater_than, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.greater_than_node);
     }
 
     [[nodiscard]]
     constexpr auto as_tab(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::tab};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::tab, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.tab_node);
     }
 
     [[nodiscard]]
     constexpr auto as_ampersand(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::ampersand};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::ampersand, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.ampersand_node);
     }
 
     [[nodiscard]]
     constexpr auto as_entity_reference(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::entity_reference};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::entity_reference, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.entity_reference_node);
     }
 
     [[nodiscard]]
     constexpr auto as_single_quote(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::single_quote};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::single_quote, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.single_quote_node);
     }
 
     [[nodiscard]]
     constexpr auto as_double_quote(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::double_quote};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::double_quote, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.double_quote_node);
     }
 
     [[nodiscard]]
     constexpr auto as_html_hr(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_hr};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::html_hr, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.html_hr_node);
     }
 
     [[nodiscard]]
     constexpr auto as_html_h1(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_h1};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::html_h1, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.html_h1_node);
     }
 
     [[nodiscard]]
     constexpr auto as_html_h2(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_h2};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::html_h2, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.html_h2_node);
     }
 
     [[nodiscard]]
     constexpr auto as_html_h3(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_h3};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::html_h3, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.html_h3_node);
     }
 
     [[nodiscard]]
     constexpr auto as_html_h4(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_h4};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::html_h4, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.html_h4_node);
     }
 
     [[nodiscard]]
     constexpr auto as_html_h5(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_h5};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::html_h5, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.html_h5_node);
     }
 
     [[nodiscard]]
     constexpr auto as_html_h6(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_h6};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::html_h6, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.html_h6_node);
     }
 
     [[nodiscard]]
     constexpr auto as_html_p(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_p};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::html_p, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.html_p_node);
     }
 
     [[nodiscard]]
     constexpr auto as_html_del(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_del};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::html_del, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.html_del_node);
     }
 
     [[nodiscard]]
     constexpr auto as_html_sup(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_sup};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::html_sup, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.html_sup_node);
     }
 
     [[nodiscard]]
     constexpr auto as_html_sub(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_sub};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::html_sub, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.html_sub_node);
     }
 
     [[nodiscard]]
     constexpr auto as_html_note(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_note};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::html_note, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.html_note_node);
     }
 
     [[nodiscard]]
     constexpr auto as_html_em(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_em};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::html_em, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.html_em_node);
     }
 
     [[nodiscard]]
     constexpr auto as_html_strong(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_strong};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::html_strong, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.html_strong_node);
     }
 
     [[nodiscard]]
     constexpr auto as_html_mark(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_mark};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::html_mark, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.html_mark_node);
     }
 
     [[nodiscard]]
     constexpr auto as_list_ul(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::list_ul};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::list_ul, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.list_ul_node);
     }
 
     [[nodiscard]]
     constexpr auto as_list_ol(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::list_ol};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::list_ol, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.list_ol_node);
     }
 
     [[nodiscard]]
     constexpr auto as_list_li(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::list_li};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::list_li, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.list_li_node);
     }
 
     [[nodiscard]]
     constexpr auto as_list_li_checkbox(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::list_li_checkbox};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::list_li_checkbox, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.list_li_checkbox_node);
     }
 
     [[nodiscard]]
     constexpr auto as_html_code(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_code};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::html_code, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.html_code_node);
     }
 
     [[nodiscard]]
     constexpr auto as_html_blockquote(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_blockquote};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::html_blockquote, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.html_blockquote_node);
     }
 
     [[nodiscard]]
     constexpr auto as_table_col(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::table_col};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::table_col, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.col_node);
     }
 
     [[nodiscard]]
     constexpr auto as_html_img(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::html_img};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::html_img, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.html_img_node);
     }
 
     [[nodiscard]]
     constexpr auto as_table(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::table};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::table, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.table_node);
     }
 
     [[nodiscard]]
     constexpr auto as_table_caption(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::table_caption};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::table_caption, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.caption_node);
     }
 
     [[nodiscard]]
     constexpr auto as_table_colgroup(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::table_colgroup};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::table_colgroup, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.colgroup_node);
     }
 
     [[nodiscard]]
     constexpr auto as_table_thead(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::table_thead};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::table_thead, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.thead_node);
     }
 
     [[nodiscard]]
     constexpr auto as_table_tbody(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::table_tbody};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::table_tbody, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.tbody_node);
     }
 
     [[nodiscard]]
     constexpr auto as_table_tfoot(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::table_tfoot};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::table_tfoot, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.tfoot_node);
     }
 
     [[nodiscard]]
     constexpr auto as_table_tr(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::table_tr};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::table_tr, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.tr_node);
     }
 
     [[nodiscard]]
     constexpr auto as_table_th(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::table_th};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::table_th, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.th_node);
     }
 
     [[nodiscard]]
     constexpr auto as_table_td(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::table_td};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::table_td, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.td_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_atx_h1(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_atx_h1};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_atx_h1, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_atx_h1_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_atx_h2(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_atx_h2};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_atx_h2, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_atx_h2_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_atx_h3(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_atx_h3};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_atx_h3, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_atx_h3_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_atx_h4(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_atx_h4};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_atx_h4, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_atx_h4_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_atx_h5(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_atx_h5};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_atx_h5, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_atx_h5_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_atx_h6(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_atx_h6};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_atx_h6, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_atx_h6_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_escape_backslash(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_escape_backslash};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_backslash, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_escape_backslash_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_escape_exclamation(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_escape_exclamation};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_exclamation, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_escape_exclamation_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_escape_double_quote(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_escape_double_quote};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_double_quote, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_escape_double_quote_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_escape_hash(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_escape_hash};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_hash, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_escape_hash_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_escape_dollar(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_escape_dollar};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_dollar, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_escape_dollar_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_escape_percent(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_escape_percent};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_percent, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_escape_percent_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_escape_ampersand(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_escape_ampersand};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_ampersand, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_escape_ampersand_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_escape_single_quote(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_escape_single_quote};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_single_quote, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_escape_single_quote_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_escape_left_paren(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_escape_left_paren};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_left_paren, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_escape_left_paren_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_escape_right_paren(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_escape_right_paren};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_right_paren, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_escape_right_paren_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_escape_asterisk(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_escape_asterisk};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_asterisk, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_escape_asterisk_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_escape_plus(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_escape_plus};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_plus, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_escape_plus_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_escape_comma(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_escape_comma};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_comma, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_escape_comma_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_escape_hyphen(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_escape_hyphen};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_hyphen, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_escape_hyphen_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_escape_dot(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_escape_dot};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_dot, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_escape_dot_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_escape_slash(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_escape_slash};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_slash, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_escape_slash_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_escape_colon(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_escape_colon};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_colon, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_escape_colon_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_escape_semicolon(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_escape_semicolon};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_semicolon, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_escape_semicolon_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_escape_less_than(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_escape_less_than};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_less_than, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_escape_less_than_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_escape_equals(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_escape_equals};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_equals, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_escape_equals_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_escape_greater_than(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_escape_greater_than};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_greater_than, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_escape_greater_than_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_escape_question(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_escape_question};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_question, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_escape_question_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_escape_at(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_escape_at};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_at, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_escape_at_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_escape_left_bracket(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_escape_left_bracket};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_left_bracket, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_escape_left_bracket_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_escape_right_bracket(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_escape_right_bracket};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_right_bracket, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_escape_right_bracket_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_escape_caret(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_escape_caret};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_caret, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_escape_caret_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_escape_underscore(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_escape_underscore};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_underscore, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_escape_underscore_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_escape_backtick(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_escape_backtick};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_backtick, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_escape_backtick_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_escape_left_brace(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_escape_left_brace};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_left_brace, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_escape_left_brace_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_escape_pipe(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_escape_pipe};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_pipe, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_escape_pipe_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_escape_right_brace(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_escape_right_brace};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_right_brace, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_escape_right_brace_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_escape_tilde(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_escape_tilde};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_tilde, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_escape_tilde_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_hr(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_hr};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_hr, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_hr_node);
     }
 
     [[nodiscard]]
     constexpr auto as_code_fence(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::code_fence};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::code_fence, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.code_fence_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_code_span_1_backtick(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_code_span_1_backtick};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_code_span_1_backtick, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_code_span_1_backtick_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_code_span_2_backtick(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_code_span_2_backtick};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_code_span_2_backtick, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_code_span_2_backtick_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_code_span_3_backtick(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_code_span_3_backtick};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_code_span_3_backtick, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_code_span_3_backtick_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_single_emphasis_asterisk(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_single_emphasis_asterisk};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_single_emphasis_asterisk, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_single_emphasis_asterisk_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_double_emphasis_asterisk(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_double_emphasis_asterisk};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_double_emphasis_asterisk, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_double_emphasis_asterisk_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_triple_emphasis_asterisk(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_triple_emphasis_asterisk_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_single_emphasis_underscore(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_single_emphasis_underscore};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_single_emphasis_underscore,
+                         u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_single_emphasis_underscore_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_double_emphasis_underscore(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_double_emphasis_underscore};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_double_emphasis_underscore,
+                         u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_double_emphasis_underscore_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_triple_emphasis_underscore(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_triple_emphasis_underscore};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_triple_emphasis_underscore,
+                         u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_triple_emphasis_underscore_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_del(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_del};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_del, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_del_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_link(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_link};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_link, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_link_node);
     }
 
     [[nodiscard]]
     constexpr auto as_url(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::url};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::url, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.url_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_image(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_image};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_image, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_image_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_block_quotes(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_block_quotes};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_block_quotes, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_block_quotes_node);
     }
 
     [[nodiscard]]
     constexpr auto as_html_span(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_span_type{self.node_kind == ::pltxt2htm::NodeKind::html_span};
-        pltxt2htm_assert(is_span_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::html_span, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.html_span_node);
     }
 
     [[nodiscard]]
     constexpr auto as_html_div(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_div_type{self.node_kind == ::pltxt2htm::NodeKind::html_div};
-        pltxt2htm_assert(is_div_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::html_div, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.html_div_node);
     }
 
     [[nodiscard]]
     constexpr auto as_html_a(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_a_type{self.node_kind == ::pltxt2htm::NodeKind::html_a};
-        pltxt2htm_assert(is_a_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::html_a, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.html_a_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_latex_inline(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_latex_inline};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_latex_inline, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_latex_inline_node);
     }
 
     [[nodiscard]]
     constexpr auto as_md_latex_block(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::md_latex_block};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_latex_block, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.md_latex_block_node);
     }
 
     [[nodiscard]]
     constexpr auto as_pl_color(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_color};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_color, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_color_node);
     }
 
     [[nodiscard]]
     constexpr auto as_pl_a(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_a};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_a, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_a_node);
     }
 
     [[nodiscard]]
     constexpr auto as_pl_experiment(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_experiment};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_experiment, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_experiment_node);
     }
 
     [[nodiscard]]
     constexpr auto as_pl_discussion(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_discussion};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_discussion, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_discussion_node);
     }
 
     [[nodiscard]]
     constexpr auto as_pl_experiments(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_experiments};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_experiments, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_experiments_node);
     }
 
     [[nodiscard]]
     constexpr auto as_pl_discussions(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_discussions};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_discussions, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_discussions_node);
     }
 
     [[nodiscard]]
     constexpr auto as_pl_user(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_user};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_user, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_user_node);
     }
 
     [[nodiscard]]
     constexpr auto as_pl_trigger(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_trigger};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_trigger, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_trigger_node);
     }
 
     [[nodiscard]]
     constexpr auto as_pl_internal(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_internal};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_internal, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_internal_node);
     }
 
     [[nodiscard]]
     constexpr auto as_pl_external(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_external};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_external, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_external_node);
     }
 
     [[nodiscard]]
     constexpr auto as_pl_link(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_link};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_link, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_link_node);
     }
 
     [[nodiscard]]
     constexpr auto as_pl_size(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_size};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_size, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_size_node);
     }
 
     [[nodiscard]]
     constexpr auto as_pl_voffset(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_voffset};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_voffset, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_voffset_node);
     }
 
     [[nodiscard]]
     constexpr auto as_pl_align(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_align};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_align, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_align_node);
     }
 
     [[nodiscard]]
     constexpr auto as_pl_mark(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_mark};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_mark, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_mark_node);
     }
 
     [[nodiscard]]
     constexpr auto as_pl_margin(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_margin};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_margin, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_margin_node);
     }
 
     [[nodiscard]]
     constexpr auto as_pl_i(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_i};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_i, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_i_node);
     }
 
     [[nodiscard]]
     constexpr auto as_pl_b(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_b};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_b, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_b_node);
     }
 
     [[nodiscard]]
     constexpr auto as_pl_u(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_u};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_u, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_u_node);
     }
 
     [[nodiscard]]
     constexpr auto as_pl_s(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_s};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_s, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_s_node);
     }
 
     [[nodiscard]]
     constexpr auto as_pl_macro_project(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_macro_project};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_macro_project, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_macro_project_node);
     }
 
     [[nodiscard]]
     constexpr auto as_pl_macro_visitor(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_macro_visitor};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_macro_visitor, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_macro_visitor_node);
     }
 
     [[nodiscard]]
     constexpr auto as_pl_macro_author(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_macro_author};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_macro_author, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_macro_author_node);
     }
 
     [[nodiscard]]
     constexpr auto as_pl_macro_coauthors(this auto&& self) noexcept -> decltype(auto) {
-        bool const is_type{self.node_kind == ::pltxt2htm::NodeKind::pl_macro_coauthors};
-        pltxt2htm_assert(is_type, u8"node kind mismatch");
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_macro_coauthors, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.pl_macro_coauthors_node);
     }
 

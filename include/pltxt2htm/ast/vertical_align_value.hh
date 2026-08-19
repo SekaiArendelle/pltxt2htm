@@ -89,15 +89,13 @@ public:
 
     [[nodiscard]]
     constexpr auto get_keyword(this auto const& self) noexcept -> VerticalAlignKeyword {
-        bool const is_keyword{self.kind == ::pltxt2htm::VerticalAlignKind::keyword};
-        pltxt2htm_assert(is_keyword, u8"vertical-align kind mismatch");
+        pltxt2htm_assert(self.kind == ::pltxt2htm::VerticalAlignKind::keyword, u8"vertical-align kind mismatch");
         return self.keyword;
     }
 
     [[nodiscard]]
     constexpr auto get_length(this auto&& self) noexcept -> ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> {
-        bool const is_length{self.kind == ::pltxt2htm::VerticalAlignKind::length};
-        pltxt2htm_assert(is_length, u8"vertical-align kind mismatch");
+        pltxt2htm_assert(self.kind == ::pltxt2htm::VerticalAlignKind::length, u8"vertical-align kind mismatch");
         return self.length;
     }
 };

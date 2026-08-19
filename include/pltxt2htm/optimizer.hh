@@ -313,16 +313,15 @@ public:
     [[nodiscard]]
     constexpr auto get_equal_sign_tag_id(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
-        bool const is_equal_sign_tag_type{::pltxt2htm::details::is_equal_sign_tag_type(context_data_ref.kind)};
-        pltxt2htm_assert(is_equal_sign_tag_type, u8"context kind mismatch");
+        pltxt2htm_assert(::pltxt2htm::details::is_equal_sign_tag_type(context_data_ref.kind),
+                         u8"context kind mismatch");
         return ::std::forward_like<decltype(self)>(context_data_ref.equal_sign_tag.id);
     }
 
     [[nodiscard]]
     constexpr auto get_pl_size_tag_value(this auto const& self) noexcept -> ::pltxt2htm::ValueWithUnit<double> {
         auto&& context_data_ref = self.context_data;
-        bool const is_pl_size_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_size};
-        pltxt2htm_assert(is_pl_size_tag_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::pl_size, u8"context kind mismatch");
         return context_data_ref.pl_size_tag.value;
     }
 
@@ -330,16 +329,14 @@ public:
     constexpr auto get_pl_voffset_tag_value(this auto const& self) noexcept
         -> ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> {
         auto&& context_data_ref = self.context_data;
-        bool const is_pl_voffset_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_voffset};
-        pltxt2htm_assert(is_pl_voffset_tag_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::pl_voffset, u8"context kind mismatch");
         return context_data_ref.pl_voffset_tag.value;
     }
 
     [[nodiscard]]
     constexpr auto get_html_span_color(this auto const& self) noexcept -> ::fast_io::u8string_view {
         auto&& context_data_ref = self.context_data;
-        bool const is_html_span_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_span};
-        pltxt2htm_assert(is_html_span_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_span, u8"context kind mismatch");
         return context_data_ref.html_span_info.color;
     }
 
@@ -347,8 +344,7 @@ public:
     constexpr auto get_html_span_font_size(this auto const& self) noexcept
         -> ::exception::optional<::pltxt2htm::ValueWithUnit<double>> {
         auto&& context_data_ref = self.context_data;
-        bool const is_html_span_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_span};
-        pltxt2htm_assert(is_html_span_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_span, u8"context kind mismatch");
         return context_data_ref.html_span_info.font_size;
     }
 
@@ -356,24 +352,21 @@ public:
     constexpr auto get_html_span_vertical_align(this auto const& self) noexcept
         -> ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> {
         auto&& context_data_ref = self.context_data;
-        bool const is_html_span_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_span};
-        pltxt2htm_assert(is_html_span_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_span, u8"context kind mismatch");
         return context_data_ref.html_span_info.vertical_align;
     }
 
     [[nodiscard]]
     constexpr auto get_html_mark_background_color(this auto const& self) noexcept -> ::fast_io::u8string_view {
         auto&& context_data_ref = self.context_data;
-        bool const is_html_mark_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_mark};
-        pltxt2htm_assert(is_html_mark_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_mark, u8"context kind mismatch");
         return context_data_ref.html_mark_info.background_color;
     }
 
     [[nodiscard]]
     constexpr auto get_pl_mark_background_color(this auto const& self) noexcept -> ::fast_io::u8string_view {
         auto&& context_data_ref = self.context_data;
-        bool const is_pl_mark_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_mark};
-        pltxt2htm_assert(is_pl_mark_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::pl_mark, u8"context kind mismatch");
         return context_data_ref.pl_mark_info.background_color;
     }
 };
@@ -1463,8 +1456,7 @@ entry:
                 auto&& subast = node_kind == ::pltxt2htm::NodeKind::md_triple_emphasis_underscore
                                     ? node.as_md_triple_emphasis_underscore().get_subast()
                                     : node.as_md_triple_emphasis_asterisk().get_subast();
-                bool const ast_not_empty = !subast.empty();
-                pltxt2htm_assert(ast_not_empty, u8"md_triple_emphasis subast must not be empty");
+                pltxt2htm_assert(!subast.empty(), u8"md_triple_emphasis subast must not be empty");
                 auto const& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
                 if (nested_tag_type == ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk ||
                     nested_tag_type == ::pltxt2htm::NodeKind::md_triple_emphasis_underscore) {

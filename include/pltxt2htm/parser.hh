@@ -237,8 +237,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
         result = ::std::move(::pltxt2htm::details::parse_pltxt<ndebug>(call_stack).subast);
     }
 
-    bool const call_stack_is_empty{call_stack.empty()};
-    pltxt2htm_assert(call_stack_is_empty, u8"call_stack is not empty");
+    pltxt2htm_assert(call_stack.empty(), u8"call_stack is not empty");
 
     return result;
 }

@@ -1450,40 +1450,36 @@ public:
     [[nodiscard]]
     constexpr auto get_equal_sign_tag_id(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
-        bool const is_equal_sign_tag_type{::pltxt2htm::details::is_equal_sign_tag_type(context_data_ref.kind)};
-        pltxt2htm_assert(is_equal_sign_tag_type, u8"context kind mismatch");
+        pltxt2htm_assert(::pltxt2htm::details::is_equal_sign_tag_type(context_data_ref.kind),
+                         u8"context kind mismatch");
         return ::std::forward_like<decltype(self)>(context_data_ref.equal_sign_tag.id);
     }
 
     [[nodiscard]]
     constexpr auto get_external_tag_url(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
-        bool const is_external_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_external};
-        pltxt2htm_assert(is_external_tag_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::pl_external, u8"context kind mismatch");
         return ::std::forward_like<decltype(self)>(context_data_ref.url_info.url);
     }
 
     [[nodiscard]]
     constexpr auto get_link_tag_url(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
-        bool const is_link_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_link};
-        pltxt2htm_assert(is_link_tag_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::pl_link, u8"context kind mismatch");
         return ::std::forward_like<decltype(self)>(context_data_ref.url_info.url);
     }
 
     [[nodiscard]]
     constexpr auto get_pl_size_tag_value(this auto&& self) noexcept -> ::pltxt2htm::ValueWithUnit<double> {
         auto&& context_data_ref = self.context_data;
-        bool const is_pl_size_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_size};
-        pltxt2htm_assert(is_pl_size_tag_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::pl_size, u8"context kind mismatch");
         return context_data_ref.pl_size_tag.value;
     }
 
     [[nodiscard]]
     constexpr auto get_pl_voffset_tag_value(this auto&& self) noexcept -> ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> {
         auto&& context_data_ref = self.context_data;
-        bool const is_pl_voffset_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_voffset};
-        pltxt2htm_assert(is_pl_voffset_tag_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::pl_voffset, u8"context kind mismatch");
         return context_data_ref.pl_voffset_tag.value;
     }
 
@@ -1491,8 +1487,7 @@ public:
     constexpr auto get_pl_margin_tag_left(this auto&& self) noexcept
         -> ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
         auto&& context_data_ref = self.context_data;
-        bool const is_pl_margin_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_margin};
-        pltxt2htm_assert(is_pl_margin_tag_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::pl_margin, u8"context kind mismatch");
         return context_data_ref.pl_margin_tag.left;
     }
 
@@ -1500,8 +1495,7 @@ public:
     constexpr auto get_pl_margin_tag_right(this auto&& self) noexcept
         -> ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
         auto&& context_data_ref = self.context_data;
-        bool const is_pl_margin_tag_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_margin};
-        pltxt2htm_assert(is_pl_margin_tag_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::pl_margin, u8"context kind mismatch");
         return context_data_ref.pl_margin_tag.right;
     }
 
@@ -1509,8 +1503,7 @@ public:
     constexpr auto get_html_div_left(this auto&& self) noexcept
         -> ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
         auto&& context_data_ref = self.context_data;
-        bool const is_html_div_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_div};
-        pltxt2htm_assert(is_html_div_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_div, u8"context kind mismatch");
         return context_data_ref.html_div_info.left;
     }
 
@@ -1518,25 +1511,23 @@ public:
     constexpr auto get_html_div_right(this auto&& self) noexcept
         -> ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
         auto&& context_data_ref = self.context_data;
-        bool const is_html_div_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_div};
-        pltxt2htm_assert(is_html_div_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_div, u8"context kind mismatch");
         return context_data_ref.html_div_info.right;
     }
 
     [[nodiscard]]
     constexpr auto get_align(this auto&& self) noexcept -> ::pltxt2htm::TextAlign {
         auto&& context_data_ref = self.context_data;
-        bool const is_align_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_p ||
-                                 context_data_ref.kind == ::pltxt2htm::NodeKind::pl_align};
-        pltxt2htm_assert(is_align_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_p ||
+                             context_data_ref.kind == ::pltxt2htm::NodeKind::pl_align,
+                         u8"context kind mismatch");
         return context_data_ref.align_info.align;
     }
 
     [[nodiscard]]
     constexpr auto get_html_span_color(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
-        bool const is_html_span_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_span};
-        pltxt2htm_assert(is_html_span_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_span, u8"context kind mismatch");
         return ::std::forward_like<decltype(self)>(context_data_ref.html_span_info.color);
     }
 
@@ -1544,8 +1535,7 @@ public:
     constexpr auto get_html_span_font_size(this auto&& self) noexcept
         -> ::exception::optional<::pltxt2htm::ValueWithUnit<double>> {
         auto&& context_data_ref = self.context_data;
-        bool const is_html_span_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_span};
-        pltxt2htm_assert(is_html_span_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_span, u8"context kind mismatch");
         return context_data_ref.html_span_info.font_size;
     }
 
@@ -1553,128 +1543,115 @@ public:
     constexpr auto get_html_span_vertical_align(this auto&& self) noexcept
         -> ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> {
         auto&& context_data_ref = self.context_data;
-        bool const is_html_span_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_span};
-        pltxt2htm_assert(is_html_span_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_span, u8"context kind mismatch");
         return context_data_ref.html_span_info.vertical_align;
     }
 
     [[nodiscard]]
     constexpr auto get_html_mark_background_color(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
-        bool const is_html_mark_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_mark};
-        pltxt2htm_assert(is_html_mark_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_mark, u8"context kind mismatch");
         return ::std::forward_like<decltype(self)>(context_data_ref.html_mark_info.background_color);
     }
 
     [[nodiscard]]
     constexpr auto get_pl_mark_background_color(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
-        bool const is_pl_mark_type{context_data_ref.kind == ::pltxt2htm::NodeKind::pl_mark};
-        pltxt2htm_assert(is_pl_mark_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::pl_mark, u8"context kind mismatch");
         return ::std::forward_like<decltype(self)>(context_data_ref.pl_mark_info.background_color);
     }
 
     [[nodiscard]]
     constexpr auto get_html_a_url(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
-        bool const is_html_a_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_a};
-        pltxt2htm_assert(is_html_a_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_a, u8"context kind mismatch");
         return ::std::forward_like<decltype(self)>(context_data_ref.html_a_tag_info.url);
     }
 
     [[nodiscard]]
     constexpr auto get_html_a_internal(this auto&& self) noexcept -> bool {
         auto&& context_data_ref = self.context_data;
-        bool const is_html_a_type{context_data_ref.kind == ::pltxt2htm::NodeKind::html_a};
-        pltxt2htm_assert(is_html_a_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_a, u8"context kind mismatch");
         return context_data_ref.html_a_tag_info.internal;
     }
 
     [[nodiscard]]
     constexpr auto get_md_link_url(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
-        bool const is_md_link_type{context_data_ref.kind == ::pltxt2htm::NodeKind::md_link};
-        pltxt2htm_assert(is_md_link_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::md_link, u8"context kind mismatch");
         return ::std::forward_like<decltype(self)>(context_data_ref.url_info.url);
     }
 
     [[nodiscard]]
     constexpr auto get_list_ast(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
-        bool const is_list_ul_or_ol_type{context_data_ref.kind == ::pltxt2htm::NodeKind::list_ul ||
-                                         context_data_ref.kind == ::pltxt2htm::NodeKind::list_ol};
-        pltxt2htm_assert(is_list_ul_or_ol_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::list_ul ||
+                             context_data_ref.kind == ::pltxt2htm::NodeKind::list_ol,
+                         u8"context kind mismatch");
         return ::std::forward_like<decltype(self)>(context_data_ref.list_info.list_ast);
     }
 
     [[nodiscard]]
     constexpr auto get_list_iter(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
-        bool const is_list_ul_or_ol_type{context_data_ref.kind == ::pltxt2htm::NodeKind::list_ul ||
-                                         context_data_ref.kind == ::pltxt2htm::NodeKind::list_ol};
-        pltxt2htm_assert(is_list_ul_or_ol_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::list_ul ||
+                             context_data_ref.kind == ::pltxt2htm::NodeKind::list_ol,
+                         u8"context kind mismatch");
         return ::std::forward_like<decltype(self)>(context_data_ref.list_info.iter);
     }
 
     [[nodiscard]]
     constexpr auto get_list_start(this auto const& self) noexcept -> ::std::size_t {
         auto&& context_data_ref = self.context_data;
-        bool const is_list_ul_or_ol_type{context_data_ref.kind == ::pltxt2htm::NodeKind::list_ul ||
-                                         context_data_ref.kind == ::pltxt2htm::NodeKind::list_ol};
-        pltxt2htm_assert(is_list_ul_or_ol_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::list_ul ||
+                             context_data_ref.kind == ::pltxt2htm::NodeKind::list_ol,
+                         u8"context kind mismatch");
         return context_data_ref.list_info.list_start;
     }
 
     [[nodiscard]]
     constexpr auto get_table_raw_ast(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
-        bool const is_table_type{context_data_ref.kind == ::pltxt2htm::NodeKind::table};
-        pltxt2htm_assert(is_table_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::table, u8"context kind mismatch");
         return ::std::forward_like<decltype(self)>(context_data_ref.table.raw_ast);
     }
 
     [[nodiscard]]
     constexpr auto get_table_state(this auto const& self) noexcept -> ::pltxt2htm::details::TableParsePhase {
         auto&& context_data_ref = self.context_data;
-        bool const is_table_type{context_data_ref.kind == ::pltxt2htm::NodeKind::table};
-        pltxt2htm_assert(is_table_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::table, u8"context kind mismatch");
         return context_data_ref.table.state;
     }
 
     [[nodiscard]]
     constexpr auto get_table_row_index(this auto const& self) noexcept -> ::std::size_t {
         auto&& context_data_ref = self.context_data;
-        bool const is_table_type{context_data_ref.kind == ::pltxt2htm::NodeKind::table};
-        pltxt2htm_assert(is_table_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::table, u8"context kind mismatch");
         return context_data_ref.table.row_index;
     }
 
     [[nodiscard]]
     constexpr auto get_table_cell_index(this auto const& self) noexcept -> ::std::size_t {
         auto&& context_data_ref = self.context_data;
-        bool const is_table_type{context_data_ref.kind == ::pltxt2htm::NodeKind::table};
-        pltxt2htm_assert(is_table_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::table, u8"context kind mismatch");
         return context_data_ref.table.cell_index;
     }
 
     constexpr auto set_table_state(this auto&& self, ::pltxt2htm::details::TableParsePhase s) noexcept -> void {
         auto&& context_data_ref = self.context_data;
-        bool const is_table_type{context_data_ref.kind == ::pltxt2htm::NodeKind::table};
-        pltxt2htm_assert(is_table_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::table, u8"context kind mismatch");
         context_data_ref.table.state = s;
     }
 
     constexpr auto set_table_row_index(this auto&& self, ::std::size_t r) noexcept -> void {
         auto&& context_data_ref = self.context_data;
-        bool const is_table_type{context_data_ref.kind == ::pltxt2htm::NodeKind::table};
-        pltxt2htm_assert(is_table_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::table, u8"context kind mismatch");
         context_data_ref.table.row_index = r;
     }
 
     constexpr auto set_table_cell_index(this auto&& self, ::std::size_t c) noexcept -> void {
         auto&& context_data_ref = self.context_data;
-        bool const is_table_type{context_data_ref.kind == ::pltxt2htm::NodeKind::table};
-        pltxt2htm_assert(is_table_type, u8"context kind mismatch");
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::table, u8"context kind mismatch");
         context_data_ref.table.cell_index = c;
     }
 

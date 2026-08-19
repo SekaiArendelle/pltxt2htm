@@ -11,3 +11,4 @@
 
 #pragma pop_macro("pltxt2htm_unreachable")
 #pragma pop_macro("pltxt2htm_assert")
+#pragma pop_macro("pltxt2htm_assume")

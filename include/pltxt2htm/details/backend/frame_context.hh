@@ -162,22 +162,19 @@ public:
 
     [[nodiscard]]
     constexpr auto get_html_span_info(this auto const& self) noexcept -> BackendContextWithHtmlSpanInfo {
-        bool const is_html_span_type{self.context_data.kind == ::pltxt2htm::NodeKind::html_span};
-        pltxt2htm_assert(is_html_span_type, u8"context kind mismatch");
+        pltxt2htm_assert(self.context_data.kind == ::pltxt2htm::NodeKind::html_span, u8"context kind mismatch");
         return self.context_data.html_span_info;
     }
 
     [[nodiscard]]
     constexpr auto get_align_info(this auto const& self) noexcept -> BackendContextWithAlignInfo {
-        bool const is_align_type{self.context_data.kind == ::pltxt2htm::NodeKind::html_p};
-        pltxt2htm_assert(is_align_type, u8"context kind mismatch");
+        pltxt2htm_assert(self.context_data.kind == ::pltxt2htm::NodeKind::html_p, u8"context kind mismatch");
         return self.context_data.align_info;
     }
 
     [[nodiscard]]
     constexpr auto get_ol_li_count(this auto&& self) noexcept -> ::std::size_t& {
-        bool const is_ol_type{self.context_data.kind == ::pltxt2htm::NodeKind::list_ol};
-        pltxt2htm_assert(is_ol_type, u8"context kind mismatch");
+        pltxt2htm_assert(self.context_data.kind == ::pltxt2htm::NodeKind::list_ol, u8"context kind mismatch");
         return self.context_data.ol_info.ol_li_count;
     }
 };
