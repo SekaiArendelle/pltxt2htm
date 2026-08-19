@@ -180,6 +180,43 @@ int main() {
     }
 
     {
+        // <tr> directly in <table> AFTER </tbody> must NOT be merged into the section
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"<table><tbody><tr><td>b1</td></tr></tbody><tr><td>b2</td></tr></table>");
+        auto answer =
+            ::fast_io::u8string_view{u8"<table><tbody><tr><td>b1</td></tr></tbody><tr><td>b2</td></tr></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // <tr> directly in <table> AFTER </thead> must NOT be merged into the section
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"<table><thead><tr><th>h1</th></tr></thead><tr><td>b2</td></tr></table>");
+        auto answer =
+            ::fast_io::u8string_view{u8"<table><thead><tr><th>h1</th></tr></thead><tr><td>b2</td></tr></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // <tr> directly in <table> AFTER </tfoot> must NOT be merged into the section
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"<table><tfoot><tr><td>f</td></tr></tfoot><tr><td>b2</td></tr></table>");
+        auto answer =
+            ::fast_io::u8string_view{u8"<table><tfoot><tr><td>f</td></tr></tfoot><tr><td>b2</td></tr></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // multiple bare rows after a section: none merges, none is dropped
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"<table><tbody><tr><td>b1</td></tr></tbody><tr><td>b2</td></tr><tr><td>b3</td></tr></table>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<table><tbody><tr><td>b1</td></tr></tbody><tr><td>b2</td></tr>"
+            u8"<tr><td>b3</td></tr></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
         // <caption> inside <table> is valid
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><caption>title</caption></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><caption>title</caption></table>"};

@@ -236,6 +236,7 @@ constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noe
             if (opt_sec_len.has_value()) {
                 current_index += opt_sec_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1;
                 inside_section = false;
+                active_section = ::pltxt2htm::details::TableRowSection::none;
                 continue;
             }
             auto const section_node_kind = active_section == ::pltxt2htm::details::TableRowSection::thead
