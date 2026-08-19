@@ -340,9 +340,10 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_size_t_decimal_value(::fast_io::u8string_view str) noexcept
     -> ::exception::optional<TryParseSizeTDecimalValueResult> {
+    ::std::size_t const str_size{str.size()};
     ::std::size_t parsed_value{};
     auto pos = ::std::size_t{0};
-    for (; pos < str.size(); ++pos) {
+    for (; pos < str_size; ++pos) {
         auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(str, pos);
         if (::pltxt2htm::details::is_ascii_digit(chr) == false) {
             break;
@@ -413,15 +414,16 @@ constexpr auto try_parse_ptrdiff_t_decimal_value(::fast_io::u8string_view str) n
     -> ::exception::optional<TryParsePtrdiffTDecimalValueResult> {
     using unsigned_type = ::std::make_unsigned_t<::std::ptrdiff_t>;
 
+    ::std::size_t const str_size{str.size()};
     auto pos = ::std::size_t{0};
-    bool const negative = pos < str.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(str, pos) == u8'-';
+    bool const negative = pos < str_size && ::pltxt2htm::details::u8string_view_index<ndebug>(str, pos) == u8'-';
     if (negative) {
         ++pos;
     }
 
     unsigned_type parsed_value{};
     auto digit_pos = pos;
-    for (; digit_pos < str.size(); ++digit_pos) {
+    for (; digit_pos < str_size; ++digit_pos) {
         auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(str, digit_pos);
         if (::pltxt2htm::details::is_ascii_digit(chr) == false) {
             break;
@@ -474,23 +476,24 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_double_decimal_value(::fast_io::u8string_view str) noexcept
     -> ::exception::optional<TryParseDoubleDecimalValueResult> {
+    ::std::size_t const str_size{str.size()};
     double parsed_value{};
     auto pos = ::std::size_t{0};
-    for (; pos < str.size(); ++pos) {
+    for (; pos < str_size; ++pos) {
         auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(str, pos);
         if (::pltxt2htm::details::is_ascii_digit(chr) == false) {
             break;
         }
         parsed_value = parsed_value * 10 + static_cast<double>(chr - u8'0');
     }
-    if (pos < str.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(str, pos) == u8'.') {
+    if (pos < str_size && ::pltxt2htm::details::u8string_view_index<ndebug>(str, pos) == u8'.') {
         if (pos == 0) {
             return ::exception::nullopt;
         }
         auto const dot_pos = pos;
         auto frac_pos = dot_pos + 1;
         double scale{10};
-        for (; frac_pos < str.size(); ++frac_pos) {
+        for (; frac_pos < str_size; ++frac_pos) {
             auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(str, frac_pos);
             if (::pltxt2htm::details::is_ascii_digit(chr) == false) {
                 break;
@@ -550,19 +553,21 @@ constexpr auto double2str(double value) noexcept -> ::fast_io::u8string {
             ++rounded;
         }
         auto const digit_str = ::pltxt2htm::details::size_t2str(static_cast<::std::size_t>(rounded));
+        ::std::size_t const digit_str_size{digit_str.size()};
         ::fast_io::u8string candidate{};
         if (fractional_digits == 0) {
             candidate = digit_str;
         }
-        else if (digit_str.size() > fractional_digits) {
-            auto const frac_start = digit_str.size() - fractional_digits;
+        else if (digit_str_size > fractional_digits) {
+            auto const frac_start = digit_str_size - fractional_digits;
             candidate.append(::fast_io::u8string_view{digit_str.data(), frac_start});
             candidate.push_back(u8'.');
             candidate.append(::fast_io::u8string_view{digit_str.data() + frac_start, fractional_digits});
         }
         else {
             candidate.append(u8"0.");
-            for (::std::size_t i{0}; i < fractional_digits - digit_str.size(); ++i) {
+            ::std::size_t const padding_size{fractional_digits - digit_str_size};
+            for (::std::size_t i{0}; i < padding_size; ++i) {
                 candidate.push_back(u8'0');
             }
             candidate.append(digit_str);

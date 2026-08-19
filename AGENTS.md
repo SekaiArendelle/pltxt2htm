@@ -145,6 +145,9 @@ Follow the existing low-runtime, cross-platform style used in core headers:
 - **Keep side effects separated from algorithms:**
   - Put pure algorithmic logic in headers under `include/` whenever practical.
   - Keep I/O and other side-effectful operations (file access, console output, process exits, etc.) in implementation files in module directories.
+- **Hoist loop-invariant expressions manually:**
+  - Cache expressions that are unchanged for the full loop instead of relying on the compiler to move repeated work out of the loop.
+  - Only hoist an expression when loop-body mutations and aliasing cannot change its result, and do not turn conditionally evaluated work into unconditional work.
 - **Prefer compile-time evaluation:**
   - Write functions as `constexpr` (or `consteval` when required) whenever semantics allow.
   - Keep parsing/helpers friendly to compile-time checking where practical.

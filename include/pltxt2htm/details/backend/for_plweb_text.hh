@@ -211,7 +211,8 @@ constexpr void convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> c
  */
 template<::pltxt2htm::Contracts ndebug>
 constexpr void append_html_attr_escaped(::fast_io::u8string& result, ::fast_io::u8string_view value) noexcept {
-    for (::std::size_t index{}; index < value.size(); ++index) {
+    ::std::size_t const value_size{value.size()};
+    for (::std::size_t index{}; index < value_size; ++index) {
         auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(value, index);
         switch (chr) {
         case u8'&':
@@ -280,10 +281,12 @@ constexpr auto plweb_text_backend(::pltxt2htm::Ast<ndebug> const& ast_init, ::fa
 
 entry:
     while (true) {
-        auto const& ast = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_ast();
-        auto const& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
-        auto&& current_index = ::pltxt2htm::details::stack_top<ndebug>(call_stack).current_index;
-        for (; current_index < ast.size(); ++current_index) {
+        auto&& current_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+        auto const& ast = current_frame.get_ast();
+        auto const nested_tag_type = current_frame.get_nested_tag_type();
+        auto&& current_index = current_frame.current_index;
+        ::std::size_t const ast_size{ast.size()};
+        for (; current_index < ast_size; ++current_index) {
             auto&& node = ::pltxt2htm::details::vector_index<ndebug>(ast, current_index);
 
             switch (node.get_node_kind()) /* -Werror=switch */ {

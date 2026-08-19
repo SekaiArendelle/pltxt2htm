@@ -50,9 +50,10 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr auto find_next_block_after_line_break(
     ::fast_io::u8string_view pltext, ::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>>& call_stack,
     ::pltxt2htm::Ast<ndebug>& result) noexcept -> ::pltxt2htm::details::FindNextBlockAfterLineBreakResult {
+    ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t current_index{};
     while (true) {
-        if (current_index >= pltext.size()) {
+        if (current_index >= pltext_size) {
             return ::pltxt2htm::details::FindNextBlockAfterLineBreakResult{
                 .advance_count = current_index, .new_frame_been_pushed_into_call_stack = false};
         }
@@ -518,11 +519,12 @@ entry:
         ::fast_io::u8string_view const pltext{top_frame.get_pltext()};
         auto&& result = top_frame.subast;
         ::std::size_t const pltext_size{pltext.size()};
+        auto const nested_tag_type{top_frame.get_nested_tag_type()};
 
-        if ((top_frame.get_nested_tag_type() == ::pltxt2htm::NodeKind::md_block_quotes ||
-             top_frame.get_nested_tag_type() == ::pltxt2htm::NodeKind::pl_margin ||
-             top_frame.get_nested_tag_type() == ::pltxt2htm::NodeKind::html_div ||
-             top_frame.get_nested_tag_type() == ::pltxt2htm::NodeKind::html_blockquote) &&
+        if ((nested_tag_type == ::pltxt2htm::NodeKind::md_block_quotes ||
+             nested_tag_type == ::pltxt2htm::NodeKind::pl_margin ||
+             nested_tag_type == ::pltxt2htm::NodeKind::html_div ||
+             nested_tag_type == ::pltxt2htm::NodeKind::html_blockquote) &&
             current_index == 0) {
             // https://spec.commonmark.org/0.31.2/#example-228
             // to support parsing md-atx-heading e.t.c inside md-block-quotes

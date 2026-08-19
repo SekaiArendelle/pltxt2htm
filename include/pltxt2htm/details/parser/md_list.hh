@@ -263,15 +263,16 @@ constexpr auto try_parse_item(
     ::fast_io::u8string_view pltext,
     ::exception::optional<::pltxt2htm::details::PreviousItemInfo> const expect = ::exception::nullopt) noexcept
     -> ::exception::optional<::pltxt2htm::details::TryParseItemResult> {
+    ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t current_index{};
     // parsing spaces before - or + or *
-    for (; current_index < pltext.size(); ++current_index) {
+    for (; current_index < pltext_size; ++current_index) {
         auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
         if (chr != u8' ' && chr != u8'\t') {
             break;
         }
     }
-    if (current_index == pltext.size()) {
+    if (current_index == pltext_size) {
         return ::exception::nullopt;
     }
     ::std::size_t const space_hierarchy{current_index};
@@ -314,7 +315,7 @@ constexpr auto try_parse_item(
     }
 
     // - or + or * must be followed by space
-    if (current_index == pltext.size()) {
+    if (current_index == pltext_size) {
         return ::exception::nullopt;
     }
     if (char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index)};
@@ -322,7 +323,7 @@ constexpr auto try_parse_item(
         return ::exception::nullopt;
     }
     // parsing spaces after - or + or *
-    for (; current_index < pltext.size(); ++current_index) {
+    for (; current_index < pltext_size; ++current_index) {
         auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
         if (chr != u8' ' && chr != u8'\t') {
             break;
@@ -331,7 +332,7 @@ constexpr auto try_parse_item(
     // detect markdown checkbox syntax: [ ] or [x]/[X] at start of text
     bool checkbox{};
     bool checked{};
-    if (pltext.size() >= current_index + 4 &&
+    if (pltext_size >= current_index + 4 &&
         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) == u8'[' &&
         (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index + 1) == u8' ' ||
          ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index + 1) == u8'x' ||
@@ -346,7 +347,7 @@ constexpr auto try_parse_item(
     }
     // parsing text after - or + or *
     ::fast_io::u8string text{};
-    for (; current_index < pltext.size(); ++current_index) {
+    for (; current_index < pltext_size; ++current_index) {
         auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
         if (chr == u8'\n') {
             ++current_index;

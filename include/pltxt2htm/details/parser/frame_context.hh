@@ -1781,7 +1781,8 @@ constexpr auto process_table_frame(
         // colgroup node built directly from the collected col count.
         if (prev_raw_ast.has_colgroup()) {
             ::pltxt2htm::Ast<ndebug> colgroup_ast{};
-            for (::std::size_t c{}; c < prev_raw_ast.get_col_count(); ++c) {
+            ::std::size_t const column_count{prev_raw_ast.get_col_count()};
+            for (::std::size_t c{}; c < column_count; ++c) {
                 colgroup_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableCol{}));
             }
             table_ast.push_back(
@@ -1793,10 +1794,13 @@ constexpr auto process_table_frame(
         // <tr> under <table>.
         ::pltxt2htm::details::TableRowSection active_section{::pltxt2htm::details::TableRowSection::none};
         ::pltxt2htm::Ast<ndebug> active_section_ast{};
-        for (::std::size_t r{}; r < prev_raw_ast.rows_count(); ++r) {
+        ::std::size_t const rows_count{prev_raw_ast.rows_count()};
+        ::std::size_t const flat_ast_size{flat_ast.size()};
+        for (::std::size_t r{}; r < rows_count; ++r) {
             ::pltxt2htm::Ast<ndebug> tr_ast{};
             auto const row_cells = prev_raw_ast.row_cells(r);
-            for (::std::size_t c{}; c < row_cells.size() && cell_cursor < flat_ast.size(); ++c, ++cell_cursor) {
+            ::std::size_t const row_cells_size{row_cells.size()};
+            for (::std::size_t c{}; c < row_cells_size && cell_cursor < flat_ast_size; ++c, ++cell_cursor) {
                 tr_ast.push_back(::std::move(::pltxt2htm::details::vector_index<ndebug>(flat_ast, cell_cursor)));
             }
             auto const section = prev_raw_ast.row_section(r);

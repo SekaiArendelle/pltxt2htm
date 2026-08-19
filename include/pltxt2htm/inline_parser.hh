@@ -41,7 +41,8 @@ constexpr auto is_inline_code_span_content(::fast_io::u8string_view content) noe
     if (content.empty()) {
         return false;
     }
-    for (::std::size_t i{}; i < content.size(); ++i) {
+    ::std::size_t const content_size{content.size()};
+    for (::std::size_t i{}; i < content_size; ++i) {
         if (::pltxt2htm::details::u8string_view_index<ndebug>(content, i) == u8'\n') {
             return false;
         }

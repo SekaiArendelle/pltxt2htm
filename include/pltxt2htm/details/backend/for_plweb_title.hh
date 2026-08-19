@@ -41,9 +41,11 @@ constexpr auto plweb_title_backend(::pltxt2htm::Ast<ndebug> const& ast_init) noe
 
 entry:
     while (true) {
-        auto const& ast = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_ast();
-        auto&& current_index = ::pltxt2htm::details::stack_top<ndebug>(call_stack).current_index;
-        for (; current_index < ast.size(); ++current_index) {
+        auto&& current_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+        auto const& ast = current_frame.get_ast();
+        auto&& current_index = current_frame.current_index;
+        ::std::size_t const ast_size{ast.size()};
+        for (; current_index < ast_size; ++current_index) {
             auto&& node = ::pltxt2htm::details::vector_index<ndebug>(ast, current_index);
 
             switch (node.get_node_kind()) /* -Werror=switch */ {

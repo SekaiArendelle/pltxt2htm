@@ -39,8 +39,9 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr void append_entity_reference_to_plunity_richtext(::fast_io::u8string const& value,
                                                            ::fast_io::u8string& out) noexcept {
     ::fast_io::u8string_view const value_view{value.data(), value.size()};
+    ::std::size_t const value_size{value_view.size()};
     bool decoded{};
-    if (value_view.size() > 1 && ::pltxt2htm::details::u8string_view_index<ndebug>(value_view, 0) == u8'#') {
+    if (value_size > 1 && ::pltxt2htm::details::u8string_view_index<ndebug>(value_view, 0) == u8'#') {
         auto index = ::std::size_t{1};
         bool const hex{::pltxt2htm::details::u8string_view_index<ndebug>(value_view, index) == u8'x' ||
                        ::pltxt2htm::details::u8string_view_index<ndebug>(value_view, index) == u8'X'};
@@ -48,9 +49,10 @@ constexpr void append_entity_reference_to_plunity_richtext(::fast_io::u8string c
             ++index;
         }
         auto const digit_begin{index};
+        char32_t const base{hex ? char32_t{16} : char32_t{10}};
         char32_t code{};
         bool valid{true};
-        for (; index < value_view.size(); ++index) {
+        for (; index < value_size; ++index) {
             auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(value_view, index);
             char32_t digit{};
             if (::pltxt2htm::details::is_ascii_digit(chr)) {
@@ -66,7 +68,6 @@ constexpr void append_entity_reference_to_plunity_richtext(::fast_io::u8string c
                 valid = false;
                 break;
             }
-            auto const base{hex ? char32_t{16} : char32_t{10}};
             if (code > (char32_t{0x10FFFF} - digit) / base) {
                 valid = false;
                 break;
@@ -313,9 +314,11 @@ constexpr auto plunity_text_backend(::pltxt2htm::Ast<ndebug> const& ast_init, ::
 
 entry:
     while (true) {
-        auto const& ast = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_ast();
-        auto&& current_index = ::pltxt2htm::details::stack_top<ndebug>(call_stack).current_index;
-        for (; current_index < ast.size(); ++current_index) {
+        auto&& current_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+        auto const& ast = current_frame.get_ast();
+        auto&& current_index = current_frame.current_index;
+        ::std::size_t const ast_size{ast.size()};
+        for (; current_index < ast_size; ++current_index) {
             auto&& node = ::pltxt2htm::details::vector_index<ndebug>(ast, current_index);
 
             switch (node.get_node_kind()) /* -Werror=switch */ {
