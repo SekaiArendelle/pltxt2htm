@@ -31,7 +31,7 @@ namespace pltxt2htm::details {
  */
 template<::pltxt2htm::Contracts ndebug>
 struct ToHtmlListAstResult {
-    ::pltxt2htm::details::ListBaseNode<ndebug> top_node;
+    ListBaseNode<ndebug> top_node;
     ::std::size_t advance_count;
 };
 
@@ -46,7 +46,7 @@ struct ToHtmlListAstResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto optionally_to_html_list_ast(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<::pltxt2htm::details::ToHtmlListAstResult<ndebug>> {
+    -> ::exception::optional<ToHtmlListAstResult<ndebug>> {
     ::pltxt2htm::NodeKind item_kind{};
     ::std::size_t start{1};
     ::std::size_t current_index{};
@@ -64,7 +64,7 @@ constexpr auto optionally_to_html_list_ast(::fast_io::u8string_view pltext) noex
         return ::exception::nullopt;
     }
 
-    ::pltxt2htm::details::ListAst<ndebug> ast{};
+    ListAst<ndebug> ast{};
     ::std::size_t const pltext_size{pltext.size()};
 
     while (true) {
@@ -90,9 +90,8 @@ constexpr auto optionally_to_html_list_ast(::fast_io::u8string_view pltext) noex
             if (ast.empty()) {
                 return ::exception::nullopt;
             }
-            return ::pltxt2htm::details::ToHtmlListAstResult<ndebug>{
-                .top_node = ::pltxt2htm::details::ListBaseNode<ndebug>{::pltxt2htm::details::ListUlNode<ndebug>(
-                    ::std::move(ast))},
+            return ToHtmlListAstResult<ndebug>{
+                .top_node = ListBaseNode<ndebug>{ListUlNode<ndebug>(::std::move(ast))},
                 .advance_count =
                     current_index + opt_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1};
         }
@@ -102,9 +101,8 @@ constexpr auto optionally_to_html_list_ast(::fast_io::u8string_view pltext) noex
             if (ast.empty()) {
                 return ::exception::nullopt;
             }
-            return ::pltxt2htm::details::ToHtmlListAstResult<ndebug>{
-                .top_node = ::pltxt2htm::details::ListBaseNode<ndebug>{::pltxt2htm::details::ListOlNode<ndebug>(
-                    ::std::move(ast), start)},
+            return ToHtmlListAstResult<ndebug>{
+                .top_node = ListBaseNode<ndebug>{ListOlNode<ndebug>(::std::move(ast), start)},
                 .advance_count =
                     current_index + opt_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1};
         }
@@ -154,7 +152,7 @@ constexpr auto optionally_to_html_list_ast(::fast_io::u8string_view pltext) noex
         // parsed recursively into sibling sublist nodes (appended after the item), so the
         // item text itself never contains list markup and no inline recognition is needed.
         ::fast_io::u8string text{};
-        ::pltxt2htm::details::ListAst<ndebug> pending_nested{};
+        ListAst<ndebug> pending_nested{};
         while (true) {
             if (current_index >= pltext_size) {
                 return ::exception::nullopt;
@@ -202,10 +200,10 @@ constexpr auto optionally_to_html_list_ast(::fast_io::u8string_view pltext) noex
             text.pop_back();
         }
         if (checkbox) {
-            ast.emplace_back(::pltxt2htm::details::ListLiCheckboxNode(::std::move(text), checkbox_checked));
+            ast.emplace_back(ListLiCheckboxNode(::std::move(text), checkbox_checked));
         }
         else {
-            ast.emplace_back(::pltxt2htm::details::ListLiNode(::std::move(text)));
+            ast.emplace_back(ListLiNode(::std::move(text)));
         }
         // Append the nested lists as siblings after the item (the Markdown sibling shape),
         // so the shared list frame handling and backends apply uniformly.

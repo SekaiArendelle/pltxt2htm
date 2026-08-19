@@ -88,19 +88,19 @@ public:
 /**
  * @brief Tagged-union variant of optimizer context payloads.
  * @details Dispatched on `kind` (::pltxt2htm::NodeKind) – used inside
- *          ::pltxt2htm::details::OptimizerFrameContext.
+ *          OptimizerFrameContext.
  */
 template<::pltxt2htm::Contracts ndebug>
 class OptimizerContextVariant {
 public:
     union {
-        ::pltxt2htm::details::OptimizerContextWithoutInfo without_info;
-        ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo equal_sign_tag;
-        ::pltxt2htm::details::OptimizerContextWithPlSizeTagInfo pl_size_tag;
-        ::pltxt2htm::details::OptimizerContextWithPlVoffsetTagInfo pl_voffset_tag;
-        ::pltxt2htm::details::OptimizerContextWithHtmlSpanInfo<ndebug> html_span_info;
-        ::pltxt2htm::details::OptimizerContextWithHtmlMarkInfo<ndebug> html_mark_info;
-        ::pltxt2htm::details::OptimizerContextWithPlMarkInfo<ndebug> pl_mark_info;
+        OptimizerContextWithoutInfo without_info;
+        OptimizerContextWithEqualSignTagInfo equal_sign_tag;
+        OptimizerContextWithPlSizeTagInfo pl_size_tag;
+        OptimizerContextWithPlVoffsetTagInfo pl_voffset_tag;
+        OptimizerContextWithHtmlSpanInfo<ndebug> html_span_info;
+        OptimizerContextWithHtmlMarkInfo<ndebug> html_mark_info;
+        OptimizerContextWithPlMarkInfo<ndebug> pl_mark_info;
     };
 
     ::pltxt2htm::NodeKind kind; ///< Type of the current nested tag context
@@ -110,45 +110,40 @@ public:
           kind{kind_} {
     }
 
-    constexpr OptimizerContextVariant(::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo equal_sign_tag_context,
+    constexpr OptimizerContextVariant(OptimizerContextWithEqualSignTagInfo equal_sign_tag_context,
                                       ::pltxt2htm::NodeKind const kind_) noexcept
         : equal_sign_tag{equal_sign_tag_context},
           kind{kind_} {
     }
 
-    constexpr OptimizerContextVariant(
-        ::pltxt2htm::details::OptimizerContextWithPlSizeTagInfo pl_size_tag_context) noexcept
+    constexpr OptimizerContextVariant(OptimizerContextWithPlSizeTagInfo pl_size_tag_context) noexcept
         : pl_size_tag{pl_size_tag_context},
           kind{::pltxt2htm::NodeKind::pl_size} {
     }
 
-    constexpr OptimizerContextVariant(
-        ::pltxt2htm::details::OptimizerContextWithPlVoffsetTagInfo pl_voffset_tag_context) noexcept
+    constexpr OptimizerContextVariant(OptimizerContextWithPlVoffsetTagInfo pl_voffset_tag_context) noexcept
         : pl_voffset_tag{pl_voffset_tag_context},
           kind{::pltxt2htm::NodeKind::pl_voffset} {
     }
 
-    constexpr OptimizerContextVariant(
-        ::pltxt2htm::details::OptimizerContextWithHtmlSpanInfo<ndebug>&& html_span_context) noexcept
+    constexpr OptimizerContextVariant(OptimizerContextWithHtmlSpanInfo<ndebug>&& html_span_context) noexcept
         : html_span_info{::std::move(html_span_context)},
           kind{::pltxt2htm::NodeKind::html_span} {
     }
 
-    constexpr OptimizerContextVariant(
-        ::pltxt2htm::details::OptimizerContextWithHtmlMarkInfo<ndebug>&& html_mark_context) noexcept
+    constexpr OptimizerContextVariant(OptimizerContextWithHtmlMarkInfo<ndebug>&& html_mark_context) noexcept
         : html_mark_info{::std::move(html_mark_context)},
           kind{::pltxt2htm::NodeKind::html_mark} {
     }
 
-    constexpr OptimizerContextVariant(
-        ::pltxt2htm::details::OptimizerContextWithPlMarkInfo<ndebug>&& pl_mark_context) noexcept
+    constexpr OptimizerContextVariant(OptimizerContextWithPlMarkInfo<ndebug>&& pl_mark_context) noexcept
         : pl_mark_info{::std::move(pl_mark_context)},
           kind{::pltxt2htm::NodeKind::pl_mark} {
     }
 
-    constexpr OptimizerContextVariant(::pltxt2htm::details::OptimizerContextVariant<ndebug> const&) noexcept = delete;
+    constexpr OptimizerContextVariant(OptimizerContextVariant<ndebug> const&) noexcept = delete;
 
-    constexpr OptimizerContextVariant(::pltxt2htm::details::OptimizerContextVariant<ndebug>&& other) noexcept
+    constexpr OptimizerContextVariant(OptimizerContextVariant<ndebug>&& other) noexcept
         : kind{other.kind} {
         switch (this->kind) {
         case ::pltxt2htm::NodeKind::pl_color:
@@ -201,12 +196,11 @@ public:
 
     constexpr ~OptimizerContextVariant() noexcept = default;
 
-    constexpr auto operator=(::pltxt2htm::details::OptimizerContextVariant<ndebug> const&) noexcept
-        -> ::pltxt2htm::details::OptimizerContextVariant<ndebug>& = delete;
+    constexpr auto operator=(OptimizerContextVariant<ndebug> const&) noexcept
+        -> OptimizerContextVariant<ndebug>& = delete;
 
     constexpr auto operator=(this OptimizerContextVariant<ndebug>& self,
-                             ::pltxt2htm::details::OptimizerContextVariant<ndebug>&& other) noexcept
-        -> ::pltxt2htm::details::OptimizerContextVariant<ndebug>& {
+                             OptimizerContextVariant<ndebug>&& other) noexcept -> OptimizerContextVariant<ndebug>& {
         pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other), u8"can not assign to self");
         self.~OptimizerContextVariant();
         ::std::construct_at(::std::addressof(self), ::std::move(other));
@@ -224,7 +218,7 @@ public:
  */
 template<::std::forward_iterator Iter, ::pltxt2htm::Contracts ndebug>
 class OptimizerFrameContext {
-    ::pltxt2htm::details::OptimizerContextVariant<ndebug> context_data;
+    OptimizerContextVariant<ndebug> context_data;
 
 public:
     ::pltxt2htm::Ast<ndebug>* ast; ///< Pointer to the AST being optimized
@@ -243,66 +237,59 @@ public:
           iter{iter_} {
     }
 
-    constexpr OptimizerFrameContext(
-        ::pltxt2htm::Ast<ndebug>* ast_, ::pltxt2htm::NodeKind const nested_tag_type_, Iter&& iter_,
-        ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo equal_sign_tag_context_) noexcept
+    constexpr OptimizerFrameContext(::pltxt2htm::Ast<ndebug>* ast_, ::pltxt2htm::NodeKind const nested_tag_type_,
+                                    Iter&& iter_, OptimizerContextWithEqualSignTagInfo equal_sign_tag_context_) noexcept
         : context_data{equal_sign_tag_context_, nested_tag_type_},
           ast(ast_),
           iter{iter_} {
     }
 
-    constexpr OptimizerFrameContext(
-        ::pltxt2htm::Ast<ndebug>* ast_, Iter&& iter_,
-        ::pltxt2htm::details::OptimizerContextWithPlSizeTagInfo pl_size_tag_context_) noexcept
+    constexpr OptimizerFrameContext(::pltxt2htm::Ast<ndebug>* ast_, Iter&& iter_,
+                                    OptimizerContextWithPlSizeTagInfo pl_size_tag_context_) noexcept
         : context_data{::std::move(pl_size_tag_context_)},
           ast(ast_),
           iter{iter_} {
     }
 
-    constexpr OptimizerFrameContext(
-        ::pltxt2htm::Ast<ndebug>* ast_, Iter&& iter_,
-        ::pltxt2htm::details::OptimizerContextWithPlVoffsetTagInfo pl_voffset_tag_context_) noexcept
+    constexpr OptimizerFrameContext(::pltxt2htm::Ast<ndebug>* ast_, Iter&& iter_,
+                                    OptimizerContextWithPlVoffsetTagInfo pl_voffset_tag_context_) noexcept
         : context_data{::std::move(pl_voffset_tag_context_)},
           ast(ast_),
           iter{iter_} {
     }
 
-    constexpr OptimizerFrameContext(
-        ::pltxt2htm::Ast<ndebug>* ast_, Iter&& iter_,
-        ::pltxt2htm::details::OptimizerContextWithHtmlSpanInfo<ndebug>&& html_span_context_) noexcept
+    constexpr OptimizerFrameContext(::pltxt2htm::Ast<ndebug>* ast_, Iter&& iter_,
+                                    OptimizerContextWithHtmlSpanInfo<ndebug>&& html_span_context_) noexcept
         : context_data{::std::move(html_span_context_)},
           ast(ast_),
           iter{iter_} {
     }
 
-    constexpr OptimizerFrameContext(
-        ::pltxt2htm::Ast<ndebug>* ast_, Iter&& iter_,
-        ::pltxt2htm::details::OptimizerContextWithHtmlMarkInfo<ndebug>&& html_mark_context_) noexcept
+    constexpr OptimizerFrameContext(::pltxt2htm::Ast<ndebug>* ast_, Iter&& iter_,
+                                    OptimizerContextWithHtmlMarkInfo<ndebug>&& html_mark_context_) noexcept
         : context_data{::std::move(html_mark_context_)},
           ast(ast_),
           iter{iter_} {
     }
 
-    constexpr OptimizerFrameContext(
-        ::pltxt2htm::Ast<ndebug>* ast_, Iter&& iter_,
-        ::pltxt2htm::details::OptimizerContextWithPlMarkInfo<ndebug>&& pl_mark_context_) noexcept
+    constexpr OptimizerFrameContext(::pltxt2htm::Ast<ndebug>* ast_, Iter&& iter_,
+                                    OptimizerContextWithPlMarkInfo<ndebug>&& pl_mark_context_) noexcept
         : context_data{::std::move(pl_mark_context_)},
           ast(ast_),
           iter{iter_} {
     }
 
-    constexpr OptimizerFrameContext(::pltxt2htm::details::OptimizerFrameContext<Iter, ndebug> const&) noexcept = delete;
+    constexpr OptimizerFrameContext(OptimizerFrameContext<Iter, ndebug> const&) noexcept = delete;
 
-    constexpr OptimizerFrameContext(::pltxt2htm::details::OptimizerFrameContext<Iter, ndebug>&&) noexcept = default;
+    constexpr OptimizerFrameContext(OptimizerFrameContext<Iter, ndebug>&&) noexcept = default;
 
     constexpr ~OptimizerFrameContext() noexcept = default;
 
-    constexpr ::pltxt2htm::details::OptimizerFrameContext<Iter, ndebug>& operator=(
-        ::pltxt2htm::details::OptimizerFrameContext<Iter, ndebug> const&) noexcept = delete;
+    constexpr OptimizerFrameContext<Iter, ndebug>& operator=(OptimizerFrameContext<Iter, ndebug> const&) noexcept =
+        delete;
 
-    constexpr ::pltxt2htm::details::OptimizerFrameContext<Iter, ndebug>& operator=(
-        this OptimizerFrameContext<Iter, ndebug>& self,
-        ::pltxt2htm::details::OptimizerFrameContext<Iter, ndebug>&&) noexcept = default;
+    constexpr OptimizerFrameContext<Iter, ndebug>& operator=(this OptimizerFrameContext<Iter, ndebug>& self,
+                                                             OptimizerFrameContext<Iter, ndebug>&&) noexcept = default;
 
     [[nodiscard]]
     constexpr auto get_nested_tag_type(this OptimizerFrameContext<Iter, ndebug> const& self) noexcept {

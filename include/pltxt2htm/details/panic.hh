@@ -29,8 +29,8 @@ namespace pltxt2htm::details {
  * @note This function is marked as [[noreturn]] - it never returns and always terminates the program
  * @warning This function should only be called when a critical assertion failure occurs
  */
-template<::pltxt2htm::details::U8LiteralString expression, ::pltxt2htm::details::U8LiteralString file_name,
-         ::std::uint_least32_t line, ::std::uint_least32_t column, pltxt2htm::details::U8LiteralString msg>
+template<U8LiteralString expression, U8LiteralString file_name, ::std::uint_least32_t line,
+         ::std::uint_least32_t column, pltxt2htm::details::U8LiteralString msg>
 #if __has_cpp_attribute(__gnu__::__cold__)
 [[__gnu__::__cold__]] // Mark as cold path for compiler optimization
 #endif

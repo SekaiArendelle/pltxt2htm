@@ -159,12 +159,11 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class ParserFrameContextWithListInfo {
 public:
-    ::pltxt2htm::details::ListAst<ndebug> list_ast;
-    typename ::pltxt2htm::details::ListAst<ndebug>::iterator iter;
+    ListAst<ndebug> list_ast;
+    typename ListAst<ndebug>::iterator iter;
     ::std::size_t list_start{1}; ///< `<ol start="N">` value (defaults to 1).
 
-    constexpr ParserFrameContextWithListInfo(::pltxt2htm::details::ListAst<ndebug>&& list_ast_,
-                                             ::std::size_t list_start_ = 1) noexcept
+    constexpr ParserFrameContextWithListInfo(ListAst<ndebug>&& list_ast_, ::std::size_t list_start_ = 1) noexcept
         : list_ast(::std::move(list_ast_)),
           iter(list_ast.begin()),
           list_start(list_start_) {
@@ -212,12 +211,12 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class ParserFrameContextWithTableInfo {
 public:
-    ::pltxt2htm::details::TableAstRaw<ndebug> raw_ast;
-    ::pltxt2htm::details::TableParsePhase state{::pltxt2htm::details::TableParsePhase::caption};
+    TableAstRaw<ndebug> raw_ast;
+    TableParsePhase state{TableParsePhase::caption};
     ::std::size_t row_index{};
     ::std::size_t cell_index{};
 
-    constexpr explicit ParserFrameContextWithTableInfo(::pltxt2htm::details::TableAstRaw<ndebug>&& raw_ast_) noexcept
+    constexpr explicit ParserFrameContextWithTableInfo(TableAstRaw<ndebug>&& raw_ast_) noexcept
         : raw_ast(::std::move(raw_ast_)) {
     }
 };
@@ -225,7 +224,7 @@ public:
 /**
  * @brief Tagged-union variant of all parser frame context types.
  * @details Dispatched on `kind` (::pltxt2htm::NodeKind). Used inside
- *          ::pltxt2htm::details::ParserFrameContext.
+ *          ParserFrameContext.
  */
 template<::pltxt2htm::Contracts ndebug>
 class FrontendContextVariant {
@@ -253,23 +252,23 @@ public:
 #endif
 
     union {
-        ::pltxt2htm::details::ParserFrameContextWithPltextInfo pltext;
-        ::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo equal_sign_tag;
-        ::pltxt2htm::details::ParserFrameContextWithHtmlSpanInfo<ndebug> html_span_info;
-        ::pltxt2htm::details::ParserFrameContextWithHtmlDivInfo html_div_info;
-        ::pltxt2htm::details::ParserFrameContextWithHtmlMarkInfo html_mark_info;
-        ::pltxt2htm::details::ParserFrameContextWithPlMarkInfo pl_mark_info;
-        ::pltxt2htm::details::ParserFrameContextWithUrlInfo url_info;
-        ::pltxt2htm::details::ParserFrameContextWithHtmlATagInfo html_a_tag_info;
-        ::pltxt2htm::details::ParserFrameContextWithPlSizeTagInfo pl_size_tag;
-        ::pltxt2htm::details::ParserFrameContextWithPlVoffsetTagInfo pl_voffset_tag;
-        ::pltxt2htm::details::ParserFrameContextWithPlMarginTagInfo pl_margin_tag;
-        ::pltxt2htm::details::ParserFrameContextWithMdBlockQuotesInfo md_block_quotes;
-        ::pltxt2htm::details::ParserFrameContextWithListInfo<ndebug> list_info;
-        ::pltxt2htm::details::ParserFrameContextWithCellInfo cell;
-        ::pltxt2htm::details::ParserFrameContextWithAlignInfo align_info;
-        ::pltxt2htm::details::ParserFrameContextWithListLiCheckboxInfo list_li_checkbox;
-        ::pltxt2htm::details::ParserFrameContextWithTableInfo<ndebug> table;
+        ParserFrameContextWithPltextInfo pltext;
+        ParserFrameContextWithEqualSignTagInfo equal_sign_tag;
+        ParserFrameContextWithHtmlSpanInfo<ndebug> html_span_info;
+        ParserFrameContextWithHtmlDivInfo html_div_info;
+        ParserFrameContextWithHtmlMarkInfo html_mark_info;
+        ParserFrameContextWithPlMarkInfo pl_mark_info;
+        ParserFrameContextWithUrlInfo url_info;
+        ParserFrameContextWithHtmlATagInfo html_a_tag_info;
+        ParserFrameContextWithPlSizeTagInfo pl_size_tag;
+        ParserFrameContextWithPlVoffsetTagInfo pl_voffset_tag;
+        ParserFrameContextWithPlMarginTagInfo pl_margin_tag;
+        ParserFrameContextWithMdBlockQuotesInfo md_block_quotes;
+        ParserFrameContextWithListInfo<ndebug> list_info;
+        ParserFrameContextWithCellInfo cell;
+        ParserFrameContextWithAlignInfo align_info;
+        ParserFrameContextWithListLiCheckboxInfo list_li_checkbox;
+        ParserFrameContextWithTableInfo<ndebug> table;
     };
 
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
@@ -277,7 +276,7 @@ public:
 #endif
     ::pltxt2htm::NodeKind kind;
 
-    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithPltextInfo pltext_context,
+    constexpr FrontendContextVariant(ParserFrameContextWithPltextInfo pltext_context,
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
         : pltext{pltext_context},
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
@@ -286,9 +285,8 @@ public:
           kind{node_kind_} {
     }
 
-    constexpr FrontendContextVariant(
-        ::pltxt2htm::details::ParserFrameContextWithEqualSignTagInfo&& equal_sign_tag_context,
-        ::pltxt2htm::NodeKind node_kind_) noexcept
+    constexpr FrontendContextVariant(ParserFrameContextWithEqualSignTagInfo&& equal_sign_tag_context,
+                                     ::pltxt2htm::NodeKind node_kind_) noexcept
         : equal_sign_tag{::std::move(equal_sign_tag_context)},
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
           context_branch{ContextBranch::equal_sign_tag},
@@ -296,9 +294,8 @@ public:
           kind{node_kind_} {
     }
 
-    constexpr FrontendContextVariant(
-        ::pltxt2htm::details::ParserFrameContextWithHtmlSpanInfo<ndebug>&& html_span_context,
-        ::pltxt2htm::NodeKind node_kind_) noexcept
+    constexpr FrontendContextVariant(ParserFrameContextWithHtmlSpanInfo<ndebug>&& html_span_context,
+                                     ::pltxt2htm::NodeKind node_kind_) noexcept
         : html_span_info{::std::move(html_span_context)},
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
           context_branch{ContextBranch::html_span_info},
@@ -306,7 +303,7 @@ public:
           kind{node_kind_} {
     }
 
-    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithHtmlDivInfo&& html_div_context,
+    constexpr FrontendContextVariant(ParserFrameContextWithHtmlDivInfo&& html_div_context,
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
         : html_div_info{::std::move(html_div_context)},
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
@@ -315,7 +312,7 @@ public:
           kind{node_kind_} {
     }
 
-    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithHtmlMarkInfo&& html_mark_context,
+    constexpr FrontendContextVariant(ParserFrameContextWithHtmlMarkInfo&& html_mark_context,
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
         : html_mark_info{::std::move(html_mark_context)},
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
@@ -324,7 +321,7 @@ public:
           kind{node_kind_} {
     }
 
-    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithPlMarkInfo&& pl_mark_context,
+    constexpr FrontendContextVariant(ParserFrameContextWithPlMarkInfo&& pl_mark_context,
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
         : pl_mark_info{::std::move(pl_mark_context)},
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
@@ -333,8 +330,7 @@ public:
           kind{node_kind_} {
     }
 
-    constexpr FrontendContextVariant(
-        ::pltxt2htm::details::ParserFrameContextWithHtmlATagInfo&& html_a_tag_context) noexcept
+    constexpr FrontendContextVariant(ParserFrameContextWithHtmlATagInfo&& html_a_tag_context) noexcept
         : html_a_tag_info{::std::move(html_a_tag_context)},
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
           context_branch{ContextBranch::html_a_tag},
@@ -342,7 +338,7 @@ public:
           kind{::pltxt2htm::NodeKind::html_a} {
     }
 
-    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithUrlInfo&& url_context,
+    constexpr FrontendContextVariant(ParserFrameContextWithUrlInfo&& url_context,
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
         : url_info{::std::move(url_context)},
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
@@ -351,7 +347,7 @@ public:
           kind{node_kind_} {
     }
 
-    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithPlSizeTagInfo&& pl_size_tag_context,
+    constexpr FrontendContextVariant(ParserFrameContextWithPlSizeTagInfo&& pl_size_tag_context,
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
         : pl_size_tag{::std::move(pl_size_tag_context)},
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
@@ -360,9 +356,8 @@ public:
           kind{node_kind_} {
     }
 
-    constexpr FrontendContextVariant(
-        ::pltxt2htm::details::ParserFrameContextWithPlVoffsetTagInfo&& pl_voffset_tag_context,
-        ::pltxt2htm::NodeKind node_kind_) noexcept
+    constexpr FrontendContextVariant(ParserFrameContextWithPlVoffsetTagInfo&& pl_voffset_tag_context,
+                                     ::pltxt2htm::NodeKind node_kind_) noexcept
         : pl_voffset_tag{::std::move(pl_voffset_tag_context)},
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
           context_branch{ContextBranch::pl_voffset_tag},
@@ -370,9 +365,8 @@ public:
           kind{node_kind_} {
     }
 
-    constexpr FrontendContextVariant(
-        ::pltxt2htm::details::ParserFrameContextWithPlMarginTagInfo&& pl_margin_tag_context,
-        ::pltxt2htm::NodeKind node_kind_) noexcept
+    constexpr FrontendContextVariant(ParserFrameContextWithPlMarginTagInfo&& pl_margin_tag_context,
+                                     ::pltxt2htm::NodeKind node_kind_) noexcept
         : pl_margin_tag{::std::move(pl_margin_tag_context)},
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
           context_branch{ContextBranch::pl_margin_tag},
@@ -380,9 +374,8 @@ public:
           kind{node_kind_} {
     }
 
-    constexpr FrontendContextVariant(
-        ::pltxt2htm::details::ParserFrameContextWithMdBlockQuotesInfo&& md_block_quotes_context,
-        ::pltxt2htm::NodeKind node_kind_) noexcept
+    constexpr FrontendContextVariant(ParserFrameContextWithMdBlockQuotesInfo&& md_block_quotes_context,
+                                     ::pltxt2htm::NodeKind node_kind_) noexcept
         : md_block_quotes{::std::move(md_block_quotes_context)},
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
           context_branch{ContextBranch::md_block_quotes},
@@ -390,7 +383,7 @@ public:
           kind{node_kind_} {
     }
 
-    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithListInfo<ndebug>&& list_info_context,
+    constexpr FrontendContextVariant(ParserFrameContextWithListInfo<ndebug>&& list_info_context,
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
         : list_info{::std::move(list_info_context)},
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
@@ -399,7 +392,7 @@ public:
           kind{node_kind_} {
     }
 
-    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithCellInfo&& cell_context,
+    constexpr FrontendContextVariant(ParserFrameContextWithCellInfo&& cell_context,
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
         : cell{::std::move(cell_context)},
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
@@ -408,7 +401,7 @@ public:
           kind{node_kind_} {
     }
 
-    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithAlignInfo&& align_context,
+    constexpr FrontendContextVariant(ParserFrameContextWithAlignInfo&& align_context,
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
         : align_info{::std::move(align_context)},
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
@@ -417,9 +410,8 @@ public:
           kind{node_kind_} {
     }
 
-    constexpr FrontendContextVariant(
-        ::pltxt2htm::details::ParserFrameContextWithListLiCheckboxInfo&& list_li_checkbox_context,
-        ::pltxt2htm::NodeKind node_kind_) noexcept
+    constexpr FrontendContextVariant(ParserFrameContextWithListLiCheckboxInfo&& list_li_checkbox_context,
+                                     ::pltxt2htm::NodeKind node_kind_) noexcept
         : list_li_checkbox{::std::move(list_li_checkbox_context)},
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
           context_branch{ContextBranch::list_li_checkbox},
@@ -427,7 +419,7 @@ public:
           kind{node_kind_} {
     }
 
-    constexpr FrontendContextVariant(::pltxt2htm::details::ParserFrameContextWithTableInfo<ndebug>&& table_context,
+    constexpr FrontendContextVariant(ParserFrameContextWithTableInfo<ndebug>&& table_context,
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
         : table{::std::move(table_context)},
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
@@ -436,9 +428,9 @@ public:
           kind{node_kind_} {
     }
 
-    constexpr FrontendContextVariant(::pltxt2htm::details::FrontendContextVariant<ndebug> const&) noexcept = delete;
+    constexpr FrontendContextVariant(FrontendContextVariant<ndebug> const&) noexcept = delete;
 
-    constexpr FrontendContextVariant(::pltxt2htm::details::FrontendContextVariant<ndebug>&& other) noexcept
+    constexpr FrontendContextVariant(FrontendContextVariant<ndebug>&& other) noexcept
         :
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
           context_branch{other.context_branch},
@@ -760,10 +752,9 @@ public:
         }
     }
 
-    constexpr auto operator=(::pltxt2htm::details::FrontendContextVariant<ndebug> const&) noexcept
-        -> ::pltxt2htm::details::FrontendContextVariant<ndebug>& = delete;
-    constexpr auto operator=(::pltxt2htm::details::FrontendContextVariant<ndebug>&&) noexcept
-        -> ::pltxt2htm::details::FrontendContextVariant<ndebug>& = delete;
+    constexpr auto operator=(FrontendContextVariant<ndebug> const&) noexcept
+        -> FrontendContextVariant<ndebug>& = delete;
+    constexpr auto operator=(FrontendContextVariant<ndebug>&&) noexcept -> FrontendContextVariant<ndebug>& = delete;
 
     constexpr ~FrontendContextVariant() noexcept {
         switch (this->kind) /* -Werror=switch */ {
@@ -1092,30 +1083,28 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class ParserFrameContext {
-    ::pltxt2htm::details::FrontendContextVariant<ndebug> context_data;
+    FrontendContextVariant<ndebug> context_data;
 
 public:
     ::std::size_t current_index{}; ///< Current parse position in the raw text.
     ::pltxt2htm::Ast<ndebug> subast; ///< Sub-AST being built for this frame.
 
-    constexpr explicit ParserFrameContext(::pltxt2htm::details::FrontendContextVariant<ndebug>&& ctx,
+    constexpr explicit ParserFrameContext(FrontendContextVariant<ndebug>&& ctx,
                                           ::pltxt2htm::Ast<ndebug>&& subast_) noexcept
         : context_data(::std::move(ctx)),
           subast(::std::move(subast_)) {
     }
 
-    constexpr ParserFrameContext(::pltxt2htm::details::ParserFrameContext<ndebug> const&) noexcept = delete;
+    constexpr ParserFrameContext(ParserFrameContext<ndebug> const&) noexcept = delete;
 
-    constexpr ParserFrameContext(::pltxt2htm::details::ParserFrameContext<ndebug>&& other) noexcept
+    constexpr ParserFrameContext(ParserFrameContext<ndebug>&& other) noexcept
         : context_data{::std::move(other.context_data)},
           current_index{other.current_index},
           subast(::std::move(other.subast)) {
     }
 
-    constexpr auto operator=(::pltxt2htm::details::ParserFrameContext<ndebug> const&) noexcept
-        -> ::pltxt2htm::details::ParserFrameContext<ndebug>& = delete;
-    constexpr auto operator=(::pltxt2htm::details::ParserFrameContext<ndebug>&&) noexcept
-        -> ::pltxt2htm::details::ParserFrameContext<ndebug>& = delete;
+    constexpr auto operator=(ParserFrameContext<ndebug> const&) noexcept -> ParserFrameContext<ndebug>& = delete;
+    constexpr auto operator=(ParserFrameContext<ndebug>&&) noexcept -> ParserFrameContext<ndebug>& = delete;
 
     constexpr ~ParserFrameContext() noexcept = default;
 
@@ -1251,14 +1240,12 @@ public:
         case ::pltxt2htm::NodeKind::md_latex_inline:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_latex_block: {
-            pltxt2htm_assert_context_branch(
-                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::pltext);
+            pltxt2htm_assert_context_branch(context_data_ref, FrontendContextVariant<ndebug>::ContextBranch::pltext);
             return context_data_ref.pltext.pltext;
         }
         case ::pltxt2htm::NodeKind::list_li_checkbox: {
-            pltxt2htm_assert_context_branch(
-                context_data_ref,
-                ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::list_li_checkbox);
+            pltxt2htm_assert_context_branch(context_data_ref,
+                                            FrontendContextVariant<ndebug>::ContextBranch::list_li_checkbox);
             return context_data_ref.list_li_checkbox.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_color:
@@ -1276,86 +1263,82 @@ public:
         case ::pltxt2htm::NodeKind::pl_internal:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_user: {
-            pltxt2htm_assert_context_branch(
-                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::equal_sign_tag);
+            pltxt2htm_assert_context_branch(context_data_ref,
+                                            FrontendContextVariant<ndebug>::ContextBranch::equal_sign_tag);
             return context_data_ref.equal_sign_tag.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_external: {
-            pltxt2htm_assert_context_branch(
-                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::url_info);
+            pltxt2htm_assert_context_branch(context_data_ref, FrontendContextVariant<ndebug>::ContextBranch::url_info);
             return context_data_ref.url_info.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_link: {
-            pltxt2htm_assert_context_branch(
-                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::url_info);
+            pltxt2htm_assert_context_branch(context_data_ref, FrontendContextVariant<ndebug>::ContextBranch::url_info);
             return context_data_ref.url_info.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_size: {
-            pltxt2htm_assert_context_branch(
-                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::pl_size_tag);
+            pltxt2htm_assert_context_branch(context_data_ref,
+                                            FrontendContextVariant<ndebug>::ContextBranch::pl_size_tag);
             return context_data_ref.pl_size_tag.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_voffset: {
-            pltxt2htm_assert_context_branch(
-                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::pl_voffset_tag);
+            pltxt2htm_assert_context_branch(context_data_ref,
+                                            FrontendContextVariant<ndebug>::ContextBranch::pl_voffset_tag);
             return context_data_ref.pl_voffset_tag.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_margin: {
-            pltxt2htm_assert_context_branch(
-                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::pl_margin_tag);
+            pltxt2htm_assert_context_branch(context_data_ref,
+                                            FrontendContextVariant<ndebug>::ContextBranch::pl_margin_tag);
             return context_data_ref.pl_margin_tag.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_align: {
-            pltxt2htm_assert_context_branch(
-                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::align_info);
+            pltxt2htm_assert_context_branch(context_data_ref,
+                                            FrontendContextVariant<ndebug>::ContextBranch::align_info);
             return context_data_ref.align_info.pltext;
         }
         case ::pltxt2htm::NodeKind::html_span: {
-            pltxt2htm_assert_context_branch(
-                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::html_span_info);
+            pltxt2htm_assert_context_branch(context_data_ref,
+                                            FrontendContextVariant<ndebug>::ContextBranch::html_span_info);
             return context_data_ref.html_span_info.pltext;
         }
         case ::pltxt2htm::NodeKind::html_div: {
-            pltxt2htm_assert_context_branch(
-                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::html_div_info);
+            pltxt2htm_assert_context_branch(context_data_ref,
+                                            FrontendContextVariant<ndebug>::ContextBranch::html_div_info);
             return context_data_ref.html_div_info.pltext;
         }
         case ::pltxt2htm::NodeKind::html_mark: {
-            pltxt2htm_assert_context_branch(
-                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::html_mark_info);
+            pltxt2htm_assert_context_branch(context_data_ref,
+                                            FrontendContextVariant<ndebug>::ContextBranch::html_mark_info);
             return context_data_ref.html_mark_info.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_mark: {
-            pltxt2htm_assert_context_branch(
-                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::pl_mark_info);
+            pltxt2htm_assert_context_branch(context_data_ref,
+                                            FrontendContextVariant<ndebug>::ContextBranch::pl_mark_info);
             return context_data_ref.pl_mark_info.pltext;
         }
         case ::pltxt2htm::NodeKind::html_a: {
-            pltxt2htm_assert_context_branch(
-                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::html_a_tag);
+            pltxt2htm_assert_context_branch(context_data_ref,
+                                            FrontendContextVariant<ndebug>::ContextBranch::html_a_tag);
             return context_data_ref.html_a_tag_info.pltext;
         }
         case ::pltxt2htm::NodeKind::md_block_quotes: {
-            pltxt2htm_assert_context_branch(
-                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::md_block_quotes);
+            pltxt2htm_assert_context_branch(context_data_ref,
+                                            FrontendContextVariant<ndebug>::ContextBranch::md_block_quotes);
             auto const& pltext = context_data_ref.md_block_quotes.pltext;
             return ::fast_io::u8string_view{pltext.data(), pltext.size()};
         }
         case ::pltxt2htm::NodeKind::md_link: {
-            pltxt2htm_assert_context_branch(
-                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::url_info);
+            pltxt2htm_assert_context_branch(context_data_ref, FrontendContextVariant<ndebug>::ContextBranch::url_info);
             return context_data_ref.url_info.pltext;
         }
         case ::pltxt2htm::NodeKind::html_p: {
-            pltxt2htm_assert_context_branch(
-                context_data_ref, ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::align_info);
+            pltxt2htm_assert_context_branch(context_data_ref,
+                                            FrontendContextVariant<ndebug>::ContextBranch::align_info);
             return context_data_ref.align_info.pltext;
         }
         case ::pltxt2htm::NodeKind::table_th:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::table_td: {
-            pltxt2htm_assert_context_branch(context_data_ref,
-                                            ::pltxt2htm::details::FrontendContextVariant<ndebug>::ContextBranch::cell);
+            pltxt2htm_assert_context_branch(context_data_ref, FrontendContextVariant<ndebug>::ContextBranch::cell);
             return context_data_ref.cell.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_macro_project:
@@ -1617,7 +1600,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_table_state(this auto const& self) noexcept -> ::pltxt2htm::details::TableParsePhase {
+    constexpr auto get_table_state(this auto const& self) noexcept -> TableParsePhase {
         auto&& context_data_ref = self.context_data;
         pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::table, u8"context kind mismatch");
         return context_data_ref.table.state;
@@ -1637,7 +1620,7 @@ public:
         return context_data_ref.table.cell_index;
     }
 
-    constexpr auto set_table_state(this auto&& self, ::pltxt2htm::details::TableParsePhase s) noexcept -> void {
+    constexpr auto set_table_state(this auto&& self, TableParsePhase s) noexcept -> void {
         auto&& context_data_ref = self.context_data;
         pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::table, u8"context kind mismatch");
         context_data_ref.table.state = s;
@@ -1675,29 +1658,27 @@ public:
  * @brief Push a list frame for a freshly parsed top-level ListUlNode/ListOlNode.
  */
 template<::pltxt2htm::Contracts ndebug>
-constexpr void push_list_frame(::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>>& call_stack,
-                               ::pltxt2htm::details::ListBaseNode<ndebug>&& top_node) noexcept {
+constexpr void push_list_frame(::fast_io::stack<ParserFrameContext<ndebug>>& call_stack,
+                               ListBaseNode<ndebug>&& top_node) noexcept {
     switch (top_node.get_type()) {
-    case ::pltxt2htm::details::ListNodeType::list_ul: {
-        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                ::pltxt2htm::details::ParserFrameContextWithListInfo<ndebug>{::std::move(top_node).get_sublist()},
-                ::pltxt2htm::NodeKind::list_ul},
+    case ListNodeType::list_ul: {
+        call_stack.push(ParserFrameContext<ndebug>(
+            FrontendContextVariant<ndebug>{ParserFrameContextWithListInfo<ndebug>{::std::move(top_node).get_sublist()},
+                                           ::pltxt2htm::NodeKind::list_ul},
             ::pltxt2htm::Ast<ndebug>{}));
         break;
     }
-    case ::pltxt2htm::details::ListNodeType::list_ol: {
-        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-            ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                ::pltxt2htm::details::ParserFrameContextWithListInfo<ndebug>{::std::move(top_node).get_sublist(),
-                                                                             top_node.get_start()},
+    case ListNodeType::list_ol: {
+        call_stack.push(ParserFrameContext<ndebug>(
+            FrontendContextVariant<ndebug>{
+                ParserFrameContextWithListInfo<ndebug>{::std::move(top_node).get_sublist(), top_node.get_start()},
                 ::pltxt2htm::NodeKind::list_ol},
             ::pltxt2htm::Ast<ndebug>{}));
         break;
     }
-    case ::pltxt2htm::details::ListNodeType::list_li:
+    case ListNodeType::list_li:
         [[fallthrough]];
-    case ::pltxt2htm::details::ListNodeType::list_li_checkbox:
+    case ListNodeType::list_li_checkbox:
         [[unlikely]] {
             pltxt2htm_unreachable(u8"Unexpected list_li/list_li_checkbox in push_list_frame()");
         }
@@ -1721,8 +1702,7 @@ constexpr void push_list_frame(::fast_io::stack<::pltxt2htm::details::ParserFram
  *         loop).
  */
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto process_table_frame(
-    ::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>>& call_stack) noexcept
+constexpr auto process_table_frame(::fast_io::stack<ParserFrameContext<ndebug>>& call_stack) noexcept
     -> ::exception::optional<::pltxt2htm::Ast<ndebug>> {
     auto&& frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
     auto&& raw_ast = frame.get_table_raw_ast();
@@ -1731,26 +1711,25 @@ constexpr auto process_table_frame(
     auto const cell_index = frame.get_table_cell_index();
 
     switch (state) /* -Werror=switch */ {
-    case ::pltxt2htm::details::TableParsePhase::caption: {
+    case TableParsePhase::caption: {
         if (raw_ast.has_caption()) {
-            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                    ::pltxt2htm::details::ParserFrameContextWithPltextInfo{raw_ast.caption()},
-                    ::pltxt2htm::NodeKind::table_caption},
+            call_stack.push(ParserFrameContext<ndebug>(
+                FrontendContextVariant<ndebug>{ParserFrameContextWithPltextInfo{raw_ast.caption()},
+                                               ::pltxt2htm::NodeKind::table_caption},
                 ::pltxt2htm::Ast<ndebug>{}));
         }
-        frame.set_table_state(::pltxt2htm::details::TableParsePhase::body);
+        frame.set_table_state(TableParsePhase::body);
         return ::exception::nullopt;
     }
-    case ::pltxt2htm::details::TableParsePhase::body: {
+    case TableParsePhase::body: {
         if (row_index < raw_ast.rows_count()) {
             auto const row_cells = raw_ast.row_cells(row_index);
             if (cell_index < row_cells.size()) {
                 auto const& cell = raw_ast.cell_at(row_index, cell_index);
-                call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
-                    ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                        ::pltxt2htm::details::ParserFrameContextWithCellInfo{
-                            ::fast_io::u8string_view{cell.text.data(), cell.text.size()}, cell.align},
+                call_stack.push(ParserFrameContext<ndebug>(
+                    FrontendContextVariant<ndebug>{
+                        ParserFrameContextWithCellInfo{::fast_io::u8string_view{cell.text.data(), cell.text.size()},
+                                                       cell.align},
                         cell.is_header ? ::pltxt2htm::NodeKind::table_th : ::pltxt2htm::NodeKind::table_td},
                     ::pltxt2htm::Ast<ndebug>{}));
                 frame.set_table_cell_index(cell_index + 1);
@@ -1760,10 +1739,10 @@ constexpr auto process_table_frame(
             frame.set_table_cell_index(0);
             return ::exception::nullopt;
         }
-        frame.set_table_state(::pltxt2htm::details::TableParsePhase::finish);
+        frame.set_table_state(TableParsePhase::finish);
         return ::exception::nullopt;
     }
-    case ::pltxt2htm::details::TableParsePhase::finish: {
+    case TableParsePhase::finish: {
         auto previous_frame = ::std::move(frame);
         call_stack.pop();
 
@@ -1792,7 +1771,7 @@ constexpr auto process_table_frame(
         // Group cells into <tr> rows, then consecutive rows of the same section into
         // <thead>/<tbody>/<tfoot>. Direct rows (section == none) are emitted as bare
         // <tr> under <table>.
-        ::pltxt2htm::details::TableRowSection active_section{::pltxt2htm::details::TableRowSection::none};
+        TableRowSection active_section{TableRowSection::none};
         ::pltxt2htm::Ast<ndebug> active_section_ast{};
         ::std::size_t const rows_count{prev_raw_ast.rows_count()};
         ::std::size_t const flat_ast_size{flat_ast.size()};
@@ -1804,10 +1783,10 @@ constexpr auto process_table_frame(
                 tr_ast.push_back(::std::move(::pltxt2htm::details::vector_index<ndebug>(flat_ast, cell_cursor)));
             }
             auto const section = prev_raw_ast.row_section(r);
-            if (section == ::pltxt2htm::details::TableRowSection::none) {
+            if (section == TableRowSection::none) {
                 ::pltxt2htm::details::push_table_section_node<ndebug>(table_ast, active_section,
                                                                       ::std::move(active_section_ast));
-                active_section = ::pltxt2htm::details::TableRowSection::none;
+                active_section = TableRowSection::none;
                 table_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableTr<ndebug>{::std::move(tr_ast)}));
             }
             else if (section == active_section) {
