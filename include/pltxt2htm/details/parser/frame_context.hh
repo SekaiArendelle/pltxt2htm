@@ -1804,7 +1804,7 @@ constexpr auto process_table_frame(
         // colgroup node built directly from the collected col count.
         if (prev_raw_ast.has_colgroup()) {
             ::pltxt2htm::Ast<ndebug> colgroup_ast{};
-            for (::std::size_t c{}; c < prev_raw_ast.col_count(); ++c) {
+            for (::std::size_t c{}; c < prev_raw_ast.get_col_count(); ++c) {
                 colgroup_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableCol{}));
             }
             table_ast.push_back(

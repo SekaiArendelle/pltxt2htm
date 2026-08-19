@@ -39,7 +39,7 @@ struct TableCellRaw {
  * @brief Section a row belongs to, or `none` for rows directly under &lt;table&gt;.
  */
 enum class TableRowSection : unsigned {
-    none,
+    none = 0,
     thead,
     tbody,
     tfoot
@@ -65,51 +65,48 @@ struct TableRowRaw {
 template<::pltxt2htm::Contracts ndebug>
 class TableAstRaw {
     ::fast_io::vector<::pltxt2htm::details::TableRowRaw> rows{};
-    ::fast_io::u8string caption_text{};
-    bool has_caption_{};
-    ::std::size_t col_count_{};
-    bool has_colgroup_{};
+    ::exception::optional<::fast_io::u8string> caption_text{::exception::nullopt};
+    ::std::size_t col_count{}; // <==> optional<non_zero_usize> col_count;
 
 public:
     /// @return Whether a caption was recorded.
     [[nodiscard]]
     constexpr auto has_caption(this auto&& self) noexcept -> bool {
-        return self.has_caption_;
+        return self.caption_text.has_value();
     }
 
     /// @return Raw caption content (valid only when has_caption()).
     [[nodiscard]]
     constexpr auto caption(this auto&& self) noexcept -> ::fast_io::u8string_view {
-        return ::fast_io::u8string_view{self.caption_text.data(), self.caption_text.size()};
+        auto&& text = self.caption_text.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        return ::fast_io::u8string_view{text.data(), text.size()};
     }
 
     /// Record the table caption and that it was present.
     constexpr void set_caption(this TableAstRaw& self, ::fast_io::u8string&& text) noexcept {
         self.caption_text = ::std::move(text);
-        self.has_caption_ = true;
     }
 
     /// @return Whether a colgroup was present.
     [[nodiscard]]
-    constexpr auto has_colgroup(this auto&& self) noexcept -> bool {
-        return self.has_colgroup_;
+    constexpr auto has_colgroup(this auto const& self) noexcept -> bool {
+        return self.col_count != 0;
     }
 
     /// @return Number of &lt;col&gt; elements inside the colgroup.
     [[nodiscard]]
-    constexpr auto col_count(this auto&& self) noexcept -> ::std::size_t {
-        return self.col_count_;
+    constexpr auto get_col_count(this auto const& self) noexcept -> ::std::size_t {
+        return self.col_count;
     }
 
     /// Record one &lt;col&gt; element.
     constexpr void add_col(this TableAstRaw& self) noexcept {
-        self.has_colgroup_ = true;
-        ++self.col_count_;
+        ++self.col_count;
     }
 
     /// @return Number of rows.
     [[nodiscard]]
-    constexpr auto rows_count(this auto&& self) noexcept -> ::std::size_t {
+    constexpr auto rows_count(this auto const& self) noexcept -> ::std::size_t {
         return self.rows.size();
     }
 
@@ -182,8 +179,6 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr void push_table_section_node(::pltxt2htm::Ast<ndebug>& table_ast, ::pltxt2htm::NodeKind const section_kind,
                                        ::pltxt2htm::Ast<ndebug>&& section_ast) noexcept {
     switch (section_kind) /* -Werror=switch */ {
-    case ::pltxt2htm::NodeKind::text:
-        return;
     case ::pltxt2htm::NodeKind::table_thead: {
         table_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableThead<ndebug>{::std::move(section_ast)}));
         return;
@@ -194,6 +189,9 @@ constexpr void push_table_section_node(::pltxt2htm::Ast<ndebug>& table_ast, ::pl
     }
     case ::pltxt2htm::NodeKind::table_tfoot: {
         table_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableTfoot<ndebug>{::std::move(section_ast)}));
+        [[fallthrough]];
+    }
+    case ::pltxt2htm::NodeKind::text: {
         return;
     }
     default:

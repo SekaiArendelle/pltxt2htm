@@ -234,6 +234,20 @@ int main() {
     }
 
     {
+        // empty <caption> is still an authored caption node (presence != content)
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><caption></caption><tr><td>x</td></tr></table>");
+        auto answer = ::fast_io::u8string_view{u8"<table><caption></caption><tr><td>x</td></tr></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // empty <colgroup> without any <col> is not recorded (scanner only tracks <col>)
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><colgroup></colgroup><tr><td>x</td></tr></table>");
+        auto answer = ::fast_io::u8string_view{u8"<table><tr><td>x</td></tr></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
         // <colgroup> inside <table> is valid
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><colgroup><col></colgroup></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><colgroup><col></colgroup></table>"};
