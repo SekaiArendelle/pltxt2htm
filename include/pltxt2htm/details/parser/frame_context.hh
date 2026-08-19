@@ -1735,7 +1735,7 @@ constexpr void push_list_frame(::fast_io::stack<::pltxt2htm::details::ParserFram
  * - body: push one cell frame (th/td) per cell in row-major order;
  * - finish: group cells into &lt;tr&gt; rows and consecutive same-section rows
  *   into &lt;thead&gt;/&lt;tbody&gt;/&lt;tfoot&gt; nodes, wrap the table node
- *   (Table or Table, chosen by the frame kind) and pop the frame.
+ *   and pop the frame.
  *
  * @tparam ndebug Contract checking mode.
  * @param call_stack Frame call stack whose top frame is a table frame.

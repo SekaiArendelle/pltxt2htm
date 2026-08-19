@@ -93,7 +93,7 @@ using ::pltxt2htm::ListLiCheckbox;
 using ::pltxt2htm::HtmlCode;
 using ::pltxt2htm::HtmlBlockquote;
 
-// html table nodes
+// table nodes (shared by HTML <table> and Markdown pipe tables)
 using ::pltxt2htm::Table;
 using ::pltxt2htm::TableTr;
 using ::pltxt2htm::TableTd;

@@ -492,8 +492,8 @@ entry:
             ++frame_iter;
             goto entry;
         }
-        if (auto nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
-            nested_tag_type == ::pltxt2htm::NodeKind::table || nested_tag_type == ::pltxt2htm::NodeKind::table) {
+        if (auto const nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
+            nested_tag_type == ::pltxt2htm::NodeKind::table) {
             auto opt_table_ast = ::pltxt2htm::details::process_table_frame<ndebug>(call_stack);
             if (opt_table_ast.has_value()) {
                 auto&& table_ast = opt_table_ast.template value<ndebug == ::pltxt2htm::Contracts::ignore>();

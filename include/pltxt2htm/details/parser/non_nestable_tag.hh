@@ -64,14 +64,6 @@ constexpr auto try_parse_non_nestable_equal_sign_tag(
 }
 
 /**
- * @brief Parse `<external=...>` tag and validate its URL payload.
- * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
- * @param[in] pltext The input text starting at the `external` tag payload.
- * @param[in] call_stack Active parser frames used to reject invalid nested contexts.
- * @return `valid` with tag length + URL on success; `invalid_url` with the tag length when the
- *         opening tag was recognized but its URL failed validation; `not_a_tag` otherwise.
- */
-/**
  * @brief Result of parsing a URL-bearing opening tag.
  * @details The three return states are encoded by the payload members `tag_len` and `url`:
  *          - `valid` — `url` is engaged (`tag_len` is the opening-tag length the caller
@@ -115,6 +107,14 @@ struct TryParseExternalTagResult {
     }
 };
 
+/**
+ * @brief Parse `<external=...>` tag and validate its URL payload.
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
+ * @param[in] pltext The input text starting at the `external` tag payload.
+ * @param[in] call_stack Active parser frames used to reject invalid nested contexts.
+ * @return `valid` with tag length + URL on success; `invalid_url` with the tag length when the
+ *         opening tag was recognized but its URL failed validation; `not_a_tag` otherwise.
+ */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_external_tag(
@@ -153,16 +153,6 @@ constexpr auto try_parse_external_tag(
         tag_len, ::std::move(opt_url.template value<ndebug == ::pltxt2htm::Contracts::ignore>().url)};
 }
 
-/**
- * @brief Parse `<link="...">` tag (Unity TextMeshPro rich text) and validate its URL payload.
- * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
- * @param[in] pltext The input text starting at the `link` tag payload.
- * @param[in] call_stack Active parser frames used to reject invalid nested contexts.
- * @return `valid` with tag length + URL on success; `invalid_url` with the tag length when the
- *         opening tag was recognized but its URL failed validation; `not_a_tag` otherwise.
- * @note The Unity TextMeshPro link tag uses a quoted value: &lt;link=&quot;url&quot;&gt;. A value
- *       without surrounding double quotes is rejected so that unquoted `<link=url>` stays plain text.
- */
 /**
  * @brief Result of parsing a URL-bearing opening tag.
  * @details The three return states are encoded by the payload members `tag_len` and `url`:
@@ -207,6 +197,16 @@ struct TryParseLinkTagResult {
     }
 };
 
+/**
+ * @brief Parse `<link="...">` tag (Unity TextMeshPro rich text) and validate its URL payload.
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
+ * @param[in] pltext The input text starting at the `link` tag payload.
+ * @param[in] call_stack Active parser frames used to reject invalid nested contexts.
+ * @return `valid` with tag length + URL on success; `invalid_url` with the tag length when the
+ *         opening tag was recognized but its URL failed validation; `not_a_tag` otherwise.
+ * @note The Unity TextMeshPro link tag uses a quoted value: &lt;link=&quot;url&quot;&gt;. A value
+ *       without surrounding double quotes is rejected so that unquoted `<link=url>` stays plain text.
+ */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_link_tag(
