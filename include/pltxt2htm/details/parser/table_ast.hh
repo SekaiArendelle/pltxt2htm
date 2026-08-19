@@ -158,17 +158,6 @@ enum class TableParsePhase : unsigned {
 };
 
 /**
- * @brief Append a &lt;tr&gt; node to an AST.
- * @tparam ndebug Contract checking mode.
- * @param parent_ast AST to append to.
- * @param tr_ast The row's sub-AST.
- */
-template<::pltxt2htm::Contracts ndebug>
-constexpr void push_table_tr_node(::pltxt2htm::Ast<ndebug>& parent_ast, ::pltxt2htm::Ast<ndebug>&& tr_ast) noexcept {
-    parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableTr<ndebug>{::std::move(tr_ast)}));
-}
-
-/**
  * @brief Append a table section node (&lt;thead&gt;/&lt;tbody&gt;/&lt;tfoot&gt;) to a table AST.
  * @tparam ndebug Contract checking mode.
  * @param table_ast AST of the owning table node.

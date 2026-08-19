@@ -1827,16 +1827,18 @@ constexpr auto process_table_frame(
                 ::pltxt2htm::details::push_table_section_node<ndebug>(table_ast, active_section,
                                                                       ::std::move(active_section_ast));
                 active_section = ::pltxt2htm::details::TableRowSection::none;
-                ::pltxt2htm::details::push_table_tr_node<ndebug>(table_ast, ::std::move(tr_ast));
+                table_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableTr<ndebug>{::std::move(tr_ast)}));
             }
             else if (section == active_section) {
-                ::pltxt2htm::details::push_table_tr_node<ndebug>(active_section_ast, ::std::move(tr_ast));
+                active_section_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableTr<ndebug>{::std::move(tr_ast)}));
             }
             else {
                 ::pltxt2htm::details::push_table_section_node<ndebug>(table_ast, active_section,
                                                                       ::std::move(active_section_ast));
                 active_section = section;
-                ::pltxt2htm::details::push_table_tr_node<ndebug>(active_section_ast, ::std::move(tr_ast));
+                active_section_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableTr<ndebug>{::std::move(tr_ast)}));
             }
         }
         ::pltxt2htm::details::push_table_section_node<ndebug>(table_ast, active_section,
