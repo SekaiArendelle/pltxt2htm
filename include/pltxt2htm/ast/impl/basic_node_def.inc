@@ -15,12 +15,11 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::Text<ndebug>::~Text() noexcept = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::Text<ndebug>::operator=(this ::pltxt2htm::Text<ndebug>& self,
-                                                    ::pltxt2htm::Text<ndebug>&& other) noexcept
+constexpr auto ::pltxt2htm::Text<ndebug>::operator=(this Text<ndebug>& self, ::pltxt2htm::Text<ndebug>&& other) noexcept
     -> ::pltxt2htm::Text<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::Text<ndebug>::operator==(this ::pltxt2htm::Text<ndebug> const&,
+constexpr auto ::pltxt2htm::Text<ndebug>::operator==(this Text<ndebug> const&,
                                                      ::pltxt2htm::Text<ndebug> const&) noexcept -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
@@ -37,11 +36,11 @@ constexpr ::pltxt2htm::CodeFence<ndebug>::CodeFence(::pltxt2htm::CodeFence<ndebu
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::CodeFence<ndebug>::~CodeFence() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::CodeFence<ndebug>::operator=(this ::pltxt2htm::CodeFence<ndebug>& self,
+constexpr auto ::pltxt2htm::CodeFence<ndebug>::operator=(this CodeFence<ndebug>& self,
                                                          ::pltxt2htm::CodeFence<ndebug>&&) noexcept
     -> ::pltxt2htm::CodeFence<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::CodeFence<ndebug>::operator==(this ::pltxt2htm::CodeFence<ndebug> const&,
+constexpr auto ::pltxt2htm::CodeFence<ndebug>::operator==(this CodeFence<ndebug> const&,
                                                           ::pltxt2htm::CodeFence<ndebug> const&) noexcept
     -> bool = default;

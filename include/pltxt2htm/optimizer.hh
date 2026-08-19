@@ -204,7 +204,7 @@ public:
     constexpr auto operator=(::pltxt2htm::details::OptimizerContextVariant<ndebug> const&) noexcept
         -> ::pltxt2htm::details::OptimizerContextVariant<ndebug>& = delete;
 
-    constexpr auto operator=(this ::pltxt2htm::details::OptimizerContextVariant<ndebug>& self,
+    constexpr auto operator=(this OptimizerContextVariant<ndebug>& self,
                              ::pltxt2htm::details::OptimizerContextVariant<ndebug>&& other) noexcept
         -> ::pltxt2htm::details::OptimizerContextVariant<ndebug>& {
         pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other), u8"can not assign to self");
@@ -301,12 +301,11 @@ public:
         ::pltxt2htm::details::OptimizerFrameContext<Iter, ndebug> const&) noexcept = delete;
 
     constexpr ::pltxt2htm::details::OptimizerFrameContext<Iter, ndebug>& operator=(
-        this ::pltxt2htm::details::OptimizerFrameContext<Iter, ndebug>& self,
+        this OptimizerFrameContext<Iter, ndebug>& self,
         ::pltxt2htm::details::OptimizerFrameContext<Iter, ndebug>&&) noexcept = default;
 
     [[nodiscard]]
-    constexpr auto get_nested_tag_type(
-        this ::pltxt2htm::details::OptimizerFrameContext<Iter, ndebug> const& self) noexcept {
+    constexpr auto get_nested_tag_type(this OptimizerFrameContext<Iter, ndebug> const& self) noexcept {
         return self.context_data.kind;
     }
 

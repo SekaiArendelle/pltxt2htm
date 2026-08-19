@@ -177,8 +177,9 @@ Follow the existing low-runtime, cross-platform style used in core headers:
 - **Use deducing-`this` for `operator=`:**
   - All non-`= delete` `operator=` overloads must use the C++23 deducing-`this` form with an lvalue reference object parameter (`this X& self`) to prevent assignment to temporaries.
   - `= delete` overloads are exempt since they already prevent any use.
-- **Prefer fully qualified namespace style:**
-  - Prefer `::ns::fn_or_cls` for function/class references to avoid ADL-based calls.
+- **Prefer fully qualified namespace style for function calls:**
+  - Prefer `::ns::fn` when calling free functions to avoid accidental ADL-based calls.
+  - Types and classes may be referenced with or without leading `::`; the fully qualified form is optional there and not required.
 - **Prefer unambiguous initialization:**
   - Prefer brace initialization (`T x{...}`) when constructing typed instances.
   - Avoid initialization forms that look like declarations but actually construct objects (the "most vexing parse" style).
