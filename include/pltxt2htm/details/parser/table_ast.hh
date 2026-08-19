@@ -172,32 +172,29 @@ constexpr void push_table_tr_node(::pltxt2htm::Ast<ndebug>& parent_ast, ::pltxt2
  * @brief Append a table section node (&lt;thead&gt;/&lt;tbody&gt;/&lt;tfoot&gt;) to a table AST.
  * @tparam ndebug Contract checking mode.
  * @param table_ast AST of the owning table node.
- * @param section_kind The section node kind (table_thead/table_tbody/table_tfoot or text for none).
+ * @param section The row section tag (thead/tbody/tfoot, or none for no-op).
  * @param section_ast The section's sub-AST.
  */
 template<::pltxt2htm::Contracts ndebug>
-constexpr void push_table_section_node(::pltxt2htm::Ast<ndebug>& table_ast, ::pltxt2htm::NodeKind const section_kind,
+constexpr void push_table_section_node(::pltxt2htm::Ast<ndebug>& table_ast,
+                                       ::pltxt2htm::details::TableRowSection const section,
                                        ::pltxt2htm::Ast<ndebug>&& section_ast) noexcept {
-    switch (section_kind) /* -Werror=switch */ {
-    case ::pltxt2htm::NodeKind::table_thead: {
+    switch (section) /* -Werror=switch */ {
+    case ::pltxt2htm::details::TableRowSection::thead: {
         table_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableThead<ndebug>{::std::move(section_ast)}));
         return;
     }
-    case ::pltxt2htm::NodeKind::table_tbody: {
+    case ::pltxt2htm::details::TableRowSection::tbody: {
         table_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableTbody<ndebug>{::std::move(section_ast)}));
         return;
     }
-    case ::pltxt2htm::NodeKind::table_tfoot: {
+    case ::pltxt2htm::details::TableRowSection::tfoot: {
         table_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableTfoot<ndebug>{::std::move(section_ast)}));
-        [[fallthrough]];
-    }
-    case ::pltxt2htm::NodeKind::text: {
         return;
     }
-    default:
-        [[unlikely]] {
-            pltxt2htm_unreachable(u8"Unexpected section node kind");
-        }
+    case ::pltxt2htm::details::TableRowSection::none: {
+        return;
+    }
     }
 }
 

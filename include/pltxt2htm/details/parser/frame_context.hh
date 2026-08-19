@@ -1814,7 +1814,7 @@ constexpr auto process_table_frame(
         // Group cells into <tr> rows, then consecutive rows of the same section into
         // <thead>/<tbody>/<tfoot>. Direct rows (section == none) are emitted as bare
         // <tr> under <table>.
-        ::pltxt2htm::NodeKind active_section_kind{::pltxt2htm::NodeKind::text};
+        ::pltxt2htm::details::TableRowSection active_section{::pltxt2htm::details::TableRowSection::none};
         ::pltxt2htm::Ast<ndebug> active_section_ast{};
         for (::std::size_t r{}; r < prev_raw_ast.rows_count(); ++r) {
             ::pltxt2htm::Ast<ndebug> tr_ast{};
@@ -1823,30 +1823,23 @@ constexpr auto process_table_frame(
                 tr_ast.push_back(::std::move(::pltxt2htm::details::vector_index<ndebug>(flat_ast, cell_cursor)));
             }
             auto const section = prev_raw_ast.row_section(r);
-            auto const section_kind = section == ::pltxt2htm::details::TableRowSection::thead
-                                          ? ::pltxt2htm::NodeKind::table_thead
-                                          : (section == ::pltxt2htm::details::TableRowSection::tbody
-                                                 ? ::pltxt2htm::NodeKind::table_tbody
-                                                 : (section == ::pltxt2htm::details::TableRowSection::tfoot
-                                                        ? ::pltxt2htm::NodeKind::table_tfoot
-                                                        : ::pltxt2htm::NodeKind::text));
-            if (section_kind == ::pltxt2htm::NodeKind::text) {
-                ::pltxt2htm::details::push_table_section_node<ndebug>(table_ast, active_section_kind,
+            if (section == ::pltxt2htm::details::TableRowSection::none) {
+                ::pltxt2htm::details::push_table_section_node<ndebug>(table_ast, active_section,
                                                                       ::std::move(active_section_ast));
-                active_section_kind = ::pltxt2htm::NodeKind::text;
+                active_section = ::pltxt2htm::details::TableRowSection::none;
                 ::pltxt2htm::details::push_table_tr_node<ndebug>(table_ast, ::std::move(tr_ast));
             }
-            else if (section_kind == active_section_kind) {
+            else if (section == active_section) {
                 ::pltxt2htm::details::push_table_tr_node<ndebug>(active_section_ast, ::std::move(tr_ast));
             }
             else {
-                ::pltxt2htm::details::push_table_section_node<ndebug>(table_ast, active_section_kind,
+                ::pltxt2htm::details::push_table_section_node<ndebug>(table_ast, active_section,
                                                                       ::std::move(active_section_ast));
-                active_section_kind = section_kind;
+                active_section = section;
                 ::pltxt2htm::details::push_table_tr_node<ndebug>(active_section_ast, ::std::move(tr_ast));
             }
         }
-        ::pltxt2htm::details::push_table_section_node<ndebug>(table_ast, active_section_kind,
+        ::pltxt2htm::details::push_table_section_node<ndebug>(table_ast, active_section,
                                                               ::std::move(active_section_ast));
 
         if (call_stack.empty()) {
