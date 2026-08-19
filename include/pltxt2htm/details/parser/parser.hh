@@ -2344,6 +2344,12 @@ entry:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::table_tbody:
                         [[fallthrough]];
+                    case ::pltxt2htm::NodeKind::table_tfoot:
+                        [[fallthrough]];
+                    case ::pltxt2htm::NodeKind::table_caption:
+                        [[fallthrough]];
+                    case ::pltxt2htm::NodeKind::table_colgroup:
+                        [[fallthrough]];
                     case ::pltxt2htm::NodeKind::table_tr:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::table_th:
@@ -2465,27 +2471,22 @@ entry:
                     case ::pltxt2htm::NodeKind::md_escape_right_brace:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::md_escape_tilde:
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
+                        [[fallthrough]];
+                    default:
+#endif
                         [[unlikely]] {
                             pltxt2htm_unreachable(u8"Unexpected escape node kind in inner switch");
                         }
-                    default: {
-                        // Table container/cell/caption frames no longer accept inline
-                        // closing tags; fall back to literal text.
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
-                        ++current_index;
-                        continue;
-                    }
                     }
                     pltxt2htm_unreachable(u8"Unreachable after escape-node inner switch");
                 }
-
                 default: {
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
                     ++current_index;
                     continue;
                 }
                 }
-
                 pltxt2htm_unreachable(u8"Unreachable after outer switch");
             }
             auto const advance_count = ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
