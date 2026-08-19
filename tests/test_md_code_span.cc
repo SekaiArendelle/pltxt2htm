@@ -102,14 +102,15 @@ int main() {
         auto answer = ::fast_io::u8string_view{u8"`"};
         pltxt2htm_test_assert_equal(html, answer);
     }
+    // A delimiter run with no content is NOT a code span and stays literal text.
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"``");
-        auto answer = ::fast_io::u8string_view{u8"<code></code>"};
+        auto answer = ::fast_io::u8string_view{u8"``"};
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```");
-        auto answer = ::fast_io::u8string_view{u8"<code></code>`"};
+        auto answer = ::fast_io::u8string_view{u8"```"};
         pltxt2htm_test_assert_equal(html, answer);
     }
     // Content long enough to fill an unclosed span still must not be consumed by it.
@@ -120,12 +121,12 @@ int main() {
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"``ab");
-        auto answer = ::fast_io::u8string_view{u8"<code></code>ab"};
+        auto answer = ::fast_io::u8string_view{u8"``ab"};
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```x");
-        auto answer = ::fast_io::u8string_view{u8"<code></code>`x"};
+        auto answer = ::fast_io::u8string_view{u8"```x"};
         pltxt2htm_test_assert_equal(html, answer);
     }
     // A backslash-escaped backtick at the end is consumed as content, not a closing delimiter.
@@ -134,15 +135,15 @@ int main() {
         auto answer = ::fast_io::u8string_view{u8"`a`"};
         pltxt2htm_test_assert_equal(html, answer);
     }
-    // Valid empty code spans remain valid.
+    // Even balanced delimiter runs with no content stay literal.
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"````");
-        auto answer = ::fast_io::u8string_view{u8"<code></code>"};
+        auto answer = ::fast_io::u8string_view{u8"````"};
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"``````");
-        auto answer = ::fast_io::u8string_view{u8"<code></code>"};
+        auto answer = ::fast_io::u8string_view{u8"``````"};
         pltxt2htm_test_assert_equal(html, answer);
     }
     // The fuzzer crash input: an unclosed code span inside a Markdown list item.

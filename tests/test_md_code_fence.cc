@@ -230,12 +230,11 @@ print("Hello World")
     }
 
     {
-        // 5 backticks: first 3 open an inline code span, remaining 2 are content.
-        // A space after some "language-like" text, followed by content without a newline,
-        // causes the block-level fence parser to bail out, falling through to
-        // inline code span parsing.
+        // 5 backticks followed by content without a newline: the block-level fence parser
+        // bails out, and the inline code-span branches only ever match empty content
+        // (e.g. the first two backticks), which is rejected. The whole input stays literal.
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"`````a bc");
-        auto answer = ::fast_io::u8string_view{u8"<code></code>`a&nbsp;bc"};
+        auto answer = ::fast_io::u8string_view{u8"`````a&nbsp;bc"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

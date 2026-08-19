@@ -3938,7 +3938,7 @@ struct TryParseMdCodeSpanResult {
  *       in the code content without prematurely ending the span.
  * @note The content is parsed as plain text and converted to appropriate AST nodes.
  * @note Code spans cannot contain newline characters - they must be single-line.
- * @note Empty code spans are valid and will be parsed.
+ * @note Empty code spans are NOT code spans; the function returns nullopt so the input stays literal text.
  * @note An opening delimiter without a matching closing delimiter is NOT a code span;
  *       the function returns nullopt so the input stays literal text.
  * @see https://spec.commonmark.org/0.31.2/#code-spans
@@ -3959,8 +3959,13 @@ constexpr auto try_parse_md_code_span(::fast_io::u8string_view pltext) noexcept
         // input, so treating this as a code span would silently drop the unclosed backticks.
         return ::exception::nullopt;
     }
+    ::std::size_t const content_size{advance_count - embraced_size};
+    if (content_size == 0) {
+        // Empty content: an empty code span is not meaningful, so it stays literal text.
+        return ::exception::nullopt;
+    }
 
-    return ::pltxt2htm::details::TryParseMdCodeSpanResult<ndebug>{.content_size = advance_count - embraced_size,
+    return ::pltxt2htm::details::TryParseMdCodeSpanResult<ndebug>{.content_size = content_size,
                                                                   .subast = ::std::move(ast)};
 }
 
