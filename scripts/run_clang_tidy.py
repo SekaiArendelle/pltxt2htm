@@ -74,10 +74,9 @@ def configure(subproject, refresh, compiler, cxxflags):
         "cmake", "-S", subproject, "-B", build_dir, "-G", "Ninja",
         "-DCMAKE_BUILD_TYPE=Debug",
         "-DCMAKE_CXX_COMPILER=" + compiler,
+        "-DCMAKE_CXX_FLAGS=" + (cxxflags or ""),
         "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
     ]
-    if cxxflags:
-        cmd.append("-DCMAKE_CXX_FLAGS=" + cxxflags)
 
     log(f"Configuring {os.path.basename(subproject)} -> {build_dir}")
     result = subprocess.run(cmd)

@@ -17,7 +17,7 @@ Checks: >
   bugprone-argument-comment,
   bugprone-integer-division
 
-HeaderFilterRegex: '.*pltxt2htm.*'
+HeaderFilterRegex: '.*(^|[/\\])include[/\\]pltxt2htm[/\\].*'
 SystemHeaders: false
 
 CheckOptions:
