@@ -440,4 +440,3 @@ constexpr auto ::pltxt2htm::PlS<ndebug>::operator=(this ::pltxt2htm::PlS<ndebug>
 template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::PlS<ndebug>::operator==(this ::pltxt2htm::PlS<ndebug> const&,
                                                     ::pltxt2htm::PlS<ndebug> const&) noexcept -> bool = default;
-

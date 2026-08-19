@@ -402,4 +402,3 @@ constexpr auto ::pltxt2htm::HtmlDiv<ndebug>::operator=(this ::pltxt2htm::HtmlDiv
 template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::HtmlDiv<ndebug>::operator==(this ::pltxt2htm::HtmlDiv<ndebug> const&,
                                                         ::pltxt2htm::HtmlDiv<ndebug> const&) noexcept -> bool = default;
-
