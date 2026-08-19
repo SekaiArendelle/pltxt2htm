@@ -79,10 +79,17 @@ constexpr auto optionally_to_html_list_ast(::fast_io::u8string_view pltext) noex
         if (current_index >= pltext_size) {
             return ::exception::nullopt;
         }
-        // Closing tag </ul> / </ol> (must match the opener kind).
+        // Closing tag </ul> / </ol> (must match the opener kind). A list must
+        // contain at least one <li> item: `<ol></ol>`/`<ul></ul>` (or a variant
+        // with only whitespace but no items) is not a valid list today, so fall
+        // back to literal text like any other malformed list instead of building
+        // an empty list container.
         if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"</ul">(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
             item_kind == ::pltxt2htm::NodeKind::list_ul && opt_len.has_value()) {
+            if (ast.empty()) {
+                return ::exception::nullopt;
+            }
             return ::pltxt2htm::details::ToHtmlListAstResult<ndebug>{
                 .top_node = ::pltxt2htm::details::ListBaseNode<ndebug>{::pltxt2htm::details::ListUlNode<ndebug>(
                     ::std::move(ast))},
@@ -92,6 +99,9 @@ constexpr auto optionally_to_html_list_ast(::fast_io::u8string_view pltext) noex
         if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"</ol">(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
             item_kind == ::pltxt2htm::NodeKind::list_ol && opt_len.has_value()) {
+            if (ast.empty()) {
+                return ::exception::nullopt;
+            }
             return ::pltxt2htm::details::ToHtmlListAstResult<ndebug>{
                 .top_node = ::pltxt2htm::details::ListBaseNode<ndebug>{::pltxt2htm::details::ListOlNode<ndebug>(
                     ::std::move(ast), start)},

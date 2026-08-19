@@ -164,5 +164,46 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // ---- empty lists (no <li> items) are malformed and fall back to literal text ----
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ol></ol>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;ol&gt;&lt;/ol&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ol>\n</ol>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;ol&gt;<br>&lt;/ol&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ol start=\"5\"></ol>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;ol&nbsp;start=&quot;5&quot;&gt;&lt;/ol&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ol><li>a<ol></ol></li></ol>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;ol&gt;&lt;li&gt;a&lt;ol&gt;&lt;/ol&gt;&lt;/li&gt;&lt;/ol&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        // an empty <li> item is still a valid list
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ol><li></li></ol>");
+        auto answer = ::fast_io::u8string_view{u8"<ol><li></li></ol>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    // ---- regression: empty lists must not panic the backends (fuzzer crash) ----
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<ol></ol>");
+        auto answer =
+            ::fast_io::u8string_view{u8"<size=20>＜</size>ol<size=20>＞</size><size=20>＜</size>/ol<size=20>＞</size>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<ol>\n</ol>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<size=20>＜</size>ol<size=20>＞</size>\n<size=20>＜</size>/ol<size=20>＞</size>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }

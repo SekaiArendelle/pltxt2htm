@@ -169,5 +169,41 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // ---- empty lists (no <li> items) are malformed and fall back to literal text ----
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ul></ul>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;ul&gt;&lt;/ul&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ul>\n</ul>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;ul&gt;<br>&lt;/ul&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ul><li>a<ul></ul></li></ul>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;ul&gt;&lt;li&gt;a&lt;ul&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        // an empty <li> item is still a valid list
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ul><li></li></ul>");
+        auto answer = ::fast_io::u8string_view{u8"<ul><li></li></ul>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    // ---- regression: empty lists must not panic the backends (fuzzer crash) ----
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<ul></ul>");
+        auto answer =
+            ::fast_io::u8string_view{u8"<size=20>＜</size>ul<size=20>＞</size><size=20>＜</size>/ul<size=20>＞</size>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<ul>\n</ul>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<size=20>＜</size>ul<size=20>＞</size>\n<size=20>＜</size>/ul<size=20>＞</size>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }
