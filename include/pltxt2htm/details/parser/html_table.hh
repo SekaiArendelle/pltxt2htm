@@ -137,7 +137,9 @@ constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noe
             }
             ++current_index;
         }
-        if (current_index >= pltext_size) {
+        if (current_index + 2 > pltext_size) {
+            // No nested tag can start with fewer than two bytes left (`<` plus a letter);
+            // probing subview(pltext, current_index + 2) would go out of bounds.
             return ::exception::nullopt;
         }
 
