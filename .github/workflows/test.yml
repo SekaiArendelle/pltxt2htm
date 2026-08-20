@@ -33,7 +33,7 @@ jobs:
       - name: Configure and build
         shell: powershell
         run: |
-          cmake -S tests -B tests/build -GNinja -DCMAKE_BUILD_TYPE=Debug -DPLTXT2HTM_ENABLE_STACKTRACE=ON -DCMAKE_CXX_COMPILER=clang++
+          cmake -S tests -B tests/build -GNinja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++
           cmake --build tests/build -v
           ctest --test-dir tests/build -V -j $env:NUMBER_OF_PROCESSORS
 

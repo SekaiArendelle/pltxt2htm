@@ -10,16 +10,74 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.28)
     set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 endif()
 
-option(PLTXT2HTM_ENABLE_STACKTRACE "Enable C++23 <stacktrace>" OFF)
+set(PLTXT2HTM_ENABLE_STACKTRACE "AUTO" CACHE STRING
+    "Enable C++23 <stacktrace>: AUTO (detect), ON (force), OFF (disable)")
+set_property(CACHE PLTXT2HTM_ENABLE_STACKTRACE PROPERTY STRINGS AUTO ON OFF)
 option(PLTXT2HTM_ENABLE_COVERAGE "Enable code coverage" OFF)
 
 set(PLTXT2HTM_SANITIZER "" CACHE STRING "Sanitizer: address, undefined, memory")
 
+# libstdc++ ships <stacktrace> (experimental), but it requires linking against a
+# separate libstdc++exp library, so a mere __has_include/feature check is not enough.
+# Probe compile+link+run a small <stacktrace> program and only enable the feature
+# (defining PLTXT2HTM_ENABLE_STACKTRACE) when the whole chain actually works.
+include(CheckCXXSourceCompiles)
+include(CheckCXXSourceRuns)
+
+set(_pltxt2htm_stacktrace_probe [[
+#include <stacktrace>
+int main() {
+    ::std::stacktrace st = ::std::stacktrace::current();
+    return 0;
+}
+]])
+
+macro(pltxt2htm_probe_stacktrace result_var)
+    set(CMAKE_REQUIRED_LIBRARIES "${ARGN}")
+    if(CMAKE_CROSSCOMPILING)
+        check_cxx_source_compiles("${_pltxt2htm_stacktrace_probe}" ${result_var})
+    else()
+        check_cxx_source_runs("${_pltxt2htm_stacktrace_probe}" ${result_var})
+    endif()
+endmacro()
+
+set(_pltxt2htm_saved_required_libs "${CMAKE_REQUIRED_LIBRARIES}")
+
+set(PLTXT2HTM_USE_STACKTRACE FALSE)
+set(PLTXT2HTM_STACKTRACE_LINK_LIB "")
+
+if(PLTXT2HTM_ENABLE_STACKTRACE STREQUAL "ON")
+    set(PLTXT2HTM_USE_STACKTRACE TRUE)
+    message(STATUS "PLTXT2HTM_ENABLE_STACKTRACE: enabled (forced)")
+elseif(PLTXT2HTM_ENABLE_STACKTRACE STREQUAL "AUTO")
+    pltxt2htm_probe_stacktrace(_pltxt2htm_stacktrace_ok)
+    if(_pltxt2htm_stacktrace_ok)
+        set(PLTXT2HTM_USE_STACKTRACE TRUE)
+        message(STATUS "PLTXT2HTM_ENABLE_STACKTRACE: enabled (auto-detected)")
+    else()
+        pltxt2htm_probe_stacktrace(_pltxt2htm_stacktrace_ok_exp "stdc++exp")
+        if(_pltxt2htm_stacktrace_ok_exp)
+            set(PLTXT2HTM_USE_STACKTRACE TRUE)
+            set(PLTXT2HTM_STACKTRACE_LINK_LIB "stdc++exp")
+            message(STATUS "PLTXT2HTM_ENABLE_STACKTRACE: enabled (auto-detected, linking stdc++exp)")
+        else()
+            message(STATUS "PLTXT2HTM_ENABLE_STACKTRACE: disabled (C++23 <stacktrace> unavailable)")
+        endif()
+    endif()
+else()
+    message(STATUS "PLTXT2HTM_ENABLE_STACKTRACE: disabled (forced)")
+endif()
+
+set(CMAKE_REQUIRED_LIBRARIES "${_pltxt2htm_saved_required_libs}")
+
 add_library(pltxt2htm_base INTERFACE)
 target_include_directories(pltxt2htm_base INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
 
-if(PLTXT2HTM_ENABLE_STACKTRACE)
+if(PLTXT2HTM_USE_STACKTRACE)
     target_compile_definitions(pltxt2htm_base INTERFACE PLTXT2HTM_ENABLE_STACKTRACE)
+    if(PLTXT2HTM_STACKTRACE_LINK_LIB)
+        target_link_libraries(pltxt2htm_base INTERFACE "${PLTXT2HTM_STACKTRACE_LINK_LIB}")
+    endif()
 endif()
 
 target_compile_definitions(pltxt2htm_base INTERFACE PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT)

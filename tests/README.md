@@ -24,7 +24,7 @@ or `-DPLTXT2HTM_SANITIZER=undefined` or `-DPLTXT2HTM_SANITIZER=memory`.
 ## available cmake options:
 | Option | Description |
 |---|---|
-| `PLTXT2HTM_ENABLE_STACKTRACE` | Enable C++23 `<stacktrace>` |
+| `PLTXT2HTM_ENABLE_STACKTRACE` | Enable C++23 `<stacktrace>`: `AUTO` (default, detect by compiling/running a probe), `ON` (force), `OFF` (disable). libstdc++ requires linking `libstdc++exp`, which is detected automatically |
 | `PLTXT2HTM_SANITIZER` | Sanitizer: `address`, `undefined`, `memory` |
 | `PLTXT2HTM_ENABLE_COVERAGE` | Enable code coverage |
 
