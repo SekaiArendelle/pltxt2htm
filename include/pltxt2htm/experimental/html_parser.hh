@@ -171,6 +171,22 @@ constexpr auto find_next_block_after_line_break(
             return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
                 .advance_count = current_index + consumed, .new_frame_been_pushed_into_call_stack = true};
         }
+        // Check for an HTML <div style="margin-left:...;margin-right:..."> at a block position.
+        if (auto opt_div_tag = ::pltxt2htm::details::try_parse_html_div_tag<ndebug>(
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            opt_div_tag.has_value()) {
+            auto&& [tag_len, left, right] = opt_div_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            ::std::size_t const consumed{tag_len + 1};
+            call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+                ::pltxt2htm::details::FrontendContextVariant<ndebug>{
+                    ::pltxt2htm::details::ParserFrameContextWithHtmlDivInfo{
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + consumed), left,
+                        right},
+                    ::pltxt2htm::NodeKind::html_div},
+                ::pltxt2htm::Ast<ndebug>{}));
+            return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
+                .advance_count = current_index + consumed, .new_frame_been_pushed_into_call_stack = true};
+        }
         // Check for HTML <ul>/<ol> list at a block position (block-level lists).
         if (auto opt_html_list_ast = ::pltxt2htm::details::optionally_to_html_list_ast<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
@@ -695,6 +711,27 @@ entry:
                         ++current_index;
                         continue;
                     }
+                    case ::pltxt2htm::NodeKind::html_div: {
+                        // parsing </div>
+                        if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"div">(
+                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                            opt_tag_len.has_value()) {
+                            ::std::size_t const staged_index{current_index};
+                            ::pltxt2htm::HtmlDiv staged_node(::std::move(result), frame.get_html_div_left(),
+                                                             frame.get_html_div_right());
+                            call_stack.pop();
+                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlDiv<ndebug>{::std::move(staged_node)}));
+                            parent_frame.current_index +=
+                                staged_index + opt_tag_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() +
+                                3;
+                            goto entry;
+                        }
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        ++current_index;
+                        continue;
+                    }
                     case ::pltxt2htm::NodeKind::html_p: {
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"p">(
                                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
@@ -1064,6 +1101,11 @@ entry:
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlSpan<ndebug>{
                     ::std::move(subast), ::std::move(frame.get_html_span_color()), frame.get_html_span_font_size(),
                     frame.get_html_span_vertical_align()}));
+                goto entry;
+            }
+            case ::pltxt2htm::NodeKind::html_div: {
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlDiv<ndebug>{
+                    ::std::move(subast), frame.get_html_div_left(), frame.get_html_div_right()}));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_a: {

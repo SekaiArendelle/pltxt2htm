@@ -173,5 +173,85 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // regression: roundtrip fuzzer crash (fixedadv_roundtrip, crash-6250118fd3e7f955112700997404af6e9d791b89).
+    // The web backend emits a pl_margin block as <div style="margin-left:...;margin-right:...">, but the
+    // experimental HTML parser (parse_pltxt_html) used by the second roundtrip pass does not understand <div>,
+    // so on the second pass the emitted <div> is re-parsed as literal text and escaped. The two passes diverge:
+    //     first pass : x<br><div style="margin-left:2px;margin-right:2px;"></div>
+    //     second pass: x<br>&lt;div&nbsp;style=&quot;margin-left:2px;margin-right:2px;&quot;&gt;&lt;/div&gt;
+    // The roundtrip is therefore not idempotent. The test below asserts the idempotency the fuzzer checks and
+    // currently reproduces the crash; it should pass once the HTML parser learns <div>.
+    {
+        auto pltext = ::fast_io::u8string_view{u8"x\n<MARgin=2>"};
+        auto once = ::pltxt2htm_test::pltxt2roundtrip_htmld(pltext);
+        auto twice = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::mnp::os_c_str(once));
+        pltxt2htm_test_assert_equal(twice, once);
+    }
+    // the exact fuzzer input (span-wrapped margin block), without the libFuzzer trailing-junk bytes
+    {
+        auto pltext = ::fast_io::u8string_view{u8",><sIzE=4>[8t<sIzE\n<MARgin=2>"};
+        auto once = ::pltxt2htm_test::pltxt2roundtrip_htmld(pltext);
+        auto twice = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::mnp::os_c_str(once));
+        pltxt2htm_test_assert_equal(twice, once);
+    }
+
+    // the experimental HTML parser (parse_pltxt_html) understands <div style="margin-..."> too,
+    // matching the main parser's behaviour (block-level only, margin-left/right only)
+    {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<div style=\"margin-left:2em\">text</div>");
+        auto answer = ::fast_io::u8string_view{u8"<div style=\"margin-left:2em;\">text</div>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html =
+            ::pltxt2htm_test::pltxt4htmlunittest(u8"<div style=\"margin-left:2em;margin-right:3em\">text</div>");
+        auto answer = ::fast_io::u8string_view{u8"<div style=\"margin-left:2em;margin-right:3em;\">text</div>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<div style=\"margin-left:2em\">a</div>\nb");
+        auto answer = ::fast_io::u8string_view{u8"<div style=\"margin-left:2em;\">a</div><br>b"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"a\n<div style=\"margin-left:2em\">b</div>\nc");
+        auto answer = ::fast_io::u8string_view{u8"a<br><div style=\"margin-left:2em;\">b</div><br>c"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // mid-line and unknown-style <div> stay literal text in the experimental parser
+    {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"t<div style=\"margin-left:2em\">x</div>t");
+        auto answer = ::fast_io::u8string_view{u8"t&lt;div&nbsp;style=&quot;margin-left:2em&quot;&gt;x&lt;/div&gt;t"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<div style=\"color:red\">x</div>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;div&nbsp;style=&quot;color:red&quot;&gt;x&lt;/div&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // a div nested inside a span (emitted by the roundtrip backend for an open margin scope)
+    {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(
+            u8"<span style=\"font-size:2px;\">a<br><div style=\"margin-left:2px;\"></div></span>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<span style=\"font-size:2px;\">a<br><div style=\"margin-left:2px;\"></div></span>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // nested divs map to nested margin scopes in the experimental parser
+    {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(
+            u8"<div style=\"margin-left:2em\"><div style=\"margin-right:1em\">x</div></div>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<div style=\"margin-left:2em;\"><div style=\"margin-right:1em;\">x</div></div>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }
