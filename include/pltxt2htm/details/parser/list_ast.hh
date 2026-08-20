@@ -320,7 +320,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_type(this auto&& self) noexcept -> ListNodeType {
+    constexpr auto get_type(this ListBaseNode<ndebug> const& self) noexcept -> ListNodeType {
         return self.type;
     }
 
@@ -344,7 +344,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_text_view(this auto&& self) noexcept -> ::fast_io::u8string_view {
+    constexpr auto get_text_view(this ListBaseNode<ndebug> const& self) noexcept -> ::fast_io::u8string_view {
         switch (self.type) /* -Werror=switch */ {
         case ListNodeType::list_li: {
             return self.li_node.get_text_view();

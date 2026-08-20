@@ -1109,12 +1109,12 @@ public:
     constexpr ~ParserFrameContext() noexcept = default;
 
     [[nodiscard]]
-    constexpr auto get_nested_tag_type(this auto&& self) noexcept -> ::pltxt2htm::NodeKind {
+    constexpr auto get_nested_tag_type(this ParserFrameContext<ndebug> const& self) noexcept -> ::pltxt2htm::NodeKind {
         return self.context_data.kind;
     }
 
     [[nodiscard]]
-    constexpr auto get_pltext(this auto&& self) noexcept -> ::fast_io::u8string_view {
+    constexpr auto get_pltext(this ParserFrameContext<ndebug> const& self) noexcept -> ::fast_io::u8string_view {
         auto const& context_data_ref = self.context_data;
         switch (context_data_ref.kind) /* -Werror=switch */ {
         case ::pltxt2htm::NodeKind::u8char:
@@ -1453,21 +1453,23 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_pl_size_tag_value(this auto&& self) noexcept -> ::pltxt2htm::ValueWithUnit<double> {
+    constexpr auto get_pl_size_tag_value(this ParserFrameContext<ndebug> const& self) noexcept
+        -> ::pltxt2htm::ValueWithUnit<double> {
         auto&& context_data_ref = self.context_data;
         pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::pl_size, u8"context kind mismatch");
         return context_data_ref.pl_size_tag.value;
     }
 
     [[nodiscard]]
-    constexpr auto get_pl_voffset_tag_value(this auto&& self) noexcept -> ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> {
+    constexpr auto get_pl_voffset_tag_value(this ParserFrameContext<ndebug> const& self) noexcept
+        -> ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> {
         auto&& context_data_ref = self.context_data;
         pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::pl_voffset, u8"context kind mismatch");
         return context_data_ref.pl_voffset_tag.value;
     }
 
     [[nodiscard]]
-    constexpr auto get_pl_margin_tag_left(this auto&& self) noexcept
+    constexpr auto get_pl_margin_tag_left(this ParserFrameContext<ndebug> const& self) noexcept
         -> ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
         auto&& context_data_ref = self.context_data;
         pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::pl_margin, u8"context kind mismatch");
@@ -1475,7 +1477,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_pl_margin_tag_right(this auto&& self) noexcept
+    constexpr auto get_pl_margin_tag_right(this ParserFrameContext<ndebug> const& self) noexcept
         -> ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
         auto&& context_data_ref = self.context_data;
         pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::pl_margin, u8"context kind mismatch");
@@ -1483,7 +1485,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_html_div_left(this auto&& self) noexcept
+    constexpr auto get_html_div_left(this ParserFrameContext<ndebug> const& self) noexcept
         -> ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
         auto&& context_data_ref = self.context_data;
         pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_div, u8"context kind mismatch");
@@ -1491,7 +1493,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_html_div_right(this auto&& self) noexcept
+    constexpr auto get_html_div_right(this ParserFrameContext<ndebug> const& self) noexcept
         -> ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
         auto&& context_data_ref = self.context_data;
         pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_div, u8"context kind mismatch");
@@ -1499,7 +1501,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_align(this auto&& self) noexcept -> ::pltxt2htm::TextAlign {
+    constexpr auto get_align(this ParserFrameContext<ndebug> const& self) noexcept -> ::pltxt2htm::TextAlign {
         auto&& context_data_ref = self.context_data;
         pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_p ||
                              context_data_ref.kind == ::pltxt2htm::NodeKind::pl_align,
@@ -1515,7 +1517,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_html_span_font_size(this auto&& self) noexcept
+    constexpr auto get_html_span_font_size(this ParserFrameContext<ndebug> const& self) noexcept
         -> ::exception::optional<::pltxt2htm::ValueWithUnit<double>> {
         auto&& context_data_ref = self.context_data;
         pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_span, u8"context kind mismatch");
@@ -1523,7 +1525,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_html_span_vertical_align(this auto&& self) noexcept
+    constexpr auto get_html_span_vertical_align(this ParserFrameContext<ndebug> const& self) noexcept
         -> ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> {
         auto&& context_data_ref = self.context_data;
         pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_span, u8"context kind mismatch");
@@ -1552,7 +1554,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_html_a_internal(this auto&& self) noexcept -> bool {
+    constexpr auto get_html_a_internal(this ParserFrameContext<ndebug> const& self) noexcept -> bool {
         auto&& context_data_ref = self.context_data;
         pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_a, u8"context kind mismatch");
         return context_data_ref.html_a_tag_info.internal;
@@ -1620,26 +1622,26 @@ public:
         return context_data_ref.table.cell_index;
     }
 
-    constexpr auto set_table_state(this auto&& self, TableParsePhase s) noexcept -> void {
+    constexpr auto set_table_state(this ParserFrameContext<ndebug>& self, TableParsePhase s) noexcept -> void {
         auto&& context_data_ref = self.context_data;
         pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::table, u8"context kind mismatch");
         context_data_ref.table.state = s;
     }
 
-    constexpr auto set_table_row_index(this auto&& self, ::std::size_t r) noexcept -> void {
+    constexpr auto set_table_row_index(this ParserFrameContext<ndebug>& self, ::std::size_t r) noexcept -> void {
         auto&& context_data_ref = self.context_data;
         pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::table, u8"context kind mismatch");
         context_data_ref.table.row_index = r;
     }
 
-    constexpr auto set_table_cell_index(this auto&& self, ::std::size_t c) noexcept -> void {
+    constexpr auto set_table_cell_index(this ParserFrameContext<ndebug>& self, ::std::size_t c) noexcept -> void {
         auto&& context_data_ref = self.context_data;
         pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::table, u8"context kind mismatch");
         context_data_ref.table.cell_index = c;
     }
 
     [[nodiscard]]
-    constexpr auto get_cell_align(this auto&& self) noexcept -> ::pltxt2htm::TableAlign {
+    constexpr auto get_cell_align(this ParserFrameContext<ndebug> const& self) noexcept -> ::pltxt2htm::TableAlign {
         auto&& context_data_ref = self.context_data;
         pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::table_td ||
                              context_data_ref.kind == ::pltxt2htm::NodeKind::table_th,
@@ -1648,7 +1650,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_checked(this auto&& self) noexcept -> bool {
+    constexpr auto get_checked(this ParserFrameContext<ndebug> const& self) noexcept -> bool {
         pltxt2htm_assert(self.context_data.kind == ::pltxt2htm::NodeKind::list_li_checkbox, u8"context kind mismatch");
         return self.context_data.list_li_checkbox.checked;
     }

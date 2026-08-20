@@ -508,13 +508,13 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_font_size(this auto&& self) noexcept
+    constexpr auto get_font_size(this HtmlSpan<ndebug> const& self) noexcept
         -> ::exception::optional<::pltxt2htm::ValueWithUnit<double>> {
         return self.font_size;
     }
 
     [[nodiscard]]
-    constexpr auto get_vertical_align(this auto&& self) noexcept
+    constexpr auto get_vertical_align(this HtmlSpan<ndebug> const& self) noexcept
         -> ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> {
         return self.vertical_align;
     }

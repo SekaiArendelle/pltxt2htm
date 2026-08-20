@@ -71,13 +71,13 @@ class TableAstRaw {
 public:
     /// @return Whether a caption was recorded.
     [[nodiscard]]
-    constexpr auto has_caption(this auto&& self) noexcept -> bool {
+    constexpr auto has_caption(this TableAstRaw<ndebug> const& self) noexcept -> bool {
         return self.caption_text.has_value();
     }
 
     /// @return Raw caption content (valid only when has_caption()).
     [[nodiscard]]
-    constexpr auto caption(this auto&& self) noexcept -> ::fast_io::u8string_view {
+    constexpr auto caption(this TableAstRaw<ndebug> const& self) noexcept -> ::fast_io::u8string_view {
         auto&& text = self.caption_text.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
         return ::fast_io::u8string_view{text.data(), text.size()};
     }
@@ -129,7 +129,7 @@ public:
     /// @param row Row index.
     /// @return Section tag of row @p row.
     [[nodiscard]]
-    constexpr auto row_section(this auto&& self, ::std::size_t row) noexcept -> TableRowSection {
+    constexpr auto row_section(this TableAstRaw<ndebug> const& self, ::std::size_t row) noexcept -> TableRowSection {
         return ::pltxt2htm::details::vector_index<ndebug>(self.rows, row).section;
     }
 

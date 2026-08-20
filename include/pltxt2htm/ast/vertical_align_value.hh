@@ -94,7 +94,8 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_length(this auto&& self) noexcept -> ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> {
+    constexpr auto get_length(this VerticalAlignValue<ndebug> const& self) noexcept
+        -> ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> {
         pltxt2htm_assert(self.kind == ::pltxt2htm::VerticalAlignKind::length, u8"vertical-align kind mismatch");
         return self.length;
     }

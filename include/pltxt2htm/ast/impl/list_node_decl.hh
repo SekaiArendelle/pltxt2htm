@@ -124,7 +124,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto is_checked(this auto&& self) noexcept -> bool {
+    constexpr auto is_checked(this ListLiCheckbox<ndebug> const& self) noexcept -> bool {
         return self.checked;
     }
 };
