@@ -167,7 +167,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_ol_li_count(this auto&& self) noexcept -> ::std::size_t& {
+    constexpr auto get_ol_li_count(this BackendFrameContext<ndebug>& self) noexcept -> ::std::size_t& {
         pltxt2htm_assert(self.context_data.kind == ::pltxt2htm::NodeKind::list_ol, u8"context kind mismatch");
         return self.context_data.ol_info.ol_li_count;
     }

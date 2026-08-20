@@ -3661,7 +3661,7 @@ public:
     /// @}
 
     [[nodiscard]]
-    constexpr auto get_node_kind(this auto&& self) noexcept -> ::pltxt2htm::NodeKind {
+    constexpr auto get_node_kind(this PlTxtNode const& self) noexcept -> ::pltxt2htm::NodeKind {
         return self.node_kind;
     }
 };

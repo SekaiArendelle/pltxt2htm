@@ -419,7 +419,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_font_size(this auto&& self) noexcept -> ::pltxt2htm::ValueWithUnit<double> {
+    constexpr auto get_font_size(this PlSize<ndebug> const& self) noexcept -> ::pltxt2htm::ValueWithUnit<double> {
         return self.font_size;
     }
 };

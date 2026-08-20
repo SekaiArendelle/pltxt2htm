@@ -174,6 +174,11 @@ Follow the existing low-runtime, cross-platform style used in core headers:
 - **Prefer C++23 deducing-`this`:**
   - For member functions, prefer explicit object parameters (deducing-`this`) over implicit `this` pointer style when practical.
   - Keep const/ref-qualified overload behavior explicit via the object parameter form.
+  - Pick the object-parameter form that matches the access the body needs; do not default to `this auto&&`:
+    - `this Class& self` — mutating functions and accessors returning a non-const reference.
+    - `this Class const& self` — read-only functions returning by value (including `string_view`, enums, `ValueWithUnit`).
+    - `this auto&& self` (with `decltype(auto)` + `::std::forward_like`) — only when the function must forward the object's value category and constness, e.g. returning a reference to a member on both const and non-const objects.
+  - `this auto&&` is a template: every distinct deduced object type produces a separate instantiation. On read-only getters it both bloats code (const/non-const/rvalue variants) and lets the member be called on rvalues, so prefer a concrete `&`/`const&` form unless forwarding is genuinely needed.
 - **Use deducing-`this` for `operator=`:**
   - All non-`= delete` `operator=` overloads must use the C++23 deducing-`this` form with an lvalue reference object parameter (`this X& self`) to prevent assignment to temporaries.
   - `= delete` overloads are exempt since they already prevent any use.

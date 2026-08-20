@@ -93,7 +93,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_align(this auto&& self) noexcept -> ::pltxt2htm::TableAlign {
+    constexpr auto get_align(this TableTd const& self) noexcept -> ::pltxt2htm::TableAlign {
         return self.align;
     }
 };
@@ -124,7 +124,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_align(this auto&& self) noexcept -> ::pltxt2htm::TableAlign {
+    constexpr auto get_align(this TableTh const& self) noexcept -> ::pltxt2htm::TableAlign {
         return self.align;
     }
 };
