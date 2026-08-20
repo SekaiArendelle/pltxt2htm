@@ -7,8 +7,8 @@
 
     // Ensure stacktrace is disabled: stacktrace output is dynamic (file/line/function names
     // depend on the runtime environment), which would break the exact string comparison below.
-    #ifdef PLTXT2HTM_EXPERIMENTAL_ENABLE_STACKTRACE
-        #undef PLTXT2HTM_EXPERIMENTAL_ENABLE_STACKTRACE
+    #ifdef PLTXT2HTM_ENABLE_STACKTRACE
+        #undef PLTXT2HTM_ENABLE_STACKTRACE
     #endif
 
     #include <pltxt2htm/details/panic.hh>

@@ -20,7 +20,7 @@ target_include_directories(pltxt2htm PUBLIC
 target_compile_features(pltxt2htm PUBLIC cxx_std_23)
 
 if(PLTXT2HTM_ENABLE_STACKTRACE)
-    target_compile_definitions(pltxt2htm PRIVATE PLTXT2HTM_EXPERIMENTAL_ENABLE_STACKTRACE)
+    target_compile_definitions(pltxt2htm PRIVATE PLTXT2HTM_ENABLE_STACKTRACE)
 endif()
 
 if(WIN32)

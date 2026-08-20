@@ -32,7 +32,7 @@ foreach(FUZZER_SRC common_parser fixedadv_parser plrichtext_parser fixedadv_roun
     target_compile_features(${FUZZER_SRC} PRIVATE cxx_std_23)
 
     if(PLTXT2HTM_ENABLE_STACKTRACE)
-        target_compile_definitions(${FUZZER_SRC} PRIVATE PLTXT2HTM_EXPERIMENTAL_ENABLE_STACKTRACE)
+        target_compile_definitions(${FUZZER_SRC} PRIVATE PLTXT2HTM_ENABLE_STACKTRACE)
     endif()
 
     set_target_properties(${FUZZER_SRC} PROPERTIES

@@ -19,7 +19,7 @@ add_library(pltxt2htm_base INTERFACE)
 target_include_directories(pltxt2htm_base INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
 
 if(PLTXT2HTM_ENABLE_STACKTRACE)
-    target_compile_definitions(pltxt2htm_base INTERFACE PLTXT2HTM_EXPERIMENTAL_ENABLE_STACKTRACE)
+    target_compile_definitions(pltxt2htm_base INTERFACE PLTXT2HTM_ENABLE_STACKTRACE)
 endif()
 
 target_compile_definitions(pltxt2htm_base INTERFACE PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT)

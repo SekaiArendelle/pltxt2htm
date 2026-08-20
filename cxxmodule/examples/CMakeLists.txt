@@ -19,7 +19,7 @@ target_include_directories(example PRIVATE
 target_compile_features(example PRIVATE cxx_std_23)
 
 if(PLTXT2HTM_ENABLE_STACKTRACE)
-    target_compile_definitions(example PRIVATE PLTXT2HTM_EXPERIMENTAL_ENABLE_STACKTRACE)
+    target_compile_definitions(example PRIVATE PLTXT2HTM_ENABLE_STACKTRACE)
 endif()
 
 # Register C++20 module sources
