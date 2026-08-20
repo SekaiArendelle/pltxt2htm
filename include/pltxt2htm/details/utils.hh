@@ -95,7 +95,7 @@ constexpr bool is_ascii_graphic(char8_t const chr) noexcept {
 [[__gnu__::__pure__]]
 #endif
 constexpr bool is_url_value_char(char8_t const chr) noexcept {
-    return ::pltxt2htm::details::is_ascii_graphic(chr) || chr >= u8'\x80';
+    return ::pltxt2htm::details::is_ascii_graphic(chr) || chr >= char8_t(0x80);
 }
 
 /**
