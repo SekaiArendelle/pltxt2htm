@@ -5,8 +5,11 @@
  * @brief Low-level facilities for trapping and unreachable code paths.
  */
 
-#include <exception>
 #include <utility>
+
+#if defined(_MSC_VER) && !defined(__clang__)
+    #include <intrin.h>
+#endif
 
 #include "../contracts.hh"
 
@@ -16,16 +19,13 @@ namespace pltxt2htm::details {
  * @brief Terminates the program immediately.
  */
 [[noreturn]]
-inline void terminate() noexcept {
-    // https://llvm.org/doxygen/Compiler_8h_source.html
-#if defined(__has_builtin)
-    #if __has_builtin(__builtin_trap)
+inline void trap() noexcept {
+#if defined(__GNUC__) || defined(__clang__)
     __builtin_trap();
-    #else
-    ::std::terminate();
-    #endif
+#elif defined(_MSC_VER)
+    __fastfail(7); // FAST_FAIL_FATAL_APP_EXIT
 #else
-    ::std::terminate();
+    #error "pltxt2htm requires GCC, Clang, or MSVC"
 #endif
 }
 
@@ -47,7 +47,7 @@ inline void unreachable() noexcept {
 #endif
     }
     else {
-        ::pltxt2htm::details::terminate();
+        ::pltxt2htm::details::trap();
     }
 }
 

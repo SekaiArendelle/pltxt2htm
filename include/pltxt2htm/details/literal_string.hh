@@ -83,7 +83,7 @@ public:
     [[nodiscard]]
     constexpr auto&& operator[](this is_literal_string auto&& self, ::std::size_t index) noexcept {
         if (index >= N) [[unlikely]] {
-            ::pltxt2htm::details::terminate();
+            ::pltxt2htm::details::trap();
         }
         return self.data_[index];
     }

@@ -20,13 +20,13 @@ void test_panic_basic() noexcept {
     int pipe_fds[2]{};
     if (::pipe(pipe_fds) == -1) [[unlikely]] {
         ::std::fprintf(stderr, "pipe() failed\n");
-        ::pltxt2htm::details::terminate();
+        ::pltxt2htm::details::trap();
     }
 
     auto pid = ::fork();
     if (pid == -1) [[unlikely]] {
         ::std::fprintf(stderr, "fork() failed\n");
-        ::pltxt2htm::details::terminate();
+        ::pltxt2htm::details::trap();
     }
     else if (pid == 0) {
         ::close(pipe_fds[0]);

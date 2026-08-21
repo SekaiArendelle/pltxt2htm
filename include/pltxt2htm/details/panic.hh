@@ -83,7 +83,7 @@ inline void panic() noexcept {
 #endif
     ::std::fflush(stderr);
 
-    ::pltxt2htm::details::terminate();
+    ::pltxt2htm::details::trap();
 }
 
 } // namespace pltxt2htm::details
