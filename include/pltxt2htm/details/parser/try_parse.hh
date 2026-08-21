@@ -3674,8 +3674,13 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
     SyntaxLanguage const language{
         ::pltxt2htm::details::resolve_syntax_language<ndebug>(::fast_io::u8string_view{lang.data(), lang.size()})};
     auto ast = ::pltxt2htm::details::parse_code_fence_syntax<ndebug>(code_content, language);
-    return TryParseMdCodeFenceResult<ndebug>{.node = ::pltxt2htm::CodeFence<ndebug>{::std::move(ast)},
-                                             .advance_count = current_index};
+    ::pltxt2htm::container::Optional<::fast_io::u8string> opt_lang{::pltxt2htm::container::nullopt};
+    if (lang.empty() == false) {
+        opt_lang = ::std::move(lang);
+    }
+    return TryParseMdCodeFenceResult<ndebug>{
+        .node = ::pltxt2htm::CodeFence<ndebug>{::std::move(ast), ::std::move(opt_lang)},
+        .advance_count = current_index};
 }
 
 /**
