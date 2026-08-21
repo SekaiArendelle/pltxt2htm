@@ -1,3 +1,8 @@
+/**
+ * @file expected.hh
+ * @brief Lightweight expected and optional containers for pltxt2htm.
+ */
+
 #pragma once
 
 #include <memory>

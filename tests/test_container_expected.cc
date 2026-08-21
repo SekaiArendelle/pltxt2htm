@@ -1,10 +1,47 @@
+#include <concepts>
+#include <utility>
+
 #include "precompile.hh"
 
 #include <pltxt2htm/container/expected.hh>
 
-static_assert(::pltxt2htm::container::is_expected<::pltxt2htm::container::expected<int, int>>);
+using IntExpected = ::pltxt2htm::container::expected<int, int>;
+
+static_assert(::pltxt2htm::container::is_expected<IntExpected>);
 static_assert(::pltxt2htm::container::is_optional<::pltxt2htm::container::optional<int>>);
 static_assert(::pltxt2htm::container::is_unexpected<::pltxt2htm::container::unexpected<int>>);
+static_assert(::std::same_as<decltype(::std::declval<IntExpected const&>().has_value()), bool>);
+static_assert(::std::same_as<decltype(::std::declval<IntExpected const&&>().has_value()), bool>);
+
+static_assert(
+    ::std::same_as<decltype(::std::declval<IntExpected&>().value<::pltxt2htm::Contracts::quick_enforce>()), int&>);
+static_assert(
+    ::std::same_as<decltype(::std::declval<IntExpected const&>().value<::pltxt2htm::Contracts::quick_enforce>()),
+                   int const&>);
+static_assert(
+    ::std::same_as<decltype(::std::declval<IntExpected&&>().value<::pltxt2htm::Contracts::quick_enforce>()), int&&>);
+static_assert(
+    ::std::same_as<decltype(::std::declval<IntExpected const&&>().value<::pltxt2htm::Contracts::quick_enforce>()),
+                   int const&&>);
+
+static_assert(
+    ::std::same_as<decltype(::std::declval<IntExpected&>().error<::pltxt2htm::Contracts::quick_enforce>()), int&>);
+static_assert(
+    ::std::same_as<decltype(::std::declval<IntExpected const&>().error<::pltxt2htm::Contracts::quick_enforce>()),
+                   int const&>);
+static_assert(
+    ::std::same_as<decltype(::std::declval<IntExpected&&>().error<::pltxt2htm::Contracts::quick_enforce>()), int&&>);
+static_assert(
+    ::std::same_as<decltype(::std::declval<IntExpected const&&>().error<::pltxt2htm::Contracts::quick_enforce>()),
+                   int const&&>);
+
+consteval bool ignored_contract_accessors_work() noexcept {
+    IntExpected value{42};
+    IntExpected error{::pltxt2htm::container::unexpected<int>{7}};
+    return value.value<::pltxt2htm::Contracts::ignore>() == 42 && error.error<::pltxt2htm::Contracts::ignore>() == 7;
+}
+
+static_assert(ignored_contract_accessors_work());
 
 namespace pltxt2htm_test {
 
