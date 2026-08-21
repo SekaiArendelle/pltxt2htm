@@ -16,17 +16,6 @@
 
 namespace pltxt2htm::details {
 
-template<::pltxt2htm::Contracts ndebug>
-[[nodiscard]]
-constexpr bool code_ast_has_html_style(::pltxt2htm::Ast<ndebug> const& ast) noexcept {
-    for (auto const& node : ast) {
-        if (node.get_node_kind() == ::pltxt2htm::NodeKind::html_span) {
-            return true;
-        }
-    }
-    return false;
-}
-
 enum class SyntaxLanguage : unsigned {
     plain = 0,
     cpp,
@@ -195,6 +184,22 @@ constexpr auto syntax_node_ascii(::pltxt2htm::PlTxtNode<ndebug> const& node) noe
     default:
         return char8_t{};
     }
+}
+
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr bool code_ast_is_simple(::pltxt2htm::Ast<ndebug> const& ast) noexcept {
+    for (auto const& node : ast) {
+        auto const node_kind{node.get_node_kind()};
+        if (node_kind == ::pltxt2htm::NodeKind::u8char || node_kind == ::pltxt2htm::NodeKind::invalid_u8char ||
+            node_kind == ::pltxt2htm::NodeKind::entity_reference) {
+            continue;
+        }
+        if (::pltxt2htm::details::syntax_node_ascii<ndebug>(node) == char8_t{}) {
+            return false;
+        }
+    }
+    return true;
 }
 
 template<::pltxt2htm::Contracts ndebug>

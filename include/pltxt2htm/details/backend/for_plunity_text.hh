@@ -1520,7 +1520,7 @@ entry:
             }
             case ::pltxt2htm::NodeKind::code_fence: {
                 result.append(u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\n");
-                if (::pltxt2htm::details::code_ast_has_html_style<ndebug>(node.as_code_fence().get_subast())) {
+                if (::pltxt2htm::details::code_ast_is_simple<ndebug>(node.as_code_fence().get_subast()) == false) {
                     call_stack.push(BackendFrameContext<ndebug>(node.as_code_fence().get_subast(),
                                                                 ::pltxt2htm::NodeKind::code_fence, 0));
                     ++current_index;
