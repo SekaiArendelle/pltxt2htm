@@ -368,5 +368,33 @@ print("Hello World")
         pltxt2htm_test_assert_equal(reparsed, html);
     }
 
+    // Entity references, Markdown escapes, and UTF-8 code points are parsed by the
+    // same cursor that drives syntax classification.
+    {
+        auto const pltext =
+            ::fast_io::u8string_view{u8"```cpp\n\\#include &lt;vector&gt;\nauto text = \\\"你&amp;好\\\";\n```"};
+        auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const answer = ::fast_io::u8string_view{
+            u8"<pre><code><span style=\"color:#0550ae;\">#include</span>&nbsp;&lt;vector&gt;\n<span "
+            u8"style=\"color:#cf222e;\">auto</span>&nbsp;text&nbsp;=&nbsp;<span "
+            u8"style=\"color:#0a3069;\">&quot;你&amp;好&quot;</span>;</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto const reparsed = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
+        pltxt2htm_test_assert_equal(reparsed, html);
+    }
+
+    // Rust nested comments and raw strings are emitted directly as colored AST nodes.
+    {
+        auto const pltext =
+            ::fast_io::u8string_view{u8"```rust\n/* outer /* inner */ outer */\nlet text = r##\"a\"#b\"##;\n```"};
+        auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const answer = ::fast_io::u8string_view{
+            u8"<pre><code><span "
+            u8"style=\"color:#6e7781;\">/*&nbsp;outer&nbsp;/*&nbsp;inner&nbsp;*/&nbsp;outer&nbsp;*/</span>\n"
+            u8"<span style=\"color:#cf222e;\">let</span>&nbsp;text&nbsp;=&nbsp;<span "
+            u8"style=\"color:#0a3069;\">r##&quot;a&quot;#b&quot;##</span>;</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     return 0;
 }
