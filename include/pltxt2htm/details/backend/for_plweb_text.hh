@@ -17,8 +17,8 @@
 #include "../../ast/vertical_align_value.hh"
 #include "frame_context.hh"
 #include "../../contracts.hh"
-#include "../../details/utils.hh"
-#include "../../details/parser/try_parse.hh"
+#include "../utils.hh"
+#include "../parser/try_parse.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::details {

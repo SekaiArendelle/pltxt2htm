@@ -16,7 +16,7 @@
 #include "../../contracts.hh"
 #include "../../ast/node_kind.hh"
 #include "table_ast.hh"
-#include "../../details/push_macro.hh"
+#include "../push_macro.hh"
 
 namespace pltxt2htm::details {
 
@@ -294,4 +294,4 @@ constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
 
 } // namespace pltxt2htm::details
 
-#include "../../details/pop_macro.hh"
+#include "../pop_macro.hh"
