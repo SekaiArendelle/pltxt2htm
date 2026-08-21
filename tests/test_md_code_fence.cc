@@ -336,6 +336,36 @@ print("Hello World")
         pltxt2htm_test_assert_equal(richtext, richtext_answer);
     }
 
+    // C highlighting uses the C23 keyword set instead of treating C as C++.
+    {
+        auto const pltext = ::fast_io::u8string_view{
+            u8"```c23\n#include <stdio.h>\nconstexpr _BitInt(16) add(typeof_unqual(int) left, int right) {\n"
+            u8"    // C23\n    class value = nullptr;\n    return left + right;\n}\n```"};
+        auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const answer = ::fast_io::u8string_view{
+            u8"<pre><code><span style=\"color:#0550ae;\">#include</span>&nbsp;&lt;stdio.h&gt;\n"
+            u8"<span style=\"color:#cf222e;\">constexpr</span>&nbsp;<span "
+            u8"style=\"color:#cf222e;\">_BitInt</span>(<span style=\"color:#0550ae;\">16</span>)&nbsp;<span "
+            u8"style=\"color:#8250df;\">add</span>(<span style=\"color:#cf222e;\">typeof_unqual</span>(<span "
+            u8"style=\"color:#cf222e;\">int</span>)&nbsp;left,&nbsp;<span "
+            u8"style=\"color:#cf222e;\">int</span>&nbsp;right)&nbsp;{\n"
+            u8"&nbsp;&nbsp;&nbsp;&nbsp;<span style=\"color:#6e7781;\">//&nbsp;C23</span>\n"
+            u8"&nbsp;&nbsp;&nbsp;&nbsp;class&nbsp;value&nbsp;=&nbsp;<span "
+            u8"style=\"color:#cf222e;\">nullptr</span>;\n&nbsp;&nbsp;&nbsp;&nbsp;<span "
+            u8"style=\"color:#cf222e;\">return</span>&nbsp;left&nbsp;+&nbsp;right;\n}</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto const reparsed = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
+        pltxt2htm_test_assert_equal(reparsed, html);
+
+        auto const richtext =
+            ::pltxt2htm_test::pltxt2plunity_introduction(u8"```c\nconstexpr int main() {\n    return nullptr;\n}\n```");
+        auto const richtext_answer = ::fast_io::u8string_view{
+            u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\n<color=#cf222e>constexpr</color>\u00A0<color=#cf222e>"
+            u8"int</color>\u00A0<color=#8250df>main</color>()\u00A0{\n\u00A0\u00A0\u00A0\u00A0<color=#cf222e>return</"
+            u8"color>\u00A0<color=#cf222e>nullptr</color>;\n}\n</font>"};
+        pltxt2htm_test_assert_equal(richtext, richtext_answer);
+    }
+
     // Rust macros and strings use the same token stream in both backends.
     {
         auto const pltext = ::fast_io::u8string_view{u8"```rust\nfn main() {\n    println!(\"Hello Rust\");\n}\n```"};
@@ -353,6 +383,38 @@ print("Hello World")
             u8"SDF\">\n<color=#cf222e>fn</color>\u00A0<color=#8250df>main</color>()\u00A0{\n"
             u8"\u00A0\u00A0\u00A0\u00A0<color=#cf222e>println</color>!(<color=#0a3069>\"Hello\u00A0Rust\"</"
             u8"color>);\n}\n</font>"};
+        pltxt2htm_test_assert_equal(richtext, richtext_answer);
+    }
+
+    // Lua short strings, long-bracket strings/comments, keywords, numbers, and functions.
+    {
+        auto const pltext = ::fast_io::u8string_view{
+            u8"```lua\nlocal function greet(name)\n    --[=[ first\nsecond ]=]\n    local message = [=[Hello ]=] .. "
+            u8"name\n"
+            u8"    print(message, 42, \"!\")\nend\n```"};
+        auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const answer = ::fast_io::u8string_view{
+            u8"<pre><code><span style=\"color:#cf222e;\">local</span>&nbsp;<span "
+            u8"style=\"color:#cf222e;\">function</span>&nbsp;<span "
+            u8"style=\"color:#8250df;\">greet</span>(name)\n&nbsp;&nbsp;&nbsp;&nbsp;<span "
+            u8"style=\"color:#6e7781;\">--[=[&nbsp;first</span>\n<span "
+            u8"style=\"color:#6e7781;\">second&nbsp;]=]</span>\n&nbsp;&nbsp;&nbsp;&nbsp;<span "
+            u8"style=\"color:#cf222e;\">local</span>&nbsp;message&nbsp;=&nbsp;<span "
+            u8"style=\"color:#0a3069;\">[=[Hello&nbsp;]=]</span>&nbsp;..&nbsp;name\n"
+            u8"&nbsp;&nbsp;&nbsp;&nbsp;<span style=\"color:#8250df;\">print</span>(message,&nbsp;<span "
+            u8"style=\"color:#0550ae;\">42</span>,&nbsp;<span "
+            u8"style=\"color:#0a3069;\">&quot;!&quot;</span>)\n<span "
+            u8"style=\"color:#cf222e;\">end</span></code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto const reparsed = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
+        pltxt2htm_test_assert_equal(reparsed, html);
+
+        auto const richtext = ::pltxt2htm_test::pltxt2plunity_introduction(
+            u8"```lua\nlocal function greet()\n    return \"hello\"\nend\n```");
+        auto const richtext_answer = ::fast_io::u8string_view{
+            u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\n<color=#cf222e>local</color>\u00A0<color=#cf222e>"
+            u8"function</color>\u00A0<color=#8250df>greet</color>()\n\u00A0\u00A0\u00A0\u00A0<color=#cf222e>"
+            u8"return</color>\u00A0<color=#0a3069>\"hello\"</color>\n<color=#cf222e>end</color>\n</font>"};
         pltxt2htm_test_assert_equal(richtext, richtext_answer);
     }
 

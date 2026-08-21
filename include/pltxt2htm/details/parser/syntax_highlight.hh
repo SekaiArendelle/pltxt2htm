@@ -15,7 +15,9 @@ namespace pltxt2htm::details {
 
 enum class SyntaxLanguage : unsigned {
     plain = 0,
+    c,
     cpp,
+    lua,
     rust,
 };
 
@@ -32,6 +34,11 @@ enum class SyntaxTokenKind : unsigned {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto resolve_syntax_language(::fast_io::u8string_view const language) noexcept -> SyntaxLanguage {
+    if (::pltxt2htm::details::is_exact_match<ndebug, u8"c">(language) ||
+        ::pltxt2htm::details::is_exact_match<ndebug, u8"h">(language) ||
+        ::pltxt2htm::details::is_exact_match<ndebug, u8"c23">(language)) {
+        return SyntaxLanguage::c;
+    }
     if (::pltxt2htm::details::is_exact_match<ndebug, u8"cpp">(language) ||
         ::pltxt2htm::details::is_exact_match<ndebug, u8"c++">(language) ||
         ::pltxt2htm::details::is_exact_match<ndebug, u8"cc">(language) ||
@@ -43,6 +50,9 @@ constexpr auto resolve_syntax_language(::fast_io::u8string_view const language) 
     if (::pltxt2htm::details::is_exact_match<ndebug, u8"rust">(language) ||
         ::pltxt2htm::details::is_exact_match<ndebug, u8"rs">(language)) {
         return SyntaxLanguage::rust;
+    }
+    if (::pltxt2htm::details::is_exact_match<ndebug, u8"lua">(language)) {
+        return SyntaxLanguage::lua;
     }
     return SyntaxLanguage::plain;
 }
@@ -78,6 +88,68 @@ constexpr bool syntax_is_identifier_start(char8_t const chr) noexcept {
 constexpr bool syntax_is_identifier_continue(char8_t const chr) noexcept {
     return ::pltxt2htm::details::syntax_is_identifier_start(chr) || ::pltxt2htm::details::is_ascii_digit(chr);
 }
+
+constexpr ::fast_io::u8string_view c23_keywords[]{
+    u8"alignas",
+    u8"alignof",
+    u8"auto",
+    u8"bool",
+    u8"break",
+    u8"case",
+    u8"char",
+    u8"const",
+    u8"constexpr",
+    u8"continue",
+    u8"default",
+    u8"do",
+    u8"double",
+    u8"else",
+    u8"enum",
+    u8"extern",
+    u8"false",
+    u8"float",
+    u8"for",
+    u8"goto",
+    u8"if",
+    u8"inline",
+    u8"int",
+    u8"long",
+    u8"nullptr",
+    u8"register",
+    u8"restrict",
+    u8"return",
+    u8"short",
+    u8"signed",
+    u8"sizeof",
+    u8"static",
+    u8"static_assert",
+    u8"struct",
+    u8"switch",
+    u8"thread_local",
+    u8"true",
+    u8"typedef",
+    u8"typeof",
+    u8"typeof_unqual",
+    u8"union",
+    u8"unsigned",
+    u8"void",
+    u8"volatile",
+    u8"while",
+    u8"_Alignas",
+    u8"_Alignof",
+    u8"_Atomic",
+    u8"_BitInt",
+    u8"_Bool",
+    u8"_Complex",
+    u8"_Decimal128",
+    u8"_Decimal32",
+    u8"_Decimal64",
+    u8"_Generic",
+    u8"_Imaginary",
+    u8"_Noreturn",
+    u8"_Static_assert",
+    u8"_Thread_local",
+};
 
 constexpr ::fast_io::u8string_view cpp_keywords[]{
     u8"alignas",
@@ -185,6 +257,12 @@ constexpr ::fast_io::u8string_view rust_keywords[]{
     u8"union",    u8"unsafe",   u8"unsized", u8"use",   u8"virtual",  u8"where",  u8"while",  u8"yield", u8"bool",
     u8"char",     u8"f32",      u8"f64",     u8"i8",    u8"i16",      u8"i32",    u8"i64",    u8"i128",  u8"isize",
     u8"str",      u8"u8",       u8"u16",     u8"u32",   u8"u64",      u8"u128",   u8"usize",
+};
+
+constexpr ::fast_io::u8string_view lua_keywords[]{
+    u8"and",      u8"break",  u8"do",   u8"else", u8"elseif", u8"end",   u8"false", u8"for",
+    u8"function", u8"goto",   u8"if",   u8"in",   u8"local",  u8"nil",   u8"not",   u8"or",
+    u8"repeat",   u8"return", u8"then", u8"true", u8"until",  u8"while",
 };
 
 template<::std::size_t keyword_count>
