@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(pltxt2htm-wasm LANGUAGES CXX VERSION 0.25.0)
+project(pltxt2htm-wasm LANGUAGES CXX VERSION 0.26.0)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
