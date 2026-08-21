@@ -18,16 +18,21 @@ enum class SyntaxLanguage : unsigned {
     bash,
     c,
     cpp,
+    csharp,
     css,
     go,
+    html,
     java,
     javascript,
     json,
+    kotlin,
     lua,
     python,
     rust,
     sql,
+    toml,
     typescript,
+    xml,
     yaml,
 };
 
@@ -63,12 +68,21 @@ constexpr auto resolve_syntax_language(::fast_io::u8string_view const language) 
         ::pltxt2htm::details::is_exact_match<ndebug, u8"h++">(language)) {
         return SyntaxLanguage::cpp;
     }
+    if (::pltxt2htm::details::is_exact_match<ndebug, u8"cs">(language) ||
+        ::pltxt2htm::details::is_exact_match<ndebug, u8"csharp">(language) ||
+        ::pltxt2htm::details::is_exact_match<ndebug, u8"c#">(language)) {
+        return SyntaxLanguage::csharp;
+    }
     if (::pltxt2htm::details::is_exact_match<ndebug, u8"css">(language)) {
         return SyntaxLanguage::css;
     }
     if (::pltxt2htm::details::is_exact_match<ndebug, u8"go">(language) ||
         ::pltxt2htm::details::is_exact_match<ndebug, u8"golang">(language)) {
         return SyntaxLanguage::go;
+    }
+    if (::pltxt2htm::details::is_exact_match<ndebug, u8"html">(language) ||
+        ::pltxt2htm::details::is_exact_match<ndebug, u8"htm">(language)) {
+        return SyntaxLanguage::html;
     }
     if (::pltxt2htm::details::is_exact_match<ndebug, u8"java">(language)) {
         return SyntaxLanguage::java;
@@ -81,6 +95,11 @@ constexpr auto resolve_syntax_language(::fast_io::u8string_view const language) 
     }
     if (::pltxt2htm::details::is_exact_match<ndebug, u8"json">(language)) {
         return SyntaxLanguage::json;
+    }
+    if (::pltxt2htm::details::is_exact_match<ndebug, u8"kotlin">(language) ||
+        ::pltxt2htm::details::is_exact_match<ndebug, u8"kt">(language) ||
+        ::pltxt2htm::details::is_exact_match<ndebug, u8"kts">(language)) {
+        return SyntaxLanguage::kotlin;
     }
     if (::pltxt2htm::details::is_exact_match<ndebug, u8"rust">(language) ||
         ::pltxt2htm::details::is_exact_match<ndebug, u8"rs">(language)) {
@@ -97,6 +116,9 @@ constexpr auto resolve_syntax_language(::fast_io::u8string_view const language) 
     if (::pltxt2htm::details::is_exact_match<ndebug, u8"sql">(language)) {
         return SyntaxLanguage::sql;
     }
+    if (::pltxt2htm::details::is_exact_match<ndebug, u8"toml">(language)) {
+        return SyntaxLanguage::toml;
+    }
     if (::pltxt2htm::details::is_exact_match<ndebug, u8"ts">(language) ||
         ::pltxt2htm::details::is_exact_match<ndebug, u8"typescript">(language) ||
         ::pltxt2htm::details::is_exact_match<ndebug, u8"mts">(language) ||
@@ -106,6 +128,11 @@ constexpr auto resolve_syntax_language(::fast_io::u8string_view const language) 
     if (::pltxt2htm::details::is_exact_match<ndebug, u8"yaml">(language) ||
         ::pltxt2htm::details::is_exact_match<ndebug, u8"yml">(language)) {
         return SyntaxLanguage::yaml;
+    }
+    if (::pltxt2htm::details::is_exact_match<ndebug, u8"xml">(language) ||
+        ::pltxt2htm::details::is_exact_match<ndebug, u8"xhtml">(language) ||
+        ::pltxt2htm::details::is_exact_match<ndebug, u8"svg">(language)) {
+        return SyntaxLanguage::xml;
     }
     return SyntaxLanguage::plain;
 }
@@ -301,6 +328,40 @@ constexpr ::fast_io::u8string_view cpp_keywords[]{
     u8"xor_eq",
 };
 
+constexpr ::fast_io::u8string_view csharp_keywords[]{
+    u8"abstract",  u8"add",        u8"alias",      u8"and",      u8"as",        u8"ascending", u8"async",
+    u8"await",     u8"base",       u8"bool",       u8"break",    u8"by",        u8"byte",      u8"case",
+    u8"catch",     u8"char",       u8"checked",    u8"class",    u8"const",     u8"continue",  u8"decimal",
+    u8"default",   u8"delegate",   u8"descending", u8"do",       u8"double",    u8"dynamic",   u8"else",
+    u8"enum",      u8"equals",     u8"event",      u8"explicit", u8"extern",    u8"false",     u8"file",
+    u8"finally",   u8"fixed",      u8"float",      u8"for",      u8"foreach",   u8"from",      u8"get",
+    u8"global",    u8"goto",       u8"group",      u8"if",       u8"implicit",  u8"in",        u8"init",
+    u8"int",       u8"interface",  u8"internal",   u8"into",     u8"is",        u8"join",      u8"let",
+    u8"lock",      u8"long",       u8"managed",    u8"nameof",   u8"namespace", u8"new",       u8"nint",
+    u8"not",       u8"notnull",    u8"nuint",      u8"null",     u8"object",    u8"on",        u8"operator",
+    u8"or",        u8"orderby",    u8"out",        u8"override", u8"params",    u8"partial",   u8"private",
+    u8"protected", u8"public",     u8"readonly",   u8"record",   u8"ref",       u8"remove",    u8"required",
+    u8"return",    u8"sbyte",      u8"scoped",     u8"sealed",   u8"select",    u8"set",       u8"short",
+    u8"sizeof",    u8"stackalloc", u8"static",     u8"string",   u8"struct",    u8"switch",    u8"this",
+    u8"throw",     u8"true",       u8"try",        u8"typeof",   u8"uint",      u8"ulong",     u8"unchecked",
+    u8"unmanaged", u8"unsafe",     u8"ushort",     u8"using",    u8"value",     u8"var",       u8"virtual",
+    u8"void",      u8"volatile",   u8"when",       u8"where",    u8"while",     u8"with",      u8"yield",
+};
+
+constexpr ::fast_io::u8string_view kotlin_keywords[]{
+    u8"as",          u8"break",    u8"by",          u8"catch",    u8"class",    u8"companion", u8"const",
+    u8"constructor", u8"continue", u8"crossinline", u8"data",     u8"delegate", u8"do",        u8"dynamic",
+    u8"else",        u8"enum",     u8"expect",      u8"external", u8"false",    u8"field",     u8"file",
+    u8"final",       u8"finally",  u8"for",         u8"fun",      u8"get",      u8"if",        u8"import",
+    u8"in",          u8"infix",    u8"init",        u8"inline",   u8"inner",    u8"interface", u8"internal",
+    u8"is",          u8"lateinit", u8"noinline",    u8"null",     u8"object",   u8"open",      u8"operator",
+    u8"out",         u8"override", u8"package",     u8"param",    u8"private",  u8"property",  u8"protected",
+    u8"public",      u8"receiver", u8"reified",     u8"return",   u8"sealed",   u8"set",       u8"setparam",
+    u8"super",       u8"suspend",  u8"tailrec",     u8"this",     u8"throw",    u8"true",      u8"try",
+    u8"typealias",   u8"typeof",   u8"val",         u8"value",    u8"var",      u8"vararg",    u8"when",
+    u8"where",       u8"while",
+};
+
 constexpr ::fast_io::u8string_view rust_keywords[]{
     u8"Self",     u8"abstract", u8"as",      u8"async", u8"await",    u8"become", u8"box",    u8"break", u8"const",
     u8"continue", u8"crate",    u8"do",      u8"dyn",   u8"else",     u8"enum",   u8"extern", u8"false", u8"final",
@@ -374,6 +435,8 @@ constexpr ::fast_io::u8string_view python_keywords[]{
 };
 
 constexpr ::fast_io::u8string_view json_keywords[]{u8"false", u8"null", u8"true"};
+
+constexpr ::fast_io::u8string_view toml_keywords[]{u8"false", u8"inf", u8"nan", u8"true"};
 
 constexpr ::fast_io::u8string_view yaml_keywords[]{
     u8"false", u8"False", u8"FALSE", u8"null", u8"Null", u8"NULL", u8"true", u8"True",

@@ -226,8 +226,9 @@ print("Hello World")
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"```c#\ncode\n```");
-        auto answer = ::fast_io::u8string_view{u8"<pre><code>code</code></pre>"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"```c#\npublic\n```");
+        auto answer =
+            ::fast_io::u8string_view{u8"<pre><code><span style=\"color:#cf222e;\">public</span></code></pre>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
     {
@@ -571,6 +572,96 @@ print("Hello World")
         pltxt2htm_test_assert_equal(html, answer);
         auto const reparsed = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
         pltxt2htm_test_assert_equal(reparsed, html);
+    }
+
+    {
+        auto const pltext = ::fast_io::u8string_view{
+            u8"```csharp\npublic class Demo {\n    static string Greet() => $@\"hello \"\"world\"\"\";\n}\n```"};
+        auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const answer = ::fast_io::u8string_view{
+            u8"<pre><code><span style=\"color:#cf222e;\">public</span>&nbsp;<span "
+            u8"style=\"color:#cf222e;\">class</span>&nbsp;Demo&nbsp;{\n&nbsp;&nbsp;&nbsp;&nbsp;<span "
+            u8"style=\"color:#cf222e;\">static</span>&nbsp;<span "
+            u8"style=\"color:#cf222e;\">string</span>&nbsp;<span "
+            u8"style=\"color:#8250df;\">Greet</span>()&nbsp;=&gt;&nbsp;<span "
+            u8"style=\"color:#0a3069;\">$@&quot;hello&nbsp;&quot;&quot;world&quot;&quot;&quot;</span>;\n}</code></"
+            u8"pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto const reparsed = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
+        pltxt2htm_test_assert_equal(reparsed, html);
+    }
+
+    {
+        auto const pltext =
+            ::fast_io::u8string_view{u8"```kotlin\nfun greet(name: String) = \"\"\"hello\n$name\"\"\"\n```"};
+        auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const answer = ::fast_io::u8string_view{
+            u8"<pre><code><span style=\"color:#cf222e;\">fun</span>&nbsp;<span "
+            u8"style=\"color:#8250df;\">greet</span>(name:&nbsp;String)&nbsp;=&nbsp;<span "
+            u8"style=\"color:#0a3069;\">&quot;&quot;&quot;hello</span>\n<span "
+            u8"style=\"color:#0a3069;\">$name&quot;&quot;&quot;</span></code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto const reparsed = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
+        pltxt2htm_test_assert_equal(reparsed, html);
+    }
+
+    {
+        auto const pltext =
+            ::fast_io::u8string_view{u8"```toml\nenabled = true # ok\ntitle = \"\"\"hello\nworld\"\"\"\n```"};
+        auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const answer = ::fast_io::u8string_view{
+            u8"<pre><code>enabled&nbsp;=&nbsp;<span style=\"color:#cf222e;\">true</span>&nbsp;<span "
+            u8"style=\"color:#6e7781;\">#&nbsp;ok</span>\ntitle&nbsp;=&nbsp;<span "
+            u8"style=\"color:#0a3069;\">&quot;&quot;&quot;hello</span>\n<span "
+            u8"style=\"color:#0a3069;\">world&quot;&quot;&quot;</span></code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto const reparsed = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
+        pltxt2htm_test_assert_equal(reparsed, html);
+    }
+
+    {
+        auto const pltext = ::fast_io::u8string_view{u8"```html\n<div class=\"note\">Hello<!-- ok --></div>\n```"};
+        auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const answer = ::fast_io::u8string_view{
+            u8"<pre><code>&lt;<span style=\"color:#cf222e;\">div</span>&nbsp;<span "
+            u8"style=\"color:#8250df;\">class</span>=<span "
+            u8"style=\"color:#0a3069;\">&quot;note&quot;</span>&gt;Hello<span "
+            u8"style=\"color:#6e7781;\">&lt;!--&nbsp;ok&nbsp;--&gt;</span>&lt;/<span "
+            u8"style=\"color:#cf222e;\">div</span>&gt;</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto const reparsed = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
+        pltxt2htm_test_assert_equal(reparsed, html);
+    }
+
+    {
+        auto const pltext =
+            ::fast_io::u8string_view{u8"```xml\n<?xml version=\"1.0\"?><svg viewBox=\"0 0\"><path /></svg>\n```"};
+        auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const answer = ::fast_io::u8string_view{
+            u8"<pre><code><span style=\"color:#0550ae;\">&lt;?xml&nbsp;version=&quot;1.0&quot;?&gt;</span>&lt;<span "
+            u8"style=\"color:#cf222e;\">svg</span>&nbsp;<span "
+            u8"style=\"color:#8250df;\">viewBox</span>=<span "
+            u8"style=\"color:#0a3069;\">&quot;0&nbsp;0&quot;</span>&gt;&lt;<span "
+            u8"style=\"color:#cf222e;\">path</span>&nbsp;/&gt;&lt;/<span "
+            u8"style=\"color:#cf222e;\">svg</span>&gt;</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto const reparsed = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
+        pltxt2htm_test_assert_equal(reparsed, html);
+    }
+
+    {
+        auto const html = ::pltxt2htm_test::pltxt4unittest(u8"```xml\n<![CDATA[a < b]]>\n```");
+        auto const answer = ::fast_io::u8string_view{
+            u8"<pre><code><span style=\"color:#0a3069;\">&lt;![CDATA[a&nbsp;&lt;&nbsp;b]]&gt;</span></code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // A less-than operator followed by whitespace is not an HTML tag opener.
+    {
+        auto const html = ::pltxt2htm_test::pltxt4unittest(u8"```html\nif (a < b) text\n```");
+        auto const answer =
+            ::fast_io::u8string_view{u8"<pre><code>if&nbsp;(a&nbsp;&lt;&nbsp;b)&nbsp;text</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     // Newlines stay direct CodeFence children instead of being nested in color nodes.
