@@ -19,7 +19,6 @@
 #include "frame_context.hh"
 #include "../utils.hh"
 #include "../../contracts.hh"
-#include "../syntax_highlight.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::details {
@@ -309,26 +308,6 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr void convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast<ndebug> const& ast,
                                                             ::fast_io::u8string& out) noexcept {
     ::pltxt2htm::details::convert_simple_pltxt_ast_range_to_plunity_richtext<ndebug>(ast, 0, ast.size(), out);
-}
-
-template<::pltxt2htm::Contracts ndebug>
-constexpr void append_highlighted_code_to_plunity_richtext(::pltxt2htm::Ast<ndebug> const& ast,
-                                                           ::fast_io::vector<SyntaxTokenSpan> const& spans,
-                                                           ::fast_io::u8string& out) noexcept {
-    ::std::size_t current_index{};
-    for (auto const& span : spans) {
-        ::pltxt2htm::details::convert_simple_pltxt_ast_range_to_plunity_richtext<ndebug, true>(ast, current_index,
-                                                                                               span.begin, out);
-        out.append(u8"<color=");
-        out.append(::pltxt2htm::details::syntax_token_color<ndebug>(span.kind));
-        out.push_back(u8'>');
-        ::pltxt2htm::details::convert_simple_pltxt_ast_range_to_plunity_richtext<ndebug, true>(ast, span.begin,
-                                                                                               span.end, out);
-        out.append(u8"</color>");
-        current_index = span.end;
-    }
-    ::pltxt2htm::details::convert_simple_pltxt_ast_range_to_plunity_richtext<ndebug, true>(ast, current_index,
-                                                                                           ast.size(), out);
 }
 
 /**
@@ -1519,25 +1498,10 @@ entry:
             }
             case ::pltxt2htm::NodeKind::code_fence: {
                 result.append(u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\n");
-                SyntaxLanguage language{SyntaxLanguage::plain};
-                auto const& opt_language = node.as_code_fence().get_language();
-                if (opt_language.has_value()) {
-                    auto const& language_value = opt_language.template value<ndebug>();
-                    language = ::pltxt2htm::details::resolve_syntax_language(
-                        ::fast_io::u8string_view{language_value.data(), language_value.size()});
-                }
-                auto const highlight_result =
-                    ::pltxt2htm::details::highlight_syntax<ndebug>(node.as_code_fence().get_subast(), language);
-                if (highlight_result.simple == false) {
-                    call_stack.push(BackendFrameContext<ndebug>(node.as_code_fence().get_subast(),
-                                                                ::pltxt2htm::NodeKind::code_fence, 0));
-                    ++current_index;
-                    goto entry;
-                }
-                ::pltxt2htm::details::append_highlighted_code_to_plunity_richtext<ndebug>(
-                    node.as_code_fence().get_subast(), highlight_result.spans, result);
-                result.append(u8"\n</font>");
-                continue;
+                call_stack.push(BackendFrameContext<ndebug>(node.as_code_fence().get_subast(),
+                                                            ::pltxt2htm::NodeKind::code_fence, 0));
+                ++current_index;
+                goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_macro_project: {
                 result.append(project);

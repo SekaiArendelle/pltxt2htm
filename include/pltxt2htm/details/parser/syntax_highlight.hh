@@ -10,10 +10,10 @@
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
 #include <fast_io/fast_io_dsal/vector.h>
-#include "../ast/ast.hh"
-#include "../contracts.hh"
-#include "utils.hh"
-#include "push_macro.hh"
+#include "../../ast/ast.hh"
+#include "../../contracts.hh"
+#include "../utils.hh"
+#include "../push_macro.hh"
 
 namespace pltxt2htm::details {
 
@@ -718,6 +718,53 @@ constexpr auto highlight_syntax(::pltxt2htm::Ast<ndebug> const& ast, SyntaxLangu
     pltxt2htm_unreachable(u8"Unexpected syntax language");
 }
 
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto apply_syntax_highlighting(::pltxt2htm::Ast<ndebug>&& ast, SyntaxLanguage const language) noexcept
+    -> ::pltxt2htm::Ast<ndebug> {
+    auto const highlight_result = ::pltxt2htm::details::highlight_syntax<ndebug>(ast, language);
+    if (highlight_result.simple == false || highlight_result.spans.empty()) {
+        return ::std::move(ast);
+    }
+
+    ::pltxt2htm::Ast<ndebug> highlighted_ast{};
+    highlighted_ast.reserve(ast.size());
+    ::std::size_t current_index{};
+    for (auto const& span : highlight_result.spans) {
+        while (current_index != span.begin) {
+            highlighted_ast.push_back(::std::move(::pltxt2htm::details::vector_index<ndebug>(ast, current_index++)));
+        }
+
+        while (current_index != span.end) {
+            ::std::size_t colored_end{current_index};
+            while (colored_end != span.end &&
+                   ::pltxt2htm::details::vector_index<ndebug>(ast, colored_end).get_node_kind() !=
+                       ::pltxt2htm::NodeKind::line_break) {
+                ++colored_end;
+            }
+            if (current_index != colored_end) {
+                ::pltxt2htm::Ast<ndebug> colored_ast{};
+                colored_ast.reserve(colored_end - current_index);
+                while (current_index != colored_end) {
+                    colored_ast.push_back(
+                        ::std::move(::pltxt2htm::details::vector_index<ndebug>(ast, current_index++)));
+                }
+                highlighted_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::PlColor<ndebug>{
+                    ::std::move(colored_ast),
+                    ::fast_io::u8string{::pltxt2htm::details::syntax_token_color<ndebug>(span.kind)}}));
+            }
+            if (current_index != span.end) {
+                highlighted_ast.push_back(
+                    ::std::move(::pltxt2htm::details::vector_index<ndebug>(ast, current_index++)));
+            }
+        }
+    }
+    while (current_index != ast.size()) {
+        highlighted_ast.push_back(::std::move(::pltxt2htm::details::vector_index<ndebug>(ast, current_index++)));
+    }
+    return highlighted_ast;
+}
+
 } // namespace pltxt2htm::details
 
-#include "pop_macro.hh"
+#include "../pop_macro.hh"

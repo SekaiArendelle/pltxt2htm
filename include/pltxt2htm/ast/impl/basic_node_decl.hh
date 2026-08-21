@@ -166,21 +166,19 @@ public:
 
 /**
  * @brief Markdown fenced code block
- * @details Contains code content and an optional language identifier.
+ * @details Contains the parsed code content. Syntax highlighting is represented
+ *          directly by nodes in the sub-AST.
  */
 template<::pltxt2htm::Contracts ndebug>
 class CodeFence {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::pltxt2htm::container::Optional<::fast_io::u8string> lang;
 
 public:
     /**
      * @brief Construct a fenced code block.
      * @param subast The code content as an AST.
-     * @param lang Optional language string.
      */
-    constexpr explicit CodeFence(::pltxt2htm::Ast<ndebug>&& subast_,
-                                 ::pltxt2htm::container::Optional<::fast_io::u8string>&& lang_) noexcept;
+    constexpr explicit CodeFence(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr CodeFence(::pltxt2htm::CodeFence<ndebug> const&) noexcept;
     constexpr CodeFence(::pltxt2htm::CodeFence<ndebug>&&) noexcept;
     constexpr ~CodeFence() noexcept;
@@ -195,11 +193,6 @@ public:
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
-    }
-
-    [[nodiscard]]
-    constexpr auto get_language(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.lang);
     }
 };
 

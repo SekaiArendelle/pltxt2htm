@@ -17,6 +17,7 @@
 #include "../../ast/ast.hh"
 #include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"
+#include "syntax_highlight.hh"
 #include "../push_macro.hh"
 
 /**
@@ -2446,7 +2447,6 @@ constexpr auto try_parse_mark_equal_sign_tag(::fast_io::u8string_view pltext) no
 }
 
 /**
-/**
  * @brief Parse a self-closing HTML tag without a specific tag name (e.g., `<tag/>`).
  *
  * This function attempts to parse any self-closing HTML tag by looking for the pattern
@@ -3430,9 +3430,8 @@ constexpr auto try_parse_html_pre_code_block(::fast_io::u8string_view pltext) no
         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, pos));
     pos += content_result.advance_count;
 
-    return TryParseMdCodeFenceResult<ndebug>{
-        .node = ::pltxt2htm::CodeFence<ndebug>{::std::move(content_result.ast), ::pltxt2htm::container::nullopt},
-        .advance_count = pos};
+    return TryParseMdCodeFenceResult<ndebug>{.node = ::pltxt2htm::CodeFence<ndebug>{::std::move(content_result.ast)},
+                                             .advance_count = pos};
 }
 
 [[nodiscard]]
@@ -3635,13 +3634,11 @@ constexpr auto try_parse_md_code_fence_(::fast_io::u8string_view pltext) noexcep
         current_index += advance_count;
     }
 
-    ::pltxt2htm::container::Optional<::fast_io::u8string> opt_lang{::pltxt2htm::container::nullopt};
-    if (lang.empty() == false) {
-        opt_lang = ::std::move(lang);
-    }
-    return TryParseMdCodeFenceResult<ndebug>{
-        .node = ::pltxt2htm::CodeFence<ndebug>{::std::move(ast), ::std::move(opt_lang)},
-        .advance_count = current_index};
+    SyntaxLanguage const language{
+        ::pltxt2htm::details::resolve_syntax_language(::fast_io::u8string_view{lang.data(), lang.size()})};
+    ast = ::pltxt2htm::details::apply_syntax_highlighting<ndebug>(::std::move(ast), language);
+    return TryParseMdCodeFenceResult<ndebug>{.node = ::pltxt2htm::CodeFence<ndebug>{::std::move(ast)},
+                                             .advance_count = current_index};
 }
 
 /**

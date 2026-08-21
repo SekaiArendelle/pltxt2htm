@@ -23,10 +23,8 @@ constexpr auto ::pltxt2htm::Text<ndebug>::operator==(this Text<ndebug> const&,
                                                      ::pltxt2htm::Text<ndebug> const&) noexcept -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::CodeFence<ndebug>::CodeFence(
-    ::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::container::Optional<::fast_io::u8string>&& lang_) noexcept
-    : subast(::std::move(subast_)),
-      lang(::std::move(lang_)) {
+constexpr ::pltxt2htm::CodeFence<ndebug>::CodeFence(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
+    : subast(::std::move(subast_)) {
 }
 
 template<::pltxt2htm::Contracts ndebug>

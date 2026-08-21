@@ -265,11 +265,11 @@ print("Hello World")
     }
 
     {
-        // The roundtrip backend intentionally discards the Markdown fence language.
-        // Its HTML subset only accepts bare <pre><code>, so both passes stay identical
-        // without relying on a highlight.js language class.
+        // The parser consumes the Markdown fence language and stores highlighting as
+        // color nodes, so roundtrip HTML remains identical without a language class.
         auto const once = ::pltxt2htm_test::pltxt2roundtrip_htmld(u8"```cpp\nint x;\n```");
-        auto const answer = ::fast_io::u8string_view{u8"<pre><code>int&nbsp;x;</code></pre>"};
+        auto const answer =
+            ::fast_io::u8string_view{u8"<pre><code><span style=\"color:#cf222e;\">int</span>&nbsp;x;</code></pre>"};
         pltxt2htm_test_assert_equal(once, answer);
         auto const twice = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{once.data(), once.size()});
         pltxt2htm_test_assert_equal(twice, once);
@@ -354,6 +354,18 @@ print("Hello World")
             u8"\u00A0\u00A0\u00A0\u00A0<color=#cf222e>println</color>!(<color=#0a3069>\"Hello\u00A0Rust\"</"
             u8"color>);\n}\n</font>"};
         pltxt2htm_test_assert_equal(richtext, richtext_answer);
+    }
+
+    // Newlines stay direct CodeFence children instead of being nested in color nodes.
+    {
+        auto const pltext = ::fast_io::u8string_view{u8"```cpp\n/* first\nsecond */\n```"};
+        auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const answer = ::fast_io::u8string_view{
+            u8"<pre><code><span style=\"color:#6e7781;\">/*&nbsp;first</span>\n<span "
+            u8"style=\"color:#6e7781;\">second&nbsp;*/</span></code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto const reparsed = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
+        pltxt2htm_test_assert_equal(reparsed, html);
     }
 
     return 0;
