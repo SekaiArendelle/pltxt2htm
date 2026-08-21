@@ -134,6 +134,10 @@ General:
 
 Follow the existing low-runtime, cross-platform style used in core headers:
 
+- **Use relative paths for internal includes:**
+  - In files under `include/pltxt2htm/`, include other `pltxt2htm` headers with a quoted path relative to the including file, for example `#include "../contracts.hh"` or `#include "../../container/expected.hh"`.
+  - Do not use project-root angle-bracket includes such as `#include <pltxt2htm/details/push_macro.hh>` inside `include/pltxt2htm/`.
+  - Continue to use angle brackets for standard-library and external dependency headers.
 - **Do not name lambdas:**
   - Never write `auto name = [](...) { ... };` and call by name later.
   - If a callable needs a name, extract it as a normal `constexpr` function.
