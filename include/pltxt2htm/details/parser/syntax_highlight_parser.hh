@@ -186,11 +186,18 @@ constexpr auto parse_c_style_code_syntax(::fast_io::u8string_view const content,
             bool const supports_raw_string{quote == u8'\"' && csharp_verbatim_string == false &&
                                            (language == SyntaxLanguage::csharp || language == SyntaxLanguage::java ||
                                             language == SyntaxLanguage::kotlin)};
-            bool const triple_quote{supports_raw_string && remaining.size() > 1 &&
-                                    ::pltxt2htm::details::u8string_view_index<ndebug>(remaining, 0) == quote &&
-                                    ::pltxt2htm::details::u8string_view_index<ndebug>(remaining, 1) == quote};
-            if (triple_quote) {
-                for (unsigned count{}; count != 2; ++count) {
+            ::std::size_t raw_quote_count{};
+            if (supports_raw_string && remaining.size() > 1 &&
+                ::pltxt2htm::details::u8string_view_index<ndebug>(remaining, 0) == quote &&
+                ::pltxt2htm::details::u8string_view_index<ndebug>(remaining, 1) == quote) {
+                raw_quote_count = 3;
+                if (language == SyntaxLanguage::csharp) {
+                    while (raw_quote_count - 1 < remaining.size() &&
+                           ::pltxt2htm::details::u8string_view_index<ndebug>(remaining, raw_quote_count - 1) == quote) {
+                        ++raw_quote_count;
+                    }
+                }
+                for (::std::size_t count{1}; count != raw_quote_count; ++count) {
                     auto const parsed =
                         ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
                     remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
@@ -202,10 +209,14 @@ constexpr auto parse_c_style_code_syntax(::fast_io::u8string_view const content,
                 remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                 char8_t const current{parsed.ascii};
                 ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
-                if (triple_quote && current == quote && remaining.size() > 1 &&
-                    ::pltxt2htm::details::u8string_view_index<ndebug>(remaining, 0) == quote &&
-                    ::pltxt2htm::details::u8string_view_index<ndebug>(remaining, 1) == quote) {
-                    for (unsigned count{}; count != 2; ++count) {
+                bool closes_raw_string{raw_quote_count != 0 && current == quote &&
+                                       remaining.size() >= raw_quote_count - 1};
+                for (::std::size_t count{1}; closes_raw_string && count != raw_quote_count; ++count) {
+                    closes_raw_string =
+                        ::pltxt2htm::details::u8string_view_index<ndebug>(remaining, count - 1) == quote;
+                }
+                if (closes_raw_string) {
+                    for (::std::size_t count{1}; count != raw_quote_count; ++count) {
                         auto const closing =
                             ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
                         remaining =
@@ -226,7 +237,7 @@ constexpr auto parse_c_style_code_syntax(::fast_io::u8string_view const content,
                     }
                     break;
                 }
-                if (current == u8'\\' && remaining.empty() == false && triple_quote == false &&
+                if (current == u8'\\' && remaining.empty() == false && raw_quote_count == 0 &&
                     (language != SyntaxLanguage::go || quote != u8'`')) {
                     auto const escaped =
                         ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
@@ -234,7 +245,7 @@ constexpr auto parse_c_style_code_syntax(::fast_io::u8string_view const content,
                     ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
                     continue;
                 }
-                if (triple_quote == false && (current == quote || (current == u8'\n' && quote == u8'\''))) {
+                if (raw_quote_count == 0 && (current == quote || (current == u8'\n' && quote == u8'\''))) {
                     break;
                 }
             }

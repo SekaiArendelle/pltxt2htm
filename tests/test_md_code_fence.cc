@@ -614,6 +614,19 @@ print("Hello World")
 
     {
         auto const pltext =
+            ::fast_io::u8string_view{u8"```csharp\nstring text = \"\"\"\"before \" quote\"\"\"\";\nclass Next {}\n```"};
+        auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const answer = ::fast_io::u8string_view{
+            u8"<pre><code><span style=\"color:#cf222e;\">string</span>&nbsp;text&nbsp;=&nbsp;<span "
+            u8"style=\"color:#0a3069;\">&quot;&quot;&quot;&quot;before&nbsp;&quot;&nbsp;quote&quot;&quot;&quot;&quot;</"
+            u8"span>;\n<span style=\"color:#cf222e;\">class</span>&nbsp;Next&nbsp;{}</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto const reparsed = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
+        pltxt2htm_test_assert_equal(reparsed, html);
+    }
+
+    {
+        auto const pltext =
             ::fast_io::u8string_view{u8"```kotlin\nfun greet(name: String) = \"\"\"hello\n$name\"\"\"\n```"};
         auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const answer = ::fast_io::u8string_view{
