@@ -3,7 +3,7 @@
 #include <cstring>
 #include <cassert>
 #include <utility>
-#include <exception/exception.hh>
+#include <pltxt2htm/details/trap.hh>
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
 #include <fast_io/fast_io.h>
@@ -341,11 +341,11 @@ int main(int argc, char const* const* const argv) noexcept {
                   ::fast_io::mnp::os_c_str(coauthors));
         }
         else [[unlikely]] {
-            ::exception::unreachable<
+            ::pltxt2htm::details::unreachable<
 #ifdef NDEBUG
-                true
+                ::pltxt2htm::Contracts::ignore
 #else
-                false
+                ::pltxt2htm::Contracts::quick_enforce
 #endif
                 >();
         }

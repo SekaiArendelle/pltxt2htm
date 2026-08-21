@@ -7,7 +7,7 @@
 #pragma once
 
 #include <utility>
-#include <exception/exception.hh>
+#include "../../container/expected.hh"
 #include <fast_io/fast_io_dsal/string.h>
 #include "ast_decl.hh"
 
@@ -171,7 +171,7 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class CodeFence {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::exception::optional<::fast_io::u8string> lang;
+    ::pltxt2htm::container::Optional<::fast_io::u8string> lang;
 
 public:
     /**
@@ -180,7 +180,7 @@ public:
      * @param lang Optional language string.
      */
     constexpr explicit CodeFence(::pltxt2htm::Ast<ndebug>&& subast_,
-                                 ::exception::optional<::fast_io::u8string>&& lang_) noexcept;
+                                 ::pltxt2htm::container::Optional<::fast_io::u8string>&& lang_) noexcept;
     constexpr CodeFence(::pltxt2htm::CodeFence<ndebug> const&) noexcept;
     constexpr CodeFence(::pltxt2htm::CodeFence<ndebug>&&) noexcept;
     constexpr ~CodeFence() noexcept;

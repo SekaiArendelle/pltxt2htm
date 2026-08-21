@@ -78,3 +78,7 @@ void assert_equal_impl(::fast_io::u8string_view file, ::std::size_t line, ::fast
 #define pltxt2htm_test_assert_true(...) \
     ::pltxt2htm_test::assert_true_impl(::fast_io::u8string_view{u8"" __FILE__}, __LINE__, \
                                        ::fast_io::u8string_view{u8"" #__VA_ARGS__}, (__VA_ARGS__))
+
+#define pltxt2htm_test_assert_false(...) \
+    ::pltxt2htm_test::assert_true_impl(::fast_io::u8string_view{u8"" __FILE__}, __LINE__, \
+                                       ::fast_io::u8string_view{u8"!(" #__VA_ARGS__ ")"}, !(__VA_ARGS__))

@@ -14,7 +14,6 @@
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
-#include <exception/exception.hh>
 #include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"
 #include "frame_context.hh"
@@ -579,7 +578,7 @@ entry:
                 result.append(u8"<margin");
                 if (margin_left.has_value()) {
                     result.append(u8" left=");
-                    auto const& margin_value = margin_left.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    auto const& margin_value = margin_left.template value<ndebug>();
                     result.append(::pltxt2htm::details::size_t2str(margin_value.value));
                     switch (margin_value.unit) /* -Werror=switch */ {
                     case ::pltxt2htm::Unit::percent: {
@@ -603,7 +602,7 @@ entry:
                 }
                 if (margin_right.has_value()) {
                     result.append(u8" right=");
-                    auto const& margin_value = margin_right.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    auto const& margin_value = margin_right.template value<ndebug>();
                     result.append(::pltxt2htm::details::size_t2str(margin_value.value));
                     switch (margin_value.unit) /* -Werror=switch */ {
                     case ::pltxt2htm::Unit::percent: {
@@ -638,7 +637,7 @@ entry:
                 result.append(u8"<margin");
                 if (margin_left.has_value()) {
                     result.append(u8" left=");
-                    auto const& margin_value = margin_left.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    auto const& margin_value = margin_left.template value<ndebug>();
                     result.append(::pltxt2htm::details::size_t2str(margin_value.value));
                     switch (margin_value.unit) /* -Werror=switch */ {
                     case ::pltxt2htm::Unit::percent: {
@@ -662,7 +661,7 @@ entry:
                 }
                 if (margin_right.has_value()) {
                     result.append(u8" right=");
-                    auto const& margin_value = margin_right.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    auto const& margin_value = margin_right.template value<ndebug>();
                     result.append(::pltxt2htm::details::size_t2str(margin_value.value));
                     switch (margin_value.unit) /* -Werror=switch */ {
                     case ::pltxt2htm::Unit::percent: {
@@ -698,7 +697,7 @@ entry:
                     if (span_vertical_align.has_value() == false) {
                         return false;
                     }
-                    auto const& val = span_vertical_align.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    auto const& val = span_vertical_align.template value<ndebug>();
                     return val.get_kind() == ::pltxt2htm::VerticalAlignKind::length &&
                            val.get_length().unit == ::pltxt2htm::Unit::px;
                 }();
@@ -714,7 +713,7 @@ entry:
                     result.push_back(u8'>');
                 }
                 if (has_font_size) {
-                    auto const& font_size = span_font_size.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    auto const& font_size = span_font_size.template value<ndebug>();
                     result.append(u8"<size=");
                     switch (font_size.unit) /* -Werror=switch */ {
                     case ::pltxt2htm::Unit::percent: {
@@ -745,9 +744,7 @@ entry:
                 if (has_vertical_align) {
                     result.append(u8"<voffset=");
                     result.append(::pltxt2htm::details::ptrdiff_t2str(
-                        span_vertical_align.template value<ndebug == ::pltxt2htm::Contracts::ignore>()
-                            .get_length()
-                            .value));
+                        span_vertical_align.template value<ndebug>().get_length().value));
                     result.push_back(u8'>');
                 }
                 goto entry;

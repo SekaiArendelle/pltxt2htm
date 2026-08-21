@@ -6,6 +6,19 @@ export module pltxt2htm;
 
 export namespace pltxt2htm {
 
+namespace container {
+
+using ::pltxt2htm::container::Expected;
+using ::pltxt2htm::container::Unexpected;
+using ::pltxt2htm::container::Optional;
+using ::pltxt2htm::container::NulloptType;
+using ::pltxt2htm::container::nullopt;
+using ::pltxt2htm::container::is_expected;
+using ::pltxt2htm::container::is_unexpected;
+using ::pltxt2htm::container::is_optional;
+
+} // namespace container
+
 // exported functions
 using ::pltxt2htm::pltxt2common_html;
 using ::pltxt2htm::pltxt2fixedadv_html;

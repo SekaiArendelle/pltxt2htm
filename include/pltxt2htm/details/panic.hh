@@ -14,8 +14,8 @@
     #include <fast_io/fast_io.h>
 #endif
 #include <cstdio>
-#include <exception/exception.hh>
 #include "literal_string.hh"
+#include "trap.hh"
 
 namespace pltxt2htm::details {
 
@@ -83,7 +83,7 @@ inline void panic() noexcept {
 #endif
     ::std::fflush(stderr);
 
-    ::exception::terminate();
+    ::pltxt2htm::details::terminate();
 }
 
 } // namespace pltxt2htm::details

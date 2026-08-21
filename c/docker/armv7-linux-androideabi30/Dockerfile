@@ -6,10 +6,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
 
 WORKDIR /llvm
 
-RUN wget https://dl.google.com/android/repository/android-ndk-r29-linux.zip \
-    && unzip -q android-ndk-r29-linux.zip \
-    && rm android-ndk-r29-linux.zip
-ENV PATH=/llvm/android-ndk-r29/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
+# Temporarily use r30 beta 2 because r29's clang-r563880c crashes while parsing
+# valid C++23 explicit-object member calls in container::Expected. The
+# clang-r574158b toolchain has been verified with both shared and static builds.
+RUN wget https://dl.google.com/android/repository/android-ndk-r30-beta2-linux.zip \
+    && unzip -q android-ndk-r30-beta2-linux.zip \
+    && rm android-ndk-r30-beta2-linux.zip
+ENV PATH=/llvm/android-ndk-r30-beta2/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
 
 WORKDIR /pltxt2htm
 COPY ../../../include /pltxt2htm/include/
@@ -19,7 +22,7 @@ WORKDIR /pltxt2htm/c
 RUN cmake -S . -B build-shared -G Ninja \
     -DCMAKE_BUILD_TYPE=${mode} \
     -DBUILD_SHARED_LIBS=ON \
-    -DCMAKE_TOOLCHAIN_FILE=/llvm/android-ndk-r29/build/cmake/android.toolchain.cmake \
+    -DCMAKE_TOOLCHAIN_FILE=/llvm/android-ndk-r30-beta2/build/cmake/android.toolchain.cmake \
     -DANDROID_ABI=armeabi-v7a \
     -DANDROID_PLATFORM=android-30
 RUN cmake --build build-shared -v
@@ -28,7 +31,7 @@ RUN cmake --install build-shared --prefix armv7-linux-androideabi30-pltxt2htm-c-
 RUN cmake -S . -B build-static -G Ninja \
     -DCMAKE_BUILD_TYPE=${mode} \
     -DBUILD_SHARED_LIBS=OFF \
-    -DCMAKE_TOOLCHAIN_FILE=/llvm/android-ndk-r29/build/cmake/android.toolchain.cmake \
+    -DCMAKE_TOOLCHAIN_FILE=/llvm/android-ndk-r30-beta2/build/cmake/android.toolchain.cmake \
     -DANDROID_ABI=armeabi-v7a \
     -DANDROID_PLATFORM=android-30
 RUN cmake --build build-static -v

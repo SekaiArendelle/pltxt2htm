@@ -13,7 +13,7 @@
 #include <iterator>
 #include <memory>
 #include <type_traits>
-#include <exception/exception.hh>
+#include "container/expected.hh"
 #include <fast_io/fast_io_dsal/list.h>
 #include <fast_io/fast_io_dsal/stack.h>
 #include "ast/ast.hh"
@@ -63,8 +63,9 @@ template<::pltxt2htm::Contracts ndebug>
 class OptimizerContextWithHtmlSpanInfo {
 public:
     ::fast_io::u8string_view color{};
-    ::exception::optional<::pltxt2htm::ValueWithUnit<double>> font_size{::exception::nullopt};
-    ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align{::exception::nullopt};
+    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size{::pltxt2htm::container::nullopt};
+    ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align{
+        ::pltxt2htm::container::nullopt};
 };
 
 /**
@@ -328,7 +329,7 @@ public:
 
     [[nodiscard]]
     constexpr auto get_html_span_font_size(this auto const& self) noexcept
-        -> ::exception::optional<::pltxt2htm::ValueWithUnit<double>> {
+        -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> {
         auto&& context_data_ref = self.context_data;
         pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_span, u8"context kind mismatch");
         return context_data_ref.html_span_info.font_size;
@@ -336,7 +337,7 @@ public:
 
     [[nodiscard]]
     constexpr auto get_html_span_vertical_align(this auto const& self) noexcept
-        -> ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> {
+        -> ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> {
         auto&& context_data_ref = self.context_data;
         pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_span, u8"context kind mismatch");
         return context_data_ref.html_span_info.vertical_align;
@@ -528,19 +529,21 @@ entry:
                         auto const inner_fs = subnode.as_html_span().get_font_size();
                         auto const inner_va = subnode.as_html_span().get_vertical_align();
                         auto merged_color = ::fast_io::u8string{inner_color.empty() ? outer_color : inner_color};
-                        ::exception::optional<::pltxt2htm::ValueWithUnit<double>> merged_fs{::exception::nullopt};
+                        ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> merged_fs{
+                            ::pltxt2htm::container::nullopt};
                         if (inner_fs.has_value()) {
-                            merged_fs = inner_fs.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                            merged_fs = inner_fs.template value<ndebug>();
                         }
                         else if (outer_fs.has_value()) {
-                            merged_fs = outer_fs.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                            merged_fs = outer_fs.template value<ndebug>();
                         }
-                        ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> merged_va{::exception::nullopt};
+                        ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> merged_va{
+                            ::pltxt2htm::container::nullopt};
                         if (inner_va.has_value()) {
-                            merged_va = inner_va.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                            merged_va = inner_va.template value<ndebug>();
                         }
                         else if (outer_va.has_value()) {
-                            merged_va = outer_va.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                            merged_va = outer_va.template value<ndebug>();
                         }
                         // SAFETY: Move inner's subast to a temporary first to break aliasing.
                         // `subnode` is a reference into `node.get_subast()`.
@@ -553,9 +556,10 @@ entry:
                     if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_color) {
                         auto const outer_fs = node.as_html_span().get_font_size();
                         auto const outer_va = node.as_html_span().get_vertical_align();
-                        ::exception::optional<::pltxt2htm::ValueWithUnit<double>> merged_fs{::exception::nullopt};
+                        ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> merged_fs{
+                            ::pltxt2htm::container::nullopt};
                         if (outer_fs.has_value()) {
-                            merged_fs = outer_fs.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                            merged_fs = outer_fs.template value<ndebug>();
                         }
                         auto inner_subast = ::std::move(subnode.as_pl_color().get_subast());
                         auto const& inner_color = subnode.as_pl_color().get_color();

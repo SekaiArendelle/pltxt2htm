@@ -9,7 +9,7 @@
 #include <cstddef>
 #include <memory>
 #include <utility>
-#include <exception/exception.hh>
+#include "../../container/expected.hh"
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
 #include "list_ast.hh"
@@ -65,8 +65,8 @@ class ParserFrameContextWithHtmlSpanInfo {
 public:
     ::fast_io::u8string_view pltext;
     ::fast_io::u8string color;
-    ::exception::optional<::pltxt2htm::ValueWithUnit<double>> font_size;
-    ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align;
+    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size;
+    ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align;
 };
 
 /**
@@ -122,8 +122,8 @@ public:
 class ParserFrameContextWithPlMarginTagInfo {
 public:
     ::fast_io::u8string_view pltext;
-    ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left;
-    ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right;
+    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left;
+    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right;
 };
 
 /**
@@ -132,8 +132,8 @@ public:
 class ParserFrameContextWithHtmlDivInfo {
 public:
     ::fast_io::u8string_view pltext;
-    ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left;
-    ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right;
+    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left;
+    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right;
 };
 
 /**
@@ -1662,7 +1662,7 @@ constexpr void push_list_frame(::fast_io::stack<ParserFrameContext<ndebug>>& cal
  */
 template<::pltxt2htm::Contracts ndebug>
 constexpr auto process_table_frame(::fast_io::stack<ParserFrameContext<ndebug>>& call_stack) noexcept
-    -> ::exception::optional<::pltxt2htm::Ast<ndebug>> {
+    -> ::pltxt2htm::container::Optional<::pltxt2htm::Ast<ndebug>> {
     auto&& frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
     auto&& raw_ast = frame.as_table().raw_ast;
     auto const state = frame.as_table().state;
@@ -1678,7 +1678,7 @@ constexpr auto process_table_frame(::fast_io::stack<ParserFrameContext<ndebug>>&
                 ::pltxt2htm::Ast<ndebug>{}));
         }
         frame.as_table().state = TableParsePhase::body;
-        return ::exception::nullopt;
+        return ::pltxt2htm::container::nullopt;
     }
     case TableParsePhase::body: {
         if (row_index < raw_ast.rows_count()) {
@@ -1692,14 +1692,14 @@ constexpr auto process_table_frame(::fast_io::stack<ParserFrameContext<ndebug>>&
                         cell.is_header ? ::pltxt2htm::NodeKind::table_th : ::pltxt2htm::NodeKind::table_td},
                     ::pltxt2htm::Ast<ndebug>{}));
                 frame.as_table().cell_index = cell_index + 1;
-                return ::exception::nullopt;
+                return ::pltxt2htm::container::nullopt;
             }
             frame.as_table().row_index = row_index + 1;
             frame.as_table().cell_index = 0;
-            return ::exception::nullopt;
+            return ::pltxt2htm::container::nullopt;
         }
         frame.as_table().state = TableParsePhase::finish;
-        return ::exception::nullopt;
+        return ::pltxt2htm::container::nullopt;
     }
     case TableParsePhase::finish: {
         auto previous_frame = ::std::move(frame);
@@ -1770,7 +1770,7 @@ constexpr auto process_table_frame(::fast_io::stack<ParserFrameContext<ndebug>>&
         auto&& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
         parent_frame.subast.push_back(
             ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Table<ndebug>{::std::move(table_ast)}));
-        return ::exception::nullopt;
+        return ::pltxt2htm::container::nullopt;
     }
 #ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
     default:

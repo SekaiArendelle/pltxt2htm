@@ -10,7 +10,7 @@
 #include <utility>
 #include <cstddef>
 #include <fast_io/fast_io_dsal/string.h>
-#include <exception/exception.hh>
+#include "../../container/expected.hh"
 #include "ast_decl.hh"
 #include "basic_node_decl.hh"
 #include "../value_unit.hh"
@@ -480,13 +480,14 @@ template<::pltxt2htm::Contracts ndebug>
 class HtmlSpan {
     ::pltxt2htm::Ast<ndebug> subast;
     ::fast_io::u8string color;
-    ::exception::optional<::pltxt2htm::ValueWithUnit<double>> font_size;
-    ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align;
+    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size;
+    ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align;
 
 public:
-    constexpr HtmlSpan(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& color_,
-                       ::exception::optional<::pltxt2htm::ValueWithUnit<double>> font_size_,
-                       ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align_) noexcept;
+    constexpr HtmlSpan(
+        ::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& color_,
+        ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size_,
+        ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align_) noexcept;
     constexpr HtmlSpan(::pltxt2htm::HtmlSpan<ndebug> const&) noexcept;
     constexpr HtmlSpan(::pltxt2htm::HtmlSpan<ndebug>&&) noexcept;
     constexpr ~HtmlSpan() noexcept;
@@ -509,13 +510,13 @@ public:
 
     [[nodiscard]]
     constexpr auto get_font_size(this HtmlSpan<ndebug> const& self) noexcept
-        -> ::exception::optional<::pltxt2htm::ValueWithUnit<double>> {
+        -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> {
         return self.font_size;
     }
 
     [[nodiscard]]
     constexpr auto get_vertical_align(this HtmlSpan<ndebug> const& self) noexcept
-        -> ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> {
+        -> ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> {
         return self.vertical_align;
     }
 };
@@ -529,13 +530,13 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class HtmlDiv {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left;
-    ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right;
+    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left;
+    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right;
 
 public:
     constexpr HtmlDiv(::pltxt2htm::Ast<ndebug>&& subast_,
-                      ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left_,
-                      ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right_) noexcept;
+                      ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left_,
+                      ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right_) noexcept;
     constexpr HtmlDiv(::pltxt2htm::HtmlDiv<ndebug> const&) noexcept;
     constexpr HtmlDiv(::pltxt2htm::HtmlDiv<ndebug>&&) noexcept;
     constexpr ~HtmlDiv() noexcept;
@@ -553,13 +554,13 @@ public:
 
     [[nodiscard]]
     constexpr auto get_left(this auto const& self) noexcept
-        -> ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
+        -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
         return self.left;
     }
 
     [[nodiscard]]
     constexpr auto get_right(this auto const& self) noexcept
-        -> ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
+        -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
         return self.right;
     }
 };

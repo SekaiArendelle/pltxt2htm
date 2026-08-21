@@ -9,7 +9,6 @@
 #pragma once
 
 #include <utility>
-#include <exception/exception.hh>
 #include <fast_io/fast_io_dsal/string.h>
 #include "ast_decl.hh"
 #include "basic_node_decl.hh"

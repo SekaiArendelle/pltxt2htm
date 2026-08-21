@@ -15,7 +15,7 @@
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
-#include <exception/exception.hh>
+#include "../container/expected.hh"
 #include "../contracts.hh"
 #include "literal_string.hh"
 
@@ -339,7 +339,7 @@ struct TryParseSizeTDecimalValueResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_size_t_decimal_value(::fast_io::u8string_view str) noexcept
-    -> ::exception::optional<TryParseSizeTDecimalValueResult> {
+    -> ::pltxt2htm::container::Optional<TryParseSizeTDecimalValueResult> {
     ::std::size_t const str_size{str.size()};
     ::std::size_t parsed_value{};
     auto pos = ::std::size_t{0};
@@ -350,12 +350,12 @@ constexpr auto try_parse_size_t_decimal_value(::fast_io::u8string_view str) noex
         }
         auto const digit = static_cast<::std::size_t>(chr - u8'0');
         if (parsed_value > (::std::numeric_limits<::std::size_t>::max() - digit) / 10) {
-            return ::exception::nullopt;
+            return ::pltxt2htm::container::nullopt;
         }
         parsed_value = parsed_value * 10 + digit;
     }
     if (pos == 0) {
-        return ::exception::nullopt;
+        return ::pltxt2htm::container::nullopt;
     }
     return TryParseSizeTDecimalValueResult{.end = pos, .value = parsed_value};
 }
@@ -411,7 +411,7 @@ struct TryParsePtrdiffTDecimalValueResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_ptrdiff_t_decimal_value(::fast_io::u8string_view str) noexcept
-    -> ::exception::optional<TryParsePtrdiffTDecimalValueResult> {
+    -> ::pltxt2htm::container::Optional<TryParsePtrdiffTDecimalValueResult> {
     using unsigned_type = ::std::make_unsigned_t<::std::ptrdiff_t>;
 
     ::std::size_t const str_size{str.size()};
@@ -430,18 +430,18 @@ constexpr auto try_parse_ptrdiff_t_decimal_value(::fast_io::u8string_view str) n
         }
         auto const digit = static_cast<unsigned_type>(chr - u8'0');
         if (parsed_value > (::std::numeric_limits<unsigned_type>::max() - digit) / 10) {
-            return ::exception::nullopt;
+            return ::pltxt2htm::container::nullopt;
         }
         parsed_value = parsed_value * 10 + digit;
     }
     if (digit_pos == pos) {
-        return ::exception::nullopt;
+        return ::pltxt2htm::container::nullopt;
     }
 
     auto const min_magnitude = static_cast<unsigned_type>(::std::numeric_limits<::std::ptrdiff_t>::max()) + 1;
     if (parsed_value >
         (negative ? min_magnitude : static_cast<unsigned_type>(::std::numeric_limits<::std::ptrdiff_t>::max()))) {
-        return ::exception::nullopt;
+        return ::pltxt2htm::container::nullopt;
     }
 
     ::std::ptrdiff_t value{};
@@ -475,7 +475,7 @@ struct TryParseDoubleDecimalValueResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_double_decimal_value(::fast_io::u8string_view str) noexcept
-    -> ::exception::optional<TryParseDoubleDecimalValueResult> {
+    -> ::pltxt2htm::container::Optional<TryParseDoubleDecimalValueResult> {
     ::std::size_t const str_size{str.size()};
     double parsed_value{};
     auto pos = ::std::size_t{0};
@@ -488,7 +488,7 @@ constexpr auto try_parse_double_decimal_value(::fast_io::u8string_view str) noex
     }
     if (pos < str_size && ::pltxt2htm::details::u8string_view_index<ndebug>(str, pos) == u8'.') {
         if (pos == 0) {
-            return ::exception::nullopt;
+            return ::pltxt2htm::container::nullopt;
         }
         auto const dot_pos = pos;
         auto frac_pos = dot_pos + 1;
@@ -502,18 +502,18 @@ constexpr auto try_parse_double_decimal_value(::fast_io::u8string_view str) noex
             scale *= 10;
         }
         if (frac_pos == dot_pos + 1) {
-            return ::exception::nullopt;
+            return ::pltxt2htm::container::nullopt;
         }
         pos = frac_pos;
     }
     if (pos == 0) {
-        return ::exception::nullopt;
+        return ::pltxt2htm::container::nullopt;
     }
     // Reject values that cannot be represented in ::std::size_t so oversized tags stay literal
     // text (preserving the historical behavior of try_parse_size_t_decimal_value). `>=` is used
     // because double(std::size_t max) rounds up to 2^64, and any double >= 2^64 cannot fit.
     if (parsed_value >= static_cast<double>(::std::numeric_limits<::std::size_t>::max())) {
-        return ::exception::nullopt;
+        return ::pltxt2htm::container::nullopt;
     }
     return TryParseDoubleDecimalValueResult{.end = pos, .value = parsed_value};
 }
@@ -574,7 +574,8 @@ constexpr auto double2str(double value) noexcept -> ::fast_io::u8string {
         }
         auto opt_reparsed = ::pltxt2htm::details::try_parse_double_decimal_value<::pltxt2htm::Contracts::quick_enforce>(
             ::fast_io::u8string_view{candidate.data(), candidate.size()});
-        bool const round_trips = opt_reparsed.has_value() && (opt_reparsed.template value<true>().value == value);
+        bool const round_trips =
+            opt_reparsed.has_value() && (opt_reparsed.template value<::pltxt2htm::Contracts::ignore>().value == value);
         if (round_trips) {
             return candidate;
         }

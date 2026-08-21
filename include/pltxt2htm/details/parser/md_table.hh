@@ -11,7 +11,7 @@
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
-#include <exception/exception.hh>
+#include "../../container/expected.hh"
 #include "../utils.hh"
 #include "../../contracts.hh"
 #include "../../ast/node_kind.hh"
@@ -43,9 +43,9 @@ struct TryParseMdTableRowResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_table_row(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<TryParseMdTableRowResult> {
+    -> ::pltxt2htm::container::Optional<TryParseMdTableRowResult> {
     if (pltext.empty()) {
-        return ::exception::nullopt;
+        return ::pltxt2htm::container::nullopt;
     }
     ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t current_index{};
@@ -59,7 +59,7 @@ constexpr auto try_parse_md_table_row(::fast_io::u8string_view pltext) noexcept
     // must start with |
     if (current_index >= pltext_size ||
         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) != u8'|') {
-        return ::exception::nullopt;
+        return ::pltxt2htm::container::nullopt;
     }
     ++current_index; // skip the first |
 
@@ -116,12 +116,12 @@ constexpr auto try_parse_md_table_row(::fast_io::u8string_view pltext) noexcept
     }
 
     if (row.empty()) {
-        return ::exception::nullopt;
+        return ::pltxt2htm::container::nullopt;
     }
 
     // A row like "|cell" (no trailing |) is rejected.
     if (has_trailing_pipe == false) {
-        return ::exception::nullopt;
+        return ::pltxt2htm::container::nullopt;
     }
 
     return TryParseMdTableRowResult{.cells = ::std::move(row), .advance_count = current_index};
@@ -139,9 +139,9 @@ constexpr auto try_parse_md_table_row(::fast_io::u8string_view pltext) noexcept
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_table_align(::fast_io::u8string_view cell) noexcept
-    -> ::exception::optional<::pltxt2htm::TableAlign> {
+    -> ::pltxt2htm::container::Optional<::pltxt2htm::TableAlign> {
     if (cell.empty()) {
-        return ::exception::nullopt;
+        return ::pltxt2htm::container::nullopt;
     }
 
     ::std::size_t const cell_size{cell.size()};
@@ -159,7 +159,7 @@ constexpr auto try_parse_table_align(::fast_io::u8string_view cell) noexcept
         ++current_index;
     }
     if (has_dash == false) {
-        return ::exception::nullopt;
+        return ::pltxt2htm::container::nullopt;
     }
 
     bool right{};
@@ -168,7 +168,7 @@ constexpr auto try_parse_table_align(::fast_io::u8string_view cell) noexcept
         ++current_index;
     }
     if (current_index != cell_size) {
-        return ::exception::nullopt;
+        return ::pltxt2htm::container::nullopt;
     }
 
     if (left && right) {
@@ -205,16 +205,16 @@ struct TryParseMdTableRawResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<TryParseMdTableRawResult<ndebug>> {
+    -> ::pltxt2htm::container::Optional<TryParseMdTableRawResult<ndebug>> {
     ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t current_index{};
 
     // parse header row
     auto header_opt = ::pltxt2htm::details::try_parse_md_table_row<ndebug>(pltext);
     if (header_opt.has_value() == false) {
-        return ::exception::nullopt;
+        return ::pltxt2htm::container::nullopt;
     }
-    auto&& [header_row, header_forward] = header_opt.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+    auto&& [header_row, header_forward] = header_opt.template value<ndebug>();
     current_index += header_forward;
     ::std::size_t const num_cols{header_row.size()};
 
@@ -222,9 +222,9 @@ constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
     auto delim_opt = ::pltxt2htm::details::try_parse_md_table_row<ndebug>(
         ::fast_io::u8string_view{pltext.data() + current_index, pltext_size - current_index});
     if (delim_opt.has_value() == false) {
-        return ::exception::nullopt;
+        return ::pltxt2htm::container::nullopt;
     }
-    auto&& [delim_row, delim_forward] = delim_opt.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+    auto&& [delim_row, delim_forward] = delim_opt.template value<ndebug>();
     current_index += delim_forward;
     ::fast_io::vector<::pltxt2htm::TableAlign> aligns{};
     bool has_delimiter_content{};
@@ -236,18 +236,18 @@ constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
         }
         auto opt_align = ::pltxt2htm::details::try_parse_table_align<ndebug>(cell_view);
         if (opt_align.has_value() == false) {
-            return ::exception::nullopt;
+            return ::pltxt2htm::container::nullopt;
         }
         has_delimiter_content = true;
-        aligns.push_back(opt_align.template value<ndebug == ::pltxt2htm::Contracts::ignore>());
+        aligns.push_back(opt_align.template value<ndebug>());
     }
     if (has_delimiter_content == false) {
-        return ::exception::nullopt;
+        return ::pltxt2htm::container::nullopt;
     }
 
     // delimiter row must have the same column count as the header row
     if (aligns.size() != num_cols) {
-        return ::exception::nullopt;
+        return ::pltxt2htm::container::nullopt;
     }
 
     // build raw header row (section=thead, cells marked as headers)
@@ -270,12 +270,12 @@ constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
         if (row_opt.has_value() == false) {
             break;
         }
-        auto&& [row, forward] = row_opt.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        auto&& [row, forward] = row_opt.template value<ndebug>();
         current_index += forward;
 
         // each body row must have exactly num_cols cells
         if (row.size() != num_cols) {
-            return ::exception::nullopt;
+            return ::pltxt2htm::container::nullopt;
         }
         TableRowRaw body_row_raw{.cells = {}, .section = TableRowSection::tbody};
         for (::std::size_t col{}; col < num_cols; ++col) {

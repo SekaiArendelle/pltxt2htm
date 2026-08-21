@@ -1,3 +1,5 @@
+#include "precompile.hh"
+
 #include <pltxt2htm/ast/ast.hh>
 
 int main() {
@@ -7,14 +9,14 @@ int main() {
     {
         auto const original = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::LineBreak{});
         auto const copy = original;
-        ::exception::assert_true<false>(original == copy);
+        pltxt2htm_test_assert_true(original == copy);
     }
 
     // Copy a U8Char node
     {
         auto const original = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::U8Char{u8'X'});
         auto const copy = original;
-        ::exception::assert_true<false>(original == copy);
+        pltxt2htm_test_assert_true(original == copy);
     }
 
     // Deep copy a simple Text node with children
@@ -27,7 +29,7 @@ int main() {
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(ast)));
 
         auto const copy = original;
-        ::exception::assert_true<false>(original == copy);
+        pltxt2htm_test_assert_true(original == copy);
     }
 
     // Deep copy with nested sub-AST (HtmlBlockquote > HtmlH1 > U8Char)
@@ -42,7 +44,7 @@ int main() {
             ::pltxt2htm::HtmlBlockquote<nd::quick_enforce>(::std::move(outer)));
 
         auto const copy = original;
-        ::exception::assert_true<false>(original == copy);
+        pltxt2htm_test_assert_true(original == copy);
     }
 
     // Copy independence: modifying original must not affect copy
@@ -64,8 +66,8 @@ int main() {
         ::pltxt2htm::Ast<nd::quick_enforce> expected_ast{::pltxt2htm::U8Char{u8'A'}};
         auto const expected =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(expected_ast)));
-        ::exception::assert_true<false>(copy == expected);
-        ::exception::assert_false<false>(copy == original);
+        pltxt2htm_test_assert_true(copy == expected);
+        pltxt2htm_test_assert_false(copy == original);
     }
 
     // Copy of a node with extra data (TableTh with align)
@@ -77,7 +79,7 @@ int main() {
             ::pltxt2htm::TableTh<nd::quick_enforce>(::std::move(ast), ::pltxt2htm::TableAlign::center));
 
         auto const copy = original;
-        ::exception::assert_true<false>(original == copy);
+        pltxt2htm_test_assert_true(original == copy);
     }
 
     // Copy of a node with optional language (CodeFence)
@@ -86,10 +88,10 @@ int main() {
         ast.emplace_back(::pltxt2htm::U8Char{u8'x'});
 
         auto const original = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::CodeFence<nd::quick_enforce>(
-            ::std::move(ast), ::exception::optional<::fast_io::u8string>(::fast_io::u8string{u8"cpp"})));
+            ::std::move(ast), ::pltxt2htm::container::Optional<::fast_io::u8string>(::fast_io::u8string{u8"cpp"})));
 
         auto const copy = original;
-        ::exception::assert_true<false>(original == copy);
+        pltxt2htm_test_assert_true(original == copy);
     }
 
     // Copy of a node with Url (MdLink)
@@ -101,7 +103,7 @@ int main() {
             ::std::move(text_ast), ::pltxt2htm::Url(::fast_io::u8string{u8"x"})));
 
         auto const copy = original;
-        ::exception::assert_true<false>(original == copy);
+        pltxt2htm_test_assert_true(original == copy);
     }
 
     // Copy an Ast (vector of PlTxtNode)
@@ -109,7 +111,7 @@ int main() {
         ::pltxt2htm::Ast<nd::quick_enforce> const original{::pltxt2htm::U8Char{u8'A'}, ::pltxt2htm::U8Char{u8'B'}};
 
         auto const copy = original;
-        ::exception::assert_true<false>(original == copy);
+        pltxt2htm_test_assert_true(original == copy);
     }
 
     // Ast copy independence
@@ -125,8 +127,8 @@ int main() {
         ::pltxt2htm::Ast<nd::quick_enforce> expected{};
         expected.emplace_back(::pltxt2htm::U8Char{u8'A'});
 
-        ::exception::assert_true<false>(copy == expected);
-        ::exception::assert_false<false>(copy == original);
+        pltxt2htm_test_assert_true(copy == expected);
+        pltxt2htm_test_assert_false(copy == original);
     }
 
     return 0;

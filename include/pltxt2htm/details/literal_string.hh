@@ -14,8 +14,7 @@
 #include <limits>
 #include <type_traits>
 #include <utility>
-
-#include <exception/exception.hh>
+#include "trap.hh"
 
 namespace pltxt2htm::details {
 
@@ -84,7 +83,7 @@ public:
     [[nodiscard]]
     constexpr auto&& operator[](this is_literal_string auto&& self, ::std::size_t index) noexcept {
         if (index >= N) [[unlikely]] {
-            ::exception::terminate();
+            ::pltxt2htm::details::terminate();
         }
         return self.data_[index];
     }

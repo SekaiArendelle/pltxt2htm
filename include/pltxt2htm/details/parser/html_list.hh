@@ -17,7 +17,7 @@
 #include <cstddef>
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
-#include <exception/exception.hh>
+#include "../../container/expected.hh"
 #include "../utils.hh"
 #include "../../contracts.hh"
 #include "list_ast.hh"
@@ -46,22 +46,22 @@ struct ToHtmlListAstResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto optionally_to_html_list_ast(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<ToHtmlListAstResult<ndebug>> {
+    -> ::pltxt2htm::container::Optional<ToHtmlListAstResult<ndebug>> {
     ::pltxt2htm::NodeKind item_kind{};
     ::std::size_t start{1};
     ::std::size_t current_index{};
     if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<ul">(pltext); opt_len.has_value()) {
         item_kind = ::pltxt2htm::NodeKind::list_ul;
-        current_index = opt_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1;
+        current_index = opt_len.template value<ndebug>() + 1;
     }
     else if (auto opt_ol_tag = ::pltxt2htm::details::try_parse_ol_tag<ndebug>(pltext); opt_ol_tag.has_value()) {
         item_kind = ::pltxt2htm::NodeKind::list_ol;
-        auto&& [ol_len, ol_start] = opt_ol_tag.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        auto&& [ol_len, ol_start] = opt_ol_tag.template value<ndebug>();
         current_index = ol_len;
         start = ol_start;
     }
     else {
-        return ::exception::nullopt;
+        return ::pltxt2htm::container::nullopt;
     }
 
     ListAst<ndebug> ast{};
@@ -77,7 +77,7 @@ constexpr auto optionally_to_html_list_ast(::fast_io::u8string_view pltext) noex
             ++current_index;
         }
         if (current_index >= pltext_size) {
-            return ::exception::nullopt;
+            return ::pltxt2htm::container::nullopt;
         }
         // Closing tag </ul> / </ol> (must match the opener kind). A list must
         // contain at least one <li> item: `<ol></ol>`/`<ul></ul>` (or a variant
@@ -88,32 +88,29 @@ constexpr auto optionally_to_html_list_ast(::fast_io::u8string_view pltext) noex
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
             item_kind == ::pltxt2htm::NodeKind::list_ul && opt_len.has_value()) {
             if (ast.empty()) {
-                return ::exception::nullopt;
+                return ::pltxt2htm::container::nullopt;
             }
-            return ToHtmlListAstResult<ndebug>{
-                .top_node = ListBaseNode<ndebug>{ListUlNode<ndebug>(::std::move(ast))},
-                .advance_count =
-                    current_index + opt_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1};
+            return ToHtmlListAstResult<ndebug>{.top_node = ListBaseNode<ndebug>{ListUlNode<ndebug>(::std::move(ast))},
+                                               .advance_count = current_index + opt_len.template value<ndebug>() + 1};
         }
         if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"</ol">(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
             item_kind == ::pltxt2htm::NodeKind::list_ol && opt_len.has_value()) {
             if (ast.empty()) {
-                return ::exception::nullopt;
+                return ::pltxt2htm::container::nullopt;
             }
             return ToHtmlListAstResult<ndebug>{
                 .top_node = ListBaseNode<ndebug>{ListOlNode<ndebug>(::std::move(ast), start)},
-                .advance_count =
-                    current_index + opt_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1};
+                .advance_count = current_index + opt_len.template value<ndebug>() + 1};
         }
         // Only <li> elements are allowed inside <ul>/<ol>.
         if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<li">(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
             opt_len.has_value()) {
-            current_index += opt_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1;
+            current_index += opt_len.template value<ndebug>() + 1;
         }
         else {
-            return ::exception::nullopt;
+            return ::pltxt2htm::container::nullopt;
         }
 
         // Under the HTML block content model, leading whitespace/newlines inside an
@@ -134,7 +131,7 @@ constexpr auto optionally_to_html_list_ast(::fast_io::u8string_view pltext) noex
         if (auto opt_input = ::pltxt2htm::details::try_parse_input_checkbox_tag<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
             opt_input.has_value()) {
-            auto&& [input_len, checked] = opt_input.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            auto&& [input_len, checked] = opt_input.template value<ndebug>();
             current_index += input_len;
             checkbox = true;
             checkbox_checked = checked;
@@ -155,12 +152,12 @@ constexpr auto optionally_to_html_list_ast(::fast_io::u8string_view pltext) noex
         ListAst<ndebug> pending_nested{};
         while (true) {
             if (current_index >= pltext_size) {
-                return ::exception::nullopt;
+                return ::pltxt2htm::container::nullopt;
             }
             if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"</li">(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
                 opt_len.has_value()) {
-                current_index += opt_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>() + 1;
+                current_index += opt_len.template value<ndebug>() + 1;
                 break;
             }
             ::pltxt2htm::NodeKind nested_list_kind{};
@@ -179,10 +176,9 @@ constexpr auto optionally_to_html_list_ast(::fast_io::u8string_view pltext) noex
                 auto opt_nested = ::pltxt2htm::details::optionally_to_html_list_ast<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
                 if (opt_nested.has_value() == false) {
-                    return ::exception::nullopt;
+                    return ::pltxt2htm::container::nullopt;
                 }
-                auto&& [nested_node, nested_advance] =
-                    opt_nested.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                auto&& [nested_node, nested_advance] = opt_nested.template value<ndebug>();
                 current_index += nested_advance;
                 pending_nested.emplace_back(::std::move(nested_node));
                 continue;
