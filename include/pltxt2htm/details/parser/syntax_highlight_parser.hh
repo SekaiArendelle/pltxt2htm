@@ -1273,6 +1273,52 @@ constexpr bool syntax_is_markup_name_continue(char8_t const chr) noexcept {
            chr == u8'-' || chr == u8'.';
 }
 
+[[nodiscard]]
+constexpr char8_t syntax_ascii_lower(char8_t const chr) noexcept {
+    if (chr >= u8'A' && chr <= u8'Z') {
+        return static_cast<char8_t>(chr + (u8'a' - u8'A'));
+    }
+    return chr;
+}
+
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr bool syntax_markup_name_equals(::fast_io::u8string_view const content, ::std::size_t const begin,
+                                         ::std::size_t const end, ::fast_io::u8string_view const expected) noexcept {
+    if (end - begin != expected.size()) {
+        return false;
+    }
+    for (::std::size_t offset{}; offset != expected.size(); ++offset) {
+        if (::pltxt2htm::details::syntax_ascii_lower(::pltxt2htm::details::u8string_view_index<ndebug>(
+                content, begin + offset)) != ::pltxt2htm::details::u8string_view_index<ndebug>(expected, offset)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr bool syntax_is_html_raw_text_closer(::fast_io::u8string_view const content, ::std::size_t const index,
+                                              bool const script_tag) noexcept {
+    if (::pltxt2htm::details::syntax_has_prefix_at<ndebug>(content, index, u8"</") == false) {
+        return false;
+    }
+    ::std::size_t const name_begin{index + 2};
+    ::std::size_t const name_end{name_begin + (script_tag ? 6u : 5u)};
+    if (name_end >= content.size()) {
+        return false;
+    }
+    bool const name_matches{
+        script_tag ? ::pltxt2htm::details::syntax_markup_name_equals<ndebug>(content, name_begin, name_end, u8"script")
+                   : ::pltxt2htm::details::syntax_markup_name_equals<ndebug>(content, name_begin, name_end, u8"style")};
+    if (name_matches == false) {
+        return false;
+    }
+    char8_t const boundary{::pltxt2htm::details::u8string_view_index<ndebug>(content, name_end)};
+    return boundary == u8'>' || boundary == u8' ' || boundary == u8'\t' || boundary == u8'\r' || boundary == u8'\n';
+}
+
 template<::pltxt2htm::Contracts ndebug>
 constexpr void append_code_syntax_view(::fast_io::u8string_view const content, ::std::size_t const begin,
                                        ::std::size_t const end, ::pltxt2htm::Ast<ndebug>& ast) noexcept {
@@ -1298,7 +1344,8 @@ constexpr void append_colored_code_syntax_view(::fast_io::u8string_view const co
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto parse_markup_code_syntax(::fast_io::u8string_view const content) noexcept -> ::pltxt2htm::Ast<ndebug> {
+constexpr auto parse_markup_code_syntax(::fast_io::u8string_view const content, SyntaxLanguage const language) noexcept
+    -> ::pltxt2htm::Ast<ndebug> {
     ::pltxt2htm::Ast<ndebug> ast{};
     ast.reserve(content.size());
     ::std::size_t index{};
@@ -1371,7 +1418,9 @@ constexpr auto parse_markup_code_syntax(::fast_io::u8string_view const content) 
         }
 
         ++index;
+        bool closing_tag{};
         if (index != content.size() && ::pltxt2htm::details::u8string_view_index<ndebug>(content, index) == u8'/') {
+            closing_tag = true;
             ++index;
         }
         ::std::size_t const tag_begin{index};
@@ -1387,8 +1436,15 @@ constexpr auto parse_markup_code_syntax(::fast_io::u8string_view const content) 
         ::pltxt2htm::details::append_colored_code_syntax_view<ndebug>(content, tag_begin, index,
                                                                       SyntaxTokenKind::keyword, ast);
         plain_begin = index;
+        bool const script_tag{
+            language == SyntaxLanguage::html && closing_tag == false &&
+            ::pltxt2htm::details::syntax_markup_name_equals<ndebug>(content, tag_begin, index, u8"script")};
+        bool const style_tag{
+            language == SyntaxLanguage::html && closing_tag == false &&
+            ::pltxt2htm::details::syntax_markup_name_equals<ndebug>(content, tag_begin, index, u8"style")};
 
         bool value_expected{};
+        char8_t last_non_space{};
         while (index != content.size()) {
             char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(content, index)};
             if (chr == u8'>') {
@@ -1397,6 +1453,7 @@ constexpr auto parse_markup_code_syntax(::fast_io::u8string_view const content) 
             }
             if (chr == u8'=') {
                 value_expected = true;
+                last_non_space = chr;
                 ++index;
                 continue;
             }
@@ -1410,6 +1467,7 @@ constexpr auto parse_markup_code_syntax(::fast_io::u8string_view const content) 
                                                                               SyntaxTokenKind::string, ast);
                 plain_begin = index;
                 value_expected = false;
+                last_non_space = chr;
                 continue;
             }
             if (::pltxt2htm::details::syntax_is_markup_name_start(chr)) {
@@ -1425,12 +1483,22 @@ constexpr auto parse_markup_code_syntax(::fast_io::u8string_view const content) 
                     ast);
                 plain_begin = index;
                 value_expected = false;
+                last_non_space = ::pltxt2htm::details::u8string_view_index<ndebug>(content, index - 1);
                 continue;
+            }
+            if (chr != u8' ' && chr != u8'\t' && chr != u8'\r' && chr != u8'\n') {
+                last_non_space = chr;
             }
             ++index;
         }
         ::pltxt2htm::details::append_code_syntax_view<ndebug>(content, plain_begin, index, ast);
         plain_begin = index;
+        if (last_non_space != u8'/' && (script_tag || style_tag)) {
+            while (index != content.size() &&
+                   ::pltxt2htm::details::syntax_is_html_raw_text_closer<ndebug>(content, index, script_tag) == false) {
+                ++index;
+            }
+        }
     }
     ::pltxt2htm::details::append_code_syntax_view<ndebug>(content, plain_begin, content.size(), ast);
     return ast;
@@ -1456,7 +1524,7 @@ constexpr auto parse_code_fence_syntax(::fast_io::u8string_view const content, S
     case SyntaxLanguage::go:
         return ::pltxt2htm::details::parse_c_style_code_syntax<ndebug>(content, language);
     case SyntaxLanguage::html:
-        return ::pltxt2htm::details::parse_markup_code_syntax<ndebug>(content);
+        return ::pltxt2htm::details::parse_markup_code_syntax<ndebug>(content, language);
     case SyntaxLanguage::java:
         return ::pltxt2htm::details::parse_c_style_code_syntax<ndebug>(content, language);
     case SyntaxLanguage::javascript:
@@ -1478,7 +1546,7 @@ constexpr auto parse_code_fence_syntax(::fast_io::u8string_view const content, S
     case SyntaxLanguage::typescript:
         return ::pltxt2htm::details::parse_c_style_code_syntax<ndebug>(content, language);
     case SyntaxLanguage::xml:
-        return ::pltxt2htm::details::parse_markup_code_syntax<ndebug>(content);
+        return ::pltxt2htm::details::parse_markup_code_syntax<ndebug>(content, language);
     case SyntaxLanguage::yaml:
         return ::pltxt2htm::details::parse_data_script_code_syntax<ndebug>(content, language);
     }

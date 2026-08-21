@@ -678,6 +678,18 @@ print("Hello World")
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    // HTML raw-text elements do not treat less-than operators in their contents as tags.
+    {
+        auto const html = ::pltxt2htm_test::pltxt4unittest(
+            u8"```html\n<script>if (a<b) value</script><style>.x{width:1<2}</style>\n```");
+        auto const answer = ::fast_io::u8string_view{
+            u8"<pre><code>&lt;<span style=\"color:#cf222e;\">script</span>&gt;if&nbsp;(a&lt;b)&nbsp;value&lt;/<span "
+            u8"style=\"color:#cf222e;\">script</span>&gt;&lt;<span "
+            u8"style=\"color:#cf222e;\">style</span>&gt;.x{width:1&lt;2}"
+            u8"&lt;/<span style=\"color:#cf222e;\">style</span>&gt;</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     {
         auto const pltext =
             ::fast_io::u8string_view{u8"```xml\n<?xml version=\"1.0\"?><svg viewBox=\"0 0\"><path /></svg>\n```"};
