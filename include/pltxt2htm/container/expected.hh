@@ -154,17 +154,31 @@ public:
         return self;
     }
 
-    template<::pltxt2htm::container::is_unexpected T>
-    constexpr auto&& operator=(this expected<Ok, Fail>& self, T const& fail) noexcept {
-        self.has_value_ = false;
-        self.fail_ = fail.val_;
+    constexpr auto&& operator=(this expected<Ok, Fail>& self, unexpected_type const& fail) noexcept
+        requires (::std::is_copy_assignable_v<error_type> && ::std::is_copy_constructible_v<error_type>)
+    {
+        if (self.has_value()) {
+            ::std::destroy_at(::std::addressof(self.ok_));
+            ::std::construct_at(::std::addressof(self.fail_), fail.val_);
+            self.has_value_ = false;
+        }
+        else {
+            self.fail_ = fail.val_;
+        }
         return self;
     }
 
-    template<::pltxt2htm::container::is_unexpected T>
-    constexpr auto&& operator=(this expected<Ok, Fail>& self, T&& fail) noexcept {
-        self.has_value_ = false;
-        self.fail_ = ::std::move(fail.val_);
+    constexpr auto&& operator=(this expected<Ok, Fail>& self, unexpected_type&& fail) noexcept
+        requires (::std::is_move_assignable_v<error_type> && ::std::is_move_constructible_v<error_type>)
+    {
+        if (self.has_value()) {
+            ::std::destroy_at(::std::addressof(self.ok_));
+            ::std::construct_at(::std::addressof(self.fail_), ::std::move(fail.val_));
+            self.has_value_ = false;
+        }
+        else {
+            self.fail_ = ::std::move(fail.val_);
+        }
         return self;
     }
 
@@ -180,10 +194,13 @@ public:
         return self;
     }
 
-    template<typename T>
-        requires (::std::same_as<::std::remove_cvref_t<T>, expected<Ok, Fail>> && ::std::is_move_assignable_v<Ok> &&
-                  ::std::is_move_assignable_v<Fail>)
-    constexpr void swap(this expected<Ok, Fail>& self, T&& other) noexcept {
+    constexpr void swap(this expected<Ok, Fail>& self, expected<Ok, Fail>& other) noexcept
+        requires (::std::is_move_assignable_v<value_type> && ::std::is_move_assignable_v<error_type> &&
+                  ::std::is_move_constructible_v<value_type> && ::std::is_move_constructible_v<error_type>)
+    {
+        if (::std::addressof(self) == ::std::addressof(other)) {
+            return;
+        }
         if (self.has_value()) {
             if (other.has_value()) {
                 Ok tmp{::std::move(self.ok_)};
@@ -192,8 +209,10 @@ public:
             }
             else {
                 Ok tmp{::std::move(self.ok_)};
-                self.fail_ = ::std::move(other.fail_);
-                other.ok_ = ::std::move(tmp);
+                ::std::destroy_at(::std::addressof(self.ok_));
+                ::std::construct_at(::std::addressof(self.fail_), ::std::move(other.fail_));
+                ::std::destroy_at(::std::addressof(other.fail_));
+                ::std::construct_at(::std::addressof(other.ok_), ::std::move(tmp));
                 self.has_value_ = false;
                 other.has_value_ = true;
             }
@@ -201,8 +220,10 @@ public:
         else {
             if (other.has_value()) {
                 Fail tmp{::std::move(self.fail_)};
-                self.ok_ = ::std::move(other.ok_);
-                other.fail_ = ::std::move(tmp);
+                ::std::destroy_at(::std::addressof(self.fail_));
+                ::std::construct_at(::std::addressof(self.ok_), ::std::move(other.ok_));
+                ::std::destroy_at(::std::addressof(other.ok_));
+                ::std::construct_at(::std::addressof(other.fail_), ::std::move(tmp));
                 self.has_value_ = true;
                 other.has_value_ = false;
             }
@@ -215,13 +236,8 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto&& has_value(this expected<Ok, Fail> const& self) noexcept {
+    constexpr auto has_value(this expected<Ok, Fail> const& self) noexcept -> bool {
         return self.has_value_;
-    }
-
-    [[nodiscard]]
-    constexpr auto&& has_value(this expected<Ok, Fail> const&& self) noexcept {
-        return ::std::move(self.has_value_);
     }
 
     /**
@@ -230,7 +246,7 @@ public:
      */
     template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
-    constexpr auto&& value(this auto&& self) noexcept {
+    constexpr auto value(this auto&& self) noexcept -> decltype(auto) {
         pltxt2htm_assert(self.has_value(), u8"expected does not contain a value");
         return ::std::forward_like<decltype(self)>(self.ok_);
     }
@@ -240,7 +256,7 @@ public:
      */
     template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
-    constexpr auto&& error(this auto&& self) noexcept {
+    constexpr auto error(this auto&& self) noexcept -> decltype(auto) {
         pltxt2htm_assert(self.has_value() == false, u8"expected does not contain an error");
         return ::std::forward_like<decltype(self)>(self.fail_);
     }
