@@ -633,6 +633,17 @@ print("Hello World")
         pltxt2htm_test_assert_equal(reparsed, html);
     }
 
+    // Plain text between adjacent markup tags is emitted exactly once.
+    {
+        auto const html = ::pltxt2htm_test::pltxt4unittest(u8"```html\n<div>Hello<span>world</span></div>\n```");
+        auto const answer = ::fast_io::u8string_view{
+            u8"<pre><code>&lt;<span style=\"color:#cf222e;\">div</span>&gt;Hello&lt;<span "
+            u8"style=\"color:#cf222e;\">span</span>&gt;world&lt;/<span "
+            u8"style=\"color:#cf222e;\">span</span>&gt;&lt;/<span "
+            u8"style=\"color:#cf222e;\">div</span>&gt;</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     {
         auto const pltext =
             ::fast_io::u8string_view{u8"```xml\n<?xml version=\"1.0\"?><svg viewBox=\"0 0\"><path /></svg>\n```"};

@@ -1273,6 +1273,7 @@ constexpr auto parse_markup_code_syntax(::fast_io::u8string_view const content) 
         }
         ::std::size_t const markup_begin{index};
         ::pltxt2htm::details::append_code_syntax_view<ndebug>(content, plain_begin, index, ast);
+        plain_begin = markup_begin;
 
         if (::pltxt2htm::details::syntax_has_prefix_at<ndebug>(content, index, u8"<!--")) {
             ::std::size_t const token_begin{index};
