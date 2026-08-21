@@ -1528,190 +1528,88 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_equal_sign_tag_id(this auto&& self) noexcept -> decltype(auto) {
-        auto&& context_data_ref = self.context_data;
-        return ::std::forward_like<decltype(self)>(context_data_ref.as_equal_sign_tag().id);
+    constexpr auto as_pltext(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.context_data).as_pltext();
     }
 
     [[nodiscard]]
-    constexpr auto get_external_tag_url(this auto&& self) noexcept -> decltype(auto) {
-        auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.get_kind() == ::pltxt2htm::NodeKind::pl_external, u8"context kind mismatch");
-        return ::std::forward_like<decltype(self)>(context_data_ref.as_url_info().url);
+    constexpr auto as_equal_sign_tag(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.context_data).as_equal_sign_tag();
     }
 
     [[nodiscard]]
-    constexpr auto get_link_tag_url(this auto&& self) noexcept -> decltype(auto) {
-        auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.get_kind() == ::pltxt2htm::NodeKind::pl_link, u8"context kind mismatch");
-        return ::std::forward_like<decltype(self)>(context_data_ref.as_url_info().url);
+    constexpr auto as_html_span_info(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.context_data).as_html_span_info();
     }
 
     [[nodiscard]]
-    constexpr auto get_pl_size_tag_value(this ParserFrameContext<ndebug> const& self) noexcept
-        -> ::pltxt2htm::ValueWithUnit<double> {
-        auto&& context_data_ref = self.context_data;
-        return context_data_ref.as_pl_size_tag().value;
+    constexpr auto as_html_div_info(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.context_data).as_html_div_info();
     }
 
     [[nodiscard]]
-    constexpr auto get_pl_voffset_tag_value(this ParserFrameContext<ndebug> const& self) noexcept
-        -> ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> {
-        auto&& context_data_ref = self.context_data;
-        return context_data_ref.as_pl_voffset_tag().value;
+    constexpr auto as_html_mark_info(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.context_data).as_html_mark_info();
     }
 
     [[nodiscard]]
-    constexpr auto get_pl_margin_tag_left(this ParserFrameContext<ndebug> const& self) noexcept
-        -> ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
-        auto&& context_data_ref = self.context_data;
-        return context_data_ref.as_pl_margin_tag().left;
+    constexpr auto as_pl_mark_info(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.context_data).as_pl_mark_info();
     }
 
     [[nodiscard]]
-    constexpr auto get_pl_margin_tag_right(this ParserFrameContext<ndebug> const& self) noexcept
-        -> ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
-        auto&& context_data_ref = self.context_data;
-        return context_data_ref.as_pl_margin_tag().right;
+    constexpr auto as_url_info(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.context_data).as_url_info();
     }
 
     [[nodiscard]]
-    constexpr auto get_html_div_left(this ParserFrameContext<ndebug> const& self) noexcept
-        -> ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
-        auto&& context_data_ref = self.context_data;
-        return context_data_ref.as_html_div_info().left;
+    constexpr auto as_html_a_tag_info(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.context_data).as_html_a_tag_info();
     }
 
     [[nodiscard]]
-    constexpr auto get_html_div_right(this ParserFrameContext<ndebug> const& self) noexcept
-        -> ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
-        auto&& context_data_ref = self.context_data;
-        return context_data_ref.as_html_div_info().right;
+    constexpr auto as_pl_size_tag(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.context_data).as_pl_size_tag();
     }
 
     [[nodiscard]]
-    constexpr auto get_align(this ParserFrameContext<ndebug> const& self) noexcept -> ::pltxt2htm::TextAlign {
-        auto&& context_data_ref = self.context_data;
-        return context_data_ref.as_align_info().align;
+    constexpr auto as_pl_voffset_tag(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.context_data).as_pl_voffset_tag();
     }
 
     [[nodiscard]]
-    constexpr auto get_html_span_color(this auto&& self) noexcept -> decltype(auto) {
-        auto&& context_data_ref = self.context_data;
-        return ::std::forward_like<decltype(self)>(context_data_ref.as_html_span_info().color);
+    constexpr auto as_pl_margin_tag(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.context_data).as_pl_margin_tag();
     }
 
     [[nodiscard]]
-    constexpr auto get_html_span_font_size(this ParserFrameContext<ndebug> const& self) noexcept
-        -> ::exception::optional<::pltxt2htm::ValueWithUnit<double>> {
-        auto&& context_data_ref = self.context_data;
-        return context_data_ref.as_html_span_info().font_size;
+    constexpr auto as_md_block_quotes(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.context_data).as_md_block_quotes();
     }
 
     [[nodiscard]]
-    constexpr auto get_html_span_vertical_align(this ParserFrameContext<ndebug> const& self) noexcept
-        -> ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> {
-        auto&& context_data_ref = self.context_data;
-        return context_data_ref.as_html_span_info().vertical_align;
+    constexpr auto as_list_info(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.context_data).as_list_info();
     }
 
     [[nodiscard]]
-    constexpr auto get_html_mark_background_color(this auto&& self) noexcept -> decltype(auto) {
-        auto&& context_data_ref = self.context_data;
-        return ::std::forward_like<decltype(self)>(context_data_ref.as_html_mark_info().background_color);
+    constexpr auto as_cell(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.context_data).as_cell();
     }
 
     [[nodiscard]]
-    constexpr auto get_pl_mark_background_color(this auto&& self) noexcept -> decltype(auto) {
-        auto&& context_data_ref = self.context_data;
-        return ::std::forward_like<decltype(self)>(context_data_ref.as_pl_mark_info().background_color);
+    constexpr auto as_align_info(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.context_data).as_align_info();
     }
 
     [[nodiscard]]
-    constexpr auto get_html_a_url(this auto&& self) noexcept -> decltype(auto) {
-        auto&& context_data_ref = self.context_data;
-        return ::std::forward_like<decltype(self)>(context_data_ref.as_html_a_tag_info().url);
+    constexpr auto as_list_li_checkbox(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.context_data).as_list_li_checkbox();
     }
 
     [[nodiscard]]
-    constexpr auto get_html_a_internal(this ParserFrameContext<ndebug> const& self) noexcept -> bool {
-        auto&& context_data_ref = self.context_data;
-        return context_data_ref.as_html_a_tag_info().internal;
-    }
-
-    [[nodiscard]]
-    constexpr auto get_md_link_url(this auto&& self) noexcept -> decltype(auto) {
-        auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.get_kind() == ::pltxt2htm::NodeKind::md_link, u8"context kind mismatch");
-        return ::std::forward_like<decltype(self)>(context_data_ref.as_url_info().url);
-    }
-
-    [[nodiscard]]
-    constexpr auto get_list_ast(this auto&& self) noexcept -> decltype(auto) {
-        auto&& context_data_ref = self.context_data;
-        return ::std::forward_like<decltype(self)>(context_data_ref.as_list_info().list_ast);
-    }
-
-    [[nodiscard]]
-    constexpr auto get_list_iter(this auto&& self) noexcept -> decltype(auto) {
-        auto&& context_data_ref = self.context_data;
-        return ::std::forward_like<decltype(self)>(context_data_ref.as_list_info().iter);
-    }
-
-    [[nodiscard]]
-    constexpr auto get_list_start(this auto const& self) noexcept -> ::std::size_t {
-        auto&& context_data_ref = self.context_data;
-        return context_data_ref.as_list_info().list_start;
-    }
-
-    [[nodiscard]]
-    constexpr auto get_table_raw_ast(this auto&& self) noexcept -> decltype(auto) {
-        auto&& context_data_ref = self.context_data;
-        return ::std::forward_like<decltype(self)>(context_data_ref.as_table().raw_ast);
-    }
-
-    [[nodiscard]]
-    constexpr auto get_table_state(this auto const& self) noexcept -> TableParsePhase {
-        auto&& context_data_ref = self.context_data;
-        return context_data_ref.as_table().state;
-    }
-
-    [[nodiscard]]
-    constexpr auto get_table_row_index(this auto const& self) noexcept -> ::std::size_t {
-        auto&& context_data_ref = self.context_data;
-        return context_data_ref.as_table().row_index;
-    }
-
-    [[nodiscard]]
-    constexpr auto get_table_cell_index(this auto const& self) noexcept -> ::std::size_t {
-        auto&& context_data_ref = self.context_data;
-        return context_data_ref.as_table().cell_index;
-    }
-
-    constexpr auto set_table_state(this ParserFrameContext<ndebug>& self, TableParsePhase s) noexcept -> void {
-        auto&& context_data_ref = self.context_data;
-        context_data_ref.as_table().state = s;
-    }
-
-    constexpr auto set_table_row_index(this ParserFrameContext<ndebug>& self, ::std::size_t r) noexcept -> void {
-        auto&& context_data_ref = self.context_data;
-        context_data_ref.as_table().row_index = r;
-    }
-
-    constexpr auto set_table_cell_index(this ParserFrameContext<ndebug>& self, ::std::size_t c) noexcept -> void {
-        auto&& context_data_ref = self.context_data;
-        context_data_ref.as_table().cell_index = c;
-    }
-
-    [[nodiscard]]
-    constexpr auto get_cell_align(this ParserFrameContext<ndebug> const& self) noexcept -> ::pltxt2htm::TableAlign {
-        auto&& context_data_ref = self.context_data;
-        return context_data_ref.as_cell().align;
-    }
-
-    [[nodiscard]]
-    constexpr auto get_checked(this ParserFrameContext<ndebug> const& self) noexcept -> bool {
-        return self.context_data.as_list_li_checkbox().checked;
+    constexpr auto as_table(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.context_data).as_table();
     }
 };
 
@@ -1766,10 +1664,10 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr auto process_table_frame(::fast_io::stack<ParserFrameContext<ndebug>>& call_stack) noexcept
     -> ::exception::optional<::pltxt2htm::Ast<ndebug>> {
     auto&& frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
-    auto&& raw_ast = frame.get_table_raw_ast();
-    auto const state = frame.get_table_state();
-    auto const row_index = frame.get_table_row_index();
-    auto const cell_index = frame.get_table_cell_index();
+    auto&& raw_ast = frame.as_table().raw_ast;
+    auto const state = frame.as_table().state;
+    auto const row_index = frame.as_table().row_index;
+    auto const cell_index = frame.as_table().cell_index;
 
     switch (state) /* -Werror=switch */ {
     case TableParsePhase::caption: {
@@ -1779,7 +1677,7 @@ constexpr auto process_table_frame(::fast_io::stack<ParserFrameContext<ndebug>>&
                                                ::pltxt2htm::NodeKind::table_caption},
                 ::pltxt2htm::Ast<ndebug>{}));
         }
-        frame.set_table_state(TableParsePhase::body);
+        frame.as_table().state = TableParsePhase::body;
         return ::exception::nullopt;
     }
     case TableParsePhase::body: {
@@ -1793,14 +1691,14 @@ constexpr auto process_table_frame(::fast_io::stack<ParserFrameContext<ndebug>>&
                                                        cell.align},
                         cell.is_header ? ::pltxt2htm::NodeKind::table_th : ::pltxt2htm::NodeKind::table_td},
                     ::pltxt2htm::Ast<ndebug>{}));
-                frame.set_table_cell_index(cell_index + 1);
+                frame.as_table().cell_index = cell_index + 1;
                 return ::exception::nullopt;
             }
-            frame.set_table_row_index(row_index + 1);
-            frame.set_table_cell_index(0);
+            frame.as_table().row_index = row_index + 1;
+            frame.as_table().cell_index = 0;
             return ::exception::nullopt;
         }
-        frame.set_table_state(TableParsePhase::finish);
+        frame.as_table().state = TableParsePhase::finish;
         return ::exception::nullopt;
     }
     case TableParsePhase::finish: {
@@ -1808,7 +1706,7 @@ constexpr auto process_table_frame(::fast_io::stack<ParserFrameContext<ndebug>>&
         call_stack.pop();
 
         ::pltxt2htm::Ast<ndebug> flat_ast = ::std::move(previous_frame.subast);
-        auto&& prev_raw_ast = previous_frame.get_table_raw_ast();
+        auto&& prev_raw_ast = previous_frame.as_table().raw_ast;
         ::pltxt2htm::Ast<ndebug> table_ast{};
         ::std::size_t cell_cursor{};
 

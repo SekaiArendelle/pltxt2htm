@@ -187,18 +187,23 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_html_span_info(this auto const& self) noexcept -> BackendContextWithHtmlSpanInfo {
-        return self.context_data.as_html_span_info();
+    constexpr auto as_without_info(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.context_data).as_without_info();
     }
 
     [[nodiscard]]
-    constexpr auto get_align_info(this auto const& self) noexcept -> BackendContextWithAlignInfo {
-        return self.context_data.as_align_info();
+    constexpr auto as_ol_info(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.context_data).as_ol_info();
     }
 
     [[nodiscard]]
-    constexpr auto get_ol_li_count(this BackendFrameContext<ndebug>& self) noexcept -> ::std::size_t& {
-        return self.context_data.as_ol_info().ol_li_count;
+    constexpr auto as_html_span_info(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.context_data).as_html_span_info();
+    }
+
+    [[nodiscard]]
+    constexpr auto as_align_info(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.context_data).as_align_info();
     }
 };
 
