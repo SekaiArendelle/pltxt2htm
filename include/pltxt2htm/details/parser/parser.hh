@@ -1411,7 +1411,7 @@ entry:
                     switch (frame.get_nested_tag_type()) /* -Werror=switch */ {
                     case ::pltxt2htm::NodeKind::pl_color: {
                         // parsing </color> or </a>
-                        ::pltxt2htm::container::optional<::std::size_t> opt_tag_len{
+                        ::pltxt2htm::container::Optional<::std::size_t> opt_tag_len{
                             ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"color">(
                                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2))};
                         if (opt_tag_len.has_value() == false) {
@@ -1435,7 +1435,7 @@ entry:
                     }
                     case ::pltxt2htm::NodeKind::pl_a: {
                         // parsing </color> or </a>
-                        ::pltxt2htm::container::optional<::std::size_t> opt_tag_len{
+                        ::pltxt2htm::container::Optional<::std::size_t> opt_tag_len{
                             ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"color">(
                                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2))};
                         if (opt_tag_len.has_value() == false) {

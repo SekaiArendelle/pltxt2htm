@@ -324,8 +324,8 @@ constexpr auto ::pltxt2htm::HtmlBlockquote<ndebug>::operator==(this HtmlBlockquo
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::HtmlSpan<ndebug>::HtmlSpan(
     ::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& color_,
-    ::pltxt2htm::container::optional<::pltxt2htm::ValueWithUnit<double>> font_size_,
-    ::pltxt2htm::container::optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align_) noexcept
+    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size_,
+    ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align_) noexcept
     : subast(::std::move(subast_)),
       color(::std::move(color_)),
       font_size(font_size_),
@@ -373,8 +373,8 @@ constexpr auto ::pltxt2htm::HtmlA<ndebug>::operator==(this HtmlA<ndebug> const&,
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::HtmlDiv<ndebug>::HtmlDiv(
     ::pltxt2htm::Ast<ndebug>&& subast_,
-    ::pltxt2htm::container::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left_,
-    ::pltxt2htm::container::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right_) noexcept
+    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left_,
+    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right_) noexcept
     : subast(::std::move(subast_)),
       left(left_),
       right(right_) {

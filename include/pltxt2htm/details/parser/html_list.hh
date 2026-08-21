@@ -46,7 +46,7 @@ struct ToHtmlListAstResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto optionally_to_html_list_ast(::fast_io::u8string_view pltext) noexcept
-    -> ::pltxt2htm::container::optional<ToHtmlListAstResult<ndebug>> {
+    -> ::pltxt2htm::container::Optional<ToHtmlListAstResult<ndebug>> {
     ::pltxt2htm::NodeKind item_kind{};
     ::std::size_t start{1};
     ::std::size_t current_index{};

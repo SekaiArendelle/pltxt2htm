@@ -339,7 +339,7 @@ struct TryParseSizeTDecimalValueResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_size_t_decimal_value(::fast_io::u8string_view str) noexcept
-    -> ::pltxt2htm::container::optional<TryParseSizeTDecimalValueResult> {
+    -> ::pltxt2htm::container::Optional<TryParseSizeTDecimalValueResult> {
     ::std::size_t const str_size{str.size()};
     ::std::size_t parsed_value{};
     auto pos = ::std::size_t{0};
@@ -411,7 +411,7 @@ struct TryParsePtrdiffTDecimalValueResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_ptrdiff_t_decimal_value(::fast_io::u8string_view str) noexcept
-    -> ::pltxt2htm::container::optional<TryParsePtrdiffTDecimalValueResult> {
+    -> ::pltxt2htm::container::Optional<TryParsePtrdiffTDecimalValueResult> {
     using unsigned_type = ::std::make_unsigned_t<::std::ptrdiff_t>;
 
     ::std::size_t const str_size{str.size()};
@@ -475,7 +475,7 @@ struct TryParseDoubleDecimalValueResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_double_decimal_value(::fast_io::u8string_view str) noexcept
-    -> ::pltxt2htm::container::optional<TryParseDoubleDecimalValueResult> {
+    -> ::pltxt2htm::container::Optional<TryParseDoubleDecimalValueResult> {
     ::std::size_t const str_size{str.size()};
     double parsed_value{};
     auto pos = ::std::size_t{0};

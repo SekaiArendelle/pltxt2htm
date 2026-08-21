@@ -334,8 +334,8 @@ constexpr auto ::pltxt2htm::PlMark<ndebug>::operator==(this PlMark<ndebug> const
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::PlMargin<ndebug>::PlMargin(
     ::pltxt2htm::Ast<ndebug>&& subast_,
-    ::pltxt2htm::container::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left_,
-    ::pltxt2htm::container::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right_) noexcept
+    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left_,
+    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right_) noexcept
     : subast(::std::move(subast_)),
       left(left_),
       right(right_) {

@@ -65,8 +65,8 @@ class ParserFrameContextWithHtmlSpanInfo {
 public:
     ::fast_io::u8string_view pltext;
     ::fast_io::u8string color;
-    ::pltxt2htm::container::optional<::pltxt2htm::ValueWithUnit<double>> font_size;
-    ::pltxt2htm::container::optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align;
+    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size;
+    ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align;
 };
 
 /**
@@ -122,8 +122,8 @@ public:
 class ParserFrameContextWithPlMarginTagInfo {
 public:
     ::fast_io::u8string_view pltext;
-    ::pltxt2htm::container::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left;
-    ::pltxt2htm::container::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right;
+    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left;
+    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right;
 };
 
 /**
@@ -132,8 +132,8 @@ public:
 class ParserFrameContextWithHtmlDivInfo {
 public:
     ::fast_io::u8string_view pltext;
-    ::pltxt2htm::container::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left;
-    ::pltxt2htm::container::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right;
+    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left;
+    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right;
 };
 
 /**
@@ -1662,7 +1662,7 @@ constexpr void push_list_frame(::fast_io::stack<ParserFrameContext<ndebug>>& cal
  */
 template<::pltxt2htm::Contracts ndebug>
 constexpr auto process_table_frame(::fast_io::stack<ParserFrameContext<ndebug>>& call_stack) noexcept
-    -> ::pltxt2htm::container::optional<::pltxt2htm::Ast<ndebug>> {
+    -> ::pltxt2htm::container::Optional<::pltxt2htm::Ast<ndebug>> {
     auto&& frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
     auto&& raw_ast = frame.as_table().raw_ast;
     auto const state = frame.as_table().state;

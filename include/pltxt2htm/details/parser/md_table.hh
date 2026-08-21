@@ -43,7 +43,7 @@ struct TryParseMdTableRowResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_table_row(::fast_io::u8string_view pltext) noexcept
-    -> ::pltxt2htm::container::optional<TryParseMdTableRowResult> {
+    -> ::pltxt2htm::container::Optional<TryParseMdTableRowResult> {
     if (pltext.empty()) {
         return ::pltxt2htm::container::nullopt;
     }
@@ -139,7 +139,7 @@ constexpr auto try_parse_md_table_row(::fast_io::u8string_view pltext) noexcept
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_table_align(::fast_io::u8string_view cell) noexcept
-    -> ::pltxt2htm::container::optional<::pltxt2htm::TableAlign> {
+    -> ::pltxt2htm::container::Optional<::pltxt2htm::TableAlign> {
     if (cell.empty()) {
         return ::pltxt2htm::container::nullopt;
     }
@@ -205,7 +205,7 @@ struct TryParseMdTableRawResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_table_raw(::fast_io::u8string_view pltext) noexcept
-    -> ::pltxt2htm::container::optional<TryParseMdTableRawResult<ndebug>> {
+    -> ::pltxt2htm::container::Optional<TryParseMdTableRawResult<ndebug>> {
     ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t current_index{};
 

@@ -67,7 +67,7 @@ struct TryCaptureUntilTagResult {
 template<::pltxt2htm::Contracts ndebug, U8LiteralString close_tag>
 [[nodiscard]]
 constexpr auto try_capture_until_tag(::fast_io::u8string_view pltext) noexcept
-    -> ::pltxt2htm::container::optional<TryCaptureUntilTagResult<ndebug>> {
+    -> ::pltxt2htm::container::Optional<TryCaptureUntilTagResult<ndebug>> {
     ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t current_index{};
     ::fast_io::u8string text{};
@@ -108,7 +108,7 @@ constexpr auto trim_table_content(::fast_io::u8string& text) noexcept -> void {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noexcept
-    -> ::pltxt2htm::container::optional<ToHtmlTableAstResult<ndebug>> {
+    -> ::pltxt2htm::container::Optional<ToHtmlTableAstResult<ndebug>> {
     ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t current_index{};
 

@@ -8,10 +8,10 @@ export namespace pltxt2htm {
 
 namespace container {
 
-using ::pltxt2htm::container::expected;
-using ::pltxt2htm::container::unexpected;
-using ::pltxt2htm::container::optional;
-using ::pltxt2htm::container::nullopt_t;
+using ::pltxt2htm::container::Expected;
+using ::pltxt2htm::container::Unexpected;
+using ::pltxt2htm::container::Optional;
+using ::pltxt2htm::container::NulloptType;
 using ::pltxt2htm::container::nullopt;
 using ::pltxt2htm::container::is_expected;
 using ::pltxt2htm::container::is_unexpected;

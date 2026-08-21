@@ -179,8 +179,8 @@ inline auto build_html_span_ast(::std::size_t count) -> ::pltxt2htm::Ast<ndebug>
         sub.push_back(::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::U8Char{u8't'}});
         ast.push_back(::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::HtmlSpan<ndebug>{
             ::std::move(sub), ::fast_io::u8string{u8"color:red;font-size:16px"},
-            ::pltxt2htm::container::optional<::pltxt2htm::ValueWithUnit<double>>{::pltxt2htm::container::nullopt},
-            ::pltxt2htm::container::optional<::pltxt2htm::VerticalAlignValue<ndebug>>{
+            ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>>{::pltxt2htm::container::nullopt},
+            ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>>{
                 ::pltxt2htm::container::nullopt}}});
     }
     return ast;

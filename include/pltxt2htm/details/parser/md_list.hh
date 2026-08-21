@@ -117,7 +117,7 @@ struct PreviousItemInfo {
 template<::pltxt2htm::Contracts ndebug, MdUlListItemKind item_kind>
 [[nodiscard]]
 constexpr auto is_valid_md_ul_list_hierarchy(::fast_io::u8string_view pltext, ::std::size_t const space_hierarchy,
-                                             ::pltxt2htm::container::optional<PreviousItemInfo> const expect) noexcept
+                                             ::pltxt2htm::container::Optional<PreviousItemInfo> const expect) noexcept
     -> bool {
     if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, space_hierarchy) != static_cast<char8_t>(item_kind)) {
         return false;
@@ -172,8 +172,8 @@ constexpr auto is_valid_md_ul_list_hierarchy(::fast_io::u8string_view pltext, ::
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto is_valid_md_ol_list_hierarchy(::fast_io::u8string_view pltext, ::std::size_t const space_hierarchy,
-                                             ::pltxt2htm::container::optional<PreviousItemInfo> const expect) noexcept
-    -> ::pltxt2htm::container::optional<MdOlListMarkerResult> {
+                                             ::pltxt2htm::container::Optional<PreviousItemInfo> const expect) noexcept
+    -> ::pltxt2htm::container::Optional<MdOlListMarkerResult> {
     ::std::size_t const pltext_size{pltext.size()};
     if (pltext_size < 4) {
         return ::pltxt2htm::container::nullopt;
@@ -255,8 +255,8 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_item(
     ::fast_io::u8string_view pltext,
-    ::pltxt2htm::container::optional<PreviousItemInfo> const expect = ::pltxt2htm::container::nullopt) noexcept
-    -> ::pltxt2htm::container::optional<TryParseItemResult> {
+    ::pltxt2htm::container::Optional<PreviousItemInfo> const expect = ::pltxt2htm::container::nullopt) noexcept
+    -> ::pltxt2htm::container::Optional<TryParseItemResult> {
     ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t current_index{};
     // parsing spaces before - or + or *
@@ -391,7 +391,7 @@ constexpr auto to_top_list_node(ListAst<ndebug>&& items, MdUlListItemKind item_k
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexcept
-    -> ::pltxt2htm::container::optional<ToListAstResult<ndebug>> {
+    -> ::pltxt2htm::container::Optional<ToListAstResult<ndebug>> {
     ::fast_io::stack<MdListFrameContext<ndebug>> call_stack{};
 
     // manually managing stack to avoid stack-overflow

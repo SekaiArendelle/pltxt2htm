@@ -536,13 +536,13 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class PlMargin {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::pltxt2htm::container::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left;
-    ::pltxt2htm::container::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right;
+    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left;
+    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right;
 
 public:
     constexpr PlMargin(::pltxt2htm::Ast<ndebug>&& subast_,
-                       ::pltxt2htm::container::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left_,
-                       ::pltxt2htm::container::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right_) noexcept;
+                       ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left_,
+                       ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right_) noexcept;
     constexpr PlMargin(::pltxt2htm::PlMargin<ndebug> const&) noexcept;
     constexpr PlMargin(::pltxt2htm::PlMargin<ndebug>&&) noexcept;
     constexpr ~PlMargin() noexcept;
@@ -560,13 +560,13 @@ public:
 
     [[nodiscard]]
     constexpr auto get_left(this auto const& self) noexcept
-        -> ::pltxt2htm::container::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
+        -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
         return self.left;
     }
 
     [[nodiscard]]
     constexpr auto get_right(this auto const& self) noexcept
-        -> ::pltxt2htm::container::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
+        -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
         return self.right;
     }
 };

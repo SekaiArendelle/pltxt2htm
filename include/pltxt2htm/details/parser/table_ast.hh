@@ -65,7 +65,7 @@ struct TableRowRaw {
 template<::pltxt2htm::Contracts ndebug>
 class TableAstRaw {
     ::fast_io::vector<TableRowRaw> rows{};
-    ::pltxt2htm::container::optional<::fast_io::u8string> caption_text{::pltxt2htm::container::nullopt};
+    ::pltxt2htm::container::Optional<::fast_io::u8string> caption_text{::pltxt2htm::container::nullopt};
     ::std::size_t col_count{}; // <==> optional<non_zero_usize> col_count;
 
 public:

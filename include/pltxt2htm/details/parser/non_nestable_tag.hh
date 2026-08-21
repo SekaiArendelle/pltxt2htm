@@ -39,7 +39,7 @@ template<::pltxt2htm::Contracts ndebug, U8LiteralString prefix_str, auto value_c
 [[nodiscard]]
 constexpr auto try_parse_non_nestable_equal_sign_tag(
     ::fast_io::u8string_view pltext, ::fast_io::stack<ParserFrameContext<ndebug>> const& call_stack) noexcept
-    -> ::pltxt2htm::container::optional<TryParseEqualSignTagResult> {
+    -> ::pltxt2htm::container::Optional<TryParseEqualSignTagResult> {
     auto result = ::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, prefix_str, value_char_predicate>(pltext);
     if (result.has_value() == false) {
         return ::pltxt2htm::container::nullopt;
@@ -76,7 +76,7 @@ constexpr auto try_parse_non_nestable_equal_sign_tag(
  */
 struct TryParseExternalTagResult {
     ::std::size_t tag_len; ///< Opening-tag length in the input view (valid for valid/invalid_url).
-    ::pltxt2htm::container::optional<::pltxt2htm::Url> url; ///< Extracted URL; engaged only when valid.
+    ::pltxt2htm::container::Optional<::pltxt2htm::Url> url; ///< Extracted URL; engaged only when valid.
 
     constexpr TryParseExternalTagResult() noexcept
         : tag_len{},
@@ -164,7 +164,7 @@ constexpr auto try_parse_external_tag(::fast_io::u8string_view pltext,
  */
 struct TryParseLinkTagResult {
     ::std::size_t tag_len; ///< Opening-tag length in the input view (valid for valid/invalid_url).
-    ::pltxt2htm::container::optional<::pltxt2htm::Url> url; ///< Extracted URL; engaged only when valid.
+    ::pltxt2htm::container::Optional<::pltxt2htm::Url> url; ///< Extracted URL; engaged only when valid.
 
     constexpr TryParseLinkTagResult() noexcept
         : tag_len{},
