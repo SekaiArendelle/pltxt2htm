@@ -41,7 +41,7 @@ constexpr char8_t const* c_ptr_style_wrapper(Args&&... args) noexcept(
     auto result = static_cast<char8_t*>(::std::malloc(html.size() + 1));
     if (result == nullptr) [[unlikely]] {
         // bad alloc error should never be an exception or err-code
-        ::pltxt2htm::details::terminate();
+        ::pltxt2htm::details::trap();
     }
     ::std::memcpy(result, html.data(), html.size());
     result[html.size()] = u8'\0';
