@@ -5,7 +5,7 @@
 #include <type_traits>
 #include <concepts>
 
-#include <pltxt2htm/details/panic.hh>
+#include "../details/push_macro.hh"
 
 namespace pltxt2htm::container {
 
@@ -231,7 +231,7 @@ public:
     template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto&& value(this auto&& self) noexcept {
-        ::pltxt2htm::details::assert_true<ndebug>(self.has_value());
+        pltxt2htm_assert(self.has_value(), u8"expected does not contain a value");
         return ::std::forward_like<decltype(self)>(self.ok_);
     }
 
@@ -241,7 +241,7 @@ public:
     template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto&& error(this auto&& self) noexcept {
-        ::pltxt2htm::details::assert_false<ndebug>(self.has_value());
+        pltxt2htm_assert(self.has_value() == false, u8"expected does not contain an error");
         return ::std::forward_like<decltype(self)>(self.fail_);
     }
 
@@ -340,3 +340,5 @@ template<typename T>
 concept is_optional = details::is_optional_<::std::remove_cvref_t<T>>;
 
 } // namespace pltxt2htm::container
+
+#include "../details/pop_macro.hh"

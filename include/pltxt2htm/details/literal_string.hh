@@ -14,10 +14,9 @@
 #include <limits>
 #include <type_traits>
 #include <utility>
+#include "trap.hh"
 
 namespace pltxt2htm::details {
-
-[[noreturn]] inline void terminate() noexcept;
 
 template<typename, ::std::size_t>
 class BasicLiteralString;
@@ -184,5 +183,3 @@ consteval auto concat(Arg const& arg, Args const&... args) noexcept {
 }
 
 } // namespace pltxt2htm::details
-
-#include "panic.hh"

@@ -11,6 +11,7 @@
 #include <source_location>
 #include "../contracts.hh"
 #include "panic.hh"
+#include "trap.hh"
 
 #pragma push_macro("pltxt2htm_assume")
 #undef pltxt2htm_assume

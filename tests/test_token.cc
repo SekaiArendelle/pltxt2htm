@@ -1,7 +1,9 @@
 #include <concepts>
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
-#include <pltxt2htm/details/panic.hh>
+
+#include "precompile.hh"
+
 #include <pltxt2htm/ast/ast.hh>
 
 int main() {
@@ -16,14 +18,10 @@ int main() {
     arr.emplace_back(::pltxt2htm::PlDiscussion<::pltxt2htm::Contracts::quick_enforce>{
         ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::fast_io::u8string{u8"123"}});
 
-    ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(arr[0].get_node_kind() ==
-                                                                             ::pltxt2htm::NodeKind::u8char);
-    ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(arr[1].get_node_kind() ==
-                                                                             ::pltxt2htm::NodeKind::pl_color);
-    ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(arr[2].get_node_kind() ==
-                                                                             ::pltxt2htm::NodeKind::pl_experiment);
-    ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(arr[3].get_node_kind() ==
-                                                                             ::pltxt2htm::NodeKind::pl_discussion);
+    pltxt2htm_test_assert_true(arr[0].get_node_kind() == ::pltxt2htm::NodeKind::u8char);
+    pltxt2htm_test_assert_true(arr[1].get_node_kind() == ::pltxt2htm::NodeKind::pl_color);
+    pltxt2htm_test_assert_true(arr[2].get_node_kind() == ::pltxt2htm::NodeKind::pl_experiment);
+    pltxt2htm_test_assert_true(arr[3].get_node_kind() == ::pltxt2htm::NodeKind::pl_discussion);
 
     return 0;
 }

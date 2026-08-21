@@ -3,7 +3,7 @@
 #include <cstring>
 #include <cassert>
 #include <utility>
-#include <pltxt2htm/details/panic.hh>
+#include <pltxt2htm/details/trap.hh>
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
 #include <fast_io/fast_io.h>

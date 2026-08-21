@@ -14,7 +14,7 @@
 #include <cstdint>
 #include <fast_io/fast_io.h>
 #include <fast_io/fast_io_dsal/string_view.h>
-#include <pltxt2htm/details/panic.hh>
+#include <pltxt2htm/details/trap.hh>
 #include <pltxt2htm/pltxt2htm.hh>
 #include <pltxt2htm/experimental/html_parser.hh>
 

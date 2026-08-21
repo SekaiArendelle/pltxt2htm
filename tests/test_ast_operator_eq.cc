@@ -1,3 +1,5 @@
+#include "precompile.hh"
+
 #include <pltxt2htm/ast/ast.hh>
 
 int main() {
@@ -7,66 +9,66 @@ int main() {
     {
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::LineBreak{});
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::LineBreak{});
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_true(a == b);
     }
     {
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Space{});
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Space{});
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_true(a == b);
     }
     {
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::HtmlBr{});
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::HtmlBr{});
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_true(a == b);
     }
     {
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::HtmlHr{});
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::HtmlHr{});
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_true(a == b);
     }
     {
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::TableCol{});
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::TableCol{});
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_true(a == b);
     }
     {
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdHr{});
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdHr{});
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_true(a == b);
     }
     {
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlMacroProject{});
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlMacroProject{});
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_true(a == b);
     }
     {
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::InvalidU8Char{});
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::InvalidU8Char{});
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_true(a == b);
     }
 
     // Different empty types should NOT be equal
     {
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::LineBreak{});
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Space{});
-        ::pltxt2htm::details::assert_false<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_false(a == b);
     }
     {
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::HtmlBr{});
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::HtmlHr{});
-        ::pltxt2htm::details::assert_false<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_false(a == b);
     }
 
     // U8Char with same/different values
     {
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::U8Char{u8'A'});
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::U8Char{u8'A'});
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_true(a == b);
     }
     {
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::U8Char{u8'A'});
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::U8Char{u8'B'});
-        ::pltxt2htm::details::assert_false<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_false(a == b);
     }
 
     // Text with empty sub-AST
@@ -77,7 +79,7 @@ int main() {
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(ast_a)));
         auto const b =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(ast_b)));
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_true(a == b);
     }
 
     // Text with non-empty sub-AST
@@ -94,7 +96,7 @@ int main() {
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(ast_a)));
         auto const b =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(ast_b)));
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_true(a == b);
     }
 
     // Text with different sub-AST content
@@ -111,7 +113,7 @@ int main() {
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(ast_a)));
         auto const b =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(ast_b)));
-        ::pltxt2htm::details::assert_false<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_false(a == b);
     }
 
     // Text with different sub-AST size
@@ -127,7 +129,7 @@ int main() {
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(ast_a)));
         auto const b =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(ast_b)));
-        ::pltxt2htm::details::assert_false<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_false(a == b);
     }
 
     // HtmlH1 with sub-AST
@@ -142,7 +144,7 @@ int main() {
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::HtmlH1<nd::quick_enforce>(::std::move(ast_a)));
         auto const b =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::HtmlH1<nd::quick_enforce>(::std::move(ast_b)));
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_true(a == b);
     }
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
@@ -155,7 +157,7 @@ int main() {
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::HtmlH1<nd::quick_enforce>(::std::move(ast_a)));
         auto const b =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::HtmlH1<nd::quick_enforce>(::std::move(ast_b)));
-        ::pltxt2htm::details::assert_false<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_false(a == b);
     }
 
     // HtmlBlockquote with nested sub-AST
@@ -176,7 +178,7 @@ int main() {
             ::pltxt2htm::HtmlBlockquote<nd::quick_enforce>(::std::move(outer_a)));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
             ::pltxt2htm::HtmlBlockquote<nd::quick_enforce>(::std::move(outer_b)));
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_true(a == b);
     }
 
     // CodeFence without language
@@ -193,7 +195,7 @@ int main() {
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::CodeFence<nd::quick_enforce>(
             ::std::move(ast_b),
             ::pltxt2htm::container::optional<::fast_io::u8string>(::pltxt2htm::container::nullopt)));
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_true(a == b);
     }
 
     // CodeFence with same language
@@ -208,7 +210,7 @@ int main() {
             ::std::move(ast_a), ::pltxt2htm::container::optional<::fast_io::u8string>(::fast_io::u8string{u8"cpp"})));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::CodeFence<nd::quick_enforce>(
             ::std::move(ast_b), ::pltxt2htm::container::optional<::fast_io::u8string>(::fast_io::u8string{u8"cpp"})));
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_true(a == b);
     }
 
     // CodeFence with different languages
@@ -224,7 +226,7 @@ int main() {
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::CodeFence<nd::quick_enforce>(
             ::std::move(ast_b),
             ::pltxt2htm::container::optional<::fast_io::u8string>(::fast_io::u8string{u8"python"})));
-        ::pltxt2htm::details::assert_false<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_false(a == b);
     }
 
     // CodeFence: one has language, the other does not
@@ -238,7 +240,7 @@ int main() {
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::CodeFence<nd::quick_enforce>(
             ::std::move(ast_b),
             ::pltxt2htm::container::optional<::fast_io::u8string>(::pltxt2htm::container::nullopt)));
-        ::pltxt2htm::details::assert_false<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_false(a == b);
     }
 
     // CodeFence without language
@@ -253,7 +255,7 @@ int main() {
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::CodeFence<nd::quick_enforce>(
             ::std::move(ast_b),
             ::pltxt2htm::container::optional<::fast_io::u8string>(::pltxt2htm::container::nullopt)));
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_true(a == b);
     }
 
     // CodeFence with same language
@@ -266,7 +268,7 @@ int main() {
             ::std::move(ast_a), ::pltxt2htm::container::optional<::fast_io::u8string>(::fast_io::u8string{u8"cpp"})));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::CodeFence<nd::quick_enforce>(
             ::std::move(ast_b), ::pltxt2htm::container::optional<::fast_io::u8string>(::fast_io::u8string{u8"cpp"})));
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_true(a == b);
     }
 
     // CodeFence with different languages
@@ -280,7 +282,7 @@ int main() {
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::CodeFence<nd::quick_enforce>(
             ::std::move(ast_b),
             ::pltxt2htm::container::optional<::fast_io::u8string>(::fast_io::u8string{u8"python"})));
-        ::pltxt2htm::details::assert_false<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_false(a == b);
     }
 
     // CodeFence: one has language, the other does not
@@ -294,7 +296,7 @@ int main() {
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::CodeFence<nd::quick_enforce>(
             ::std::move(ast_b),
             ::pltxt2htm::container::optional<::fast_io::u8string>(::pltxt2htm::container::nullopt)));
-        ::pltxt2htm::details::assert_false<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_false(a == b);
     }
 
     // MdLink with sub-AST and URL
@@ -309,7 +311,7 @@ int main() {
             ::pltxt2htm::MdLink<nd::quick_enforce>(::std::move(text_a), ::pltxt2htm::Url(::fast_io::u8string{u8"x"})));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
             ::pltxt2htm::MdLink<nd::quick_enforce>(::std::move(text_b), ::pltxt2htm::Url(::fast_io::u8string{u8"x"})));
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_true(a == b);
     }
 
     // MdLink with different URL
@@ -324,7 +326,7 @@ int main() {
             ::pltxt2htm::MdLink<nd::quick_enforce>(::std::move(text_a), ::pltxt2htm::Url(::fast_io::u8string{u8"x"})));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
             ::pltxt2htm::MdLink<nd::quick_enforce>(::std::move(text_b), ::pltxt2htm::Url(::fast_io::u8string{u8"y"})));
-        ::pltxt2htm::details::assert_false<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_false(a == b);
     }
 
     // MdImage with sub-AST and URL
@@ -339,7 +341,7 @@ int main() {
             ::pltxt2htm::MdImage<nd::quick_enforce>(::std::move(alt_a), ::pltxt2htm::Url(::fast_io::u8string{u8"x"})));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
             ::pltxt2htm::MdImage<nd::quick_enforce>(::std::move(alt_b), ::pltxt2htm::Url(::fast_io::u8string{u8"x"})));
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_true(a == b);
     }
 
     // ListLiCheckbox (sub-AST + bool checked)
@@ -354,7 +356,7 @@ int main() {
             ::pltxt2htm::ListLiCheckbox<nd::quick_enforce>(::std::move(ast_a), true));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
             ::pltxt2htm::ListLiCheckbox<nd::quick_enforce>(::std::move(ast_b), true));
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_true(a == b);
     }
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
@@ -365,7 +367,7 @@ int main() {
             ::pltxt2htm::ListLiCheckbox<nd::quick_enforce>(::std::move(ast_a), true));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
             ::pltxt2htm::ListLiCheckbox<nd::quick_enforce>(::std::move(ast_b), false));
-        ::pltxt2htm::details::assert_false<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_false(a == b);
     }
 
     // TableTh / TableTd (sub-AST + TableAlign)
@@ -380,7 +382,7 @@ int main() {
             ::pltxt2htm::TableTh<nd::quick_enforce>(::std::move(ast_a), ::pltxt2htm::TableAlign::center));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
             ::pltxt2htm::TableTh<nd::quick_enforce>(::std::move(ast_b), ::pltxt2htm::TableAlign::center));
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_true(a == b);
     }
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
@@ -393,7 +395,7 @@ int main() {
             ::pltxt2htm::TableTh<nd::quick_enforce>(::std::move(ast_a), ::pltxt2htm::TableAlign::left));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
             ::pltxt2htm::TableTh<nd::quick_enforce>(::std::move(ast_b), ::pltxt2htm::TableAlign::center));
-        ::pltxt2htm::details::assert_false<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_false(a == b);
     }
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
@@ -406,7 +408,7 @@ int main() {
             ::pltxt2htm::TableTd<nd::quick_enforce>(::std::move(ast_a), ::pltxt2htm::TableAlign::right));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
             ::pltxt2htm::TableTd<nd::quick_enforce>(::std::move(ast_b), ::pltxt2htm::TableAlign::right));
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_true(a == b);
     }
 
     // PlColor (sub-AST + color string)
@@ -418,7 +420,7 @@ int main() {
             ::pltxt2htm::PlColor<nd::quick_enforce>(::std::move(ast_a), ::fast_io::u8string{u8"red"}));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
             ::pltxt2htm::PlColor<nd::quick_enforce>(::std::move(ast_b), ::fast_io::u8string{u8"red"}));
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_true(a == b);
     }
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
@@ -428,7 +430,7 @@ int main() {
             ::pltxt2htm::PlColor<nd::quick_enforce>(::std::move(ast_a), ::fast_io::u8string{u8"red"}));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
             ::pltxt2htm::PlColor<nd::quick_enforce>(::std::move(ast_b), ::fast_io::u8string{u8"blue"}));
-        ::pltxt2htm::details::assert_false<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_false(a == b);
     }
 
     // PlExperiment (sub-AST + id string)
@@ -440,7 +442,7 @@ int main() {
             ::pltxt2htm::PlExperiment<nd::quick_enforce>(::std::move(ast_a), ::fast_io::u8string{u8"exp1"}));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
             ::pltxt2htm::PlExperiment<nd::quick_enforce>(::std::move(ast_b), ::fast_io::u8string{u8"exp1"}));
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_true(a == b);
     }
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
@@ -450,7 +452,7 @@ int main() {
             ::pltxt2htm::PlExperiment<nd::quick_enforce>(::std::move(ast_a), ::fast_io::u8string{u8"exp1"}));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
             ::pltxt2htm::PlExperiment<nd::quick_enforce>(::std::move(ast_b), ::fast_io::u8string{u8"exp2"}));
-        ::pltxt2htm::details::assert_false<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_false(a == b);
     }
 
     // PlSize (sub-AST + ValueWithUnit)
@@ -462,7 +464,7 @@ int main() {
             ::std::move(ast_a), ::pltxt2htm::ValueWithUnit<double>{.value = 14, .unit = ::pltxt2htm::Unit::px}));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlSize<nd::quick_enforce>(
             ::std::move(ast_b), ::pltxt2htm::ValueWithUnit<double>{.value = 14, .unit = ::pltxt2htm::Unit::px}));
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_true(a == b);
     }
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
@@ -472,7 +474,7 @@ int main() {
             ::std::move(ast_a), ::pltxt2htm::ValueWithUnit<double>{.value = 14, .unit = ::pltxt2htm::Unit::px}));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlSize<nd::quick_enforce>(
             ::std::move(ast_b), ::pltxt2htm::ValueWithUnit<double>{.value = 16, .unit = ::pltxt2htm::Unit::px}));
-        ::pltxt2htm::details::assert_false<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_false(a == b);
     }
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
@@ -482,7 +484,7 @@ int main() {
             ::std::move(ast_a), ::pltxt2htm::ValueWithUnit<double>{.value = 14, .unit = ::pltxt2htm::Unit::px}));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlSize<nd::quick_enforce>(
             ::std::move(ast_b), ::pltxt2htm::ValueWithUnit<double>{.value = 14, .unit = ::pltxt2htm::Unit::percent}));
-        ::pltxt2htm::details::assert_false<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_false(a == b);
     }
 
     // PlExternal (sub-AST + Url)
@@ -495,14 +497,14 @@ int main() {
             ::std::move(ast_a), ::pltxt2htm::Url(::fast_io::u8string{u8"x"})));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlExternal<nd::quick_enforce>(
             ::std::move(ast_b), ::pltxt2htm::Url(::fast_io::u8string{u8"x"})));
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_true(a == b);
     }
 
     // Ast-level comparison (empty)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> const ast_a{};
         ::pltxt2htm::Ast<nd::quick_enforce> const ast_b{};
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(ast_a == ast_b);
+        pltxt2htm_test_assert_true(ast_a == ast_b);
     }
 
     // Ast-level comparison (single matching elements)
@@ -513,7 +515,7 @@ int main() {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
         ast_b.emplace_back(::pltxt2htm::U8Char{u8'A'});
 
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(ast_a == ast_b);
+        pltxt2htm_test_assert_true(ast_a == ast_b);
     }
 
     // Ast-level comparison (multiple matching elements)
@@ -526,7 +528,7 @@ int main() {
         ast_b.emplace_back(::pltxt2htm::U8Char{u8'A'});
         ast_b.emplace_back(::pltxt2htm::U8Char{u8'B'});
 
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(ast_a == ast_b);
+        pltxt2htm_test_assert_true(ast_a == ast_b);
     }
 
     // Ast-level comparison (different elements)
@@ -539,7 +541,7 @@ int main() {
         ast_b.emplace_back(::pltxt2htm::U8Char{u8'A'});
         ast_b.emplace_back(::pltxt2htm::U8Char{u8'C'});
 
-        ::pltxt2htm::details::assert_false<::pltxt2htm::Contracts::quick_enforce>(ast_a == ast_b);
+        pltxt2htm_test_assert_false(ast_a == ast_b);
     }
 
     // Ast-level comparison (different sizes)
@@ -551,36 +553,36 @@ int main() {
         ast_b.emplace_back(::pltxt2htm::U8Char{u8'A'});
         ast_b.emplace_back(::pltxt2htm::U8Char{u8'B'});
 
-        ::pltxt2htm::details::assert_false<::pltxt2htm::Contracts::quick_enforce>(ast_a == ast_b);
+        pltxt2htm_test_assert_false(ast_a == ast_b);
     }
 
     // C++20 operator!= auto-generation
     {
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::U8Char{u8'A'});
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::U8Char{u8'B'});
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(a != b);
+        pltxt2htm_test_assert_true(a != b);
     }
     {
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::U8Char{u8'A'});
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::U8Char{u8'A'});
-        ::pltxt2htm::details::assert_false<::pltxt2htm::Contracts::quick_enforce>(a != b);
+        pltxt2htm_test_assert_false(a != b);
     }
 
     // MdEscape (all empty, always equal)
     {
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscapeBackslash{});
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscapeBackslash{});
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_true(a == b);
     }
     {
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscapeAsterisk{});
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscapeAsterisk{});
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_true(a == b);
     }
     {
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscapeBackslash{});
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscapeAsterisk{});
-        ::pltxt2htm::details::assert_false<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_false(a == b);
     }
 
     // PlI (sub-AST only)
@@ -595,7 +597,7 @@ int main() {
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlI<nd::quick_enforce>(::std::move(ast_a)));
         auto const b =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlI<nd::quick_enforce>(::std::move(ast_b)));
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_true(a == b);
     }
 
     // PlB (sub-AST only)
@@ -610,7 +612,7 @@ int main() {
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlB<nd::quick_enforce>(::std::move(ast_a)));
         auto const b =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlB<nd::quick_enforce>(::std::move(ast_b)));
-        ::pltxt2htm::details::assert_true<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_true(a == b);
     }
 
     // Cross-type: same sub-AST, different wrapper type
@@ -627,7 +629,7 @@ int main() {
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(ast_a)));
         auto const b =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::HtmlH1<nd::quick_enforce>(::std::move(ast_b)));
-        ::pltxt2htm::details::assert_false<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_false(a == b);
     }
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
@@ -640,7 +642,7 @@ int main() {
             ::pltxt2htm::HtmlBlockquote<nd::quick_enforce>(::std::move(ast_a)));
         auto const b =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::HtmlH1<nd::quick_enforce>(::std::move(ast_b)));
-        ::pltxt2htm::details::assert_false<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_false(a == b);
     }
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
@@ -653,7 +655,7 @@ int main() {
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlI<nd::quick_enforce>(::std::move(ast_a)));
         auto const b =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlB<nd::quick_enforce>(::std::move(ast_b)));
-        ::pltxt2htm::details::assert_false<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_false(a == b);
     }
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
@@ -664,7 +666,7 @@ int main() {
             ::std::move(ast_a), ::pltxt2htm::container::optional<::fast_io::u8string>(::fast_io::u8string{u8"cpp"})));
         auto const b =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(ast_b)));
-        ::pltxt2htm::details::assert_false<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_false(a == b);
     }
 
     // Sub-AST count mismatch
@@ -681,7 +683,7 @@ int main() {
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(ast_a)));
         auto const b =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(ast_b)));
-        ::pltxt2htm::details::assert_false<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_false(a == b);
     }
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
@@ -695,7 +697,7 @@ int main() {
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::HtmlH1<nd::quick_enforce>(::std::move(ast_a)));
         auto const b =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::HtmlH1<nd::quick_enforce>(::std::move(ast_b)));
-        ::pltxt2htm::details::assert_false<::pltxt2htm::Contracts::quick_enforce>(a == b);
+        pltxt2htm_test_assert_false(a == b);
     }
 
     return 0;

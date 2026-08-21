@@ -13,7 +13,7 @@
 #include <cstring>
 #include <utility>
 #include <concepts>
-#include <pltxt2htm/details/panic.hh>
+#include "details/trap.hh"
 #include "pltxt2htm.hh"
 
 namespace pltxt2htm {
