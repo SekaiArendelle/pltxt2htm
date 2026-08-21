@@ -9,7 +9,7 @@ import sys
 def find_cpp_files(root_dirs):
     """Find all C/C++ source files in the given directories."""
     extensions = {".cc", ".cpp", ".h", ".hh", ".hpp", ".cppm", ".c", ".inc"}
-    skip_dir_components = {"build", ".pixi"}
+    skip_dir_components = {".pixi"}
     files = []
 
     for directory in root_dirs:
@@ -28,7 +28,11 @@ def find_cpp_files(root_dirs):
                 continue
 
             # Prune unwanted subtrees to avoid walking them entirely
-            dirs[:] = [d for d in dirs if d not in skip_dir_components]
+            dirs[:] = [
+                d
+                for d in dirs
+                if d not in skip_dir_components and not d.startswith("build")
+            ]
 
             for filename in filenames:
                 if os.path.splitext(filename)[1] in extensions:
