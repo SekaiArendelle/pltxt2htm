@@ -228,7 +228,6 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class FrontendContextVariant {
-public:
 #ifdef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
     enum class ContextBranch : unsigned {
         equal_sign_tag,
@@ -276,6 +275,7 @@ public:
 #endif
     ::pltxt2htm::NodeKind kind;
 
+public:
     constexpr FrontendContextVariant(ParserFrameContextWithPltextInfo pltext_context,
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
         : pltext{pltext_context},
@@ -756,6 +756,134 @@ public:
         -> FrontendContextVariant<ndebug>& = delete;
     constexpr auto operator=(FrontendContextVariant<ndebug>&&) noexcept -> FrontendContextVariant<ndebug>& = delete;
 
+    [[nodiscard]]
+    constexpr auto get_kind(this FrontendContextVariant<ndebug> const& self) noexcept -> ::pltxt2htm::NodeKind {
+        return self.kind;
+    }
+
+    [[nodiscard]]
+    constexpr auto as_pltext(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert_context_branch(self, FrontendContextVariant<ndebug>::ContextBranch::pltext);
+        return ::std::forward_like<decltype(self)>(self.pltext);
+    }
+
+    [[nodiscard]]
+    constexpr auto as_equal_sign_tag(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(::pltxt2htm::details::is_equal_sign_tag_type(self.kind), u8"context kind mismatch");
+        pltxt2htm_assert_context_branch(self, FrontendContextVariant<ndebug>::ContextBranch::equal_sign_tag);
+        return ::std::forward_like<decltype(self)>(self.equal_sign_tag);
+    }
+
+    [[nodiscard]]
+    constexpr auto as_html_span_info(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.kind == ::pltxt2htm::NodeKind::html_span, u8"context kind mismatch");
+        pltxt2htm_assert_context_branch(self, FrontendContextVariant<ndebug>::ContextBranch::html_span_info);
+        return ::std::forward_like<decltype(self)>(self.html_span_info);
+    }
+
+    [[nodiscard]]
+    constexpr auto as_html_div_info(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.kind == ::pltxt2htm::NodeKind::html_div, u8"context kind mismatch");
+        pltxt2htm_assert_context_branch(self, FrontendContextVariant<ndebug>::ContextBranch::html_div_info);
+        return ::std::forward_like<decltype(self)>(self.html_div_info);
+    }
+
+    [[nodiscard]]
+    constexpr auto as_html_mark_info(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.kind == ::pltxt2htm::NodeKind::html_mark, u8"context kind mismatch");
+        pltxt2htm_assert_context_branch(self, FrontendContextVariant<ndebug>::ContextBranch::html_mark_info);
+        return ::std::forward_like<decltype(self)>(self.html_mark_info);
+    }
+
+    [[nodiscard]]
+    constexpr auto as_pl_mark_info(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.kind == ::pltxt2htm::NodeKind::pl_mark, u8"context kind mismatch");
+        pltxt2htm_assert_context_branch(self, FrontendContextVariant<ndebug>::ContextBranch::pl_mark_info);
+        return ::std::forward_like<decltype(self)>(self.pl_mark_info);
+    }
+
+    [[nodiscard]]
+    constexpr auto as_url_info(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.kind == ::pltxt2htm::NodeKind::pl_external ||
+                             self.kind == ::pltxt2htm::NodeKind::pl_link || self.kind == ::pltxt2htm::NodeKind::md_link,
+                         u8"context kind mismatch");
+        pltxt2htm_assert_context_branch(self, FrontendContextVariant<ndebug>::ContextBranch::url_info);
+        return ::std::forward_like<decltype(self)>(self.url_info);
+    }
+
+    [[nodiscard]]
+    constexpr auto as_html_a_tag_info(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.kind == ::pltxt2htm::NodeKind::html_a, u8"context kind mismatch");
+        pltxt2htm_assert_context_branch(self, FrontendContextVariant<ndebug>::ContextBranch::html_a_tag);
+        return ::std::forward_like<decltype(self)>(self.html_a_tag_info);
+    }
+
+    [[nodiscard]]
+    constexpr auto as_pl_size_tag(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.kind == ::pltxt2htm::NodeKind::pl_size, u8"context kind mismatch");
+        pltxt2htm_assert_context_branch(self, FrontendContextVariant<ndebug>::ContextBranch::pl_size_tag);
+        return ::std::forward_like<decltype(self)>(self.pl_size_tag);
+    }
+
+    [[nodiscard]]
+    constexpr auto as_pl_voffset_tag(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.kind == ::pltxt2htm::NodeKind::pl_voffset, u8"context kind mismatch");
+        pltxt2htm_assert_context_branch(self, FrontendContextVariant<ndebug>::ContextBranch::pl_voffset_tag);
+        return ::std::forward_like<decltype(self)>(self.pl_voffset_tag);
+    }
+
+    [[nodiscard]]
+    constexpr auto as_pl_margin_tag(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.kind == ::pltxt2htm::NodeKind::pl_margin, u8"context kind mismatch");
+        pltxt2htm_assert_context_branch(self, FrontendContextVariant<ndebug>::ContextBranch::pl_margin_tag);
+        return ::std::forward_like<decltype(self)>(self.pl_margin_tag);
+    }
+
+    [[nodiscard]]
+    constexpr auto as_md_block_quotes(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.kind == ::pltxt2htm::NodeKind::md_block_quotes, u8"context kind mismatch");
+        pltxt2htm_assert_context_branch(self, FrontendContextVariant<ndebug>::ContextBranch::md_block_quotes);
+        return ::std::forward_like<decltype(self)>(self.md_block_quotes);
+    }
+
+    [[nodiscard]]
+    constexpr auto as_list_info(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.kind == ::pltxt2htm::NodeKind::list_ul || self.kind == ::pltxt2htm::NodeKind::list_ol,
+                         u8"context kind mismatch");
+        pltxt2htm_assert_context_branch(self, FrontendContextVariant<ndebug>::ContextBranch::list_info);
+        return ::std::forward_like<decltype(self)>(self.list_info);
+    }
+
+    [[nodiscard]]
+    constexpr auto as_cell(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.kind == ::pltxt2htm::NodeKind::table_th || self.kind == ::pltxt2htm::NodeKind::table_td,
+                         u8"context kind mismatch");
+        pltxt2htm_assert_context_branch(self, FrontendContextVariant<ndebug>::ContextBranch::cell);
+        return ::std::forward_like<decltype(self)>(self.cell);
+    }
+
+    [[nodiscard]]
+    constexpr auto as_align_info(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.kind == ::pltxt2htm::NodeKind::html_p || self.kind == ::pltxt2htm::NodeKind::pl_align,
+                         u8"context kind mismatch");
+        pltxt2htm_assert_context_branch(self, FrontendContextVariant<ndebug>::ContextBranch::align_info);
+        return ::std::forward_like<decltype(self)>(self.align_info);
+    }
+
+    [[nodiscard]]
+    constexpr auto as_list_li_checkbox(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.kind == ::pltxt2htm::NodeKind::list_li_checkbox, u8"context kind mismatch");
+        pltxt2htm_assert_context_branch(self, FrontendContextVariant<ndebug>::ContextBranch::list_li_checkbox);
+        return ::std::forward_like<decltype(self)>(self.list_li_checkbox);
+    }
+
+    [[nodiscard]]
+    constexpr auto as_table(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.kind == ::pltxt2htm::NodeKind::table, u8"context kind mismatch");
+        pltxt2htm_assert_context_branch(self, FrontendContextVariant<ndebug>::ContextBranch::table);
+        return ::std::forward_like<decltype(self)>(self.table);
+    }
+
     constexpr ~FrontendContextVariant() noexcept {
         switch (this->kind) /* -Werror=switch */ {
         case ::pltxt2htm::NodeKind::pl_color:
@@ -1110,13 +1238,13 @@ public:
 
     [[nodiscard]]
     constexpr auto get_nested_tag_type(this ParserFrameContext<ndebug> const& self) noexcept -> ::pltxt2htm::NodeKind {
-        return self.context_data.kind;
+        return self.context_data.get_kind();
     }
 
     [[nodiscard]]
     constexpr auto get_pltext(this ParserFrameContext<ndebug> const& self) noexcept -> ::fast_io::u8string_view {
         auto const& context_data_ref = self.context_data;
-        switch (context_data_ref.kind) /* -Werror=switch */ {
+        switch (context_data_ref.get_kind()) /* -Werror=switch */ {
         case ::pltxt2htm::NodeKind::u8char:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::invalid_u8char:
@@ -1240,13 +1368,10 @@ public:
         case ::pltxt2htm::NodeKind::md_latex_inline:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_latex_block: {
-            pltxt2htm_assert_context_branch(context_data_ref, FrontendContextVariant<ndebug>::ContextBranch::pltext);
-            return context_data_ref.pltext.pltext;
+            return context_data_ref.as_pltext().pltext;
         }
         case ::pltxt2htm::NodeKind::list_li_checkbox: {
-            pltxt2htm_assert_context_branch(context_data_ref,
-                                            FrontendContextVariant<ndebug>::ContextBranch::list_li_checkbox);
-            return context_data_ref.list_li_checkbox.pltext;
+            return context_data_ref.as_list_li_checkbox().pltext;
         }
         case ::pltxt2htm::NodeKind::pl_color:
             [[fallthrough]];
@@ -1263,83 +1388,55 @@ public:
         case ::pltxt2htm::NodeKind::pl_internal:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_user: {
-            pltxt2htm_assert_context_branch(context_data_ref,
-                                            FrontendContextVariant<ndebug>::ContextBranch::equal_sign_tag);
-            return context_data_ref.equal_sign_tag.pltext;
+            return context_data_ref.as_equal_sign_tag().pltext;
         }
         case ::pltxt2htm::NodeKind::pl_external: {
-            pltxt2htm_assert_context_branch(context_data_ref, FrontendContextVariant<ndebug>::ContextBranch::url_info);
-            return context_data_ref.url_info.pltext;
+            return context_data_ref.as_url_info().pltext;
         }
         case ::pltxt2htm::NodeKind::pl_link: {
-            pltxt2htm_assert_context_branch(context_data_ref, FrontendContextVariant<ndebug>::ContextBranch::url_info);
-            return context_data_ref.url_info.pltext;
+            return context_data_ref.as_url_info().pltext;
         }
         case ::pltxt2htm::NodeKind::pl_size: {
-            pltxt2htm_assert_context_branch(context_data_ref,
-                                            FrontendContextVariant<ndebug>::ContextBranch::pl_size_tag);
-            return context_data_ref.pl_size_tag.pltext;
+            return context_data_ref.as_pl_size_tag().pltext;
         }
         case ::pltxt2htm::NodeKind::pl_voffset: {
-            pltxt2htm_assert_context_branch(context_data_ref,
-                                            FrontendContextVariant<ndebug>::ContextBranch::pl_voffset_tag);
-            return context_data_ref.pl_voffset_tag.pltext;
+            return context_data_ref.as_pl_voffset_tag().pltext;
         }
         case ::pltxt2htm::NodeKind::pl_margin: {
-            pltxt2htm_assert_context_branch(context_data_ref,
-                                            FrontendContextVariant<ndebug>::ContextBranch::pl_margin_tag);
-            return context_data_ref.pl_margin_tag.pltext;
+            return context_data_ref.as_pl_margin_tag().pltext;
         }
         case ::pltxt2htm::NodeKind::pl_align: {
-            pltxt2htm_assert_context_branch(context_data_ref,
-                                            FrontendContextVariant<ndebug>::ContextBranch::align_info);
-            return context_data_ref.align_info.pltext;
+            return context_data_ref.as_align_info().pltext;
         }
         case ::pltxt2htm::NodeKind::html_span: {
-            pltxt2htm_assert_context_branch(context_data_ref,
-                                            FrontendContextVariant<ndebug>::ContextBranch::html_span_info);
-            return context_data_ref.html_span_info.pltext;
+            return context_data_ref.as_html_span_info().pltext;
         }
         case ::pltxt2htm::NodeKind::html_div: {
-            pltxt2htm_assert_context_branch(context_data_ref,
-                                            FrontendContextVariant<ndebug>::ContextBranch::html_div_info);
-            return context_data_ref.html_div_info.pltext;
+            return context_data_ref.as_html_div_info().pltext;
         }
         case ::pltxt2htm::NodeKind::html_mark: {
-            pltxt2htm_assert_context_branch(context_data_ref,
-                                            FrontendContextVariant<ndebug>::ContextBranch::html_mark_info);
-            return context_data_ref.html_mark_info.pltext;
+            return context_data_ref.as_html_mark_info().pltext;
         }
         case ::pltxt2htm::NodeKind::pl_mark: {
-            pltxt2htm_assert_context_branch(context_data_ref,
-                                            FrontendContextVariant<ndebug>::ContextBranch::pl_mark_info);
-            return context_data_ref.pl_mark_info.pltext;
+            return context_data_ref.as_pl_mark_info().pltext;
         }
         case ::pltxt2htm::NodeKind::html_a: {
-            pltxt2htm_assert_context_branch(context_data_ref,
-                                            FrontendContextVariant<ndebug>::ContextBranch::html_a_tag);
-            return context_data_ref.html_a_tag_info.pltext;
+            return context_data_ref.as_html_a_tag_info().pltext;
         }
         case ::pltxt2htm::NodeKind::md_block_quotes: {
-            pltxt2htm_assert_context_branch(context_data_ref,
-                                            FrontendContextVariant<ndebug>::ContextBranch::md_block_quotes);
-            auto const& pltext = context_data_ref.md_block_quotes.pltext;
+            auto const& pltext = context_data_ref.as_md_block_quotes().pltext;
             return ::fast_io::u8string_view{pltext.data(), pltext.size()};
         }
         case ::pltxt2htm::NodeKind::md_link: {
-            pltxt2htm_assert_context_branch(context_data_ref, FrontendContextVariant<ndebug>::ContextBranch::url_info);
-            return context_data_ref.url_info.pltext;
+            return context_data_ref.as_url_info().pltext;
         }
         case ::pltxt2htm::NodeKind::html_p: {
-            pltxt2htm_assert_context_branch(context_data_ref,
-                                            FrontendContextVariant<ndebug>::ContextBranch::align_info);
-            return context_data_ref.align_info.pltext;
+            return context_data_ref.as_align_info().pltext;
         }
         case ::pltxt2htm::NodeKind::table_th:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::table_td: {
-            pltxt2htm_assert_context_branch(context_data_ref, FrontendContextVariant<ndebug>::ContextBranch::cell);
-            return context_data_ref.cell.pltext;
+            return context_data_ref.as_cell().pltext;
         }
         case ::pltxt2htm::NodeKind::pl_macro_project:
             [[fallthrough]];
@@ -1433,226 +1530,188 @@ public:
     [[nodiscard]]
     constexpr auto get_equal_sign_tag_id(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(::pltxt2htm::details::is_equal_sign_tag_type(context_data_ref.kind),
-                         u8"context kind mismatch");
-        return ::std::forward_like<decltype(self)>(context_data_ref.equal_sign_tag.id);
+        return ::std::forward_like<decltype(self)>(context_data_ref.as_equal_sign_tag().id);
     }
 
     [[nodiscard]]
     constexpr auto get_external_tag_url(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::pl_external, u8"context kind mismatch");
-        return ::std::forward_like<decltype(self)>(context_data_ref.url_info.url);
+        pltxt2htm_assert(context_data_ref.get_kind() == ::pltxt2htm::NodeKind::pl_external, u8"context kind mismatch");
+        return ::std::forward_like<decltype(self)>(context_data_ref.as_url_info().url);
     }
 
     [[nodiscard]]
     constexpr auto get_link_tag_url(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::pl_link, u8"context kind mismatch");
-        return ::std::forward_like<decltype(self)>(context_data_ref.url_info.url);
+        pltxt2htm_assert(context_data_ref.get_kind() == ::pltxt2htm::NodeKind::pl_link, u8"context kind mismatch");
+        return ::std::forward_like<decltype(self)>(context_data_ref.as_url_info().url);
     }
 
     [[nodiscard]]
     constexpr auto get_pl_size_tag_value(this ParserFrameContext<ndebug> const& self) noexcept
         -> ::pltxt2htm::ValueWithUnit<double> {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::pl_size, u8"context kind mismatch");
-        return context_data_ref.pl_size_tag.value;
+        return context_data_ref.as_pl_size_tag().value;
     }
 
     [[nodiscard]]
     constexpr auto get_pl_voffset_tag_value(this ParserFrameContext<ndebug> const& self) noexcept
         -> ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::pl_voffset, u8"context kind mismatch");
-        return context_data_ref.pl_voffset_tag.value;
+        return context_data_ref.as_pl_voffset_tag().value;
     }
 
     [[nodiscard]]
     constexpr auto get_pl_margin_tag_left(this ParserFrameContext<ndebug> const& self) noexcept
         -> ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::pl_margin, u8"context kind mismatch");
-        return context_data_ref.pl_margin_tag.left;
+        return context_data_ref.as_pl_margin_tag().left;
     }
 
     [[nodiscard]]
     constexpr auto get_pl_margin_tag_right(this ParserFrameContext<ndebug> const& self) noexcept
         -> ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::pl_margin, u8"context kind mismatch");
-        return context_data_ref.pl_margin_tag.right;
+        return context_data_ref.as_pl_margin_tag().right;
     }
 
     [[nodiscard]]
     constexpr auto get_html_div_left(this ParserFrameContext<ndebug> const& self) noexcept
         -> ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_div, u8"context kind mismatch");
-        return context_data_ref.html_div_info.left;
+        return context_data_ref.as_html_div_info().left;
     }
 
     [[nodiscard]]
     constexpr auto get_html_div_right(this ParserFrameContext<ndebug> const& self) noexcept
         -> ::exception::optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_div, u8"context kind mismatch");
-        return context_data_ref.html_div_info.right;
+        return context_data_ref.as_html_div_info().right;
     }
 
     [[nodiscard]]
     constexpr auto get_align(this ParserFrameContext<ndebug> const& self) noexcept -> ::pltxt2htm::TextAlign {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_p ||
-                             context_data_ref.kind == ::pltxt2htm::NodeKind::pl_align,
-                         u8"context kind mismatch");
-        return context_data_ref.align_info.align;
+        return context_data_ref.as_align_info().align;
     }
 
     [[nodiscard]]
     constexpr auto get_html_span_color(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_span, u8"context kind mismatch");
-        return ::std::forward_like<decltype(self)>(context_data_ref.html_span_info.color);
+        return ::std::forward_like<decltype(self)>(context_data_ref.as_html_span_info().color);
     }
 
     [[nodiscard]]
     constexpr auto get_html_span_font_size(this ParserFrameContext<ndebug> const& self) noexcept
         -> ::exception::optional<::pltxt2htm::ValueWithUnit<double>> {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_span, u8"context kind mismatch");
-        return context_data_ref.html_span_info.font_size;
+        return context_data_ref.as_html_span_info().font_size;
     }
 
     [[nodiscard]]
     constexpr auto get_html_span_vertical_align(this ParserFrameContext<ndebug> const& self) noexcept
         -> ::exception::optional<::pltxt2htm::VerticalAlignValue<ndebug>> {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_span, u8"context kind mismatch");
-        return context_data_ref.html_span_info.vertical_align;
+        return context_data_ref.as_html_span_info().vertical_align;
     }
 
     [[nodiscard]]
     constexpr auto get_html_mark_background_color(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_mark, u8"context kind mismatch");
-        return ::std::forward_like<decltype(self)>(context_data_ref.html_mark_info.background_color);
+        return ::std::forward_like<decltype(self)>(context_data_ref.as_html_mark_info().background_color);
     }
 
     [[nodiscard]]
     constexpr auto get_pl_mark_background_color(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::pl_mark, u8"context kind mismatch");
-        return ::std::forward_like<decltype(self)>(context_data_ref.pl_mark_info.background_color);
+        return ::std::forward_like<decltype(self)>(context_data_ref.as_pl_mark_info().background_color);
     }
 
     [[nodiscard]]
     constexpr auto get_html_a_url(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_a, u8"context kind mismatch");
-        return ::std::forward_like<decltype(self)>(context_data_ref.html_a_tag_info.url);
+        return ::std::forward_like<decltype(self)>(context_data_ref.as_html_a_tag_info().url);
     }
 
     [[nodiscard]]
     constexpr auto get_html_a_internal(this ParserFrameContext<ndebug> const& self) noexcept -> bool {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_a, u8"context kind mismatch");
-        return context_data_ref.html_a_tag_info.internal;
+        return context_data_ref.as_html_a_tag_info().internal;
     }
 
     [[nodiscard]]
     constexpr auto get_md_link_url(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::md_link, u8"context kind mismatch");
-        return ::std::forward_like<decltype(self)>(context_data_ref.url_info.url);
+        pltxt2htm_assert(context_data_ref.get_kind() == ::pltxt2htm::NodeKind::md_link, u8"context kind mismatch");
+        return ::std::forward_like<decltype(self)>(context_data_ref.as_url_info().url);
     }
 
     [[nodiscard]]
     constexpr auto get_list_ast(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::list_ul ||
-                             context_data_ref.kind == ::pltxt2htm::NodeKind::list_ol,
-                         u8"context kind mismatch");
-        return ::std::forward_like<decltype(self)>(context_data_ref.list_info.list_ast);
+        return ::std::forward_like<decltype(self)>(context_data_ref.as_list_info().list_ast);
     }
 
     [[nodiscard]]
     constexpr auto get_list_iter(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::list_ul ||
-                             context_data_ref.kind == ::pltxt2htm::NodeKind::list_ol,
-                         u8"context kind mismatch");
-        return ::std::forward_like<decltype(self)>(context_data_ref.list_info.iter);
+        return ::std::forward_like<decltype(self)>(context_data_ref.as_list_info().iter);
     }
 
     [[nodiscard]]
     constexpr auto get_list_start(this auto const& self) noexcept -> ::std::size_t {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::list_ul ||
-                             context_data_ref.kind == ::pltxt2htm::NodeKind::list_ol,
-                         u8"context kind mismatch");
-        return context_data_ref.list_info.list_start;
+        return context_data_ref.as_list_info().list_start;
     }
 
     [[nodiscard]]
     constexpr auto get_table_raw_ast(this auto&& self) noexcept -> decltype(auto) {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::table, u8"context kind mismatch");
-        return ::std::forward_like<decltype(self)>(context_data_ref.table.raw_ast);
+        return ::std::forward_like<decltype(self)>(context_data_ref.as_table().raw_ast);
     }
 
     [[nodiscard]]
     constexpr auto get_table_state(this auto const& self) noexcept -> TableParsePhase {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::table, u8"context kind mismatch");
-        return context_data_ref.table.state;
+        return context_data_ref.as_table().state;
     }
 
     [[nodiscard]]
     constexpr auto get_table_row_index(this auto const& self) noexcept -> ::std::size_t {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::table, u8"context kind mismatch");
-        return context_data_ref.table.row_index;
+        return context_data_ref.as_table().row_index;
     }
 
     [[nodiscard]]
     constexpr auto get_table_cell_index(this auto const& self) noexcept -> ::std::size_t {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::table, u8"context kind mismatch");
-        return context_data_ref.table.cell_index;
+        return context_data_ref.as_table().cell_index;
     }
 
     constexpr auto set_table_state(this ParserFrameContext<ndebug>& self, TableParsePhase s) noexcept -> void {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::table, u8"context kind mismatch");
-        context_data_ref.table.state = s;
+        context_data_ref.as_table().state = s;
     }
 
     constexpr auto set_table_row_index(this ParserFrameContext<ndebug>& self, ::std::size_t r) noexcept -> void {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::table, u8"context kind mismatch");
-        context_data_ref.table.row_index = r;
+        context_data_ref.as_table().row_index = r;
     }
 
     constexpr auto set_table_cell_index(this ParserFrameContext<ndebug>& self, ::std::size_t c) noexcept -> void {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::table, u8"context kind mismatch");
-        context_data_ref.table.cell_index = c;
+        context_data_ref.as_table().cell_index = c;
     }
 
     [[nodiscard]]
     constexpr auto get_cell_align(this ParserFrameContext<ndebug> const& self) noexcept -> ::pltxt2htm::TableAlign {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::table_td ||
-                             context_data_ref.kind == ::pltxt2htm::NodeKind::table_th,
-                         u8"context kind mismatch");
-        return context_data_ref.cell.align;
+        return context_data_ref.as_cell().align;
     }
 
     [[nodiscard]]
     constexpr auto get_checked(this ParserFrameContext<ndebug> const& self) noexcept -> bool {
-        pltxt2htm_assert(self.context_data.kind == ::pltxt2htm::NodeKind::list_li_checkbox, u8"context kind mismatch");
-        return self.context_data.list_li_checkbox.checked;
+        return self.context_data.as_list_li_checkbox().checked;
     }
 };
 

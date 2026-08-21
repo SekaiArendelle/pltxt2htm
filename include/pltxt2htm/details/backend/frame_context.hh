@@ -55,8 +55,8 @@ public:
  * @details Dispatched on `kind` (::pltxt2htm::NodeKind) – used inside
  *          BackendFrameContext.
  */
+template<::pltxt2htm::Contracts ndebug>
 class BackendContextVariant {
-public:
     union {
         BackendContextWithoutInfo without_info;
         BackendContextWithOlInfo ol_info;
@@ -66,6 +66,7 @@ public:
 
     ::pltxt2htm::NodeKind kind;
 
+public:
     constexpr BackendContextVariant(::pltxt2htm::NodeKind const kind_) noexcept
         : without_info{},
           kind{kind_} {
@@ -89,6 +90,37 @@ public:
     }
 
     constexpr ~BackendContextVariant() noexcept = default;
+
+    [[nodiscard]]
+    constexpr auto get_kind(this BackendContextVariant<ndebug> const& self) noexcept -> ::pltxt2htm::NodeKind {
+        return self.kind;
+    }
+
+    [[nodiscard]]
+    constexpr auto as_without_info(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.kind != ::pltxt2htm::NodeKind::list_ol && self.kind != ::pltxt2htm::NodeKind::html_span &&
+                             self.kind != ::pltxt2htm::NodeKind::html_p,
+                         u8"context kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.without_info);
+    }
+
+    [[nodiscard]]
+    constexpr auto as_ol_info(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.kind == ::pltxt2htm::NodeKind::list_ol, u8"context kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.ol_info);
+    }
+
+    [[nodiscard]]
+    constexpr auto as_html_span_info(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.kind == ::pltxt2htm::NodeKind::html_span, u8"context kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.html_span_info);
+    }
+
+    [[nodiscard]]
+    constexpr auto as_align_info(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.kind == ::pltxt2htm::NodeKind::html_p, u8"context kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.align_info);
+    }
 };
 
 /**
@@ -99,7 +131,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class BackendFrameContext {
-    BackendContextVariant context_data;
+    BackendContextVariant<ndebug> context_data;
     /* [[nonnull]] */ ::pltxt2htm::Ast<ndebug> const* ast; ///< Reference to the AST being processed
 
 public:
@@ -146,7 +178,7 @@ public:
 
     [[nodiscard]]
     constexpr auto get_nested_tag_type(this BackendFrameContext<ndebug> const& self) noexcept {
-        return self.context_data.kind;
+        return self.context_data.get_kind();
     }
 
     [[nodiscard]]
@@ -156,20 +188,17 @@ public:
 
     [[nodiscard]]
     constexpr auto get_html_span_info(this auto const& self) noexcept -> BackendContextWithHtmlSpanInfo {
-        pltxt2htm_assert(self.context_data.kind == ::pltxt2htm::NodeKind::html_span, u8"context kind mismatch");
-        return self.context_data.html_span_info;
+        return self.context_data.as_html_span_info();
     }
 
     [[nodiscard]]
     constexpr auto get_align_info(this auto const& self) noexcept -> BackendContextWithAlignInfo {
-        pltxt2htm_assert(self.context_data.kind == ::pltxt2htm::NodeKind::html_p, u8"context kind mismatch");
-        return self.context_data.align_info;
+        return self.context_data.as_align_info();
     }
 
     [[nodiscard]]
     constexpr auto get_ol_li_count(this BackendFrameContext<ndebug>& self) noexcept -> ::std::size_t& {
-        pltxt2htm_assert(self.context_data.kind == ::pltxt2htm::NodeKind::list_ol, u8"context kind mismatch");
-        return self.context_data.ol_info.ol_li_count;
+        return self.context_data.as_ol_info().ol_li_count;
     }
 };
 
