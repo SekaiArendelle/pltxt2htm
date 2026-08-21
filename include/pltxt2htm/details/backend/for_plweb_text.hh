@@ -1531,6 +1531,12 @@ entry:
                     goto entry;
                 }
                 result.append(u8"<pre><code>");
+                if (::pltxt2htm::details::code_ast_has_html_style<ndebug>(node.as_code_fence().get_subast())) {
+                    call_stack.push(BackendFrameContext<ndebug>(node.as_code_fence().get_subast(),
+                                                                ::pltxt2htm::NodeKind::code_fence, 0));
+                    ++current_index;
+                    goto entry;
+                }
                 SyntaxLanguage language{SyntaxLanguage::plain};
                 auto const& opt_language = node.as_code_fence().get_language();
                 if (opt_language.has_value()) {

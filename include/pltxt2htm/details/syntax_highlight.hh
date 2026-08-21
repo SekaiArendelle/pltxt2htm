@@ -16,6 +16,17 @@
 
 namespace pltxt2htm::details {
 
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr bool code_ast_has_html_style(::pltxt2htm::Ast<ndebug> const& ast) noexcept {
+    for (auto const& node : ast) {
+        if (node.get_node_kind() == ::pltxt2htm::NodeKind::html_span) {
+            return true;
+        }
+    }
+    return false;
+}
+
 enum class SyntaxLanguage : unsigned {
     plain = 0,
     cpp,

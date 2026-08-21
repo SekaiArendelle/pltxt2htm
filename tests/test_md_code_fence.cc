@@ -324,6 +324,8 @@ print("Hello World")
             u8"int</span>&nbsp;{\n&nbsp;&nbsp;&nbsp;&nbsp;std::<span style=\"color:#8250df;\">println</span>(<span "
             u8"style=\"color:#0a3069;\">&quot;Hello&nbsp;C++&quot;</span>);\n}</code></pre>"};
         pltxt2htm_test_assert_equal(html, answer);
+        auto const reparsed = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
+        pltxt2htm_test_assert_equal(reparsed, html);
 
         auto const richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto const richtext_answer = ::fast_io::u8string_view{
