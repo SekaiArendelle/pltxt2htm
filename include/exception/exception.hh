@@ -137,12 +137,11 @@ private:
 
 public:
     constexpr expected() noexcept(::std::is_nothrow_default_constructible_v<Ok>)
-        requires ::std::is_default_constructible_v<Ok>
+        // exception::optional<T> v{} is not allowed
+        requires (::std::is_default_constructible_v<Ok> && !::std::same_as<Fail, ::exception::details::nullopt_t_>)
         : ok_(),
           has_value_{true} {
     }
-
-    constexpr expected() noexcept = delete;
 
     constexpr expected(Ok const& ok) noexcept(::std::is_nothrow_copy_constructible_v<Ok>)
         requires (::std::is_copy_constructible_v<Ok>)
