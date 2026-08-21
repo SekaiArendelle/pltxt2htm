@@ -51,12 +51,10 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
     ::pltxt2htm::Ast<ndebug> result{};
 
     ::std::size_t start_index{};
-    bool html_pre_code_closing_tag_missing{};
 
     while (true) {
         auto&& [advance_count, has_new_frame] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
-            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index), call_stack, result,
-            html_pre_code_closing_tag_missing);
+            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index), call_stack, result);
         start_index += advance_count;
         if (has_new_frame == false) {
             break;

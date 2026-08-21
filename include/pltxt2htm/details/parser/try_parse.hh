@@ -3298,20 +3298,12 @@ struct TryParseMdCodeFenceResult {
 };
 
 template<::pltxt2htm::Contracts ndebug>
-struct TryParseHtmlPreCodeBlockResult {
-    ::pltxt2htm::container::Optional<TryParseMdCodeFenceResult<ndebug>> block{
-        ::pltxt2htm::container::nullopt}; ///< Parsed block, if any.
-    bool closing_tag_missing{}; ///< Whether a valid opening prefix had no closing tag in the remaining input.
-};
-
-template<::pltxt2htm::Contracts ndebug>
 struct HtmlCodeSpanFrame {
     ::pltxt2htm::Ast<ndebug> ast{};
     ::fast_io::u8string color{};
     ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size{::pltxt2htm::container::nullopt};
     ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align{
         ::pltxt2htm::container::nullopt};
-    ::fast_io::u8string_view opening_tag{};
 };
 
 /**
@@ -3320,7 +3312,7 @@ struct HtmlCodeSpanFrame {
  * @details Code remains literal except for canonical `<span style="...">` elements
  *          carrying color, font-size, or vertical-align. An explicit stack keeps
  *          deeply nested spans from consuming the C++ call stack. Unterminated spans
- *          are restored as literal text instead of invalidating the enclosing block.
+ *          are closed when the enclosing code block closes or reaches EOF.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
@@ -3331,25 +3323,15 @@ constexpr auto parse_html_code_content(::fast_io::u8string_view pltext) noexcept
     call_stack.push(HtmlCodeSpanFrame<ndebug>{});
     ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t current_index{};
+    bool found_end{};
 
     while (current_index < pltext_size) {
         char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index)};
         if (chr == u8'<' && ::pltxt2htm::details::is_prefix_match<ndebug, end_string>(
                                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) {
-            while (call_stack.container.size() != 1) {
-                auto frame =
-                    HtmlCodeSpanFrame<ndebug>{::std::move(::pltxt2htm::details::stack_top<ndebug>(call_stack))};
-                call_stack.pop();
-                auto&& parent = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
-                auto&& [_, opening_ast, found_end_] =
-                    ::pltxt2htm::details::simply_parse_pltext<ndebug, U8LiteralString<0>{}, false>(frame.opening_tag);
-                parent.ast.append_range(::std::move(opening_ast));
-                parent.ast.append_range(::std::move(frame.ast));
-            }
             current_index += end_string.size();
-            return {.advance_count = current_index,
-                    .ast = ::std::move(::pltxt2htm::details::stack_top<ndebug>(call_stack).ast),
-                    .found_end = true};
+            found_end = true;
+            break;
         }
 
         if (chr == u8'<') {
@@ -3376,13 +3358,10 @@ constexpr auto parse_html_code_content(::fast_io::u8string_view pltext) noexcept
                     opt_span_tag.has_value()) {
                     auto&& [tag_len, color, font_size, vertical_align] = opt_span_tag.template value<ndebug>();
                     ::std::size_t const consumed{tag_len + 2};
-                    call_stack.push(HtmlCodeSpanFrame<ndebug>{
-                        .ast = {},
-                        .color = ::std::move(color),
-                        .font_size = font_size,
-                        .vertical_align = ::std::move(vertical_align),
-                        .opening_tag =
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index, consumed)});
+                    call_stack.push(HtmlCodeSpanFrame<ndebug>{.ast = {},
+                                                              .color = ::std::move(color),
+                                                              .font_size = font_size,
+                                                              .vertical_align = ::std::move(vertical_align)});
                     current_index += consumed;
                     continue;
                 }
@@ -3394,9 +3373,16 @@ constexpr auto parse_html_code_content(::fast_io::u8string_view pltext) noexcept
             ::pltxt2htm::details::stack_top<ndebug>(call_stack).ast);
     }
 
+    while (call_stack.container.size() != 1) {
+        auto frame = HtmlCodeSpanFrame<ndebug>{::std::move(::pltxt2htm::details::stack_top<ndebug>(call_stack))};
+        call_stack.pop();
+        auto&& parent = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+        parent.ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlSpan<ndebug>{
+            ::std::move(frame.ast), ::std::move(frame.color), frame.font_size, frame.vertical_align}));
+    }
     return {.advance_count = current_index,
             .ast = ::std::move(::pltxt2htm::details::stack_top<ndebug>(call_stack).ast),
-            .found_end = false};
+            .found_end = found_end};
 }
 
 /**
@@ -3406,22 +3392,24 @@ constexpr auto parse_html_code_content(::fast_io::u8string_view pltext) noexcept
  * optionally followed by spaces/tabs and a bare `<code>` tag. The content up to
  * the matching `</code></pre>` is parsed as literal code plus the restricted
  * style spans emitted by the HTML backend and stored in a ::pltxt2htm::CodeFence node.
+ * Once the opening tags match, the block is committed and extends to the end of
+ * the input when the closing tags are missing.
  *
  * @tparam ndebug When set to Contracts::ignore, runtime assertions are disabled for performance.
  * @param[in] pltext Input text starting at "<pre>".
- * @return The optional parsed CodeFence plus a flag that distinguishes a missing closing tag from a prefix mismatch.
+ * @return The parsed CodeFence, or nullopt when the opening tags do not match.
  * @note The `<pre>` tag must be bare (no attributes) and `<code>` must immediately
  *       follow it (allowing only spaces/tabs in between).
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_html_pre_code_block(::fast_io::u8string_view pltext) noexcept
-    -> TryParseHtmlPreCodeBlockResult<ndebug> {
+    -> ::pltxt2htm::container::Optional<TryParseMdCodeFenceResult<ndebug>> {
     ::std::size_t const pltext_size{pltext.size()};
     // <pre> must be a bare tag (no attributes).
     auto opt_pre_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<pre">(pltext);
     if (opt_pre_tag_len.has_value() == false) {
-        return {};
+        return ::pltxt2htm::container::nullopt;
     }
     ::std::size_t pos{opt_pre_tag_len.template value<ndebug>() + 1};
 
@@ -3433,25 +3421,18 @@ constexpr auto try_parse_html_pre_code_block(::fast_io::u8string_view pltext) no
     auto opt_code_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<code">(
         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, pos));
     if (opt_code_tag_len.has_value() == false) {
-        return {};
+        return ::pltxt2htm::container::nullopt;
     }
     pos += opt_code_tag_len.template value<ndebug>() + 1;
 
     // parse content until the closing </code></pre>
-    auto&& [advance_count, ast, found_end] = ::pltxt2htm::details::parse_html_code_content<ndebug>(
+    auto content_result = ::pltxt2htm::details::parse_html_code_content<ndebug>(
         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, pos));
-    if (found_end == false) {
-        // No closing </code></pre> in the input: treat the whole construct as literal
-        // text instead of an unterminated code block.
-        return {.block = ::pltxt2htm::container::nullopt, .closing_tag_missing = true};
-    }
-    pos += advance_count;
+    pos += content_result.advance_count;
 
-    return {.block =
-                TryParseMdCodeFenceResult<ndebug>{
-                    .node = ::pltxt2htm::CodeFence<ndebug>{::std::move(ast), ::pltxt2htm::container::nullopt},
-                    .advance_count = pos},
-            .closing_tag_missing = false};
+    return TryParseMdCodeFenceResult<ndebug>{
+        .node = ::pltxt2htm::CodeFence<ndebug>{::std::move(content_result.ast), ::pltxt2htm::container::nullopt},
+        .advance_count = pos};
 }
 
 [[nodiscard]]

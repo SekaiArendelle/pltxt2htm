@@ -32,7 +32,6 @@ struct FindNextBlockAfterLineBreakResult {
  * @param pltext Input subview starting at the candidate block position.
  * @param call_stack Active parser call stack.
  * @param result AST being built.
- * @param html_pre_code_closing_tag_missing Cached negative closing-tag lookup for this input frame.
  * @return How many bytes were consumed and whether a new frame was created.
  * @note Handles the `<p>`, `<h1>`–`<h6>`, `<hr>`, `<blockquote>`, `<ul>`/`<ol>` and `<table>` blocks.
  */
@@ -40,7 +39,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto find_next_block_after_line_break(
     ::fast_io::u8string_view pltext, ::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>>& call_stack,
-    ::pltxt2htm::Ast<ndebug>& result, bool& html_pre_code_closing_tag_missing) noexcept
+    ::pltxt2htm::Ast<ndebug>& result) noexcept
     -> ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult {
     ::std::size_t current_index{};
     while (true) {
@@ -55,18 +54,13 @@ constexpr auto find_next_block_after_line_break(
             continue;
         }
         // Check for an HTML <pre><code>...</code></pre> code block at a block position.
-        if (html_pre_code_closing_tag_missing == false) {
-            auto pre_code_block_result = ::pltxt2htm::details::try_parse_html_pre_code_block<ndebug>(
+        if (auto opt_pre_code_block = ::pltxt2htm::details::try_parse_html_pre_code_block<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
-            if (pre_code_block_result.block.has_value()) {
-                auto&& [node, advance_count] = pre_code_block_result.block.template value<ndebug>();
-                result.push_back(::std::move(node));
-                return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
-                    .advance_count = current_index + advance_count, .new_frame_been_pushed_into_call_stack = false};
-            }
-            if (pre_code_block_result.closing_tag_missing) {
-                html_pre_code_closing_tag_missing = true;
-            }
+            opt_pre_code_block.has_value()) {
+            auto&& [node, advance_count] = opt_pre_code_block.template value<ndebug>();
+            result.push_back(::std::move(node));
+            return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
+                .advance_count = current_index + advance_count, .new_frame_been_pushed_into_call_stack = false};
         }
         if (auto opt_p_tag = ::pltxt2htm::details::try_parse_p_tag<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
@@ -312,8 +306,7 @@ entry:
         // Check for block-level <p> tag at line start (start of input or after frame completion)
         auto&& [entry_advance, entry_new_frame] =
             ::pltxt2htm::experimental::details::find_next_block_after_line_break<ndebug>(
-                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), call_stack, result,
-                top_frame.html_pre_code_closing_tag_missing);
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), call_stack, result);
         current_index += entry_advance;
         if (entry_new_frame) {
             goto entry;
@@ -328,8 +321,7 @@ entry:
                 // Check for block-level <p> tag after newline
                 auto&& [nl_advance, nl_new_frame] =
                     ::pltxt2htm::experimental::details::find_next_block_after_line_break<ndebug>(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), call_stack, result,
-                        top_frame.html_pre_code_closing_tag_missing);
+                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), call_stack, result);
                 current_index += nl_advance;
                 if (nl_new_frame) {
                     goto entry;
@@ -421,7 +413,7 @@ entry:
                         auto&& [br_advance, br_new_frame] =
                             ::pltxt2htm::experimental::details::find_next_block_after_line_break<ndebug>(
                                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1),
-                                call_stack, result, top_frame.html_pre_code_closing_tag_missing);
+                                call_stack, result);
                         current_index += br_advance;
                         if (br_new_frame) {
                             current_index += 1;

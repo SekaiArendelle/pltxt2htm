@@ -1216,7 +1216,6 @@ class ParserFrameContext {
 public:
     ::std::size_t current_index{}; ///< Current parse position in the raw text.
     ::pltxt2htm::Ast<ndebug> subast; ///< Sub-AST being built for this frame.
-    bool html_pre_code_closing_tag_missing{}; ///< Avoid repeated suffix scans after a missing closing tag.
 
     constexpr explicit ParserFrameContext(FrontendContextVariant<ndebug>&& ctx,
                                           ::pltxt2htm::Ast<ndebug>&& subast_) noexcept
@@ -1229,8 +1228,7 @@ public:
     constexpr ParserFrameContext(ParserFrameContext<ndebug>&& other) noexcept
         : context_data{::std::move(other.context_data)},
           current_index{other.current_index},
-          subast(::std::move(other.subast)),
-          html_pre_code_closing_tag_missing{other.html_pre_code_closing_tag_missing} {
+          subast(::std::move(other.subast)) {
     }
 
     constexpr auto operator=(ParserFrameContext<ndebug> const&) noexcept -> ParserFrameContext<ndebug>& = delete;

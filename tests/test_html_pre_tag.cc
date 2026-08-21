@@ -79,21 +79,34 @@ int main() {
         pltxt2htm_test_assert_equal(html, pltext);
     }
 
-    // An unterminated style span remains literal code and does not invalidate the block.
+    // An unterminated style span is closed with the surrounding code block.
     {
         auto const html =
             ::pltxt2htm_test::pltxt4htmlunittest(u8"<pre><code><span style=\"color:red;\">text</code></pre>");
         auto const answer =
-            ::fast_io::u8string_view{u8"<pre><code>&lt;span&nbsp;style=&quot;color:red;&quot;&gt;text</code></pre>"};
+            ::fast_io::u8string_view{u8"<pre><code><span style=\"color:red;\">text</span></code></pre>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
-    // Once a frame has no closing code tag, later candidates remain ordinary text.
+    // Once the opening tags match, an unterminated code block extends to EOF.
     {
         auto const pltext = ::fast_io::u8string_view{u8"<pre><code>a\n<pre><code>b"};
         auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto const answer = ::fast_io::u8string_view{u8"&lt;pre&gt;<code>a<br>&lt;pre&gt;b</code>"};
+        auto const answer = ::fast_io::u8string_view{u8"<pre><code>a\n&lt;pre&gt;&lt;code&gt;b</code></pre>"};
         pltxt2htm_test_assert_equal(html, answer);
+        auto const html_parser_result = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
+        pltxt2htm_test_assert_equal(html_parser_result, answer);
+    }
+
+    // Unterminated style spans and their surrounding code block are both closed at EOF.
+    {
+        auto const pltext = ::fast_io::u8string_view{u8"<pre><code><span style=\"color:red;\">text"};
+        auto const answer =
+            ::fast_io::u8string_view{u8"<pre><code><span style=\"color:red;\">text</span></code></pre>"};
+        auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        pltxt2htm_test_assert_equal(html, answer);
+        auto const html_parser_result = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
+        pltxt2htm_test_assert_equal(html_parser_result, answer);
     }
 
     // <pre> wrapping anything other than <code> is literal escaped text
