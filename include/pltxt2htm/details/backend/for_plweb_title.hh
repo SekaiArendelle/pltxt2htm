@@ -13,7 +13,6 @@
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
-#include <exception/exception.hh>
 #include "frame_context.hh"
 #include "../utils.hh"
 #include "../../ast/vertical_align_value.hh"
@@ -153,7 +152,7 @@ entry:
                     result.push_back(u8';');
                 }
                 if (has_font_size) {
-                    auto const& font_size = span_font_size.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    auto const& font_size = span_font_size.template value<ndebug>();
                     result.append(u8"font-size:");
                     result.append(::pltxt2htm::details::double2str(font_size.value));
                     switch (font_size.unit) /* -Werror=switch */ {
@@ -179,8 +178,7 @@ entry:
                     result.push_back(u8';');
                 }
                 if (has_vertical_align) {
-                    auto const& vertical_align =
-                        span_vertical_align.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    auto const& vertical_align = span_vertical_align.template value<ndebug>();
                     result.append(u8"vertical-align:");
                     if (vertical_align.get_kind() == ::pltxt2htm::VerticalAlignKind::keyword) {
                         result.append(

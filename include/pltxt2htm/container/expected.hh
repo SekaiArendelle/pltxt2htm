@@ -1,7 +1,7 @@
 #pragma once
 
 /**
- * @file exception.hh
+ * @file expected.hh
  * @details https://github.com/SekaiArendelle/exception.git
  */
 
@@ -10,68 +10,9 @@
 #include <type_traits>
 #include <concepts>
 
-#if !defined(__GNUC__) && !defined(__clang__)
-    #include <cstdlib>
-    #include <exception>
-#endif
+#include <pltxt2htm/details/panic.hh>
 
-namespace exception {
-
-/**
- * @brief Terminates the program.
- */
-[[noreturn]]
-inline void terminate() noexcept {
-    // https://llvm.org/doxygen/Compiler_8h_source.html
-#if defined(__has_builtin)
-    #if __has_builtin(__builtin_trap)
-    __builtin_trap();
-    #else
-    ::std::terminate();
-    #endif
-#else
-    ::std::terminate();
-#endif
-}
-
-/**
- * @brief Unreachable code.
- */
-template<bool ndebug = false>
-[[noreturn]]
-inline void unreachable() noexcept {
-    if constexpr (ndebug) {
-#if defined(__has_builtin)
-    #if __has_builtin(__builtin_unreachable)
-        __builtin_unreachable();
-    #else
-        ::std::unreachable();
-    #endif
-#else
-        ::std::unreachable();
-#endif
-    } else {
-        ::exception::terminate();
-    }
-}
-
-template<bool ndebug = false>
-constexpr void assert_true(bool cond) noexcept {
-    if constexpr (ndebug == false) {
-        if (cond == false) [[unlikely]] {
-            ::exception::terminate();
-        }
-    }
-}
-
-template<bool ndebug = false>
-constexpr void assert_false(bool cond) noexcept {
-    if constexpr (ndebug == false) {
-        if (cond == true) [[unlikely]] {
-            ::exception::terminate();
-        }
-    }
-}
+namespace pltxt2htm::container {
 
 template<typename T>
 struct unexpected {
@@ -89,7 +30,7 @@ template<typename T>
 constexpr bool is_unexpected_v = false;
 
 template<typename T>
-constexpr bool is_unexpected_v<::exception::unexpected<T>> = true;
+constexpr bool is_unexpected_v<::pltxt2htm::container::unexpected<T>> = true;
 
 } // namespace details
 
@@ -108,9 +49,9 @@ struct nullopt_t_ {
 } // namespace details
 
 template<typename T>
-using optional = ::exception::expected<T, details::nullopt_t_>;
+using optional = ::pltxt2htm::container::expected<T, details::nullopt_t_>;
 
-using nullopt_t = ::exception::unexpected<details::nullopt_t_>;
+using nullopt_t = ::pltxt2htm::container::unexpected<details::nullopt_t_>;
 
 inline constexpr auto nullopt = nullopt_t{};
 
@@ -118,14 +59,14 @@ template<typename Ok, typename Fail>
 class expected {
     static_assert(!::std::is_reference_v<Ok>);
     static_assert(!::std::is_function_v<Ok>);
-    static_assert(!::exception::is_unexpected<Ok>);
+    static_assert(!::pltxt2htm::container::is_unexpected<Ok>);
 
 public:
     using value_type = ::std::remove_cvref_t<Ok>;
     using error_type = ::std::remove_cvref_t<Fail>;
-    using unexpected_type = ::exception::unexpected<Fail>;
+    using unexpected_type = ::pltxt2htm::container::unexpected<Fail>;
     template<typename T>
-    using rebind = ::exception::expected<T, Fail>;
+    using rebind = ::pltxt2htm::container::expected<T, Fail>;
 
 private:
     union {
@@ -137,8 +78,9 @@ private:
 
 public:
     constexpr expected() noexcept(::std::is_nothrow_default_constructible_v<Ok>)
-        // exception::optional<T> v{} is not allowed
-        requires (::std::is_default_constructible_v<Ok> && !::std::same_as<Fail, ::exception::details::nullopt_t_>)
+        // container::optional<T> v{} is not allowed
+        requires (::std::is_default_constructible_v<Ok> &&
+                  !::std::same_as<Fail, ::pltxt2htm::container::details::nullopt_t_>)
         : ok_(),
           has_value_{true} {
     }
@@ -172,7 +114,8 @@ public:
         : has_value_(other.has_value_) {
         if (this->has_value()) {
             ::std::construct_at(::std::addressof(this->ok_), other.ok_);
-        } else {
+        }
+        else {
             ::std::construct_at(::std::addressof(this->fail_), other.fail_);
         }
     }
@@ -182,7 +125,8 @@ public:
         : has_value_(::std::move(other.has_value_)) {
         if (this->has_value()) {
             ::std::construct_at(::std::addressof(this->ok_), ::std::move(other.ok_));
-        } else {
+        }
+        else {
             ::std::construct_at(::std::addressof(this->fail_), ::std::move(other.fail_));
         }
     }
@@ -194,7 +138,8 @@ public:
     {
         if (this->has_value()) {
             ::std::destroy_at(::std::addressof(this->ok_));
-        } else {
+        }
+        else {
             ::std::destroy_at(::std::addressof(this->fail_));
         }
     }
@@ -205,7 +150,8 @@ public:
     constexpr auto&& operator=(this expected<Ok, Fail>& self, T&& ok) noexcept {
         if (self.has_value()) {
             self.ok_ = ::std::forward<T>(ok);
-        } else {
+        }
+        else {
             ::std::destroy_at(::std::addressof(self.fail_));
             ::std::construct_at(::std::addressof(self.ok_), ::std::forward<T>(ok));
             self.has_value_ = true;
@@ -213,22 +159,23 @@ public:
         return self;
     }
 
-    template<::exception::is_unexpected T>
+    template<::pltxt2htm::container::is_unexpected T>
     constexpr auto&& operator=(this expected<Ok, Fail>& self, T const& fail) noexcept {
         self.has_value_ = false;
         self.fail_ = fail.val_;
         return self;
     }
 
-    template<::exception::is_unexpected T>
+    template<::pltxt2htm::container::is_unexpected T>
     constexpr auto&& operator=(this expected<Ok, Fail>& self, T&& fail) noexcept {
         self.has_value_ = false;
         self.fail_ = ::std::move(fail.val_);
         return self;
     }
 
-    constexpr auto&& operator=(this expected<Ok, Fail>& self, ::exception::expected<Ok, Fail> const& other) noexcept {
-        ::exception::expected<Ok, Fail> tmp(other);
+    constexpr auto&& operator=(this expected<Ok, Fail>& self,
+                               ::pltxt2htm::container::expected<Ok, Fail> const& other) noexcept {
+        ::pltxt2htm::container::expected<Ok, Fail> tmp(other);
         tmp.swap(self);
         return self;
     }
@@ -247,21 +194,24 @@ public:
                 Ok tmp{::std::move(self.ok_)};
                 self.ok_ = ::std::move(other.ok_);
                 other.ok_ = ::std::move(tmp);
-            } else {
+            }
+            else {
                 Ok tmp{::std::move(self.ok_)};
                 self.fail_ = ::std::move(other.fail_);
                 other.ok_ = ::std::move(tmp);
                 self.has_value_ = false;
                 other.has_value_ = true;
             }
-        } else {
+        }
+        else {
             if (other.has_value()) {
                 Fail tmp{::std::move(self.fail_)};
                 self.ok_ = ::std::move(other.ok_);
                 other.fail_ = ::std::move(tmp);
                 self.has_value_ = true;
                 other.has_value_ = false;
-            } else {
+            }
+            else {
                 Fail tmp{::std::move(self.fail_)};
                 self.fail_ = ::std::move(other.fail_);
                 other.fail_ = ::std::move(tmp);
@@ -283,20 +233,20 @@ public:
      * @brief get value from optional or expected, if it is not, terminate the program
      * @param self: the optional or expected object
      */
-    template<bool ndebug = false>
+    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto&& value(this auto&& self) noexcept {
-        ::exception::assert_true<ndebug>(self.has_value());
+        ::pltxt2htm::details::assert_true<ndebug>(self.has_value());
         return ::std::forward_like<decltype(self)>(self.ok_);
     }
 
     /**
      * @brief get the error value from an expected
      */
-    template<bool ndebug = false>
+    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto&& error(this auto&& self) noexcept {
-        ::exception::assert_false<ndebug>(self.has_value());
+        ::pltxt2htm::details::assert_false<ndebug>(self.has_value());
         return ::std::forward_like<decltype(self)>(self.fail_);
     }
 
@@ -394,4 +344,4 @@ concept is_expected = details::is_expected_<::std::remove_cvref_t<T>>;
 template<typename T>
 concept is_optional = details::is_optional_<::std::remove_cvref_t<T>>;
 
-} // namespace exception
+} // namespace pltxt2htm::container

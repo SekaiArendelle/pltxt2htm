@@ -61,7 +61,7 @@
  * @brief Mark a code path as unreachable; calls panic or unreachable builtin.
  * @param message Diagnostic message string literal.
  * @note In quick_enforce mode invokes ::pltxt2htm::details::panic.
- *       In ignore mode uses ::exception::unreachable<true>().
+ *       In ignore mode uses ::pltxt2htm::details::unreachable<::pltxt2htm::Contracts::ignore>().
  */
 #pragma push_macro("pltxt2htm_unreachable")
 #undef pltxt2htm_unreachable
@@ -74,6 +74,6 @@
                                         source_location.column(), ::pltxt2htm::details::U8LiteralString{message}>(); \
         } \
         else { \
-            ::exception::unreachable<true>(); \
+            ::pltxt2htm::details::unreachable<::pltxt2htm::Contracts::ignore>(); \
         } \
     } while (0)

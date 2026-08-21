@@ -15,9 +15,9 @@
 #include <type_traits>
 #include <utility>
 
-#include <exception/exception.hh>
-
 namespace pltxt2htm::details {
+
+[[noreturn]] inline void terminate() noexcept;
 
 template<typename, ::std::size_t>
 class BasicLiteralString;
@@ -84,7 +84,7 @@ public:
     [[nodiscard]]
     constexpr auto&& operator[](this is_literal_string auto&& self, ::std::size_t index) noexcept {
         if (index >= N) [[unlikely]] {
-            ::exception::terminate();
+            ::pltxt2htm::details::terminate();
         }
         return self.data_[index];
     }
@@ -184,3 +184,5 @@ consteval auto concat(Arg const& arg, Args const&... args) noexcept {
 }
 
 } // namespace pltxt2htm::details
+
+#include "panic.hh"

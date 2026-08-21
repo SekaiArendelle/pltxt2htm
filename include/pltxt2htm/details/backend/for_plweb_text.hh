@@ -12,7 +12,6 @@
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
-#include <exception/exception.hh>
 #include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"
 #include "frame_context.hh"
@@ -219,7 +218,7 @@ constexpr void append_html_attr_escaped(::fast_io::u8string& result, ::fast_io::
             if (auto const opt_entity_len = ::pltxt2htm::details::try_parse_entity_reference<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(value, index));
                 opt_entity_len.has_value()) {
-                auto const entity_len = opt_entity_len.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                auto const entity_len = opt_entity_len.template value<ndebug>();
                 result.append(::fast_io::u8string_view{value.data() + index, entity_len});
                 index += entity_len - 1;
                 break;
@@ -620,7 +619,7 @@ entry:
                 result.append(u8"<div style=\"");
                 if (margin_left.has_value()) {
                     result.append(u8"margin-left:");
-                    auto const& margin_value = margin_left.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    auto const& margin_value = margin_left.template value<ndebug>();
                     result.append(::pltxt2htm::details::size_t2str(margin_value.value));
                     switch (margin_value.unit) /* -Werror=switch */ {
                     case ::pltxt2htm::Unit::percent: {
@@ -646,7 +645,7 @@ entry:
                 }
                 if (margin_right.has_value()) {
                     result.append(u8"margin-right:");
-                    auto const& margin_value = margin_right.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    auto const& margin_value = margin_right.template value<ndebug>();
                     result.append(::pltxt2htm::details::size_t2str(margin_value.value));
                     switch (margin_value.unit) /* -Werror=switch */ {
                     case ::pltxt2htm::Unit::percent: {
@@ -682,7 +681,7 @@ entry:
                 result.append(u8"<div style=\"");
                 if (margin_left.has_value()) {
                     result.append(u8"margin-left:");
-                    auto const& margin_value = margin_left.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    auto const& margin_value = margin_left.template value<ndebug>();
                     result.append(::pltxt2htm::details::size_t2str(margin_value.value));
                     switch (margin_value.unit) /* -Werror=switch */ {
                     case ::pltxt2htm::Unit::percent: {
@@ -708,7 +707,7 @@ entry:
                 }
                 if (margin_right.has_value()) {
                     result.append(u8"margin-right:");
-                    auto const& margin_value = margin_right.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    auto const& margin_value = margin_right.template value<ndebug>();
                     result.append(::pltxt2htm::details::size_t2str(margin_value.value));
                     switch (margin_value.unit) /* -Werror=switch */ {
                     case ::pltxt2htm::Unit::percent: {
@@ -763,7 +762,7 @@ entry:
                     result.push_back(u8';');
                 }
                 if (has_font_size) {
-                    auto const& font_size = span_font_size.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    auto const& font_size = span_font_size.template value<ndebug>();
                     result.append(u8"font-size:");
                     result.append(::pltxt2htm::details::double2str(font_size.value));
                     switch (font_size.unit) /* -Werror=switch */ {
@@ -789,8 +788,7 @@ entry:
                     result.push_back(u8';');
                 }
                 if (has_vertical_align) {
-                    auto const& vertical_align =
-                        span_vertical_align.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    auto const& vertical_align = span_vertical_align.template value<ndebug>();
                     result.append(u8"vertical-align:");
                     if (vertical_align.get_kind() == ::pltxt2htm::VerticalAlignKind::keyword) {
                         result.append(
@@ -1497,7 +1495,7 @@ entry:
             case ::pltxt2htm::NodeKind::code_fence: {
                 auto const& opt_language = node.as_code_fence().get_language();
                 if (opt_language.has_value()) {
-                    auto const& language = opt_language.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                    auto const& language = opt_language.template value<ndebug>();
                     result.append(u8"<pre><code class=\"language-");
                     ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
                         result, ::fast_io::u8string_view{language.data(), language.size()});

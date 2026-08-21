@@ -9,7 +9,7 @@
 #include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
-#include <exception/exception.hh>
+#include <pltxt2htm/container/expected.hh>
 #include "list_ast.hh"
 #include "../utils.hh"
 #include "../../contracts.hh"
@@ -117,7 +117,8 @@ struct PreviousItemInfo {
 template<::pltxt2htm::Contracts ndebug, MdUlListItemKind item_kind>
 [[nodiscard]]
 constexpr auto is_valid_md_ul_list_hierarchy(::fast_io::u8string_view pltext, ::std::size_t const space_hierarchy,
-                                             ::exception::optional<PreviousItemInfo> const expect) noexcept -> bool {
+                                             ::pltxt2htm::container::optional<PreviousItemInfo> const expect) noexcept
+    -> bool {
     if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, space_hierarchy) != static_cast<char8_t>(item_kind)) {
         return false;
     }
@@ -128,13 +129,13 @@ constexpr auto is_valid_md_ul_list_hierarchy(::fast_io::u8string_view pltext, ::
         // - test
         // - test
         //   - text <== here
-        space_hierarchy > expect.template value<ndebug == ::pltxt2htm::Contracts::ignore>().space_hierarchy + 1 ||
+        space_hierarchy > expect.template value<ndebug>().space_hierarchy + 1 ||
         // e.g.
         // - test
         //   - test
         //   + test <== here
-        (!expect.template value<ndebug == ::pltxt2htm::Contracts::ignore>().call_stack_is_single &&
-         space_hierarchy >= expect.template value<ndebug == ::pltxt2htm::Contracts::ignore>().space_hierarchy) ||
+        (!expect.template value<ndebug>().call_stack_is_single &&
+         space_hierarchy >= expect.template value<ndebug>().space_hierarchy) ||
         // e.g.
         // - test
         // - test
@@ -144,8 +145,8 @@ constexpr auto is_valid_md_ul_list_hierarchy(::fast_io::u8string_view pltext, ::
         // - test
         //   - test
         //   + test <== here, this is allowed
-        (expect.template value<ndebug == ::pltxt2htm::Contracts::ignore>().call_stack_is_single &&
-         expect.template value<ndebug == ::pltxt2htm::Contracts::ignore>().item_kind == item_kind)) {
+        (expect.template value<ndebug>().call_stack_is_single &&
+         expect.template value<ndebug>().item_kind == item_kind)) {
         return true;
     }
 
@@ -171,22 +172,22 @@ constexpr auto is_valid_md_ul_list_hierarchy(::fast_io::u8string_view pltext, ::
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto is_valid_md_ol_list_hierarchy(::fast_io::u8string_view pltext, ::std::size_t const space_hierarchy,
-                                             ::exception::optional<PreviousItemInfo> const expect) noexcept
-    -> ::exception::optional<MdOlListMarkerResult> {
+                                             ::pltxt2htm::container::optional<PreviousItemInfo> const expect) noexcept
+    -> ::pltxt2htm::container::optional<MdOlListMarkerResult> {
     ::std::size_t const pltext_size{pltext.size()};
     if (pltext_size < 4) {
-        return ::exception::nullopt;
+        return ::pltxt2htm::container::nullopt;
     }
     auto const opt_number = ::pltxt2htm::details::try_parse_size_t_decimal_value<ndebug>(
         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, space_hierarchy));
     if (opt_number.has_value() == false) {
-        return ::exception::nullopt;
+        return ::pltxt2htm::container::nullopt;
     }
-    auto&& [number_len, number] = opt_number.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+    auto&& [number_len, number] = opt_number.template value<ndebug>();
     {
         ::std::size_t i{space_hierarchy + number_len};
         if (i >= pltext_size) {
-            return ::exception::nullopt;
+            return ::pltxt2htm::container::nullopt;
         }
         MdUlListItemKind ordered_kind;
         switch (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i)) {
@@ -199,11 +200,11 @@ constexpr auto is_valid_md_ol_list_hierarchy(::fast_io::u8string_view pltext, ::
             break;
         }
         default: {
-            return ::exception::nullopt;
+            return ::pltxt2htm::container::nullopt;
         }
         }
         if (++i >= pltext_size) {
-            return ::exception::nullopt;
+            return ::pltxt2htm::container::nullopt;
         }
         if ( // parsing the first line
             !expect.has_value() ||
@@ -211,23 +212,23 @@ constexpr auto is_valid_md_ol_list_hierarchy(::fast_io::u8string_view pltext, ::
             // - test
             // - test
             //   1. text <== here
-            space_hierarchy > expect.template value<ndebug == ::pltxt2htm::Contracts::ignore>().space_hierarchy + 1 ||
+            space_hierarchy > expect.template value<ndebug>().space_hierarchy + 1 ||
             // e.g.
             // - test
             //   1. test
             //   2. test <== here
-            (!expect.template value<ndebug == ::pltxt2htm::Contracts::ignore>().call_stack_is_single &&
-             space_hierarchy >= expect.template value<ndebug == ::pltxt2htm::Contracts::ignore>().space_hierarchy) ||
+            (!expect.template value<ndebug>().call_stack_is_single &&
+             space_hierarchy >= expect.template value<ndebug>().space_hierarchy) ||
             // e.g.
             // - test
             // - test
             // 1. test <== here, this line is invalid markdown list
-            (expect.template value<ndebug == ::pltxt2htm::Contracts::ignore>().call_stack_is_single &&
-             expect.template value<ndebug == ::pltxt2htm::Contracts::ignore>().item_kind == ordered_kind)) {
+            (expect.template value<ndebug>().call_stack_is_single &&
+             expect.template value<ndebug>().item_kind == ordered_kind)) {
             return MdOlListMarkerResult{.advance_to = i, .item_kind = ordered_kind, .number = number};
         }
     }
-    return ::exception::nullopt;
+    return ::pltxt2htm::container::nullopt;
 }
 
 /**
@@ -252,9 +253,10 @@ struct TryParseItemResult {
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_item(::fast_io::u8string_view pltext,
-                              ::exception::optional<PreviousItemInfo> const expect = ::exception::nullopt) noexcept
-    -> ::exception::optional<TryParseItemResult> {
+constexpr auto try_parse_item(
+    ::fast_io::u8string_view pltext,
+    ::pltxt2htm::container::optional<PreviousItemInfo> const expect = ::pltxt2htm::container::nullopt) noexcept
+    -> ::pltxt2htm::container::optional<TryParseItemResult> {
     ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t current_index{};
     // parsing spaces before - or + or *
@@ -265,7 +267,7 @@ constexpr auto try_parse_item(::fast_io::u8string_view pltext,
         }
     }
     if (current_index == pltext_size) {
-        return ::exception::nullopt;
+        return ::pltxt2htm::container::nullopt;
     }
     ::std::size_t const space_hierarchy{current_index};
 
@@ -296,22 +298,22 @@ constexpr auto try_parse_item(::fast_io::u8string_view pltext,
     else if (auto opt_marker =
                  ::pltxt2htm::details::is_valid_md_ol_list_hierarchy<ndebug>(pltext, space_hierarchy, expect);
              opt_marker.has_value()) {
-        auto const marker = opt_marker.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        auto const marker = opt_marker.template value<ndebug>();
         item_kind = marker.item_kind;
         ordered_number = marker.number;
         current_index = marker.advance_to;
     }
     else {
-        return ::exception::nullopt;
+        return ::pltxt2htm::container::nullopt;
     }
 
     // - or + or * must be followed by space
     if (current_index == pltext_size) {
-        return ::exception::nullopt;
+        return ::pltxt2htm::container::nullopt;
     }
     if (char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index)};
         chr != u8' ' && chr != u8'\t') {
-        return ::exception::nullopt;
+        return ::pltxt2htm::container::nullopt;
     }
     // parsing spaces after - or + or *
     for (; current_index < pltext_size; ++current_index) {
@@ -389,14 +391,14 @@ constexpr auto to_top_list_node(ListAst<ndebug>&& items, MdUlListItemKind item_k
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexcept
-    -> ::exception::optional<ToListAstResult<ndebug>> {
+    -> ::pltxt2htm::container::optional<ToListAstResult<ndebug>> {
     ::fast_io::stack<MdListFrameContext<ndebug>> call_stack{};
 
     // manually managing stack to avoid stack-overflow
     {
         if (auto opt_item = ::pltxt2htm::details::try_parse_item<ndebug>(pltext); opt_item.has_value()) {
             auto&& [space_hierarchy, advance_count, text, item_kind, checkbox, checked, ordered_number] =
-                opt_item.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+                opt_item.template value<ndebug>();
             MdListFrameContext<ndebug> current_frame{item_kind, space_hierarchy, pltext, advance_count, ordered_number};
             if (checkbox) {
                 current_frame.md_list_ast.emplace_back(ListLiCheckboxNode(::std::move(text), checked));
@@ -413,7 +415,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
             call_stack.push(::std::move(current_frame));
         }
         else {
-            return ::exception::nullopt;
+            return ::pltxt2htm::container::nullopt;
         }
     }
     while (true) {
@@ -463,7 +465,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
             continue;
         }
         auto&& [space_hierarchy, advance_count, text, item_kind, checkbox, checked, ordered_number] =
-            opt_list_item.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+            opt_list_item.template value<ndebug>();
         current_index += advance_count;
         if (space_hierarchy > top_frame.space_hierarchy + 1) {
             call_stack.push(MdListFrameContext<ndebug>{

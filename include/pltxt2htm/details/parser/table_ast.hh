@@ -17,7 +17,7 @@
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
 #include <fast_io/fast_io_dsal/vector.h>
-#include <exception/exception.hh>
+#include <pltxt2htm/container/expected.hh>
 #include "../utils.hh"
 #include "../../contracts.hh"
 #include "../../ast/ast.hh"
@@ -65,7 +65,7 @@ struct TableRowRaw {
 template<::pltxt2htm::Contracts ndebug>
 class TableAstRaw {
     ::fast_io::vector<TableRowRaw> rows{};
-    ::exception::optional<::fast_io::u8string> caption_text{::exception::nullopt};
+    ::pltxt2htm::container::optional<::fast_io::u8string> caption_text{::pltxt2htm::container::nullopt};
     ::std::size_t col_count{}; // <==> optional<non_zero_usize> col_count;
 
 public:
@@ -78,7 +78,7 @@ public:
     /// @return Raw caption content (valid only when has_caption()).
     [[nodiscard]]
     constexpr auto caption(this TableAstRaw<ndebug> const& self) noexcept -> ::fast_io::u8string_view {
-        auto&& text = self.caption_text.template value<ndebug == ::pltxt2htm::Contracts::ignore>();
+        auto&& text = self.caption_text.template value<ndebug>();
         return ::fast_io::u8string_view{text.data(), text.size()};
     }
 
