@@ -25,15 +25,19 @@ int main() {
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
+    // Attributes on <code> are not part of the roundtrip HTML subset.
     {
         auto pltext = ::fast_io::u8string_view{u8"<pre><code class=\"language-cpp\">int x;</code></pre>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer =
-            ::fast_io::u8string_view{u8"<pre><code><span style=\"color:#cf222e;\">int</span>&nbsp;x;</code></pre>"};
+        auto answer = ::fast_io::u8string_view{
+            u8"&lt;pre&gt;&lt;code&nbsp;class=&quot;language-cpp&quot;&gt;int&nbsp;x;&lt;/code&gt;&lt;/pre&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{
-            u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\n<color=#cf222e>int</color>\u00A0x;\n</font>"};
+            u8"<size=20>\uff1c</size>pre<size=20>\uff1e</size><size=20>\uff1c</size>code\u00A0class=\"language-cpp\""
+            u8"<size=20>\uff1e</size>int\u00A0x;<size=20>\uff1c</size>/code<size=20>\uff1e</size><size=20>\uff1c</"
+            u8"size>/"
+            u8"pre<size=20>\uff1e</size>"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 

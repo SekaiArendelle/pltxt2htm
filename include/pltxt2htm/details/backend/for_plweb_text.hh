@@ -1523,18 +1523,8 @@ entry:
                 continue;
             }
             case ::pltxt2htm::NodeKind::code_fence: {
-                auto const& opt_language = node.as_code_fence().get_language();
                 if constexpr (mode == PlWebTextBackendMode::roundtrip) {
-                    if (opt_language.has_value()) {
-                        auto const& language = opt_language.template value<ndebug>();
-                        result.append(u8"<pre><code class=\"language-");
-                        ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                            result, ::fast_io::u8string_view{language.data(), language.size()});
-                        result.append(u8"\">");
-                    }
-                    else {
-                        result.append(u8"<pre><code>");
-                    }
+                    result.append(u8"<pre><code>");
                     call_stack.push(BackendFrameContext<ndebug>(node.as_code_fence().get_subast(),
                                                                 ::pltxt2htm::NodeKind::code_fence, 0));
                     ++current_index;
@@ -1542,6 +1532,7 @@ entry:
                 }
                 result.append(u8"<pre><code>");
                 SyntaxLanguage language{SyntaxLanguage::plain};
+                auto const& opt_language = node.as_code_fence().get_language();
                 if (opt_language.has_value()) {
                     auto const& language_value = opt_language.template value<ndebug>();
                     language = ::pltxt2htm::details::resolve_syntax_language(

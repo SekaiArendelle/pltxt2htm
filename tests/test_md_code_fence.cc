@@ -265,6 +265,17 @@ print("Hello World")
     }
 
     {
+        // The roundtrip backend intentionally discards the Markdown fence language.
+        // Its HTML subset only accepts bare <pre><code>, so both passes stay identical
+        // without relying on a highlight.js language class.
+        auto const once = ::pltxt2htm_test::pltxt2roundtrip_htmld(u8"```cpp\nint x;\n```");
+        auto const answer = ::fast_io::u8string_view{u8"<pre><code>int&nbsp;x;</code></pre>"};
+        pltxt2htm_test_assert_equal(once, answer);
+        auto const twice = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{once.data(), once.size()});
+        pltxt2htm_test_assert_equal(twice, once);
+    }
+
+    {
         // regression: a line that merely starts with a fence (e.g. a nested markdown fence)
         // inside the code content is NOT a valid closing fence, so it stays as content and
         // only a proper closing fence on its own line ends the block.
