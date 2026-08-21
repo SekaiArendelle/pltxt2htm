@@ -313,9 +313,8 @@ constexpr void convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast<nde
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr void append_highlighted_code_to_plunity_richtext(::pltxt2htm::Ast<ndebug> const& ast,
-                                                           SyntaxLanguage const language,
+                                                           ::fast_io::vector<SyntaxTokenSpan> const& spans,
                                                            ::fast_io::u8string& out) noexcept {
-    auto const spans{::pltxt2htm::details::highlight_syntax<ndebug>(ast, language)};
     ::std::size_t current_index{};
     for (auto const& span : spans) {
         ::pltxt2htm::details::convert_simple_pltxt_ast_range_to_plunity_richtext<ndebug, true>(ast, current_index,
@@ -1520,12 +1519,6 @@ entry:
             }
             case ::pltxt2htm::NodeKind::code_fence: {
                 result.append(u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\n");
-                if (::pltxt2htm::details::code_ast_is_simple<ndebug>(node.as_code_fence().get_subast()) == false) {
-                    call_stack.push(BackendFrameContext<ndebug>(node.as_code_fence().get_subast(),
-                                                                ::pltxt2htm::NodeKind::code_fence, 0));
-                    ++current_index;
-                    goto entry;
-                }
                 SyntaxLanguage language{SyntaxLanguage::plain};
                 auto const& opt_language = node.as_code_fence().get_language();
                 if (opt_language.has_value()) {
@@ -1533,8 +1526,16 @@ entry:
                     language = ::pltxt2htm::details::resolve_syntax_language(
                         ::fast_io::u8string_view{language_value.data(), language_value.size()});
                 }
+                auto const highlight_result =
+                    ::pltxt2htm::details::highlight_syntax<ndebug>(node.as_code_fence().get_subast(), language);
+                if (highlight_result.simple == false) {
+                    call_stack.push(BackendFrameContext<ndebug>(node.as_code_fence().get_subast(),
+                                                                ::pltxt2htm::NodeKind::code_fence, 0));
+                    ++current_index;
+                    goto entry;
+                }
                 ::pltxt2htm::details::append_highlighted_code_to_plunity_richtext<ndebug>(
-                    node.as_code_fence().get_subast(), language, result);
+                    node.as_code_fence().get_subast(), highlight_result.spans, result);
                 result.append(u8"\n</font>");
                 continue;
             }

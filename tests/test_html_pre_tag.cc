@@ -52,6 +52,14 @@ int main() {
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
+    // HTML code content is literal in the PL text frontend as well as in the HTML frontend.
+    {
+        auto const pltext = ::fast_io::u8string_view{u8"<pre><code>a\\&b\\*</code></pre>"};
+        auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const answer = ::fast_io::u8string_view{u8"<pre><code>a\\&amp;b\\*</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     // Canonical style spans emitted by the HTML backend remain markup inside code blocks.
     {
         auto const pltext =
@@ -77,6 +85,14 @@ int main() {
             ::pltxt2htm_test::pltxt4htmlunittest(u8"<pre><code><span style=\"color:red;\">text</code></pre>");
         auto const answer =
             ::fast_io::u8string_view{u8"<pre><code>&lt;span&nbsp;style=&quot;color:red;&quot;&gt;text</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Once a frame has no closing code tag, later candidates remain ordinary text.
+    {
+        auto const pltext = ::fast_io::u8string_view{u8"<pre><code>a\n<pre><code>b"};
+        auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const answer = ::fast_io::u8string_view{u8"&lt;pre&gt;<code>a<br>&lt;pre&gt;b</code>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 

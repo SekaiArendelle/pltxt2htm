@@ -43,13 +43,15 @@ struct FindNextBlockAfterLineBreakResult {
  * @param pltext Remaining input text to scan.
  * @param call_stack Active parser call stack.
  * @param result AST being built.
+ * @param html_pre_code_closing_tag_missing Cached negative closing-tag lookup for this input frame.
  * @return How many characters were consumed and whether a new frame was created.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto find_next_block_after_line_break(::fast_io::u8string_view pltext,
                                                 ::fast_io::stack<ParserFrameContext<ndebug>>& call_stack,
-                                                ::pltxt2htm::Ast<ndebug>& result) noexcept
+                                                ::pltxt2htm::Ast<ndebug>& result,
+                                                bool& html_pre_code_closing_tag_missing) noexcept
     -> FindNextBlockAfterLineBreakResult {
     ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t current_index{};
@@ -140,13 +142,18 @@ constexpr auto find_next_block_after_line_break(::fast_io::u8string_view pltext,
                                                      .new_frame_been_pushed_into_call_stack = false};
         }
         // Check for an HTML <pre><code>...</code></pre> code block at a block position.
-        if (auto opt_pre_code_block = ::pltxt2htm::details::try_parse_html_pre_code_block<ndebug>(
+        if (html_pre_code_closing_tag_missing == false) {
+            auto pre_code_block_result = ::pltxt2htm::details::try_parse_html_pre_code_block<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
-            opt_pre_code_block.has_value()) {
-            auto&& [node, advance_count] = opt_pre_code_block.template value<ndebug>();
-            result.push_back(::std::move(node));
-            return FindNextBlockAfterLineBreakResult{.advance_count = current_index + advance_count,
-                                                     .new_frame_been_pushed_into_call_stack = false};
+            if (pre_code_block_result.block.has_value()) {
+                auto&& [node, advance_count] = pre_code_block_result.block.template value<ndebug>();
+                result.push_back(::std::move(node));
+                return FindNextBlockAfterLineBreakResult{.advance_count = current_index + advance_count,
+                                                         .new_frame_been_pushed_into_call_stack = false};
+            }
+            if (pre_code_block_result.closing_tag_missing) {
+                html_pre_code_closing_tag_missing = true;
+            }
         }
         if (auto opt_block_quote = ::pltxt2htm::details::try_parse_md_block_quotes<ndebug>(
                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
@@ -429,7 +436,7 @@ entry:
                     auto const parent_text = parent_frame.get_pltext();
                     auto&& [fwd, restart] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(parent_text, parent_index), call_stack,
-                        parent_frame.subast);
+                        parent_frame.subast, parent_frame.html_pre_code_closing_tag_missing);
                     parent_index += fwd;
                     if (restart) {
                         goto entry;
@@ -517,7 +524,8 @@ entry:
             // to support parsing md-atx-heading e.t.c inside md-block-quotes
             // (and nested <margin...>/<div...>/<blockquote> blocks right after the opening tag)
             auto&& [advance_count, require_restart] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
-                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), call_stack, result);
+                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), call_stack, result,
+                top_frame.html_pre_code_closing_tag_missing);
             current_index += advance_count;
             if (require_restart) {
                 goto entry;
@@ -533,7 +541,7 @@ entry:
                 auto&& [advance_count, require_restart] =
                     ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1), call_stack,
-                        result);
+                        result, top_frame.html_pre_code_closing_tag_missing);
                 current_index += advance_count;
                 if (require_restart) {
                     current_index += 1;
@@ -892,7 +900,7 @@ entry:
                         auto&& [advance_count, require_restart] =
                             ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1),
-                                call_stack, result);
+                                call_stack, result, top_frame.html_pre_code_closing_tag_missing);
                         current_index += advance_count;
                         if (require_restart) {
                             current_index += 1;
@@ -2680,7 +2688,7 @@ entry:
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH1<ndebug>{::std::move(subast)}));
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(super_pltext, parent_index), call_stack,
-                    parent_ast);
+                    parent_ast, parent_frame.html_pre_code_closing_tag_missing);
                 parent_index += advance_count;
                 goto entry;
             }
@@ -2690,7 +2698,7 @@ entry:
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH2<ndebug>{::std::move(subast)}));
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(super_pltext, parent_index), call_stack,
-                    parent_ast);
+                    parent_ast, parent_frame.html_pre_code_closing_tag_missing);
                 parent_index += advance_count;
                 goto entry;
             }
@@ -2700,7 +2708,7 @@ entry:
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH3<ndebug>{::std::move(subast)}));
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(super_pltext, parent_index), call_stack,
-                    parent_ast);
+                    parent_ast, parent_frame.html_pre_code_closing_tag_missing);
                 parent_index += advance_count;
                 goto entry;
             }
@@ -2710,7 +2718,7 @@ entry:
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH4<ndebug>{::std::move(subast)}));
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(super_pltext, parent_index), call_stack,
-                    parent_ast);
+                    parent_ast, parent_frame.html_pre_code_closing_tag_missing);
                 parent_index += advance_count;
                 goto entry;
             }
@@ -2720,7 +2728,7 @@ entry:
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH5<ndebug>{::std::move(subast)}));
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(super_pltext, parent_index), call_stack,
-                    parent_ast);
+                    parent_ast, parent_frame.html_pre_code_closing_tag_missing);
                 parent_index += advance_count;
                 goto entry;
             }
@@ -2730,7 +2738,7 @@ entry:
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH6<ndebug>{::std::move(subast)}));
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                     ::pltxt2htm::details::u8string_view_subview<ndebug>(super_pltext, parent_index), call_stack,
-                    parent_ast);
+                    parent_ast, parent_frame.html_pre_code_closing_tag_missing);
                 parent_index += advance_count;
                 goto entry;
             }

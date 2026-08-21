@@ -6,6 +6,7 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
 #include <fast_io/fast_io_dsal/vector.h>
@@ -37,6 +38,18 @@ public:
     ::std::size_t begin{};
     ::std::size_t end{};
     SyntaxTokenKind kind{};
+};
+
+class SyntaxHighlightResult {
+public:
+    ::fast_io::vector<SyntaxTokenSpan> spans{};
+    bool simple{};
+};
+
+class SyntaxNodeAnalysis {
+public:
+    char8_t chr{};
+    bool simple{};
 };
 
 [[nodiscard]]
@@ -188,14 +201,20 @@ constexpr auto syntax_node_ascii(::pltxt2htm::PlTxtNode<ndebug> const& node) noe
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
+constexpr auto analyze_syntax_node(::pltxt2htm::PlTxtNode<ndebug> const& node) noexcept -> SyntaxNodeAnalysis {
+    auto const node_kind{node.get_node_kind()};
+    char8_t const chr{::pltxt2htm::details::syntax_node_ascii<ndebug>(node)};
+    bool const simple{node_kind == ::pltxt2htm::NodeKind::u8char ||
+                      node_kind == ::pltxt2htm::NodeKind::invalid_u8char ||
+                      node_kind == ::pltxt2htm::NodeKind::entity_reference || chr != char8_t{}};
+    return {.chr = chr, .simple = simple};
+}
+
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
 constexpr bool code_ast_is_simple(::pltxt2htm::Ast<ndebug> const& ast) noexcept {
     for (auto const& node : ast) {
-        auto const node_kind{node.get_node_kind()};
-        if (node_kind == ::pltxt2htm::NodeKind::u8char || node_kind == ::pltxt2htm::NodeKind::invalid_u8char ||
-            node_kind == ::pltxt2htm::NodeKind::entity_reference) {
-            continue;
-        }
-        if (::pltxt2htm::details::syntax_node_ascii<ndebug>(node) == char8_t{}) {
+        if (::pltxt2htm::details::analyze_syntax_node<ndebug>(node).simple == false) {
             return false;
         }
     }
@@ -206,6 +225,18 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto syntax_ast_ascii(::pltxt2htm::Ast<ndebug> const& ast, ::std::size_t const index) noexcept -> char8_t {
     return ::pltxt2htm::details::syntax_node_ascii<ndebug>(::pltxt2htm::details::vector_index<ndebug>(ast, index));
+}
+
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto syntax_ast_ascii_checked(::pltxt2htm::Ast<ndebug> const& ast, ::std::size_t const index,
+                                        bool& simple) noexcept -> char8_t {
+    auto const& node = ::pltxt2htm::details::vector_index<ndebug>(ast, index);
+    auto const analysis = ::pltxt2htm::details::analyze_syntax_node<ndebug>(node);
+    if (analysis.simple == false) {
+        simple = false;
+    }
+    return analysis.chr;
 }
 
 [[nodiscard]]
@@ -341,12 +372,32 @@ constexpr ::fast_io::u8string_view rust_keywords[]{
     u8"str",      u8"u8",       u8"u16",     u8"u32",   u8"u64",      u8"u128",   u8"usize",
 };
 
+constexpr ::std::uint_least64_t syntax_hash_basis{1469598103934665603ULL};
+
+[[nodiscard]]
+constexpr auto syntax_hash_append(::std::uint_least64_t const hash, char8_t const chr) noexcept
+    -> ::std::uint_least64_t {
+    return (hash ^ chr) * 1099511628211ULL;
+}
+
+[[nodiscard]]
+constexpr auto syntax_hash_string(::fast_io::u8string_view const text) noexcept -> ::std::uint_least64_t {
+    ::std::uint_least64_t hash{syntax_hash_basis};
+    for (auto const chr : text) {
+        hash = ::pltxt2htm::details::syntax_hash_append(hash, chr);
+    }
+    return hash;
+}
+
 template<::pltxt2htm::Contracts ndebug, ::std::size_t keyword_count>
 [[nodiscard]]
 constexpr auto syntax_is_keyword(::pltxt2htm::Ast<ndebug> const& ast, ::std::size_t const begin,
-                                 ::std::size_t const end,
+                                 ::std::size_t const end, ::std::uint_least64_t const identifier_hash,
                                  ::fast_io::u8string_view const (&keywords)[keyword_count]) noexcept -> bool {
     for (auto const keyword : keywords) {
+        if (::pltxt2htm::details::syntax_hash_string(keyword) != identifier_hash) {
+            continue;
+        }
         if (::pltxt2htm::details::syntax_range_equals<ndebug>(ast, begin, end, keyword)) {
             return true;
         }
@@ -361,11 +412,11 @@ constexpr void append_syntax_span(::fast_io::vector<SyntaxTokenSpan>& spans, ::s
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto syntax_skip_horizontal_space(::pltxt2htm::Ast<ndebug> const& ast, ::std::size_t index) noexcept
-    -> ::std::size_t {
+constexpr auto syntax_skip_horizontal_space(::pltxt2htm::Ast<ndebug> const& ast, ::std::size_t index,
+                                            bool& simple) noexcept -> ::std::size_t {
     ::std::size_t const size{ast.size()};
     while (index < size) {
-        char8_t const chr{::pltxt2htm::details::syntax_ast_ascii<ndebug>(ast, index)};
+        char8_t const chr{::pltxt2htm::details::syntax_ast_ascii_checked<ndebug>(ast, index, simple)};
         if (chr != u8' ' && chr != u8'\t') {
             break;
         }
@@ -376,13 +427,14 @@ constexpr auto syntax_skip_horizontal_space(::pltxt2htm::Ast<ndebug> const& ast,
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto syntax_consume_quoted(::pltxt2htm::Ast<ndebug> const& ast, ::std::size_t index,
-                                     char8_t const quote) noexcept -> ::std::size_t {
+constexpr auto syntax_consume_quoted(::pltxt2htm::Ast<ndebug> const& ast, ::std::size_t index, char8_t const quote,
+                                     bool& simple) noexcept -> ::std::size_t {
     ::std::size_t const size{ast.size()};
     ++index;
     while (index < size) {
-        char8_t const chr{::pltxt2htm::details::syntax_ast_ascii<ndebug>(ast, index)};
+        char8_t const chr{::pltxt2htm::details::syntax_ast_ascii_checked<ndebug>(ast, index, simple)};
         if (chr == u8'\\' && index + 1 < size) {
+            static_cast<void>(::pltxt2htm::details::syntax_ast_ascii_checked<ndebug>(ast, index + 1, simple));
             index += 2;
             continue;
         }
@@ -399,11 +451,11 @@ constexpr auto syntax_consume_quoted(::pltxt2htm::Ast<ndebug> const& ast, ::std:
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto syntax_consume_number(::pltxt2htm::Ast<ndebug> const& ast, ::std::size_t index) noexcept
+constexpr auto syntax_consume_number(::pltxt2htm::Ast<ndebug> const& ast, ::std::size_t index, bool& simple) noexcept
     -> ::std::size_t {
     ::std::size_t const size{ast.size()};
     while (index < size) {
-        char8_t const chr{::pltxt2htm::details::syntax_ast_ascii<ndebug>(ast, index)};
+        char8_t const chr{::pltxt2htm::details::syntax_ast_ascii_checked<ndebug>(ast, index, simple)};
         if (::pltxt2htm::details::syntax_is_identifier_continue(chr) || chr == u8'.' || chr == u8'\'') {
             ++index;
             continue;
@@ -415,18 +467,19 @@ constexpr auto syntax_consume_number(::pltxt2htm::Ast<ndebug> const& ast, ::std:
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto highlight_cpp_syntax(::pltxt2htm::Ast<ndebug> const& ast) noexcept
-    -> ::fast_io::vector<SyntaxTokenSpan> {
+constexpr auto highlight_cpp_syntax(::pltxt2htm::Ast<ndebug> const& ast) noexcept -> SyntaxHighlightResult {
     ::fast_io::vector<SyntaxTokenSpan> spans{};
+    bool simple{true};
     ::std::size_t const size{ast.size()};
     for (::std::size_t index{}; index < size;) {
-        char8_t const chr{::pltxt2htm::details::syntax_ast_ascii<ndebug>(ast, index)};
+        char8_t const chr{::pltxt2htm::details::syntax_ast_ascii_checked<ndebug>(ast, index, simple)};
         if (chr == u8'/' && index + 1 < size) {
-            char8_t const next{::pltxt2htm::details::syntax_ast_ascii<ndebug>(ast, index + 1)};
+            char8_t const next{::pltxt2htm::details::syntax_ast_ascii_checked<ndebug>(ast, index + 1, simple)};
             if (next == u8'/') {
                 ::std::size_t const begin{index};
                 index += 2;
-                while (index < size && ::pltxt2htm::details::syntax_ast_ascii<ndebug>(ast, index) != u8'\n') {
+                while (index < size &&
+                       ::pltxt2htm::details::syntax_ast_ascii_checked<ndebug>(ast, index, simple) != u8'\n') {
                     ++index;
                 }
                 ::pltxt2htm::details::append_syntax_span(spans, begin, index, SyntaxTokenKind::comment);
@@ -436,8 +489,9 @@ constexpr auto highlight_cpp_syntax(::pltxt2htm::Ast<ndebug> const& ast) noexcep
                 ::std::size_t const begin{index};
                 index += 2;
                 while (index < size) {
-                    if (index + 1 < size && ::pltxt2htm::details::syntax_ast_ascii<ndebug>(ast, index) == u8'*' &&
-                        ::pltxt2htm::details::syntax_ast_ascii<ndebug>(ast, index + 1) == u8'/') {
+                    char8_t const current{::pltxt2htm::details::syntax_ast_ascii_checked<ndebug>(ast, index, simple)};
+                    if (current == u8'*' && index + 1 < size &&
+                        ::pltxt2htm::details::syntax_ast_ascii_checked<ndebug>(ast, index + 1, simple) == u8'/') {
                         index += 2;
                         break;
                     }
@@ -449,21 +503,21 @@ constexpr auto highlight_cpp_syntax(::pltxt2htm::Ast<ndebug> const& ast) noexcep
         }
         if (chr == u8'"' || chr == u8'\'') {
             ::std::size_t const begin{index};
-            index = ::pltxt2htm::details::syntax_consume_quoted<ndebug>(ast, index, chr);
+            index = ::pltxt2htm::details::syntax_consume_quoted<ndebug>(ast, index, chr, simple);
             ::pltxt2htm::details::append_syntax_span(spans, begin, index, SyntaxTokenKind::string);
             continue;
         }
         if (::pltxt2htm::details::is_ascii_digit(chr)) {
             ::std::size_t const begin{index};
-            index = ::pltxt2htm::details::syntax_consume_number<ndebug>(ast, index);
+            index = ::pltxt2htm::details::syntax_consume_number<ndebug>(ast, index, simple);
             ::pltxt2htm::details::append_syntax_span(spans, begin, index, SyntaxTokenKind::number);
             continue;
         }
         if (chr == u8'#') {
             ::std::size_t const begin{index};
-            index = ::pltxt2htm::details::syntax_skip_horizontal_space<ndebug>(ast, index + 1);
+            index = ::pltxt2htm::details::syntax_skip_horizontal_space<ndebug>(ast, index + 1, simple);
             while (index < size && ::pltxt2htm::details::syntax_is_identifier_continue(
-                                       ::pltxt2htm::details::syntax_ast_ascii<ndebug>(ast, index))) {
+                                       ::pltxt2htm::details::syntax_ast_ascii_checked<ndebug>(ast, index, simple))) {
                 ++index;
             }
             ::pltxt2htm::details::append_syntax_span(spans, begin, index, SyntaxTokenKind::preprocessor);
@@ -471,42 +525,48 @@ constexpr auto highlight_cpp_syntax(::pltxt2htm::Ast<ndebug> const& ast) noexcep
         }
         if (::pltxt2htm::details::syntax_is_identifier_start(chr)) {
             ::std::size_t const begin{index};
-            do {
+            ::std::uint_least64_t identifier_hash{syntax_hash_basis};
+            while (index < size) {
+                char8_t const identifier_chr{
+                    ::pltxt2htm::details::syntax_ast_ascii_checked<ndebug>(ast, index, simple)};
+                if (::pltxt2htm::details::syntax_is_identifier_continue(identifier_chr) == false) {
+                    break;
+                }
+                identifier_hash = ::pltxt2htm::details::syntax_hash_append(identifier_hash, identifier_chr);
                 ++index;
-            } while (index < size && ::pltxt2htm::details::syntax_is_identifier_continue(
-                                         ::pltxt2htm::details::syntax_ast_ascii<ndebug>(ast, index)));
-            if (::pltxt2htm::details::syntax_is_keyword<ndebug>(ast, begin, index,
+            }
+            if (::pltxt2htm::details::syntax_is_keyword<ndebug>(ast, begin, index, identifier_hash,
                                                                 ::pltxt2htm::details::cpp_keywords)) {
                 ::pltxt2htm::details::append_syntax_span(spans, begin, index, SyntaxTokenKind::keyword);
                 continue;
             }
-            ::std::size_t const next{::pltxt2htm::details::syntax_skip_horizontal_space<ndebug>(ast, index)};
-            if (next < size && ::pltxt2htm::details::syntax_ast_ascii<ndebug>(ast, next) == u8'(') {
+            ::std::size_t const next{::pltxt2htm::details::syntax_skip_horizontal_space<ndebug>(ast, index, simple)};
+            if (next < size && ::pltxt2htm::details::syntax_ast_ascii_checked<ndebug>(ast, next, simple) == u8'(') {
                 ::pltxt2htm::details::append_syntax_span(spans, begin, index, SyntaxTokenKind::function);
             }
             continue;
         }
         ++index;
     }
-    return spans;
+    return {.spans = ::std::move(spans), .simple = simple};
 }
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto syntax_consume_rust_raw_string(::pltxt2htm::Ast<ndebug> const& ast, ::std::size_t const begin,
-                                              ::std::size_t quote_index) noexcept -> ::std::size_t {
+                                              ::std::size_t quote_index, bool& simple) noexcept -> ::std::size_t {
     ::std::size_t const size{ast.size()};
     ::std::size_t const hash_count{quote_index - begin - 1};
     ++quote_index;
     while (quote_index < size) {
-        if (::pltxt2htm::details::syntax_ast_ascii<ndebug>(ast, quote_index) != u8'"') {
+        if (::pltxt2htm::details::syntax_ast_ascii_checked<ndebug>(ast, quote_index, simple) != u8'"') {
             ++quote_index;
             continue;
         }
         ::std::size_t index{quote_index + 1};
         ::std::size_t hashes{};
         while (hashes < hash_count && index < size &&
-               ::pltxt2htm::details::syntax_ast_ascii<ndebug>(ast, index) == u8'#') {
+               ::pltxt2htm::details::syntax_ast_ascii_checked<ndebug>(ast, index, simple) == u8'#') {
             ++hashes;
             ++index;
         }
@@ -520,18 +580,19 @@ constexpr auto syntax_consume_rust_raw_string(::pltxt2htm::Ast<ndebug> const& as
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto highlight_rust_syntax(::pltxt2htm::Ast<ndebug> const& ast) noexcept
-    -> ::fast_io::vector<SyntaxTokenSpan> {
+constexpr auto highlight_rust_syntax(::pltxt2htm::Ast<ndebug> const& ast) noexcept -> SyntaxHighlightResult {
     ::fast_io::vector<SyntaxTokenSpan> spans{};
+    bool simple{true};
     ::std::size_t const size{ast.size()};
     for (::std::size_t index{}; index < size;) {
-        char8_t const chr{::pltxt2htm::details::syntax_ast_ascii<ndebug>(ast, index)};
+        char8_t const chr{::pltxt2htm::details::syntax_ast_ascii_checked<ndebug>(ast, index, simple)};
         if (chr == u8'/' && index + 1 < size) {
-            char8_t const next{::pltxt2htm::details::syntax_ast_ascii<ndebug>(ast, index + 1)};
+            char8_t const next{::pltxt2htm::details::syntax_ast_ascii_checked<ndebug>(ast, index + 1, simple)};
             if (next == u8'/') {
                 ::std::size_t const begin{index};
                 index += 2;
-                while (index < size && ::pltxt2htm::details::syntax_ast_ascii<ndebug>(ast, index) != u8'\n') {
+                while (index < size &&
+                       ::pltxt2htm::details::syntax_ast_ascii_checked<ndebug>(ast, index, simple) != u8'\n') {
                     ++index;
                 }
                 ::pltxt2htm::details::append_syntax_span(spans, begin, index, SyntaxTokenKind::comment);
@@ -542,13 +603,14 @@ constexpr auto highlight_rust_syntax(::pltxt2htm::Ast<ndebug> const& ast) noexce
                 index += 2;
                 ::std::size_t depth{1};
                 while (index < size && depth != 0) {
-                    if (index + 1 < size && ::pltxt2htm::details::syntax_ast_ascii<ndebug>(ast, index) == u8'/' &&
-                        ::pltxt2htm::details::syntax_ast_ascii<ndebug>(ast, index + 1) == u8'*') {
+                    char8_t const current{::pltxt2htm::details::syntax_ast_ascii_checked<ndebug>(ast, index, simple)};
+                    if (current == u8'/' && index + 1 < size &&
+                        ::pltxt2htm::details::syntax_ast_ascii_checked<ndebug>(ast, index + 1, simple) == u8'*') {
                         ++depth;
                         index += 2;
                     }
-                    else if (index + 1 < size && ::pltxt2htm::details::syntax_ast_ascii<ndebug>(ast, index) == u8'*' &&
-                             ::pltxt2htm::details::syntax_ast_ascii<ndebug>(ast, index + 1) == u8'/') {
+                    else if (current == u8'*' && index + 1 < size &&
+                             ::pltxt2htm::details::syntax_ast_ascii_checked<ndebug>(ast, index + 1, simple) == u8'/') {
                         --depth;
                         index += 2;
                     }
@@ -562,31 +624,34 @@ constexpr auto highlight_rust_syntax(::pltxt2htm::Ast<ndebug> const& ast) noexce
         }
         if (chr == u8'r') {
             ::std::size_t quote_index{index + 1};
-            while (quote_index < size && ::pltxt2htm::details::syntax_ast_ascii<ndebug>(ast, quote_index) == u8'#') {
+            while (quote_index < size &&
+                   ::pltxt2htm::details::syntax_ast_ascii_checked<ndebug>(ast, quote_index, simple) == u8'#') {
                 ++quote_index;
             }
-            if (quote_index < size && ::pltxt2htm::details::syntax_ast_ascii<ndebug>(ast, quote_index) == u8'"') {
+            if (quote_index < size &&
+                ::pltxt2htm::details::syntax_ast_ascii_checked<ndebug>(ast, quote_index, simple) == u8'"') {
                 ::std::size_t const begin{index};
-                index = ::pltxt2htm::details::syntax_consume_rust_raw_string<ndebug>(ast, begin, quote_index);
+                index = ::pltxt2htm::details::syntax_consume_rust_raw_string<ndebug>(ast, begin, quote_index, simple);
                 ::pltxt2htm::details::append_syntax_span(spans, begin, index, SyntaxTokenKind::string);
                 continue;
             }
         }
         if (chr == u8'"') {
             ::std::size_t const begin{index};
-            index = ::pltxt2htm::details::syntax_consume_quoted<ndebug>(ast, index, chr);
+            index = ::pltxt2htm::details::syntax_consume_quoted<ndebug>(ast, index, chr, simple);
             ::pltxt2htm::details::append_syntax_span(spans, begin, index, SyntaxTokenKind::string);
             continue;
         }
         if (chr == u8'\'') {
             ::std::size_t const begin{index};
             ::std::size_t identifier_end{index + 1};
-            while (identifier_end < size && ::pltxt2htm::details::syntax_is_identifier_continue(
-                                                ::pltxt2htm::details::syntax_ast_ascii<ndebug>(ast, identifier_end))) {
+            while (identifier_end < size &&
+                   ::pltxt2htm::details::syntax_is_identifier_continue(
+                       ::pltxt2htm::details::syntax_ast_ascii_checked<ndebug>(ast, identifier_end, simple))) {
                 ++identifier_end;
             }
             if (identifier_end < size &&
-                ::pltxt2htm::details::syntax_ast_ascii<ndebug>(ast, identifier_end) == u8'\'') {
+                ::pltxt2htm::details::syntax_ast_ascii_checked<ndebug>(ast, identifier_end, simple) == u8'\'') {
                 index = identifier_end + 1;
                 ::pltxt2htm::details::append_syntax_span(spans, begin, index, SyntaxTokenKind::string);
             }
@@ -595,49 +660,56 @@ constexpr auto highlight_rust_syntax(::pltxt2htm::Ast<ndebug> const& ast) noexce
                 ::pltxt2htm::details::append_syntax_span(spans, begin, index, SyntaxTokenKind::keyword);
             }
             else {
-                index = ::pltxt2htm::details::syntax_consume_quoted<ndebug>(ast, index, chr);
+                index = ::pltxt2htm::details::syntax_consume_quoted<ndebug>(ast, index, chr, simple);
                 ::pltxt2htm::details::append_syntax_span(spans, begin, index, SyntaxTokenKind::string);
             }
             continue;
         }
         if (::pltxt2htm::details::is_ascii_digit(chr)) {
             ::std::size_t const begin{index};
-            index = ::pltxt2htm::details::syntax_consume_number<ndebug>(ast, index);
+            index = ::pltxt2htm::details::syntax_consume_number<ndebug>(ast, index, simple);
             ::pltxt2htm::details::append_syntax_span(spans, begin, index, SyntaxTokenKind::number);
             continue;
         }
         if (::pltxt2htm::details::syntax_is_identifier_start(chr)) {
             ::std::size_t const begin{index};
-            do {
+            ::std::uint_least64_t identifier_hash{syntax_hash_basis};
+            while (index < size) {
+                char8_t const identifier_chr{
+                    ::pltxt2htm::details::syntax_ast_ascii_checked<ndebug>(ast, index, simple)};
+                if (::pltxt2htm::details::syntax_is_identifier_continue(identifier_chr) == false) {
+                    break;
+                }
+                identifier_hash = ::pltxt2htm::details::syntax_hash_append(identifier_hash, identifier_chr);
                 ++index;
-            } while (index < size && ::pltxt2htm::details::syntax_is_identifier_continue(
-                                         ::pltxt2htm::details::syntax_ast_ascii<ndebug>(ast, index)));
-            if (::pltxt2htm::details::syntax_is_keyword<ndebug>(ast, begin, index,
+            }
+            if (::pltxt2htm::details::syntax_is_keyword<ndebug>(ast, begin, index, identifier_hash,
                                                                 ::pltxt2htm::details::rust_keywords)) {
                 ::pltxt2htm::details::append_syntax_span(spans, begin, index, SyntaxTokenKind::keyword);
                 continue;
             }
-            ::std::size_t const next{::pltxt2htm::details::syntax_skip_horizontal_space<ndebug>(ast, index)};
-            if (next < size && ::pltxt2htm::details::syntax_ast_ascii<ndebug>(ast, next) == u8'!') {
+            ::std::size_t const next{::pltxt2htm::details::syntax_skip_horizontal_space<ndebug>(ast, index, simple)};
+            if (next < size && ::pltxt2htm::details::syntax_ast_ascii_checked<ndebug>(ast, next, simple) == u8'!') {
                 ::pltxt2htm::details::append_syntax_span(spans, begin, index, SyntaxTokenKind::macro);
             }
-            else if (next < size && ::pltxt2htm::details::syntax_ast_ascii<ndebug>(ast, next) == u8'(') {
+            else if (next < size &&
+                     ::pltxt2htm::details::syntax_ast_ascii_checked<ndebug>(ast, next, simple) == u8'(') {
                 ::pltxt2htm::details::append_syntax_span(spans, begin, index, SyntaxTokenKind::function);
             }
             continue;
         }
         ++index;
     }
-    return spans;
+    return {.spans = ::std::move(spans), .simple = simple};
 }
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto highlight_syntax(::pltxt2htm::Ast<ndebug> const& ast, SyntaxLanguage const language) noexcept
-    -> ::fast_io::vector<SyntaxTokenSpan> {
+    -> SyntaxHighlightResult {
     switch (language) {
     case SyntaxLanguage::plain:
-        return {};
+        return {.spans = {}, .simple = ::pltxt2htm::details::code_ast_is_simple<ndebug>(ast)};
     case SyntaxLanguage::cpp:
         return ::pltxt2htm::details::highlight_cpp_syntax<ndebug>(ast);
     case SyntaxLanguage::rust:
