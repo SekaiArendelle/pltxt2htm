@@ -184,7 +184,8 @@ constexpr auto parse_c_style_code_syntax(::fast_io::u8string_view const content,
                 quote = u8'\"';
             }
             bool const supports_raw_string{quote == u8'\"' && csharp_verbatim_string == false &&
-                                           (language == SyntaxLanguage::csharp || language == SyntaxLanguage::kotlin)};
+                                           (language == SyntaxLanguage::csharp || language == SyntaxLanguage::java ||
+                                            language == SyntaxLanguage::kotlin)};
             bool const triple_quote{supports_raw_string && remaining.size() > 1 &&
                                     ::pltxt2htm::details::u8string_view_index<ndebug>(remaining, 0) == quote &&
                                     ::pltxt2htm::details::u8string_view_index<ndebug>(remaining, 1) == quote};
@@ -510,7 +511,8 @@ constexpr auto parse_data_script_code_syntax(::fast_io::u8string_view const cont
             ::pltxt2htm::Ast<ndebug> token_ast{};
             char8_t const quote{chr};
             ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
-            bool const triple_quote{language == SyntaxLanguage::toml && remaining.size() > 1 &&
+            bool const triple_quote{(language == SyntaxLanguage::python || language == SyntaxLanguage::toml) &&
+                                    remaining.size() > 1 &&
                                     ::pltxt2htm::details::u8string_view_index<ndebug>(remaining, 0) == quote &&
                                     ::pltxt2htm::details::u8string_view_index<ndebug>(remaining, 1) == quote};
             if (triple_quote) {
@@ -538,7 +540,7 @@ constexpr auto parse_data_script_code_syntax(::fast_io::u8string_view const cont
                     }
                     break;
                 }
-                if (current == u8'\\' && remaining.empty() == false && triple_quote == false &&
+                if (current == u8'\\' && remaining.empty() == false &&
                     !(language == SyntaxLanguage::sql && quote == u8'\'') &&
                     !(language == SyntaxLanguage::toml && quote == u8'\'')) {
                     auto const escaped =

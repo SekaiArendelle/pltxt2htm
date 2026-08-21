@@ -493,6 +493,16 @@ print("Hello World")
     }
 
     {
+        auto const html =
+            ::pltxt2htm_test::pltxt4unittest(u8"```python\n\"\"\"before \" quote\nclass after\n\"\"\"\n```");
+        auto const answer = ::fast_io::u8string_view{
+            u8"<pre><code><span style=\"color:#0a3069;\">&quot;&quot;&quot;before&nbsp;&quot;&nbsp;quote</span>\n"
+            u8"<span style=\"color:#0a3069;\">class&nbsp;after</span>\n"
+            u8"<span style=\"color:#0a3069;\">&quot;&quot;&quot;</span></code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
         auto const pltext = ::fast_io::u8string_view{u8"```java\npublic static void main() { return; } // ok\n```"};
         auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const answer = ::fast_io::u8string_view{
@@ -505,6 +515,17 @@ print("Hello World")
         pltxt2htm_test_assert_equal(html, answer);
         auto const reparsed = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
         pltxt2htm_test_assert_equal(reparsed, html);
+    }
+
+    {
+        auto const html = ::pltxt2htm_test::pltxt4unittest(
+            u8"```java\nString text = \"\"\"before \" quote\nclass after\n\"\"\";\n```");
+        auto const answer = ::fast_io::u8string_view{
+            u8"<pre><code>String&nbsp;text&nbsp;=&nbsp;<span "
+            u8"style=\"color:#0a3069;\">&quot;&quot;&quot;before&nbsp;&quot;&nbsp;quote</span>\n"
+            u8"<span style=\"color:#0a3069;\">class&nbsp;after</span>\n"
+            u8"<span style=\"color:#0a3069;\">&quot;&quot;&quot;</span>;</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
