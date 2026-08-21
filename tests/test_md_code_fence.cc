@@ -748,5 +748,16 @@ print("Hello World")
         pltxt2htm_test_assert_equal(html, answer);
     }
 
+    {
+        auto const pltext = ::fast_io::u8string_view{u8"```rust\nlet r#type = br#\"a\"b\"#;\n```"};
+        auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const answer = ::fast_io::u8string_view{
+            u8"<pre><code><span style=\"color:#cf222e;\">let</span>&nbsp;r#type&nbsp;=&nbsp;<span "
+            u8"style=\"color:#0a3069;\">br#&quot;a&quot;b&quot;#</span>;</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto const reparsed = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
+        pltxt2htm_test_assert_equal(reparsed, html);
+    }
+
     return 0;
 }

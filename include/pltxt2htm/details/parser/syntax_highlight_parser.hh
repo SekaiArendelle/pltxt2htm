@@ -1106,10 +1106,18 @@ constexpr auto parse_rust_code_syntax(::fast_io::u8string_view const content) no
         ::pltxt2htm::Ast<ndebug> token_ast{};
         ::fast_io::u8string identifier{};
         bool identifier_started{};
-        if (chr == u8'r') {
+        bool const raw_byte_prefix{chr == u8'b' && remaining.empty() == false &&
+                                   ::pltxt2htm::details::u8string_view_index<ndebug>(remaining, 0) == u8'r'};
+        if (chr == u8'r' || raw_byte_prefix) {
             ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
-            identifier.push_back(u8'r');
+            identifier.push_back(chr);
             identifier_started = true;
+            if (raw_byte_prefix) {
+                auto const parsed = ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
+                ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
+                identifier.push_back(u8'r');
+            }
             if (remaining.empty() == false) {
                 auto const parsed = ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
                 remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
@@ -1163,6 +1171,22 @@ constexpr auto parse_rust_code_syntax(::fast_io::u8string_view const content) no
                     ::pltxt2htm::details::append_colored_code_syntax_ast<ndebug>(token_ast, SyntaxTokenKind::string,
                                                                                  ast);
                     continue;
+                }
+                if (raw_byte_prefix == false && hash_count == 1 && lookahead_ast.empty() == false &&
+                    ::pltxt2htm::details::syntax_is_identifier_start(lookahead_ascii)) {
+                    while (lookahead_ast.empty() == false || remaining.empty() == false) {
+                        if (lookahead_ast.empty()) {
+                            auto const parsed =
+                                ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                            remaining =
+                                ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
+                            lookahead_ascii = parsed.ascii;
+                        }
+                        if (::pltxt2htm::details::syntax_is_identifier_continue(lookahead_ascii) == false) {
+                            break;
+                        }
+                        ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
+                    }
                 }
                 ::pltxt2htm::details::append_code_syntax_ast<ndebug>(token_ast, ast);
                 continue;
