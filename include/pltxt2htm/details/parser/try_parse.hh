@@ -3206,7 +3206,12 @@ public:
     char8_t ascii{};
 };
 
-template<::pltxt2htm::Contracts ndebug, bool process_md_escape = true>
+enum class SimplePltextParseMode : unsigned {
+    literal, ///< Preserve Markdown escapes and entity-reference spelling.
+    html, ///< Parse HTML entity references but preserve backslashes.
+};
+
+template<::pltxt2htm::Contracts ndebug, SimplePltextParseMode mode = SimplePltextParseMode::literal>
 [[nodiscard]]
 constexpr auto parse_simple_pltext_node(::fast_io::u8string_view pltext, ::pltxt2htm::Ast<ndebug>& ast) noexcept
     -> ParsedSimplePltextNode {
@@ -3220,12 +3225,14 @@ constexpr auto parse_simple_pltext_node(::fast_io::u8string_view pltext, ::pltxt
         return {.advance_count = 1, .ascii = chr};
     }
     if (chr == u8'&') {
-        if (auto const opt_entity_len = ::pltxt2htm::details::try_parse_entity_reference<ndebug>(pltext);
-            opt_entity_len.has_value()) {
-            auto const entity_len = opt_entity_len.template value<ndebug>();
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                ::pltxt2htm::EntityReference{::fast_io::u8string{pltext.data() + 1, pltext.data() + entity_len - 1}}));
-            return {.advance_count = entity_len, .ascii = char8_t{}};
+        if constexpr (mode != SimplePltextParseMode::literal) {
+            if (auto const opt_entity_len = ::pltxt2htm::details::try_parse_entity_reference<ndebug>(pltext);
+                opt_entity_len.has_value()) {
+                auto const entity_len = opt_entity_len.template value<ndebug>();
+                ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::EntityReference{
+                    ::fast_io::u8string{pltext.data() + 1, pltext.data() + entity_len - 1}}));
+                return {.advance_count = entity_len, .ascii = char8_t{}};
+            }
         }
         ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Ampersand{}));
         return {.advance_count = 1, .ascii = chr};
@@ -3245,15 +3252,6 @@ constexpr auto parse_simple_pltext_node(::fast_io::u8string_view pltext, ::pltxt
     if (chr == u8'\t') {
         ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Tab{}));
         return {.advance_count = 1, .ascii = chr};
-    }
-    if constexpr (process_md_escape) {
-        if (auto opt_escape = ::pltxt2htm::details::try_parse_md_escape<ndebug>(pltext); opt_escape.has_value()) {
-            auto&& [node, advance_count] = opt_escape.template value<ndebug>();
-            ast.push_back(::std::move(node));
-            char8_t const ascii{advance_count == 1 ? u8'\\'
-                                                   : ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, 1)};
-            return {.advance_count = advance_count, .ascii = ascii};
-        }
     }
     if (chr == u8'<') {
         ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
@@ -3277,13 +3275,13 @@ constexpr auto parse_simple_pltext_node(::fast_io::u8string_view pltext, ::pltxt
  * @return A structure containing the parsed AST and the index to continue parsing from.
  * @note Special characters such as newline, space, ampersand, quotes,
  *       greater-than, and tab are converted to specific AST nodes.
- * @note Backslash escape sequences are processed and converted to their escaped equivalents.
+ * @note Backslashes and entity-reference spelling are preserved literally.
  * @note UTF-8 multi-byte characters are properly handled and converted to U8Char nodes.
  * @note When end_string is non-empty, the function consumes it and stops parsing immediately after.
  */
-template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::U8LiteralString end_string, bool process_md_escape = true>
+template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::U8LiteralString end_string>
 [[nodiscard]]
-constexpr auto simply_parse_pltext(::fast_io::u8string_view pltext) noexcept
+constexpr auto simply_parse_literal(::fast_io::u8string_view pltext) noexcept
     -> ::pltxt2htm::details::SimplyParsePLtextResult<ndebug> {
     ::std::size_t const pltext_size{pltext.size()};
     ::pltxt2htm::Ast<ndebug> ast{};
@@ -3300,11 +3298,32 @@ constexpr auto simply_parse_pltext(::fast_io::u8string_view pltext) noexcept
                 break;
             }
         }
-        current_index += ::pltxt2htm::details::parse_simple_pltext_node<ndebug, process_md_escape>(
+        current_index += ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(
                              ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), ast)
                              .advance_count;
     }
     return {.advance_count = current_index, .ast = ::std::move(ast), .found_end = found_end};
+}
+
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto simply_parse_pltext(::fast_io::u8string_view pltext) noexcept
+    -> ::pltxt2htm::details::SimplyParsePLtextResult<ndebug> {
+    ::pltxt2htm::Ast<ndebug> ast{};
+    ::std::size_t current_index{};
+    while (current_index != pltext.size()) {
+        auto const remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index);
+        if (auto opt_escape = ::pltxt2htm::details::try_parse_md_escape<ndebug>(remaining); opt_escape.has_value()) {
+            auto&& [node, advance_count] = opt_escape.template value<ndebug>();
+            ast.push_back(::std::move(node));
+            current_index += advance_count;
+            continue;
+        }
+        current_index +=
+            ::pltxt2htm::details::parse_simple_pltext_node<ndebug, SimplePltextParseMode::html>(remaining, ast)
+                .advance_count;
+    }
+    return {.advance_count = current_index, .ast = ::std::move(ast), .found_end = false};
 }
 
 } // namespace pltxt2htm::details
@@ -3390,7 +3409,7 @@ constexpr auto parse_html_code_content(::fast_io::u8string_view pltext) noexcept
             }
         }
 
-        current_index += ::pltxt2htm::details::parse_simple_pltext_node<ndebug, false>(
+        current_index += ::pltxt2htm::details::parse_simple_pltext_node<ndebug, SimplePltextParseMode::html>(
                              ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
                              ::pltxt2htm::details::stack_top<ndebug>(call_stack).ast)
                              .advance_count;
@@ -3851,7 +3870,7 @@ constexpr auto try_parse_md_code_span(::fast_io::u8string_view pltext) noexcept
         return ::pltxt2htm::container::nullopt;
     }
 
-    auto&& [advance_count, ast, found_end] = ::pltxt2htm::details::simply_parse_pltext<ndebug, embraced_string>(
+    auto&& [advance_count, ast, found_end] = ::pltxt2htm::details::simply_parse_literal<ndebug, embraced_string>(
         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, embraced_size));
     if (found_end == false) {
         // The closing delimiter is missing: `advance_count` only reaches the end of the

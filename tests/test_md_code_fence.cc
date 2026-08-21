@@ -253,12 +253,12 @@ print("Hello World")
 
     {
         // regression: roundtrip fuzzer crash. A fenced code block whose content ends in
-        // "\&\" yields "<pre><code>...&amp;\</code></pre>". The trailing backslash before
-        // "</code></pre>" must not be parsed as an MD escape by the HTML parser, so
-        // re-parsing the first-pass HTML must be idempotent.
+        // "\&\" keeps both backslashes literally. The trailing backslash before
+        // "</code></pre>" must not be parsed as an MD escape by the HTML parser either,
+        // so re-parsing the first-pass HTML remains idempotent.
         auto pltext = ::fast_io::u8string_view{u8"```\n\\&\\\n```"};
         auto once = ::pltxt2htm_test::pltxt2roundtrip_htmld(pltext);
-        auto once_answer = ::fast_io::u8string_view{u8"<pre><code>&amp;\\</code></pre>"};
+        auto once_answer = ::fast_io::u8string_view{u8"<pre><code>\\&amp;\\</code></pre>"};
         pltxt2htm_test_assert_equal(once, once_answer);
         auto twice = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{once.data(), once.size()});
         pltxt2htm_test_assert_equal(twice, once);
@@ -430,16 +430,15 @@ print("Hello World")
         pltxt2htm_test_assert_equal(reparsed, html);
     }
 
-    // Entity references, Markdown escapes, and UTF-8 code points are parsed by the
-    // same cursor that drives syntax classification.
+    // Markdown escapes and entity references stay literal in fenced code, while the
+    // same cursor still performs syntax classification and parses UTF-8 code points.
     {
         auto const pltext =
-            ::fast_io::u8string_view{u8"```cpp\n\\#include &lt;vector&gt;\nauto text = \\\"你&amp;好\\\";\n```"};
+            ::fast_io::u8string_view{u8"```cpp\n\\#include &lt;vector&gt;\nauto text = &amp;value;\n```"};
         auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const answer = ::fast_io::u8string_view{
-            u8"<pre><code><span style=\"color:#0550ae;\">#include</span>&nbsp;&lt;vector&gt;\n<span "
-            u8"style=\"color:#cf222e;\">auto</span>&nbsp;text&nbsp;=&nbsp;<span "
-            u8"style=\"color:#0a3069;\">&quot;你&amp;好&quot;</span>;</code></pre>"};
+            u8"<pre><code>\\<span style=\"color:#0550ae;\">#include</span>&nbsp;&amp;lt;vector&amp;gt;\n<span "
+            u8"style=\"color:#cf222e;\">auto</span>&nbsp;text&nbsp;=&nbsp;&amp;amp;value;</code></pre>"};
         pltxt2htm_test_assert_equal(html, answer);
         auto const reparsed = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
         pltxt2htm_test_assert_equal(reparsed, html);

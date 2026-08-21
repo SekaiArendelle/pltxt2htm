@@ -856,8 +856,7 @@ entry:
                         auto const tag_len = a_tag.tag_len;
                         auto const span =
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index, tag_len + 2);
-                        auto&& [_, literal_ast, found_end_] =
-                            ::pltxt2htm::details::simply_parse_pltext<ndebug, U8LiteralString<0>{}>(span);
+                        auto&& [_, literal_ast, found_end_] = ::pltxt2htm::details::simply_parse_pltext<ndebug>(span);
                         result.append_range(::std::move(literal_ast));
                         current_index += tag_len + 2;
                         continue;
@@ -1053,8 +1052,7 @@ entry:
                         auto const tag_len = external_tag.tag_len;
                         auto const span =
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index, tag_len + 3);
-                        auto&& [_, literal_ast, found_end_] =
-                            ::pltxt2htm::details::simply_parse_pltext<ndebug, U8LiteralString<0>{}>(span);
+                        auto&& [_, literal_ast, found_end_] = ::pltxt2htm::details::simply_parse_pltext<ndebug>(span);
                         result.append_range(::std::move(literal_ast));
                         current_index += tag_len + 3;
                         continue;
@@ -1149,8 +1147,7 @@ entry:
                         auto const tag_len = link_tag.tag_len;
                         auto const span =
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index, tag_len + 3);
-                        auto&& [_, literal_ast, found_end_] =
-                            ::pltxt2htm::details::simply_parse_pltext<ndebug, U8LiteralString<0>{}>(span);
+                        auto&& [_, literal_ast, found_end_] = ::pltxt2htm::details::simply_parse_pltext<ndebug>(span);
                         result.append_range(::std::move(literal_ast));
                         current_index += tag_len + 3;
                         continue;
