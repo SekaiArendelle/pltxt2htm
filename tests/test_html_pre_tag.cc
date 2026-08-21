@@ -28,11 +28,12 @@ int main() {
     {
         auto pltext = ::fast_io::u8string_view{u8"<pre><code class=\"language-cpp\">int x;</code></pre>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"<pre><code class=\"language-cpp\">int&nbsp;x;</code></pre>"};
+        auto answer =
+            ::fast_io::u8string_view{u8"<pre><code><span style=\"color:#cf222e;\">int</span>&nbsp;x;</code></pre>"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer =
-            ::fast_io::u8string_view{u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\nint\u00A0x;\n</font>"};
+        auto plunity_richtext_answer = ::fast_io::u8string_view{
+            u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\n<color=#cf222e>int</color>\u00A0x;\n</font>"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 

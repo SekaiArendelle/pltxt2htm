@@ -19,6 +19,7 @@
 #include "frame_context.hh"
 #include "../utils.hh"
 #include "../../contracts.hh"
+#include "../syntax_highlight.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::details {
@@ -115,11 +116,13 @@ constexpr void append_entity_reference_to_plunity_richtext(::fast_io::u8string c
  * @param ast The AST to convert (should only contain leaf/character-like nodes).
  * @param[out] out Output buffer receiving the Unity Rich Text string.
  */
-template<::pltxt2htm::Contracts ndebug>
-constexpr void convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast<ndebug> const& ast,
-                                                            ::fast_io::u8string& out) noexcept {
-    out.reserve(out.size() + ast.size() * 6);
-    for (auto&& node : ast) {
+template<::pltxt2htm::Contracts ndebug, bool escape_angle_brackets = false>
+constexpr void convert_simple_pltxt_ast_range_to_plunity_richtext(::pltxt2htm::Ast<ndebug> const& ast,
+                                                                  ::std::size_t const begin, ::std::size_t const end,
+                                                                  ::fast_io::u8string& out) noexcept {
+    out.reserve(out.size() + (end - begin) * 6);
+    for (::std::size_t index{begin}; index < end; ++index) {
+        auto&& node = ::pltxt2htm::details::vector_index<ndebug>(ast, index);
         switch (node.get_node_kind()) {
         case ::pltxt2htm::NodeKind::u8char: {
             out.push_back(node.as_u8char().chr);
@@ -127,6 +130,10 @@ constexpr void convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast<nde
         }
         case ::pltxt2htm::NodeKind::invalid_u8char: {
             out.append(u8"\uFFFD");
+            continue;
+        }
+        case ::pltxt2htm::NodeKind::line_break: {
+            out.push_back(u8'\n');
             continue;
         }
         case ::pltxt2htm::NodeKind::space: {
@@ -159,13 +166,23 @@ constexpr void convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast<nde
         case ::pltxt2htm::NodeKind::md_escape_less_than:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::less_than: {
-            out.push_back(u8'<');
+            if constexpr (escape_angle_brackets) {
+                out.append(u8"<size=20>\uff1c</size>");
+            }
+            else {
+                out.push_back(u8'<');
+            }
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_greater_than:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::greater_than: {
-            out.push_back(u8'>');
+            if constexpr (escape_angle_brackets) {
+                out.append(u8"<size=20>\uff1e</size>");
+            }
+            else {
+                out.push_back(u8'>');
+            }
             continue;
         }
         case ::pltxt2htm::NodeKind::tab: {
@@ -286,6 +303,33 @@ constexpr void convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast<nde
             }
         }
     }
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr void convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast<ndebug> const& ast,
+                                                            ::fast_io::u8string& out) noexcept {
+    ::pltxt2htm::details::convert_simple_pltxt_ast_range_to_plunity_richtext<ndebug>(ast, 0, ast.size(), out);
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr void append_highlighted_code_to_plunity_richtext(::pltxt2htm::Ast<ndebug> const& ast,
+                                                           SyntaxLanguage const language,
+                                                           ::fast_io::u8string& out) noexcept {
+    auto const spans{::pltxt2htm::details::highlight_syntax<ndebug>(ast, language)};
+    ::std::size_t current_index{};
+    for (auto const& span : spans) {
+        ::pltxt2htm::details::convert_simple_pltxt_ast_range_to_plunity_richtext<ndebug, true>(ast, current_index,
+                                                                                               span.begin, out);
+        out.append(u8"<color=");
+        out.append(::pltxt2htm::details::syntax_token_color<ndebug>(span.kind));
+        out.push_back(u8'>');
+        ::pltxt2htm::details::convert_simple_pltxt_ast_range_to_plunity_richtext<ndebug, true>(ast, span.begin,
+                                                                                               span.end, out);
+        out.append(u8"</color>");
+        current_index = span.end;
+    }
+    ::pltxt2htm::details::convert_simple_pltxt_ast_range_to_plunity_richtext<ndebug, true>(ast, current_index,
+                                                                                           ast.size(), out);
 }
 
 /**
@@ -1476,10 +1520,17 @@ entry:
             }
             case ::pltxt2htm::NodeKind::code_fence: {
                 result.append(u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\n");
-                call_stack.push(BackendFrameContext<ndebug>(node.as_code_fence().get_subast(),
-                                                            ::pltxt2htm::NodeKind::code_fence, 0));
-                ++current_index;
-                goto entry;
+                SyntaxLanguage language{SyntaxLanguage::plain};
+                auto const& opt_language = node.as_code_fence().get_language();
+                if (opt_language.has_value()) {
+                    auto const& language_value = opt_language.template value<ndebug>();
+                    language = ::pltxt2htm::details::resolve_syntax_language(
+                        ::fast_io::u8string_view{language_value.data(), language_value.size()});
+                }
+                ::pltxt2htm::details::append_highlighted_code_to_plunity_richtext<ndebug>(
+                    node.as_code_fence().get_subast(), language, result);
+                result.append(u8"\n</font>");
+                continue;
             }
             case ::pltxt2htm::NodeKind::pl_macro_project: {
                 result.append(project);

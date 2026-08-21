@@ -18,6 +18,7 @@
 #include "../../contracts.hh"
 #include "../utils.hh"
 #include "../parser/try_parse.hh"
+#include "../syntax_highlight.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::details {
@@ -29,10 +30,12 @@ namespace pltxt2htm::details {
  * @param[out] out Output buffer receiving the escaped HTML text.
  */
 template<::pltxt2htm::Contracts ndebug>
-constexpr void convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> const& ast,
-                                                      ::fast_io::u8string& out) noexcept {
-    out.reserve(out.size() + ast.size() * 6);
-    for (auto&& node : ast) {
+constexpr void convert_simple_pltxt_ast_range_to_plweb_text(::pltxt2htm::Ast<ndebug> const& ast,
+                                                            ::std::size_t const begin, ::std::size_t const end,
+                                                            ::fast_io::u8string& out) noexcept {
+    out.reserve(out.size() + (end - begin) * 6);
+    for (::std::size_t index{begin}; index < end; ++index) {
+        auto&& node = ::pltxt2htm::details::vector_index<ndebug>(ast, index);
         switch (node.get_node_kind()) {
         case ::pltxt2htm::NodeKind::u8char: {
             out.push_back(node.as_u8char().chr);
@@ -40,6 +43,10 @@ constexpr void convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> c
         }
         case ::pltxt2htm::NodeKind::invalid_u8char: {
             out.append(u8"\uFFFD");
+            continue;
+        }
+        case ::pltxt2htm::NodeKind::line_break: {
+            out.push_back(u8'\n');
             continue;
         }
         case ::pltxt2htm::NodeKind::space: {
@@ -200,6 +207,29 @@ constexpr void convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> c
             }
         }
     }
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr void convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> const& ast,
+                                                      ::fast_io::u8string& out) noexcept {
+    ::pltxt2htm::details::convert_simple_pltxt_ast_range_to_plweb_text<ndebug>(ast, 0, ast.size(), out);
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr void append_highlighted_code_to_plweb_text(::pltxt2htm::Ast<ndebug> const& ast, SyntaxLanguage const language,
+                                                     ::fast_io::u8string& out) noexcept {
+    auto const spans{::pltxt2htm::details::highlight_syntax<ndebug>(ast, language)};
+    ::std::size_t current_index{};
+    for (auto const& span : spans) {
+        ::pltxt2htm::details::convert_simple_pltxt_ast_range_to_plweb_text<ndebug>(ast, current_index, span.begin, out);
+        out.append(u8"<span style=\"color:");
+        out.append(::pltxt2htm::details::syntax_token_color<ndebug>(span.kind));
+        out.append(u8";\">");
+        ::pltxt2htm::details::convert_simple_pltxt_ast_range_to_plweb_text<ndebug>(ast, span.begin, span.end, out);
+        out.append(u8"</span>");
+        current_index = span.end;
+    }
+    ::pltxt2htm::details::convert_simple_pltxt_ast_range_to_plweb_text<ndebug>(ast, current_index, ast.size(), out);
 }
 
 /**
@@ -1494,20 +1524,33 @@ entry:
             }
             case ::pltxt2htm::NodeKind::code_fence: {
                 auto const& opt_language = node.as_code_fence().get_language();
+                if constexpr (mode == PlWebTextBackendMode::roundtrip) {
+                    if (opt_language.has_value()) {
+                        auto const& language = opt_language.template value<ndebug>();
+                        result.append(u8"<pre><code class=\"language-");
+                        ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                            result, ::fast_io::u8string_view{language.data(), language.size()});
+                        result.append(u8"\">");
+                    }
+                    else {
+                        result.append(u8"<pre><code>");
+                    }
+                    call_stack.push(BackendFrameContext<ndebug>(node.as_code_fence().get_subast(),
+                                                                ::pltxt2htm::NodeKind::code_fence, 0));
+                    ++current_index;
+                    goto entry;
+                }
+                result.append(u8"<pre><code>");
+                SyntaxLanguage language{SyntaxLanguage::plain};
                 if (opt_language.has_value()) {
-                    auto const& language = opt_language.template value<ndebug>();
-                    result.append(u8"<pre><code class=\"language-");
-                    ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                        result, ::fast_io::u8string_view{language.data(), language.size()});
-                    result.append(u8"\">");
+                    auto const& language_value = opt_language.template value<ndebug>();
+                    language = ::pltxt2htm::details::resolve_syntax_language(
+                        ::fast_io::u8string_view{language_value.data(), language_value.size()});
                 }
-                else {
-                    result.append(u8"<pre><code>");
-                }
-                call_stack.push(BackendFrameContext<ndebug>(node.as_code_fence().get_subast(),
-                                                            ::pltxt2htm::NodeKind::code_fence, 0));
-                ++current_index;
-                goto entry;
+                ::pltxt2htm::details::append_highlighted_code_to_plweb_text<ndebug>(node.as_code_fence().get_subast(),
+                                                                                    language, result);
+                result.append(u8"</code></pre>");
+                continue;
             }
             case ::pltxt2htm::NodeKind::pl_macro_project: {
                 ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result, project);
