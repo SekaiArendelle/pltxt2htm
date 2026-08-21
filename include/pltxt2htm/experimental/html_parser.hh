@@ -226,8 +226,8 @@ entry:
         if (auto const list_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
             list_tag_type == ::pltxt2htm::NodeKind::list_ul || list_tag_type == ::pltxt2htm::NodeKind::list_ol) {
             auto&& list_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
-            auto&& frame_list_ast = list_frame.get_list_ast();
-            auto&& frame_iter = list_frame.get_list_iter();
+            auto&& frame_list_ast = list_frame.as_list_info().list_ast;
+            auto&& frame_iter = list_frame.as_list_info().iter;
             if (frame_iter == frame_list_ast.end()) {
                 ::pltxt2htm::details::ParserFrameContext<ndebug> previous_frame(::std::move(list_frame));
                 call_stack.pop();
@@ -242,7 +242,7 @@ entry:
                 else {
                     ::pltxt2htm::details::stack_top<ndebug>(call_stack)
                         .subast.emplace_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::ListOl<ndebug>{
-                            ::std::move(previous_frame.subast), previous_frame.get_list_start()}));
+                            ::std::move(previous_frame.subast), previous_frame.as_list_info().list_start}));
                 }
                 goto entry;
             }
@@ -676,8 +676,8 @@ entry:
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlSpan staged_node(
-                                ::std::move(result), ::std::move(frame.get_html_span_color()),
-                                frame.get_html_span_font_size(), frame.get_html_span_vertical_align());
+                                ::std::move(result), ::std::move(frame.as_html_span_info().color),
+                                frame.as_html_span_info().font_size, frame.as_html_span_info().vertical_align);
                             call_stack.pop();
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
@@ -696,8 +696,9 @@ entry:
                                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
-                            ::pltxt2htm::HtmlA staged_node(::std::move(result), ::std::move(frame.get_html_a_url()),
-                                                           frame.get_html_a_internal());
+                            ::pltxt2htm::HtmlA staged_node(::std::move(result),
+                                                           ::std::move(frame.as_html_a_tag_info().url),
+                                                           frame.as_html_a_tag_info().internal);
                             call_stack.pop();
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(
@@ -717,8 +718,8 @@ entry:
                                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
-                            ::pltxt2htm::HtmlDiv staged_node(::std::move(result), frame.get_html_div_left(),
-                                                             frame.get_html_div_right());
+                            ::pltxt2htm::HtmlDiv staged_node(::std::move(result), frame.as_html_div_info().left,
+                                                             frame.as_html_div_info().right);
                             call_stack.pop();
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(
@@ -737,7 +738,7 @@ entry:
                                 ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
-                            auto const align = frame.get_align();
+                            auto const align = frame.as_align_info().align;
                             ::pltxt2htm::HtmlP staged_node(::std::move(result), align);
                             call_stack.pop();
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
@@ -1028,7 +1029,7 @@ entry:
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlMark staged_node(::std::move(result),
-                                                              ::std::move(frame.get_html_mark_background_color()));
+                                                              ::std::move(frame.as_html_mark_info().background_color));
                             call_stack.pop();
                             auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
@@ -1099,23 +1100,24 @@ entry:
             switch (frame.get_nested_tag_type()) {
             case ::pltxt2htm::NodeKind::html_span: {
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlSpan<ndebug>{
-                    ::std::move(subast), ::std::move(frame.get_html_span_color()), frame.get_html_span_font_size(),
-                    frame.get_html_span_vertical_align()}));
+                    ::std::move(subast), ::std::move(frame.as_html_span_info().color),
+                    frame.as_html_span_info().font_size, frame.as_html_span_info().vertical_align}));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_div: {
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlDiv<ndebug>{
-                    ::std::move(subast), frame.get_html_div_left(), frame.get_html_div_right()}));
+                    ::std::move(subast), frame.as_html_div_info().left, frame.as_html_div_info().right}));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_a: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlA<ndebug>{
-                    ::std::move(subast), ::std::move(frame.get_html_a_url()), frame.get_html_a_internal()}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
+                    ::pltxt2htm::HtmlA<ndebug>{::std::move(subast), ::std::move(frame.as_html_a_tag_info().url),
+                                               frame.as_html_a_tag_info().internal}));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_p: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlP<ndebug>{::std::move(subast), frame.get_align()}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
+                    ::pltxt2htm::HtmlP<ndebug>{::std::move(subast), frame.as_align_info().align}));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_h1: {
@@ -1178,11 +1180,11 @@ entry:
             }
             case ::pltxt2htm::NodeKind::html_mark: {
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlMark<ndebug>{
-                    ::std::move(subast), ::std::move(frame.get_html_mark_background_color())}));
+                    ::std::move(subast), ::std::move(frame.as_html_mark_info().background_color)}));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::list_li_checkbox: {
-                auto const checked = frame.get_checked();
+                auto const checked = frame.as_list_li_checkbox().checked;
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::ListLiCheckbox<ndebug>{::std::move(subast), checked}));
                 goto entry;
@@ -1205,13 +1207,13 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_td: {
-                auto align = frame.get_cell_align();
+                auto align = frame.as_cell().align;
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableTd<ndebug>{::std::move(subast), align}));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_th: {
-                auto align = frame.get_cell_align();
+                auto align = frame.as_cell().align;
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableTh<ndebug>{::std::move(subast), align}));
                 goto entry;

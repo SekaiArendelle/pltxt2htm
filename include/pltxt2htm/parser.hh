@@ -61,13 +61,13 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
         ::pltxt2htm::NodeKind const type_of_subast{call_stack.top().get_nested_tag_type()};
         auto const opt_html_p_align = [&] constexpr noexcept -> ::exception::optional<::pltxt2htm::TextAlign> {
             if (type_of_subast == ::pltxt2htm::NodeKind::html_p) {
-                return call_stack.top().get_align();
+                return call_stack.top().as_align_info().align;
             }
             return ::exception::nullopt;
         }();
         auto const opt_pl_align = [&] constexpr noexcept -> ::exception::optional<::pltxt2htm::TextAlign> {
             if (type_of_subast == ::pltxt2htm::NodeKind::pl_align) {
-                return call_stack.top().get_align();
+                return call_stack.top().as_align_info().align;
             }
             return ::exception::nullopt;
         }();
@@ -75,23 +75,23 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
             -> ::exception::optional<::pltxt2htm::details::ParserFrameContextWithPlMarginTagInfo> {
             if (type_of_subast == ::pltxt2htm::NodeKind::pl_margin) {
                 return ::pltxt2htm::details::ParserFrameContextWithPlMarginTagInfo{
-                    call_stack.top().get_pltext(), call_stack.top().get_pl_margin_tag_left(),
-                    call_stack.top().get_pl_margin_tag_right()};
+                    call_stack.top().get_pltext(), call_stack.top().as_pl_margin_tag().left,
+                    call_stack.top().as_pl_margin_tag().right};
             }
             return ::exception::nullopt;
         }();
         auto const opt_list_start = [&] constexpr noexcept -> ::exception::optional<::std::size_t> {
             if (type_of_subast == ::pltxt2htm::NodeKind::list_ol) {
-                return call_stack.top().get_list_start();
+                return call_stack.top().as_list_info().list_start;
             }
             return ::exception::nullopt;
         }();
         auto const opt_html_div =
             [&] constexpr noexcept -> ::exception::optional<::pltxt2htm::details::ParserFrameContextWithHtmlDivInfo> {
             if (type_of_subast == ::pltxt2htm::NodeKind::html_div) {
-                return ::pltxt2htm::details::ParserFrameContextWithHtmlDivInfo{call_stack.top().get_pltext(),
-                                                                               call_stack.top().get_html_div_left(),
-                                                                               call_stack.top().get_html_div_right()};
+                return ::pltxt2htm::details::ParserFrameContextWithHtmlDivInfo{
+                    call_stack.top().get_pltext(), call_stack.top().as_html_div_info().left,
+                    call_stack.top().as_html_div_info().right};
             }
             return ::exception::nullopt;
         }();

@@ -1114,7 +1114,7 @@ entry:
                 BackendFrameContext<ndebug>& the_second_to_last_frame{*(++reverse_iter)};
                 auto const container_tag_type = the_second_to_last_frame.get_nested_tag_type();
                 if (container_tag_type == ::pltxt2htm::NodeKind::list_ol) {
-                    ::std::size_t& ol_li_count = the_second_to_last_frame.get_ol_li_count();
+                    ::std::size_t& ol_li_count = the_second_to_last_frame.as_ol_info().ol_li_count;
                     result.append(::pltxt2htm::details::size_t2str(ol_li_count));
                     result.append(u8". ");
                     ++ol_li_count;
@@ -1151,7 +1151,7 @@ entry:
                 auto const nested_tag_type = the_second_to_last_frame.get_nested_tag_type();
                 if (nested_tag_type == ::pltxt2htm::NodeKind::list_ol ||
                     nested_tag_type == ::pltxt2htm::NodeKind::list_ol) {
-                    ::std::size_t& ol_li_count = the_second_to_last_frame.get_ol_li_count();
+                    ::std::size_t& ol_li_count = the_second_to_last_frame.as_ol_info().ol_li_count;
                     result.append(::pltxt2htm::details::size_t2str(ol_li_count));
                     result.append(u8". ");
                     ++ol_li_count;
@@ -1527,7 +1527,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_span: {
-                auto const& span_info = top_frame.get_html_span_info();
+                auto const& span_info = top_frame.as_html_span_info();
                 if (span_info.has_vertical_align) {
                     result.append(u8"</voffset>");
                 }
@@ -1630,7 +1630,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_p: {
-                if (top_frame.get_align_info().has_align) {
+                if (top_frame.as_align_info().has_align) {
                     result.append(u8"</align>");
                 }
                 auto const& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
