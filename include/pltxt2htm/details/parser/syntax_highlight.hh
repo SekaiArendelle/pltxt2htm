@@ -15,10 +15,20 @@ namespace pltxt2htm::details {
 
 enum class SyntaxLanguage : unsigned {
     plain = 0,
+    bash,
     c,
     cpp,
+    css,
+    go,
+    java,
+    javascript,
+    json,
     lua,
+    python,
     rust,
+    sql,
+    typescript,
+    yaml,
 };
 
 enum class SyntaxTokenKind : unsigned {
@@ -34,6 +44,12 @@ enum class SyntaxTokenKind : unsigned {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto resolve_syntax_language(::fast_io::u8string_view const language) noexcept -> SyntaxLanguage {
+    if (::pltxt2htm::details::is_exact_match<ndebug, u8"bash">(language) ||
+        ::pltxt2htm::details::is_exact_match<ndebug, u8"sh">(language) ||
+        ::pltxt2htm::details::is_exact_match<ndebug, u8"shell">(language) ||
+        ::pltxt2htm::details::is_exact_match<ndebug, u8"zsh">(language)) {
+        return SyntaxLanguage::bash;
+    }
     if (::pltxt2htm::details::is_exact_match<ndebug, u8"c">(language) ||
         ::pltxt2htm::details::is_exact_match<ndebug, u8"h">(language) ||
         ::pltxt2htm::details::is_exact_match<ndebug, u8"c23">(language)) {
@@ -47,12 +63,49 @@ constexpr auto resolve_syntax_language(::fast_io::u8string_view const language) 
         ::pltxt2htm::details::is_exact_match<ndebug, u8"h++">(language)) {
         return SyntaxLanguage::cpp;
     }
+    if (::pltxt2htm::details::is_exact_match<ndebug, u8"css">(language)) {
+        return SyntaxLanguage::css;
+    }
+    if (::pltxt2htm::details::is_exact_match<ndebug, u8"go">(language) ||
+        ::pltxt2htm::details::is_exact_match<ndebug, u8"golang">(language)) {
+        return SyntaxLanguage::go;
+    }
+    if (::pltxt2htm::details::is_exact_match<ndebug, u8"java">(language)) {
+        return SyntaxLanguage::java;
+    }
+    if (::pltxt2htm::details::is_exact_match<ndebug, u8"js">(language) ||
+        ::pltxt2htm::details::is_exact_match<ndebug, u8"javascript">(language) ||
+        ::pltxt2htm::details::is_exact_match<ndebug, u8"mjs">(language) ||
+        ::pltxt2htm::details::is_exact_match<ndebug, u8"cjs">(language)) {
+        return SyntaxLanguage::javascript;
+    }
+    if (::pltxt2htm::details::is_exact_match<ndebug, u8"json">(language)) {
+        return SyntaxLanguage::json;
+    }
     if (::pltxt2htm::details::is_exact_match<ndebug, u8"rust">(language) ||
         ::pltxt2htm::details::is_exact_match<ndebug, u8"rs">(language)) {
         return SyntaxLanguage::rust;
     }
     if (::pltxt2htm::details::is_exact_match<ndebug, u8"lua">(language)) {
         return SyntaxLanguage::lua;
+    }
+    if (::pltxt2htm::details::is_exact_match<ndebug, u8"py">(language) ||
+        ::pltxt2htm::details::is_exact_match<ndebug, u8"python">(language) ||
+        ::pltxt2htm::details::is_exact_match<ndebug, u8"python3">(language)) {
+        return SyntaxLanguage::python;
+    }
+    if (::pltxt2htm::details::is_exact_match<ndebug, u8"sql">(language)) {
+        return SyntaxLanguage::sql;
+    }
+    if (::pltxt2htm::details::is_exact_match<ndebug, u8"ts">(language) ||
+        ::pltxt2htm::details::is_exact_match<ndebug, u8"typescript">(language) ||
+        ::pltxt2htm::details::is_exact_match<ndebug, u8"mts">(language) ||
+        ::pltxt2htm::details::is_exact_match<ndebug, u8"cts">(language)) {
+        return SyntaxLanguage::typescript;
+    }
+    if (::pltxt2htm::details::is_exact_match<ndebug, u8"yaml">(language) ||
+        ::pltxt2htm::details::is_exact_match<ndebug, u8"yml">(language)) {
+        return SyntaxLanguage::yaml;
     }
     return SyntaxLanguage::plain;
 }
@@ -265,12 +318,113 @@ constexpr ::fast_io::u8string_view lua_keywords[]{
     u8"repeat",   u8"return", u8"then", u8"true", u8"until",  u8"while",
 };
 
+constexpr ::fast_io::u8string_view bash_keywords[]{
+    u8"case",     u8"coproc", u8"do", u8"done",   u8"elif", u8"else", u8"esac",  u8"fi",    u8"for",
+    u8"function", u8"if",     u8"in", u8"select", u8"then", u8"time", u8"until", u8"while",
+};
+
+constexpr ::fast_io::u8string_view go_keywords[]{
+    u8"break",  u8"case",        u8"chan", u8"const",   u8"continue", u8"default", u8"defer",
+    u8"else",   u8"fallthrough", u8"for",  u8"func",    u8"go",       u8"goto",    u8"if",
+    u8"import", u8"interface",   u8"map",  u8"package", u8"range",    u8"return",  u8"select",
+    u8"struct", u8"switch",      u8"type", u8"var",     u8"true",     u8"false",   u8"nil",
+};
+
+constexpr ::fast_io::u8string_view java_keywords[]{
+    u8"abstract", u8"assert",    u8"boolean",   u8"break",    u8"byte",         u8"case",    u8"catch",
+    u8"char",     u8"class",     u8"const",     u8"continue", u8"default",      u8"do",      u8"double",
+    u8"else",     u8"enum",      u8"exports",   u8"extends",  u8"false",        u8"final",   u8"finally",
+    u8"float",    u8"for",       u8"goto",      u8"if",       u8"implements",   u8"import",  u8"instanceof",
+    u8"int",      u8"interface", u8"long",      u8"module",   u8"native",       u8"new",     u8"non-sealed",
+    u8"null",     u8"open",      u8"opens",     u8"package",  u8"permits",      u8"private", u8"protected",
+    u8"provides", u8"public",    u8"record",    u8"requires", u8"return",       u8"sealed",  u8"short",
+    u8"static",   u8"strictfp",  u8"super",     u8"switch",   u8"synchronized", u8"this",    u8"throw",
+    u8"throws",   u8"to",        u8"transient", u8"true",     u8"transitive",   u8"try",     u8"uses",
+    u8"var",      u8"void",      u8"volatile",  u8"while",    u8"with",         u8"yield",
+};
+
+constexpr ::fast_io::u8string_view javascript_keywords[]{
+    u8"async",      u8"await",   u8"break",  u8"case",     u8"catch", u8"class",  u8"const",   u8"continue",
+    u8"debugger",   u8"default", u8"delete", u8"do",       u8"else",  u8"export", u8"extends", u8"false",
+    u8"finally",    u8"for",     u8"from",   u8"function", u8"get",   u8"if",     u8"import",  u8"in",
+    u8"instanceof", u8"let",     u8"new",    u8"null",     u8"of",    u8"return", u8"set",     u8"static",
+    u8"super",      u8"switch",  u8"this",   u8"throw",    u8"true",  u8"try",    u8"typeof",  u8"undefined",
+    u8"var",        u8"void",    u8"while",  u8"with",     u8"yield",
+};
+
+constexpr ::fast_io::u8string_view typescript_keywords[]{
+    u8"abstract",  u8"any",     u8"as",         u8"asserts", u8"async",     u8"await",     u8"bigint",
+    u8"boolean",   u8"break",   u8"case",       u8"catch",   u8"class",     u8"const",     u8"constructor",
+    u8"continue",  u8"declare", u8"default",    u8"delete",  u8"do",        u8"else",      u8"enum",
+    u8"export",    u8"extends", u8"false",      u8"finally", u8"for",       u8"from",      u8"function",
+    u8"get",       u8"if",      u8"implements", u8"import",  u8"in",        u8"infer",     u8"instanceof",
+    u8"interface", u8"is",      u8"keyof",      u8"let",     u8"module",    u8"namespace", u8"never",
+    u8"new",       u8"null",    u8"number",     u8"object",  u8"of",        u8"override",  u8"private",
+    u8"protected", u8"public",  u8"readonly",   u8"require", u8"return",    u8"satisfies", u8"set",
+    u8"static",    u8"string",  u8"super",      u8"switch",  u8"symbol",    u8"this",      u8"throw",
+    u8"true",      u8"try",     u8"type",       u8"typeof",  u8"undefined", u8"unique",    u8"unknown",
+    u8"var",       u8"void",    u8"while",      u8"with",    u8"yield",
+};
+
+constexpr ::fast_io::u8string_view python_keywords[]{
+    u8"False",  u8"None",     u8"True",   u8"and", u8"as",    u8"assert", u8"async",  u8"await",    u8"break", u8"case",
+    u8"class",  u8"continue", u8"def",    u8"del", u8"elif",  u8"else",   u8"except", u8"finally",  u8"for",   u8"from",
+    u8"global", u8"if",       u8"import", u8"in",  u8"is",    u8"lambda", u8"match",  u8"nonlocal", u8"not",   u8"or",
+    u8"pass",   u8"raise",    u8"return", u8"try", u8"while", u8"with",   u8"yield",
+};
+
+constexpr ::fast_io::u8string_view json_keywords[]{u8"false", u8"null", u8"true"};
+
+constexpr ::fast_io::u8string_view yaml_keywords[]{
+    u8"false", u8"False", u8"FALSE", u8"null", u8"Null", u8"NULL", u8"true", u8"True",
+    u8"TRUE",  u8"yes",   u8"Yes",   u8"YES",  u8"no",   u8"No",   u8"NO",
+};
+
+constexpr ::fast_io::u8string_view sql_keywords[]{
+    u8"all",   u8"alter",    u8"and",    u8"any",     u8"as",         u8"asc",    u8"begin",    u8"between", u8"by",
+    u8"case",  u8"check",    u8"column", u8"commit",  u8"constraint", u8"create", u8"database", u8"default", u8"delete",
+    u8"desc",  u8"distinct", u8"drop",   u8"else",    u8"end",        u8"exists", u8"false",    u8"foreign", u8"from",
+    u8"full",  u8"group",    u8"having", u8"in",      u8"index",      u8"inner",  u8"insert",   u8"into",    u8"is",
+    u8"join",  u8"key",      u8"left",   u8"like",    u8"limit",      u8"not",    u8"null",     u8"offset",  u8"on",
+    u8"or",    u8"order",    u8"outer",  u8"primary", u8"references", u8"right",  u8"rollback", u8"select",  u8"set",
+    u8"table", u8"then",     u8"true",   u8"union",   u8"unique",     u8"update", u8"values",   u8"view",    u8"when",
+    u8"where", u8"with",
+};
+
+constexpr ::fast_io::u8string_view css_keywords[]{u8"important"};
+
 template<::std::size_t keyword_count>
 [[nodiscard]]
 constexpr auto syntax_is_keyword(::fast_io::u8string_view const identifier,
                                  ::fast_io::u8string_view const (&keywords)[keyword_count]) noexcept -> bool {
     for (auto const keyword : keywords) {
         if (identifier == keyword) {
+            return true;
+        }
+    }
+    return false;
+}
+
+template<::std::size_t keyword_count>
+[[nodiscard]]
+constexpr auto syntax_is_keyword_case_insensitive(::fast_io::u8string_view const identifier,
+                                                  ::fast_io::u8string_view const (&keywords)[keyword_count]) noexcept
+    -> bool {
+    for (auto const keyword : keywords) {
+        if (identifier.size() != keyword.size()) {
+            continue;
+        }
+        bool equal{true};
+        for (::std::size_t index{}; index != identifier.size(); ++index) {
+            char8_t const chr{
+                ::pltxt2htm::details::u8string_view_index<::pltxt2htm::Contracts::ignore>(identifier, index)};
+            char8_t const folded{chr >= u8'A' && chr <= u8'Z' ? static_cast<char8_t>(chr + (u8'a' - u8'A')) : chr};
+            if (folded != ::pltxt2htm::details::u8string_view_index<::pltxt2htm::Contracts::ignore>(keyword, index)) {
+                equal = false;
+                break;
+            }
+        }
+        if (equal) {
             return true;
         }
     }

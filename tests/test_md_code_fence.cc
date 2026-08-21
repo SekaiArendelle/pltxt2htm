@@ -32,7 +32,9 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```py\nprint(1)\n```");
-        auto answer = ::fast_io::u8string_view{u8"<pre><code>print(1)</code></pre>"};
+        auto answer = ::fast_io::u8string_view{
+            u8"<pre><code><span style=\"color:#8250df;\">print</span>(<span "
+            u8"style=\"color:#0550ae;\">1</span>)</code></pre>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -50,11 +52,14 @@ int main() {
     {
         auto pltext = ::fast_io::u8string_view{u8"~~~py\nprint(1)\n~~~"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"<pre><code>print(1)</code></pre>"};
+        auto answer = ::fast_io::u8string_view{
+            u8"<pre><code><span style=\"color:#8250df;\">print</span>(<span "
+            u8"style=\"color:#0550ae;\">1</span>)</code></pre>"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer =
-            ::fast_io::u8string_view{u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\nprint(1)\n</font>"};
+        auto plunity_richtext_answer = ::fast_io::u8string_view{
+            u8"<font=\"PhysicsLab-SarasaMonoSC "
+            u8"SDF\">\n<color=#8250df>print</color>(<color=#0550ae>1</color>)\n</font>"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
@@ -72,19 +77,25 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"\n```py\nprint(1)\n```");
-        auto answer = ::fast_io::u8string_view{u8"<br><pre><code>print(1)</code></pre>"};
+        auto answer = ::fast_io::u8string_view{
+            u8"<br><pre><code><span style=\"color:#8250df;\">print</span>(<span "
+            u8"style=\"color:#0550ae;\">1</span>)</code></pre>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<br>```py\nprint(1)\n```");
-        auto answer = ::fast_io::u8string_view{u8"<br><pre><code>print(1)</code></pre>"};
+        auto answer = ::fast_io::u8string_view{
+            u8"<br><pre><code><span style=\"color:#8250df;\">print</span>(<span "
+            u8"style=\"color:#0550ae;\">1</span>)</code></pre>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<br>```py\nprint(1)");
-        auto answer = ::fast_io::u8string_view{u8"<br><pre><code>print(1)</code></pre>"};
+        auto answer = ::fast_io::u8string_view{
+            u8"<br><pre><code><span style=\"color:#8250df;\">print</span>(<span "
+            u8"style=\"color:#0550ae;\">1</span>)</code></pre>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -113,9 +124,10 @@ print("Hello World")
 ```)"};
         auto html = ::pltxt2htm_test::pltxt4unittest(data);
         auto answer = ::fast_io::u8string_view{
-            u8"<br><pre><code>print(&quot;Hello&nbsp;World&quot;)</code></"
-            u8"pre><br><pre><code>print(&quot;Hello&nbsp;World&quot;)"
-            u8"</code></pre>"};
+            u8"<br><pre><code><span style=\"color:#8250df;\">print</span>(<span "
+            u8"style=\"color:#0a3069;\">&quot;Hello&nbsp;World&quot;</span>)</code></pre><br><pre><code><span "
+            u8"style=\"color:#8250df;\">print</span>(<span "
+            u8"style=\"color:#0a3069;\">&quot;Hello&nbsp;World&quot;</span>)</code></pre>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -150,13 +162,17 @@ print("Hello World")
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```\tpy\nprint(1)\n```");
-        auto answer = ::fast_io::u8string_view{u8"<pre><code>print(1)</code></pre>"};
+        auto answer = ::fast_io::u8string_view{
+            u8"<pre><code><span style=\"color:#8250df;\">print</span>(<span "
+            u8"style=\"color:#0550ae;\">1</span>)</code></pre>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```py\t\nprint(1)\n```");
-        auto answer = ::fast_io::u8string_view{u8"<pre><code>print(1)</code></pre>"};
+        auto answer = ::fast_io::u8string_view{
+            u8"<pre><code><span style=\"color:#8250df;\">print</span>(<span "
+            u8"style=\"color:#0550ae;\">1</span>)</code></pre>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -416,6 +432,145 @@ print("Hello World")
             u8"function</color>\u00A0<color=#8250df>greet</color>()\n\u00A0\u00A0\u00A0\u00A0<color=#cf222e>"
             u8"return</color>\u00A0<color=#0a3069>\"hello\"</color>\n<color=#cf222e>end</color>\n</font>"};
         pltxt2htm_test_assert_equal(richtext, richtext_answer);
+    }
+
+    // Additional built-in languages share lexer families but retain their own keywords and comments.
+    {
+        auto const pltext = ::fast_io::u8string_view{u8"```css\n@media screen { color: \"red\"; /* ok */ }\n```"};
+        auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const answer = ::fast_io::u8string_view{
+            u8"<pre><code><span style=\"color:#cf222e;\">@media</span>&nbsp;screen&nbsp;{&nbsp;color:&nbsp;<span "
+            u8"style=\"color:#0a3069;\">&quot;red&quot;</span>;&nbsp;<span "
+            u8"style=\"color:#6e7781;\">/*&nbsp;ok&nbsp;*/</span>&nbsp;}</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto const reparsed = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
+        pltxt2htm_test_assert_equal(reparsed, html);
+    }
+
+    {
+        auto const pltext = ::fast_io::u8string_view{u8"```js\nfunction greet() { return \"hi\"; } // ok\n```"};
+        auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const answer = ::fast_io::u8string_view{
+            u8"<pre><code><span style=\"color:#cf222e;\">function</span>&nbsp;<span "
+            u8"style=\"color:#8250df;\">greet</span>()&nbsp;{&nbsp;<span "
+            u8"style=\"color:#cf222e;\">return</span>&nbsp;<span "
+            u8"style=\"color:#0a3069;\">&quot;hi&quot;</span>;&nbsp;}&nbsp;<span "
+            u8"style=\"color:#6e7781;\">//&nbsp;ok</span></code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto const reparsed = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
+        pltxt2htm_test_assert_equal(reparsed, html);
+    }
+
+    {
+        auto const pltext =
+            ::fast_io::u8string_view{u8"```ts\nfunction greet(name: string): number { return 42; }\n```"};
+        auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const answer = ::fast_io::u8string_view{
+            u8"<pre><code><span style=\"color:#cf222e;\">function</span>&nbsp;<span "
+            u8"style=\"color:#8250df;\">greet</span>(name:&nbsp;<span "
+            u8"style=\"color:#cf222e;\">string</span>):&nbsp;<span "
+            u8"style=\"color:#cf222e;\">number</span>&nbsp;{&nbsp;<span "
+            u8"style=\"color:#cf222e;\">return</span>&nbsp;<span "
+            u8"style=\"color:#0550ae;\">42</span>;&nbsp;}</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto const reparsed = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
+        pltxt2htm_test_assert_equal(reparsed, html);
+    }
+
+    {
+        auto const pltext = ::fast_io::u8string_view{u8"```py\ndef greet(name): # ok\n    return \"hi\"\n```"};
+        auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const answer = ::fast_io::u8string_view{
+            u8"<pre><code><span style=\"color:#cf222e;\">def</span>&nbsp;<span "
+            u8"style=\"color:#8250df;\">greet</span>(name):&nbsp;<span "
+            u8"style=\"color:#6e7781;\">#&nbsp;ok</span>\n&nbsp;&nbsp;&nbsp;&nbsp;<span "
+            u8"style=\"color:#cf222e;\">return</span>&nbsp;<span "
+            u8"style=\"color:#0a3069;\">&quot;hi&quot;</span></code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto const reparsed = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
+        pltxt2htm_test_assert_equal(reparsed, html);
+    }
+
+    {
+        auto const pltext = ::fast_io::u8string_view{u8"```java\npublic static void main() { return; } // ok\n```"};
+        auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const answer = ::fast_io::u8string_view{
+            u8"<pre><code><span style=\"color:#cf222e;\">public</span>&nbsp;<span "
+            u8"style=\"color:#cf222e;\">static</span>&nbsp;<span "
+            u8"style=\"color:#cf222e;\">void</span>&nbsp;<span "
+            u8"style=\"color:#8250df;\">main</span>()&nbsp;{&nbsp;<span "
+            u8"style=\"color:#cf222e;\">return</span>;&nbsp;}&nbsp;<span "
+            u8"style=\"color:#6e7781;\">//&nbsp;ok</span></code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto const reparsed = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
+        pltxt2htm_test_assert_equal(reparsed, html);
+    }
+
+    {
+        auto const pltext = ::fast_io::u8string_view{u8"```go\nfunc main() { return } // ok\n```"};
+        auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const answer = ::fast_io::u8string_view{
+            u8"<pre><code><span style=\"color:#cf222e;\">func</span>&nbsp;<span "
+            u8"style=\"color:#8250df;\">main</span>()&nbsp;{&nbsp;<span "
+            u8"style=\"color:#cf222e;\">return</span>&nbsp;}&nbsp;<span "
+            u8"style=\"color:#6e7781;\">//&nbsp;ok</span></code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto const reparsed = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
+        pltxt2htm_test_assert_equal(reparsed, html);
+    }
+
+    {
+        auto const pltext = ::fast_io::u8string_view{u8"```bash\nif true; then echo \"ok\"; fi # done\n```"};
+        auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const answer = ::fast_io::u8string_view{
+            u8"<pre><code><span style=\"color:#cf222e;\">if</span>&nbsp;true;&nbsp;<span "
+            u8"style=\"color:#cf222e;\">then</span>&nbsp;echo&nbsp;<span "
+            u8"style=\"color:#0a3069;\">&quot;ok&quot;</span>;&nbsp;<span "
+            u8"style=\"color:#cf222e;\">fi</span>&nbsp;<span "
+            u8"style=\"color:#6e7781;\">#&nbsp;done</span></code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto const reparsed = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
+        pltxt2htm_test_assert_equal(reparsed, html);
+    }
+
+    {
+        auto const pltext = ::fast_io::u8string_view{u8"```json\n{\"ok\": true, \"n\": 42}\n```"};
+        auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const answer = ::fast_io::u8string_view{
+            u8"<pre><code>{<span style=\"color:#0a3069;\">&quot;ok&quot;</span>:&nbsp;<span "
+            u8"style=\"color:#cf222e;\">true</span>,&nbsp;<span "
+            u8"style=\"color:#0a3069;\">&quot;n&quot;</span>:&nbsp;<span "
+            u8"style=\"color:#0550ae;\">42</span>}</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto const reparsed = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
+        pltxt2htm_test_assert_equal(reparsed, html);
+    }
+
+    {
+        auto const pltext = ::fast_io::u8string_view{u8"```yaml\nenabled: true # ok\nname: \"demo\"\n```"};
+        auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const answer = ::fast_io::u8string_view{
+            u8"<pre><code>enabled:&nbsp;<span style=\"color:#cf222e;\">true</span>&nbsp;<span "
+            u8"style=\"color:#6e7781;\">#&nbsp;ok</span>\nname:&nbsp;<span "
+            u8"style=\"color:#0a3069;\">&quot;demo&quot;</span></code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto const reparsed = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
+        pltxt2htm_test_assert_equal(reparsed, html);
+    }
+
+    {
+        auto const pltext = ::fast_io::u8string_view{u8"```sql\nSELECT count(*) FROM users WHERE id = 42; -- ok\n```"};
+        auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const answer = ::fast_io::u8string_view{
+            u8"<pre><code><span style=\"color:#cf222e;\">SELECT</span>&nbsp;<span "
+            u8"style=\"color:#8250df;\">count</span>(*)&nbsp;<span "
+            u8"style=\"color:#cf222e;\">FROM</span>&nbsp;users&nbsp;<span "
+            u8"style=\"color:#cf222e;\">WHERE</span>&nbsp;id&nbsp;=&nbsp;<span "
+            u8"style=\"color:#0550ae;\">42</span>;&nbsp;<span "
+            u8"style=\"color:#6e7781;\">--&nbsp;ok</span></code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto const reparsed = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
+        pltxt2htm_test_assert_equal(reparsed, html);
     }
 
     // Newlines stay direct CodeFence children instead of being nested in color nodes.
