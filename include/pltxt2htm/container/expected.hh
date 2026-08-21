@@ -1,10 +1,5 @@
 #pragma once
 
-/**
- * @file expected.hh
- * @details https://github.com/SekaiArendelle/exception.git
- */
-
 #include <memory>
 #include <utility>
 #include <type_traits>
