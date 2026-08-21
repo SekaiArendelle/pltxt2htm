@@ -29,40 +29,19 @@ enum class SyntaxTokenKind : unsigned {
     preprocessor,
 };
 
-[[nodiscard]]
-constexpr auto syntax_ascii_lower(char8_t const chr) noexcept -> char8_t {
-    if (u8'A' <= chr && chr <= u8'Z') {
-        return static_cast<char8_t>(chr + (u8'a' - u8'A'));
-    }
-    return chr;
-}
-
-[[nodiscard]]
-constexpr auto syntax_language_name_equals(::fast_io::u8string_view const language,
-                                           ::fast_io::u8string_view const expected) noexcept -> bool {
-    if (language.size() != expected.size()) {
-        return false;
-    }
-    for (::std::size_t index{}; index < language.size(); ++index) {
-        if (::pltxt2htm::details::syntax_ascii_lower(language[index]) != expected[index]) {
-            return false;
-        }
-    }
-    return true;
-}
-
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto resolve_syntax_language(::fast_io::u8string_view const language) noexcept -> SyntaxLanguage {
-    if (::pltxt2htm::details::syntax_language_name_equals(language, u8"cpp") ||
-        ::pltxt2htm::details::syntax_language_name_equals(language, u8"c++") ||
-        ::pltxt2htm::details::syntax_language_name_equals(language, u8"cc") ||
-        ::pltxt2htm::details::syntax_language_name_equals(language, u8"cxx") ||
-        ::pltxt2htm::details::syntax_language_name_equals(language, u8"hpp") ||
-        ::pltxt2htm::details::syntax_language_name_equals(language, u8"h++")) {
+    if (::pltxt2htm::details::is_exact_match<ndebug, u8"cpp">(language) ||
+        ::pltxt2htm::details::is_exact_match<ndebug, u8"c++">(language) ||
+        ::pltxt2htm::details::is_exact_match<ndebug, u8"cc">(language) ||
+        ::pltxt2htm::details::is_exact_match<ndebug, u8"cxx">(language) ||
+        ::pltxt2htm::details::is_exact_match<ndebug, u8"hpp">(language) ||
+        ::pltxt2htm::details::is_exact_match<ndebug, u8"h++">(language)) {
         return SyntaxLanguage::cpp;
     }
-    if (::pltxt2htm::details::syntax_language_name_equals(language, u8"rust") ||
-        ::pltxt2htm::details::syntax_language_name_equals(language, u8"rs")) {
+    if (::pltxt2htm::details::is_exact_match<ndebug, u8"rust">(language) ||
+        ::pltxt2htm::details::is_exact_match<ndebug, u8"rs">(language)) {
         return SyntaxLanguage::rust;
     }
     return SyntaxLanguage::plain;
