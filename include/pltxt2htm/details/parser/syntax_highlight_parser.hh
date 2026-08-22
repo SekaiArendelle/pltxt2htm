@@ -357,11 +357,13 @@ constexpr auto parse_c_style_code_syntax(::fast_io::u8string_view const content,
             switch (language) {
             case SyntaxLanguage::c:
                 is_keyword =
-                    ::pltxt2htm::details::syntax_is_keyword(identifier_view, ::pltxt2htm::details::c23_keywords);
+                    ::pltxt2htm::details::syntax_is_keyword(identifier_view, ::pltxt2htm::details::c23_keywords) ||
+                    ::pltxt2htm::details::syntax_is_keyword(identifier_view, ::pltxt2htm::details::cstdint_types);
                 break;
             case SyntaxLanguage::cpp:
                 is_keyword =
-                    ::pltxt2htm::details::syntax_is_keyword(identifier_view, ::pltxt2htm::details::cpp_keywords);
+                    ::pltxt2htm::details::syntax_is_keyword(identifier_view, ::pltxt2htm::details::cpp_keywords) ||
+                    ::pltxt2htm::details::syntax_is_keyword(identifier_view, ::pltxt2htm::details::cstdint_types);
                 break;
             case SyntaxLanguage::csharp:
                 is_keyword =

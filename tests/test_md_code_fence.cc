@@ -403,6 +403,50 @@ print("Hello World")
         pltxt2htm_test_assert_equal(richtext, richtext_answer);
     }
 
+    {
+        auto const html = ::pltxt2htm_test::pltxt4unittest(
+            u8"```c\nsize_t a; ptrdiff_t b; max_align_t c; nullptr_t d; wchar_t e;\n```");
+        auto const answer = ::fast_io::u8string_view{
+            u8"<pre><code><span style=\"color:#cf222e;\">size_t</span>&nbsp;a;&nbsp;<span "
+            u8"style=\"color:#cf222e;\">ptrdiff_t</span>&nbsp;b;&nbsp;<span "
+            u8"style=\"color:#cf222e;\">max_align_t</span>&nbsp;c;&nbsp;<span "
+            u8"style=\"color:#cf222e;\">nullptr_t</span>&nbsp;d;&nbsp;<span "
+            u8"style=\"color:#cf222e;\">wchar_t</span>&nbsp;e;</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto const html = ::pltxt2htm_test::pltxt4unittest(
+            u8"```cpp\nstd::size_t a; std::ptrdiff_t b; std::max_align_t c; std::nullptr_t d; std::byte e;\n```");
+        auto const answer = ::fast_io::u8string_view{
+            u8"<pre><code>std::<span style=\"color:#cf222e;\">size_t</span>&nbsp;a;&nbsp;std::<span "
+            u8"style=\"color:#cf222e;\">ptrdiff_t</span>&nbsp;b;&nbsp;std::<span "
+            u8"style=\"color:#cf222e;\">max_align_t</span>&nbsp;c;&nbsp;std::<span "
+            u8"style=\"color:#cf222e;\">nullptr_t</span>&nbsp;d;&nbsp;std::<span "
+            u8"style=\"color:#cf222e;\">byte</span>&nbsp;e;</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto const html = ::pltxt2htm_test::pltxt4unittest(
+            u8"```c\nuint16_t a; int_least32_t b; uint_fast64_t c; intptr_t d; uintmax_t e;\n```");
+        auto const answer = ::fast_io::u8string_view{
+            u8"<pre><code><span style=\"color:#cf222e;\">uint16_t</span>&nbsp;a;&nbsp;<span "
+            u8"style=\"color:#cf222e;\">int_least32_t</span>&nbsp;b;&nbsp;<span "
+            u8"style=\"color:#cf222e;\">uint_fast64_t</span>&nbsp;c;&nbsp;<span "
+            u8"style=\"color:#cf222e;\">intptr_t</span>&nbsp;d;&nbsp;<span "
+            u8"style=\"color:#cf222e;\">uintmax_t</span>&nbsp;e;</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto const html = ::pltxt2htm_test::pltxt4unittest(u8"```cpp\nuint16_t a; std::int32_t b;\n```");
+        auto const answer = ::fast_io::u8string_view{
+            u8"<pre><code><span style=\"color:#cf222e;\">uint16_t</span>&nbsp;a;&nbsp;std::<span "
+            u8"style=\"color:#cf222e;\">int32_t</span>&nbsp;b;</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
     // Lua short strings, long-bracket strings/comments, keywords, numbers, and functions.
     {
         auto const pltext = ::fast_io::u8string_view{
