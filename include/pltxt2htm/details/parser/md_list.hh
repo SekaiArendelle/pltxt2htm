@@ -7,7 +7,7 @@
 
 #include <cstddef>
 #include <fast_io/fast_io_dsal/stack.h>
-#include <fast_io/fast_io_dsal/string.h>
+#include "../../container/string.hh"
 #include "../../container/string_view.hh"
 #include "../../container/expected.hh"
 #include "list_ast.hh"
@@ -239,7 +239,7 @@ constexpr auto is_valid_md_ol_list_hierarchy(::pltxt2htm::container::U8StringVie
 struct TryParseItemResult {
     ::std::size_t space_hierarchy;
     ::std::size_t advance_count;
-    ::fast_io::u8string text;
+    ::pltxt2htm::container::u8string text;
     MdUlListItemKind item_kind;
     bool checkbox{};
     bool checked{};
@@ -339,7 +339,7 @@ constexpr auto try_parse_item(
         current_index += 4;
     }
     // parsing text after - or + or *
-    ::fast_io::u8string text{};
+    ::pltxt2htm::container::u8string text{};
     for (; current_index < pltext_size; ++current_index) {
         auto const chr = pltext.template index<ndebug>(current_index);
         if (chr == u8'\n') {

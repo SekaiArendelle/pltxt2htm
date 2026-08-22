@@ -31,7 +31,7 @@ BENCHMARK_DEFINE_F(MicroFixture, NodeCreate_PlColor)(benchmark::State& st) {
         ::pltxt2htm::Ast<ndebug> sub;
         sub.push_back(::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::U8Char{u8't'}});
         ::pltxt2htm::PlTxtNode<ndebug> node{
-            ::pltxt2htm::PlColor<ndebug>{::std::move(sub), ::fast_io::u8string{u8"red"}}};
+            ::pltxt2htm::PlColor<ndebug>{::std::move(sub), ::pltxt2htm::container::u8string{u8"red"}}};
         ::benchmark::DoNotOptimize(node);
     }
 }
@@ -43,7 +43,7 @@ BENCHMARK_DEFINE_F(MicroFixture, NodeCreate_HtmlSpan)(benchmark::State& st) {
         ::pltxt2htm::Ast<ndebug> sub;
         sub.push_back(::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::U8Char{u8't'}});
         ::pltxt2htm::PlTxtNode<ndebug> node{::pltxt2htm::HtmlSpan<ndebug>{
-            ::std::move(sub), ::fast_io::u8string{u8"color:red;"},
+            ::std::move(sub), ::pltxt2htm::container::u8string{u8"color:red;"},
             ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>>{::pltxt2htm::container::nullopt},
             ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>>{
                 ::pltxt2htm::container::nullopt}}};
@@ -57,7 +57,7 @@ BENCHMARK_DEFINE_F(MicroFixture, NodeCreate_MdLink)(benchmark::State& st) {
     for (auto _ : st) {
         ::pltxt2htm::Ast<ndebug> text_sub;
         text_sub.push_back(::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::U8Char{u8'L'}});
-        ::pltxt2htm::Url url{::fast_io::u8string{u8"/"}};
+        ::pltxt2htm::Url url{::pltxt2htm::container::u8string{u8"/"}};
         ::pltxt2htm::PlTxtNode<ndebug> node{::pltxt2htm::MdLink<ndebug>{::std::move(text_sub), ::std::move(url)}};
         ::benchmark::DoNotOptimize(node);
     }
@@ -104,7 +104,7 @@ BENCHMARK_REGISTER_F(MicroFixture, AstAppend_1000);
 
 BENCHMARK_DEFINE_F(MicroFixture, StringAppend_Reserved)(benchmark::State& st) {
     for (auto _ : st) {
-        ::fast_io::u8string s;
+        ::pltxt2htm::container::u8string s;
         s.reserve(10000);
         for (int i = 0; i < 100; ++i) {
             s.append(u8"<span style=\"color:red;\">text</span>");
@@ -117,7 +117,7 @@ BENCHMARK_REGISTER_F(MicroFixture, StringAppend_Reserved);
 
 BENCHMARK_DEFINE_F(MicroFixture, StringAppend_NoReserve)(benchmark::State& st) {
     for (auto _ : st) {
-        ::fast_io::u8string s;
+        ::pltxt2htm::container::u8string s;
         for (int i = 0; i < 100; ++i) {
             s.append(u8"<span style=\"color:red;\">text</span>");
         }

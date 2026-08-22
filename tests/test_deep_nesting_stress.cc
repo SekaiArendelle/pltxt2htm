@@ -2,7 +2,7 @@
 
 int main() {
     {
-        ::fast_io::u8string input;
+        ::pltxt2htm::container::u8string input;
         for (::std::size_t i{}; i < 500; ++i) {
             input.append(u8"<color=red>");
         }

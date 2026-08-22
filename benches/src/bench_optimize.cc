@@ -41,7 +41,7 @@ struct HtmlSpanOptFixture : ::benchmark::Fixture {
 // Fixtures — parse-once then optimize (real-world pipeline)
 // -------------------------------------------------------------------
 struct PlainTextPipelineFixture : ::benchmark::Fixture {
-    ::fast_io::u8string input;
+    ::pltxt2htm::container::u8string input;
     ::pltxt2htm::Ast<ndebug> ast;
 
     void SetUp(::benchmark::State& state) override {
@@ -52,7 +52,7 @@ struct PlainTextPipelineFixture : ::benchmark::Fixture {
 };
 
 struct RedundantColorPipelineFixture : ::benchmark::Fixture {
-    ::fast_io::u8string input;
+    ::pltxt2htm::container::u8string input;
     ::pltxt2htm::Ast<ndebug> ast;
 
     void SetUp(::benchmark::State& state) override {
@@ -63,7 +63,7 @@ struct RedundantColorPipelineFixture : ::benchmark::Fixture {
 };
 
 struct MixedRedundantPipelineFixture : ::benchmark::Fixture {
-    ::fast_io::u8string input;
+    ::pltxt2htm::container::u8string input;
     ::pltxt2htm::Ast<ndebug> ast;
 
     void SetUp(::benchmark::State& state) override {
@@ -74,7 +74,7 @@ struct MixedRedundantPipelineFixture : ::benchmark::Fixture {
 };
 
 struct AdjacentTextPipelineFixture : ::benchmark::Fixture {
-    ::fast_io::u8string input;
+    ::pltxt2htm::container::u8string input;
     ::pltxt2htm::Ast<ndebug> ast;
 
     void SetUp(::benchmark::State& state) override {
@@ -85,7 +85,7 @@ struct AdjacentTextPipelineFixture : ::benchmark::Fixture {
 };
 
 struct HtmlSpanAttrsPipelineFixture : ::benchmark::Fixture {
-    ::fast_io::u8string input;
+    ::pltxt2htm::container::u8string input;
     ::pltxt2htm::Ast<ndebug> ast;
 
     void SetUp(::benchmark::State& state) override {

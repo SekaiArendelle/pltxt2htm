@@ -27,6 +27,9 @@ concept is_char_type = ::std::same_as<T, char> || ::std::same_as<T, wchar_t> || 
 
 } // namespace details
 
+template<::pltxt2htm::container::details::is_char_type CharType, typename Allocator>
+class basic_string;
+
 /**
  * @brief A non-owning view over a contiguous sequence of characters.
  * @tparam CharType Character type stored by the referenced sequence.
@@ -101,6 +104,18 @@ public:
 
     template<typename Allocator>
     constexpr BasicStringView(::fast_io::containers::basic_string<value_type, Allocator> const&&) = delete;
+
+    template<typename Allocator>
+    constexpr BasicStringView(::pltxt2htm::container::basic_string<value_type, Allocator> const& string) noexcept
+        : pointer{string.data()},
+          length{string.size()} {
+    }
+
+    template<typename Allocator>
+    constexpr BasicStringView(::pltxt2htm::container::basic_string<value_type, Allocator>&&) = delete;
+
+    template<typename Allocator>
+    constexpr BasicStringView(::pltxt2htm::container::basic_string<value_type, Allocator> const&&) = delete;
 
     template<::std::size_t size>
     constexpr BasicStringView(::pltxt2htm::details::BasicLiteralString<value_type, size> const& string) noexcept
@@ -209,6 +224,9 @@ BasicStringView(::fast_io::basic_string_view<CharType>) -> BasicStringView<CharT
 
 template<::pltxt2htm::container::details::is_char_type CharType, typename Allocator>
 BasicStringView(::fast_io::containers::basic_string<CharType, Allocator> const&) -> BasicStringView<CharType>;
+
+template<::pltxt2htm::container::details::is_char_type CharType, typename Allocator>
+BasicStringView(::pltxt2htm::container::basic_string<CharType, Allocator> const&) -> BasicStringView<CharType>;
 
 template<::pltxt2htm::container::details::is_char_type CharType, ::std::size_t size>
 BasicStringView(::pltxt2htm::details::BasicLiteralString<CharType, size> const&) -> BasicStringView<CharType>;

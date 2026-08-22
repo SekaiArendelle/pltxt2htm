@@ -11,7 +11,7 @@
 #include <fast_io/fast_io_dsal/array.h>
 #include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/vector.h>
-#include <fast_io/fast_io_dsal/string.h>
+#include "../../container/string.hh"
 #include "../../container/string_view.hh"
 #include "frame_context.hh"
 #include "../utils.hh"
@@ -33,8 +33,9 @@ namespace pltxt2htm::details {
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto plweb_title_backend(::pltxt2htm::Ast<ndebug> const& ast_init) noexcept -> ::fast_io::u8string {
-    ::fast_io::u8string result{};
+constexpr auto plweb_title_backend(::pltxt2htm::Ast<ndebug> const& ast_init) noexcept
+    -> ::pltxt2htm::container::u8string {
+    ::pltxt2htm::container::u8string result{};
     ::fast_io::stack<BackendFrameContext<ndebug>> call_stack{};
     call_stack.push(BackendFrameContext<ndebug>(ast_init, ::pltxt2htm::NodeKind::text, 0));
 
@@ -141,7 +142,7 @@ entry:
                 if (has_color) {
                     result.append(u8"color:");
                     if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
-                        ::fast_io::u8string purified_color{};
+                        ::pltxt2htm::container::u8string purified_color{};
                         ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
                             purified_color, ::pltxt2htm::container::U8StringView{span_color});
                         pltxt2htm_assert(

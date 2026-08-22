@@ -8,6 +8,13 @@ export namespace pltxt2htm {
 
 namespace container {
 
+using ::pltxt2htm::container::basic_string;
+using ::pltxt2htm::container::string;
+using ::pltxt2htm::container::wstring;
+using ::pltxt2htm::container::u8string;
+using ::pltxt2htm::container::u16string;
+using ::pltxt2htm::container::u32string;
+using ::pltxt2htm::container::print_alias_define;
 using ::pltxt2htm::container::BasicStringView;
 using ::pltxt2htm::container::StringView;
 using ::pltxt2htm::container::WStringView;

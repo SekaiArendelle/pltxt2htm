@@ -1,0 +1,620 @@
+/**
+ * @file string.hh
+ * @brief Dynamically allocated strings for pltxt2htm.
+ */
+
+#pragma once
+
+#include <algorithm>
+#include <cstddef>
+#include <iterator>
+#include <limits>
+#include <memory>
+#include <utility>
+
+#include <fast_io/fast_io_dsal/string.h>
+
+#include "../contracts.hh"
+#include "../details/literal_string.hh"
+#include "../details/push_macro.hh"
+#include "string_view.hh"
+
+namespace pltxt2htm::container {
+
+/**
+ * @brief An owning, null-terminated contiguous character sequence.
+ * @tparam CharType Character type stored by the string.
+ * @tparam Allocator fast_io-compatible allocator used for dynamic storage.
+ */
+template<::pltxt2htm::container::details::is_char_type CharType,
+         typename Allocator = ::fast_io::native_global_allocator>
+class basic_string {
+public:
+    using allocator_type = Allocator;
+    using value_type = CharType;
+    using char_type = value_type;
+    using size_type = ::std::size_t;
+    using difference_type = ::std::ptrdiff_t;
+    using reference = value_type&;
+    using const_reference = value_type const&;
+    using pointer = value_type*;
+    using const_pointer = value_type const*;
+    using iterator = pointer;
+    using const_iterator = const_pointer;
+    using reverse_iterator = ::std::reverse_iterator<iterator>;
+    using const_reverse_iterator = ::std::reverse_iterator<const_iterator>;
+    using string_view_type = BasicStringView<value_type>;
+
+private:
+    using untyped_allocator_type = ::fast_io::generic_allocator_adapter<allocator_type>;
+    using typed_allocator_type = ::fast_io::typed_generic_allocator_adapter<untyped_allocator_type, value_type>;
+
+    value_type empty_character{};
+    pointer begin_pointer{::std::addressof(empty_character)};
+    pointer current_pointer{::std::addressof(empty_character)};
+    pointer end_pointer{::std::addressof(empty_character)};
+
+    static constexpr void start_lifetime(pointer storage, size_type count) noexcept {
+        if consteval {
+            for (size_type index{}; index < count; ++index) {
+                ::std::construct_at(storage + index);
+            }
+        }
+    }
+
+    [[nodiscard]]
+    constexpr auto is_inline(this basic_string const& self) noexcept -> bool {
+        return self.begin_pointer == ::std::addressof(self.empty_character);
+    }
+
+    constexpr void reset(this basic_string& self) noexcept {
+        self.empty_character = value_type{};
+        self.begin_pointer = ::std::addressof(self.empty_character);
+        self.current_pointer = self.begin_pointer;
+        self.end_pointer = self.begin_pointer;
+    }
+
+    constexpr void release(this basic_string& self) noexcept {
+        if (!self.is_inline()) {
+            typed_allocator_type::deallocate_n(self.begin_pointer, self.capacity() + 1);
+        }
+        self.reset();
+    }
+
+    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    constexpr void allocate(this basic_string& self, size_type capacity_) noexcept {
+        pltxt2htm_assert(capacity_ < self.max_size(), u8"basic_string capacity is too large");
+        auto [new_pointer, allocated_size] = typed_allocator_type::allocate_at_least(capacity_ + 1);
+        self.start_lifetime(new_pointer, allocated_size);
+        self.begin_pointer = new_pointer;
+        self.current_pointer = new_pointer;
+        self.end_pointer = new_pointer + static_cast<size_type>(allocated_size - 1);
+        *new_pointer = value_type{};
+    }
+
+    constexpr void construct(this basic_string& self, const_pointer first, size_type count) noexcept {
+        if (count == 0) {
+            self.reset();
+            return;
+        }
+        self.allocate(count);
+        ::std::copy_n(first, count, self.begin_pointer);
+        self.current_pointer = self.begin_pointer + count;
+        *self.current_pointer = value_type{};
+    }
+
+    [[nodiscard]]
+    constexpr auto source_offset(this basic_string const& self, const_pointer source) noexcept -> size_type {
+        for (size_type index{}; index <= self.size(); ++index) {
+            if (source == self.begin_pointer + index) {
+                return index;
+            }
+        }
+        return self.npos;
+    }
+
+    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    constexpr void ensure_capacity(this basic_string& self, size_type required_capacity) noexcept {
+        if (required_capacity <= self.capacity()) {
+            return;
+        }
+        pltxt2htm_assert(required_capacity < self.max_size(), u8"basic_string capacity is too large");
+
+        size_type new_capacity{self.capacity()};
+        if (new_capacity == 0) {
+            new_capacity = 1;
+        }
+        while (new_capacity < required_capacity) {
+            size_type const remaining{self.max_size() - new_capacity};
+            if (new_capacity > remaining) {
+                new_capacity = required_capacity;
+                break;
+            }
+            new_capacity *= 2;
+        }
+        self.reserve<ndebug>(new_capacity);
+    }
+
+    constexpr void assign_impl(this basic_string& self, const_pointer source, size_type count) noexcept {
+        size_type const offset{self.source_offset(source)};
+        if (count > self.capacity()) {
+            basic_string replacement{source, source + count};
+            self = ::std::move(replacement);
+            return;
+        }
+
+        if (offset == self.npos || offset == 0) {
+            ::std::copy_n(source, count, self.begin_pointer);
+        }
+        else {
+            for (size_type index{}; index < count; ++index) {
+                self.begin_pointer[index] = self.begin_pointer[offset + index];
+            }
+        }
+        self.current_pointer = self.begin_pointer + count;
+        *self.current_pointer = value_type{};
+    }
+
+public:
+    static constexpr size_type npos{::std::numeric_limits<size_type>::max()};
+
+    constexpr basic_string() noexcept = default;
+
+    constexpr explicit basic_string(size_type count) noexcept {
+        if (count == 0) {
+            return;
+        }
+        this->allocate(count);
+        ::std::fill_n(this->begin_pointer, count, value_type{});
+        this->current_pointer = this->begin_pointer + count;
+        *this->current_pointer = value_type{};
+    }
+
+    constexpr explicit basic_string(size_type count, value_type character) noexcept {
+        if (count == 0) {
+            return;
+        }
+        this->allocate(count);
+        ::std::fill_n(this->begin_pointer, count, character);
+        this->current_pointer = this->begin_pointer + count;
+        *this->current_pointer = value_type{};
+    }
+
+    constexpr explicit basic_string(const_pointer first, const_pointer last) noexcept {
+        this->construct(first, static_cast<size_type>(last - first));
+    }
+
+    constexpr explicit basic_string(string_view_type string) noexcept {
+        this->construct(string.data(), string.size());
+    }
+
+    constexpr explicit basic_string(::fast_io::basic_string_view<value_type> string) noexcept
+        : basic_string{string_view_type{string}} {
+    }
+
+    template<::std::size_t size_with_null>
+    constexpr explicit basic_string(value_type const (&string)[size_with_null]) noexcept {
+        static_assert(size_with_null != 0);
+        this->construct(string, size_with_null - 1);
+    }
+
+    template<::std::size_t size>
+    constexpr explicit basic_string(::pltxt2htm::details::BasicLiteralString<value_type, size> const& string) noexcept {
+        this->construct(string.data(), string.size());
+    }
+
+    template<typename OtherAllocator>
+    constexpr explicit basic_string(
+        ::fast_io::containers::basic_string<value_type, OtherAllocator> const& string) noexcept {
+        this->construct(string.data(), string.size());
+    }
+
+    constexpr basic_string(basic_string const& other) noexcept {
+        this->construct(other.data(), other.size());
+    }
+
+    constexpr basic_string(basic_string&& other) noexcept {
+        if (other.is_inline()) {
+            return;
+        }
+        this->begin_pointer = other.begin_pointer;
+        this->current_pointer = other.current_pointer;
+        this->end_pointer = other.end_pointer;
+        other.reset();
+    }
+
+    constexpr ~basic_string() {
+        if (!this->is_inline()) {
+            typed_allocator_type::deallocate_n(this->begin_pointer, this->capacity() + 1);
+        }
+    }
+
+    constexpr auto operator=(this basic_string& self, basic_string const& other) noexcept -> basic_string& {
+        if (::std::addressof(self) != ::std::addressof(other)) {
+            self.assign_impl(other.data(), other.size());
+        }
+        return self;
+    }
+
+    constexpr auto operator=(this basic_string& self, basic_string&& other) noexcept -> basic_string& {
+        if (::std::addressof(self) == ::std::addressof(other)) {
+            return self;
+        }
+        self.release();
+        if (!other.is_inline()) {
+            self.begin_pointer = other.begin_pointer;
+            self.current_pointer = other.current_pointer;
+            self.end_pointer = other.end_pointer;
+            other.reset();
+        }
+        return self;
+    }
+
+    constexpr auto operator=(this basic_string& self, string_view_type string) noexcept -> basic_string& {
+        self.assign_impl(string.data(), string.size());
+        return self;
+    }
+
+    [[nodiscard]]
+    constexpr auto data(this basic_string& self) noexcept -> pointer {
+        return self.begin_pointer;
+    }
+
+    [[nodiscard]]
+    constexpr auto data(this basic_string const& self) noexcept -> const_pointer {
+        return self.begin_pointer;
+    }
+
+    [[nodiscard]]
+    constexpr auto c_str(this basic_string const& self) noexcept -> const_pointer {
+        return self.begin_pointer;
+    }
+
+    [[nodiscard]]
+    constexpr auto size(this basic_string const& self) noexcept -> size_type {
+        return static_cast<size_type>(self.current_pointer - self.begin_pointer);
+    }
+
+    [[nodiscard]]
+    constexpr auto size_bytes(this basic_string const& self) noexcept -> size_type {
+        return self.size() * sizeof(value_type);
+    }
+
+    [[nodiscard]]
+    constexpr auto capacity(this basic_string const& self) noexcept -> size_type {
+        return static_cast<size_type>(self.end_pointer - self.begin_pointer);
+    }
+
+    [[nodiscard]]
+    constexpr auto capacity_bytes(this basic_string const& self) noexcept -> size_type {
+        return self.capacity() * sizeof(value_type);
+    }
+
+    [[nodiscard]]
+    static constexpr auto max_size() noexcept -> size_type {
+        return ::std::numeric_limits<size_type>::max() / sizeof(value_type);
+    }
+
+    [[nodiscard]]
+    constexpr auto empty(this basic_string const& self) noexcept -> bool {
+        return self.begin_pointer == self.current_pointer;
+    }
+
+    [[nodiscard]]
+    constexpr auto is_empty(this basic_string const& self) noexcept -> bool {
+        return self.empty();
+    }
+
+    [[nodiscard]]
+    constexpr auto begin(this basic_string& self) noexcept -> iterator {
+        return self.begin_pointer;
+    }
+
+    [[nodiscard]]
+    constexpr auto begin(this basic_string const& self) noexcept -> const_iterator {
+        return self.begin_pointer;
+    }
+
+    [[nodiscard]]
+    constexpr auto cbegin(this basic_string const& self) noexcept -> const_iterator {
+        return self.begin_pointer;
+    }
+
+    [[nodiscard]]
+    constexpr auto end(this basic_string& self) noexcept -> iterator {
+        return self.current_pointer;
+    }
+
+    [[nodiscard]]
+    constexpr auto end(this basic_string const& self) noexcept -> const_iterator {
+        return self.current_pointer;
+    }
+
+    [[nodiscard]]
+    constexpr auto cend(this basic_string const& self) noexcept -> const_iterator {
+        return self.current_pointer;
+    }
+
+    [[nodiscard]]
+    constexpr auto rbegin(this basic_string& self) noexcept -> reverse_iterator {
+        return reverse_iterator{self.end()};
+    }
+
+    [[nodiscard]]
+    constexpr auto rbegin(this basic_string const& self) noexcept -> const_reverse_iterator {
+        return const_reverse_iterator{self.end()};
+    }
+
+    [[nodiscard]]
+    constexpr auto rend(this basic_string& self) noexcept -> reverse_iterator {
+        return reverse_iterator{self.begin()};
+    }
+
+    [[nodiscard]]
+    constexpr auto rend(this basic_string const& self) noexcept -> const_reverse_iterator {
+        return const_reverse_iterator{self.begin()};
+    }
+
+    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    [[nodiscard]]
+    constexpr auto index(this basic_string& self, size_type position) noexcept -> reference {
+        pltxt2htm_assert(position < self.size(), u8"Index of basic_string out of bound");
+        return self.begin_pointer[position];
+    }
+
+    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    [[nodiscard]]
+    constexpr auto index(this basic_string const& self, size_type position) noexcept -> const_reference {
+        pltxt2htm_assert(position < self.size(), u8"Index of basic_string out of bound");
+        return self.begin_pointer[position];
+    }
+
+    [[nodiscard]]
+    constexpr auto index_unchecked(this basic_string& self, size_type position) noexcept -> reference {
+        return self.begin_pointer[position];
+    }
+
+    [[nodiscard]]
+    constexpr auto index_unchecked(this basic_string const& self, size_type position) noexcept -> const_reference {
+        return self.begin_pointer[position];
+    }
+
+    [[nodiscard]]
+    constexpr auto operator[](this basic_string& self, size_type position) noexcept -> reference {
+        return self.index(position);
+    }
+
+    [[nodiscard]]
+    constexpr auto operator[](this basic_string const& self, size_type position) noexcept -> const_reference {
+        return self.index(position);
+    }
+
+    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    [[nodiscard]]
+    constexpr auto front(this basic_string& self) noexcept -> reference {
+        return self.index<ndebug>(0);
+    }
+
+    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    [[nodiscard]]
+    constexpr auto front(this basic_string const& self) noexcept -> const_reference {
+        return self.index<ndebug>(0);
+    }
+
+    [[nodiscard]]
+    constexpr auto front_unchecked(this basic_string& self) noexcept -> reference {
+        return *self.begin_pointer;
+    }
+
+    [[nodiscard]]
+    constexpr auto front_unchecked(this basic_string const& self) noexcept -> const_reference {
+        return *self.begin_pointer;
+    }
+
+    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    [[nodiscard]]
+    constexpr auto back(this basic_string& self) noexcept -> reference {
+        pltxt2htm_assert(!self.empty(), u8"back() called on empty basic_string");
+        return self.current_pointer[-1];
+    }
+
+    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    [[nodiscard]]
+    constexpr auto back(this basic_string const& self) noexcept -> const_reference {
+        pltxt2htm_assert(!self.empty(), u8"back() called on empty basic_string");
+        return self.current_pointer[-1];
+    }
+
+    [[nodiscard]]
+    constexpr auto back_unchecked(this basic_string& self) noexcept -> reference {
+        return self.current_pointer[-1];
+    }
+
+    [[nodiscard]]
+    constexpr auto back_unchecked(this basic_string const& self) noexcept -> const_reference {
+        return self.current_pointer[-1];
+    }
+
+    constexpr void clear(this basic_string& self) noexcept {
+        self.current_pointer = self.begin_pointer;
+        *self.current_pointer = value_type{};
+    }
+
+    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    constexpr void reserve(this basic_string& self, size_type requested_capacity) noexcept {
+        if (requested_capacity <= self.capacity()) {
+            return;
+        }
+        pltxt2htm_assert(requested_capacity < self.max_size(), u8"basic_string capacity is too large");
+
+        size_type const old_size{self.size()};
+        auto [new_pointer, allocated_size] = typed_allocator_type::allocate_at_least(requested_capacity + 1);
+        self.start_lifetime(new_pointer, allocated_size);
+        ::std::copy(self.begin_pointer, self.current_pointer, new_pointer);
+        new_pointer[old_size] = value_type{};
+        if (!self.is_inline()) {
+            typed_allocator_type::deallocate_n(self.begin_pointer, self.capacity() + 1);
+        }
+        self.begin_pointer = new_pointer;
+        self.current_pointer = new_pointer + old_size;
+        self.end_pointer = new_pointer + static_cast<size_type>(allocated_size - 1);
+    }
+
+    constexpr void assign(this basic_string& self, string_view_type string) noexcept {
+        self.assign_impl(string.data(), string.size());
+    }
+
+    constexpr void assign(this basic_string& self, const_pointer first, const_pointer last) noexcept {
+        self.assign_impl(first, static_cast<size_type>(last - first));
+    }
+
+    constexpr void assign_characters(this basic_string& self, size_type count,
+                                     value_type character = value_type{}) noexcept {
+        self.ensure_capacity(count);
+        ::std::fill_n(self.begin_pointer, count, character);
+        self.current_pointer = self.begin_pointer + count;
+        *self.current_pointer = value_type{};
+    }
+
+    constexpr void assign_with_character(this basic_string& self, value_type character) noexcept {
+        self.assign_characters(1, character);
+    }
+
+    constexpr void push_back(this basic_string& self, value_type character) noexcept {
+        self.ensure_capacity(self.size() + 1);
+        *self.current_pointer++ = character;
+        *self.current_pointer = value_type{};
+    }
+
+    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    constexpr void pop_back(this basic_string& self) noexcept {
+        pltxt2htm_assert(!self.empty(), u8"pop_back() called on empty basic_string");
+        self.pop_back_unchecked();
+    }
+
+    constexpr void pop_back_unchecked(this basic_string& self) noexcept {
+        --self.current_pointer;
+        *self.current_pointer = value_type{};
+    }
+
+    constexpr void append(this basic_string& self, const_pointer first, const_pointer last) noexcept {
+        size_type const count{static_cast<size_type>(last - first)};
+        if (count == 0) {
+            return;
+        }
+        size_type const old_size{self.size()};
+        size_type const offset{self.source_offset(first)};
+        self.ensure_capacity(old_size + count);
+        if (offset != self.npos) {
+            first = self.begin_pointer + offset;
+        }
+        ::std::copy_n(first, count, self.begin_pointer + old_size);
+        self.current_pointer = self.begin_pointer + old_size + count;
+        *self.current_pointer = value_type{};
+    }
+
+    constexpr void append(this basic_string& self, const_pointer first, size_type count) noexcept {
+        self.append(first, first + count);
+    }
+
+    constexpr void append(this basic_string& self, string_view_type string) noexcept {
+        self.append(string.data(), string.data() + string.size());
+    }
+
+    constexpr void append(this basic_string& self, basic_string const& string) noexcept {
+        self.append(string.data(), string.data() + string.size());
+    }
+
+    template<::std::size_t size_with_null>
+    constexpr void append(this basic_string& self, value_type const (&string)[size_with_null]) noexcept {
+        static_assert(size_with_null != 0);
+        self.append(string, string + size_with_null - 1);
+    }
+
+    template<::std::size_t size>
+    constexpr void append(this basic_string& self,
+                          ::pltxt2htm::details::BasicLiteralString<value_type, size> const& string) noexcept {
+        self.append(string.data(), string.data() + string.size());
+    }
+
+    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    constexpr auto insert(this basic_string& self, const_iterator position, string_view_type string) noexcept
+        -> iterator {
+        pltxt2htm_assert(position >= self.begin_pointer && position <= self.current_pointer,
+                         u8"basic_string insert position out of bound");
+        size_type const position_index{static_cast<size_type>(position - self.begin_pointer)};
+        if (string.empty()) {
+            return self.begin_pointer + position_index;
+        }
+
+        size_type const source_index{self.source_offset(string.data())};
+        if (source_index != self.npos) {
+            basic_string const copy{string};
+            return self.insert<ndebug>(self.begin_pointer + position_index, string_view_type{copy});
+        }
+
+        size_type const old_size{self.size()};
+        self.ensure_capacity<ndebug>(old_size + string.size());
+        pointer const insertion_pointer{self.begin_pointer + position_index};
+        ::std::move_backward(insertion_pointer, self.begin_pointer + old_size,
+                             self.begin_pointer + old_size + string.size());
+        ::std::copy(string.begin(), string.end(), insertion_pointer);
+        self.current_pointer = self.begin_pointer + old_size + string.size();
+        *self.current_pointer = value_type{};
+        return insertion_pointer;
+    }
+
+    [[nodiscard]]
+    constexpr operator string_view_type() const noexcept {
+        return string_view_type{this->begin_pointer, this->size()};
+    }
+
+    [[nodiscard]]
+    constexpr operator ::fast_io::basic_string_view<value_type>() const noexcept {
+        return ::fast_io::basic_string_view<value_type>{this->begin_pointer, this->size()};
+    }
+
+    [[nodiscard]]
+    constexpr auto operator==(this basic_string const& self, basic_string const& other) noexcept -> bool {
+        return string_view_type{self} == string_view_type{other};
+    }
+
+    [[nodiscard]]
+    constexpr auto operator==(this basic_string const& self, string_view_type other) noexcept -> bool {
+        return string_view_type{self} == other;
+    }
+};
+
+template<::pltxt2htm::container::details::is_char_type CharType, ::std::size_t size_with_null>
+basic_string(CharType const (&)[size_with_null]) -> basic_string<CharType>;
+
+template<::pltxt2htm::container::details::is_char_type CharType>
+basic_string(CharType const*, CharType const*) -> basic_string<CharType>;
+
+template<::pltxt2htm::container::details::is_char_type CharType>
+basic_string(BasicStringView<CharType>) -> basic_string<CharType>;
+
+template<::pltxt2htm::container::details::is_char_type CharType>
+basic_string(::fast_io::basic_string_view<CharType>) -> basic_string<CharType>;
+
+template<::pltxt2htm::container::details::is_char_type CharType, typename Allocator>
+basic_string(::fast_io::containers::basic_string<CharType, Allocator> const&) -> basic_string<CharType>;
+
+template<::pltxt2htm::container::details::is_char_type CharType, ::std::size_t size>
+basic_string(::pltxt2htm::details::BasicLiteralString<CharType, size> const&) -> basic_string<CharType>;
+
+using string = basic_string<char>;
+using wstring = basic_string<wchar_t>;
+using u8string = basic_string<char8_t>;
+using u16string = basic_string<char16_t>;
+using u32string = basic_string<char32_t>;
+
+template<::pltxt2htm::container::details::is_char_type CharType, typename Allocator>
+constexpr auto print_alias_define(::fast_io::io_alias_t, basic_string<CharType, Allocator> const& string_) noexcept
+    -> ::fast_io::basic_io_scatter_t<CharType> {
+    return {string_.data(), string_.size()};
+}
+
+} // namespace pltxt2htm::container
+
+#include "../details/pop_macro.hh"

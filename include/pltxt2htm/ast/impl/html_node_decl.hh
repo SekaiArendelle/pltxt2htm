@@ -9,7 +9,6 @@
 
 #include <utility>
 #include <cstddef>
-#include <fast_io/fast_io_dsal/string.h>
 #include "../../container/expected.hh"
 #include "../../container/string_view.hh"
 #include "ast_decl.hh"
@@ -43,11 +42,11 @@ public:
  * @details Represents &lt;img src=&quot;...&quot; alt=&quot;...&quot;&gt;.
  */
 class HtmlImg {
-    ::fast_io::u8string src;
-    ::fast_io::u8string alt;
+    ::pltxt2htm::container::u8string src;
+    ::pltxt2htm::container::u8string alt;
 
 public:
-    constexpr HtmlImg(::fast_io::u8string&& src_, ::fast_io::u8string&& alt_) noexcept
+    constexpr HtmlImg(::pltxt2htm::container::u8string&& src_, ::pltxt2htm::container::u8string&& alt_) noexcept
         : src(::std::move(src_)),
           alt(::std::move(alt_)) {
     }
@@ -417,13 +416,13 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class HtmlMark {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::fast_io::u8string background_color;
+    ::pltxt2htm::container::u8string background_color;
 
 public:
     static constexpr auto default_background_color = ::pltxt2htm::container::U8StringView{u8"#FFFF00"};
 
     constexpr explicit HtmlMark(::pltxt2htm::Ast<ndebug>&& subast_,
-                                ::fast_io::u8string&& background_color_ = ::fast_io::u8string{
+                                ::pltxt2htm::container::u8string&& background_color_ = ::pltxt2htm::container::u8string{
                                     default_background_color}) noexcept;
     constexpr HtmlMark(HtmlMark<ndebug> const&) noexcept;
     constexpr HtmlMark(HtmlMark<ndebug>&&) noexcept;
@@ -480,13 +479,13 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class HtmlSpan {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::fast_io::u8string color;
+    ::pltxt2htm::container::u8string color;
     ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size;
     ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align;
 
 public:
     constexpr HtmlSpan(
-        ::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& color_,
+        ::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::container::u8string&& color_,
         ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size_,
         ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align_) noexcept;
     constexpr HtmlSpan(::pltxt2htm::HtmlSpan<ndebug> const&) noexcept;

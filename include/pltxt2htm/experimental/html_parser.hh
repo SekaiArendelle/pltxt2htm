@@ -3,7 +3,7 @@
 #include <cstddef>
 #include <fast_io/fast_io_dsal/list.h>
 #include <fast_io/fast_io_dsal/stack.h>
-#include <fast_io/fast_io_dsal/string.h>
+#include "../container/string.hh"
 #include "../container/string_view.hh"
 #include "../ast/node_kind.hh"
 #include "../ast/ast.hh"
@@ -338,8 +338,9 @@ entry:
                         pltext.template subview<ndebug>(current_index));
                     opt_entity_len.has_value()) {
                     auto const entity_len = opt_entity_len.template value<ndebug>();
-                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::EntityReference{::fast_io::u8string{
-                        pltext.data() + current_index + 1, pltext.data() + current_index + entity_len - 1}}));
+                    result.push_back(
+                        ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::EntityReference{::pltxt2htm::container::u8string{
+                            pltext.data() + current_index + 1, pltext.data() + current_index + entity_len - 1}}));
                     current_index += entity_len;
                     continue;
                 }

@@ -13,8 +13,8 @@
 #include <type_traits>
 #include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/vector.h>
-#include <fast_io/fast_io_dsal/string.h>
 #include "../container/expected.hh"
+#include "../container/string.hh"
 #include "../container/string_view.hh"
 #include "../contracts.hh"
 #include "literal_string.hh"
@@ -249,7 +249,7 @@ constexpr bool is_prefix_match(::pltxt2htm::container::U8StringView str) noexcep
  * @brief Convert a std::size_t to a UTF-8 string
  * @param[in] num The number to convert
  * @return A UTF-8 string representation of the number
- * @retval fast_io::u8string UTF-8 string containing the number representation
+ * @retval container::u8string UTF-8 string containing the number representation
  * @note This function handles the special case of 0 and builds the string
  *       by extracting digits from least significant to most significant,
  *       then reversing the result
@@ -258,12 +258,12 @@ constexpr bool is_prefix_match(::pltxt2htm::container::U8StringView str) noexcep
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-constexpr auto size_t2str(::std::size_t num) noexcept -> ::fast_io::u8string {
+constexpr auto size_t2str(::std::size_t num) noexcept -> ::pltxt2htm::container::u8string {
     if (num == 0) {
-        return ::fast_io::u8string{u8"0"};
+        return ::pltxt2htm::container::u8string{u8"0"};
     }
 
-    ::fast_io::u8string result{};
+    ::pltxt2htm::container::u8string result{};
 
     while (num > 0) {
         char8_t const digit = (num % 10) + u8'0';
@@ -323,9 +323,9 @@ constexpr auto try_parse_size_t_decimal_value(::pltxt2htm::container::U8StringVi
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-constexpr auto ptrdiff_t2str(::std::ptrdiff_t num) noexcept -> ::fast_io::u8string {
+constexpr auto ptrdiff_t2str(::std::ptrdiff_t num) noexcept -> ::pltxt2htm::container::u8string {
     if (num == 0) {
-        return ::fast_io::u8string{u8"0"};
+        return ::pltxt2htm::container::u8string{u8"0"};
     }
 
     auto magnitude = static_cast<::std::make_unsigned_t<::std::ptrdiff_t>>(num);
@@ -333,7 +333,7 @@ constexpr auto ptrdiff_t2str(::std::ptrdiff_t num) noexcept -> ::fast_io::u8stri
         magnitude = static_cast<::std::make_unsigned_t<::std::ptrdiff_t>>(0) - magnitude;
     }
 
-    ::fast_io::u8string result{};
+    ::pltxt2htm::container::u8string result{};
     while (magnitude > 0) {
         char8_t const digit = (magnitude % 10) + u8'0';
         result.push_back(digit);
@@ -489,10 +489,10 @@ constexpr auto double_to_size_t_ceil(double value) noexcept -> ::std::size_t {
  *          number of digits (e.g. 12.5 -> "12.5").
  */
 [[nodiscard]]
-constexpr auto double2str(double value) noexcept -> ::fast_io::u8string {
+constexpr auto double2str(double value) noexcept -> ::pltxt2htm::container::u8string {
     constexpr ::std::size_t max_fractional_digits{17};
     constexpr double max_scaled{static_cast<double>(::std::numeric_limits<::std::ptrdiff_t>::max()) + 1};
-    ::fast_io::u8string fallback{};
+    ::pltxt2htm::container::u8string fallback{};
     for (::std::size_t fractional_digits{0}; fractional_digits <= max_fractional_digits; ++fractional_digits) {
         double scale{1};
         for (::std::size_t i{0}; i < fractional_digits; ++i) {
@@ -508,7 +508,7 @@ constexpr auto double2str(double value) noexcept -> ::fast_io::u8string {
         }
         auto const digit_str = ::pltxt2htm::details::size_t2str(static_cast<::std::size_t>(rounded));
         ::std::size_t const digit_str_size{digit_str.size()};
-        ::fast_io::u8string candidate{};
+        ::pltxt2htm::container::u8string candidate{};
         if (fractional_digits == 0) {
             candidate = digit_str;
         }

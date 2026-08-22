@@ -14,7 +14,7 @@
 #pragma once
 
 #include <cstddef>
-#include <fast_io/fast_io_dsal/string.h>
+#include "../../container/string.hh"
 #include "../../container/string_view.hh"
 #include <fast_io/fast_io_dsal/vector.h>
 #include "../../container/expected.hh"
@@ -30,7 +30,7 @@ namespace pltxt2htm::details {
  * @brief Raw cell data (text + alignment + header flag) for the intermediate table AST.
  */
 struct TableCellRaw {
-    ::fast_io::u8string text; ///< Cell raw content (to be inline-parsed later).
+    ::pltxt2htm::container::u8string text; ///< Cell raw content (to be inline-parsed later).
     ::pltxt2htm::TableAlign align; ///< Cell alignment.
     bool is_header; ///< True for &lt;th&gt; (or Markdown header) cells, false for &lt;td&gt; (or Markdown body) cells.
 };
@@ -65,7 +65,7 @@ struct TableRowRaw {
 template<::pltxt2htm::Contracts ndebug>
 class TableAstRaw {
     ::fast_io::vector<TableRowRaw> rows{};
-    ::pltxt2htm::container::Optional<::fast_io::u8string> caption_text{::pltxt2htm::container::nullopt};
+    ::pltxt2htm::container::Optional<::pltxt2htm::container::u8string> caption_text{::pltxt2htm::container::nullopt};
     ::std::size_t col_count{}; // <==> optional<non_zero_usize> col_count;
 
 public:
@@ -83,7 +83,7 @@ public:
     }
 
     /// Record the table caption and that it was present.
-    constexpr void set_caption(this TableAstRaw& self, ::fast_io::u8string&& text) noexcept {
+    constexpr void set_caption(this TableAstRaw& self, ::pltxt2htm::container::u8string&& text) noexcept {
         self.caption_text = ::std::move(text);
     }
 

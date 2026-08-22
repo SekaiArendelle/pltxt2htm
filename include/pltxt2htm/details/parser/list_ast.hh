@@ -12,7 +12,7 @@
 #include <memory>
 #include <type_traits>
 #include <utility>
-#include <fast_io/fast_io_dsal/string.h>
+#include "../../container/string.hh"
 #include "../../container/string_view.hh"
 #include <fast_io/fast_io_dsal/vector.h>
 #include "../utils.hh"
@@ -57,10 +57,10 @@ using ListAst = ::fast_io::vector<ListBaseNode<ndebug>>;
  * @brief Leaf list node that stores a single list-item text payload.
  */
 class ListLiNode {
-    ::fast_io::u8string text;
+    ::pltxt2htm::container::u8string text;
 
 public:
-    constexpr ListLiNode(::fast_io::u8string&& text_) noexcept
+    constexpr ListLiNode(::pltxt2htm::container::u8string&& text_) noexcept
         : text(::std::move(text_)) {
     }
 
@@ -97,11 +97,11 @@ public:
  * @brief Leaf list node for checkbox items (- [ ] / - [x]).
  */
 class ListLiCheckboxNode {
-    ::fast_io::u8string text;
+    ::pltxt2htm::container::u8string text;
     bool checked{};
 
 public:
-    constexpr ListLiCheckboxNode(::fast_io::u8string&& text_, bool checked_) noexcept
+    constexpr ListLiCheckboxNode(::pltxt2htm::container::u8string&& text_, bool checked_) noexcept
         : text(::std::move(text_)),
           checked(checked_) {
     }

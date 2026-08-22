@@ -15,7 +15,7 @@
 #pragma once
 
 #include <cstddef>
-#include <fast_io/fast_io_dsal/string.h>
+#include "../../container/string.hh"
 #include "../../container/string_view.hh"
 #include "../../container/expected.hh"
 #include "../utils.hh"
@@ -148,7 +148,7 @@ constexpr auto optionally_to_html_list_ast(::pltxt2htm::container::U8StringView 
         // Collect the raw <li> content up to the matching </li>.  Nested <ul>/<ol> are
         // parsed recursively into sibling sublist nodes (appended after the item), so the
         // item text itself never contains list markup and no inline recognition is needed.
-        ::fast_io::u8string text{};
+        ::pltxt2htm::container::u8string text{};
         ListAst<ndebug> pending_nested{};
         while (true) {
             if (current_index >= pltext_size) {

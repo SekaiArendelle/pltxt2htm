@@ -10,7 +10,6 @@
 
 #include <utility>
 #include <cstddef>
-#include <fast_io/fast_io_dsal/string.h>
 #include "../../container/expected.hh"
 #include "../../details/literal_string.hh"
 #include "ast_decl.hh"
@@ -28,10 +27,10 @@ namespace pltxt2htm {
 template<::pltxt2htm::Contracts ndebug>
 class PlColor {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::fast_io::u8string color;
+    ::pltxt2htm::container::u8string color;
 
 public:
-    constexpr PlColor(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& color_) noexcept;
+    constexpr PlColor(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::container::u8string&& color_) noexcept;
     constexpr PlColor(::pltxt2htm::PlColor<ndebug> const&) noexcept;
     constexpr PlColor(::pltxt2htm::PlColor<ndebug>&&) noexcept;
     constexpr ~PlColor() noexcept;
@@ -91,10 +90,10 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class PlExperiment {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::fast_io::u8string id;
+    ::pltxt2htm::container::u8string id;
 
 public:
-    constexpr PlExperiment(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& id_) noexcept;
+    constexpr PlExperiment(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::container::u8string&& id_) noexcept;
     constexpr PlExperiment(::pltxt2htm::PlExperiment<ndebug> const&) noexcept;
     constexpr PlExperiment(::pltxt2htm::PlExperiment<ndebug>&&) noexcept;
     constexpr ~PlExperiment() noexcept;
@@ -124,10 +123,10 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class PlDiscussion {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::fast_io::u8string id;
+    ::pltxt2htm::container::u8string id;
 
 public:
-    constexpr PlDiscussion(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& id_) noexcept;
+    constexpr PlDiscussion(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::container::u8string&& id_) noexcept;
     constexpr PlDiscussion(::pltxt2htm::PlDiscussion<ndebug> const&) noexcept;
     constexpr PlDiscussion(::pltxt2htm::PlDiscussion<ndebug>&&) noexcept;
     constexpr ~PlDiscussion() noexcept;
@@ -158,10 +157,10 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class PlExperiments {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::fast_io::u8string value;
+    ::pltxt2htm::container::u8string value;
 
 public:
-    constexpr PlExperiments(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& value_) noexcept;
+    constexpr PlExperiments(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::container::u8string&& value_) noexcept;
     constexpr PlExperiments(::pltxt2htm::PlExperiments<ndebug> const&) noexcept;
     constexpr PlExperiments(::pltxt2htm::PlExperiments<ndebug>&&) noexcept;
     constexpr ~PlExperiments() noexcept;
@@ -192,10 +191,10 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class PlDiscussions {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::fast_io::u8string value;
+    ::pltxt2htm::container::u8string value;
 
 public:
-    constexpr PlDiscussions(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& value_) noexcept;
+    constexpr PlDiscussions(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::container::u8string&& value_) noexcept;
     constexpr PlDiscussions(::pltxt2htm::PlDiscussions<ndebug> const&) noexcept;
     constexpr PlDiscussions(::pltxt2htm::PlDiscussions<ndebug>&&) noexcept;
     constexpr ~PlDiscussions() noexcept;
@@ -225,10 +224,10 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class PlUser {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::fast_io::u8string id;
+    ::pltxt2htm::container::u8string id;
 
 public:
-    constexpr PlUser(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& id_) noexcept;
+    constexpr PlUser(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::container::u8string&& id_) noexcept;
     constexpr PlUser(::pltxt2htm::PlUser<ndebug> const&) noexcept;
     constexpr PlUser(::pltxt2htm::PlUser<ndebug>&&) noexcept;
     constexpr ~PlUser() noexcept;
@@ -257,10 +256,10 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class PlTrigger {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::fast_io::u8string value;
+    ::pltxt2htm::container::u8string value;
 
 public:
-    constexpr PlTrigger(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& value_) noexcept;
+    constexpr PlTrigger(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::container::u8string&& value_) noexcept;
     constexpr PlTrigger(::pltxt2htm::PlTrigger<ndebug> const&) noexcept;
     constexpr PlTrigger(::pltxt2htm::PlTrigger<ndebug>&&) noexcept;
     constexpr ~PlTrigger() noexcept;
@@ -290,10 +289,10 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class PlInternal {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::fast_io::u8string value;
+    ::pltxt2htm::container::u8string value;
 
 public:
-    constexpr PlInternal(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& value_) noexcept;
+    constexpr PlInternal(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::container::u8string&& value_) noexcept;
     constexpr PlInternal(::pltxt2htm::PlInternal<ndebug> const&) noexcept;
     constexpr PlInternal(::pltxt2htm::PlInternal<ndebug>&&) noexcept;
     constexpr ~PlInternal() noexcept;
@@ -501,10 +500,10 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class PlMark {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::fast_io::u8string background_color;
+    ::pltxt2htm::container::u8string background_color;
 
 public:
-    constexpr PlMark(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& background_color_) noexcept;
+    constexpr PlMark(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::container::u8string&& background_color_) noexcept;
     constexpr PlMark(::pltxt2htm::PlMark<ndebug> const&) noexcept;
     constexpr PlMark(::pltxt2htm::PlMark<ndebug>&&) noexcept;
     constexpr ~PlMark() noexcept;

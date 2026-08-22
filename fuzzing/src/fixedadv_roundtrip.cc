@@ -22,7 +22,7 @@
 #include <pltxt2htm/experimental/html_parser.hh>
 
 extern "C" int LLVMFuzzerTestOneInput(::std::uint8_t const* const data, ::std::size_t const size) noexcept {
-    ::fast_io::u8string str(size + 1);
+    ::pltxt2htm::container::u8string str(size + 1);
     ::std::memcpy(str.data(), data, size);
 
     auto html1_ast = ::pltxt2htm::parse_pltxt<::pltxt2htm::Contracts::quick_enforce>(::fast_io::mnp::os_c_str(str));

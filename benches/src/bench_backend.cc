@@ -12,7 +12,7 @@ struct PlainTextBackendFixture : ::benchmark::Fixture {
     ::std::size_t input_bytes;
 
     void SetUp(::benchmark::State& state) override {
-        ::fast_io::u8string text;
+        ::pltxt2htm::container::u8string text;
         auto n = as_size(state);
         for (::std::size_t i = 0; i < n / 40; ++i)
             text.append(u8"Lorem ipsum dolor sit amet, consectetur adipiscing.\n");
@@ -27,7 +27,7 @@ struct RichHtmlBackendFixture : ::benchmark::Fixture {
     ::std::size_t input_bytes;
 
     void SetUp(::benchmark::State& state) override {
-        ::fast_io::u8string text;
+        ::pltxt2htm::container::u8string text;
         auto n = as_size(state);
         for (::std::size_t i = 0; i < n; ++i)
             text.append(
@@ -49,7 +49,7 @@ struct PlTagsBackendFixture : ::benchmark::Fixture {
     ::std::size_t input_bytes;
 
     void SetUp(::benchmark::State& state) override {
-        ::fast_io::u8string text;
+        ::pltxt2htm::container::u8string text;
         auto n = as_size(state);
         for (::std::size_t i = 0; i < n; ++i)
             text.append(
@@ -71,7 +71,7 @@ struct MarkdownBackendFixture : ::benchmark::Fixture {
     ::std::size_t input_bytes;
 
     void SetUp(::benchmark::State& state) override {
-        ::fast_io::u8string text;
+        ::pltxt2htm::container::u8string text;
         auto n = as_size(state);
         for (::std::size_t i = 0; i < n; ++i)
             text.append(

@@ -12,7 +12,7 @@
 #include <fast_io/fast_io_dsal/array.h>
 #include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/vector.h>
-#include <fast_io/fast_io_dsal/string.h>
+#include "../../container/string.hh"
 #include "../../container/string_view.hh"
 #include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"
@@ -35,8 +35,8 @@ namespace pltxt2htm::details {
  * @param[out] out Output buffer receiving the encoded output.
  */
 template<::pltxt2htm::Contracts ndebug>
-constexpr void append_entity_reference_to_plunity_richtext(::fast_io::u8string const& value,
-                                                           ::fast_io::u8string& out) noexcept {
+constexpr void append_entity_reference_to_plunity_richtext(::pltxt2htm::container::u8string const& value,
+                                                           ::pltxt2htm::container::u8string& out) noexcept {
     ::pltxt2htm::container::U8StringView const value_view{value};
     ::std::size_t const value_size{value_view.size()};
     bool decoded{};
@@ -117,7 +117,7 @@ constexpr void append_entity_reference_to_plunity_richtext(::fast_io::u8string c
  */
 template<::pltxt2htm::Contracts ndebug>
 constexpr void convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast<ndebug> const& ast,
-                                                            ::fast_io::u8string& out) noexcept {
+                                                            ::pltxt2htm::container::u8string& out) noexcept {
     out.reserve(out.size() + ast.size() * 6);
     for (auto&& node : ast) {
         switch (node.get_node_kind()) {
@@ -307,8 +307,9 @@ constexpr auto plunity_text_backend(::pltxt2htm::Ast<ndebug> const& ast_init,
                                     ::pltxt2htm::container::U8StringView project,
                                     ::pltxt2htm::container::U8StringView visitor,
                                     ::pltxt2htm::container::U8StringView author,
-                                    ::pltxt2htm::container::U8StringView coauthors) noexcept -> ::fast_io::u8string {
-    ::fast_io::u8string result{};
+                                    ::pltxt2htm::container::U8StringView coauthors) noexcept
+    -> ::pltxt2htm::container::u8string {
+    ::pltxt2htm::container::u8string result{};
     ::fast_io::stack<BackendFrameContext<ndebug>> call_stack{};
     call_stack.push(BackendFrameContext<ndebug>(ast_init, ::pltxt2htm::NodeKind::text, 0));
     ::std::size_t list_nesting_depth{};
@@ -795,7 +796,7 @@ entry:
                 auto const& mark_background_color = node.as_html_mark().get_background_color();
                 result.append(u8"<mark=");
                 if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
-                    ::fast_io::u8string purified_color{};
+                    ::pltxt2htm::container::u8string purified_color{};
                     ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
                         purified_color, ::pltxt2htm::container::U8StringView{mark_background_color});
                     pltxt2htm_assert(purified_color == mark_background_color,
@@ -813,7 +814,7 @@ entry:
                 auto const& mark_background_color = node.as_pl_mark().get_background_color();
                 result.append(u8"<mark=");
                 if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
-                    ::fast_io::u8string purified_color{};
+                    ::pltxt2htm::container::u8string purified_color{};
                     ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
                         purified_color, ::pltxt2htm::container::U8StringView{mark_background_color});
                     pltxt2htm_assert(purified_color == mark_background_color,
