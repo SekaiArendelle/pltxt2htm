@@ -10,7 +10,6 @@
 #include <fast_io/fast_io_dsal/list.h>
 #include <fast_io/fast_io_dsal/array.h>
 #include "../call_stack.hh"
-#include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
 #include "../../container/string_view.hh"
 #include "frame_context.hh"
@@ -46,7 +45,7 @@ entry:
         auto&& current_index = current_frame.current_index;
         ::std::size_t const ast_size{ast.size()};
         for (; current_index < ast_size; ++current_index) {
-            auto&& node = ::pltxt2htm::details::vector_index<ndebug>(ast, current_index);
+            auto&& node = ast.template index<ndebug>(current_index);
 
             switch (node.get_node_kind()) /* -Werror=switch */ {
             case ::pltxt2htm::NodeKind::u8char: {

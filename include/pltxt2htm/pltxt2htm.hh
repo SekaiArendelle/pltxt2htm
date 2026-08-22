@@ -15,10 +15,10 @@
     #warning "gcc/clang are recommended more than MSVC(VS2026)"
 #endif
 
-#include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
 #include "container/string_view.hh"
 #include "container/expected.hh"
+#include "container/vector.hh"
 #include "contracts.hh"
 #include "parser.hh"
 #include "inline_parser.hh"

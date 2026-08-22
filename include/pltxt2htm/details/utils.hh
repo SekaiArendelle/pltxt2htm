@@ -11,7 +11,6 @@
 #include <cstddef>
 #include <ranges>
 #include <type_traits>
-#include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
 #include "../container/expected.hh"
 #include "../container/string_view.hh"
@@ -95,53 +94,6 @@ constexpr bool is_ascii_graphic(char8_t const chr) noexcept {
 #endif
 constexpr bool is_url_value_char(char8_t const chr) noexcept {
     return ::pltxt2htm::details::is_ascii_graphic(chr) || chr >= char8_t(0x80);
-}
-
-/**
- * @brief Variable-template helper for the is_fast_io_vector concept.
- */
-template<typename T>
-constexpr bool is_fast_io_vector_impl = false;
-
-template<typename T, typename Alloc>
-constexpr bool is_fast_io_vector_impl<::fast_io::vector<T, Alloc>> = true;
-
-/**
- * @brief Concept matching ::fast_io::vector<T, Alloc> (any T, any Alloc).
- */
-template<typename T>
-concept is_fast_io_vector = is_fast_io_vector_impl<::std::remove_cvref_t<T>>;
-
-/**
- * @brief Access the first element of a mutable vector (checked).
- * @tparam ndebug Contract checking mode.
- * @tparam T Element type.
- * @param vec The vector.
- * @return Reference to the first element.
- */
-template<::pltxt2htm::Contracts ndebug>
-[[nodiscard]]
-constexpr auto vector_front(is_fast_io_vector auto&& vec) noexcept -> decltype(auto) {
-    static_assert(::std::is_lvalue_reference_v<decltype(vec)>, "vector_front requires an lvalue reference");
-    pltxt2htm_assert(!vec.empty(), u8"Indexing front but vector is empty");
-
-    return ::std::forward_like<decltype(vec)>(vec.front_unchecked());
-}
-
-/**
- * @brief Index into a fast_io::vector with bounds checking.
- * @tparam ndebug Contract checking mode.
- * @param vec The vector.
- * @param i Index.
- * @return Reference to the element at index @p i.
- */
-template<::pltxt2htm::Contracts ndebug>
-[[nodiscard]]
-constexpr auto vector_index(is_fast_io_vector auto&& vec, ::std::size_t i) noexcept -> decltype(auto) {
-    static_assert(::std::is_lvalue_reference_v<decltype(vec)>, "vector_index requires an lvalue reference");
-    pltxt2htm_assert(i < vec.size(), u8"Index of vector out of bound");
-
-    return ::std::forward_like<decltype(vec)>(vec.index_unchecked(i));
 }
 
 /**

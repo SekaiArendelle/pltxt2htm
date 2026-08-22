@@ -9,7 +9,6 @@
 
 #include <fast_io/fast_io_dsal/list.h>
 #include "../call_stack.hh"
-#include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
 #include "../../container/string_view.hh"
 #include "../../ast/value_unit.hh"
@@ -289,7 +288,7 @@ entry:
         auto&& current_index = current_frame.current_index;
         ::std::size_t const ast_size{ast.size()};
         for (; current_index < ast_size; ++current_index) {
-            auto&& node = ::pltxt2htm::details::vector_index<ndebug>(ast, current_index);
+            auto&& node = ast.template index<ndebug>(current_index);
 
             switch (node.get_node_kind()) /* -Werror=switch */ {
             case ::pltxt2htm::NodeKind::u8char: {
@@ -1713,9 +1712,9 @@ entry:
                     auto const& parent_ast = call_stack.template current_frame<ndebug>().get_ast();
                     auto const parent_index = call_stack.template current_frame<ndebug>().current_index;
                     if (parent_index >= parent_ast.size() ||
-                        (::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_index).get_node_kind() !=
+                        (parent_ast.template index<ndebug>(parent_index).get_node_kind() !=
                              ::pltxt2htm::NodeKind::list_ul &&
-                         ::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_index).get_node_kind() !=
+                         parent_ast.template index<ndebug>(parent_index).get_node_kind() !=
                              ::pltxt2htm::NodeKind::list_ol)) {
                         result.append(u8"</li>");
                     }
@@ -1732,9 +1731,9 @@ entry:
                     auto const& parent_ast = call_stack.template current_frame<ndebug>().get_ast();
                     auto const parent_index = call_stack.template current_frame<ndebug>().current_index;
                     if (parent_index >= parent_ast.size() ||
-                        (::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_index).get_node_kind() !=
+                        (parent_ast.template index<ndebug>(parent_index).get_node_kind() !=
                              ::pltxt2htm::NodeKind::list_ul &&
-                         ::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_index).get_node_kind() !=
+                         parent_ast.template index<ndebug>(parent_index).get_node_kind() !=
                              ::pltxt2htm::NodeKind::list_ol)) {
                         result.append(u8"</li>");
                     }
@@ -1750,8 +1749,7 @@ entry:
                 auto const& parent_ast = call_stack.template current_frame<ndebug>().get_ast();
                 auto const parent_index = call_stack.template current_frame<ndebug>().current_index;
                 if (parent_index < parent_ast.size()) {
-                    auto const next_kind =
-                        ::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_index).get_node_kind();
+                    auto const next_kind = parent_ast.template index<ndebug>(parent_index).get_node_kind();
                     if (next_kind == ::pltxt2htm::NodeKind::list_ul || next_kind == ::pltxt2htm::NodeKind::list_ol) {
                         goto entry;
                     }

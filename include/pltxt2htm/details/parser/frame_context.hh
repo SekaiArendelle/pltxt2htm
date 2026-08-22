@@ -1711,7 +1711,7 @@ constexpr auto process_table_frame(::pltxt2htm::details::CallStack<ParserFrame<n
 
         // caption node (the caption frame is pushed first, so it is flat_ast[0]).
         if (prev_raw_ast.has_caption()) {
-            table_ast.push_back(::std::move(::pltxt2htm::details::vector_index<ndebug>(flat_ast, cell_cursor)));
+            table_ast.push_back(::std::move(flat_ast.template index<ndebug>(cell_cursor)));
             ++cell_cursor;
         }
 
@@ -1738,7 +1738,7 @@ constexpr auto process_table_frame(::pltxt2htm::details::CallStack<ParserFrame<n
             auto const row_cells = prev_raw_ast.row_cells(r);
             ::std::size_t const row_cells_size{row_cells.size()};
             for (::std::size_t c{}; c < row_cells_size && cell_cursor < flat_ast_size; ++c, ++cell_cursor) {
-                tr_ast.push_back(::std::move(::pltxt2htm::details::vector_index<ndebug>(flat_ast, cell_cursor)));
+                tr_ast.push_back(::std::move(flat_ast.template index<ndebug>(cell_cursor)));
             }
             auto const section = prev_raw_ast.row_section(r);
             if (section == TableRowSection::none) {

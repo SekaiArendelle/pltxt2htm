@@ -8,7 +8,7 @@
 #pragma once
 
 #include <cstddef>
-#include <fast_io/fast_io_dsal/vector.h>
+#include "../../container/vector.hh"
 #include <fast_io/fast_io_dsal/string.h>
 #include "../../container/string_view.hh"
 #include "../../container/expected.hh"
@@ -24,7 +24,7 @@ namespace pltxt2htm::details {
  * @brief Result of try_parse_md_table_row: parsed cell strings and consumed character count.
  */
 struct TryParseMdTableRowResult {
-    ::fast_io::vector<::fast_io::u8string> cells;
+    ::pltxt2htm::container::Vector<::fast_io::u8string> cells;
     ::std::size_t advance_count;
 };
 
@@ -62,7 +62,7 @@ constexpr auto try_parse_md_table_row(::pltxt2htm::container::U8StringView pltex
     }
     ++current_index; // skip the first |
 
-    ::fast_io::vector<::fast_io::u8string> row{};
+    ::pltxt2htm::container::Vector<::fast_io::u8string> row{};
     bool has_trailing_pipe{};
     while (current_index < pltext_size) {
         // skip spaces before cell content
@@ -223,7 +223,7 @@ constexpr auto try_parse_md_table_raw(::pltxt2htm::container::U8StringView pltex
     }
     auto&& [delim_row, delim_forward] = delim_opt.template value<ndebug>();
     current_index += delim_forward;
-    ::fast_io::vector<::pltxt2htm::TableAlign> aligns{};
+    ::pltxt2htm::container::Vector<::pltxt2htm::TableAlign> aligns{};
     bool has_delimiter_content{};
     for (auto const& cell : delim_row) {
         auto const cell_view = ::pltxt2htm::container::U8StringView{cell};
@@ -251,9 +251,9 @@ constexpr auto try_parse_md_table_raw(::pltxt2htm::container::U8StringView pltex
     TableAstRaw<ndebug> raw_ast{};
     TableRowRaw header_row_raw{.cells = {}, .section = TableRowSection::thead};
     for (::std::size_t col{}; col < num_cols; ++col) {
-        auto const align_val = ::pltxt2htm::details::vector_index<ndebug>(aligns, col);
+        auto const align_val = aligns.template index<ndebug>(col);
         header_row_raw.cells.push_back(TableCellRaw{
-            .text = ::std::move(::pltxt2htm::details::vector_index<ndebug>(header_row, col)),
+            .text = ::std::move(header_row.template index<ndebug>(col)),
             .align = align_val,
             .is_header = true,
         });
@@ -276,9 +276,9 @@ constexpr auto try_parse_md_table_raw(::pltxt2htm::container::U8StringView pltex
         }
         TableRowRaw body_row_raw{.cells = {}, .section = TableRowSection::tbody};
         for (::std::size_t col{}; col < num_cols; ++col) {
-            auto const align_val = ::pltxt2htm::details::vector_index<ndebug>(aligns, col);
+            auto const align_val = aligns.template index<ndebug>(col);
             body_row_raw.cells.push_back(TableCellRaw{
-                .text = ::std::move(::pltxt2htm::details::vector_index<ndebug>(row, col)),
+                .text = ::std::move(row.template index<ndebug>(col)),
                 .align = align_val,
                 .is_header = false,
             });
