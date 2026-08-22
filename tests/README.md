@@ -7,7 +7,7 @@ or (with cmake + ninja):
 ```sh
 cmake -S tests -B tests/build -GNinja
 cmake --build tests/build
-ctest --test-dir tests/build
+ctest --test-dir tests/build --interactive-debug-mode 0
 ```
 
 You can also pass compiler via `-DCMAKE_CXX_COMPILER=clang++` or `-DCMAKE_CXX_COMPILER=g++`.
@@ -16,7 +16,7 @@ You can also pass compiler via `-DCMAKE_CXX_COMPILER=clang++` or `-DCMAKE_CXX_CO
 ```sh
 cmake -S tests -B tests/build -GNinja -DPLTXT2HTM_SANITIZER=address
 cmake --build tests/build
-ctest --test-dir tests/build
+ctest --test-dir tests/build --interactive-debug-mode 0
 ```
 
 or `-DPLTXT2HTM_SANITIZER=undefined` or `-DPLTXT2HTM_SANITIZER=memory`.

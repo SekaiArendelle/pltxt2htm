@@ -96,7 +96,7 @@ Or with CMake:
 ```sh
 cmake -S tests -B tests/build -G Ninja -DCMAKE_BUILD_TYPE=Debug
 cmake --build tests/build
-ctest --test-dir tests/build
+ctest --test-dir tests/build --interactive-debug-mode 0
 ```
 
 Sanitizer examples:
@@ -105,12 +105,12 @@ Sanitizer examples:
 # ASan
 cmake -S tests -B tests/build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DPLTXT2HTM_SANITIZER=address
 cmake --build tests/build
-ctest --test-dir tests/build
+ctest --test-dir tests/build --interactive-debug-mode 0
 
 # MSan
 cmake -S tests -B tests/build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DPLTXT2HTM_SANITIZER=memory
 cmake --build tests/build
-ctest --test-dir tests/build
+ctest --test-dir tests/build --interactive-debug-mode 0
 ```
 
 Coverage:

@@ -35,7 +35,9 @@ if err_code != 0:
 err_code = os.system(f"cmake --build \"{BUILD_DIR}\" -j {os.process_cpu_count()} -v")
 if err_code != 0:
     raise Exception("cmake build failed")
-err_code = os.system(f"ctest --test-dir \"{BUILD_DIR}\" -j {os.process_cpu_count()}")
+err_code = os.system(
+    f"ctest --test-dir \"{BUILD_DIR}\" --interactive-debug-mode 0 -j {os.process_cpu_count()}"
+)
 if err_code != 0:
     raise Exception("ctest failed")
 err_code = os.system(f"lcov --rc geninfo_unexecuted_blocks=1 --capture --directory \"{BUILD_DIR}\" --output-file \"{BUILD_DIR}/coverage.info\" --exclude \"*/fast_io/*\" --exclude \"*/exception/*\" --exclude \"*/c++/*\" | grep -v \"^Excluding file\"")

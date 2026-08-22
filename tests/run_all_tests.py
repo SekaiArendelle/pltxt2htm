@@ -67,7 +67,16 @@ if ret.returncode != 0:
     raise Exception("CMake build fail")
 
 print("-- running tests ...")
-ctest_cmd: list[str] = ["ctest", "--test-dir", BUILD_DIR, "-V", "-j", str(os.cpu_count() or 1)]
+ctest_cmd: list[str] = [
+    "ctest",
+    "--test-dir",
+    BUILD_DIR,
+    "--interactive-debug-mode",
+    "0",
+    "-V",
+    "-j",
+    str(os.cpu_count() or 1),
+]
 if args.compiler == "msvc":
     ctest_cmd += ["-C", "Debug"]
 ret = subprocess.run(ctest_cmd)
