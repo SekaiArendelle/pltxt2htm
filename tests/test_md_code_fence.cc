@@ -1,19 +1,6 @@
 #include "precompile.hh"
 
-#include <pltxt2htm/details/parser/try_parse.hh>
-
 int main() {
-    {
-        auto parsed = ::pltxt2htm::details::try_parse_md_code_fence<::pltxt2htm::Contracts::quick_enforce>(
-            u8"```mermaid\ngraph TD\n```");
-        pltxt2htm_test_assert_true(parsed.has_value());
-        auto&& result = parsed.template value<::pltxt2htm::Contracts::quick_enforce>();
-        auto const& language = result.node.as_code_fence().get_language();
-        pltxt2htm_test_assert_true(language.has_value());
-        pltxt2htm_test_assert_equal(language.template value<::pltxt2htm::Contracts::quick_enforce>(),
-                                    ::fast_io::u8string_view{u8"mermaid"});
-    }
-
     {
         auto pltext = ::fast_io::u8string_view{u8"```\ntest\n```"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);

@@ -7,7 +7,6 @@
 #pragma once
 
 #include <utility>
-#include "../../container/expected.hh"
 #include <fast_io/fast_io_dsal/string.h>
 #include "ast_decl.hh"
 
@@ -172,7 +171,6 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class CodeFence {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::pltxt2htm::container::Optional<::fast_io::u8string> lang;
 
 public:
     /**
@@ -180,13 +178,6 @@ public:
      * @param subast The code content as an AST.
      */
     constexpr explicit CodeFence(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    /**
-     * @brief Construct a fenced code block with optional language metadata.
-     * @param subast The code content as an AST.
-     * @param lang Optional language string from the fence info string.
-     */
-    constexpr CodeFence(::pltxt2htm::Ast<ndebug>&& subast_,
-                        ::pltxt2htm::container::Optional<::fast_io::u8string>&& lang_) noexcept;
     constexpr CodeFence(::pltxt2htm::CodeFence<ndebug> const&) noexcept;
     constexpr CodeFence(::pltxt2htm::CodeFence<ndebug>&&) noexcept;
     constexpr ~CodeFence() noexcept;
@@ -201,11 +192,6 @@ public:
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.subast);
-    }
-
-    [[nodiscard]]
-    constexpr auto get_language(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.lang);
     }
 };
 
