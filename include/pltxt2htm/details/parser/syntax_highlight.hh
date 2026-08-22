@@ -140,23 +140,36 @@ constexpr auto resolve_syntax_language(::fast_io::u8string_view const language) 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto syntax_token_color(SyntaxTokenKind const kind) noexcept -> ::fast_io::u8string_view {
-    switch (kind) {
-    case SyntaxTokenKind::keyword:
+    switch (kind) /* -Werror=switch */ {
+    case SyntaxTokenKind::keyword: {
         return u8"#cf222e";
-    case SyntaxTokenKind::string:
+    }
+    case SyntaxTokenKind::string: {
         return u8"#0a3069";
-    case SyntaxTokenKind::number:
-        return u8"#0550ae";
-    case SyntaxTokenKind::comment:
-        return u8"#6e7781";
-    case SyntaxTokenKind::function:
-        return u8"#8250df";
-    case SyntaxTokenKind::macro:
-        return u8"#cf222e";
-    case SyntaxTokenKind::preprocessor:
+    }
+    case SyntaxTokenKind::number: {
         return u8"#0550ae";
     }
-    pltxt2htm_unreachable(u8"Unexpected syntax token kind");
+    case SyntaxTokenKind::comment: {
+        return u8"#6e7781";
+    }
+    case SyntaxTokenKind::function: {
+        return u8"#8250df";
+    }
+    case SyntaxTokenKind::macro: {
+        return u8"#cf222e";
+    }
+    case SyntaxTokenKind::preprocessor: {
+        return u8"#0550ae";
+    }
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
+    default:
+        [[unlikely]] {
+            pltxt2htm_unreachable(u8"Unexpected syntax token kind");
+        }
+#endif
+    }
+    pltxt2htm_unreachable(u8"Unreachable code after exhaustive switch on syntax token kind");
 }
 
 [[nodiscard]]

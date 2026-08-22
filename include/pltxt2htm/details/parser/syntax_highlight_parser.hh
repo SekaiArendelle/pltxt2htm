@@ -355,42 +355,52 @@ constexpr auto parse_c_style_code_syntax(::fast_io::u8string_view const content,
             ::fast_io::u8string_view const identifier_view{identifier.data(), identifier.size()};
             bool is_keyword{};
             switch (language) {
-            case SyntaxLanguage::c:
+            case SyntaxLanguage::c: {
                 is_keyword =
                     ::pltxt2htm::details::syntax_is_keyword(identifier_view, ::pltxt2htm::details::c23_keywords) ||
                     ::pltxt2htm::details::syntax_is_keyword(identifier_view, ::pltxt2htm::details::cstdint_types);
                 break;
-            case SyntaxLanguage::cpp:
+            }
+            case SyntaxLanguage::cpp: {
                 is_keyword =
                     ::pltxt2htm::details::syntax_is_keyword(identifier_view, ::pltxt2htm::details::cpp_keywords) ||
                     ::pltxt2htm::details::syntax_is_keyword(identifier_view, ::pltxt2htm::details::cstdint_types);
                 break;
-            case SyntaxLanguage::csharp:
+            }
+            case SyntaxLanguage::csharp: {
                 is_keyword =
                     ::pltxt2htm::details::syntax_is_keyword(identifier_view, ::pltxt2htm::details::csharp_keywords);
                 break;
-            case SyntaxLanguage::go:
+            }
+            case SyntaxLanguage::go: {
                 is_keyword =
                     ::pltxt2htm::details::syntax_is_keyword(identifier_view, ::pltxt2htm::details::go_keywords);
                 break;
-            case SyntaxLanguage::java:
+            }
+            case SyntaxLanguage::java: {
                 is_keyword =
                     ::pltxt2htm::details::syntax_is_keyword(identifier_view, ::pltxt2htm::details::java_keywords);
                 break;
-            case SyntaxLanguage::javascript:
+            }
+            case SyntaxLanguage::javascript: {
                 is_keyword =
                     ::pltxt2htm::details::syntax_is_keyword(identifier_view, ::pltxt2htm::details::javascript_keywords);
                 break;
-            case SyntaxLanguage::kotlin:
+            }
+            case SyntaxLanguage::kotlin: {
                 is_keyword =
                     ::pltxt2htm::details::syntax_is_keyword(identifier_view, ::pltxt2htm::details::kotlin_keywords);
                 break;
-            case SyntaxLanguage::typescript:
+            }
+            case SyntaxLanguage::typescript: {
                 is_keyword =
                     ::pltxt2htm::details::syntax_is_keyword(identifier_view, ::pltxt2htm::details::typescript_keywords);
                 break;
+            }
             default:
-                pltxt2htm_unreachable(u8"Unexpected C-style syntax language");
+                [[unlikely]] {
+                    pltxt2htm_unreachable(u8"Unexpected C-style syntax language");
+                }
             }
             if (is_keyword) {
                 ::pltxt2htm::details::append_colored_code_syntax_ast<ndebug>(token_ast, SyntaxTokenKind::keyword, ast);
@@ -649,36 +659,45 @@ constexpr auto parse_data_script_code_syntax(::fast_io::u8string_view const cont
             ::fast_io::u8string_view const identifier_view{identifier.data(), identifier.size()};
             bool is_keyword{};
             switch (language) {
-            case SyntaxLanguage::bash:
+            case SyntaxLanguage::bash: {
                 is_keyword =
                     ::pltxt2htm::details::syntax_is_keyword(identifier_view, ::pltxt2htm::details::bash_keywords);
                 break;
-            case SyntaxLanguage::css:
+            }
+            case SyntaxLanguage::css: {
                 is_keyword =
                     ::pltxt2htm::details::syntax_is_keyword(identifier_view, ::pltxt2htm::details::css_keywords);
                 break;
-            case SyntaxLanguage::json:
+            }
+            case SyntaxLanguage::json: {
                 is_keyword =
                     ::pltxt2htm::details::syntax_is_keyword(identifier_view, ::pltxt2htm::details::json_keywords);
                 break;
-            case SyntaxLanguage::python:
+            }
+            case SyntaxLanguage::python: {
                 is_keyword =
                     ::pltxt2htm::details::syntax_is_keyword(identifier_view, ::pltxt2htm::details::python_keywords);
                 break;
-            case SyntaxLanguage::sql:
+            }
+            case SyntaxLanguage::sql: {
                 is_keyword = ::pltxt2htm::details::syntax_is_keyword_case_insensitive(
                     identifier_view, ::pltxt2htm::details::sql_keywords);
                 break;
-            case SyntaxLanguage::toml:
+            }
+            case SyntaxLanguage::toml: {
                 is_keyword =
                     ::pltxt2htm::details::syntax_is_keyword(identifier_view, ::pltxt2htm::details::toml_keywords);
                 break;
-            case SyntaxLanguage::yaml:
+            }
+            case SyntaxLanguage::yaml: {
                 is_keyword =
                     ::pltxt2htm::details::syntax_is_keyword(identifier_view, ::pltxt2htm::details::yaml_keywords);
                 break;
+            }
             default:
-                pltxt2htm_unreachable(u8"Unexpected data or script syntax language");
+                [[unlikely]] {
+                    pltxt2htm_unreachable(u8"Unexpected data or script syntax language");
+                }
             }
             if (is_keyword) {
                 ::pltxt2htm::details::append_colored_code_syntax_ast<ndebug>(token_ast, SyntaxTokenKind::keyword, ast);
@@ -1510,49 +1529,75 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto parse_code_fence_syntax(::fast_io::u8string_view const content, SyntaxLanguage const language) noexcept
     -> ::pltxt2htm::Ast<ndebug> {
-    switch (language) {
-    case SyntaxLanguage::plain:
+    switch (language) /* -Werror=switch */ {
+    case SyntaxLanguage::plain: {
         return ::pltxt2htm::details::parse_plain_code_syntax<ndebug>(content);
-    case SyntaxLanguage::bash:
-        return ::pltxt2htm::details::parse_data_script_code_syntax<ndebug>(content, language);
-    case SyntaxLanguage::c:
-        return ::pltxt2htm::details::parse_c_style_code_syntax<ndebug>(content, language);
-    case SyntaxLanguage::cpp:
-        return ::pltxt2htm::details::parse_c_style_code_syntax<ndebug>(content, language);
-    case SyntaxLanguage::csharp:
-        return ::pltxt2htm::details::parse_c_style_code_syntax<ndebug>(content, language);
-    case SyntaxLanguage::css:
-        return ::pltxt2htm::details::parse_data_script_code_syntax<ndebug>(content, language);
-    case SyntaxLanguage::go:
-        return ::pltxt2htm::details::parse_c_style_code_syntax<ndebug>(content, language);
-    case SyntaxLanguage::html:
-        return ::pltxt2htm::details::parse_markup_code_syntax<ndebug>(content, language);
-    case SyntaxLanguage::java:
-        return ::pltxt2htm::details::parse_c_style_code_syntax<ndebug>(content, language);
-    case SyntaxLanguage::javascript:
-        return ::pltxt2htm::details::parse_c_style_code_syntax<ndebug>(content, language);
-    case SyntaxLanguage::json:
-        return ::pltxt2htm::details::parse_data_script_code_syntax<ndebug>(content, language);
-    case SyntaxLanguage::kotlin:
-        return ::pltxt2htm::details::parse_c_style_code_syntax<ndebug>(content, language);
-    case SyntaxLanguage::lua:
-        return ::pltxt2htm::details::parse_lua_code_syntax<ndebug>(content);
-    case SyntaxLanguage::python:
-        return ::pltxt2htm::details::parse_data_script_code_syntax<ndebug>(content, language);
-    case SyntaxLanguage::rust:
-        return ::pltxt2htm::details::parse_rust_code_syntax<ndebug>(content);
-    case SyntaxLanguage::sql:
-        return ::pltxt2htm::details::parse_data_script_code_syntax<ndebug>(content, language);
-    case SyntaxLanguage::toml:
-        return ::pltxt2htm::details::parse_data_script_code_syntax<ndebug>(content, language);
-    case SyntaxLanguage::typescript:
-        return ::pltxt2htm::details::parse_c_style_code_syntax<ndebug>(content, language);
-    case SyntaxLanguage::xml:
-        return ::pltxt2htm::details::parse_markup_code_syntax<ndebug>(content, language);
-    case SyntaxLanguage::yaml:
+    }
+    case SyntaxLanguage::bash: {
         return ::pltxt2htm::details::parse_data_script_code_syntax<ndebug>(content, language);
     }
-    pltxt2htm_unreachable(u8"Unexpected syntax language");
+    case SyntaxLanguage::c: {
+        return ::pltxt2htm::details::parse_c_style_code_syntax<ndebug>(content, language);
+    }
+    case SyntaxLanguage::cpp: {
+        return ::pltxt2htm::details::parse_c_style_code_syntax<ndebug>(content, language);
+    }
+    case SyntaxLanguage::csharp: {
+        return ::pltxt2htm::details::parse_c_style_code_syntax<ndebug>(content, language);
+    }
+    case SyntaxLanguage::css: {
+        return ::pltxt2htm::details::parse_data_script_code_syntax<ndebug>(content, language);
+    }
+    case SyntaxLanguage::go: {
+        return ::pltxt2htm::details::parse_c_style_code_syntax<ndebug>(content, language);
+    }
+    case SyntaxLanguage::html: {
+        return ::pltxt2htm::details::parse_markup_code_syntax<ndebug>(content, language);
+    }
+    case SyntaxLanguage::java: {
+        return ::pltxt2htm::details::parse_c_style_code_syntax<ndebug>(content, language);
+    }
+    case SyntaxLanguage::javascript: {
+        return ::pltxt2htm::details::parse_c_style_code_syntax<ndebug>(content, language);
+    }
+    case SyntaxLanguage::json: {
+        return ::pltxt2htm::details::parse_data_script_code_syntax<ndebug>(content, language);
+    }
+    case SyntaxLanguage::kotlin: {
+        return ::pltxt2htm::details::parse_c_style_code_syntax<ndebug>(content, language);
+    }
+    case SyntaxLanguage::lua: {
+        return ::pltxt2htm::details::parse_lua_code_syntax<ndebug>(content);
+    }
+    case SyntaxLanguage::python: {
+        return ::pltxt2htm::details::parse_data_script_code_syntax<ndebug>(content, language);
+    }
+    case SyntaxLanguage::rust: {
+        return ::pltxt2htm::details::parse_rust_code_syntax<ndebug>(content);
+    }
+    case SyntaxLanguage::sql: {
+        return ::pltxt2htm::details::parse_data_script_code_syntax<ndebug>(content, language);
+    }
+    case SyntaxLanguage::toml: {
+        return ::pltxt2htm::details::parse_data_script_code_syntax<ndebug>(content, language);
+    }
+    case SyntaxLanguage::typescript: {
+        return ::pltxt2htm::details::parse_c_style_code_syntax<ndebug>(content, language);
+    }
+    case SyntaxLanguage::xml: {
+        return ::pltxt2htm::details::parse_markup_code_syntax<ndebug>(content, language);
+    }
+    case SyntaxLanguage::yaml: {
+        return ::pltxt2htm::details::parse_data_script_code_syntax<ndebug>(content, language);
+    }
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
+    default:
+        [[unlikely]] {
+            pltxt2htm_unreachable(u8"Unexpected syntax language");
+        }
+#endif
+    }
+    pltxt2htm_unreachable(u8"Unreachable code after exhaustive switch on syntax language");
 }
 
 } // namespace pltxt2htm::details
