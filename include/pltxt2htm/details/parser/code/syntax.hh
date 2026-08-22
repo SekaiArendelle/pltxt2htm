@@ -1,5 +1,5 @@
 /**
- * @file syntax_highlight.hh
+ * @file syntax.hh
  * @brief Shared language and token definitions for fenced-code parsing.
  */
 
@@ -7,34 +7,13 @@
 
 #include <cstddef>
 #include <fast_io/fast_io_dsal/string_view.h>
-#include "../../contracts.hh"
-#include "../utils.hh"
-#include "../push_macro.hh"
+#include "../../../ast/code/language.hh"
+#include "../../../contracts.hh"
+#include "../../utils.hh"
 
 namespace pltxt2htm::details {
 
-enum class SyntaxLanguage : unsigned {
-    plain = 0,
-    bash,
-    c,
-    cpp,
-    csharp,
-    css,
-    go,
-    html,
-    java,
-    javascript,
-    json,
-    kotlin,
-    lua,
-    python,
-    rust,
-    sql,
-    toml,
-    typescript,
-    xml,
-    yaml,
-};
+using SyntaxLanguage = ::pltxt2htm::CodeLanguage;
 
 enum class SyntaxTokenKind : unsigned {
     keyword = 0,
@@ -135,41 +114,6 @@ constexpr auto resolve_syntax_language(::fast_io::u8string_view const language) 
         return SyntaxLanguage::xml;
     }
     return SyntaxLanguage::plain;
-}
-
-template<::pltxt2htm::Contracts ndebug>
-[[nodiscard]]
-constexpr auto syntax_token_color(SyntaxTokenKind const kind) noexcept -> ::fast_io::u8string_view {
-    switch (kind) /* -Werror=switch */ {
-    case SyntaxTokenKind::keyword: {
-        return u8"#cf222e";
-    }
-    case SyntaxTokenKind::string: {
-        return u8"#0a3069";
-    }
-    case SyntaxTokenKind::number: {
-        return u8"#0550ae";
-    }
-    case SyntaxTokenKind::comment: {
-        return u8"#6e7781";
-    }
-    case SyntaxTokenKind::function: {
-        return u8"#8250df";
-    }
-    case SyntaxTokenKind::macro: {
-        return u8"#cf222e";
-    }
-    case SyntaxTokenKind::preprocessor: {
-        return u8"#0550ae";
-    }
-#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
-    default:
-        [[unlikely]] {
-            pltxt2htm_unreachable(u8"Unexpected syntax token kind");
-        }
-#endif
-    }
-    pltxt2htm_unreachable(u8"Unreachable code after exhaustive switch on syntax token kind");
 }
 
 [[nodiscard]]
@@ -484,5 +428,3 @@ constexpr auto syntax_is_keyword_case_insensitive(::fast_io::u8string_view const
 }
 
 } // namespace pltxt2htm::details
-
-#include "../pop_macro.hh"

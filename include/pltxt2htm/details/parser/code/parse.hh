@@ -1,7 +1,6 @@
 /**
- * @file syntax_highlight_parser.hh
- * @brief Language-specific fenced-code parsers that emit highlighted AST nodes.
- * @note This internal header is included by try_parse.hh after parse_simple_pltext_node is defined.
+ * @file parse.hh
+ * @brief Language-specific fenced-code parsers that emit semantic code AST nodes.
  */
 
 #pragma once
@@ -10,90 +9,200 @@
 #include <utility>
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
-#include "../../ast/ast.hh"
-#include "../../contracts.hh"
-#include "syntax_highlight.hh"
-#include "../utils.hh"
-#include "../push_macro.hh"
+#include "../../../ast/code/ast.hh"
+#include "../../../contracts.hh"
+#include "common.hh"
+#include "syntax.hh"
+#include "../../utils.hh"
+#include "../../push_macro.hh"
 
 namespace pltxt2htm::details {
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr void append_code_syntax_ast(::pltxt2htm::Ast<ndebug>& source,
-                                      ::pltxt2htm::Ast<ndebug>& destination) noexcept {
-    for (auto& node : source) {
-        destination.push_back(::std::move(node));
-    }
-    source.clear();
+constexpr void append_code_syntax_ast(::fast_io::u8string& source, ::fast_io::u8string& destination) noexcept {
+    ::pltxt2htm::details::append_code_syntax_text(source, destination);
 }
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr void append_colored_code_syntax_ast(::pltxt2htm::Ast<ndebug>& token_ast, SyntaxTokenKind const kind,
-                                              ::pltxt2htm::Ast<ndebug>& destination) noexcept {
-    ::std::size_t current_index{};
-    ::std::size_t const token_size{token_ast.size()};
-    while (current_index != token_size) {
-        ::std::size_t colored_end{current_index};
-        while (colored_end != token_size &&
-               ::pltxt2htm::details::vector_index<ndebug>(token_ast, colored_end).get_node_kind() !=
-                   ::pltxt2htm::NodeKind::line_break) {
-            ++colored_end;
+constexpr void append_code_syntax_ast(::fast_io::u8string& source, ::pltxt2htm::CodeAst<ndebug>& destination) noexcept;
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr void append_colored_code_syntax_ast(::fast_io::u8string& token_ast, SyntaxTokenKind const kind,
+                                              ::pltxt2htm::CodeAst<ndebug>& destination) noexcept;
+
+template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::CodeLanguage language>
+constexpr void append_code_syntax_kind(::fast_io::u8string& text, unsigned const kind,
+                                       ::pltxt2htm::CodeAst<ndebug>& destination) noexcept {
+    destination.template append<language>(text, static_cast<::pltxt2htm::CodeNodeKind<language>>(kind));
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr void append_code_syntax_kind(::fast_io::u8string& text, unsigned const kind,
+                                       ::pltxt2htm::CodeAst<ndebug>& destination) noexcept {
+    switch (destination.get_language()) /* -Werror=switch */ {
+    case ::pltxt2htm::CodeLanguage::plain: {
+        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::plain>(text, kind,
+                                                                                                destination);
+        return;
+    }
+    case ::pltxt2htm::CodeLanguage::bash: {
+        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::bash>(text, kind, destination);
+        return;
+    }
+    case ::pltxt2htm::CodeLanguage::c: {
+        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::c>(text, kind, destination);
+        return;
+    }
+    case ::pltxt2htm::CodeLanguage::cpp: {
+        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::cpp>(text, kind, destination);
+        return;
+    }
+    case ::pltxt2htm::CodeLanguage::csharp: {
+        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::csharp>(text, kind,
+                                                                                                 destination);
+        return;
+    }
+    case ::pltxt2htm::CodeLanguage::css: {
+        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::css>(text, kind, destination);
+        return;
+    }
+    case ::pltxt2htm::CodeLanguage::go: {
+        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::go>(text, kind, destination);
+        return;
+    }
+    case ::pltxt2htm::CodeLanguage::html: {
+        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::html>(text, kind, destination);
+        return;
+    }
+    case ::pltxt2htm::CodeLanguage::java: {
+        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::java>(text, kind, destination);
+        return;
+    }
+    case ::pltxt2htm::CodeLanguage::javascript: {
+        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::javascript>(text, kind,
+                                                                                                     destination);
+        return;
+    }
+    case ::pltxt2htm::CodeLanguage::json: {
+        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::json>(text, kind, destination);
+        return;
+    }
+    case ::pltxt2htm::CodeLanguage::kotlin: {
+        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::kotlin>(text, kind,
+                                                                                                 destination);
+        return;
+    }
+    case ::pltxt2htm::CodeLanguage::lua: {
+        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::lua>(text, kind, destination);
+        return;
+    }
+    case ::pltxt2htm::CodeLanguage::python: {
+        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::python>(text, kind,
+                                                                                                 destination);
+        return;
+    }
+    case ::pltxt2htm::CodeLanguage::rust: {
+        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::rust>(text, kind, destination);
+        return;
+    }
+    case ::pltxt2htm::CodeLanguage::sql: {
+        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::sql>(text, kind, destination);
+        return;
+    }
+    case ::pltxt2htm::CodeLanguage::toml: {
+        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::toml>(text, kind, destination);
+        return;
+    }
+    case ::pltxt2htm::CodeLanguage::typescript: {
+        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::typescript>(text, kind,
+                                                                                                     destination);
+        return;
+    }
+    case ::pltxt2htm::CodeLanguage::xml: {
+        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::xml>(text, kind, destination);
+        return;
+    }
+    case ::pltxt2htm::CodeLanguage::yaml: {
+        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::yaml>(text, kind, destination);
+        return;
+    }
+    case ::pltxt2htm::CodeLanguage::rendered: {
+        [[unlikely]] { pltxt2htm_unreachable(u8"Rendered code cannot contain language syntax nodes"); }
+    }
+    }
+    pltxt2htm_unreachable(u8"Unreachable code after exhaustive switch on code language");
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr void append_code_syntax_ast(::fast_io::u8string& source, ::pltxt2htm::CodeAst<ndebug>& destination) noexcept {
+    ::pltxt2htm::details::append_code_syntax_kind<ndebug>(source, 0, destination);
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr void append_colored_code_syntax_ast(::fast_io::u8string& token_ast, SyntaxTokenKind const kind,
+                                              ::pltxt2htm::CodeAst<ndebug>& destination) noexcept {
+    ::std::size_t begin{};
+    while (begin != token_ast.size()) {
+        ::std::size_t end{begin};
+        while (end != token_ast.size() &&
+               ::pltxt2htm::details::u8string_view_index<ndebug>(
+                   ::fast_io::u8string_view{token_ast.data(), token_ast.size()}, end) != u8'\n') {
+            ++end;
         }
-        if (current_index != colored_end) {
-            ::pltxt2htm::Ast<ndebug> colored_ast{};
-            colored_ast.reserve(colored_end - current_index);
-            while (current_index != colored_end) {
-                colored_ast.push_back(
-                    ::std::move(::pltxt2htm::details::vector_index<ndebug>(token_ast, current_index++)));
-            }
-            destination.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::PlColor<ndebug>{
-                ::std::move(colored_ast),
-                ::fast_io::u8string{::pltxt2htm::details::syntax_token_color<ndebug>(kind)}}));
+        if (begin != end) {
+            ::fast_io::u8string line{token_ast.data() + begin, token_ast.data() + end};
+            ::pltxt2htm::details::append_code_syntax_kind<ndebug>(line, static_cast<unsigned>(kind) + 1, destination);
         }
-        if (current_index != token_size) {
-            destination.push_back(::std::move(::pltxt2htm::details::vector_index<ndebug>(token_ast, current_index++)));
+        if (end != token_ast.size()) {
+            ::fast_io::u8string newline{u8"\n"};
+            ::pltxt2htm::details::append_code_syntax_ast<ndebug>(newline, destination);
+            ++end;
         }
+        begin = end;
     }
     token_ast.clear();
 }
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto parse_plain_code_syntax(::fast_io::u8string_view const content) noexcept -> ::pltxt2htm::Ast<ndebug> {
-    ::pltxt2htm::Ast<ndebug> ast{};
+constexpr auto parse_plain_code_syntax(::fast_io::u8string_view const content) noexcept
+    -> ::pltxt2htm::CodeAst<ndebug> {
+    ::pltxt2htm::CodeAst<ndebug> ast{::pltxt2htm::CodeLanguage::plain};
     ast.reserve(content.size());
     ::std::size_t current_index{};
+    ::fast_io::u8string text{};
     while (current_index != content.size()) {
-        current_index += ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(
-                             ::pltxt2htm::details::u8string_view_subview<ndebug>(content, current_index), ast)
+        current_index += ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(
+                             ::pltxt2htm::details::u8string_view_subview<ndebug>(content, current_index), text)
                              .advance_count;
     }
+    ast.template append<::pltxt2htm::CodeLanguage::plain>(text, ::pltxt2htm::CodePlainNodeKind::text);
     return ast;
 }
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto parse_c_style_code_syntax(::fast_io::u8string_view const content, SyntaxLanguage const language) noexcept
-    -> ::pltxt2htm::Ast<ndebug> {
+    -> ::pltxt2htm::CodeAst<ndebug> {
     ::fast_io::u8string_view remaining{content};
-    ::pltxt2htm::Ast<ndebug> lookahead_ast{};
+    ::fast_io::u8string lookahead_ast{};
     char8_t lookahead_ascii{};
-    ::pltxt2htm::Ast<ndebug> ast{};
+    ::pltxt2htm::CodeAst<ndebug> ast{language};
     ast.reserve(content.size());
 
     while (lookahead_ast.empty() == false || remaining.empty() == false) {
         if (lookahead_ast.empty()) {
-            auto const parsed = ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+            auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
             remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
             lookahead_ascii = parsed.ascii;
         }
         char8_t const chr{lookahead_ascii};
 
         if (chr == u8'/') {
-            ::pltxt2htm::Ast<ndebug> token_ast{};
+            ::fast_io::u8string token_ast{};
             ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
             if (remaining.empty() == false) {
-                auto const parsed = ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                 remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                 lookahead_ascii = parsed.ascii;
             }
@@ -106,7 +215,7 @@ constexpr auto parse_c_style_code_syntax(::fast_io::u8string_view const content,
                     ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
                     if (remaining.empty() == false) {
                         auto const parsed =
-                            ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                            ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                         remaining =
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                         lookahead_ascii = parsed.ascii;
@@ -118,8 +227,7 @@ constexpr auto parse_c_style_code_syntax(::fast_io::u8string_view const content,
             if (lookahead_ascii == u8'*') {
                 ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
                 if (remaining.empty() == false) {
-                    auto const parsed =
-                        ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                    auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                     remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                     lookahead_ascii = parsed.ascii;
                 }
@@ -128,7 +236,7 @@ constexpr auto parse_c_style_code_syntax(::fast_io::u8string_view const content,
                     ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
                     if (remaining.empty() == false) {
                         auto const parsed =
-                            ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                            ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                         remaining =
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                         lookahead_ascii = parsed.ascii;
@@ -139,7 +247,7 @@ constexpr auto parse_c_style_code_syntax(::fast_io::u8string_view const content,
                     ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
                     if (remaining.empty() == false) {
                         auto const parsed =
-                            ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                            ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                         remaining =
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                         lookahead_ascii = parsed.ascii;
@@ -168,16 +276,16 @@ constexpr auto parse_c_style_code_syntax(::fast_io::u8string_view const content,
             ((language == SyntaxLanguage::go || language == SyntaxLanguage::javascript ||
               language == SyntaxLanguage::typescript) &&
              chr == u8'`')) {
-            ::pltxt2htm::Ast<ndebug> token_ast{};
+            ::fast_io::u8string token_ast{};
             char8_t quote{chr};
             ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
             if (csharp_prefixed_string) {
-                auto parsed = ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                auto parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                 remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                 char8_t const prefix_or_quote{parsed.ascii};
                 ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
                 if (prefix_or_quote != u8'\"') {
-                    parsed = ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                    parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                     remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                     ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
                 }
@@ -198,14 +306,13 @@ constexpr auto parse_c_style_code_syntax(::fast_io::u8string_view const content,
                     }
                 }
                 for (::std::size_t count{1}; count != raw_quote_count; ++count) {
-                    auto const parsed =
-                        ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                    auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                     remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                     ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
                 }
             }
             while (remaining.empty() == false) {
-                auto const parsed = ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                 remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                 char8_t const current{parsed.ascii};
                 ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
@@ -218,7 +325,7 @@ constexpr auto parse_c_style_code_syntax(::fast_io::u8string_view const content,
                 if (closes_raw_string) {
                     for (::std::size_t count{1}; count != raw_quote_count; ++count) {
                         auto const closing =
-                            ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                            ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                         remaining =
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, closing.advance_count);
                         ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
@@ -229,7 +336,7 @@ constexpr auto parse_c_style_code_syntax(::fast_io::u8string_view const content,
                     if (remaining.empty() == false &&
                         ::pltxt2htm::details::u8string_view_index<ndebug>(remaining, 0) == quote) {
                         auto const escaped =
-                            ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                            ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                         remaining =
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, escaped.advance_count);
                         ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
@@ -239,8 +346,7 @@ constexpr auto parse_c_style_code_syntax(::fast_io::u8string_view const content,
                 }
                 if (current == u8'\\' && remaining.empty() == false && raw_quote_count == 0 &&
                     (language != SyntaxLanguage::go || quote != u8'`')) {
-                    auto const escaped =
-                        ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                    auto const escaped = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                     remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, escaped.advance_count);
                     ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
                     continue;
@@ -255,11 +361,11 @@ constexpr auto parse_c_style_code_syntax(::fast_io::u8string_view const content,
 
         if ((language == SyntaxLanguage::csharp && chr == u8'@') ||
             (language == SyntaxLanguage::kotlin && chr == u8'`')) {
-            ::pltxt2htm::Ast<ndebug> token_ast{};
+            ::fast_io::u8string token_ast{};
             char8_t const terminator{language == SyntaxLanguage::kotlin ? u8'`' : char8_t{}};
             ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
             while (remaining.empty() == false) {
-                auto const parsed = ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                 remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                 if (terminator == char8_t{} &&
                     ::pltxt2htm::details::syntax_is_identifier_continue(parsed.ascii) == false) {
@@ -276,10 +382,10 @@ constexpr auto parse_c_style_code_syntax(::fast_io::u8string_view const content,
         }
 
         if (::pltxt2htm::details::is_ascii_digit(chr)) {
-            ::pltxt2htm::Ast<ndebug> token_ast{};
+            ::fast_io::u8string token_ast{};
             ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
             while (remaining.empty() == false) {
-                auto const parsed = ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                 remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                 lookahead_ascii = parsed.ascii;
                 if (::pltxt2htm::details::syntax_is_identifier_continue(lookahead_ascii) == false &&
@@ -294,10 +400,10 @@ constexpr auto parse_c_style_code_syntax(::fast_io::u8string_view const content,
 
         if ((language == SyntaxLanguage::c || language == SyntaxLanguage::cpp || language == SyntaxLanguage::csharp) &&
             chr == u8'#') {
-            ::pltxt2htm::Ast<ndebug> token_ast{};
+            ::fast_io::u8string token_ast{};
             ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
             while (remaining.empty() == false) {
-                auto const parsed = ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                 remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                 lookahead_ascii = parsed.ascii;
                 if (lookahead_ascii != u8' ' && lookahead_ascii != u8'\t') {
@@ -307,8 +413,7 @@ constexpr auto parse_c_style_code_syntax(::fast_io::u8string_view const content,
             }
             while (lookahead_ast.empty() == false || remaining.empty() == false) {
                 if (lookahead_ast.empty()) {
-                    auto const parsed =
-                        ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                    auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                     remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                     lookahead_ascii = parsed.ascii;
                 }
@@ -322,14 +427,13 @@ constexpr auto parse_c_style_code_syntax(::fast_io::u8string_view const content,
         }
 
         if (::pltxt2htm::details::syntax_is_identifier_start(chr)) {
-            ::pltxt2htm::Ast<ndebug> token_ast{};
+            ::fast_io::u8string token_ast{};
             ::fast_io::u8string identifier{};
             identifier.push_back(chr);
             ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
             while (lookahead_ast.empty() == false || remaining.empty() == false) {
                 if (lookahead_ast.empty()) {
-                    auto const parsed =
-                        ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                    auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                     remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                     lookahead_ascii = parsed.ascii;
                 }
@@ -339,11 +443,10 @@ constexpr auto parse_c_style_code_syntax(::fast_io::u8string_view const content,
                 identifier.push_back(lookahead_ascii);
                 ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
             }
-            ::pltxt2htm::Ast<ndebug> whitespace_ast{};
+            ::fast_io::u8string whitespace_ast{};
             while (lookahead_ast.empty() == false || remaining.empty() == false) {
                 if (lookahead_ast.empty()) {
-                    auto const parsed =
-                        ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                    auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                     remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                     lookahead_ascii = parsed.ascii;
                 }
@@ -423,33 +526,32 @@ constexpr auto parse_c_style_code_syntax(::fast_io::u8string_view const content,
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto parse_data_script_code_syntax(::fast_io::u8string_view const content,
-                                             SyntaxLanguage const language) noexcept -> ::pltxt2htm::Ast<ndebug> {
+                                             SyntaxLanguage const language) noexcept -> ::pltxt2htm::CodeAst<ndebug> {
     bool const has_hash_comment{language == SyntaxLanguage::bash || language == SyntaxLanguage::python ||
                                 language == SyntaxLanguage::toml || language == SyntaxLanguage::yaml};
     bool const has_dash_comment{language == SyntaxLanguage::sql};
     bool const has_block_comment{language == SyntaxLanguage::css || language == SyntaxLanguage::sql};
     bool const only_double_quote{language == SyntaxLanguage::json};
     ::fast_io::u8string_view remaining{content};
-    ::pltxt2htm::Ast<ndebug> lookahead_ast{};
+    ::fast_io::u8string lookahead_ast{};
     char8_t lookahead_ascii{};
-    ::pltxt2htm::Ast<ndebug> ast{};
+    ::pltxt2htm::CodeAst<ndebug> ast{language};
     ast.reserve(content.size());
 
     while (lookahead_ast.empty() == false || remaining.empty() == false) {
         if (lookahead_ast.empty()) {
-            auto const parsed = ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+            auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
             remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
             lookahead_ascii = parsed.ascii;
         }
         char8_t const chr{lookahead_ascii};
 
         if (has_hash_comment && chr == u8'#') {
-            ::pltxt2htm::Ast<ndebug> token_ast{};
+            ::fast_io::u8string token_ast{};
             while (lookahead_ast.empty() == false && lookahead_ascii != u8'\n') {
                 ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
                 if (remaining.empty() == false) {
-                    auto const parsed =
-                        ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                    auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                     remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                     lookahead_ascii = parsed.ascii;
                 }
@@ -459,10 +561,10 @@ constexpr auto parse_data_script_code_syntax(::fast_io::u8string_view const cont
         }
 
         if (has_dash_comment && chr == u8'-') {
-            ::pltxt2htm::Ast<ndebug> token_ast{};
+            ::fast_io::u8string token_ast{};
             ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
             if (remaining.empty() == false) {
-                auto const parsed = ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                 remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                 lookahead_ascii = parsed.ascii;
             }
@@ -471,7 +573,7 @@ constexpr auto parse_data_script_code_syntax(::fast_io::u8string_view const cont
                     ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
                     if (remaining.empty() == false) {
                         auto const parsed =
-                            ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                            ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                         remaining =
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                         lookahead_ascii = parsed.ascii;
@@ -485,18 +587,17 @@ constexpr auto parse_data_script_code_syntax(::fast_io::u8string_view const cont
         }
 
         if (has_block_comment && chr == u8'/') {
-            ::pltxt2htm::Ast<ndebug> token_ast{};
+            ::fast_io::u8string token_ast{};
             ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
             if (remaining.empty() == false) {
-                auto const parsed = ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                 remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                 lookahead_ascii = parsed.ascii;
             }
             if (lookahead_ast.empty() == false && lookahead_ascii == u8'*') {
                 ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
                 if (remaining.empty() == false) {
-                    auto const parsed =
-                        ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                    auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                     remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                     lookahead_ascii = parsed.ascii;
                 }
@@ -505,7 +606,7 @@ constexpr auto parse_data_script_code_syntax(::fast_io::u8string_view const cont
                     ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
                     if (remaining.empty() == false) {
                         auto const parsed =
-                            ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                            ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                         remaining =
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                         lookahead_ascii = parsed.ascii;
@@ -516,7 +617,7 @@ constexpr auto parse_data_script_code_syntax(::fast_io::u8string_view const cont
                     ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
                     if (remaining.empty() == false) {
                         auto const parsed =
-                            ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                            ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                         remaining =
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                         lookahead_ascii = parsed.ascii;
@@ -531,7 +632,7 @@ constexpr auto parse_data_script_code_syntax(::fast_io::u8string_view const cont
         }
 
         if (chr == u8'\"' || (only_double_quote == false && chr == u8'\'')) {
-            ::pltxt2htm::Ast<ndebug> token_ast{};
+            ::fast_io::u8string token_ast{};
             char8_t const quote{chr};
             ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
             bool const triple_quote{(language == SyntaxLanguage::python || language == SyntaxLanguage::toml) &&
@@ -540,14 +641,13 @@ constexpr auto parse_data_script_code_syntax(::fast_io::u8string_view const cont
                                     ::pltxt2htm::details::u8string_view_index<ndebug>(remaining, 1) == quote};
             if (triple_quote) {
                 for (unsigned count{}; count != 2; ++count) {
-                    auto const parsed =
-                        ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                    auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                     remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                     ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
                 }
             }
             while (remaining.empty() == false) {
-                auto const parsed = ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                 remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                 char8_t const current{parsed.ascii};
                 ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
@@ -556,7 +656,7 @@ constexpr auto parse_data_script_code_syntax(::fast_io::u8string_view const cont
                     ::pltxt2htm::details::u8string_view_index<ndebug>(remaining, 1) == quote) {
                     for (unsigned count{}; count != 2; ++count) {
                         auto const closing =
-                            ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                            ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                         remaining =
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, closing.advance_count);
                         ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
@@ -566,8 +666,7 @@ constexpr auto parse_data_script_code_syntax(::fast_io::u8string_view const cont
                 if (current == u8'\\' && remaining.empty() == false &&
                     !(language == SyntaxLanguage::sql && quote == u8'\'') &&
                     !(language == SyntaxLanguage::toml && quote == u8'\'')) {
-                    auto const escaped =
-                        ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                    auto const escaped = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                     remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, escaped.advance_count);
                     ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
                     continue;
@@ -577,7 +676,7 @@ constexpr auto parse_data_script_code_syntax(::fast_io::u8string_view const cont
                         auto const next = ::pltxt2htm::details::u8string_view_index<ndebug>(remaining, 0);
                         if (next == quote) {
                             auto const escaped =
-                                ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                                ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                             remaining =
                                 ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, escaped.advance_count);
                             ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
@@ -592,10 +691,10 @@ constexpr auto parse_data_script_code_syntax(::fast_io::u8string_view const cont
         }
 
         if (::pltxt2htm::details::is_ascii_digit(chr)) {
-            ::pltxt2htm::Ast<ndebug> token_ast{};
+            ::fast_io::u8string token_ast{};
             ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
             while (remaining.empty() == false) {
-                auto const parsed = ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                 remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                 lookahead_ascii = parsed.ascii;
                 if (::pltxt2htm::details::syntax_is_identifier_continue(lookahead_ascii) == false &&
@@ -609,10 +708,10 @@ constexpr auto parse_data_script_code_syntax(::fast_io::u8string_view const cont
         }
 
         if (language == SyntaxLanguage::css && chr == u8'@') {
-            ::pltxt2htm::Ast<ndebug> token_ast{};
+            ::fast_io::u8string token_ast{};
             ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
             while (remaining.empty() == false) {
-                auto const parsed = ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                 remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                 lookahead_ascii = parsed.ascii;
                 if (::pltxt2htm::details::syntax_is_identifier_continue(lookahead_ascii) == false &&
@@ -626,14 +725,13 @@ constexpr auto parse_data_script_code_syntax(::fast_io::u8string_view const cont
         }
 
         if (::pltxt2htm::details::syntax_is_identifier_start(chr)) {
-            ::pltxt2htm::Ast<ndebug> token_ast{};
+            ::fast_io::u8string token_ast{};
             ::fast_io::u8string identifier{};
             identifier.push_back(chr);
             ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
             while (lookahead_ast.empty() == false || remaining.empty() == false) {
                 if (lookahead_ast.empty()) {
-                    auto const parsed =
-                        ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                    auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                     remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                     lookahead_ascii = parsed.ascii;
                 }
@@ -643,11 +741,10 @@ constexpr auto parse_data_script_code_syntax(::fast_io::u8string_view const cont
                 identifier.push_back(lookahead_ascii);
                 ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
             }
-            ::pltxt2htm::Ast<ndebug> whitespace_ast{};
+            ::fast_io::u8string whitespace_ast{};
             while (lookahead_ast.empty() == false || remaining.empty() == false) {
                 if (lookahead_ast.empty()) {
-                    auto const parsed =
-                        ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                    auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                     remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                     lookahead_ascii = parsed.ascii;
                 }
@@ -726,12 +823,12 @@ constexpr auto parse_data_script_code_syntax(::fast_io::u8string_view const cont
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr bool parse_lua_long_bracket(::fast_io::u8string_view& remaining, ::pltxt2htm::Ast<ndebug>& lookahead_ast,
-                                      char8_t& lookahead_ascii, ::pltxt2htm::Ast<ndebug>& token_ast) noexcept {
+constexpr bool parse_lua_long_bracket(::fast_io::u8string_view& remaining, ::fast_io::u8string& lookahead_ast,
+                                      char8_t& lookahead_ascii, ::fast_io::u8string& token_ast) noexcept {
     ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
     ::std::size_t equals_count{};
     while (remaining.empty() == false) {
-        auto const parsed = ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+        auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
         remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
         lookahead_ascii = parsed.ascii;
         if (lookahead_ascii != u8'=') {
@@ -747,7 +844,7 @@ constexpr bool parse_lua_long_bracket(::fast_io::u8string_view& remaining, ::plt
 
     while (lookahead_ast.empty() == false || remaining.empty() == false) {
         if (lookahead_ast.empty()) {
-            auto const parsed = ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+            auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
             remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
             lookahead_ascii = parsed.ascii;
         }
@@ -759,7 +856,7 @@ constexpr bool parse_lua_long_bracket(::fast_io::u8string_view& remaining, ::plt
 
         ::std::size_t closing_equals{};
         while (closing_equals != equals_count && remaining.empty() == false) {
-            auto const parsed = ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+            auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
             remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
             lookahead_ascii = parsed.ascii;
             if (lookahead_ascii != u8'=') {
@@ -775,7 +872,7 @@ constexpr bool parse_lua_long_bracket(::fast_io::u8string_view& remaining, ::plt
             if (remaining.empty()) {
                 break;
             }
-            auto const parsed = ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+            auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
             remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
             lookahead_ascii = parsed.ascii;
         }
@@ -790,26 +887,26 @@ constexpr bool parse_lua_long_bracket(::fast_io::u8string_view& remaining, ::plt
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto parse_lua_code_syntax(::fast_io::u8string_view const content) noexcept -> ::pltxt2htm::Ast<ndebug> {
+constexpr auto parse_lua_code_syntax(::fast_io::u8string_view const content) noexcept -> ::pltxt2htm::CodeAst<ndebug> {
     ::fast_io::u8string_view remaining{content};
-    ::pltxt2htm::Ast<ndebug> lookahead_ast{};
+    ::fast_io::u8string lookahead_ast{};
     char8_t lookahead_ascii{};
-    ::pltxt2htm::Ast<ndebug> ast{};
+    ::pltxt2htm::CodeAst<ndebug> ast{::pltxt2htm::CodeLanguage::lua};
     ast.reserve(content.size());
 
     while (lookahead_ast.empty() == false || remaining.empty() == false) {
         if (lookahead_ast.empty()) {
-            auto const parsed = ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+            auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
             remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
             lookahead_ascii = parsed.ascii;
         }
         char8_t const chr{lookahead_ascii};
 
         if (chr == u8'-') {
-            ::pltxt2htm::Ast<ndebug> token_ast{};
+            ::fast_io::u8string token_ast{};
             ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
             if (remaining.empty() == false) {
-                auto const parsed = ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                 remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                 lookahead_ascii = parsed.ascii;
             }
@@ -819,7 +916,7 @@ constexpr auto parse_lua_code_syntax(::fast_io::u8string_view const content) noe
             }
             ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
             if (remaining.empty() == false) {
-                auto const parsed = ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                 remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                 lookahead_ascii = parsed.ascii;
             }
@@ -832,8 +929,7 @@ constexpr auto parse_lua_code_syntax(::fast_io::u8string_view const content) noe
             while (lookahead_ast.empty() == false && lookahead_ascii != u8'\n') {
                 ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
                 if (remaining.empty() == false) {
-                    auto const parsed =
-                        ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                    auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                     remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                     lookahead_ascii = parsed.ascii;
                 }
@@ -843,17 +939,16 @@ constexpr auto parse_lua_code_syntax(::fast_io::u8string_view const content) noe
         }
 
         if (chr == u8'\"' || chr == u8'\'') {
-            ::pltxt2htm::Ast<ndebug> token_ast{};
+            ::fast_io::u8string token_ast{};
             char8_t const quote{chr};
             ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
             while (remaining.empty() == false) {
-                auto const parsed = ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                 remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                 char8_t const current{parsed.ascii};
                 ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
                 if (current == u8'\\' && remaining.empty() == false) {
-                    auto const escaped =
-                        ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                    auto const escaped = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                     remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, escaped.advance_count);
                     ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
                     continue;
@@ -867,7 +962,7 @@ constexpr auto parse_lua_code_syntax(::fast_io::u8string_view const content) noe
         }
 
         if (chr == u8'[') {
-            ::pltxt2htm::Ast<ndebug> token_ast{};
+            ::fast_io::u8string token_ast{};
             if (::pltxt2htm::details::parse_lua_long_bracket<ndebug>(remaining, lookahead_ast, lookahead_ascii,
                                                                      token_ast)) {
                 ::pltxt2htm::details::append_colored_code_syntax_ast<ndebug>(token_ast, SyntaxTokenKind::string, ast);
@@ -879,10 +974,10 @@ constexpr auto parse_lua_code_syntax(::fast_io::u8string_view const content) noe
         }
 
         if (::pltxt2htm::details::is_ascii_digit(chr)) {
-            ::pltxt2htm::Ast<ndebug> token_ast{};
+            ::fast_io::u8string token_ast{};
             ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
             while (remaining.empty() == false) {
-                auto const parsed = ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                 remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                 lookahead_ascii = parsed.ascii;
                 if (::pltxt2htm::details::syntax_is_identifier_continue(lookahead_ascii) == false &&
@@ -896,14 +991,13 @@ constexpr auto parse_lua_code_syntax(::fast_io::u8string_view const content) noe
         }
 
         if (::pltxt2htm::details::syntax_is_identifier_start(chr)) {
-            ::pltxt2htm::Ast<ndebug> token_ast{};
+            ::fast_io::u8string token_ast{};
             ::fast_io::u8string identifier{};
             identifier.push_back(chr);
             ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
             while (lookahead_ast.empty() == false || remaining.empty() == false) {
                 if (lookahead_ast.empty()) {
-                    auto const parsed =
-                        ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                    auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                     remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                     lookahead_ascii = parsed.ascii;
                 }
@@ -913,11 +1007,10 @@ constexpr auto parse_lua_code_syntax(::fast_io::u8string_view const content) noe
                 identifier.push_back(lookahead_ascii);
                 ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
             }
-            ::pltxt2htm::Ast<ndebug> whitespace_ast{};
+            ::fast_io::u8string whitespace_ast{};
             while (lookahead_ast.empty() == false || remaining.empty() == false) {
                 if (lookahead_ast.empty()) {
-                    auto const parsed =
-                        ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                    auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                     remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                     lookahead_ascii = parsed.ascii;
                 }
@@ -947,26 +1040,26 @@ constexpr auto parse_lua_code_syntax(::fast_io::u8string_view const content) noe
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto parse_rust_code_syntax(::fast_io::u8string_view const content) noexcept -> ::pltxt2htm::Ast<ndebug> {
+constexpr auto parse_rust_code_syntax(::fast_io::u8string_view const content) noexcept -> ::pltxt2htm::CodeAst<ndebug> {
     ::fast_io::u8string_view remaining{content};
-    ::pltxt2htm::Ast<ndebug> lookahead_ast{};
+    ::fast_io::u8string lookahead_ast{};
     char8_t lookahead_ascii{};
-    ::pltxt2htm::Ast<ndebug> ast{};
+    ::pltxt2htm::CodeAst<ndebug> ast{::pltxt2htm::CodeLanguage::rust};
     ast.reserve(content.size());
 
     while (lookahead_ast.empty() == false || remaining.empty() == false) {
         if (lookahead_ast.empty()) {
-            auto const parsed = ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+            auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
             remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
             lookahead_ascii = parsed.ascii;
         }
         char8_t const chr{lookahead_ascii};
 
         if (chr == u8'/') {
-            ::pltxt2htm::Ast<ndebug> token_ast{};
+            ::fast_io::u8string token_ast{};
             ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
             if (remaining.empty() == false) {
-                auto const parsed = ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                 remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                 lookahead_ascii = parsed.ascii;
             }
@@ -979,7 +1072,7 @@ constexpr auto parse_rust_code_syntax(::fast_io::u8string_view const content) no
                     ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
                     if (remaining.empty() == false) {
                         auto const parsed =
-                            ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                            ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                         remaining =
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                         lookahead_ascii = parsed.ascii;
@@ -991,8 +1084,7 @@ constexpr auto parse_rust_code_syntax(::fast_io::u8string_view const content) no
             if (lookahead_ascii == u8'*') {
                 ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
                 if (remaining.empty() == false) {
-                    auto const parsed =
-                        ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                    auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                     remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                     lookahead_ascii = parsed.ascii;
                 }
@@ -1002,7 +1094,7 @@ constexpr auto parse_rust_code_syntax(::fast_io::u8string_view const content) no
                     ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
                     if (remaining.empty() == false) {
                         auto const parsed =
-                            ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                            ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                         remaining =
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                         lookahead_ascii = parsed.ascii;
@@ -1024,7 +1116,7 @@ constexpr auto parse_rust_code_syntax(::fast_io::u8string_view const content) no
                     }
                     if (remaining.empty() == false) {
                         auto const parsed =
-                            ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                            ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                         remaining =
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                         lookahead_ascii = parsed.ascii;
@@ -1038,16 +1130,15 @@ constexpr auto parse_rust_code_syntax(::fast_io::u8string_view const content) no
         }
 
         if (chr == u8'\"') {
-            ::pltxt2htm::Ast<ndebug> token_ast{};
+            ::fast_io::u8string token_ast{};
             ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
             while (remaining.empty() == false) {
-                auto const parsed = ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                 remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                 char8_t const current{parsed.ascii};
                 ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
                 if (current == u8'\\' && remaining.empty() == false) {
-                    auto const escaped =
-                        ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                    auto const escaped = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                     remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, escaped.advance_count);
                     ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
                     continue;
@@ -1061,11 +1152,11 @@ constexpr auto parse_rust_code_syntax(::fast_io::u8string_view const content) no
         }
 
         if (chr == u8'\'') {
-            ::pltxt2htm::Ast<ndebug> token_ast{};
+            ::fast_io::u8string token_ast{};
             ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
             bool has_identifier{};
             while (remaining.empty() == false) {
-                auto const parsed = ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                 remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                 lookahead_ascii = parsed.ascii;
                 if (::pltxt2htm::details::syntax_is_identifier_continue(lookahead_ascii) == false) {
@@ -1085,16 +1176,14 @@ constexpr auto parse_rust_code_syntax(::fast_io::u8string_view const content) no
             }
             while (lookahead_ast.empty() == false || remaining.empty() == false) {
                 if (lookahead_ast.empty()) {
-                    auto const parsed =
-                        ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                    auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                     remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                     lookahead_ascii = parsed.ascii;
                 }
                 char8_t const current{lookahead_ascii};
                 ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
                 if (current == u8'\\' && remaining.empty() == false) {
-                    auto const escaped =
-                        ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                    auto const escaped = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                     remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, escaped.advance_count);
                     ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
                     continue;
@@ -1108,10 +1197,10 @@ constexpr auto parse_rust_code_syntax(::fast_io::u8string_view const content) no
         }
 
         if (::pltxt2htm::details::is_ascii_digit(chr)) {
-            ::pltxt2htm::Ast<ndebug> token_ast{};
+            ::fast_io::u8string token_ast{};
             ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
             while (remaining.empty() == false) {
-                auto const parsed = ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                 remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                 lookahead_ascii = parsed.ascii;
                 if (::pltxt2htm::details::syntax_is_identifier_continue(lookahead_ascii) == false &&
@@ -1124,7 +1213,7 @@ constexpr auto parse_rust_code_syntax(::fast_io::u8string_view const content) no
             continue;
         }
 
-        ::pltxt2htm::Ast<ndebug> token_ast{};
+        ::fast_io::u8string token_ast{};
         ::fast_io::u8string identifier{};
         bool identifier_started{};
         bool const raw_byte_prefix{chr == u8'b' && remaining.empty() == false &&
@@ -1134,13 +1223,13 @@ constexpr auto parse_rust_code_syntax(::fast_io::u8string_view const content) no
             identifier.push_back(chr);
             identifier_started = true;
             if (raw_byte_prefix) {
-                auto const parsed = ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                 remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                 ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
                 identifier.push_back(u8'r');
             }
             if (remaining.empty() == false) {
-                auto const parsed = ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                 remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                 lookahead_ascii = parsed.ascii;
             }
@@ -1151,7 +1240,7 @@ constexpr auto parse_rust_code_syntax(::fast_io::u8string_view const content) no
                     ++hash_count;
                     if (remaining.empty() == false) {
                         auto const parsed =
-                            ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                            ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                         remaining =
                             ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                         lookahead_ascii = parsed.ascii;
@@ -1162,7 +1251,7 @@ constexpr auto parse_rust_code_syntax(::fast_io::u8string_view const content) no
                     while (lookahead_ast.empty() == false || remaining.empty() == false) {
                         if (lookahead_ast.empty()) {
                             auto const parsed =
-                                ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                                ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                             remaining =
                                 ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                             lookahead_ascii = parsed.ascii;
@@ -1175,7 +1264,7 @@ constexpr auto parse_rust_code_syntax(::fast_io::u8string_view const content) no
                         ::std::size_t closing_hashes{};
                         while (closing_hashes != hash_count && remaining.empty() == false) {
                             auto const hash =
-                                ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                                ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                             remaining =
                                 ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, hash.advance_count);
                             lookahead_ascii = hash.ascii;
@@ -1198,7 +1287,7 @@ constexpr auto parse_rust_code_syntax(::fast_io::u8string_view const content) no
                     while (lookahead_ast.empty() == false || remaining.empty() == false) {
                         if (lookahead_ast.empty()) {
                             auto const parsed =
-                                ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                                ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                             remaining =
                                 ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                             lookahead_ascii = parsed.ascii;
@@ -1221,8 +1310,7 @@ constexpr auto parse_rust_code_syntax(::fast_io::u8string_view const content) no
             }
             while (lookahead_ast.empty() == false || remaining.empty() == false) {
                 if (lookahead_ast.empty()) {
-                    auto const parsed =
-                        ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                    auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                     remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                     lookahead_ascii = parsed.ascii;
                 }
@@ -1232,11 +1320,10 @@ constexpr auto parse_rust_code_syntax(::fast_io::u8string_view const content) no
                 identifier.push_back(lookahead_ascii);
                 ::pltxt2htm::details::append_code_syntax_ast<ndebug>(lookahead_ast, token_ast);
             }
-            ::pltxt2htm::Ast<ndebug> whitespace_ast{};
+            ::fast_io::u8string whitespace_ast{};
             while (lookahead_ast.empty() == false || remaining.empty() == false) {
                 if (lookahead_ast.empty()) {
-                    auto const parsed =
-                        ::pltxt2htm::details::parse_simple_pltext_node<ndebug>(remaining, lookahead_ast);
+                    auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, lookahead_ast);
                     remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, parsed.advance_count);
                     lookahead_ascii = parsed.ascii;
                 }
@@ -1342,32 +1429,42 @@ constexpr bool syntax_is_html_raw_text_closer(::fast_io::u8string_view const con
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr void append_code_syntax_view(::fast_io::u8string_view const content, ::std::size_t const begin,
-                                       ::std::size_t const end, ::pltxt2htm::Ast<ndebug>& ast) noexcept {
+                                       ::std::size_t const end, ::pltxt2htm::CodeAst<ndebug>& ast) noexcept {
     if (begin == end) {
         return;
     }
-    auto parsed = ::pltxt2htm::details::parse_plain_code_syntax<ndebug>(
-        ::pltxt2htm::details::u8string_view_subview<ndebug>(content, begin, end - begin));
+    ::fast_io::u8string parsed{};
+    ::fast_io::u8string_view remaining{
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(content, begin, end - begin)};
+    while (remaining.empty() == false) {
+        auto const unit = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, parsed);
+        remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, unit.advance_count);
+    }
     ::pltxt2htm::details::append_code_syntax_ast<ndebug>(parsed, ast);
 }
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr void append_colored_code_syntax_view(::fast_io::u8string_view const content, ::std::size_t const begin,
                                                ::std::size_t const end, SyntaxTokenKind const kind,
-                                               ::pltxt2htm::Ast<ndebug>& ast) noexcept {
+                                               ::pltxt2htm::CodeAst<ndebug>& ast) noexcept {
     if (begin == end) {
         return;
     }
-    auto parsed = ::pltxt2htm::details::parse_plain_code_syntax<ndebug>(
-        ::pltxt2htm::details::u8string_view_subview<ndebug>(content, begin, end - begin));
+    ::fast_io::u8string parsed{};
+    ::fast_io::u8string_view remaining{
+        ::pltxt2htm::details::u8string_view_subview<ndebug>(content, begin, end - begin)};
+    while (remaining.empty() == false) {
+        auto const unit = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, parsed);
+        remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(remaining, unit.advance_count);
+    }
     ::pltxt2htm::details::append_colored_code_syntax_ast<ndebug>(parsed, kind, ast);
 }
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto parse_markup_code_syntax(::fast_io::u8string_view const content, SyntaxLanguage const language) noexcept
-    -> ::pltxt2htm::Ast<ndebug> {
-    ::pltxt2htm::Ast<ndebug> ast{};
+    -> ::pltxt2htm::CodeAst<ndebug> {
+    ::pltxt2htm::CodeAst<ndebug> ast{language};
     ast.reserve(content.size());
     ::std::size_t index{};
     ::std::size_t plain_begin{};
@@ -1528,8 +1625,11 @@ constexpr auto parse_markup_code_syntax(::fast_io::u8string_view const content, 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto parse_code_fence_syntax(::fast_io::u8string_view const content, SyntaxLanguage const language) noexcept
-    -> ::pltxt2htm::Ast<ndebug> {
+    -> ::pltxt2htm::CodeAst<ndebug> {
     switch (language) /* -Werror=switch */ {
+    case SyntaxLanguage::rendered: {
+        [[unlikely]] { pltxt2htm_unreachable(u8"Rendered code cannot be produced by a language parser"); }
+    }
     case SyntaxLanguage::plain: {
         return ::pltxt2htm::details::parse_plain_code_syntax<ndebug>(content);
     }
@@ -1602,4 +1702,4 @@ constexpr auto parse_code_fence_syntax(::fast_io::u8string_view const content, S
 
 } // namespace pltxt2htm::details
 
-#include "../pop_macro.hh"
+#include "../../pop_macro.hh"

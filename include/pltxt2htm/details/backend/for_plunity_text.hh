@@ -17,6 +17,7 @@
 #include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"
 #include "frame_context.hh"
+#include "code/for_plunity.hh"
 #include "../utils.hh"
 #include "../../contracts.hh"
 #include "../push_macro.hh"
@@ -35,9 +36,8 @@ namespace pltxt2htm::details {
  * @param[out] out Output buffer receiving the encoded output.
  */
 template<::pltxt2htm::Contracts ndebug>
-constexpr void append_entity_reference_to_plunity_richtext(::fast_io::u8string const& value,
+constexpr void append_entity_reference_to_plunity_richtext(::fast_io::u8string_view const value_view,
                                                            ::fast_io::u8string& out) noexcept {
-    ::fast_io::u8string_view const value_view{value.data(), value.size()};
     ::std::size_t const value_size{value_view.size()};
     bool decoded{};
     if (value_size > 1 && ::pltxt2htm::details::u8string_view_index<ndebug>(value_view, 0) == u8'#') {
@@ -146,8 +146,9 @@ constexpr void convert_simple_pltxt_ast_range_to_plunity_richtext(::pltxt2htm::A
             continue;
         }
         case ::pltxt2htm::NodeKind::entity_reference: {
+            auto const& value{node.as_entity_reference().get_value()};
             ::pltxt2htm::details::append_entity_reference_to_plunity_richtext<ndebug>(
-                node.as_entity_reference().get_value(), out);
+                ::fast_io::u8string_view{value.data(), value.size()}, out);
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_single_quote:
@@ -368,8 +369,9 @@ entry:
                 continue;
             }
             case ::pltxt2htm::NodeKind::entity_reference: {
+                auto const& value{node.as_entity_reference().get_value()};
                 ::pltxt2htm::details::append_entity_reference_to_plunity_richtext<ndebug>(
-                    node.as_entity_reference().get_value(), result);
+                    ::fast_io::u8string_view{value.data(), value.size()}, result);
                 continue;
             }
             case ::pltxt2htm::NodeKind::md_escape_single_quote:
@@ -1498,10 +1500,9 @@ entry:
             }
             case ::pltxt2htm::NodeKind::code_fence: {
                 result.append(u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\n");
-                call_stack.push(BackendFrameContext<ndebug>(node.as_code_fence().get_subast(),
-                                                            ::pltxt2htm::NodeKind::code_fence, 0));
-                ++current_index;
-                goto entry;
+                ::pltxt2htm::details::append_plunity_code_ast<ndebug>(node.as_code_fence().get_ast(), result);
+                result.append(u8"\n</font>");
+                continue;
             }
             case ::pltxt2htm::NodeKind::pl_macro_project: {
                 result.append(project);

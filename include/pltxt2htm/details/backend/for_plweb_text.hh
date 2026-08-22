@@ -15,6 +15,7 @@
 #include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"
 #include "frame_context.hh"
+#include "code/for_plweb.hh"
 #include "../../contracts.hh"
 #include "../utils.hh"
 #include "../parser/try_parse.hh"
@@ -1506,10 +1507,9 @@ entry:
             }
             case ::pltxt2htm::NodeKind::code_fence: {
                 result.append(u8"<pre><code>");
-                call_stack.push(BackendFrameContext<ndebug>(node.as_code_fence().get_subast(),
-                                                            ::pltxt2htm::NodeKind::code_fence, 0));
-                ++current_index;
-                goto entry;
+                ::pltxt2htm::details::append_plweb_code_ast<ndebug>(node.as_code_fence().get_ast(), result);
+                result.append(u8"</code></pre>");
+                continue;
             }
             case ::pltxt2htm::NodeKind::pl_macro_project: {
                 ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result, project);

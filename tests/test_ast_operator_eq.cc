@@ -183,11 +183,13 @@ int main() {
 
     // CodeFence with equal content
     {
-        ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-        ast_a.emplace_back(::pltxt2htm::U8Char{u8'a'});
+        ::pltxt2htm::CodeAst<nd::quick_enforce> ast_a{::pltxt2htm::CodeLanguage::plain};
+        ::fast_io::u8string text_a{u8"a"};
+        ast_a.template append<::pltxt2htm::CodeLanguage::plain>(text_a, ::pltxt2htm::CodePlainNodeKind::text);
 
-        ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-        ast_b.emplace_back(::pltxt2htm::U8Char{u8'a'});
+        ::pltxt2htm::CodeAst<nd::quick_enforce> ast_b{::pltxt2htm::CodeLanguage::plain};
+        ::fast_io::u8string text_b{u8"a"};
+        ast_b.template append<::pltxt2htm::CodeLanguage::plain>(text_b, ::pltxt2htm::CodePlainNodeKind::text);
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::CodeFence<nd::quick_enforce>(::std::move(ast_a)));
@@ -198,11 +200,13 @@ int main() {
 
     // CodeFence with different content
     {
-        ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-        ast_a.emplace_back(::pltxt2htm::U8Char{u8'a'});
+        ::pltxt2htm::CodeAst<nd::quick_enforce> ast_a{::pltxt2htm::CodeLanguage::plain};
+        ::fast_io::u8string text_a{u8"a"};
+        ast_a.template append<::pltxt2htm::CodeLanguage::plain>(text_a, ::pltxt2htm::CodePlainNodeKind::text);
 
-        ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-        ast_b.emplace_back(::pltxt2htm::U8Char{u8'b'});
+        ::pltxt2htm::CodeAst<nd::quick_enforce> ast_b{::pltxt2htm::CodeLanguage::plain};
+        ::fast_io::u8string text_b{u8"b"};
+        ast_b.template append<::pltxt2htm::CodeLanguage::plain>(text_b, ::pltxt2htm::CodePlainNodeKind::text);
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::CodeFence<nd::quick_enforce>(::std::move(ast_a)));
@@ -570,7 +574,7 @@ int main() {
         pltxt2htm_test_assert_false(a == b);
     }
     {
-        ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
+        ::pltxt2htm::CodeAst<nd::quick_enforce> ast_a{::pltxt2htm::CodeLanguage::plain};
 
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
 

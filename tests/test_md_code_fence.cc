@@ -1,5 +1,7 @@
 #include "precompile.hh"
 
+#include <pltxt2htm/parser.hh>
+
 int main() {
     {
         auto pltext = ::fast_io::u8string_view{u8"```\ntest\n```"};
@@ -283,7 +285,7 @@ print("Hello World")
 
     {
         // The parser consumes the Markdown fence language and stores highlighting as
-        // color nodes, so roundtrip HTML remains identical without a language class.
+        // rendered-code nodes, so roundtrip HTML remains identical without a language class.
         auto const once = ::pltxt2htm_test::pltxt2roundtrip_htmld(u8"```cpp\nint x;\n```");
         auto const answer =
             ::fast_io::u8string_view{u8"<pre><code><span style=\"color:#cf222e;\">int</span>&nbsp;x;</code></pre>"};
@@ -765,7 +767,7 @@ print("Hello World")
         pltxt2htm_test_assert_equal(html, answer);
     }
 
-    // Newlines stay direct CodeFence children instead of being nested in color nodes.
+    // Newlines stay separate code AST ranges instead of being nested in highlighted nodes.
     {
         auto const pltext = ::fast_io::u8string_view{u8"```cpp\n/* first\nsecond */\n```"};
         auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
@@ -813,6 +815,31 @@ print("Hello World")
         pltxt2htm_test_assert_equal(html, answer);
         auto const reparsed = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
         pltxt2htm_test_assert_equal(reparsed, html);
+    }
+
+    // CodeFence owns a language-specific code AST instead of a presentation-colored
+    // document AST. The source ranges still reconstruct the original fence contents.
+    {
+        auto const ast = ::pltxt2htm::parse_pltxt<::pltxt2htm::Contracts::quick_enforce>(
+            ::fast_io::u8string_view{u8"```cpp\nint f();\n```"});
+        pltxt2htm_test_assert_true(ast.size() == 1);
+        auto const& root{ast[0]};
+        pltxt2htm_test_assert_true(root.get_node_kind() == ::pltxt2htm::NodeKind::code_fence);
+        auto const& code_ast{root.as_code_fence().get_ast()};
+        pltxt2htm_test_assert_true(code_ast.get_language() == ::pltxt2htm::CodeLanguage::cpp);
+
+        ::fast_io::u8string source{};
+        bool has_keyword{};
+        bool has_function_name{};
+        for (auto const& node : code_ast.get_nodes()) {
+            source.append(code_ast.get_text(node));
+            auto const kind{code_ast.template get_node_kind<::pltxt2htm::CodeLanguage::cpp>(node)};
+            has_keyword = has_keyword || kind == ::pltxt2htm::CodeCppNodeKind::keyword;
+            has_function_name = has_function_name || kind == ::pltxt2htm::CodeCppNodeKind::function_name;
+        }
+        pltxt2htm_test_assert_equal(source, ::fast_io::u8string_view{u8"int f();"});
+        pltxt2htm_test_assert_true(has_keyword);
+        pltxt2htm_test_assert_true(has_function_name);
     }
 
     return 0;

@@ -17,7 +17,7 @@
 #include "../../ast/ast.hh"
 #include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"
-#include "syntax_highlight.hh"
+#include "code/syntax.hh"
 #include "../push_macro.hh"
 
 /**
@@ -3328,7 +3328,7 @@ constexpr auto simply_parse_pltext(::fast_io::u8string_view pltext) noexcept
 
 } // namespace pltxt2htm::details
 
-#include "syntax_highlight_parser.hh"
+#include "code/parse.hh"
 
 namespace pltxt2htm::details {
 
@@ -3339,12 +3339,11 @@ struct TryParseMdCodeFenceResult {
 };
 
 template<::pltxt2htm::Contracts ndebug>
-struct HtmlCodeSpanFrame {
-    ::pltxt2htm::Ast<ndebug> ast{};
-    ::fast_io::u8string color{};
-    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size{::pltxt2htm::container::nullopt};
-    ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align{
-        ::pltxt2htm::container::nullopt};
+class ParsedHtmlCodeContent {
+public:
+    ::std::size_t advance_count{};
+    ::pltxt2htm::CodeAst<ndebug> ast{::pltxt2htm::CodeLanguage::rendered};
+    bool found_end{};
 };
 
 /**
@@ -3358,12 +3357,14 @@ struct HtmlCodeSpanFrame {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto parse_html_code_content(::fast_io::u8string_view pltext) noexcept
-    -> ::pltxt2htm::details::SimplyParsePLtextResult<ndebug> {
+    -> ::pltxt2htm::details::ParsedHtmlCodeContent<ndebug> {
     constexpr auto end_string = ::pltxt2htm::details::U8LiteralString{u8"</code></pre>"};
-    ::fast_io::stack<HtmlCodeSpanFrame<ndebug>> call_stack{};
-    call_stack.push(HtmlCodeSpanFrame<ndebug>{});
+    ::pltxt2htm::CodeAst<ndebug> ast{::pltxt2htm::CodeLanguage::rendered};
+    ast.reserve(pltext.size());
+    ::fast_io::u8string text{};
     ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t current_index{};
+    ::std::size_t open_style_count{};
     bool found_end{};
 
     while (current_index < pltext_size) {
@@ -3376,17 +3377,14 @@ constexpr auto parse_html_code_content(::fast_io::u8string_view pltext) noexcept
         }
 
         if (chr == u8'<') {
-            if (call_stack.container.size() != 1 && current_index + 2 < pltext_size &&
+            if (open_style_count != 0 && current_index + 2 < pltext_size &&
                 ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index + 1) == u8'/') {
                 if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"span">(
                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
                     opt_tag_len.has_value()) {
-                    auto frame =
-                        HtmlCodeSpanFrame<ndebug>{::std::move(::pltxt2htm::details::stack_top<ndebug>(call_stack))};
-                    call_stack.pop();
-                    auto&& parent = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
-                    parent.ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlSpan<ndebug>{
-                        ::std::move(frame.ast), ::std::move(frame.color), frame.font_size, frame.vertical_align}));
+                    ast.append_rendered_text(text);
+                    ast.append_rendered_style_end();
+                    --open_style_count;
                     current_index += opt_tag_len.template value<ndebug>() + 3;
                     continue;
                 }
@@ -3399,32 +3397,41 @@ constexpr auto parse_html_code_content(::fast_io::u8string_view pltext) noexcept
                     opt_span_tag.has_value()) {
                     auto&& [tag_len, color, font_size, vertical_align] = opt_span_tag.template value<ndebug>();
                     ::std::size_t const consumed{tag_len + 2};
-                    call_stack.push(HtmlCodeSpanFrame<ndebug>{.ast = {},
-                                                              .color = ::std::move(color),
-                                                              .font_size = font_size,
-                                                              .vertical_align = ::std::move(vertical_align)});
+                    ast.append_rendered_text(text);
+                    ::std::size_t const style_index{
+                        ast.add_rendered_style(::std::move(color), font_size, ::std::move(vertical_align))};
+                    ast.append_rendered_style_begin(style_index);
+                    ++open_style_count;
                     current_index += consumed;
                     continue;
                 }
             }
         }
 
-        current_index += ::pltxt2htm::details::parse_simple_pltext_node<ndebug, SimplePltextParseMode::html>(
-                             ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                             ::pltxt2htm::details::stack_top<ndebug>(call_stack).ast)
-                             .advance_count;
+        if (chr == u8'&') {
+            auto const remaining = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index);
+            if (auto const opt_entity_len = ::pltxt2htm::details::try_parse_entity_reference<ndebug>(remaining);
+                opt_entity_len.has_value()) {
+                ast.append_rendered_text(text);
+                ::std::size_t const entity_len{opt_entity_len.template value<ndebug>()};
+                ::fast_io::u8string entity{remaining.data() + 1, remaining.data() + entity_len - 1};
+                ast.append_rendered_entity_reference(entity);
+                current_index += entity_len;
+                continue;
+            }
+        }
+
+        auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(
+            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), text);
+        current_index += parsed.advance_count;
     }
 
-    while (call_stack.container.size() != 1) {
-        auto frame = HtmlCodeSpanFrame<ndebug>{::std::move(::pltxt2htm::details::stack_top<ndebug>(call_stack))};
-        call_stack.pop();
-        auto&& parent = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
-        parent.ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlSpan<ndebug>{
-            ::std::move(frame.ast), ::std::move(frame.color), frame.font_size, frame.vertical_align}));
+    ast.append_rendered_text(text);
+    while (open_style_count != 0) {
+        ast.append_rendered_style_end();
+        --open_style_count;
     }
-    return {.advance_count = current_index,
-            .ast = ::std::move(::pltxt2htm::details::stack_top<ndebug>(call_stack).ast),
-            .found_end = found_end};
+    return {.advance_count = current_index, .ast = ::std::move(ast), .found_end = found_end};
 }
 
 /**
