@@ -17,7 +17,7 @@
 
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
-#include <fast_io/fast_io_dsal/string_view.h>
+#include "container/string_view.hh"
 #include "container/expected.hh"
 #include "contracts.hh"
 #include "parser.hh"
@@ -51,7 +51,7 @@ namespace pltxt2htm {
  */
 template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, bool optimize = true>
 [[nodiscard]]
-constexpr auto pltxt4unittest(::fast_io::u8string_view pltext) noexcept {
+constexpr auto pltxt4unittest(::pltxt2htm::container::U8StringView pltext) noexcept {
     using parser_result_type = ::std::conditional_t<optimize, ::pltxt2htm::Ast<ndebug>, ::pltxt2htm::Ast<ndebug> const>;
     parser_result_type ast{::pltxt2htm::parse_pltxt<ndebug>(pltext)};
     if constexpr (optimize) {
@@ -77,9 +77,12 @@ constexpr auto pltxt4unittest(::fast_io::u8string_view pltext) noexcept {
  */
 template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, bool optimize = true>
 [[nodiscard]]
-constexpr auto pltxt2fixedadv_html(::fast_io::u8string_view pltext, ::fast_io::u8string_view host,
-                                   ::fast_io::u8string_view project, ::fast_io::u8string_view visitor,
-                                   ::fast_io::u8string_view author, ::fast_io::u8string_view coauthors) noexcept {
+constexpr auto pltxt2fixedadv_html(::pltxt2htm::container::U8StringView pltext,
+                                   ::pltxt2htm::container::U8StringView host,
+                                   ::pltxt2htm::container::U8StringView project,
+                                   ::pltxt2htm::container::U8StringView visitor,
+                                   ::pltxt2htm::container::U8StringView author,
+                                   ::pltxt2htm::container::U8StringView coauthors) noexcept {
     using parser_result_type = ::std::conditional_t<optimize, ::pltxt2htm::Ast<ndebug>, ::pltxt2htm::Ast<ndebug> const>;
     parser_result_type ast{::pltxt2htm::parse_pltxt<ndebug>(pltext)};
     if constexpr (optimize) {
@@ -107,9 +110,11 @@ constexpr auto pltxt2fixedadv_html(::fast_io::u8string_view pltext, ::fast_io::u
  */
 template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, bool optimize = true>
 [[nodiscard]]
-constexpr auto pltxt2plunity_introduction(::fast_io::u8string_view pltext, ::fast_io::u8string_view project,
-                                          ::fast_io::u8string_view visitor, ::fast_io::u8string_view author,
-                                          ::fast_io::u8string_view coauthors) noexcept {
+constexpr auto pltxt2plunity_introduction(::pltxt2htm::container::U8StringView pltext,
+                                          ::pltxt2htm::container::U8StringView project,
+                                          ::pltxt2htm::container::U8StringView visitor,
+                                          ::pltxt2htm::container::U8StringView author,
+                                          ::pltxt2htm::container::U8StringView coauthors) noexcept {
     using parser_result_type = ::std::conditional_t<optimize, ::pltxt2htm::Ast<ndebug>, ::pltxt2htm::Ast<ndebug> const>;
     parser_result_type ast{::pltxt2htm::parse_pltxt<ndebug>(pltext)};
     if constexpr (optimize) {
@@ -145,7 +150,7 @@ constexpr auto pltxt2plunity_introduction(::fast_io::u8string_view pltext, ::fas
  */
 template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, bool optimize = false>
 [[nodiscard]]
-constexpr auto pltxt2common_html(::fast_io::u8string_view pltext) noexcept {
+constexpr auto pltxt2common_html(::pltxt2htm::container::U8StringView pltext) noexcept {
     using parser_result_type = ::std::conditional_t<optimize, ::pltxt2htm::Ast<ndebug>, ::pltxt2htm::Ast<ndebug> const>;
     parser_result_type ast{::pltxt2htm::inline_parse_pltxt<ndebug>(pltext)};
     if constexpr (optimize) {

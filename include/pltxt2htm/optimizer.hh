@@ -14,6 +14,7 @@
 #include <memory>
 #include <type_traits>
 #include "container/expected.hh"
+#include "container/string_view.hh"
 #include <fast_io/fast_io_dsal/list.h>
 #include <fast_io/fast_io_dsal/stack.h>
 #include "ast/ast.hh"
@@ -37,7 +38,7 @@ class OptimizerContextWithoutInfo {};
  */
 class OptimizerContextWithEqualSignTagInfo {
 public:
-    ::fast_io::u8string_view id; ///< The value part of the attribute (e.g., "red" in color=red)
+    ::pltxt2htm::container::U8StringView id; ///< The value part of the attribute (e.g., "red" in color=red)
 };
 
 /**
@@ -62,7 +63,7 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class OptimizerContextWithHtmlSpanInfo {
 public:
-    ::fast_io::u8string_view color{};
+    ::pltxt2htm::container::U8StringView color{};
     ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size{::pltxt2htm::container::nullopt};
     ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align{
         ::pltxt2htm::container::nullopt};
@@ -74,7 +75,7 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class OptimizerContextWithHtmlMarkInfo {
 public:
-    ::fast_io::u8string_view background_color{};
+    ::pltxt2htm::container::U8StringView background_color{};
 };
 
 /**
@@ -83,7 +84,7 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class OptimizerContextWithPlMarkInfo {
 public:
-    ::fast_io::u8string_view background_color{};
+    ::pltxt2htm::container::U8StringView background_color{};
 };
 
 /**
@@ -321,7 +322,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_html_span_color(this auto const& self) noexcept -> ::fast_io::u8string_view {
+    constexpr auto get_html_span_color(this auto const& self) noexcept -> ::pltxt2htm::container::U8StringView {
         auto&& context_data_ref = self.context_data;
         pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_span, u8"context kind mismatch");
         return context_data_ref.html_span_info.color;
@@ -344,14 +345,16 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_html_mark_background_color(this auto const& self) noexcept -> ::fast_io::u8string_view {
+    constexpr auto get_html_mark_background_color(this auto const& self) noexcept
+        -> ::pltxt2htm::container::U8StringView {
         auto&& context_data_ref = self.context_data;
         pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_mark, u8"context kind mismatch");
         return context_data_ref.html_mark_info.background_color;
     }
 
     [[nodiscard]]
-    constexpr auto get_pl_mark_background_color(this auto const& self) noexcept -> ::fast_io::u8string_view {
+    constexpr auto get_pl_mark_background_color(this auto const& self) noexcept
+        -> ::pltxt2htm::container::U8StringView {
         auto&& context_data_ref = self.context_data;
         pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::pl_mark, u8"context kind mismatch");
         return context_data_ref.pl_mark_info.background_color;
@@ -487,8 +490,8 @@ entry:
                     }
                     if (nested_tag_type == ::pltxt2htm::NodeKind::pl_a) {
                         static constexpr auto anchor_color_literal = ::pltxt2htm::PlA<ndebug>::get_color_literal();
-                        static constexpr auto anchor_color =
-                            ::fast_io::u8string_view{anchor_color_literal.data(), anchor_color_literal.size()};
+                        static constexpr auto anchor_color = ::pltxt2htm::container::U8StringView{
+                            anchor_color_literal.data(), anchor_color_literal.size()};
                         return node.as_pl_color().get_color() != anchor_color;
                     }
                     return true; // Different tag types, so not the same
@@ -499,12 +502,11 @@ entry:
                         continue;
                     }
                     auto const& equal_sign_tag_id = node.as_pl_color().get_color();
-                    call_stack.push(
-                        ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator,
-                                                                    ndebug>(
-                            ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_color, subast.begin(),
-                            ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{
-                                ::fast_io::u8string_view{equal_sign_tag_id.data(), equal_sign_tag_id.size()}}));
+                    call_stack.push(::pltxt2htm::details::OptimizerFrameContext<
+                                    typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_color, subast.begin(),
+                        ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{
+                            ::pltxt2htm::container::U8StringView{equal_sign_tag_id.data(), equal_sign_tag_id.size()}}));
                     goto entry;
                 }
                 // Optimization: If the color is the same as the parent node, then ignore the nested tag.
@@ -589,7 +591,7 @@ entry:
                 if (nested_tag_type == ::pltxt2htm::NodeKind::html_span) {
                     auto const& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
                     auto const& node_color = node.as_html_span().get_color();
-                    ::fast_io::u8string_view const node_color_view{node_color.data(), node_color.size()};
+                    ::pltxt2htm::container::U8StringView const node_color_view{node_color.data(), node_color.size()};
                     auto const& node_fs = node.as_html_span().get_font_size();
                     auto const& node_va = node.as_html_span().get_vertical_align();
                     bool const same_font_size = node_fs == parent_frame.get_html_span_font_size();
@@ -606,7 +608,7 @@ entry:
                     auto const& parent_color_id =
                         ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_equal_sign_tag_id();
                     auto const& node_color = node.as_html_span().get_color();
-                    ::fast_io::u8string_view const node_color_view{node_color.data(), node_color.size()};
+                    ::pltxt2htm::container::U8StringView const node_color_view{node_color.data(), node_color.size()};
                     auto const& node_fs = node.as_html_span().get_font_size();
                     auto const& node_va = node.as_html_span().get_vertical_align();
                     if (node_color_view == parent_color_id && !node_fs.has_value() && !node_va.has_value()) {
@@ -619,9 +621,9 @@ entry:
                 if (nested_tag_type == ::pltxt2htm::NodeKind::pl_a) {
                     static constexpr auto anchor_color_literal = ::pltxt2htm::PlA<ndebug>::get_color_literal();
                     static constexpr auto anchor_color =
-                        ::fast_io::u8string_view{anchor_color_literal.data(), anchor_color_literal.size()};
+                        ::pltxt2htm::container::U8StringView{anchor_color_literal.data(), anchor_color_literal.size()};
                     auto const& node_color = node.as_html_span().get_color();
-                    ::fast_io::u8string_view const node_color_view{node_color.data(), node_color.size()};
+                    ::pltxt2htm::container::U8StringView const node_color_view{node_color.data(), node_color.size()};
                     auto const& node_fs = node.as_html_span().get_font_size();
                     auto const& node_va = node.as_html_span().get_vertical_align();
                     if (node_color_view == anchor_color && !node_fs.has_value() && !node_va.has_value()) {
@@ -639,7 +641,7 @@ entry:
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
                         ::std::addressof(subast), subast.begin(),
                         ::pltxt2htm::details::OptimizerContextWithHtmlSpanInfo<ndebug>{
-                            ::fast_io::u8string_view{span_color.data(), span_color.size()}, span_font_size,
+                            ::pltxt2htm::container::U8StringView{span_color.data(), span_color.size()}, span_font_size,
                             span_vertical_align}));
                 goto entry;
             }
@@ -680,7 +682,7 @@ entry:
                 auto const is_different_tag = bool{[nested_tag_type, &call_stack] constexpr noexcept {
                     static constexpr auto anchor_color_literal = ::pltxt2htm::PlA<ndebug>::get_color_literal();
                     static constexpr auto anchor_color =
-                        ::fast_io::u8string_view{anchor_color_literal.data(), anchor_color_literal.size()};
+                        ::pltxt2htm::container::U8StringView{anchor_color_literal.data(), anchor_color_literal.size()};
                     if (nested_tag_type == ::pltxt2htm::NodeKind::pl_a) {
                         return false;
                     }
@@ -753,7 +755,7 @@ entry:
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
                         ::std::addressof(subast), node.get_node_kind(), subast.begin(),
                         ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{
-                            ::fast_io::u8string_view{equal_sign_tag_id.data(), equal_sign_tag_id.size()}}));
+                            ::pltxt2htm::container::U8StringView{equal_sign_tag_id.data(), equal_sign_tag_id.size()}}));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_user: {
@@ -785,12 +787,11 @@ entry:
                     nested_tag_type != ::pltxt2htm::NodeKind::pl_user ||
                     equal_sign_tag_id != ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_equal_sign_tag_id();
                 if (is_different_tag) {
-                    call_stack.push(
-                        ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator,
-                                                                    ndebug>(
-                            ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_user, subast.begin(),
-                            ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{
-                                ::fast_io::u8string_view{equal_sign_tag_id.data(), equal_sign_tag_id.size()}}));
+                    call_stack.push(::pltxt2htm::details::OptimizerFrameContext<
+                                    typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_user, subast.begin(),
+                        ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{
+                            ::pltxt2htm::container::U8StringView{equal_sign_tag_id.data(), equal_sign_tag_id.size()}}));
                     goto entry;
                 }
                 node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
@@ -807,7 +808,7 @@ entry:
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
                         ::std::addressof(subast), node.get_node_kind(), subast.begin(),
-                        ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{::fast_io::u8string_view{
+                        ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{::pltxt2htm::container::U8StringView{
                             node.as_pl_trigger().get_value().data(), node.as_pl_trigger().get_value().size()}}));
                 goto entry;
             }
@@ -821,7 +822,7 @@ entry:
                 call_stack.push(
                     ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
                         ::std::addressof(subast), node.get_node_kind(), subast.begin(),
-                        ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{::fast_io::u8string_view{
+                        ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{::pltxt2htm::container::U8StringView{
                             node.as_pl_internal().get_value().data(), node.as_pl_internal().get_value().size()}}));
                 goto entry;
             }
@@ -1139,8 +1140,8 @@ entry:
                 auto&& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
                 auto&& subast = node.as_html_mark().get_subast();
                 auto const& node_background_color = node.as_html_mark().get_background_color();
-                ::fast_io::u8string_view const node_background_color_view{node_background_color.data(),
-                                                                          node_background_color.size()};
+                ::pltxt2htm::container::U8StringView const node_background_color_view{node_background_color.data(),
+                                                                                      node_background_color.size()};
                 if (nested_tag_type != ::pltxt2htm::NodeKind::html_mark) {
                     if (subast.empty()) {
                         ast.erase(current_iter);
@@ -1176,8 +1177,8 @@ entry:
                 auto&& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
                 auto&& subast = node.as_pl_mark().get_subast();
                 auto const& node_background_color = node.as_pl_mark().get_background_color();
-                ::fast_io::u8string_view const node_background_color_view{node_background_color.data(),
-                                                                          node_background_color.size()};
+                ::pltxt2htm::container::U8StringView const node_background_color_view{node_background_color.data(),
+                                                                                      node_background_color.size()};
                 if (nested_tag_type != ::pltxt2htm::NodeKind::pl_mark) {
                     if (subast.empty()) {
                         ast.erase(current_iter);
