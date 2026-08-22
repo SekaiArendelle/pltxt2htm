@@ -459,7 +459,7 @@ entry:
                 // simplifies to <a>text</a>.
                 // The inner anchor tag's styling takes precedence over the outer color.
                 if (subast.size() == 1) {
-                    auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
+                    auto& subnode = subast.template front<ndebug>();
                     if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_color ||
                         subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_a ||
                         subnode.get_node_kind() == ::pltxt2htm::NodeKind::html_span) {
@@ -520,7 +520,7 @@ entry:
                 //      → <span style="color:red;font-size:20px">t</span>
                 auto&& subast = node.as_html_span().get_subast();
                 if (subast.size() == 1) {
-                    auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
+                    auto& subnode = subast.template front<ndebug>();
                     if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::html_span) {
                         auto const& outer_color = node.as_html_span().get_color();
                         auto const outer_fs = node.as_html_span().get_font_size();
@@ -657,7 +657,7 @@ entry:
                 // can be simplified to <color=blue>text</color>
                 // The inner color takes precedence over the outer color
                 if (subast.size() == 1) {
-                    auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
+                    auto& subnode = subast.template front<ndebug>();
                     if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_color ||
                         subnode.get_node_kind() == ::pltxt2htm::NodeKind::html_span) {
                         // SAFETY: We must NOT write `node = ::std::move(subnode);` directly.
@@ -765,7 +765,7 @@ entry:
                 }
                 if (subast.size() == 1) {
                     // <User=123><user=642cf37a494746375aae306a>physicsLab</user></User> can be
-                    auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
+                    auto& subnode = subast.template front<ndebug>();
                     if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_user) {
                         // SAFETY: We must NOT write `node = ::std::move(subnode);` directly.
                         // `subnode` is a reference into `node.get_subast()`. When the move-assignment
@@ -858,7 +858,7 @@ entry:
                 }
                 if (subast.size() == 1) {
                     // <size=12><size=3>physicsLab</size></size> can be
-                    auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
+                    auto& subnode = subast.template front<ndebug>();
                     if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_size) {
                         // SAFETY: We must NOT write `node = ::std::move(subnode);` directly.
                         // `subnode` is a reference into `node.get_subast()`. When the move-assignment
@@ -895,7 +895,7 @@ entry:
                 }
                 if (subast.size() == 1) {
                     // <voffset=5><voffset=3>physicsLab</voffset></voffset> can be
-                    auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
+                    auto& subnode = subast.template front<ndebug>();
                     if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_voffset) {
                         // SAFETY: We must NOT write `node = ::std::move(subnode);` directly.
                         // `subnode` is a reference into `node.get_subast()`. When the move-assignment

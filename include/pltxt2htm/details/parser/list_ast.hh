@@ -14,7 +14,7 @@
 #include <utility>
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
-#include <fast_io/fast_io_dsal/vector.h>
+#include "../../container/vector.hh"
 #include "../utils.hh"
 #include "../../contracts.hh"
 #include "../push_macro.hh"
@@ -51,7 +51,7 @@ class ListBaseNode;
  *          exactly once.
  */
 template<::pltxt2htm::Contracts ndebug>
-using ListAst = ::fast_io::vector<ListBaseNode<ndebug>>;
+using ListAst = ::pltxt2htm::container::Vector<ListBaseNode<ndebug>>;
 
 /**
  * @brief Leaf list node that stores a single list-item text payload.

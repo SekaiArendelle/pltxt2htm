@@ -16,7 +16,7 @@
 #include <cstddef>
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
-#include <fast_io/fast_io_dsal/vector.h>
+#include "../../container/vector.hh"
 #include "../../container/expected.hh"
 #include "../utils.hh"
 #include "../../contracts.hh"
@@ -49,7 +49,7 @@ enum class TableRowSection : unsigned {
  * @brief Raw row data for the intermediate table AST.
  */
 struct TableRowRaw {
-    ::fast_io::vector<TableCellRaw> cells; ///< Row cells in authored order.
+    ::pltxt2htm::container::Vector<TableCellRaw> cells; ///< Row cells in authored order.
     TableRowSection section; ///< thead/tbody/tfoot or none.
 };
 
@@ -64,7 +64,7 @@ struct TableRowRaw {
  */
 template<::pltxt2htm::Contracts ndebug>
 class TableAstRaw {
-    ::fast_io::vector<TableRowRaw> rows{};
+    ::pltxt2htm::container::Vector<TableRowRaw> rows{};
     ::pltxt2htm::container::Optional<::fast_io::u8string> caption_text{::pltxt2htm::container::nullopt};
     ::std::size_t col_count{}; // <==> optional<non_zero_usize> col_count;
 
@@ -114,7 +114,7 @@ public:
     /// @return Cells in row @p row (const/non-const reference).
     [[nodiscard]]
     constexpr auto row_cells(this auto&& self, ::std::size_t row) noexcept -> decltype(auto) {
-        return ::pltxt2htm::details::vector_index<ndebug>(self.rows, row).cells;
+        return self.rows.template index<ndebug>(row).cells;
     }
 
     /// @param row Row index.
@@ -122,15 +122,14 @@ public:
     /// @return Cell at (@p row, @p col) (const/non-const reference).
     [[nodiscard]]
     constexpr auto cell_at(this auto&& self, ::std::size_t row, ::std::size_t col) noexcept -> decltype(auto) {
-        return ::pltxt2htm::details::vector_index<ndebug>(
-            ::pltxt2htm::details::vector_index<ndebug>(self.rows, row).cells, col);
+        return self.rows.template index<ndebug>(row).cells.template index<ndebug>(col);
     }
 
     /// @param row Row index.
     /// @return Section tag of row @p row.
     [[nodiscard]]
     constexpr auto row_section(this TableAstRaw<ndebug> const& self, ::std::size_t row) noexcept -> TableRowSection {
-        return ::pltxt2htm::details::vector_index<ndebug>(self.rows, row).section;
+        return self.rows.template index<ndebug>(row).section;
     }
 
     /// Append a row (its section tag is supplied by the scanner).
@@ -140,7 +139,7 @@ public:
 
     /// Append a cell to the most recently added row.
     constexpr void add_cell_to_last_row(this TableAstRaw& self, TableCellRaw&& cell) noexcept {
-        ::pltxt2htm::details::vector_index<ndebug>(self.rows, self.rows.size() - 1).cells.push_back(::std::move(cell));
+        self.rows.template index<ndebug>(self.rows.size() - 1).cells.push_back(::std::move(cell));
     }
 };
 
