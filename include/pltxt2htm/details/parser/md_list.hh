@@ -8,7 +8,7 @@
 #include <cstddef>
 #include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/string.h>
-#include <fast_io/fast_io_dsal/string_view.h>
+#include "../../container/string_view.hh"
 #include "../../container/expected.hh"
 #include "list_ast.hh"
 #include "../utils.hh"
@@ -55,13 +55,13 @@ class MdListFrameContext {
 
 public:
     ::std::size_t space_hierarchy;
-    ::fast_io::u8string_view pltext;
+    ::pltxt2htm::container::U8StringView pltext;
     ::std::size_t current_index{};
     ::std::size_t start{1};
     ListAst<ndebug> md_list_ast{};
 
     constexpr MdListFrameContext(MdUlListItemKind item_kind_, ::std::size_t space_hierarchy_,
-                                 ::fast_io::u8string_view pltext_, ::std::size_t start_ = 1) noexcept
+                                 ::pltxt2htm::container::U8StringView pltext_, ::std::size_t start_ = 1) noexcept
         : item_kind(item_kind_),
           space_hierarchy(space_hierarchy_),
           pltext(::std::move(pltext_)),
@@ -69,7 +69,7 @@ public:
     }
 
     constexpr MdListFrameContext(MdUlListItemKind item_kind_, ::std::size_t space_hierarchy_,
-                                 ::fast_io::u8string_view pltext_, ::std::size_t current_index_,
+                                 ::pltxt2htm::container::U8StringView pltext_, ::std::size_t current_index_,
                                  ::std::size_t start_ = 1) noexcept
         : item_kind(item_kind_),
           space_hierarchy(space_hierarchy_),
@@ -116,10 +116,11 @@ struct PreviousItemInfo {
  */
 template<::pltxt2htm::Contracts ndebug, MdUlListItemKind item_kind>
 [[nodiscard]]
-constexpr auto is_valid_md_ul_list_hierarchy(::fast_io::u8string_view pltext, ::std::size_t const space_hierarchy,
+constexpr auto is_valid_md_ul_list_hierarchy(::pltxt2htm::container::U8StringView pltext,
+                                             ::std::size_t const space_hierarchy,
                                              ::pltxt2htm::container::Optional<PreviousItemInfo> const expect) noexcept
     -> bool {
-    if (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, space_hierarchy) != static_cast<char8_t>(item_kind)) {
+    if (pltext.template index<ndebug>(space_hierarchy) != static_cast<char8_t>(item_kind)) {
         return false;
     }
 
@@ -171,15 +172,16 @@ constexpr auto is_valid_md_ul_list_hierarchy(::fast_io::u8string_view pltext, ::
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto is_valid_md_ol_list_hierarchy(::fast_io::u8string_view pltext, ::std::size_t const space_hierarchy,
+constexpr auto is_valid_md_ol_list_hierarchy(::pltxt2htm::container::U8StringView pltext,
+                                             ::std::size_t const space_hierarchy,
                                              ::pltxt2htm::container::Optional<PreviousItemInfo> const expect) noexcept
     -> ::pltxt2htm::container::Optional<MdOlListMarkerResult> {
     ::std::size_t const pltext_size{pltext.size()};
     if (pltext_size < 4) {
         return ::pltxt2htm::container::nullopt;
     }
-    auto const opt_number = ::pltxt2htm::details::try_parse_size_t_decimal_value<ndebug>(
-        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, space_hierarchy));
+    auto const opt_number =
+        ::pltxt2htm::details::try_parse_size_t_decimal_value<ndebug>(pltext.template subview<ndebug>(space_hierarchy));
     if (opt_number.has_value() == false) {
         return ::pltxt2htm::container::nullopt;
     }
@@ -190,7 +192,7 @@ constexpr auto is_valid_md_ol_list_hierarchy(::fast_io::u8string_view pltext, ::
             return ::pltxt2htm::container::nullopt;
         }
         MdUlListItemKind ordered_kind;
-        switch (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, i)) {
+        switch (pltext.template index<ndebug>(i)) {
         case u8'.': {
             ordered_kind = MdUlListItemKind::ordered_item;
             break;
@@ -254,14 +256,14 @@ struct TryParseItemResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_item(
-    ::fast_io::u8string_view pltext,
+    ::pltxt2htm::container::U8StringView pltext,
     ::pltxt2htm::container::Optional<PreviousItemInfo> const expect = ::pltxt2htm::container::nullopt) noexcept
     -> ::pltxt2htm::container::Optional<TryParseItemResult> {
     ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t current_index{};
     // parsing spaces before - or + or *
     for (; current_index < pltext_size; ++current_index) {
-        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
+        auto const chr = pltext.template index<ndebug>(current_index);
         if (chr != u8' ' && chr != u8'\t') {
             break;
         }
@@ -311,13 +313,12 @@ constexpr auto try_parse_item(
     if (current_index == pltext_size) {
         return ::pltxt2htm::container::nullopt;
     }
-    if (char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index)};
-        chr != u8' ' && chr != u8'\t') {
+    if (char8_t const chr{pltext.template index<ndebug>(current_index)}; chr != u8' ' && chr != u8'\t') {
         return ::pltxt2htm::container::nullopt;
     }
     // parsing spaces after - or + or *
     for (; current_index < pltext_size; ++current_index) {
-        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
+        auto const chr = pltext.template index<ndebug>(current_index);
         if (chr != u8' ' && chr != u8'\t') {
             break;
         }
@@ -325,23 +326,22 @@ constexpr auto try_parse_item(
     // detect markdown checkbox syntax: [ ] or [x]/[X] at start of text
     bool checkbox{};
     bool checked{};
-    if (pltext_size >= current_index + 4 &&
-        ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index) == u8'[' &&
-        (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index + 1) == u8' ' ||
-         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index + 1) == u8'x' ||
-         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index + 1) == u8'X') &&
-        ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index + 2) == u8']' &&
-        (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index + 3) == u8' ' ||
-         ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index + 3) == u8'\t')) {
+    if (pltext_size >= current_index + 4 && pltext.template index<ndebug>(current_index) == u8'[' &&
+        (pltext.template index<ndebug>(current_index + 1) == u8' ' ||
+         pltext.template index<ndebug>(current_index + 1) == u8'x' ||
+         pltext.template index<ndebug>(current_index + 1) == u8'X') &&
+        pltext.template index<ndebug>(current_index + 2) == u8']' &&
+        (pltext.template index<ndebug>(current_index + 3) == u8' ' ||
+         pltext.template index<ndebug>(current_index + 3) == u8'\t')) {
         checkbox = true;
-        checked = (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index + 1) == u8'x' ||
-                   ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index + 1) == u8'X');
+        checked = (pltext.template index<ndebug>(current_index + 1) == u8'x' ||
+                   pltext.template index<ndebug>(current_index + 1) == u8'X');
         current_index += 4;
     }
     // parsing text after - or + or *
     ::fast_io::u8string text{};
     for (; current_index < pltext_size; ++current_index) {
-        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
+        auto const chr = pltext.template index<ndebug>(current_index);
         if (chr == u8'\n') {
             ++current_index;
             break;
@@ -390,7 +390,7 @@ constexpr auto to_top_list_node(ListAst<ndebug>&& items, MdUlListItemKind item_k
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexcept
+constexpr auto optionally_to_md_list_ast(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::Optional<ToListAstResult<ndebug>> {
     ::fast_io::stack<MdListFrameContext<ndebug>> call_stack{};
 
@@ -424,7 +424,7 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
         auto&& result = top_frame.md_list_ast;
         ::std::size_t const pltext_size{top_frame.pltext.size()};
         auto opt_list_item = ::pltxt2htm::details::try_parse_item<ndebug>(
-            ::pltxt2htm::details::u8string_view_subview<ndebug>(top_frame.pltext, current_index),
+            top_frame.pltext.template subview<ndebug>(current_index),
             PreviousItemInfo{.space_hierarchy = top_frame.space_hierarchy,
                              .call_stack_is_single = call_stack.size() == 1,
                              .item_kind = top_frame.get_item_kind()});
@@ -468,10 +468,9 @@ constexpr auto optionally_to_md_list_ast(::fast_io::u8string_view pltext) noexce
             opt_list_item.template value<ndebug>();
         current_index += advance_count;
         if (space_hierarchy > top_frame.space_hierarchy + 1) {
-            call_stack.push(MdListFrameContext<ndebug>{
-                item_kind, space_hierarchy,
-                ::pltxt2htm::details::u8string_view_subview<ndebug>(top_frame.pltext, current_index), ::std::size_t{0},
-                ordered_number});
+            call_stack.push(MdListFrameContext<ndebug>{item_kind, space_hierarchy,
+                                                       top_frame.pltext.template subview<ndebug>(current_index),
+                                                       ::std::size_t{0}, ordered_number});
             auto&& child_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
             if (checkbox) {
                 child_frame.md_list_ast.emplace_back(ListLiCheckboxNode(::std::move(text), checked));
