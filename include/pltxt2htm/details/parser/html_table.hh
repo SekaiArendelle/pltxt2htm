@@ -48,7 +48,7 @@ struct ToHtmlTableAstResult {
  */
 template<::pltxt2htm::Contracts ndebug>
 struct TryCaptureUntilTagResult {
-    ::pltxt2htm::container::u8string text; ///< Raw content (not whitespace-trimmed).
+    ::pltxt2htm::container::U8String text; ///< Raw content (not whitespace-trimmed).
     ::std::size_t advance_count; ///< Bytes consumed past the closing tag.
 };
 
@@ -70,7 +70,7 @@ constexpr auto try_capture_until_tag(::pltxt2htm::container::U8StringView pltext
     -> ::pltxt2htm::container::Optional<TryCaptureUntilTagResult<ndebug>> {
     ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t current_index{};
-    ::pltxt2htm::container::u8string text{};
+    ::pltxt2htm::container::U8String text{};
     while (current_index < pltext_size) {
         if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, close_tag>(
                 pltext.template subview<ndebug>(current_index));
@@ -88,7 +88,7 @@ constexpr auto try_capture_until_tag(::pltxt2htm::container::U8StringView pltext
  * @brief Trim leading/trailing whitespace (space, tab, newline) from cell/caption content.
  * @param text Raw captured content.
  */
-constexpr auto trim_table_content(::pltxt2htm::container::u8string& text) noexcept -> void {
+constexpr auto trim_table_content(::pltxt2htm::container::U8String& text) noexcept -> void {
     while (text.empty() == false) {
         auto const chr = text[text.size() - 1];
         if (chr != u8' ' && chr != u8'\t' && chr != u8'\n') {

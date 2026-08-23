@@ -1172,7 +1172,7 @@ constexpr auto try_parse_size_tag(::pltxt2htm::container::U8StringView pltext) n
 template<::pltxt2htm::Contracts ndebug>
 struct TryParseSpanTagResult {
     ::std::size_t tag_len; ///< Length of the matched tag.
-    ::pltxt2htm::container::u8string color; ///< Extracted color value.
+    ::pltxt2htm::container::U8String color; ///< Extracted color value.
     ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>>
         font_size; ///< Extracted font-size value+unit (if present).
     ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>>
@@ -1919,7 +1919,7 @@ constexpr auto try_parse_span_style_property_suffix(::pltxt2htm::container::U8St
 template<::pltxt2htm::Contracts ndebug>
 struct TryParseSpanStyleResult {
     ::std::size_t end; ///< Byte offset just past the closing quote, relative to the input subview.
-    ::pltxt2htm::container::u8string color; ///< Extracted color value, empty if none was present.
+    ::pltxt2htm::container::U8String color; ///< Extracted color value, empty if none was present.
     ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>>
         font_size; ///< Extracted font-size value+unit, if present.
     ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>>
@@ -1932,7 +1932,7 @@ constexpr auto try_parse_span_style(::pltxt2htm::container::U8StringView pltext,
     -> ::pltxt2htm::container::Optional<TryParseSpanStyleResult<ndebug>> {
     ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t p{};
-    ::pltxt2htm::container::u8string color{};
+    ::pltxt2htm::container::U8String color{};
     ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size{::pltxt2htm::container::nullopt};
     ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align{
         ::pltxt2htm::container::nullopt};
@@ -2003,7 +2003,7 @@ constexpr auto try_parse_span_style(::pltxt2htm::container::U8StringView pltext,
                 return ::pltxt2htm::container::nullopt;
             }
             p += opt_delimiter_pos.template value<ndebug>();
-            color = ::pltxt2htm::container::u8string{
+            color = ::pltxt2htm::container::U8String{
                 ::pltxt2htm::container::U8StringView{pltext.data() + value_start, value_end - value_start}};
         }
         else if (property == ::pltxt2htm::container::U8StringView{u8"font-size"}) {
@@ -2088,7 +2088,7 @@ constexpr auto try_parse_span_tag(::pltxt2htm::container::U8StringView pltext) n
 
     ::std::size_t pos{4}; // skip past "span" (the 's' was consumed by the trie dispatch)
     bool found_style{false};
-    ::pltxt2htm::container::u8string color{};
+    ::pltxt2htm::container::U8String color{};
     ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size{::pltxt2htm::container::nullopt};
     ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align{
         ::pltxt2htm::container::nullopt};
@@ -2175,7 +2175,7 @@ constexpr auto try_parse_span_tag(::pltxt2htm::container::U8StringView pltext) n
 template<::pltxt2htm::Contracts ndebug>
 struct TryParseMarkStyleResult {
     ::std::size_t end; ///< Byte offset just past the closing quote, relative to the input subview.
-    ::pltxt2htm::container::u8string background_color; ///< Extracted background-color value.
+    ::pltxt2htm::container::U8String background_color; ///< Extracted background-color value.
 };
 
 /**
@@ -2194,7 +2194,7 @@ constexpr auto try_parse_mark_style(::pltxt2htm::container::U8StringView pltext,
     -> ::pltxt2htm::container::Optional<TryParseMarkStyleResult<ndebug>> {
     ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t p{};
-    ::pltxt2htm::container::u8string background_color{};
+    ::pltxt2htm::container::U8String background_color{};
 
     while (p < pltext_size) {
         while (p < pltext_size &&
@@ -2263,7 +2263,7 @@ constexpr auto try_parse_mark_style(::pltxt2htm::container::U8StringView pltext,
             return ::pltxt2htm::container::nullopt;
         }
         p += opt_delimiter_pos.template value<ndebug>();
-        background_color = ::pltxt2htm::container::u8string{
+        background_color = ::pltxt2htm::container::U8String{
             ::pltxt2htm::container::U8StringView{pltext.data() + value_start, value_end - value_start}};
 
         if (p >= pltext_size) {
@@ -2286,7 +2286,7 @@ constexpr auto try_parse_mark_style(::pltxt2htm::container::U8StringView pltext,
  */
 struct TryParseMarkTagResult {
     ::std::size_t tag_len; ///< Length of the matched tag.
-    ::pltxt2htm::container::u8string background_color; ///< Effective background-color; the standard highlight color
+    ::pltxt2htm::container::U8String background_color; ///< Effective background-color; the standard highlight color
                                                        ///< when the tag has no style attribute.
 };
 
@@ -2313,7 +2313,7 @@ constexpr auto try_parse_mark_tag(::pltxt2htm::container::U8StringView pltext) n
 
     ::std::size_t pos{3}; // skip past "ark" (the 'm' was consumed by the trie dispatch)
     bool found_style{false};
-    ::pltxt2htm::container::u8string background_color{};
+    ::pltxt2htm::container::U8String background_color{};
 
     while (pos < pltext_size) {
         // skip whitespace
@@ -2327,7 +2327,7 @@ constexpr auto try_parse_mark_tag(::pltxt2htm::container::U8StringView pltext) n
         if (pltext.template index<ndebug>(pos) == u8'>') {
             if (found_style == false) {
                 return TryParseMarkTagResult{.tag_len = pos + 1,
-                                             .background_color = ::pltxt2htm::container::u8string{
+                                             .background_color = ::pltxt2htm::container::U8String{
                                                  ::pltxt2htm::HtmlMark<ndebug>::default_background_color}};
             }
             break;
@@ -2430,7 +2430,7 @@ constexpr auto try_parse_mark_equal_sign_tag(::pltxt2htm::container::U8StringVie
     }
     auto const close_rel = opt_close.template value<ndebug>();
     return TryParseMarkTagResult{.tag_len = value_end + close_rel + 1,
-                                 .background_color = ::pltxt2htm::container::u8string{
+                                 .background_color = ::pltxt2htm::container::U8String{
                                      pltext.template subview<ndebug>(value_start, value_end - value_start)}};
 }
 
@@ -2439,7 +2439,7 @@ constexpr auto try_parse_mark_equal_sign_tag(::pltxt2htm::container::U8StringVie
  */
 struct TryParseCodeTagResult {
     ::std::size_t tag_len; ///< Length of the matched tag.
-    ::pltxt2htm::container::Optional<::pltxt2htm::container::u8string> language;
+    ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String> language;
 };
 
 [[nodiscard]]
@@ -2470,7 +2470,7 @@ constexpr auto try_parse_code_tag(::pltxt2htm::container::U8StringView pltext) n
 
     ::std::size_t pos{3}; // skip past "ode" (the 'c' was consumed by the trie dispatch)
     bool found_class{false};
-    ::pltxt2htm::container::Optional<::pltxt2htm::container::u8string> language{::pltxt2htm::container::nullopt};
+    ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String> language{::pltxt2htm::container::nullopt};
 
     while (pos < pltext_size) {
         // skip whitespace
@@ -2551,7 +2551,7 @@ constexpr auto try_parse_code_tag(::pltxt2htm::container::U8StringView pltext) n
                 language_suffix_is_safe == false) {
                 return ::pltxt2htm::container::nullopt;
             }
-            language = ::pltxt2htm::container::u8string{attr_val};
+            language = ::pltxt2htm::container::U8String{attr_val};
             found_class = true;
         }
         else {
@@ -2893,8 +2893,8 @@ constexpr auto try_parse_ol_tag(::pltxt2htm::container::U8StringView pltext) noe
  */
 struct TryParseImgTagResult {
     ::std::size_t tag_len;
-    ::pltxt2htm::container::u8string src;
-    ::pltxt2htm::container::u8string alt;
+    ::pltxt2htm::container::U8String src;
+    ::pltxt2htm::container::U8String alt;
 };
 
 /**
@@ -2918,8 +2918,8 @@ constexpr auto try_parse_img_tag(::pltxt2htm::container::U8StringView pltext) no
     ::std::size_t pos{2};
     bool found_src{false};
     bool found_alt{false};
-    ::pltxt2htm::container::u8string src{};
-    ::pltxt2htm::container::u8string alt{};
+    ::pltxt2htm::container::U8String src{};
+    ::pltxt2htm::container::U8String alt{};
 
     while (pos < pltext_size) {
         // skip whitespace
@@ -2988,14 +2988,14 @@ constexpr auto try_parse_img_tag(::pltxt2htm::container::U8StringView pltext) no
             if (found_src) {
                 return ::pltxt2htm::container::nullopt; // duplicate src
             }
-            src = ::pltxt2htm::container::u8string{attr_val};
+            src = ::pltxt2htm::container::U8String{attr_val};
             found_src = true;
         }
         else if (attr_name == ::pltxt2htm::container::U8StringView{u8"alt"}) {
             if (found_alt) {
                 return ::pltxt2htm::container::nullopt; // duplicate alt
             }
-            alt = ::pltxt2htm::container::u8string{attr_val};
+            alt = ::pltxt2htm::container::U8String{attr_val};
             found_alt = true;
         }
         else {
@@ -3363,7 +3363,7 @@ constexpr auto simply_parse_pltext(::pltxt2htm::container::U8StringView pltext) 
                 opt_entity_len.has_value()) {
                 auto const entity_len = opt_entity_len.template value<ndebug>();
                 ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::EntityReference{::pltxt2htm::container::u8string{
+                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::EntityReference{::pltxt2htm::container::U8String{
                         pltext.data() + current_index + 1, pltext.data() + current_index + entity_len - 1}}));
                 current_index += entity_len;
                 continue;
@@ -3483,11 +3483,11 @@ constexpr auto try_parse_html_pre_code_block(::pltxt2htm::container::U8StringVie
 
     // <code class="language-..."> stores the full class value; CodeFence stores only the suffix
     // after the "language-" prefix (the backends prepend it again when rendering).
-    ::pltxt2htm::container::Optional<::pltxt2htm::container::u8string> opt_lang{::pltxt2htm::container::nullopt};
+    ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String> opt_lang{::pltxt2htm::container::nullopt};
     if (language.has_value()) {
         auto const& full_language = language.template value<ndebug>();
         opt_lang =
-            ::pltxt2htm::container::u8string{full_language.data() + 9, full_language.data() + full_language.size()};
+            ::pltxt2htm::container::U8String{full_language.data() + 9, full_language.data() + full_language.size()};
     }
     return TryParseMdCodeFenceResult<ndebug>{
         .node = ::pltxt2htm::CodeFence<ndebug>{::std::move(ast), ::std::move(opt_lang)}, .advance_count = pos};
@@ -3614,7 +3614,7 @@ constexpr auto try_parse_md_code_fence_(::pltxt2htm::container::U8StringView plt
         return ::pltxt2htm::container::nullopt;
     }
 
-    ::pltxt2htm::container::u8string lang{};
+    ::pltxt2htm::container::U8String lang{};
     ::std::size_t current_index{fence_size};
     ::std::size_t const pltext_size{pltext.size()};
 
@@ -3687,7 +3687,7 @@ constexpr auto try_parse_md_code_fence_(::pltxt2htm::container::U8StringView plt
         current_index += advance_count;
     }
 
-    ::pltxt2htm::container::Optional<::pltxt2htm::container::u8string> opt_lang{::pltxt2htm::container::nullopt};
+    ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String> opt_lang{::pltxt2htm::container::nullopt};
     if (lang.empty() == false) {
         opt_lang = ::std::move(lang);
     }
@@ -3777,7 +3777,7 @@ constexpr auto try_parse_md_inlines(::pltxt2htm::container::U8StringView pltext)
 
 struct TryParseMdBlockQuotesResult {
     ::std::size_t advance_count; ///< Number of characters consumed.
-    ::pltxt2htm::container::u8string subpltext; ///< Parsed block quote content.
+    ::pltxt2htm::container::U8String subpltext; ///< Parsed block quote content.
 };
 
 /**
@@ -3801,7 +3801,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_block_quotes(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::Optional<TryParseMdBlockQuotesResult> {
-    ::pltxt2htm::container::u8string subpltext{};
+    ::pltxt2htm::container::U8String subpltext{};
 
     ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t current_index{};
@@ -4180,7 +4180,7 @@ constexpr auto make_try_parse_url_result(::pltxt2htm::container::U8StringView co
                                          ::std::size_t consumed_size) noexcept
     -> ::pltxt2htm::container::Optional<TryParseUrlResult> {
     ::std::size_t const parsed_url_size{parsed_url.size()};
-    ::pltxt2htm::container::u8string url_str{};
+    ::pltxt2htm::container::U8String url_str{};
     url_str.reserve(parsed_url_size);
     for (::std::size_t index{}; index < parsed_url_size; ++index) {
         auto chr = parsed_url.template index<ndebug>(index);
@@ -4501,7 +4501,7 @@ constexpr auto try_parse_md_url(::pltxt2htm::container::U8StringView pltext) noe
     }
 
     // Fallback: locate the closing parenthesis and encode the URL in one pass.
-    ::pltxt2htm::container::u8string encoded{};
+    ::pltxt2htm::container::U8String encoded{};
     ::std::size_t raw_len{};
     for (; raw_len < pltext_size; ++raw_len) {
         auto const chr = pltext.template index<ndebug>(raw_len);

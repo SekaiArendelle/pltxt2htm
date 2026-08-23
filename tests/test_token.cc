@@ -12,11 +12,11 @@ int main() {
     ::fast_io::vector<::pltxt2htm::PlTxtNode<::pltxt2htm::Contracts::quick_enforce>> arr{};
     arr.emplace_back(::pltxt2htm::U8Char{u8'a'});
     arr.emplace_back(::pltxt2htm::PlColor<::pltxt2htm::Contracts::quick_enforce>{
-        ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::pltxt2htm::container::u8string{u8"red"}});
+        ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::pltxt2htm::container::U8String{u8"red"}});
     arr.emplace_back(::pltxt2htm::PlExperiment<::pltxt2htm::Contracts::quick_enforce>{
-        ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::pltxt2htm::container::u8string{u8"123"}});
+        ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::pltxt2htm::container::U8String{u8"123"}});
     arr.emplace_back(::pltxt2htm::PlDiscussion<::pltxt2htm::Contracts::quick_enforce>{
-        ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::pltxt2htm::container::u8string{u8"123"}});
+        ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::pltxt2htm::container::U8String{u8"123"}});
 
     pltxt2htm_test_assert_true(arr[0].get_node_kind() == ::pltxt2htm::NodeKind::u8char);
     pltxt2htm_test_assert_true(arr[1].get_node_kind() == ::pltxt2htm::NodeKind::pl_color);

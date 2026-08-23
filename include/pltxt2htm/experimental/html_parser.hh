@@ -339,7 +339,7 @@ entry:
                     opt_entity_len.has_value()) {
                     auto const entity_len = opt_entity_len.template value<ndebug>();
                     result.push_back(
-                        ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::EntityReference{::pltxt2htm::container::u8string{
+                        ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::EntityReference{::pltxt2htm::container::U8String{
                             pltext.data() + current_index + 1, pltext.data() + current_index + entity_len - 1}}));
                     current_index += entity_len;
                     continue;

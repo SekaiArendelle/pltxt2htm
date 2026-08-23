@@ -7,7 +7,7 @@
 
 #include "precompile.hh"
 
-using U8String = ::pltxt2htm::container::u8string;
+using U8String = ::pltxt2htm::container::U8String;
 using U8StringView = ::pltxt2htm::container::U8StringView;
 
 static_assert(::std::same_as<U8String::value_type, char8_t>);

@@ -43,7 +43,7 @@ namespace pltxt2htm {
  * @tparam optimize Whether to optimize the AST before HTML generation (default: true)
  * @param[in] pltext The Physics-Lab text content to convert
  * @return Generated HTML string with full formatting support
- * @retval container::u8string UTF-8 string containing the generated HTML
+ * @retval container::U8String UTF-8 string containing the generated HTML
  * @note This is the recommended function for most use cases requiring full feature support
  * @note The function automatically optimizes the AST by default for better performance
  * @warning This function uses built-in placeholder link context values
@@ -106,7 +106,7 @@ constexpr auto pltxt2fixedadv_html(::pltxt2htm::container::U8StringView pltext,
  * @param[in] author Author identifier for Physics-Lab context
  * @param[in] coauthors Co-authors identifier for Physics-Lab context
  * @return Generated HTML string for PLUnity introduction rendering
- * @retval container::u8string UTF-8 string containing the generated HTML
+ * @retval container::U8String UTF-8 string containing the generated HTML
  */
 template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, bool optimize = true>
 [[nodiscard]]
@@ -143,7 +143,7 @@ constexpr auto pltxt2plunity_introduction(::pltxt2htm::container::U8StringView p
  * @tparam optimize Whether to optimize the AST before HTML generation (default: false)
  * @param[in] pltext The Physics-Lab text content to convert
  * @return Generated HTML string with basic formatting support
- * @retval container::u8string UTF-8 string containing the generated basic HTML
+ * @retval container::U8String UTF-8 string containing the generated basic HTML
  * @note This function is faster than the advanced versions but supports fewer features
  * @note Markdown block syntax and block-level HTML tags render as literal text in this mode
  * @warning AST optimization is disabled by default for this function

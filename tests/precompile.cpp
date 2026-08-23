@@ -49,7 +49,7 @@ namespace pltxt2htm_test {
 [[__gnu__::__pure__]]
 #endif
 PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2common_htmld(::fast_io::u8string_view pltext) noexcept
-    -> ::pltxt2htm::container::u8string {
+    -> ::pltxt2htm::container::U8String {
     return ::pltxt2htm::pltxt2common_html<::pltxt2htm::Contracts::quick_enforce>(pltext);
 }
 
@@ -60,7 +60,7 @@ PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2common_htmld(::fast_io::u8string_view pl
 [[__gnu__::__pure__]]
 #endif
 PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2common_html(::fast_io::u8string_view pltext) noexcept
-    -> ::pltxt2htm::container::u8string {
+    -> ::pltxt2htm::container::U8String {
     return ::pltxt2htm::pltxt2common_html<::pltxt2htm::Contracts::quick_enforce, true>(pltext);
 }
 
@@ -71,7 +71,7 @@ PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2common_html(::fast_io::u8string_view plt
 [[__gnu__::__pure__]]
 #endif
 PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt4unittest(::fast_io::u8string_view pltext) noexcept
-    -> ::pltxt2htm::container::u8string {
+    -> ::pltxt2htm::container::U8String {
     return ::pltxt2htm::pltxt4unittest<::pltxt2htm::Contracts::quick_enforce>(pltext);
 }
 
@@ -82,7 +82,7 @@ PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt4unittest(::fast_io::u8string_view pltext
 [[__gnu__::__pure__]]
 #endif
 PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt4htmlunittest(::fast_io::u8string_view pltext) noexcept
-    -> ::pltxt2htm::container::u8string {
+    -> ::pltxt2htm::container::U8String {
     auto ast = ::pltxt2htm::experimental::parse_pltxt_html<::pltxt2htm::Contracts::quick_enforce>(pltext);
     return ::pltxt2htm::details::plweb_text_backend<::pltxt2htm::Contracts::quick_enforce,
                                                     ::pltxt2htm::details::PlWebTextBackendMode::pltxt4unittest>(
@@ -96,7 +96,7 @@ PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt4htmlunittest(::fast_io::u8string_view pl
 [[__gnu__::__pure__]]
 #endif
 PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2roundtrip_htmld(::fast_io::u8string_view pltext) noexcept
-    -> ::pltxt2htm::container::u8string {
+    -> ::pltxt2htm::container::U8String {
     auto ast = ::pltxt2htm::parse_pltxt<::pltxt2htm::Contracts::quick_enforce>(pltext);
     ::pltxt2htm::optimize_ast<::pltxt2htm::Contracts::quick_enforce>(ast);
     return ::pltxt2htm::details::plweb_text_backend<::pltxt2htm::Contracts::quick_enforce,
@@ -111,7 +111,7 @@ PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2roundtrip_htmld(::fast_io::u8string_view
 [[__gnu__::__pure__]]
 #endif
 PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2fixedadv_htmld(::fast_io::u8string_view pltext) noexcept
-    -> ::pltxt2htm::container::u8string {
+    -> ::pltxt2htm::container::U8String {
     return ::pltxt2htm::pltxt2fixedadv_html<::pltxt2htm::Contracts::quick_enforce>(
         pltext, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
 }
@@ -127,7 +127,7 @@ PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2fixedadv_htmld(::fast_io::u8string_view 
                                                        ::fast_io::u8string_view visitor,
                                                        ::fast_io::u8string_view author,
                                                        ::fast_io::u8string_view coauthors) noexcept
-    -> ::pltxt2htm::container::u8string {
+    -> ::pltxt2htm::container::U8String {
     return ::pltxt2htm::pltxt2fixedadv_html<::pltxt2htm::Contracts::quick_enforce>(pltext, host, project, visitor,
                                                                                    author, coauthors);
 }
@@ -139,7 +139,7 @@ PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2fixedadv_htmld(::fast_io::u8string_view 
 [[__gnu__::__pure__]]
 #endif
 PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2plunity_introduction(::fast_io::u8string_view pltext) noexcept
-    -> ::pltxt2htm::container::u8string {
+    -> ::pltxt2htm::container::U8String {
     return ::pltxt2htm::pltxt2plunity_introduction<::pltxt2htm::Contracts::quick_enforce>(
         pltext, u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
 }
@@ -155,7 +155,7 @@ PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2plunity_introduction(::fast_io::u8string
                                                              ::fast_io::u8string_view visitor,
                                                              ::fast_io::u8string_view author,
                                                              ::fast_io::u8string_view coauthors) noexcept
-    -> ::pltxt2htm::container::u8string {
+    -> ::pltxt2htm::container::U8String {
     return ::pltxt2htm::pltxt2plunity_introduction<::pltxt2htm::Contracts::quick_enforce>(pltext, project, visitor,
                                                                                           author, coauthors);
 }

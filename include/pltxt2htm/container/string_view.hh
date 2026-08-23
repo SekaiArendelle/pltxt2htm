@@ -28,7 +28,7 @@ concept is_char_type = ::std::same_as<T, char> || ::std::same_as<T, wchar_t> || 
 } // namespace details
 
 template<::pltxt2htm::container::details::is_char_type CharType, typename Allocator>
-class basic_string;
+class BasicString;
 
 /**
  * @brief A non-owning view over a contiguous sequence of characters.
@@ -106,16 +106,16 @@ public:
     constexpr BasicStringView(::fast_io::containers::basic_string<value_type, Allocator> const&&) = delete;
 
     template<typename Allocator>
-    constexpr BasicStringView(::pltxt2htm::container::basic_string<value_type, Allocator> const& string) noexcept
+    constexpr BasicStringView(::pltxt2htm::container::BasicString<value_type, Allocator> const& string) noexcept
         : pointer{string.data()},
           length{string.size()} {
     }
 
     template<typename Allocator>
-    constexpr BasicStringView(::pltxt2htm::container::basic_string<value_type, Allocator>&&) = delete;
+    constexpr BasicStringView(::pltxt2htm::container::BasicString<value_type, Allocator>&&) = delete;
 
     template<typename Allocator>
-    constexpr BasicStringView(::pltxt2htm::container::basic_string<value_type, Allocator> const&&) = delete;
+    constexpr BasicStringView(::pltxt2htm::container::BasicString<value_type, Allocator> const&&) = delete;
 
     template<::std::size_t size>
     constexpr BasicStringView(::pltxt2htm::details::BasicLiteralString<value_type, size> const& string) noexcept
@@ -226,7 +226,7 @@ template<::pltxt2htm::container::details::is_char_type CharType, typename Alloca
 BasicStringView(::fast_io::containers::basic_string<CharType, Allocator> const&) -> BasicStringView<CharType>;
 
 template<::pltxt2htm::container::details::is_char_type CharType, typename Allocator>
-BasicStringView(::pltxt2htm::container::basic_string<CharType, Allocator> const&) -> BasicStringView<CharType>;
+BasicStringView(::pltxt2htm::container::BasicString<CharType, Allocator> const&) -> BasicStringView<CharType>;
 
 template<::pltxt2htm::container::details::is_char_type CharType, ::std::size_t size>
 BasicStringView(::pltxt2htm::details::BasicLiteralString<CharType, size> const&) -> BasicStringView<CharType>;

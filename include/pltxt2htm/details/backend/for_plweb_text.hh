@@ -30,7 +30,7 @@ namespace pltxt2htm::details {
  */
 template<::pltxt2htm::Contracts ndebug>
 constexpr void convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> const& ast,
-                                                      ::pltxt2htm::container::u8string& out) noexcept {
+                                                      ::pltxt2htm::container::U8String& out) noexcept {
     out.reserve(out.size() + ast.size() * 6);
     for (auto&& node : ast) {
         switch (node.get_node_kind()) {
@@ -209,7 +209,7 @@ constexpr void convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> c
  * @param value Raw attribute value to escape.
  */
 template<::pltxt2htm::Contracts ndebug>
-constexpr void append_html_attr_escaped(::pltxt2htm::container::u8string& result,
+constexpr void append_html_attr_escaped(::pltxt2htm::container::U8String& result,
                                         ::pltxt2htm::container::U8StringView value) noexcept {
     ::std::size_t const value_size{value.size()};
     for (::std::size_t index{}; index < value_size; ++index) {
@@ -276,8 +276,8 @@ constexpr auto plweb_text_backend(::pltxt2htm::Ast<ndebug> const& ast_init, ::pl
                                   ::pltxt2htm::container::U8StringView visitor,
                                   ::pltxt2htm::container::U8StringView author,
                                   ::pltxt2htm::container::U8StringView coauthors) noexcept
-    -> ::pltxt2htm::container::u8string {
-    ::pltxt2htm::container::u8string result{};
+    -> ::pltxt2htm::container::U8String {
+    ::pltxt2htm::container::U8String result{};
     ::fast_io::stack<BackendFrameContext<ndebug>> call_stack{};
     call_stack.push(BackendFrameContext<ndebug>(ast_init, ::pltxt2htm::NodeKind::text, 0));
 
@@ -361,7 +361,7 @@ entry:
                 // assert this in debug mode. Do not try to hide such errors by routing output through
                 // `append_html_attr_escaped`.
                 if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
-                    ::pltxt2htm::container::u8string purified_color_value{};
+                    ::pltxt2htm::container::U8String purified_color_value{};
                     ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
                         purified_color_value, ::pltxt2htm::container::U8StringView{color_value});
                     bool const is_valid_color_value{purified_color_value == color_value};
@@ -402,7 +402,7 @@ entry:
                 // assert this in debug mode. Do not try to hide such errors by routing output through
                 // `append_html_attr_escaped`.
                 if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
-                    ::pltxt2htm::container::u8string purified_experiment_id{};
+                    ::pltxt2htm::container::U8String purified_experiment_id{};
                     ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
                         purified_experiment_id, ::pltxt2htm::container::U8StringView{experiment_id});
                     pltxt2htm_assert(purified_experiment_id == experiment_id,
@@ -432,7 +432,7 @@ entry:
                 // assert this in debug mode. Do not try to hide such errors by routing output through
                 // `append_html_attr_escaped`.
                 if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
-                    ::pltxt2htm::container::u8string purified_discussion_id{};
+                    ::pltxt2htm::container::U8String purified_discussion_id{};
                     ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
                         purified_discussion_id, ::pltxt2htm::container::U8StringView{discussion_id});
                     pltxt2htm_assert(purified_discussion_id == discussion_id,
@@ -505,7 +505,7 @@ entry:
                     // assert this in debug mode. Do not try to hide such errors by routing output through
                     // `append_html_attr_escaped`.
                     if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
-                        ::pltxt2htm::container::u8string purified_user_id{};
+                        ::pltxt2htm::container::U8String purified_user_id{};
                         ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
                             purified_user_id, ::pltxt2htm::container::U8StringView{user_id});
                         bool const is_valid_user_id{purified_user_id == user_id};
@@ -754,7 +754,7 @@ entry:
                 if (has_color) {
                     result.append(u8"color:");
                     if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
-                        ::pltxt2htm::container::u8string purified_color{};
+                        ::pltxt2htm::container::U8String purified_color{};
                         ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
                             purified_color, ::pltxt2htm::container::U8StringView{span_color});
                         pltxt2htm_assert(
@@ -876,7 +876,7 @@ entry:
                 auto const& mark_background_color = node.as_html_mark().get_background_color();
                 result.append(u8"<mark style=\"background-color:");
                 if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
-                    ::pltxt2htm::container::u8string purified_color{};
+                    ::pltxt2htm::container::U8String purified_color{};
                     ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
                         purified_color, ::pltxt2htm::container::U8StringView{mark_background_color});
                     pltxt2htm_assert(purified_color == mark_background_color,
@@ -894,7 +894,7 @@ entry:
                 auto const& mark_background_color = node.as_pl_mark().get_background_color();
                 result.append(u8"<mark style=\"background-color:");
                 if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
-                    ::pltxt2htm::container::u8string purified_color{};
+                    ::pltxt2htm::container::U8String purified_color{};
                     ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
                         purified_color, ::pltxt2htm::container::U8StringView{mark_background_color});
                     pltxt2htm_assert(purified_color == mark_background_color,
@@ -1331,7 +1331,7 @@ entry:
             }
             case ::pltxt2htm::NodeKind::url: {
                 auto const& url_str = node.as_url().as_string();
-                ::pltxt2htm::container::u8string escaped;
+                ::pltxt2htm::container::U8String escaped;
                 ::pltxt2htm::details::append_html_attr_escaped<ndebug>(escaped,
                                                                        ::pltxt2htm::container::U8StringView{url_str});
                 result.append(u8"<a href=\"");

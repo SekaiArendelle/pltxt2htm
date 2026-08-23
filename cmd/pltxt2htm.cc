@@ -296,7 +296,7 @@ int main(int argc, char const* const* const argv) noexcept {
     try
 #endif // __cpp_exceptions >= 199711L
     {
-        ::pltxt2htm::container::u8string input_text{};
+        ::pltxt2htm::container::U8String input_text{};
         char8_t input_buffer[4096];
         for (;;) {
             ::std::size_t const input_size{
@@ -311,7 +311,7 @@ int main(int argc, char const* const* const argv) noexcept {
             input_text.append(input_buffer, input_size);
         }
 
-        ::pltxt2htm::container::u8string html;
+        ::pltxt2htm::container::U8String html;
         if (target_type == ::TargetType::html4unittest) {
             html = ::pltxt2htm::pltxt4unittest<
 #ifdef NDEBUG

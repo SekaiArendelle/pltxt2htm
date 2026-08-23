@@ -6,7 +6,7 @@ namespace pltxt2htm_test {
 
 template<::std::size_t N>
 constexpr auto text_item(char8_t const (&text)[N]) noexcept {
-    return ::pltxt2htm::details::ListLiNode{::pltxt2htm::container::u8string{text}};
+    return ::pltxt2htm::details::ListLiNode{::pltxt2htm::container::U8String{text}};
 }
 
 template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce,
@@ -63,8 +63,8 @@ constexpr auto ol_top(::std::size_t start, Nodes&&... nodes) noexcept {
 
 int main() {
     {
-        ::pltxt2htm::details::ListLiNode const node1{::pltxt2htm::container::u8string{u8"test"}};
-        ::pltxt2htm::details::ListLiNode const node2{::pltxt2htm::container::u8string{u8"test"}};
+        ::pltxt2htm::details::ListLiNode const node1{::pltxt2htm::container::U8String{u8"test"}};
+        ::pltxt2htm::details::ListLiNode const node2{::pltxt2htm::container::U8String{u8"test"}};
         pltxt2htm_test_assert_true(node1 == node2);
     }
     {
@@ -75,7 +75,7 @@ int main() {
         pltxt2htm_test_assert_true(node1 == node2);
     }
     {
-        ::pltxt2htm::details::ListLiNode text_node{::pltxt2htm::container::u8string{u8"test"}};
+        ::pltxt2htm::details::ListLiNode text_node{::pltxt2htm::container::U8String{u8"test"}};
         ::pltxt2htm::details::ListUlNode<::pltxt2htm::Contracts::quick_enforce> ul_node{
             ::pltxt2htm::details::ListAst<::pltxt2htm::Contracts::quick_enforce>{}};
         pltxt2htm_test_assert_false(

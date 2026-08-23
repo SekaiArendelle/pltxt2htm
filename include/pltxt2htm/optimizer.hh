@@ -531,7 +531,7 @@ entry:
                         auto const inner_fs = subnode.as_html_span().get_font_size();
                         auto const inner_va = subnode.as_html_span().get_vertical_align();
                         auto merged_color =
-                            ::pltxt2htm::container::u8string{inner_color.empty() ? outer_color : inner_color};
+                            ::pltxt2htm::container::U8String{inner_color.empty() ? outer_color : inner_color};
                         ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> merged_fs{
                             ::pltxt2htm::container::nullopt};
                         if (inner_fs.has_value()) {
@@ -567,7 +567,7 @@ entry:
                         auto inner_subast = ::std::move(subnode.as_pl_color().get_subast());
                         auto const& inner_color = subnode.as_pl_color().get_color();
                         node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::HtmlSpan<ndebug>{
-                            ::std::move(inner_subast), ::pltxt2htm::container::u8string{inner_color},
+                            ::std::move(inner_subast), ::pltxt2htm::container::U8String{inner_color},
                             ::std::move(merged_fs), ::std::move(outer_va)}};
                         continue;
                     }

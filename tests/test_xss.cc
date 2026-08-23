@@ -78,7 +78,7 @@ void assert_no_raw_event_handlers(::fast_io::u8string_view html) noexcept {
 
 // Helper to wrap u8string -> u8string_view for MSVC compat
 [[nodiscard]]
-auto to_view(::pltxt2htm::container::u8string const& s) noexcept -> ::fast_io::u8string_view {
+auto to_view(::pltxt2htm::container::U8String const& s) noexcept -> ::fast_io::u8string_view {
     return ::fast_io::u8string_view{s.data(), s.size()};
 }
 

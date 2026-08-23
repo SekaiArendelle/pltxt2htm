@@ -57,10 +57,10 @@ using ListAst = ::fast_io::vector<ListBaseNode<ndebug>>;
  * @brief Leaf list node that stores a single list-item text payload.
  */
 class ListLiNode {
-    ::pltxt2htm::container::u8string text;
+    ::pltxt2htm::container::U8String text;
 
 public:
-    constexpr ListLiNode(::pltxt2htm::container::u8string&& text_) noexcept
+    constexpr ListLiNode(::pltxt2htm::container::U8String&& text_) noexcept
         : text(::std::move(text_)) {
     }
 
@@ -97,11 +97,11 @@ public:
  * @brief Leaf list node for checkbox items (- [ ] / - [x]).
  */
 class ListLiCheckboxNode {
-    ::pltxt2htm::container::u8string text;
+    ::pltxt2htm::container::U8String text;
     bool checked{};
 
 public:
-    constexpr ListLiCheckboxNode(::pltxt2htm::container::u8string&& text_, bool checked_) noexcept
+    constexpr ListLiCheckboxNode(::pltxt2htm::container::U8String&& text_, bool checked_) noexcept
         : text(::std::move(text_)),
           checked(checked_) {
     }

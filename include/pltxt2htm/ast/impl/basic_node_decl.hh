@@ -92,10 +92,10 @@ public:
  *          The backend outputs it as &amp; + value + ; verbatim.
  */
 class EntityReference {
-    ::pltxt2htm::container::u8string value;
+    ::pltxt2htm::container::U8String value;
 
 public:
-    constexpr EntityReference(::pltxt2htm::container::u8string&& value_) noexcept
+    constexpr EntityReference(::pltxt2htm::container::U8String&& value_) noexcept
         : value(::std::move(value_)) {
     }
 
@@ -171,7 +171,7 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class CodeFence {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::pltxt2htm::container::Optional<::pltxt2htm::container::u8string> lang;
+    ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String> lang;
 
 public:
     /**
@@ -180,7 +180,7 @@ public:
      * @param lang Optional language string.
      */
     constexpr explicit CodeFence(::pltxt2htm::Ast<ndebug>&& subast_,
-                                 ::pltxt2htm::container::Optional<::pltxt2htm::container::u8string>&& lang_) noexcept;
+                                 ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>&& lang_) noexcept;
     constexpr CodeFence(::pltxt2htm::CodeFence<ndebug> const&) noexcept;
     constexpr CodeFence(::pltxt2htm::CodeFence<ndebug>&&) noexcept;
     constexpr ~CodeFence() noexcept;
@@ -208,14 +208,14 @@ public:
  * @details Represents a URL stored as a plain string.
  */
 class Url {
-    ::pltxt2htm::container::u8string url_str;
+    ::pltxt2htm::container::U8String url_str;
 
 public:
     /**
      * @brief Construct a ::pltxt2htm::Url from a URL string.
      * @param url The URL string.
      */
-    constexpr explicit Url(::pltxt2htm::container::u8string&& url) noexcept
+    constexpr explicit Url(::pltxt2htm::container::U8String&& url) noexcept
         : url_str(::std::move(url)) {
     }
 
