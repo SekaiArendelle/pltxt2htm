@@ -527,7 +527,7 @@ constexpr auto double2str(double value) noexcept -> ::fast_io::u8string {
             candidate.append(digit_str);
         }
         auto opt_reparsed = ::pltxt2htm::details::try_parse_double_decimal_value<::pltxt2htm::Contracts::quick_enforce>(
-            ::pltxt2htm::container::U8StringView{candidate.data(), candidate.size()});
+            ::pltxt2htm::container::U8StringView{candidate});
         bool const round_trips =
             opt_reparsed.has_value() && (opt_reparsed.template value<::pltxt2htm::Contracts::ignore>().value == value);
         if (round_trips) {

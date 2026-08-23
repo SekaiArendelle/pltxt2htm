@@ -129,7 +129,7 @@ constexpr auto try_parse_external_tag(::pltxt2htm::container::U8StringView pltex
     auto const tag_len = result.template value<ndebug>().tag_len;
 
     auto&& [_, url_str] = result.template value<ndebug>();
-    auto const url_vw = ::pltxt2htm::container::U8StringView{url_str.data(), url_str.size()};
+    auto const url_vw = ::pltxt2htm::container::U8StringView{url_str};
     auto const scheme_end = ::pltxt2htm::details::try_parse_url_scheme<ndebug>(url_vw).value_or(::std::size_t{});
     auto opt_auth_end =
         ::pltxt2htm::details::try_parse_url_authority<ndebug>(url_vw.template subview<ndebug>(scheme_end));

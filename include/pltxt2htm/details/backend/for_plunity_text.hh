@@ -37,7 +37,7 @@ namespace pltxt2htm::details {
 template<::pltxt2htm::Contracts ndebug>
 constexpr void append_entity_reference_to_plunity_richtext(::fast_io::u8string const& value,
                                                            ::fast_io::u8string& out) noexcept {
-    ::pltxt2htm::container::U8StringView const value_view{value.data(), value.size()};
+    ::pltxt2htm::container::U8StringView const value_view{value};
     ::std::size_t const value_size{value_view.size()};
     bool decoded{};
     if (value_size > 1 && value_view.template index<ndebug>(0) == u8'#') {
@@ -396,7 +396,7 @@ entry:
                 constexpr auto open_tag =
                     ::pltxt2htm::details::concat(U8LiteralString{u8"<color="},
                                                  ::pltxt2htm::PlA<ndebug>::get_color_literal(), U8LiteralString{u8">"});
-                result.append(::pltxt2htm::container::U8StringView{open_tag.data(), open_tag.size()});
+                result.append(::pltxt2htm::container::U8StringView{open_tag});
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_experiment: {
@@ -797,8 +797,7 @@ entry:
                 if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
                     ::fast_io::u8string purified_color{};
                     ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                        purified_color, ::pltxt2htm::container::U8StringView{mark_background_color.data(),
-                                                                             mark_background_color.size()});
+                        purified_color, ::pltxt2htm::container::U8StringView{mark_background_color});
                     pltxt2htm_assert(purified_color == mark_background_color,
                                      u8"Color value contains characters that cannot be directly used in Unity "
                                      u8"rich-text tags.");
@@ -816,8 +815,7 @@ entry:
                 if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
                     ::fast_io::u8string purified_color{};
                     ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                        purified_color, ::pltxt2htm::container::U8StringView{mark_background_color.data(),
-                                                                             mark_background_color.size()});
+                        purified_color, ::pltxt2htm::container::U8StringView{mark_background_color});
                     pltxt2htm_assert(purified_color == mark_background_color,
                                      u8"Color value contains characters that cannot be directly used in Unity "
                                      u8"rich-text tags.");

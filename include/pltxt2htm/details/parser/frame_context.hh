@@ -1426,7 +1426,7 @@ public:
         }
         case ::pltxt2htm::NodeKind::md_block_quotes: {
             auto const& pltext = context_data_ref.as_md_block_quotes().pltext;
-            return ::pltxt2htm::container::U8StringView{pltext.data(), pltext.size()};
+            return ::pltxt2htm::container::U8StringView{pltext};
         }
         case ::pltxt2htm::NodeKind::md_link: {
             return context_data_ref.as_url_info().pltext;

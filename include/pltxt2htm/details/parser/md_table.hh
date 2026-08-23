@@ -226,7 +226,7 @@ constexpr auto try_parse_md_table_raw(::pltxt2htm::container::U8StringView pltex
     ::fast_io::vector<::pltxt2htm::TableAlign> aligns{};
     bool has_delimiter_content{};
     for (auto const& cell : delim_row) {
-        auto const cell_view = ::pltxt2htm::container::U8StringView{cell.data(), cell.size()};
+        auto const cell_view = ::pltxt2htm::container::U8StringView{cell};
         if (cell_view.empty()) {
             aligns.push_back(::pltxt2htm::TableAlign::left);
             continue;

@@ -4521,7 +4521,7 @@ constexpr auto try_parse_md_url(::pltxt2htm::container::U8StringView pltext) noe
     if (raw_len == pltext_size) {
         return ::pltxt2htm::container::nullopt;
     }
-    auto const encoded_vw = ::pltxt2htm::container::U8StringView{encoded.data(), encoded.size()};
+    auto const encoded_vw = ::pltxt2htm::container::U8StringView{encoded};
     auto const retry_scheme_end =
         ::pltxt2htm::details::try_parse_url_scheme<ndebug>(encoded_vw).value_or(::std::size_t{});
     auto opt_retry_auth =

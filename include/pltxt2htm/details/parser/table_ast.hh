@@ -79,7 +79,7 @@ public:
     [[nodiscard]]
     constexpr auto caption(this TableAstRaw<ndebug> const& self) noexcept -> ::pltxt2htm::container::U8StringView {
         auto&& text = self.caption_text.template value<ndebug>();
-        return ::pltxt2htm::container::U8StringView{text.data(), text.size()};
+        return ::pltxt2htm::container::U8StringView{text};
     }
 
     /// Record the table caption and that it was present.
