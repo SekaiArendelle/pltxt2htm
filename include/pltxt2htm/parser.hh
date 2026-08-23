@@ -10,7 +10,7 @@
 #include <cstddef>
 #include <fast_io/fast_io_dsal/list.h>
 #include <fast_io/fast_io_dsal/stack.h>
-#include <fast_io/fast_io_dsal/string_view.h>
+#include "container/string_view.hh"
 #include "container/expected.hh"
 #include "ast/node_kind.hh"
 #include "contracts.hh"
@@ -45,7 +45,7 @@ namespace pltxt2htm {
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2htm::Ast<ndebug> {
+constexpr auto parse_pltxt(::pltxt2htm::container::U8StringView pltext) noexcept -> ::pltxt2htm::Ast<ndebug> {
     // This stack is used to track nested tag contexts during parsing
     ::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>> call_stack{};
     ::pltxt2htm::Ast<ndebug> result{};
@@ -54,7 +54,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
 
     while (true) {
         auto&& [advance_count, has_new_frame] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
-            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index), call_stack, result);
+            pltext.template subview<ndebug>(start_index), call_stack, result);
         start_index += advance_count;
         if (has_new_frame == false) {
             break;
@@ -232,8 +232,7 @@ constexpr auto parse_pltxt(::fast_io::u8string_view pltext) noexcept -> ::pltxt2
         // other common cases
         call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
             ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, start_index)},
+                ::pltxt2htm::details::ParserFrameContextWithPltextInfo{pltext.template subview<ndebug>(start_index)},
                 ::pltxt2htm::NodeKind::text},
             ::std::move(result)));
         result = ::std::move(::pltxt2htm::details::parse_pltxt<ndebug>(call_stack).subast);

@@ -11,6 +11,7 @@
 #include <cstddef>
 #include <fast_io/fast_io_dsal/string.h>
 #include "../../container/expected.hh"
+#include "../../container/string_view.hh"
 #include "ast_decl.hh"
 #include "basic_node_decl.hh"
 #include "../value_unit.hh"
@@ -419,7 +420,7 @@ class HtmlMark {
     ::fast_io::u8string background_color;
 
 public:
-    static constexpr auto default_background_color = ::fast_io::u8string_view{u8"#FFFF00"};
+    static constexpr auto default_background_color = ::pltxt2htm::container::U8StringView{u8"#FFFF00"};
 
     constexpr explicit HtmlMark(::pltxt2htm::Ast<ndebug>&& subast_,
                                 ::fast_io::u8string&& background_color_ = ::fast_io::u8string{

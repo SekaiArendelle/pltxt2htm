@@ -12,7 +12,7 @@
 #include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
-#include <fast_io/fast_io_dsal/string_view.h>
+#include "../../container/string_view.hh"
 #include "frame_context.hh"
 #include "../utils.hh"
 #include "../../ast/vertical_align_value.hh"
@@ -121,7 +121,7 @@ entry:
                 constexpr auto open_tag = ::pltxt2htm::details::concat(U8LiteralString{u8"<span style=\"color:"},
                                                                        ::pltxt2htm::PlA<ndebug>::get_color_literal(),
                                                                        U8LiteralString{u8";\">"});
-                result.append(::fast_io::u8string_view{open_tag.data(), open_tag.size()});
+                result.append(::pltxt2htm::container::U8StringView{open_tag});
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_span: {
@@ -143,7 +143,7 @@ entry:
                     if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
                         ::fast_io::u8string purified_color{};
                         ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                            purified_color, ::fast_io::u8string_view{span_color.data(), span_color.size()});
+                            purified_color, ::pltxt2htm::container::U8StringView{span_color});
                         pltxt2htm_assert(
                             purified_color == span_color,
                             u8"Color value contains characters that cannot be directly used in HTML attributes.");

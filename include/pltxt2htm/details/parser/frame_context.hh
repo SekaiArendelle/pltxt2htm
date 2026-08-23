@@ -11,7 +11,7 @@
 #include <utility>
 #include "../../container/expected.hh"
 #include <fast_io/fast_io_dsal/string.h>
-#include <fast_io/fast_io_dsal/string_view.h>
+#include "../../container/string_view.hh"
 #include "list_ast.hh"
 #include "md_table.hh"
 #include "html_table.hh"
@@ -45,7 +45,7 @@ namespace pltxt2htm::details {
  */
 class ParserFrameContextWithPltextInfo {
 public:
-    ::fast_io::u8string_view pltext;
+    ::pltxt2htm::container::U8StringView pltext;
 };
 
 /**
@@ -53,7 +53,7 @@ public:
  */
 class ParserFrameContextWithEqualSignTagInfo {
 public:
-    ::fast_io::u8string_view pltext;
+    ::pltxt2htm::container::U8StringView pltext;
     ::fast_io::u8string id;
 };
 
@@ -63,7 +63,7 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class ParserFrameContextWithHtmlSpanInfo {
 public:
-    ::fast_io::u8string_view pltext;
+    ::pltxt2htm::container::U8StringView pltext;
     ::fast_io::u8string color;
     ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size;
     ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align;
@@ -74,7 +74,7 @@ public:
  */
 class ParserFrameContextWithHtmlMarkInfo {
 public:
-    ::fast_io::u8string_view pltext;
+    ::pltxt2htm::container::U8StringView pltext;
     ::fast_io::u8string background_color;
 };
 
@@ -83,7 +83,7 @@ public:
  */
 class ParserFrameContextWithUrlInfo {
 public:
-    ::fast_io::u8string_view pltext;
+    ::pltxt2htm::container::U8StringView pltext;
     ::pltxt2htm::Url url;
 };
 
@@ -92,7 +92,7 @@ public:
  */
 class ParserFrameContextWithHtmlATagInfo {
 public:
-    ::fast_io::u8string_view pltext;
+    ::pltxt2htm::container::U8StringView pltext;
     ::pltxt2htm::Url url;
     bool internal;
 };
@@ -102,7 +102,7 @@ public:
  */
 class ParserFrameContextWithPlSizeTagInfo {
 public:
-    ::fast_io::u8string_view pltext;
+    ::pltxt2htm::container::U8StringView pltext;
     ::pltxt2htm::ValueWithUnit<double> value;
 };
 
@@ -111,7 +111,7 @@ public:
  */
 class ParserFrameContextWithPlVoffsetTagInfo {
 public:
-    ::fast_io::u8string_view pltext;
+    ::pltxt2htm::container::U8StringView pltext;
     ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> value;
 };
 
@@ -121,7 +121,7 @@ public:
  */
 class ParserFrameContextWithPlMarginTagInfo {
 public:
-    ::fast_io::u8string_view pltext;
+    ::pltxt2htm::container::U8StringView pltext;
     ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left;
     ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right;
 };
@@ -131,7 +131,7 @@ public:
  */
 class ParserFrameContextWithHtmlDivInfo {
 public:
-    ::fast_io::u8string_view pltext;
+    ::pltxt2htm::container::U8StringView pltext;
     ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left;
     ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right;
 };
@@ -141,7 +141,7 @@ public:
  */
 class ParserFrameContextWithPlMarkInfo {
 public:
-    ::fast_io::u8string_view pltext;
+    ::pltxt2htm::container::U8StringView pltext;
     ::fast_io::u8string background_color;
 };
 
@@ -177,7 +177,7 @@ public:
  */
 class ParserFrameContextWithCellInfo {
 public:
-    ::fast_io::u8string_view pltext;
+    ::pltxt2htm::container::U8StringView pltext;
     ::pltxt2htm::TableAlign align;
 };
 
@@ -188,7 +188,7 @@ public:
  */
 class ParserFrameContextWithAlignInfo {
 public:
-    ::fast_io::u8string_view pltext;
+    ::pltxt2htm::container::U8StringView pltext;
     ::pltxt2htm::TextAlign align;
 };
 
@@ -197,7 +197,7 @@ public:
  */
 class ParserFrameContextWithListLiCheckboxInfo {
 public:
-    ::fast_io::u8string_view pltext;
+    ::pltxt2htm::container::U8StringView pltext;
     bool checked;
 };
 
@@ -1242,7 +1242,8 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_pltext(this ParserFrameContext<ndebug> const& self) noexcept -> ::fast_io::u8string_view {
+    constexpr auto get_pltext(this ParserFrameContext<ndebug> const& self) noexcept
+        -> ::pltxt2htm::container::U8StringView {
         auto const& context_data_ref = self.context_data;
         switch (context_data_ref.get_kind()) /* -Werror=switch */ {
         case ::pltxt2htm::NodeKind::u8char:
@@ -1425,7 +1426,7 @@ public:
         }
         case ::pltxt2htm::NodeKind::md_block_quotes: {
             auto const& pltext = context_data_ref.as_md_block_quotes().pltext;
-            return ::fast_io::u8string_view{pltext.data(), pltext.size()};
+            return ::pltxt2htm::container::U8StringView{pltext};
         }
         case ::pltxt2htm::NodeKind::md_link: {
             return context_data_ref.as_url_info().pltext;
@@ -1687,8 +1688,7 @@ constexpr auto process_table_frame(::fast_io::stack<ParserFrameContext<ndebug>>&
                 auto const& cell = raw_ast.cell_at(row_index, cell_index);
                 call_stack.push(ParserFrameContext<ndebug>(
                     FrontendContextVariant<ndebug>{
-                        ParserFrameContextWithCellInfo{::fast_io::u8string_view{cell.text.data(), cell.text.size()},
-                                                       cell.align},
+                        ParserFrameContextWithCellInfo{::pltxt2htm::container::U8StringView{cell.text}, cell.align},
                         cell.is_header ? ::pltxt2htm::NodeKind::table_th : ::pltxt2htm::NodeKind::table_td},
                     ::pltxt2htm::Ast<ndebug>{}));
                 frame.as_table().cell_index = cell_index + 1;

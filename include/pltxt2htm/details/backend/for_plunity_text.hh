@@ -13,7 +13,7 @@
 #include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
-#include <fast_io/fast_io_dsal/string_view.h>
+#include "../../container/string_view.hh"
 #include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"
 #include "frame_context.hh"
@@ -37,13 +37,13 @@ namespace pltxt2htm::details {
 template<::pltxt2htm::Contracts ndebug>
 constexpr void append_entity_reference_to_plunity_richtext(::fast_io::u8string const& value,
                                                            ::fast_io::u8string& out) noexcept {
-    ::fast_io::u8string_view const value_view{value.data(), value.size()};
+    ::pltxt2htm::container::U8StringView const value_view{value};
     ::std::size_t const value_size{value_view.size()};
     bool decoded{};
-    if (value_size > 1 && ::pltxt2htm::details::u8string_view_index<ndebug>(value_view, 0) == u8'#') {
+    if (value_size > 1 && value_view.template index<ndebug>(0) == u8'#') {
         auto index = ::std::size_t{1};
-        bool const hex{::pltxt2htm::details::u8string_view_index<ndebug>(value_view, index) == u8'x' ||
-                       ::pltxt2htm::details::u8string_view_index<ndebug>(value_view, index) == u8'X'};
+        bool const hex{value_view.template index<ndebug>(index) == u8'x' ||
+                       value_view.template index<ndebug>(index) == u8'X'};
         if (hex) {
             ++index;
         }
@@ -52,7 +52,7 @@ constexpr void append_entity_reference_to_plunity_richtext(::fast_io::u8string c
         char32_t code{};
         bool valid{true};
         for (; index < value_size; ++index) {
-            auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(value_view, index);
+            auto const chr = value_view.template index<ndebug>(index);
             char32_t digit{};
             if (::pltxt2htm::details::is_ascii_digit(chr)) {
                 digit = static_cast<char32_t>(chr - u8'0');
@@ -303,9 +303,11 @@ constexpr void convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast<nde
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto plunity_text_backend(::pltxt2htm::Ast<ndebug> const& ast_init, ::fast_io::u8string_view project,
-                                    ::fast_io::u8string_view visitor, ::fast_io::u8string_view author,
-                                    ::fast_io::u8string_view coauthors) noexcept -> ::fast_io::u8string {
+constexpr auto plunity_text_backend(::pltxt2htm::Ast<ndebug> const& ast_init,
+                                    ::pltxt2htm::container::U8StringView project,
+                                    ::pltxt2htm::container::U8StringView visitor,
+                                    ::pltxt2htm::container::U8StringView author,
+                                    ::pltxt2htm::container::U8StringView coauthors) noexcept -> ::fast_io::u8string {
     ::fast_io::u8string result{};
     ::fast_io::stack<BackendFrameContext<ndebug>> call_stack{};
     call_stack.push(BackendFrameContext<ndebug>(ast_init, ::pltxt2htm::NodeKind::text, 0));
@@ -394,7 +396,7 @@ entry:
                 constexpr auto open_tag =
                     ::pltxt2htm::details::concat(U8LiteralString{u8"<color="},
                                                  ::pltxt2htm::PlA<ndebug>::get_color_literal(), U8LiteralString{u8">"});
-                result.append(::fast_io::u8string_view{open_tag.data(), open_tag.size()});
+                result.append(::pltxt2htm::container::U8StringView{open_tag});
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_experiment: {
@@ -795,8 +797,7 @@ entry:
                 if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
                     ::fast_io::u8string purified_color{};
                     ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                        purified_color,
-                        ::fast_io::u8string_view{mark_background_color.data(), mark_background_color.size()});
+                        purified_color, ::pltxt2htm::container::U8StringView{mark_background_color});
                     pltxt2htm_assert(purified_color == mark_background_color,
                                      u8"Color value contains characters that cannot be directly used in Unity "
                                      u8"rich-text tags.");
@@ -814,8 +815,7 @@ entry:
                 if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
                     ::fast_io::u8string purified_color{};
                     ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                        purified_color,
-                        ::fast_io::u8string_view{mark_background_color.data(), mark_background_color.size()});
+                        purified_color, ::pltxt2htm::container::U8StringView{mark_background_color});
                     pltxt2htm_assert(purified_color == mark_background_color,
                                      u8"Color value contains characters that cannot be directly used in Unity "
                                      u8"rich-text tags.");

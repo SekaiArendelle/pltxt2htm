@@ -10,7 +10,7 @@
 #pragma once
 
 #include <cstddef>
-#include <fast_io/fast_io_dsal/string_view.h>
+#include "../container/string_view.hh"
 #include "value_unit.hh"
 #include "../contracts.hh"
 #include "../details/push_macro.hh"
@@ -110,31 +110,31 @@ namespace details {
  */
 template<::pltxt2htm::Contracts ndebug>
 constexpr auto vertical_align_keyword_string(::pltxt2htm::VerticalAlignKeyword const keyword) noexcept
-    -> ::fast_io::u8string_view {
+    -> ::pltxt2htm::container::U8StringView {
     switch (keyword) /* -Werror=switch */ {
     case ::pltxt2htm::VerticalAlignKeyword::sub: {
-        return ::fast_io::u8string_view{u8"sub"};
+        return ::pltxt2htm::container::U8StringView{u8"sub"};
     }
     case ::pltxt2htm::VerticalAlignKeyword::super: {
-        return ::fast_io::u8string_view{u8"super"};
+        return ::pltxt2htm::container::U8StringView{u8"super"};
     }
     case ::pltxt2htm::VerticalAlignKeyword::text_top: {
-        return ::fast_io::u8string_view{u8"text-top"};
+        return ::pltxt2htm::container::U8StringView{u8"text-top"};
     }
     case ::pltxt2htm::VerticalAlignKeyword::text_bottom: {
-        return ::fast_io::u8string_view{u8"text-bottom"};
+        return ::pltxt2htm::container::U8StringView{u8"text-bottom"};
     }
     case ::pltxt2htm::VerticalAlignKeyword::middle: {
-        return ::fast_io::u8string_view{u8"middle"};
+        return ::pltxt2htm::container::U8StringView{u8"middle"};
     }
     case ::pltxt2htm::VerticalAlignKeyword::top: {
-        return ::fast_io::u8string_view{u8"top"};
+        return ::pltxt2htm::container::U8StringView{u8"top"};
     }
     case ::pltxt2htm::VerticalAlignKeyword::bottom: {
-        return ::fast_io::u8string_view{u8"bottom"};
+        return ::pltxt2htm::container::U8StringView{u8"bottom"};
     }
     case ::pltxt2htm::VerticalAlignKeyword::baseline: {
-        return ::fast_io::u8string_view{u8"baseline"};
+        return ::pltxt2htm::container::U8StringView{u8"baseline"};
     }
 #ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
     default:

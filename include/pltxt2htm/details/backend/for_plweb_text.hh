@@ -11,7 +11,7 @@
 #include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
-#include <fast_io/fast_io_dsal/string_view.h>
+#include "../../container/string_view.hh"
 #include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"
 #include "frame_context.hh"
@@ -209,17 +209,18 @@ constexpr void convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> c
  * @param value Raw attribute value to escape.
  */
 template<::pltxt2htm::Contracts ndebug>
-constexpr void append_html_attr_escaped(::fast_io::u8string& result, ::fast_io::u8string_view value) noexcept {
+constexpr void append_html_attr_escaped(::fast_io::u8string& result,
+                                        ::pltxt2htm::container::U8StringView value) noexcept {
     ::std::size_t const value_size{value.size()};
     for (::std::size_t index{}; index < value_size; ++index) {
-        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(value, index);
+        auto const chr = value.template index<ndebug>(index);
         switch (chr) {
         case u8'&':
-            if (auto const opt_entity_len = ::pltxt2htm::details::try_parse_entity_reference<ndebug>(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(value, index));
+            if (auto const opt_entity_len =
+                    ::pltxt2htm::details::try_parse_entity_reference<ndebug>(value.template subview<ndebug>(index));
                 opt_entity_len.has_value()) {
                 auto const entity_len = opt_entity_len.template value<ndebug>();
-                result.append(::fast_io::u8string_view{value.data() + index, entity_len});
+                result.append(::pltxt2htm::container::U8StringView{value.data() + index, entity_len});
                 index += entity_len - 1;
                 break;
             }
@@ -270,10 +271,11 @@ enum class PlWebTextBackendMode : unsigned {
  */
 template<::pltxt2htm::Contracts ndebug, PlWebTextBackendMode mode>
 [[nodiscard]]
-constexpr auto plweb_text_backend(::pltxt2htm::Ast<ndebug> const& ast_init, ::fast_io::u8string_view host,
-                                  ::fast_io::u8string_view project, ::fast_io::u8string_view visitor,
-                                  ::fast_io::u8string_view author, ::fast_io::u8string_view coauthors) noexcept
-    -> ::fast_io::u8string {
+constexpr auto plweb_text_backend(::pltxt2htm::Ast<ndebug> const& ast_init, ::pltxt2htm::container::U8StringView host,
+                                  ::pltxt2htm::container::U8StringView project,
+                                  ::pltxt2htm::container::U8StringView visitor,
+                                  ::pltxt2htm::container::U8StringView author,
+                                  ::pltxt2htm::container::U8StringView coauthors) noexcept -> ::fast_io::u8string {
     ::fast_io::u8string result{};
     ::fast_io::stack<BackendFrameContext<ndebug>> call_stack{};
     call_stack.push(BackendFrameContext<ndebug>(ast_init, ::pltxt2htm::NodeKind::text, 0));
@@ -360,7 +362,7 @@ entry:
                 if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
                     ::fast_io::u8string purified_color_value{};
                     ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                        purified_color_value, ::fast_io::u8string_view{color_value.data(), color_value.size()});
+                        purified_color_value, ::pltxt2htm::container::U8StringView{color_value});
                     bool const is_valid_color_value{purified_color_value == color_value};
                     pltxt2htm_assert(
                         is_valid_color_value,
@@ -378,7 +380,7 @@ entry:
                 constexpr auto open_tag = ::pltxt2htm::details::concat(U8LiteralString{u8"<span style=\"color:"},
                                                                        ::pltxt2htm::PlA<ndebug>::get_color_literal(),
                                                                        U8LiteralString{u8";\">"});
-                result.append(::fast_io::u8string_view{open_tag.data(), open_tag.size()});
+                result.append(::pltxt2htm::container::U8StringView{open_tag});
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_experiment: {
@@ -401,7 +403,7 @@ entry:
                 if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
                     ::fast_io::u8string purified_experiment_id{};
                     ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                        purified_experiment_id, ::fast_io::u8string_view{experiment_id.data(), experiment_id.size()});
+                        purified_experiment_id, ::pltxt2htm::container::U8StringView{experiment_id});
                     pltxt2htm_assert(purified_experiment_id == experiment_id,
                                      u8"Experiment ID contains characters that cannot be directly used in HTML "
                                      u8"attributes. Please check "
@@ -431,7 +433,7 @@ entry:
                 if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
                     ::fast_io::u8string purified_discussion_id{};
                     ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                        purified_discussion_id, ::fast_io::u8string_view{discussion_id.data(), discussion_id.size()});
+                        purified_discussion_id, ::pltxt2htm::container::U8StringView{discussion_id});
                     pltxt2htm_assert(purified_discussion_id == discussion_id,
                                      u8"Discussion ID contains characters that cannot be directly used in HTML "
                                      u8"attributes. Please check "
@@ -448,7 +450,7 @@ entry:
                 result.append(u8"&lt;experiments=");
                 auto const& experiments_value = node.as_pl_experiments().get_value();
                 ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                    result, ::fast_io::u8string_view{experiments_value.data(), experiments_value.size()});
+                    result, ::pltxt2htm::container::U8StringView{experiments_value});
                 result.append(u8"&gt;");
                 goto entry;
             }
@@ -459,7 +461,7 @@ entry:
                 result.append(u8"&lt;discussions=");
                 auto const& discussions_value = node.as_pl_discussions().get_value();
                 ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                    result, ::fast_io::u8string_view{discussions_value.data(), discussions_value.size()});
+                    result, ::pltxt2htm::container::U8StringView{discussions_value});
                 result.append(u8"&gt;");
                 goto entry;
             }
@@ -470,7 +472,7 @@ entry:
                 result.append(u8"&lt;trigger=");
                 auto const& trigger_value = node.as_pl_trigger().get_value();
                 ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                    result, ::fast_io::u8string_view{trigger_value.data(), trigger_value.size()});
+                    result, ::pltxt2htm::container::U8StringView{trigger_value});
                 result.append(u8"&gt;");
                 goto entry;
             }
@@ -481,7 +483,7 @@ entry:
                 result.append(u8"&lt;internal=");
                 auto const& internal_value = node.as_pl_internal().get_value();
                 ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                    result, ::fast_io::u8string_view{internal_value.data(), internal_value.size()});
+                    result, ::pltxt2htm::container::U8StringView{internal_value});
                 result.append(u8"&gt;");
                 goto entry;
             }
@@ -504,7 +506,7 @@ entry:
                     if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
                         ::fast_io::u8string purified_user_id{};
                         ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                            purified_user_id, ::fast_io::u8string_view{user_id.data(), user_id.size()});
+                            purified_user_id, ::pltxt2htm::container::U8StringView{user_id});
                         bool const is_valid_user_id{purified_user_id == user_id};
                         pltxt2htm_assert(
                             is_valid_user_id,
@@ -753,7 +755,7 @@ entry:
                     if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
                         ::fast_io::u8string purified_color{};
                         ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                            purified_color, ::fast_io::u8string_view{span_color.data(), span_color.size()});
+                            purified_color, ::pltxt2htm::container::U8StringView{span_color});
                         pltxt2htm_assert(
                             purified_color == span_color,
                             u8"Color value contains characters that cannot be directly used in HTML attributes.");
@@ -829,7 +831,7 @@ entry:
                 result.append(u8"<a href=\"");
                 auto const& html_a_url = node.as_html_a().get_url().as_string();
                 ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                    result, ::fast_io::u8string_view{html_a_url.data(), html_a_url.size()});
+                    result, ::pltxt2htm::container::U8StringView{html_a_url});
                 if (node.as_html_a().get_internal()) {
                     result.append(u8"\" internal>");
                 }
@@ -875,8 +877,7 @@ entry:
                 if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
                     ::fast_io::u8string purified_color{};
                     ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                        purified_color,
-                        ::fast_io::u8string_view{mark_background_color.data(), mark_background_color.size()});
+                        purified_color, ::pltxt2htm::container::U8StringView{mark_background_color});
                     pltxt2htm_assert(purified_color == mark_background_color,
                                      u8"Color value contains characters that cannot be directly used in HTML "
                                      u8"attributes.");
@@ -894,8 +895,7 @@ entry:
                 if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
                     ::fast_io::u8string purified_color{};
                     ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                        purified_color,
-                        ::fast_io::u8string_view{mark_background_color.data(), mark_background_color.size()});
+                        purified_color, ::pltxt2htm::container::U8StringView{mark_background_color});
                     pltxt2htm_assert(purified_color == mark_background_color,
                                      u8"Color value contains characters that cannot be directly used in HTML "
                                      u8"attributes.");
@@ -1305,12 +1305,12 @@ entry:
             case ::pltxt2htm::NodeKind::html_img: {
                 result.append(u8"<img src=\"");
                 auto const& src = node.as_html_img().get_src();
-                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                    result, ::fast_io::u8string_view{src.data(), src.size()});
+                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result,
+                                                                       ::pltxt2htm::container::U8StringView{src});
                 result.append(u8"\" alt=\"");
                 auto const& alt = node.as_html_img().get_alt();
-                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                    result, ::fast_io::u8string_view{alt.data(), alt.size()});
+                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result,
+                                                                       ::pltxt2htm::container::U8StringView{alt});
                 result.append(u8"\">");
                 continue;
             }
@@ -1331,8 +1331,8 @@ entry:
             case ::pltxt2htm::NodeKind::url: {
                 auto const& url_str = node.as_url().as_string();
                 ::fast_io::u8string escaped;
-                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                    escaped, ::fast_io::u8string_view{url_str.data(), url_str.size()});
+                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(escaped,
+                                                                       ::pltxt2htm::container::U8StringView{url_str});
                 result.append(u8"<a href=\"");
                 result.append(escaped);
                 result.append(u8"\">");
@@ -1344,7 +1344,7 @@ entry:
                 result.append(u8"<a href=\"");
                 auto const& md_link_url = node.as_md_link().get_url().as_string();
                 ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                    result, ::fast_io::u8string_view{md_link_url.data(), md_link_url.size()});
+                    result, ::pltxt2htm::container::U8StringView{md_link_url});
                 result.append(u8"\">");
                 call_stack.push(
                     BackendFrameContext<ndebug>(node.as_md_link().get_subast(), ::pltxt2htm::NodeKind::md_link, 0));
@@ -1354,8 +1354,8 @@ entry:
             case ::pltxt2htm::NodeKind::pl_external: {
                 result.append(u8"<a href=\"");
                 auto const& ext_url = node.as_pl_external().get_url().as_string();
-                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                    result, ::fast_io::u8string_view{ext_url.data(), ext_url.size()});
+                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result,
+                                                                       ::pltxt2htm::container::U8StringView{ext_url});
                 result.append(u8"\">");
                 call_stack.push(BackendFrameContext<ndebug>(node.as_pl_external().get_subast(),
                                                             ::pltxt2htm::NodeKind::pl_external, 0));
@@ -1365,8 +1365,8 @@ entry:
             case ::pltxt2htm::NodeKind::pl_link: {
                 result.append(u8"<a href=\"");
                 auto const& link_url = node.as_pl_link().get_url().as_string();
-                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                    result, ::fast_io::u8string_view{link_url.data(), link_url.size()});
+                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result,
+                                                                       ::pltxt2htm::container::U8StringView{link_url});
                 result.append(u8"\">");
                 call_stack.push(
                     BackendFrameContext<ndebug>(node.as_pl_link().get_subast(), ::pltxt2htm::NodeKind::pl_link, 0));
@@ -1376,8 +1376,8 @@ entry:
             case ::pltxt2htm::NodeKind::md_image: {
                 result.append(u8"<img src=\"");
                 auto const& img_url = node.as_md_image().get_url().as_string();
-                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                    result, ::fast_io::u8string_view{img_url.data(), img_url.size()});
+                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result,
+                                                                       ::pltxt2htm::container::U8StringView{img_url});
                 result.append(u8"\" alt=\"");
                 ::pltxt2htm::details::convert_simple_pltxt_ast_to_plweb_text<ndebug>(node.as_md_image().get_subast(),
                                                                                      result);
@@ -1498,7 +1498,7 @@ entry:
                     auto const& language = opt_language.template value<ndebug>();
                     result.append(u8"<pre><code class=\"language-");
                     ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
-                        result, ::fast_io::u8string_view{language.data(), language.size()});
+                        result, ::pltxt2htm::container::U8StringView{language});
                     result.append(u8"\">");
                 }
                 else {

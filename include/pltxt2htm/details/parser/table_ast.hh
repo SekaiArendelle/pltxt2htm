@@ -15,7 +15,7 @@
 
 #include <cstddef>
 #include <fast_io/fast_io_dsal/string.h>
-#include <fast_io/fast_io_dsal/string_view.h>
+#include "../../container/string_view.hh"
 #include <fast_io/fast_io_dsal/vector.h>
 #include "../../container/expected.hh"
 #include "../utils.hh"
@@ -77,9 +77,9 @@ public:
 
     /// @return Raw caption content (valid only when has_caption()).
     [[nodiscard]]
-    constexpr auto caption(this TableAstRaw<ndebug> const& self) noexcept -> ::fast_io::u8string_view {
+    constexpr auto caption(this TableAstRaw<ndebug> const& self) noexcept -> ::pltxt2htm::container::U8StringView {
         auto&& text = self.caption_text.template value<ndebug>();
-        return ::fast_io::u8string_view{text.data(), text.size()};
+        return ::pltxt2htm::container::U8StringView{text};
     }
 
     /// Record the table caption and that it was present.
