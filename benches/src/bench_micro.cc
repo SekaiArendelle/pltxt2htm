@@ -105,7 +105,7 @@ BENCHMARK_REGISTER_F(MicroFixture, AstAppend_1000);
 BENCHMARK_DEFINE_F(MicroFixture, StringAppend_Reserved)(benchmark::State& st) {
     for (auto _ : st) {
         ::pltxt2htm::container::U8String s;
-        s.reserve(10000);
+        s.reserve<ndebug>(10000);
         for (int i = 0; i < 100; ++i) {
             s.append(u8"<span style=\"color:red;\">text</span>");
         }
