@@ -18,6 +18,8 @@ static_assert(::std::same_as<U8String::value_type, char8_t>);
 static_assert(::std::is_constructible_v<U8String, ::fast_io::u8string const&>);
 static_assert(::std::is_constructible_v<U8StringView, U8String const&>);
 static_assert(!::std::is_constructible_v<U8StringView, U8String&&>);
+static_assert(::std::is_convertible_v<U8String const&, U8StringView>);
+static_assert(!::std::is_convertible_v<U8String&&, U8StringView>);
 static_assert(!has_subscript_operator<U8String>);
 static_assert(!has_subscript_operator<U8String const>);
 

@@ -541,9 +541,13 @@ public:
     }
 
     [[nodiscard]]
-    constexpr operator string_view_type() const noexcept {
-        return string_view_type{this->begin_pointer, this->size()};
+    constexpr operator string_view_type(this BasicString const& self) noexcept {
+        return string_view_type{self.begin_pointer, self.size()};
     }
+
+    constexpr operator string_view_type(this BasicString&&) = delete;
+
+    constexpr operator string_view_type(this BasicString const&&) = delete;
 
     [[nodiscard]]
     constexpr operator ::fast_io::basic_string_view<value_type>() const noexcept {

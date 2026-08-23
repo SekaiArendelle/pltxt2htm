@@ -24,6 +24,8 @@ static_assert(::std::is_constructible_v<U8StringView, ::fast_io::u8string const&
 static_assert(!::std::is_constructible_v<U8StringView, ::fast_io::u8string&&>);
 static_assert(::std::is_constructible_v<U8StringView, ::pltxt2htm::container::U8String const&>);
 static_assert(!::std::is_constructible_v<U8StringView, ::pltxt2htm::container::U8String&&>);
+static_assert(::std::is_convertible_v<::pltxt2htm::container::U8String const&, U8StringView>);
+static_assert(!::std::is_convertible_v<::pltxt2htm::container::U8String&&, U8StringView>);
 static_assert(can_form_basic_string_view<char>);
 static_assert(can_form_basic_string_view<wchar_t>);
 static_assert(can_form_basic_string_view<char8_t>);
@@ -62,10 +64,9 @@ static_assert(test_constexpr_string_view());
 int main() {
     ::pltxt2htm::container::U8String own_string{u8"pltxt2htm"};
     U8StringView const own_string_view{own_string};
-    auto const deduced_own_string_view = ::pltxt2htm::container::BasicStringView{own_string};
-    static_assert(::std::same_as<::std::remove_cvref_t<decltype(deduced_own_string_view)>, U8StringView>);
+    U8StringView const converted_own_string_view = own_string;
     pltxt2htm_test_assert_true(own_string_view == u8"pltxt2htm");
-    pltxt2htm_test_assert_true(deduced_own_string_view == own_string_view);
+    pltxt2htm_test_assert_true(converted_own_string_view == own_string_view);
 
     ::fast_io::u8string string{u8"fast_io"};
     U8StringView const string_view{string};
