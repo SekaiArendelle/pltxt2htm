@@ -88,13 +88,14 @@ constexpr auto try_capture_until_tag(::pltxt2htm::container::U8StringView pltext
  * @brief Trim leading/trailing whitespace (space, tab, newline) from cell/caption content.
  * @param text Raw captured content.
  */
+template<::pltxt2htm::Contracts ndebug>
 constexpr auto trim_table_content(::pltxt2htm::container::U8String& text) noexcept -> void {
     while (text.empty() == false) {
-        auto const chr = text[text.size() - 1];
+        auto const chr = text.template index<ndebug>(text.size() - 1);
         if (chr != u8' ' && chr != u8'\t' && chr != u8'\n') {
             break;
         }
-        text.pop_back();
+        text.template pop_back<ndebug>();
     }
 }
 
@@ -166,7 +167,7 @@ constexpr auto optionally_to_html_table_ast(::pltxt2htm::container::U8StringView
                     return ::pltxt2htm::container::nullopt;
                 }
                 auto&& [cell_text, cell_advance] = opt_cell.template value<ndebug>();
-                ::pltxt2htm::details::trim_table_content(cell_text);
+                ::pltxt2htm::details::trim_table_content<ndebug>(cell_text);
                 current_index += tag_len + 3 + cell_advance;
                 raw_ast.add_cell_to_last_row(
                     TableCellRaw{.text = ::std::move(cell_text), .align = align, .is_header = true});
@@ -182,7 +183,7 @@ constexpr auto optionally_to_html_table_ast(::pltxt2htm::container::U8StringView
                     return ::pltxt2htm::container::nullopt;
                 }
                 auto&& [cell_text, cell_advance] = opt_cell.template value<ndebug>();
-                ::pltxt2htm::details::trim_table_content(cell_text);
+                ::pltxt2htm::details::trim_table_content<ndebug>(cell_text);
                 current_index += tag_len + 3 + cell_advance;
                 raw_ast.add_cell_to_last_row(
                     TableCellRaw{.text = ::std::move(cell_text), .align = align, .is_header = false});
@@ -197,7 +198,7 @@ constexpr auto optionally_to_html_table_ast(::pltxt2htm::container::U8StringView
                 return ::pltxt2htm::container::nullopt;
             }
             auto&& [caption_text, caption_advance] = opt_caption.template value<ndebug>();
-            ::pltxt2htm::details::trim_table_content(caption_text);
+            ::pltxt2htm::details::trim_table_content<ndebug>(caption_text);
             raw_ast.set_caption(::std::move(caption_text));
             current_index += caption_advance;
             inside_caption = false;

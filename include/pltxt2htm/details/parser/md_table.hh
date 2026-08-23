@@ -88,7 +88,7 @@ constexpr auto try_parse_md_table_row(::pltxt2htm::container::U8StringView pltex
             auto chr = pltext.template index<ndebug>(current_index);
             if (chr == u8'|') {
                 if (prev_was_backslash) {
-                    cell.pop_back(); // remove the escape backslash
+                    cell.template pop_back<ndebug>(); // remove the escape backslash
                     prev_was_backslash = false;
                     chr = u8'|';
                 }
@@ -103,8 +103,8 @@ constexpr auto try_parse_md_table_row(::pltxt2htm::container::U8StringView pltex
             prev_was_backslash = (chr == u8'\\') ? !prev_was_backslash : false;
         }
         // trim trailing spaces from cell
-        while (!cell.empty() && (cell.back() == u8' ' || cell.back() == u8'\t')) {
-            cell.pop_back();
+        while (!cell.empty() && (cell.template back<ndebug>() == u8' ' || cell.template back<ndebug>() == u8'\t')) {
+            cell.template pop_back<ndebug>();
         }
         row.push_back(::std::move(cell));
         if (current_index < pltext_size && pltext.template index<ndebug>(current_index) == u8'|') {

@@ -189,11 +189,11 @@ constexpr auto optionally_to_html_list_ast(::pltxt2htm::container::U8StringView 
         }
         // Trailing whitespace/newlines are formatting as well (see the leading-skip above).
         while (text.empty() == false) {
-            auto const chr = text[text.size() - 1];
+            auto const chr = text.template index<ndebug>(text.size() - 1);
             if (chr != u8' ' && chr != u8'\t' && chr != u8'\n') {
                 break;
             }
-            text.pop_back();
+            text.template pop_back<ndebug>();
         }
         if (checkbox) {
             ast.emplace_back(ListLiCheckboxNode(::std::move(text), checkbox_checked));

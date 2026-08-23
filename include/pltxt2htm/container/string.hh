@@ -49,10 +49,9 @@ private:
     using untyped_allocator_type = ::fast_io::generic_allocator_adapter<allocator_type>;
     using typed_allocator_type = ::fast_io::typed_generic_allocator_adapter<untyped_allocator_type, value_type>;
 
-    value_type empty_character{};
-    pointer begin_pointer{::std::addressof(empty_character)};
-    pointer current_pointer{::std::addressof(empty_character)};
-    pointer end_pointer{::std::addressof(empty_character)};
+    pointer begin_pointer;
+    pointer current_pointer;
+    pointer end_pointer;
 
     static constexpr void start_lifetime(pointer storage, size_type count) noexcept {
         if consteval {
@@ -62,29 +61,36 @@ private:
         }
     }
 
-    [[nodiscard]]
-    constexpr auto is_inline(this BasicString const& self) noexcept -> bool {
-        return self.begin_pointer == ::std::addressof(self.empty_character);
-    }
-
     constexpr void reset(this BasicString& self) noexcept {
-        self.empty_character = value_type{};
-        self.begin_pointer = ::std::addressof(self.empty_character);
-        self.current_pointer = self.begin_pointer;
-        self.end_pointer = self.begin_pointer;
+        if consteval {
+            auto [new_pointer, allocated_size] = typed_allocator_type::allocate_at_least(2);
+            self.start_lifetime(new_pointer, allocated_size);
+            self.begin_pointer = new_pointer;
+            self.current_pointer = new_pointer;
+            self.end_pointer = new_pointer + static_cast<size_type>(allocated_size - 1);
+            *new_pointer = value_type{};
+        }
+        else {
+            pointer const empty_string{const_cast<pointer>(::fast_io::null_terminated_c_str_v<value_type>)};
+            self.begin_pointer = empty_string;
+            self.current_pointer = empty_string;
+            self.end_pointer = empty_string;
+        }
     }
 
-    constexpr void release(this BasicString& self) noexcept {
-        if (!self.is_inline()) {
+    constexpr void destroy(this BasicString& self) noexcept {
+        if (self.begin_pointer != self.end_pointer) {
             typed_allocator_type::deallocate_n(self.begin_pointer, self.capacity() + 1);
         }
-        self.reset();
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
-    constexpr void allocate(this BasicString& self, size_type capacity_) noexcept {
-        pltxt2htm_assert(capacity_ < self.max_size(), u8"BasicString capacity is too large");
-        auto [new_pointer, allocated_size] = typed_allocator_type::allocate_at_least(capacity_ + 1);
+    constexpr void allocate(this BasicString& self, size_type capacity) noexcept {
+        // Work around constructors being unable to receive an explicitly selected Contracts template argument.
+#ifndef NDEBUG
+        constexpr auto ndebug{::pltxt2htm::Contracts::quick_enforce};
+        pltxt2htm_assert(capacity < self.max_size(), u8"BasicString capacity is too large");
+#endif
+        auto [new_pointer, allocated_size] = typed_allocator_type::allocate_at_least(capacity + 1);
         self.start_lifetime(new_pointer, allocated_size);
         self.begin_pointer = new_pointer;
         self.current_pointer = new_pointer;
@@ -113,7 +119,7 @@ private:
         return self.npos;
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void ensure_capacity(this BasicString& self, size_type required_capacity) noexcept {
         if (required_capacity <= self.capacity()) {
             return;
@@ -136,6 +142,10 @@ private:
     }
 
     constexpr void assign_impl(this BasicString& self, const_pointer source, size_type count) noexcept {
+        if (count == 0) {
+            self.clear();
+            return;
+        }
         size_type const offset{self.source_offset(source)};
         if (count > self.capacity()) {
             BasicString replacement{source, source + count};
@@ -158,10 +168,13 @@ private:
 public:
     static constexpr size_type npos{::std::numeric_limits<size_type>::max()};
 
-    constexpr BasicString() noexcept = default;
+    constexpr BasicString() noexcept {
+        this->reset();
+    }
 
     constexpr explicit BasicString(size_type count) noexcept {
         if (count == 0) {
+            this->reset();
             return;
         }
         this->allocate(count);
@@ -172,6 +185,7 @@ public:
 
     constexpr explicit BasicString(size_type count, value_type character) noexcept {
         if (count == 0) {
+            this->reset();
             return;
         }
         this->allocate(count);
@@ -214,9 +228,6 @@ public:
     }
 
     constexpr BasicString(BasicString&& other) noexcept {
-        if (other.is_inline()) {
-            return;
-        }
         this->begin_pointer = other.begin_pointer;
         this->current_pointer = other.current_pointer;
         this->end_pointer = other.end_pointer;
@@ -224,9 +235,7 @@ public:
     }
 
     constexpr ~BasicString() {
-        if (!this->is_inline()) {
-            typed_allocator_type::deallocate_n(this->begin_pointer, this->capacity() + 1);
-        }
+        this->destroy();
     }
 
     constexpr auto operator=(this BasicString& self, BasicString const& other) noexcept -> BasicString& {
@@ -240,13 +249,11 @@ public:
         if (::std::addressof(self) == ::std::addressof(other)) {
             return self;
         }
-        self.release();
-        if (!other.is_inline()) {
-            self.begin_pointer = other.begin_pointer;
-            self.current_pointer = other.current_pointer;
-            self.end_pointer = other.end_pointer;
-            other.reset();
-        }
+        self.destroy();
+        self.begin_pointer = other.begin_pointer;
+        self.current_pointer = other.current_pointer;
+        self.end_pointer = other.end_pointer;
+        other.reset();
         return self;
     }
 
@@ -355,92 +362,61 @@ public:
         return const_reverse_iterator{self.begin()};
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto index(this BasicString& self, size_type position) noexcept -> reference {
         pltxt2htm_assert(position < self.size(), u8"Index of BasicString out of bound");
         return self.begin_pointer[position];
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto index(this BasicString const& self, size_type position) noexcept -> const_reference {
         pltxt2htm_assert(position < self.size(), u8"Index of BasicString out of bound");
         return self.begin_pointer[position];
     }
 
-    [[nodiscard]]
-    constexpr auto index_unchecked(this BasicString& self, size_type position) noexcept -> reference {
-        return self.begin_pointer[position];
-    }
+    constexpr auto operator[](this BasicString& self, size_type position) noexcept -> reference = delete
+#if __cpp_deleted_function >= 202403L
+        ("operator[] is deleted; use index() instead for bounds-checked access")
+#endif
+        ;
 
-    [[nodiscard]]
-    constexpr auto index_unchecked(this BasicString const& self, size_type position) noexcept -> const_reference {
-        return self.begin_pointer[position];
-    }
-
-    [[nodiscard]]
-    constexpr auto operator[](this BasicString& self, size_type position) noexcept -> reference {
-        return self.index(position);
-    }
-
-    [[nodiscard]]
-    constexpr auto operator[](this BasicString const& self, size_type position) noexcept -> const_reference {
-        return self.index(position);
-    }
-
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto front(this BasicString& self) noexcept -> reference {
         return self.index<ndebug>(0);
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto front(this BasicString const& self) noexcept -> const_reference {
         return self.index<ndebug>(0);
     }
 
-    [[nodiscard]]
-    constexpr auto front_unchecked(this BasicString& self) noexcept -> reference {
-        return *self.begin_pointer;
-    }
-
-    [[nodiscard]]
-    constexpr auto front_unchecked(this BasicString const& self) noexcept -> const_reference {
-        return *self.begin_pointer;
-    }
-
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto back(this BasicString& self) noexcept -> reference {
         pltxt2htm_assert(!self.empty(), u8"back() called on empty BasicString");
         return self.current_pointer[-1];
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto back(this BasicString const& self) noexcept -> const_reference {
         pltxt2htm_assert(!self.empty(), u8"back() called on empty BasicString");
         return self.current_pointer[-1];
     }
 
-    [[nodiscard]]
-    constexpr auto back_unchecked(this BasicString& self) noexcept -> reference {
-        return self.current_pointer[-1];
-    }
-
-    [[nodiscard]]
-    constexpr auto back_unchecked(this BasicString const& self) noexcept -> const_reference {
-        return self.current_pointer[-1];
-    }
-
     constexpr void clear(this BasicString& self) noexcept {
+        if (self.begin_pointer == self.end_pointer) {
+            return;
+        }
         self.current_pointer = self.begin_pointer;
         *self.current_pointer = value_type{};
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void reserve(this BasicString& self, size_type requested_capacity) noexcept {
         if (requested_capacity <= self.capacity()) {
             return;
@@ -452,7 +428,7 @@ public:
         self.start_lifetime(new_pointer, allocated_size);
         ::std::copy(self.begin_pointer, self.current_pointer, new_pointer);
         new_pointer[old_size] = value_type{};
-        if (!self.is_inline()) {
+        if (self.begin_pointer != self.end_pointer) {
             typed_allocator_type::deallocate_n(self.begin_pointer, self.capacity() + 1);
         }
         self.begin_pointer = new_pointer;
@@ -470,7 +446,11 @@ public:
 
     constexpr void assign_characters(this BasicString& self, size_type count,
                                      value_type character = value_type{}) noexcept {
-        self.ensure_capacity(count);
+        if (count == 0) {
+            self.clear();
+            return;
+        }
+        self.ensure_capacity<::pltxt2htm::Contracts::quick_enforce>(count);
         ::std::fill_n(self.begin_pointer, count, character);
         self.current_pointer = self.begin_pointer + count;
         *self.current_pointer = value_type{};
@@ -481,18 +461,14 @@ public:
     }
 
     constexpr void push_back(this BasicString& self, value_type character) noexcept {
-        self.ensure_capacity(self.size() + 1);
+        self.ensure_capacity<::pltxt2htm::Contracts::quick_enforce>(self.size() + 1);
         *self.current_pointer++ = character;
         *self.current_pointer = value_type{};
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void pop_back(this BasicString& self) noexcept {
         pltxt2htm_assert(!self.empty(), u8"pop_back() called on empty BasicString");
-        self.pop_back_unchecked();
-    }
-
-    constexpr void pop_back_unchecked(this BasicString& self) noexcept {
         --self.current_pointer;
         *self.current_pointer = value_type{};
     }
@@ -504,7 +480,7 @@ public:
         }
         size_type const old_size{self.size()};
         size_type const offset{self.source_offset(first)};
-        self.ensure_capacity(old_size + count);
+        self.ensure_capacity<::pltxt2htm::Contracts::quick_enforce>(old_size + count);
         if (offset != self.npos) {
             first = self.begin_pointer + offset;
         }
@@ -537,7 +513,7 @@ public:
         self.append(string.data(), string.data() + string.size());
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     constexpr auto insert(this BasicString& self, const_iterator position, string_view_type string) noexcept
         -> iterator {
         pltxt2htm_assert(position >= self.begin_pointer && position <= self.current_pointer,

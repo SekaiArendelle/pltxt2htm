@@ -342,7 +342,7 @@ constexpr auto ptrdiff_t2str(::std::ptrdiff_t num) noexcept -> ::pltxt2htm::cont
     ::std::ranges::reverse(result);
 
     if (num < 0) {
-        result.insert(result.begin(), ::pltxt2htm::container::U8StringView{u8"-"});
+        result.insert<::pltxt2htm::Contracts::ignore>(result.begin(), ::pltxt2htm::container::U8StringView{u8"-"});
     }
 
     return result;

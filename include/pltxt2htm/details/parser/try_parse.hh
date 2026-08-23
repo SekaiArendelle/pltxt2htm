@@ -3846,8 +3846,8 @@ constexpr auto try_parse_md_block_quotes(::pltxt2htm::container::U8StringView pl
     if (subpltext.empty()) {
         return ::pltxt2htm::container::nullopt;
     }
-    if (subpltext.back_unchecked() == u8'\n') {
-        subpltext.pop_back();
+    if (subpltext.template back<ndebug>() == u8'\n') {
+        subpltext.template pop_back<ndebug>();
     }
     return TryParseMdBlockQuotesResult{.advance_count = current_index, .subpltext = ::std::move(subpltext)};
 }
@@ -4181,7 +4181,7 @@ constexpr auto make_try_parse_url_result(::pltxt2htm::container::U8StringView co
     -> ::pltxt2htm::container::Optional<TryParseUrlResult> {
     ::std::size_t const parsed_url_size{parsed_url.size()};
     ::pltxt2htm::container::U8String url_str{};
-    url_str.reserve(parsed_url_size);
+    url_str.template reserve<ndebug>(parsed_url_size);
     for (::std::size_t index{}; index < parsed_url_size; ++index) {
         auto chr = parsed_url.template index<ndebug>(index);
         if (chr == u8'&') {

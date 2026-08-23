@@ -31,7 +31,7 @@ namespace pltxt2htm::details {
 template<::pltxt2htm::Contracts ndebug>
 constexpr void convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> const& ast,
                                                       ::pltxt2htm::container::U8String& out) noexcept {
-    out.reserve(out.size() + ast.size() * 6);
+    out.template reserve<ndebug>(out.size() + ast.size() * 6);
     for (auto&& node : ast) {
         switch (node.get_node_kind()) {
         case ::pltxt2htm::NodeKind::u8char: {
