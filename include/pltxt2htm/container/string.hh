@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <functional>
 #include <iterator>
 #include <limits>
 #include <memory>
@@ -98,6 +99,19 @@ private:
         *new_pointer = value_type{};
     }
 
+    constexpr void allocate_zero(this BasicString& self, size_type capacity) noexcept {
+        // Work around constructors being unable to receive an explicitly selected Contracts template argument.
+#ifndef NDEBUG
+        constexpr auto ndebug{::pltxt2htm::Contracts::quick_enforce};
+        pltxt2htm_assert(capacity < self.max_size(), u8"BasicString capacity is too large");
+#endif
+        auto [new_pointer, allocated_size] = typed_allocator_type::allocate_zero_at_least(capacity + 1);
+        self.start_lifetime(new_pointer, allocated_size);
+        self.begin_pointer = new_pointer;
+        self.current_pointer = new_pointer;
+        self.end_pointer = new_pointer + static_cast<size_type>(allocated_size - 1);
+    }
+
     constexpr void construct(this BasicString& self, const_pointer first, size_type count) noexcept {
         if (count == 0) {
             self.reset();
@@ -111,12 +125,75 @@ private:
 
     [[nodiscard]]
     constexpr auto source_offset(this BasicString const& self, const_pointer source) noexcept -> size_type {
-        for (size_type index{}; index <= self.size(); ++index) {
-            if (source == self.begin_pointer + index) {
-                return index;
+        if consteval {
+            for (size_type index{}; index <= self.size(); ++index) {
+                if (source == self.begin_pointer + index) {
+                    return index;
+                }
             }
+            return self.npos;
         }
-        return self.npos;
+        else {
+            ::std::less<const_pointer> const less{};
+            if (!less(source, self.begin_pointer) && !less(self.current_pointer, source)) {
+                return static_cast<size_type>(source - self.begin_pointer);
+            }
+            return self.npos;
+        }
+    }
+
+    [[nodiscard]]
+    constexpr auto grown_capacity(this BasicString const& self, size_type required_capacity) noexcept -> size_type {
+        size_type new_capacity{self.capacity()};
+        if (new_capacity == 0) {
+            new_capacity = 1;
+        }
+        while (new_capacity < required_capacity) {
+            size_type const remaining{self.max_size() - new_capacity};
+            if (new_capacity > remaining) {
+                return required_capacity;
+            }
+            new_capacity *= 2;
+        }
+        return new_capacity;
+    }
+
+    template<::pltxt2htm::Contracts ndebug>
+    constexpr void append_reallocate(this BasicString& self, const_pointer source, size_type count) noexcept {
+        size_type const old_size{self.size()};
+        pltxt2htm_assert(count < self.max_size() - old_size, u8"BasicString capacity is too large");
+        size_type const new_size{old_size + count};
+        size_type const new_capacity{self.grown_capacity(new_size)};
+        auto [new_pointer, allocated_size] = typed_allocator_type::allocate_at_least(new_capacity + 1);
+        self.start_lifetime(new_pointer, allocated_size);
+        ::std::copy(self.begin_pointer, self.current_pointer, new_pointer);
+        ::std::copy_n(source, count, new_pointer + old_size);
+        new_pointer[new_size] = value_type{};
+        self.destroy();
+        self.begin_pointer = new_pointer;
+        self.current_pointer = new_pointer + new_size;
+        self.end_pointer = new_pointer + static_cast<size_type>(allocated_size - 1);
+    }
+
+    template<::pltxt2htm::Contracts ndebug>
+    constexpr auto insert_reallocate(this BasicString& self, size_type position_index, string_view_type string) noexcept
+        -> iterator {
+        size_type const old_size{self.size()};
+        pltxt2htm_assert(string.size() < self.max_size() - old_size, u8"BasicString capacity is too large");
+        size_type const new_size{old_size + string.size()};
+        size_type const new_capacity{self.grown_capacity(new_size)};
+        auto [new_pointer, allocated_size] = typed_allocator_type::allocate_at_least(new_capacity + 1);
+        self.start_lifetime(new_pointer, allocated_size);
+        ::std::copy_n(self.begin_pointer, position_index, new_pointer);
+        ::std::copy(string.begin(), string.end(), new_pointer + position_index);
+        ::std::copy(self.begin_pointer + position_index, self.current_pointer,
+                    new_pointer + position_index + string.size());
+        new_pointer[new_size] = value_type{};
+        self.destroy();
+        self.begin_pointer = new_pointer;
+        self.current_pointer = new_pointer + new_size;
+        self.end_pointer = new_pointer + static_cast<size_type>(allocated_size - 1);
+        return new_pointer + position_index;
     }
 
     template<::pltxt2htm::Contracts ndebug>
@@ -126,19 +203,7 @@ private:
         }
         pltxt2htm_assert(required_capacity < self.max_size(), u8"BasicString capacity is too large");
 
-        size_type new_capacity{self.capacity()};
-        if (new_capacity == 0) {
-            new_capacity = 1;
-        }
-        while (new_capacity < required_capacity) {
-            size_type const remaining{self.max_size() - new_capacity};
-            if (new_capacity > remaining) {
-                new_capacity = required_capacity;
-                break;
-            }
-            new_capacity *= 2;
-        }
-        self.reserve<ndebug>(new_capacity);
+        self.reserve<ndebug>(self.grown_capacity(required_capacity));
     }
 
     constexpr void assign_impl(this BasicString& self, const_pointer source, size_type count) noexcept {
@@ -146,20 +211,15 @@ private:
             self.clear();
             return;
         }
-        size_type const offset{self.source_offset(source)};
         if (count > self.capacity()) {
-            BasicString replacement{source, source + count};
-            self = ::std::move(replacement);
-            return;
+            self.reserve<::pltxt2htm::Contracts::quick_enforce>(count);
         }
 
-        if (offset == self.npos || offset == 0) {
+        if consteval {
             ::std::copy_n(source, count, self.begin_pointer);
         }
         else {
-            for (size_type index{}; index < count; ++index) {
-                self.begin_pointer[index] = self.begin_pointer[offset + index];
-            }
+            ::fast_io::freestanding::overlapped_copy_n(source, count, self.begin_pointer);
         }
         self.current_pointer = self.begin_pointer + count;
         *self.current_pointer = value_type{};
@@ -177,10 +237,8 @@ public:
             this->reset();
             return;
         }
-        this->allocate(count);
-        ::std::fill_n(this->begin_pointer, count, value_type{});
+        this->allocate_zero(count);
         this->current_pointer = this->begin_pointer + count;
-        *this->current_pointer = value_type{};
     }
 
     constexpr explicit BasicString(size_type count, value_type character) noexcept {
@@ -424,16 +482,37 @@ public:
         pltxt2htm_assert(requested_capacity < self.max_size(), u8"BasicString capacity is too large");
 
         size_type const old_size{self.size()};
-        auto [new_pointer, allocated_size] = typed_allocator_type::allocate_at_least(requested_capacity + 1);
-        self.start_lifetime(new_pointer, allocated_size);
-        ::std::copy(self.begin_pointer, self.current_pointer, new_pointer);
-        new_pointer[old_size] = value_type{};
-        if (self.begin_pointer != self.end_pointer) {
-            typed_allocator_type::deallocate_n(self.begin_pointer, self.capacity() + 1);
+        size_type const old_capacity{self.capacity()};
+        pointer new_pointer{};
+        size_type allocated_size{};
+        if consteval {
+            auto allocation = typed_allocator_type::allocate_at_least(requested_capacity + 1);
+            new_pointer = allocation.ptr;
+            allocated_size = allocation.count;
+            self.start_lifetime(new_pointer, allocated_size);
+            ::std::copy(self.begin_pointer, self.current_pointer, new_pointer);
+            if (old_capacity != 0) {
+                typed_allocator_type::deallocate_n(self.begin_pointer, old_capacity + 1);
+            }
+        }
+        else {
+            pointer const allocation_pointer{old_capacity == 0 ? nullptr : self.begin_pointer};
+            if constexpr (typed_allocator_type::has_reallocate) {
+                auto allocation = typed_allocator_type::reallocate_at_least(allocation_pointer, requested_capacity + 1);
+                new_pointer = allocation.ptr;
+                allocated_size = allocation.count;
+            }
+            else {
+                auto allocation = typed_allocator_type::reallocate_n_at_least(
+                    allocation_pointer, old_capacity == 0 ? 0 : old_capacity + 1, requested_capacity + 1);
+                new_pointer = allocation.ptr;
+                allocated_size = allocation.count;
+            }
         }
         self.begin_pointer = new_pointer;
         self.current_pointer = new_pointer + old_size;
         self.end_pointer = new_pointer + static_cast<size_type>(allocated_size - 1);
+        *self.current_pointer = value_type{};
     }
 
     constexpr void assign(this BasicString& self, string_view_type string) noexcept {
@@ -461,7 +540,9 @@ public:
     }
 
     constexpr void push_back(this BasicString& self, value_type character) noexcept {
-        self.ensure_capacity<::pltxt2htm::Contracts::quick_enforce>(self.size() + 1);
+        if (self.current_pointer == self.end_pointer) [[unlikely]] {
+            self.ensure_capacity<::pltxt2htm::Contracts::quick_enforce>(self.size() + 1);
+        }
         *self.current_pointer++ = character;
         *self.current_pointer = value_type{};
     }
@@ -479,12 +560,16 @@ public:
             return;
         }
         size_type const old_size{self.size()};
-        size_type const offset{self.source_offset(first)};
-        self.ensure_capacity<::pltxt2htm::Contracts::quick_enforce>(old_size + count);
-        if (offset != self.npos) {
-            first = self.begin_pointer + offset;
+        if (count > static_cast<size_type>(self.end_pointer - self.current_pointer)) [[unlikely]] {
+            self.append_reallocate<::pltxt2htm::Contracts::quick_enforce>(first, count);
+            return;
         }
-        ::std::copy_n(first, count, self.begin_pointer + old_size);
+        if consteval {
+            ::std::copy_n(first, count, self.current_pointer);
+        }
+        else {
+            ::fast_io::freestanding::overlapped_copy_n(first, count, self.current_pointer);
+        }
         self.current_pointer = self.begin_pointer + old_size + count;
         *self.current_pointer = value_type{};
     }
@@ -523,18 +608,30 @@ public:
             return self.begin_pointer + position_index;
         }
 
-        size_type const source_index{self.source_offset(string.data())};
-        if (source_index != self.npos) {
-            BasicString const copy{string};
-            return self.insert<ndebug>(self.begin_pointer + position_index, string_view_type{copy});
-        }
-
         size_type const old_size{self.size()};
-        self.ensure_capacity<ndebug>(old_size + string.size());
+        if (string.size() > static_cast<size_type>(self.end_pointer - self.current_pointer)) [[unlikely]] {
+            return self.insert_reallocate<ndebug>(position_index, string);
+        }
+        size_type const source_index{self.source_offset(string.data())};
         pointer const insertion_pointer{self.begin_pointer + position_index};
         ::std::move_backward(insertion_pointer, self.begin_pointer + old_size,
                              self.begin_pointer + old_size + string.size());
-        ::std::copy(string.begin(), string.end(), insertion_pointer);
+        const_pointer source{string.data()};
+        if (source_index != self.npos && source_index >= position_index) {
+            source = self.begin_pointer + source_index + string.size();
+        }
+        if consteval {
+            if (source_index != self.npos && source_index < position_index &&
+                position_index < source_index + string.size()) {
+                ::std::copy_backward(source, source + string.size(), insertion_pointer + string.size());
+            }
+            else {
+                ::std::copy_n(source, string.size(), insertion_pointer);
+            }
+        }
+        else {
+            ::fast_io::freestanding::overlapped_copy_n(source, string.size(), insertion_pointer);
+        }
         self.current_pointer = self.begin_pointer + old_size + string.size();
         *self.current_pointer = value_type{};
         return insertion_pointer;

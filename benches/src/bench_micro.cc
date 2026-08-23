@@ -102,29 +102,148 @@ BENCHMARK_DEFINE_F(MicroFixture, AstAppend_1000)(benchmark::State& st) {
 
 BENCHMARK_REGISTER_F(MicroFixture, AstAppend_1000);
 
-BENCHMARK_DEFINE_F(MicroFixture, StringAppend_Reserved)(benchmark::State& st) {
+BENCHMARK_DEFINE_F(MicroFixture, BasicStringAppend_Reserved)(benchmark::State& st) {
+    constexpr ::std::size_t fragment_size{sizeof(u8"<span style=\"color:red;\">text</span>") / sizeof(char8_t) - 1};
     for (auto _ : st) {
         ::pltxt2htm::container::U8String s;
-        s.reserve<ndebug>(10000);
-        for (int i = 0; i < 100; ++i) {
+        s.reserve<ndebug>(as_size(st) * fragment_size);
+        for (::std::int64_t i = 0; i < st.range(0); ++i) {
             s.append(u8"<span style=\"color:red;\">text</span>");
         }
         ::benchmark::DoNotOptimize(s);
     }
 }
 
-BENCHMARK_REGISTER_F(MicroFixture, StringAppend_Reserved);
+BENCHMARK_REGISTER_F(MicroFixture, BasicStringAppend_Reserved)->Arg(10)->Arg(100)->Arg(1000);
 
-BENCHMARK_DEFINE_F(MicroFixture, StringAppend_NoReserve)(benchmark::State& st) {
+BENCHMARK_DEFINE_F(MicroFixture, FastIoStringAppend_Reserved)(benchmark::State& st) {
+    constexpr ::std::size_t fragment_size{sizeof(u8"<span style=\"color:red;\">text</span>") / sizeof(char8_t) - 1};
     for (auto _ : st) {
-        ::pltxt2htm::container::U8String s;
-        for (int i = 0; i < 100; ++i) {
+        ::fast_io::u8string s;
+        s.reserve(as_size(st) * fragment_size);
+        for (::std::int64_t i = 0; i < st.range(0); ++i) {
             s.append(u8"<span style=\"color:red;\">text</span>");
         }
         ::benchmark::DoNotOptimize(s);
     }
 }
 
-BENCHMARK_REGISTER_F(MicroFixture, StringAppend_NoReserve);
+BENCHMARK_REGISTER_F(MicroFixture, FastIoStringAppend_Reserved)->Arg(10)->Arg(100)->Arg(1000);
+
+BENCHMARK_DEFINE_F(MicroFixture, BasicStringAppend_NoReserve)(benchmark::State& st) {
+    for (auto _ : st) {
+        ::pltxt2htm::container::U8String s;
+        for (::std::int64_t i = 0; i < st.range(0); ++i) {
+            s.append(u8"<span style=\"color:red;\">text</span>");
+        }
+        ::benchmark::DoNotOptimize(s);
+    }
+}
+
+BENCHMARK_REGISTER_F(MicroFixture, BasicStringAppend_NoReserve)->Arg(10)->Arg(100)->Arg(1000);
+
+BENCHMARK_DEFINE_F(MicroFixture, FastIoStringAppend_NoReserve)(benchmark::State& st) {
+    for (auto _ : st) {
+        ::fast_io::u8string s;
+        for (::std::int64_t i = 0; i < st.range(0); ++i) {
+            s.append(u8"<span style=\"color:red;\">text</span>");
+        }
+        ::benchmark::DoNotOptimize(s);
+    }
+}
+
+BENCHMARK_REGISTER_F(MicroFixture, FastIoStringAppend_NoReserve)->Arg(10)->Arg(100)->Arg(1000);
+
+BENCHMARK_DEFINE_F(MicroFixture, BasicStringPushBack_Reserved)(benchmark::State& st) {
+    for (auto _ : st) {
+        ::pltxt2htm::container::U8String s;
+        s.reserve<ndebug>(as_size(st));
+        for (::std::int64_t i = 0; i < st.range(0); ++i) {
+            s.push_back(u8'x');
+        }
+        ::benchmark::DoNotOptimize(s);
+    }
+}
+
+BENCHMARK_REGISTER_F(MicroFixture, BasicStringPushBack_Reserved)->Arg(1024)->Arg(4096)->Arg(16384);
+
+BENCHMARK_DEFINE_F(MicroFixture, FastIoStringPushBack_Reserved)(benchmark::State& st) {
+    for (auto _ : st) {
+        ::fast_io::u8string s;
+        s.reserve(as_size(st));
+        for (::std::int64_t i = 0; i < st.range(0); ++i) {
+            s.push_back(u8'x');
+        }
+        ::benchmark::DoNotOptimize(s);
+    }
+}
+
+BENCHMARK_REGISTER_F(MicroFixture, FastIoStringPushBack_Reserved)->Arg(1024)->Arg(4096)->Arg(16384);
+
+BENCHMARK_DEFINE_F(MicroFixture, BasicStringPushBack_NoReserve)(benchmark::State& st) {
+    for (auto _ : st) {
+        ::pltxt2htm::container::U8String s;
+        for (::std::int64_t i = 0; i < st.range(0); ++i) {
+            s.push_back(u8'x');
+        }
+        ::benchmark::DoNotOptimize(s);
+    }
+}
+
+BENCHMARK_REGISTER_F(MicroFixture, BasicStringPushBack_NoReserve)->Arg(1024)->Arg(4096)->Arg(16384);
+
+BENCHMARK_DEFINE_F(MicroFixture, FastIoStringPushBack_NoReserve)(benchmark::State& st) {
+    for (auto _ : st) {
+        ::fast_io::u8string s;
+        for (::std::int64_t i = 0; i < st.range(0); ++i) {
+            s.push_back(u8'x');
+        }
+        ::benchmark::DoNotOptimize(s);
+    }
+}
+
+BENCHMARK_REGISTER_F(MicroFixture, FastIoStringPushBack_NoReserve)->Arg(1024)->Arg(4096)->Arg(16384);
+
+BENCHMARK_DEFINE_F(MicroFixture, BasicStringAssign)(benchmark::State& st) {
+    ::pltxt2htm::container::U8String const source{as_size(st), u8'x'};
+    ::pltxt2htm::container::U8String target;
+    target.reserve<ndebug>(as_size(st));
+    for (auto _ : st) {
+        target.assign(::pltxt2htm::container::U8StringView{source});
+        ::benchmark::DoNotOptimize(target);
+    }
+}
+
+BENCHMARK_REGISTER_F(MicroFixture, BasicStringAssign)->Arg(1024)->Arg(4096)->Arg(16384);
+
+BENCHMARK_DEFINE_F(MicroFixture, FastIoStringAssign)(benchmark::State& st) {
+    ::fast_io::u8string const source{as_size(st), u8'x'};
+    ::fast_io::u8string target;
+    target.reserve(as_size(st));
+    for (auto _ : st) {
+        target.assign(::fast_io::u8string_view{source.data(), source.size()});
+        ::benchmark::DoNotOptimize(target);
+    }
+}
+
+BENCHMARK_REGISTER_F(MicroFixture, FastIoStringAssign)->Arg(1024)->Arg(4096)->Arg(16384);
+
+BENCHMARK_DEFINE_F(MicroFixture, BasicStringZeroConstruct)(benchmark::State& st) {
+    for (auto _ : st) {
+        ::pltxt2htm::container::U8String s{as_size(st)};
+        ::benchmark::DoNotOptimize(s);
+    }
+}
+
+BENCHMARK_REGISTER_F(MicroFixture, BasicStringZeroConstruct)->Arg(1024)->Arg(1 << 20);
+
+BENCHMARK_DEFINE_F(MicroFixture, FastIoStringZeroConstruct)(benchmark::State& st) {
+    for (auto _ : st) {
+        ::fast_io::u8string s{as_size(st)};
+        ::benchmark::DoNotOptimize(s);
+    }
+}
+
+BENCHMARK_REGISTER_F(MicroFixture, FastIoStringZeroConstruct)->Arg(1024)->Arg(1 << 20);
 
 BENCHMARK_MAIN();
