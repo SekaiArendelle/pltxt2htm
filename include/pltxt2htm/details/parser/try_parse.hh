@@ -10,7 +10,6 @@
 #include <utility>
 #include "../../container/expected.hh"
 #include <fast_io/fast_io_dsal/array.h>
-#include <fast_io/fast_io_dsal/stack.h>
 #include "../../container/string_view.hh"
 #include "../utils.hh"
 #include "../../contracts.hh"

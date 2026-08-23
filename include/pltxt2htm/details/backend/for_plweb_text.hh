@@ -8,7 +8,7 @@
 #pragma once
 
 #include <fast_io/fast_io_dsal/list.h>
-#include <fast_io/fast_io_dsal/stack.h>
+#include "../../container/stack.hh"
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
 #include "../../container/string_view.hh"
@@ -277,12 +277,12 @@ constexpr auto plweb_text_backend(::pltxt2htm::Ast<ndebug> const& ast_init, ::pl
                                   ::pltxt2htm::container::U8StringView author,
                                   ::pltxt2htm::container::U8StringView coauthors) noexcept -> ::fast_io::u8string {
     ::fast_io::u8string result{};
-    ::fast_io::stack<BackendFrameContext<ndebug>> call_stack{};
+    ::pltxt2htm::container::Stack<BackendFrameContext<ndebug>> call_stack{};
     call_stack.push(BackendFrameContext<ndebug>(ast_init, ::pltxt2htm::NodeKind::text, 0));
 
 entry:
     while (true) {
-        auto&& current_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+        auto&& current_frame = call_stack.template top<ndebug>();
         auto const& ast = current_frame.get_ast();
         auto const nested_tag_type = current_frame.get_nested_tag_type();
         auto&& current_index = current_frame.current_index;
@@ -1535,9 +1535,8 @@ entry:
         }
 
         {
-            auto const top_frame =
-                BackendFrameContext<ndebug>{::std::move(::pltxt2htm::details::stack_top<ndebug>(call_stack))};
-            call_stack.pop();
+            auto const top_frame = BackendFrameContext<ndebug>{::std::move(call_stack.template top<ndebug>())};
+            call_stack.template pop<ndebug>();
             if (call_stack.empty()) {
                 return result;
             }
@@ -1703,15 +1702,15 @@ entry:
             }
             case ::pltxt2htm::NodeKind::list_ul: {
                 result.append(u8"</ul>");
-                auto const parent_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
+                auto const parent_tag_type = call_stack.template top<ndebug>().get_nested_tag_type();
                 if (parent_tag_type == ::pltxt2htm::NodeKind::list_ul ||
                     parent_tag_type == ::pltxt2htm::NodeKind::list_ol) {
                     // A sibling-nested list defers the parent item's </li>. Consecutive
                     // sibling lists ([li, ul, ul]) share one deferred </li>, so keep it open
                     // while another list follows as the next sibling and emit it only after
                     // the last list of the run.
-                    auto const& parent_ast = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_ast();
-                    auto const parent_index = ::pltxt2htm::details::stack_top<ndebug>(call_stack).current_index;
+                    auto const& parent_ast = call_stack.template top<ndebug>().get_ast();
+                    auto const parent_index = call_stack.template top<ndebug>().current_index;
                     if (parent_index >= parent_ast.size() ||
                         (::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_index).get_node_kind() !=
                              ::pltxt2htm::NodeKind::list_ul &&
@@ -1724,13 +1723,13 @@ entry:
             }
             case ::pltxt2htm::NodeKind::list_ol: {
                 result.append(u8"</ol>");
-                auto const parent_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
+                auto const parent_tag_type = call_stack.template top<ndebug>().get_nested_tag_type();
                 if (parent_tag_type == ::pltxt2htm::NodeKind::list_ul ||
                     parent_tag_type == ::pltxt2htm::NodeKind::list_ol) {
                     // See the list_ul case above: keep the deferred </li> open across
                     // consecutive sibling lists and close it after the last one.
-                    auto const& parent_ast = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_ast();
-                    auto const parent_index = ::pltxt2htm::details::stack_top<ndebug>(call_stack).current_index;
+                    auto const& parent_ast = call_stack.template top<ndebug>().get_ast();
+                    auto const parent_index = call_stack.template top<ndebug>().current_index;
                     if (parent_index >= parent_ast.size() ||
                         (::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_index).get_node_kind() !=
                              ::pltxt2htm::NodeKind::list_ul &&
@@ -1747,8 +1746,8 @@ entry:
                 // If the next sibling in the parent list is itself a list (the Markdown
                 // nested-list shape), defer </li> so the nested list renders inside this
                 // item; the nested list's closing appends the deferred </li>.
-                auto const& parent_ast = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_ast();
-                auto const parent_index = ::pltxt2htm::details::stack_top<ndebug>(call_stack).current_index;
+                auto const& parent_ast = call_stack.template top<ndebug>().get_ast();
+                auto const parent_index = call_stack.template top<ndebug>().current_index;
                 if (parent_index < parent_ast.size()) {
                     auto const next_kind =
                         ::pltxt2htm::details::vector_index<ndebug>(parent_ast, parent_index).get_node_kind();

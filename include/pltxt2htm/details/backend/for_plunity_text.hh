@@ -10,7 +10,7 @@
 #include <cstddef>
 #include <fast_io/fast_io_dsal/list.h>
 #include <fast_io/fast_io_dsal/array.h>
-#include <fast_io/fast_io_dsal/stack.h>
+#include "../../container/stack.hh"
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
 #include "../../container/string_view.hh"
@@ -309,13 +309,13 @@ constexpr auto plunity_text_backend(::pltxt2htm::Ast<ndebug> const& ast_init,
                                     ::pltxt2htm::container::U8StringView author,
                                     ::pltxt2htm::container::U8StringView coauthors) noexcept -> ::fast_io::u8string {
     ::fast_io::u8string result{};
-    ::fast_io::stack<BackendFrameContext<ndebug>> call_stack{};
+    ::pltxt2htm::container::Stack<BackendFrameContext<ndebug>> call_stack{};
     call_stack.push(BackendFrameContext<ndebug>(ast_init, ::pltxt2htm::NodeKind::text, 0));
     ::std::size_t list_nesting_depth{};
 
 entry:
     while (true) {
-        auto&& current_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+        auto&& current_frame = call_stack.template top<ndebug>();
         auto const& ast = current_frame.get_ast();
         auto&& current_index = current_frame.current_index;
         ::std::size_t const ast_size{ast.size()};
@@ -1070,7 +1070,7 @@ entry:
             case ::pltxt2htm::NodeKind::list_ul: {
                 auto const& list_ul = node.as_list_ul();
                 pltxt2htm_assert(list_ul.get_subast().empty() == false, u8"List container must not be empty");
-                auto const parent_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
+                auto const parent_tag_type = call_stack.template top<ndebug>().get_nested_tag_type();
                 if (parent_tag_type == ::pltxt2htm::NodeKind::list_li ||
                     parent_tag_type == ::pltxt2htm::NodeKind::list_li_checkbox) {
                     result.push_back(u8'\n');
@@ -1083,7 +1083,7 @@ entry:
             case ::pltxt2htm::NodeKind::list_ol: {
                 auto const& list_ol = node.as_list_ol();
                 pltxt2htm_assert(list_ol.get_subast().empty() == false, u8"List container must not be empty");
-                auto const parent_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
+                auto const parent_tag_type = call_stack.template top<ndebug>().get_nested_tag_type();
                 if (parent_tag_type == ::pltxt2htm::NodeKind::list_li ||
                     parent_tag_type == ::pltxt2htm::NodeKind::list_li_checkbox) {
                     result.push_back(u8'\n');
@@ -1096,7 +1096,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::list_li: {
-                auto const nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
+                auto const nested_tag_type = call_stack.template top<ndebug>().get_nested_tag_type();
                 pltxt2htm_assert(nested_tag_type == ::pltxt2htm::NodeKind::list_ol ||
                                      nested_tag_type == ::pltxt2htm::NodeKind::list_ul,
                                  u8"Invalid tag type");
@@ -1507,9 +1507,8 @@ entry:
         }
 
         {
-            auto const top_frame =
-                BackendFrameContext<ndebug>{::std::move(::pltxt2htm::details::stack_top<ndebug>(call_stack))};
-            call_stack.pop();
+            auto const top_frame = BackendFrameContext<ndebug>{::std::move(call_stack.template top<ndebug>())};
+            call_stack.template pop<ndebug>();
             if (call_stack.empty()) {
                 return result;
             }
@@ -1630,7 +1629,7 @@ entry:
                 if (top_frame.as_align_info().has_align) {
                     result.append(u8"</align>");
                 }
-                auto const& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                auto const& parent_frame = call_stack.template top<ndebug>();
                 auto const& parent_ast = parent_frame.get_ast();
                 if (parent_frame.current_index < parent_ast.size()) {
                     auto const next_kind =
