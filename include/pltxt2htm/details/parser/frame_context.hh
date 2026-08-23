@@ -1688,8 +1688,7 @@ constexpr auto process_table_frame(::fast_io::stack<ParserFrameContext<ndebug>>&
                 auto const& cell = raw_ast.cell_at(row_index, cell_index);
                 call_stack.push(ParserFrameContext<ndebug>(
                     FrontendContextVariant<ndebug>{
-                        ParserFrameContextWithCellInfo{
-                            ::pltxt2htm::container::U8StringView{cell.text.data(), cell.text.size()}, cell.align},
+                        ParserFrameContextWithCellInfo{::pltxt2htm::container::U8StringView{cell.text}, cell.align},
                         cell.is_header ? ::pltxt2htm::NodeKind::table_th : ::pltxt2htm::NodeKind::table_td},
                     ::pltxt2htm::Ast<ndebug>{}));
                 frame.as_table().cell_index = cell_index + 1;

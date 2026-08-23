@@ -149,6 +149,12 @@ public:
         return self.pointer[index];
     }
 
+    constexpr auto operator[](this BasicStringView const& self, size_type index) noexcept -> const_reference = delete
+#if __cpp_deleted_function >= 202403L
+        ("operator[] is deleted; use index() instead for bounds-checked access")
+#endif
+        ;
+
     template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto subview(this BasicStringView const& self, size_type position, size_type count = npos) noexcept
