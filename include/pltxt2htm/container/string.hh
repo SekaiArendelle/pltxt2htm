@@ -15,6 +15,7 @@
 #include <fast_io/fast_io_dsal/string.h>
 
 #include "../contracts.hh"
+#include "../details/concepts.hh"
 #include "../details/literal_string.hh"
 #include "../details/push_macro.hh"
 #include "string_view.hh"
@@ -26,8 +27,7 @@ namespace pltxt2htm::container {
  * @tparam CharType Character type stored by the string.
  * @tparam Allocator fast_io-compatible allocator used for dynamic storage.
  */
-template<::pltxt2htm::container::details::is_char_type CharType,
-         typename Allocator = ::fast_io::native_global_allocator>
+template<::pltxt2htm::details::is_char_type CharType, typename Allocator = ::fast_io::native_global_allocator>
 class BasicString {
 public:
     using allocator_type = Allocator;
@@ -561,22 +561,22 @@ public:
     }
 };
 
-template<::pltxt2htm::container::details::is_char_type CharType, ::std::size_t size_with_null>
+template<::pltxt2htm::details::is_char_type CharType, ::std::size_t size_with_null>
 BasicString(CharType const (&)[size_with_null]) -> BasicString<CharType>;
 
-template<::pltxt2htm::container::details::is_char_type CharType>
+template<::pltxt2htm::details::is_char_type CharType>
 BasicString(CharType const*, CharType const*) -> BasicString<CharType>;
 
-template<::pltxt2htm::container::details::is_char_type CharType>
+template<::pltxt2htm::details::is_char_type CharType>
 BasicString(BasicStringView<CharType>) -> BasicString<CharType>;
 
-template<::pltxt2htm::container::details::is_char_type CharType>
+template<::pltxt2htm::details::is_char_type CharType>
 BasicString(::fast_io::basic_string_view<CharType>) -> BasicString<CharType>;
 
-template<::pltxt2htm::container::details::is_char_type CharType, typename Allocator>
+template<::pltxt2htm::details::is_char_type CharType, typename Allocator>
 BasicString(::fast_io::containers::basic_string<CharType, Allocator> const&) -> BasicString<CharType>;
 
-template<::pltxt2htm::container::details::is_char_type CharType, ::std::size_t size>
+template<::pltxt2htm::details::is_char_type CharType, ::std::size_t size>
 BasicString(::pltxt2htm::details::BasicLiteralString<CharType, size> const&) -> BasicString<CharType>;
 
 using String = BasicString<char>;
@@ -585,7 +585,7 @@ using U8String = BasicString<char8_t>;
 using U16String = BasicString<char16_t>;
 using U32String = BasicString<char32_t>;
 
-template<::pltxt2htm::container::details::is_char_type CharType, typename Allocator>
+template<::pltxt2htm::details::is_char_type CharType, typename Allocator>
 constexpr auto print_alias_define(::fast_io::io_alias_t, BasicString<CharType, Allocator> const& string_) noexcept
     -> ::fast_io::basic_io_scatter_t<CharType> {
     return {string_.data(), string_.size()};

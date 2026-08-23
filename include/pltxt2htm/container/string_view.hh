@@ -6,7 +6,6 @@
 #pragma once
 
 #include <algorithm>
-#include <concepts>
 #include <cstddef>
 #include <limits>
 
@@ -14,20 +13,13 @@
 #include <fast_io/fast_io_dsal/string_view.h>
 
 #include "../contracts.hh"
+#include "../details/concepts.hh"
 #include "../details/literal_string.hh"
 #include "../details/push_macro.hh"
 
 namespace pltxt2htm::container {
 
-namespace details {
-
-template<typename T>
-concept is_char_type = ::std::same_as<T, char> || ::std::same_as<T, wchar_t> || ::std::same_as<T, char8_t> ||
-                       ::std::same_as<T, char16_t> || ::std::same_as<T, char32_t>;
-
-} // namespace details
-
-template<::pltxt2htm::container::details::is_char_type CharType, typename Allocator>
+template<::pltxt2htm::details::is_char_type CharType, typename Allocator>
 class BasicString;
 
 /**
@@ -38,7 +30,7 @@ class BasicString;
  * pltxt2htm. Checked operations take a Contracts template argument so they use the
  * same panic/assertion policy as the rest of the library.
  */
-template<::pltxt2htm::container::details::is_char_type CharType>
+template<::pltxt2htm::details::is_char_type CharType>
 class BasicStringView {
 public:
     using value_type = CharType;
@@ -213,31 +205,31 @@ public:
     }
 };
 
-template<::pltxt2htm::container::details::is_char_type CharType>
+template<::pltxt2htm::details::is_char_type CharType>
 BasicStringView(CharType const*, ::std::size_t) -> BasicStringView<CharType>;
 
-template<::pltxt2htm::container::details::is_char_type CharType, ::std::size_t size_with_null>
+template<::pltxt2htm::details::is_char_type CharType, ::std::size_t size_with_null>
 BasicStringView(CharType const (&)[size_with_null]) -> BasicStringView<CharType>;
 
-template<::pltxt2htm::container::details::is_char_type CharType>
+template<::pltxt2htm::details::is_char_type CharType>
 BasicStringView(::fast_io::basic_string_view<CharType>) -> BasicStringView<CharType>;
 
-template<::pltxt2htm::container::details::is_char_type CharType, typename Allocator>
+template<::pltxt2htm::details::is_char_type CharType, typename Allocator>
 BasicStringView(::fast_io::containers::basic_string<CharType, Allocator> const&) -> BasicStringView<CharType>;
 
-template<::pltxt2htm::container::details::is_char_type CharType, typename Allocator>
+template<::pltxt2htm::details::is_char_type CharType, typename Allocator>
 BasicStringView(::pltxt2htm::container::BasicString<CharType, Allocator> const&) -> BasicStringView<CharType>;
 
-template<::pltxt2htm::container::details::is_char_type CharType, ::std::size_t size>
+template<::pltxt2htm::details::is_char_type CharType, ::std::size_t size>
 BasicStringView(::pltxt2htm::details::BasicLiteralString<CharType, size> const&) -> BasicStringView<CharType>;
 
-template<::pltxt2htm::container::details::is_char_type CharType>
+template<::pltxt2htm::details::is_char_type CharType>
 BasicStringView(::fast_io::manipulators::basic_os_c_str<CharType>) -> BasicStringView<CharType>;
 
-template<::pltxt2htm::container::details::is_char_type CharType>
+template<::pltxt2htm::details::is_char_type CharType>
 BasicStringView(::fast_io::manipulators::basic_os_c_str_with_known_size<CharType>) -> BasicStringView<CharType>;
 
-template<::pltxt2htm::container::details::is_char_type CharType>
+template<::pltxt2htm::details::is_char_type CharType>
 BasicStringView(::fast_io::manipulators::basic_os_str_known_size_without_null_terminated<CharType>)
     -> BasicStringView<CharType>;
 
