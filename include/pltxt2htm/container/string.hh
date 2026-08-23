@@ -159,12 +159,14 @@ private:
     }
 
     /**
-     * @brief Allocates zero-initialized storage for at least `capacity` characters.
+     * @brief Allocates zero-initialized storage for exactly `capacity` characters plus a terminator.
      * @param capacity Requested logical character capacity, excluding the terminator.
      *
      * At runtime this preserves allocator-specific zero-allocation optimizations,
-     * such as calloc-backed lazy zero pages. During constant evaluation,
-     * start_lifetime value-initializes every allocated character instead.
+     * such as calloc-backed lazy zero pages. The exact-size API avoids relying on
+     * the allocator adapter's conditional `allocate_zero_at_least` fallback.
+     * During constant evaluation, start_lifetime value-initializes every allocated
+     * character instead.
      */
     constexpr void allocate_zero(this BasicString& self, size_type capacity) noexcept {
         // Work around constructors being unable to receive an explicitly selected Contracts template argument.
@@ -172,11 +174,19 @@ private:
         constexpr auto ndebug{::pltxt2htm::Contracts::quick_enforce};
         pltxt2htm_assert(capacity < self.max_size(), u8"BasicString capacity is too large");
 #endif
-        auto [new_pointer, allocated_size] = typed_allocator_type::allocate_zero_at_least(capacity + 1);
-        self.start_lifetime(new_pointer, allocated_size);
-        self.begin_pointer = new_pointer;
-        self.current_pointer = new_pointer;
-        self.end_pointer = new_pointer + static_cast<size_type>(allocated_size - 1);
+        if consteval {
+            auto [new_pointer, allocated_size] = typed_allocator_type::allocate_at_least(capacity + 1);
+            self.start_lifetime(new_pointer, allocated_size);
+            self.begin_pointer = new_pointer;
+            self.current_pointer = new_pointer;
+            self.end_pointer = new_pointer + static_cast<size_type>(allocated_size - 1);
+        }
+        else {
+            pointer const new_pointer{typed_allocator_type::allocate_zero(capacity + 1)};
+            self.begin_pointer = new_pointer;
+            self.current_pointer = new_pointer;
+            self.end_pointer = new_pointer + capacity;
+        }
     }
 
     /**

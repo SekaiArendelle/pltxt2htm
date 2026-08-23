@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <concepts>
 #include <type_traits>
 
@@ -10,6 +11,23 @@
 using U8String = ::pltxt2htm::container::U8String;
 using U8StringView = ::pltxt2htm::container::U8StringView;
 using Contracts = ::pltxt2htm::Contracts;
+
+class DirtyAllocator {
+public:
+    static constexpr auto allocate(::std::size_t size) noexcept -> void* {
+        auto* const pointer{static_cast<unsigned char*>(::fast_io::c_malloc_allocator::allocate(size))};
+        ::std::fill_n(pointer, size, static_cast<unsigned char>(0xA5));
+        return pointer;
+    }
+
+    static constexpr auto allocate_zero(::std::size_t size) noexcept -> void* {
+        return ::fast_io::c_malloc_allocator::allocate_zero(size);
+    }
+
+    static constexpr void deallocate(void* pointer) noexcept {
+        ::fast_io::c_malloc_allocator::deallocate(pointer);
+    }
+};
 
 template<typename String>
 concept has_subscript_operator = requires(String& string) { string[0]; };
@@ -43,6 +61,12 @@ consteval auto test_constexpr_string() noexcept -> bool {
     constexpr auto literal = ::pltxt2htm::details::U8LiteralString{u8"literal"};
     U8String const literal_string{literal};
     if (literal_string != u8"literal") {
+        return false;
+    }
+
+    U8String const zero_string{16};
+    if (!::std::all_of(zero_string.begin(), zero_string.end(), [](char8_t character) { return character == u8'\0'; }) ||
+        zero_string.c_str()[zero_string.size()] != u8'\0') {
         return false;
     }
 
@@ -115,6 +139,11 @@ int main() {
         pltxt2htm_test_assert_true(character == u8'\0');
     }
     pltxt2htm_test_assert_true(zero_string.c_str()[zero_string.size()] == u8'\0');
+
+    ::pltxt2htm::container::BasicString<char8_t, DirtyAllocator> dirty_allocator_zero_string{1024};
+    for (char8_t const character : dirty_allocator_zero_string) {
+        pltxt2htm_test_assert_true(character == u8'\0');
+    }
 
     U8String self_append{u8"abc"};
     while (self_append.size() < self_append.capacity()) {
