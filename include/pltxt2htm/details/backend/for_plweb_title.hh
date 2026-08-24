@@ -702,8 +702,7 @@ entry:
         }
 
         {
-            auto const top_frame = BackendFrameContext<ndebug>{::std::move(call_stack.template top<ndebug>())};
-            call_stack.template pop<ndebug>();
+            auto const top_frame = call_stack.template pop_element<ndebug>();
             if (call_stack.empty()) {
                 return result;
             }

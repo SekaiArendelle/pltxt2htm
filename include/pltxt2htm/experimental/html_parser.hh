@@ -1034,8 +1034,7 @@ entry:
         }
 
         {
-            ::pltxt2htm::details::ParserFrameContext<ndebug> frame(::std::move(call_stack.template top<ndebug>()));
-            call_stack.template pop<ndebug>();
+            ::pltxt2htm::details::ParserFrameContext<ndebug> frame{call_stack.template pop_element<ndebug>()};
             if (call_stack.empty()) {
                 return ::std::move(frame.subast);
             }

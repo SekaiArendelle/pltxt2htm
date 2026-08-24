@@ -491,8 +491,7 @@ constexpr auto optionally_to_md_list_ast(::pltxt2htm::container::U8StringView pl
         if (current_index < pltext_size) {
             continue;
         }
-        auto frame = ::std::move(call_stack.template top<ndebug>());
-        call_stack.template pop<ndebug>();
+        auto frame = call_stack.template pop_element<ndebug>();
         if (call_stack.empty()) {
             return ToListAstResult<ndebug>{
                 .top_node = ::pltxt2htm::details::to_top_list_node<ndebug>(::std::move(frame.md_list_ast),

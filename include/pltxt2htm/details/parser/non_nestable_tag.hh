@@ -45,20 +45,21 @@ constexpr auto try_parse_non_nestable_equal_sign_tag(
     if (result.has_value() == false) {
         return ::pltxt2htm::container::nullopt;
     }
-    for (auto const& v : call_stack.container) {
-        // skip
-        // e.g. <experiment><experiment>test</experiment>text</experiment>
-        // e.g. <experiment><a><experiment>test</experiment>text</a>text</experiment>
-        auto const nested_tag_type = v.get_nested_tag_type();
-        if (nested_tag_type == ::pltxt2htm::NodeKind::pl_experiment ||
-            nested_tag_type == ::pltxt2htm::NodeKind::pl_discussion ||
-            nested_tag_type == ::pltxt2htm::NodeKind::pl_experiments ||
-            nested_tag_type == ::pltxt2htm::NodeKind::pl_discussions ||
-            nested_tag_type == ::pltxt2htm::NodeKind::pl_external ||
-            nested_tag_type == ::pltxt2htm::NodeKind::pl_link || nested_tag_type == ::pltxt2htm::NodeKind::pl_trigger ||
-            nested_tag_type == ::pltxt2htm::NodeKind::pl_internal) {
-            return ::pltxt2htm::container::nullopt;
-        }
+    // skip
+    // e.g. <experiment><experiment>test</experiment>text</experiment>
+    // e.g. <experiment><a><experiment>test</experiment>text</a>text</experiment>
+    if (call_stack.contains_if([](ParserFrameContext<ndebug> const& frame) noexcept {
+            auto const nested_tag_type = frame.get_nested_tag_type();
+            return nested_tag_type == ::pltxt2htm::NodeKind::pl_experiment ||
+                   nested_tag_type == ::pltxt2htm::NodeKind::pl_discussion ||
+                   nested_tag_type == ::pltxt2htm::NodeKind::pl_experiments ||
+                   nested_tag_type == ::pltxt2htm::NodeKind::pl_discussions ||
+                   nested_tag_type == ::pltxt2htm::NodeKind::pl_external ||
+                   nested_tag_type == ::pltxt2htm::NodeKind::pl_link ||
+                   nested_tag_type == ::pltxt2htm::NodeKind::pl_trigger ||
+                   nested_tag_type == ::pltxt2htm::NodeKind::pl_internal;
+        })) {
+        return ::pltxt2htm::container::nullopt;
     }
     return result;
 }

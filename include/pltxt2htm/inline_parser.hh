@@ -329,13 +329,10 @@ entry:
                 // Suppress auto-link when inside a URL-link container frame (pl_link,
                 // pl_external, md_link, html_a): a bare URL there would otherwise nest
                 // an <a> inside another <a>.  The URL then falls through to literal text.
-                bool in_url_link_frame{false};
-                for (auto const& v : call_stack.container) {
-                    if (::pltxt2htm::details::is_url_link_tag_type(v.get_nested_tag_type())) {
-                        in_url_link_frame = true;
-                        break;
-                    }
-                }
+                bool const in_url_link_frame{
+                    call_stack.contains_if([](ParserFrameContext<ndebug> const& frame) noexcept {
+                        return ::pltxt2htm::details::is_url_link_tag_type(frame.get_nested_tag_type());
+                    })};
                 if (in_url_link_frame == false) {
                     auto&& [consumed_size, url_obj] = opt_url.template value<ndebug>();
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(url_obj)));
@@ -1822,9 +1819,8 @@ entry:
             if (call_stack.size() == root_stack_size) {
                 return;
             }
-            ParserFrameContext<ndebug> frame(::std::move(call_stack.template top<ndebug>()));
+            ParserFrameContext<ndebug> frame{call_stack.template pop_element<ndebug>()};
             ::std::size_t const staged_index = pltext_size;
-            call_stack.template pop<ndebug>();
             pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
             // Considering the following markdown:
             // ```md
