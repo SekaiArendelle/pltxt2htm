@@ -87,9 +87,9 @@ public:
 
 /**
  * @brief ::pltxt2htm::EntityReference node
- * @details Represents an HTML entity reference like &amp;quot;, &amp;amp;, &amp;#38;.
- *          Stores the entity content between &amp; and ; (e.g. &amp;quot; stores "quot").
- *          The backend outputs it as &amp; + value + ; verbatim.
+ * @details Legacy compatibility node for manually constructed ASTs. Parsers decode character
+ *          references into ordinary semantic character nodes instead of producing this type.
+ *          Stores the reference content between &amp; and ; (e.g. &amp;quot; stores "quot").
  */
 class EntityReference {
     ::fast_io::u8string value;
@@ -110,8 +110,8 @@ public:
     constexpr auto operator==(this EntityReference const&, EntityReference const&) noexcept -> bool = default;
 
     [[nodiscard]]
-    constexpr auto get_value(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.value);
+    constexpr auto get_value(this EntityReference const& self) noexcept -> ::fast_io::u8string const& {
+        return self.value;
     }
 };
 

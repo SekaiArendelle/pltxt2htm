@@ -17,19 +17,49 @@
 #include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"
 #include "frame_context.hh"
+#include "html_url.hh"
 #include "../utils.hh"
+#include "../parser/character_reference.hh"
 #include "../../contracts.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::details {
 
+constexpr void append_code_point_to_plunity_richtext(char32_t code_point, ::fast_io::u8string& out) noexcept {
+    if (code_point == char32_t{0x3C}) {
+        out.append(u8"<size=20>＜</size>");
+        return;
+    }
+    if (code_point == char32_t{0x3E}) {
+        out.append(u8"<size=20>＞</size>");
+        return;
+    }
+    if (code_point < char32_t{0x80}) {
+        out.push_back(static_cast<char8_t>(code_point));
+        return;
+    }
+    if (code_point < char32_t{0x800}) {
+        out.push_back(static_cast<char8_t>(0xC0 | static_cast<unsigned>(code_point >> 6)));
+        out.push_back(static_cast<char8_t>(0x80 | static_cast<unsigned>(code_point & 0x3F)));
+        return;
+    }
+    if (code_point < char32_t{0x10000}) {
+        out.push_back(static_cast<char8_t>(0xE0 | static_cast<unsigned>(code_point >> 12)));
+        out.push_back(static_cast<char8_t>(0x80 | static_cast<unsigned>((code_point >> 6) & 0x3F)));
+        out.push_back(static_cast<char8_t>(0x80 | static_cast<unsigned>(code_point & 0x3F)));
+        return;
+    }
+    out.push_back(static_cast<char8_t>(0xF0 | static_cast<unsigned>(code_point >> 18)));
+    out.push_back(static_cast<char8_t>(0x80 | static_cast<unsigned>((code_point >> 12) & 0x3F)));
+    out.push_back(static_cast<char8_t>(0x80 | static_cast<unsigned>((code_point >> 6) & 0x3F)));
+    out.push_back(static_cast<char8_t>(0x80 | static_cast<unsigned>(code_point & 0x3F)));
+}
+
 /**
  * @brief Append an entity reference to Unity Rich Text output.
- * @details Numeric character references (e.g. `&#38;`, `&#x26;`, `&#X2A;`) are decoded to
- *          the character they denote. `<` and `>` are emitted in their escaped full-width
- *          form (`<size=20>\uff1c</size>` / `<size=20>\uff1e</size>`) so that Unity's
- *          TextMeshPro does not interpret them as rich text tag delimiters. Any other
- *          (named) reference is emitted verbatim as `&` + value + `;`.
+ * @details This is a compatibility path for manually constructed legacy EntityReference nodes.
+ *          Valid named and numeric references use the shared decoder. `<` and `>` are emitted
+ *          in full-width escaped form so TextMeshPro cannot interpret them as tag delimiters.
  * @tparam ndebug Contract checking mode.
  * @param value Entity content between `&` and `;` (e.g. `amp`, `#38`, `#x26`).
  * @param[out] out Output buffer receiving the encoded output.
@@ -38,74 +68,17 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr void append_entity_reference_to_plunity_richtext(::fast_io::u8string const& value,
                                                            ::fast_io::u8string& out) noexcept {
     ::pltxt2htm::container::U8StringView const value_view{value};
-    ::std::size_t const value_size{value_view.size()};
-    bool decoded{};
-    if (value_size > 1 && value_view.template index<ndebug>(0) == u8'#') {
-        auto index = ::std::size_t{1};
-        bool const hex{value_view.template index<ndebug>(index) == u8'x' ||
-                       value_view.template index<ndebug>(index) == u8'X'};
-        if (hex) {
-            ++index;
-        }
-        auto const digit_begin{index};
-        char32_t const base{hex ? char32_t{16} : char32_t{10}};
-        char32_t code{};
-        bool valid{true};
-        for (; index < value_size; ++index) {
-            auto const chr = value_view.template index<ndebug>(index);
-            char32_t digit{};
-            if (::pltxt2htm::details::is_ascii_digit(chr)) {
-                digit = static_cast<char32_t>(chr - u8'0');
-            }
-            else if (hex && u8'a' <= chr && chr <= u8'f') {
-                digit = static_cast<char32_t>(chr - u8'a') + 10;
-            }
-            else if (hex && u8'A' <= chr && chr <= u8'F') {
-                digit = static_cast<char32_t>(chr - u8'A') + 10;
-            }
-            else {
-                valid = false;
-                break;
-            }
-            if (code > (char32_t{0x10FFFF} - digit) / base) {
-                valid = false;
-                break;
-            }
-            code = code * base + digit;
-        }
-        if (valid && index > digit_begin && code <= char32_t{0x10FFFF} &&
-            (code < char32_t{0xD800} || code > char32_t{0xDFFF})) {
-            if (code == char32_t{0x3C}) {
-                out.append(u8"<size=20>\uff1c</size>");
-            }
-            else if (code == char32_t{0x3E}) {
-                out.append(u8"<size=20>\uff1e</size>");
-            }
-            else if (code < char32_t{0x80}) {
-                out.push_back(static_cast<char8_t>(code));
-            }
-            else if (code < char32_t{0x800}) {
-                out.push_back(static_cast<char8_t>(0xC0 | (code >> 6)));
-                out.push_back(static_cast<char8_t>(0x80 | (code & 0x3F)));
-            }
-            else if (code < char32_t{0x10000}) {
-                out.push_back(static_cast<char8_t>(0xE0 | (code >> 12)));
-                out.push_back(static_cast<char8_t>(0x80 | ((code >> 6) & 0x3F)));
-                out.push_back(static_cast<char8_t>(0x80 | (code & 0x3F)));
-            }
-            else {
-                out.push_back(static_cast<char8_t>(0xF0 | (code >> 18)));
-                out.push_back(static_cast<char8_t>(0x80 | ((code >> 12) & 0x3F)));
-                out.push_back(static_cast<char8_t>(0x80 | ((code >> 6) & 0x3F)));
-                out.push_back(static_cast<char8_t>(0x80 | (code & 0x3F)));
-            }
-            decoded = true;
-        }
-    }
-    if (decoded == false) {
+    auto const decoded = ::pltxt2htm::details::try_decode_character_reference_value<ndebug>(value_view);
+    if (decoded.has_value() == false) {
         out.push_back(u8'&');
         out.append(value_view);
         out.push_back(u8';');
+        return;
+    }
+    auto const& reference = decoded.template value<ndebug>();
+    ::pltxt2htm::details::append_code_point_to_plunity_richtext(reference.first_code_point, out);
+    if (reference.code_point_count == 2) {
+        ::pltxt2htm::details::append_code_point_to_plunity_richtext(reference.second_code_point, out);
     }
 }
 

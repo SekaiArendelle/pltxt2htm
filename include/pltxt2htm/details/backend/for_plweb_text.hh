@@ -18,7 +18,6 @@
 #include "html_url.hh"
 #include "../../contracts.hh"
 #include "../utils.hh"
-#include "../parser/try_parse.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::details {
@@ -33,9 +32,19 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr void convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> const& ast,
                                                       ::fast_io::u8string& out) noexcept {
     out.reserve(out.size() + ast.size() * 6);
-    for (auto&& node : ast) {
+    ::std::size_t const ast_size{ast.size()};
+    for (::std::size_t index{}; index < ast_size; ++index) {
+        auto const& node = ::pltxt2htm::details::vector_index<ndebug>(ast, index);
         switch (node.get_node_kind()) {
         case ::pltxt2htm::NodeKind::u8char: {
+            if (node.as_u8char().chr == char8_t{0xC2} && index + 1 < ast_size) {
+                auto const& next = ::pltxt2htm::details::vector_index<ndebug>(ast, index + 1);
+                if (next.get_node_kind() == ::pltxt2htm::NodeKind::u8char && next.as_u8char().chr == char8_t{0xA0}) {
+                    out.append(u8"&nbsp;");
+                    ++index;
+                    continue;
+                }
+            }
             out.push_back(node.as_u8char().chr);
             continue;
         }
@@ -54,9 +63,8 @@ constexpr void convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> c
             continue;
         }
         case ::pltxt2htm::NodeKind::entity_reference: {
-            out.push_back(u8'&');
-            out.append(node.as_entity_reference().get_value());
-            out.push_back(u8';');
+            ::pltxt2htm::details::append_legacy_entity_reference_to_html<ndebug>(
+                out, ::pltxt2htm::container::U8StringView{node.as_entity_reference().get_value()});
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_single_quote:
@@ -203,49 +211,6 @@ constexpr void convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> c
     }
 }
 
-/**
- * @brief Append a string to an HTML attribute value with proper escaping.
- * @tparam ndebug Contract checking mode.
- * @param result Output string to append to.
- * @param value Raw attribute value to escape.
- */
-template<::pltxt2htm::Contracts ndebug>
-constexpr void append_html_attr_escaped(::fast_io::u8string& result,
-                                        ::pltxt2htm::container::U8StringView value) noexcept {
-    ::std::size_t const value_size{value.size()};
-    for (::std::size_t index{}; index < value_size; ++index) {
-        auto const chr = value.template index<ndebug>(index);
-        switch (chr) {
-        case u8'&':
-            if (auto const opt_entity_len =
-                    ::pltxt2htm::details::try_parse_entity_reference<ndebug>(value.template subview<ndebug>(index));
-                opt_entity_len.has_value()) {
-                auto const entity_len = opt_entity_len.template value<ndebug>();
-                result.append(::pltxt2htm::container::U8StringView{value.data() + index, entity_len});
-                index += entity_len - 1;
-                break;
-            }
-            result.append(u8"&amp;");
-            break;
-        case u8'\"':
-            result.append(u8"&quot;");
-            break;
-        case u8'\'':
-            result.append(u8"&apos;");
-            break;
-        case u8'<':
-            result.append(u8"&lt;");
-            break;
-        case u8'>':
-            result.append(u8"&gt;");
-            break;
-        default:
-            result.push_back(chr);
-            break;
-        }
-    }
-}
-
 enum class PlWebTextBackendMode : unsigned {
     pltxt4unittest = 0,
     fixedadv_html,
@@ -293,6 +258,15 @@ entry:
 
             switch (node.get_node_kind()) /* -Werror=switch */ {
             case ::pltxt2htm::NodeKind::u8char: {
+                if (node.as_u8char().chr == char8_t{0xC2} && current_index + 1 < ast_size) {
+                    auto const& next = ::pltxt2htm::details::vector_index<ndebug>(ast, current_index + 1);
+                    if (next.get_node_kind() == ::pltxt2htm::NodeKind::u8char &&
+                        next.as_u8char().chr == char8_t{0xA0}) {
+                        result.append(u8"&nbsp;");
+                        ++current_index;
+                        continue;
+                    }
+                }
                 result.push_back(node.as_u8char().chr);
                 continue;
             }
@@ -317,9 +291,8 @@ entry:
                 continue;
             }
             case ::pltxt2htm::NodeKind::entity_reference: {
-                result.push_back(u8'&');
-                result.append(node.as_entity_reference().get_value());
-                result.push_back(u8';');
+                ::pltxt2htm::details::append_legacy_entity_reference_to_html<ndebug>(
+                    result, ::pltxt2htm::container::U8StringView{node.as_entity_reference().get_value()});
                 continue;
             }
             case ::pltxt2htm::NodeKind::md_escape_single_quote:

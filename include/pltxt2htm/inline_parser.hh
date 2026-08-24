@@ -95,13 +95,10 @@ entry:
                 continue;
             }
             if (chr == u8'&') {
-                if (auto const opt_entity_len = ::pltxt2htm::details::try_parse_entity_reference<ndebug>(
-                        pltext.template subview<ndebug>(current_index));
+                if (auto const opt_entity_len = ::pltxt2htm::details::try_append_character_reference<ndebug>(
+                        pltext.template subview<ndebug>(current_index), result);
                     opt_entity_len.has_value()) {
-                    auto const entity_len = opt_entity_len.template value<ndebug>();
-                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::EntityReference{::fast_io::u8string{
-                        pltext.data() + current_index + 1, pltext.data() + current_index + entity_len - 1}}));
-                    current_index += entity_len;
+                    current_index += opt_entity_len.template value<ndebug>();
                     continue;
                 }
                 result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Ampersand{}));
@@ -498,8 +495,9 @@ entry:
                         current_index += tag_len + 3;
                         call_stack.push(ParserFrameContext<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithEqualSignTagInfo{pltext.template subview<ndebug>(current_index),
-                                                                       ::fast_io::u8string{value}},
+                                ParserFrameContextWithEqualSignTagInfo{
+                                    pltext.template subview<ndebug>(current_index),
+                                    ::pltxt2htm::details::decode_character_references<ndebug>(value)},
                                 ::pltxt2htm::NodeKind::pl_discussions},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -536,8 +534,9 @@ entry:
                         current_index += tag_len + 3;
                         call_stack.push(ParserFrameContext<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithEqualSignTagInfo{pltext.template subview<ndebug>(current_index),
-                                                                       ::fast_io::u8string{value}},
+                                ParserFrameContextWithEqualSignTagInfo{
+                                    pltext.template subview<ndebug>(current_index),
+                                    ::pltxt2htm::details::decode_character_references<ndebug>(value)},
                                 ::pltxt2htm::NodeKind::pl_experiments},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -610,8 +609,9 @@ entry:
                         current_index += tag_len + 3;
                         call_stack.push(ParserFrameContext<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithEqualSignTagInfo{pltext.template subview<ndebug>(current_index),
-                                                                       ::fast_io::u8string{value}},
+                                ParserFrameContextWithEqualSignTagInfo{
+                                    pltext.template subview<ndebug>(current_index),
+                                    ::pltxt2htm::details::decode_character_references<ndebug>(value)},
                                 ::pltxt2htm::NodeKind::pl_internal},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -816,8 +816,9 @@ entry:
                         current_index += tag_len + 3;
                         call_stack.push(ParserFrameContext<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithEqualSignTagInfo{pltext.template subview<ndebug>(current_index),
-                                                                       ::fast_io::u8string{value}},
+                                ParserFrameContextWithEqualSignTagInfo{
+                                    pltext.template subview<ndebug>(current_index),
+                                    ::pltxt2htm::details::decode_character_references<ndebug>(value)},
                                 ::pltxt2htm::NodeKind::pl_trigger},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;

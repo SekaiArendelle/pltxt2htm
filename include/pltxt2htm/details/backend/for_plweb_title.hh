@@ -50,6 +50,15 @@ entry:
 
             switch (node.get_node_kind()) /* -Werror=switch */ {
             case ::pltxt2htm::NodeKind::u8char: {
+                if (node.as_u8char().chr == char8_t{0xC2} && current_index + 1 < ast_size) {
+                    auto const& next = ::pltxt2htm::details::vector_index<ndebug>(ast, current_index + 1);
+                    if (next.get_node_kind() == ::pltxt2htm::NodeKind::u8char &&
+                        next.as_u8char().chr == char8_t{0xA0}) {
+                        result.append(u8"&nbsp;");
+                        ++current_index;
+                        continue;
+                    }
+                }
                 result.push_back(node.as_u8char().chr);
                 continue;
             }
@@ -68,9 +77,8 @@ entry:
                 continue;
             }
             case ::pltxt2htm::NodeKind::entity_reference: {
-                result.push_back(u8'&');
-                result.append(node.as_entity_reference().get_value());
-                result.push_back(u8';');
+                ::pltxt2htm::details::append_legacy_entity_reference_to_html<ndebug>(
+                    result, ::pltxt2htm::container::U8StringView{node.as_entity_reference().get_value()});
                 continue;
             }
             case ::pltxt2htm::NodeKind::md_escape_single_quote:

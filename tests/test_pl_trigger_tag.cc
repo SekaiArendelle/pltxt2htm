@@ -55,6 +55,24 @@ int main() {
     }
 
     {
+        // Character references in values are decoded into the AST and escaped exactly once by the web backend.
+        auto pltext = ::fast_io::u8string_view{u8"<trigger=a&amp;b>c</trigger>"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer = ::fast_io::u8string_view{u8"&lt;trigger=a&amp;b&gt;c&lt;/trigger&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<trigger=a&b>c</trigger>"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    {
+        // Unknown references remain literal semantic text and their ampersand is escaped.
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<trigger=a&unknown;b>c</trigger>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;trigger=a&amp;unknown;b&gt;c&lt;/trigger&gt;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
         // fixedadv web backend escapes identically.
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<trigger=run>运行</trigger>");
         auto answer = ::fast_io::u8string_view{u8"&lt;trigger=run&gt;运行&lt;/trigger&gt;"};

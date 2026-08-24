@@ -16,6 +16,7 @@
 #include "../../ast/ast.hh"
 #include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"
+#include "character_reference.hh"
 #include "../push_macro.hh"
 
 /**
@@ -273,6 +274,90 @@ constexpr auto parse_utf8_code_point(::pltxt2htm::container::U8StringView const&
     }
     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
     return 1;
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr void append_code_point_to_ast(char32_t code_point, ::pltxt2htm::Ast<ndebug>& result) noexcept {
+    switch (code_point) {
+    case U'\n':
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LineBreak{}));
+        return;
+    case U' ':
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Space{}));
+        return;
+    case U'&':
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Ampersand{}));
+        return;
+    case U'\'':
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::SingleQuote{}));
+        return;
+    case U'"':
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::DoubleQuote{}));
+        return;
+    case U'<':
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+        return;
+    case U'>':
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::GreaterThan{}));
+        return;
+    case U'\t':
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Tab{}));
+        return;
+    default:
+        break;
+    }
+
+    if (code_point < char32_t{0x80}) {
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{static_cast<char8_t>(code_point)}));
+        return;
+    }
+    if (code_point < char32_t{0x800}) {
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(
+            ::pltxt2htm::U8Char{static_cast<char8_t>(0xC0 | static_cast<unsigned>(code_point >> 6))}));
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(
+            ::pltxt2htm::U8Char{static_cast<char8_t>(0x80 | static_cast<unsigned>(code_point & 0x3F))}));
+        return;
+    }
+    if (code_point < char32_t{0x10000}) {
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(
+            ::pltxt2htm::U8Char{static_cast<char8_t>(0xE0 | static_cast<unsigned>(code_point >> 12))}));
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(
+            ::pltxt2htm::U8Char{static_cast<char8_t>(0x80 | static_cast<unsigned>((code_point >> 6) & 0x3F))}));
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(
+            ::pltxt2htm::U8Char{static_cast<char8_t>(0x80 | static_cast<unsigned>(code_point & 0x3F))}));
+        return;
+    }
+    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(
+        ::pltxt2htm::U8Char{static_cast<char8_t>(0xF0 | static_cast<unsigned>(code_point >> 18))}));
+    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(
+        ::pltxt2htm::U8Char{static_cast<char8_t>(0x80 | static_cast<unsigned>((code_point >> 12) & 0x3F))}));
+    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(
+        ::pltxt2htm::U8Char{static_cast<char8_t>(0x80 | static_cast<unsigned>((code_point >> 6) & 0x3F))}));
+    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(
+        ::pltxt2htm::U8Char{static_cast<char8_t>(0x80 | static_cast<unsigned>(code_point & 0x3F))}));
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr void append_character_reference_to_ast(TryDecodeCharacterReferenceResult const& reference,
+                                                 ::pltxt2htm::Ast<ndebug>& result) noexcept {
+    ::pltxt2htm::details::append_code_point_to_ast<ndebug>(reference.first_code_point, result);
+    if (reference.code_point_count == 2) {
+        ::pltxt2htm::details::append_code_point_to_ast<ndebug>(reference.second_code_point, result);
+    }
+}
+
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_append_character_reference(::pltxt2htm::container::U8StringView text,
+                                              ::pltxt2htm::Ast<ndebug>& result) noexcept
+    -> ::pltxt2htm::container::Optional<::std::size_t> {
+    auto const reference = ::pltxt2htm::details::try_decode_character_reference<ndebug>(text);
+    if (reference.has_value() == false) {
+        return ::pltxt2htm::container::nullopt;
+    }
+    auto const& decoded = reference.template value<ndebug>();
+    ::pltxt2htm::details::append_character_reference_to_ast<ndebug>(decoded, result);
+    return decoded.consumed_size;
 }
 
 /**
@@ -2987,14 +3072,14 @@ constexpr auto try_parse_img_tag(::pltxt2htm::container::U8StringView pltext) no
             if (found_src) {
                 return ::pltxt2htm::container::nullopt; // duplicate src
             }
-            src = ::fast_io::u8string{attr_val};
+            src = ::pltxt2htm::details::decode_character_references<ndebug>(attr_val);
             found_src = true;
         }
         else if (attr_name == ::pltxt2htm::container::U8StringView{u8"alt"}) {
             if (found_alt) {
                 return ::pltxt2htm::container::nullopt; // duplicate alt
             }
-            alt = ::fast_io::u8string{attr_val};
+            alt = ::pltxt2htm::details::decode_character_references<ndebug>(attr_val);
             found_alt = true;
         }
         else {
@@ -3248,64 +3333,6 @@ struct SimplyParsePLtextResult {
     bool found_end; ///< Whether `end_string` was actually matched (only meaningful when end_string is non-empty).
 };
 
-template<::pltxt2htm::Contracts ndebug>
-[[nodiscard]]
-constexpr auto try_parse_entity_reference(::pltxt2htm::container::U8StringView text) noexcept
-    -> ::pltxt2htm::container::Optional<::std::size_t> {
-    if (text.empty() || text.template index<ndebug>(0) != u8'&') {
-        return ::pltxt2htm::container::nullopt;
-    }
-    auto const max = text.size();
-    auto index = ::std::size_t{1};
-    if (index >= max) {
-        return ::pltxt2htm::container::nullopt;
-    }
-    if (text.template index<ndebug>(index) == u8'#') {
-        ++index;
-        if (index >= max) {
-            return ::pltxt2htm::container::nullopt;
-        }
-        bool hex{};
-        auto const prefix = text.template index<ndebug>(index);
-        if (prefix == u8'x' || prefix == u8'X') {
-            hex = true;
-            ++index;
-        }
-        if (index >= max) {
-            return ::pltxt2htm::container::nullopt;
-        }
-        auto const begin = index;
-        for (; index < max; ++index) {
-            auto const chr = text.template index<ndebug>(index);
-            if (chr == u8';') {
-                break;
-            }
-            if (hex ? !::pltxt2htm::details::is_ascii_hexdigit(chr) : !::pltxt2htm::details::is_ascii_digit(chr)) {
-                return ::pltxt2htm::container::nullopt;
-            }
-        }
-        if (index == begin || index >= max || text.template index<ndebug>(index) != u8';') {
-            return ::pltxt2htm::container::nullopt;
-        }
-        return index + 1;
-    }
-
-    if (::pltxt2htm::details::is_ascii_alpha(text.template index<ndebug>(index)) == false) {
-        return ::pltxt2htm::container::nullopt;
-    }
-    ++index;
-    for (; index < max; ++index) {
-        auto const chr = text.template index<ndebug>(index);
-        if (chr == u8';') {
-            return index + 1;
-        }
-        if (::pltxt2htm::details::is_ascii_alpha(chr) == false && !::pltxt2htm::details::is_ascii_digit(chr)) {
-            return ::pltxt2htm::container::nullopt;
-        }
-    }
-    return ::pltxt2htm::container::nullopt;
-}
-
 /**
  * @brief Parse plain text content into an AST until a termination string is encountered.
  *
@@ -3357,13 +3384,10 @@ constexpr auto simply_parse_pltext(::pltxt2htm::container::U8StringView pltext) 
             continue;
         }
         if (chr == u8'&') {
-            if (auto const opt_entity_len = ::pltxt2htm::details::try_parse_entity_reference<ndebug>(
-                    pltext.template subview<ndebug>(current_index));
+            if (auto const opt_entity_len = ::pltxt2htm::details::try_append_character_reference<ndebug>(
+                    pltext.template subview<ndebug>(current_index), ast);
                 opt_entity_len.has_value()) {
-                auto const entity_len = opt_entity_len.template value<ndebug>();
-                ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::EntityReference{::fast_io::u8string{
-                    pltext.data() + current_index + 1, pltext.data() + current_index + entity_len - 1}}));
-                current_index += entity_len;
+                current_index += opt_entity_len.template value<ndebug>();
                 continue;
             }
             ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Ampersand{}));
@@ -4159,8 +4183,54 @@ constexpr auto try_parse_url_authority(::pltxt2htm::container::U8StringView plte
     return domain_end + 1 + opt_port_end.template value<ndebug>();
 }
 
+constexpr void append_percent_encoded_url_byte(::fast_io::u8string& result, char8_t byte) noexcept {
+    result.push_back(u8'%');
+    auto const hi{static_cast<unsigned>(byte) >> 4};
+    auto const lo{static_cast<unsigned>(byte) & 0x0F};
+    result.push_back(static_cast<char8_t>(hi < 10 ? u8'0' + hi : u8'A' + (hi - 10)));
+    result.push_back(static_cast<char8_t>(lo < 10 ? u8'0' + lo : u8'A' + (lo - 10)));
+}
+
+constexpr void append_code_point_to_url(::fast_io::u8string& result, char32_t code_point) noexcept {
+    if (code_point < char32_t{0x80}) {
+        auto const chr{static_cast<char8_t>(code_point)};
+        if (chr < u8'!' || chr > u8'~' || chr == u8'\'' || chr == u8'<' || chr == u8'>' || chr == u8'"') {
+            ::pltxt2htm::details::append_percent_encoded_url_byte(result, chr);
+        }
+        else {
+            result.push_back(chr);
+        }
+        return;
+    }
+
+    if (code_point < char32_t{0x800}) {
+        ::pltxt2htm::details::append_percent_encoded_url_byte(
+            result, static_cast<char8_t>(0xC0 | static_cast<unsigned>(code_point >> 6)));
+        ::pltxt2htm::details::append_percent_encoded_url_byte(
+            result, static_cast<char8_t>(0x80 | static_cast<unsigned>(code_point & 0x3F)));
+        return;
+    }
+    if (code_point < char32_t{0x10000}) {
+        ::pltxt2htm::details::append_percent_encoded_url_byte(
+            result, static_cast<char8_t>(0xE0 | static_cast<unsigned>(code_point >> 12)));
+        ::pltxt2htm::details::append_percent_encoded_url_byte(
+            result, static_cast<char8_t>(0x80 | static_cast<unsigned>((code_point >> 6) & 0x3F)));
+        ::pltxt2htm::details::append_percent_encoded_url_byte(
+            result, static_cast<char8_t>(0x80 | static_cast<unsigned>(code_point & 0x3F)));
+        return;
+    }
+    ::pltxt2htm::details::append_percent_encoded_url_byte(
+        result, static_cast<char8_t>(0xF0 | static_cast<unsigned>(code_point >> 18)));
+    ::pltxt2htm::details::append_percent_encoded_url_byte(
+        result, static_cast<char8_t>(0x80 | static_cast<unsigned>((code_point >> 12) & 0x3F)));
+    ::pltxt2htm::details::append_percent_encoded_url_byte(
+        result, static_cast<char8_t>(0x80 | static_cast<unsigned>((code_point >> 6) & 0x3F)));
+    ::pltxt2htm::details::append_percent_encoded_url_byte(
+        result, static_cast<char8_t>(0x80 | static_cast<unsigned>(code_point & 0x3F)));
+}
+
 /**
- * @brief Build a URL AST from a raw URL string, decoding `&amp;` entities.
+ * @brief Build a URL AST from a raw URL string, decoding HTML character references.
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @param[in] parsed_url The raw URL string to convert into an AST.
  * @param[in] consumed_size The number of bytes consumed (may differ from parsed_url.size() due to trailing garbage).
@@ -4180,20 +4250,23 @@ constexpr auto make_try_parse_url_result(::pltxt2htm::container::U8StringView co
     ::fast_io::u8string url_str{};
     url_str.reserve(parsed_url_size);
     for (::std::size_t index{}; index < parsed_url_size; ++index) {
-        auto chr = parsed_url.template index<ndebug>(index);
+        auto const chr = parsed_url.template index<ndebug>(index);
         if (chr == u8'&') {
-            if (index + 5 <= parsed_url_size && parsed_url.template subview<ndebug>(index, 5) == u8"&amp;") {
-                chr = u8'&';
-                index += 4;
+            auto const reference = ::pltxt2htm::details::try_decode_character_reference<ndebug>(
+                parsed_url.template subview<ndebug>(index));
+            if (reference.has_value()) {
+                auto const& decoded = reference.template value<ndebug>();
+                ::pltxt2htm::details::append_code_point_to_url(url_str, decoded.first_code_point);
+                if (decoded.code_point_count == 2) {
+                    ::pltxt2htm::details::append_code_point_to_url(url_str, decoded.second_code_point);
+                }
+                index += decoded.consumed_size - 1;
+                continue;
             }
         }
         if (chr > u8'~') {
             // non-ASCII byte (e.g. UTF-8 CJK): percent-encode it so tag URLs keep the raw characters
-            url_str.push_back(u8'%');
-            auto const hi = static_cast<unsigned>(chr) >> 4;
-            auto const lo = static_cast<unsigned>(chr) & 0x0F;
-            url_str.push_back(hi < 10 ? u8'0' + hi : u8'A' + (hi - 10));
-            url_str.push_back(lo < 10 ? u8'0' + lo : u8'A' + (lo - 10));
+            ::pltxt2htm::details::append_percent_encoded_url_byte(url_str, chr);
             continue;
         }
         switch (chr) {
