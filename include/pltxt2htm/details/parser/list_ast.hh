@@ -13,7 +13,7 @@
 #include <type_traits>
 #include <utility>
 #include <fast_io/fast_io_dsal/string.h>
-#include <fast_io/fast_io_dsal/string_view.h>
+#include "../../container/string_view.hh"
 #include <fast_io/fast_io_dsal/vector.h>
 #include "../utils.hh"
 #include "../../contracts.hh"
@@ -47,7 +47,7 @@ class ListBaseNode;
  *          Without ListAst, `parse_pltxt` would need to call `try_parse_item` twice
  *          for each item: once during a pre-scan (to determine the list boundary / item
  *          hierarchy before creating child frames) and again when actually producing the
- *          output. The pre-built AST avoids this redundant work — each item is parsed
+ *          output. The pre-built AST avoids this redundant work - each item is parsed
  *          exactly once.
  */
 template<::pltxt2htm::Contracts ndebug>
@@ -89,7 +89,7 @@ public:
 
     [[nodiscard]]
     constexpr auto get_text_view(this ListLiNode const& self) noexcept {
-        return ::fast_io::u8string_view{self.text.data(), self.text.size()};
+        return ::pltxt2htm::container::U8StringView{self.text.data(), self.text.size()};
     }
 };
 
@@ -138,7 +138,7 @@ public:
 
     [[nodiscard]]
     constexpr auto get_text_view(this ListLiCheckboxNode const& self) noexcept {
-        return ::fast_io::u8string_view{self.text.data(), self.text.size()};
+        return ::pltxt2htm::container::U8StringView{self.text.data(), self.text.size()};
     }
 };
 
@@ -343,7 +343,8 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_text_view(this ListBaseNode<ndebug> const& self) noexcept -> ::fast_io::u8string_view {
+    constexpr auto get_text_view(this ListBaseNode<ndebug> const& self) noexcept
+        -> ::pltxt2htm::container::U8StringView {
         switch (self.type) /* -Werror=switch */ {
         case ListNodeType::list_li: {
             return self.li_node.get_text_view();

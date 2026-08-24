@@ -16,6 +16,7 @@
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
 #include "../container/expected.hh"
+#include "../container/string_view.hh"
 #include "../contracts.hh"
 #include "literal_string.hh"
 
@@ -99,48 +100,28 @@ constexpr bool is_url_value_char(char8_t const chr) noexcept {
 }
 
 /**
- * @brief Get character at specific index from u8string_view with bounds checking
- * @tparam ndebug Contract checking mode controlling assertion behavior.
- * @param[in] pltext The string view to index into
- * @param[in] i The index to access
- * @return The character at the specified index
- * @retval char8_t The UTF-8 character at the specified index
- * @note This function performs bounds checking in debug mode for safety
+ * @brief Get a character from a fast_io UTF-8 string view with contract checking.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
-constexpr auto u8string_view_index(::fast_io::u8string_view pltext, ::std::size_t i) noexcept -> char8_t {
-    pltxt2htm_assert(i < pltext.size(), u8"Index of u8string_view out of bound");
-
-    return pltext.index_unchecked(i);
+constexpr auto u8string_view_index(::fast_io::u8string_view pltext, ::std::size_t index) noexcept -> char8_t {
+    pltxt2htm_assert(index < pltext.size(), u8"Index of u8string_view out of bound");
+    return pltext.index_unchecked(index);
 }
 
 /**
- * @brief Get a substring view from u8string_view
- * @tparam ndebug Contract checking mode controlling bounds-check behavior.
- * @param[in] pltext The original string view
- * @param[in] i Starting index of the substring
- * @param[in] count Number of characters in the substring (npos for remainder)
- * @return A new string view representing the substring
- * @retval fast_io::u8string_view New string view representing the substring
- * @note In debug mode, performs bounds checking; in release mode, uses unchecked access
+ * @brief Get a subview from a fast_io UTF-8 string view with contract checking.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
-constexpr auto u8string_view_subview(::fast_io::u8string_view pltext, ::std::size_t i,
+constexpr auto u8string_view_subview(::fast_io::u8string_view pltext, ::std::size_t position,
                                      ::std::size_t count = ::fast_io::containers::npos) noexcept
     -> ::fast_io::u8string_view {
     if constexpr (ndebug == ::pltxt2htm::Contracts::ignore) {
-        return pltext.subview_unchecked(i, count);
+        return pltext.subview_unchecked(position, count);
     }
     else {
-        return pltext.subview(i, count);
+        return pltext.subview(position, count);
     }
 }
 
@@ -241,7 +222,7 @@ template<::pltxt2htm::Contracts ndebug, U8LiteralString expected_str>
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-constexpr bool is_ascii_case_insensitive_match(::fast_io::u8string_view str) noexcept {
+constexpr bool is_ascii_case_insensitive_match(::pltxt2htm::container::U8StringView str) noexcept {
     // Ensure expected_str does not contain uppercase characters.
     constexpr bool has_uppercase = []<::std::size_t... Is>(::std::index_sequence<Is...>) static constexpr noexcept {
         return (((expected_str[Is] >= 'A') && (expected_str[Is] <= 'Z')) || ...);
@@ -256,12 +237,12 @@ constexpr bool is_ascii_case_insensitive_match(::fast_io::u8string_view str) noe
             // ASCII between lowercase and uppercase is 32 (e.g. 'a' - 'A' == 32)
             constexpr ::std::uint8_t diff{32};
             // (expect != str[I] && expect != str[I] + diff) <=> (expect != (str[I] | diff))
-            if (expect != (::pltxt2htm::details::u8string_view_index<ndebug>(str, I) | diff)) {
+            if (expect != (str.template index<ndebug>(I) | diff)) {
                 return false;
             }
         }
         else {
-            if (expect != ::pltxt2htm::details::u8string_view_index<ndebug>(str, I)) {
+            if (expect != str.template index<ndebug>(I)) {
                 return false;
             }
         }
@@ -275,10 +256,10 @@ constexpr bool is_ascii_case_insensitive_match(::fast_io::u8string_view str) noe
                 // ASCII between lowercase and uppercase is 32 (e.g. 'a' - 'A' == 32)
                 constexpr ::std::uint8_t diff{32};
                 // (expect != str[I] && expect != str[I] + diff) <=> (expect != (str[I] | diff))
-                return expect == (::pltxt2htm::details::u8string_view_index<ndebug>(str, I) | diff);
+                return expect == (str.template index<ndebug>(I) | diff);
             }
             else {
-                return expect == ::pltxt2htm::details::u8string_view_index<ndebug>(str, I);
+                return expect == str.template index<ndebug>(I);
             }
         }.template operator()<Is>() &&
                 ...);
@@ -298,7 +279,7 @@ template<::pltxt2htm::Contracts ndebug, U8LiteralString expected_str>
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-constexpr bool is_exact_match(::fast_io::u8string_view str) noexcept {
+constexpr bool is_exact_match(::pltxt2htm::container::U8StringView str) noexcept {
     if (expected_str.size() != str.size()) {
         return false;
     }
@@ -317,7 +298,7 @@ template<::pltxt2htm::Contracts ndebug, U8LiteralString prefix_str>
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-constexpr bool is_prefix_match(::fast_io::u8string_view str) noexcept {
+constexpr bool is_prefix_match(::pltxt2htm::container::U8StringView str) noexcept {
     if (prefix_str.size() > str.size()) {
         return false;
     }
@@ -371,13 +352,13 @@ struct TryParseSizeTDecimalValueResult {
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_size_t_decimal_value(::fast_io::u8string_view str) noexcept
+constexpr auto try_parse_size_t_decimal_value(::pltxt2htm::container::U8StringView str) noexcept
     -> ::pltxt2htm::container::Optional<TryParseSizeTDecimalValueResult> {
     ::std::size_t const str_size{str.size()};
     ::std::size_t parsed_value{};
     auto pos = ::std::size_t{0};
     for (; pos < str_size; ++pos) {
-        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(str, pos);
+        auto const chr = str.template index<ndebug>(pos);
         if (::pltxt2htm::details::is_ascii_digit(chr) == false) {
             break;
         }
@@ -421,7 +402,7 @@ constexpr auto ptrdiff_t2str(::std::ptrdiff_t num) noexcept -> ::fast_io::u8stri
     ::std::ranges::reverse(result);
 
     if (num < 0) {
-        result.insert(result.begin(), ::fast_io::u8string_view{u8"-"});
+        result.insert(result.begin(), ::pltxt2htm::container::U8StringView{u8"-"});
     }
 
     return result;
@@ -443,13 +424,13 @@ struct TryParsePtrdiffTDecimalValueResult {
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_ptrdiff_t_decimal_value(::fast_io::u8string_view str) noexcept
+constexpr auto try_parse_ptrdiff_t_decimal_value(::pltxt2htm::container::U8StringView str) noexcept
     -> ::pltxt2htm::container::Optional<TryParsePtrdiffTDecimalValueResult> {
     using unsigned_type = ::std::make_unsigned_t<::std::ptrdiff_t>;
 
     ::std::size_t const str_size{str.size()};
     auto pos = ::std::size_t{0};
-    bool const negative = pos < str_size && ::pltxt2htm::details::u8string_view_index<ndebug>(str, pos) == u8'-';
+    bool const negative = pos < str_size && str.template index<ndebug>(pos) == u8'-';
     if (negative) {
         ++pos;
     }
@@ -457,7 +438,7 @@ constexpr auto try_parse_ptrdiff_t_decimal_value(::fast_io::u8string_view str) n
     unsigned_type parsed_value{};
     auto digit_pos = pos;
     for (; digit_pos < str_size; ++digit_pos) {
-        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(str, digit_pos);
+        auto const chr = str.template index<ndebug>(digit_pos);
         if (::pltxt2htm::details::is_ascii_digit(chr) == false) {
             break;
         }
@@ -507,19 +488,19 @@ struct TryParseDoubleDecimalValueResult {
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto try_parse_double_decimal_value(::fast_io::u8string_view str) noexcept
+constexpr auto try_parse_double_decimal_value(::pltxt2htm::container::U8StringView str) noexcept
     -> ::pltxt2htm::container::Optional<TryParseDoubleDecimalValueResult> {
     ::std::size_t const str_size{str.size()};
     double parsed_value{};
     auto pos = ::std::size_t{0};
     for (; pos < str_size; ++pos) {
-        auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(str, pos);
+        auto const chr = str.template index<ndebug>(pos);
         if (::pltxt2htm::details::is_ascii_digit(chr) == false) {
             break;
         }
         parsed_value = parsed_value * 10 + static_cast<double>(chr - u8'0');
     }
-    if (pos < str_size && ::pltxt2htm::details::u8string_view_index<ndebug>(str, pos) == u8'.') {
+    if (pos < str_size && str.template index<ndebug>(pos) == u8'.') {
         if (pos == 0) {
             return ::pltxt2htm::container::nullopt;
         }
@@ -527,7 +508,7 @@ constexpr auto try_parse_double_decimal_value(::fast_io::u8string_view str) noex
         auto frac_pos = dot_pos + 1;
         double scale{10};
         for (; frac_pos < str_size; ++frac_pos) {
-            auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(str, frac_pos);
+            auto const chr = str.template index<ndebug>(frac_pos);
             if (::pltxt2htm::details::is_ascii_digit(chr) == false) {
                 break;
             }
@@ -593,9 +574,9 @@ constexpr auto double2str(double value) noexcept -> ::fast_io::u8string {
         }
         else if (digit_str_size > fractional_digits) {
             auto const frac_start = digit_str_size - fractional_digits;
-            candidate.append(::fast_io::u8string_view{digit_str.data(), frac_start});
+            candidate.append(::pltxt2htm::container::U8StringView{digit_str.data(), frac_start});
             candidate.push_back(u8'.');
-            candidate.append(::fast_io::u8string_view{digit_str.data() + frac_start, fractional_digits});
+            candidate.append(::pltxt2htm::container::U8StringView{digit_str.data() + frac_start, fractional_digits});
         }
         else {
             candidate.append(u8"0.");
@@ -606,7 +587,7 @@ constexpr auto double2str(double value) noexcept -> ::fast_io::u8string {
             candidate.append(digit_str);
         }
         auto opt_reparsed = ::pltxt2htm::details::try_parse_double_decimal_value<::pltxt2htm::Contracts::quick_enforce>(
-            ::fast_io::u8string_view{candidate.data(), candidate.size()});
+            ::pltxt2htm::container::U8StringView{candidate});
         bool const round_trips =
             opt_reparsed.has_value() && (opt_reparsed.template value<::pltxt2htm::Contracts::ignore>().value == value);
         if (round_trips) {

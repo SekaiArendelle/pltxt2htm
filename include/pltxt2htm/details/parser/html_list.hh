@@ -16,7 +16,7 @@
 
 #include <cstddef>
 #include <fast_io/fast_io_dsal/string.h>
-#include <fast_io/fast_io_dsal/string_view.h>
+#include "../../container/string_view.hh"
 #include "../../container/expected.hh"
 #include "../utils.hh"
 #include "../../contracts.hh"
@@ -45,7 +45,7 @@ struct ToHtmlListAstResult {
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto optionally_to_html_list_ast(::fast_io::u8string_view pltext) noexcept
+constexpr auto optionally_to_html_list_ast(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::Optional<ToHtmlListAstResult<ndebug>> {
     ::pltxt2htm::NodeKind item_kind{};
     ::std::size_t start{1};
@@ -70,7 +70,7 @@ constexpr auto optionally_to_html_list_ast(::fast_io::u8string_view pltext) noex
     while (true) {
         // Skip whitespace between items.
         while (current_index < pltext_size) {
-            auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
+            auto const chr = pltext.template index<ndebug>(current_index);
             if (chr != u8' ' && chr != u8'\t' && chr != u8'\n') {
                 break;
             }
@@ -85,7 +85,7 @@ constexpr auto optionally_to_html_list_ast(::fast_io::u8string_view pltext) noex
         // back to literal text like any other malformed list instead of building
         // an empty list container.
         if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"</ul">(
-                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                pltext.template subview<ndebug>(current_index));
             item_kind == ::pltxt2htm::NodeKind::list_ul && opt_len.has_value()) {
             if (ast.empty()) {
                 return ::pltxt2htm::container::nullopt;
@@ -94,7 +94,7 @@ constexpr auto optionally_to_html_list_ast(::fast_io::u8string_view pltext) noex
                                                .advance_count = current_index + opt_len.template value<ndebug>() + 1};
         }
         if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"</ol">(
-                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                pltext.template subview<ndebug>(current_index));
             item_kind == ::pltxt2htm::NodeKind::list_ol && opt_len.has_value()) {
             if (ast.empty()) {
                 return ::pltxt2htm::container::nullopt;
@@ -105,7 +105,7 @@ constexpr auto optionally_to_html_list_ast(::fast_io::u8string_view pltext) noex
         }
         // Only <li> elements are allowed inside <ul>/<ol>.
         if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<li">(
-                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                pltext.template subview<ndebug>(current_index));
             opt_len.has_value()) {
             current_index += opt_len.template value<ndebug>() + 1;
         }
@@ -116,7 +116,7 @@ constexpr auto optionally_to_html_list_ast(::fast_io::u8string_view pltext) noex
         // Under the HTML block content model, leading whitespace/newlines inside an
         // item are just formatting for readability and are not rendered.
         while (current_index < pltext_size) {
-            auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
+            auto const chr = pltext.template index<ndebug>(current_index);
             if (chr != u8' ' && chr != u8'\t' && chr != u8'\n') {
                 break;
             }
@@ -129,7 +129,7 @@ constexpr auto optionally_to_html_list_ast(::fast_io::u8string_view pltext) noex
         bool checkbox{};
         bool checkbox_checked{};
         if (auto opt_input = ::pltxt2htm::details::try_parse_input_checkbox_tag<ndebug>(
-                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                pltext.template subview<ndebug>(current_index));
             opt_input.has_value()) {
             auto&& [input_len, checked] = opt_input.template value<ndebug>();
             current_index += input_len;
@@ -137,7 +137,7 @@ constexpr auto optionally_to_html_list_ast(::fast_io::u8string_view pltext) noex
             checkbox_checked = checked;
             // Skip whitespace between the checkbox input and the item text.
             while (current_index < pltext_size) {
-                auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
+                auto const chr = pltext.template index<ndebug>(current_index);
                 if (chr != u8' ' && chr != u8'\t' && chr != u8'\n') {
                     break;
                 }
@@ -155,26 +155,26 @@ constexpr auto optionally_to_html_list_ast(::fast_io::u8string_view pltext) noex
                 return ::pltxt2htm::container::nullopt;
             }
             if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"</li">(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                    pltext.template subview<ndebug>(current_index));
                 opt_len.has_value()) {
                 current_index += opt_len.template value<ndebug>() + 1;
                 break;
             }
             ::pltxt2htm::NodeKind nested_list_kind{};
             if (auto const opt_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<ul">(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                    pltext.template subview<ndebug>(current_index));
                 opt_len.has_value()) {
                 nested_list_kind = ::pltxt2htm::NodeKind::list_ul;
             }
-            else if (auto const opt_ol_tag = ::pltxt2htm::details::try_parse_ol_tag<ndebug>(
-                         ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            else if (auto const opt_ol_tag =
+                         ::pltxt2htm::details::try_parse_ol_tag<ndebug>(pltext.template subview<ndebug>(current_index));
                      opt_ol_tag.has_value()) {
                 nested_list_kind = ::pltxt2htm::NodeKind::list_ol;
             }
             if (nested_list_kind == ::pltxt2htm::NodeKind::list_ul ||
                 nested_list_kind == ::pltxt2htm::NodeKind::list_ol) {
                 auto opt_nested = ::pltxt2htm::details::optionally_to_html_list_ast<ndebug>(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                    pltext.template subview<ndebug>(current_index));
                 if (opt_nested.has_value() == false) {
                     return ::pltxt2htm::container::nullopt;
                 }
@@ -184,7 +184,7 @@ constexpr auto optionally_to_html_list_ast(::fast_io::u8string_view pltext) noex
                 continue;
             }
             // Ordinary content character.
-            text.push_back(::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index));
+            text.push_back(pltext.template index<ndebug>(current_index));
             ++current_index;
         }
         // Trailing whitespace/newlines are formatting as well (see the leading-skip above).

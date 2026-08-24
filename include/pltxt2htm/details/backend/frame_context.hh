@@ -10,7 +10,6 @@
 #include <cstddef>
 #include <utility>
 #include <fast_io/fast_io_dsal/vector.h>
-#include <fast_io/fast_io_dsal/string_view.h>
 #include "../../ast/ast.hh"
 #include "../../contracts.hh"
 #include "../push_macro.hh"
@@ -52,8 +51,8 @@ public:
 
 /**
  * @brief Tagged-union variant of backend context payloads.
- * @details Dispatched on `kind` (::pltxt2htm::NodeKind) – used inside
- *          BackendFrameContext.
+ * @details Dispatched on `kind` (::pltxt2htm::NodeKind) - used inside
+ *          BackendFrame.
  */
 template<::pltxt2htm::Contracts ndebug>
 class BackendContextVariant {
@@ -124,13 +123,13 @@ public:
 };
 
 /**
- * @brief Basic frame context for HTML backend processing
- * @details This context keeps track of the current AST being processed,
+ * @brief Activation record for HTML backend processing.
+ * @details This frame keeps track of the current AST being processed,
  *          the type of nested tag, and the current index position
  * @note This is used during the recursive AST traversal for HTML generation
  */
 template<::pltxt2htm::Contracts ndebug>
-class BackendFrameContext {
+class BackendFrame {
     BackendContextVariant<ndebug> context_data;
     /* [[nonnull]] */ ::pltxt2htm::Ast<ndebug> const* ast; ///< Reference to the AST being processed
 
@@ -140,49 +139,50 @@ public:
     /**
      * @note construct ast from reference to avoid nullptr issue
      */
-    constexpr BackendFrameContext(::pltxt2htm::Ast<ndebug> const& ast_, ::pltxt2htm::NodeKind const nested_tag_type,
-                                  ::std::size_t current_index_) noexcept
+    constexpr BackendFrame(::pltxt2htm::Ast<ndebug> const& ast_, ::pltxt2htm::NodeKind const nested_tag_type,
+                           ::std::size_t current_index_) noexcept
         : context_data{nested_tag_type},
           ast(::std::addressof(ast_)),
           current_index{current_index_} {
     }
 
-    constexpr BackendFrameContext(::pltxt2htm::Ast<ndebug> const& ast_, ::pltxt2htm::NodeKind const nested_tag_type,
-                                  ::std::size_t current_index_, BackendContextWithOlInfo ol_info_context) noexcept
+    constexpr BackendFrame(::pltxt2htm::Ast<ndebug> const& ast_, ::pltxt2htm::NodeKind const nested_tag_type,
+                           ::std::size_t current_index_, BackendContextWithOlInfo ol_info_context) noexcept
         : context_data{nested_tag_type, ::std::move(ol_info_context)},
           ast(::std::addressof(ast_)),
           current_index{current_index_} {
     }
 
-    constexpr BackendFrameContext(::pltxt2htm::Ast<ndebug> const& ast_, ::std::size_t current_index_,
-                                  BackendContextWithHtmlSpanInfo html_span_info_context) noexcept
+    constexpr BackendFrame(::pltxt2htm::Ast<ndebug> const& ast_, ::std::size_t current_index_,
+                           BackendContextWithHtmlSpanInfo html_span_info_context) noexcept
         : context_data{::std::move(html_span_info_context)},
           ast(::std::addressof(ast_)),
           current_index{current_index_} {
     }
 
-    constexpr BackendFrameContext(::pltxt2htm::Ast<ndebug> const& ast_, ::pltxt2htm::NodeKind const nested_tag_type,
-                                  ::std::size_t current_index_, BackendContextWithAlignInfo align_info_context) noexcept
+    constexpr BackendFrame(::pltxt2htm::Ast<ndebug> const& ast_, ::pltxt2htm::NodeKind const nested_tag_type,
+                           ::std::size_t current_index_, BackendContextWithAlignInfo align_info_context) noexcept
         : context_data{nested_tag_type, ::std::move(align_info_context)},
           ast(::std::addressof(ast_)),
           current_index{current_index_} {
     }
 
-    constexpr BackendFrameContext(BackendFrameContext<ndebug> const&) noexcept = default;
-    constexpr BackendFrameContext(BackendFrameContext<ndebug>&&) noexcept = default;
+    constexpr BackendFrame(BackendFrame<ndebug> const&) noexcept = default;
+    constexpr BackendFrame(BackendFrame<ndebug>&&) noexcept = default;
 
-    constexpr ~BackendFrameContext() noexcept = default;
+    constexpr ~BackendFrame() noexcept = default;
 
-    constexpr BackendFrameContext<ndebug>& operator=(BackendFrameContext<ndebug> const&) noexcept = delete;
-    constexpr BackendFrameContext<ndebug>& operator=(BackendFrameContext<ndebug>&&) noexcept = default;
+    constexpr BackendFrame<ndebug>& operator=(BackendFrame<ndebug> const&) noexcept = delete;
+    constexpr auto operator=(this BackendFrame<ndebug>& self, BackendFrame<ndebug>&&) noexcept
+        -> BackendFrame<ndebug>& = default;
 
     [[nodiscard]]
-    constexpr auto get_nested_tag_type(this BackendFrameContext<ndebug> const& self) noexcept {
+    constexpr auto get_nested_tag_type(this BackendFrame<ndebug> const& self) noexcept {
         return self.context_data.get_kind();
     }
 
     [[nodiscard]]
-    constexpr auto get_ast(this BackendFrameContext<ndebug> const& self) noexcept -> ::pltxt2htm::Ast<ndebug> const& {
+    constexpr auto get_ast(this BackendFrame<ndebug> const& self) noexcept -> ::pltxt2htm::Ast<ndebug> const& {
         return *(self.ast);
     }
 

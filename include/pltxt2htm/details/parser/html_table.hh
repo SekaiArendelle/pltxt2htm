@@ -18,7 +18,7 @@
 
 #include <cstddef>
 #include <fast_io/fast_io_dsal/string.h>
-#include <fast_io/fast_io_dsal/string_view.h>
+#include "../../container/string_view.hh"
 #include <fast_io/fast_io_dsal/vector.h>
 #include "../../container/expected.hh"
 #include "../utils.hh"
@@ -66,19 +66,19 @@ struct TryCaptureUntilTagResult {
  */
 template<::pltxt2htm::Contracts ndebug, U8LiteralString close_tag>
 [[nodiscard]]
-constexpr auto try_capture_until_tag(::fast_io::u8string_view pltext) noexcept
+constexpr auto try_capture_until_tag(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::Optional<TryCaptureUntilTagResult<ndebug>> {
     ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t current_index{};
     ::fast_io::u8string text{};
     while (current_index < pltext_size) {
         if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, close_tag>(
-                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                pltext.template subview<ndebug>(current_index));
             opt_len.has_value()) {
             current_index += opt_len.template value<ndebug>() + 1;
             return TryCaptureUntilTagResult<ndebug>{.text = ::std::move(text), .advance_count = current_index};
         }
-        text.push_back(::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index));
+        text.push_back(pltext.template index<ndebug>(current_index));
         ++current_index;
     }
     return ::pltxt2htm::container::nullopt;
@@ -107,7 +107,7 @@ constexpr auto trim_table_content(::fast_io::u8string& text) noexcept -> void {
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noexcept
+constexpr auto optionally_to_html_table_ast(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::Optional<ToHtmlTableAstResult<ndebug>> {
     ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t current_index{};
@@ -131,7 +131,7 @@ constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noe
     while (true) {
         // Skip whitespace between table tags.
         while (current_index < pltext_size) {
-            auto const chr = ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index);
+            auto const chr = pltext.template index<ndebug>(current_index);
             if (chr != u8' ' && chr != u8'\t' && chr != u8'\n') {
                 break;
             }
@@ -143,7 +143,7 @@ constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noe
             return ::pltxt2htm::container::nullopt;
         }
 
-        auto const tag_view = ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index);
+        auto const tag_view = pltext.template subview<ndebug>(current_index);
 
         if (inside_row) {
             // Directly under <tr>: </tr>, <th>, <td>.
@@ -157,12 +157,11 @@ constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noe
                 continue;
             }
             if (auto opt_th_tag = ::pltxt2htm::details::try_parse_th_tag<ndebug>(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                    ::pltxt2htm::NodeKind::table_tr);
+                    pltext.template subview<ndebug>(current_index + 2), ::pltxt2htm::NodeKind::table_tr);
                 opt_th_tag.has_value()) {
                 auto&& [tag_len, align] = opt_th_tag.template value<ndebug>();
                 auto opt_cell = ::pltxt2htm::details::try_capture_until_tag<ndebug, u8"</th">(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + tag_len + 3));
+                    pltext.template subview<ndebug>(current_index + tag_len + 3));
                 if (opt_cell.has_value() == false) {
                     return ::pltxt2htm::container::nullopt;
                 }
@@ -174,12 +173,11 @@ constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noe
                 continue;
             }
             if (auto opt_td_tag = ::pltxt2htm::details::try_parse_td_tag<ndebug>(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                    ::pltxt2htm::NodeKind::table_tr);
+                    pltext.template subview<ndebug>(current_index + 2), ::pltxt2htm::NodeKind::table_tr);
                 opt_td_tag.has_value()) {
                 auto&& [tag_len, align] = opt_td_tag.template value<ndebug>();
                 auto opt_cell = ::pltxt2htm::details::try_capture_until_tag<ndebug, u8"</td">(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + tag_len + 3));
+                    pltext.template subview<ndebug>(current_index + tag_len + 3));
                 if (opt_cell.has_value() == false) {
                     return ::pltxt2htm::container::nullopt;
                 }
@@ -215,8 +213,7 @@ constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noe
                 continue;
             }
             if (auto opt_col_len = ::pltxt2htm::details::try_parse_col_tag<ndebug>(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                    ::pltxt2htm::NodeKind::table_colgroup);
+                    pltext.template subview<ndebug>(current_index + 2), ::pltxt2htm::NodeKind::table_colgroup);
                 opt_col_len.has_value()) {
                 current_index += opt_col_len.template value<ndebug>() + 2;
                 raw_ast.add_col();
@@ -245,7 +242,7 @@ constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noe
                     : (active_section == TableRowSection::tbody ? ::pltxt2htm::NodeKind::table_tbody
                                                                 : ::pltxt2htm::NodeKind::table_tfoot);
             if (auto opt_tr_len = ::pltxt2htm::details::try_parse_tr_tag<ndebug>(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), section_node_kind);
+                    pltext.template subview<ndebug>(current_index + 2), section_node_kind);
                 opt_tr_len.has_value()) {
                 current_index += opt_tr_len.template value<ndebug>() + 3;
                 raw_ast.add_row(TableRowRaw{.cells = {}, .section = active_section});
@@ -263,24 +260,21 @@ constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noe
             return ToHtmlTableAstResult<ndebug>{.raw_ast = ::std::move(raw_ast), .advance_count = current_index};
         }
         if (auto opt_caption_len = ::pltxt2htm::details::try_parse_caption_tag<ndebug>(
-                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                ::pltxt2htm::NodeKind::table);
+                pltext.template subview<ndebug>(current_index + 2), ::pltxt2htm::NodeKind::table);
             opt_caption_len.has_value()) {
             current_index += opt_caption_len.template value<ndebug>() + 3;
             inside_caption = true;
             continue;
         }
         if (auto opt_colgroup_len = ::pltxt2htm::details::try_parse_colgroup_tag<ndebug>(
-                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                ::pltxt2htm::NodeKind::table);
+                pltext.template subview<ndebug>(current_index + 2), ::pltxt2htm::NodeKind::table);
             opt_colgroup_len.has_value()) {
             current_index += opt_colgroup_len.template value<ndebug>() + 3;
             inside_colgroup = true;
             continue;
         }
         if (auto opt_thead_len = ::pltxt2htm::details::try_parse_thead_tag<ndebug>(
-                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                ::pltxt2htm::NodeKind::table);
+                pltext.template subview<ndebug>(current_index + 2), ::pltxt2htm::NodeKind::table);
             opt_thead_len.has_value()) {
             current_index += opt_thead_len.template value<ndebug>() + 3;
             active_section = TableRowSection::thead;
@@ -288,8 +282,7 @@ constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noe
             continue;
         }
         if (auto opt_tbody_len = ::pltxt2htm::details::try_parse_tbody_tag<ndebug>(
-                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                ::pltxt2htm::NodeKind::table);
+                pltext.template subview<ndebug>(current_index + 2), ::pltxt2htm::NodeKind::table);
             opt_tbody_len.has_value()) {
             current_index += opt_tbody_len.template value<ndebug>() + 3;
             active_section = TableRowSection::tbody;
@@ -297,8 +290,7 @@ constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noe
             continue;
         }
         if (auto opt_tfoot_len = ::pltxt2htm::details::try_parse_tfoot_tag<ndebug>(
-                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                ::pltxt2htm::NodeKind::table);
+                pltext.template subview<ndebug>(current_index + 2), ::pltxt2htm::NodeKind::table);
             opt_tfoot_len.has_value()) {
             current_index += opt_tfoot_len.template value<ndebug>() + 3;
             active_section = TableRowSection::tfoot;
@@ -306,8 +298,7 @@ constexpr auto optionally_to_html_table_ast(::fast_io::u8string_view pltext) noe
             continue;
         }
         if (auto opt_tr_len = ::pltxt2htm::details::try_parse_tr_tag<ndebug>(
-                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2),
-                ::pltxt2htm::NodeKind::table);
+                pltext.template subview<ndebug>(current_index + 2), ::pltxt2htm::NodeKind::table);
             opt_tr_len.has_value()) {
             current_index += opt_tr_len.template value<ndebug>() + 3;
             raw_ast.add_row(TableRowRaw{.cells = {}, .section = active_section});

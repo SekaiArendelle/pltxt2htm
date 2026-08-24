@@ -11,9 +11,9 @@
 
 #include <cstddef>
 #include <fast_io/fast_io_dsal/list.h>
-#include <fast_io/fast_io_dsal/stack.h>
+#include "details/call_stack.hh"
 #include <fast_io/fast_io_dsal/string.h>
-#include <fast_io/fast_io_dsal/string_view.h>
+#include "container/string_view.hh"
 #include "container/expected.hh"
 #include "ast/node_kind.hh"
 #include "ast/ast.hh"
@@ -37,13 +37,13 @@ namespace pltxt2htm::details {
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto is_inline_code_span_content(::fast_io::u8string_view content) noexcept -> bool {
+constexpr auto is_inline_code_span_content(::pltxt2htm::container::U8StringView content) noexcept -> bool {
     if (content.empty()) {
         return false;
     }
     ::std::size_t const content_size{content.size()};
     for (::std::size_t i{}; i < content_size; ++i) {
-        if (::pltxt2htm::details::u8string_view_index<ndebug>(content, i) == u8'\n') {
+        if (content.template index<ndebug>(i) == u8'\n') {
             return false;
         }
     }
@@ -63,24 +63,24 @@ constexpr auto is_inline_code_span_content(::fast_io::u8string_view content) noe
  * @param[in,out] call_stack Active parser call stack whose top frame is parsed.
  */
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto inline_parse_pltxt(::fast_io::stack<ParserFrameContext<ndebug>>& call_stack) noexcept -> void {
-    ::std::size_t const root_stack_size{call_stack.size()};
+constexpr auto inline_parse_pltxt(::pltxt2htm::details::CallStack<ParserFrame<ndebug>>& call_stack) noexcept -> void {
+    ::std::size_t const root_stack_size{call_stack.frame_count()};
     pltxt2htm_assert(root_stack_size != 0, u8"inline parser call_stack is empty");
-    auto const root_kind = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
+    auto const root_kind = call_stack.template current_frame<ndebug>().get_nested_tag_type();
     pltxt2htm_assert(
         root_kind == ::pltxt2htm::NodeKind::text || ::pltxt2htm::details::is_inline_content_frame_kind(root_kind),
         u8"unexpected inline parser root frame kind");
 
 entry:
     while (true) {
-        auto&& top_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+        auto&& top_frame = call_stack.template current_frame<ndebug>();
         auto&& current_index = top_frame.current_index;
-        ::fast_io::u8string_view const pltext{top_frame.get_pltext()};
+        ::pltxt2htm::container::U8StringView const pltext{top_frame.get_pltext()};
         auto&& result = top_frame.subast;
         ::std::size_t const pltext_size{pltext.size()};
 
         while (current_index < pltext_size) {
-            char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index)};
+            char8_t const chr{pltext.template index<ndebug>(current_index)};
 
             if (chr == u8'\n') {
                 result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LineBreak{}));
@@ -95,7 +95,7 @@ entry:
             }
             if (chr == u8'&') {
                 if (auto const opt_entity_len = ::pltxt2htm::details::try_parse_entity_reference<ndebug>(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                        pltext.template subview<ndebug>(current_index));
                     opt_entity_len.has_value()) {
                     auto const entity_len = opt_entity_len.template value<ndebug>();
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::EntityReference{::fast_io::u8string{
@@ -127,8 +127,8 @@ entry:
                 ++current_index;
                 continue;
             }
-            if (auto opt_escape = ::pltxt2htm::details::try_parse_md_escape<ndebug>(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            if (auto opt_escape =
+                    ::pltxt2htm::details::try_parse_md_escape<ndebug>(pltext.template subview<ndebug>(current_index));
                 opt_escape.has_value()) {
                 auto&& [node, advance_count] = opt_escape.template value<ndebug>();
                 result.push_back(::std::move(node));
@@ -136,138 +136,131 @@ entry:
                 continue;
             }
             if (::pltxt2htm::details::is_prefix_match<ndebug, u8"{project}">(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) {
+                    pltext.template subview<ndebug>(current_index))) {
                 constexpr auto length_of_literal_string = ::std::size_t{9};
                 result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::PlMacroProject{}));
                 current_index += length_of_literal_string;
                 continue;
             }
             if (::pltxt2htm::details::is_prefix_match<ndebug, u8"{visitor}">(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) {
+                    pltext.template subview<ndebug>(current_index))) {
                 constexpr auto length_of_literal_string = ::std::size_t{9};
                 result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::PlMacroVisitor{}));
                 current_index += length_of_literal_string;
                 continue;
             }
             if (::pltxt2htm::details::is_prefix_match<ndebug, u8"{author}">(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) {
+                    pltext.template subview<ndebug>(current_index))) {
                 constexpr auto length_of_literal_string = ::std::size_t{8};
                 result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::PlMacroAuthor{}));
                 current_index += length_of_literal_string;
                 continue;
             }
             if (::pltxt2htm::details::is_prefix_match<ndebug, u8"{coauthors}">(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index))) {
+                    pltext.template subview<ndebug>(current_index))) {
                 constexpr auto length_of_literal_string = ::std::size_t{11};
                 result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::PlMacroCoauthors{}));
                 current_index += length_of_literal_string;
                 continue;
             }
             if (auto opt_triple_emphasis_asterisk = ::pltxt2htm::details::try_parse_md_inlines<ndebug, u8"***">(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                    pltext.template subview<ndebug>(current_index));
                 opt_triple_emphasis_asterisk.has_value()) {
                 // parsing markdown ***example***
                 ::std::size_t const advance_count{opt_triple_emphasis_asterisk.template value<ndebug>()};
-                call_stack.push(ParserFrameContext<ndebug>(
-                    FrontendContextVariant<ndebug>{
-                        ParserFrameContextWithPltextInfo{::pltxt2htm::details::u8string_view_subview<ndebug>(
-                            pltext, current_index + 3, advance_count)},
-                        ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk},
+                call_stack.push_frame(ParserFrame<ndebug>(
+                    FrontendContextVariant<ndebug>{ParserFrameContextWithPltextInfo{pltext.template subview<ndebug>(
+                                                       current_index + 3, advance_count)},
+                                                   ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk},
                     ::pltxt2htm::Ast<ndebug>{}));
                 current_index += advance_count + 6;
                 goto entry;
             }
             if (auto opt_double_emphasis_asterisk = ::pltxt2htm::details::try_parse_md_inlines<ndebug, u8"**">(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                    pltext.template subview<ndebug>(current_index));
                 opt_double_emphasis_asterisk.has_value()) {
                 // parsing markdown **example**
                 ::std::size_t const advance_count{opt_double_emphasis_asterisk.template value<ndebug>()};
-                call_stack.push(ParserFrameContext<ndebug>(
-                    FrontendContextVariant<ndebug>{
-                        ParserFrameContextWithPltextInfo{::pltxt2htm::details::u8string_view_subview<ndebug>(
-                            pltext, current_index + 2, advance_count)},
-                        ::pltxt2htm::NodeKind::md_double_emphasis_asterisk},
+                call_stack.push_frame(ParserFrame<ndebug>(
+                    FrontendContextVariant<ndebug>{ParserFrameContextWithPltextInfo{pltext.template subview<ndebug>(
+                                                       current_index + 2, advance_count)},
+                                                   ::pltxt2htm::NodeKind::md_double_emphasis_asterisk},
                     ::pltxt2htm::Ast<ndebug>{}));
                 current_index += advance_count + 4;
                 goto entry;
             }
             if (auto opt_single_emphasis_asterisk = ::pltxt2htm::details::try_parse_md_inlines<ndebug, u8"*">(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                    pltext.template subview<ndebug>(current_index));
                 opt_single_emphasis_asterisk.has_value()) {
                 // parsing markdown *example*
                 ::std::size_t const advance_count{opt_single_emphasis_asterisk.template value<ndebug>()};
-                call_stack.push(ParserFrameContext<ndebug>(
-                    FrontendContextVariant<ndebug>{
-                        ParserFrameContextWithPltextInfo{::pltxt2htm::details::u8string_view_subview<ndebug>(
-                            pltext, current_index + 1, advance_count)},
-                        ::pltxt2htm::NodeKind::md_single_emphasis_asterisk},
+                call_stack.push_frame(ParserFrame<ndebug>(
+                    FrontendContextVariant<ndebug>{ParserFrameContextWithPltextInfo{pltext.template subview<ndebug>(
+                                                       current_index + 1, advance_count)},
+                                                   ::pltxt2htm::NodeKind::md_single_emphasis_asterisk},
                     ::pltxt2htm::Ast<ndebug>{}));
                 current_index += advance_count + 2;
                 goto entry;
             }
             if (auto opt_triple_emphasis_underscore = ::pltxt2htm::details::try_parse_md_inlines<ndebug, u8"___">(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                    pltext.template subview<ndebug>(current_index));
                 opt_triple_emphasis_underscore.has_value()) {
                 // parsing markdown ___example___
                 ::std::size_t const advance_count{opt_triple_emphasis_underscore.template value<ndebug>()};
-                call_stack.push(ParserFrameContext<ndebug>(
-                    FrontendContextVariant<ndebug>{
-                        ParserFrameContextWithPltextInfo{::pltxt2htm::details::u8string_view_subview<ndebug>(
-                            pltext, current_index + 3, advance_count)},
-                        ::pltxt2htm::NodeKind::md_triple_emphasis_underscore},
+                call_stack.push_frame(ParserFrame<ndebug>(
+                    FrontendContextVariant<ndebug>{ParserFrameContextWithPltextInfo{pltext.template subview<ndebug>(
+                                                       current_index + 3, advance_count)},
+                                                   ::pltxt2htm::NodeKind::md_triple_emphasis_underscore},
                     ::pltxt2htm::Ast<ndebug>{}));
                 current_index += advance_count + 6;
                 goto entry;
             }
             if (auto opt_double_emphasis_undersore = ::pltxt2htm::details::try_parse_md_inlines<ndebug, u8"__">(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                    pltext.template subview<ndebug>(current_index));
                 opt_double_emphasis_undersore.has_value()) {
                 // parsing markdown __example__
                 ::std::size_t const advance_count{opt_double_emphasis_undersore.template value<ndebug>()};
-                call_stack.push(ParserFrameContext<ndebug>(
-                    FrontendContextVariant<ndebug>{
-                        ParserFrameContextWithPltextInfo{::pltxt2htm::details::u8string_view_subview<ndebug>(
-                            pltext, current_index + 2, advance_count)},
-                        ::pltxt2htm::NodeKind::md_double_emphasis_underscore},
+                call_stack.push_frame(ParserFrame<ndebug>(
+                    FrontendContextVariant<ndebug>{ParserFrameContextWithPltextInfo{pltext.template subview<ndebug>(
+                                                       current_index + 2, advance_count)},
+                                                   ::pltxt2htm::NodeKind::md_double_emphasis_underscore},
                     ::pltxt2htm::Ast<ndebug>{}));
                 current_index += advance_count + 4;
                 goto entry;
             }
             if (auto opt_single_emphasis_undersore = ::pltxt2htm::details::try_parse_md_inlines<ndebug, u8"_">(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                    pltext.template subview<ndebug>(current_index));
                 opt_single_emphasis_undersore.has_value()) {
                 // parsing markdown _example_
                 ::std::size_t const advance_count{opt_single_emphasis_undersore.template value<ndebug>()};
-                call_stack.push(ParserFrameContext<ndebug>(
-                    FrontendContextVariant<ndebug>{
-                        ParserFrameContextWithPltextInfo{::pltxt2htm::details::u8string_view_subview<ndebug>(
-                            pltext, current_index + 1, advance_count)},
-                        ::pltxt2htm::NodeKind::md_single_emphasis_underscore},
+                call_stack.push_frame(ParserFrame<ndebug>(
+                    FrontendContextVariant<ndebug>{ParserFrameContextWithPltextInfo{pltext.template subview<ndebug>(
+                                                       current_index + 1, advance_count)},
+                                                   ::pltxt2htm::NodeKind::md_single_emphasis_underscore},
                     ::pltxt2htm::Ast<ndebug>{}));
                 current_index += advance_count + 2;
                 goto entry;
             }
             if (auto opt_md_del = ::pltxt2htm::details::try_parse_md_inlines<ndebug, u8"~~">(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                    pltext.template subview<ndebug>(current_index));
                 opt_md_del.has_value()) {
                 // parsing markdown ~~example~~
                 ::std::size_t const advance_count{opt_md_del.template value<ndebug>()};
-                call_stack.push(ParserFrameContext<ndebug>(
-                    FrontendContextVariant<ndebug>{
-                        ParserFrameContextWithPltextInfo{::pltxt2htm::details::u8string_view_subview<ndebug>(
-                            pltext, current_index + 2, advance_count)},
-                        ::pltxt2htm::NodeKind::md_del},
+                call_stack.push_frame(ParserFrame<ndebug>(
+                    FrontendContextVariant<ndebug>{ParserFrameContextWithPltextInfo{pltext.template subview<ndebug>(
+                                                       current_index + 2, advance_count)},
+                                                   ::pltxt2htm::NodeKind::md_del},
                     ::pltxt2htm::Ast<ndebug>{}));
                 current_index += advance_count + 4;
                 goto entry;
             }
             if (auto opt_code_span_3_backtick = ::pltxt2htm::details::try_parse_md_code_span<ndebug, u8"```">(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                    pltext.template subview<ndebug>(current_index));
                 opt_code_span_3_backtick.has_value()) {
                 // parsing markdown ```example```
                 auto&& [content_size, subast] = opt_code_span_3_backtick.template value<ndebug>();
                 if (::pltxt2htm::details::is_inline_code_span_content<ndebug>(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 3, content_size))) {
+                        pltext.template subview<ndebug>(current_index + 3, content_size))) {
                     current_index += content_size + 6;
                     result.push_back(
                         ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdCodeSpan3Backtick<ndebug>{::std::move(subast)}));
@@ -275,12 +268,12 @@ entry:
                 }
             }
             if (auto opt_code_span_2_backtick = ::pltxt2htm::details::try_parse_md_code_span<ndebug, u8"``">(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                    pltext.template subview<ndebug>(current_index));
                 opt_code_span_2_backtick.has_value()) {
                 // parsing markdown ``example``
                 auto&& [content_size, subast] = opt_code_span_2_backtick.template value<ndebug>();
                 if (::pltxt2htm::details::is_inline_code_span_content<ndebug>(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2, content_size))) {
+                        pltext.template subview<ndebug>(current_index + 2, content_size))) {
                     current_index += content_size + 4;
                     result.push_back(
                         ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdCodeSpan2Backtick<ndebug>{::std::move(subast)}));
@@ -288,12 +281,12 @@ entry:
                 }
             }
             if (auto opt_code_span_1_backtick = ::pltxt2htm::details::try_parse_md_code_span<ndebug, u8"`">(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                    pltext.template subview<ndebug>(current_index));
                 opt_code_span_1_backtick.has_value()) {
                 // parsing markdown `example`
                 auto&& [content_size, subast] = opt_code_span_1_backtick.template value<ndebug>();
                 if (::pltxt2htm::details::is_inline_code_span_content<ndebug>(
-                        ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 1, content_size))) {
+                        pltext.template subview<ndebug>(current_index + 1, content_size))) {
                     current_index += content_size + 2;
                     result.push_back(
                         ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdCodeSpan1Backtick<ndebug>{::std::move(subast)}));
@@ -301,7 +294,7 @@ entry:
                 }
             }
             if (auto opt_md_latex_block_dollar = ::pltxt2htm::details::try_parse_md_latex_block_dollar<ndebug>(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                    pltext.template subview<ndebug>(current_index));
                 opt_md_latex_block_dollar.has_value()) {
                 auto&& [advance_count, subast] = opt_md_latex_block_dollar.template value<ndebug>();
                 current_index += advance_count;
@@ -310,7 +303,7 @@ entry:
                 continue;
             }
             if (auto opt_md_latex_inline = ::pltxt2htm::details::try_parse_md_latex_inline<ndebug>(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+                    pltext.template subview<ndebug>(current_index));
                 opt_md_latex_inline.has_value()) {
                 auto&& [advance_count, subast] = opt_md_latex_inline.template value<ndebug>();
                 current_index += advance_count;
@@ -318,30 +311,27 @@ entry:
                     ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdLatexInline<ndebug>{::std::move(subast)}));
                 continue;
             }
-            if (auto opt_md_link = ::pltxt2htm::details::try_parse_md_link<ndebug>(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            if (auto opt_md_link =
+                    ::pltxt2htm::details::try_parse_md_link<ndebug>(pltext.template subview<ndebug>(current_index));
                 opt_md_link.has_value()) {
                 auto&& [advance_count, url_text, url_link] = opt_md_link.template value<ndebug>();
                 current_index += advance_count;
-                call_stack.push(ParserFrameContext<ndebug>(
+                call_stack.push_frame(ParserFrame<ndebug>(
                     FrontendContextVariant<ndebug>{ParserFrameContextWithUrlInfo{url_text, ::std::move(url_link)},
                                                    ::pltxt2htm::NodeKind::md_link},
                     ::pltxt2htm::Ast<ndebug>{}));
                 goto entry;
             }
-            if (auto opt_url = ::pltxt2htm::details::try_parse_auto_url<ndebug>(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            if (auto opt_url =
+                    ::pltxt2htm::details::try_parse_auto_url<ndebug>(pltext.template subview<ndebug>(current_index));
                 opt_url.has_value()) {
                 // Suppress auto-link when inside a URL-link container frame (pl_link,
                 // pl_external, md_link, html_a): a bare URL there would otherwise nest
                 // an <a> inside another <a>.  The URL then falls through to literal text.
-                bool in_url_link_frame{false};
-                for (auto const& v : call_stack.container) {
-                    if (::pltxt2htm::details::is_url_link_tag_type(v.get_nested_tag_type())) {
-                        in_url_link_frame = true;
-                        break;
-                    }
-                }
+                bool const in_url_link_frame{
+                    call_stack.contains_frame_if([](ParserFrame<ndebug> const& frame) noexcept {
+                        return ::pltxt2htm::details::is_url_link_tag_type(frame.get_nested_tag_type());
+                    })};
                 if (in_url_link_frame == false) {
                     auto&& [consumed_size, url_obj] = opt_url.template value<ndebug>();
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(url_obj)));
@@ -349,8 +339,8 @@ entry:
                     continue;
                 }
             }
-            if (auto opt_md_image = ::pltxt2htm::details::try_parse_md_image<ndebug>(
-                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index));
+            if (auto opt_md_image =
+                    ::pltxt2htm::details::try_parse_md_image<ndebug>(pltext.template subview<ndebug>(current_index));
                 opt_md_image.has_value()) {
                 auto&& [advance_count, text, link] = opt_md_image.template value<ndebug>();
                 current_index += advance_count;
@@ -369,7 +359,7 @@ entry:
                 }
 
                 // a trie for tags
-                switch (::pltxt2htm::details::u8string_view_index<ndebug>(pltext, current_index + 1)) {
+                switch (pltext.template index<ndebug>(current_index + 1)) {
                 case u8'a':
                     [[fallthrough]];
                 case u8'A': {
@@ -377,29 +367,27 @@ entry:
                     // Note: <align=...> (Unity TextMeshPro) is parsed only by the block-level
                     // parser; in this inline-only parser it always renders as literal text.
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                            pltext.template subview<ndebug>(current_index + 2));
                         opt_tag_len.has_value()) {
                         current_index += opt_tag_len.template value<ndebug>() + 3;
-                        call_stack.push(ParserFrameContext<ndebug>(
+                        call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithPltextInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ParserFrameContextWithPltextInfo{pltext.template subview<ndebug>(current_index)},
                                 ::pltxt2htm::NodeKind::pl_a},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     // parsing html <a href="URL"> tag
                     if (auto a_tag = ::pltxt2htm::details::try_parse_html_a_tag<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                            pltext.template subview<ndebug>(current_index + 2));
                         a_tag.is_valid()) {
                         auto const tag_len = a_tag.tag_len;
                         ::pltxt2htm::Url url = ::std::move(a_tag.url.template value<ndebug>());
                         auto const internal = a_tag.internal;
                         current_index += tag_len + 2;
-                        call_stack.push(ParserFrameContext<ndebug>(
+                        call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{ParserFrameContextWithHtmlATagInfo{
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                                ::std::move(url),
+                                pltext.template subview<ndebug>(current_index), ::std::move(url),
                                 internal}}, // ::pltxt2htm::NodeKind::html_a is automatically set in ctor
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -408,8 +396,7 @@ entry:
                         // the <a href="..."> opening tag was recognized but its URL is invalid:
                         // consume the whole span as literal text (no auto-link / tag dispatch inside).
                         auto const tag_len = a_tag.tag_len;
-                        auto const span =
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index, tag_len + 2);
+                        auto const span = pltext.template subview<ndebug>(current_index, tag_len + 2);
                         auto&& [_, literal_ast, found_end_] = ::pltxt2htm::details::simply_parse_pltext<ndebug>(span);
                         result.append_range(::std::move(literal_ast));
                         current_index += tag_len + 2;
@@ -424,20 +411,19 @@ entry:
                     [[fallthrough]];
                 case u8'B': {
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                            pltext.template subview<ndebug>(current_index + 2));
                         opt_tag_len.has_value()) {
                         // parsing pl&html <b> tag
                         current_index += opt_tag_len.template value<ndebug>() + 3;
-                        call_stack.push(ParserFrameContext<ndebug>(
+                        call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithPltextInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ParserFrameContextWithPltextInfo{pltext.template subview<ndebug>(current_index)},
                                 ::pltxt2htm::NodeKind::pl_b},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     if (auto opt_br_tag_len = ::pltxt2htm::details::try_parse_self_closing_tag<ndebug, u8"r">(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                            pltext.template subview<ndebug>(current_index + 2));
                         opt_br_tag_len.has_value()) {
                         current_index += opt_br_tag_len.template value<ndebug>() + 1;
                         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlBr{}));
@@ -455,30 +441,28 @@ entry:
                 case u8'C': {
                     // parsing: <code>$1</code> inline element (no language/class support)
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"ode">(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                            pltext.template subview<ndebug>(current_index + 2));
                         opt_tag_len.has_value()) {
                         // parsing start tag <code> successed
                         current_index += opt_tag_len.template value<ndebug>() + 3;
-                        call_stack.push(ParserFrameContext<ndebug>(
+                        call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithPltextInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ParserFrameContextWithPltextInfo{pltext.template subview<ndebug>(current_index)},
                                 ::pltxt2htm::NodeKind::html_code},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     // parsing: <color=$1>$2</color>
                     if (auto opt_color_tag = ::pltxt2htm::details::try_parse_color_tag<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                            pltext.template subview<ndebug>(current_index + 2));
                         opt_color_tag.has_value()) {
                         auto&& [tag_len, color] = opt_color_tag.template value<ndebug>();
                         current_index += tag_len + 3;
                         // parsing start tag <color> successed
-                        call_stack.push(ParserFrameContext<ndebug>(
+                        call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithEqualSignTagInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                                    ::fast_io::u8string{color}},
+                                ParserFrameContextWithEqualSignTagInfo{pltext.template subview<ndebug>(current_index),
+                                                                       ::fast_io::u8string{color}},
                                 ::pltxt2htm::NodeKind::pl_color},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -492,14 +476,13 @@ entry:
                     [[fallthrough]];
                 case u8'D': {
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"el">(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                            pltext.template subview<ndebug>(current_index + 2));
                         opt_tag_len.has_value()) {
                         // parsing <del>$1</del>
                         current_index += opt_tag_len.template value<ndebug>() + 3;
-                        call_stack.push(ParserFrameContext<ndebug>(
+                        call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithPltextInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ParserFrameContextWithPltextInfo{pltext.template subview<ndebug>(current_index)},
                                 ::pltxt2htm::NodeKind::html_del},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -507,15 +490,14 @@ entry:
                     // parsing: <discussions=$1>$2</discussions>
                     if (auto opt_discussions_tag = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<
                             ndebug, u8"iscussions", ::pltxt2htm::details::is_url_value_char>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), call_stack);
+                            pltext.template subview<ndebug>(current_index + 2), call_stack);
                         opt_discussions_tag.has_value()) {
                         auto&& [tag_len, value] = opt_discussions_tag.template value<ndebug>();
                         current_index += tag_len + 3;
-                        call_stack.push(ParserFrameContext<ndebug>(
+                        call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithEqualSignTagInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                                    ::fast_io::u8string{value}},
+                                ParserFrameContextWithEqualSignTagInfo{pltext.template subview<ndebug>(current_index),
+                                                                       ::fast_io::u8string{value}},
                                 ::pltxt2htm::NodeKind::pl_discussions},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -523,15 +505,14 @@ entry:
                     // parsing: <discussion=$1>$2</discussion>
                     if (auto opt_discussion_tag = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<
                             ndebug, u8"iscussion", ::pltxt2htm::details::is_ascii_lowercase_alphanumeric>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), call_stack);
+                            pltext.template subview<ndebug>(current_index + 2), call_stack);
                         opt_discussion_tag.has_value()) {
                         auto&& [tag_len, id] = opt_discussion_tag.template value<ndebug>();
                         current_index += tag_len + 3;
-                        call_stack.push(ParserFrameContext<ndebug>(
+                        call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithEqualSignTagInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                                    ::fast_io::u8string{id}},
+                                ParserFrameContextWithEqualSignTagInfo{pltext.template subview<ndebug>(current_index),
+                                                                       ::fast_io::u8string{id}},
                                 ::pltxt2htm::NodeKind::pl_discussion},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -547,46 +528,43 @@ entry:
                     // parsing: <experiments=$1>$2</experiments>
                     if (auto opt_experiments_tag = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<
                             ndebug, u8"xperiments", ::pltxt2htm::details::is_url_value_char>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), call_stack);
+                            pltext.template subview<ndebug>(current_index + 2), call_stack);
                         opt_experiments_tag.has_value()) {
                         auto&& [tag_len, value] = opt_experiments_tag.template value<ndebug>();
                         current_index += tag_len + 3;
-                        call_stack.push(ParserFrameContext<ndebug>(
+                        call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithEqualSignTagInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                                    ::fast_io::u8string{value}},
+                                ParserFrameContextWithEqualSignTagInfo{pltext.template subview<ndebug>(current_index),
+                                                                       ::fast_io::u8string{value}},
                                 ::pltxt2htm::NodeKind::pl_experiments},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     if (auto opt_experiment_tag = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<
                             ndebug, u8"xperiment", ::pltxt2htm::details::is_ascii_lowercase_alphanumeric>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), call_stack);
+                            pltext.template subview<ndebug>(current_index + 2), call_stack);
                         opt_experiment_tag.has_value()) {
                         // parsing: <experiment=$1>$2</experiment>
                         auto&& [tag_len, id] = opt_experiment_tag.template value<ndebug>();
                         current_index += tag_len + 3;
-                        call_stack.push(ParserFrameContext<ndebug>(
+                        call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithEqualSignTagInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                                    ::fast_io::u8string{id}},
+                                ParserFrameContextWithEqualSignTagInfo{pltext.template subview<ndebug>(current_index),
+                                                                       ::fast_io::u8string{id}},
                                 ::pltxt2htm::NodeKind::pl_experiment},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     if (auto external_tag = ::pltxt2htm::details::try_parse_external_tag<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), call_stack);
+                            pltext.template subview<ndebug>(current_index + 2), call_stack);
                         external_tag.is_valid()) {
                         auto const tag_len = external_tag.tag_len;
                         ::pltxt2htm::Url url = ::std::move(external_tag.url.template value<ndebug>());
                         current_index += tag_len + 3;
-                        call_stack.push(ParserFrameContext<ndebug>(
+                        call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithUrlInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                                    ::std::move(url)},
+                                ParserFrameContextWithUrlInfo{pltext.template subview<ndebug>(current_index),
+                                                              ::std::move(url)},
                                 ::pltxt2htm::NodeKind::pl_external},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -595,21 +573,19 @@ entry:
                         // the <external=...> opening tag was recognized but its URL is invalid:
                         // consume the whole span as literal text (no auto-link / tag dispatch inside).
                         auto const tag_len = external_tag.tag_len;
-                        auto const span =
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index, tag_len + 3);
+                        auto const span = pltext.template subview<ndebug>(current_index, tag_len + 3);
                         auto&& [_, literal_ast, found_end_] = ::pltxt2htm::details::simply_parse_pltext<ndebug>(span);
                         result.append_range(::std::move(literal_ast));
                         current_index += tag_len + 3;
                         continue;
                     }
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"m">(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                            pltext.template subview<ndebug>(current_index + 2));
                         opt_tag_len.has_value()) {
                         current_index += opt_tag_len.template value<ndebug>() + 3;
-                        call_stack.push(ParserFrameContext<ndebug>(
+                        call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithPltextInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ParserFrameContextWithPltextInfo{pltext.template subview<ndebug>(current_index)},
                                 ::pltxt2htm::NodeKind::html_em},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -625,35 +601,33 @@ entry:
                     // parsing: <internal=$1>$2</internal>
                     if (auto opt_internal_tag = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<
                             ndebug, u8"nternal", ::pltxt2htm::details::is_ascii_graphic>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), call_stack);
+                            pltext.template subview<ndebug>(current_index + 2), call_stack);
                         opt_internal_tag.has_value()) {
                         auto&& [tag_len, value] = opt_internal_tag.template value<ndebug>();
                         current_index += tag_len + 3;
-                        call_stack.push(ParserFrameContext<ndebug>(
+                        call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithEqualSignTagInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                                    ::fast_io::u8string{value}},
+                                ParserFrameContextWithEqualSignTagInfo{pltext.template subview<ndebug>(current_index),
+                                                                       ::fast_io::u8string{value}},
                                 ::pltxt2htm::NodeKind::pl_internal},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     // parsing pl&html <i>$1</i> tag
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                            pltext.template subview<ndebug>(current_index + 2));
                         opt_tag_len.has_value()) {
                         current_index += opt_tag_len.template value<ndebug>() + 3;
-                        call_stack.push(ParserFrameContext<ndebug>(
+                        call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithPltextInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ParserFrameContextWithPltextInfo{pltext.template subview<ndebug>(current_index)},
                                 ::pltxt2htm::NodeKind::pl_i},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     // parsing html <img src="..." alt="..."> self-closing tag
                     if (auto opt_img_tag = ::pltxt2htm::details::try_parse_img_tag<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                            pltext.template subview<ndebug>(current_index + 2));
                         opt_img_tag.has_value()) {
                         auto&& [tag_len, src, alt] = opt_img_tag.template value<ndebug>();
                         current_index += tag_len + 1;
@@ -671,17 +645,16 @@ entry:
                     [[fallthrough]];
                 case u8'L': {
                     if (auto link_tag = ::pltxt2htm::details::try_parse_link_tag<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), call_stack);
+                            pltext.template subview<ndebug>(current_index + 2), call_stack);
                         link_tag.is_valid()) {
                         // parsing: <link="url">$1</link>
                         auto const tag_len = link_tag.tag_len;
                         ::pltxt2htm::Url url = ::std::move(link_tag.url.template value<ndebug>());
                         current_index += tag_len + 3;
-                        call_stack.push(ParserFrameContext<ndebug>(
+                        call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithUrlInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                                    ::std::move(url)},
+                                ParserFrameContextWithUrlInfo{pltext.template subview<ndebug>(current_index),
+                                                              ::std::move(url)},
                                 ::pltxt2htm::NodeKind::pl_link},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -690,8 +663,7 @@ entry:
                         // the <link="..."> opening tag was recognized but its URL is invalid:
                         // consume the whole span as literal text (no auto-link / tag dispatch inside).
                         auto const tag_len = link_tag.tag_len;
-                        auto const span =
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index, tag_len + 3);
+                        auto const span = pltext.template subview<ndebug>(current_index, tag_len + 3);
                         auto&& [_, literal_ast, found_end_] = ::pltxt2htm::details::simply_parse_pltext<ndebug>(span);
                         result.append_range(::std::move(literal_ast));
                         current_index += tag_len + 3;
@@ -706,31 +678,29 @@ entry:
                     [[fallthrough]];
                 case u8'M': {
                     if (auto opt_mark_tag = ::pltxt2htm::details::try_parse_mark_equal_sign_tag<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                            pltext.template subview<ndebug>(current_index + 2));
                         opt_mark_tag.has_value()) {
                         auto&& [tag_len, background_color] = opt_mark_tag.template value<ndebug>();
                         // parsing pl <mark=Xxx> tag (TMP rich text)
                         current_index += tag_len + 2;
-                        call_stack.push(ParserFrameContext<ndebug>(
+                        call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithPlMarkInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                                    ::std::move(background_color)},
+                                ParserFrameContextWithPlMarkInfo{pltext.template subview<ndebug>(current_index),
+                                                                 ::std::move(background_color)},
                                 ::pltxt2htm::NodeKind::pl_mark},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     if (auto opt_mark_tag = ::pltxt2htm::details::try_parse_mark_tag<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                            pltext.template subview<ndebug>(current_index + 2));
                         opt_mark_tag.has_value()) {
                         auto&& [tag_len, background_color] = opt_mark_tag.template value<ndebug>();
                         // parsing html <mark> tag (bare or with style="background-color:...")
                         current_index += tag_len + 2;
-                        call_stack.push(ParserFrameContext<ndebug>(
+                        call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithHtmlMarkInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                                    ::std::move(background_color)},
+                                ParserFrameContextWithHtmlMarkInfo{pltext.template subview<ndebug>(current_index),
+                                                                   ::std::move(background_color)},
                                 ::pltxt2htm::NodeKind::html_mark},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -745,7 +715,7 @@ entry:
                 case u8'S': {
                     // parsing pl <size=$1>$2</size> tag
                     if (auto opt_size_tag = ::pltxt2htm::details::try_parse_size_tag<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                            pltext.template subview<ndebug>(current_index + 2));
                         opt_size_tag.has_value()) {
                         auto const [tag_len, value] = opt_size_tag.template value<ndebug>();
                         if (value.value == 0) {
@@ -755,77 +725,72 @@ entry:
                         }
 
                         current_index += tag_len + 3;
-                        call_stack.push(ParserFrameContext<ndebug>(
-                            FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithPlSizeTagInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), value},
-                                ::pltxt2htm::NodeKind::pl_size},
+                        call_stack.push_frame(ParserFrame<ndebug>(
+                            FrontendContextVariant<ndebug>{ParserFrameContextWithPlSizeTagInfo{
+                                                               pltext.template subview<ndebug>(current_index), value},
+                                                           ::pltxt2htm::NodeKind::pl_size},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     // parsing <span style="color:...;font-size:..."> as html_span
                     if (auto opt_span_tag = ::pltxt2htm::details::try_parse_span_tag<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                            pltext.template subview<ndebug>(current_index + 2));
                         opt_span_tag.has_value()) {
                         auto&& [tag_len, color, font_size, vertical_align] = opt_span_tag.template value<ndebug>();
                         current_index += tag_len + 2;
-                        call_stack.push(ParserFrameContext<ndebug>(
+                        call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithHtmlSpanInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                                    ::std::move(color), ::std::move(font_size), ::std::move(vertical_align)},
+                                ParserFrameContextWithHtmlSpanInfo{pltext.template subview<ndebug>(current_index),
+                                                                   ::std::move(color), ::std::move(font_size),
+                                                                   ::std::move(vertical_align)},
                                 ::pltxt2htm::NodeKind::html_span},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"trong">(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                            pltext.template subview<ndebug>(current_index + 2));
                         opt_tag_len.has_value()) {
                         // HTML <strong> tag
                         current_index += opt_tag_len.template value<ndebug>() + 3;
-                        call_stack.push(ParserFrameContext<ndebug>(
+                        call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithPltextInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ParserFrameContextWithPltextInfo{pltext.template subview<ndebug>(current_index)},
                                 ::pltxt2htm::NodeKind::html_strong},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"up">(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                            pltext.template subview<ndebug>(current_index + 2));
                         opt_tag_len.has_value()) {
                         // parsing <sup>$1</sup> (HTML and Unity TextMeshPro superscript)
                         current_index += opt_tag_len.template value<ndebug>() + 3;
-                        call_stack.push(ParserFrameContext<ndebug>(
+                        call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithPltextInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ParserFrameContextWithPltextInfo{pltext.template subview<ndebug>(current_index)},
                                 ::pltxt2htm::NodeKind::html_sup},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"ub">(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                            pltext.template subview<ndebug>(current_index + 2));
                         opt_tag_len.has_value()) {
                         // parsing <sub>$1</sub> (HTML and Unity TextMeshPro subscript)
                         current_index += opt_tag_len.template value<ndebug>() + 3;
-                        call_stack.push(ParserFrameContext<ndebug>(
+                        call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithPltextInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ParserFrameContextWithPltextInfo{pltext.template subview<ndebug>(current_index)},
                                 ::pltxt2htm::NodeKind::html_sub},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                            pltext.template subview<ndebug>(current_index + 2));
                         opt_tag_len.has_value()) {
                         // parsing <s>$1</s> (HTML and Unity TextMeshPro strikethrough)
                         current_index += opt_tag_len.template value<ndebug>() + 3;
-                        call_stack.push(ParserFrameContext<ndebug>(
+                        call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithPltextInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ParserFrameContextWithPltextInfo{pltext.template subview<ndebug>(current_index)},
                                 ::pltxt2htm::NodeKind::pl_s},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -841,15 +806,14 @@ entry:
                     // parsing: <trigger=$1>$2</trigger>
                     if (auto opt_trigger_tag = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<
                             ndebug, u8"rigger", ::pltxt2htm::details::is_ascii_graphic>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2), call_stack);
+                            pltext.template subview<ndebug>(current_index + 2), call_stack);
                         opt_trigger_tag.has_value()) {
                         auto&& [tag_len, value] = opt_trigger_tag.template value<ndebug>();
                         current_index += tag_len + 3;
-                        call_stack.push(ParserFrameContext<ndebug>(
+                        call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithEqualSignTagInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                                    ::fast_io::u8string{value}},
+                                ParserFrameContextWithEqualSignTagInfo{pltext.template subview<ndebug>(current_index),
+                                                                       ::fast_io::u8string{value}},
                                 ::pltxt2htm::NodeKind::pl_trigger},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -865,15 +829,14 @@ entry:
                     // parsing pl <user=$1>$2</user> tag
                     if (auto opt_user_tag = ::pltxt2htm::details::try_parse_equal_sign_tag<
                             ndebug, u8"ser", ::pltxt2htm::details::is_ascii_lowercase_alphanumeric>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                            pltext.template subview<ndebug>(current_index + 2));
                         opt_user_tag.has_value()) {
                         auto&& [tag_len, id] = opt_user_tag.template value<ndebug>();
                         current_index += tag_len + 3;
-                        call_stack.push(ParserFrameContext<ndebug>(
+                        call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithEqualSignTagInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index),
-                                    ::fast_io::u8string{id}},
+                                ParserFrameContextWithEqualSignTagInfo{pltext.template subview<ndebug>(current_index),
+                                                                       ::fast_io::u8string{id}},
                                 ::pltxt2htm::NodeKind::pl_user},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -881,14 +844,13 @@ entry:
                     // <ul> is a block-level list; inline occurrences are plain literal text
                     // (except <u> underline below).
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                            pltext.template subview<ndebug>(current_index + 2));
                         opt_tag_len.has_value()) {
                         // parsing <u>$1</u> (HTML and Unity TextMeshPro underline)
                         current_index += opt_tag_len.template value<ndebug>() + 3;
-                        call_stack.push(ParserFrameContext<ndebug>(
+                        call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithPltextInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index)},
+                                ParserFrameContextWithPltextInfo{pltext.template subview<ndebug>(current_index)},
                                 ::pltxt2htm::NodeKind::pl_u},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -903,15 +865,14 @@ entry:
                 case u8'V': {
                     // parsing pl <voffset=$1>$2</voffset> tag (Unity TextMeshPro rich text)
                     if (auto opt_voffset_tag = ::pltxt2htm::details::try_parse_voffset_tag<ndebug>(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                            pltext.template subview<ndebug>(current_index + 2));
                         opt_voffset_tag.has_value()) {
                         auto const [tag_len, value] = opt_voffset_tag.template value<ndebug>();
                         current_index += tag_len + 3;
-                        call_stack.push(ParserFrameContext<ndebug>(
-                            FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithPlVoffsetTagInfo{
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), value},
-                                ::pltxt2htm::NodeKind::pl_voffset},
+                        call_stack.push_frame(ParserFrame<ndebug>(
+                            FrontendContextVariant<ndebug>{ParserFrameContextWithPlVoffsetTagInfo{
+                                                               pltext.template subview<ndebug>(current_index), value},
+                                                           ::pltxt2htm::NodeKind::pl_voffset},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
@@ -923,18 +884,18 @@ entry:
                 case u8'!': {
                     // parsing: <!--$1-->
                     if (::pltxt2htm::details::is_prefix_match<ndebug, u8"--">(
-                            ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2))) {
+                            pltext.template subview<ndebug>(current_index + 2))) {
                         // Find the closing -->
                         ::std::size_t comment_end{current_index + 4}; // Position after <!--
                         ::pltxt2htm::Ast<ndebug> subast{};
 
                         for (; comment_end < pltext_size; ++comment_end) {
                             if (::pltxt2htm::details::is_prefix_match<ndebug, u8"-->">(
-                                    ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, comment_end))) {
+                                    pltext.template subview<ndebug>(comment_end))) {
                                 break;
                             }
-                            subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{
-                                ::pltxt2htm::details::u8string_view_index<ndebug>(pltext, comment_end)}));
+                            subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
+                                ::pltxt2htm::U8Char{pltext.template index<ndebug>(comment_end)}));
                         }
 
                         current_index = comment_end + 2; // Point to '>'
@@ -949,24 +910,24 @@ entry:
                 }
 
                 case u8'/': {
-                    auto&& frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                    auto&& frame = call_stack.template current_frame<ndebug>();
                     switch (frame.get_nested_tag_type()) /* -Werror=switch */ {
                     case ::pltxt2htm::NodeKind::pl_color: {
                         // parsing </color> or </a>
                         ::pltxt2htm::container::Optional<::std::size_t> opt_tag_len{
                             ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"color">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2))};
+                                pltext.template subview<ndebug>(current_index + 2))};
                         if (opt_tag_len.has_value() == false) {
                             opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"a">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                         }
                         if (opt_tag_len.has_value()) {
                             // parsing end tag </color> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlColor staged_node(::std::move(result),
                                                              ::std::move(frame.as_equal_sign_tag().id));
-                            call_stack.pop();
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            call_stack.template discard_current_frame<ndebug>();
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -979,17 +940,17 @@ entry:
                         // parsing </color> or </a>
                         ::pltxt2htm::container::Optional<::std::size_t> opt_tag_len{
                             ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"color">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2))};
+                                pltext.template subview<ndebug>(current_index + 2))};
                         if (opt_tag_len.has_value() == false) {
                             opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"a">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                         }
                         if (opt_tag_len.has_value()) {
                             // parsing end tag </a> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlA staged_node(::std::move(result));
-                            call_stack.pop();
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            call_stack.template discard_current_frame<ndebug>();
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1001,14 +962,14 @@ entry:
                     case ::pltxt2htm::NodeKind::html_span: {
                         // parsing </span>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"span">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlSpan staged_node(
                                 ::std::move(result), ::std::move(frame.as_html_span_info().color),
                                 frame.as_html_span_info().font_size, frame.as_html_span_info().vertical_align);
-                            call_stack.pop();
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            call_stack.template discard_current_frame<ndebug>();
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1020,14 +981,14 @@ entry:
                     case ::pltxt2htm::NodeKind::html_a: {
                         // parsing </a>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"a">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlA staged_node(::std::move(result),
                                                            ::std::move(frame.as_html_a_tag_info().url),
                                                            frame.as_html_a_tag_info().internal);
-                            call_stack.pop();
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            call_stack.template discard_current_frame<ndebug>();
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1039,14 +1000,14 @@ entry:
                     case ::pltxt2htm::NodeKind::pl_experiment: {
                         // parsing </experiment>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"experiment">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             // Whether or not extern_index is out of range, extern for loop will handle it correctly.
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlExperiment staged_node(::std::move(result),
                                                                   ::std::move(frame.as_equal_sign_tag().id));
-                            call_stack.pop();
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            call_stack.template discard_current_frame<ndebug>();
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1058,14 +1019,14 @@ entry:
                     case ::pltxt2htm::NodeKind::pl_experiments: {
                         // parsing </experiments>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"experiments">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             // Whether or not extern_index is out of range, extern for loop will handle it correctly.
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlExperiments staged_node(::std::move(result),
                                                                    ::std::move(frame.as_equal_sign_tag().id));
-                            call_stack.pop();
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            call_stack.template discard_current_frame<ndebug>();
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1077,14 +1038,14 @@ entry:
                     case ::pltxt2htm::NodeKind::pl_discussion: {
                         // parsing </discussion>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"discussion">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             // Whether or not extern_index is out of range, extern for loop will handle it correctly.
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlDiscussion staged_node(::std::move(result),
                                                                   ::std::move(frame.as_equal_sign_tag().id));
-                            call_stack.pop();
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            call_stack.template discard_current_frame<ndebug>();
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1096,14 +1057,14 @@ entry:
                     case ::pltxt2htm::NodeKind::pl_discussions: {
                         // parsing </discussions>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"discussions">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             // Whether or not extern_index is out of range, extern for loop will handle it correctly.
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlDiscussions staged_node(::std::move(result),
                                                                    ::std::move(frame.as_equal_sign_tag().id));
-                            call_stack.pop();
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            call_stack.template discard_current_frame<ndebug>();
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1115,14 +1076,14 @@ entry:
                     case ::pltxt2htm::NodeKind::pl_external: {
                         // parsing </external>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"external">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             // Whether or not extern_index is out of range, extern for loop will handle it correctly.
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlExternal staged_node(::std::move(result),
                                                                 ::std::move(frame.as_url_info().url));
-                            call_stack.pop();
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            call_stack.template discard_current_frame<ndebug>();
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1134,12 +1095,12 @@ entry:
                     case ::pltxt2htm::NodeKind::pl_link: {
                         // parsing </link>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"link">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlLink staged_node(::std::move(result), ::std::move(frame.as_url_info().url));
-                            call_stack.pop();
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            call_stack.template discard_current_frame<ndebug>();
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1151,13 +1112,13 @@ entry:
                     case ::pltxt2htm::NodeKind::pl_trigger: {
                         // parsing </trigger>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"trigger">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlTrigger staged_node(::std::move(result),
                                                                ::std::move(frame.as_equal_sign_tag().id));
-                            call_stack.pop();
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            call_stack.template discard_current_frame<ndebug>();
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1169,13 +1130,13 @@ entry:
                     case ::pltxt2htm::NodeKind::pl_internal: {
                         // parsing </internal>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"internal">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlInternal staged_node(::std::move(result),
                                                                 ::std::move(frame.as_equal_sign_tag().id));
-                            call_stack.pop();
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            call_stack.template discard_current_frame<ndebug>();
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1187,13 +1148,13 @@ entry:
                     case ::pltxt2htm::NodeKind::pl_user: {
                         // parsing </user>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"user">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlUser staged_node(::std::move(result),
                                                             ::std::move(frame.as_equal_sign_tag().id));
-                            call_stack.pop();
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            call_stack.template discard_current_frame<ndebug>();
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1205,12 +1166,12 @@ entry:
                     case ::pltxt2htm::NodeKind::pl_size: {
                         // parsing </size>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"size">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlSize staged_node(::std::move(result), frame.as_pl_size_tag().value);
-                            call_stack.pop();
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            call_stack.template discard_current_frame<ndebug>();
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1222,12 +1183,12 @@ entry:
                     case ::pltxt2htm::NodeKind::pl_voffset: {
                         // parsing </voffset>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"voffset">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlVoffset staged_node(::std::move(result), frame.as_pl_voffset_tag().value);
-                            call_stack.pop();
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            call_stack.template discard_current_frame<ndebug>();
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1239,13 +1200,13 @@ entry:
                     case ::pltxt2htm::NodeKind::pl_align: {
                         // parsing </align>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"align">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlAlign staged_node(::std::move(result), frame.as_align_info().align);
-                            call_stack.pop();
+                            call_stack.template discard_current_frame<ndebug>();
                             pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1257,13 +1218,13 @@ entry:
                     case ::pltxt2htm::NodeKind::pl_mark: {
                         // parsing </mark>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"mark">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlMark staged_node(::std::move(result),
                                                             ::std::move(frame.as_pl_mark_info().background_color));
-                            call_stack.pop();
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            call_stack.template discard_current_frame<ndebug>();
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::PlMark<ndebug>{::std::move(staged_node)}));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
@@ -1276,14 +1237,14 @@ entry:
                     case ::pltxt2htm::NodeKind::pl_margin: {
                         // parsing </margin>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"margin">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlMargin staged_node(::std::move(result), frame.as_pl_margin_tag().left,
                                                               frame.as_pl_margin_tag().right);
-                            call_stack.pop();
+                            call_stack.template discard_current_frame<ndebug>();
                             pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1295,14 +1256,14 @@ entry:
                     case ::pltxt2htm::NodeKind::html_div: {
                         // parsing </div>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"div">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlDiv staged_node(::std::move(result), frame.as_html_div_info().left,
                                                              frame.as_html_div_info().right);
-                            call_stack.pop();
+                            call_stack.template discard_current_frame<ndebug>();
                             pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1313,13 +1274,13 @@ entry:
                     }
                     case ::pltxt2htm::NodeKind::pl_b: {
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"b">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             // parsing end tag </b> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlB staged_node(::std::move(result));
-                            call_stack.pop();
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            call_stack.template discard_current_frame<ndebug>();
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1330,13 +1291,13 @@ entry:
                     }
                     case ::pltxt2htm::NodeKind::pl_i: {
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"i">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             // parsing end tag </a> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlI staged_node(::std::move(result));
-                            call_stack.pop();
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            call_stack.template discard_current_frame<ndebug>();
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1347,15 +1308,15 @@ entry:
                     }
                     case ::pltxt2htm::NodeKind::html_p: {
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"p">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             // parsing end tag </p> successed
                             ::std::size_t const staged_index{current_index};
                             auto const align = frame.as_align_info().align;
                             ::pltxt2htm::HtmlP staged_node(::std::move(result), align);
-                            call_stack.pop();
+                            call_stack.template discard_current_frame<ndebug>();
                             pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1366,14 +1327,14 @@ entry:
                     }
                     case ::pltxt2htm::NodeKind::html_h1: {
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"h1">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             // parsing end tag </h1> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlH1 staged_node(::std::move(result));
-                            call_stack.pop();
+                            call_stack.template discard_current_frame<ndebug>();
                             pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1384,14 +1345,14 @@ entry:
                     }
                     case ::pltxt2htm::NodeKind::html_h2: {
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"h2">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             // parsing end tag </h2> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlH2 staged_node(::std::move(result));
-                            call_stack.pop();
+                            call_stack.template discard_current_frame<ndebug>();
                             pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1402,14 +1363,14 @@ entry:
                     }
                     case ::pltxt2htm::NodeKind::html_h3: {
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"h3">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             // parsing end tag </h3> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlH3 staged_node(::std::move(result));
-                            call_stack.pop();
+                            call_stack.template discard_current_frame<ndebug>();
                             pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1420,14 +1381,14 @@ entry:
                     }
                     case ::pltxt2htm::NodeKind::html_h4: {
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"h4">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             // parsing end tag </h4> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlH4 staged_node(::std::move(result));
-                            call_stack.pop();
+                            call_stack.template discard_current_frame<ndebug>();
                             pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1438,14 +1399,14 @@ entry:
                     }
                     case ::pltxt2htm::NodeKind::html_h5: {
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"h5">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             // parsing end tag </h5> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlH5 staged_node(::std::move(result));
-                            call_stack.pop();
+                            call_stack.template discard_current_frame<ndebug>();
                             pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1456,14 +1417,14 @@ entry:
                     }
                     case ::pltxt2htm::NodeKind::html_h6: {
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"h6">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             // parsing end tag </h6> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlH6 staged_node(::std::move(result));
-                            call_stack.pop();
+                            call_stack.template discard_current_frame<ndebug>();
                             pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1474,13 +1435,13 @@ entry:
                     }
                     case ::pltxt2htm::NodeKind::html_del: {
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"del">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             // parsing end tag </del> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlDel staged_node(::std::move(result));
-                            call_stack.pop();
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            call_stack.template discard_current_frame<ndebug>();
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1491,13 +1452,13 @@ entry:
                     }
                     case ::pltxt2htm::NodeKind::html_code: {
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"code">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             // parsing end tag </code> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlCode staged_node(::std::move(result));
-                            call_stack.pop();
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            call_stack.template discard_current_frame<ndebug>();
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1512,13 +1473,13 @@ entry:
                         }
                     case ::pltxt2htm::NodeKind::html_em: {
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"em">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             // parsing end tag </em> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlEm staged_node(::std::move(result));
-                            call_stack.pop();
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            call_stack.template discard_current_frame<ndebug>();
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1529,13 +1490,13 @@ entry:
                     }
                     case ::pltxt2htm::NodeKind::html_strong: {
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"strong">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             // parsing end tag </strong> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlStrong staged_node(::std::move(result));
-                            call_stack.pop();
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            call_stack.template discard_current_frame<ndebug>();
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1546,14 +1507,14 @@ entry:
                     }
                     case ::pltxt2htm::NodeKind::html_mark: {
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"mark">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             // parsing end tag </mark> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlMark staged_node(::std::move(result),
                                                               ::std::move(frame.as_html_mark_info().background_color));
-                            call_stack.pop();
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            call_stack.template discard_current_frame<ndebug>();
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1564,13 +1525,13 @@ entry:
                     }
                     case ::pltxt2htm::NodeKind::pl_u: {
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"u">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             // parsing end tag </u> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlU staged_node(::std::move(result));
-                            call_stack.pop();
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            call_stack.template discard_current_frame<ndebug>();
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1581,13 +1542,13 @@ entry:
                     }
                     case ::pltxt2htm::NodeKind::pl_s: {
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"s">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             // parsing end tag </s> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlS staged_node(::std::move(result));
-                            call_stack.pop();
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            call_stack.template discard_current_frame<ndebug>();
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1598,13 +1559,13 @@ entry:
                     }
                     case ::pltxt2htm::NodeKind::html_sup: {
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"sup">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             // parsing end tag </sup> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlSup staged_node(::std::move(result));
-                            call_stack.pop();
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            call_stack.template discard_current_frame<ndebug>();
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1615,13 +1576,13 @@ entry:
                     }
                     case ::pltxt2htm::NodeKind::html_sub: {
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"sub">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             // parsing end tag </sub> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlSub staged_node(::std::move(result));
-                            call_stack.pop();
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            call_stack.template discard_current_frame<ndebug>();
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1632,14 +1593,14 @@ entry:
                     }
                     case ::pltxt2htm::NodeKind::html_blockquote: {
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"blockquote">(
-                                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index + 2));
+                                pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
                             // parsing end tag </blockquote> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlBlockquote staged_node(::std::move(result));
-                            call_stack.pop();
+                            call_stack.template discard_current_frame<ndebug>();
                             pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
-                            auto& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                            auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1846,17 +1807,16 @@ entry:
                 pltxt2htm_unreachable(u8"Unreachable after outer switch");
             }
             auto const advance_count = ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
-                ::pltxt2htm::details::u8string_view_subview<ndebug>(pltext, current_index), result);
+                pltext.template subview<ndebug>(current_index), result);
             current_index += advance_count;
             continue;
         }
         {
-            if (call_stack.size() == root_stack_size) {
+            if (call_stack.frame_count() == root_stack_size) {
                 return;
             }
-            ParserFrameContext<ndebug> frame(::std::move(::pltxt2htm::details::stack_top<ndebug>(call_stack)));
+            ParserFrame<ndebug> frame{call_stack.template pop_frame<ndebug>()};
             ::std::size_t const staged_index = pltext_size;
-            call_stack.pop();
             pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
             // Considering the following markdown:
             // ```md
@@ -1864,7 +1824,7 @@ entry:
             // ```
             // Any tag without a closing tag will hit this branch.
             auto&& subast = frame.subast;
-            auto&& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+            auto&& parent_frame = call_stack.template current_frame<ndebug>();
             auto&& parent_ast = parent_frame.subast;
             auto&& parent_index = parent_frame.current_index;
             switch (frame.get_nested_tag_type()) /* -Werror=switch */ {
@@ -2363,16 +2323,17 @@ namespace pltxt2htm {
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto inline_parse_pltxt(::fast_io::u8string_view input_pltext) noexcept -> ::pltxt2htm::Ast<ndebug> {
-    ::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>> call_stack{};
-    call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+constexpr auto inline_parse_pltxt(::pltxt2htm::container::U8StringView input_pltext) noexcept
+    -> ::pltxt2htm::Ast<ndebug> {
+    ::pltxt2htm::details::CallStack<::pltxt2htm::details::ParserFrame<ndebug>> call_stack{};
+    call_stack.push_frame(::pltxt2htm::details::ParserFrame<ndebug>(
         ::pltxt2htm::details::FrontendContextVariant<ndebug>{
             ::pltxt2htm::details::ParserFrameContextWithPltextInfo{input_pltext}, ::pltxt2htm::NodeKind::text},
         ::pltxt2htm::Ast<ndebug>{}));
 
     ::pltxt2htm::details::inline_parse_pltxt<ndebug>(call_stack);
-    auto result = ::std::move(::pltxt2htm::details::stack_top<ndebug>(call_stack).subast);
-    call_stack.pop();
+    auto result = ::std::move(call_stack.template current_frame<ndebug>().subast);
+    call_stack.template discard_current_frame<ndebug>();
     pltxt2htm_assert(call_stack.empty(), u8"inline parser call_stack is not empty");
     return result;
 }

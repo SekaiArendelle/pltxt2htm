@@ -17,7 +17,7 @@
 namespace pltxt2htm::details {
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr void append_entity_reference_to_plunity_richtext(::fast_io::u8string_view value,
+constexpr void append_entity_reference_to_plunity_richtext(::pltxt2htm::container::U8StringView value,
                                                            ::fast_io::u8string& out) noexcept;
 
 template<::pltxt2htm::Contracts ndebug>
