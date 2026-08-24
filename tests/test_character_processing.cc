@@ -1,6 +1,6 @@
-// Character-reference decoder and semantic rendering regression tests.
+#include <fast_io/fast_io_dsal/array.h>
 #include <pltxt2htm/details/backend/for_plweb_text.hh>
-#include <pltxt2htm/details/parser/character_reference.hh>
+#include <pltxt2htm/details/parser/character_processing.hh>
 #include "precompile.hh"
 
 constexpr void assert_decoded(::fast_io::u8string_view text, ::std::size_t consumed_size, char32_t first_code_point,
@@ -27,9 +27,68 @@ constexpr auto entity_decoder_is_constexpr() -> bool {
     return result.has_value() && result.value<::pltxt2htm::Contracts::quick_enforce>().first_code_point == U'&';
 }
 
+constexpr auto utf8_helpers_are_constexpr() noexcept -> bool {
+    auto const decoded =
+        ::pltxt2htm::details::decode_utf8_code_point<::pltxt2htm::Contracts::quick_enforce>(u8"\U0001F600");
+    auto const encoded = ::pltxt2htm::details::encode_utf8_code_point(char32_t{0x1F600});
+    return decoded.valid && decoded.consumed_size == 4 && decoded.code_point == char32_t{0x1F600} &&
+           encoded.size == 4 && encoded.code_units[0] == char8_t{0xF0} && encoded.code_units[1] == char8_t{0x9F} &&
+           encoded.code_units[2] == char8_t{0x98} && encoded.code_units[3] == char8_t{0x80};
+}
+
 static_assert(entity_decoder_is_constexpr());
+static_assert(utf8_helpers_are_constexpr());
+static_assert(::pltxt2htm::details::is_unicode_scalar_value(char32_t{0x10FFFF}));
+static_assert(::pltxt2htm::details::is_unicode_scalar_value(char32_t{0xD800}) == false);
+static_assert(::pltxt2htm::details::is_unicode_scalar_value(char32_t{0x110000}) == false);
 
 int main() {
+    {
+        auto const decoded = ::pltxt2htm::details::decode_utf8_code_point<::pltxt2htm::Contracts::quick_enforce>(u8"A");
+        pltxt2htm_test_assert_true(decoded.valid);
+        pltxt2htm_test_assert_true(decoded.consumed_size == 1);
+        pltxt2htm_test_assert_true(decoded.code_point == U'A');
+    }
+    {
+        auto const decoded =
+            ::pltxt2htm::details::decode_utf8_code_point<::pltxt2htm::Contracts::quick_enforce>(u8"\u20AC");
+        pltxt2htm_test_assert_true(decoded.valid);
+        pltxt2htm_test_assert_true(decoded.consumed_size == 3);
+        pltxt2htm_test_assert_true(decoded.code_point == char32_t{0x20AC});
+    }
+    {
+        constexpr auto bytes = ::fast_io::array{char8_t{0xE2}, char8_t{0x82}};
+        auto const decoded = ::pltxt2htm::details::decode_utf8_code_point<::pltxt2htm::Contracts::quick_enforce>(
+            ::fast_io::u8string_view{bytes.data(), bytes.size()});
+        pltxt2htm_test_assert_true(decoded.valid == false);
+        pltxt2htm_test_assert_true(decoded.consumed_size == 2);
+    }
+    {
+        constexpr auto bytes = ::fast_io::array{char8_t{0xF0}, char8_t{0x90}, char8_t{'A'}};
+        auto const decoded = ::pltxt2htm::details::decode_utf8_code_point<::pltxt2htm::Contracts::quick_enforce>(
+            ::fast_io::u8string_view{bytes.data(), bytes.size()});
+        pltxt2htm_test_assert_true(decoded.valid == false);
+        pltxt2htm_test_assert_true(decoded.consumed_size == 2);
+    }
+    {
+        constexpr auto bytes = ::fast_io::array{char8_t{0xED}, char8_t{0xA0}, char8_t{0x80}};
+        auto const decoded = ::pltxt2htm::details::decode_utf8_code_point<::pltxt2htm::Contracts::quick_enforce>(
+            ::fast_io::u8string_view{bytes.data(), bytes.size()});
+        pltxt2htm_test_assert_true(decoded.valid == false);
+        pltxt2htm_test_assert_true(decoded.consumed_size == 3);
+    }
+    {
+        auto const encoded = ::pltxt2htm::details::encode_utf8_code_point(char32_t{0xD800});
+        pltxt2htm_test_assert_true(encoded.size == 0);
+    }
+    {
+        ::fast_io::u8string encoded{};
+        ::pltxt2htm::details::append_utf8_code_point(encoded, U'A');
+        ::pltxt2htm::details::append_utf8_code_point(encoded, char32_t{0x20AC});
+        ::pltxt2htm::details::append_utf8_code_point(encoded, char32_t{0x1F600});
+        pltxt2htm_test_assert_equal(encoded, u8"A\u20AC\U0001F600");
+    }
+
     assert_decoded(u8"&amp;", 5, U'&');
     assert_decoded(u8"&AMP;", 5, U'&');
     assert_decoded(u8"&#38;", 5, U'&');

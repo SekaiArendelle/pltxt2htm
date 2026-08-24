@@ -1,6 +1,6 @@
 /**
- * @file character_reference.hh
- * @brief Decode semicolon-terminated HTML character references.
+ * @file character_processing.hh
+ * @brief Process UTF-8 code points, AST characters, and HTML character references.
  */
 
 #pragma once
@@ -8,12 +8,228 @@
 #include <cstddef>
 #include <cstdint>
 #include <fast_io/fast_io_dsal/string.h>
+#include "../../ast/ast.hh"
 #include "../../container/expected.hh"
 #include "../../container/string_view.hh"
 #include "../../contracts.hh"
 #include "html_named_character_references.hh"
 
 namespace pltxt2htm::details {
+
+struct DecodeUtf8CodePointResult {
+    ::std::size_t consumed_size;
+    char32_t code_point;
+    bool valid;
+};
+
+struct EncodedUtf8CodePoint {
+    char8_t code_units[4];
+    ::std::uint_least8_t size;
+};
+
+[[nodiscard]]
+constexpr auto is_unicode_scalar_value(char32_t code_point) noexcept -> bool {
+    return code_point <= char32_t{0x10FFFF} && (code_point < char32_t{0xD800} || char32_t{0xDFFF} < code_point);
+}
+
+/**
+ * @brief Decode the first UTF-8 code point in a view.
+ * @details Invalid input reports how many bytes belong to the invalid prefix, preserving
+ *          the parser's existing recovery behavior. An empty view consumes zero bytes.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto decode_utf8_code_point(::pltxt2htm::container::U8StringView text) noexcept -> DecodeUtf8CodePointResult {
+    ::std::size_t const text_size{text.size()};
+    if (text.empty()) {
+        return {.consumed_size = 0, .code_point = char32_t{}, .valid = false};
+    }
+
+    char8_t const first{text.template index<ndebug>(0)};
+    if ((first & 0x80) == 0) {
+        return {.consumed_size = 1, .code_point = static_cast<char32_t>(first), .valid = true};
+    }
+
+    if ((first & 0xE0) == 0xC0) {
+        if (text_size < 2) {
+            return {.consumed_size = 1, .code_point = char32_t{}, .valid = false};
+        }
+        char8_t const second{text.template index<ndebug>(1)};
+        if ((second & 0xC0) != 0x80) {
+            return {.consumed_size = 1, .code_point = char32_t{}, .valid = false};
+        }
+        char32_t const code_point{static_cast<char32_t>(first & 0x1F) << 6 | static_cast<char32_t>(second & 0x3F)};
+        bool const valid{char32_t{0x80} <= code_point};
+        return {.consumed_size = 2, .code_point = code_point, .valid = valid};
+    }
+
+    if ((first & 0xF0) == 0xE0) {
+        if (text_size < 2) {
+            return {.consumed_size = 1, .code_point = char32_t{}, .valid = false};
+        }
+        char8_t const second{text.template index<ndebug>(1)};
+        if ((second & 0xC0) != 0x80) {
+            return {.consumed_size = 1, .code_point = char32_t{}, .valid = false};
+        }
+        if (text_size < 3) {
+            return {.consumed_size = 2, .code_point = char32_t{}, .valid = false};
+        }
+        char8_t const third{text.template index<ndebug>(2)};
+        if ((third & 0xC0) != 0x80) {
+            return {.consumed_size = 2, .code_point = char32_t{}, .valid = false};
+        }
+        char32_t const code_point{static_cast<char32_t>(first & 0x0F) << 12 |
+                                  static_cast<char32_t>(second & 0x3F) << 6 | static_cast<char32_t>(third & 0x3F)};
+        bool const valid{char32_t{0x800} <= code_point && ::pltxt2htm::details::is_unicode_scalar_value(code_point)};
+        return {.consumed_size = 3, .code_point = code_point, .valid = valid};
+    }
+
+    if ((first & 0xF8) == 0xF0) {
+        if (text_size < 2) {
+            return {.consumed_size = 1, .code_point = char32_t{}, .valid = false};
+        }
+        char8_t const second{text.template index<ndebug>(1)};
+        if ((second & 0xC0) != 0x80) {
+            return {.consumed_size = 1, .code_point = char32_t{}, .valid = false};
+        }
+        if (text_size < 3) {
+            return {.consumed_size = 2, .code_point = char32_t{}, .valid = false};
+        }
+        char8_t const third{text.template index<ndebug>(2)};
+        if ((third & 0xC0) != 0x80) {
+            return {.consumed_size = 2, .code_point = char32_t{}, .valid = false};
+        }
+        if (text_size < 4) {
+            return {.consumed_size = 3, .code_point = char32_t{}, .valid = false};
+        }
+        char8_t const fourth{text.template index<ndebug>(3)};
+        if ((fourth & 0xC0) != 0x80) {
+            return {.consumed_size = 3, .code_point = char32_t{}, .valid = false};
+        }
+        char32_t const code_point{static_cast<char32_t>(first & 0x07) << 18 |
+                                  static_cast<char32_t>(second & 0x3F) << 12 |
+                                  static_cast<char32_t>(third & 0x3F) << 6 | static_cast<char32_t>(fourth & 0x3F)};
+        bool const valid{char32_t{0x10000} <= code_point && ::pltxt2htm::details::is_unicode_scalar_value(code_point)};
+        return {.consumed_size = 4, .code_point = code_point, .valid = valid};
+    }
+
+    return {.consumed_size = 1, .code_point = char32_t{}, .valid = false};
+}
+
+/**
+ * @brief Encode one Unicode scalar value as UTF-8.
+ * @return An empty encoding when `code_point` is not a Unicode scalar value.
+ */
+[[nodiscard]]
+constexpr auto encode_utf8_code_point(char32_t code_point) noexcept -> EncodedUtf8CodePoint {
+    EncodedUtf8CodePoint result{};
+    if (::pltxt2htm::details::is_unicode_scalar_value(code_point) == false) {
+        return result;
+    }
+    if (code_point < char32_t{0x80}) {
+        result.code_units[0] = static_cast<char8_t>(code_point);
+        result.size = 1;
+        return result;
+    }
+    if (code_point < char32_t{0x800}) {
+        result.code_units[0] = static_cast<char8_t>(0xC0 | static_cast<unsigned>(code_point >> 6));
+        result.code_units[1] = static_cast<char8_t>(0x80 | static_cast<unsigned>(code_point & 0x3F));
+        result.size = 2;
+        return result;
+    }
+    if (code_point < char32_t{0x10000}) {
+        result.code_units[0] = static_cast<char8_t>(0xE0 | static_cast<unsigned>(code_point >> 12));
+        result.code_units[1] = static_cast<char8_t>(0x80 | static_cast<unsigned>((code_point >> 6) & 0x3F));
+        result.code_units[2] = static_cast<char8_t>(0x80 | static_cast<unsigned>(code_point & 0x3F));
+        result.size = 3;
+        return result;
+    }
+    result.code_units[0] = static_cast<char8_t>(0xF0 | static_cast<unsigned>(code_point >> 18));
+    result.code_units[1] = static_cast<char8_t>(0x80 | static_cast<unsigned>((code_point >> 12) & 0x3F));
+    result.code_units[2] = static_cast<char8_t>(0x80 | static_cast<unsigned>((code_point >> 6) & 0x3F));
+    result.code_units[3] = static_cast<char8_t>(0x80 | static_cast<unsigned>(code_point & 0x3F));
+    result.size = 4;
+    return result;
+}
+
+constexpr void append_utf8_code_point(::fast_io::u8string& result, char32_t code_point) noexcept {
+    auto const encoded = ::pltxt2htm::details::encode_utf8_code_point(code_point);
+    for (::std::size_t index{}; index < encoded.size; ++index) {
+        result.push_back(encoded.code_units[index]);
+    }
+}
+
+/**
+ * @brief Parse one UTF-8 code point and append its original code units to an AST.
+ * @details Parser-disallowed ASCII control characters and invalid UTF-8 prefixes append one
+ *          InvalidU8Char node. The returned size preserves the existing invalid-prefix recovery.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto parse_utf8_code_point(::pltxt2htm::container::U8StringView text,
+                                     ::pltxt2htm::Ast<ndebug>& result) noexcept -> ::std::size_t {
+    char8_t const first{text.template index<ndebug>(0)};
+    if (first <= 0x1F || first == 0x7F) {
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
+        return 1;
+    }
+
+    auto const decoded = ::pltxt2htm::details::decode_utf8_code_point<ndebug>(text);
+    if (decoded.valid == false) {
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
+        return decoded.consumed_size;
+    }
+    for (::std::size_t index{}; index < decoded.consumed_size; ++index) {
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{text.template index<ndebug>(index)}));
+    }
+    return decoded.consumed_size;
+}
+
+/**
+ * @brief Append one semantic Unicode code point to an AST.
+ * @details Characters with dedicated semantic nodes use those nodes. Other scalar values are
+ *          encoded as UTF-8 and appended as U8Char nodes.
+ */
+template<::pltxt2htm::Contracts ndebug>
+constexpr void append_code_point_to_ast(char32_t code_point, ::pltxt2htm::Ast<ndebug>& result) noexcept {
+    switch (code_point) {
+    case U'\n':
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LineBreak{}));
+        return;
+    case U' ':
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Space{}));
+        return;
+    case U'&':
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Ampersand{}));
+        return;
+    case U'\'':
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::SingleQuote{}));
+        return;
+    case U'"':
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::DoubleQuote{}));
+        return;
+    case U'<':
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+        return;
+    case U'>':
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::GreaterThan{}));
+        return;
+    case U'\t':
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Tab{}));
+        return;
+    default:
+        break;
+    }
+
+    auto const encoded = ::pltxt2htm::details::encode_utf8_code_point(code_point);
+    if (encoded.size == 0) {
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
+        return;
+    }
+    for (::std::size_t index{}; index < encoded.size; ++index) {
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{encoded.code_units[index]}));
+    }
+}
 
 struct TryDecodeCharacterReferenceResult {
     ::std::size_t consumed_size;
@@ -184,7 +400,7 @@ constexpr auto try_decode_character_reference_value(::pltxt2htm::container::U8St
             return ::pltxt2htm::container::nullopt;
         }
         if (out_of_range || code_point == char32_t{} ||
-            (char32_t{0xD800} <= code_point && code_point <= char32_t{0xDFFF})) {
+            ::pltxt2htm::details::is_unicode_scalar_value(code_point) == false) {
             code_point = char32_t{0xFFFD};
         }
         else {
@@ -258,28 +474,6 @@ constexpr auto try_decode_character_reference(::pltxt2htm::container::U8StringVi
                                              .first_code_point = value.first_code_point,
                                              .second_code_point = value.second_code_point,
                                              .code_point_count = value.code_point_count};
-}
-
-constexpr void append_utf8_code_point(::fast_io::u8string& result, char32_t code_point) noexcept {
-    if (code_point < char32_t{0x80}) {
-        result.push_back(static_cast<char8_t>(code_point));
-        return;
-    }
-    if (code_point < char32_t{0x800}) {
-        result.push_back(static_cast<char8_t>(0xC0 | static_cast<unsigned>(code_point >> 6)));
-        result.push_back(static_cast<char8_t>(0x80 | static_cast<unsigned>(code_point & 0x3F)));
-        return;
-    }
-    if (code_point < char32_t{0x10000}) {
-        result.push_back(static_cast<char8_t>(0xE0 | static_cast<unsigned>(code_point >> 12)));
-        result.push_back(static_cast<char8_t>(0x80 | static_cast<unsigned>((code_point >> 6) & 0x3F)));
-        result.push_back(static_cast<char8_t>(0x80 | static_cast<unsigned>(code_point & 0x3F)));
-        return;
-    }
-    result.push_back(static_cast<char8_t>(0xF0 | static_cast<unsigned>(code_point >> 18)));
-    result.push_back(static_cast<char8_t>(0x80 | static_cast<unsigned>((code_point >> 12) & 0x3F)));
-    result.push_back(static_cast<char8_t>(0x80 | static_cast<unsigned>((code_point >> 6) & 0x3F)));
-    result.push_back(static_cast<char8_t>(0x80 | static_cast<unsigned>(code_point & 0x3F)));
 }
 
 template<::pltxt2htm::Contracts ndebug>
