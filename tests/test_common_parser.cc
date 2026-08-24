@@ -74,6 +74,19 @@ int main() {
     }
 
     {
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"https://example.com/?a=1&amp;b=2");
+        auto answer = ::fast_io::u8string_view{
+            u8"<a href=\"https://example.com/?a=1&amp;b=2\">https://example.com/?a=1&amp;b=2</a>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"[text](https://example.com/?q=&quot;) ");
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"https://example.com/?q=&amp;quot;\">text</a>&nbsp;"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
         auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"[**bold**](https://example.com)");
         auto answer = ::fast_io::u8string_view{u8"<a href=\"https://example.com\"><strong>bold</strong></a>"};
         pltxt2htm_test_assert_equal(html, answer);

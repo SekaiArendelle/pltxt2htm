@@ -14,6 +14,7 @@
 #include <fast_io/fast_io_dsal/string.h>
 #include "../../container/string_view.hh"
 #include "frame_context.hh"
+#include "html_url.hh"
 #include "../utils.hh"
 #include "../../ast/vertical_align_value.hh"
 #include "../../contracts.hh"
@@ -217,7 +218,9 @@ entry:
                     BackendFrameContext<ndebug>(node.as_html_a().get_subast(), ::pltxt2htm::NodeKind::html_a, 0));
                 ++current_index;
                 result.append(u8"<a href=\"");
-                result.append(node.as_html_a().get_url().as_string());
+                auto const& html_a_url = node.as_html_a().get_url().as_string();
+                ::pltxt2htm::details::append_html_escaped_url<ndebug>(result,
+                                                                      ::pltxt2htm::container::U8StringView{html_a_url});
                 if (node.as_html_a().get_internal()) {
                     result.append(u8"\" internal>");
                 }
@@ -654,7 +657,9 @@ entry:
             }
             case ::pltxt2htm::NodeKind::pl_external: {
                 result.append(u8"<a href=\"");
-                result.append(node.as_pl_external().get_url().as_string());
+                auto const& external_url = node.as_pl_external().get_url().as_string();
+                ::pltxt2htm::details::append_html_escaped_url<ndebug>(
+                    result, ::pltxt2htm::container::U8StringView{external_url});
                 result.append(u8"\">");
                 call_stack.push(BackendFrameContext<ndebug>(node.as_pl_external().get_subast(),
                                                             ::pltxt2htm::NodeKind::pl_external, 0));
@@ -663,7 +668,9 @@ entry:
             }
             case ::pltxt2htm::NodeKind::pl_link: {
                 result.append(u8"<a href=\"");
-                result.append(node.as_pl_link().get_url().as_string());
+                auto const& link_url = node.as_pl_link().get_url().as_string();
+                ::pltxt2htm::details::append_html_escaped_url<ndebug>(result,
+                                                                      ::pltxt2htm::container::U8StringView{link_url});
                 result.append(u8"\">");
                 call_stack.push(
                     BackendFrameContext<ndebug>(node.as_pl_link().get_subast(), ::pltxt2htm::NodeKind::pl_link, 0));
@@ -672,7 +679,9 @@ entry:
             }
             case ::pltxt2htm::NodeKind::md_link: {
                 result.append(u8"<a href=\"");
-                result.append(node.as_md_link().get_url().as_string());
+                auto const& md_link_url = node.as_md_link().get_url().as_string();
+                ::pltxt2htm::details::append_html_escaped_url<ndebug>(
+                    result, ::pltxt2htm::container::U8StringView{md_link_url});
                 result.append(u8"\">");
                 call_stack.push(
                     BackendFrameContext<ndebug>(node.as_md_link().get_subast(), ::pltxt2htm::NodeKind::md_link, 0));
@@ -681,10 +690,13 @@ entry:
             }
             case ::pltxt2htm::NodeKind::url: {
                 auto const& url_str = node.as_url().as_string();
+                ::fast_io::u8string escaped_url{};
+                ::pltxt2htm::details::append_html_escaped_url<ndebug>(escaped_url,
+                                                                      ::pltxt2htm::container::U8StringView{url_str});
                 result.append(u8"<a href=\"");
-                result.append(url_str);
+                result.append(escaped_url);
                 result.append(u8"\">");
-                result.append(url_str);
+                result.append(escaped_url);
                 result.append(u8"</a>");
                 continue;
             }
