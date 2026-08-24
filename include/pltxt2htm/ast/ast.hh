@@ -2883,7 +2883,7 @@ public:
         pltxt2htm_unreachable(u8"Unreachable after PlTxtNode operator== switch");
     }
 
-    /// @name as_xxx() accessors — one per union member type
+    /// @name as_xxx() accessors - one per union member type
     /// @{
 
     [[nodiscard]]

@@ -1,6 +1,6 @@
 /**
  * @file parser.hh
- * @brief Main pl-text parser – converts raw pl-text into an AST.
+ * @brief Main pl-text parser - converts raw pl-text into an AST.
  * @details Provides `find_next_block_after_line_break` and `parse_pltxt`
  *          templates that drive the recursive-descent (goto-based) parsing
  *          of pl-text / Markdown content into ::pltxt2htm::Ast<ndebug>.

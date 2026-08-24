@@ -74,7 +74,7 @@ public:
 
 /**
  * @brief HTML &lt;h1&gt; heading node
- * @details Represents a level‑1 heading containing sub‑AST content.
+ * @details Represents a level-1 heading containing sub-AST content.
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlH1 {

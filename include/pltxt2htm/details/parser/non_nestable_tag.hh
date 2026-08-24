@@ -67,12 +67,12 @@ constexpr auto try_parse_non_nestable_equal_sign_tag(
 /**
  * @brief Result of parsing a URL-bearing opening tag.
  * @details The three return states are encoded by the payload members `tag_len` and `url`:
- *          - `valid` — `url` is engaged (`tag_len` is the opening-tag length the caller
+ *          - `valid` - `url` is engaged (`tag_len` is the opening-tag length the caller
  *            skips to reach the tag content);
- *          - `invalid_url` — `url` is disengaged and `tag_len` != 0: the opening tag was
+ *          - `invalid_url` - `url` is disengaged and `tag_len` != 0: the opening tag was
  *            recognized but its URL failed validation, so the caller consumes the first
  *            `tag_len` characters as one literal span;
- *          - `not_a_tag` — `tag_len` == 0: keep the char-by-char fallback.
+ *          - `not_a_tag` - `tag_len` == 0: keep the char-by-char fallback.
  *          A recognized opening tag always has `tag_len` != 0, which keeps the three
  *          states distinguishable.
  */
@@ -154,12 +154,12 @@ constexpr auto try_parse_external_tag(
 /**
  * @brief Result of parsing a URL-bearing opening tag.
  * @details The three return states are encoded by the payload members `tag_len` and `url`:
- *          - `valid` — `url` is engaged (`tag_len` is the opening-tag length the caller
+ *          - `valid` - `url` is engaged (`tag_len` is the opening-tag length the caller
  *            skips to reach the tag content);
- *          - `invalid_url` — `url` is disengaged and `tag_len` != 0: the opening tag was
+ *          - `invalid_url` - `url` is disengaged and `tag_len` != 0: the opening tag was
  *            recognized but its URL failed validation, so the caller consumes the first
  *            `tag_len` characters as one literal span;
- *          - `not_a_tag` — `tag_len` == 0: keep the char-by-char fallback.
+ *          - `not_a_tag` - `tag_len` == 0: keep the char-by-char fallback.
  *          A recognized opening tag always has `tag_len` != 0, which keeps the three
  *          states distinguishable.
  */

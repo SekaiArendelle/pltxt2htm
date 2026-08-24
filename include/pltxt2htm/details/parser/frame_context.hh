@@ -1204,7 +1204,7 @@ public:
 };
 
 /**
- * @brief Main parser frame context – one frame per nesting level on the call stack.
+ * @brief Main parser frame context - one frame per nesting level on the call stack.
  * @details Holds the context data (tag type + payload), the current parse index
  *          within the raw text, and the sub-AST being built for this frame.
  *          Frames are manually managed on a call-stack to avoid stack overflow.

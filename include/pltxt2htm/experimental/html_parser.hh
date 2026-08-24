@@ -33,7 +33,7 @@ struct FindNextBlockAfterLineBreakResult {
  * @param call_stack Active parser call stack.
  * @param result AST being built.
  * @return How many bytes were consumed and whether a new frame was created.
- * @note Handles the `<p>`, `<h1>`–`<h6>`, `<hr>`, `<blockquote>`, `<ul>`/`<ol>` and `<table>` blocks.
+ * @note Handles the `<p>`, `<h1>`-`<h6>`, `<hr>`, `<blockquote>`, `<ul>`/`<ol>` and `<table>` blocks.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]

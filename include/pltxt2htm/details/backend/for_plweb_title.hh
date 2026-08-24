@@ -1,6 +1,6 @@
 /**
  * @file for_plweb_title.hh
- * @brief HTML title backend for plweb – generates simple HTML suitable for page titles.
+ * @brief HTML title backend for plweb - generates simple HTML suitable for page titles.
  * @details Provides `plweb_title_backend` for converting
  *          a pl-text AST into a simplified HTML fragment that only supports
  *          color, bold, and italic formatting.

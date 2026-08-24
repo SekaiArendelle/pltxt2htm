@@ -51,7 +51,7 @@ public:
 
 /**
  * @brief Tagged-union variant of backend context payloads.
- * @details Dispatched on `kind` (::pltxt2htm::NodeKind) – used inside
+ * @details Dispatched on `kind` (::pltxt2htm::NodeKind) - used inside
  *          BackendFrameContext.
  */
 template<::pltxt2htm::Contracts ndebug>

@@ -89,7 +89,7 @@ public:
 
 /**
  * @brief Tagged-union variant of optimizer context payloads.
- * @details Dispatched on `kind` (::pltxt2htm::NodeKind) – used inside
+ * @details Dispatched on `kind` (::pltxt2htm::NodeKind) - used inside
  *          OptimizerFrameContext.
  */
 template<::pltxt2htm::Contracts ndebug>
@@ -519,7 +519,7 @@ entry:
                 // Inner values override outer for conflicts; outer values not
                 // set on inner are preserved (CSS cascading).
                 // e.g. <span style="font-size:20px"><span style="color:red">t</span></span>
-                //      → <span style="color:red;font-size:20px">t</span>
+                //      -> <span style="color:red;font-size:20px">t</span>
                 auto&& subast = node.as_html_span().get_subast();
                 if (subast.size() == 1) {
                     auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
