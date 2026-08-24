@@ -10,6 +10,7 @@
 #include <memory>
 #include <utility>
 #include "../../container/expected.hh"
+#include "../../container/stack.hh"
 #include <fast_io/fast_io_dsal/string.h>
 #include "../../container/string_view.hh"
 #include "list_ast.hh"
@@ -1618,7 +1619,7 @@ public:
  * @brief Push a list frame for a freshly parsed top-level ListUlNode/ListOlNode.
  */
 template<::pltxt2htm::Contracts ndebug>
-constexpr void push_list_frame(::fast_io::stack<ParserFrameContext<ndebug>>& call_stack,
+constexpr void push_list_frame(::pltxt2htm::container::Stack<ParserFrameContext<ndebug>>& call_stack,
                                ListBaseNode<ndebug>&& top_node) noexcept {
     switch (top_node.get_type()) {
     case ListNodeType::list_ul: {
@@ -1662,9 +1663,9 @@ constexpr void push_list_frame(::fast_io::stack<ParserFrameContext<ndebug>>& cal
  *         loop).
  */
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto process_table_frame(::fast_io::stack<ParserFrameContext<ndebug>>& call_stack) noexcept
+constexpr auto process_table_frame(::pltxt2htm::container::Stack<ParserFrameContext<ndebug>>& call_stack) noexcept
     -> ::pltxt2htm::container::Optional<::pltxt2htm::Ast<ndebug>> {
-    auto&& frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+    auto&& frame = call_stack.template top<ndebug>();
     auto&& raw_ast = frame.as_table().raw_ast;
     auto const state = frame.as_table().state;
     auto const row_index = frame.as_table().row_index;
@@ -1703,7 +1704,7 @@ constexpr auto process_table_frame(::fast_io::stack<ParserFrameContext<ndebug>>&
     }
     case TableParsePhase::finish: {
         auto previous_frame = ::std::move(frame);
-        call_stack.pop();
+        call_stack.template pop<ndebug>();
 
         ::pltxt2htm::Ast<ndebug> flat_ast = ::std::move(previous_frame.subast);
         auto&& prev_raw_ast = previous_frame.as_table().raw_ast;
@@ -1767,7 +1768,7 @@ constexpr auto process_table_frame(::fast_io::stack<ParserFrameContext<ndebug>>&
             return table_ast;
         }
 
-        auto&& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+        auto&& parent_frame = call_stack.template top<ndebug>();
         parent_frame.subast.push_back(
             ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Table<ndebug>{::std::move(table_ast)}));
         return ::pltxt2htm::container::nullopt;

@@ -10,7 +10,7 @@
 #include <cstddef>
 #include <fast_io/fast_io_dsal/list.h>
 #include <fast_io/fast_io_dsal/array.h>
-#include <fast_io/fast_io_dsal/stack.h>
+#include "../../container/stack.hh"
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
 #include "../../container/string_view.hh"
@@ -309,13 +309,13 @@ constexpr auto plunity_text_backend(::pltxt2htm::Ast<ndebug> const& ast_init,
                                     ::pltxt2htm::container::U8StringView author,
                                     ::pltxt2htm::container::U8StringView coauthors) noexcept -> ::fast_io::u8string {
     ::fast_io::u8string result{};
-    ::fast_io::stack<BackendFrameContext<ndebug>> call_stack{};
+    ::pltxt2htm::container::Stack<BackendFrameContext<ndebug>> call_stack{};
     call_stack.push(BackendFrameContext<ndebug>(ast_init, ::pltxt2htm::NodeKind::text, 0));
     ::std::size_t list_nesting_depth{};
 
 entry:
     while (true) {
-        auto&& current_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+        auto&& current_frame = call_stack.template top<ndebug>();
         auto const& ast = current_frame.get_ast();
         auto&& current_index = current_frame.current_index;
         ::std::size_t const ast_size{ast.size()};
@@ -1070,7 +1070,7 @@ entry:
             case ::pltxt2htm::NodeKind::list_ul: {
                 auto const& list_ul = node.as_list_ul();
                 pltxt2htm_assert(list_ul.get_subast().empty() == false, u8"List container must not be empty");
-                auto const parent_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
+                auto const parent_tag_type = call_stack.template top<ndebug>().get_nested_tag_type();
                 if (parent_tag_type == ::pltxt2htm::NodeKind::list_li ||
                     parent_tag_type == ::pltxt2htm::NodeKind::list_li_checkbox) {
                     result.push_back(u8'\n');
@@ -1083,7 +1083,7 @@ entry:
             case ::pltxt2htm::NodeKind::list_ol: {
                 auto const& list_ol = node.as_list_ol();
                 pltxt2htm_assert(list_ol.get_subast().empty() == false, u8"List container must not be empty");
-                auto const parent_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
+                auto const parent_tag_type = call_stack.template top<ndebug>().get_nested_tag_type();
                 if (parent_tag_type == ::pltxt2htm::NodeKind::list_li ||
                     parent_tag_type == ::pltxt2htm::NodeKind::list_li_checkbox) {
                     result.push_back(u8'\n');
@@ -1096,27 +1096,22 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::list_li: {
-                auto const nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
-                pltxt2htm_assert(nested_tag_type == ::pltxt2htm::NodeKind::list_ol ||
-                                     nested_tag_type == ::pltxt2htm::NodeKind::list_ul,
-                                 u8"Invalid tag type");
-                call_stack.push(
-                    BackendFrameContext<ndebug>(node.as_list_li().get_subast(), ::pltxt2htm::NodeKind::list_li, 0));
-                ++current_index;
+                auto&& list_frame = call_stack.template top<ndebug>();
+                auto const list_tag_type = list_frame.get_nested_tag_type();
+                pltxt2htm_assert(
+                    list_tag_type == ::pltxt2htm::NodeKind::list_ol || list_tag_type == ::pltxt2htm::NodeKind::list_ul,
+                    u8"Invalid tag type");
                 auto const indent_level = list_nesting_depth;
                 for (::std::size_t i = 1; i < indent_level; ++i) {
                     result.append(u8"  ");
                 }
-                auto reverse_iter = call_stack.container.rbegin();
-                BackendFrameContext<ndebug>& the_second_to_last_frame{*(++reverse_iter)};
-                auto const container_tag_type = the_second_to_last_frame.get_nested_tag_type();
-                if (container_tag_type == ::pltxt2htm::NodeKind::list_ol) {
-                    ::std::size_t& ol_li_count = the_second_to_last_frame.as_ol_info().ol_li_count;
+                if (list_tag_type == ::pltxt2htm::NodeKind::list_ol) {
+                    ::std::size_t& ol_li_count = list_frame.as_ol_info().ol_li_count;
                     result.append(::pltxt2htm::details::size_t2str(ol_li_count));
                     result.append(u8". ");
                     ++ol_li_count;
                 }
-                else if (container_tag_type == ::pltxt2htm::NodeKind::list_ul) {
+                else if (list_tag_type == ::pltxt2htm::NodeKind::list_ul) {
                     if (indent_level % 3 == 1) {
                         result.append(u8"\u2022 ");
                     }
@@ -1133,22 +1128,20 @@ entry:
                 else [[unlikely]] {
                     pltxt2htm_unreachable(u8"Unexpected nested tag type for list item");
                 }
+                ++current_index;
+                call_stack.push(
+                    BackendFrameContext<ndebug>(node.as_list_li().get_subast(), ::pltxt2htm::NodeKind::list_li, 0));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::list_li_checkbox: {
-                call_stack.push(BackendFrameContext<ndebug>(node.as_list_li_checkbox().get_subast(),
-                                                            ::pltxt2htm::NodeKind::list_li_checkbox, 0));
-                ++current_index;
+                auto&& list_frame = call_stack.template top<ndebug>();
+                auto const list_tag_type = list_frame.get_nested_tag_type();
                 auto const indent_level = list_nesting_depth;
                 for (::std::size_t i = 1; i < indent_level; ++i) {
                     result.append(u8"  ");
                 }
-                auto reverse_iter = call_stack.container.rbegin();
-                BackendFrameContext<ndebug>& the_second_to_last_frame{*(++reverse_iter)};
-                auto const nested_tag_type = the_second_to_last_frame.get_nested_tag_type();
-                if (nested_tag_type == ::pltxt2htm::NodeKind::list_ol ||
-                    nested_tag_type == ::pltxt2htm::NodeKind::list_ol) {
-                    ::std::size_t& ol_li_count = the_second_to_last_frame.as_ol_info().ol_li_count;
+                if (list_tag_type == ::pltxt2htm::NodeKind::list_ol) {
+                    ::std::size_t& ol_li_count = list_frame.as_ol_info().ol_li_count;
                     result.append(::pltxt2htm::details::size_t2str(ol_li_count));
                     result.append(u8". ");
                     ++ol_li_count;
@@ -1159,8 +1152,7 @@ entry:
                         result.append(u8"\u2610 ");
                     }
                 }
-                else if (nested_tag_type == ::pltxt2htm::NodeKind::list_ul ||
-                         nested_tag_type == ::pltxt2htm::NodeKind::list_ul) {
+                else if (list_tag_type == ::pltxt2htm::NodeKind::list_ul) {
                     if (indent_level % 3 == 1) {
                         result.append(u8"\u2022 ");
                     }
@@ -1183,6 +1175,9 @@ entry:
                 else [[unlikely]] {
                     pltxt2htm_unreachable(u8"Unexpected nested tag type for checkbox list item");
                 }
+                ++current_index;
+                call_stack.push(BackendFrameContext<ndebug>(node.as_list_li_checkbox().get_subast(),
+                                                            ::pltxt2htm::NodeKind::list_li_checkbox, 0));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_code_span_1_backtick: {
@@ -1507,9 +1502,7 @@ entry:
         }
 
         {
-            auto const top_frame =
-                BackendFrameContext<ndebug>{::std::move(::pltxt2htm::details::stack_top<ndebug>(call_stack))};
-            call_stack.pop();
+            auto const top_frame = call_stack.template pop_element<ndebug>();
             if (call_stack.empty()) {
                 return result;
             }
@@ -1630,7 +1623,7 @@ entry:
                 if (top_frame.as_align_info().has_align) {
                     result.append(u8"</align>");
                 }
-                auto const& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                auto const& parent_frame = call_stack.template top<ndebug>();
                 auto const& parent_ast = parent_frame.get_ast();
                 if (parent_frame.current_index < parent_ast.size()) {
                     auto const next_kind =

@@ -9,7 +9,7 @@
 
 #include <fast_io/fast_io_dsal/list.h>
 #include <fast_io/fast_io_dsal/array.h>
-#include <fast_io/fast_io_dsal/stack.h>
+#include "../../container/stack.hh"
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
 #include "../../container/string_view.hh"
@@ -35,12 +35,12 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto plweb_title_backend(::pltxt2htm::Ast<ndebug> const& ast_init) noexcept -> ::fast_io::u8string {
     ::fast_io::u8string result{};
-    ::fast_io::stack<BackendFrameContext<ndebug>> call_stack{};
+    ::pltxt2htm::container::Stack<BackendFrameContext<ndebug>> call_stack{};
     call_stack.push(BackendFrameContext<ndebug>(ast_init, ::pltxt2htm::NodeKind::text, 0));
 
 entry:
     while (true) {
-        auto&& current_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+        auto&& current_frame = call_stack.template top<ndebug>();
         auto const& ast = current_frame.get_ast();
         auto&& current_index = current_frame.current_index;
         ::std::size_t const ast_size{ast.size()};
@@ -702,9 +702,7 @@ entry:
         }
 
         {
-            auto const top_frame =
-                BackendFrameContext<ndebug>{::std::move(::pltxt2htm::details::stack_top<ndebug>(call_stack))};
-            call_stack.pop();
+            auto const top_frame = call_stack.template pop_element<ndebug>();
             if (call_stack.empty()) {
                 return result;
             }

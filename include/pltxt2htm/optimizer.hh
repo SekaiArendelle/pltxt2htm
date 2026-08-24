@@ -16,7 +16,7 @@
 #include "container/expected.hh"
 #include "container/string_view.hh"
 #include <fast_io/fast_io_dsal/list.h>
-#include <fast_io/fast_io_dsal/stack.h>
+#include "container/stack.hh"
 #include "ast/ast.hh"
 #include "ast/value_unit.hh"
 #include "ast/vertical_align_value.hh"
@@ -391,15 +391,16 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 constexpr void optimize_ast(::pltxt2htm::Ast<ndebug>& ast_init) noexcept {
-    ::fast_io::stack<::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>>
+    ::pltxt2htm::container::Stack<
+        ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>>
         call_stack{};
     call_stack.push(::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>{
         ::std::addressof(ast_init), ::pltxt2htm::NodeKind::text, ast_init.begin()});
 
 entry:
     while (true) {
-        auto&& ast = *(::pltxt2htm::details::stack_top<ndebug>(call_stack).ast);
-        auto&& current_iter = ::pltxt2htm::details::stack_top<ndebug>(call_stack).iter;
+        auto&& ast = *(call_stack.template top<ndebug>().ast);
+        auto&& current_iter = call_stack.template top<ndebug>().iter;
         while (current_iter != ast.end()) {
             auto&& node = *current_iter;
 
@@ -479,14 +480,13 @@ entry:
                     }
                 }
 
-                ::pltxt2htm::NodeKind const nested_tag_type{
-                    ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type()};
+                ::pltxt2htm::NodeKind const nested_tag_type{call_stack.template top<ndebug>().get_nested_tag_type()};
                 // Optimization: If this color matches the parent color, flatten the nesting
                 // <color=red>text<color=red>text</color>test</color> -> <color=red>texttexttext</color>
                 auto const is_different_tag = bool{[nested_tag_type, &call_stack, &node] constexpr noexcept {
                     if (nested_tag_type == ::pltxt2htm::NodeKind::pl_color) {
                         return node.as_pl_color().get_color() !=
-                               ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_equal_sign_tag_id();
+                               call_stack.template top<ndebug>().get_equal_sign_tag_id();
                     }
                     if (nested_tag_type == ::pltxt2htm::NodeKind::pl_a) {
                         static constexpr auto anchor_color_literal = ::pltxt2htm::PlA<ndebug>::get_color_literal();
@@ -586,10 +586,9 @@ entry:
                 // -> <span style="color:red">abc</span>
                 // <color=red>a<span style="color:red">b</span>c</color>
                 // -> <span style="color:red">abc</span>
-                ::pltxt2htm::NodeKind const nested_tag_type{
-                    ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type()};
+                ::pltxt2htm::NodeKind const nested_tag_type{call_stack.template top<ndebug>().get_nested_tag_type()};
                 if (nested_tag_type == ::pltxt2htm::NodeKind::html_span) {
-                    auto const& parent_frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                    auto const& parent_frame = call_stack.template top<ndebug>();
                     auto const& node_color = node.as_html_span().get_color();
                     ::pltxt2htm::container::U8StringView const node_color_view{node_color};
                     auto const& node_fs = node.as_html_span().get_font_size();
@@ -605,8 +604,7 @@ entry:
                     }
                 }
                 if (nested_tag_type == ::pltxt2htm::NodeKind::pl_color) {
-                    auto const& parent_color_id =
-                        ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_equal_sign_tag_id();
+                    auto const& parent_color_id = call_stack.template top<ndebug>().get_equal_sign_tag_id();
                     auto const& node_color = node.as_html_span().get_color();
                     ::pltxt2htm::container::U8StringView const node_color_view{node_color};
                     auto const& node_fs = node.as_html_span().get_font_size();
@@ -673,8 +671,7 @@ entry:
                     }
                 }
 
-                ::pltxt2htm::NodeKind const nested_tag_type{
-                    ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type()};
+                ::pltxt2htm::NodeKind const nested_tag_type{call_stack.template top<ndebug>().get_nested_tag_type()};
                 // Optimization: If this color matches the parent color, flatten the nesting
                 // <a>text<a>text</a>text</a> -> <a>texttexttext</a>
                 auto const is_different_tag = bool{[nested_tag_type, &call_stack] constexpr noexcept {
@@ -684,12 +681,10 @@ entry:
                         return false;
                     }
                     if (nested_tag_type == ::pltxt2htm::NodeKind::pl_color) {
-                        return anchor_color !=
-                               ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_equal_sign_tag_id();
+                        return anchor_color != call_stack.template top<ndebug>().get_equal_sign_tag_id();
                     }
                     if (nested_tag_type == ::pltxt2htm::NodeKind::html_span) {
-                        return anchor_color !=
-                               ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_html_span_color();
+                        return anchor_color != call_stack.template top<ndebug>().get_html_span_color();
                     }
                     return true; // Different tag types, so not the same
                 }()};
@@ -777,12 +772,12 @@ entry:
                         node = ::std::move(tmp);
                     }
                 }
-                auto&& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
+                auto&& nested_tag_type = call_stack.template top<ndebug>().get_nested_tag_type();
                 // Optimization: If the user is the same as the parent node, then ignore the nested tag.
                 auto const& equal_sign_tag_id = node.as_pl_user().get_id();
                 bool const is_different_tag =
                     nested_tag_type != ::pltxt2htm::NodeKind::pl_user ||
-                    equal_sign_tag_id != ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_equal_sign_tag_id();
+                    equal_sign_tag_id != call_stack.template top<ndebug>().get_equal_sign_tag_id();
                 if (is_different_tag) {
                     call_stack.push(
                         ::pltxt2htm::details::OptimizerFrameContext<typename ::pltxt2htm::Ast<ndebug>::iterator,
@@ -870,7 +865,7 @@ entry:
                         node = ::std::move(tmp);
                     }
                 }
-                auto&& frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                auto&& frame = call_stack.template top<ndebug>();
                 // Optimization: If the size (value and unit) is the same as the parent node, ignore the nested tag.
                 bool const is_different_tag = frame.get_nested_tag_type() != ::pltxt2htm::NodeKind::pl_size ||
                                               node.as_pl_size().get_font_size() != frame.get_pl_size_tag_value();
@@ -907,7 +902,7 @@ entry:
                         node = ::std::move(tmp);
                     }
                 }
-                auto&& frame = ::pltxt2htm::details::stack_top<ndebug>(call_stack);
+                auto&& frame = call_stack.template top<ndebug>();
                 // Optimization: If the offset is the same as the parent node, ignore the nested tag.
                 bool const is_different_tag = frame.get_nested_tag_type() != ::pltxt2htm::NodeKind::pl_voffset ||
                                               node.as_pl_voffset().get_value() != frame.get_pl_voffset_tag_value();
@@ -943,7 +938,7 @@ entry:
             case ::pltxt2htm::NodeKind::html_strong:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::pl_b: {
-                auto&& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
+                auto&& nested_tag_type = call_stack.template top<ndebug>().get_nested_tag_type();
                 bool const is_different_tag{!::pltxt2htm::details::is_strong_like(nested_tag_type)};
                 auto&& subast = [&]() -> ::pltxt2htm::Ast<ndebug>& {
                     switch (node.get_node_kind()) {
@@ -1095,7 +1090,7 @@ entry:
             case ::pltxt2htm::NodeKind::md_del:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_del: {
-                auto&& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
+                auto&& nested_tag_type = call_stack.template top<ndebug>().get_nested_tag_type();
                 auto&& subast = node.get_node_kind() == ::pltxt2htm::NodeKind::md_del ? node.as_md_del().get_subast()
                                                                                       : node.as_html_del().get_subast();
                 bool const is_different_tag{nested_tag_type != ::pltxt2htm::NodeKind::html_del &&
@@ -1116,7 +1111,7 @@ entry:
                 continue;
             }
             case ::pltxt2htm::NodeKind::html_code: {
-                auto&& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
+                auto&& nested_tag_type = call_stack.template top<ndebug>().get_nested_tag_type();
                 auto&& subast = node.as_html_code().get_subast();
                 bool const is_different_tag{nested_tag_type != ::pltxt2htm::NodeKind::html_code};
                 if (is_different_tag) {
@@ -1135,7 +1130,7 @@ entry:
                 continue;
             }
             case ::pltxt2htm::NodeKind::html_mark: {
-                auto&& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
+                auto&& nested_tag_type = call_stack.template top<ndebug>().get_nested_tag_type();
                 auto&& subast = node.as_html_mark().get_subast();
                 auto const& node_background_color = node.as_html_mark().get_background_color();
                 ::pltxt2htm::container::U8StringView const node_background_color_view{node_background_color};
@@ -1153,8 +1148,7 @@ entry:
                 // Optimization: same-tag mark with an identical background-color is flattened.
                 // <mark style="background-color:yellow">a<mark style="background-color:yellow">b</mark>c</mark>
                 // -> <mark style="background-color:yellow">abc</mark>
-                if (node_background_color_view ==
-                    ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_html_mark_background_color()) {
+                if (node_background_color_view == call_stack.template top<ndebug>().get_html_mark_background_color()) {
                     node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
                     ++current_iter;
                     continue;
@@ -1171,7 +1165,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_mark: {
-                auto&& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
+                auto&& nested_tag_type = call_stack.template top<ndebug>().get_nested_tag_type();
                 auto&& subast = node.as_pl_mark().get_subast();
                 auto const& node_background_color = node.as_pl_mark().get_background_color();
                 ::pltxt2htm::container::U8StringView const node_background_color_view{node_background_color};
@@ -1190,8 +1184,7 @@ entry:
                 // Optimization: same-tag pl_mark with an identical background color is flattened.
                 // <mark=yellow>a<mark=yellow>b</mark>c</mark>
                 // -> <mark=yellow>abc</mark>
-                if (node_background_color_view ==
-                    ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_pl_mark_background_color()) {
+                if (node_background_color_view == call_stack.template top<ndebug>().get_pl_mark_background_color()) {
                     node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
                     ++current_iter;
                     continue;
@@ -1208,7 +1201,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_u: {
-                auto&& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
+                auto&& nested_tag_type = call_stack.template top<ndebug>().get_nested_tag_type();
                 auto&& subast = node.as_pl_u().get_subast();
                 bool const is_different_tag{nested_tag_type != ::pltxt2htm::NodeKind::pl_u};
                 if (is_different_tag) {
@@ -1227,7 +1220,7 @@ entry:
                 continue;
             }
             case ::pltxt2htm::NodeKind::pl_s: {
-                auto&& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
+                auto&& nested_tag_type = call_stack.template top<ndebug>().get_nested_tag_type();
                 auto&& subast = node.as_pl_s().get_subast();
                 bool const is_different_tag{nested_tag_type != ::pltxt2htm::NodeKind::pl_s};
                 if (is_different_tag) {
@@ -1276,7 +1269,7 @@ entry:
             case ::pltxt2htm::NodeKind::pl_i:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_em: {
-                auto&& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
+                auto&& nested_tag_type = call_stack.template top<ndebug>().get_nested_tag_type();
                 bool const is_different_tag{!::pltxt2htm::details::is_em_like(nested_tag_type)};
                 auto&& subast = [&]() -> ::pltxt2htm::Ast<ndebug>& {
                     switch (node.get_node_kind()) {
@@ -1444,7 +1437,7 @@ entry:
                                     ? node.as_md_triple_emphasis_underscore().get_subast()
                                     : node.as_md_triple_emphasis_asterisk().get_subast();
                 pltxt2htm_assert(!subast.empty(), u8"md_triple_emphasis subast must not be empty");
-                auto const& nested_tag_type = ::pltxt2htm::details::stack_top<ndebug>(call_stack).get_nested_tag_type();
+                auto const& nested_tag_type = call_stack.template top<ndebug>().get_nested_tag_type();
                 if (nested_tag_type == ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk ||
                     nested_tag_type == ::pltxt2htm::NodeKind::md_triple_emphasis_underscore) {
                     node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
@@ -1586,9 +1579,9 @@ entry:
             ast.erase(current_iter);
         }
 
-        call_stack.pop();
+        call_stack.template pop<ndebug>();
         if (call_stack.empty() == false) {
-            ++(::pltxt2htm::details::stack_top<ndebug>(call_stack).iter);
+            ++(call_stack.template top<ndebug>().iter);
             goto entry;
         }
         return;
