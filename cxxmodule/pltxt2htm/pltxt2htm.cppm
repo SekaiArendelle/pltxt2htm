@@ -8,7 +8,6 @@ export namespace pltxt2htm {
 
 namespace container {
 
-using ::pltxt2htm::container::Stack;
 using ::pltxt2htm::container::BasicStringView;
 using ::pltxt2htm::container::StringView;
 using ::pltxt2htm::container::WStringView;
