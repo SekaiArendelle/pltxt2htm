@@ -10,7 +10,7 @@
 #include <memory>
 #include <utility>
 #include "../../container/expected.hh"
-#include "../../container/stack.hh"
+#include "../call_stack.hh"
 #include <fast_io/fast_io_dsal/string.h>
 #include "../../container/string_view.hh"
 #include "list_ast.hh"
@@ -225,7 +225,7 @@ public:
 /**
  * @brief Tagged-union variant of all parser frame context types.
  * @details Dispatched on `kind` (::pltxt2htm::NodeKind). Used inside
- *          ParserFrameContext.
+ *          ParserFrame.
  */
 template<::pltxt2htm::Contracts ndebug>
 class FrontendContextVariant {
@@ -1204,47 +1204,45 @@ public:
 };
 
 /**
- * @brief Main parser frame context - one frame per nesting level on the call stack.
+ * @brief Main parser activation record, one frame per nesting level on the call stack.
  * @details Holds the context data (tag type + payload), the current parse index
  *          within the raw text, and the sub-AST being built for this frame.
  *          Frames are manually managed on a call-stack to avoid stack overflow.
  * @tparam ndebug Contract checking mode.
  */
 template<::pltxt2htm::Contracts ndebug>
-class ParserFrameContext {
+class ParserFrame {
     FrontendContextVariant<ndebug> context_data;
 
 public:
     ::std::size_t current_index{}; ///< Current parse position in the raw text.
     ::pltxt2htm::Ast<ndebug> subast; ///< Sub-AST being built for this frame.
 
-    constexpr explicit ParserFrameContext(FrontendContextVariant<ndebug>&& ctx,
-                                          ::pltxt2htm::Ast<ndebug>&& subast_) noexcept
+    constexpr explicit ParserFrame(FrontendContextVariant<ndebug>&& ctx, ::pltxt2htm::Ast<ndebug>&& subast_) noexcept
         : context_data(::std::move(ctx)),
           subast(::std::move(subast_)) {
     }
 
-    constexpr ParserFrameContext(ParserFrameContext<ndebug> const&) noexcept = delete;
+    constexpr ParserFrame(ParserFrame<ndebug> const&) noexcept = delete;
 
-    constexpr ParserFrameContext(ParserFrameContext<ndebug>&& other) noexcept
+    constexpr ParserFrame(ParserFrame<ndebug>&& other) noexcept
         : context_data{::std::move(other.context_data)},
           current_index{other.current_index},
           subast(::std::move(other.subast)) {
     }
 
-    constexpr auto operator=(ParserFrameContext<ndebug> const&) noexcept -> ParserFrameContext<ndebug>& = delete;
-    constexpr auto operator=(ParserFrameContext<ndebug>&&) noexcept -> ParserFrameContext<ndebug>& = delete;
+    constexpr auto operator=(ParserFrame<ndebug> const&) noexcept -> ParserFrame<ndebug>& = delete;
+    constexpr auto operator=(ParserFrame<ndebug>&&) noexcept -> ParserFrame<ndebug>& = delete;
 
-    constexpr ~ParserFrameContext() noexcept = default;
+    constexpr ~ParserFrame() noexcept = default;
 
     [[nodiscard]]
-    constexpr auto get_nested_tag_type(this ParserFrameContext<ndebug> const& self) noexcept -> ::pltxt2htm::NodeKind {
+    constexpr auto get_nested_tag_type(this ParserFrame<ndebug> const& self) noexcept -> ::pltxt2htm::NodeKind {
         return self.context_data.get_kind();
     }
 
     [[nodiscard]]
-    constexpr auto get_pltext(this ParserFrameContext<ndebug> const& self) noexcept
-        -> ::pltxt2htm::container::U8StringView {
+    constexpr auto get_pltext(this ParserFrame<ndebug> const& self) noexcept -> ::pltxt2htm::container::U8StringView {
         auto const& context_data_ref = self.context_data;
         switch (context_data_ref.get_kind()) /* -Werror=switch */ {
         case ::pltxt2htm::NodeKind::u8char:
@@ -1619,18 +1617,18 @@ public:
  * @brief Push a list frame for a freshly parsed top-level ListUlNode/ListOlNode.
  */
 template<::pltxt2htm::Contracts ndebug>
-constexpr void push_list_frame(::pltxt2htm::container::Stack<ParserFrameContext<ndebug>>& call_stack,
+constexpr void push_list_frame(::pltxt2htm::details::CallStack<ParserFrame<ndebug>>& call_stack,
                                ListBaseNode<ndebug>&& top_node) noexcept {
     switch (top_node.get_type()) {
     case ListNodeType::list_ul: {
-        call_stack.push(ParserFrameContext<ndebug>(
+        call_stack.push_frame(ParserFrame<ndebug>(
             FrontendContextVariant<ndebug>{ParserFrameContextWithListInfo<ndebug>{::std::move(top_node).get_sublist()},
                                            ::pltxt2htm::NodeKind::list_ul},
             ::pltxt2htm::Ast<ndebug>{}));
         break;
     }
     case ListNodeType::list_ol: {
-        call_stack.push(ParserFrameContext<ndebug>(
+        call_stack.push_frame(ParserFrame<ndebug>(
             FrontendContextVariant<ndebug>{
                 ParserFrameContextWithListInfo<ndebug>{::std::move(top_node).get_sublist(), top_node.get_start()},
                 ::pltxt2htm::NodeKind::list_ol},
@@ -1663,9 +1661,9 @@ constexpr void push_list_frame(::pltxt2htm::container::Stack<ParserFrameContext<
  *         loop).
  */
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto process_table_frame(::pltxt2htm::container::Stack<ParserFrameContext<ndebug>>& call_stack) noexcept
+constexpr auto process_table_frame(::pltxt2htm::details::CallStack<ParserFrame<ndebug>>& call_stack) noexcept
     -> ::pltxt2htm::container::Optional<::pltxt2htm::Ast<ndebug>> {
-    auto&& frame = call_stack.template top<ndebug>();
+    auto&& frame = call_stack.template current_frame<ndebug>();
     auto&& raw_ast = frame.as_table().raw_ast;
     auto const state = frame.as_table().state;
     auto const row_index = frame.as_table().row_index;
@@ -1674,10 +1672,10 @@ constexpr auto process_table_frame(::pltxt2htm::container::Stack<ParserFrameCont
     switch (state) /* -Werror=switch */ {
     case TableParsePhase::caption: {
         if (raw_ast.has_caption()) {
-            call_stack.push(ParserFrameContext<ndebug>(
-                FrontendContextVariant<ndebug>{ParserFrameContextWithPltextInfo{raw_ast.caption()},
-                                               ::pltxt2htm::NodeKind::table_caption},
-                ::pltxt2htm::Ast<ndebug>{}));
+            call_stack.push_frame(
+                ParserFrame<ndebug>(FrontendContextVariant<ndebug>{ParserFrameContextWithPltextInfo{raw_ast.caption()},
+                                                                   ::pltxt2htm::NodeKind::table_caption},
+                                    ::pltxt2htm::Ast<ndebug>{}));
         }
         frame.as_table().state = TableParsePhase::body;
         return ::pltxt2htm::container::nullopt;
@@ -1687,7 +1685,7 @@ constexpr auto process_table_frame(::pltxt2htm::container::Stack<ParserFrameCont
             auto const row_cells = raw_ast.row_cells(row_index);
             if (cell_index < row_cells.size()) {
                 auto const& cell = raw_ast.cell_at(row_index, cell_index);
-                call_stack.push(ParserFrameContext<ndebug>(
+                call_stack.push_frame(ParserFrame<ndebug>(
                     FrontendContextVariant<ndebug>{
                         ParserFrameContextWithCellInfo{::pltxt2htm::container::U8StringView{cell.text}, cell.align},
                         cell.is_header ? ::pltxt2htm::NodeKind::table_th : ::pltxt2htm::NodeKind::table_td},
@@ -1704,7 +1702,7 @@ constexpr auto process_table_frame(::pltxt2htm::container::Stack<ParserFrameCont
     }
     case TableParsePhase::finish: {
         auto previous_frame = ::std::move(frame);
-        call_stack.template pop<ndebug>();
+        call_stack.template discard_current_frame<ndebug>();
 
         ::pltxt2htm::Ast<ndebug> flat_ast = ::std::move(previous_frame.subast);
         auto&& prev_raw_ast = previous_frame.as_table().raw_ast;
@@ -1768,7 +1766,7 @@ constexpr auto process_table_frame(::pltxt2htm::container::Stack<ParserFrameCont
             return table_ast;
         }
 
-        auto&& parent_frame = call_stack.template top<ndebug>();
+        auto&& parent_frame = call_stack.template current_frame<ndebug>();
         parent_frame.subast.push_back(
             ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Table<ndebug>{::std::move(table_ast)}));
         return ::pltxt2htm::container::nullopt;
