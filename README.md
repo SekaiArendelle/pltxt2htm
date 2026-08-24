@@ -22,6 +22,12 @@ See [docsgen](./docsgen/README.md).
 ## Exported API
 All C++ APIs have been listed in [pltxt2htm.cppm](cxxmodule/pltxt2htm/pltxt2htm.cppm)
 
+## Compatibility
+
+This library does not guarantee permanent backward compatibility for any facility. The function signatures of `pltxt2fixedadv_html`, `pltxt2plunity_introduction`, and `pltxt2common_html`, together with those of the corresponding functions in each language binding, are considered mostly stable. This is a statement of intent, not a compatibility guarantee.
+
+All other public C++ APIs and all ABIs are unstable. Every update should be treated as potentially breaking for consumers of those interfaces.
+
 ## Features
 
 Markdown extension based on [CommonMark](https://spec.commonmark.org/0.31.2/):

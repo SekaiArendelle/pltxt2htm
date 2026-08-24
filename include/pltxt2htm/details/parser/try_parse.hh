@@ -10,7 +10,6 @@
 #include <utility>
 #include "../../container/expected.hh"
 #include <fast_io/fast_io_dsal/array.h>
-#include <fast_io/fast_io_dsal/stack.h>
 #include "../../container/string_view.hh"
 #include "../utils.hh"
 #include "../../contracts.hh"
@@ -4106,7 +4105,7 @@ constexpr auto try_parse_url_port(::pltxt2htm::container::U8StringView pltext) n
 /**
  * @brief Detect and return the end offset of `http://` or `https://` scheme.
  *
- * O(1) — does NOT scan for domains. Returns the scheme length (7 or 8) or nullopt.
+ * O(1) - does NOT scan for domains. Returns the scheme length (7 or 8) or nullopt.
  *
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @param[in] pltext The input text that may begin with a URL scheme.
@@ -4132,9 +4131,9 @@ constexpr auto try_parse_url_scheme(::pltxt2htm::container::U8StringView pltext)
 /**
  * @brief Parse and validate the authority part (domain + port) of a URL.
  *
- * Does NOT detect the scheme — the caller must pass a view starting at the domain (e.g. a
+ * Does NOT detect the scheme - the caller must pass a view starting at the domain (e.g. a
  * subview past the scheme, or the whole candidate when no scheme is present). Supports
- * domain validation and optional port. Does NOT parse the path, query, or fragment — that
+ * domain validation and optional port. Does NOT parse the path, query, or fragment - that
  * is the caller's responsibility.
  *
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
@@ -4288,12 +4287,12 @@ constexpr auto try_parse_url_path_unicode(::pltxt2htm::container::U8StringView p
 /**
  * @brief Result of parsing a URL-bearing opening tag.
  * @details The three return states are encoded by the payload members `tag_len` and `url`:
- *          - `valid` — `url` is engaged (`tag_len` is the opening-tag length the caller
+ *          - `valid` - `url` is engaged (`tag_len` is the opening-tag length the caller
  *            skips to reach the tag content);
- *          - `invalid_url` — `url` is disengaged and `tag_len` != 0: the opening tag was
+ *          - `invalid_url` - `url` is disengaged and `tag_len` != 0: the opening tag was
  *            recognized but its URL failed validation, so the caller consumes the first
  *            `tag_len` characters as one literal span;
- *          - `not_a_tag` — `tag_len` == 0: keep the char-by-char fallback.
+ *          - `not_a_tag` - `tag_len` == 0: keep the char-by-char fallback.
  *          A recognized opening tag always has `tag_len` != 0, which keeps the three
  *          states distinguishable.
  */
@@ -4428,7 +4427,7 @@ constexpr auto try_parse_html_a_tag(::pltxt2htm::container::U8StringView pltext)
  *
  * Only `http://`/`https://` schemes are accepted.  Bare domains (e.g. `example.com`) are
  * intentionally not supported because the parser calls this function at every character
- * position — allowing domain scans without a scheme prefix would reintroduce O(n²)
+ * position - allowing domain scans without a scheme prefix would reintroduce O(n^2)
  * behaviour on long lines without whitespace.
  *
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.

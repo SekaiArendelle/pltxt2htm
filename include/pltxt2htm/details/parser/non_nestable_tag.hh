@@ -3,7 +3,7 @@
  * @brief URL-bearing `<tag=...>` parsers that validate against the active parser stack.
  *
  * @details These helpers iterate the call stack to reject forbidden nesting, so
- *          they need the complete ParserFrameContext type.  They live in a
+ *          they need the complete ParserFrame type.  They live in a
  *          separate header instead of try_parse.hh because try_parse.hh cannot
  *          include frame_context.hh: that header includes html_table.hh, which
  *          in turn includes try_parse.hh.
@@ -14,7 +14,7 @@
 #include <cstddef>
 #include <utility>
 #include "../../container/expected.hh"
-#include <fast_io/fast_io_dsal/stack.h>
+#include "../call_stack.hh"
 #include "../../container/string_view.hh"
 #include "../utils.hh"
 #include "../../contracts.hh"
@@ -39,26 +39,27 @@ template<::pltxt2htm::Contracts ndebug, U8LiteralString prefix_str, auto value_c
 [[nodiscard]]
 constexpr auto try_parse_non_nestable_equal_sign_tag(
     ::pltxt2htm::container::U8StringView pltext,
-    ::fast_io::stack<ParserFrameContext<ndebug>> const& call_stack) noexcept
+    ::pltxt2htm::details::CallStack<ParserFrame<ndebug>> const& call_stack) noexcept
     -> ::pltxt2htm::container::Optional<TryParseEqualSignTagResult> {
     auto result = ::pltxt2htm::details::try_parse_equal_sign_tag<ndebug, prefix_str, value_char_predicate>(pltext);
     if (result.has_value() == false) {
         return ::pltxt2htm::container::nullopt;
     }
-    for (auto const& v : call_stack.container) {
-        // skip
-        // e.g. <experiment><experiment>test</experiment>text</experiment>
-        // e.g. <experiment><a><experiment>test</experiment>text</a>text</experiment>
-        auto const nested_tag_type = v.get_nested_tag_type();
-        if (nested_tag_type == ::pltxt2htm::NodeKind::pl_experiment ||
-            nested_tag_type == ::pltxt2htm::NodeKind::pl_discussion ||
-            nested_tag_type == ::pltxt2htm::NodeKind::pl_experiments ||
-            nested_tag_type == ::pltxt2htm::NodeKind::pl_discussions ||
-            nested_tag_type == ::pltxt2htm::NodeKind::pl_external ||
-            nested_tag_type == ::pltxt2htm::NodeKind::pl_link || nested_tag_type == ::pltxt2htm::NodeKind::pl_trigger ||
-            nested_tag_type == ::pltxt2htm::NodeKind::pl_internal) {
-            return ::pltxt2htm::container::nullopt;
-        }
+    // skip
+    // e.g. <experiment><experiment>test</experiment>text</experiment>
+    // e.g. <experiment><a><experiment>test</experiment>text</a>text</experiment>
+    if (call_stack.contains_frame_if([](ParserFrame<ndebug> const& frame) noexcept {
+            auto const nested_tag_type = frame.get_nested_tag_type();
+            return nested_tag_type == ::pltxt2htm::NodeKind::pl_experiment ||
+                   nested_tag_type == ::pltxt2htm::NodeKind::pl_discussion ||
+                   nested_tag_type == ::pltxt2htm::NodeKind::pl_experiments ||
+                   nested_tag_type == ::pltxt2htm::NodeKind::pl_discussions ||
+                   nested_tag_type == ::pltxt2htm::NodeKind::pl_external ||
+                   nested_tag_type == ::pltxt2htm::NodeKind::pl_link ||
+                   nested_tag_type == ::pltxt2htm::NodeKind::pl_trigger ||
+                   nested_tag_type == ::pltxt2htm::NodeKind::pl_internal;
+        })) {
+        return ::pltxt2htm::container::nullopt;
     }
     return result;
 }
@@ -66,12 +67,12 @@ constexpr auto try_parse_non_nestable_equal_sign_tag(
 /**
  * @brief Result of parsing a URL-bearing opening tag.
  * @details The three return states are encoded by the payload members `tag_len` and `url`:
- *          - `valid` — `url` is engaged (`tag_len` is the opening-tag length the caller
+ *          - `valid` - `url` is engaged (`tag_len` is the opening-tag length the caller
  *            skips to reach the tag content);
- *          - `invalid_url` — `url` is disengaged and `tag_len` != 0: the opening tag was
+ *          - `invalid_url` - `url` is disengaged and `tag_len` != 0: the opening tag was
  *            recognized but its URL failed validation, so the caller consumes the first
  *            `tag_len` characters as one literal span;
- *          - `not_a_tag` — `tag_len` == 0: keep the char-by-char fallback.
+ *          - `not_a_tag` - `tag_len` == 0: keep the char-by-char fallback.
  *          A recognized opening tag always has `tag_len` != 0, which keeps the three
  *          states distinguishable.
  */
@@ -118,7 +119,7 @@ struct TryParseExternalTagResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_external_tag(::pltxt2htm::container::U8StringView pltext,
-                                      ::fast_io::stack<ParserFrameContext<ndebug>> const& call_stack) noexcept
+                                      ::pltxt2htm::details::CallStack<ParserFrame<ndebug>> const& call_stack) noexcept
     -> TryParseExternalTagResult {
     auto result = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<ndebug, u8"xternal",
                                                                               ::pltxt2htm::details::is_url_value_char>(
@@ -153,12 +154,12 @@ constexpr auto try_parse_external_tag(::pltxt2htm::container::U8StringView pltex
 /**
  * @brief Result of parsing a URL-bearing opening tag.
  * @details The three return states are encoded by the payload members `tag_len` and `url`:
- *          - `valid` — `url` is engaged (`tag_len` is the opening-tag length the caller
+ *          - `valid` - `url` is engaged (`tag_len` is the opening-tag length the caller
  *            skips to reach the tag content);
- *          - `invalid_url` — `url` is disengaged and `tag_len` != 0: the opening tag was
+ *          - `invalid_url` - `url` is disengaged and `tag_len` != 0: the opening tag was
  *            recognized but its URL failed validation, so the caller consumes the first
  *            `tag_len` characters as one literal span;
- *          - `not_a_tag` — `tag_len` == 0: keep the char-by-char fallback.
+ *          - `not_a_tag` - `tag_len` == 0: keep the char-by-char fallback.
  *          A recognized opening tag always has `tag_len` != 0, which keeps the three
  *          states distinguishable.
  */
@@ -207,7 +208,7 @@ struct TryParseLinkTagResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_link_tag(::pltxt2htm::container::U8StringView pltext,
-                                  ::fast_io::stack<ParserFrameContext<ndebug>> const& call_stack) noexcept
+                                  ::pltxt2htm::details::CallStack<ParserFrame<ndebug>> const& call_stack) noexcept
     -> TryParseLinkTagResult {
     auto result = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<ndebug, u8"ink",
                                                                               ::pltxt2htm::details::is_url_value_char>(

@@ -205,15 +205,15 @@ public:
 
 /**
  * @brief URL node
- * @details Represents a URL stored as a plain string.
+ * @details Represents a semantic URL value stored independently of any backend's escaping syntax.
  */
 class Url {
     ::pltxt2htm::container::U8String url_str;
 
 public:
     /**
-     * @brief Construct a ::pltxt2htm::Url from a URL string.
-     * @param url The URL string.
+     * @brief Construct a ::pltxt2htm::Url from a semantic URL string.
+     * @param url The URL string without HTML attribute escaping.
      */
     constexpr explicit Url(::pltxt2htm::container::U8String&& url) noexcept
         : url_str(::std::move(url)) {
@@ -229,8 +229,8 @@ public:
     constexpr auto operator==(this Url const&, Url const&) noexcept -> bool = default;
 
     [[nodiscard]]
-    constexpr auto as_string(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.url_str);
+    constexpr auto as_string(this Url const& self) noexcept -> ::pltxt2htm::container::U8String const& {
+        return self.url_str;
     }
 };
 

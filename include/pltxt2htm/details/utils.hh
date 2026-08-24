@@ -11,7 +11,6 @@
 #include <cstddef>
 #include <ranges>
 #include <type_traits>
-#include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/vector.h>
 #include "../container/expected.hh"
 #include "../container/string.hh"
@@ -143,39 +142,6 @@ constexpr auto vector_index(is_fast_io_vector auto&& vec, ::std::size_t i) noexc
     pltxt2htm_assert(i < vec.size(), u8"Index of vector out of bound");
 
     return ::std::forward_like<decltype(vec)>(vec.index_unchecked(i));
-}
-
-/**
- * @brief Access the top element of a mutable stack (checked).
- * @tparam ndebug Contract checking mode.
- * @tparam T Element type.
- * @param stack The stack.
- * @return Reference to the top element.
- */
-template<::pltxt2htm::Contracts ndebug, typename T>
-[[nodiscard]]
-constexpr auto& stack_top(::fast_io::containers::stack<T>& stack) noexcept {
-    pltxt2htm_assert(stack.empty() == false, u8"Accessing top but stack is empty");
-
-    return stack.top_unchecked();
-}
-
-/**
- * @brief Access the top element of a const stack (checked).
- * @tparam ndebug Contract checking mode.
- * @tparam T Element type.
- * @param stack The stack.
- * @return Const reference to the top element.
- */
-template<::pltxt2htm::Contracts ndebug, typename T>
-[[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
-constexpr auto const& stack_top(::fast_io::containers::stack<T> const& stack) noexcept {
-    pltxt2htm_assert(stack.empty() == false, u8"Accessing top but stack is empty");
-
-    return stack.top_unchecked();
 }
 
 /**

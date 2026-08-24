@@ -118,6 +118,9 @@ jobs:
           docker run --rm --security-opt seccomp=unconfined x86_64-linux-gnu-tests-msan
 
   x86_64-linux-gnu-scan-build:
+    # https://github.com/llvm/llvm-project/issues/218227
+    if: ${{ false }}
+
     strategy:
       fail-fast: false
 

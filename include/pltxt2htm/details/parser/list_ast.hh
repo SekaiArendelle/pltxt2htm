@@ -47,7 +47,7 @@ class ListBaseNode;
  *          Without ListAst, `parse_pltxt` would need to call `try_parse_item` twice
  *          for each item: once during a pre-scan (to determine the list boundary / item
  *          hierarchy before creating child frames) and again when actually producing the
- *          output. The pre-built AST avoids this redundant work — each item is parsed
+ *          output. The pre-built AST avoids this redundant work - each item is parsed
  *          exactly once.
  */
 template<::pltxt2htm::Contracts ndebug>

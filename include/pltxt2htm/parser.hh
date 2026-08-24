@@ -9,7 +9,7 @@
 
 #include <cstddef>
 #include <fast_io/fast_io_dsal/list.h>
-#include <fast_io/fast_io_dsal/stack.h>
+#include "details/call_stack.hh"
 #include "container/string_view.hh"
 #include "container/expected.hh"
 #include "ast/node_kind.hh"
@@ -47,7 +47,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto parse_pltxt(::pltxt2htm::container::U8StringView pltext) noexcept -> ::pltxt2htm::Ast<ndebug> {
     // This stack is used to track nested tag contexts during parsing
-    ::fast_io::stack<::pltxt2htm::details::ParserFrameContext<ndebug>> call_stack{};
+    ::pltxt2htm::details::CallStack<::pltxt2htm::details::ParserFrame<ndebug>> call_stack{};
     ::pltxt2htm::Ast<ndebug> result{};
 
     ::std::size_t start_index{};
@@ -59,17 +59,17 @@ constexpr auto parse_pltxt(::pltxt2htm::container::U8StringView pltext) noexcept
         if (has_new_frame == false) {
             break;
         }
-        ::pltxt2htm::NodeKind const type_of_subast{call_stack.top().get_nested_tag_type()};
+        ::pltxt2htm::NodeKind const type_of_subast{call_stack.template current_frame<ndebug>().get_nested_tag_type()};
         auto const opt_html_p_align =
             [&] constexpr noexcept -> ::pltxt2htm::container::Optional<::pltxt2htm::TextAlign> {
             if (type_of_subast == ::pltxt2htm::NodeKind::html_p) {
-                return call_stack.top().as_align_info().align;
+                return call_stack.template current_frame<ndebug>().as_align_info().align;
             }
             return ::pltxt2htm::container::nullopt;
         }();
         auto const opt_pl_align = [&] constexpr noexcept -> ::pltxt2htm::container::Optional<::pltxt2htm::TextAlign> {
             if (type_of_subast == ::pltxt2htm::NodeKind::pl_align) {
-                return call_stack.top().as_align_info().align;
+                return call_stack.template current_frame<ndebug>().as_align_info().align;
             }
             return ::pltxt2htm::container::nullopt;
         }();
@@ -77,14 +77,15 @@ constexpr auto parse_pltxt(::pltxt2htm::container::U8StringView pltext) noexcept
             -> ::pltxt2htm::container::Optional<::pltxt2htm::details::ParserFrameContextWithPlMarginTagInfo> {
             if (type_of_subast == ::pltxt2htm::NodeKind::pl_margin) {
                 return ::pltxt2htm::details::ParserFrameContextWithPlMarginTagInfo{
-                    call_stack.top().get_pltext(), call_stack.top().as_pl_margin_tag().left,
-                    call_stack.top().as_pl_margin_tag().right};
+                    call_stack.template current_frame<ndebug>().get_pltext(),
+                    call_stack.template current_frame<ndebug>().as_pl_margin_tag().left,
+                    call_stack.template current_frame<ndebug>().as_pl_margin_tag().right};
             }
             return ::pltxt2htm::container::nullopt;
         }();
         auto const opt_list_start = [&] constexpr noexcept -> ::pltxt2htm::container::Optional<::std::size_t> {
             if (type_of_subast == ::pltxt2htm::NodeKind::list_ol) {
-                return call_stack.top().as_list_info().list_start;
+                return call_stack.template current_frame<ndebug>().as_list_info().list_start;
             }
             return ::pltxt2htm::container::nullopt;
         }();
@@ -92,8 +93,9 @@ constexpr auto parse_pltxt(::pltxt2htm::container::U8StringView pltext) noexcept
             -> ::pltxt2htm::container::Optional<::pltxt2htm::details::ParserFrameContextWithHtmlDivInfo> {
             if (type_of_subast == ::pltxt2htm::NodeKind::html_div) {
                 return ::pltxt2htm::details::ParserFrameContextWithHtmlDivInfo{
-                    call_stack.top().get_pltext(), call_stack.top().as_html_div_info().left,
-                    call_stack.top().as_html_div_info().right};
+                    call_stack.template current_frame<ndebug>().get_pltext(),
+                    call_stack.template current_frame<ndebug>().as_html_div_info().left,
+                    call_stack.template current_frame<ndebug>().as_html_div_info().right};
             }
             return ::pltxt2htm::container::nullopt;
         }();
@@ -230,7 +232,7 @@ constexpr auto parse_pltxt(::pltxt2htm::container::U8StringView pltext) noexcept
 
     if (start_index < pltext.size()) {
         // other common cases
-        call_stack.push(::pltxt2htm::details::ParserFrameContext<ndebug>(
+        call_stack.push_frame(::pltxt2htm::details::ParserFrame<ndebug>(
             ::pltxt2htm::details::FrontendContextVariant<ndebug>{
                 ::pltxt2htm::details::ParserFrameContextWithPltextInfo{pltext.template subview<ndebug>(start_index)},
                 ::pltxt2htm::NodeKind::text},
