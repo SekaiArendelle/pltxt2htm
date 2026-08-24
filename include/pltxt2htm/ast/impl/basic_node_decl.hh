@@ -60,7 +60,7 @@ public:
 
 /**
  * @brief ::pltxt2htm::Ampersand node
- * @details Represents the '&' character, which may be part of an HTML entity.
+ * @details Represents the semantic '&' character.
  */
 class Ampersand {
 public:
@@ -83,36 +83,6 @@ public:
 class DoubleQuote {
 public:
     constexpr auto operator==(this DoubleQuote const&, DoubleQuote const&) noexcept -> bool = default;
-};
-
-/**
- * @brief ::pltxt2htm::EntityReference node
- * @details Legacy compatibility node for manually constructed ASTs. Parsers decode character
- *          references into ordinary semantic character nodes instead of producing this type.
- *          Stores the reference content between &amp; and ; (e.g. &amp;quot; stores "quot").
- */
-class EntityReference {
-    ::fast_io::u8string value;
-
-public:
-    constexpr EntityReference(::fast_io::u8string&& value_) noexcept
-        : value(::std::move(value_)) {
-    }
-
-    constexpr EntityReference(::pltxt2htm::EntityReference const&) noexcept = default;
-    constexpr EntityReference(::pltxt2htm::EntityReference&&) noexcept = default;
-    constexpr ~EntityReference() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::EntityReference const&) noexcept -> ::pltxt2htm::EntityReference& = delete;
-    constexpr auto operator=(this EntityReference& self, ::pltxt2htm::EntityReference&&) noexcept
-        -> ::pltxt2htm::EntityReference& = default;
-
-    [[nodiscard]]
-    constexpr auto operator==(this EntityReference const&, EntityReference const&) noexcept -> bool = default;
-
-    [[nodiscard]]
-    constexpr auto get_value(this EntityReference const& self) noexcept -> ::fast_io::u8string const& {
-        return self.value;
-    }
 };
 
 /**

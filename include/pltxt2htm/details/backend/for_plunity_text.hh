@@ -19,68 +19,10 @@
 #include "frame_context.hh"
 #include "html_url.hh"
 #include "../utils.hh"
-#include "../parser/character_reference.hh"
 #include "../../contracts.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::details {
-
-constexpr void append_code_point_to_plunity_richtext(char32_t code_point, ::fast_io::u8string& out) noexcept {
-    if (code_point == char32_t{0x3C}) {
-        out.append(u8"<size=20>＜</size>");
-        return;
-    }
-    if (code_point == char32_t{0x3E}) {
-        out.append(u8"<size=20>＞</size>");
-        return;
-    }
-    if (code_point < char32_t{0x80}) {
-        out.push_back(static_cast<char8_t>(code_point));
-        return;
-    }
-    if (code_point < char32_t{0x800}) {
-        out.push_back(static_cast<char8_t>(0xC0 | static_cast<unsigned>(code_point >> 6)));
-        out.push_back(static_cast<char8_t>(0x80 | static_cast<unsigned>(code_point & 0x3F)));
-        return;
-    }
-    if (code_point < char32_t{0x10000}) {
-        out.push_back(static_cast<char8_t>(0xE0 | static_cast<unsigned>(code_point >> 12)));
-        out.push_back(static_cast<char8_t>(0x80 | static_cast<unsigned>((code_point >> 6) & 0x3F)));
-        out.push_back(static_cast<char8_t>(0x80 | static_cast<unsigned>(code_point & 0x3F)));
-        return;
-    }
-    out.push_back(static_cast<char8_t>(0xF0 | static_cast<unsigned>(code_point >> 18)));
-    out.push_back(static_cast<char8_t>(0x80 | static_cast<unsigned>((code_point >> 12) & 0x3F)));
-    out.push_back(static_cast<char8_t>(0x80 | static_cast<unsigned>((code_point >> 6) & 0x3F)));
-    out.push_back(static_cast<char8_t>(0x80 | static_cast<unsigned>(code_point & 0x3F)));
-}
-
-/**
- * @brief Append an entity reference to Unity Rich Text output.
- * @details This is a compatibility path for manually constructed legacy EntityReference nodes.
- *          Valid named and numeric references use the shared decoder. `<` and `>` are emitted
- *          in full-width escaped form so TextMeshPro cannot interpret them as tag delimiters.
- * @tparam ndebug Contract checking mode.
- * @param value Entity content between `&` and `;` (e.g. `amp`, `#38`, `#x26`).
- * @param[out] out Output buffer receiving the encoded output.
- */
-template<::pltxt2htm::Contracts ndebug>
-constexpr void append_entity_reference_to_plunity_richtext(::fast_io::u8string const& value,
-                                                           ::fast_io::u8string& out) noexcept {
-    ::pltxt2htm::container::U8StringView const value_view{value};
-    auto const decoded = ::pltxt2htm::details::try_decode_character_reference_value<ndebug>(value_view);
-    if (decoded.has_value() == false) {
-        out.push_back(u8'&');
-        out.append(value_view);
-        out.push_back(u8';');
-        return;
-    }
-    auto const& reference = decoded.template value<ndebug>();
-    ::pltxt2htm::details::append_code_point_to_plunity_richtext(reference.first_code_point, out);
-    if (reference.code_point_count == 2) {
-        ::pltxt2htm::details::append_code_point_to_plunity_richtext(reference.second_code_point, out);
-    }
-}
 
 /**
  * @brief Convert a simple (leaf-only) AST to Unity Rich Text with unescaping.
@@ -110,11 +52,6 @@ constexpr void convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast<nde
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::ampersand: {
             out.push_back(u8'&');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::entity_reference: {
-            ::pltxt2htm::details::append_entity_reference_to_plunity_richtext<ndebug>(
-                node.as_entity_reference().get_value(), out);
             continue;
         }
         case ::pltxt2htm::NodeKind::md_escape_single_quote:
@@ -318,11 +255,6 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::ampersand: {
                 result.push_back(u8'&');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::entity_reference: {
-                ::pltxt2htm::details::append_entity_reference_to_plunity_richtext<ndebug>(
-                    node.as_entity_reference().get_value(), result);
                 continue;
             }
             case ::pltxt2htm::NodeKind::md_escape_single_quote:

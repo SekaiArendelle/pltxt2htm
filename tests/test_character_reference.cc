@@ -1,4 +1,6 @@
+// Character-reference decoder and semantic rendering regression tests.
 #include <pltxt2htm/details/backend/for_plweb_text.hh>
+#include <pltxt2htm/details/parser/character_reference.hh>
 #include "precompile.hh"
 
 constexpr void assert_decoded(::fast_io::u8string_view text, ::std::size_t consumed_size, char32_t first_code_point,

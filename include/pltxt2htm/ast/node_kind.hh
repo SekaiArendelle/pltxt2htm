@@ -33,7 +33,6 @@ enum class NodeKind : unsigned {
     single_quote, ///< Single quote character (') - escaped to &apos;
     less_than, ///< Less-than character (<) - escaped to &lt;
     greater_than, ///< Greater-than character (>) - escaped to &gt;
-    entity_reference, ///< Legacy node for manually constructed character references.
     tab, ///< Tab character - rendered as multiple &nbsp; entities
 
     // Physics-Lab specific formatting tags

@@ -76,11 +76,6 @@ entry:
                 result.append(u8"&amp;");
                 continue;
             }
-            case ::pltxt2htm::NodeKind::entity_reference: {
-                ::pltxt2htm::details::append_legacy_entity_reference_to_html<ndebug>(
-                    result, ::pltxt2htm::container::U8StringView{node.as_entity_reference().get_value()});
-                continue;
-            }
             case ::pltxt2htm::NodeKind::md_escape_single_quote:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::single_quote: {
