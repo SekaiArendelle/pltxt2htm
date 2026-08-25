@@ -1176,6 +1176,161 @@ constexpr auto print_alias_define(::fast_io::io_alias_t, BasicString<CharType, A
     return {string_.data(), string_.size()};
 }
 
+namespace details {
+
+struct BasicStringScanContext {
+    bool copying{};
+};
+
+template<bool noskipws, bool line>
+constexpr ::fast_io::manipulators::scalar_flags basic_string_default_scalar_flags{.noskipws = noskipws, .line = line};
+
+template<bool noskipws, bool line, ::pltxt2htm::details::is_char_type CharType, typename Allocator>
+constexpr auto scan_context_define_basic_string(bool& copying, CharType const* first, CharType const* last,
+                                                BasicString<CharType, Allocator>& string_) noexcept
+    -> ::fast_io::parse_result<CharType const*> {
+    auto iterator{first};
+    if constexpr (!noskipws && !line) {
+        if (!copying) {
+            iterator = ::fast_io::find_none_c_space(iterator, last);
+            if (iterator == last) {
+                return {iterator, ::fast_io::parse_code::partial};
+            }
+            copying = true;
+            string_.clear();
+        }
+    }
+
+    auto end_iterator{iterator};
+    if constexpr (line) {
+        end_iterator = ::fast_io::find_lf(end_iterator, last);
+    }
+    else {
+        end_iterator = ::fast_io::find_c_space(end_iterator, last);
+    }
+
+    if constexpr (noskipws || line) {
+        if (!copying) {
+            string_.assign(iterator, end_iterator);
+            copying = true;
+        }
+        else {
+            string_.append(iterator, end_iterator);
+        }
+    }
+    else {
+        string_.append(iterator, end_iterator);
+    }
+
+    if (end_iterator == last) {
+        return {end_iterator, ::fast_io::parse_code::partial};
+    }
+    if constexpr (line) {
+        ++end_iterator;
+    }
+    return {end_iterator, ::fast_io::parse_code::ok};
+}
+
+template<::pltxt2htm::details::is_char_type CharType, typename Allocator>
+constexpr auto scan_context_define_whole_basic_string(bool& copying, CharType const* first, CharType const* last,
+                                                      BasicString<CharType, Allocator>& string_) noexcept
+    -> ::fast_io::parse_result<CharType const*> {
+    if (!copying) {
+        string_.assign(first, last);
+        copying = true;
+    }
+    else {
+        string_.append(first, last);
+    }
+    return {last, ::fast_io::parse_code::partial};
+}
+
+} // namespace details
+
+template<::pltxt2htm::details::is_char_type CharType, ::fast_io::manipulators::scalar_flags flags, typename Allocator>
+constexpr auto scan_context_type(
+    ::fast_io::io_reserve_type_t<
+        CharType, ::fast_io::manipulators::scalar_manip_t<flags, BasicString<CharType, Allocator>&>>) noexcept
+    -> ::fast_io::io_type_t<::pltxt2htm::container::details::BasicStringScanContext> {
+    return {};
+}
+
+template<::pltxt2htm::details::is_char_type CharType, ::fast_io::manipulators::scalar_flags flags, typename Allocator>
+constexpr auto scan_context_define(
+    ::fast_io::io_reserve_type_t<CharType,
+                                 ::fast_io::manipulators::scalar_manip_t<flags, BasicString<CharType, Allocator>&>>,
+    ::pltxt2htm::container::details::BasicStringScanContext& context, CharType const* first, CharType const* last,
+    ::fast_io::manipulators::scalar_manip_t<flags, BasicString<CharType, Allocator>&> string_) noexcept
+    -> ::fast_io::parse_result<CharType const*> {
+    return ::pltxt2htm::container::details::scan_context_define_basic_string<flags.noskipws, flags.line>(
+        context.copying, first, last, string_.reference);
+}
+
+template<::fast_io::manipulators::scalar_flags flags, ::pltxt2htm::details::is_char_type CharType, typename Allocator>
+constexpr auto scan_context_eof_define(
+    ::fast_io::io_reserve_type_t<CharType,
+                                 ::fast_io::manipulators::scalar_manip_t<flags, BasicString<CharType, Allocator>&>>,
+    ::pltxt2htm::container::details::BasicStringScanContext context,
+    ::fast_io::manipulators::scalar_manip_t<flags, BasicString<CharType, Allocator>&>) noexcept
+    -> ::fast_io::parse_code {
+    return context.copying ? ::fast_io::parse_code::ok : ::fast_io::parse_code::end_of_file;
+}
+
+template<::pltxt2htm::details::is_char_type CharType, typename Allocator>
+constexpr auto scan_alias_define(::fast_io::io_alias_t, BasicString<CharType, Allocator>& string_) noexcept
+    -> ::fast_io::manipulators::scalar_manip_t<
+        ::pltxt2htm::container::details::basic_string_default_scalar_flags<false, false>,
+        BasicString<CharType, Allocator>&> {
+    return {string_};
+}
+
+template<::pltxt2htm::details::is_char_type CharType, typename Allocator>
+constexpr auto scan_context_type(
+    ::fast_io::io_reserve_type_t<CharType,
+                                 ::fast_io::manipulators::whole_get_t<BasicString<CharType, Allocator>&>>) noexcept
+    -> ::fast_io::io_type_t<::pltxt2htm::container::details::BasicStringScanContext> {
+    return {};
+}
+
+template<::pltxt2htm::details::is_char_type CharType, typename Allocator>
+constexpr auto scan_context_define(
+    ::fast_io::io_reserve_type_t<CharType, ::fast_io::manipulators::whole_get_t<BasicString<CharType, Allocator>&>>,
+    ::pltxt2htm::container::details::BasicStringScanContext& context, CharType const* first, CharType const* last,
+    ::fast_io::manipulators::whole_get_t<BasicString<CharType, Allocator>&> string_) noexcept
+    -> ::fast_io::parse_result<CharType const*> {
+    return ::pltxt2htm::container::details::scan_context_define_whole_basic_string(context.copying, first, last,
+                                                                                   string_.reference);
+}
+
+template<::pltxt2htm::details::is_char_type CharType, typename Allocator>
+constexpr auto scan_context_eof_define(
+    ::fast_io::io_reserve_type_t<CharType, ::fast_io::manipulators::whole_get_t<BasicString<CharType, Allocator>&>>,
+    ::pltxt2htm::container::details::BasicStringScanContext context,
+    ::fast_io::manipulators::whole_get_t<BasicString<CharType, Allocator>&> string_) noexcept -> ::fast_io::parse_code {
+    if (!context.copying) {
+        string_.reference.clear();
+    }
+    return ::fast_io::parse_code::ok;
+}
+
 } // namespace pltxt2htm::container
+
+namespace fast_io::manipulators {
+
+template<::pltxt2htm::details::is_char_type CharType, typename Allocator>
+constexpr auto line_get(::pltxt2htm::container::BasicString<CharType, Allocator>& string_) noexcept
+    -> ::fast_io::manipulators::scalar_manip_t<
+        ::pltxt2htm::container::details::basic_string_default_scalar_flags<false, true>,
+        ::pltxt2htm::container::BasicString<CharType, Allocator>&> {
+    return {string_};
+}
+
+template<::pltxt2htm::details::is_char_type CharType, typename Allocator>
+constexpr auto whole_get(::pltxt2htm::container::BasicString<CharType, Allocator>& string_) noexcept
+    -> ::fast_io::manipulators::whole_get_t<::pltxt2htm::container::BasicString<CharType, Allocator>&> {
+    return {string_};
+}
+
+} // namespace fast_io::manipulators
 
 #include "../details/pop_macro.hh"

@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <concepts>
 #include <type_traits>
+#include <utility>
 
 #include <fast_io/fast_io.h>
 
@@ -40,6 +41,11 @@ static_assert(::std::is_convertible_v<U8String const&, U8StringView>);
 static_assert(!::std::is_convertible_v<U8String&&, U8StringView>);
 static_assert(!has_subscript_operator<U8String>);
 static_assert(!has_subscript_operator<U8String const>);
+static_assert(::fast_io::alias_scannable<U8String>);
+static_assert(::fast_io::context_scannable<
+              char8_t, ::std::remove_cvref_t<decltype(::fast_io::io_scan_alias(::std::declval<U8String&>()))>>);
+static_assert(::fast_io::context_scannable<char8_t, decltype(::fast_io::mnp::line_get(::std::declval<U8String&>()))>);
+static_assert(::fast_io::context_scannable<char8_t, decltype(::fast_io::mnp::whole_get(::std::declval<U8String&>()))>);
 
 consteval auto test_constexpr_string() noexcept -> bool {
     U8String empty_string;
@@ -133,6 +139,34 @@ int main() {
     ::fast_io::u8string const fast_io_string{u8"fast_io"};
     U8String const compatible{fast_io_string};
     pltxt2htm_test_assert_true(compatible == u8"fast_io");
+
+    char8_t const token_input[]{u8"  first second"};
+    ::fast_io::u8ibuffer_view token_buffer{token_input, token_input + sizeof(token_input) / sizeof(char8_t) - 1};
+    U8String scanned_token{u8"old value"};
+    ::fast_io::io::scan(token_buffer, scanned_token);
+    pltxt2htm_test_assert_true(scanned_token == u8"first");
+    ::fast_io::io::scan(token_buffer, scanned_token);
+    pltxt2htm_test_assert_true(scanned_token == u8"second");
+
+    char8_t const line_input[]{u8"first line\nsecond line"};
+    ::fast_io::u8ibuffer_view line_buffer{line_input, line_input + sizeof(line_input) / sizeof(char8_t) - 1};
+    U8String scanned_line{u8"old value"};
+    ::fast_io::io::scan(line_buffer, ::fast_io::mnp::line_get(scanned_line));
+    pltxt2htm_test_assert_true(scanned_line == u8"first line");
+    ::fast_io::io::scan(line_buffer, ::fast_io::mnp::line_get(scanned_line));
+    pltxt2htm_test_assert_true(scanned_line == u8"second line");
+
+    char8_t const whole_input[]{u8"whole input\nwith spaces"};
+    ::fast_io::u8ibuffer_view whole_buffer{whole_input, whole_input + sizeof(whole_input) / sizeof(char8_t) - 1};
+    U8String scanned_whole{u8"old value"};
+    ::fast_io::io::scan(whole_buffer, ::fast_io::mnp::whole_get(scanned_whole));
+    pltxt2htm_test_assert_true(scanned_whole == u8"whole input\nwith spaces");
+
+    char8_t const empty_input[]{u8""};
+    ::fast_io::u8ibuffer_view empty_buffer{empty_input, empty_input};
+    U8String scanned_empty{u8"old value"};
+    ::fast_io::io::scan(empty_buffer, ::fast_io::mnp::whole_get(scanned_empty));
+    pltxt2htm_test_assert_true(scanned_empty.empty());
 
     U8String zero_string{1024};
     for (char8_t const character : zero_string) {

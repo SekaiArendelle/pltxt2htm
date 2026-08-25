@@ -1,6 +1,5 @@
 #include <cstddef>
 #include <cstdint>
-#include <cstdio>
 #include <cstring>
 #include <cassert>
 #include <utility>
@@ -297,19 +296,7 @@ int main(int argc, char const* const* const argv) noexcept {
 #endif // __cpp_exceptions >= 199711L
     {
         ::pltxt2htm::container::U8String input_text{};
-        char8_t input_buffer[4096];
-        for (;;) {
-            ::std::size_t const input_size{
-                ::std::fread(input_buffer, sizeof(char8_t), sizeof(input_buffer) / sizeof(char8_t), stdin)};
-            if (input_size == 0) {
-                if (::std::ferror(stdin) != 0) [[unlikely]] {
-                    ::fast_io::perrln("** Failed to read stdin");
-                    return 1;
-                }
-                break;
-            }
-            input_text.append(input_buffer, input_size);
-        }
+        ::fast_io::io::scan(::fast_io::u8c_stdin(), ::fast_io::mnp::whole_get(input_text));
 
         ::pltxt2htm::container::U8String html;
         if (target_type == ::TargetType::html4unittest) {
