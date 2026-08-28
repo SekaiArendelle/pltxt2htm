@@ -1,9 +1,24 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.25)
 project(pltxt2htm-tests LANGUAGES CXX VERSION 0.26.0)
 
 enable_testing()
 
-set(CMAKE_CXX_STANDARD 23)
+if(NOT DEFINED CMAKE_CXX_STANDARD)
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 16)
+        set(CMAKE_CXX_STANDARD 26)
+    else()
+        set(CMAKE_CXX_STANDARD 23)
+    endif()
+    set(_pltxt2htm_cxx_standard_source "auto-detected")
+else()
+    set(_pltxt2htm_cxx_standard_source "explicit")
+endif()
+
+if(NOT CMAKE_CXX_STANDARD MATCHES "^(23|26)$")
+    message(FATAL_ERROR "CMAKE_CXX_STANDARD must be one of: 23, 26 (got: ${CMAKE_CXX_STANDARD})")
+endif()
+
+message(STATUS "CMAKE_CXX_STANDARD: C++${CMAKE_CXX_STANDARD} (${_pltxt2htm_cxx_standard_source})")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.28)

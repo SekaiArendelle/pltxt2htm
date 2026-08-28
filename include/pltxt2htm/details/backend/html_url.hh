@@ -27,24 +27,30 @@ constexpr void append_html_attr_escaped(::fast_io::u8string& result,
     for (::std::size_t index{}; index < value_size; ++index) {
         auto const chr{value.template index<ndebug>(index)};
         switch (chr) {
-        case u8'&':
+        case u8'&': {
             result.append(u8"&amp;");
             break;
-        case u8'\"':
+        }
+        case u8'\"': {
             result.append(u8"&quot;");
             break;
-        case u8'\'':
+        }
+        case u8'\'': {
             result.append(u8"&apos;");
             break;
-        case u8'<':
+        }
+        case u8'<': {
             result.append(u8"&lt;");
             break;
-        case u8'>':
+        }
+        case u8'>': {
             result.append(u8"&gt;");
             break;
-        default:
+        }
+        default: {
             result.push_back(chr);
             break;
+        }
         }
     }
 }
