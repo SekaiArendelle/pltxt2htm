@@ -147,7 +147,7 @@ public:
 
     constexpr OptimizerContextVariant(OptimizerContextVariant<ndebug>&& other) noexcept
         : kind{other.kind} {
-        switch (this->kind) {
+        switch (this->kind) /* -Werror=switch */ {
         case ::pltxt2htm::NodeKind::pl_color:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_experiment:
@@ -158,7 +158,11 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_discussions:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_user: {
+        case ::pltxt2htm::NodeKind::pl_user:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_trigger:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_internal: {
             ::std::construct_at(::std::addressof(this->equal_sign_tag), ::std::move(other.equal_sign_tag));
             return;
         }
@@ -182,9 +186,244 @@ public:
             ::std::construct_at(::std::addressof(this->pl_mark_info), ::std::move(other.pl_mark_info));
             return;
         }
-        default:
+        case ::pltxt2htm::NodeKind::text:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_a:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_align:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_margin:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_external:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_link:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_b:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_i:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_u:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_s:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_p:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_h1:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_h2:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_h3:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_h4:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_h5:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_h6:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_del:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_sup:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_sub:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_em:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_strong:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_div:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_a:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::list_ul:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::list_ol:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::list_li:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::list_li_checkbox:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_code:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_blockquote:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::table:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::table_tr:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::table_td:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::table_th:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::table_thead:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::table_tbody:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::table_tfoot:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::table_caption:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::table_colgroup:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_atx_h1:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_atx_h2:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_atx_h3:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_atx_h4:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_atx_h5:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_atx_h6:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_code_span_1_backtick:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_code_span_2_backtick:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_code_span_3_backtick:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_single_emphasis_asterisk:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_single_emphasis_underscore:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_double_emphasis_asterisk:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_double_emphasis_underscore:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::u8char:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::invalid_u8char:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::url:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::line_break:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::space:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::ampersand:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::double_quote:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::single_quote:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::less_than:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::greater_than:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::entity_reference:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::tab:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_macro_project:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_macro_visitor:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_macro_author:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_macro_coauthors:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_br:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_hr:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_note:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_img:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::table_col:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_escape_backslash:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_escape_exclamation:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_escape_double_quote:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_escape_hash:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_escape_dollar:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_escape_percent:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_escape_ampersand:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_escape_single_quote:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_escape_left_paren:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_escape_right_paren:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_escape_asterisk:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_escape_plus:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_escape_comma:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_escape_hyphen:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_escape_dot:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_escape_slash:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_escape_colon:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_escape_semicolon:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_escape_less_than:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_escape_equals:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_escape_greater_than:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_escape_question:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_escape_at:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_escape_left_bracket:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_escape_right_bracket:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_escape_caret:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_escape_underscore:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_escape_backtick:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_escape_left_brace:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_escape_pipe:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_escape_right_brace:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_escape_tilde:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_hr:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::code_fence:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_del:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_link:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_image:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_block_quotes:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_latex_inline:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_latex_block: {
             ::std::construct_at(::std::addressof(this->without_info), ::std::move(other.without_info));
             return;
+        }
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
+        default:
+            [[unlikely]] {
+                pltxt2htm_unreachable(u8"Unexpected node kind in OptimizerContextVariant move constructor");
+            }
+#endif
         }
     }
 
@@ -736,7 +975,9 @@ entry:
                         return active_node.get_subast();
                     }
                     default:
-                        pltxt2htm_unreachable(u8"Unreachable in optimizer experiment/discussion subast switch");
+                        [[unlikely]] {
+                            pltxt2htm_unreachable(u8"Unreachable in optimizer experiment/discussion subast switch");
+                        }
                     }
                 }();
                 if (subast.empty()) {
@@ -762,7 +1003,9 @@ entry:
                         return active_node.get_value();
                     }
                     default:
-                        pltxt2htm_unreachable(u8"Unreachable in optimizer experiment/discussion value switch");
+                        [[unlikely]] {
+                            pltxt2htm_unreachable(u8"Unreachable in optimizer experiment/discussion value switch");
+                        }
                     }
                 }();
                 call_stack.push_frame(
