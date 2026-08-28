@@ -197,6 +197,14 @@ Follow the existing low-runtime, cross-platform style used in core headers:
   - For branches that end in `unreachable`, mark the branch with `[[unlikely]]` as well.
 - **Prefer guard-clause error handling:**
   - Return early on failure (for example, `if (!ok) { return err; }`) and keep the normal path unindented below.
+- **Write exhaustive tagged-union switches like pattern matches:**
+  - Put each `case` body in its own braced scope. Consecutive labels that deliberately share one body may precede that
+    single braced scope.
+  - At the start of a case that accesses the active tagged-union member, bind the corresponding accessor result once
+    with `auto&&` or `auto const&` and use that binding throughout the case instead of repeatedly calling the accessor.
+  - Do not add an unconditional `default` to an exhaustive enum switch. This preserves compiler diagnostics when a new
+    enumerator is added. Put an unreachable assertion after the switch when one is needed for control-flow analysis;
+    a conditionally compiled `default` used only for runtime corruption checks is acceptable.
 - **Prefer `::std::addressof` over `operator&`:**
   - Do not use the built-in `&` operator to obtain the address of an object, because `operator&` can be overloaded.
   - Use `::std::addressof(...)` instead, which correctly returns the address even for types with overloaded `operator&`.
