@@ -7,8 +7,8 @@
 #pragma once
 
 #include <utility>
-#include "../../container/expected.hh"
 #include <fast_io/fast_io_dsal/string.h>
+#include "../code/ast.hh"
 #include "ast_decl.hh"
 
 namespace pltxt2htm {
@@ -166,21 +166,19 @@ public:
 
 /**
  * @brief Markdown fenced code block
- * @details Contains code content and an optional language identifier.
+ * @details Contains a language-specific code AST. Syntax nodes retain their
+ *          source-language meaning until a backend maps them to presentation.
  */
 template<::pltxt2htm::Contracts ndebug>
 class CodeFence {
-    ::pltxt2htm::Ast<ndebug> subast;
-    ::pltxt2htm::container::Optional<::fast_io::u8string> lang;
+    ::pltxt2htm::CodeAst<ndebug> ast;
 
 public:
     /**
      * @brief Construct a fenced code block.
-     * @param subast The code content as an AST.
-     * @param lang Optional language string.
+     * @param ast_value The parsed code content.
      */
-    constexpr explicit CodeFence(::pltxt2htm::Ast<ndebug>&& subast_,
-                                 ::pltxt2htm::container::Optional<::fast_io::u8string>&& lang_) noexcept;
+    constexpr explicit CodeFence(::pltxt2htm::CodeAst<ndebug>&& ast_value) noexcept;
     constexpr CodeFence(::pltxt2htm::CodeFence<ndebug> const&) noexcept;
     constexpr CodeFence(::pltxt2htm::CodeFence<ndebug>&&) noexcept;
     constexpr ~CodeFence() noexcept;
@@ -193,13 +191,8 @@ public:
     constexpr auto operator==(this CodeFence const& self, CodeFence const& other) noexcept -> bool;
 
     [[nodiscard]]
-    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.subast);
-    }
-
-    [[nodiscard]]
-    constexpr auto get_language(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.lang);
+    constexpr auto get_ast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.ast);
     }
 };
 

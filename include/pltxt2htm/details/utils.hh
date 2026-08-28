@@ -11,8 +11,10 @@
 #include <cstddef>
 #include <ranges>
 #include <type_traits>
+#include <fast_io/fast_io_dsal/stack.h>
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
+#include <fast_io/fast_io_dsal/string_view.h>
 #include "../container/expected.hh"
 #include "../container/string_view.hh"
 #include "../contracts.hh"
@@ -98,6 +100,32 @@ constexpr bool is_url_value_char(char8_t const chr) noexcept {
 }
 
 /**
+ * @brief Get a character from a fast_io UTF-8 string view with contract checking.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto u8string_view_index(::fast_io::u8string_view pltext, ::std::size_t index) noexcept -> char8_t {
+    pltxt2htm_assert(index < pltext.size(), u8"Index of u8string_view out of bound");
+    return pltext.index_unchecked(index);
+}
+
+/**
+ * @brief Get a subview from a fast_io UTF-8 string view with contract checking.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto u8string_view_subview(::fast_io::u8string_view pltext, ::std::size_t position,
+                                     ::std::size_t count = ::fast_io::containers::npos) noexcept
+    -> ::fast_io::u8string_view {
+    if constexpr (ndebug == ::pltxt2htm::Contracts::ignore) {
+        return pltext.subview_unchecked(position, count);
+    }
+    else {
+        return pltext.subview(position, count);
+    }
+}
+
+/**
  * @brief Variable-template helper for the is_fast_io_vector concept.
  */
 template<typename T>
@@ -145,38 +173,66 @@ constexpr auto vector_index(is_fast_io_vector auto&& vec, ::std::size_t i) noexc
 }
 
 /**
- * @brief Check if a string is a case-insensitive prefix match
- * @details This function performs compile-time prefix matching that is case-insensitive.
- *          It generates efficient if-expressions at compile time for optimal runtime performance.
- * @tparam ndebug Contract checking mode controlling bounds-check behavior.
- * @tparam prefix_str The prefix to match (must be lowercase compile-time string)
- * @param[in] str The string to check against
- * @return true if str starts with prefix_str (case-insensitive), false otherwise
- * @retval bool Boolean indicating whether the prefix match succeeded
- * @note prefix_str must contain only lowercase characters due to compile-time constraints
- * @warning This is a compile-time function that generates optimized matching code
+ * @brief Access the top element of a mutable stack (checked).
+ * @tparam ndebug Contract checking mode.
+ * @tparam T Element type.
+ * @param stack The stack.
+ * @return Reference to the top element.
  */
-template<::pltxt2htm::Contracts ndebug, U8LiteralString prefix_str>
+template<::pltxt2htm::Contracts ndebug, typename T>
+[[nodiscard]]
+constexpr auto& stack_top(::fast_io::containers::stack<T>& stack) noexcept {
+    pltxt2htm_assert(stack.empty() == false, u8"Accessing top but stack is empty");
+
+    return stack.top_unchecked();
+}
+
+/**
+ * @brief Access the top element of a const stack (checked).
+ * @tparam ndebug Contract checking mode.
+ * @tparam T Element type.
+ * @param stack The stack.
+ * @return Const reference to the top element.
+ */
+template<::pltxt2htm::Contracts ndebug, typename T>
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-constexpr bool is_prefix_match(::pltxt2htm::container::U8StringView str) noexcept {
-    // Ensure prefix_str does not contain uppercase characters.
-    constexpr bool has_uppercase = []<::std::size_t... Is>(::std::index_sequence<Is...>) static constexpr noexcept {
-        return (((prefix_str[Is] >= 'A') && (prefix_str[Is] <= 'Z')) || ...);
-    }(::std::make_index_sequence<prefix_str.size()>{});
-    static_assert(!has_uppercase, "prefix_str must not contain uppercase letters");
+constexpr auto const& stack_top(::fast_io::containers::stack<T> const& stack) noexcept {
+    pltxt2htm_assert(stack.empty() == false, u8"Accessing top but stack is empty");
 
-    // Check whether the index is out of bound.
-    if (prefix_str.size() > str.size()) {
-        return false;
-    }
+    return stack.top_unchecked();
+}
+
+/**
+ * @brief Compare a lowercase literal against the beginning of a string, ignoring ASCII case.
+ * @details This function contains the character-comparison logic shared by exact and prefix matching.
+ *          It generates efficient if-expressions at compile time for optimal runtime performance.
+ * @tparam ndebug Contract checking mode controlling bounds-check behavior.
+ * @tparam expected_str The string to match (must be lowercase compile-time string)
+ * @param[in] str The string to check against
+ * @return true if the first expected_str.size() characters match, false otherwise
+ * @pre str.size() must be at least expected_str.size().
+ * @note expected_str must contain only lowercase characters due to compile-time constraints
+ * @warning This is a compile-time function that generates optimized matching code
+ */
+template<::pltxt2htm::Contracts ndebug, U8LiteralString expected_str>
+[[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
+constexpr bool is_ascii_case_insensitive_match(::pltxt2htm::container::U8StringView str) noexcept {
+    // Ensure expected_str does not contain uppercase characters.
+    constexpr bool has_uppercase = []<::std::size_t... Is>(::std::index_sequence<Is...>) static constexpr noexcept {
+        return (((expected_str[Is] >= 'A') && (expected_str[Is] <= 'Z')) || ...);
+    }(::std::make_index_sequence<expected_str.size()>{});
+    static_assert(!has_uppercase, "expected_str must not contain uppercase letters");
 
 #if __cpp_expansion_statements >= 202506L
-    // TODO use `template for (constexpr auto [I, expect] : prefix_str | ::std::views::enumerate)` instead
-    template for (constexpr ::std::size_t I : ::std::ranges::views::iota(::std::size_t{}, prefix_str.size())) {
-        constexpr auto expect = prefix_str[I];
+    // TODO use `template for (constexpr auto [I, expect] : expected_str | ::std::views::enumerate)` instead
+    template for (constexpr ::std::size_t I : ::std::ranges::views::iota(::std::size_t{}, expected_str.size())) {
+        constexpr auto expect = expected_str[I];
         if constexpr ('a' <= expect && expect <= 'z') {
             // ASCII between lowercase and uppercase is 32 (e.g. 'a' - 'A' == 32)
             constexpr ::std::uint8_t diff{32};
@@ -195,7 +251,7 @@ constexpr bool is_prefix_match(::pltxt2htm::container::U8StringView str) noexcep
 #else
     return [str]<::std::size_t... Is>(::std::index_sequence<Is...>) {
         return ([str]<::std::size_t I>() {
-            constexpr auto expect = prefix_str[I];
+            constexpr auto expect = expected_str[I];
             if constexpr ('a' <= expect && expect <= 'z') {
                 // ASCII between lowercase and uppercase is 32 (e.g. 'a' - 'A' == 32)
                 constexpr ::std::uint8_t diff{32};
@@ -207,8 +263,46 @@ constexpr bool is_prefix_match(::pltxt2htm::container::U8StringView str) noexcep
             }
         }.template operator()<Is>() &&
                 ...);
-    }(::std::make_index_sequence<prefix_str.size()>{});
+    }(::std::make_index_sequence<expected_str.size()>{});
 #endif
+}
+
+/**
+ * @brief Check if a string is an ASCII case-insensitive exact match.
+ * @tparam ndebug Contract checking mode controlling bounds-check behavior.
+ * @tparam expected_str The string to match (must be lowercase compile-time string)
+ * @param[in] str The string to check against
+ * @return true if str equals expected_str (ASCII case-insensitive), false otherwise
+ */
+template<::pltxt2htm::Contracts ndebug, U8LiteralString expected_str>
+[[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
+constexpr bool is_exact_match(::pltxt2htm::container::U8StringView str) noexcept {
+    if (expected_str.size() != str.size()) {
+        return false;
+    }
+    return ::pltxt2htm::details::is_ascii_case_insensitive_match<ndebug, expected_str>(str);
+}
+
+/**
+ * @brief Check if a string starts with an ASCII case-insensitive prefix.
+ * @tparam ndebug Contract checking mode controlling bounds-check behavior.
+ * @tparam prefix_str The prefix to match (must be lowercase compile-time string)
+ * @param[in] str The string to check against
+ * @return true if str starts with prefix_str (ASCII case-insensitive), false otherwise
+ */
+template<::pltxt2htm::Contracts ndebug, U8LiteralString prefix_str>
+[[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
+constexpr bool is_prefix_match(::pltxt2htm::container::U8StringView str) noexcept {
+    if (prefix_str.size() > str.size()) {
+        return false;
+    }
+    return ::pltxt2htm::details::is_ascii_case_insensitive_match<ndebug, prefix_str>(str);
 }
 
 /**

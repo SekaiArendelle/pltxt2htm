@@ -25,14 +25,19 @@ int main() {
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
+    // Attributes on <code> are not part of the roundtrip HTML subset.
     {
         auto pltext = ::fast_io::u8string_view{u8"<pre><code class=\"language-cpp\">int x;</code></pre>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"<pre><code class=\"language-cpp\">int&nbsp;x;</code></pre>"};
+        auto answer = ::fast_io::u8string_view{
+            u8"&lt;pre&gt;&lt;code&nbsp;class=&quot;language-cpp&quot;&gt;int&nbsp;x;&lt;/code&gt;&lt;/pre&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer =
-            ::fast_io::u8string_view{u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\nint\u00A0x;\n</font>"};
+        auto plunity_richtext_answer = ::fast_io::u8string_view{
+            u8"<size=20>\uff1c</size>pre<size=20>\uff1e</size><size=20>\uff1c</size>code\u00A0class=\"language-cpp\""
+            u8"<size=20>\uff1e</size>int\u00A0x;<size=20>\uff1c</size>/code<size=20>\uff1e</size><size=20>\uff1c</"
+            u8"size>/"
+            u8"pre<size=20>\uff1e</size>"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 
@@ -45,6 +50,63 @@ int main() {
         auto plunity_richtext_answer =
             ::fast_io::u8string_view{u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\nline1\nline2\n</font>"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    // HTML code content is literal in the PL text frontend as well as in the HTML frontend.
+    {
+        auto const pltext = ::fast_io::u8string_view{u8"<pre><code>a\\&b\\*</code></pre>"};
+        auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const answer = ::fast_io::u8string_view{u8"<pre><code>a\\&amp;b\\*</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Canonical style spans emitted by the HTML backend remain markup inside code blocks.
+    {
+        auto const pltext =
+            ::fast_io::u8string_view{u8"<pre><code><span style=\"color:#cf222e;\">int</span>&nbsp;x;</code></pre>"};
+        auto const html = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
+        pltxt2htm_test_assert_equal(html, pltext);
+        auto const plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto const plunity_richtext_answer = ::fast_io::u8string_view{
+            u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\n<color=#cf222e>int</color>&nbsp;x;\n</font>"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    {
+        auto const pltext = ::fast_io::u8string_view{
+            u8"<pre><code><span style=\"color:red;font-size:12px;vertical-align:2px;\">x</span></code></pre>"};
+        auto const html = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
+        pltxt2htm_test_assert_equal(html, pltext);
+    }
+
+    // An unterminated style span is closed with the surrounding code block.
+    {
+        auto const html =
+            ::pltxt2htm_test::pltxt4htmlunittest(u8"<pre><code><span style=\"color:red;\">text</code></pre>");
+        auto const answer =
+            ::fast_io::u8string_view{u8"<pre><code><span style=\"color:red;\">text</span></code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    // Once the opening tags match, an unterminated code block extends to EOF.
+    {
+        auto const pltext = ::fast_io::u8string_view{u8"<pre><code>a\n<pre><code>b"};
+        auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const answer = ::fast_io::u8string_view{u8"<pre><code>a\n&lt;pre&gt;&lt;code&gt;b</code></pre>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto const html_parser_result = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
+        pltxt2htm_test_assert_equal(html_parser_result, answer);
+    }
+
+    // Unterminated style spans and their surrounding code block are both closed at EOF.
+    {
+        auto const pltext = ::fast_io::u8string_view{u8"<pre><code><span style=\"color:red;\">text"};
+        auto const answer =
+            ::fast_io::u8string_view{u8"<pre><code><span style=\"color:red;\">text</span></code></pre>"};
+        auto const html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        pltxt2htm_test_assert_equal(html, answer);
+        auto const html_parser_result = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
+        pltxt2htm_test_assert_equal(html_parser_result, answer);
     }
 
     // <pre> wrapping anything other than <code> is literal escaped text
