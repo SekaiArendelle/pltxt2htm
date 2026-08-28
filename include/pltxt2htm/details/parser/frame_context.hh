@@ -1368,10 +1368,12 @@ public:
         case ::pltxt2htm::NodeKind::md_latex_inline:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_latex_block: {
-            return context_data_ref.as_pltext().pltext;
+            auto&& active_context_data{context_data_ref.as_pltext()};
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::list_li_checkbox: {
-            return context_data_ref.as_list_li_checkbox().pltext;
+            auto&& active_context_data{context_data_ref.as_list_li_checkbox()};
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_color:
             [[fallthrough]];
@@ -1388,55 +1390,71 @@ public:
         case ::pltxt2htm::NodeKind::pl_internal:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_user: {
-            return context_data_ref.as_equal_sign_tag().pltext;
+            auto&& active_context_data{context_data_ref.as_equal_sign_tag()};
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_external: {
-            return context_data_ref.as_url_info().pltext;
+            auto&& active_context_data{context_data_ref.as_url_info()};
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_link: {
-            return context_data_ref.as_url_info().pltext;
+            auto&& active_context_data{context_data_ref.as_url_info()};
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_size: {
-            return context_data_ref.as_pl_size_tag().pltext;
+            auto&& active_context_data{context_data_ref.as_pl_size_tag()};
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_voffset: {
-            return context_data_ref.as_pl_voffset_tag().pltext;
+            auto&& active_context_data{context_data_ref.as_pl_voffset_tag()};
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_margin: {
-            return context_data_ref.as_pl_margin_tag().pltext;
+            auto&& active_context_data{context_data_ref.as_pl_margin_tag()};
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_align: {
-            return context_data_ref.as_align_info().pltext;
+            auto&& active_context_data{context_data_ref.as_align_info()};
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::html_span: {
-            return context_data_ref.as_html_span_info().pltext;
+            auto&& active_context_data{context_data_ref.as_html_span_info()};
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::html_div: {
-            return context_data_ref.as_html_div_info().pltext;
+            auto&& active_context_data{context_data_ref.as_html_div_info()};
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::html_mark: {
-            return context_data_ref.as_html_mark_info().pltext;
+            auto&& active_context_data{context_data_ref.as_html_mark_info()};
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_mark: {
-            return context_data_ref.as_pl_mark_info().pltext;
+            auto&& active_context_data{context_data_ref.as_pl_mark_info()};
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::html_a: {
-            return context_data_ref.as_html_a_tag_info().pltext;
+            auto&& active_context_data{context_data_ref.as_html_a_tag_info()};
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::md_block_quotes: {
-            auto const& pltext = context_data_ref.as_md_block_quotes().pltext;
+            auto&& active_context_data{context_data_ref.as_md_block_quotes()};
+            auto const& pltext = active_context_data.pltext;
             return ::pltxt2htm::container::U8StringView{pltext};
         }
         case ::pltxt2htm::NodeKind::md_link: {
-            return context_data_ref.as_url_info().pltext;
+            auto&& active_context_data{context_data_ref.as_url_info()};
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::html_p: {
-            return context_data_ref.as_align_info().pltext;
+            auto&& active_context_data{context_data_ref.as_align_info()};
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::table_th:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::table_td: {
-            return context_data_ref.as_cell().pltext;
+            auto&& active_context_data{context_data_ref.as_cell()};
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_macro_project:
             [[fallthrough]];
@@ -1671,16 +1689,18 @@ constexpr auto process_table_frame(::pltxt2htm::details::CallStack<ParserFrame<n
 
     switch (state) /* -Werror=switch */ {
     case TableParsePhase::caption: {
+        auto&& active_frame_data{frame.as_table()};
         if (raw_ast.has_caption()) {
             call_stack.push_frame(
                 ParserFrame<ndebug>(FrontendContextVariant<ndebug>{ParserFrameContextWithPltextInfo{raw_ast.caption()},
                                                                    ::pltxt2htm::NodeKind::table_caption},
                                     ::pltxt2htm::Ast<ndebug>{}));
         }
-        frame.as_table().state = TableParsePhase::body;
+        active_frame_data.state = TableParsePhase::body;
         return ::pltxt2htm::container::nullopt;
     }
     case TableParsePhase::body: {
+        auto&& active_frame_data{frame.as_table()};
         if (row_index < raw_ast.rows_count()) {
             auto const row_cells = raw_ast.row_cells(row_index);
             if (cell_index < row_cells.size()) {
@@ -1690,14 +1710,14 @@ constexpr auto process_table_frame(::pltxt2htm::details::CallStack<ParserFrame<n
                         ParserFrameContextWithCellInfo{::pltxt2htm::container::U8StringView{cell.text}, cell.align},
                         cell.is_header ? ::pltxt2htm::NodeKind::table_th : ::pltxt2htm::NodeKind::table_td},
                     ::pltxt2htm::Ast<ndebug>{}));
-                frame.as_table().cell_index = cell_index + 1;
+                active_frame_data.cell_index = cell_index + 1;
                 return ::pltxt2htm::container::nullopt;
             }
-            frame.as_table().row_index = row_index + 1;
-            frame.as_table().cell_index = 0;
+            active_frame_data.row_index = row_index + 1;
+            active_frame_data.cell_index = 0;
             return ::pltxt2htm::container::nullopt;
         }
-        frame.as_table().state = TableParsePhase::finish;
+        active_frame_data.state = TableParsePhase::finish;
         return ::pltxt2htm::container::nullopt;
     }
     case TableParsePhase::finish: {
