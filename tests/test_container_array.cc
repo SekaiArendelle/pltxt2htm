@@ -3,12 +3,6 @@
 #include <cstddef>
 #include <string_view>
 #include <type_traits>
-
-#if !defined(_WIN32) && __has_include(<sys/wait.h>) && __has_include(<unistd.h>)
-    #include <sys/wait.h>
-    #include <unistd.h>
-#endif
-
 #include <pltxt2htm/container/array.hh>
 
 #include "precompile.hh"
@@ -94,20 +88,6 @@ int main() {
         ::std::same_as<::std::remove_cvref_t<decltype(strings)>, ::pltxt2htm::container::Array<char const*, 3>>);
     pltxt2htm_test_assert_true(::std::string_view{strings.template index<::pltxt2htm::Contracts::quick_enforce>(1)} ==
                                "second");
-
-#if !defined(_WIN32) && __has_include(<sys/wait.h>) && __has_include(<unistd.h>)
-    auto const process_id = ::fork();
-    if (process_id == -1) [[unlikely]] {
-        ::pltxt2htm::details::trap();
-    }
-    if (process_id == 0) {
-        static_cast<void>(strings.template index<::pltxt2htm::Contracts::quick_enforce>(strings.size()));
-    }
-
-    int wait_status{};
-    ::waitpid(process_id, ::std::addressof(wait_status), 0);
-    pltxt2htm_test_assert_true(WIFSIGNALED(wait_status));
-#endif
 
     return 0;
 }

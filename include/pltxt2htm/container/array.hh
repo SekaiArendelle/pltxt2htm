@@ -212,7 +212,9 @@ constexpr auto operator==(Array<T, left_extent> const& left, Array<T, right_exte
     if constexpr (left_extent != right_extent) {
         return false;
     }
-    return ::std::equal(left.begin(), left.end(), right.begin());
+    else {
+        return ::std::equal(left.begin(), left.end(), right.begin());
+    }
 }
 
 template<typename T, ::std::size_t left_extent, ::std::size_t right_extent>
