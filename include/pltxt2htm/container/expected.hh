@@ -276,41 +276,31 @@ public:
     template<typename U>
         requires (::std::same_as<U, value_type>)
     [[nodiscard]]
-    constexpr auto value_or(U& val) & noexcept -> value_type& {
-        if (this->has_value() == false) {
+    constexpr auto value_or(this Expected<Ok, Fail>& self, U& val) noexcept -> value_type& {
+        if (self.has_value() == false) {
             return val;
         }
-        return this->value_storage;
+        return self.value_storage;
     }
 
     template<typename U>
         requires (::std::same_as<U, value_type>)
     [[nodiscard]]
-    constexpr auto value_or(U const& val) const& noexcept -> value_type const& {
-        if (this->has_value() == false) {
+    constexpr auto value_or(this Expected<Ok, Fail> const& self, U const& val) noexcept -> value_type const& {
+        if (self.has_value() == false) {
             return val;
         }
-        return this->value_storage;
+        return self.value_storage;
     }
 
     template<typename U>
         requires (::std::same_as<U, value_type>)
     [[nodiscard]]
-    constexpr auto value_or(U&& val) && noexcept -> value_type&& {
-        if (this->has_value() == false) {
+    constexpr auto value_or(this Expected<Ok, Fail>&& self, U&& val) noexcept -> value_type&& {
+        if (self.has_value() == false) {
             return ::std::move(val);
         }
-        return ::std::move(this->value_storage);
-    }
-
-    template<typename U>
-        requires (::std::same_as<U, value_type>)
-    [[nodiscard]]
-    constexpr auto value_or(U const&& val) const&& noexcept -> value_type const&& {
-        if (this->has_value() == false) {
-            return ::std::move(val);
-        }
-        return ::std::move(this->value_storage);
+        return ::std::move(self.value_storage);
     }
 
     constexpr bool operator==(this Expected const& self, Expected const& rhs) noexcept

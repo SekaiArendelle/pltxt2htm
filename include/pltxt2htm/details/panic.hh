@@ -58,8 +58,9 @@ inline void panic() noexcept {
 #if __cpp_lib_stacktrace >= 202011L && defined(PLTXT2HTM_ENABLE_STACKTRACE)
     ::std::fputs("* stack trace:\n", stderr);
     auto stacktrace = ::std::stacktrace::current();
-    for (::std::size_t i = 0; i < stacktrace.size(); ++i) {
-        const auto& entry = stacktrace[i];
+    auto const stacktrace_size = stacktrace.size();
+    for (::std::size_t i = 0; i < stacktrace_size; ++i) {
+        auto const& entry = stacktrace[i];
 
         // Print frame number and function description
         if (entry.description().size() > 0) {

@@ -2125,23 +2125,18 @@ entry:
                 parent_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::md_atx_h1: {
-                pltxt2htm_unreachable(u8"Unexpected block node kind in inline context");
-            }
-            case ::pltxt2htm::NodeKind::md_atx_h2: {
-                pltxt2htm_unreachable(u8"Unexpected block node kind in inline context");
-            }
-            case ::pltxt2htm::NodeKind::md_atx_h3: {
-                pltxt2htm_unreachable(u8"Unexpected block node kind in inline context");
-            }
-            case ::pltxt2htm::NodeKind::md_atx_h4: {
-                pltxt2htm_unreachable(u8"Unexpected block node kind in inline context");
-            }
-            case ::pltxt2htm::NodeKind::md_atx_h5: {
-                pltxt2htm_unreachable(u8"Unexpected block node kind in inline context");
-            }
+            case ::pltxt2htm::NodeKind::md_atx_h1:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_atx_h2:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_atx_h3:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_atx_h4:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_atx_h5:
+                [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_atx_h6: {
-                pltxt2htm_unreachable(u8"Unexpected block node kind in inline context");
+                [[unlikely]] { pltxt2htm_unreachable(u8"Unexpected block node kind in inline context"); }
             }
             case ::pltxt2htm::NodeKind::md_code_span_1_backtick: {
                 parent_ast.push_back(
