@@ -159,10 +159,11 @@ consteval auto uint_to_literal_string() noexcept {
 template<typename result_type>
 consteval void concat_memcpy(::pltxt2htm::details::is_literal_string auto const& args, ::std::size_t& index,
                              result_type& result) noexcept {
-    for (::std::size_t i{}; i < args.size(); ++i) {
+    auto const args_size = args.size();
+    for (::std::size_t i{}; i < args_size; ++i) {
         result[i + index] = args[i];
     }
-    index += args.size();
+    index += args_size;
 }
 
 /**

@@ -135,8 +135,7 @@ General:
 Follow the existing low-runtime, cross-platform style used in core headers:
 
 - **Use relative paths for internal includes:**
-  - In files under `include/pltxt2htm/`, include other `pltxt2htm` headers with a quoted path relative to the including file, for example `#include "../contracts.hh"` or `#include "../../container/expected.hh"`.
-  - Do not use project-root angle-bracket includes such as `#include <pltxt2htm/details/push_macro.hh>` inside `include/pltxt2htm/`.
+  - In files under `include/pltxt2htm/`, include other `pltxt2htm` headers with quoted paths relative to the including file, for example `#include "../contracts.hh"`; do not use project-root angle-bracket includes such as `#include <pltxt2htm/details/push_macro.hh>` there.
   - Continue to use angle brackets for standard-library and external dependency headers.
 - **Do not name lambdas:**
   - Never write `auto name = [](...) { ... };` and call by name later.
@@ -152,51 +151,39 @@ Follow the existing low-runtime, cross-platform style used in core headers:
 - **Hoist loop-invariant expressions manually:**
   - Cache expressions that are unchanged for the full loop instead of relying on the compiler to move repeated work out of the loop.
   - Only hoist an expression when loop-body mutations and aliasing cannot change its result, and do not turn conditionally evaluated work into unconditional work.
-- **Prefer compile-time evaluation:**
-  - Write functions as `constexpr` (or `consteval` when required) whenever semantics allow.
-  - Keep parsing/helpers friendly to compile-time checking where practical.
-- **Prefer `constexpr` function definitions by default:**
-  - Prefix function/method definitions with `constexpr` whenever the language permits (the entrypoint `main` is the exception).
-  - Do not write `inline constexpr`; use `constexpr` directly (it is already inline).
-- **Avoid leading `const` (use postfix `const`):**
+- **Prefer compile-time evaluation and `constexpr` definitions:**
+  - Mark function and method definitions `constexpr` whenever permitted; `main` is exempt.
+  - Use `consteval` when compile-time evaluation is required, and keep parsers/helpers constexpr-friendly.
+  - Do not write `inline constexpr`; `constexpr` functions are already inline.
+- **Use postfix `const`:**
   - Write the cv-qualifier after the type it qualifies (`int const`, `T const&`, `auto const`) rather than before it (`const int`, `const T&`, `const auto`).
   - `const` always binds to the declaration to its left, so postfix placement makes `int const*` (pointer to const int) vs `int* const` (const pointer to int) unambiguous at a glance.
-- **Avoid C++ runtime-heavy standard library components:**
-  - Do not introduce dependencies such as iostream/locale/RTTI-driven facilities for core logic.
-  - Prefer existing project choices (`fast_io` containers/string types and `exception` utilities).
-- **No exception-based control flow:**
-  - Do not throw/catch exceptions in core code paths.
-  - Use existing assertion + terminate/panic patterns for unrecoverable states.
-- **No RTTI / dynamic polymorphism patterns:**
-  - Do not use `dynamic_cast` or virtual dispatch for new logic.
+- **Keep core runtime dependencies lightweight and static:**
+  - Avoid runtime-heavy facilities such as iostream and locale; prefer existing `fast_io` containers/string types and exception utilities.
+  - Do not throw or catch exceptions in core code paths; use the existing assertion and terminate/panic infrastructure.
+  - Do not introduce RTTI or runtime polymorphism such as `dynamic_cast` and new virtual dispatch.
 - **Avoid macros:**
   - Do not introduce new macros for regular logic, constants, or API design.
-  - Prefer `constexpr`/`consteval`, templates, and inline functions.
+  - Prefer `constexpr`/`consteval` functions and templates.
   - Keep macro usage only for tightly scoped compatibility/assertion infrastructure when unavoidable.
 - **Forbid `volatile` and `register`:**
   - Do not introduce `volatile` or `register` in new code.
 - **Prefer C++23 deducing-`this`:**
-  - For member functions, prefer explicit object parameters (deducing-`this`) over implicit `this` pointer style when practical.
-  - Keep const/ref-qualified overload behavior explicit via the object parameter form.
-  - Pick the object-parameter form that matches the access the body needs; do not default to `this auto&&`:
-    - `this Class& self` — mutating functions and accessors returning a non-const reference.
-    - `this Class const& self` — read-only functions returning by value (including `string_view`, enums, `ValueWithUnit`).
-    - `this auto&& self` (with `decltype(auto)` + `::std::forward_like`) — only when the function must forward the object's value category and constness, e.g. returning a reference to a member on both const and non-const objects.
-  - `this auto&&` is a template: every distinct deduced object type produces a separate instantiation. On read-only getters it both bloats code (const/non-const/rvalue variants) and lets the member be called on rvalues, so prefer a concrete `&`/`const&` form unless forwarding is genuinely needed.
-- **Use deducing-`this` for `operator=`:**
-  - All non-`= delete` `operator=` overloads must use the C++23 deducing-`this` form with an lvalue reference object parameter (`this X& self`) to prevent assignment to temporaries.
-  - `= delete` overloads are exempt since they already prevent any use.
+  - Prefer explicit object parameters for member functions when practical, keeping const/ref-qualified behavior explicit:
+    - `this Class& self` for mutation and non-const reference access.
+    - `this Class const& self` for read-only, by-value access.
+    - `this auto&& self` with `decltype(auto)` and `::std::forward_like` only when forwarding constness and value category is required.
+  - Avoid `this auto&&` for ordinary getters because it permits rvalue calls and creates additional instantiations.
+  - Every non-deleted `operator=` must use an lvalue explicit object parameter (`this X& self`) to prevent assignment to temporaries; deleted overloads are exempt.
 - **Prefer fully qualified namespace style for function calls:**
   - Prefer `::ns::fn` when calling free functions to avoid accidental ADL-based calls.
   - Types and classes may be referenced with or without leading `::`; the fully qualified form is optional there and not required.
 - **Prefer unambiguous initialization:**
   - Prefer brace initialization (`T x{...}`) when constructing typed instances.
   - Avoid initialization forms that look like declarations but actually construct objects (the "most vexing parse" style).
-- **Mark terminal error branches as cold paths:**
-  - For branches that call `exit`/`terminate`, mark the branch with `[[unlikely]]`.
-  - For branches that end in `unreachable`, mark the branch with `[[unlikely]]` as well.
-- **Prefer guard-clause error handling:**
-  - Return early on failure (for example, `if (!ok) { return err; }`) and keep the normal path unindented below.
+- **Keep error paths explicit and out of the normal flow:**
+  - Prefer guard clauses and keep the successful path unindented.
+  - Mark branches ending in `exit`, `terminate`, or `unreachable` with `[[unlikely]]`.
 - **Write exhaustive tagged-union switches like pattern matches:**
   - Put each `case` body in its own braced scope. Consecutive labels that deliberately share one body may precede that
     single braced scope.

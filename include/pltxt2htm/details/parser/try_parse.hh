@@ -8,8 +8,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <utility>
+#include "../../container/array.hh"
 #include "../../container/expected.hh"
-#include <fast_io/fast_io_dsal/array.h>
 #include "../../container/string_view.hh"
 #include "../utils.hh"
 #include "../../contracts.hh"
@@ -1757,7 +1757,7 @@ constexpr auto try_parse_vertical_align_value(::pltxt2htm::container::U8StringVi
         ::pltxt2htm::container::U8StringView spelling;
     };
 
-    static constexpr auto keywords = ::fast_io::array{
+    static constexpr auto keywords = ::pltxt2htm::container::Array{
         VerticalAlignKeywordEntry{::pltxt2htm::VerticalAlignKeyword::baseline,
                                   ::pltxt2htm::container::U8StringView{u8"baseline"}},
         VerticalAlignKeywordEntry{::pltxt2htm::VerticalAlignKeyword::text_bottom,

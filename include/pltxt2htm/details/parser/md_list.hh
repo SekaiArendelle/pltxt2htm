@@ -192,18 +192,15 @@ constexpr auto is_valid_md_ol_list_hierarchy(::pltxt2htm::container::U8StringVie
             return ::pltxt2htm::container::nullopt;
         }
         MdUlListItemKind ordered_kind;
-        switch (pltext.template index<ndebug>(i)) {
-        case u8'.': {
+        auto const ordered_marker = pltext.template index<ndebug>(i);
+        if (ordered_marker == u8'.') {
             ordered_kind = MdUlListItemKind::ordered_item;
-            break;
         }
-        case u8')': {
+        else if (ordered_marker == u8')') {
             ordered_kind = MdUlListItemKind::ordered_item_paren;
-            break;
         }
-        default: {
+        else {
             return ::pltxt2htm::container::nullopt;
-        }
         }
         if (++i >= pltext_size) {
             return ::pltxt2htm::container::nullopt;

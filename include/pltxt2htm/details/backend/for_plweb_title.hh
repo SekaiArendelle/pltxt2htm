@@ -8,7 +8,6 @@
 #pragma once
 
 #include <fast_io/fast_io_dsal/list.h>
-#include <fast_io/fast_io_dsal/array.h>
 #include "../call_stack.hh"
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
@@ -439,11 +438,6 @@ entry:
                 result.append(u8"{CoAuthors}");
                 continue;
             }
-            case ::pltxt2htm::NodeKind::md_hr:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_hr: {
-                pltxt2htm_unreachable(u8"Unexpected block node kind in title backend");
-            }
             case ::pltxt2htm::NodeKind::html_note:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::table_col:
@@ -523,23 +517,6 @@ entry:
                 ++current_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_div:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_p:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_h1:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_h2:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_h3:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_h4:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_h5:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_h6: {
-                pltxt2htm_unreachable(u8"Unexpected block node kind in title backend");
-            }
             case ::pltxt2htm::NodeKind::md_del: {
                 auto&& active_node{node.as_md_del()};
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::text, 0));
@@ -594,15 +571,6 @@ entry:
                 ++current_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::list_ul:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::list_ol:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::list_li_checkbox:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::list_li: {
-                pltxt2htm_unreachable(u8"Unexpected block node kind in title backend");
-            }
             case ::pltxt2htm::NodeKind::md_latex_inline: {
                 auto&& active_node{node.as_md_latex_inline()};
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::text, 0));
@@ -614,44 +582,6 @@ entry:
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::text, 0));
                 ++current_index;
                 goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_atx_h1:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_atx_h2:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_atx_h3:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_atx_h4:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_atx_h5:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_atx_h6:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::table:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::table_tr:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::table_td:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::table_th:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::table_thead:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::table_tbody:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::table_tfoot:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::table_caption:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::table_colgroup:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::html_blockquote: {
-                pltxt2htm_unreachable(u8"Unexpected block node kind in title backend");
-            }
-            case ::pltxt2htm::NodeKind::md_block_quotes:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::code_fence: {
-                pltxt2htm_unreachable(u8"Unexpected block node kind in title backend");
             }
             case ::pltxt2htm::NodeKind::md_code_span_1_backtick: {
                 auto&& active_node{node.as_md_code_span_1_backtick()};
@@ -724,12 +654,76 @@ entry:
                 ++current_index;
                 goto entry;
             }
+            case ::pltxt2htm::NodeKind::md_hr:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_hr:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_div:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_p:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_h1:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_h2:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_h3:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_h4:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_h5:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_h6:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::list_ul:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::list_ol:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::list_li_checkbox:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::list_li:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_atx_h1:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_atx_h2:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_atx_h3:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_atx_h4:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_atx_h5:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_atx_h6:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::table:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::table_tr:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::table_td:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::table_th:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::table_thead:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::table_tbody:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::table_tfoot:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::table_caption:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::table_colgroup:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_blockquote:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_block_quotes:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::code_fence:
 #ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
+                [[fallthrough]];
             default:
+#endif
                 [[unlikely]] {
                     pltxt2htm_unreachable(u8"Unexpected node kind in title backend");
                 }
-#endif
             }
         }
 
