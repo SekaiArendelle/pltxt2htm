@@ -21,8 +21,8 @@ namespace pltxt2htm {
 enum class NodeKind : unsigned {
     // Character and basic text nodes
     u8char = 0, ///< Valid UTF-8 character
-    invalid_u8char, ///< Invalid UTF-8 character (replacement character)
-    text, ///< Text container node (groups characters and inline elements)
+    invalid_utf8, ///< Invalid UTF-8 input (replacement character)
+    group, ///< Transparent container node (groups characters and inline elements)
     url, ///< Auto-detected URL link: https://example.com
 
     // Whitespace and special characters

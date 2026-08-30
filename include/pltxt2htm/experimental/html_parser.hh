@@ -1218,7 +1218,7 @@ constexpr auto parse_pltxt_html(::pltxt2htm::container::U8StringView html_text) 
 
     call_stack.push_frame(::pltxt2htm::details::ParserFrame<ndebug>(
         ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-            ::pltxt2htm::details::ParserFrameContextWithPltextInfo{html_text}, ::pltxt2htm::NodeKind::text},
+            ::pltxt2htm::details::ParserFrameContextWithPltextInfo{html_text}, ::pltxt2htm::NodeKind::group},
         ::pltxt2htm::Ast<ndebug>{}));
 
     auto result = details::parse_pltxt_html<ndebug>(call_stack);

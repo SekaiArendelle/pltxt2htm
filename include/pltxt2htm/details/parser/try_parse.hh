@@ -165,21 +165,21 @@ constexpr auto try_parse_md_escape(::pltxt2htm::container::U8StringView pltext) 
  * @brief Parse a single UTF-8 code point and append the corresponding AST node(s).
  *
  * This function inspects the first byte of `pltext` and appends either UTF-8 bytes
- * (as U8Char nodes) or one InvalidU8Char node to `result`.
+ * (as U8Char nodes) or one InvalidUtf8 node to `result`.
  *
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @param[in] pltext Input view starting at the current parser position.
  * @param[out] result The AST to which parsed character nodes are appended.
  * @return Total number of bytes consumed (1..4). The caller should advance by `return_value`.
  * @note ASCII bytes append one U8Char and return 1.
- * @note Control characters 0x00-0x1F and 0x7F produce an InvalidU8Char node.
+ * @note Control characters 0x00-0x1F and 0x7F produce an InvalidUtf8 node.
  * @warning Previously these were silently dropped, which caused a crash when they appeared
  *          inside emphasis structures (***...***, **...**, *...*, etc.): the inline parser
  *          accepted them as valid content, but the sub-AST ended up empty because no node
  *          was emitted, triggering an assertion in the optimizer
- *          ("md_triple_emphasis subast must not be empty"). Emitting InvalidU8Char ensures
+ *          ("md_triple_emphasis subast must not be empty"). Emitting InvalidUtf8 ensures
  *          the sub-AST is never empty for structural nodes.
- * @note Invalid sequences append one InvalidU8Char. The return value may be greater than 1 when
+ * @note Invalid sequences append one InvalidUtf8. The return value may be greater than 1 when
  *       continuation bytes are consumed as part of one invalid sequence.
  * @see https://en.wikipedia.org/wiki/UTF-8
  */
@@ -191,7 +191,7 @@ constexpr auto parse_utf8_code_point(::pltxt2htm::container::U8StringView const&
     char8_t const chr{pltext.template index<ndebug>(0)};
 
     if (chr <= 0x1f || chr == 0x7f) {
-        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidUtf8{}));
         return 1;
     }
     if ((chr & 0x80) == 0) {
@@ -201,17 +201,17 @@ constexpr auto parse_utf8_code_point(::pltxt2htm::container::U8StringView const&
     }
     if ((chr & 0xE0) == 0xC0) {
         if (1 >= pltext_size) {
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidUtf8{}));
             return 1;
         }
         auto const next_char = pltext.template index<ndebug>(1);
         if ((next_char & 0xC0) != 0x80) {
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidUtf8{}));
             return 1;
         }
         char32_t const combine{static_cast<char32_t>(chr & 0x1F) << 6 | static_cast<char32_t>(next_char & 0x3F)};
         if (combine < 0x80 || combine > 0x7FF) {
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidUtf8{}));
             return 2;
         }
 
@@ -221,7 +221,7 @@ constexpr auto parse_utf8_code_point(::pltxt2htm::container::U8StringView const&
     }
     if ((chr & 0xF0) == 0xE0) {
         if (2 >= pltext_size) {
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidUtf8{}));
             if (pltext_size != 2) {
                 return 1;
             }
@@ -233,22 +233,22 @@ constexpr auto parse_utf8_code_point(::pltxt2htm::container::U8StringView const&
         }
         auto const next_char = pltext.template index<ndebug>(1);
         if ((next_char & 0xC0) != 0x80) {
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidUtf8{}));
             return 1;
         }
         auto const next_char2 = pltext.template index<ndebug>(2);
         if ((next_char2 & 0xC0) != 0x80) {
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidUtf8{}));
             return 2;
         }
         char32_t const combine{static_cast<char32_t>(chr & 0x0f) << 12 | static_cast<char32_t>(next_char & 0x3f) << 6 |
                                static_cast<char32_t>(next_char2 & 0x3f)};
         if (combine < 0x800 || combine > 0xffff) {
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidUtf8{}));
             return 3;
         }
         if (0xd800 <= combine && combine <= 0xdfff) {
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidUtf8{}));
             return 3;
         }
 
@@ -259,7 +259,7 @@ constexpr auto parse_utf8_code_point(::pltxt2htm::container::U8StringView const&
     }
     if ((chr & 0xF8) == 0xF0) {
         if (3 >= pltext_size) {
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidUtf8{}));
             if (pltext_size < 2) {
                 return 1;
             }
@@ -278,24 +278,24 @@ constexpr auto parse_utf8_code_point(::pltxt2htm::container::U8StringView const&
         }
         auto const next_char = pltext.template index<ndebug>(1);
         if ((next_char & 0xC0) != 0x80) {
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidUtf8{}));
             return 1;
         }
         auto const next_char2 = pltext.template index<ndebug>(2);
         if ((next_char2 & 0xC0) != 0x80) {
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidUtf8{}));
             return 2;
         }
         auto const next_char3 = pltext.template index<ndebug>(3);
         if ((next_char3 & 0xC0) != 0x80) {
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidUtf8{}));
             return 3;
         }
         char32_t const combine{static_cast<char32_t>(chr & 0x07) << 18 | static_cast<char32_t>(next_char & 0x3F) << 12 |
                                static_cast<char32_t>(next_char2 & 0x3F) << 6 |
                                static_cast<char32_t>(next_char3 & 0x3F)};
         if (combine < 0x10000 || combine > 0x10FFFF) {
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidUtf8{}));
             return 4;
         }
         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{chr}));
@@ -304,7 +304,7 @@ constexpr auto parse_utf8_code_point(::pltxt2htm::container::U8StringView const&
         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{next_char3}));
         return 4;
     }
-    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
+    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidUtf8{}));
     return 1;
 }
 

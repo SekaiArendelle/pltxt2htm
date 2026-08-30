@@ -40,7 +40,7 @@ constexpr void convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> c
             out.push_back(active_node.chr);
             continue;
         }
-        case ::pltxt2htm::NodeKind::invalid_u8char: {
+        case ::pltxt2htm::NodeKind::invalid_utf8: {
             out.append(u8"\uFFFD");
             continue;
         }
@@ -287,7 +287,7 @@ constexpr auto plweb_text_backend(::pltxt2htm::Ast<ndebug> const& ast_init, ::pl
                                   ::pltxt2htm::container::U8StringView coauthors) noexcept -> ::fast_io::u8string {
     ::fast_io::u8string result{};
     ::pltxt2htm::details::CallStack<BackendFrame<ndebug>> call_stack{};
-    call_stack.push_frame(BackendFrame<ndebug>(ast_init, ::pltxt2htm::NodeKind::text, 0));
+    call_stack.push_frame(BackendFrame<ndebug>(ast_init, ::pltxt2htm::NodeKind::group, 0));
 
 entry:
     while (true) {
@@ -305,13 +305,13 @@ entry:
                 result.push_back(active_node.chr);
                 continue;
             }
-            case ::pltxt2htm::NodeKind::invalid_u8char: {
+            case ::pltxt2htm::NodeKind::invalid_utf8: {
                 result.append(u8"\uFFFD");
                 continue;
             }
-            case ::pltxt2htm::NodeKind::text: {
-                auto&& active_node{node.as_text()};
-                call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::text, 0));
+            case ::pltxt2htm::NodeKind::group: {
+                auto&& active_node{node.as_group()};
+                call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::group, 0));
                 ++current_index;
                 goto entry;
             }
@@ -510,7 +510,7 @@ entry:
                 ++current_index;
                 if constexpr (mode == PlWebTextBackendMode::roundtrip) {
                     call_stack.push_frame(
-                        BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::text, 0));
+                        BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::group, 0));
                     goto entry;
                 }
                 else {
@@ -1618,7 +1618,7 @@ entry:
                 return result;
             }
             switch (top_frame.get_nested_tag_type()) {
-            case ::pltxt2htm::NodeKind::text: {
+            case ::pltxt2htm::NodeKind::group: {
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_span:

@@ -68,7 +68,7 @@ constexpr auto inline_parse_pltxt(::pltxt2htm::details::CallStack<ParserFrame<nd
     pltxt2htm_assert(root_stack_size != 0, u8"inline parser call_stack is empty");
     auto const root_kind = call_stack.template current_frame<ndebug>().get_nested_tag_type();
     pltxt2htm_assert(
-        root_kind == ::pltxt2htm::NodeKind::text || ::pltxt2htm::details::is_inline_content_frame_kind(root_kind),
+        root_kind == ::pltxt2htm::NodeKind::group || ::pltxt2htm::details::is_inline_content_frame_kind(root_kind),
         u8"unexpected inline parser root frame kind");
 
 entry:
@@ -1647,7 +1647,7 @@ entry:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::md_atx_h6:
                         [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::text:
+                    case ::pltxt2htm::NodeKind::group:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::list_li:
                         [[fallthrough]];
@@ -1699,7 +1699,7 @@ entry:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::u8char:
                         [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::invalid_u8char:
+                    case ::pltxt2htm::NodeKind::invalid_utf8:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::line_break:
                         [[fallthrough]];
@@ -2211,9 +2211,9 @@ entry:
             }
             case ::pltxt2htm::NodeKind::u8char:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::invalid_u8char:
+            case ::pltxt2htm::NodeKind::invalid_utf8:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::text:
+            case ::pltxt2htm::NodeKind::group:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::line_break:
                 [[fallthrough]];
@@ -2364,7 +2364,7 @@ constexpr auto inline_parse_pltxt(::pltxt2htm::container::U8StringView input_plt
     ::pltxt2htm::details::CallStack<::pltxt2htm::details::ParserFrame<ndebug>> call_stack{};
     call_stack.push_frame(::pltxt2htm::details::ParserFrame<ndebug>(
         ::pltxt2htm::details::FrontendContextVariant<ndebug>{
-            ::pltxt2htm::details::ParserFrameContextWithPltextInfo{input_pltext}, ::pltxt2htm::NodeKind::text},
+            ::pltxt2htm::details::ParserFrameContextWithPltextInfo{input_pltext}, ::pltxt2htm::NodeKind::group},
         ::pltxt2htm::Ast<ndebug>{}));
 
     ::pltxt2htm::details::inline_parse_pltxt<ndebug>(call_stack);

@@ -528,7 +528,7 @@ public:
             ::std::construct_at(::std::addressof(this->list_li_checkbox), ::std::move(other.list_li_checkbox));
             return;
         }
-        case ::pltxt2htm::NodeKind::text:
+        case ::pltxt2htm::NodeKind::group:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_a:
             [[fallthrough]];
@@ -654,7 +654,7 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::u8char:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::invalid_u8char:
+        case ::pltxt2htm::NodeKind::invalid_utf8:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::line_break:
             [[fallthrough]];
@@ -972,7 +972,7 @@ public:
             ::std::destroy_at(::std::addressof(this->list_info));
             return;
         }
-        case ::pltxt2htm::NodeKind::text:
+        case ::pltxt2htm::NodeKind::group:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_a:
             [[fallthrough]];
@@ -1103,7 +1103,7 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::u8char:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::invalid_u8char:
+        case ::pltxt2htm::NodeKind::invalid_utf8:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::line_break:
             [[fallthrough]];
@@ -1247,7 +1247,7 @@ public:
         switch (context_data_ref.get_kind()) /* -Werror=switch */ {
         case ::pltxt2htm::NodeKind::u8char:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::invalid_u8char:
+        case ::pltxt2htm::NodeKind::invalid_utf8:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::table_thead:
             [[fallthrough]];
@@ -1255,7 +1255,7 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::table_tr:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::text:
+        case ::pltxt2htm::NodeKind::group:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::line_break:
             [[fallthrough]];

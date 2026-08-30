@@ -186,7 +186,7 @@ public:
             ::std::construct_at(::std::addressof(this->pl_mark_info), ::std::move(other.pl_mark_info));
             return;
         }
-        case ::pltxt2htm::NodeKind::text:
+        case ::pltxt2htm::NodeKind::group:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_a:
             [[fallthrough]];
@@ -296,7 +296,7 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::u8char:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::invalid_u8char:
+        case ::pltxt2htm::NodeKind::invalid_utf8:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::url:
             [[fallthrough]];
@@ -612,7 +612,7 @@ public:
  *            attributes are merged (e.g., &lt;color=red&gt;&lt;color=blue&gt;text&lt;/color&gt;&lt;/color&gt;
  *            becomes &lt;color=blue&gt;text&lt;/color&gt;)
  *          - **Empty tag elimination**: Tags with empty content are removed entirely
- *          - **Text node merging**: Adjacent text nodes are combined when possible
+ *          - **Group node merging**: Adjacent group nodes are combined when possible
  *          - **Nested tag flattening**: Deeply nested structures are simplified
  *          - **Whitespace normalization**: Excessive whitespace around line breaks is trimmed
  *
@@ -633,7 +633,7 @@ constexpr void optimize_ast(::pltxt2htm::Ast<ndebug>& ast_init) noexcept {
         ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>>
         call_stack{};
     call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>{
-        ::std::addressof(ast_init), ::pltxt2htm::NodeKind::text, ast_init.begin()});
+        ::std::addressof(ast_init), ::pltxt2htm::NodeKind::group, ast_init.begin()});
 
 entry:
     while (true) {
@@ -645,7 +645,7 @@ entry:
             switch (node.get_node_kind()) /* -Werror=switch */ {
             case ::pltxt2htm::NodeKind::u8char:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::invalid_u8char:
+            case ::pltxt2htm::NodeKind::invalid_utf8:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::space:
                 [[fallthrough]];
@@ -683,12 +683,12 @@ entry:
                 ++current_iter;
                 continue;
             }
-            case ::pltxt2htm::NodeKind::text: {
-                auto&& active_node{node.as_text()};
+            case ::pltxt2htm::NodeKind::group: {
+                auto&& active_node{node.as_group()};
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::text, subast.begin()));
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::group, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_color: {
@@ -750,7 +750,7 @@ entry:
                     goto entry;
                 }
                 // Optimization: If the color is the same as the parent node, then ignore the nested tag.
-                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
+                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                 ++current_iter;
                 continue;
             }
@@ -841,7 +841,7 @@ entry:
                     if (node_color_view == parent_frame.get_html_span_color() && same_font_size &&
                         same_vertical_align) {
                         node = ::pltxt2htm::PlTxtNode<ndebug>{
-                            ::pltxt2htm::Text<ndebug>{::std::move(active_node.get_subast())}};
+                            ::pltxt2htm::Group<ndebug>{::std::move(active_node.get_subast())}};
                         ++current_iter;
                         continue;
                     }
@@ -854,7 +854,7 @@ entry:
                     auto const& node_va = active_node.get_vertical_align();
                     if (node_color_view == parent_color_id && !node_fs.has_value() && !node_va.has_value()) {
                         node = ::pltxt2htm::PlTxtNode<ndebug>{
-                            ::pltxt2htm::Text<ndebug>{::std::move(active_node.get_subast())}};
+                            ::pltxt2htm::Group<ndebug>{::std::move(active_node.get_subast())}};
                         ++current_iter;
                         continue;
                     }
@@ -868,7 +868,7 @@ entry:
                     auto const& node_va = active_node.get_vertical_align();
                     if (node_color_view == anchor_color && !node_fs.has_value() && !node_va.has_value()) {
                         node = ::pltxt2htm::PlTxtNode<ndebug>{
-                            ::pltxt2htm::Text<ndebug>{::std::move(active_node.get_subast())}};
+                            ::pltxt2htm::Group<ndebug>{::std::move(active_node.get_subast())}};
                         ++current_iter;
                         continue;
                     }
@@ -945,7 +945,7 @@ entry:
                     goto entry;
                 }
                 // Optimization: If the color is the same as the parent node, then ignore the nested tag.
-                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
+                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                 ++current_iter;
                 continue;
             }
@@ -1052,7 +1052,7 @@ entry:
                                 ::pltxt2htm::container::U8StringView{equal_sign_tag_id}}));
                     goto entry;
                 }
-                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
+                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                 ++current_iter;
                 continue;
             }
@@ -1146,7 +1146,7 @@ entry:
                             ::pltxt2htm::details::OptimizerContextWithPlSizeTagInfo{active_node.get_font_size()}));
                     goto entry;
                 }
-                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
+                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                 ++current_iter;
                 continue;
             }
@@ -1184,7 +1184,7 @@ entry:
                             ::pltxt2htm::details::OptimizerContextWithPlVoffsetTagInfo{active_node.get_value()}));
                     goto entry;
                 }
-                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
+                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                 ++current_iter;
                 continue;
             }
@@ -1247,7 +1247,7 @@ entry:
                             ::std::addressof(subast), node.get_node_kind(), subast.begin()));
                     goto entry;
                 }
-                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
+                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                 ++current_iter;
                 continue;
             }
@@ -1409,7 +1409,7 @@ entry:
                             ::std::addressof(subast), ::pltxt2htm::NodeKind::html_del, subast.begin()));
                     goto entry;
                 }
-                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
+                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                 ++current_iter;
                 continue;
             }
@@ -1428,7 +1428,7 @@ entry:
                             ::std::addressof(subast), ::pltxt2htm::NodeKind::html_code, subast.begin()));
                     goto entry;
                 }
-                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
+                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                 ++current_iter;
                 continue;
             }
@@ -1455,7 +1455,7 @@ entry:
                 // -> <mark style="background-color:yellow">abc</mark>
                 if (node_background_color_view ==
                     call_stack.template current_frame<ndebug>().get_html_mark_background_color()) {
-                    node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
+                    node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                     ++current_iter;
                     continue;
                 }
@@ -1492,7 +1492,7 @@ entry:
                 // -> <mark=yellow>abc</mark>
                 if (node_background_color_view ==
                     call_stack.template current_frame<ndebug>().get_pl_mark_background_color()) {
-                    node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
+                    node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                     ++current_iter;
                     continue;
                 }
@@ -1522,7 +1522,7 @@ entry:
                             ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_u, subast.begin()));
                     goto entry;
                 }
-                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
+                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                 ++current_iter;
                 continue;
             }
@@ -1541,7 +1541,7 @@ entry:
                             ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_s, subast.begin()));
                     goto entry;
                 }
-                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
+                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                 ++current_iter;
                 continue;
             }
@@ -1614,7 +1614,7 @@ entry:
                             ::std::addressof(subast), node.get_node_kind(), subast.begin()));
                     goto entry;
                 }
-                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
+                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                 ++current_iter;
                 continue;
             }
@@ -1782,7 +1782,7 @@ entry:
                 auto const& nested_tag_type = call_stack.template current_frame<ndebug>().get_nested_tag_type();
                 if (nested_tag_type == ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk ||
                     nested_tag_type == ::pltxt2htm::NodeKind::md_triple_emphasis_underscore) {
-                    node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
+                    node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                     ++current_iter;
                     continue;
                 }

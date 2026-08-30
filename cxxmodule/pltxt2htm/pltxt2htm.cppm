@@ -70,8 +70,8 @@ using ::pltxt2htm::Ast;
 
 // basic
 using ::pltxt2htm::U8Char;
-using ::pltxt2htm::InvalidU8Char;
-using ::pltxt2htm::Text;
+using ::pltxt2htm::InvalidUtf8;
+using ::pltxt2htm::Group;
 using ::pltxt2htm::CodeFence;
 using ::pltxt2htm::Url;
 
