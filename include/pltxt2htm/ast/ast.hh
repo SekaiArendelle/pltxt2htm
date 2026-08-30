@@ -35,8 +35,8 @@ class PlTxtNode {
     union {
         // basic node
         ::pltxt2htm::U8Char u8char_node;
-        ::pltxt2htm::InvalidU8Char invalid_u8char_node;
-        ::pltxt2htm::Text<ndebug> text_node;
+        ::pltxt2htm::InvalidUtf8 invalid_utf8_node;
+        ::pltxt2htm::Group<ndebug> group_node;
 
         // html node
         ::pltxt2htm::LineBreak line_break_node;
@@ -182,14 +182,14 @@ public:
           node_kind{::pltxt2htm::NodeKind::u8char} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::InvalidU8Char node) noexcept
-        : invalid_u8char_node{node},
-          node_kind{::pltxt2htm::NodeKind::invalid_u8char} {
+    constexpr PlTxtNode(::pltxt2htm::InvalidUtf8 node) noexcept
+        : invalid_utf8_node{node},
+          node_kind{::pltxt2htm::NodeKind::invalid_utf8} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::Text<ndebug>&& node) noexcept
-        : text_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::text} {
+    constexpr PlTxtNode(::pltxt2htm::Group<ndebug>&& node) noexcept
+        : group_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::group} {
     }
 
     constexpr PlTxtNode(::pltxt2htm::PlColor<ndebug>&& node) noexcept
@@ -828,12 +828,12 @@ public:
             new (::std::addressof(u8char_node))::pltxt2htm::U8Char(other.u8char_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::invalid_u8char: {
-            new (::std::addressof(invalid_u8char_node))::pltxt2htm::InvalidU8Char(other.invalid_u8char_node);
+        case ::pltxt2htm::NodeKind::invalid_utf8: {
+            new (::std::addressof(invalid_utf8_node))::pltxt2htm::InvalidUtf8(other.invalid_utf8_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::text: {
-            new (::std::addressof(text_node))::pltxt2htm::Text(other.text_node);
+        case ::pltxt2htm::NodeKind::group: {
+            new (::std::addressof(group_node))::pltxt2htm::Group(other.group_node);
             break;
         }
         case ::pltxt2htm::NodeKind::pl_color: {
@@ -1379,13 +1379,12 @@ public:
             new (::std::addressof(u8char_node))::pltxt2htm::U8Char(::std::move(other.u8char_node));
             break;
         }
-        case ::pltxt2htm::NodeKind::invalid_u8char: {
-            new (::std::addressof(invalid_u8char_node))::pltxt2htm::InvalidU8Char(
-                ::std::move(other.invalid_u8char_node));
+        case ::pltxt2htm::NodeKind::invalid_utf8: {
+            new (::std::addressof(invalid_utf8_node))::pltxt2htm::InvalidUtf8(::std::move(other.invalid_utf8_node));
             break;
         }
-        case ::pltxt2htm::NodeKind::text: {
-            new (::std::addressof(text_node))::pltxt2htm::Text(::std::move(other.text_node));
+        case ::pltxt2htm::NodeKind::group: {
+            new (::std::addressof(group_node))::pltxt2htm::Group(::std::move(other.group_node));
             break;
         }
         case ::pltxt2htm::NodeKind::pl_color: {
@@ -1954,12 +1953,12 @@ public:
             u8char_node.~U8Char();
             break;
         }
-        case ::pltxt2htm::NodeKind::invalid_u8char: {
-            invalid_u8char_node.~InvalidU8Char();
+        case ::pltxt2htm::NodeKind::invalid_utf8: {
+            invalid_utf8_node.~InvalidUtf8();
             break;
         }
-        case ::pltxt2htm::NodeKind::text: {
-            text_node.~Text();
+        case ::pltxt2htm::NodeKind::group: {
+            group_node.~Group();
             break;
         }
         case ::pltxt2htm::NodeKind::pl_color: {
@@ -2491,11 +2490,11 @@ public:
         case ::pltxt2htm::NodeKind::u8char: {
             return self.u8char_node == other.u8char_node;
         }
-        case ::pltxt2htm::NodeKind::invalid_u8char: {
-            return self.invalid_u8char_node == other.invalid_u8char_node;
+        case ::pltxt2htm::NodeKind::invalid_utf8: {
+            return self.invalid_utf8_node == other.invalid_utf8_node;
         }
-        case ::pltxt2htm::NodeKind::text: {
-            return self.text_node == other.text_node;
+        case ::pltxt2htm::NodeKind::group: {
+            return self.group_node == other.group_node;
         }
         case ::pltxt2htm::NodeKind::pl_color: {
             return self.pl_color_node == other.pl_color_node;
@@ -2893,15 +2892,15 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto as_invalid_u8char(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::invalid_u8char, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.invalid_u8char_node);
+    constexpr auto as_invalid_utf8(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::invalid_utf8, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.invalid_utf8_node);
     }
 
     [[nodiscard]]
-    constexpr auto as_text(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::text, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.text_node);
+    constexpr auto as_group(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::group, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.group_node);
     }
 
     [[nodiscard]]

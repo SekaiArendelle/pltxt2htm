@@ -104,7 +104,7 @@ int main() {
     }
 
     {
-        // Control chars now produce InvalidU8Char (U+FFFD) instead of being silently dropped
+        // Control chars now produce InvalidUtf8 (U+FFFD) instead of being silently dropped
         constexpr auto data = ::pltxt2htm::container::Array{char8_t('A'), char8_t(0x1f), char8_t('B')};
         auto html = ::pltxt2htm_test::pltxt2common_htmld(::fast_io::u8string_view(data.data(), data.size()));
         auto answer = ::fast_io::u8string_view{u8"A\uFFFDB"};

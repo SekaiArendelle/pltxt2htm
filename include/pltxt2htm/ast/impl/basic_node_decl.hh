@@ -129,34 +129,34 @@ public:
  * @brief Invalid UTF-8 character node
  * @details Represents an invalid UTF-8 character encountered during parsing.
  */
-class InvalidU8Char {
+class InvalidUtf8 {
 public:
-    constexpr auto operator==(this InvalidU8Char const&, InvalidU8Char const&) noexcept -> bool = default;
+    constexpr auto operator==(this InvalidUtf8 const&, InvalidUtf8 const&) noexcept -> bool = default;
 };
 
 /**
- * @brief ::pltxt2htm::Text<ndebug> container node
+ * @brief ::pltxt2htm::Group<ndebug> container node
  * @details Holds a sub-AST representing text content and inline formatting.
  */
 template<::pltxt2htm::Contracts ndebug>
-class Text {
+class Group {
     ::pltxt2htm::Ast<ndebug> subast;
 
 public:
     /**
-     * @brief Construct a ::pltxt2htm::Text<ndebug> node with a sub-AST.
+     * @brief Construct a ::pltxt2htm::Group<ndebug> node with a sub-AST.
      * @param subast The sub-AST to be contained.
      */
-    constexpr Text(::pltxt2htm::Ast<ndebug>&& subast) noexcept;
-    constexpr Text(::pltxt2htm::Text<ndebug> const&) noexcept;
-    constexpr Text(::pltxt2htm::Text<ndebug>&&) noexcept;
-    constexpr ~Text() noexcept;
-    constexpr auto operator=(::pltxt2htm::Text<ndebug> const&) noexcept -> ::pltxt2htm::Text<ndebug>& = delete;
-    constexpr auto operator=(this Text<ndebug>& self, ::pltxt2htm::Text<ndebug>&&) noexcept
-        -> ::pltxt2htm::Text<ndebug>&;
+    constexpr Group(::pltxt2htm::Ast<ndebug>&& subast) noexcept;
+    constexpr Group(::pltxt2htm::Group<ndebug> const&) noexcept;
+    constexpr Group(::pltxt2htm::Group<ndebug>&&) noexcept;
+    constexpr ~Group() noexcept;
+    constexpr auto operator=(::pltxt2htm::Group<ndebug> const&) noexcept -> ::pltxt2htm::Group<ndebug>& = delete;
+    constexpr auto operator=(this Group<ndebug>& self, ::pltxt2htm::Group<ndebug>&&) noexcept
+        -> ::pltxt2htm::Group<ndebug>&;
 
     [[nodiscard]]
-    constexpr auto operator==(this Text const&, Text const&) noexcept -> bool;
+    constexpr auto operator==(this Group const&, Group const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {

@@ -2130,7 +2130,7 @@ entry:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::md_atx_h6:
                         [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::text:
+                    case ::pltxt2htm::NodeKind::group:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::list_li:
                         [[fallthrough]];
@@ -2182,7 +2182,7 @@ entry:
                     }
                     case ::pltxt2htm::NodeKind::u8char:
                         [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::invalid_u8char:
+                    case ::pltxt2htm::NodeKind::invalid_utf8:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::line_break:
                         [[fallthrough]];
@@ -2782,9 +2782,9 @@ entry:
             }
             case ::pltxt2htm::NodeKind::u8char:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::invalid_u8char:
+            case ::pltxt2htm::NodeKind::invalid_utf8:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::text:
+            case ::pltxt2htm::NodeKind::group:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::line_break:
                 [[fallthrough]];
