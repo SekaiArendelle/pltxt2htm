@@ -41,6 +41,9 @@ static_assert(utf8_helpers_are_constexpr());
 static_assert(::pltxt2htm::details::is_unicode_scalar_value(char32_t{0x10FFFF}));
 static_assert(::pltxt2htm::details::is_unicode_scalar_value(char32_t{0xD800}) == false);
 static_assert(::pltxt2htm::details::is_unicode_scalar_value(char32_t{0x110000}) == false);
+static_assert(::pltxt2htm::details::is_ascii_control_code_point(char32_t{0x1F}));
+static_assert(::pltxt2htm::details::is_ascii_control_code_point(char32_t{0x7F}));
+static_assert(::pltxt2htm::details::is_ascii_control_code_point(U' ') == false);
 
 int main() {
     {
@@ -114,6 +117,17 @@ int main() {
     assert_decoded(u8"&#1114112;", 10, char32_t{0xFFFD});
     assert_decoded(u8"&#999999999999999999999999;", 27, char32_t{0xFFFD});
     assert_decoded(u8"&#128;", 6, char32_t{0x20AC});
+    assert_decoded(u8"&#1;", 4, char32_t{0x01});
+    assert_decoded(u8"&#13;", 5, char32_t{0x0D});
+    assert_decoded(u8"&#127;", 6, char32_t{0x7F});
+
+    // Parser-produced ASTs never store raw ASCII control bytes in U8Char nodes.
+    for (auto const code_point : ::fast_io::array{char32_t{0x01}, char32_t{0x0D}, char32_t{0x7F}}) {
+        ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce> ast{};
+        ::pltxt2htm::details::append_code_point_to_ast<::pltxt2htm::Contracts::quick_enforce>(code_point, ast);
+        pltxt2htm_test_assert_true(ast.size() == 1);
+        pltxt2htm_test_assert_true(ast[0].get_node_kind() == ::pltxt2htm::NodeKind::invalid_u8char);
+    }
 
     // Every generated named reference round-trips through the decoder.
     for (auto const& entity : ::pltxt2htm::details::html_named_character_references) {
@@ -149,6 +163,7 @@ int main() {
     pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&NotEqualTilde;"), u8"≂̸");
     pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&#160;"), u8"&nbsp;");
     pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8" "), u8"&nbsp;");
+    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&#1;&#13;&#127;"), u8"���");
 
     // Unknown and unterminated names remain literal text and cannot be reinterpreted by HTML.
     pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&bogus;"), u8"&amp;bogus;");
@@ -188,6 +203,7 @@ int main() {
     pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2plunity_introduction(u8"&#xD800;"), u8"�");
     pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2plunity_introduction(u8"&#128;"), u8"€");
     pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2plunity_introduction(u8"&bogus;"), u8"&bogus;");
+    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2plunity_introduction(u8"&#1;&#13;&#127;"), u8"���");
 
     return 0;
 }

@@ -32,6 +32,11 @@ constexpr auto is_unicode_scalar_value(char32_t code_point) noexcept -> bool {
     return code_point <= char32_t{0x10FFFF} && (code_point < char32_t{0xD800} || char32_t{0xDFFF} < code_point);
 }
 
+[[nodiscard]]
+constexpr auto is_ascii_control_code_point(char32_t code_point) noexcept -> bool {
+    return code_point <= char32_t{0x1F} || code_point == char32_t{0x7F};
+}
+
 /**
  * @brief Decode the first UTF-8 code point in a view.
  * @details Invalid input reports how many bytes belong to the invalid prefix, preserving
@@ -169,7 +174,7 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr auto parse_utf8_code_point(::pltxt2htm::container::U8StringView text,
                                      ::pltxt2htm::Ast<ndebug>& result) noexcept -> ::std::size_t {
     char8_t const first{text.template index<ndebug>(0)};
-    if (first <= 0x1F || first == 0x7F) {
+    if (::pltxt2htm::details::is_ascii_control_code_point(static_cast<char32_t>(first))) {
         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
         return 1;
     }
@@ -221,6 +226,11 @@ constexpr void append_code_point_to_ast(char32_t code_point, ::pltxt2htm::Ast<nd
         break;
     }
 
+    if (::pltxt2htm::details::is_ascii_control_code_point(code_point)) {
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
+        return;
+    }
+
     auto const encoded = ::pltxt2htm::details::encode_utf8_code_point(code_point);
     if (encoded.size == 0) {
         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
@@ -229,6 +239,13 @@ constexpr void append_code_point_to_ast(char32_t code_point, ::pltxt2htm::Ast<nd
     for (::std::size_t index{}; index < encoded.size; ++index) {
         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{encoded.code_units[index]}));
     }
+}
+
+constexpr void append_character_reference_code_point(::fast_io::u8string& result, char32_t code_point) noexcept {
+    if (::pltxt2htm::details::is_ascii_control_code_point(code_point)) {
+        code_point = char32_t{0xFFFD};
+    }
+    ::pltxt2htm::details::append_utf8_code_point(result, code_point);
 }
 
 struct TryDecodeCharacterReferenceResult {
@@ -488,9 +505,9 @@ constexpr auto decode_character_references(::pltxt2htm::container::U8StringView 
                 ::pltxt2htm::details::try_decode_character_reference<ndebug>(text.template subview<ndebug>(index));
             if (decoded.has_value()) {
                 auto const& reference = decoded.template value<ndebug>();
-                ::pltxt2htm::details::append_utf8_code_point(result, reference.first_code_point);
+                ::pltxt2htm::details::append_character_reference_code_point(result, reference.first_code_point);
                 if (reference.code_point_count == 2) {
-                    ::pltxt2htm::details::append_utf8_code_point(result, reference.second_code_point);
+                    ::pltxt2htm::details::append_character_reference_code_point(result, reference.second_code_point);
                 }
                 index += reference.consumed_size - 1;
                 continue;
