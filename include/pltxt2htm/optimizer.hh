@@ -336,69 +336,7 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::table_col:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_backslash:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_exclamation:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_double_quote:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_hash:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_dollar:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_percent:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_ampersand:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_single_quote:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_left_paren:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_right_paren:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_asterisk:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_plus:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_comma:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_hyphen:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_dot:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_slash:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_colon:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_semicolon:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_less_than:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_equals:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_greater_than:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_question:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_at:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_left_bracket:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_right_bracket:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_caret:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_underscore:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_backtick:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_left_brace:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_pipe:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_right_brace:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_tilde:
+        case ::pltxt2htm::NodeKind::md_escape:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_hr:
             [[fallthrough]];
@@ -647,27 +585,19 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::invalid_utf8:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::space:
+            case ::pltxt2htm::NodeKind::md_escape:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_ampersand:
+            case ::pltxt2htm::NodeKind::space:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::ampersand:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::entity_reference:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_single_quote:
-                [[fallthrough]];
             case ::pltxt2htm::NodeKind::single_quote:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_double_quote:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::double_quote:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_less_than:
-                [[fallthrough]];
             case ::pltxt2htm::NodeKind::less_than:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_greater_than:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::greater_than:
                 [[fallthrough]];
@@ -1844,60 +1774,6 @@ entry:
             case ::pltxt2htm::NodeKind::html_hr:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_block_quotes:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_backslash:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_exclamation:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_hash:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_dollar:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_percent:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_left_paren:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_right_paren:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_asterisk:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_plus:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_comma:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_hyphen:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_dot:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_slash:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_colon:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_semicolon:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_equals:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_question:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_at:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_left_bracket:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_right_bracket:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_caret:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_underscore:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_backtick:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_left_brace:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_pipe:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_right_brace:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_tilde:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::code_fence: {
                 ++current_iter;

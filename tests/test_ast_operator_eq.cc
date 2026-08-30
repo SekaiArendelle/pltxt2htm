@@ -568,20 +568,21 @@ int main() {
         pltxt2htm_test_assert_false(a != b);
     }
 
-    // MdEscape (all empty, always equal)
+    // MdEscape with same/different escaped characters
     {
-        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscapeBackslash{});
-        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscapeBackslash{});
+        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscape{u8'\\'});
+        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscape{u8'\\'});
+        pltxt2htm_test_assert_true(a == b);
+        pltxt2htm_test_assert_true(a.as_md_escape().get_character() == u8'\\');
+    }
+    {
+        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscape{u8'*'});
+        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscape{u8'*'});
         pltxt2htm_test_assert_true(a == b);
     }
     {
-        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscapeAsterisk{});
-        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscapeAsterisk{});
-        pltxt2htm_test_assert_true(a == b);
-    }
-    {
-        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscapeBackslash{});
-        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscapeAsterisk{});
+        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscape{u8'\\'});
+        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscape{u8'*'});
         pltxt2htm_test_assert_false(a == b);
     }
 

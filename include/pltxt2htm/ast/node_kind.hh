@@ -127,39 +127,8 @@ enum class NodeKind : unsigned {
     md_atx_h5, ///< Markdown level 5 heading: ##### Heading
     md_atx_h6, ///< Markdown level 6 heading: ###### Heading
 
-    // Markdown escape sequences (backslash-prefixed characters)
-    md_escape_backslash,
-    md_escape_exclamation, ///< Escaped exclamation: \\!
-    md_escape_double_quote, ///< Escaped double quote: \\"
-    md_escape_hash, ///< Escaped hash: \\#
-    md_escape_dollar, ///< Escaped dollar: \\$
-    md_escape_percent, ///< Escaped percent: \\%
-    md_escape_ampersand, ///< Escaped ampersand: \\&
-    md_escape_single_quote, ///< Escaped single quote: \\'
-    md_escape_left_paren, ///< Escaped left parenthesis: \\(
-    md_escape_right_paren, ///< Escaped right parenthesis: \\)
-    md_escape_asterisk, ///< Escaped asterisk: \\*
-    md_escape_plus, ///< Escaped plus: \\+
-    md_escape_comma, ///< Escaped comma: \\,
-    md_escape_hyphen, ///< Escaped hyphen: \\-
-    md_escape_dot, ///< Escaped dot: \\.
-    md_escape_slash, ///< Escaped slash: \\/
-    md_escape_colon, ///< Escaped colon: \\:
-    md_escape_semicolon, ///< Escaped semicolon: \\;
-    md_escape_less_than, ///< Escaped less-than: \\<
-    md_escape_equals, ///< Escaped equals: \\=
-    md_escape_greater_than, ///< Escaped greater-than: \\>
-    md_escape_question, ///< Escaped question mark: \\?
-    md_escape_at, ///< Escaped at symbol: \\@
-    md_escape_left_bracket, ///< Escaped left bracket: \\[
-    md_escape_right_bracket, ///< Escaped right bracket: \\]
-    md_escape_caret, ///< Escaped caret: \\^
-    md_escape_underscore, ///< Escaped underscore: \\_
-    md_escape_backtick, ///< Escaped backtick: \\`
-    md_escape_left_brace, ///< Escaped left brace: \\{
-    md_escape_pipe, ///< Escaped pipe: \\|
-    md_escape_right_brace, ///< Escaped right brace: \\}
-    md_escape_tilde, ///< Escaped tilde: \\~
+    // Markdown escape sequence (backslash-prefixed ASCII punctuation)
+    md_escape,
     // Markdown thematic elements
     md_hr, ///< Thematic break/horizontal rule: ---, ***, ___
 
