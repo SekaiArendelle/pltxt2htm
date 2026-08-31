@@ -66,9 +66,12 @@ public:
     /**
      * @brief Return the underlying unsigned integer by value.
      */
+    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto get(this NonZero const& self) noexcept -> T {
-        return self.value_storage;
+        auto const value = self.value_storage;
+        pltxt2htm_assert(value != 0, u8"NonZero value must not be zero");
+        return value;
     }
 
     constexpr bool operator==(this NonZero const&, NonZero const&) noexcept = default;

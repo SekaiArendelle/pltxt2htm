@@ -1,6 +1,7 @@
 #include <concepts>
 #include <cstddef>
 #include <type_traits>
+#include <utility>
 
 #include <pltxt2htm/container/non_zero.hh>
 
@@ -8,6 +9,9 @@
 
 template<typename T>
 concept can_form_non_zero = requires { typename ::pltxt2htm::container::NonZero<T>; };
+
+template<typename T>
+concept can_call_get_without_contract = requires(T const& value) { value.get(); };
 
 template<typename T>
     requires can_form_non_zero<T>
@@ -40,12 +44,17 @@ static_assert(!::std::default_initializable<NonZeroSize>);
 static_assert(!::std::is_aggregate_v<NonZeroSize>);
 static_assert(!::std::is_constructible_v<NonZeroSize, ::std::size_t>);
 static_assert(!::std::is_convertible_v<NonZeroSize, ::std::size_t>);
+static_assert(!can_call_get_without_contract<NonZeroSize>);
+static_assert(
+    ::std::same_as<decltype(::std::declval<NonZeroSize const&>().template get<::pltxt2htm::Contracts::quick_enforce>()),
+                   ::std::size_t>);
 
 consteval auto test_constexpr_non_zero() noexcept -> bool {
     auto const value = NonZeroSize::from<::pltxt2htm::Contracts::quick_enforce>(42);
     auto const equal_value = NonZeroSize::from<::pltxt2htm::Contracts::quick_enforce>(42);
 
-    return value.get() == 42 && value == equal_value;
+    return value.get<::pltxt2htm::Contracts::quick_enforce>() == 42 &&
+           value.get<::pltxt2htm::Contracts::ignore>() == 42 && value == equal_value;
 }
 
 static_assert(test_constexpr_non_zero());
