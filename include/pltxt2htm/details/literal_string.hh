@@ -56,7 +56,7 @@ public:
     using pointer = value_type*;
     using const_pointer = value_type const*;
 
-    value_type data_[N]{};
+    value_type storage[N]{};
 
     constexpr BasicLiteralString() noexcept = default;
 
@@ -64,7 +64,7 @@ public:
     constexpr BasicLiteralString(CharType const (&str)[M]) noexcept {
         static_assert(N > 0 && N + 1 == M);
         for (::std::size_t i{}; i < N; ++i) {
-            this->data_[i] = str[i];
+            this->storage[i] = str[i];
         }
     }
 
@@ -85,7 +85,7 @@ public:
         if (index >= N) [[unlikely]] {
             ::pltxt2htm::details::trap();
         }
-        return self.data_[index];
+        return self.storage[index];
     }
 
     [[nodiscard]]
@@ -95,32 +95,32 @@ public:
 
     [[nodiscard]]
     constexpr auto begin(this is_literal_string auto const& self) noexcept -> const_iterator {
-        return const_iterator(self.data_);
+        return const_iterator(self.storage);
     }
 
     [[nodiscard]]
     constexpr auto cbegin(this is_literal_string auto const& self) noexcept -> const_iterator {
-        return const_iterator(self.data_);
+        return const_iterator(self.storage);
     }
 
     [[nodiscard]]
     constexpr auto end(this is_literal_string auto const& self) noexcept -> const_iterator {
-        return const_iterator(self.data_ + N);
+        return const_iterator(self.storage + N);
     }
 
     [[nodiscard]]
     constexpr auto cend(this is_literal_string auto const& self) noexcept -> const_iterator {
-        return const_iterator(self.data_ + N);
+        return const_iterator(self.storage + N);
     }
 
     [[nodiscard]]
     constexpr auto data(this is_literal_string auto const& self) noexcept -> const_pointer {
-        return const_pointer(self.data_);
+        return const_pointer(self.storage);
     }
 
     [[nodiscard]]
     constexpr auto cdata(this is_literal_string auto const& self) noexcept -> const_pointer {
-        return const_pointer(self.data_);
+        return const_pointer(self.storage);
     }
 };
 
