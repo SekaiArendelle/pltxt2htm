@@ -913,9 +913,9 @@ entry:
                 result.append(u8"<font=\"PhysicsLab-SarasaMonoSC SDF\"> ");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::pl_s: {
-                auto&& active_node{node.as_pl_s()};
-                call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_s, 0));
+            case ::pltxt2htm::NodeKind::html_s: {
+                auto&& active_node{node.as_html_s()};
+                call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::html_s, 0));
                 ++current_index;
                 result.append(u8"<s>");
                 goto entry;
@@ -936,9 +936,9 @@ entry:
                 result.append(u8"<sub>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::pl_u: {
-                auto&& active_node{node.as_pl_u()};
-                call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_u, 0));
+            case ::pltxt2htm::NodeKind::html_u: {
+                auto&& active_node{node.as_html_u()};
+                call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::html_u, 0));
                 ++current_index;
                 result.append(u8"<u>");
                 goto entry;
@@ -1524,7 +1524,7 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_del:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::pl_s: {
+            case ::pltxt2htm::NodeKind::html_s: {
                 result.append(u8"</s>");
                 goto entry;
             }
@@ -1540,7 +1540,7 @@ entry:
                 result.append(u8"</sub>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::pl_u: {
+            case ::pltxt2htm::NodeKind::html_u: {
                 result.append(u8"</u>");
                 goto entry;
             }

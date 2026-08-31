@@ -97,6 +97,8 @@ using ::pltxt2htm::HtmlH6;
 
 using ::pltxt2htm::HtmlP;
 using ::pltxt2htm::HtmlDel;
+using ::pltxt2htm::HtmlU;
+using ::pltxt2htm::HtmlS;
 using ::pltxt2htm::HtmlSup;
 using ::pltxt2htm::HtmlSub;
 using ::pltxt2htm::HtmlHr;
@@ -176,8 +178,6 @@ using ::pltxt2htm::PlMargin;
 using ::pltxt2htm::PlMark;
 using ::pltxt2htm::PlI;
 using ::pltxt2htm::PlB;
-using ::pltxt2htm::PlU;
-using ::pltxt2htm::PlS;
 using ::pltxt2htm::PlMacroProject;
 using ::pltxt2htm::PlMacroVisitor;
 using ::pltxt2htm::PlMacroAuthor;

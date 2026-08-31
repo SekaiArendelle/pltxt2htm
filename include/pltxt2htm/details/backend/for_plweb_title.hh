@@ -431,14 +431,14 @@ entry:
                 ++current_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::pl_u: {
-                auto&& active_node{node.as_pl_u()};
+            case ::pltxt2htm::NodeKind::html_u: {
+                auto&& active_node{node.as_html_u()};
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::group, 0));
                 ++current_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::pl_s: {
-                auto&& active_node{node.as_pl_s()};
+            case ::pltxt2htm::NodeKind::html_s: {
+                auto&& active_node{node.as_html_s()};
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::group, 0));
                 ++current_index;
                 goto entry;

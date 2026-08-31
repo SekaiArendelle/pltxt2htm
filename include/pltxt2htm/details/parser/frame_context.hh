@@ -550,9 +550,9 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_del:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_u:
+        case ::pltxt2htm::NodeKind::html_u:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_s:
+        case ::pltxt2htm::NodeKind::html_s:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_sup:
             [[fallthrough]];
@@ -932,9 +932,9 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_del:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_u:
+        case ::pltxt2htm::NodeKind::html_u:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_s:
+        case ::pltxt2htm::NodeKind::html_s:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_sup:
             [[fallthrough]];
@@ -1171,9 +1171,9 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_del:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_u:
+        case ::pltxt2htm::NodeKind::html_u:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_s:
+        case ::pltxt2htm::NodeKind::html_s:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_sup:
             [[fallthrough]];
