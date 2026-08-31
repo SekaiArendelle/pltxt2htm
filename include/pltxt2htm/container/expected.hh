@@ -10,7 +10,6 @@
 #include <type_traits>
 #include <concepts>
 
-#include "optional.hh"
 #include "../details/push_macro.hh"
 
 namespace pltxt2htm::container {

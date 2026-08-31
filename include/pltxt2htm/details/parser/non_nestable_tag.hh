@@ -13,7 +13,7 @@
 
 #include <cstddef>
 #include <utility>
-#include "../../container/expected.hh"
+#include "../../container/optional.hh"
 #include "../call_stack.hh"
 #include "../../container/string_view.hh"
 #include "../utils.hh"
