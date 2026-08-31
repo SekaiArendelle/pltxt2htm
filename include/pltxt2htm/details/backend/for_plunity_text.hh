@@ -1309,11 +1309,11 @@ entry:
                 auto&& active_node{node.as_md_escape()};
                 switch (active_node.get_character()) {
                 case u8'<': {
-                    result.append(u8"<size=20>＜</size>");
+                    result.append(u8"<size=20>\uFF1C</size>");
                     break;
                 }
                 case u8'>': {
-                    result.append(u8"<size=20>＞</size>");
+                    result.append(u8"<size=20>\uFF1E</size>");
                     break;
                 }
                 default: {
