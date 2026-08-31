@@ -58,6 +58,8 @@ class PlTxtNode {
         ::pltxt2htm::HtmlH6<ndebug> html_h6_node;
         ::pltxt2htm::HtmlP<ndebug> html_p_node;
         ::pltxt2htm::HtmlDel<ndebug> html_del_node;
+        ::pltxt2htm::HtmlU<ndebug> html_u_node;
+        ::pltxt2htm::HtmlS<ndebug> html_s_node;
         ::pltxt2htm::HtmlSup<ndebug> html_sup_node;
         ::pltxt2htm::HtmlSub<ndebug> html_sub_node;
         ::pltxt2htm::HtmlNote<ndebug> html_note_node;
@@ -135,8 +137,6 @@ class PlTxtNode {
         ::pltxt2htm::PlMargin<ndebug> pl_margin_node;
         ::pltxt2htm::PlI<ndebug> pl_i_node;
         ::pltxt2htm::PlB<ndebug> pl_b_node;
-        ::pltxt2htm::PlU<ndebug> pl_u_node;
-        ::pltxt2htm::PlS<ndebug> pl_s_node;
         ::pltxt2htm::PlMacroProject pl_macro_project_node;
         ::pltxt2htm::PlMacroVisitor pl_macro_visitor_node;
         ::pltxt2htm::PlMacroAuthor pl_macro_author_node;
@@ -251,14 +251,14 @@ public:
           node_kind{::pltxt2htm::NodeKind::pl_b} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::PlU<ndebug>&& node) noexcept
-        : pl_u_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::pl_u} {
+    constexpr PlTxtNode(::pltxt2htm::HtmlU<ndebug>&& node) noexcept
+        : html_u_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::html_u} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::PlS<ndebug>&& node) noexcept
-        : pl_s_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::pl_s} {
+    constexpr PlTxtNode(::pltxt2htm::HtmlS<ndebug>&& node) noexcept
+        : html_s_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::html_s} {
     }
 
     constexpr PlTxtNode(::pltxt2htm::PlMacroProject node) noexcept
@@ -722,12 +722,12 @@ public:
             new (::std::addressof(pl_b_node))::pltxt2htm::PlB(other.pl_b_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_u: {
-            new (::std::addressof(pl_u_node))::pltxt2htm::PlU(other.pl_u_node);
+        case ::pltxt2htm::NodeKind::html_u: {
+            new (::std::addressof(html_u_node))::pltxt2htm::HtmlU(other.html_u_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_s: {
-            new (::std::addressof(pl_s_node))::pltxt2htm::PlS(other.pl_s_node);
+        case ::pltxt2htm::NodeKind::html_s: {
+            new (::std::addressof(html_s_node))::pltxt2htm::HtmlS(other.html_s_node);
             break;
         }
         case ::pltxt2htm::NodeKind::pl_macro_project: {
@@ -1136,12 +1136,12 @@ public:
             new (::std::addressof(pl_b_node))::pltxt2htm::PlB(::std::move(other.pl_b_node));
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_u: {
-            new (::std::addressof(pl_u_node))::pltxt2htm::PlU(::std::move(other.pl_u_node));
+        case ::pltxt2htm::NodeKind::html_u: {
+            new (::std::addressof(html_u_node))::pltxt2htm::HtmlU(::std::move(other.html_u_node));
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_s: {
-            new (::std::addressof(pl_s_node))::pltxt2htm::PlS(::std::move(other.pl_s_node));
+        case ::pltxt2htm::NodeKind::html_s: {
+            new (::std::addressof(html_s_node))::pltxt2htm::HtmlS(::std::move(other.html_s_node));
             break;
         }
         case ::pltxt2htm::NodeKind::pl_macro_project: {
@@ -1554,12 +1554,12 @@ public:
             pl_b_node.~PlB();
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_u: {
-            pl_u_node.~PlU();
+        case ::pltxt2htm::NodeKind::html_u: {
+            html_u_node.~HtmlU();
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_s: {
-            pl_s_node.~PlS();
+        case ::pltxt2htm::NodeKind::html_s: {
+            html_s_node.~HtmlS();
             break;
         }
         case ::pltxt2htm::NodeKind::pl_macro_project: {
@@ -1947,11 +1947,11 @@ public:
         case ::pltxt2htm::NodeKind::pl_b: {
             return self.pl_b_node == other.pl_b_node;
         }
-        case ::pltxt2htm::NodeKind::pl_u: {
-            return self.pl_u_node == other.pl_u_node;
+        case ::pltxt2htm::NodeKind::html_u: {
+            return self.html_u_node == other.html_u_node;
         }
-        case ::pltxt2htm::NodeKind::pl_s: {
-            return self.pl_s_node == other.pl_s_node;
+        case ::pltxt2htm::NodeKind::html_s: {
+            return self.html_s_node == other.html_s_node;
         }
         case ::pltxt2htm::NodeKind::pl_macro_project: {
             return self.pl_macro_project_node == other.pl_macro_project_node;
@@ -2739,15 +2739,15 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto as_pl_u(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_u, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.pl_u_node);
+    constexpr auto as_html_u(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::html_u, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.html_u_node);
     }
 
     [[nodiscard]]
-    constexpr auto as_pl_s(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_s, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.pl_s_node);
+    constexpr auto as_html_s(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::html_s, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.html_s_node);
     }
 
     [[nodiscard]]
