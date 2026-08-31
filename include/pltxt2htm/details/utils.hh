@@ -85,6 +85,19 @@ constexpr bool is_ascii_graphic(char8_t const chr) noexcept {
 }
 
 /**
+ * @brief Check if a character is ASCII punctuation.
+ * @details This is the character set CommonMark permits after a backslash escape.
+ */
+[[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
+constexpr bool is_ascii_punctuation(char8_t const chr) noexcept {
+    return (u8'!' <= chr && chr <= u8'/') || (u8':' <= chr && chr <= u8'@') || (u8'[' <= chr && chr <= u8'`') ||
+           (u8'{' <= chr && chr <= u8'~');
+}
+
+/**
  * @brief Check if a character is allowed in a URL-valued tag attribute.
  * @details Printable ASCII plus any non-ASCII byte (e.g. UTF-8 CJK); non-ASCII bytes are
  *          percent-encoded later by make_try_parse_url_result.

@@ -15,6 +15,7 @@
 #include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"
 #include "frame_context.hh"
+#include "html_character.hh"
 #include "html_url.hh"
 #include "../../contracts.hh"
 #include "../utils.hh"
@@ -48,8 +49,6 @@ constexpr void convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> c
             out.append(u8"&nbsp;");
             continue;
         }
-        case ::pltxt2htm::NodeKind::md_escape_ampersand:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::ampersand: {
             out.append(u8"&amp;");
             continue;
@@ -61,26 +60,18 @@ constexpr void convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> c
             out.push_back(u8';');
             continue;
         }
-        case ::pltxt2htm::NodeKind::md_escape_single_quote:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::single_quote: {
             out.append(u8"&apos;");
             continue;
         }
-        case ::pltxt2htm::NodeKind::md_escape_double_quote:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::double_quote: {
             out.append(u8"&quot;");
             continue;
         }
-        case ::pltxt2htm::NodeKind::md_escape_less_than:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::less_than: {
             out.append(u8"&lt;");
             continue;
         }
-        case ::pltxt2htm::NodeKind::md_escape_greater_than:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::greater_than: {
             out.append(u8"&gt;");
             continue;
@@ -89,112 +80,9 @@ constexpr void convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> c
             out.append(u8"&nbsp;&nbsp;&nbsp;&nbsp;");
             continue;
         }
-        case ::pltxt2htm::NodeKind::md_escape_backslash: {
-            out.push_back(u8'\\');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_exclamation: {
-            out.push_back(u8'!');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_hash: {
-            out.push_back(u8'#');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_dollar: {
-            out.push_back(u8'$');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_percent: {
-            out.push_back(u8'%');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_left_paren: {
-            out.push_back(u8'(');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_right_paren: {
-            out.push_back(u8')');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_asterisk: {
-            out.push_back(u8'*');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_plus: {
-            out.push_back(u8'+');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_comma: {
-            out.push_back(u8',');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_hyphen: {
-            out.push_back(u8'-');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_dot: {
-            out.push_back(u8'.');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_slash: {
-            out.push_back(u8'/');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_colon: {
-            out.push_back(u8':');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_semicolon: {
-            out.push_back(u8';');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_equals: {
-            out.push_back(u8'=');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_question: {
-            out.push_back(u8'?');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_at: {
-            out.push_back(u8'@');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_left_bracket: {
-            out.push_back(u8'[');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_right_bracket: {
-            out.push_back(u8']');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_caret: {
-            out.push_back(u8'^');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_underscore: {
-            out.push_back(u8'_');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_backtick: {
-            out.push_back(u8'`');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_left_brace: {
-            out.push_back(u8'{');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_pipe: {
-            out.push_back(u8'|');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_right_brace: {
-            out.push_back(u8'}');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_tilde: {
-            out.push_back(u8'~');
+        case ::pltxt2htm::NodeKind::md_escape: {
+            auto&& active_node{node.as_md_escape()};
+            ::pltxt2htm::details::append_html_escaped_character(out, active_node.get_character());
             continue;
         }
         default:
@@ -319,8 +207,6 @@ entry:
                 result.append(u8"&nbsp;");
                 continue;
             }
-            case ::pltxt2htm::NodeKind::md_escape_ampersand:
-                [[fallthrough]];
             case ::pltxt2htm::NodeKind::ampersand: {
                 result.append(u8"&amp;");
                 continue;
@@ -332,26 +218,18 @@ entry:
                 result.push_back(u8';');
                 continue;
             }
-            case ::pltxt2htm::NodeKind::md_escape_single_quote:
-                [[fallthrough]];
             case ::pltxt2htm::NodeKind::single_quote: {
                 result.append(u8"&apos;");
                 continue;
             }
-            case ::pltxt2htm::NodeKind::md_escape_double_quote:
-                [[fallthrough]];
             case ::pltxt2htm::NodeKind::double_quote: {
                 result.append(u8"&quot;");
                 continue;
             }
-            case ::pltxt2htm::NodeKind::md_escape_less_than:
-                [[fallthrough]];
             case ::pltxt2htm::NodeKind::less_than: {
                 result.append(u8"&lt;");
                 continue;
             }
-            case ::pltxt2htm::NodeKind::md_escape_greater_than:
-                [[fallthrough]];
             case ::pltxt2htm::NodeKind::greater_than: {
                 result.append(u8"&gt;");
                 continue;
@@ -1460,112 +1338,9 @@ entry:
                 result.append(u8"\">");
                 continue;
             }
-            case ::pltxt2htm::NodeKind::md_escape_backslash: {
-                result.push_back(u8'\\');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_exclamation: {
-                result.push_back(u8'!');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_hash: {
-                result.push_back(u8'#');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_dollar: {
-                result.push_back(u8'$');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_percent: {
-                result.push_back(u8'%');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_left_paren: {
-                result.push_back(u8'(');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_right_paren: {
-                result.push_back(u8')');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_asterisk: {
-                result.push_back(u8'*');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_plus: {
-                result.push_back(u8'+');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_comma: {
-                result.push_back(u8',');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_hyphen: {
-                result.push_back(u8'-');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_dot: {
-                result.push_back(u8'.');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_slash: {
-                result.push_back(u8'/');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_colon: {
-                result.push_back(u8':');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_semicolon: {
-                result.push_back(u8';');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_equals: {
-                result.push_back(u8'=');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_question: {
-                result.push_back(u8'?');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_at: {
-                result.push_back(u8'@');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_left_bracket: {
-                result.push_back(u8'[');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_right_bracket: {
-                result.push_back(u8']');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_caret: {
-                result.push_back(u8'^');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_underscore: {
-                result.push_back(u8'_');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_backtick: {
-                result.push_back(u8'`');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_left_brace: {
-                result.push_back(u8'{');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_pipe: {
-                result.push_back(u8'|');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_right_brace: {
-                result.push_back(u8'}');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_tilde: {
-                result.push_back(u8'~');
+            case ::pltxt2htm::NodeKind::md_escape: {
+                auto&& active_node{node.as_md_escape()};
+                ::pltxt2htm::details::append_html_escaped_character(result, active_node.get_character());
                 continue;
             }
             case ::pltxt2htm::NodeKind::code_fence: {
