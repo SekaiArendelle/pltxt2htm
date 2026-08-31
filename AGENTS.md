@@ -134,6 +134,9 @@ General:
 
 Follow the existing low-runtime, cross-platform style used in core headers:
 
+- **Keep core headers ASCII-only:**
+  - Files under `include/pltxt2htm/` must contain only ASCII characters.
+  - Represent non-ASCII characters in string and character literals with universal character names such as `\uXXXX` or `\UXXXXXXXX`.
 - **Use relative paths for internal includes:**
   - In files under `include/pltxt2htm/`, include other `pltxt2htm` headers with quoted paths relative to the including file, for example `#include "../contracts.hh"`; do not use project-root angle-bracket includes such as `#include <pltxt2htm/details/push_macro.hh>` there.
   - Continue to use angle brackets for standard-library and external dependency headers.
