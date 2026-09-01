@@ -67,6 +67,28 @@ constexpr auto try_parse_md_escape(::pltxt2htm::container::U8StringView pltext) 
 }
 
 /**
+ * @brief Try to parse a Physics-Lab space at the start of a view.
+ * @details Physics-Lab treats both U+0020 and U+00A0 as the same space token.
+ * @return The non-zero byte length of the parsed space, or nullopt when the view does not start with one.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_space(::pltxt2htm::container::U8StringView pltext) noexcept
+    -> ::pltxt2htm::container::Optional<::pltxt2htm::container::NonZeroSize> {
+    if (pltext.empty()) {
+        return ::pltxt2htm::container::nullopt;
+    }
+    char8_t const chr{pltext.template index<ndebug>(0)};
+    if (chr == u8' ') {
+        return ::pltxt2htm::container::NonZeroSize::from<ndebug>(1);
+    }
+    if (chr == char8_t{0xC2} && pltext.size() > 1 && pltext.template index<ndebug>(1) == char8_t{0xA0}) {
+        return ::pltxt2htm::container::NonZeroSize::from<ndebug>(2);
+    }
+    return ::pltxt2htm::container::nullopt;
+}
+
+/**
  * @brief Parse a single UTF-8 code point and append the corresponding AST node(s).
  *
  * This function inspects the first byte of `pltext` and appends either UTF-8 bytes
@@ -3290,9 +3312,12 @@ constexpr auto simply_parse_pltext(::pltxt2htm::container::U8StringView pltext) 
             ++current_index;
             continue;
         }
-        if (chr == u8' ') {
+        if (auto const opt_space_size =
+                ::pltxt2htm::details::try_parse_space<ndebug>(pltext.template subview<ndebug>(current_index));
+            opt_space_size.has_value()) {
+            auto const space_size = opt_space_size.template value<ndebug>().template get<ndebug>();
             ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Space{}));
-            ++current_index;
+            current_index += space_size;
             continue;
         }
         if (chr == u8'&') {
@@ -4603,9 +4628,12 @@ constexpr auto try_parse_md_image(::pltxt2htm::container::U8StringView pltext) n
         if (chr == u8'\n') {
             return ::pltxt2htm::container::nullopt;
         }
-        if (chr == u8' ') {
+        if (auto const opt_space_size =
+                ::pltxt2htm::details::try_parse_space<ndebug>(pltext.template subview<ndebug>(current_index));
+            opt_space_size.has_value()) {
+            auto const space_size = opt_space_size.template value<ndebug>().template get<ndebug>();
             link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Space{}));
-            ++current_index;
+            current_index += space_size;
             continue;
         }
         if (chr == u8'&') {
