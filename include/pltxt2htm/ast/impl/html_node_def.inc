@@ -155,6 +155,44 @@ constexpr auto ::pltxt2htm::HtmlDel<ndebug>::operator==(this HtmlDel<ndebug> con
                                                         ::pltxt2htm::HtmlDel<ndebug> const&) noexcept -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::HtmlU<ndebug>::HtmlU(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
+    : subast(::std::move(subast_)) {
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::HtmlU<ndebug>::HtmlU(::pltxt2htm::HtmlU<ndebug> const&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::HtmlU<ndebug>::HtmlU(::pltxt2htm::HtmlU<ndebug>&&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::HtmlU<ndebug>::~HtmlU() noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::HtmlU<ndebug>::operator=(this HtmlU<ndebug>& self, ::pltxt2htm::HtmlU<ndebug>&&) noexcept
+    -> ::pltxt2htm::HtmlU<ndebug>& = default;
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::HtmlU<ndebug>::operator==(this HtmlU<ndebug> const&,
+                                                      ::pltxt2htm::HtmlU<ndebug> const&) noexcept -> bool = default;
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::HtmlS<ndebug>::HtmlS(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
+    : subast(::std::move(subast_)) {
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::HtmlS<ndebug>::HtmlS(::pltxt2htm::HtmlS<ndebug> const&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::HtmlS<ndebug>::HtmlS(::pltxt2htm::HtmlS<ndebug>&&) noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr ::pltxt2htm::HtmlS<ndebug>::~HtmlS() noexcept = default;
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::HtmlS<ndebug>::operator=(this HtmlS<ndebug>& self, ::pltxt2htm::HtmlS<ndebug>&&) noexcept
+    -> ::pltxt2htm::HtmlS<ndebug>& = default;
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto ::pltxt2htm::HtmlS<ndebug>::operator==(this HtmlS<ndebug> const&,
+                                                      ::pltxt2htm::HtmlS<ndebug> const&) noexcept -> bool = default;
+
+template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::HtmlSup<ndebug>::HtmlSup(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
     : subast(::std::move(subast_)) {
 }

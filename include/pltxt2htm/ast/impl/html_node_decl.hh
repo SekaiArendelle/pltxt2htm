@@ -10,7 +10,7 @@
 #include <utility>
 #include <cstddef>
 #include <fast_io/fast_io_dsal/string.h>
-#include "../../container/expected.hh"
+#include "../../container/optional.hh"
 #include "../../container/string_view.hh"
 #include "ast_decl.hh"
 #include "basic_node_decl.hh"
@@ -273,6 +273,56 @@ public:
 
     [[nodiscard]]
     constexpr auto operator==(this HtmlDel const&, HtmlDel const&) noexcept -> bool;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+};
+
+/**
+ * @brief HTML &lt;u&gt; underline text node
+ */
+template<::pltxt2htm::Contracts ndebug>
+class HtmlU {
+    ::pltxt2htm::Ast<ndebug> subast;
+
+public:
+    constexpr explicit HtmlU(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlU(::pltxt2htm::HtmlU<ndebug> const&) noexcept;
+    constexpr HtmlU(::pltxt2htm::HtmlU<ndebug>&&) noexcept;
+    constexpr ~HtmlU() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlU<ndebug> const&) noexcept -> ::pltxt2htm::HtmlU<ndebug>& = delete;
+    constexpr auto operator=(this HtmlU<ndebug>& self, ::pltxt2htm::HtmlU<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlU<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this HtmlU const&, HtmlU const&) noexcept -> bool;
+
+    [[nodiscard]]
+    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.subast);
+    }
+};
+
+/**
+ * @brief HTML &lt;s&gt; strikethrough text node
+ */
+template<::pltxt2htm::Contracts ndebug>
+class HtmlS {
+    ::pltxt2htm::Ast<ndebug> subast;
+
+public:
+    constexpr explicit HtmlS(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
+    constexpr HtmlS(::pltxt2htm::HtmlS<ndebug> const&) noexcept;
+    constexpr HtmlS(::pltxt2htm::HtmlS<ndebug>&&) noexcept;
+    constexpr ~HtmlS() noexcept;
+    constexpr auto operator=(::pltxt2htm::HtmlS<ndebug> const&) noexcept -> ::pltxt2htm::HtmlS<ndebug>& = delete;
+    constexpr auto operator=(this HtmlS<ndebug>& self, ::pltxt2htm::HtmlS<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlS<ndebug>&;
+
+    [[nodiscard]]
+    constexpr auto operator==(this HtmlS const&, HtmlS const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {

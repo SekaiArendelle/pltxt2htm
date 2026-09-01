@@ -13,7 +13,7 @@
 #include <type_traits>
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
-#include "../container/expected.hh"
+#include "../container/optional.hh"
 #include "../container/string_view.hh"
 #include "../contracts.hh"
 #include "literal_string.hh"
@@ -82,6 +82,19 @@ constexpr bool is_ascii_lowercase_alphanumeric(char8_t const chr) noexcept {
 #endif
 constexpr bool is_ascii_graphic(char8_t const chr) noexcept {
     return u8'!' <= chr && chr <= u8'~';
+}
+
+/**
+ * @brief Check if a character is ASCII punctuation.
+ * @details This is the character set CommonMark permits after a backslash escape.
+ */
+[[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
+constexpr bool is_ascii_punctuation(char8_t const chr) noexcept {
+    return (u8'!' <= chr && chr <= u8'/') || (u8':' <= chr && chr <= u8'@') || (u8'[' <= chr && chr <= u8'`') ||
+           (u8'{' <= chr && chr <= u8'~');
 }
 
 /**

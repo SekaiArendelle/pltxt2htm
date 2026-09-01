@@ -40,7 +40,7 @@ constexpr void convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast<nde
             out.push_back(active_node.chr);
             continue;
         }
-        case ::pltxt2htm::NodeKind::invalid_u8char: {
+        case ::pltxt2htm::NodeKind::invalid_utf8: {
             out.append(u8"\uFFFD");
             continue;
         }
@@ -48,32 +48,22 @@ constexpr void convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast<nde
             out.append(u8"\u00A0");
             continue;
         }
-        case ::pltxt2htm::NodeKind::md_escape_ampersand:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::ampersand: {
             out.push_back(u8'&');
             continue;
         }
-        case ::pltxt2htm::NodeKind::md_escape_single_quote:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::single_quote: {
             out.push_back(u8'\'');
             continue;
         }
-        case ::pltxt2htm::NodeKind::md_escape_double_quote:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::double_quote: {
             out.push_back(u8'\"');
             continue;
         }
-        case ::pltxt2htm::NodeKind::md_escape_less_than:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::less_than: {
             out.push_back(u8'<');
             continue;
         }
-        case ::pltxt2htm::NodeKind::md_escape_greater_than:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::greater_than: {
             out.push_back(u8'>');
             continue;
@@ -82,112 +72,9 @@ constexpr void convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast<nde
             out.push_back(u8'\t');
             continue;
         }
-        case ::pltxt2htm::NodeKind::md_escape_backslash: {
-            out.push_back(u8'\\');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_exclamation: {
-            out.push_back(u8'!');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_hash: {
-            out.push_back(u8'#');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_dollar: {
-            out.push_back(u8'$');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_percent: {
-            out.push_back(u8'%');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_left_paren: {
-            out.push_back(u8'(');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_right_paren: {
-            out.push_back(u8')');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_asterisk: {
-            out.push_back(u8'*');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_plus: {
-            out.push_back(u8'+');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_comma: {
-            out.push_back(u8',');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_hyphen: {
-            out.push_back(u8'-');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_dot: {
-            out.push_back(u8'.');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_slash: {
-            out.push_back(u8'/');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_colon: {
-            out.push_back(u8':');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_semicolon: {
-            out.push_back(u8';');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_equals: {
-            out.push_back(u8'=');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_question: {
-            out.push_back(u8'?');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_at: {
-            out.push_back(u8'@');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_left_bracket: {
-            out.push_back(u8'[');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_right_bracket: {
-            out.push_back(u8']');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_caret: {
-            out.push_back(u8'^');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_underscore: {
-            out.push_back(u8'_');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_backtick: {
-            out.push_back(u8'`');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_left_brace: {
-            out.push_back(u8'{');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_pipe: {
-            out.push_back(u8'|');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_right_brace: {
-            out.push_back(u8'}');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_tilde: {
-            out.push_back(u8'~');
+        case ::pltxt2htm::NodeKind::md_escape: {
+            auto&& active_node{node.as_md_escape()};
+            out.push_back(active_node.get_character());
             continue;
         }
         default:
@@ -220,7 +107,7 @@ constexpr auto plunity_text_backend(::pltxt2htm::Ast<ndebug> const& ast_init,
                                     ::pltxt2htm::container::U8StringView coauthors) noexcept -> ::fast_io::u8string {
     ::fast_io::u8string result{};
     ::pltxt2htm::details::CallStack<BackendFrame<ndebug>> call_stack{};
-    call_stack.push_frame(BackendFrame<ndebug>(ast_init, ::pltxt2htm::NodeKind::text, 0));
+    call_stack.push_frame(BackendFrame<ndebug>(ast_init, ::pltxt2htm::NodeKind::group, 0));
     ::std::size_t list_nesting_depth{};
 
 entry:
@@ -238,13 +125,13 @@ entry:
                 result.push_back(active_node.chr);
                 continue;
             }
-            case ::pltxt2htm::NodeKind::invalid_u8char: {
+            case ::pltxt2htm::NodeKind::invalid_utf8: {
                 result.append(u8"\uFFFD");
                 continue;
             }
-            case ::pltxt2htm::NodeKind::text: {
-                auto&& active_node{node.as_text()};
-                call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::text, 0));
+            case ::pltxt2htm::NodeKind::group: {
+                auto&& active_node{node.as_group()};
+                call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::group, 0));
                 ++current_index;
                 goto entry;
             }
@@ -252,32 +139,22 @@ entry:
                 result.append(u8"\u00A0");
                 continue;
             }
-            case ::pltxt2htm::NodeKind::md_escape_ampersand:
-                [[fallthrough]];
             case ::pltxt2htm::NodeKind::ampersand: {
                 result.push_back(u8'&');
                 continue;
             }
-            case ::pltxt2htm::NodeKind::md_escape_single_quote:
-                [[fallthrough]];
             case ::pltxt2htm::NodeKind::single_quote: {
                 result.push_back(u8'\'');
                 continue;
             }
-            case ::pltxt2htm::NodeKind::md_escape_double_quote:
-                [[fallthrough]];
             case ::pltxt2htm::NodeKind::double_quote: {
                 result.push_back(u8'\"');
                 continue;
             }
-            case ::pltxt2htm::NodeKind::md_escape_less_than:
-                [[fallthrough]];
             case ::pltxt2htm::NodeKind::less_than: {
                 result.append(u8"<size=20>\uff1c</size>");
                 continue;
             }
-            case ::pltxt2htm::NodeKind::md_escape_greater_than:
-                [[fallthrough]];
             case ::pltxt2htm::NodeKind::greater_than: {
                 result.append(u8"<size=20>\uff1e</size>");
                 continue;
@@ -940,9 +817,9 @@ entry:
                 result.append(u8"<font=\"PhysicsLab-SarasaMonoSC SDF\"> ");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::pl_s: {
-                auto&& active_node{node.as_pl_s()};
-                call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_s, 0));
+            case ::pltxt2htm::NodeKind::html_s: {
+                auto&& active_node{node.as_html_s()};
+                call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::html_s, 0));
                 ++current_index;
                 result.append(u8"<s>");
                 goto entry;
@@ -963,9 +840,9 @@ entry:
                 result.append(u8"<sub>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::pl_u: {
-                auto&& active_node{node.as_pl_u()};
-                call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_u, 0));
+            case ::pltxt2htm::NodeKind::html_u: {
+                auto&& active_node{node.as_html_u()};
+                call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::html_u, 0));
                 ++current_index;
                 result.append(u8"<u>");
                 goto entry;
@@ -1332,112 +1209,22 @@ entry:
                 result.push_back(u8')');
                 continue;
             }
-            case ::pltxt2htm::NodeKind::md_escape_backslash: {
-                result.push_back(u8'\\');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_exclamation: {
-                result.push_back(u8'!');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_hash: {
-                result.push_back(u8'#');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_dollar: {
-                result.push_back(u8'$');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_percent: {
-                result.push_back(u8'%');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_left_paren: {
-                result.push_back(u8'(');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_right_paren: {
-                result.push_back(u8')');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_asterisk: {
-                result.push_back(u8'*');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_plus: {
-                result.push_back(u8'+');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_comma: {
-                result.push_back(u8',');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_hyphen: {
-                result.push_back(u8'-');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_dot: {
-                result.push_back(u8'.');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_slash: {
-                result.push_back(u8'/');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_colon: {
-                result.push_back(u8':');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_semicolon: {
-                result.push_back(u8';');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_equals: {
-                result.push_back(u8'=');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_question: {
-                result.push_back(u8'?');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_at: {
-                result.push_back(u8'@');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_left_bracket: {
-                result.push_back(u8'[');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_right_bracket: {
-                result.push_back(u8']');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_caret: {
-                result.push_back(u8'^');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_underscore: {
-                result.push_back(u8'_');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_backtick: {
-                result.push_back(u8'`');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_left_brace: {
-                result.push_back(u8'{');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_pipe: {
-                result.push_back(u8'|');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_right_brace: {
-                result.push_back(u8'}');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_tilde: {
-                result.push_back(u8'~');
+            case ::pltxt2htm::NodeKind::md_escape: {
+                auto&& active_node{node.as_md_escape()};
+                switch (active_node.get_character()) {
+                case u8'<': {
+                    result.append(u8"<size=20>\uFF1C</size>");
+                    break;
+                }
+                case u8'>': {
+                    result.append(u8"<size=20>\uFF1E</size>");
+                    break;
+                }
+                default: {
+                    result.push_back(active_node.get_character());
+                    break;
+                }
+                }
                 continue;
             }
             case ::pltxt2htm::NodeKind::code_fence: {
@@ -1480,7 +1267,7 @@ entry:
                 return result;
             }
             switch (top_frame.get_nested_tag_type()) {
-            case ::pltxt2htm::NodeKind::text: {
+            case ::pltxt2htm::NodeKind::group: {
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_a:
@@ -1641,7 +1428,7 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_del:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::pl_s: {
+            case ::pltxt2htm::NodeKind::html_s: {
                 result.append(u8"</s>");
                 goto entry;
             }
@@ -1657,7 +1444,7 @@ entry:
                 result.append(u8"</sub>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::pl_u: {
+            case ::pltxt2htm::NodeKind::html_u: {
                 result.append(u8"</u>");
                 goto entry;
             }

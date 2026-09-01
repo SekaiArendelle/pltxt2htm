@@ -126,7 +126,7 @@ int main() {
         ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce> ast{};
         ::pltxt2htm::details::append_code_point_to_ast<::pltxt2htm::Contracts::quick_enforce>(code_point, ast);
         pltxt2htm_test_assert_true(ast.size() == 1);
-        pltxt2htm_test_assert_true(ast[0].get_node_kind() == ::pltxt2htm::NodeKind::invalid_u8char);
+        pltxt2htm_test_assert_true(ast[0].get_node_kind() == ::pltxt2htm::NodeKind::invalid_utf8);
     }
 
     // Every generated named reference round-trips through the decoder.

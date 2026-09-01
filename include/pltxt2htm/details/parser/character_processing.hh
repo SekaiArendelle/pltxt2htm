@@ -167,7 +167,7 @@ constexpr void append_utf8_code_point(::fast_io::u8string& result, char32_t code
 /**
  * @brief Parse one UTF-8 code point and append its original code units to an AST.
  * @details Parser-disallowed ASCII control characters and invalid UTF-8 prefixes append one
- *          InvalidU8Char node. The returned size preserves the existing invalid-prefix recovery.
+ *          InvalidUtf8 node. The returned size preserves the existing invalid-prefix recovery.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
@@ -175,13 +175,13 @@ constexpr auto parse_utf8_code_point(::pltxt2htm::container::U8StringView text,
                                      ::pltxt2htm::Ast<ndebug>& result) noexcept -> ::std::size_t {
     char8_t const first{text.template index<ndebug>(0)};
     if (::pltxt2htm::details::is_ascii_control_code_point(static_cast<char32_t>(first))) {
-        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidUtf8{}));
         return 1;
     }
 
     auto const decoded = ::pltxt2htm::details::decode_utf8_code_point<ndebug>(text);
     if (decoded.valid == false) {
-        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidUtf8{}));
         return decoded.consumed_size;
     }
     for (::std::size_t index{}; index < decoded.consumed_size; ++index) {
@@ -227,13 +227,13 @@ constexpr void append_code_point_to_ast(char32_t code_point, ::pltxt2htm::Ast<nd
     }
 
     if (::pltxt2htm::details::is_ascii_control_code_point(code_point)) {
-        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidUtf8{}));
         return;
     }
 
     auto const encoded = ::pltxt2htm::details::encode_utf8_code_point(code_point);
     if (encoded.size == 0) {
-        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidU8Char{}));
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidUtf8{}));
         return;
     }
     for (::std::size_t index{}; index < encoded.size; ++index) {

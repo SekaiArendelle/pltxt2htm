@@ -8,7 +8,6 @@
 using IntExpected = ::pltxt2htm::container::Expected<int, int>;
 
 static_assert(::pltxt2htm::container::is_expected<IntExpected>);
-static_assert(::pltxt2htm::container::is_optional<::pltxt2htm::container::Optional<int>>);
 static_assert(::pltxt2htm::container::is_unexpected<::pltxt2htm::container::Unexpected<int>>);
 static_assert(::std::same_as<decltype(::std::declval<IntExpected const&>().has_value()), bool>);
 static_assert(::std::same_as<decltype(::std::declval<IntExpected const&&>().has_value()), bool>);
@@ -83,9 +82,6 @@ int main() {
     ::pltxt2htm::container::Expected<int, int> error{::pltxt2htm::container::Unexpected<int>{7}};
     pltxt2htm_test_assert_false(error.has_value());
     pltxt2htm_test_assert_true(error.error<::pltxt2htm::Contracts::quick_enforce>() == 7);
-
-    ::pltxt2htm::container::Optional<int> empty{::pltxt2htm::container::nullopt};
-    pltxt2htm_test_assert_false(empty.has_value());
 
     using TrackedExpected =
         ::pltxt2htm::container::Expected<::pltxt2htm_test::TrackedValue, ::pltxt2htm_test::TrackedValue>;
