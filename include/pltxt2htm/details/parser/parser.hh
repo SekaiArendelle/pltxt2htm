@@ -527,9 +527,12 @@ entry:
                 ++current_index;
                 continue;
             }
-            if (chr == u8' ') {
+            if (auto const opt_space_size =
+                    ::pltxt2htm::details::try_parse_space<ndebug>(pltext.template subview<ndebug>(current_index));
+                opt_space_size.has_value()) {
+                auto const space_size = opt_space_size.template value<ndebug>().template get<ndebug>();
                 result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Space{}));
-                ++current_index;
+                current_index += space_size;
                 continue;
             }
             if (chr == u8'&') {

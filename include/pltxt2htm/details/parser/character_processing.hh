@@ -202,6 +202,7 @@ constexpr void append_code_point_to_ast(char32_t code_point, ::pltxt2htm::Ast<nd
         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LineBreak{}));
         return;
     case U' ':
+    case char32_t{0xA0}:
         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Space{}));
         return;
     case U'&':

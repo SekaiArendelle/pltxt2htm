@@ -1,6 +1,7 @@
 #include <fast_io/fast_io_dsal/array.h>
 #include <pltxt2htm/details/backend/for_plweb_text.hh>
 #include <pltxt2htm/details/parser/character_processing.hh>
+#include <pltxt2htm/parser.hh>
 #include "precompile.hh"
 
 constexpr void assert_decoded(::fast_io::u8string_view text, ::std::size_t consumed_size, char32_t first_code_point,
@@ -97,6 +98,9 @@ int main() {
     assert_decoded(u8"&#38;", 5, U'&');
     assert_decoded(u8"&#x26;", 6, U'&');
     assert_decoded(u8"&#X2A;", 6, U'*');
+    assert_decoded(u8"&nbsp;", 6, char32_t{0xA0});
+    assert_decoded(u8"&#32;", 5, U' ');
+    assert_decoded(u8"&#160;", 6, char32_t{0xA0});
     assert_decoded(u8"&amp;rest", 5, U'&');
     assert_decoded(u8"&NotEqualTilde;", 15, char32_t{0x2242}, char32_t{0x338});
 
@@ -161,9 +165,24 @@ int main() {
     pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&QUOT;"), u8"&quot;");
     pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&copy;"), u8"©");
     pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&NotEqualTilde;"), u8"≂̸");
-    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&#160;"), u8"&nbsp;");
-    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8" "), u8"&nbsp;");
     pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&#1;&#13;&#127;"), u8"���");
+
+    // Physics-Lab treats U+0020 and U+00A0 as the same space token, including references.
+    {
+        auto const pltext = ::fast_io::u8string_view{u8"a \u00A0&nbsp;&NonBreakingSpace;&#32;&#x20;&#160;&#xA0;b"};
+        auto const answer = ::fast_io::u8string_view{u8"a&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b"};
+        pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(pltext), answer);
+        pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4htmlunittest(pltext), answer);
+        pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2common_htmld(pltext), answer);
+    }
+    {
+        auto const ast = ::pltxt2htm::parse_pltxt<::pltxt2htm::Contracts::quick_enforce>(
+            u8" \u00A0&nbsp;&NonBreakingSpace;&#32;&#x20;&#160;&#xA0;");
+        pltxt2htm_test_assert_true(ast.size() == 8);
+        for (auto const& node : ast) {
+            pltxt2htm_test_assert_true(node.get_node_kind() == ::pltxt2htm::NodeKind::space);
+        }
+    }
 
     // Unknown and unterminated names remain literal text and cannot be reinterpreted by HTML.
     pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&bogus;"), u8"&amp;bogus;");
@@ -196,7 +215,9 @@ int main() {
     pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2plunity_introduction(u8"&#39;"), u8"'");
     pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2plunity_introduction(u8"&#60;"), u8"<size=20>＜</size>");
     pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2plunity_introduction(u8"&#62;"), u8"<size=20>＞</size>");
-    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2plunity_introduction(u8"&#160;"), u8" ");
+    pltxt2htm_test_assert_equal(
+        ::pltxt2htm_test::pltxt2plunity_introduction(u8"a \u00A0&nbsp;&NonBreakingSpace;&#32;&#x20;&#160;&#xA0;b"),
+        u8"a\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0b");
     pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2plunity_introduction(u8"a&#33;b"), u8"a!b");
     pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2plunity_introduction(u8"&#x1F600;"), u8"😀");
     pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2plunity_introduction(u8"&#1114112;"), u8"�");
