@@ -16,7 +16,7 @@
 #include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"
 #include "frame_context.hh"
-#include "html_url.hh"
+#include "html_attribute.hh"
 #include "../utils.hh"
 #include "../../contracts.hh"
 #include "../push_macro.hh"
@@ -599,7 +599,7 @@ entry:
                 result.append(u8"<mark=");
                 if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
                     ::fast_io::u8string purified_color{};
-                    ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                    ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
                         purified_color, ::pltxt2htm::container::U8StringView{mark_background_color});
                     pltxt2htm_assert(purified_color == mark_background_color,
                                      u8"Color value contains characters that cannot be directly used in Unity "
@@ -618,7 +618,7 @@ entry:
                 result.append(u8"<mark=");
                 if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
                     ::fast_io::u8string purified_color{};
-                    ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                    ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
                         purified_color, ::pltxt2htm::container::U8StringView{mark_background_color});
                     pltxt2htm_assert(purified_color == mark_background_color,
                                      u8"Color value contains characters that cannot be directly used in Unity "

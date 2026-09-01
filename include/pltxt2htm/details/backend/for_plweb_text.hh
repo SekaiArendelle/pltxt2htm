@@ -16,7 +16,7 @@
 #include "../../ast/vertical_align_value.hh"
 #include "frame_context.hh"
 #include "html_character.hh"
-#include "html_url.hh"
+#include "html_attribute.hh"
 #include "../../contracts.hh"
 #include "../utils.hh"
 #include "../push_macro.hh"
@@ -187,10 +187,10 @@ entry:
                 // Under normal circumstances, `color_value` should never contain characters that could enable XSS in
                 // HTML attributes. To avoid masking upstream bugs (and to keep release-path performance), we only
                 // assert this in debug mode. Do not try to hide such errors by routing output through
-                // `append_html_attr_escaped`.
+                // `append_html_escaped_attribute_value`.
                 if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
                     ::fast_io::u8string purified_color_value{};
-                    ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                    ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
                         purified_color_value, ::pltxt2htm::container::U8StringView{color_value});
                     bool const is_valid_color_value{purified_color_value == color_value};
                     pltxt2htm_assert(
@@ -218,7 +218,7 @@ entry:
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_experiment, 0));
                 ++current_index;
                 result.append(u8"<a href=\"");
-                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result, host);
+                ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(result, host);
                 if constexpr (mode != PlWebTextBackendMode::pltxt4unittest) {
                     result.append(u8"/p/Experiment/");
                 }
@@ -229,10 +229,10 @@ entry:
                 // Under normal circumstances, `experiment_id` should never contain characters that could enable XSS in
                 // HTML attributes. To avoid masking upstream bugs (and to keep release-path performance), we only
                 // assert this in debug mode. Do not try to hide such errors by routing output through
-                // `append_html_attr_escaped`.
+                // `append_html_escaped_attribute_value`.
                 if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
                     ::fast_io::u8string purified_experiment_id{};
-                    ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                    ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
                         purified_experiment_id, ::pltxt2htm::container::U8StringView{experiment_id});
                     pltxt2htm_assert(purified_experiment_id == experiment_id,
                                      u8"Experiment ID contains characters that cannot be directly used in HTML "
@@ -249,7 +249,7 @@ entry:
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_discussion, 0));
                 ++current_index;
                 result.append(u8"<a href=\"");
-                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result, host);
+                ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(result, host);
                 if constexpr (mode != PlWebTextBackendMode::pltxt4unittest) {
                     result.append(u8"/p/Discussion/");
                 }
@@ -260,10 +260,10 @@ entry:
                 // Under normal circumstances, `discussion_id` should never contain characters that could enable XSS in
                 // HTML attributes. To avoid masking upstream bugs (and to keep release-path performance), we only
                 // assert this in debug mode. Do not try to hide such errors by routing output through
-                // `append_html_attr_escaped`.
+                // `append_html_escaped_attribute_value`.
                 if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
                     ::fast_io::u8string purified_discussion_id{};
-                    ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                    ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
                         purified_discussion_id, ::pltxt2htm::container::U8StringView{discussion_id});
                     pltxt2htm_assert(purified_discussion_id == discussion_id,
                                      u8"Discussion ID contains characters that cannot be directly used in HTML "
@@ -281,7 +281,7 @@ entry:
                 ++current_index;
                 result.append(u8"&lt;experiments=");
                 auto const& experiments_value = active_node.get_value();
-                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
                     result, ::pltxt2htm::container::U8StringView{experiments_value});
                 result.append(u8"&gt;");
                 goto entry;
@@ -293,7 +293,7 @@ entry:
                 ++current_index;
                 result.append(u8"&lt;discussions=");
                 auto const& discussions_value = active_node.get_value();
-                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
                     result, ::pltxt2htm::container::U8StringView{discussions_value});
                 result.append(u8"&gt;");
                 goto entry;
@@ -305,7 +305,7 @@ entry:
                 ++current_index;
                 result.append(u8"&lt;trigger=");
                 auto const& trigger_value = active_node.get_value();
-                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
                     result, ::pltxt2htm::container::U8StringView{trigger_value});
                 result.append(u8"&gt;");
                 goto entry;
@@ -317,7 +317,7 @@ entry:
                 ++current_index;
                 result.append(u8"&lt;internal=");
                 auto const& internal_value = active_node.get_value();
-                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
                     result, ::pltxt2htm::container::U8StringView{internal_value});
                 result.append(u8"&gt;");
                 goto entry;
@@ -338,10 +338,10 @@ entry:
                     // Under normal circumstances, `user_id` should never contain characters that could enable XSS in
                     // HTML attributes. To avoid masking upstream bugs (and to keep release-path performance), we only
                     // assert this in debug mode. Do not try to hide such errors by routing output through
-                    // `append_html_attr_escaped`.
+                    // `append_html_escaped_attribute_value`.
                     if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
                         ::fast_io::u8string purified_user_id{};
-                        ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                        ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
                             purified_user_id, ::pltxt2htm::container::U8StringView{user_id});
                         bool const is_valid_user_id{purified_user_id == user_id};
                         pltxt2htm_assert(
@@ -596,7 +596,7 @@ entry:
                     result.append(u8"color:");
                     if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
                         ::fast_io::u8string purified_color{};
-                        ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                        ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
                             purified_color, ::pltxt2htm::container::U8StringView{span_color});
                         pltxt2htm_assert(
                             purified_color == span_color,
@@ -672,8 +672,8 @@ entry:
                 ++current_index;
                 result.append(u8"<a href=\"");
                 auto const& html_a_url = active_node.get_url().as_string();
-                ::pltxt2htm::details::append_html_escaped_url<ndebug>(result,
-                                                                      ::pltxt2htm::container::U8StringView{html_a_url});
+                ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
+                    result, ::pltxt2htm::container::U8StringView{html_a_url});
                 if (active_node.get_internal()) {
                     result.append(u8"\" internal>");
                 }
@@ -722,7 +722,7 @@ entry:
                 result.append(u8"<mark style=\"background-color:");
                 if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
                     ::fast_io::u8string purified_color{};
-                    ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                    ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
                         purified_color, ::pltxt2htm::container::U8StringView{mark_background_color});
                     pltxt2htm_assert(purified_color == mark_background_color,
                                      u8"Color value contains characters that cannot be directly used in HTML "
@@ -741,7 +741,7 @@ entry:
                 result.append(u8"<mark style=\"background-color:");
                 if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
                     ::fast_io::u8string purified_color{};
-                    ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                    ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
                         purified_color, ::pltxt2htm::container::U8StringView{mark_background_color});
                     pltxt2htm_assert(purified_color == mark_background_color,
                                      u8"Color value contains characters that cannot be directly used in HTML "
@@ -1192,12 +1192,12 @@ entry:
                 auto&& active_node{node.as_html_img()};
                 result.append(u8"<img src=\"");
                 auto const& src = active_node.get_src();
-                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result,
-                                                                       ::pltxt2htm::container::U8StringView{src});
+                ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
+                    result, ::pltxt2htm::container::U8StringView{src});
                 result.append(u8"\" alt=\"");
                 auto const& alt = active_node.get_alt();
-                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result,
-                                                                       ::pltxt2htm::container::U8StringView{alt});
+                ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
+                    result, ::pltxt2htm::container::U8StringView{alt});
                 result.append(u8"\">");
                 continue;
             }
@@ -1221,8 +1221,8 @@ entry:
                 auto&& active_node{node.as_url()};
                 auto const& url_str = active_node.as_string();
                 ::fast_io::u8string escaped;
-                ::pltxt2htm::details::append_html_escaped_url<ndebug>(escaped,
-                                                                      ::pltxt2htm::container::U8StringView{url_str});
+                ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
+                    escaped, ::pltxt2htm::container::U8StringView{url_str});
                 result.append(u8"<a href=\"");
                 result.append(escaped);
                 result.append(u8"\">");
@@ -1234,7 +1234,7 @@ entry:
                 auto&& active_node{node.as_md_link()};
                 result.append(u8"<a href=\"");
                 auto const& md_link_url = active_node.get_url().as_string();
-                ::pltxt2htm::details::append_html_escaped_url<ndebug>(
+                ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
                     result, ::pltxt2htm::container::U8StringView{md_link_url});
                 result.append(u8"\">");
                 call_stack.push_frame(
@@ -1246,8 +1246,8 @@ entry:
                 auto&& active_node{node.as_pl_external()};
                 result.append(u8"<a href=\"");
                 auto const& ext_url = active_node.get_url().as_string();
-                ::pltxt2htm::details::append_html_escaped_url<ndebug>(result,
-                                                                      ::pltxt2htm::container::U8StringView{ext_url});
+                ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
+                    result, ::pltxt2htm::container::U8StringView{ext_url});
                 result.append(u8"\">");
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_external, 0));
@@ -1258,8 +1258,8 @@ entry:
                 auto&& active_node{node.as_pl_link()};
                 result.append(u8"<a href=\"");
                 auto const& link_url = active_node.get_url().as_string();
-                ::pltxt2htm::details::append_html_escaped_url<ndebug>(result,
-                                                                      ::pltxt2htm::container::U8StringView{link_url});
+                ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
+                    result, ::pltxt2htm::container::U8StringView{link_url});
                 result.append(u8"\">");
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_link, 0));
@@ -1270,8 +1270,8 @@ entry:
                 auto&& active_node{node.as_md_image()};
                 result.append(u8"<img src=\"");
                 auto const& img_url = active_node.get_url().as_string();
-                ::pltxt2htm::details::append_html_escaped_url<ndebug>(result,
-                                                                      ::pltxt2htm::container::U8StringView{img_url});
+                ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
+                    result, ::pltxt2htm::container::U8StringView{img_url});
                 result.append(u8"\" alt=\"");
                 ::pltxt2htm::details::convert_simple_pltxt_ast_to_plweb_text<ndebug>(active_node.get_subast(), result);
                 result.append(u8"\">");
@@ -1288,7 +1288,7 @@ entry:
                 if (opt_language.has_value()) {
                     auto const& language = opt_language.template value<ndebug>();
                     result.append(u8"<pre><code class=\"language-");
-                    ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                    ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
                         result, ::pltxt2htm::container::U8StringView{language});
                     result.append(u8"\">");
                 }
@@ -1301,19 +1301,19 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_macro_project: {
-                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result, project);
+                ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(result, project);
                 continue;
             }
             case ::pltxt2htm::NodeKind::pl_macro_visitor: {
-                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result, visitor);
+                ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(result, visitor);
                 continue;
             }
             case ::pltxt2htm::NodeKind::pl_macro_author: {
-                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result, author);
+                ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(result, author);
                 continue;
             }
             case ::pltxt2htm::NodeKind::pl_macro_coauthors: {
-                ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result, coauthors);
+                ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(result, coauthors);
                 continue;
             }
 #ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK

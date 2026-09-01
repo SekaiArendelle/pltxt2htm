@@ -152,7 +152,7 @@ int main() {
     // Backend attribute escaping never treats its input as pre-escaped HTML.
     {
         ::fast_io::u8string escaped{};
-        ::pltxt2htm::details::append_html_attr_escaped<::pltxt2htm::Contracts::quick_enforce>(
+        ::pltxt2htm::details::append_html_escaped_attribute_value<::pltxt2htm::Contracts::quick_enforce>(
             escaped, ::pltxt2htm::container::U8StringView{u8"&quot;&bogus;"});
         pltxt2htm_test_assert_equal(escaped, u8"&amp;quot;&amp;bogus;");
     }

@@ -1,5 +1,5 @@
 /**
- * @file html_url.hh
+ * @file html_attribute.hh
  * @brief HTML serialization helpers for semantic attribute values.
  */
 
@@ -17,12 +17,12 @@ namespace pltxt2htm::details {
  * @details `value` is data, not an already HTML-escaped fragment. Every ampersand is
  *          therefore escaped, even when the following characters resemble a character reference.
  * @tparam ndebug Contract checking mode.
- * @param[out] result Output buffer receiving the escaped URL.
+ * @param[out] result Output buffer receiving the escaped attribute value.
  * @param[in] value Semantic attribute value to append.
  */
 template<::pltxt2htm::Contracts ndebug>
-constexpr void append_html_attr_escaped(::fast_io::u8string& result,
-                                        ::pltxt2htm::container::U8StringView value) noexcept {
+constexpr void append_html_escaped_attribute_value(::fast_io::u8string& result,
+                                                   ::pltxt2htm::container::U8StringView value) noexcept {
     ::std::size_t const value_size{value.size()};
     for (::std::size_t index{}; index < value_size; ++index) {
         auto const chr{value.template index<ndebug>(index)};
@@ -53,11 +53,6 @@ constexpr void append_html_attr_escaped(::fast_io::u8string& result,
         }
         }
     }
-}
-
-template<::pltxt2htm::Contracts ndebug>
-constexpr void append_html_escaped_url(::fast_io::u8string& result, ::pltxt2htm::container::U8StringView url) noexcept {
-    ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result, url);
 }
 
 } // namespace pltxt2htm::details
