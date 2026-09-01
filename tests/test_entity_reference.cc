@@ -5,33 +5,45 @@ int main() {
     {
         auto text = ::fast_io::u8string_view{u8"&amp;"};
         auto result = ::pltxt2htm::details::try_parse_entity_reference<::pltxt2htm::Contracts::quick_enforce>(text);
-        pltxt2htm_test_assert_true(result.has_value() && result.value<::pltxt2htm::Contracts::quick_enforce>() == 5);
+        pltxt2htm_test_assert_true(
+            result.has_value() &&
+            result.value<::pltxt2htm::Contracts::quick_enforce>().get<::pltxt2htm::Contracts::quick_enforce>() == 5);
     }
     {
         auto text = ::fast_io::u8string_view{u8"&#38;"};
         auto result = ::pltxt2htm::details::try_parse_entity_reference<::pltxt2htm::Contracts::quick_enforce>(text);
-        pltxt2htm_test_assert_true(result.has_value() && result.value<::pltxt2htm::Contracts::quick_enforce>() == 5);
+        pltxt2htm_test_assert_true(
+            result.has_value() &&
+            result.value<::pltxt2htm::Contracts::quick_enforce>().get<::pltxt2htm::Contracts::quick_enforce>() == 5);
     }
     {
         auto text = ::fast_io::u8string_view{u8"&#x26;"};
         auto result = ::pltxt2htm::details::try_parse_entity_reference<::pltxt2htm::Contracts::quick_enforce>(text);
-        pltxt2htm_test_assert_true(result.has_value() && result.value<::pltxt2htm::Contracts::quick_enforce>() == 6);
+        pltxt2htm_test_assert_true(
+            result.has_value() &&
+            result.value<::pltxt2htm::Contracts::quick_enforce>().get<::pltxt2htm::Contracts::quick_enforce>() == 6);
     }
     {
         auto text = ::fast_io::u8string_view{u8"&#X2A;"};
         auto result = ::pltxt2htm::details::try_parse_entity_reference<::pltxt2htm::Contracts::quick_enforce>(text);
-        pltxt2htm_test_assert_true(result.has_value() && result.value<::pltxt2htm::Contracts::quick_enforce>() == 6);
+        pltxt2htm_test_assert_true(
+            result.has_value() &&
+            result.value<::pltxt2htm::Contracts::quick_enforce>().get<::pltxt2htm::Contracts::quick_enforce>() == 6);
     }
     {
         auto text = ::fast_io::u8string_view{u8"&amp;rest"};
         auto result = ::pltxt2htm::details::try_parse_entity_reference<::pltxt2htm::Contracts::quick_enforce>(text);
-        pltxt2htm_test_assert_true(result.has_value() && result.value<::pltxt2htm::Contracts::quick_enforce>() == 5);
+        pltxt2htm_test_assert_true(
+            result.has_value() &&
+            result.value<::pltxt2htm::Contracts::quick_enforce>().get<::pltxt2htm::Contracts::quick_enforce>() == 5);
     }
     {
         auto text = ::fast_io::u8string_view{u8"foo&amp;bar"};
         auto result =
             ::pltxt2htm::details::try_parse_entity_reference<::pltxt2htm::Contracts::quick_enforce>(text.subview(3));
-        pltxt2htm_test_assert_true(result.has_value() && result.value<::pltxt2htm::Contracts::quick_enforce>() == 5);
+        pltxt2htm_test_assert_true(
+            result.has_value() &&
+            result.value<::pltxt2htm::Contracts::quick_enforce>().get<::pltxt2htm::Contracts::quick_enforce>() == 5);
     }
 
     {

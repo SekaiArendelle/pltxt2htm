@@ -51,7 +51,7 @@ constexpr auto find_next_block_after_line_break(
                 pltext.template subview<ndebug>(current_index));
             opt_hr_tag_len.has_value()) {
             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlHr{}));
-            current_index += opt_hr_tag_len.template value<ndebug>();
+            current_index += opt_hr_tag_len.template value<ndebug>().template get<ndebug>();
             continue;
         }
         // Check for an HTML <pre><code>...</code></pre> code block at a block position.
@@ -337,7 +337,7 @@ entry:
                 if (auto const opt_entity_len = ::pltxt2htm::details::try_parse_entity_reference<ndebug>(
                         pltext.template subview<ndebug>(current_index));
                     opt_entity_len.has_value()) {
-                    auto const entity_len = opt_entity_len.template value<ndebug>();
+                    auto const entity_len = opt_entity_len.template value<ndebug>().template get<ndebug>();
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::EntityReference{::fast_io::u8string{
                         pltext.data() + current_index + 1, pltext.data() + current_index + entity_len - 1}}));
                     current_index += entity_len;
@@ -405,7 +405,7 @@ entry:
                     if (auto opt_br_tag_len = ::pltxt2htm::details::try_parse_self_closing_tag<ndebug, u8"r">(
                             pltext.template subview<ndebug>(current_index + 2));
                         opt_br_tag_len.has_value()) {
-                        current_index += opt_br_tag_len.template value<ndebug>() + 1;
+                        current_index += opt_br_tag_len.template value<ndebug>().template get<ndebug>() + 1;
                         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlBr{}));
                         // Check for block-level <p> tag right after <br>. current_index currently sits
                         // on the '>' of <br>, so the candidate block starts at current_index + 1.
