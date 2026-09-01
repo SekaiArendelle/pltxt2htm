@@ -1,9 +1,11 @@
 #include <concepts>
+#include <cstddef>
 #include <utility>
 
 #include "precompile.hh"
 
 #include <pltxt2htm/container/expected.hh>
+#include <pltxt2htm/container/non_zero.hh>
 #include <pltxt2htm/container/optional.hh>
 
 using IntOptional = ::pltxt2htm::container::Optional<int>;
@@ -47,6 +49,53 @@ consteval bool optional_constexpr_operations_work() noexcept {
 }
 
 static_assert(optional_constexpr_operations_work());
+
+using NonZeroSize = ::pltxt2htm::container::NonZeroSize;
+using NonZeroSizeOptional = ::pltxt2htm::container::Optional<NonZeroSize>;
+
+template<typename T>
+consteval auto optional_non_zero_has_niche_representation() noexcept -> bool {
+    using OptionalNonZero = ::pltxt2htm::container::Optional<::pltxt2htm::container::NonZero<T>>;
+
+    return sizeof(OptionalNonZero) == sizeof(T) && alignof(OptionalNonZero) == alignof(T);
+}
+
+static_assert(optional_non_zero_has_niche_representation<unsigned char>());
+static_assert(optional_non_zero_has_niche_representation<unsigned short>());
+static_assert(optional_non_zero_has_niche_representation<unsigned>());
+static_assert(optional_non_zero_has_niche_representation<unsigned long>());
+static_assert(optional_non_zero_has_niche_representation<unsigned long long>());
+static_assert(optional_non_zero_has_niche_representation<::std::size_t>());
+
+consteval bool optional_non_zero_constexpr_operations_work() noexcept {
+    auto const seven = NonZeroSize::from<::pltxt2htm::Contracts::quick_enforce>(7);
+    auto const eleven = NonZeroSize::from<::pltxt2htm::Contracts::quick_enforce>(11);
+    NonZeroSizeOptional value{seven};
+    NonZeroSizeOptional empty{::pltxt2htm::container::nullopt};
+    if (!value.has_value() || empty.has_value()) {
+        return false;
+    }
+    if (value.value<::pltxt2htm::Contracts::ignore>().get<::pltxt2htm::Contracts::ignore>() != 7) {
+        return false;
+    }
+    empty = value;
+    if (!empty.has_value() ||
+        empty.value<::pltxt2htm::Contracts::ignore>().get<::pltxt2htm::Contracts::ignore>() != 7) {
+        return false;
+    }
+    value = eleven;
+    empty.swap(value);
+    if (empty.value<::pltxt2htm::Contracts::ignore>().get<::pltxt2htm::Contracts::ignore>() != 11 ||
+        value.value<::pltxt2htm::Contracts::ignore>().get<::pltxt2htm::Contracts::ignore>() != 7) {
+        return false;
+    }
+    empty = ::pltxt2htm::container::nullopt;
+    value.swap(empty);
+    return !value.has_value() && empty.has_value() &&
+           empty.value<::pltxt2htm::Contracts::ignore>().get<::pltxt2htm::Contracts::ignore>() == 7;
+}
+
+static_assert(optional_non_zero_constexpr_operations_work());
 
 namespace pltxt2htm_test {
 

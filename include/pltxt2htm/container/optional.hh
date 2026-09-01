@@ -10,6 +10,7 @@
 #include <type_traits>
 #include <utility>
 
+#include "non_zero.hh"
 #include "../details/push_macro.hh"
 
 namespace pltxt2htm::container {
@@ -119,6 +120,57 @@ public:
     [[nodiscard]]
     constexpr auto has_value(this OptionalStorage<T> const& self) noexcept -> bool {
         return self.contains_value;
+    }
+
+    [[nodiscard]]
+    constexpr auto value(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.value_storage);
+    }
+};
+
+template<is_non_zero_unsigned_integer T>
+class OptionalStorage<NonZero<T>> {
+    NonZero<T> value_storage;
+
+public:
+    constexpr OptionalStorage(NulloptType) noexcept
+        : value_storage{} {
+    }
+
+    constexpr OptionalStorage(NonZero<T> const& value) noexcept
+        : value_storage{value} {
+    }
+
+    constexpr OptionalStorage(NonZero<T>&& value) noexcept
+        : value_storage{::std::move(value)} {
+    }
+
+    constexpr OptionalStorage(OptionalStorage const&) noexcept = default;
+
+    constexpr OptionalStorage(OptionalStorage&&) noexcept = default;
+
+    constexpr ~OptionalStorage() noexcept = default;
+
+    template<typename U>
+        requires (::std::same_as<::std::remove_cvref_t<U>, NonZero<T>> &&
+                  (::std::is_copy_assignable_v<U> || ::std::is_move_assignable_v<U>))
+    constexpr void assign(this OptionalStorage& self, U&& value) noexcept {
+        self.value_storage.value_storage = value.value_storage;
+    }
+
+    constexpr void reset(this OptionalStorage& self) noexcept {
+        self.value_storage.value_storage = 0;
+    }
+
+    constexpr void swap(this OptionalStorage& self, OptionalStorage& other) noexcept {
+        T const tmp{self.value_storage.value_storage};
+        self.value_storage.value_storage = other.value_storage.value_storage;
+        other.value_storage.value_storage = tmp;
+    }
+
+    [[nodiscard]]
+    constexpr auto has_value(this OptionalStorage const& self) noexcept -> bool {
+        return self.value_storage.value_storage != 0;
     }
 
     [[nodiscard]]

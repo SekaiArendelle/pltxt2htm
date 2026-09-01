@@ -117,7 +117,7 @@ constexpr auto find_next_block_after_line_break(::pltxt2htm::container::U8String
                 pltext.template subview<ndebug>(current_index));
             opt_len.has_value()) {
             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdHr{}));
-            current_index += opt_len.template value<ndebug>();
+            current_index += opt_len.template value<ndebug>().template get<ndebug>();
             continue;
         }
         // Check for HTML <hr> self-closing tag at block position. Treating <hr> as a
@@ -127,7 +127,7 @@ constexpr auto find_next_block_after_line_break(::pltxt2htm::container::U8String
                 pltext.template subview<ndebug>(current_index));
             opt_hr_tag_len.has_value()) {
             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlHr{}));
-            current_index += opt_hr_tag_len.template value<ndebug>();
+            current_index += opt_hr_tag_len.template value<ndebug>().template get<ndebug>();
             continue;
         }
         if (auto opt_code_fence =
@@ -536,7 +536,7 @@ entry:
                 if (auto const opt_entity_len = ::pltxt2htm::details::try_parse_entity_reference<ndebug>(
                         pltext.template subview<ndebug>(current_index));
                     opt_entity_len.has_value()) {
-                    auto const entity_len = opt_entity_len.template value<ndebug>();
+                    auto const entity_len = opt_entity_len.template value<ndebug>().template get<ndebug>();
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::EntityReference{::fast_io::u8string{
                         pltext.data() + current_index + 1, pltext.data() + current_index + entity_len - 1}}));
                     current_index += entity_len;
@@ -606,7 +606,8 @@ entry:
                     pltext.template subview<ndebug>(current_index));
                 opt_triple_emphasis_asterisk.has_value()) {
                 // parsing markdown ***example***
-                ::std::size_t const advance_count{opt_triple_emphasis_asterisk.template value<ndebug>()};
+                ::std::size_t const advance_count{
+                    opt_triple_emphasis_asterisk.template value<ndebug>().template get<ndebug>()};
                 call_stack.push_frame(ParserFrame<ndebug>(
                     FrontendContextVariant<ndebug>{ParserFrameContextWithPltextInfo{pltext.template subview<ndebug>(
                                                        current_index + 3, advance_count)},
@@ -619,7 +620,8 @@ entry:
                     pltext.template subview<ndebug>(current_index));
                 opt_double_emphasis_asterisk.has_value()) {
                 // parsing markdown **example**
-                ::std::size_t const advance_count{opt_double_emphasis_asterisk.template value<ndebug>()};
+                ::std::size_t const advance_count{
+                    opt_double_emphasis_asterisk.template value<ndebug>().template get<ndebug>()};
                 call_stack.push_frame(ParserFrame<ndebug>(
                     FrontendContextVariant<ndebug>{ParserFrameContextWithPltextInfo{pltext.template subview<ndebug>(
                                                        current_index + 2, advance_count)},
@@ -632,7 +634,8 @@ entry:
                     pltext.template subview<ndebug>(current_index));
                 opt_single_emphasis_asterisk.has_value()) {
                 // parsing markdown *example*
-                ::std::size_t const advance_count{opt_single_emphasis_asterisk.template value<ndebug>()};
+                ::std::size_t const advance_count{
+                    opt_single_emphasis_asterisk.template value<ndebug>().template get<ndebug>()};
                 call_stack.push_frame(ParserFrame<ndebug>(
                     FrontendContextVariant<ndebug>{ParserFrameContextWithPltextInfo{pltext.template subview<ndebug>(
                                                        current_index + 1, advance_count)},
@@ -645,7 +648,8 @@ entry:
                     pltext.template subview<ndebug>(current_index));
                 opt_triple_emphasis_underscore.has_value()) {
                 // parsing markdown ___example___
-                ::std::size_t const advance_count{opt_triple_emphasis_underscore.template value<ndebug>()};
+                ::std::size_t const advance_count{
+                    opt_triple_emphasis_underscore.template value<ndebug>().template get<ndebug>()};
                 call_stack.push_frame(ParserFrame<ndebug>(
                     FrontendContextVariant<ndebug>{ParserFrameContextWithPltextInfo{pltext.template subview<ndebug>(
                                                        current_index + 3, advance_count)},
@@ -658,7 +662,8 @@ entry:
                     pltext.template subview<ndebug>(current_index));
                 opt_double_emphasis_undersore.has_value()) {
                 // parsing markdown __example__
-                ::std::size_t const advance_count{opt_double_emphasis_undersore.template value<ndebug>()};
+                ::std::size_t const advance_count{
+                    opt_double_emphasis_undersore.template value<ndebug>().template get<ndebug>()};
                 call_stack.push_frame(ParserFrame<ndebug>(
                     FrontendContextVariant<ndebug>{ParserFrameContextWithPltextInfo{pltext.template subview<ndebug>(
                                                        current_index + 2, advance_count)},
@@ -671,7 +676,8 @@ entry:
                     pltext.template subview<ndebug>(current_index));
                 opt_single_emphasis_undersore.has_value()) {
                 // parsing markdown _example_
-                ::std::size_t const advance_count{opt_single_emphasis_undersore.template value<ndebug>()};
+                ::std::size_t const advance_count{
+                    opt_single_emphasis_undersore.template value<ndebug>().template get<ndebug>()};
                 call_stack.push_frame(ParserFrame<ndebug>(
                     FrontendContextVariant<ndebug>{ParserFrameContextWithPltextInfo{pltext.template subview<ndebug>(
                                                        current_index + 1, advance_count)},
@@ -684,7 +690,7 @@ entry:
                     pltext.template subview<ndebug>(current_index));
                 opt_md_del.has_value()) {
                 // parsing markdown ~~example~~
-                ::std::size_t const advance_count{opt_md_del.template value<ndebug>()};
+                ::std::size_t const advance_count{opt_md_del.template value<ndebug>().template get<ndebug>()};
                 call_stack.push_frame(ParserFrame<ndebug>(
                     FrontendContextVariant<ndebug>{ParserFrameContextWithPltextInfo{pltext.template subview<ndebug>(
                                                        current_index + 2, advance_count)},
@@ -857,7 +863,7 @@ entry:
                     if (auto opt_br_tag_len = ::pltxt2htm::details::try_parse_self_closing_tag<ndebug, u8"r">(
                             pltext.template subview<ndebug>(current_index + 2));
                         opt_br_tag_len.has_value()) {
-                        current_index += opt_br_tag_len.template value<ndebug>() + 1;
+                        current_index += opt_br_tag_len.template value<ndebug>().template get<ndebug>() + 1;
                         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlBr{}));
 
                         auto&& [advance_count, require_restart] =

@@ -110,7 +110,7 @@ constexpr void append_html_attr_escaped(::fast_io::u8string& result,
             if (auto const opt_entity_len =
                     ::pltxt2htm::details::try_parse_entity_reference<ndebug>(value.template subview<ndebug>(index));
                 opt_entity_len.has_value()) {
-                auto const entity_len = opt_entity_len.template value<ndebug>();
+                auto const entity_len = opt_entity_len.template value<ndebug>().template get<ndebug>();
                 result.append(::pltxt2htm::container::U8StringView{value.data() + index, entity_len});
                 index += entity_len - 1;
                 break;
