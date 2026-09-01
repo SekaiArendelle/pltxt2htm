@@ -149,6 +149,24 @@ int main() {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"&quot;&amp;&lt;");
         pltxt2htm_test_assert_equal(html, u8"&quot;&amp;&lt;");
     }
+    // Physics-Lab treats both U+0020 and U+00A0 as non-breaking spaces.
+    {
+        auto const pltext = ::fast_io::u8string_view{u8"a \u00A0b"};
+        auto const answer = ::fast_io::u8string_view{u8"a&nbsp;&nbsp;b"};
+        pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(pltext), answer);
+        pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4htmlunittest(pltext), answer);
+        pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2common_htmld(pltext), answer);
+    }
+    {
+        auto const parsed =
+            ::pltxt2htm::details::simply_parse_pltext<::pltxt2htm::Contracts::quick_enforce,
+                                                      ::pltxt2htm::details::U8LiteralString<0>{}>(u8" \u00A0");
+        auto const& ast = parsed.ast;
+        pltxt2htm_test_assert_true(ast.size() == 2);
+        for (auto const& node : ast) {
+            pltxt2htm_test_assert_true(node.get_node_kind() == ::pltxt2htm::NodeKind::space);
+        }
+    }
     // Invalid entity &; falls back to bare ampersand
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"&;");
