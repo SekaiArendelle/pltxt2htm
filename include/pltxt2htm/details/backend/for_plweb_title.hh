@@ -13,8 +13,7 @@
 #include <fast_io/fast_io_dsal/string.h>
 #include "../../container/string_view.hh"
 #include "frame_context.hh"
-#include "html_character.hh"
-#include "html_attribute.hh"
+#include "html_escape.hh"
 #include "../utils.hh"
 #include "../../ast/vertical_align_value.hh"
 #include "../../contracts.hh"

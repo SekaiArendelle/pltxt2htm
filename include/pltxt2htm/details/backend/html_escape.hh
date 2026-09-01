@@ -1,6 +1,6 @@
 /**
- * @file html_attribute.hh
- * @brief HTML serialization helpers for semantic attribute values.
+ * @file html_escape.hh
+ * @brief HTML escaping helpers.
  */
 
 #pragma once
@@ -11,6 +11,38 @@
 #include "../../contracts.hh"
 
 namespace pltxt2htm::details {
+
+/**
+ * @brief Append one character, escaping characters with HTML syntax significance.
+ */
+constexpr void append_html_escaped_character(::fast_io::u8string& out, char8_t const character) noexcept {
+    switch (character) {
+    case u8'&': {
+        out.append(u8"&amp;");
+        return;
+    }
+    case u8'\'': {
+        out.append(u8"&apos;");
+        return;
+    }
+    case u8'"': {
+        out.append(u8"&quot;");
+        return;
+    }
+    case u8'<': {
+        out.append(u8"&lt;");
+        return;
+    }
+    case u8'>': {
+        out.append(u8"&gt;");
+        return;
+    }
+    default: {
+        out.push_back(character);
+        return;
+    }
+    }
+}
 
 /**
  * @brief Append a semantic attribute value with HTML escaping.
@@ -25,33 +57,7 @@ constexpr void append_html_escaped_attribute_value(::fast_io::u8string& result,
                                                    ::pltxt2htm::container::U8StringView value) noexcept {
     ::std::size_t const value_size{value.size()};
     for (::std::size_t index{}; index < value_size; ++index) {
-        auto const chr{value.template index<ndebug>(index)};
-        switch (chr) {
-        case u8'&': {
-            result.append(u8"&amp;");
-            break;
-        }
-        case u8'\"': {
-            result.append(u8"&quot;");
-            break;
-        }
-        case u8'\'': {
-            result.append(u8"&apos;");
-            break;
-        }
-        case u8'<': {
-            result.append(u8"&lt;");
-            break;
-        }
-        case u8'>': {
-            result.append(u8"&gt;");
-            break;
-        }
-        default: {
-            result.push_back(chr);
-            break;
-        }
-        }
+        ::pltxt2htm::details::append_html_escaped_character(result, value.template index<ndebug>(index));
     }
 }
 
