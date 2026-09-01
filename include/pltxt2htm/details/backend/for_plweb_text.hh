@@ -39,17 +39,6 @@ constexpr void convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> c
         switch (node.get_node_kind()) {
         case ::pltxt2htm::NodeKind::u8char: {
             auto&& active_node{node.as_u8char()};
-            if (active_node.chr == char8_t{0xC2} && index + 1 < ast_size) {
-                auto const& next = ::pltxt2htm::details::vector_index<ndebug>(ast, index + 1);
-                if (next.get_node_kind() == ::pltxt2htm::NodeKind::u8char) {
-                    auto&& active_next{next.as_u8char()};
-                    if (active_next.chr == char8_t{0xA0}) {
-                        out.append(u8"&nbsp;");
-                        ++index;
-                        continue;
-                    }
-                }
-            }
             out.push_back(active_node.chr);
             continue;
         }
@@ -140,23 +129,13 @@ entry:
         auto const nested_tag_type = current_frame.get_nested_tag_type();
         auto&& current_index = current_frame.current_index;
         ::std::size_t const ast_size{ast.size()};
+        // TOOD: replace this to a while loop
         for (; current_index < ast_size; ++current_index) {
             auto&& node = ::pltxt2htm::details::vector_index<ndebug>(ast, current_index);
 
             switch (node.get_node_kind()) /* -Werror=switch */ {
             case ::pltxt2htm::NodeKind::u8char: {
                 auto&& active_node{node.as_u8char()};
-                if (active_node.chr == char8_t{0xC2} && current_index + 1 < ast_size) {
-                    auto const& next = ::pltxt2htm::details::vector_index<ndebug>(ast, current_index + 1);
-                    if (next.get_node_kind() == ::pltxt2htm::NodeKind::u8char) {
-                        auto&& active_next{next.as_u8char()};
-                        if (active_next.chr == char8_t{0xA0}) {
-                            result.append(u8"&nbsp;");
-                            ++current_index;
-                            continue;
-                        }
-                    }
-                }
                 result.push_back(active_node.chr);
                 continue;
             }

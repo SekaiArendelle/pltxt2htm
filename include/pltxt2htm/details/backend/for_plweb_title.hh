@@ -51,17 +51,6 @@ entry:
             switch (node.get_node_kind()) /* -Werror=switch */ {
             case ::pltxt2htm::NodeKind::u8char: {
                 auto&& active_node{node.as_u8char()};
-                if (active_node.chr == char8_t{0xC2} && current_index + 1 < ast_size) {
-                    auto const& next = ::pltxt2htm::details::vector_index<ndebug>(ast, current_index + 1);
-                    if (next.get_node_kind() == ::pltxt2htm::NodeKind::u8char) {
-                        auto&& active_next{next.as_u8char()};
-                        if (active_next.chr == char8_t{0xA0}) {
-                            result.append(u8"&nbsp;");
-                            ++current_index;
-                            continue;
-                        }
-                    }
-                }
                 result.push_back(active_node.chr);
                 continue;
             }
