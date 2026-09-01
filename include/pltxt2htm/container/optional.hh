@@ -23,6 +23,25 @@ inline constexpr auto nullopt = NulloptType{};
 
 namespace details {
 
+template<typename T, typename U>
+constexpr bool reference_constructs_from_temporary_fallback_v =
+    !::std::is_lvalue_reference_v<U> || !::std::is_convertible_v<::std::add_pointer_t<::std::remove_reference_t<U>>,
+                                                                 ::std::add_pointer_t<::std::remove_reference_t<T>>>;
+
+template<typename T, typename U>
+constexpr bool reference_constructs_from_temporary_v =
+#if defined(__cpp_lib_reference_from_temporary)
+    ::std::reference_constructs_from_temporary_v<T, U>;
+#elif defined(__has_builtin)
+    #if __has_builtin(__reference_constructs_from_temporary)
+    __reference_constructs_from_temporary(T, U);
+    #else
+    reference_constructs_from_temporary_fallback_v<T, U>;
+    #endif
+#else
+    reference_constructs_from_temporary_fallback_v<T, U>;
+#endif
+
 template<typename T>
 class OptionalStorage {
     union {
@@ -337,7 +356,7 @@ public:
     template<typename U>
         requires (!::std::same_as<::std::remove_cvref_t<U>, Optional<T&>> &&
                   !::std::same_as<::std::remove_cvref_t<U>, NulloptType> && ::std::is_constructible_v<T&, U> &&
-                  !::std::reference_constructs_from_temporary_v<T&, U>)
+                  !details::reference_constructs_from_temporary_v<T&, U>)
     constexpr explicit(!::std::is_convertible_v<U, T&>)
         Optional(U&& value) noexcept(::std::is_nothrow_constructible_v<T&, U>)
         : value_storage{reference_address(::std::forward<U>(value))} {
@@ -346,7 +365,7 @@ public:
     template<typename U>
         requires (!::std::same_as<::std::remove_cvref_t<U>, Optional<T&>> &&
                   !::std::same_as<::std::remove_cvref_t<U>, NulloptType> && ::std::is_constructible_v<T&, U> &&
-                  ::std::reference_constructs_from_temporary_v<T&, U>)
+                  details::reference_constructs_from_temporary_v<T&, U>)
     constexpr explicit(!::std::is_convertible_v<U, T&>)
         Optional(U&&) noexcept(::std::is_nothrow_constructible_v<T&, U>) = delete;
 
