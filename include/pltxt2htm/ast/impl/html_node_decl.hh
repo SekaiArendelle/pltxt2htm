@@ -9,6 +9,7 @@
 
 #include <utility>
 #include <cstddef>
+#include <cstdint>
 #include <fast_io/fast_io_dsal/string.h>
 #include "../../container/optional.hh"
 #include "../../container/string_view.hh"
@@ -529,10 +530,57 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlSpan {
+    // Intentionally use the least unsigned type with at least 8 value bits to keep this storage tag compact.
+    enum class VerticalAlignStorageKind : ::std::uint_least8_t {
+        none,
+        keyword_baseline,
+        keyword_sub,
+        keyword_super,
+        keyword_text_top,
+        keyword_text_bottom,
+        keyword_middle,
+        keyword_top,
+        keyword_bottom,
+        length_px,
+        length_percent,
+        length_em,
+    };
+
+    // Flatten optional style state so its tags share alignment padding instead of enlarging every PlTxtNode.
+    struct StyleStorage {
+        double font_size_value{};
+        ::std::ptrdiff_t vertical_align_length{};
+        ::pltxt2htm::Unit font_size_unit{::pltxt2htm::Unit::px};
+        VerticalAlignStorageKind vertical_align_kind{VerticalAlignStorageKind::none};
+        bool has_font_size{};
+
+        [[nodiscard]]
+        constexpr auto operator==(this StyleStorage const& self, StyleStorage const& other) noexcept -> bool {
+            if (self.has_font_size != other.has_font_size || self.vertical_align_kind != other.vertical_align_kind) {
+                return false;
+            }
+            if (self.has_font_size &&
+                (self.font_size_value != other.font_size_value || self.font_size_unit != other.font_size_unit)) {
+                return false;
+            }
+            bool const stores_vertical_align_length{self.vertical_align_kind == VerticalAlignStorageKind::length_px ||
+                                                    self.vertical_align_kind ==
+                                                        VerticalAlignStorageKind::length_percent ||
+                                                    self.vertical_align_kind == VerticalAlignStorageKind::length_em};
+            return stores_vertical_align_length == false || self.vertical_align_length == other.vertical_align_length;
+        }
+    };
+
+    [[nodiscard]]
+    static constexpr auto encode_vertical_align_unit(::pltxt2htm::Unit unit) noexcept -> VerticalAlignStorageKind;
+
+    [[nodiscard]]
+    static constexpr auto encode_vertical_align_keyword(::pltxt2htm::VerticalAlignKeyword keyword) noexcept
+        -> VerticalAlignStorageKind;
+
     ::pltxt2htm::Ast<ndebug> subast;
     ::fast_io::u8string color;
-    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size;
-    ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align;
+    StyleStorage style{};
 
 public:
     constexpr HtmlSpan(
@@ -561,15 +609,11 @@ public:
 
     [[nodiscard]]
     constexpr auto get_font_size(this HtmlSpan<ndebug> const& self) noexcept
-        -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> {
-        return self.font_size;
-    }
+        -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>>;
 
     [[nodiscard]]
     constexpr auto get_vertical_align(this HtmlSpan<ndebug> const& self) noexcept
-        -> ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> {
-        return self.vertical_align;
-    }
+        -> ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>>;
 };
 
 /**
