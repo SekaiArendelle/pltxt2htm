@@ -9,23 +9,11 @@
 #include <cstdint>
 #include <fast_io/fast_io_dsal/string.h>
 #include "../../ast/ast.hh"
-#include "../../container/expected.hh"
-#include "../../container/string_view.hh"
 #include "../../contracts.hh"
+#include "../../container/string_view.hh"
 #include "html_named_character_references.hh"
 
 namespace pltxt2htm::details {
-
-struct DecodeUtf8CodePointResult {
-    ::std::size_t consumed_size;
-    char32_t code_point;
-    bool valid;
-};
-
-struct EncodedUtf8CodePoint {
-    char8_t code_units[4];
-    ::std::uint_least8_t size;
-};
 
 [[nodiscard]]
 constexpr auto is_unicode_scalar_value(char32_t code_point) noexcept -> bool {
@@ -36,6 +24,12 @@ constexpr auto is_unicode_scalar_value(char32_t code_point) noexcept -> bool {
 constexpr auto is_ascii_control_code_point(char32_t code_point) noexcept -> bool {
     return code_point <= char32_t{0x1F} || code_point == char32_t{0x7F};
 }
+
+struct DecodeUtf8CodePointResult {
+    ::std::size_t consumed_size;
+    char32_t code_point;
+    bool valid;
+};
 
 /**
  * @brief Decode the first UTF-8 code point in a view.
@@ -120,6 +114,12 @@ constexpr auto decode_utf8_code_point(::pltxt2htm::container::U8StringView text)
 
     return {.consumed_size = 1, .code_point = char32_t{}, .valid = false};
 }
+
+
+struct EncodedUtf8CodePoint {
+    char8_t code_units[4];
+    ::std::uint_least8_t size;
+};
 
 /**
  * @brief Encode one Unicode scalar value as UTF-8.
@@ -249,19 +249,6 @@ constexpr void append_character_reference_code_point(::fast_io::u8string& result
     ::pltxt2htm::details::append_utf8_code_point(result, code_point);
 }
 
-struct TryDecodeCharacterReferenceResult {
-    ::std::size_t consumed_size;
-    char32_t first_code_point;
-    char32_t second_code_point;
-    ::std::uint_least8_t code_point_count;
-};
-
-struct DecodedCharacterReference {
-    char32_t first_code_point;
-    char32_t second_code_point;
-    ::std::uint_least8_t code_point_count;
-};
-
 [[nodiscard]]
 constexpr auto remap_html_numeric_character_reference(char32_t code_point) noexcept -> char32_t {
     switch (code_point) {
@@ -370,6 +357,12 @@ constexpr auto try_find_html_named_character_reference(::pltxt2htm::container::U
     return nullptr;
 }
 
+struct DecodedCharacterReference {
+    char32_t first_code_point;
+    char32_t second_code_point;
+    ::std::uint_least8_t code_point_count;
+};
+
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_decode_character_reference_value(::pltxt2htm::container::U8StringView value) noexcept
@@ -448,6 +441,13 @@ constexpr auto try_decode_character_reference_value(::pltxt2htm::container::U8St
         .second_code_point = entity->second_code_point,
         .code_point_count = static_cast<::std::uint_least8_t>(entity->second_code_point == 0 ? 1 : 2)};
 }
+
+struct TryDecodeCharacterReferenceResult {
+    ::std::size_t consumed_size;
+    char32_t first_code_point;
+    char32_t second_code_point;
+    ::std::uint_least8_t code_point_count;
+};
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
