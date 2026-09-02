@@ -6,7 +6,6 @@
 #pragma once
 
 #include <cstddef>
-#include <cstdint>
 #include <fast_io/fast_io_dsal/string.h>
 #include "../../ast/ast.hh"
 #include "../../contracts.hh"
@@ -115,10 +114,9 @@ constexpr auto decode_utf8_code_point(::pltxt2htm::container::U8StringView text)
     return {.consumed_size = 1, .code_point = char32_t{}, .valid = false};
 }
 
-
 struct EncodedUtf8CodePoint {
     char8_t code_units[4];
-    ::std::uint_least8_t size;
+    unsigned size;
 };
 
 /**
@@ -360,7 +358,7 @@ constexpr auto try_find_html_named_character_reference(::pltxt2htm::container::U
 struct DecodedCharacterReference {
     char32_t first_code_point;
     char32_t second_code_point;
-    ::std::uint_least8_t code_point_count;
+    unsigned code_point_count;
 };
 
 template<::pltxt2htm::Contracts ndebug>
@@ -436,17 +434,16 @@ constexpr auto try_decode_character_reference_value(::pltxt2htm::container::U8St
     if (entity == nullptr) {
         return ::pltxt2htm::container::nullopt;
     }
-    return DecodedCharacterReference{
-        .first_code_point = entity->first_code_point,
-        .second_code_point = entity->second_code_point,
-        .code_point_count = static_cast<::std::uint_least8_t>(entity->second_code_point == 0 ? 1 : 2)};
+    return DecodedCharacterReference{.first_code_point = entity->first_code_point,
+                                     .second_code_point = entity->second_code_point,
+                                     .code_point_count = entity->second_code_point == 0 ? 1u : 2u};
 }
 
 struct TryDecodeCharacterReferenceResult {
     ::std::size_t consumed_size;
     char32_t first_code_point;
     char32_t second_code_point;
-    ::std::uint_least8_t code_point_count;
+    unsigned code_point_count;
 };
 
 template<::pltxt2htm::Contracts ndebug>
