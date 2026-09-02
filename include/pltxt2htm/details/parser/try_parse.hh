@@ -67,15 +67,6 @@ constexpr auto try_parse_md_escape(::pltxt2htm::container::U8StringView pltext) 
     return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscape{escaped_character}), 2};
 }
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr void append_character_reference_to_ast(TryDecodeCharacterReferenceResult const& reference,
-                                                 ::pltxt2htm::Ast<ndebug>& result) noexcept {
-    ::pltxt2htm::details::append_code_point_to_ast<ndebug>(reference.first_code_point, result);
-    if (reference.code_point_count == 2) {
-        ::pltxt2htm::details::append_code_point_to_ast<ndebug>(reference.second_code_point, result);
-    }
-}
-
 /**
  * @brief Try to parse a Physics-Lab space at the start of a view.
  * @details Physics-Lab treats both U+0020 and U+00A0 as the same space token.
@@ -96,20 +87,6 @@ constexpr auto try_parse_space(::pltxt2htm::container::U8StringView pltext) noex
         return ::pltxt2htm::container::NonZeroSize::from<ndebug>(2);
     }
     return ::pltxt2htm::container::nullopt;
-}
-
-template<::pltxt2htm::Contracts ndebug>
-[[nodiscard]]
-constexpr auto try_append_character_reference(::pltxt2htm::container::U8StringView text,
-                                              ::pltxt2htm::Ast<ndebug>& result) noexcept
-    -> ::pltxt2htm::container::Optional<::std::size_t> {
-    auto const reference = ::pltxt2htm::details::try_decode_character_reference<ndebug>(text);
-    if (reference.has_value() == false) {
-        return ::pltxt2htm::container::nullopt;
-    }
-    auto const& decoded = reference.template value<ndebug>();
-    ::pltxt2htm::details::append_character_reference_to_ast<ndebug>(decoded, result);
-    return decoded.consumed_size;
 }
 
 /**

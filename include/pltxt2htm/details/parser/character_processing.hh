@@ -499,6 +499,29 @@ constexpr auto try_decode_character_reference(::pltxt2htm::container::U8StringVi
 }
 
 template<::pltxt2htm::Contracts ndebug>
+constexpr void append_character_reference_to_ast(TryDecodeCharacterReferenceResult const& reference,
+                                                 ::pltxt2htm::Ast<ndebug>& result) noexcept {
+    ::pltxt2htm::details::append_code_point_to_ast<ndebug>(reference.first_code_point, result);
+    if (reference.code_point_count == 2) {
+        ::pltxt2htm::details::append_code_point_to_ast<ndebug>(reference.second_code_point, result);
+    }
+}
+
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_append_character_reference(::pltxt2htm::container::U8StringView text,
+                                              ::pltxt2htm::Ast<ndebug>& result) noexcept
+    -> ::pltxt2htm::container::Optional<::std::size_t> {
+    auto const reference = ::pltxt2htm::details::try_decode_character_reference<ndebug>(text);
+    if (reference.has_value() == false) {
+        return ::pltxt2htm::container::nullopt;
+    }
+    auto const& decoded = reference.template value<ndebug>();
+    ::pltxt2htm::details::append_character_reference_to_ast<ndebug>(decoded, result);
+    return decoded.consumed_size;
+}
+
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto decode_character_references(::pltxt2htm::container::U8StringView text) noexcept -> ::fast_io::u8string {
     ::fast_io::u8string result{};
