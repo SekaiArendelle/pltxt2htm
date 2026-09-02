@@ -309,52 +309,6 @@ constexpr auto remap_html_numeric_character_reference(char32_t code_point) noexc
     }
 }
 
-template<::pltxt2htm::Contracts ndebug>
-[[nodiscard]]
-constexpr auto compare_html_named_character_reference(::pltxt2htm::container::U8StringView name,
-                                                      HtmlNamedCharacterReference const& candidate) noexcept -> int {
-    ::std::size_t const name_size{name.size()};
-    ::std::size_t const candidate_size{candidate.name_size};
-    ::std::size_t const common_size{name_size < candidate_size ? name_size : candidate_size};
-    for (::std::size_t index{}; index < common_size; ++index) {
-        auto const lhs{name.template index<ndebug>(index)};
-        auto const rhs{html_named_character_reference_names[candidate.name_offset + index]};
-        if (lhs < rhs) {
-            return -1;
-        }
-        if (lhs > rhs) {
-            return 1;
-        }
-    }
-    if (name_size < candidate_size) {
-        return -1;
-    }
-    return name_size > candidate_size ? 1 : 0;
-}
-
-template<::pltxt2htm::Contracts ndebug>
-[[nodiscard]]
-constexpr auto try_find_html_named_character_reference(::pltxt2htm::container::U8StringView name) noexcept
-    -> HtmlNamedCharacterReference const* {
-    ::std::size_t first{};
-    ::std::size_t last{sizeof(html_named_character_references) / sizeof(html_named_character_references[0])};
-    while (first < last) {
-        ::std::size_t const middle{first + (last - first) / 2};
-        auto const comparison = ::pltxt2htm::details::compare_html_named_character_reference<ndebug>(
-            name, html_named_character_references[middle]);
-        if (comparison < 0) {
-            last = middle;
-        }
-        else if (comparison > 0) {
-            first = middle + 1;
-        }
-        else {
-            return html_named_character_references + middle;
-        }
-    }
-    return nullptr;
-}
-
 /**
  * @brief A successfully decoded, semicolon-terminated HTML character reference.
  */
@@ -443,7 +397,7 @@ constexpr auto try_decode_character_reference(::pltxt2htm::container::U8StringVi
         return ::pltxt2htm::container::nullopt;
     }
     auto const name{text.template subview<ndebug>(1, index - 1)};
-    auto const* const entity = ::pltxt2htm::details::try_find_html_named_character_reference<ndebug>(name);
+    auto const* const entity = ::pltxt2htm::details::HtmlNamedCharacterReferenceTable::try_find<ndebug>(name);
     if (entity == nullptr) {
         return ::pltxt2htm::container::nullopt;
     }

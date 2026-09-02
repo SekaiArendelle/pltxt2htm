@@ -2,6 +2,7 @@
 #include <pltxt2htm/details/backend/for_plweb_text.hh>
 #include <pltxt2htm/details/parser/character_processing.hh>
 #include <pltxt2htm/parser.hh>
+#include <ranges>
 #include "precompile.hh"
 
 constexpr void assert_decoded(::fast_io::u8string_view text, ::std::size_t consumed_size, char32_t first_code_point,
@@ -39,6 +40,8 @@ constexpr auto utf8_helpers_are_constexpr() noexcept -> bool {
 
 static_assert(entity_decoder_is_constexpr());
 static_assert(utf8_helpers_are_constexpr());
+static_assert(
+    ::std::ranges::forward_range<decltype(::pltxt2htm::details::HtmlNamedCharacterReferenceTable::entries())>);
 static_assert(::pltxt2htm::details::is_unicode_scalar_value(char32_t{0x10FFFF}));
 static_assert(::pltxt2htm::details::is_unicode_scalar_value(char32_t{0xD800}) == false);
 static_assert(::pltxt2htm::details::is_unicode_scalar_value(char32_t{0x110000}) == false);
@@ -134,10 +137,9 @@ int main() {
     }
 
     // Every generated named reference round-trips through the decoder.
-    for (auto const& entity : ::pltxt2htm::details::html_named_character_references) {
+    for (auto const entity : ::pltxt2htm::details::HtmlNamedCharacterReferenceTable::entries()) {
         ::fast_io::u8string spelling{u8"&"};
-        spelling.append(::pltxt2htm::container::U8StringView{
-            ::pltxt2htm::details::html_named_character_reference_names + entity.name_offset, entity.name_size});
+        spelling.append(entity.name);
         spelling.push_back(u8';');
         auto const decoded =
             ::pltxt2htm::details::try_decode_character_reference<::pltxt2htm::Contracts::quick_enforce>(
@@ -145,8 +147,8 @@ int main() {
         pltxt2htm_test_assert_true(decoded.has_value());
         auto const& value = decoded.value<::pltxt2htm::Contracts::quick_enforce>();
         pltxt2htm_test_assert_true(value.consumed_size == spelling.size());
-        pltxt2htm_test_assert_true(value.first_code_point == entity.first_code_point);
-        pltxt2htm_test_assert_true(value.second_code_point == entity.second_code_point);
+        pltxt2htm_test_assert_true(value.first_code_point == entity.reference.first_code_point);
+        pltxt2htm_test_assert_true(value.second_code_point == entity.reference.second_code_point);
     }
 
     // Backend attribute escaping never treats its input as pre-escaped HTML.
