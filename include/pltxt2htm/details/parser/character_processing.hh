@@ -439,10 +439,17 @@ constexpr auto try_decode_character_reference_value(::pltxt2htm::container::U8St
                                      .code_point_count = entity->second_code_point == 0 ? 1u : 2u};
 }
 
+/**
+ * @brief A successfully decoded, semicolon-terminated HTML character reference.
+ */
 struct TryDecodeCharacterReferenceResult {
+    /** Number of input UTF-8 code units consumed, including the leading `&` and trailing `;`. */
     ::std::size_t consumed_size;
+    /** The first decoded Unicode code point, which is always present. */
     char32_t first_code_point;
+    /** The second decoded Unicode code point, or zero when `code_point_count` is one. */
     char32_t second_code_point;
+    /** Number of decoded code points; always one or two. */
     unsigned code_point_count;
 };
 
@@ -467,7 +474,7 @@ constexpr auto try_decode_character_reference(::pltxt2htm::container::U8StringVi
     }
     ::std::size_t const content_begin{index};
     for (; index < text_size && text.template index<ndebug>(index) != u8';'; ++index) {
-        auto const chr{text.template index<ndebug>(index)};
+        auto const chr = text.template index<ndebug>(index);
         bool const digit{u8'0' <= chr && chr <= u8'9'};
         bool const hex_alpha{hexadecimal && ((u8'a' <= chr && chr <= u8'f') || (u8'A' <= chr && chr <= u8'F'))};
         bool const named_alphanumeric{(u8'A' <= chr && chr <= u8'Z') || (u8'a' <= chr && chr <= u8'z') || digit};
