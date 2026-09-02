@@ -183,6 +183,7 @@ Follow the existing low-runtime, cross-platform style used in core headers:
   - Types and classes may be referenced with or without leading `::`; the fully qualified form is optional there and not required.
 - **Prefer unambiguous initialization:**
   - Prefer brace initialization (`T x{...}`) when constructing typed instances.
+  - For variables declared with `auto`, prefer copy initialization (`auto var = value;`) over brace initialization (`auto var{value};`).
   - Avoid initialization forms that look like declarations but actually construct objects (the "most vexing parse" style).
 - **Keep error paths explicit and out of the normal flow:**
   - Prefer guard clauses and keep the successful path unindented.

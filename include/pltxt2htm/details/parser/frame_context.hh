@@ -1244,11 +1244,11 @@ public:
         case ::pltxt2htm::NodeKind::md_latex_inline:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_latex_block: {
-            auto&& active_context_data{context_data_ref.as_pltext()};
+            auto&& active_context_data = context_data_ref.as_pltext();
             return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::list_li_checkbox: {
-            auto&& active_context_data{context_data_ref.as_list_li_checkbox()};
+            auto&& active_context_data = context_data_ref.as_list_li_checkbox();
             return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_color:
@@ -1266,70 +1266,70 @@ public:
         case ::pltxt2htm::NodeKind::pl_internal:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_user: {
-            auto&& active_context_data{context_data_ref.as_equal_sign_tag()};
+            auto&& active_context_data = context_data_ref.as_equal_sign_tag();
             return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_external: {
-            auto&& active_context_data{context_data_ref.as_url_info()};
+            auto&& active_context_data = context_data_ref.as_url_info();
             return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_link: {
-            auto&& active_context_data{context_data_ref.as_url_info()};
+            auto&& active_context_data = context_data_ref.as_url_info();
             return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_size: {
-            auto&& active_context_data{context_data_ref.as_pl_size_tag()};
+            auto&& active_context_data = context_data_ref.as_pl_size_tag();
             return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_voffset: {
-            auto&& active_context_data{context_data_ref.as_pl_voffset_tag()};
+            auto&& active_context_data = context_data_ref.as_pl_voffset_tag();
             return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_margin: {
-            auto&& active_context_data{context_data_ref.as_pl_margin_tag()};
+            auto&& active_context_data = context_data_ref.as_pl_margin_tag();
             return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_align: {
-            auto&& active_context_data{context_data_ref.as_align_info()};
+            auto&& active_context_data = context_data_ref.as_align_info();
             return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::html_span: {
-            auto&& active_context_data{context_data_ref.as_html_span_info()};
+            auto&& active_context_data = context_data_ref.as_html_span_info();
             return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::html_div: {
-            auto&& active_context_data{context_data_ref.as_html_div_info()};
+            auto&& active_context_data = context_data_ref.as_html_div_info();
             return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::html_mark: {
-            auto&& active_context_data{context_data_ref.as_html_mark_info()};
+            auto&& active_context_data = context_data_ref.as_html_mark_info();
             return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_mark: {
-            auto&& active_context_data{context_data_ref.as_pl_mark_info()};
+            auto&& active_context_data = context_data_ref.as_pl_mark_info();
             return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::html_a: {
-            auto&& active_context_data{context_data_ref.as_html_a_tag_info()};
+            auto&& active_context_data = context_data_ref.as_html_a_tag_info();
             return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::md_block_quotes: {
-            auto&& active_context_data{context_data_ref.as_md_block_quotes()};
+            auto&& active_context_data = context_data_ref.as_md_block_quotes();
             auto const& pltext = active_context_data.pltext;
             return ::pltxt2htm::container::U8StringView{pltext};
         }
         case ::pltxt2htm::NodeKind::md_link: {
-            auto&& active_context_data{context_data_ref.as_url_info()};
+            auto&& active_context_data = context_data_ref.as_url_info();
             return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::html_p: {
-            auto&& active_context_data{context_data_ref.as_align_info()};
+            auto&& active_context_data = context_data_ref.as_align_info();
             return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::table_th:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::table_td: {
-            auto&& active_context_data{context_data_ref.as_cell()};
+            auto&& active_context_data = context_data_ref.as_cell();
             return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_macro_project:
@@ -1503,7 +1503,7 @@ constexpr auto process_table_frame(::pltxt2htm::details::CallStack<ParserFrame<n
 
     switch (state) /* -Werror=switch */ {
     case TableParsePhase::caption: {
-        auto&& active_frame_data{frame.as_table()};
+        auto&& active_frame_data = frame.as_table();
         if (raw_ast.has_caption()) {
             call_stack.push_frame(
                 ParserFrame<ndebug>(FrontendContextVariant<ndebug>{ParserFrameContextWithPltextInfo{raw_ast.caption()},
@@ -1514,7 +1514,7 @@ constexpr auto process_table_frame(::pltxt2htm::details::CallStack<ParserFrame<n
         return ::pltxt2htm::container::nullopt;
     }
     case TableParsePhase::body: {
-        auto&& active_frame_data{frame.as_table()};
+        auto&& active_frame_data = frame.as_table();
         if (row_index < raw_ast.rows_count()) {
             auto const row_cells = raw_ast.row_cells(row_index);
             if (cell_index < row_cells.size()) {
