@@ -10,7 +10,6 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <cstdint>
 #include <limits>
 #include <type_traits>
 #include <utility>
@@ -125,7 +124,7 @@ public:
 };
 
 template<U8LiteralString str, ::std::size_t M = 0>
-consteval auto shrink_string_literal_() noexcept {
+consteval auto shrink_string_literal_impl() noexcept {
     if constexpr (M >= str.size()) {
         return str;
     }
@@ -135,11 +134,11 @@ consteval auto shrink_string_literal_() noexcept {
         return U8LiteralString{result};
     }
     else {
-        return ::pltxt2htm::details::shrink_string_literal_<str, M + 1>();
+        return ::pltxt2htm::details::shrink_string_literal_impl<str, M + 1>();
     }
 }
 
-consteval auto uint_to_literal_string_(::std::uint_least32_t number) noexcept {
+consteval auto uint_to_literal_string_impl(unsigned number) noexcept {
     using result_type = U8LiteralString<::std::numeric_limits<decltype(number)>::digits10 + 2>;
     auto result = result_type{};
     ::std::size_t index{};
@@ -150,10 +149,10 @@ consteval auto uint_to_literal_string_(::std::uint_least32_t number) noexcept {
     return result;
 }
 
-template<::std::uint_least32_t number>
+template<unsigned number>
 consteval auto uint_to_literal_string() noexcept {
-    constexpr auto result = ::pltxt2htm::details::uint_to_literal_string_(number);
-    return ::pltxt2htm::details::shrink_string_literal_<result>();
+    constexpr auto result = ::pltxt2htm::details::uint_to_literal_string_impl(number);
+    return ::pltxt2htm::details::shrink_string_literal_impl<result>();
 }
 
 template<typename result_type>
