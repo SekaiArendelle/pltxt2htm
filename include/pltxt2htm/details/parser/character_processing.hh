@@ -355,90 +355,6 @@ constexpr auto try_find_html_named_character_reference(::pltxt2htm::container::U
     return nullptr;
 }
 
-struct DecodedCharacterReference {
-    char32_t first_code_point;
-    char32_t second_code_point;
-    unsigned code_point_count;
-};
-
-template<::pltxt2htm::Contracts ndebug>
-[[nodiscard]]
-constexpr auto try_decode_character_reference_value(::pltxt2htm::container::U8StringView value) noexcept
-    -> ::pltxt2htm::container::Optional<DecodedCharacterReference> {
-    ::std::size_t const value_size{value.size()};
-    if (value.empty()) {
-        return ::pltxt2htm::container::nullopt;
-    }
-
-    if (value.template index<ndebug>(0) == u8'#') {
-        ::std::size_t index{1};
-        bool const hexadecimal{index < value_size && (value.template index<ndebug>(index) == u8'x' ||
-                                                      value.template index<ndebug>(index) == u8'X')};
-        if (hexadecimal) {
-            ++index;
-        }
-        ::std::size_t const digit_begin{index};
-        char32_t code_point{};
-        bool out_of_range{};
-        char32_t const base{hexadecimal ? char32_t{16} : char32_t{10}};
-        for (; index < value_size; ++index) {
-            auto const chr{value.template index<ndebug>(index)};
-            char32_t digit{};
-            if (u8'0' <= chr && chr <= u8'9') {
-                digit = static_cast<char32_t>(chr - u8'0');
-            }
-            else if (hexadecimal && u8'a' <= chr && chr <= u8'f') {
-                digit = static_cast<char32_t>(chr - u8'a') + 10;
-            }
-            else if (hexadecimal && u8'A' <= chr && chr <= u8'F') {
-                digit = static_cast<char32_t>(chr - u8'A') + 10;
-            }
-            else {
-                return ::pltxt2htm::container::nullopt;
-            }
-            if (out_of_range == false) {
-                if (code_point > (char32_t{0x10FFFF} - digit) / base) {
-                    out_of_range = true;
-                }
-                else {
-                    code_point = code_point * base + digit;
-                }
-            }
-        }
-        if (index == digit_begin) {
-            return ::pltxt2htm::container::nullopt;
-        }
-        if (out_of_range || code_point == char32_t{} ||
-            ::pltxt2htm::details::is_unicode_scalar_value(code_point) == false) {
-            code_point = char32_t{0xFFFD};
-        }
-        else {
-            code_point = ::pltxt2htm::details::remap_html_numeric_character_reference(code_point);
-        }
-        return DecodedCharacterReference{
-            .first_code_point = code_point, .second_code_point = char32_t{}, .code_point_count = 1};
-    }
-
-    if (value_size > 31) {
-        return ::pltxt2htm::container::nullopt;
-    }
-    for (::std::size_t index{}; index < value_size; ++index) {
-        auto const chr{value.template index<ndebug>(index)};
-        bool const alphanumeric{(u8'A' <= chr && chr <= u8'Z') || (u8'a' <= chr && chr <= u8'z') ||
-                                (u8'0' <= chr && chr <= u8'9')};
-        if (alphanumeric == false) {
-            return ::pltxt2htm::container::nullopt;
-        }
-    }
-    auto const* const entity = ::pltxt2htm::details::try_find_html_named_character_reference<ndebug>(value);
-    if (entity == nullptr) {
-        return ::pltxt2htm::container::nullopt;
-    }
-    return DecodedCharacterReference{.first_code_point = entity->first_code_point,
-                                     .second_code_point = entity->second_code_point,
-                                     .code_point_count = entity->second_code_point == 0 ? 1u : 2u};
-}
-
 /**
  * @brief A successfully decoded, semicolon-terminated HTML character reference.
  */
@@ -461,41 +377,80 @@ constexpr auto try_decode_character_reference(::pltxt2htm::container::U8StringVi
     if (text_size < 3 || text.template index<ndebug>(0) != u8'&') {
         return ::pltxt2htm::container::nullopt;
     }
-    ::std::size_t index{1};
-    bool const numeric{text.template index<ndebug>(index) == u8'#'};
-    bool hexadecimal{};
-    if (numeric) {
-        ++index;
+
+    if (text.template index<ndebug>(1) == u8'#') {
+        ::std::size_t index{2};
+        bool hexadecimal{};
         if (index < text_size &&
             (text.template index<ndebug>(index) == u8'x' || text.template index<ndebug>(index) == u8'X')) {
             hexadecimal = true;
             ++index;
         }
+        ::std::size_t const digit_begin{index};
+        char32_t code_point{};
+        bool out_of_range{};
+        char32_t const base{hexadecimal ? char32_t{16} : char32_t{10}};
+        for (; index < text_size && text.template index<ndebug>(index) != u8';'; ++index) {
+            auto const chr{text.template index<ndebug>(index)};
+            char32_t digit{};
+            if (u8'0' <= chr && chr <= u8'9') {
+                digit = static_cast<char32_t>(chr - u8'0');
+            }
+            else if (hexadecimal && u8'a' <= chr && chr <= u8'f') {
+                digit = static_cast<char32_t>(chr - u8'a') + 10;
+            }
+            else if (hexadecimal && u8'A' <= chr && chr <= u8'F') {
+                digit = static_cast<char32_t>(chr - u8'A') + 10;
+            }
+            else {
+                return ::pltxt2htm::container::nullopt;
+            }
+            if (out_of_range == false) {
+                if (code_point > (char32_t{0x10FFFF} - digit) / base) {
+                    out_of_range = true;
+                }
+                else {
+                    code_point = code_point * base + digit;
+                }
+            }
+        }
+        if (index == digit_begin || index >= text_size) {
+            return ::pltxt2htm::container::nullopt;
+        }
+        if (out_of_range || code_point == char32_t{} ||
+            ::pltxt2htm::details::is_unicode_scalar_value(code_point) == false) {
+            code_point = char32_t{0xFFFD};
+        }
+        else {
+            code_point = ::pltxt2htm::details::remap_html_numeric_character_reference(code_point);
+        }
+        return TryDecodeCharacterReferenceResult{.consumed_size = index + 1,
+                                                 .first_code_point = code_point,
+                                                 .second_code_point = char32_t{},
+                                                 .code_point_count = 1};
     }
-    ::std::size_t const content_begin{index};
+
+    ::std::size_t index{1};
     for (; index < text_size && text.template index<ndebug>(index) != u8';'; ++index) {
-        auto const chr = text.template index<ndebug>(index);
-        bool const digit{u8'0' <= chr && chr <= u8'9'};
-        bool const hex_alpha{hexadecimal && ((u8'a' <= chr && chr <= u8'f') || (u8'A' <= chr && chr <= u8'F'))};
-        bool const named_alphanumeric{(u8'A' <= chr && chr <= u8'Z') || (u8'a' <= chr && chr <= u8'z') || digit};
-        if ((numeric && digit == false && hex_alpha == false) ||
-            (numeric == false && (named_alphanumeric == false || index > 31))) {
+        auto const chr{text.template index<ndebug>(index)};
+        bool const alphanumeric{(u8'A' <= chr && chr <= u8'Z') || (u8'a' <= chr && chr <= u8'z') ||
+                                (u8'0' <= chr && chr <= u8'9')};
+        if (alphanumeric == false || index > 31) {
             return ::pltxt2htm::container::nullopt;
         }
     }
-    if (index == content_begin || index >= text_size) {
+    if (index == 1 || index >= text_size) {
         return ::pltxt2htm::container::nullopt;
     }
-    auto const decoded =
-        ::pltxt2htm::details::try_decode_character_reference_value<ndebug>(text.template subview<ndebug>(1, index - 1));
-    if (decoded.has_value() == false) {
+    auto const name{text.template subview<ndebug>(1, index - 1)};
+    auto const* const entity = ::pltxt2htm::details::try_find_html_named_character_reference<ndebug>(name);
+    if (entity == nullptr) {
         return ::pltxt2htm::container::nullopt;
     }
-    auto const& value = decoded.template value<ndebug>();
     return TryDecodeCharacterReferenceResult{.consumed_size = index + 1,
-                                             .first_code_point = value.first_code_point,
-                                             .second_code_point = value.second_code_point,
-                                             .code_point_count = value.code_point_count};
+                                             .first_code_point = entity->first_code_point,
+                                             .second_code_point = entity->second_code_point,
+                                             .code_point_count = entity->second_code_point == 0 ? 1u : 2u};
 }
 
 template<::pltxt2htm::Contracts ndebug>
