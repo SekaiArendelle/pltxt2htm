@@ -2132,7 +2132,7 @@ static constexpr char8_t names[] =
     u8"zwj"
     u8"zwnj";
 
-static constexpr CompressedEntry compressed_entries[] = {
+static constexpr auto compressed_entries = ::pltxt2htm::container::Array<CompressedEntry, 2125>{{
     {.name_offset = 0, .name_size = 5, .reference = {.first_code_point = char32_t{0xC6}, .second_code_point = char32_t{0x0}}},
     {.name_offset = 5, .name_size = 3, .reference = {.first_code_point = char32_t{0x26}, .second_code_point = char32_t{0x0}}},
     {.name_offset = 8, .name_size = 6, .reference = {.first_code_point = char32_t{0xC1}, .second_code_point = char32_t{0x0}}},
@@ -4258,5 +4258,5 @@ static constexpr CompressedEntry compressed_entries[] = {
     {.name_offset = 13993, .name_size = 4, .reference = {.first_code_point = char32_t{0x1D4CF}, .second_code_point = char32_t{0x0}}},
     {.name_offset = 13997, .name_size = 3, .reference = {.first_code_point = char32_t{0x200D}, .second_code_point = char32_t{0x0}}},
     {.name_offset = 14000, .name_size = 4, .reference = {.first_code_point = char32_t{0x200C}, .second_code_point = char32_t{0x0}}},
-};
+}};
 // clang-format on

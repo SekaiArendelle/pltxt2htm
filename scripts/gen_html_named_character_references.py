@@ -55,7 +55,8 @@ def main() -> None:
     lines.extend(
         [
             "",
-            "static constexpr CompressedEntry compressed_entries[] = {",
+            f"static constexpr auto compressed_entries = ::pltxt2htm::container::Array<CompressedEntry, {len(items)}>"
+            "{{",
         ]
     )
 
@@ -73,7 +74,7 @@ def main() -> None:
             "},"
         )
         offset += len(name)
-    lines.extend(["};", "// clang-format on", ""])
+    lines.extend(["}};", "// clang-format on", ""])
 
     OUTPUT.write_bytes("\n".join(lines).encode("utf-8"))
 

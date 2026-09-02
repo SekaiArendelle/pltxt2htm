@@ -12,6 +12,7 @@
 #include <memory>
 #include <ranges>
 
+#include "../../container/array.hh"
 #include "../../container/string_view.hh"
 #include "../../contracts.hh"
 
@@ -96,10 +97,11 @@ public:
     static constexpr auto try_find(::pltxt2htm::container::U8StringView name) noexcept -> HtmlNamedCharacterReference
         const* /* TODO Maybe Optional<HtmlNamedCharacterReference const&> is better here? */ {
         ::std::size_t first{};
-        ::std::size_t last{sizeof(compressed_entries) / sizeof(compressed_entries[0])};
+        ::std::size_t last{compressed_entries.size()};
         while (first < last) {
             ::std::size_t const middle{first + (last - first) / 2};
-            auto const comparison{compare<ndebug>(name, compressed_entries[middle])};
+            auto const& candidate{compressed_entries.template index<ndebug>(middle)};
+            auto const comparison{compare<ndebug>(name, candidate)};
             if (comparison < 0) {
                 last = middle;
             }
@@ -107,7 +109,7 @@ public:
                 first = middle + 1;
             }
             else {
-                return ::std::addressof(compressed_entries[middle].reference);
+                return ::std::addressof(candidate.reference);
             }
         }
         return nullptr;
@@ -115,9 +117,8 @@ public:
 
     [[nodiscard]]
     static constexpr auto entries() noexcept {
-        return ::std::ranges::subrange{
-            const_iterator{compressed_entries},
-            const_iterator{compressed_entries + sizeof(compressed_entries) / sizeof(compressed_entries[0])}};
+        return ::std::ranges::subrange{const_iterator{compressed_entries.begin()},
+                                       const_iterator{compressed_entries.end()}};
     }
 };
 
