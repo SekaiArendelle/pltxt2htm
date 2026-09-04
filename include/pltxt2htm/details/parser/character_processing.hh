@@ -14,19 +14,37 @@
 
 namespace pltxt2htm::details {
 
+/**
+ * @brief Test whether a code point is a Unicode scalar value.
+ * @details Unicode scalar values range from U+0000 through U+10FFFF, excluding
+ *          the UTF-16 surrogate range U+D800 through U+DFFF.
+ * @param code_point Code point to test.
+ * @return `true` when the code point is a Unicode scalar value.
+ */
 [[nodiscard]]
 constexpr auto is_unicode_scalar_value(char32_t code_point) noexcept -> bool {
     return code_point <= char32_t{0x10FFFF} && (code_point < char32_t{0xD800} || char32_t{0xDFFF} < code_point);
 }
 
+/**
+ * @brief Test whether a code point is an ASCII control character.
+ * @param code_point Code point to test.
+ * @return `true` for U+0000 through U+001F and U+007F.
+ */
 [[nodiscard]]
 constexpr auto is_ascii_control_code_point(char32_t code_point) noexcept -> bool {
     return code_point <= char32_t{0x1F} || code_point == char32_t{0x7F};
 }
 
+/**
+ * @brief Result of decoding the first UTF-8 sequence in a view.
+ */
 struct DecodeUtf8CodePointResult {
+    /** Number of input code units consumed by the valid sequence or invalid prefix. */
     ::std::size_t consumed_size;
+    /** Decoded scalar value, or zero when decoding failed. */
     char32_t code_point;
+    /** Whether the input begins with a valid, minimally encoded UTF-8 scalar value. */
     bool valid;
 };
 
@@ -34,6 +52,9 @@ struct DecodeUtf8CodePointResult {
  * @brief Decode the first UTF-8 code point in a view.
  * @details Invalid input reports how many bytes belong to the invalid prefix, preserving
  *          the parser's existing recovery behavior. An empty view consumes zero bytes.
+ * @tparam ndebug Contract checking mode used for indexed access.
+ * @param text Input view whose first UTF-8 sequence is decoded.
+ * @return The decoded scalar value, validity flag, and number of consumed code units.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
@@ -114,13 +135,19 @@ constexpr auto decode_utf8_code_point(::pltxt2htm::container::U8StringView text)
     return {.consumed_size = 1, .code_point = char32_t{}, .valid = false};
 }
 
+/**
+ * @brief Fixed-capacity result of encoding one Unicode scalar value as UTF-8.
+ */
 struct EncodedUtf8CodePoint {
+    /** Encoded UTF-8 code units; only the first `size` entries are active. */
     char8_t code_units[4];
+    /** Number of active code units, or zero when the input was not a scalar value. */
     unsigned size;
 };
 
 /**
  * @brief Encode one Unicode scalar value as UTF-8.
+ * @param code_point Code point to encode.
  * @return An empty encoding when `code_point` is not a Unicode scalar value.
  */
 [[nodiscard]]
@@ -155,6 +182,12 @@ constexpr auto encode_utf8_code_point(char32_t code_point) noexcept -> EncodedUt
     return result;
 }
 
+/**
+ * @brief Append a Unicode scalar value to a UTF-8 string.
+ * @details An invalid scalar value produces no output.
+ * @param[out] result Output string receiving the encoded code units.
+ * @param code_point Code point to encode and append.
+ */
 constexpr void append_utf8_code_point(::fast_io::u8string& result, char32_t code_point) noexcept {
     auto const encoded = ::pltxt2htm::details::encode_utf8_code_point(code_point);
     for (::std::size_t index{}; index < encoded.size; ++index) {
@@ -166,6 +199,10 @@ constexpr void append_utf8_code_point(::fast_io::u8string& result, char32_t code
  * @brief Parse one UTF-8 code point and append its original code units to an AST.
  * @details Parser-disallowed ASCII control characters and invalid UTF-8 prefixes append one
  *          InvalidUtf8 node. The returned size preserves the existing invalid-prefix recovery.
+ * @tparam ndebug Contract checking mode used for input and AST access.
+ * @param text Non-empty input view beginning at the code point to parse.
+ * @param[out] result AST receiving character nodes or one InvalidUtf8 node.
+ * @return Number of consumed UTF-8 code units.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
@@ -191,38 +228,51 @@ constexpr auto parse_utf8_code_point(::pltxt2htm::container::U8StringView text,
 /**
  * @brief Append one semantic Unicode code point to an AST.
  * @details Characters with dedicated semantic nodes use those nodes. Other scalar values are
- *          encoded as UTF-8 and appended as U8Char nodes.
+ *          encoded as UTF-8 and appended as U8Char nodes. ASCII controls and invalid scalar
+ *          values append one InvalidUtf8 node.
+ * @tparam ndebug Contract checking mode used for AST operations.
+ * @param code_point Semantic code point to append.
+ * @param[out] result AST receiving the corresponding node or nodes.
  */
 template<::pltxt2htm::Contracts ndebug>
 constexpr void append_code_point_to_ast(char32_t code_point, ::pltxt2htm::Ast<ndebug>& result) noexcept {
     switch (code_point) {
-    case U'\n':
+    case U'\n': {
         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LineBreak{}));
         return;
+    }
     case U' ':
-    case char32_t{0xA0}:
+    case char32_t{0xA0}: {
         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Space{}));
         return;
-    case U'&':
+    }
+    case U'&': {
         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Ampersand{}));
         return;
-    case U'\'':
+    }
+    case U'\'': {
         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::SingleQuote{}));
         return;
-    case U'"':
+    }
+    case U'"': {
         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::DoubleQuote{}));
         return;
-    case U'<':
+    }
+    case U'<': {
         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
         return;
-    case U'>':
+    }
+    case U'>': {
         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::GreaterThan{}));
         return;
-    case U'\t':
+    }
+    case U'\t': {
         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Tab{}));
         return;
-    default:
+    }
+    default: {
         break;
+    }
     }
 
     if (::pltxt2htm::details::is_ascii_control_code_point(code_point)) {
@@ -240,6 +290,13 @@ constexpr void append_code_point_to_ast(char32_t code_point, ::pltxt2htm::Ast<nd
     }
 }
 
+/**
+ * @brief Append a decoded character-reference code point to a UTF-8 string.
+ * @details ASCII controls are normalized to U+FFFD before encoding. Character-reference
+ *          decoding guarantees that every other input is a Unicode scalar value.
+ * @param[out] result Output string receiving the encoded code point.
+ * @param code_point Decoded character-reference code point.
+ */
 constexpr void append_character_reference_code_point(::fast_io::u8string& result, char32_t code_point) noexcept {
     if (::pltxt2htm::details::is_ascii_control_code_point(code_point)) {
         code_point = char32_t{0xFFFD};
@@ -247,65 +304,101 @@ constexpr void append_character_reference_code_point(::fast_io::u8string& result
     ::pltxt2htm::details::append_utf8_code_point(result, code_point);
 }
 
+/**
+ * @brief Apply HTML's legacy numeric-character-reference replacements.
+ * @details HTML maps selected C1 control values to the corresponding Windows-1252
+ *          characters for compatibility with legacy content. Values absent from the
+ *          replacement table are returned unchanged.
+ * @param code_point Valid numeric character-reference code point.
+ * @return The HTML replacement code point, or `code_point` when no replacement applies.
+ */
 [[nodiscard]]
 constexpr auto remap_html_numeric_character_reference(char32_t code_point) noexcept -> char32_t {
     switch (code_point) {
-    case char32_t{0x80}:
+    case char32_t{0x80}: {
         return char32_t{0x20AC};
-    case char32_t{0x82}:
+    }
+    case char32_t{0x82}: {
         return char32_t{0x201A};
-    case char32_t{0x83}:
+    }
+    case char32_t{0x83}: {
         return char32_t{0x0192};
-    case char32_t{0x84}:
+    }
+    case char32_t{0x84}: {
         return char32_t{0x201E};
-    case char32_t{0x85}:
+    }
+    case char32_t{0x85}: {
         return char32_t{0x2026};
-    case char32_t{0x86}:
+    }
+    case char32_t{0x86}: {
         return char32_t{0x2020};
-    case char32_t{0x87}:
+    }
+    case char32_t{0x87}: {
         return char32_t{0x2021};
-    case char32_t{0x88}:
+    }
+    case char32_t{0x88}: {
         return char32_t{0x02C6};
-    case char32_t{0x89}:
+    }
+    case char32_t{0x89}: {
         return char32_t{0x2030};
-    case char32_t{0x8A}:
+    }
+    case char32_t{0x8A}: {
         return char32_t{0x0160};
-    case char32_t{0x8B}:
+    }
+    case char32_t{0x8B}: {
         return char32_t{0x2039};
-    case char32_t{0x8C}:
+    }
+    case char32_t{0x8C}: {
         return char32_t{0x0152};
-    case char32_t{0x8E}:
+    }
+    case char32_t{0x8E}: {
         return char32_t{0x017D};
-    case char32_t{0x91}:
+    }
+    case char32_t{0x91}: {
         return char32_t{0x2018};
-    case char32_t{0x92}:
+    }
+    case char32_t{0x92}: {
         return char32_t{0x2019};
-    case char32_t{0x93}:
+    }
+    case char32_t{0x93}: {
         return char32_t{0x201C};
-    case char32_t{0x94}:
+    }
+    case char32_t{0x94}: {
         return char32_t{0x201D};
-    case char32_t{0x95}:
+    }
+    case char32_t{0x95}: {
         return char32_t{0x2022};
-    case char32_t{0x96}:
+    }
+    case char32_t{0x96}: {
         return char32_t{0x2013};
-    case char32_t{0x97}:
+    }
+    case char32_t{0x97}: {
         return char32_t{0x2014};
-    case char32_t{0x98}:
+    }
+    case char32_t{0x98}: {
         return char32_t{0x02DC};
-    case char32_t{0x99}:
+    }
+    case char32_t{0x99}: {
         return char32_t{0x2122};
-    case char32_t{0x9A}:
+    }
+    case char32_t{0x9A}: {
         return char32_t{0x0161};
-    case char32_t{0x9B}:
+    }
+    case char32_t{0x9B}: {
         return char32_t{0x203A};
-    case char32_t{0x9C}:
+    }
+    case char32_t{0x9C}: {
         return char32_t{0x0153};
-    case char32_t{0x9E}:
+    }
+    case char32_t{0x9E}: {
         return char32_t{0x017E};
-    case char32_t{0x9F}:
+    }
+    case char32_t{0x9F}: {
         return char32_t{0x0178};
-    default:
+    }
+    default: {
         return code_point;
+    }
     }
 }
 
@@ -323,6 +416,17 @@ struct TryDecodeCharacterReferenceResult {
     unsigned code_point_count;
 };
 
+/**
+ * @brief Decode one semicolon-terminated HTML character reference.
+ * @details Decimal and hexadecimal numeric references follow HTML replacement rules:
+ *          zero, overflow, and non-scalar values become U+FFFD, while selected C1 values
+ *          receive the legacy Windows-1252 mapping. Named references must exactly match
+ *          an entry in HtmlNamedCharacterReferenceTable. This parser intentionally rejects
+ *          the legacy semicolon-omission forms.
+ * @tparam ndebug Contract checking mode used for input and table access.
+ * @param text Input view beginning with `&`.
+ * @return Decoded code points and consumed size, or nullopt when no complete valid reference begins at `text`.
+ */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_decode_character_reference(::pltxt2htm::container::U8StringView text) noexcept
@@ -345,7 +449,7 @@ constexpr auto try_decode_character_reference(::pltxt2htm::container::U8StringVi
         bool out_of_range{};
         char32_t const base{hexadecimal ? char32_t{16} : char32_t{10}};
         for (; index < text_size && text.template index<ndebug>(index) != u8';'; ++index) {
-            auto const chr{text.template index<ndebug>(index)};
+            auto const chr = text.template index<ndebug>(index);
             char32_t digit{};
             if (u8'0' <= chr && chr <= u8'9') {
                 digit = static_cast<char32_t>(chr - u8'0');
@@ -386,7 +490,7 @@ constexpr auto try_decode_character_reference(::pltxt2htm::container::U8StringVi
 
     ::std::size_t index{1};
     for (; index < text_size && text.template index<ndebug>(index) != u8';'; ++index) {
-        auto const chr{text.template index<ndebug>(index)};
+        auto const chr = text.template index<ndebug>(index);
         bool const alphanumeric{(u8'A' <= chr && chr <= u8'Z') || (u8'a' <= chr && chr <= u8'z') ||
                                 (u8'0' <= chr && chr <= u8'9')};
         if (alphanumeric == false || index > 31) {
@@ -396,7 +500,7 @@ constexpr auto try_decode_character_reference(::pltxt2htm::container::U8StringVi
     if (index == 1 || index >= text_size) {
         return ::pltxt2htm::container::nullopt;
     }
-    auto const name{text.template subview<ndebug>(1, index - 1)};
+    auto const name = text.template subview<ndebug>(1, index - 1);
     auto const* const entity = ::pltxt2htm::details::HtmlNamedCharacterReferenceTable::try_find<ndebug>(name);
     if (entity == nullptr) {
         return ::pltxt2htm::container::nullopt;
@@ -407,6 +511,12 @@ constexpr auto try_decode_character_reference(::pltxt2htm::container::U8StringVi
                                              .code_point_count = entity->second_code_point == 0 ? 1u : 2u};
 }
 
+/**
+ * @brief Append a decoded character reference to an AST.
+ * @tparam ndebug Contract checking mode used for AST operations.
+ * @param reference Previously decoded one- or two-code-point reference.
+ * @param[out] result AST receiving the semantic character nodes.
+ */
 template<::pltxt2htm::Contracts ndebug>
 constexpr void append_character_reference_to_ast(TryDecodeCharacterReferenceResult const& reference,
                                                  ::pltxt2htm::Ast<ndebug>& result) noexcept {
@@ -416,6 +526,13 @@ constexpr void append_character_reference_to_ast(TryDecodeCharacterReferenceResu
     }
 }
 
+/**
+ * @brief Decode and append the character reference at the start of a view.
+ * @tparam ndebug Contract checking mode used for parsing and AST operations.
+ * @param text Input view expected to begin with a character reference.
+ * @param[out] result AST receiving decoded semantic character nodes on success.
+ * @return Consumed input size, or nullopt when `text` does not begin with a supported reference.
+ */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_append_character_reference(::pltxt2htm::container::U8StringView text,
@@ -430,6 +547,14 @@ constexpr auto try_append_character_reference(::pltxt2htm::container::U8StringVi
     return decoded.consumed_size;
 }
 
+/**
+ * @brief Decode every supported HTML character reference in a string.
+ * @details Unknown, malformed, and unterminated references are copied literally. Decoded
+ *          ASCII controls are emitted as U+FFFD to match parser output normalization.
+ * @tparam ndebug Contract checking mode used for input and reference-table access.
+ * @param text Input text that may contain character references.
+ * @return UTF-8 text with all supported references decoded.
+ */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto decode_character_references(::pltxt2htm::container::U8StringView text) noexcept -> ::fast_io::u8string {
