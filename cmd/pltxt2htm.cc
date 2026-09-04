@@ -1,11 +1,8 @@
 #include <cstddef>
-#include <cstdint>
 #include <cstring>
 #include <cassert>
 #include <utility>
-#include <pltxt2htm/details/trap.hh>
 #include <fast_io/fast_io_dsal/string.h>
-#include <fast_io/fast_io_dsal/string_view.h>
 #include <fast_io/fast_io.h>
 #include <pltxt2htm/pltxt2htm.hh>
 
@@ -17,7 +14,7 @@ enum class TargetType : unsigned {
     plunity_text
 };
 
-constexpr ::fast_io::u8string_view usage{
+constexpr auto usage = ::pltxt2htm::container::U8StringView{
     u8R"(Usage:
     pltxt2htm [-v|--version]
     pltxt2htm [-h|help]
