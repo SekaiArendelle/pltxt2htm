@@ -386,18 +386,6 @@ constexpr auto ::pltxt2htm::HtmlSpan<ndebug>::operator==(this HtmlSpan<ndebug> c
     -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::HtmlSpan<ndebug>::get_font_size(this HtmlSpan<ndebug> const& self) noexcept
-    -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> {
-    return self.style.get_font_size();
-}
-
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::HtmlSpan<ndebug>::get_vertical_align(this HtmlSpan<ndebug> const& self) noexcept
-    -> ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> {
-    return self.style.get_vertical_align();
-}
-
-template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::HtmlA<ndebug>::HtmlA(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::Url&& url_,
                                             bool internal_) noexcept
     : subast(::std::move(subast_)),

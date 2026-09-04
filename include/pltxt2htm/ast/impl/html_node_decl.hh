@@ -754,13 +754,15 @@ public:
         return ::std::forward_like<decltype(self)>(self.color);
     }
 
-    [[nodiscard]]
     constexpr auto get_font_size(this HtmlSpan<ndebug> const& self) noexcept
-        -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>>;
+        -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> {
+        return self.style.get_font_size();
+    }
 
-    [[nodiscard]]
     constexpr auto get_vertical_align(this HtmlSpan<ndebug> const& self) noexcept
-        -> ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>>;
+        -> ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> {
+        return self.style.get_vertical_align();
+    }
 };
 
 /**
