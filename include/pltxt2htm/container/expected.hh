@@ -279,6 +279,7 @@ public:
         return ::std::move(self.value_storage);
     }
 
+    [[nodiscard]]
     constexpr bool operator==(this Expected const& self, Expected const& rhs) noexcept
         requires (::std::equality_comparable<Ok> && ::std::equality_comparable<Fail>)
     {
@@ -291,12 +292,14 @@ public:
         return self.error_storage == rhs.error_storage;
     }
 
+    [[nodiscard]]
     constexpr bool operator==(this Expected const& self, value_type const& rhs) noexcept
         requires ::std::equality_comparable<Ok>
     {
         return self.has_value() && self.value_storage == rhs;
     }
 
+    [[nodiscard]]
     constexpr bool operator==(this Expected const& self, Unexpected<Fail> const& rhs) noexcept
         requires ::std::equality_comparable<Fail>
     {

@@ -124,6 +124,7 @@ public:
 };
 
 template<U8LiteralString str, ::std::size_t M = 0>
+[[nodiscard]]
 consteval auto shrink_string_literal_impl() noexcept {
     if constexpr (M >= str.size()) {
         return str;
@@ -138,6 +139,7 @@ consteval auto shrink_string_literal_impl() noexcept {
     }
 }
 
+[[nodiscard]]
 consteval auto uint_to_literal_string_impl(unsigned number) noexcept {
     using result_type = U8LiteralString<::std::numeric_limits<decltype(number)>::digits10 + 2>;
     auto result = result_type{};
@@ -150,6 +152,7 @@ consteval auto uint_to_literal_string_impl(unsigned number) noexcept {
 }
 
 template<unsigned number>
+[[nodiscard]]
 consteval auto uint_to_literal_string() noexcept {
     constexpr auto result = ::pltxt2htm::details::uint_to_literal_string_impl(number);
     return ::pltxt2htm::details::shrink_string_literal_impl<result>();
@@ -173,6 +176,7 @@ consteval void concat_memcpy(::pltxt2htm::details::is_literal_string auto const&
  */
 template<::pltxt2htm::details::is_literal_string Arg, ::pltxt2htm::details::is_literal_string... Args>
     requires (::std::is_same_v<typename Arg::value_type, typename Args::value_type> && ...)
+[[nodiscard]]
 consteval auto concat(Arg const& arg, Args const&... args) noexcept {
     auto result = BasicLiteralString<typename Arg::value_type, arg.size() + (args.size() + ...)>{};
     ::std::size_t index{};

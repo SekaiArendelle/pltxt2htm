@@ -234,12 +234,14 @@ constexpr void swap(Array<T, extent>& left, Array<T, extent>& right) noexcept(no
 namespace details {
 
 template<typename T, ::std::size_t extent, ::std::size_t... indexes>
+[[nodiscard]]
 constexpr auto to_array_lvalue_impl(T (&source)[extent], ::std::index_sequence<indexes...>)
     -> Array<::std::remove_cv_t<T>, extent> {
     return {{source[indexes]...}};
 }
 
 template<typename T, ::std::size_t extent, ::std::size_t... indexes>
+[[nodiscard]]
 constexpr auto to_array_rvalue_impl(T (&&source)[extent], ::std::index_sequence<indexes...>)
     -> Array<::std::remove_cv_t<T>, extent> {
     return {{::std::move(source[indexes])...}};
