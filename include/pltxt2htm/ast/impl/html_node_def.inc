@@ -1,7 +1,5 @@
 #pragma once
 
-#include "../../details/push_macro.hh"
-
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::HtmlH1<ndebug>::HtmlH1(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
     : subast(::std::move(subast_)) {
@@ -362,90 +360,13 @@ constexpr auto ::pltxt2htm::HtmlBlockquote<ndebug>::operator==(this HtmlBlockquo
     -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::HtmlSpan<ndebug>::encode_vertical_align_unit(::pltxt2htm::Unit const unit) noexcept
-    -> VerticalAlignStorageKind {
-    switch (unit) /* -Werror=switch */ {
-    case ::pltxt2htm::Unit::px: {
-        return VerticalAlignStorageKind::length_px;
-    }
-    case ::pltxt2htm::Unit::percent: {
-        return VerticalAlignStorageKind::length_percent;
-    }
-    case ::pltxt2htm::Unit::em: {
-        return VerticalAlignStorageKind::length_em;
-    }
-#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
-    default:
-        [[unlikely]] {
-            pltxt2htm_unreachable(u8"Unexpected vertical-align unit");
-        }
-#endif
-    }
-    pltxt2htm_unreachable(u8"Unreachable after vertical-align unit switch");
-}
-
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::HtmlSpan<ndebug>::encode_vertical_align_keyword(
-    ::pltxt2htm::VerticalAlignKeyword const keyword) noexcept -> VerticalAlignStorageKind {
-    switch (keyword) /* -Werror=switch */ {
-    case ::pltxt2htm::VerticalAlignKeyword::baseline: {
-        return VerticalAlignStorageKind::keyword_baseline;
-    }
-    case ::pltxt2htm::VerticalAlignKeyword::sub: {
-        return VerticalAlignStorageKind::keyword_sub;
-    }
-    case ::pltxt2htm::VerticalAlignKeyword::super: {
-        return VerticalAlignStorageKind::keyword_super;
-    }
-    case ::pltxt2htm::VerticalAlignKeyword::text_top: {
-        return VerticalAlignStorageKind::keyword_text_top;
-    }
-    case ::pltxt2htm::VerticalAlignKeyword::text_bottom: {
-        return VerticalAlignStorageKind::keyword_text_bottom;
-    }
-    case ::pltxt2htm::VerticalAlignKeyword::middle: {
-        return VerticalAlignStorageKind::keyword_middle;
-    }
-    case ::pltxt2htm::VerticalAlignKeyword::top: {
-        return VerticalAlignStorageKind::keyword_top;
-    }
-    case ::pltxt2htm::VerticalAlignKeyword::bottom: {
-        return VerticalAlignStorageKind::keyword_bottom;
-    }
-#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
-    default:
-        [[unlikely]] {
-            pltxt2htm_unreachable(u8"Unexpected vertical-align keyword");
-        }
-#endif
-    }
-    pltxt2htm_unreachable(u8"Unreachable after vertical-align keyword switch");
-}
-
-template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::HtmlSpan<ndebug>::HtmlSpan(
     ::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& color_,
     ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size_,
     ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align_) noexcept
     : subast(::std::move(subast_)),
-      color(::std::move(color_)) {
-    if (font_size_.has_value()) {
-        auto const& font_size = font_size_.template value<ndebug>();
-        style.font_size_value = font_size.value;
-        style.font_size_unit = font_size.unit;
-        style.has_font_size = true;
-    }
-    if (vertical_align_.has_value() == false) {
-        return;
-    }
-    auto const& vertical_align = vertical_align_.template value<ndebug>();
-    if (vertical_align.get_kind() == ::pltxt2htm::VerticalAlignKind::keyword) {
-        style.vertical_align_kind = encode_vertical_align_keyword(vertical_align.get_keyword());
-        return;
-    }
-    auto const length = vertical_align.get_length();
-    style.vertical_align_length = length.value;
-    style.vertical_align_kind = encode_vertical_align_unit(length.unit);
+      color(::std::move(color_)),
+      style{font_size_, vertical_align_} {
 }
 
 template<::pltxt2htm::Contracts ndebug>
@@ -467,63 +388,13 @@ constexpr auto ::pltxt2htm::HtmlSpan<ndebug>::operator==(this HtmlSpan<ndebug> c
 template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::HtmlSpan<ndebug>::get_font_size(this HtmlSpan<ndebug> const& self) noexcept
     -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> {
-    if (self.style.has_font_size == false) {
-        return ::pltxt2htm::container::nullopt;
-    }
-    return ::pltxt2htm::ValueWithUnit<double>{self.style.font_size_value, self.style.font_size_unit};
+    return self.style.get_font_size();
 }
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::HtmlSpan<ndebug>::get_vertical_align(this HtmlSpan<ndebug> const& self) noexcept
     -> ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> {
-    switch (self.style.vertical_align_kind) /* -Werror=switch */ {
-    case VerticalAlignStorageKind::none: {
-        return ::pltxt2htm::container::nullopt;
-    }
-    case VerticalAlignStorageKind::keyword_baseline: {
-        return ::pltxt2htm::VerticalAlignValue<ndebug>{::pltxt2htm::VerticalAlignKeyword::baseline};
-    }
-    case VerticalAlignStorageKind::keyword_sub: {
-        return ::pltxt2htm::VerticalAlignValue<ndebug>{::pltxt2htm::VerticalAlignKeyword::sub};
-    }
-    case VerticalAlignStorageKind::keyword_super: {
-        return ::pltxt2htm::VerticalAlignValue<ndebug>{::pltxt2htm::VerticalAlignKeyword::super};
-    }
-    case VerticalAlignStorageKind::keyword_text_top: {
-        return ::pltxt2htm::VerticalAlignValue<ndebug>{::pltxt2htm::VerticalAlignKeyword::text_top};
-    }
-    case VerticalAlignStorageKind::keyword_text_bottom: {
-        return ::pltxt2htm::VerticalAlignValue<ndebug>{::pltxt2htm::VerticalAlignKeyword::text_bottom};
-    }
-    case VerticalAlignStorageKind::keyword_middle: {
-        return ::pltxt2htm::VerticalAlignValue<ndebug>{::pltxt2htm::VerticalAlignKeyword::middle};
-    }
-    case VerticalAlignStorageKind::keyword_top: {
-        return ::pltxt2htm::VerticalAlignValue<ndebug>{::pltxt2htm::VerticalAlignKeyword::top};
-    }
-    case VerticalAlignStorageKind::keyword_bottom: {
-        return ::pltxt2htm::VerticalAlignValue<ndebug>{::pltxt2htm::VerticalAlignKeyword::bottom};
-    }
-    case VerticalAlignStorageKind::length_px: {
-        return ::pltxt2htm::VerticalAlignValue<ndebug>{
-            ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t>{self.style.vertical_align_length, ::pltxt2htm::Unit::px}};
-    }
-    case VerticalAlignStorageKind::length_percent: {
-        return ::pltxt2htm::VerticalAlignValue<ndebug>{
-            ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t>{self.style.vertical_align_length, ::pltxt2htm::Unit::percent}};
-    }
-    case VerticalAlignStorageKind::length_em: {
-        return ::pltxt2htm::VerticalAlignValue<ndebug>{
-            ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t>{self.style.vertical_align_length, ::pltxt2htm::Unit::em}};
-    }
-#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
-    default:
-        [[unlikely]] {
-            pltxt2htm_unreachable(u8"Unexpected stored vertical-align kind");
-        }
-#endif
-    }
-    pltxt2htm_unreachable(u8"Unreachable after stored vertical-align kind switch");
+    return self.style.get_vertical_align();
 }
 
 template<::pltxt2htm::Contracts ndebug>
@@ -572,5 +443,3 @@ constexpr auto ::pltxt2htm::HtmlDiv<ndebug>::operator=(this HtmlDiv<ndebug>& sel
 template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::HtmlDiv<ndebug>::operator==(this HtmlDiv<ndebug> const&,
                                                         ::pltxt2htm::HtmlDiv<ndebug> const&) noexcept -> bool = default;
-
-#include "../../details/pop_macro.hh"
