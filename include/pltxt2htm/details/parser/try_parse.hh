@@ -329,8 +329,8 @@ constexpr auto try_parse_td_style(::pltxt2htm::container::U8StringView pltext, c
             continue;
         }
 
-        auto const segment_start{p};
-        auto property_end{segment_start};
+        auto const segment_start = p;
+        auto property_end = segment_start;
         ::std::size_t colon{};
         bool has_colon{};
         ::std::size_t value_start{};
@@ -1759,7 +1759,7 @@ constexpr auto try_parse_span_style(::pltxt2htm::container::U8StringView pltext,
             return ::pltxt2htm::container::nullopt;
         }
 
-        auto const chr{pltext.template index<ndebug>(p)};
+        auto const chr = pltext.template index<ndebug>(p);
         if (chr == quote) {
             return TryParseSpanStyleResult<ndebug>{.end = p + 1,
                                                    .color = ::std::move(color),
@@ -1771,10 +1771,10 @@ constexpr auto try_parse_span_style(::pltxt2htm::container::U8StringView pltext,
             continue;
         }
 
-        auto const property_start{p};
-        auto property_end{p};
+        auto const property_start = p;
+        auto property_end = p;
         while (p < pltext_size) {
-            auto const property_chr{pltext.template index<ndebug>(p)};
+            auto const property_chr = pltext.template index<ndebug>(p);
             if (property_chr == u8':') {
                 break;
             }
@@ -1789,8 +1789,8 @@ constexpr auto try_parse_span_style(::pltxt2htm::container::U8StringView pltext,
         if (p >= pltext_size || property_end == property_start) {
             return ::pltxt2htm::container::nullopt;
         }
-        auto const property{
-            ::pltxt2htm::container::U8StringView{pltext.data() + property_start, property_end - property_start}};
+        auto const property =
+            ::pltxt2htm::container::U8StringView{pltext.data() + property_start, property_end - property_start};
         ++p;
 
         while (p < pltext_size &&
@@ -2017,7 +2017,7 @@ constexpr auto try_parse_mark_style(::pltxt2htm::container::U8StringView pltext,
         if (p >= pltext_size) {
             return ::pltxt2htm::container::nullopt;
         }
-        auto const chr{pltext.template index<ndebug>(p)};
+        auto const chr = pltext.template index<ndebug>(p);
         if (chr == quote) {
             if (background_color.empty()) {
                 return ::pltxt2htm::container::nullopt;
@@ -2030,10 +2030,10 @@ constexpr auto try_parse_mark_style(::pltxt2htm::container::U8StringView pltext,
         }
 
         // parse the property name up to ':'
-        auto const property_start{p};
-        auto property_end{p};
+        auto const property_start = p;
+        auto property_end = p;
         while (p < pltext_size) {
-            auto const property_chr{pltext.template index<ndebug>(p)};
+            auto const property_chr = pltext.template index<ndebug>(p);
             if (property_chr == u8':') {
                 break;
             }
@@ -2048,8 +2048,8 @@ constexpr auto try_parse_mark_style(::pltxt2htm::container::U8StringView pltext,
         if (p >= pltext_size || property_end == property_start) {
             return ::pltxt2htm::container::nullopt;
         }
-        auto const property{
-            ::pltxt2htm::container::U8StringView{pltext.data() + property_start, property_end - property_start}};
+        auto const property =
+            ::pltxt2htm::container::U8StringView{pltext.data() + property_start, property_end - property_start};
         ++p;
         while (p < pltext_size &&
                (pltext.template index<ndebug>(p) == u8' ' || pltext.template index<ndebug>(p) == u8'\t')) {
@@ -2062,7 +2062,7 @@ constexpr auto try_parse_mark_style(::pltxt2htm::container::U8StringView pltext,
         if (background_color.empty() == false) {
             return ::pltxt2htm::container::nullopt;
         }
-        auto const value_start{p};
+        auto const value_start = p;
         auto opt_value_end =
             ::pltxt2htm::details::try_parse_color_value<ndebug>(pltext.template subview<ndebug>(value_start));
         if (opt_value_end.has_value() == false) {
@@ -3784,7 +3784,7 @@ constexpr auto try_parse_url_domain(::pltxt2htm::container::U8StringView pltext)
     bool label_has_char{};
     bool label_ended_with_hyphen{};
     while (current_index < pltext_size) {
-        auto const chr{pltext.template index<ndebug>(current_index)};
+        auto const chr = pltext.template index<ndebug>(current_index);
         if (::pltxt2htm::details::is_ascii_alpha(chr) || ::pltxt2htm::details::is_ascii_digit(chr)) {
             label_has_char = true;
             label_ended_with_hyphen = false;
@@ -3834,7 +3834,7 @@ constexpr auto try_parse_url_port(::pltxt2htm::container::U8StringView pltext) n
     ::std::size_t current_index{};
     ::std::size_t port_size{};
     while (current_index < pltext_size) {
-        auto const chr{pltext.template index<ndebug>(current_index)};
+        auto const chr = pltext.template index<ndebug>(current_index);
         if (::pltxt2htm::details::is_ascii_digit(chr) == false) {
             break;
         }
@@ -3849,7 +3849,7 @@ constexpr auto try_parse_url_port(::pltxt2htm::container::U8StringView pltext) n
         return ::pltxt2htm::container::nullopt;
     }
     if (current_index < pltext_size) {
-        auto const next_chr{pltext.template index<ndebug>(current_index)};
+        auto const next_chr = pltext.template index<ndebug>(current_index);
         if (next_chr != u8'/' && next_chr != u8'?' && next_chr != u8'#') {
             return ::pltxt2htm::container::nullopt;
         }
@@ -3900,16 +3900,16 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_url_authority(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::Optional<::pltxt2htm::container::NonZeroSize> {
-    auto const opt_domain_end{::pltxt2htm::details::try_parse_url_domain<ndebug>(pltext)};
+    auto const opt_domain_end = ::pltxt2htm::details::try_parse_url_domain<ndebug>(pltext);
     if (opt_domain_end.has_value() == false) {
         return ::pltxt2htm::container::nullopt;
     }
-    auto const domain_end{opt_domain_end.template value<ndebug>().template get<ndebug>()};
+    auto const domain_end = opt_domain_end.template value<ndebug>().template get<ndebug>();
     if (domain_end >= pltext.size() || pltext.template index<ndebug>(domain_end) != u8':') {
         return ::pltxt2htm::container::NonZeroSize::from<ndebug>(domain_end);
     }
-    auto const opt_port_end{
-        ::pltxt2htm::details::try_parse_url_port<ndebug>(pltext.template subview<ndebug>(domain_end + 1))};
+    auto const opt_port_end =
+        ::pltxt2htm::details::try_parse_url_port<ndebug>(pltext.template subview<ndebug>(domain_end + 1));
     if (opt_port_end.has_value() == false) {
         return ::pltxt2htm::container::nullopt;
     }

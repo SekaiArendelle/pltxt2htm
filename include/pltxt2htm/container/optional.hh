@@ -16,6 +16,7 @@
 namespace pltxt2htm::container {
 
 struct NulloptType {
+    [[nodiscard]]
     constexpr bool operator==(this NulloptType const&, NulloptType const&) noexcept = default;
 };
 
@@ -293,6 +294,7 @@ public:
         return ::std::move(self.storage).value();
     }
 
+    [[nodiscard]]
     constexpr bool operator==(this Optional<T> const& self, Optional<T> const& rhs) noexcept
         requires ::std::equality_comparable<T>
     {
@@ -305,12 +307,14 @@ public:
         return self.storage.value() == rhs.storage.value();
     }
 
+    [[nodiscard]]
     constexpr bool operator==(this Optional<T> const& self, value_type const& rhs) noexcept
         requires ::std::equality_comparable<T>
     {
         return self.has_value() && self.storage.value() == rhs;
     }
 
+    [[nodiscard]]
     constexpr bool operator==(this Optional<T> const& self, NulloptType) noexcept {
         return self.has_value() == false;
     }

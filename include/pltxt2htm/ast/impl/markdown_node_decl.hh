@@ -180,6 +180,7 @@ public:
         : character{character_} {
     }
 
+    [[nodiscard]]
     constexpr auto operator==(this MdEscape const&, MdEscape const&) noexcept -> bool = default;
 
     [[nodiscard]]
@@ -194,6 +195,7 @@ public:
  */
 class MdHr {
 public:
+    [[nodiscard]]
     constexpr auto operator==(this MdHr const&, MdHr const&) noexcept -> bool = default;
 };
 
