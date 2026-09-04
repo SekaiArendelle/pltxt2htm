@@ -5,14 +5,14 @@
 
 #pragma once
 
-#include <fast_io/fast_io_dsal/string.h>
+#include "../../container/string.hh"
 
 namespace pltxt2htm::details {
 
 /**
  * @brief Append one character, escaping characters with HTML syntax significance.
  */
-constexpr void append_html_escaped_character(::fast_io::u8string& out, char8_t const character) noexcept {
+constexpr void append_html_escaped_character(::pltxt2htm::container::U8String& out, char8_t const character) noexcept {
     switch (character) {
     case u8'&': {
         out.append(u8"&amp;");

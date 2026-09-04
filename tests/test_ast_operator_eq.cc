@@ -191,10 +191,10 @@ int main() {
 
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::CodeFence<nd::quick_enforce>(
             ::std::move(ast_a),
-            ::pltxt2htm::container::Optional<::fast_io::u8string>(::pltxt2htm::container::nullopt)));
+            ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(::pltxt2htm::container::nullopt)));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::CodeFence<nd::quick_enforce>(
             ::std::move(ast_b),
-            ::pltxt2htm::container::Optional<::fast_io::u8string>(::pltxt2htm::container::nullopt)));
+            ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(::pltxt2htm::container::nullopt)));
         pltxt2htm_test_assert_true(a == b);
     }
 
@@ -207,9 +207,11 @@ int main() {
         ast_b.emplace_back(::pltxt2htm::U8Char{u8'a'});
 
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::CodeFence<nd::quick_enforce>(
-            ::std::move(ast_a), ::pltxt2htm::container::Optional<::fast_io::u8string>(::fast_io::u8string{u8"cpp"})));
+            ::std::move(ast_a), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
+                                    ::pltxt2htm::container::U8String{u8"cpp"})));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::CodeFence<nd::quick_enforce>(
-            ::std::move(ast_b), ::pltxt2htm::container::Optional<::fast_io::u8string>(::fast_io::u8string{u8"cpp"})));
+            ::std::move(ast_b), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
+                                    ::pltxt2htm::container::U8String{u8"cpp"})));
         pltxt2htm_test_assert_true(a == b);
     }
 
@@ -222,10 +224,11 @@ int main() {
         ast_b.emplace_back(::pltxt2htm::U8Char{u8'a'});
 
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::CodeFence<nd::quick_enforce>(
-            ::std::move(ast_a), ::pltxt2htm::container::Optional<::fast_io::u8string>(::fast_io::u8string{u8"cpp"})));
+            ::std::move(ast_a), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
+                                    ::pltxt2htm::container::U8String{u8"cpp"})));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::CodeFence<nd::quick_enforce>(
-            ::std::move(ast_b),
-            ::pltxt2htm::container::Optional<::fast_io::u8string>(::fast_io::u8string{u8"python"})));
+            ::std::move(ast_b), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
+                                    ::pltxt2htm::container::U8String{u8"python"})));
         pltxt2htm_test_assert_false(a == b);
     }
 
@@ -236,10 +239,11 @@ int main() {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
 
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::CodeFence<nd::quick_enforce>(
-            ::std::move(ast_a), ::pltxt2htm::container::Optional<::fast_io::u8string>(::fast_io::u8string{u8"cpp"})));
+            ::std::move(ast_a), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
+                                    ::pltxt2htm::container::U8String{u8"cpp"})));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::CodeFence<nd::quick_enforce>(
             ::std::move(ast_b),
-            ::pltxt2htm::container::Optional<::fast_io::u8string>(::pltxt2htm::container::nullopt)));
+            ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(::pltxt2htm::container::nullopt)));
         pltxt2htm_test_assert_false(a == b);
     }
 
@@ -251,10 +255,10 @@ int main() {
 
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::CodeFence<nd::quick_enforce>(
             ::std::move(ast_a),
-            ::pltxt2htm::container::Optional<::fast_io::u8string>(::pltxt2htm::container::nullopt)));
+            ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(::pltxt2htm::container::nullopt)));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::CodeFence<nd::quick_enforce>(
             ::std::move(ast_b),
-            ::pltxt2htm::container::Optional<::fast_io::u8string>(::pltxt2htm::container::nullopt)));
+            ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(::pltxt2htm::container::nullopt)));
         pltxt2htm_test_assert_true(a == b);
     }
 
@@ -265,9 +269,11 @@ int main() {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
 
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::CodeFence<nd::quick_enforce>(
-            ::std::move(ast_a), ::pltxt2htm::container::Optional<::fast_io::u8string>(::fast_io::u8string{u8"cpp"})));
+            ::std::move(ast_a), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
+                                    ::pltxt2htm::container::U8String{u8"cpp"})));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::CodeFence<nd::quick_enforce>(
-            ::std::move(ast_b), ::pltxt2htm::container::Optional<::fast_io::u8string>(::fast_io::u8string{u8"cpp"})));
+            ::std::move(ast_b), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
+                                    ::pltxt2htm::container::U8String{u8"cpp"})));
         pltxt2htm_test_assert_true(a == b);
     }
 
@@ -278,10 +284,11 @@ int main() {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
 
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::CodeFence<nd::quick_enforce>(
-            ::std::move(ast_a), ::pltxt2htm::container::Optional<::fast_io::u8string>(::fast_io::u8string{u8"cpp"})));
+            ::std::move(ast_a), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
+                                    ::pltxt2htm::container::U8String{u8"cpp"})));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::CodeFence<nd::quick_enforce>(
-            ::std::move(ast_b),
-            ::pltxt2htm::container::Optional<::fast_io::u8string>(::fast_io::u8string{u8"python"})));
+            ::std::move(ast_b), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
+                                    ::pltxt2htm::container::U8String{u8"python"})));
         pltxt2htm_test_assert_false(a == b);
     }
 
@@ -292,10 +299,11 @@ int main() {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
 
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::CodeFence<nd::quick_enforce>(
-            ::std::move(ast_a), ::pltxt2htm::container::Optional<::fast_io::u8string>(::fast_io::u8string{u8"cpp"})));
+            ::std::move(ast_a), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
+                                    ::pltxt2htm::container::U8String{u8"cpp"})));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::CodeFence<nd::quick_enforce>(
             ::std::move(ast_b),
-            ::pltxt2htm::container::Optional<::fast_io::u8string>(::pltxt2htm::container::nullopt)));
+            ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(::pltxt2htm::container::nullopt)));
         pltxt2htm_test_assert_false(a == b);
     }
 
@@ -307,10 +315,10 @@ int main() {
         ::pltxt2htm::Ast<nd::quick_enforce> text_b{};
         text_b.emplace_back(::pltxt2htm::U8Char{u8'a'});
 
-        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::MdLink<nd::quick_enforce>(::std::move(text_a), ::pltxt2htm::Url(::fast_io::u8string{u8"x"})));
-        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::MdLink<nd::quick_enforce>(::std::move(text_b), ::pltxt2htm::Url(::fast_io::u8string{u8"x"})));
+        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdLink<nd::quick_enforce>(
+            ::std::move(text_a), ::pltxt2htm::Url(::pltxt2htm::container::U8String{u8"x"})));
+        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdLink<nd::quick_enforce>(
+            ::std::move(text_b), ::pltxt2htm::Url(::pltxt2htm::container::U8String{u8"x"})));
         pltxt2htm_test_assert_true(a == b);
     }
 
@@ -322,10 +330,10 @@ int main() {
         ::pltxt2htm::Ast<nd::quick_enforce> text_b{};
         text_b.emplace_back(::pltxt2htm::U8Char{u8'a'});
 
-        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::MdLink<nd::quick_enforce>(::std::move(text_a), ::pltxt2htm::Url(::fast_io::u8string{u8"x"})));
-        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::MdLink<nd::quick_enforce>(::std::move(text_b), ::pltxt2htm::Url(::fast_io::u8string{u8"y"})));
+        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdLink<nd::quick_enforce>(
+            ::std::move(text_a), ::pltxt2htm::Url(::pltxt2htm::container::U8String{u8"x"})));
+        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdLink<nd::quick_enforce>(
+            ::std::move(text_b), ::pltxt2htm::Url(::pltxt2htm::container::U8String{u8"y"})));
         pltxt2htm_test_assert_false(a == b);
     }
 
@@ -337,10 +345,10 @@ int main() {
         ::pltxt2htm::Ast<nd::quick_enforce> alt_b{};
         alt_b.emplace_back(::pltxt2htm::U8Char{u8'a'});
 
-        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::MdImage<nd::quick_enforce>(::std::move(alt_a), ::pltxt2htm::Url(::fast_io::u8string{u8"x"})));
-        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::MdImage<nd::quick_enforce>(::std::move(alt_b), ::pltxt2htm::Url(::fast_io::u8string{u8"x"})));
+        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdImage<nd::quick_enforce>(
+            ::std::move(alt_a), ::pltxt2htm::Url(::pltxt2htm::container::U8String{u8"x"})));
+        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdImage<nd::quick_enforce>(
+            ::std::move(alt_b), ::pltxt2htm::Url(::pltxt2htm::container::U8String{u8"x"})));
         pltxt2htm_test_assert_true(a == b);
     }
 
@@ -417,9 +425,9 @@ int main() {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
 
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::PlColor<nd::quick_enforce>(::std::move(ast_a), ::fast_io::u8string{u8"red"}));
+            ::pltxt2htm::PlColor<nd::quick_enforce>(::std::move(ast_a), ::pltxt2htm::container::U8String{u8"red"}));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::PlColor<nd::quick_enforce>(::std::move(ast_b), ::fast_io::u8string{u8"red"}));
+            ::pltxt2htm::PlColor<nd::quick_enforce>(::std::move(ast_b), ::pltxt2htm::container::U8String{u8"red"}));
         pltxt2htm_test_assert_true(a == b);
     }
     {
@@ -427,9 +435,9 @@ int main() {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
 
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::PlColor<nd::quick_enforce>(::std::move(ast_a), ::fast_io::u8string{u8"red"}));
+            ::pltxt2htm::PlColor<nd::quick_enforce>(::std::move(ast_a), ::pltxt2htm::container::U8String{u8"red"}));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::PlColor<nd::quick_enforce>(::std::move(ast_b), ::fast_io::u8string{u8"blue"}));
+            ::pltxt2htm::PlColor<nd::quick_enforce>(::std::move(ast_b), ::pltxt2htm::container::U8String{u8"blue"}));
         pltxt2htm_test_assert_false(a == b);
     }
 
@@ -438,20 +446,20 @@ int main() {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
 
-        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::PlExperiment<nd::quick_enforce>(::std::move(ast_a), ::fast_io::u8string{u8"exp1"}));
-        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::PlExperiment<nd::quick_enforce>(::std::move(ast_b), ::fast_io::u8string{u8"exp1"}));
+        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlExperiment<nd::quick_enforce>(
+            ::std::move(ast_a), ::pltxt2htm::container::U8String{u8"exp1"}));
+        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlExperiment<nd::quick_enforce>(
+            ::std::move(ast_b), ::pltxt2htm::container::U8String{u8"exp1"}));
         pltxt2htm_test_assert_true(a == b);
     }
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
 
-        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::PlExperiment<nd::quick_enforce>(::std::move(ast_a), ::fast_io::u8string{u8"exp1"}));
-        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::PlExperiment<nd::quick_enforce>(::std::move(ast_b), ::fast_io::u8string{u8"exp2"}));
+        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlExperiment<nd::quick_enforce>(
+            ::std::move(ast_a), ::pltxt2htm::container::U8String{u8"exp1"}));
+        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlExperiment<nd::quick_enforce>(
+            ::std::move(ast_b), ::pltxt2htm::container::U8String{u8"exp2"}));
         pltxt2htm_test_assert_false(a == b);
     }
 
@@ -494,9 +502,9 @@ int main() {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
 
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlExternal<nd::quick_enforce>(
-            ::std::move(ast_a), ::pltxt2htm::Url(::fast_io::u8string{u8"x"})));
+            ::std::move(ast_a), ::pltxt2htm::Url(::pltxt2htm::container::U8String{u8"x"})));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlExternal<nd::quick_enforce>(
-            ::std::move(ast_b), ::pltxt2htm::Url(::fast_io::u8string{u8"x"})));
+            ::std::move(ast_b), ::pltxt2htm::Url(::pltxt2htm::container::U8String{u8"x"})));
         pltxt2htm_test_assert_true(a == b);
     }
 
@@ -664,7 +672,8 @@ int main() {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
 
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::CodeFence<nd::quick_enforce>(
-            ::std::move(ast_a), ::pltxt2htm::container::Optional<::fast_io::u8string>(::fast_io::u8string{u8"cpp"})));
+            ::std::move(ast_a), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
+                                    ::pltxt2htm::container::U8String{u8"cpp"})));
         auto const b =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Group<nd::quick_enforce>(::std::move(ast_b)));
         pltxt2htm_test_assert_false(a == b);

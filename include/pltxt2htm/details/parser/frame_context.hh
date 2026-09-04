@@ -9,9 +9,9 @@
 #include <cstddef>
 #include <memory>
 #include <utility>
+#include "../../container/string.hh"
 #include "../../container/optional.hh"
 #include "../call_stack.hh"
-#include <fast_io/fast_io_dsal/string.h>
 #include "../../container/string_view.hh"
 #include "list_ast.hh"
 #include "md_table.hh"
@@ -55,7 +55,7 @@ public:
 class ParserFrameContextWithEqualSignTagInfo {
 public:
     ::pltxt2htm::container::U8StringView pltext;
-    ::fast_io::u8string id;
+    ::pltxt2htm::container::U8String id;
 };
 
 /**
@@ -65,7 +65,7 @@ template<::pltxt2htm::Contracts ndebug>
 class ParserFrameContextWithHtmlSpanInfo {
 public:
     ::pltxt2htm::container::U8StringView pltext;
-    ::fast_io::u8string color;
+    ::pltxt2htm::container::U8String color;
     ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size;
     ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align;
 };
@@ -76,7 +76,7 @@ public:
 class ParserFrameContextWithHtmlMarkInfo {
 public:
     ::pltxt2htm::container::U8StringView pltext;
-    ::fast_io::u8string background_color;
+    ::pltxt2htm::container::U8String background_color;
 };
 
 /**
@@ -143,7 +143,7 @@ public:
 class ParserFrameContextWithPlMarkInfo {
 public:
     ::pltxt2htm::container::U8StringView pltext;
-    ::fast_io::u8string background_color;
+    ::pltxt2htm::container::U8String background_color;
 };
 
 /**
@@ -151,7 +151,7 @@ public:
  */
 class ParserFrameContextWithMdBlockQuotesInfo {
 public:
-    ::fast_io::u8string pltext;
+    ::pltxt2htm::container::U8String pltext;
 };
 
 /**

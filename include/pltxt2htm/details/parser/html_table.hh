@@ -17,7 +17,7 @@
 #pragma once
 
 #include <cstddef>
-#include <fast_io/fast_io_dsal/string.h>
+#include "../../container/string.hh"
 #include "../../container/string_view.hh"
 #include <fast_io/fast_io_dsal/vector.h>
 #include "../../container/optional.hh"
@@ -48,7 +48,7 @@ struct ToHtmlTableAstResult {
  */
 template<::pltxt2htm::Contracts ndebug>
 struct TryCaptureUntilTagResult {
-    ::fast_io::u8string text; ///< Raw content (not whitespace-trimmed).
+    ::pltxt2htm::container::U8String text; ///< Raw content (not whitespace-trimmed).
     ::std::size_t advance_count; ///< Bytes consumed past the closing tag.
 };
 
@@ -70,7 +70,7 @@ constexpr auto try_capture_until_tag(::pltxt2htm::container::U8StringView pltext
     -> ::pltxt2htm::container::Optional<TryCaptureUntilTagResult<ndebug>> {
     ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t current_index{};
-    ::fast_io::u8string text{};
+    ::pltxt2htm::container::U8String text{};
     while (current_index < pltext_size) {
         if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, close_tag>(
                 pltext.template subview<ndebug>(current_index));
@@ -88,13 +88,14 @@ constexpr auto try_capture_until_tag(::pltxt2htm::container::U8StringView pltext
  * @brief Trim leading/trailing whitespace (space, tab, newline) from cell/caption content.
  * @param text Raw captured content.
  */
-constexpr auto trim_table_content(::fast_io::u8string& text) noexcept -> void {
+template<::pltxt2htm::Contracts ndebug>
+constexpr auto trim_table_content(::pltxt2htm::container::U8String& text) noexcept -> void {
     while (text.empty() == false) {
-        auto const chr = text[text.size() - 1];
+        auto const chr = text.template index<ndebug>(text.size() - 1);
         if (chr != u8' ' && chr != u8'\t' && chr != u8'\n') {
             break;
         }
-        text.pop_back();
+        text.template pop_back<ndebug>();
     }
 }
 
@@ -166,7 +167,7 @@ constexpr auto optionally_to_html_table_ast(::pltxt2htm::container::U8StringView
                     return ::pltxt2htm::container::nullopt;
                 }
                 auto&& [cell_text, cell_advance] = opt_cell.template value<ndebug>();
-                ::pltxt2htm::details::trim_table_content(cell_text);
+                ::pltxt2htm::details::trim_table_content<ndebug>(cell_text);
                 current_index += tag_len + 3 + cell_advance;
                 raw_ast.add_cell_to_last_row(
                     TableCellRaw{.text = ::std::move(cell_text), .align = align, .is_header = true});
@@ -182,7 +183,7 @@ constexpr auto optionally_to_html_table_ast(::pltxt2htm::container::U8StringView
                     return ::pltxt2htm::container::nullopt;
                 }
                 auto&& [cell_text, cell_advance] = opt_cell.template value<ndebug>();
-                ::pltxt2htm::details::trim_table_content(cell_text);
+                ::pltxt2htm::details::trim_table_content<ndebug>(cell_text);
                 current_index += tag_len + 3 + cell_advance;
                 raw_ast.add_cell_to_last_row(
                     TableCellRaw{.text = ::std::move(cell_text), .align = align, .is_header = false});
@@ -197,7 +198,7 @@ constexpr auto optionally_to_html_table_ast(::pltxt2htm::container::U8StringView
                 return ::pltxt2htm::container::nullopt;
             }
             auto&& [caption_text, caption_advance] = opt_caption.template value<ndebug>();
-            ::pltxt2htm::details::trim_table_content(caption_text);
+            ::pltxt2htm::details::trim_table_content<ndebug>(caption_text);
             raw_ast.set_caption(::std::move(caption_text));
             current_index += caption_advance;
             inside_caption = false;

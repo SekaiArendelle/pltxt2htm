@@ -9,7 +9,7 @@
 
 #include <cstddef>
 #include <fast_io/fast_io_dsal/vector.h>
-#include <fast_io/fast_io_dsal/string.h>
+#include "../../container/string.hh"
 #include "../../container/string_view.hh"
 #include "../../container/optional.hh"
 #include "../utils.hh"
@@ -24,7 +24,7 @@ namespace pltxt2htm::details {
  * @brief Result of try_parse_md_table_row: parsed cell strings and consumed character count.
  */
 struct TryParseMdTableRowResult {
-    ::fast_io::vector<::fast_io::u8string> cells;
+    ::fast_io::vector<::pltxt2htm::container::U8String> cells;
     ::std::size_t advance_count;
 };
 
@@ -62,7 +62,7 @@ constexpr auto try_parse_md_table_row(::pltxt2htm::container::U8StringView pltex
     }
     ++current_index; // skip the first |
 
-    ::fast_io::vector<::fast_io::u8string> row{};
+    ::fast_io::vector<::pltxt2htm::container::U8String> row{};
     bool has_trailing_pipe{};
     while (current_index < pltext_size) {
         // skip spaces before cell content
@@ -82,13 +82,13 @@ constexpr auto try_parse_md_table_row(::pltxt2htm::container::U8StringView pltex
         }
         has_trailing_pipe = false;
         // parse cell content until unescaped | or \n or end of view
-        ::fast_io::u8string cell{};
+        ::pltxt2htm::container::U8String cell{};
         bool prev_was_backslash{};
         for (; current_index < pltext_size; ++current_index) {
             auto chr = pltext.template index<ndebug>(current_index);
             if (chr == u8'|') {
                 if (prev_was_backslash) {
-                    cell.pop_back(); // remove the escape backslash
+                    cell.template pop_back<ndebug>(); // remove the escape backslash
                     prev_was_backslash = false;
                     chr = u8'|';
                 }
@@ -103,8 +103,8 @@ constexpr auto try_parse_md_table_row(::pltxt2htm::container::U8StringView pltex
             prev_was_backslash = (chr == u8'\\') ? !prev_was_backslash : false;
         }
         // trim trailing spaces from cell
-        while (!cell.empty() && (cell.back() == u8' ' || cell.back() == u8'\t')) {
-            cell.pop_back();
+        while (!cell.empty() && (cell.template back<ndebug>() == u8' ' || cell.template back<ndebug>() == u8'\t')) {
+            cell.template pop_back<ndebug>();
         }
         row.push_back(::std::move(cell));
         if (current_index < pltext_size && pltext.template index<ndebug>(current_index) == u8'|') {

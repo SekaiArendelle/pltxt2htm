@@ -6,7 +6,7 @@
 #pragma once
 
 #include <cstddef>
-#include <fast_io/fast_io_dsal/string.h>
+#include "../../container/string.hh"
 #include "../../container/string_view.hh"
 #include "../../contracts.hh"
 
@@ -21,7 +21,8 @@ namespace pltxt2htm::details {
  * @param[in] url Semantic URL value to append.
  */
 template<::pltxt2htm::Contracts ndebug>
-constexpr void append_html_escaped_url(::fast_io::u8string& result, ::pltxt2htm::container::U8StringView url) noexcept {
+constexpr void append_html_escaped_url(::pltxt2htm::container::U8String& result,
+                                       ::pltxt2htm::container::U8StringView url) noexcept {
     ::std::size_t const url_size{url.size()};
     for (::std::size_t index{}; index < url_size; ++index) {
         auto const chr = url.template index<ndebug>(index);

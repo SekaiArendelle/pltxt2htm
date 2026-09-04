@@ -5,6 +5,7 @@
 #include <fast_io/fast_io_dsal/string_view.h>
 
 #include <pltxt2htm/container/string_view.hh>
+#include <pltxt2htm/container/string.hh>
 #include <pltxt2htm/details/literal_string.hh>
 
 #include "precompile.hh"
@@ -21,6 +22,10 @@ static_assert(::std::same_as<U8StringView::const_iterator, char8_t const*>);
 static_assert(::std::is_constructible_v<U8StringView, ::fast_io::u8string_view>);
 static_assert(::std::is_constructible_v<U8StringView, ::fast_io::u8string const&>);
 static_assert(!::std::is_constructible_v<U8StringView, ::fast_io::u8string&&>);
+static_assert(::std::is_constructible_v<U8StringView, ::pltxt2htm::container::U8String const&>);
+static_assert(!::std::is_constructible_v<U8StringView, ::pltxt2htm::container::U8String&&>);
+static_assert(::std::is_convertible_v<::pltxt2htm::container::U8String const&, U8StringView>);
+static_assert(!::std::is_convertible_v<::pltxt2htm::container::U8String&&, U8StringView>);
 static_assert(::fast_io::alias_printable<::pltxt2htm::container::StringView>);
 static_assert(::fast_io::alias_printable<::pltxt2htm::container::WStringView>);
 static_assert(::fast_io::alias_printable<U8StringView>);
@@ -67,6 +72,12 @@ consteval auto test_constexpr_string_view() noexcept -> bool {
 static_assert(test_constexpr_string_view());
 
 int main() {
+    ::pltxt2htm::container::U8String own_string{u8"pltxt2htm"};
+    U8StringView const own_string_view{own_string};
+    U8StringView const converted_own_string_view = own_string;
+    pltxt2htm_test_assert_true(own_string_view == u8"pltxt2htm");
+    pltxt2htm_test_assert_true(converted_own_string_view == own_string_view);
+
     ::fast_io::u8string string{u8"fast_io"};
     U8StringView const string_view{string};
     auto const deduced_string_view = ::pltxt2htm::container::BasicStringView{string};
