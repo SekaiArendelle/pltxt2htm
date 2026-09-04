@@ -166,7 +166,7 @@ public:
     constexpr auto operator=(this ListUlNode<ndebug>& self, ListUlNode<ndebug>&&) noexcept -> ListUlNode<ndebug>&;
 
     [[nodiscard]]
-    constexpr auto operator==(ListUlNode<ndebug> const& other) const noexcept -> bool;
+    constexpr auto operator==(this ListUlNode<ndebug> const& self, ListUlNode<ndebug> const& other) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_sublist(this auto&& self) noexcept -> decltype(auto) {
@@ -199,7 +199,7 @@ public:
     constexpr auto operator=(this ListOlNode<ndebug>& self, ListOlNode<ndebug>&&) noexcept -> ListOlNode<ndebug>&;
 
     [[nodiscard]]
-    constexpr auto operator==(ListOlNode<ndebug> const& other) const noexcept -> bool;
+    constexpr auto operator==(this ListOlNode<ndebug> const& self, ListOlNode<ndebug> const& other) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_sublist(this auto&& self) noexcept -> decltype(auto) {
@@ -456,8 +456,9 @@ constexpr auto ListUlNode<ndebug>::operator=(this ListUlNode<ndebug>& self, List
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto ListUlNode<ndebug>::operator==(ListUlNode<ndebug> const& other) const noexcept -> bool {
-    return sublist == other.sublist;
+constexpr auto ListUlNode<ndebug>::operator==(this ListUlNode<ndebug> const& self,
+                                              ListUlNode<ndebug> const& other) noexcept -> bool {
+    return self.sublist == other.sublist;
 }
 
 // ---- ListOlNode member definitions (ListBaseNode is now complete) ----
@@ -480,8 +481,9 @@ constexpr auto ListOlNode<ndebug>::operator=(this ListOlNode<ndebug>& self, List
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto ListOlNode<ndebug>::operator==(ListOlNode<ndebug> const& other) const noexcept -> bool {
-    return sublist == other.sublist && start == other.start;
+constexpr auto ListOlNode<ndebug>::operator==(this ListOlNode<ndebug> const& self,
+                                              ListOlNode<ndebug> const& other) noexcept -> bool {
+    return self.sublist == other.sublist && self.start == other.start;
 }
 
 template<typename T>

@@ -13,7 +13,7 @@
 #include <iterator>
 #include <memory>
 #include <type_traits>
-#include "container/expected.hh"
+#include "container/optional.hh"
 #include "container/string_view.hh"
 #include <fast_io/fast_io_dsal/list.h>
 #include "details/call_stack.hh"
@@ -186,7 +186,7 @@ public:
             ::std::construct_at(::std::addressof(this->pl_mark_info), ::std::move(other.pl_mark_info));
             return;
         }
-        case ::pltxt2htm::NodeKind::text:
+        case ::pltxt2htm::NodeKind::group:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_a:
             [[fallthrough]];
@@ -202,9 +202,9 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_i:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_u:
+        case ::pltxt2htm::NodeKind::html_u:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_s:
+        case ::pltxt2htm::NodeKind::html_s:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_p:
             [[fallthrough]];
@@ -296,7 +296,7 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::u8char:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::invalid_u8char:
+        case ::pltxt2htm::NodeKind::invalid_utf8:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::url:
             [[fallthrough]];
@@ -336,69 +336,7 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::table_col:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_backslash:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_exclamation:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_double_quote:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_hash:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_dollar:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_percent:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_ampersand:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_single_quote:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_left_paren:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_right_paren:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_asterisk:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_plus:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_comma:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_hyphen:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_dot:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_slash:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_colon:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_semicolon:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_less_than:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_equals:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_greater_than:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_question:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_at:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_left_bracket:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_right_bracket:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_caret:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_underscore:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_backtick:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_left_brace:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_pipe:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_right_brace:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_tilde:
+        case ::pltxt2htm::NodeKind::md_escape:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_hr:
             [[fallthrough]];
@@ -612,7 +550,7 @@ public:
  *            attributes are merged (e.g., &lt;color=red&gt;&lt;color=blue&gt;text&lt;/color&gt;&lt;/color&gt;
  *            becomes &lt;color=blue&gt;text&lt;/color&gt;)
  *          - **Empty tag elimination**: Tags with empty content are removed entirely
- *          - **Text node merging**: Adjacent text nodes are combined when possible
+ *          - **Group node merging**: Adjacent group nodes are combined when possible
  *          - **Nested tag flattening**: Deeply nested structures are simplified
  *          - **Whitespace normalization**: Excessive whitespace around line breaks is trimmed
  *
@@ -633,7 +571,7 @@ constexpr void optimize_ast(::pltxt2htm::Ast<ndebug>& ast_init) noexcept {
         ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>>
         call_stack{};
     call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>{
-        ::std::addressof(ast_init), ::pltxt2htm::NodeKind::text, ast_init.begin()});
+        ::std::addressof(ast_init), ::pltxt2htm::NodeKind::group, ast_init.begin()});
 
 entry:
     while (true) {
@@ -645,29 +583,21 @@ entry:
             switch (node.get_node_kind()) /* -Werror=switch */ {
             case ::pltxt2htm::NodeKind::u8char:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::invalid_u8char:
+            case ::pltxt2htm::NodeKind::invalid_utf8:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_escape:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::space:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_ampersand:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::ampersand:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::entity_reference:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_single_quote:
-                [[fallthrough]];
             case ::pltxt2htm::NodeKind::single_quote:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_double_quote:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::double_quote:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_less_than:
-                [[fallthrough]];
             case ::pltxt2htm::NodeKind::less_than:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_greater_than:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::greater_than:
                 [[fallthrough]];
@@ -683,16 +613,16 @@ entry:
                 ++current_iter;
                 continue;
             }
-            case ::pltxt2htm::NodeKind::text: {
-                auto&& active_node{node.as_text()};
+            case ::pltxt2htm::NodeKind::group: {
+                auto&& active_node = node.as_group();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::text, subast.begin()));
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::group, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_color: {
-                auto&& active_node{node.as_pl_color()};
+                auto&& active_node = node.as_pl_color();
                 auto&& subast = active_node.get_subast();
 
                 // Optimization: <color=red><color=blue>text</color></color>
@@ -750,12 +680,12 @@ entry:
                     goto entry;
                 }
                 // Optimization: If the color is the same as the parent node, then ignore the nested tag.
-                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
+                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                 ++current_iter;
                 continue;
             }
             case ::pltxt2htm::NodeKind::html_span: {
-                auto&& active_node{node.as_html_span()};
+                auto&& active_node = node.as_html_span();
                 // Merge attributes rather than discarding the outer span.
                 // Inner values override outer for conflicts; outer values not
                 // set on inner are preserved (CSS cascading).
@@ -765,7 +695,7 @@ entry:
                 if (subast.size() == 1) {
                     auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
                     if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::html_span) {
-                        auto&& active_subnode{subnode.as_html_span()};
+                        auto&& active_subnode = subnode.as_html_span();
                         auto const& outer_color = active_node.get_color();
                         auto const outer_fs = active_node.get_font_size();
                         auto const outer_va = active_node.get_vertical_align();
@@ -842,7 +772,7 @@ entry:
                     if (node_color_view == parent_frame.get_html_span_color() && same_font_size &&
                         same_vertical_align) {
                         node = ::pltxt2htm::PlTxtNode<ndebug>{
-                            ::pltxt2htm::Text<ndebug>{::std::move(active_node.get_subast())}};
+                            ::pltxt2htm::Group<ndebug>{::std::move(active_node.get_subast())}};
                         ++current_iter;
                         continue;
                     }
@@ -855,7 +785,7 @@ entry:
                     auto const& node_va = active_node.get_vertical_align();
                     if (node_color_view == parent_color_id && !node_fs.has_value() && !node_va.has_value()) {
                         node = ::pltxt2htm::PlTxtNode<ndebug>{
-                            ::pltxt2htm::Text<ndebug>{::std::move(active_node.get_subast())}};
+                            ::pltxt2htm::Group<ndebug>{::std::move(active_node.get_subast())}};
                         ++current_iter;
                         continue;
                     }
@@ -869,7 +799,7 @@ entry:
                     auto const& node_va = active_node.get_vertical_align();
                     if (node_color_view == anchor_color && !node_fs.has_value() && !node_va.has_value()) {
                         node = ::pltxt2htm::PlTxtNode<ndebug>{
-                            ::pltxt2htm::Text<ndebug>{::std::move(active_node.get_subast())}};
+                            ::pltxt2htm::Group<ndebug>{::std::move(active_node.get_subast())}};
                         ++current_iter;
                         continue;
                     }
@@ -886,7 +816,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_a: {
-                auto&& active_node{node.as_html_a()};
+                auto&& active_node = node.as_html_a();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -894,7 +824,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_a: {
-                auto&& active_node{node.as_pl_a()};
+                auto&& active_node = node.as_pl_a();
                 auto&& subast = active_node.get_subast();
 
                 // Optimization: <a><color=blue>text</color></a>
@@ -946,7 +876,7 @@ entry:
                     goto entry;
                 }
                 // Optimization: If the color is the same as the parent node, then ignore the nested tag.
-                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
+                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                 ++current_iter;
                 continue;
             }
@@ -960,19 +890,19 @@ entry:
                 auto&& subast = [&]() -> decltype(auto) {
                     switch (node.get_node_kind()) {
                     case ::pltxt2htm::NodeKind::pl_experiment: {
-                        auto&& active_node{node.as_pl_experiment()};
+                        auto&& active_node = node.as_pl_experiment();
                         return active_node.get_subast();
                     }
                     case ::pltxt2htm::NodeKind::pl_experiments: {
-                        auto&& active_node{node.as_pl_experiments()};
+                        auto&& active_node = node.as_pl_experiments();
                         return active_node.get_subast();
                     }
                     case ::pltxt2htm::NodeKind::pl_discussion: {
-                        auto&& active_node{node.as_pl_discussion()};
+                        auto&& active_node = node.as_pl_discussion();
                         return active_node.get_subast();
                     }
                     case ::pltxt2htm::NodeKind::pl_discussions: {
-                        auto&& active_node{node.as_pl_discussions()};
+                        auto&& active_node = node.as_pl_discussions();
                         return active_node.get_subast();
                     }
                     default:
@@ -988,19 +918,19 @@ entry:
                 auto const& equal_sign_tag_id = [&]() -> decltype(auto) {
                     switch (node.get_node_kind()) {
                     case ::pltxt2htm::NodeKind::pl_experiment: {
-                        auto&& active_node{node.as_pl_experiment()};
+                        auto&& active_node = node.as_pl_experiment();
                         return active_node.get_id();
                     }
                     case ::pltxt2htm::NodeKind::pl_experiments: {
-                        auto&& active_node{node.as_pl_experiments()};
+                        auto&& active_node = node.as_pl_experiments();
                         return active_node.get_value();
                     }
                     case ::pltxt2htm::NodeKind::pl_discussion: {
-                        auto&& active_node{node.as_pl_discussion()};
+                        auto&& active_node = node.as_pl_discussion();
                         return active_node.get_id();
                     }
                     case ::pltxt2htm::NodeKind::pl_discussions: {
-                        auto&& active_node{node.as_pl_discussions()};
+                        auto&& active_node = node.as_pl_discussions();
                         return active_node.get_value();
                     }
                     default:
@@ -1017,7 +947,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_user: {
-                auto&& active_node{node.as_pl_user()};
+                auto&& active_node = node.as_pl_user();
                 auto&& subast = active_node.get_subast();
                 if (subast.empty()) {
                     // <user=123></user> can be omitted
@@ -1053,12 +983,12 @@ entry:
                                 ::pltxt2htm::container::U8StringView{equal_sign_tag_id}}));
                     goto entry;
                 }
-                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
+                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                 ++current_iter;
                 continue;
             }
             case ::pltxt2htm::NodeKind::pl_trigger: {
-                auto&& active_node{node.as_pl_trigger()};
+                auto&& active_node = node.as_pl_trigger();
                 auto&& subast = active_node.get_subast();
                 if (subast.empty()) {
                     // <trigger=...></trigger> can be omitted
@@ -1073,7 +1003,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_internal: {
-                auto&& active_node{node.as_pl_internal()};
+                auto&& active_node = node.as_pl_internal();
                 auto&& subast = active_node.get_subast();
                 if (subast.empty()) {
                     // <internal=...></internal> can be omitted
@@ -1088,7 +1018,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_external: {
-                auto&& active_node{node.as_pl_external()};
+                auto&& active_node = node.as_pl_external();
                 auto&& subast = active_node.get_subast();
                 if (subast.empty()) {
                     // <external=123></external> can be omitted
@@ -1101,7 +1031,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_link: {
-                auto&& active_node{node.as_pl_link()};
+                auto&& active_node = node.as_pl_link();
                 auto&& subast = active_node.get_subast();
                 if (subast.empty()) {
                     // <link="url"></link> can be omitted
@@ -1114,7 +1044,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_size: {
-                auto&& active_node{node.as_pl_size()};
+                auto&& active_node = node.as_pl_size();
                 auto&& subast = active_node.get_subast();
                 if (subast.empty()) {
                     // <size=123></size> can be omitted
@@ -1147,12 +1077,12 @@ entry:
                             ::pltxt2htm::details::OptimizerContextWithPlSizeTagInfo{active_node.get_font_size()}));
                     goto entry;
                 }
-                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
+                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                 ++current_iter;
                 continue;
             }
             case ::pltxt2htm::NodeKind::pl_voffset: {
-                auto&& active_node{node.as_pl_voffset()};
+                auto&& active_node = node.as_pl_voffset();
                 auto&& subast = active_node.get_subast();
                 if (subast.empty()) {
                     // <voffset=5></voffset> can be omitted
@@ -1185,12 +1115,12 @@ entry:
                             ::pltxt2htm::details::OptimizerContextWithPlVoffsetTagInfo{active_node.get_value()}));
                     goto entry;
                 }
-                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
+                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                 ++current_iter;
                 continue;
             }
             case ::pltxt2htm::NodeKind::pl_align: {
-                auto&& active_node{node.as_pl_align()};
+                auto&& active_node = node.as_pl_align();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1198,7 +1128,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_margin: {
-                auto&& active_node{node.as_pl_margin()};
+                auto&& active_node = node.as_pl_margin();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1217,19 +1147,19 @@ entry:
                 auto&& subast = [&]() -> ::pltxt2htm::Ast<ndebug>& {
                     switch (node.get_node_kind()) {
                     case ::pltxt2htm::NodeKind::md_double_emphasis_underscore: {
-                        auto&& active_node{node.as_md_double_emphasis_underscore()};
+                        auto&& active_node = node.as_md_double_emphasis_underscore();
                         return active_node.get_subast();
                     }
                     case ::pltxt2htm::NodeKind::md_double_emphasis_asterisk: {
-                        auto&& active_node{node.as_md_double_emphasis_asterisk()};
+                        auto&& active_node = node.as_md_double_emphasis_asterisk();
                         return active_node.get_subast();
                     }
                     case ::pltxt2htm::NodeKind::html_strong: {
-                        auto&& active_node{node.as_html_strong()};
+                        auto&& active_node = node.as_html_strong();
                         return active_node.get_subast();
                     }
                     case ::pltxt2htm::NodeKind::pl_b: {
-                        auto&& active_node{node.as_pl_b()};
+                        auto&& active_node = node.as_pl_b();
                         return active_node.get_subast();
                     }
                     default:
@@ -1248,12 +1178,12 @@ entry:
                             ::std::addressof(subast), node.get_node_kind(), subast.begin()));
                     goto entry;
                 }
-                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
+                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                 ++current_iter;
                 continue;
             }
             case ::pltxt2htm::NodeKind::html_p: {
-                auto&& active_node{node.as_html_p()};
+                auto&& active_node = node.as_html_p();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1261,7 +1191,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_div: {
-                auto&& active_node{node.as_html_div()};
+                auto&& active_node = node.as_html_div();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1283,7 +1213,7 @@ entry:
                 continue;
             }
             case ::pltxt2htm::NodeKind::html_h1: {
-                auto&& active_node{node.as_html_h1()};
+                auto&& active_node = node.as_html_h1();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1291,7 +1221,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h1: {
-                auto&& active_node{node.as_md_atx_h1()};
+                auto&& active_node = node.as_md_atx_h1();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1299,7 +1229,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_h2: {
-                auto&& active_node{node.as_html_h2()};
+                auto&& active_node = node.as_html_h2();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1307,7 +1237,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h2: {
-                auto&& active_node{node.as_md_atx_h2()};
+                auto&& active_node = node.as_md_atx_h2();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1315,7 +1245,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_h3: {
-                auto&& active_node{node.as_html_h3()};
+                auto&& active_node = node.as_html_h3();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1323,7 +1253,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h3: {
-                auto&& active_node{node.as_md_atx_h3()};
+                auto&& active_node = node.as_md_atx_h3();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1331,7 +1261,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_h4: {
-                auto&& active_node{node.as_html_h4()};
+                auto&& active_node = node.as_html_h4();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1339,7 +1269,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h4: {
-                auto&& active_node{node.as_md_atx_h4()};
+                auto&& active_node = node.as_md_atx_h4();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1347,7 +1277,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_h5: {
-                auto&& active_node{node.as_html_h5()};
+                auto&& active_node = node.as_html_h5();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1355,7 +1285,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h5: {
-                auto&& active_node{node.as_md_atx_h5()};
+                auto&& active_node = node.as_md_atx_h5();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1363,7 +1293,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_h6: {
-                auto&& active_node{node.as_html_h6()};
+                auto&& active_node = node.as_html_h6();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1371,7 +1301,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h6: {
-                auto&& active_node{node.as_md_atx_h6()};
+                auto&& active_node = node.as_md_atx_h6();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1385,11 +1315,11 @@ entry:
                 auto&& subast = [&]() -> ::pltxt2htm::Ast<ndebug>& {
                     switch (node.get_node_kind()) {
                     case ::pltxt2htm::NodeKind::md_del: {
-                        auto&& active_node{node.as_md_del()};
+                        auto&& active_node = node.as_md_del();
                         return active_node.get_subast();
                     }
                     case ::pltxt2htm::NodeKind::html_del: {
-                        auto&& active_node{node.as_html_del()};
+                        auto&& active_node = node.as_html_del();
                         return active_node.get_subast();
                     }
                     default:
@@ -1410,12 +1340,12 @@ entry:
                             ::std::addressof(subast), ::pltxt2htm::NodeKind::html_del, subast.begin()));
                     goto entry;
                 }
-                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
+                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                 ++current_iter;
                 continue;
             }
             case ::pltxt2htm::NodeKind::html_code: {
-                auto&& active_node{node.as_html_code()};
+                auto&& active_node = node.as_html_code();
                 auto&& nested_tag_type = call_stack.template current_frame<ndebug>().get_nested_tag_type();
                 auto&& subast = active_node.get_subast();
                 bool const is_different_tag{nested_tag_type != ::pltxt2htm::NodeKind::html_code};
@@ -1429,12 +1359,12 @@ entry:
                             ::std::addressof(subast), ::pltxt2htm::NodeKind::html_code, subast.begin()));
                     goto entry;
                 }
-                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
+                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                 ++current_iter;
                 continue;
             }
             case ::pltxt2htm::NodeKind::html_mark: {
-                auto&& active_node{node.as_html_mark()};
+                auto&& active_node = node.as_html_mark();
                 auto&& nested_tag_type = call_stack.template current_frame<ndebug>().get_nested_tag_type();
                 auto&& subast = active_node.get_subast();
                 auto const& node_background_color = active_node.get_background_color();
@@ -1456,7 +1386,7 @@ entry:
                 // -> <mark style="background-color:yellow">abc</mark>
                 if (node_background_color_view ==
                     call_stack.template current_frame<ndebug>().get_html_mark_background_color()) {
-                    node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
+                    node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                     ++current_iter;
                     continue;
                 }
@@ -1472,7 +1402,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_mark: {
-                auto&& active_node{node.as_pl_mark()};
+                auto&& active_node = node.as_pl_mark();
                 auto&& nested_tag_type = call_stack.template current_frame<ndebug>().get_nested_tag_type();
                 auto&& subast = active_node.get_subast();
                 auto const& node_background_color = active_node.get_background_color();
@@ -1493,7 +1423,7 @@ entry:
                 // -> <mark=yellow>abc</mark>
                 if (node_background_color_view ==
                     call_stack.template current_frame<ndebug>().get_pl_mark_background_color()) {
-                    node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
+                    node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                     ++current_iter;
                     continue;
                 }
@@ -1508,11 +1438,11 @@ entry:
                         ::pltxt2htm::details::OptimizerContextWithPlMarkInfo<ndebug>{node_background_color_view}));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::pl_u: {
-                auto&& active_node{node.as_pl_u()};
+            case ::pltxt2htm::NodeKind::html_u: {
+                auto&& active_node = node.as_html_u();
                 auto&& nested_tag_type = call_stack.template current_frame<ndebug>().get_nested_tag_type();
                 auto&& subast = active_node.get_subast();
-                bool const is_different_tag{nested_tag_type != ::pltxt2htm::NodeKind::pl_u};
+                bool const is_different_tag{nested_tag_type != ::pltxt2htm::NodeKind::html_u};
                 if (is_different_tag) {
                     if (subast.empty()) {
                         ast.erase(current_iter);
@@ -1520,18 +1450,18 @@ entry:
                     }
                     call_stack.push_frame(
                         ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                            ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_u, subast.begin()));
+                            ::std::addressof(subast), ::pltxt2htm::NodeKind::html_u, subast.begin()));
                     goto entry;
                 }
-                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
+                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                 ++current_iter;
                 continue;
             }
-            case ::pltxt2htm::NodeKind::pl_s: {
-                auto&& active_node{node.as_pl_s()};
+            case ::pltxt2htm::NodeKind::html_s: {
+                auto&& active_node = node.as_html_s();
                 auto&& nested_tag_type = call_stack.template current_frame<ndebug>().get_nested_tag_type();
                 auto&& subast = active_node.get_subast();
-                bool const is_different_tag{nested_tag_type != ::pltxt2htm::NodeKind::pl_s};
+                bool const is_different_tag{nested_tag_type != ::pltxt2htm::NodeKind::html_s};
                 if (is_different_tag) {
                     if (subast.empty()) {
                         ast.erase(current_iter);
@@ -1539,15 +1469,15 @@ entry:
                     }
                     call_stack.push_frame(
                         ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                            ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_s, subast.begin()));
+                            ::std::addressof(subast), ::pltxt2htm::NodeKind::html_s, subast.begin()));
                     goto entry;
                 }
-                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
+                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                 ++current_iter;
                 continue;
             }
             case ::pltxt2htm::NodeKind::html_sup: {
-                auto&& active_node{node.as_html_sup()};
+                auto&& active_node = node.as_html_sup();
                 // nested <sup> shifts the baseline further, so same-tag nesting must NOT be flattened
                 auto&& subast = active_node.get_subast();
                 if (subast.empty()) {
@@ -1560,7 +1490,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_sub: {
-                auto&& active_node{node.as_html_sub()};
+                auto&& active_node = node.as_html_sub();
                 // nested <sub> shifts the baseline further, so same-tag nesting must NOT be flattened
                 auto&& subast = active_node.get_subast();
                 if (subast.empty()) {
@@ -1584,19 +1514,19 @@ entry:
                 auto&& subast = [&]() -> ::pltxt2htm::Ast<ndebug>& {
                     switch (node.get_node_kind()) {
                     case ::pltxt2htm::NodeKind::md_single_emphasis_underscore: {
-                        auto&& active_node{node.as_md_single_emphasis_underscore()};
+                        auto&& active_node = node.as_md_single_emphasis_underscore();
                         return active_node.get_subast();
                     }
                     case ::pltxt2htm::NodeKind::md_single_emphasis_asterisk: {
-                        auto&& active_node{node.as_md_single_emphasis_asterisk()};
+                        auto&& active_node = node.as_md_single_emphasis_asterisk();
                         return active_node.get_subast();
                     }
                     case ::pltxt2htm::NodeKind::pl_i: {
-                        auto&& active_node{node.as_pl_i()};
+                        auto&& active_node = node.as_pl_i();
                         return active_node.get_subast();
                     }
                     case ::pltxt2htm::NodeKind::html_em: {
-                        auto&& active_node{node.as_html_em()};
+                        auto&& active_node = node.as_html_em();
                         return active_node.get_subast();
                     }
                     default:
@@ -1615,7 +1545,7 @@ entry:
                             ::std::addressof(subast), node.get_node_kind(), subast.begin()));
                     goto entry;
                 }
-                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
+                node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                 ++current_iter;
                 continue;
             }
@@ -1624,7 +1554,7 @@ entry:
                 continue;
             }
             case ::pltxt2htm::NodeKind::list_ul: {
-                auto&& active_node{node.as_list_ul()};
+                auto&& active_node = node.as_list_ul();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1632,7 +1562,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::list_ol: {
-                auto&& active_node{node.as_list_ol()};
+                auto&& active_node = node.as_list_ol();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1640,7 +1570,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::list_li_checkbox: {
-                auto&& active_node{node.as_list_li_checkbox()};
+                auto&& active_node = node.as_list_li_checkbox();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1648,7 +1578,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::list_li: {
-                auto&& active_node{node.as_list_li()};
+                auto&& active_node = node.as_list_li();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1656,7 +1586,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_code_span_1_backtick: {
-                auto&& active_node{node.as_md_code_span_1_backtick()};
+                auto&& active_node = node.as_md_code_span_1_backtick();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1664,7 +1594,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_code_span_2_backtick: {
-                auto&& active_node{node.as_md_code_span_2_backtick()};
+                auto&& active_node = node.as_md_code_span_2_backtick();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1672,7 +1602,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_code_span_3_backtick: {
-                auto&& active_node{node.as_md_code_span_3_backtick()};
+                auto&& active_node = node.as_md_code_span_3_backtick();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1680,7 +1610,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_blockquote: {
-                auto&& active_node{node.as_html_blockquote()};
+                auto&& active_node = node.as_html_blockquote();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1688,7 +1618,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table: {
-                auto&& active_node{node.as_table()};
+                auto&& active_node = node.as_table();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1696,7 +1626,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_caption: {
-                auto&& active_node{node.as_table_caption()};
+                auto&& active_node = node.as_table_caption();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1704,7 +1634,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_colgroup: {
-                auto&& active_node{node.as_table_colgroup()};
+                auto&& active_node = node.as_table_colgroup();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1712,7 +1642,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_thead: {
-                auto&& active_node{node.as_table_thead()};
+                auto&& active_node = node.as_table_thead();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1720,7 +1650,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_tbody: {
-                auto&& active_node{node.as_table_tbody()};
+                auto&& active_node = node.as_table_tbody();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1728,7 +1658,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_tfoot: {
-                auto&& active_node{node.as_table_tfoot()};
+                auto&& active_node = node.as_table_tfoot();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1736,7 +1666,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_tr: {
-                auto&& active_node{node.as_table_tr()};
+                auto&& active_node = node.as_table_tr();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1744,7 +1674,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_th: {
-                auto&& active_node{node.as_table_th()};
+                auto&& active_node = node.as_table_th();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1752,7 +1682,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_td: {
-                auto&& active_node{node.as_table_td()};
+                auto&& active_node = node.as_table_td();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
@@ -1766,11 +1696,11 @@ entry:
                 auto&& subast = [&]() -> ::pltxt2htm::Ast<ndebug>& {
                     switch (node_kind) {
                     case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore: {
-                        auto&& active_node{node.as_md_triple_emphasis_underscore()};
+                        auto&& active_node = node.as_md_triple_emphasis_underscore();
                         return active_node.get_subast();
                     }
                     case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk: {
-                        auto&& active_node{node.as_md_triple_emphasis_asterisk()};
+                        auto&& active_node = node.as_md_triple_emphasis_asterisk();
                         return active_node.get_subast();
                     }
                     default:
@@ -1783,7 +1713,7 @@ entry:
                 auto const& nested_tag_type = call_stack.template current_frame<ndebug>().get_nested_tag_type();
                 if (nested_tag_type == ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk ||
                     nested_tag_type == ::pltxt2htm::NodeKind::md_triple_emphasis_underscore) {
-                    node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Text<ndebug>{::std::move(subast)}};
+                    node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                     ++current_iter;
                     continue;
                 }
@@ -1845,60 +1775,6 @@ entry:
             case ::pltxt2htm::NodeKind::html_hr:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_block_quotes:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_backslash:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_exclamation:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_hash:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_dollar:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_percent:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_left_paren:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_right_paren:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_asterisk:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_plus:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_comma:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_hyphen:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_dot:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_slash:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_colon:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_semicolon:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_equals:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_question:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_at:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_left_bracket:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_right_bracket:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_caret:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_underscore:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_backtick:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_left_brace:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_pipe:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_right_brace:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_escape_tilde:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::code_fence: {
                 ++current_iter;

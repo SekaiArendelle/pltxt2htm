@@ -1,6 +1,6 @@
 /**
  * @file expected.hh
- * @brief Lightweight Expected and Optional containers for pltxt2htm.
+ * @brief Lightweight Expected container for pltxt2htm.
  */
 
 #pragma once
@@ -38,24 +38,6 @@ template<typename T>
 concept is_unexpected = details::is_unexpected_v<::std::remove_cvref_t<T>>;
 
 template<typename Ok, typename Fail>
-class Expected;
-
-namespace details {
-
-struct NulloptTag {
-    constexpr bool operator==(this NulloptTag const&, NulloptTag const&) noexcept = default;
-};
-
-} // namespace details
-
-template<typename T>
-using Optional = ::pltxt2htm::container::Expected<T, details::NulloptTag>;
-
-using NulloptType = ::pltxt2htm::container::Unexpected<details::NulloptTag>;
-
-inline constexpr auto nullopt = NulloptType{};
-
-template<typename Ok, typename Fail>
 class Expected {
     static_assert(!::std::is_reference_v<Ok>);
     static_assert(!::std::is_function_v<Ok>);
@@ -78,9 +60,7 @@ private:
 
 public:
     constexpr Expected() noexcept(::std::is_nothrow_default_constructible_v<Ok>)
-        // container::Optional<T> v{} is not allowed
-        requires (::std::is_default_constructible_v<Ok> &&
-                  !::std::same_as<Fail, ::pltxt2htm::container::details::NulloptTag>)
+        requires (::std::is_default_constructible_v<Ok>)
         : value_storage(),
           contains_value{true} {
     }
@@ -246,8 +226,7 @@ public:
     }
 
     /**
-     * @brief get value from Optional or Expected, if it is not, terminate the program
-     * @param self: the Optional or Expected object
+     * @brief Get the contained value, terminating when the Expected contains an error.
      */
     template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
@@ -267,52 +246,40 @@ public:
     }
 
     /**
-     * @brief get value from Optional or Expected, if it is not, return the value you passed
-     * @param self: the Optional or Expected object
-     * @param val: the value you want to return if the Optional or Expected is not
-     * @return: the value
-     * @note: implicit conversion of val is not allowed
+     * @brief Get the contained value, or the supplied fallback when the Expected contains an error.
+     * @note Implicit conversion of @p val is not allowed.
      */
     template<typename U>
         requires (::std::same_as<U, value_type>)
     [[nodiscard]]
-    constexpr auto value_or(U& val) & noexcept -> value_type& {
-        if (this->has_value() == false) {
+    constexpr auto value_or(this Expected<Ok, Fail>& self, U& val) noexcept -> value_type& {
+        if (self.has_value() == false) {
             return val;
         }
-        return this->value_storage;
+        return self.value_storage;
     }
 
     template<typename U>
         requires (::std::same_as<U, value_type>)
     [[nodiscard]]
-    constexpr auto value_or(U const& val) const& noexcept -> value_type const& {
-        if (this->has_value() == false) {
+    constexpr auto value_or(this Expected<Ok, Fail> const& self, U const& val) noexcept -> value_type const& {
+        if (self.has_value() == false) {
             return val;
         }
-        return this->value_storage;
+        return self.value_storage;
     }
 
     template<typename U>
         requires (::std::same_as<U, value_type>)
     [[nodiscard]]
-    constexpr auto value_or(U&& val) && noexcept -> value_type&& {
-        if (this->has_value() == false) {
+    constexpr auto value_or(this Expected<Ok, Fail>&& self, U&& val) noexcept -> value_type&& {
+        if (self.has_value() == false) {
             return ::std::move(val);
         }
-        return ::std::move(this->value_storage);
+        return ::std::move(self.value_storage);
     }
 
-    template<typename U>
-        requires (::std::same_as<U, value_type>)
     [[nodiscard]]
-    constexpr auto value_or(U const&& val) const&& noexcept -> value_type const&& {
-        if (this->has_value() == false) {
-            return ::std::move(val);
-        }
-        return ::std::move(this->value_storage);
-    }
-
     constexpr bool operator==(this Expected const& self, Expected const& rhs) noexcept
         requires (::std::equality_comparable<Ok> && ::std::equality_comparable<Fail>)
     {
@@ -325,12 +292,14 @@ public:
         return self.error_storage == rhs.error_storage;
     }
 
+    [[nodiscard]]
     constexpr bool operator==(this Expected const& self, value_type const& rhs) noexcept
         requires ::std::equality_comparable<Ok>
     {
         return self.has_value() && self.value_storage == rhs;
     }
 
+    [[nodiscard]]
     constexpr bool operator==(this Expected const& self, Unexpected<Fail> const& rhs) noexcept
         requires ::std::equality_comparable<Fail>
     {
@@ -346,19 +315,10 @@ constexpr bool is_expected_v = false;
 template<typename Ok, typename Fail>
 constexpr bool is_expected_v<Expected<Ok, Fail>> = true;
 
-template<typename T>
-constexpr bool is_optional_v = false;
-
-template<typename T>
-constexpr bool is_optional_v<Optional<T>> = true;
-
 } // namespace details
 
 template<typename T>
 concept is_expected = details::is_expected_v<::std::remove_cvref_t<T>>;
-
-template<typename T>
-concept is_optional = details::is_optional_v<::std::remove_cvref_t<T>>;
 
 } // namespace pltxt2htm::container
 

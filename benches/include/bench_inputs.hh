@@ -122,6 +122,46 @@ inline ::pltxt2htm::container::U8String make_stress_many_lines(::std::size_t lin
     return input;
 }
 
+constexpr auto make_adversarial_unclosed(::std::size_t repeat) -> ::fast_io::u8string {
+    ::fast_io::u8string input;
+    for (::std::size_t i = 0; i < repeat; ++i) {
+        input.append(u8"<color=red [link](https://example.com/path **emphasis `code $latex &entity\n");
+    }
+    return input;
+}
+
+constexpr auto make_large_table(::std::size_t rows) -> ::fast_io::u8string {
+    ::fast_io::u8string input{
+        u8"| Header 1 | Header 2 | Header 3 | Header 4 | Header 5 | Header 6 | Header 7 | Header 8 |\n"
+        u8"|:---------|:--------:|---------:|-----------|-----------|-----------|-----------|-----------|\n"};
+    for (::std::size_t i = 0; i < rows; ++i) {
+        input.append(u8"| value 1 | **value 2** | `value 3` | value 4 | value 5 | value 6 | value 7 | value 8 |\n");
+    }
+    return input;
+}
+
+constexpr auto make_escape_entity_autolink(::std::size_t repeat) -> ::fast_io::u8string {
+    ::fast_io::u8string input;
+    for (::std::size_t i = 0; i < repeat; ++i) {
+        input.append(
+            u8"Visit https://example.com/path?query=1&value=2 and http://example.org/docs#intro "
+            u8"&amp; &#38; &#x1F600; \\*escaped\\* \\[label\\] \\&amp;\n");
+    }
+    return input;
+}
+
+constexpr auto make_utf8_mixed(::std::size_t repeat) -> ::fast_io::u8string {
+    ::fast_io::u8string input;
+    for (::std::size_t i = 0; i < repeat; ++i) {
+        input.append(u8"中文段落，包含 café、Ελληνικά、العربية、emoji 😊🚀，以及 ASCII text 123. invalid:");
+        input.push_back(static_cast<char8_t>(0xc3));
+        input.push_back(u8' ');
+        input.push_back(static_cast<char8_t>(0x80));
+        input.push_back(u8'\n');
+    }
+    return input;
+}
+
 // Optimizer-specific inputs
 
 inline ::pltxt2htm::container::U8String make_redundant_color_nesting(::std::size_t depth) {

@@ -19,7 +19,7 @@ BENCHMARK_DEFINE_F(MicroFixture, NodeCreate_Text)(benchmark::State& st) {
     for (auto _ : st) {
         ::pltxt2htm::Ast<ndebug> sub;
         sub.push_back(::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::U8Char{u8'A'}});
-        ::pltxt2htm::PlTxtNode<ndebug> node{::pltxt2htm::Text<ndebug>{::std::move(sub)}};
+        ::pltxt2htm::PlTxtNode<ndebug> node{::pltxt2htm::Group<ndebug>{::std::move(sub)}};
         ::benchmark::DoNotOptimize(node);
     }
 }
@@ -80,7 +80,7 @@ BENCHMARK_DEFINE_F(MicroFixture, NodeMove_WithSubAst)(benchmark::State& st) {
     ::pltxt2htm::Ast<ndebug> nested;
     nested.push_back(::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::U8Char{u8'A'}});
     nested.push_back(::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::U8Char{u8'B'}});
-    ::pltxt2htm::PlTxtNode<ndebug> src{::pltxt2htm::Text<ndebug>{::std::move(nested)}};
+    ::pltxt2htm::PlTxtNode<ndebug> src{::pltxt2htm::Group<ndebug>{::std::move(nested)}};
     for (auto _ : st) {
         ::pltxt2htm::PlTxtNode<ndebug> dst{::std::move(src)};
         src = ::std::move(dst);

@@ -15,6 +15,7 @@
 #include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"
 #include "frame_context.hh"
+#include "html_character.hh"
 #include "html_url.hh"
 #include "../../contracts.hh"
 #include "../utils.hh"
@@ -36,11 +37,11 @@ constexpr void convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> c
     for (auto&& node : ast) {
         switch (node.get_node_kind()) {
         case ::pltxt2htm::NodeKind::u8char: {
-            auto&& active_node{node.as_u8char()};
+            auto&& active_node = node.as_u8char();
             out.push_back(active_node.chr);
             continue;
         }
-        case ::pltxt2htm::NodeKind::invalid_u8char: {
+        case ::pltxt2htm::NodeKind::invalid_utf8: {
             out.append(u8"\uFFFD");
             continue;
         }
@@ -48,39 +49,29 @@ constexpr void convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> c
             out.append(u8"&nbsp;");
             continue;
         }
-        case ::pltxt2htm::NodeKind::md_escape_ampersand:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::ampersand: {
             out.append(u8"&amp;");
             continue;
         }
         case ::pltxt2htm::NodeKind::entity_reference: {
-            auto&& active_node{node.as_entity_reference()};
+            auto&& active_node = node.as_entity_reference();
             out.push_back(u8'&');
             out.append(active_node.get_value());
             out.push_back(u8';');
             continue;
         }
-        case ::pltxt2htm::NodeKind::md_escape_single_quote:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::single_quote: {
             out.append(u8"&apos;");
             continue;
         }
-        case ::pltxt2htm::NodeKind::md_escape_double_quote:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::double_quote: {
             out.append(u8"&quot;");
             continue;
         }
-        case ::pltxt2htm::NodeKind::md_escape_less_than:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::less_than: {
             out.append(u8"&lt;");
             continue;
         }
-        case ::pltxt2htm::NodeKind::md_escape_greater_than:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::greater_than: {
             out.append(u8"&gt;");
             continue;
@@ -89,112 +80,9 @@ constexpr void convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> c
             out.append(u8"&nbsp;&nbsp;&nbsp;&nbsp;");
             continue;
         }
-        case ::pltxt2htm::NodeKind::md_escape_backslash: {
-            out.push_back(u8'\\');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_exclamation: {
-            out.push_back(u8'!');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_hash: {
-            out.push_back(u8'#');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_dollar: {
-            out.push_back(u8'$');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_percent: {
-            out.push_back(u8'%');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_left_paren: {
-            out.push_back(u8'(');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_right_paren: {
-            out.push_back(u8')');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_asterisk: {
-            out.push_back(u8'*');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_plus: {
-            out.push_back(u8'+');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_comma: {
-            out.push_back(u8',');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_hyphen: {
-            out.push_back(u8'-');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_dot: {
-            out.push_back(u8'.');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_slash: {
-            out.push_back(u8'/');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_colon: {
-            out.push_back(u8':');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_semicolon: {
-            out.push_back(u8';');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_equals: {
-            out.push_back(u8'=');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_question: {
-            out.push_back(u8'?');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_at: {
-            out.push_back(u8'@');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_left_bracket: {
-            out.push_back(u8'[');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_right_bracket: {
-            out.push_back(u8']');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_caret: {
-            out.push_back(u8'^');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_underscore: {
-            out.push_back(u8'_');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_backtick: {
-            out.push_back(u8'`');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_left_brace: {
-            out.push_back(u8'{');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_pipe: {
-            out.push_back(u8'|');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_right_brace: {
-            out.push_back(u8'}');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_tilde: {
-            out.push_back(u8'~');
+        case ::pltxt2htm::NodeKind::md_escape: {
+            auto&& active_node = node.as_md_escape();
+            ::pltxt2htm::details::append_html_escaped_character(out, active_node.get_character());
             continue;
         }
         default:
@@ -222,7 +110,7 @@ constexpr void append_html_attr_escaped(::pltxt2htm::container::U8String& result
             if (auto const opt_entity_len =
                     ::pltxt2htm::details::try_parse_entity_reference<ndebug>(value.template subview<ndebug>(index));
                 opt_entity_len.has_value()) {
-                auto const entity_len = opt_entity_len.template value<ndebug>();
+                auto const entity_len = opt_entity_len.template value<ndebug>().template get<ndebug>();
                 result.append(::pltxt2htm::container::U8StringView{value.data() + index, entity_len});
                 index += entity_len - 1;
                 break;
@@ -288,7 +176,7 @@ constexpr auto plweb_text_backend(::pltxt2htm::Ast<ndebug> const& ast_init, ::pl
     -> ::pltxt2htm::container::U8String {
     ::pltxt2htm::container::U8String result{};
     ::pltxt2htm::details::CallStack<BackendFrame<ndebug>> call_stack{};
-    call_stack.push_frame(BackendFrame<ndebug>(ast_init, ::pltxt2htm::NodeKind::text, 0));
+    call_stack.push_frame(BackendFrame<ndebug>(ast_init, ::pltxt2htm::NodeKind::group, 0));
 
 entry:
     while (true) {
@@ -302,17 +190,17 @@ entry:
 
             switch (node.get_node_kind()) /* -Werror=switch */ {
             case ::pltxt2htm::NodeKind::u8char: {
-                auto&& active_node{node.as_u8char()};
+                auto&& active_node = node.as_u8char();
                 result.push_back(active_node.chr);
                 continue;
             }
-            case ::pltxt2htm::NodeKind::invalid_u8char: {
+            case ::pltxt2htm::NodeKind::invalid_utf8: {
                 result.append(u8"\uFFFD");
                 continue;
             }
-            case ::pltxt2htm::NodeKind::text: {
-                auto&& active_node{node.as_text()};
-                call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::text, 0));
+            case ::pltxt2htm::NodeKind::group: {
+                auto&& active_node = node.as_group();
+                call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::group, 0));
                 ++current_index;
                 goto entry;
             }
@@ -320,39 +208,29 @@ entry:
                 result.append(u8"&nbsp;");
                 continue;
             }
-            case ::pltxt2htm::NodeKind::md_escape_ampersand:
-                [[fallthrough]];
             case ::pltxt2htm::NodeKind::ampersand: {
                 result.append(u8"&amp;");
                 continue;
             }
             case ::pltxt2htm::NodeKind::entity_reference: {
-                auto&& active_node{node.as_entity_reference()};
+                auto&& active_node = node.as_entity_reference();
                 result.push_back(u8'&');
                 result.append(active_node.get_value());
                 result.push_back(u8';');
                 continue;
             }
-            case ::pltxt2htm::NodeKind::md_escape_single_quote:
-                [[fallthrough]];
             case ::pltxt2htm::NodeKind::single_quote: {
                 result.append(u8"&apos;");
                 continue;
             }
-            case ::pltxt2htm::NodeKind::md_escape_double_quote:
-                [[fallthrough]];
             case ::pltxt2htm::NodeKind::double_quote: {
                 result.append(u8"&quot;");
                 continue;
             }
-            case ::pltxt2htm::NodeKind::md_escape_less_than:
-                [[fallthrough]];
             case ::pltxt2htm::NodeKind::less_than: {
                 result.append(u8"&lt;");
                 continue;
             }
-            case ::pltxt2htm::NodeKind::md_escape_greater_than:
-                [[fallthrough]];
             case ::pltxt2htm::NodeKind::greater_than: {
                 result.append(u8"&gt;");
                 continue;
@@ -362,7 +240,7 @@ entry:
                 continue;
             }
             case ::pltxt2htm::NodeKind::pl_color: {
-                auto&& active_node{node.as_pl_color()};
+                auto&& active_node = node.as_pl_color();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_color, 0));
                 ++current_index;
@@ -387,7 +265,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_a: {
-                auto&& active_node{node.as_pl_a()};
+                auto&& active_node = node.as_pl_a();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_a, 0));
                 ++current_index;
                 constexpr auto open_tag = ::pltxt2htm::details::concat(U8LiteralString{u8"<span style=\"color:"},
@@ -397,7 +275,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_experiment: {
-                auto&& active_node{node.as_pl_experiment()};
+                auto&& active_node = node.as_pl_experiment();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_experiment, 0));
                 ++current_index;
@@ -428,7 +306,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_discussion: {
-                auto&& active_node{node.as_pl_discussion()};
+                auto&& active_node = node.as_pl_discussion();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_discussion, 0));
                 ++current_index;
@@ -459,7 +337,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_experiments: {
-                auto&& active_node{node.as_pl_experiments()};
+                auto&& active_node = node.as_pl_experiments();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_experiments, 0));
                 ++current_index;
@@ -471,7 +349,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_discussions: {
-                auto&& active_node{node.as_pl_discussions()};
+                auto&& active_node = node.as_pl_discussions();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_discussions, 0));
                 ++current_index;
@@ -483,7 +361,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_trigger: {
-                auto&& active_node{node.as_pl_trigger()};
+                auto&& active_node = node.as_pl_trigger();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_trigger, 0));
                 ++current_index;
@@ -495,7 +373,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_internal: {
-                auto&& active_node{node.as_pl_internal()};
+                auto&& active_node = node.as_pl_internal();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_internal, 0));
                 ++current_index;
@@ -507,11 +385,11 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_user: {
-                auto&& active_node{node.as_pl_user()};
+                auto&& active_node = node.as_pl_user();
                 ++current_index;
                 if constexpr (mode == PlWebTextBackendMode::roundtrip) {
                     call_stack.push_frame(
-                        BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::text, 0));
+                        BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::group, 0));
                     goto entry;
                 }
                 else {
@@ -540,7 +418,7 @@ entry:
                 }
             }
             case ::pltxt2htm::NodeKind::pl_size: {
-                auto&& active_node{node.as_pl_size()};
+                auto&& active_node = node.as_pl_size();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_size, 0));
                 ++current_index;
@@ -575,7 +453,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_voffset: {
-                auto&& active_node{node.as_pl_voffset()};
+                auto&& active_node = node.as_pl_voffset();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_voffset, 0));
                 ++current_index;
@@ -604,7 +482,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_align: {
-                auto&& active_node{node.as_pl_align()};
+                auto&& active_node = node.as_pl_align();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_align, 0));
                 ++current_index;
@@ -636,7 +514,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_margin: {
-                auto&& active_node{node.as_pl_margin()};
+                auto&& active_node = node.as_pl_margin();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_margin, 0));
                 ++current_index;
@@ -699,7 +577,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_div: {
-                auto&& active_node{node.as_html_div()};
+                auto&& active_node = node.as_html_div();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::html_div, 0));
                 ++current_index;
@@ -762,7 +640,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_span: {
-                auto&& active_node{node.as_html_span()};
+                auto&& active_node = node.as_html_span();
                 auto const& span_color = active_node.get_color();
                 auto const& span_font_size = active_node.get_font_size();
                 auto const& span_vertical_align = active_node.get_vertical_align();
@@ -851,7 +729,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_a: {
-                auto&& active_node{node.as_html_a()};
+                auto&& active_node = node.as_html_a();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::html_a, 0));
                 ++current_index;
                 result.append(u8"<a href=\"");
@@ -867,7 +745,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_double_emphasis_underscore: {
-                auto&& active_node{node.as_md_double_emphasis_underscore()};
+                auto&& active_node = node.as_md_double_emphasis_underscore();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(),
                                                            ::pltxt2htm::NodeKind::md_double_emphasis_underscore, 0));
                 ++current_index;
@@ -875,7 +753,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_double_emphasis_asterisk: {
-                auto&& active_node{node.as_md_double_emphasis_asterisk()};
+                auto&& active_node = node.as_md_double_emphasis_asterisk();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(),
                                                            ::pltxt2htm::NodeKind::md_double_emphasis_asterisk, 0));
                 ++current_index;
@@ -883,14 +761,14 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_b: {
-                auto&& active_node{node.as_pl_b()};
+                auto&& active_node = node.as_pl_b();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_b, 0));
                 ++current_index;
                 result.append(u8"<strong>");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_strong: {
-                auto&& active_node{node.as_html_strong()};
+                auto&& active_node = node.as_html_strong();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::html_strong, 0));
                 ++current_index;
@@ -898,7 +776,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_mark: {
-                auto&& active_node{node.as_html_mark()};
+                auto&& active_node = node.as_html_mark();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::html_mark, 0));
                 ++current_index;
@@ -917,7 +795,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_mark: {
-                auto&& active_node{node.as_pl_mark()};
+                auto&& active_node = node.as_pl_mark();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_mark, 0));
                 ++current_index;
@@ -936,7 +814,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_p: {
-                auto&& active_node{node.as_html_p()};
+                auto&& active_node = node.as_html_p();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::html_p, 0));
                 ++current_index;
                 auto const align = active_node.get_align();
@@ -980,7 +858,7 @@ entry:
                 continue;
             }
             case ::pltxt2htm::NodeKind::html_h1: {
-                auto&& active_node{node.as_html_h1()};
+                auto&& active_node = node.as_html_h1();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::html_h1, 0));
                 ++current_index;
@@ -988,7 +866,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h1: {
-                auto&& active_node{node.as_md_atx_h1()};
+                auto&& active_node = node.as_md_atx_h1();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::md_atx_h1, 0));
                 ++current_index;
@@ -996,7 +874,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_h2: {
-                auto&& active_node{node.as_html_h2()};
+                auto&& active_node = node.as_html_h2();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::html_h2, 0));
                 ++current_index;
@@ -1004,7 +882,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h2: {
-                auto&& active_node{node.as_md_atx_h2()};
+                auto&& active_node = node.as_md_atx_h2();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::md_atx_h2, 0));
                 ++current_index;
@@ -1012,7 +890,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_h3: {
-                auto&& active_node{node.as_html_h3()};
+                auto&& active_node = node.as_html_h3();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::html_h3, 0));
                 ++current_index;
@@ -1020,7 +898,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h3: {
-                auto&& active_node{node.as_md_atx_h3()};
+                auto&& active_node = node.as_md_atx_h3();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::md_atx_h3, 0));
                 ++current_index;
@@ -1028,7 +906,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_h4: {
-                auto&& active_node{node.as_html_h4()};
+                auto&& active_node = node.as_html_h4();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::html_h4, 0));
                 ++current_index;
@@ -1036,7 +914,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h4: {
-                auto&& active_node{node.as_md_atx_h4()};
+                auto&& active_node = node.as_md_atx_h4();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::md_atx_h4, 0));
                 ++current_index;
@@ -1044,7 +922,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_h5: {
-                auto&& active_node{node.as_html_h5()};
+                auto&& active_node = node.as_html_h5();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::html_h5, 0));
                 ++current_index;
@@ -1052,7 +930,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h5: {
-                auto&& active_node{node.as_md_atx_h5()};
+                auto&& active_node = node.as_md_atx_h5();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::md_atx_h5, 0));
                 ++current_index;
@@ -1060,7 +938,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_h6: {
-                auto&& active_node{node.as_html_h6()};
+                auto&& active_node = node.as_html_h6();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::html_h6, 0));
                 ++current_index;
@@ -1068,7 +946,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h6: {
-                auto&& active_node{node.as_md_atx_h6()};
+                auto&& active_node = node.as_md_atx_h6();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::md_atx_h6, 0));
                 ++current_index;
@@ -1076,7 +954,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_del: {
-                auto&& active_node{node.as_md_del()};
+                auto&& active_node = node.as_md_del();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::html_del, 0));
                 ++current_index;
@@ -1084,7 +962,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_del: {
-                auto&& active_node{node.as_html_del()};
+                auto&& active_node = node.as_html_del();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::html_del, 0));
                 ++current_index;
@@ -1092,29 +970,29 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_code: {
-                auto&& active_node{node.as_html_code()};
+                auto&& active_node = node.as_html_code();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::html_code, 0));
                 ++current_index;
                 result.append(u8"<code>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::pl_u: {
-                auto&& active_node{node.as_pl_u()};
-                call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_u, 0));
+            case ::pltxt2htm::NodeKind::html_u: {
+                auto&& active_node = node.as_html_u();
+                call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::html_u, 0));
                 ++current_index;
                 result.append(u8"<u>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::pl_s: {
-                auto&& active_node{node.as_pl_s()};
-                call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_s, 0));
+            case ::pltxt2htm::NodeKind::html_s: {
+                auto&& active_node = node.as_html_s();
+                call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::html_s, 0));
                 ++current_index;
                 result.append(u8"<s>");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_sup: {
-                auto&& active_node{node.as_html_sup()};
+                auto&& active_node = node.as_html_sup();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::html_sup, 0));
                 ++current_index;
@@ -1122,7 +1000,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_sub: {
-                auto&& active_node{node.as_html_sub()};
+                auto&& active_node = node.as_html_sub();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::html_sub, 0));
                 ++current_index;
@@ -1130,7 +1008,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_single_emphasis_underscore: {
-                auto&& active_node{node.as_md_single_emphasis_underscore()};
+                auto&& active_node = node.as_md_single_emphasis_underscore();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(),
                                                            ::pltxt2htm::NodeKind::md_single_emphasis_underscore, 0));
                 ++current_index;
@@ -1138,7 +1016,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_single_emphasis_asterisk: {
-                auto&& active_node{node.as_md_single_emphasis_asterisk()};
+                auto&& active_node = node.as_md_single_emphasis_asterisk();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(),
                                                            ::pltxt2htm::NodeKind::md_single_emphasis_asterisk, 0));
                 ++current_index;
@@ -1146,14 +1024,14 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_i: {
-                auto&& active_node{node.as_pl_i()};
+                auto&& active_node = node.as_pl_i();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_i, 0));
                 ++current_index;
                 result.append(u8"<em>");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_em: {
-                auto&& active_node{node.as_html_em()};
+                auto&& active_node = node.as_html_em();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::html_em, 0));
                 ++current_index;
@@ -1170,7 +1048,7 @@ entry:
                 continue;
             }
             case ::pltxt2htm::NodeKind::list_ul: {
-                auto&& active_node{node.as_list_ul()};
+                auto&& active_node = node.as_list_ul();
                 auto const& list_ul = active_node;
                 pltxt2htm_assert(list_ul.get_subast().empty() == false, u8"List container must not be empty");
                 call_stack.push_frame(BackendFrame<ndebug>(list_ul.get_subast(), ::pltxt2htm::NodeKind::list_ul, 0));
@@ -1179,7 +1057,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::list_ol: {
-                auto&& active_node{node.as_list_ol()};
+                auto&& active_node = node.as_list_ol();
                 auto const& list_ol = active_node;
                 pltxt2htm_assert(list_ol.get_subast().empty() == false, u8"List container must not be empty");
                 call_stack.push_frame(BackendFrame<ndebug>(list_ol.get_subast(), ::pltxt2htm::NodeKind::list_ol, 0));
@@ -1194,7 +1072,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::list_li_checkbox: {
-                auto&& active_node{node.as_list_li_checkbox()};
+                auto&& active_node = node.as_list_li_checkbox();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::list_li_checkbox, 0));
                 ++current_index;
@@ -1208,7 +1086,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::list_li: {
-                auto&& active_node{node.as_list_li()};
+                auto&& active_node = node.as_list_li();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::list_li, 0));
                 ++current_index;
@@ -1216,7 +1094,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_code_span_1_backtick: {
-                auto&& active_node{node.as_md_code_span_1_backtick()};
+                auto&& active_node = node.as_md_code_span_1_backtick();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::md_code_span_1_backtick, 0));
                 ++current_index;
@@ -1224,7 +1102,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_code_span_2_backtick: {
-                auto&& active_node{node.as_md_code_span_2_backtick()};
+                auto&& active_node = node.as_md_code_span_2_backtick();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::md_code_span_2_backtick, 0));
                 ++current_index;
@@ -1232,7 +1110,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_code_span_3_backtick: {
-                auto&& active_node{node.as_md_code_span_3_backtick()};
+                auto&& active_node = node.as_md_code_span_3_backtick();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::md_code_span_3_backtick, 0));
                 ++current_index;
@@ -1240,7 +1118,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_latex_inline: {
-                auto&& active_node{node.as_md_latex_inline()};
+                auto&& active_node = node.as_md_latex_inline();
                 if constexpr (mode == PlWebTextBackendMode::roundtrip) {
                     continue;
                 }
@@ -1253,7 +1131,7 @@ entry:
                 }
             }
             case ::pltxt2htm::NodeKind::md_latex_block: {
-                auto&& active_node{node.as_md_latex_block()};
+                auto&& active_node = node.as_md_latex_block();
                 if constexpr (mode == PlWebTextBackendMode::roundtrip) {
                     continue;
                 }
@@ -1266,7 +1144,7 @@ entry:
                 }
             }
             case ::pltxt2htm::NodeKind::md_block_quotes: {
-                auto&& active_node{node.as_md_block_quotes()};
+                auto&& active_node = node.as_md_block_quotes();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::md_block_quotes, 0));
                 ++current_index;
@@ -1274,7 +1152,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_blockquote: {
-                auto&& active_node{node.as_html_blockquote()};
+                auto&& active_node = node.as_html_blockquote();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::html_blockquote, 0));
                 ++current_index;
@@ -1282,14 +1160,14 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table: {
-                auto&& active_node{node.as_table()};
+                auto&& active_node = node.as_table();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::table, 0));
                 ++current_index;
                 result.append(u8"<table>");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_tr: {
-                auto&& active_node{node.as_table_tr()};
+                auto&& active_node = node.as_table_tr();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::table_tr, 0));
                 ++current_index;
@@ -1297,7 +1175,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_td: {
-                auto&& active_node{node.as_table_td()};
+                auto&& active_node = node.as_table_td();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::table_td, 0));
                 ++current_index;
@@ -1313,7 +1191,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_th: {
-                auto&& active_node{node.as_table_th()};
+                auto&& active_node = node.as_table_th();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::table_th, 0));
                 ++current_index;
@@ -1329,7 +1207,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_thead: {
-                auto&& active_node{node.as_table_thead()};
+                auto&& active_node = node.as_table_thead();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::table_thead, 0));
                 ++current_index;
@@ -1337,7 +1215,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_tbody: {
-                auto&& active_node{node.as_table_tbody()};
+                auto&& active_node = node.as_table_tbody();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::table_tbody, 0));
                 ++current_index;
@@ -1345,7 +1223,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_tfoot: {
-                auto&& active_node{node.as_table_tfoot()};
+                auto&& active_node = node.as_table_tfoot();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::table_tfoot, 0));
                 ++current_index;
@@ -1353,7 +1231,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_caption: {
-                auto&& active_node{node.as_table_caption()};
+                auto&& active_node = node.as_table_caption();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::table_caption, 0));
                 ++current_index;
@@ -1361,7 +1239,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_colgroup: {
-                auto&& active_node{node.as_table_colgroup()};
+                auto&& active_node = node.as_table_colgroup();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::table_colgroup, 0));
                 ++current_index;
@@ -1373,7 +1251,7 @@ entry:
                 continue;
             }
             case ::pltxt2htm::NodeKind::html_img: {
-                auto&& active_node{node.as_html_img()};
+                auto&& active_node = node.as_html_img();
                 result.append(u8"<img src=\"");
                 auto const& src = active_node.get_src();
                 ::pltxt2htm::details::append_html_attr_escaped<ndebug>(result,
@@ -1386,7 +1264,7 @@ entry:
                 continue;
             }
             case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore: {
-                auto&& active_node{node.as_md_triple_emphasis_underscore()};
+                auto&& active_node = node.as_md_triple_emphasis_underscore();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(),
                                                            ::pltxt2htm::NodeKind::md_triple_emphasis_underscore, 0));
                 ++current_index;
@@ -1394,7 +1272,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk: {
-                auto&& active_node{node.as_md_triple_emphasis_asterisk()};
+                auto&& active_node = node.as_md_triple_emphasis_asterisk();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(),
                                                            ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk, 0));
                 ++current_index;
@@ -1402,7 +1280,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::url: {
-                auto&& active_node{node.as_url()};
+                auto&& active_node = node.as_url();
                 auto const& url_str = active_node.as_string();
                 ::pltxt2htm::container::U8String escaped{};
                 ::pltxt2htm::details::append_html_escaped_url<ndebug>(escaped,
@@ -1415,7 +1293,7 @@ entry:
                 continue;
             }
             case ::pltxt2htm::NodeKind::md_link: {
-                auto&& active_node{node.as_md_link()};
+                auto&& active_node = node.as_md_link();
                 result.append(u8"<a href=\"");
                 auto const& md_link_url = active_node.get_url().as_string();
                 ::pltxt2htm::details::append_html_escaped_url<ndebug>(
@@ -1427,7 +1305,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_external: {
-                auto&& active_node{node.as_pl_external()};
+                auto&& active_node = node.as_pl_external();
                 result.append(u8"<a href=\"");
                 auto const& ext_url = active_node.get_url().as_string();
                 ::pltxt2htm::details::append_html_escaped_url<ndebug>(result,
@@ -1439,7 +1317,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_link: {
-                auto&& active_node{node.as_pl_link()};
+                auto&& active_node = node.as_pl_link();
                 result.append(u8"<a href=\"");
                 auto const& link_url = active_node.get_url().as_string();
                 ::pltxt2htm::details::append_html_escaped_url<ndebug>(result,
@@ -1451,7 +1329,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_image: {
-                auto&& active_node{node.as_md_image()};
+                auto&& active_node = node.as_md_image();
                 result.append(u8"<img src=\"");
                 auto const& img_url = active_node.get_url().as_string();
                 ::pltxt2htm::details::append_html_escaped_url<ndebug>(result,
@@ -1461,116 +1339,13 @@ entry:
                 result.append(u8"\">");
                 continue;
             }
-            case ::pltxt2htm::NodeKind::md_escape_backslash: {
-                result.push_back(u8'\\');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_exclamation: {
-                result.push_back(u8'!');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_hash: {
-                result.push_back(u8'#');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_dollar: {
-                result.push_back(u8'$');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_percent: {
-                result.push_back(u8'%');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_left_paren: {
-                result.push_back(u8'(');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_right_paren: {
-                result.push_back(u8')');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_asterisk: {
-                result.push_back(u8'*');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_plus: {
-                result.push_back(u8'+');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_comma: {
-                result.push_back(u8',');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_hyphen: {
-                result.push_back(u8'-');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_dot: {
-                result.push_back(u8'.');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_slash: {
-                result.push_back(u8'/');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_colon: {
-                result.push_back(u8':');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_semicolon: {
-                result.push_back(u8';');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_equals: {
-                result.push_back(u8'=');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_question: {
-                result.push_back(u8'?');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_at: {
-                result.push_back(u8'@');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_left_bracket: {
-                result.push_back(u8'[');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_right_bracket: {
-                result.push_back(u8']');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_caret: {
-                result.push_back(u8'^');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_underscore: {
-                result.push_back(u8'_');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_backtick: {
-                result.push_back(u8'`');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_left_brace: {
-                result.push_back(u8'{');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_pipe: {
-                result.push_back(u8'|');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_right_brace: {
-                result.push_back(u8'}');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::md_escape_tilde: {
-                result.push_back(u8'~');
+            case ::pltxt2htm::NodeKind::md_escape: {
+                auto&& active_node = node.as_md_escape();
+                ::pltxt2htm::details::append_html_escaped_character(result, active_node.get_character());
                 continue;
             }
             case ::pltxt2htm::NodeKind::code_fence: {
-                auto&& active_node{node.as_code_fence()};
+                auto&& active_node = node.as_code_fence();
                 auto const& opt_language = active_node.get_language();
                 if (opt_language.has_value()) {
                     auto const& language = opt_language.template value<ndebug>();
@@ -1619,7 +1394,7 @@ entry:
                 return result;
             }
             switch (top_frame.get_nested_tag_type()) {
-            case ::pltxt2htm::NodeKind::text: {
+            case ::pltxt2htm::NodeKind::group: {
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_span:
@@ -1762,11 +1537,11 @@ entry:
                 result.append(u8"</code>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::pl_u: {
+            case ::pltxt2htm::NodeKind::html_u: {
                 result.append(u8"</u>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::pl_s: {
+            case ::pltxt2htm::NodeKind::html_s: {
                 result.append(u8"</s>");
                 goto entry;
             }

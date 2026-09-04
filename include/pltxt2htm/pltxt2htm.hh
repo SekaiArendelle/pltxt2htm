@@ -17,7 +17,9 @@
 
 #include <fast_io/fast_io_dsal/vector.h>
 #include "container/string.hh"
+#include "container/array.hh"
 #include "container/string_view.hh"
+#include "container/optional.hh"
 #include "container/expected.hh"
 #include "contracts.hh"
 #include "parser.hh"

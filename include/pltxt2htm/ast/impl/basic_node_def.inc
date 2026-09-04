@@ -1,26 +1,27 @@
 #pragma once
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::Text<ndebug>::Text(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
+constexpr ::pltxt2htm::Group<ndebug>::Group(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
     : subast(::std::move(subast_)) {
 }
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::Text<ndebug>::Text(::pltxt2htm::Text<ndebug> const&) noexcept = default;
+constexpr ::pltxt2htm::Group<ndebug>::Group(::pltxt2htm::Group<ndebug> const&) noexcept = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::Text<ndebug>::Text(::pltxt2htm::Text<ndebug>&& other) noexcept = default;
+constexpr ::pltxt2htm::Group<ndebug>::Group(::pltxt2htm::Group<ndebug>&& other) noexcept = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::Text<ndebug>::~Text() noexcept = default;
+constexpr ::pltxt2htm::Group<ndebug>::~Group() noexcept = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::Text<ndebug>::operator=(this Text<ndebug>& self, ::pltxt2htm::Text<ndebug>&& other) noexcept
-    -> ::pltxt2htm::Text<ndebug>& = default;
+constexpr auto ::pltxt2htm::Group<ndebug>::operator=(this Group<ndebug>& self,
+                                                     ::pltxt2htm::Group<ndebug>&& other) noexcept
+    -> ::pltxt2htm::Group<ndebug>& = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::Text<ndebug>::operator==(this Text<ndebug> const&,
-                                                     ::pltxt2htm::Text<ndebug> const&) noexcept -> bool = default;
+constexpr auto ::pltxt2htm::Group<ndebug>::operator==(this Group<ndebug> const&,
+                                                      ::pltxt2htm::Group<ndebug> const&) noexcept -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::CodeFence<ndebug>::CodeFence(

@@ -76,6 +76,38 @@ struct StressManyLinesParseFixture : ::benchmark::Fixture {
     }
 };
 
+struct AdversarialUnclosedParseFixture : ::benchmark::Fixture {
+    ::fast_io::u8string input;
+
+    void SetUp(::benchmark::State& state) override {
+        input = make_adversarial_unclosed(as_size(state));
+    }
+};
+
+struct LargeTableParseFixture : ::benchmark::Fixture {
+    ::fast_io::u8string input;
+
+    void SetUp(::benchmark::State& state) override {
+        input = make_large_table(as_size(state));
+    }
+};
+
+struct EscapeEntityAutoLinkParseFixture : ::benchmark::Fixture {
+    ::fast_io::u8string input;
+
+    void SetUp(::benchmark::State& state) override {
+        input = make_escape_entity_autolink(as_size(state));
+    }
+};
+
+struct Utf8MixedParseFixture : ::benchmark::Fixture {
+    ::fast_io::u8string input;
+
+    void SetUp(::benchmark::State& state) override {
+        input = make_utf8_mixed(as_size(state));
+    }
+};
+
 struct RedundantColorParseFixture : ::benchmark::Fixture {
     ::pltxt2htm::container::U8String input;
 

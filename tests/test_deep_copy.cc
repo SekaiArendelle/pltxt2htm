@@ -19,14 +19,14 @@ int main() {
         pltxt2htm_test_assert_true(original == copy);
     }
 
-    // Deep copy a simple Text node with children
+    // Deep copy a simple Group node with children
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast{};
         ast.emplace_back(::pltxt2htm::U8Char{u8'H'});
         ast.emplace_back(::pltxt2htm::U8Char{u8'i'});
 
         auto const original =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(ast)));
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Group<nd::quick_enforce>(::std::move(ast)));
 
         auto const copy = original;
         pltxt2htm_test_assert_true(original == copy);
@@ -53,19 +53,19 @@ int main() {
         ast.emplace_back(::pltxt2htm::U8Char{u8'A'});
 
         auto original =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(ast)));
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Group<nd::quick_enforce>(::std::move(ast)));
 
         auto copy = original;
 
         // Mutate original: replace its sub-AST
         ::pltxt2htm::Ast<nd::quick_enforce> new_ast{::pltxt2htm::U8Char{u8'B'}};
         original =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(new_ast)));
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Group<nd::quick_enforce>(::std::move(new_ast)));
 
         // Copy must still hold old value
         ::pltxt2htm::Ast<nd::quick_enforce> expected_ast{::pltxt2htm::U8Char{u8'A'}};
         auto const expected =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(expected_ast)));
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Group<nd::quick_enforce>(::std::move(expected_ast)));
         pltxt2htm_test_assert_true(copy == expected);
         pltxt2htm_test_assert_false(copy == original);
     }

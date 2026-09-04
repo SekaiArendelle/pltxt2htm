@@ -26,6 +26,11 @@ static_assert(::std::is_constructible_v<U8StringView, ::pltxt2htm::container::U8
 static_assert(!::std::is_constructible_v<U8StringView, ::pltxt2htm::container::U8String&&>);
 static_assert(::std::is_convertible_v<::pltxt2htm::container::U8String const&, U8StringView>);
 static_assert(!::std::is_convertible_v<::pltxt2htm::container::U8String&&, U8StringView>);
+static_assert(::fast_io::alias_printable<::pltxt2htm::container::StringView>);
+static_assert(::fast_io::alias_printable<::pltxt2htm::container::WStringView>);
+static_assert(::fast_io::alias_printable<U8StringView>);
+static_assert(::fast_io::alias_printable<::pltxt2htm::container::U16StringView>);
+static_assert(::fast_io::alias_printable<::pltxt2htm::container::U32StringView>);
 static_assert(can_form_basic_string_view<char>);
 static_assert(can_form_basic_string_view<wchar_t>);
 static_assert(can_form_basic_string_view<char8_t>);
@@ -42,6 +47,11 @@ consteval auto test_constexpr_string_view() noexcept -> bool {
 
     U8StringView const text{u8"abcdef"};
     if (text.empty() || text.size() != 6 || text.template index<::pltxt2htm::Contracts::quick_enforce>(2) != u8'c') {
+        return false;
+    }
+
+    auto const scatter = print_alias_define(::fast_io::io_alias, text);
+    if (scatter.base != text.data() || scatter.len != text.size()) {
         return false;
     }
 
@@ -88,6 +98,9 @@ int main() {
 
     auto const converted = static_cast<::fast_io::u8string_view>(compatible_view);
     pltxt2htm_test_assert_true(converted == fast_io_view);
+
+    auto const printed = ::fast_io::u8concat_fast_io(u8"[", compatible_view, u8"]");
+    pltxt2htm_test_assert_true(printed == u8"[view]");
 
     U8StringView const manipulator_view{::fast_io::mnp::os_c_str(string)};
     pltxt2htm_test_assert_true(manipulator_view == string_view);

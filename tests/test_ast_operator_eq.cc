@@ -42,8 +42,8 @@ int main() {
         pltxt2htm_test_assert_true(a == b);
     }
     {
-        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::InvalidU8Char{});
-        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::InvalidU8Char{});
+        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::InvalidUtf8{});
+        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::InvalidUtf8{});
         pltxt2htm_test_assert_true(a == b);
     }
 
@@ -71,18 +71,18 @@ int main() {
         pltxt2htm_test_assert_false(a == b);
     }
 
-    // Text with empty sub-AST
+    // Group with empty sub-AST
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
         auto const a =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(ast_a)));
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Group<nd::quick_enforce>(::std::move(ast_a)));
         auto const b =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(ast_b)));
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Group<nd::quick_enforce>(::std::move(ast_b)));
         pltxt2htm_test_assert_true(a == b);
     }
 
-    // Text with non-empty sub-AST
+    // Group with non-empty sub-AST
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ast_a.emplace_back(::pltxt2htm::U8Char{u8'H'});
@@ -93,13 +93,13 @@ int main() {
         ast_b.emplace_back(::pltxt2htm::U8Char{u8'i'});
 
         auto const a =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(ast_a)));
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Group<nd::quick_enforce>(::std::move(ast_a)));
         auto const b =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(ast_b)));
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Group<nd::quick_enforce>(::std::move(ast_b)));
         pltxt2htm_test_assert_true(a == b);
     }
 
-    // Text with different sub-AST content
+    // Group with different sub-AST content
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ast_a.emplace_back(::pltxt2htm::U8Char{u8'H'});
@@ -110,13 +110,13 @@ int main() {
         ast_b.emplace_back(::pltxt2htm::U8Char{u8'o'});
 
         auto const a =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(ast_a)));
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Group<nd::quick_enforce>(::std::move(ast_a)));
         auto const b =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(ast_b)));
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Group<nd::quick_enforce>(::std::move(ast_b)));
         pltxt2htm_test_assert_false(a == b);
     }
 
-    // Text with different sub-AST size
+    // Group with different sub-AST size
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ast_a.emplace_back(::pltxt2htm::U8Char{u8'H'});
@@ -126,9 +126,9 @@ int main() {
         ast_b.emplace_back(::pltxt2htm::U8Char{u8'H'});
 
         auto const a =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(ast_a)));
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Group<nd::quick_enforce>(::std::move(ast_a)));
         auto const b =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(ast_b)));
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Group<nd::quick_enforce>(::std::move(ast_b)));
         pltxt2htm_test_assert_false(a == b);
     }
 
@@ -576,20 +576,21 @@ int main() {
         pltxt2htm_test_assert_false(a != b);
     }
 
-    // MdEscape (all empty, always equal)
+    // MdEscape with same/different escaped characters
     {
-        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscapeBackslash{});
-        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscapeBackslash{});
+        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscape{u8'\\'});
+        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscape{u8'\\'});
+        pltxt2htm_test_assert_true(a == b);
+        pltxt2htm_test_assert_true(a.as_md_escape().get_character() == u8'\\');
+    }
+    {
+        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscape{u8'*'});
+        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscape{u8'*'});
         pltxt2htm_test_assert_true(a == b);
     }
     {
-        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscapeAsterisk{});
-        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscapeAsterisk{});
-        pltxt2htm_test_assert_true(a == b);
-    }
-    {
-        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscapeBackslash{});
-        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscapeAsterisk{});
+        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscape{u8'\\'});
+        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdEscape{u8'*'});
         pltxt2htm_test_assert_false(a == b);
     }
 
@@ -634,7 +635,7 @@ int main() {
         ast_b.emplace_back(::pltxt2htm::U8Char{u8'i'});
 
         auto const a =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(ast_a)));
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Group<nd::quick_enforce>(::std::move(ast_a)));
         auto const b =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::HtmlH1<nd::quick_enforce>(::std::move(ast_b)));
         pltxt2htm_test_assert_false(a == b);
@@ -674,7 +675,7 @@ int main() {
             ::std::move(ast_a), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
                                     ::pltxt2htm::container::U8String{u8"cpp"})));
         auto const b =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(ast_b)));
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Group<nd::quick_enforce>(::std::move(ast_b)));
         pltxt2htm_test_assert_false(a == b);
     }
 
@@ -689,9 +690,9 @@ int main() {
         ast_b.emplace_back(::pltxt2htm::U8Char{u8'H'});
 
         auto const a =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(ast_a)));
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Group<nd::quick_enforce>(::std::move(ast_a)));
         auto const b =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>(::std::move(ast_b)));
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Group<nd::quick_enforce>(::std::move(ast_b)));
         pltxt2htm_test_assert_false(a == b);
     }
     {

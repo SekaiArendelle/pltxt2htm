@@ -180,8 +180,8 @@ public:
     }
 
     [[nodiscard]]
-    constexpr operator ::fast_io::basic_string_view<value_type>() const noexcept {
-        return ::fast_io::basic_string_view<value_type>{this->pointer, this->length};
+    constexpr operator ::fast_io::basic_string_view<value_type>(this BasicStringView const& self) noexcept {
+        return ::fast_io::basic_string_view<value_type>{self.pointer, self.length};
     }
 
     [[nodiscard]]
@@ -189,6 +189,13 @@ public:
         return self.length == right.length && ::std::equal(self.begin(), self.end(), right.begin());
     }
 };
+
+template<::pltxt2htm::details::is_char_type CharType>
+[[nodiscard]]
+constexpr auto print_alias_define(::fast_io::io_alias_t, BasicStringView<CharType> string) noexcept
+    -> ::fast_io::basic_io_scatter_t<CharType> {
+    return {string.data(), string.size()};
+}
 
 template<::pltxt2htm::details::is_char_type CharType>
 BasicStringView(CharType const*, ::std::size_t) -> BasicStringView<CharType>;
