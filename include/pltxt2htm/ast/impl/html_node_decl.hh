@@ -28,6 +28,7 @@ namespace pltxt2htm {
  */
 class HtmlBr {
 public:
+    [[nodiscard]]
     constexpr auto operator==(this HtmlBr const&, HtmlBr const&) noexcept -> bool = default;
 };
 
@@ -37,6 +38,7 @@ public:
  */
 class HtmlHr {
 public:
+    [[nodiscard]]
     constexpr auto operator==(this HtmlHr const&, HtmlHr const&) noexcept -> bool = default;
 };
 
@@ -754,11 +756,13 @@ public:
         return ::std::forward_like<decltype(self)>(self.color);
     }
 
+    [[nodiscard]]
     constexpr auto get_font_size(this HtmlSpan<ndebug> const& self) noexcept
         -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> {
         return self.style.get_font_size();
     }
 
+    [[nodiscard]]
     constexpr auto get_vertical_align(this HtmlSpan<ndebug> const& self) noexcept
         -> ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> {
         return self.style.get_vertical_align();

@@ -158,6 +158,14 @@ Follow the existing low-runtime, cross-platform style used in core headers:
   - Mark function and method definitions `constexpr` whenever permitted; `main` is exempt.
   - Use `consteval` when compile-time evaluation is required, and keep parsers/helpers constexpr-friendly.
   - Do not write `inline constexpr`; `constexpr` functions are already inline.
+- **Mark meaningful return values `[[nodiscard]]`:**
+  - Add `[[nodiscard]]` when ignoring a return value would make the call useless or likely indicate a caller bug. This
+    includes pure queries and accessors, comparisons, conversions, parsers, factories, and functions returning a
+    result, status, position, or optional value.
+  - Apply this rule to internal helpers, function templates, and `consteval` functions as well as public APIs;
+    `clang-tidy` does not reliably diagnose every missing attribute, especially with C++23 explicit object parameters.
+  - Do not add `[[nodiscard]]` mechanically to assignment operators or to mutating/fluent operations whose return
+    value is intentionally optional.
 - **Use postfix `const`:**
   - Write the cv-qualifier after the type it qualifies (`int const`, `T const&`, `auto const`) rather than before it (`const int`, `const T&`, `const auto`).
   - `const` always binds to the declaration to its left, so postfix placement makes `int const*` (pointer to const int) vs `int* const` (const pointer to int) unambiguous at a glance.

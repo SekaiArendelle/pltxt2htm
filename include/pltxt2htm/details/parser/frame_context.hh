@@ -1493,6 +1493,7 @@ constexpr void push_list_frame(::pltxt2htm::details::CallStack<ParserFrame<ndebu
  *         loop).
  */
 template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
 constexpr auto process_table_frame(::pltxt2htm::details::CallStack<ParserFrame<ndebug>>& call_stack) noexcept
     -> ::pltxt2htm::container::Optional<::pltxt2htm::Ast<ndebug>> {
     auto&& frame = call_stack.template current_frame<ndebug>();
