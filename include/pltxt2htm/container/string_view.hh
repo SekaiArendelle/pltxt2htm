@@ -199,6 +199,13 @@ public:
 };
 
 template<::pltxt2htm::container::details::is_char_type CharType>
+[[nodiscard]]
+constexpr auto print_alias_define(::fast_io::io_alias_t, BasicStringView<CharType> string) noexcept
+    -> ::fast_io::basic_io_scatter_t<CharType> {
+    return {string.data(), string.size()};
+}
+
+template<::pltxt2htm::container::details::is_char_type CharType>
 BasicStringView(CharType const*, ::std::size_t) -> BasicStringView<CharType>;
 
 template<::pltxt2htm::container::details::is_char_type CharType, ::std::size_t size_with_null>
