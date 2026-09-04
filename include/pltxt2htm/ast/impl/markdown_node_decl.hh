@@ -167,165 +167,26 @@ public:
     }
 };
 
-// Markdown escaped characters (each represents a backslash-escaped character)
-/** @brief Escaped backslash '\\' */ class MdEscapeBackslash {
-public:
-    constexpr auto operator==(this MdEscapeBackslash const&, MdEscapeBackslash const&) noexcept -> bool = default;
-};
+/**
+ * @brief Markdown backslash escape.
+ * @details Stores the escaped ASCII punctuation character while preserving that
+ *          it originated from Markdown backslash syntax.
+ */
+class MdEscape {
+    char8_t character;
 
-/** @brief Escaped exclamation '!' */ class MdEscapeExclamation {
 public:
-    constexpr auto operator==(this MdEscapeExclamation const&, MdEscapeExclamation const&) noexcept -> bool = default;
-};
+    constexpr explicit MdEscape(char8_t character_) noexcept
+        : character{character_} {
+    }
 
-/** @brief Escaped double quote '"' */ class MdEscapeDoubleQuote {
-public:
-    constexpr auto operator==(this MdEscapeDoubleQuote const&, MdEscapeDoubleQuote const&) noexcept -> bool = default;
-};
+    [[nodiscard]]
+    constexpr auto operator==(this MdEscape const&, MdEscape const&) noexcept -> bool = default;
 
-/** @brief Escaped hash '#' */ class MdEscapeHash {
-public:
-    constexpr auto operator==(this MdEscapeHash const&, MdEscapeHash const&) noexcept -> bool = default;
-};
-
-/** @brief Escaped dollar '$' */ class MdEscapeDollar {
-public:
-    constexpr auto operator==(this MdEscapeDollar const&, MdEscapeDollar const&) noexcept -> bool = default;
-};
-
-/** @brief Escaped percent '%' */ class MdEscapePercent {
-public:
-    constexpr auto operator==(this MdEscapePercent const&, MdEscapePercent const&) noexcept -> bool = default;
-};
-
-/** @brief Escaped ampersand '&' */ class MdEscapeAmpersand {
-public:
-    constexpr auto operator==(this MdEscapeAmpersand const&, MdEscapeAmpersand const&) noexcept -> bool = default;
-};
-
-/** @brief Escaped single quote '\'' */ class MdEscapeSingleQuote {
-public:
-    constexpr auto operator==(this MdEscapeSingleQuote const&, MdEscapeSingleQuote const&) noexcept -> bool = default;
-};
-
-/** @brief Escaped left parenthesis '(' */ class MdEscapeLeftParen {
-public:
-    constexpr auto operator==(this MdEscapeLeftParen const&, MdEscapeLeftParen const&) noexcept -> bool = default;
-};
-
-/** @brief Escaped right parenthesis ')' */ class MdEscapeRightParen {
-public:
-    constexpr auto operator==(this MdEscapeRightParen const&, MdEscapeRightParen const&) noexcept -> bool = default;
-};
-
-/** @brief Escaped asterisk '*' */ class MdEscapeAsterisk {
-public:
-    constexpr auto operator==(this MdEscapeAsterisk const&, MdEscapeAsterisk const&) noexcept -> bool = default;
-};
-
-/** @brief Escaped plus '+' */ class MdEscapePlus {
-public:
-    constexpr auto operator==(this MdEscapePlus const&, MdEscapePlus const&) noexcept -> bool = default;
-};
-
-/** @brief Escaped comma ',' */ class MdEscapeComma {
-public:
-    constexpr auto operator==(this MdEscapeComma const&, MdEscapeComma const&) noexcept -> bool = default;
-};
-
-/** @brief Escaped hyphen '-' */ class MdEscapeHyphen {
-public:
-    constexpr auto operator==(this MdEscapeHyphen const&, MdEscapeHyphen const&) noexcept -> bool = default;
-};
-
-/** @brief Escaped dot '.' */ class MdEscapeDot {
-public:
-    constexpr auto operator==(this MdEscapeDot const&, MdEscapeDot const&) noexcept -> bool = default;
-};
-
-/** @brief Escaped slash '/' */ class MdEscapeSlash {
-public:
-    constexpr auto operator==(this MdEscapeSlash const&, MdEscapeSlash const&) noexcept -> bool = default;
-};
-
-/** @brief Escaped colon ':' */ class MdEscapeColon {
-public:
-    constexpr auto operator==(this MdEscapeColon const&, MdEscapeColon const&) noexcept -> bool = default;
-};
-
-/** @brief Escaped semicolon ';' */ class MdEscapeSemicolon {
-public:
-    constexpr auto operator==(this MdEscapeSemicolon const&, MdEscapeSemicolon const&) noexcept -> bool = default;
-};
-
-/** @brief Escaped less-than '<' */ class MdEscapeLessThan {
-public:
-    constexpr auto operator==(this MdEscapeLessThan const&, MdEscapeLessThan const&) noexcept -> bool = default;
-};
-
-/** @brief Escaped equals '=' */ class MdEscapeEquals {
-public:
-    constexpr auto operator==(this MdEscapeEquals const&, MdEscapeEquals const&) noexcept -> bool = default;
-};
-
-/** @brief Escaped greater-than '>' */ class MdEscapeGreaterThan {
-public:
-    constexpr auto operator==(this MdEscapeGreaterThan const&, MdEscapeGreaterThan const&) noexcept -> bool = default;
-};
-
-/** @brief Escaped question '?' */ class MdEscapeQuestion {
-public:
-    constexpr auto operator==(this MdEscapeQuestion const&, MdEscapeQuestion const&) noexcept -> bool = default;
-};
-
-/** @brief Escaped at '@' */ class MdEscapeAt {
-public:
-    constexpr auto operator==(this MdEscapeAt const&, MdEscapeAt const&) noexcept -> bool = default;
-};
-
-/** @brief Escaped left bracket '[' */ class MdEscapeLeftBracket {
-public:
-    constexpr auto operator==(this MdEscapeLeftBracket const&, MdEscapeLeftBracket const&) noexcept -> bool = default;
-};
-
-/** @brief Escaped right bracket ']' */ class MdEscapeRightBracket {
-public:
-    constexpr auto operator==(this MdEscapeRightBracket const&, MdEscapeRightBracket const&) noexcept -> bool = default;
-};
-
-/** @brief Escaped caret '^' */ class MdEscapeCaret {
-public:
-    constexpr auto operator==(this MdEscapeCaret const&, MdEscapeCaret const&) noexcept -> bool = default;
-};
-
-/** @brief Escaped underscore '_' */ class MdEscapeUnderscore {
-public:
-    constexpr auto operator==(this MdEscapeUnderscore const&, MdEscapeUnderscore const&) noexcept -> bool = default;
-};
-
-/** @brief Escaped backtick '`' */ class MdEscapeBacktick {
-public:
-    constexpr auto operator==(this MdEscapeBacktick const&, MdEscapeBacktick const&) noexcept -> bool = default;
-};
-
-/** @brief Escaped left brace '{' */ class MdEscapeLeftBrace {
-public:
-    constexpr auto operator==(this MdEscapeLeftBrace const&, MdEscapeLeftBrace const&) noexcept -> bool = default;
-};
-
-/** @brief Escaped pipe '|' */ class MdEscapePipe {
-public:
-    constexpr auto operator==(this MdEscapePipe const&, MdEscapePipe const&) noexcept -> bool = default;
-};
-
-/** @brief Escaped right brace '}' */ class MdEscapeRightBrace {
-public:
-    constexpr auto operator==(this MdEscapeRightBrace const&, MdEscapeRightBrace const&) noexcept -> bool = default;
-};
-
-/** @brief Escaped tilde '~' */ class MdEscapeTilde {
-public:
-    constexpr auto operator==(this MdEscapeTilde const&, MdEscapeTilde const&) noexcept -> bool = default;
+    [[nodiscard]]
+    constexpr auto get_character(this MdEscape const& self) noexcept -> char8_t {
+        return self.character;
+    }
 };
 
 /**
@@ -334,6 +195,7 @@ public:
  */
 class MdHr {
 public:
+    [[nodiscard]]
     constexpr auto operator==(this MdHr const&, MdHr const&) noexcept -> bool = default;
 };
 

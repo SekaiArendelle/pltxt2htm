@@ -19,7 +19,7 @@
 #include <cstddef>
 #include <fast_io/fast_io_dsal/string.h>
 #include "../../container/string_view.hh"
-#include "../../container/expected.hh"
+#include "../../container/optional.hh"
 #include "../utils.hh"
 #include "../../contracts.hh"
 #include "../../ast/ast.hh"
@@ -214,7 +214,7 @@ constexpr auto optionally_to_html_table_ast(::pltxt2htm::container::U8StringView
             if (auto opt_col_len = ::pltxt2htm::details::try_parse_col_tag<ndebug>(
                     pltext.template subview<ndebug>(current_index + 2), ::pltxt2htm::NodeKind::table_colgroup);
                 opt_col_len.has_value()) {
-                current_index += opt_col_len.template value<ndebug>() + 2;
+                current_index += opt_col_len.template value<ndebug>().template get<ndebug>() + 2;
                 raw_ast.add_col();
                 continue;
             }

@@ -34,8 +34,8 @@ class PlTxtNode {
     union {
         // basic node
         ::pltxt2htm::U8Char u8char_node;
-        ::pltxt2htm::InvalidU8Char invalid_u8char_node;
-        ::pltxt2htm::Text<ndebug> text_node;
+        ::pltxt2htm::InvalidUtf8 invalid_utf8_node;
+        ::pltxt2htm::Group<ndebug> group_node;
 
         // html node
         ::pltxt2htm::LineBreak line_break_node;
@@ -57,6 +57,8 @@ class PlTxtNode {
         ::pltxt2htm::HtmlH6<ndebug> html_h6_node;
         ::pltxt2htm::HtmlP<ndebug> html_p_node;
         ::pltxt2htm::HtmlDel<ndebug> html_del_node;
+        ::pltxt2htm::HtmlU<ndebug> html_u_node;
+        ::pltxt2htm::HtmlS<ndebug> html_s_node;
         ::pltxt2htm::HtmlSup<ndebug> html_sup_node;
         ::pltxt2htm::HtmlSub<ndebug> html_sub_node;
         ::pltxt2htm::HtmlNote<ndebug> html_note_node;
@@ -95,38 +97,7 @@ class PlTxtNode {
         ::pltxt2htm::MdAtxH4<ndebug> md_atx_h4_node;
         ::pltxt2htm::MdAtxH5<ndebug> md_atx_h5_node;
         ::pltxt2htm::MdAtxH6<ndebug> md_atx_h6_node;
-        ::pltxt2htm::MdEscapeBackslash md_escape_backslash_node;
-        ::pltxt2htm::MdEscapeExclamation md_escape_exclamation_node;
-        ::pltxt2htm::MdEscapeDoubleQuote md_escape_double_quote_node;
-        ::pltxt2htm::MdEscapeHash md_escape_hash_node;
-        ::pltxt2htm::MdEscapeDollar md_escape_dollar_node;
-        ::pltxt2htm::MdEscapePercent md_escape_percent_node;
-        ::pltxt2htm::MdEscapeAmpersand md_escape_ampersand_node;
-        ::pltxt2htm::MdEscapeSingleQuote md_escape_single_quote_node;
-        ::pltxt2htm::MdEscapeLeftParen md_escape_left_paren_node;
-        ::pltxt2htm::MdEscapeRightParen md_escape_right_paren_node;
-        ::pltxt2htm::MdEscapeAsterisk md_escape_asterisk_node;
-        ::pltxt2htm::MdEscapePlus md_escape_plus_node;
-        ::pltxt2htm::MdEscapeComma md_escape_comma_node;
-        ::pltxt2htm::MdEscapeHyphen md_escape_hyphen_node;
-        ::pltxt2htm::MdEscapeDot md_escape_dot_node;
-        ::pltxt2htm::MdEscapeSlash md_escape_slash_node;
-        ::pltxt2htm::MdEscapeColon md_escape_colon_node;
-        ::pltxt2htm::MdEscapeSemicolon md_escape_semicolon_node;
-        ::pltxt2htm::MdEscapeLessThan md_escape_less_than_node;
-        ::pltxt2htm::MdEscapeEquals md_escape_equals_node;
-        ::pltxt2htm::MdEscapeGreaterThan md_escape_greater_than_node;
-        ::pltxt2htm::MdEscapeQuestion md_escape_question_node;
-        ::pltxt2htm::MdEscapeAt md_escape_at_node;
-        ::pltxt2htm::MdEscapeLeftBracket md_escape_left_bracket_node;
-        ::pltxt2htm::MdEscapeRightBracket md_escape_right_bracket_node;
-        ::pltxt2htm::MdEscapeCaret md_escape_caret_node;
-        ::pltxt2htm::MdEscapeUnderscore md_escape_underscore_node;
-        ::pltxt2htm::MdEscapeBacktick md_escape_backtick_node;
-        ::pltxt2htm::MdEscapeLeftBrace md_escape_left_brace_node;
-        ::pltxt2htm::MdEscapePipe md_escape_pipe_node;
-        ::pltxt2htm::MdEscapeRightBrace md_escape_right_brace_node;
-        ::pltxt2htm::MdEscapeTilde md_escape_tilde_node;
+        ::pltxt2htm::MdEscape md_escape_node;
         ::pltxt2htm::MdHr md_hr_node;
         ::pltxt2htm::CodeFence<ndebug> code_fence_node;
         ::pltxt2htm::MdCodeSpan1Backtick<ndebug> md_code_span_1_backtick_node;
@@ -165,8 +136,6 @@ class PlTxtNode {
         ::pltxt2htm::PlMargin<ndebug> pl_margin_node;
         ::pltxt2htm::PlI<ndebug> pl_i_node;
         ::pltxt2htm::PlB<ndebug> pl_b_node;
-        ::pltxt2htm::PlU<ndebug> pl_u_node;
-        ::pltxt2htm::PlS<ndebug> pl_s_node;
         ::pltxt2htm::PlMacroProject pl_macro_project_node;
         ::pltxt2htm::PlMacroVisitor pl_macro_visitor_node;
         ::pltxt2htm::PlMacroAuthor pl_macro_author_node;
@@ -181,14 +150,14 @@ public:
           node_kind{::pltxt2htm::NodeKind::u8char} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::InvalidU8Char node) noexcept
-        : invalid_u8char_node{node},
-          node_kind{::pltxt2htm::NodeKind::invalid_u8char} {
+    constexpr PlTxtNode(::pltxt2htm::InvalidUtf8 node) noexcept
+        : invalid_utf8_node{node},
+          node_kind{::pltxt2htm::NodeKind::invalid_utf8} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::Text<ndebug>&& node) noexcept
-        : text_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::text} {
+    constexpr PlTxtNode(::pltxt2htm::Group<ndebug>&& node) noexcept
+        : group_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::group} {
     }
 
     constexpr PlTxtNode(::pltxt2htm::PlColor<ndebug>&& node) noexcept
@@ -281,14 +250,14 @@ public:
           node_kind{::pltxt2htm::NodeKind::pl_b} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::PlU<ndebug>&& node) noexcept
-        : pl_u_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::pl_u} {
+    constexpr PlTxtNode(::pltxt2htm::HtmlU<ndebug>&& node) noexcept
+        : html_u_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::html_u} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::PlS<ndebug>&& node) noexcept
-        : pl_s_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::pl_s} {
+    constexpr PlTxtNode(::pltxt2htm::HtmlS<ndebug>&& node) noexcept
+        : html_s_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::html_s} {
     }
 
     constexpr PlTxtNode(::pltxt2htm::PlMacroProject node) noexcept
@@ -566,164 +535,9 @@ public:
           node_kind{::pltxt2htm::NodeKind::md_atx_h6} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeBackslash node) noexcept
-        : md_escape_backslash_node{node},
-          node_kind{::pltxt2htm::NodeKind::md_escape_backslash} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeExclamation node) noexcept
-        : md_escape_exclamation_node{node},
-          node_kind{::pltxt2htm::NodeKind::md_escape_exclamation} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeDoubleQuote node) noexcept
-        : md_escape_double_quote_node{node},
-          node_kind{::pltxt2htm::NodeKind::md_escape_double_quote} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeHash node) noexcept
-        : md_escape_hash_node{node},
-          node_kind{::pltxt2htm::NodeKind::md_escape_hash} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeDollar node) noexcept
-        : md_escape_dollar_node{node},
-          node_kind{::pltxt2htm::NodeKind::md_escape_dollar} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdEscapePercent node) noexcept
-        : md_escape_percent_node{node},
-          node_kind{::pltxt2htm::NodeKind::md_escape_percent} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeAmpersand node) noexcept
-        : md_escape_ampersand_node{node},
-          node_kind{::pltxt2htm::NodeKind::md_escape_ampersand} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeSingleQuote node) noexcept
-        : md_escape_single_quote_node{node},
-          node_kind{::pltxt2htm::NodeKind::md_escape_single_quote} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeLeftParen node) noexcept
-        : md_escape_left_paren_node{node},
-          node_kind{::pltxt2htm::NodeKind::md_escape_left_paren} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeRightParen node) noexcept
-        : md_escape_right_paren_node{node},
-          node_kind{::pltxt2htm::NodeKind::md_escape_right_paren} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeAsterisk node) noexcept
-        : md_escape_asterisk_node{node},
-          node_kind{::pltxt2htm::NodeKind::md_escape_asterisk} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdEscapePlus node) noexcept
-        : md_escape_plus_node{node},
-          node_kind{::pltxt2htm::NodeKind::md_escape_plus} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeComma node) noexcept
-        : md_escape_comma_node{node},
-          node_kind{::pltxt2htm::NodeKind::md_escape_comma} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeHyphen node) noexcept
-        : md_escape_hyphen_node{node},
-          node_kind{::pltxt2htm::NodeKind::md_escape_hyphen} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeDot node) noexcept
-        : md_escape_dot_node{node},
-          node_kind{::pltxt2htm::NodeKind::md_escape_dot} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeSlash node) noexcept
-        : md_escape_slash_node{node},
-          node_kind{::pltxt2htm::NodeKind::md_escape_slash} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeColon node) noexcept
-        : md_escape_colon_node{node},
-          node_kind{::pltxt2htm::NodeKind::md_escape_colon} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeSemicolon node) noexcept
-        : md_escape_semicolon_node{node},
-          node_kind{::pltxt2htm::NodeKind::md_escape_semicolon} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeLessThan node) noexcept
-        : md_escape_less_than_node{node},
-          node_kind{::pltxt2htm::NodeKind::md_escape_less_than} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeEquals node) noexcept
-        : md_escape_equals_node{node},
-          node_kind{::pltxt2htm::NodeKind::md_escape_equals} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeGreaterThan node) noexcept
-        : md_escape_greater_than_node{node},
-          node_kind{::pltxt2htm::NodeKind::md_escape_greater_than} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeQuestion node) noexcept
-        : md_escape_question_node{node},
-          node_kind{::pltxt2htm::NodeKind::md_escape_question} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeAt node) noexcept
-        : md_escape_at_node{node},
-          node_kind{::pltxt2htm::NodeKind::md_escape_at} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeLeftBracket node) noexcept
-        : md_escape_left_bracket_node{node},
-          node_kind{::pltxt2htm::NodeKind::md_escape_left_bracket} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeRightBracket node) noexcept
-        : md_escape_right_bracket_node{node},
-          node_kind{::pltxt2htm::NodeKind::md_escape_right_bracket} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeCaret node) noexcept
-        : md_escape_caret_node{node},
-          node_kind{::pltxt2htm::NodeKind::md_escape_caret} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeUnderscore node) noexcept
-        : md_escape_underscore_node{node},
-          node_kind{::pltxt2htm::NodeKind::md_escape_underscore} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeBacktick node) noexcept
-        : md_escape_backtick_node{node},
-          node_kind{::pltxt2htm::NodeKind::md_escape_backtick} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeLeftBrace node) noexcept
-        : md_escape_left_brace_node{node},
-          node_kind{::pltxt2htm::NodeKind::md_escape_left_brace} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdEscapePipe node) noexcept
-        : md_escape_pipe_node{node},
-          node_kind{::pltxt2htm::NodeKind::md_escape_pipe} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeRightBrace node) noexcept
-        : md_escape_right_brace_node{node},
-          node_kind{::pltxt2htm::NodeKind::md_escape_right_brace} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::MdEscapeTilde node) noexcept
-        : md_escape_tilde_node{node},
-          node_kind{::pltxt2htm::NodeKind::md_escape_tilde} {
+    constexpr PlTxtNode(::pltxt2htm::MdEscape node) noexcept
+        : md_escape_node{node},
+          node_kind{::pltxt2htm::NodeKind::md_escape} {
     }
 
     constexpr PlTxtNode(::pltxt2htm::MdHr node) noexcept
@@ -827,12 +641,12 @@ public:
             new (::std::addressof(u8char_node))::pltxt2htm::U8Char(other.u8char_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::invalid_u8char: {
-            new (::std::addressof(invalid_u8char_node))::pltxt2htm::InvalidU8Char(other.invalid_u8char_node);
+        case ::pltxt2htm::NodeKind::invalid_utf8: {
+            new (::std::addressof(invalid_utf8_node))::pltxt2htm::InvalidUtf8(other.invalid_utf8_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::text: {
-            new (::std::addressof(text_node))::pltxt2htm::Text(other.text_node);
+        case ::pltxt2htm::NodeKind::group: {
+            new (::std::addressof(group_node))::pltxt2htm::Group(other.group_node);
             break;
         }
         case ::pltxt2htm::NodeKind::pl_color: {
@@ -907,12 +721,12 @@ public:
             new (::std::addressof(pl_b_node))::pltxt2htm::PlB(other.pl_b_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_u: {
-            new (::std::addressof(pl_u_node))::pltxt2htm::PlU(other.pl_u_node);
+        case ::pltxt2htm::NodeKind::html_u: {
+            new (::std::addressof(html_u_node))::pltxt2htm::HtmlU(other.html_u_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_s: {
-            new (::std::addressof(pl_s_node))::pltxt2htm::PlS(other.pl_s_node);
+        case ::pltxt2htm::NodeKind::html_s: {
+            new (::std::addressof(html_s_node))::pltxt2htm::HtmlS(other.html_s_node);
             break;
         }
         case ::pltxt2htm::NodeKind::pl_macro_project: {
@@ -1135,147 +949,8 @@ public:
             new (::std::addressof(md_atx_h6_node))::pltxt2htm::MdAtxH6(other.md_atx_h6_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::md_escape_backslash: {
-            new (::std::addressof(md_escape_backslash_node))::pltxt2htm::MdEscapeBackslash(
-                other.md_escape_backslash_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_exclamation: {
-            new (::std::addressof(md_escape_exclamation_node))::pltxt2htm::MdEscapeExclamation(
-                other.md_escape_exclamation_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_double_quote: {
-            new (::std::addressof(md_escape_double_quote_node))::pltxt2htm::MdEscapeDoubleQuote(
-                other.md_escape_double_quote_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_hash: {
-            new (::std::addressof(md_escape_hash_node))::pltxt2htm::MdEscapeHash(other.md_escape_hash_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_dollar: {
-            new (::std::addressof(md_escape_dollar_node))::pltxt2htm::MdEscapeDollar(other.md_escape_dollar_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_percent: {
-            new (::std::addressof(md_escape_percent_node))::pltxt2htm::MdEscapePercent(other.md_escape_percent_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_ampersand: {
-            new (::std::addressof(md_escape_ampersand_node))::pltxt2htm::MdEscapeAmpersand(
-                other.md_escape_ampersand_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_single_quote: {
-            new (::std::addressof(md_escape_single_quote_node))::pltxt2htm::MdEscapeSingleQuote(
-                other.md_escape_single_quote_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_left_paren: {
-            new (::std::addressof(md_escape_left_paren_node))::pltxt2htm::MdEscapeLeftParen(
-                other.md_escape_left_paren_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_right_paren: {
-            new (::std::addressof(md_escape_right_paren_node))::pltxt2htm::MdEscapeRightParen(
-                other.md_escape_right_paren_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_asterisk: {
-            new (::std::addressof(md_escape_asterisk_node))::pltxt2htm::MdEscapeAsterisk(other.md_escape_asterisk_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_plus: {
-            new (::std::addressof(md_escape_plus_node))::pltxt2htm::MdEscapePlus(other.md_escape_plus_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_comma: {
-            new (::std::addressof(md_escape_comma_node))::pltxt2htm::MdEscapeComma(other.md_escape_comma_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_hyphen: {
-            new (::std::addressof(md_escape_hyphen_node))::pltxt2htm::MdEscapeHyphen(other.md_escape_hyphen_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_dot: {
-            new (::std::addressof(md_escape_dot_node))::pltxt2htm::MdEscapeDot(other.md_escape_dot_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_slash: {
-            new (::std::addressof(md_escape_slash_node))::pltxt2htm::MdEscapeSlash(other.md_escape_slash_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_colon: {
-            new (::std::addressof(md_escape_colon_node))::pltxt2htm::MdEscapeColon(other.md_escape_colon_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_semicolon: {
-            new (::std::addressof(md_escape_semicolon_node))::pltxt2htm::MdEscapeSemicolon(
-                other.md_escape_semicolon_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_less_than: {
-            new (::std::addressof(md_escape_less_than_node))::pltxt2htm::MdEscapeLessThan(
-                other.md_escape_less_than_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_equals: {
-            new (::std::addressof(md_escape_equals_node))::pltxt2htm::MdEscapeEquals(other.md_escape_equals_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_greater_than: {
-            new (::std::addressof(md_escape_greater_than_node))::pltxt2htm::MdEscapeGreaterThan(
-                other.md_escape_greater_than_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_question: {
-            new (::std::addressof(md_escape_question_node))::pltxt2htm::MdEscapeQuestion(other.md_escape_question_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_at: {
-            new (::std::addressof(md_escape_at_node))::pltxt2htm::MdEscapeAt(other.md_escape_at_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_left_bracket: {
-            new (::std::addressof(md_escape_left_bracket_node))::pltxt2htm::MdEscapeLeftBracket(
-                other.md_escape_left_bracket_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_right_bracket: {
-            new (::std::addressof(md_escape_right_bracket_node))::pltxt2htm::MdEscapeRightBracket(
-                other.md_escape_right_bracket_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_caret: {
-            new (::std::addressof(md_escape_caret_node))::pltxt2htm::MdEscapeCaret(other.md_escape_caret_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_underscore: {
-            new (::std::addressof(md_escape_underscore_node))::pltxt2htm::MdEscapeUnderscore(
-                other.md_escape_underscore_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_backtick: {
-            new (::std::addressof(md_escape_backtick_node))::pltxt2htm::MdEscapeBacktick(other.md_escape_backtick_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_left_brace: {
-            new (::std::addressof(md_escape_left_brace_node))::pltxt2htm::MdEscapeLeftBrace(
-                other.md_escape_left_brace_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_pipe: {
-            new (::std::addressof(md_escape_pipe_node))::pltxt2htm::MdEscapePipe(other.md_escape_pipe_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_right_brace: {
-            new (::std::addressof(md_escape_right_brace_node))::pltxt2htm::MdEscapeRightBrace(
-                other.md_escape_right_brace_node);
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_tilde: {
-            new (::std::addressof(md_escape_tilde_node))::pltxt2htm::MdEscapeTilde(other.md_escape_tilde_node);
+        case ::pltxt2htm::NodeKind::md_escape: {
+            new (::std::addressof(md_escape_node))::pltxt2htm::MdEscape(other.md_escape_node);
             break;
         }
         case ::pltxt2htm::NodeKind::md_hr: {
@@ -1378,13 +1053,12 @@ public:
             new (::std::addressof(u8char_node))::pltxt2htm::U8Char(::std::move(other.u8char_node));
             break;
         }
-        case ::pltxt2htm::NodeKind::invalid_u8char: {
-            new (::std::addressof(invalid_u8char_node))::pltxt2htm::InvalidU8Char(
-                ::std::move(other.invalid_u8char_node));
+        case ::pltxt2htm::NodeKind::invalid_utf8: {
+            new (::std::addressof(invalid_utf8_node))::pltxt2htm::InvalidUtf8(::std::move(other.invalid_utf8_node));
             break;
         }
-        case ::pltxt2htm::NodeKind::text: {
-            new (::std::addressof(text_node))::pltxt2htm::Text(::std::move(other.text_node));
+        case ::pltxt2htm::NodeKind::group: {
+            new (::std::addressof(group_node))::pltxt2htm::Group(::std::move(other.group_node));
             break;
         }
         case ::pltxt2htm::NodeKind::pl_color: {
@@ -1461,12 +1135,12 @@ public:
             new (::std::addressof(pl_b_node))::pltxt2htm::PlB(::std::move(other.pl_b_node));
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_u: {
-            new (::std::addressof(pl_u_node))::pltxt2htm::PlU(::std::move(other.pl_u_node));
+        case ::pltxt2htm::NodeKind::html_u: {
+            new (::std::addressof(html_u_node))::pltxt2htm::HtmlU(::std::move(other.html_u_node));
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_s: {
-            new (::std::addressof(pl_s_node))::pltxt2htm::PlS(::std::move(other.pl_s_node));
+        case ::pltxt2htm::NodeKind::html_s: {
+            new (::std::addressof(html_s_node))::pltxt2htm::HtmlS(::std::move(other.html_s_node));
             break;
         }
         case ::pltxt2htm::NodeKind::pl_macro_project: {
@@ -1696,162 +1370,8 @@ public:
             new (::std::addressof(md_atx_h6_node))::pltxt2htm::MdAtxH6(::std::move(other.md_atx_h6_node));
             break;
         }
-        case ::pltxt2htm::NodeKind::md_escape_backslash: {
-            new (::std::addressof(md_escape_backslash_node))::pltxt2htm::MdEscapeBackslash(
-                ::std::move(other.md_escape_backslash_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_exclamation: {
-            new (::std::addressof(md_escape_exclamation_node))::pltxt2htm::MdEscapeExclamation(
-                ::std::move(other.md_escape_exclamation_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_double_quote: {
-            new (::std::addressof(md_escape_double_quote_node))::pltxt2htm::MdEscapeDoubleQuote(
-                ::std::move(other.md_escape_double_quote_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_hash: {
-            new (::std::addressof(md_escape_hash_node))::pltxt2htm::MdEscapeHash(
-                ::std::move(other.md_escape_hash_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_dollar: {
-            new (::std::addressof(md_escape_dollar_node))::pltxt2htm::MdEscapeDollar(
-                ::std::move(other.md_escape_dollar_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_percent: {
-            new (::std::addressof(md_escape_percent_node))::pltxt2htm::MdEscapePercent(
-                ::std::move(other.md_escape_percent_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_ampersand: {
-            new (::std::addressof(md_escape_ampersand_node))::pltxt2htm::MdEscapeAmpersand(
-                ::std::move(other.md_escape_ampersand_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_single_quote: {
-            new (::std::addressof(md_escape_single_quote_node))::pltxt2htm::MdEscapeSingleQuote(
-                ::std::move(other.md_escape_single_quote_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_left_paren: {
-            new (::std::addressof(md_escape_left_paren_node))::pltxt2htm::MdEscapeLeftParen(
-                ::std::move(other.md_escape_left_paren_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_right_paren: {
-            new (::std::addressof(md_escape_right_paren_node))::pltxt2htm::MdEscapeRightParen(
-                ::std::move(other.md_escape_right_paren_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_asterisk: {
-            new (::std::addressof(md_escape_asterisk_node))::pltxt2htm::MdEscapeAsterisk(
-                ::std::move(other.md_escape_asterisk_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_plus: {
-            new (::std::addressof(md_escape_plus_node))::pltxt2htm::MdEscapePlus(
-                ::std::move(other.md_escape_plus_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_comma: {
-            new (::std::addressof(md_escape_comma_node))::pltxt2htm::MdEscapeComma(
-                ::std::move(other.md_escape_comma_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_hyphen: {
-            new (::std::addressof(md_escape_hyphen_node))::pltxt2htm::MdEscapeHyphen(
-                ::std::move(other.md_escape_hyphen_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_dot: {
-            new (::std::addressof(md_escape_dot_node))::pltxt2htm::MdEscapeDot(::std::move(other.md_escape_dot_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_slash: {
-            new (::std::addressof(md_escape_slash_node))::pltxt2htm::MdEscapeSlash(
-                ::std::move(other.md_escape_slash_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_colon: {
-            new (::std::addressof(md_escape_colon_node))::pltxt2htm::MdEscapeColon(
-                ::std::move(other.md_escape_colon_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_semicolon: {
-            new (::std::addressof(md_escape_semicolon_node))::pltxt2htm::MdEscapeSemicolon(
-                ::std::move(other.md_escape_semicolon_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_less_than: {
-            new (::std::addressof(md_escape_less_than_node))::pltxt2htm::MdEscapeLessThan(
-                ::std::move(other.md_escape_less_than_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_equals: {
-            new (::std::addressof(md_escape_equals_node))::pltxt2htm::MdEscapeEquals(
-                ::std::move(other.md_escape_equals_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_greater_than: {
-            new (::std::addressof(md_escape_greater_than_node))::pltxt2htm::MdEscapeGreaterThan(
-                ::std::move(other.md_escape_greater_than_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_question: {
-            new (::std::addressof(md_escape_question_node))::pltxt2htm::MdEscapeQuestion(
-                ::std::move(other.md_escape_question_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_at: {
-            new (::std::addressof(md_escape_at_node))::pltxt2htm::MdEscapeAt(::std::move(other.md_escape_at_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_left_bracket: {
-            new (::std::addressof(md_escape_left_bracket_node))::pltxt2htm::MdEscapeLeftBracket(
-                ::std::move(other.md_escape_left_bracket_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_right_bracket: {
-            new (::std::addressof(md_escape_right_bracket_node))::pltxt2htm::MdEscapeRightBracket(
-                ::std::move(other.md_escape_right_bracket_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_caret: {
-            new (::std::addressof(md_escape_caret_node))::pltxt2htm::MdEscapeCaret(
-                ::std::move(other.md_escape_caret_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_underscore: {
-            new (::std::addressof(md_escape_underscore_node))::pltxt2htm::MdEscapeUnderscore(
-                ::std::move(other.md_escape_underscore_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_backtick: {
-            new (::std::addressof(md_escape_backtick_node))::pltxt2htm::MdEscapeBacktick(
-                ::std::move(other.md_escape_backtick_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_left_brace: {
-            new (::std::addressof(md_escape_left_brace_node))::pltxt2htm::MdEscapeLeftBrace(
-                ::std::move(other.md_escape_left_brace_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_pipe: {
-            new (::std::addressof(md_escape_pipe_node))::pltxt2htm::MdEscapePipe(
-                ::std::move(other.md_escape_pipe_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_right_brace: {
-            new (::std::addressof(md_escape_right_brace_node))::pltxt2htm::MdEscapeRightBrace(
-                ::std::move(other.md_escape_right_brace_node));
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_tilde: {
-            new (::std::addressof(md_escape_tilde_node))::pltxt2htm::MdEscapeTilde(
-                ::std::move(other.md_escape_tilde_node));
+        case ::pltxt2htm::NodeKind::md_escape: {
+            new (::std::addressof(md_escape_node))::pltxt2htm::MdEscape(::std::move(other.md_escape_node));
             break;
         }
         case ::pltxt2htm::NodeKind::md_hr: {
@@ -1953,12 +1473,12 @@ public:
             u8char_node.~U8Char();
             break;
         }
-        case ::pltxt2htm::NodeKind::invalid_u8char: {
-            invalid_u8char_node.~InvalidU8Char();
+        case ::pltxt2htm::NodeKind::invalid_utf8: {
+            invalid_utf8_node.~InvalidUtf8();
             break;
         }
-        case ::pltxt2htm::NodeKind::text: {
-            text_node.~Text();
+        case ::pltxt2htm::NodeKind::group: {
+            group_node.~Group();
             break;
         }
         case ::pltxt2htm::NodeKind::pl_color: {
@@ -2033,12 +1553,12 @@ public:
             pl_b_node.~PlB();
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_u: {
-            pl_u_node.~PlU();
+        case ::pltxt2htm::NodeKind::html_u: {
+            html_u_node.~HtmlU();
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_s: {
-            pl_s_node.~PlS();
+        case ::pltxt2htm::NodeKind::html_s: {
+            html_s_node.~HtmlS();
             break;
         }
         case ::pltxt2htm::NodeKind::pl_macro_project: {
@@ -2261,132 +1781,8 @@ public:
             md_atx_h6_node.~MdAtxH6();
             break;
         }
-        case ::pltxt2htm::NodeKind::md_escape_backslash: {
-            md_escape_backslash_node.~MdEscapeBackslash();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_exclamation: {
-            md_escape_exclamation_node.~MdEscapeExclamation();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_double_quote: {
-            md_escape_double_quote_node.~MdEscapeDoubleQuote();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_hash: {
-            md_escape_hash_node.~MdEscapeHash();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_dollar: {
-            md_escape_dollar_node.~MdEscapeDollar();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_percent: {
-            md_escape_percent_node.~MdEscapePercent();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_ampersand: {
-            md_escape_ampersand_node.~MdEscapeAmpersand();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_single_quote: {
-            md_escape_single_quote_node.~MdEscapeSingleQuote();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_left_paren: {
-            md_escape_left_paren_node.~MdEscapeLeftParen();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_right_paren: {
-            md_escape_right_paren_node.~MdEscapeRightParen();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_asterisk: {
-            md_escape_asterisk_node.~MdEscapeAsterisk();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_plus: {
-            md_escape_plus_node.~MdEscapePlus();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_comma: {
-            md_escape_comma_node.~MdEscapeComma();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_hyphen: {
-            md_escape_hyphen_node.~MdEscapeHyphen();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_dot: {
-            md_escape_dot_node.~MdEscapeDot();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_slash: {
-            md_escape_slash_node.~MdEscapeSlash();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_colon: {
-            md_escape_colon_node.~MdEscapeColon();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_semicolon: {
-            md_escape_semicolon_node.~MdEscapeSemicolon();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_less_than: {
-            md_escape_less_than_node.~MdEscapeLessThan();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_equals: {
-            md_escape_equals_node.~MdEscapeEquals();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_greater_than: {
-            md_escape_greater_than_node.~MdEscapeGreaterThan();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_question: {
-            md_escape_question_node.~MdEscapeQuestion();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_at: {
-            md_escape_at_node.~MdEscapeAt();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_left_bracket: {
-            md_escape_left_bracket_node.~MdEscapeLeftBracket();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_right_bracket: {
-            md_escape_right_bracket_node.~MdEscapeRightBracket();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_caret: {
-            md_escape_caret_node.~MdEscapeCaret();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_underscore: {
-            md_escape_underscore_node.~MdEscapeUnderscore();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_backtick: {
-            md_escape_backtick_node.~MdEscapeBacktick();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_left_brace: {
-            md_escape_left_brace_node.~MdEscapeLeftBrace();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_pipe: {
-            md_escape_pipe_node.~MdEscapePipe();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_right_brace: {
-            md_escape_right_brace_node.~MdEscapeRightBrace();
-            break;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_tilde: {
-            md_escape_tilde_node.~MdEscapeTilde();
+        case ::pltxt2htm::NodeKind::md_escape: {
+            md_escape_node.~MdEscape();
             break;
         }
         case ::pltxt2htm::NodeKind::md_hr: {
@@ -2490,11 +1886,11 @@ public:
         case ::pltxt2htm::NodeKind::u8char: {
             return self.u8char_node == other.u8char_node;
         }
-        case ::pltxt2htm::NodeKind::invalid_u8char: {
-            return self.invalid_u8char_node == other.invalid_u8char_node;
+        case ::pltxt2htm::NodeKind::invalid_utf8: {
+            return self.invalid_utf8_node == other.invalid_utf8_node;
         }
-        case ::pltxt2htm::NodeKind::text: {
-            return self.text_node == other.text_node;
+        case ::pltxt2htm::NodeKind::group: {
+            return self.group_node == other.group_node;
         }
         case ::pltxt2htm::NodeKind::pl_color: {
             return self.pl_color_node == other.pl_color_node;
@@ -2550,11 +1946,11 @@ public:
         case ::pltxt2htm::NodeKind::pl_b: {
             return self.pl_b_node == other.pl_b_node;
         }
-        case ::pltxt2htm::NodeKind::pl_u: {
-            return self.pl_u_node == other.pl_u_node;
+        case ::pltxt2htm::NodeKind::html_u: {
+            return self.html_u_node == other.html_u_node;
         }
-        case ::pltxt2htm::NodeKind::pl_s: {
-            return self.pl_s_node == other.pl_s_node;
+        case ::pltxt2htm::NodeKind::html_s: {
+            return self.html_s_node == other.html_s_node;
         }
         case ::pltxt2htm::NodeKind::pl_macro_project: {
             return self.pl_macro_project_node == other.pl_macro_project_node;
@@ -2721,101 +2117,8 @@ public:
         case ::pltxt2htm::NodeKind::md_atx_h6: {
             return self.md_atx_h6_node == other.md_atx_h6_node;
         }
-        case ::pltxt2htm::NodeKind::md_escape_backslash: {
-            return self.md_escape_backslash_node == other.md_escape_backslash_node;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_exclamation: {
-            return self.md_escape_exclamation_node == other.md_escape_exclamation_node;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_double_quote: {
-            return self.md_escape_double_quote_node == other.md_escape_double_quote_node;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_hash: {
-            return self.md_escape_hash_node == other.md_escape_hash_node;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_dollar: {
-            return self.md_escape_dollar_node == other.md_escape_dollar_node;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_percent: {
-            return self.md_escape_percent_node == other.md_escape_percent_node;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_ampersand: {
-            return self.md_escape_ampersand_node == other.md_escape_ampersand_node;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_single_quote: {
-            return self.md_escape_single_quote_node == other.md_escape_single_quote_node;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_left_paren: {
-            return self.md_escape_left_paren_node == other.md_escape_left_paren_node;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_right_paren: {
-            return self.md_escape_right_paren_node == other.md_escape_right_paren_node;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_asterisk: {
-            return self.md_escape_asterisk_node == other.md_escape_asterisk_node;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_plus: {
-            return self.md_escape_plus_node == other.md_escape_plus_node;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_comma: {
-            return self.md_escape_comma_node == other.md_escape_comma_node;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_hyphen: {
-            return self.md_escape_hyphen_node == other.md_escape_hyphen_node;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_dot: {
-            return self.md_escape_dot_node == other.md_escape_dot_node;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_slash: {
-            return self.md_escape_slash_node == other.md_escape_slash_node;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_colon: {
-            return self.md_escape_colon_node == other.md_escape_colon_node;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_semicolon: {
-            return self.md_escape_semicolon_node == other.md_escape_semicolon_node;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_less_than: {
-            return self.md_escape_less_than_node == other.md_escape_less_than_node;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_equals: {
-            return self.md_escape_equals_node == other.md_escape_equals_node;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_greater_than: {
-            return self.md_escape_greater_than_node == other.md_escape_greater_than_node;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_question: {
-            return self.md_escape_question_node == other.md_escape_question_node;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_at: {
-            return self.md_escape_at_node == other.md_escape_at_node;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_left_bracket: {
-            return self.md_escape_left_bracket_node == other.md_escape_left_bracket_node;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_right_bracket: {
-            return self.md_escape_right_bracket_node == other.md_escape_right_bracket_node;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_caret: {
-            return self.md_escape_caret_node == other.md_escape_caret_node;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_underscore: {
-            return self.md_escape_underscore_node == other.md_escape_underscore_node;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_backtick: {
-            return self.md_escape_backtick_node == other.md_escape_backtick_node;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_left_brace: {
-            return self.md_escape_left_brace_node == other.md_escape_left_brace_node;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_pipe: {
-            return self.md_escape_pipe_node == other.md_escape_pipe_node;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_right_brace: {
-            return self.md_escape_right_brace_node == other.md_escape_right_brace_node;
-        }
-        case ::pltxt2htm::NodeKind::md_escape_tilde: {
-            return self.md_escape_tilde_node == other.md_escape_tilde_node;
+        case ::pltxt2htm::NodeKind::md_escape: {
+            return self.md_escape_node == other.md_escape_node;
         }
         case ::pltxt2htm::NodeKind::md_hr: {
             return self.md_hr_node == other.md_hr_node;
@@ -2892,15 +2195,15 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto as_invalid_u8char(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::invalid_u8char, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.invalid_u8char_node);
+    constexpr auto as_invalid_utf8(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::invalid_utf8, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.invalid_utf8_node);
     }
 
     [[nodiscard]]
-    constexpr auto as_text(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::text, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.text_node);
+    constexpr auto as_group(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::group, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.group_node);
     }
 
     [[nodiscard]]
@@ -3192,195 +2495,9 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto as_md_escape_backslash(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_backslash, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_escape_backslash_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_escape_exclamation(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_exclamation, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_escape_exclamation_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_escape_double_quote(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_double_quote, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_escape_double_quote_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_escape_hash(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_hash, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_escape_hash_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_escape_dollar(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_dollar, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_escape_dollar_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_escape_percent(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_percent, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_escape_percent_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_escape_ampersand(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_ampersand, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_escape_ampersand_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_escape_single_quote(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_single_quote, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_escape_single_quote_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_escape_left_paren(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_left_paren, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_escape_left_paren_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_escape_right_paren(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_right_paren, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_escape_right_paren_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_escape_asterisk(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_asterisk, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_escape_asterisk_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_escape_plus(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_plus, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_escape_plus_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_escape_comma(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_comma, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_escape_comma_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_escape_hyphen(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_hyphen, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_escape_hyphen_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_escape_dot(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_dot, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_escape_dot_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_escape_slash(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_slash, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_escape_slash_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_escape_colon(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_colon, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_escape_colon_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_escape_semicolon(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_semicolon, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_escape_semicolon_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_escape_less_than(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_less_than, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_escape_less_than_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_escape_equals(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_equals, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_escape_equals_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_escape_greater_than(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_greater_than, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_escape_greater_than_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_escape_question(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_question, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_escape_question_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_escape_at(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_at, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_escape_at_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_escape_left_bracket(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_left_bracket, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_escape_left_bracket_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_escape_right_bracket(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_right_bracket, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_escape_right_bracket_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_escape_caret(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_caret, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_escape_caret_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_escape_underscore(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_underscore, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_escape_underscore_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_escape_backtick(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_backtick, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_escape_backtick_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_escape_left_brace(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_left_brace, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_escape_left_brace_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_escape_pipe(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_pipe, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_escape_pipe_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_escape_right_brace(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_right_brace, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_escape_right_brace_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_md_escape_tilde(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape_tilde, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.md_escape_tilde_node);
+    constexpr auto as_md_escape(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::md_escape, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.md_escape_node);
     }
 
     [[nodiscard]]
@@ -3621,15 +2738,15 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto as_pl_u(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_u, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.pl_u_node);
+    constexpr auto as_html_u(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::html_u, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.html_u_node);
     }
 
     [[nodiscard]]
-    constexpr auto as_pl_s(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_s, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.pl_s_node);
+    constexpr auto as_html_s(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::html_s, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.html_s_node);
     }
 
     [[nodiscard]]

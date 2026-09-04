@@ -24,7 +24,7 @@ First build fetches and compiles Google Benchmark automatically. Subsequent buil
 
 | Executable | Measures | Inputs |
 |-----------|----------|--------|
-| `bench_parse` | `parse_pltxt` only | plain text, rich markdown, PL tags, LaTeX, stress, optimizer-related inputs |
+| `bench_parse` | `parse_pltxt` only | plain text, rich markdown, PL tags, LaTeX, large tables, syntax-like failures, escape/entity/autolink scanning, mixed UTF-8, stress, optimizer-related inputs |
 | `bench_optimize` | `optimize_ast` on directly constructed ASTs (no parse overhead) | nested color, adjacent color, mixed redundant, HTML spans |
 | `bench_pipeline` | Parse-once then `optimize_ast` in loop (real-world pipeline) | plain text, redundant color, mixed redundant, adjacent text, HTML spans |
 | `bench_backend` | 3 backends: `plweb_title`, `plweb_text`, `plunity_text` | plain text, rich HTML, PL tags, markdown ASTs |

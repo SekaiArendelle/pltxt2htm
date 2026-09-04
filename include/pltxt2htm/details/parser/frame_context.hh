@@ -9,7 +9,7 @@
 #include <cstddef>
 #include <memory>
 #include <utility>
-#include "../../container/expected.hh"
+#include "../../container/optional.hh"
 #include "../call_stack.hh"
 #include <fast_io/fast_io_dsal/string.h>
 #include "../../container/string_view.hh"
@@ -528,7 +528,7 @@ public:
             ::std::construct_at(::std::addressof(this->list_li_checkbox), ::std::move(other.list_li_checkbox));
             return;
         }
-        case ::pltxt2htm::NodeKind::text:
+        case ::pltxt2htm::NodeKind::group:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_a:
             [[fallthrough]];
@@ -550,9 +550,9 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_del:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_u:
+        case ::pltxt2htm::NodeKind::html_u:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_s:
+        case ::pltxt2htm::NodeKind::html_s:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_sup:
             [[fallthrough]];
@@ -654,7 +654,7 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::u8char:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::invalid_u8char:
+        case ::pltxt2htm::NodeKind::invalid_utf8:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::line_break:
             [[fallthrough]];
@@ -680,69 +680,7 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_macro_coauthors:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_backslash:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_exclamation:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_double_quote:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_hash:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_dollar:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_percent:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_ampersand:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_single_quote:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_left_paren:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_right_paren:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_asterisk:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_plus:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_comma:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_hyphen:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_dot:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_slash:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_colon:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_semicolon:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_less_than:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_equals:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_greater_than:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_question:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_at:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_left_bracket:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_right_bracket:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_caret:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_underscore:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_backtick:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_left_brace:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_pipe:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_right_brace:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_tilde:
+        case ::pltxt2htm::NodeKind::md_escape:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::entity_reference:
             [[fallthrough]];
@@ -972,7 +910,7 @@ public:
             ::std::destroy_at(::std::addressof(this->list_info));
             return;
         }
-        case ::pltxt2htm::NodeKind::text:
+        case ::pltxt2htm::NodeKind::group:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_a:
             [[fallthrough]];
@@ -994,9 +932,9 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_del:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_u:
+        case ::pltxt2htm::NodeKind::html_u:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_s:
+        case ::pltxt2htm::NodeKind::html_s:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_sup:
             [[fallthrough]];
@@ -1103,7 +1041,7 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::u8char:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::invalid_u8char:
+        case ::pltxt2htm::NodeKind::invalid_utf8:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::line_break:
             [[fallthrough]];
@@ -1129,69 +1067,7 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_macro_coauthors:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_backslash:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_exclamation:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_double_quote:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_hash:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_dollar:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_percent:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_ampersand:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_single_quote:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_left_paren:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_right_paren:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_asterisk:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_plus:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_comma:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_hyphen:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_dot:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_slash:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_colon:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_semicolon:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_less_than:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_equals:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_greater_than:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_question:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_at:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_left_bracket:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_right_bracket:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_caret:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_underscore:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_backtick:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_left_brace:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_pipe:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_right_brace:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_tilde:
+        case ::pltxt2htm::NodeKind::md_escape:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::entity_reference:
             [[fallthrough]];
@@ -1247,7 +1123,7 @@ public:
         switch (context_data_ref.get_kind()) /* -Werror=switch */ {
         case ::pltxt2htm::NodeKind::u8char:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::invalid_u8char:
+        case ::pltxt2htm::NodeKind::invalid_utf8:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::table_thead:
             [[fallthrough]];
@@ -1255,7 +1131,7 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::table_tr:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::text:
+        case ::pltxt2htm::NodeKind::group:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::line_break:
             [[fallthrough]];
@@ -1295,9 +1171,9 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_del:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_u:
+        case ::pltxt2htm::NodeKind::html_u:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_s:
+        case ::pltxt2htm::NodeKind::html_s:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_sup:
             [[fallthrough]];
@@ -1368,10 +1244,12 @@ public:
         case ::pltxt2htm::NodeKind::md_latex_inline:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_latex_block: {
-            return context_data_ref.as_pltext().pltext;
+            auto&& active_context_data = context_data_ref.as_pltext();
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::list_li_checkbox: {
-            return context_data_ref.as_list_li_checkbox().pltext;
+            auto&& active_context_data = context_data_ref.as_list_li_checkbox();
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_color:
             [[fallthrough]];
@@ -1388,55 +1266,71 @@ public:
         case ::pltxt2htm::NodeKind::pl_internal:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_user: {
-            return context_data_ref.as_equal_sign_tag().pltext;
+            auto&& active_context_data = context_data_ref.as_equal_sign_tag();
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_external: {
-            return context_data_ref.as_url_info().pltext;
+            auto&& active_context_data = context_data_ref.as_url_info();
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_link: {
-            return context_data_ref.as_url_info().pltext;
+            auto&& active_context_data = context_data_ref.as_url_info();
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_size: {
-            return context_data_ref.as_pl_size_tag().pltext;
+            auto&& active_context_data = context_data_ref.as_pl_size_tag();
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_voffset: {
-            return context_data_ref.as_pl_voffset_tag().pltext;
+            auto&& active_context_data = context_data_ref.as_pl_voffset_tag();
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_margin: {
-            return context_data_ref.as_pl_margin_tag().pltext;
+            auto&& active_context_data = context_data_ref.as_pl_margin_tag();
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_align: {
-            return context_data_ref.as_align_info().pltext;
+            auto&& active_context_data = context_data_ref.as_align_info();
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::html_span: {
-            return context_data_ref.as_html_span_info().pltext;
+            auto&& active_context_data = context_data_ref.as_html_span_info();
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::html_div: {
-            return context_data_ref.as_html_div_info().pltext;
+            auto&& active_context_data = context_data_ref.as_html_div_info();
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::html_mark: {
-            return context_data_ref.as_html_mark_info().pltext;
+            auto&& active_context_data = context_data_ref.as_html_mark_info();
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_mark: {
-            return context_data_ref.as_pl_mark_info().pltext;
+            auto&& active_context_data = context_data_ref.as_pl_mark_info();
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::html_a: {
-            return context_data_ref.as_html_a_tag_info().pltext;
+            auto&& active_context_data = context_data_ref.as_html_a_tag_info();
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::md_block_quotes: {
-            auto const& pltext = context_data_ref.as_md_block_quotes().pltext;
+            auto&& active_context_data = context_data_ref.as_md_block_quotes();
+            auto const& pltext = active_context_data.pltext;
             return ::pltxt2htm::container::U8StringView{pltext};
         }
         case ::pltxt2htm::NodeKind::md_link: {
-            return context_data_ref.as_url_info().pltext;
+            auto&& active_context_data = context_data_ref.as_url_info();
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::html_p: {
-            return context_data_ref.as_align_info().pltext;
+            auto&& active_context_data = context_data_ref.as_align_info();
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::table_th:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::table_td: {
-            return context_data_ref.as_cell().pltext;
+            auto&& active_context_data = context_data_ref.as_cell();
+            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_macro_project:
             [[fallthrough]];
@@ -1446,69 +1340,7 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_macro_coauthors:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_backslash:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_exclamation:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_double_quote:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_hash:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_dollar:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_percent:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_ampersand:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_single_quote:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_left_paren:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_right_paren:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_asterisk:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_plus:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_comma:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_hyphen:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_dot:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_slash:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_colon:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_semicolon:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_less_than:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_equals:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_greater_than:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_question:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_at:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_left_bracket:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_right_bracket:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_caret:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_underscore:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_backtick:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_left_brace:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_pipe:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_right_brace:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::md_escape_tilde:
+        case ::pltxt2htm::NodeKind::md_escape:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::entity_reference:
             [[fallthrough]];
@@ -1661,6 +1493,7 @@ constexpr void push_list_frame(::pltxt2htm::details::CallStack<ParserFrame<ndebu
  *         loop).
  */
 template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
 constexpr auto process_table_frame(::pltxt2htm::details::CallStack<ParserFrame<ndebug>>& call_stack) noexcept
     -> ::pltxt2htm::container::Optional<::pltxt2htm::Ast<ndebug>> {
     auto&& frame = call_stack.template current_frame<ndebug>();
@@ -1671,16 +1504,18 @@ constexpr auto process_table_frame(::pltxt2htm::details::CallStack<ParserFrame<n
 
     switch (state) /* -Werror=switch */ {
     case TableParsePhase::caption: {
+        auto&& active_frame_data = frame.as_table();
         if (raw_ast.has_caption()) {
             call_stack.push_frame(
                 ParserFrame<ndebug>(FrontendContextVariant<ndebug>{ParserFrameContextWithPltextInfo{raw_ast.caption()},
                                                                    ::pltxt2htm::NodeKind::table_caption},
                                     ::pltxt2htm::Ast<ndebug>{}));
         }
-        frame.as_table().state = TableParsePhase::body;
+        active_frame_data.state = TableParsePhase::body;
         return ::pltxt2htm::container::nullopt;
     }
     case TableParsePhase::body: {
+        auto&& active_frame_data = frame.as_table();
         if (row_index < raw_ast.rows_count()) {
             auto const row_cells = raw_ast.row_cells(row_index);
             if (cell_index < row_cells.size()) {
@@ -1690,14 +1525,14 @@ constexpr auto process_table_frame(::pltxt2htm::details::CallStack<ParserFrame<n
                         ParserFrameContextWithCellInfo{::pltxt2htm::container::U8StringView{cell.text}, cell.align},
                         cell.is_header ? ::pltxt2htm::NodeKind::table_th : ::pltxt2htm::NodeKind::table_td},
                     ::pltxt2htm::Ast<ndebug>{}));
-                frame.as_table().cell_index = cell_index + 1;
+                active_frame_data.cell_index = cell_index + 1;
                 return ::pltxt2htm::container::nullopt;
             }
-            frame.as_table().row_index = row_index + 1;
-            frame.as_table().cell_index = 0;
+            active_frame_data.row_index = row_index + 1;
+            active_frame_data.cell_index = 0;
             return ::pltxt2htm::container::nullopt;
         }
-        frame.as_table().state = TableParsePhase::finish;
+        active_frame_data.state = TableParsePhase::finish;
         return ::pltxt2htm::container::nullopt;
     }
     case TableParsePhase::finish: {

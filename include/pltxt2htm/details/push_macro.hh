@@ -15,11 +15,20 @@
 
 #pragma push_macro("pltxt2htm_assume")
 #undef pltxt2htm_assume
-#if defined(__clang__)
-    // Clang diagnoses function calls in an assume expression as having side effects.
-    #define pltxt2htm_assume(condition)
-#else
-    #define pltxt2htm_assume(condition) [[assume(condition)]]
+#if defined(__has_cpp_attribute) && !defined(__clang__)
+    #if __has_cpp_attribute(assume)
+        #define pltxt2htm_assume(condition) [[assume(condition)]]
+    #endif
+#endif
+#if !defined(pltxt2htm_assume)
+    // Clang ignores assumptions containing function calls. This fallback preserves
+    // the optimizer hint, but unlike [[assume]], it evaluates the condition.
+    #define pltxt2htm_assume(condition) \
+        do { \
+            if ((condition) == false) [[unlikely]] { \
+                ::pltxt2htm::details::unreachable<::pltxt2htm::Contracts::ignore>(); \
+            } \
+        } while (0)
 #endif
 
 /**
@@ -30,7 +39,8 @@
  * it will call panic() to terminate the program with diagnostic information.
  * The assertion is active for contract modes other than
  * `::pltxt2htm::Contracts::ignore` (for example, `quick_enforce`) and is
- * disabled when `ndebug == ::pltxt2htm::Contracts::ignore`.
+ * replaced with an optimizer assumption when
+ * `ndebug == ::pltxt2htm::Contracts::ignore`.
  *
  * @param condition The condition expression to evaluate
  * @param message A descriptive error message to display if the assertion fails

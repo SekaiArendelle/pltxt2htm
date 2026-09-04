@@ -5,33 +5,45 @@ int main() {
     {
         auto text = ::fast_io::u8string_view{u8"&amp;"};
         auto result = ::pltxt2htm::details::try_parse_entity_reference<::pltxt2htm::Contracts::quick_enforce>(text);
-        pltxt2htm_test_assert_true(result.has_value() && result.value<::pltxt2htm::Contracts::quick_enforce>() == 5);
+        pltxt2htm_test_assert_true(
+            result.has_value() &&
+            result.value<::pltxt2htm::Contracts::quick_enforce>().get<::pltxt2htm::Contracts::quick_enforce>() == 5);
     }
     {
         auto text = ::fast_io::u8string_view{u8"&#38;"};
         auto result = ::pltxt2htm::details::try_parse_entity_reference<::pltxt2htm::Contracts::quick_enforce>(text);
-        pltxt2htm_test_assert_true(result.has_value() && result.value<::pltxt2htm::Contracts::quick_enforce>() == 5);
+        pltxt2htm_test_assert_true(
+            result.has_value() &&
+            result.value<::pltxt2htm::Contracts::quick_enforce>().get<::pltxt2htm::Contracts::quick_enforce>() == 5);
     }
     {
         auto text = ::fast_io::u8string_view{u8"&#x26;"};
         auto result = ::pltxt2htm::details::try_parse_entity_reference<::pltxt2htm::Contracts::quick_enforce>(text);
-        pltxt2htm_test_assert_true(result.has_value() && result.value<::pltxt2htm::Contracts::quick_enforce>() == 6);
+        pltxt2htm_test_assert_true(
+            result.has_value() &&
+            result.value<::pltxt2htm::Contracts::quick_enforce>().get<::pltxt2htm::Contracts::quick_enforce>() == 6);
     }
     {
         auto text = ::fast_io::u8string_view{u8"&#X2A;"};
         auto result = ::pltxt2htm::details::try_parse_entity_reference<::pltxt2htm::Contracts::quick_enforce>(text);
-        pltxt2htm_test_assert_true(result.has_value() && result.value<::pltxt2htm::Contracts::quick_enforce>() == 6);
+        pltxt2htm_test_assert_true(
+            result.has_value() &&
+            result.value<::pltxt2htm::Contracts::quick_enforce>().get<::pltxt2htm::Contracts::quick_enforce>() == 6);
     }
     {
         auto text = ::fast_io::u8string_view{u8"&amp;rest"};
         auto result = ::pltxt2htm::details::try_parse_entity_reference<::pltxt2htm::Contracts::quick_enforce>(text);
-        pltxt2htm_test_assert_true(result.has_value() && result.value<::pltxt2htm::Contracts::quick_enforce>() == 5);
+        pltxt2htm_test_assert_true(
+            result.has_value() &&
+            result.value<::pltxt2htm::Contracts::quick_enforce>().get<::pltxt2htm::Contracts::quick_enforce>() == 5);
     }
     {
         auto text = ::fast_io::u8string_view{u8"foo&amp;bar"};
         auto result =
             ::pltxt2htm::details::try_parse_entity_reference<::pltxt2htm::Contracts::quick_enforce>(text.subview(3));
-        pltxt2htm_test_assert_true(result.has_value() && result.value<::pltxt2htm::Contracts::quick_enforce>() == 5);
+        pltxt2htm_test_assert_true(
+            result.has_value() &&
+            result.value<::pltxt2htm::Contracts::quick_enforce>().get<::pltxt2htm::Contracts::quick_enforce>() == 5);
     }
 
     {
@@ -136,6 +148,24 @@ int main() {
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"&quot;&amp;&lt;");
         pltxt2htm_test_assert_equal(html, u8"&quot;&amp;&lt;");
+    }
+    // Physics-Lab treats both U+0020 and U+00A0 as non-breaking spaces.
+    {
+        auto const pltext = ::fast_io::u8string_view{u8"a \u00A0b"};
+        auto const answer = ::fast_io::u8string_view{u8"a&nbsp;&nbsp;b"};
+        pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(pltext), answer);
+        pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4htmlunittest(pltext), answer);
+        pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2common_htmld(pltext), answer);
+    }
+    {
+        auto const parsed =
+            ::pltxt2htm::details::simply_parse_pltext<::pltxt2htm::Contracts::quick_enforce,
+                                                      ::pltxt2htm::details::U8LiteralString<0>{}>(u8" \u00A0");
+        auto const& ast = parsed.ast;
+        pltxt2htm_test_assert_true(ast.size() == 2);
+        for (auto const& node : ast) {
+            pltxt2htm_test_assert_true(node.get_node_kind() == ::pltxt2htm::NodeKind::space);
+        }
     }
     // Invalid entity &; falls back to bare ampersand
     {

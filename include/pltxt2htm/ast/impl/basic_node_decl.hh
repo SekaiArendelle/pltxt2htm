@@ -7,7 +7,7 @@
 #pragma once
 
 #include <utility>
-#include "../../container/expected.hh"
+#include "../../container/optional.hh"
 #include <fast_io/fast_io_dsal/string.h>
 #include "ast_decl.hh"
 
@@ -19,6 +19,7 @@ namespace pltxt2htm {
  */
 class LineBreak {
 public:
+    [[nodiscard]]
     constexpr auto operator==(this LineBreak const&, LineBreak const&) noexcept -> bool = default;
 };
 
@@ -28,6 +29,7 @@ public:
  */
 class Space {
 public:
+    [[nodiscard]]
     constexpr auto operator==(this Space const&, Space const&) noexcept -> bool = default;
 };
 
@@ -37,6 +39,7 @@ public:
  */
 class LessThan {
 public:
+    [[nodiscard]]
     constexpr auto operator==(this LessThan const&, LessThan const&) noexcept -> bool = default;
 };
 
@@ -46,6 +49,7 @@ public:
  */
 class GreaterThan {
 public:
+    [[nodiscard]]
     constexpr auto operator==(this GreaterThan const&, GreaterThan const&) noexcept -> bool = default;
 };
 
@@ -55,6 +59,7 @@ public:
  */
 class Tab {
 public:
+    [[nodiscard]]
     constexpr auto operator==(this Tab const&, Tab const&) noexcept -> bool = default;
 };
 
@@ -64,6 +69,7 @@ public:
  */
 class Ampersand {
 public:
+    [[nodiscard]]
     constexpr auto operator==(this Ampersand const&, Ampersand const&) noexcept -> bool = default;
 };
 
@@ -73,6 +79,7 @@ public:
  */
 class SingleQuote {
 public:
+    [[nodiscard]]
     constexpr auto operator==(this SingleQuote const&, SingleQuote const&) noexcept -> bool = default;
 };
 
@@ -82,6 +89,7 @@ public:
  */
 class DoubleQuote {
 public:
+    [[nodiscard]]
     constexpr auto operator==(this DoubleQuote const&, DoubleQuote const&) noexcept -> bool = default;
 };
 
@@ -122,6 +130,7 @@ public:
 class U8Char {
 public:
     char8_t chr;
+    [[nodiscard]]
     constexpr auto operator==(this U8Char const&, U8Char const&) noexcept -> bool = default;
 };
 
@@ -129,34 +138,35 @@ public:
  * @brief Invalid UTF-8 character node
  * @details Represents an invalid UTF-8 character encountered during parsing.
  */
-class InvalidU8Char {
+class InvalidUtf8 {
 public:
-    constexpr auto operator==(this InvalidU8Char const&, InvalidU8Char const&) noexcept -> bool = default;
+    [[nodiscard]]
+    constexpr auto operator==(this InvalidUtf8 const&, InvalidUtf8 const&) noexcept -> bool = default;
 };
 
 /**
- * @brief ::pltxt2htm::Text<ndebug> container node
+ * @brief ::pltxt2htm::Group<ndebug> container node
  * @details Holds a sub-AST representing text content and inline formatting.
  */
 template<::pltxt2htm::Contracts ndebug>
-class Text {
+class Group {
     ::pltxt2htm::Ast<ndebug> subast;
 
 public:
     /**
-     * @brief Construct a ::pltxt2htm::Text<ndebug> node with a sub-AST.
+     * @brief Construct a ::pltxt2htm::Group<ndebug> node with a sub-AST.
      * @param subast The sub-AST to be contained.
      */
-    constexpr Text(::pltxt2htm::Ast<ndebug>&& subast) noexcept;
-    constexpr Text(::pltxt2htm::Text<ndebug> const&) noexcept;
-    constexpr Text(::pltxt2htm::Text<ndebug>&&) noexcept;
-    constexpr ~Text() noexcept;
-    constexpr auto operator=(::pltxt2htm::Text<ndebug> const&) noexcept -> ::pltxt2htm::Text<ndebug>& = delete;
-    constexpr auto operator=(this Text<ndebug>& self, ::pltxt2htm::Text<ndebug>&&) noexcept
-        -> ::pltxt2htm::Text<ndebug>&;
+    constexpr Group(::pltxt2htm::Ast<ndebug>&& subast) noexcept;
+    constexpr Group(::pltxt2htm::Group<ndebug> const&) noexcept;
+    constexpr Group(::pltxt2htm::Group<ndebug>&&) noexcept;
+    constexpr ~Group() noexcept;
+    constexpr auto operator=(::pltxt2htm::Group<ndebug> const&) noexcept -> ::pltxt2htm::Group<ndebug>& = delete;
+    constexpr auto operator=(this Group<ndebug>& self, ::pltxt2htm::Group<ndebug>&&) noexcept
+        -> ::pltxt2htm::Group<ndebug>&;
 
     [[nodiscard]]
-    constexpr auto operator==(this Text const&, Text const&) noexcept -> bool;
+    constexpr auto operator==(this Group const&, Group const&) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {

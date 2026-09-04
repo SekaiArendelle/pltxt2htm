@@ -29,8 +29,8 @@ namespace pltxt2htm::details {
  * @note This function is marked as [[noreturn]] - it never returns and always terminates the program
  * @warning This function should only be called when a critical assertion failure occurs
  */
-template<U8LiteralString expression, U8LiteralString file_name, ::std::uint_least32_t line,
-         ::std::uint_least32_t column, pltxt2htm::details::U8LiteralString msg>
+template<U8LiteralString expression, U8LiteralString file_name, unsigned line, unsigned column,
+         pltxt2htm::details::U8LiteralString msg>
 #if __has_cpp_attribute(__gnu__::__cold__)
 [[__gnu__::__cold__]] // Mark as cold path for compiler optimization
 #endif
@@ -58,8 +58,9 @@ inline void panic() noexcept {
 #if __cpp_lib_stacktrace >= 202011L && defined(PLTXT2HTM_ENABLE_STACKTRACE)
     ::std::fputs("* stack trace:\n", stderr);
     auto stacktrace = ::std::stacktrace::current();
-    for (::std::size_t i = 0; i < stacktrace.size(); ++i) {
-        const auto& entry = stacktrace[i];
+    auto const stacktrace_size = stacktrace.size();
+    for (::std::size_t i = 0; i < stacktrace_size; ++i) {
+        auto const& entry = stacktrace[i];
 
         // Print frame number and function description
         if (entry.description().size() > 0) {

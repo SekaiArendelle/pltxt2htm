@@ -24,26 +24,32 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr void append_html_escaped_url(::fast_io::u8string& result, ::pltxt2htm::container::U8StringView url) noexcept {
     ::std::size_t const url_size{url.size()};
     for (::std::size_t index{}; index < url_size; ++index) {
-        auto const chr{url.template index<ndebug>(index)};
+        auto const chr = url.template index<ndebug>(index);
         switch (chr) {
-        case u8'&':
+        case u8'&': {
             result.append(u8"&amp;");
             break;
-        case u8'\"':
+        }
+        case u8'\"': {
             result.append(u8"&quot;");
             break;
-        case u8'\'':
+        }
+        case u8'\'': {
             result.append(u8"&apos;");
             break;
-        case u8'<':
+        }
+        case u8'<': {
             result.append(u8"&lt;");
             break;
-        case u8'>':
+        }
+        case u8'>': {
             result.append(u8"&gt;");
             break;
-        default:
+        }
+        default: {
             result.push_back(chr);
             break;
+        }
         }
     }
 }
