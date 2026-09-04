@@ -55,7 +55,21 @@ Each sub-project is independently built with CMake — see the respective `READM
 2. **Code** – Follow the [Coding conventions](#coding-conventions) below.
 3. **Format & analyze** – Run the [formatting](#code-formatting) and [static analysis](#static-analysis) commands.
 4. **Test** – Run the tests for the module you touched, then the full suite.
-5. **Submit** – Do NOT run any git write operations (such as `git add`, `git commit`, `git push`) or open a PR/Issue without explicit human instruction. Present a patch file or a sketch of the approach instead (see [CONTRIBUTING.md](./CONTRIBUTING.md)).
+5. **Review** – After a substantive code change, ask a subagent to perform the [independent read-only review](#independent-read-only-review) when subagents are available. Validate its findings, fix confirmed issues, and rerun the affected checks.
+6. **Submit** – Do NOT run any git write operations (such as `git add`, `git commit`, `git push`) or open a PR/Issue without explicit human instruction. Present a patch file or a sketch of the approach instead (see [CONTRIBUTING.md](./CONTRIBUTING.md)).
+
+## Independent read-only review
+
+After completing and testing a substantive code change, the implementing agent must ask a subagent to independently review the change when subagents are available. Substantive changes include behavior changes, parser or memory-safety logic, public API changes, cross-language bindings, concurrency or security-sensitive code, and non-trivial refactoring. Documentation-only, formatting-only, and obviously mechanical changes do not require a subagent review.
+
+The reviewing subagent must:
+
+- Act only as a read-only reviewer: do not edit files or run git write operations.
+- Review the original request, applicable repository instructions, and the exact files or diff changed by the implementing agent. Do not attribute unrelated user changes in the working tree to the implementing agent.
+- Independently look for correctness defects, regressions, missing edge cases, and inadequate tests rather than assuming the implementation or its rationale is correct.
+- Report only actionable findings, each with severity, location, reasoning, and a triggering example when practical. If no issues are found, explicitly say so and summarize the areas examined.
+
+The implementing agent remains responsible for the final result. It must validate each finding against the code, fix confirmed issues rather than applying suggestions mechanically, and rerun formatting, static analysis, and affected tests after any fix. Normally one review pass is sufficient; request another only when fixes address high-severity findings or materially change the design. A subagent review supplements, but does not replace, the required automated checks.
 
 ## Quick commands (run from repository root)
 
