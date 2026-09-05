@@ -24,6 +24,25 @@ inline constexpr auto nullopt = NulloptType{};
 
 namespace details {
 
+template<typename T, typename U>
+constexpr bool reference_constructs_from_temporary_fallback_v =
+    !::std::is_lvalue_reference_v<U> || !::std::is_convertible_v<::std::add_pointer_t<::std::remove_reference_t<U>>,
+                                                                 ::std::add_pointer_t<::std::remove_reference_t<T>>>;
+
+template<typename T, typename U>
+constexpr bool reference_constructs_from_temporary_v =
+#if defined(__cpp_lib_reference_from_temporary)
+    ::std::reference_constructs_from_temporary_v<T, U>;
+#elif defined(__has_builtin)
+    #if __has_builtin(__reference_constructs_from_temporary)
+    __reference_constructs_from_temporary(T, U);
+    #else
+    reference_constructs_from_temporary_fallback_v<T, U>;
+    #endif
+#else
+    reference_constructs_from_temporary_fallback_v<T, U>;
+#endif
+
 template<typename T>
 class OptionalStorage {
     union {
@@ -316,6 +335,113 @@ public:
 
     [[nodiscard]]
     constexpr bool operator==(this Optional<T> const& self, NulloptType) noexcept {
+        return self.has_value() == false;
+    }
+};
+
+template<typename T>
+class Optional<T&> {
+public:
+    using value_type = T;
+    template<typename U>
+    using rebind = ::pltxt2htm::container::Optional<U>;
+
+private:
+    T* value_storage{};
+
+    template<typename U>
+    [[nodiscard]]
+    static constexpr auto reference_address(U&& value) noexcept(::std::is_nothrow_constructible_v<T&, U>) -> T* {
+        T& reference{::std::forward<U>(value)};
+        return ::std::addressof(reference);
+    }
+
+public:
+    template<typename U>
+        requires (!::std::same_as<::std::remove_cvref_t<U>, Optional<T&>> &&
+                  !::std::same_as<::std::remove_cvref_t<U>, NulloptType> && ::std::is_constructible_v<T&, U> &&
+                  !details::reference_constructs_from_temporary_v<T&, U>)
+    constexpr explicit(!::std::is_convertible_v<U, T&>)
+        Optional(U&& value) noexcept(::std::is_nothrow_constructible_v<T&, U>)
+        : value_storage{reference_address(::std::forward<U>(value))} {
+    }
+
+    template<typename U>
+        requires (!::std::same_as<::std::remove_cvref_t<U>, Optional<T&>> &&
+                  !::std::same_as<::std::remove_cvref_t<U>, NulloptType> && ::std::is_constructible_v<T&, U> &&
+                  details::reference_constructs_from_temporary_v<T&, U>)
+    constexpr explicit(!::std::is_convertible_v<U, T&>)
+        Optional(U&&) noexcept(::std::is_nothrow_constructible_v<T&, U>) = delete;
+
+    constexpr Optional(NulloptType) noexcept {
+    }
+
+    constexpr Optional(Optional const&) noexcept = default;
+
+    constexpr ~Optional() noexcept = default;
+
+    // Implicit copy assignment copies the pointer, so assignment rebinds the reference and remains trivial.
+    template<typename U>
+    constexpr auto operator=(this Optional&&, U&&) noexcept -> Optional& = delete;
+
+    constexpr auto&& operator=(this Optional& self, NulloptType) noexcept {
+        self.value_storage = nullptr;
+        return self;
+    }
+
+    constexpr void swap(this Optional& self, Optional& other) noexcept {
+        T* const tmp{self.value_storage};
+        self.value_storage = other.value_storage;
+        other.value_storage = tmp;
+    }
+
+    [[nodiscard]]
+    constexpr auto has_value(this Optional const& self) noexcept -> bool {
+        return self.value_storage != nullptr;
+    }
+
+    /**
+     * @brief Get the referred-to value, terminating when the Optional is empty.
+     */
+    template<::pltxt2htm::Contracts ndebug>
+    [[nodiscard]]
+    constexpr auto value(this Optional const& self) noexcept -> T& {
+        pltxt2htm_assert(self.has_value(), u8"optional does not contain a value");
+        return *self.value_storage;
+    }
+
+    template<typename U = ::std::remove_cv_t<T>>
+        requires (::std::is_object_v<T> && !::std::is_array_v<T> &&
+                  ::std::is_constructible_v<::std::remove_cv_t<T>, T&> &&
+                  ::std::is_convertible_v<U, ::std::remove_cv_t<T>>)
+    [[nodiscard]]
+    constexpr auto value_or(this Optional const& self, U&& value) {
+        using result_type = ::std::remove_cv_t<T>;
+        if (self.has_value()) {
+            return static_cast<result_type>(*self.value_storage);
+        }
+        return static_cast<result_type>(::std::forward<U>(value));
+    }
+
+    constexpr bool operator==(this Optional const& self, Optional const& rhs) noexcept
+        requires ::std::equality_comparable<T>
+    {
+        if (self.has_value() != rhs.has_value()) {
+            return false;
+        }
+        if (self.has_value() == false) {
+            return true;
+        }
+        return *self.value_storage == *rhs.value_storage;
+    }
+
+    constexpr bool operator==(this Optional const& self, value_type const& rhs) noexcept
+        requires ::std::equality_comparable<T>
+    {
+        return self.has_value() && *self.value_storage == rhs;
+    }
+
+    constexpr bool operator==(this Optional const& self, NulloptType) noexcept {
         return self.has_value() == false;
     }
 };
