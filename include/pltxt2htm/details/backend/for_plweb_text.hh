@@ -33,7 +33,7 @@ constexpr void convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> c
     out.reserve(out.size() + ast.size() * 6);
     ::std::size_t const ast_size{ast.size()};
     for (::std::size_t index{}; index < ast_size; ++index) {
-        auto const& node = ::pltxt2htm::details::vector_index<ndebug>(ast, index);
+        auto const& node = ast.template index<ndebug>(index);
         switch (node.get_node_kind()) {
         case ::pltxt2htm::NodeKind::u8char: {
             auto&& active_node = node.as_u8char();
