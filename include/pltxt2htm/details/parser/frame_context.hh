@@ -682,8 +682,6 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_escape:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::entity_reference:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_hr:
             [[unlikely]] {
                 pltxt2htm_unreachable(u8"Unexpected node kind in FrontendContextVariant move");
@@ -1069,8 +1067,6 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_escape:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::entity_reference:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_hr:
             [[unlikely]] {
                 pltxt2htm_unreachable(u8"Unexpected node kind in FrontendContextVariant destructor");
@@ -1341,8 +1337,6 @@ public:
         case ::pltxt2htm::NodeKind::pl_macro_coauthors:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_escape:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::entity_reference:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::table:
             [[fallthrough]];

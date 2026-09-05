@@ -47,7 +47,6 @@ class PlTxtNode {
         ::pltxt2htm::Ampersand ampersand_node;
         ::pltxt2htm::SingleQuote single_quote_node;
         ::pltxt2htm::DoubleQuote double_quote_node;
-        ::pltxt2htm::EntityReference entity_reference_node;
         ::pltxt2htm::HtmlHr html_hr_node;
         ::pltxt2htm::HtmlH1<ndebug> html_h1_node;
         ::pltxt2htm::HtmlH2<ndebug> html_h2_node;
@@ -323,11 +322,6 @@ public:
     constexpr PlTxtNode(::pltxt2htm::DoubleQuote node) noexcept
         : double_quote_node{node},
           node_kind{::pltxt2htm::NodeKind::double_quote} {
-    }
-
-    constexpr PlTxtNode(::pltxt2htm::EntityReference node) noexcept
-        : entity_reference_node{::std::move(node)},
-          node_kind{::pltxt2htm::NodeKind::entity_reference} {
     }
 
     constexpr PlTxtNode(::pltxt2htm::HtmlHr node) noexcept
@@ -773,10 +767,6 @@ public:
             new (::std::addressof(ampersand_node))::pltxt2htm::Ampersand(other.ampersand_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::entity_reference: {
-            new (::std::addressof(entity_reference_node))::pltxt2htm::EntityReference(other.entity_reference_node);
-            break;
-        }
         case ::pltxt2htm::NodeKind::single_quote: {
             new (::std::addressof(single_quote_node))::pltxt2htm::SingleQuote(other.single_quote_node);
             break;
@@ -1191,11 +1181,6 @@ public:
             new (::std::addressof(ampersand_node))::pltxt2htm::Ampersand(::std::move(other.ampersand_node));
             break;
         }
-        case ::pltxt2htm::NodeKind::entity_reference: {
-            new (::std::addressof(entity_reference_node))::pltxt2htm::EntityReference(
-                ::std::move(other.entity_reference_node));
-            break;
-        }
         case ::pltxt2htm::NodeKind::single_quote: {
             new (::std::addressof(single_quote_node))::pltxt2htm::SingleQuote(::std::move(other.single_quote_node));
             break;
@@ -1605,10 +1590,6 @@ public:
             ampersand_node.~Ampersand();
             break;
         }
-        case ::pltxt2htm::NodeKind::entity_reference: {
-            entity_reference_node.~EntityReference();
-            break;
-        }
         case ::pltxt2htm::NodeKind::single_quote: {
             single_quote_node.~SingleQuote();
             break;
@@ -1985,9 +1966,6 @@ public:
         case ::pltxt2htm::NodeKind::ampersand: {
             return self.ampersand_node == other.ampersand_node;
         }
-        case ::pltxt2htm::NodeKind::entity_reference: {
-            return self.entity_reference_node == other.entity_reference_node;
-        }
         case ::pltxt2htm::NodeKind::single_quote: {
             return self.single_quote_node == other.single_quote_node;
         }
@@ -2246,12 +2224,6 @@ public:
     constexpr auto as_ampersand(this auto&& self) noexcept -> decltype(auto) {
         pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::ampersand, u8"node kind mismatch");
         return ::std::forward_like<decltype(self)>(self.ampersand_node);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_entity_reference(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::entity_reference, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.entity_reference_node);
     }
 
     [[nodiscard]]

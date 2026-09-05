@@ -45,6 +45,15 @@ int main() {
     }
 
     {
+        auto pltext =
+            ::fast_io::u8string_view{u8"<img src=\"https://example.com/?a=1&amp;b=2\" alt=\"&quot;&bogus;&copy;\">"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer =
+            ::fast_io::u8string_view{u8"<img src=\"https://example.com/?a=1&amp;b=2\" alt=\"&quot;&amp;bogus;©\">"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
         auto pltext = ::fast_io::u8string_view{u8"前<img src=\"a.jpg\" alt=\"中间\">后"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"前<img src=\"a.jpg\" alt=\"中间\">后"};

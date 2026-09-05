@@ -12,8 +12,7 @@
 #include <fast_io/fast_io_dsal/string.h>
 #include "../../container/string_view.hh"
 #include "frame_context.hh"
-#include "html_character.hh"
-#include "html_url.hh"
+#include "html_escape.hh"
 #include "../utils.hh"
 #include "../../ast/vertical_align_value.hh"
 #include "../../contracts.hh"
@@ -63,13 +62,6 @@ entry:
             }
             case ::pltxt2htm::NodeKind::ampersand: {
                 result.append(u8"&amp;");
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::entity_reference: {
-                auto&& active_node = node.as_entity_reference();
-                result.push_back(u8'&');
-                result.append(active_node.get_value());
-                result.push_back(u8';');
                 continue;
             }
             case ::pltxt2htm::NodeKind::single_quote: {
@@ -136,7 +128,7 @@ entry:
                     result.append(u8"color:");
                     if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
                         ::fast_io::u8string purified_color{};
-                        ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                        ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
                             purified_color, ::pltxt2htm::container::U8StringView{span_color});
                         pltxt2htm_assert(
                             purified_color == span_color,
@@ -212,8 +204,8 @@ entry:
                 ++current_index;
                 result.append(u8"<a href=\"");
                 auto const& html_a_url = active_node.get_url().as_string();
-                ::pltxt2htm::details::append_html_escaped_url<ndebug>(result,
-                                                                      ::pltxt2htm::container::U8StringView{html_a_url});
+                ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
+                    result, ::pltxt2htm::container::U8StringView{html_a_url});
                 if (active_node.get_internal()) {
                     result.append(u8"\" internal>");
                 }
@@ -488,7 +480,7 @@ entry:
                 auto&& active_node = node.as_pl_external();
                 result.append(u8"<a href=\"");
                 auto const& external_url = active_node.get_url().as_string();
-                ::pltxt2htm::details::append_html_escaped_url<ndebug>(
+                ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
                     result, ::pltxt2htm::container::U8StringView{external_url});
                 result.append(u8"\">");
                 call_stack.push_frame(
@@ -500,8 +492,8 @@ entry:
                 auto&& active_node = node.as_pl_link();
                 result.append(u8"<a href=\"");
                 auto const& link_url = active_node.get_url().as_string();
-                ::pltxt2htm::details::append_html_escaped_url<ndebug>(result,
-                                                                      ::pltxt2htm::container::U8StringView{link_url});
+                ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
+                    result, ::pltxt2htm::container::U8StringView{link_url});
                 result.append(u8"\">");
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_link, 0));
@@ -512,7 +504,7 @@ entry:
                 auto&& active_node = node.as_md_link();
                 result.append(u8"<a href=\"");
                 auto const& md_link_url = active_node.get_url().as_string();
-                ::pltxt2htm::details::append_html_escaped_url<ndebug>(
+                ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
                     result, ::pltxt2htm::container::U8StringView{md_link_url});
                 result.append(u8"\">");
                 call_stack.push_frame(
@@ -524,8 +516,8 @@ entry:
                 auto&& active_node = node.as_url();
                 auto const& url_str = active_node.as_string();
                 ::fast_io::u8string escaped_url{};
-                ::pltxt2htm::details::append_html_escaped_url<ndebug>(escaped_url,
-                                                                      ::pltxt2htm::container::U8StringView{url_str});
+                ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
+                    escaped_url, ::pltxt2htm::container::U8StringView{url_str});
                 result.append(u8"<a href=\"");
                 result.append(escaped_url);
                 result.append(u8"\">");
