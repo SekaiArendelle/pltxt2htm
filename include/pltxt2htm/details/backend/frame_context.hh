@@ -125,7 +125,7 @@ public:
 /**
  * @brief Activation record for HTML backend processing.
  * @details This frame keeps track of the current AST being processed,
- *          the type of nested tag, and the current index position
+ *          the type of nested tag, and the next unprocessed node position
  * @note This is used during the recursive AST traversal for HTML generation
  */
 template<::pltxt2htm::Contracts ndebug>
@@ -134,37 +134,37 @@ class BackendFrame {
     /* [[nonnull]] */ ::pltxt2htm::Ast<ndebug> const* ast; ///< Reference to the AST being processed
 
 public:
-    ::std::size_t current_index; ///< Current index position in the AST
+    ::std::size_t next_index; ///< Index of the next unprocessed AST node
 
     /**
      * @note construct ast from reference to avoid nullptr issue
      */
     constexpr BackendFrame(::pltxt2htm::Ast<ndebug> const& ast_, ::pltxt2htm::NodeKind const nested_tag_type,
-                           ::std::size_t current_index_) noexcept
+                           ::std::size_t next_index_) noexcept
         : context_data{nested_tag_type},
           ast(::std::addressof(ast_)),
-          current_index{current_index_} {
+          next_index{next_index_} {
     }
 
     constexpr BackendFrame(::pltxt2htm::Ast<ndebug> const& ast_, ::pltxt2htm::NodeKind const nested_tag_type,
-                           ::std::size_t current_index_, BackendContextWithOlInfo ol_info_context) noexcept
+                           ::std::size_t next_index_, BackendContextWithOlInfo ol_info_context) noexcept
         : context_data{nested_tag_type, ::std::move(ol_info_context)},
           ast(::std::addressof(ast_)),
-          current_index{current_index_} {
+          next_index{next_index_} {
     }
 
-    constexpr BackendFrame(::pltxt2htm::Ast<ndebug> const& ast_, ::std::size_t current_index_,
+    constexpr BackendFrame(::pltxt2htm::Ast<ndebug> const& ast_, ::std::size_t next_index_,
                            BackendContextWithHtmlSpanInfo html_span_info_context) noexcept
         : context_data{::std::move(html_span_info_context)},
           ast(::std::addressof(ast_)),
-          current_index{current_index_} {
+          next_index{next_index_} {
     }
 
     constexpr BackendFrame(::pltxt2htm::Ast<ndebug> const& ast_, ::pltxt2htm::NodeKind const nested_tag_type,
-                           ::std::size_t current_index_, BackendContextWithAlignInfo align_info_context) noexcept
+                           ::std::size_t next_index_, BackendContextWithAlignInfo align_info_context) noexcept
         : context_data{nested_tag_type, ::std::move(align_info_context)},
           ast(::std::addressof(ast_)),
-          current_index{current_index_} {
+          next_index{next_index_} {
     }
 
     constexpr BackendFrame(BackendFrame<ndebug> const&) noexcept = default;
