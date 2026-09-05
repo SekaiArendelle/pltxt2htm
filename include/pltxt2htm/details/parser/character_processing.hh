@@ -562,7 +562,7 @@ constexpr auto decode_character_references(::pltxt2htm::container::U8StringView 
     ::fast_io::u8string result{};
     ::std::size_t const text_size{text.size()};
     result.reserve(text_size);
-    for (::std::size_t index{}; index < text_size; ++index) {
+    for (::std::size_t index{}; index < text_size;) {
         if (text.template index<ndebug>(index) == u8'&') {
             auto const decoded =
                 ::pltxt2htm::details::try_decode_character_reference<ndebug>(text.template subview<ndebug>(index));
@@ -572,11 +572,12 @@ constexpr auto decode_character_references(::pltxt2htm::container::U8StringView 
                 if (reference.has_second_code_point()) {
                     ::pltxt2htm::details::append_character_reference_code_point(result, reference.second_code_point);
                 }
-                index += reference.consumed_size - 1;
+                index += reference.consumed_size;
                 continue;
             }
         }
         result.push_back(text.template index<ndebug>(index));
+        ++index;
     }
     return result;
 }
