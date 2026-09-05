@@ -18,6 +18,7 @@
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
 #include "container/array.hh"
+#include "container/inplace_vector.hh"
 #include "container/string_view.hh"
 #include "container/optional.hh"
 #include "container/expected.hh"
