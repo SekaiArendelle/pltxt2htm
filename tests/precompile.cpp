@@ -7,8 +7,8 @@
     #error "Test fail: NDEBUG is defined"
 #endif
 
-#ifndef PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT
-    #error "Test fail: PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT is not defined"
+#ifndef PLTXT2HTM_ENABLE_CONTEXT_BRANCH_CHECK
+    #error "Test fail: PLTXT2HTM_ENABLE_CONTEXT_BRANCH_CHECK is not defined"
 #endif
 
 #include <cstdint>
