@@ -24,6 +24,7 @@ using ::pltxt2htm::container::nullopt;
 using ::pltxt2htm::container::is_expected;
 using ::pltxt2htm::container::is_unexpected;
 using ::pltxt2htm::container::is_optional;
+using ::pltxt2htm::container::Vector;
 
 } // namespace container
 

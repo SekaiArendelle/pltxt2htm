@@ -9,7 +9,6 @@
 
 #include <cstddef>
 #include <utility>
-#include <fast_io/fast_io_dsal/vector.h>
 #include "../../ast/ast.hh"
 #include "../../contracts.hh"
 #include "../push_macro.hh"
