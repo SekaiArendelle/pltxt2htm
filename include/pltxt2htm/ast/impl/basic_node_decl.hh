@@ -65,7 +65,7 @@ public:
 
 /**
  * @brief ::pltxt2htm::Ampersand node
- * @details Represents the '&' character, which may be part of an HTML entity.
+ * @details Represents the semantic '&' character.
  */
 class Ampersand {
 public:
@@ -91,36 +91,6 @@ class DoubleQuote {
 public:
     [[nodiscard]]
     constexpr auto operator==(this DoubleQuote const&, DoubleQuote const&) noexcept -> bool = default;
-};
-
-/**
- * @brief ::pltxt2htm::EntityReference node
- * @details Represents an HTML entity reference like &amp;quot;, &amp;amp;, &amp;#38;.
- *          Stores the entity content between &amp; and ; (e.g. &amp;quot; stores "quot").
- *          The backend outputs it as &amp; + value + ; verbatim.
- */
-class EntityReference {
-    ::fast_io::u8string value;
-
-public:
-    constexpr EntityReference(::fast_io::u8string&& value_) noexcept
-        : value(::std::move(value_)) {
-    }
-
-    constexpr EntityReference(::pltxt2htm::EntityReference const&) noexcept = default;
-    constexpr EntityReference(::pltxt2htm::EntityReference&&) noexcept = default;
-    constexpr ~EntityReference() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::EntityReference const&) noexcept -> ::pltxt2htm::EntityReference& = delete;
-    constexpr auto operator=(this EntityReference& self, ::pltxt2htm::EntityReference&&) noexcept
-        -> ::pltxt2htm::EntityReference& = default;
-
-    [[nodiscard]]
-    constexpr auto operator==(this EntityReference const&, EntityReference const&) noexcept -> bool = default;
-
-    [[nodiscard]]
-    constexpr auto get_value(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.value);
-    }
 };
 
 /**

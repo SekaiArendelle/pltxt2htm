@@ -16,97 +16,12 @@
 #include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"
 #include "frame_context.hh"
+#include "html_escape.hh"
 #include "../utils.hh"
 #include "../../contracts.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::details {
-
-/**
- * @brief Append an entity reference to Unity Rich Text output.
- * @details Numeric character references (e.g. `&#38;`, `&#x26;`, `&#X2A;`) are decoded to
- *          the character they denote. `<` and `>` are emitted in their escaped full-width
- *          form (`<size=20>\uff1c</size>` / `<size=20>\uff1e</size>`) so that Unity's
- *          TextMeshPro does not interpret them as rich text tag delimiters. Any other
- *          (named) reference is emitted verbatim as `&` + value + `;`.
- * @tparam ndebug Contract checking mode.
- * @param value Entity content between `&` and `;` (e.g. `amp`, `#38`, `#x26`).
- * @param[out] out Output buffer receiving the encoded output.
- */
-template<::pltxt2htm::Contracts ndebug>
-constexpr void append_entity_reference_to_plunity_richtext(::fast_io::u8string const& value,
-                                                           ::fast_io::u8string& out) noexcept {
-    ::pltxt2htm::container::U8StringView const value_view{value};
-    ::std::size_t const value_size{value_view.size()};
-    bool decoded{};
-    if (value_size > 1 && value_view.template index<ndebug>(0) == u8'#') {
-        auto index = ::std::size_t{1};
-        bool const hex{value_view.template index<ndebug>(index) == u8'x' ||
-                       value_view.template index<ndebug>(index) == u8'X'};
-        if (hex) {
-            ++index;
-        }
-        auto const digit_begin = index;
-        char32_t const base{hex ? char32_t{16} : char32_t{10}};
-        char32_t code{};
-        bool valid{true};
-        for (; index < value_size; ++index) {
-            auto const chr = value_view.template index<ndebug>(index);
-            char32_t digit{};
-            if (::pltxt2htm::details::is_ascii_digit(chr)) {
-                digit = static_cast<char32_t>(chr - u8'0');
-            }
-            else if (hex && u8'a' <= chr && chr <= u8'f') {
-                digit = static_cast<char32_t>(chr - u8'a') + 10;
-            }
-            else if (hex && u8'A' <= chr && chr <= u8'F') {
-                digit = static_cast<char32_t>(chr - u8'A') + 10;
-            }
-            else {
-                valid = false;
-                break;
-            }
-            if (code > (char32_t{0x10FFFF} - digit) / base) {
-                valid = false;
-                break;
-            }
-            code = code * base + digit;
-        }
-        if (valid && index > digit_begin && code <= char32_t{0x10FFFF} &&
-            (code < char32_t{0xD800} || code > char32_t{0xDFFF})) {
-            if (code == char32_t{0x3C}) {
-                out.append(u8"<size=20>\uff1c</size>");
-            }
-            else if (code == char32_t{0x3E}) {
-                out.append(u8"<size=20>\uff1e</size>");
-            }
-            else if (code < char32_t{0x80}) {
-                out.push_back(static_cast<char8_t>(code));
-            }
-            else if (code < char32_t{0x800}) {
-                out.push_back(static_cast<char8_t>(0xC0 | (code >> 6)));
-                out.push_back(static_cast<char8_t>(0x80 | (code & 0x3F)));
-            }
-            else if (code < char32_t{0x10000}) {
-                out.push_back(static_cast<char8_t>(0xE0 | (code >> 12)));
-                out.push_back(static_cast<char8_t>(0x80 | ((code >> 6) & 0x3F)));
-                out.push_back(static_cast<char8_t>(0x80 | (code & 0x3F)));
-            }
-            else {
-                out.push_back(static_cast<char8_t>(0xF0 | (code >> 18)));
-                out.push_back(static_cast<char8_t>(0x80 | ((code >> 12) & 0x3F)));
-                out.push_back(static_cast<char8_t>(0x80 | ((code >> 6) & 0x3F)));
-                out.push_back(static_cast<char8_t>(0x80 | (code & 0x3F)));
-            }
-            decoded = true;
-        }
-    }
-    if (decoded == false) {
-        out.push_back(u8'&');
-        out.append(value_view);
-        out.push_back(u8';');
-    }
-}
 
 /**
  * @brief Convert a simple (leaf-only) AST to Unity Rich Text with unescaping.
@@ -135,11 +50,6 @@ constexpr void convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast<nde
         }
         case ::pltxt2htm::NodeKind::ampersand: {
             out.push_back(u8'&');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::entity_reference: {
-            auto&& active_node = node.as_entity_reference();
-            ::pltxt2htm::details::append_entity_reference_to_plunity_richtext<ndebug>(active_node.get_value(), out);
             continue;
         }
         case ::pltxt2htm::NodeKind::single_quote: {
@@ -231,12 +141,6 @@ entry:
             }
             case ::pltxt2htm::NodeKind::ampersand: {
                 result.push_back(u8'&');
-                continue;
-            }
-            case ::pltxt2htm::NodeKind::entity_reference: {
-                auto&& active_node = node.as_entity_reference();
-                ::pltxt2htm::details::append_entity_reference_to_plunity_richtext<ndebug>(active_node.get_value(),
-                                                                                          result);
                 continue;
             }
             case ::pltxt2htm::NodeKind::single_quote: {
@@ -695,7 +599,7 @@ entry:
                 result.append(u8"<mark=");
                 if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
                     ::fast_io::u8string purified_color{};
-                    ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                    ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
                         purified_color, ::pltxt2htm::container::U8StringView{mark_background_color});
                     pltxt2htm_assert(purified_color == mark_background_color,
                                      u8"Color value contains characters that cannot be directly used in Unity "
@@ -714,7 +618,7 @@ entry:
                 result.append(u8"<mark=");
                 if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
                     ::fast_io::u8string purified_color{};
-                    ::pltxt2htm::details::append_html_attr_escaped<ndebug>(
+                    ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
                         purified_color, ::pltxt2htm::container::U8StringView{mark_background_color});
                     pltxt2htm_assert(purified_color == mark_background_color,
                                      u8"Color value contains characters that cannot be directly used in Unity "
