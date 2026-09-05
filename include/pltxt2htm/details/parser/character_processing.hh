@@ -410,10 +410,14 @@ struct TryDecodeCharacterReferenceResult {
     ::std::size_t consumed_size;
     /** The first decoded Unicode code point, which is always present. */
     char32_t first_code_point;
-    /** The second decoded Unicode code point, or zero when `code_point_count` is one. */
+    /** The second decoded Unicode code point, or zero when absent. */
     char32_t second_code_point;
-    /** Number of decoded code points; always one or two. */
-    unsigned code_point_count;
+
+    /** @return Whether this reference decodes to a second Unicode code point. */
+    [[nodiscard]]
+    constexpr auto has_second_code_point(this TryDecodeCharacterReferenceResult const& self) noexcept -> bool {
+        return self.second_code_point != char32_t{};
+    }
 };
 
 /**
@@ -482,10 +486,8 @@ constexpr auto try_decode_character_reference(::pltxt2htm::container::U8StringVi
         else {
             code_point = ::pltxt2htm::details::remap_html_numeric_character_reference(code_point);
         }
-        return TryDecodeCharacterReferenceResult{.consumed_size = index + 1,
-                                                 .first_code_point = code_point,
-                                                 .second_code_point = char32_t{},
-                                                 .code_point_count = 1};
+        return TryDecodeCharacterReferenceResult{
+            .consumed_size = index + 1, .first_code_point = code_point, .second_code_point = char32_t{}};
     }
 
     ::std::size_t index{1};
@@ -507,8 +509,7 @@ constexpr auto try_decode_character_reference(::pltxt2htm::container::U8StringVi
     }
     return TryDecodeCharacterReferenceResult{.consumed_size = index + 1,
                                              .first_code_point = entity->first_code_point,
-                                             .second_code_point = entity->second_code_point,
-                                             .code_point_count = entity->second_code_point == 0 ? 1u : 2u};
+                                             .second_code_point = entity->second_code_point};
 }
 
 /**
@@ -521,7 +522,7 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr void append_character_reference_to_ast(TryDecodeCharacterReferenceResult const& reference,
                                                  ::pltxt2htm::Ast<ndebug>& result) noexcept {
     ::pltxt2htm::details::append_code_point_to_ast<ndebug>(reference.first_code_point, result);
-    if (reference.code_point_count == 2) {
+    if (reference.has_second_code_point()) {
         ::pltxt2htm::details::append_code_point_to_ast<ndebug>(reference.second_code_point, result);
     }
 }
@@ -568,7 +569,7 @@ constexpr auto decode_character_references(::pltxt2htm::container::U8StringView 
             if (decoded.has_value()) {
                 auto const& reference = decoded.template value<ndebug>();
                 ::pltxt2htm::details::append_character_reference_code_point(result, reference.first_code_point);
-                if (reference.code_point_count == 2) {
+                if (reference.has_second_code_point()) {
                     ::pltxt2htm::details::append_character_reference_code_point(result, reference.second_code_point);
                 }
                 index += reference.consumed_size - 1;

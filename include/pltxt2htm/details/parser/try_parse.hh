@@ -3971,7 +3971,7 @@ constexpr auto make_try_parse_url_result(::pltxt2htm::container::U8StringView co
             if (reference.has_value()) {
                 auto const& decoded = reference.template value<ndebug>();
                 ::pltxt2htm::details::append_code_point_to_url(url_str, decoded.first_code_point);
-                if (decoded.code_point_count == 2) {
+                if (decoded.has_second_code_point()) {
                     ::pltxt2htm::details::append_code_point_to_url(url_str, decoded.second_code_point);
                 }
                 index += decoded.consumed_size - 1;

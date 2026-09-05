@@ -14,7 +14,7 @@ constexpr void assert_decoded(::fast_io::u8string_view text, ::std::size_t consu
     pltxt2htm_test_assert_true(decoded.consumed_size == consumed_size);
     pltxt2htm_test_assert_true(decoded.first_code_point == first_code_point);
     pltxt2htm_test_assert_true(decoded.second_code_point == second_code_point);
-    pltxt2htm_test_assert_true(decoded.code_point_count == (second_code_point == 0 ? 1 : 2));
+    pltxt2htm_test_assert_true(decoded.has_second_code_point() == (second_code_point != char32_t{}));
 }
 
 constexpr void assert_not_decoded(::fast_io::u8string_view text) {
