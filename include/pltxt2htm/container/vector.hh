@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include <algorithm>
 #include <concepts>
 #include <cstddef>
 #include <initializer_list>
@@ -30,6 +29,7 @@ namespace pltxt2htm::container {
  *
  * Vector implements the operations currently needed by pltxt2htm while keeping
  * allocation compatible with the allocator facilities already used by the project.
+ * Element and range operations used by Vector must not throw.
  */
 template<typename T, typename Allocator = ::fast_io::native_global_allocator>
 class Vector {
@@ -54,29 +54,6 @@ private:
     pointer current_pointer{};
     pointer end_pointer{};
 
-    struct AllocationGuard {
-        pointer begin_pointer{};
-        pointer current_pointer{};
-        size_type capacity{};
-
-        constexpr AllocationGuard(pointer begin_pointer_, pointer current_pointer_, size_type capacity_) noexcept
-            : begin_pointer{begin_pointer_},
-              current_pointer{current_pointer_},
-              capacity{capacity_} {
-        }
-
-        AllocationGuard(AllocationGuard const&) = delete;
-        constexpr auto operator=(this AllocationGuard&, AllocationGuard const&) -> AllocationGuard& = delete;
-
-        constexpr ~AllocationGuard() {
-            if (begin_pointer == nullptr) {
-                return;
-            }
-            ::std::destroy(begin_pointer, current_pointer);
-            typed_allocator_type::deallocate_n(begin_pointer, capacity);
-        }
-    };
-
     constexpr void release(this Vector& self) noexcept {
         if (self.begin_pointer == nullptr) {
             return;
@@ -88,41 +65,58 @@ private:
         self.end_pointer = nullptr;
     }
 
-    constexpr void reallocate(this Vector& self, size_type requested_capacity) noexcept(
-        ::std::is_nothrow_move_constructible_v<value_type>) {
-        auto const allocation = typed_allocator_type::allocate_at_least(requested_capacity);
-        AllocationGuard guard{allocation.ptr, allocation.ptr, allocation.count};
-
-        for (pointer source{self.begin_pointer}; source != self.current_pointer; ++source) {
-            ::std::construct_at(guard.current_pointer, ::std::move(*source));
-            ++guard.current_pointer;
+    template<typename R>
+    [[nodiscard]]
+    static consteval auto is_nothrow_append_range() noexcept -> bool {
+        using iterator_type = ::std::ranges::iterator_t<R>;
+        using sentinel_type = ::std::ranges::sentinel_t<R>;
+        if constexpr (!requires(R& range, iterator_type& iterator, sentinel_type& sentinel) {
+                          { ::std::ranges::begin(range) } noexcept;
+                          { ::std::ranges::end(range) } noexcept;
+                          { *iterator } noexcept;
+                          { ++iterator } noexcept;
+                          { static_cast<bool>(iterator != sentinel) } noexcept -> ::std::same_as<bool>;
+                      }) {
+            return false;
         }
 
-        pointer const old_begin{self.begin_pointer};
-        pointer const old_current{self.current_pointer};
-        size_type const old_capacity{self.capacity()};
-        self.begin_pointer = guard.begin_pointer;
-        self.current_pointer = guard.current_pointer;
-        self.end_pointer = guard.begin_pointer + guard.capacity;
-        guard.begin_pointer = nullptr;
-
-        if (old_begin != nullptr) {
-            ::std::destroy(old_begin, old_current);
-            typed_allocator_type::deallocate_n(old_begin, old_capacity);
+        using range_reference = ::std::ranges::range_reference_t<R>;
+        if constexpr (::std::is_lvalue_reference_v<R>) {
+            using forwarded_reference = decltype(::std::forward<range_reference>(::std::declval<range_reference>()));
+            return ::std::is_nothrow_constructible_v<value_type, forwarded_reference>;
+        }
+        else {
+            using forwarded_reference = decltype(::std::forward_like<R>(::std::declval<range_reference>()));
+            return ::std::is_nothrow_constructible_v<value_type, forwarded_reference>;
         }
     }
 
+    template<::std::ranges::forward_range R>
+    [[nodiscard]]
+    static constexpr auto count_range(R& range) noexcept -> size_type
+        requires (is_nothrow_append_range<R>())
+    {
+        size_type result{};
+        auto iterator = ::std::ranges::begin(range);
+        auto sentinel = ::std::ranges::end(range);
+        for (; iterator != sentinel; ++iterator) {
+            ++result;
+        }
+        return result;
+    }
+
     template<::pltxt2htm::Contracts ndebug>
-    constexpr void ensure_additional_capacity(this Vector& self, size_type additional_size) noexcept(
-        ::std::is_nothrow_move_constructible_v<value_type>) {
+    [[nodiscard]]
+    constexpr auto growth_capacity(this Vector const& self, size_type additional_size) noexcept -> size_type {
         size_type const old_size{self.size()};
         pltxt2htm_assert(additional_size <= self.max_size() - old_size, u8"Vector size exceeds max_size");
         size_type const required_capacity{old_size + additional_size};
-        if (required_capacity <= self.capacity()) {
-            return;
+        size_type const old_capacity{self.capacity()};
+        if (required_capacity <= old_capacity) {
+            return old_capacity;
         }
 
-        size_type new_capacity{self.capacity()};
+        size_type new_capacity{old_capacity};
         if (new_capacity == 0) {
             new_capacity = 1;
         }
@@ -135,46 +129,157 @@ private:
         if (new_capacity < required_capacity) {
             new_capacity = required_capacity;
         }
+        return new_capacity;
+    }
+
+    constexpr void reallocate(this Vector& self, size_type requested_capacity) noexcept
+        requires (::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type>)
+    {
+        auto const allocation = typed_allocator_type::allocate_at_least(requested_capacity);
+        pointer new_current{allocation.ptr};
+
+        for (pointer source{self.begin_pointer}; source != self.current_pointer; ++source) {
+            ::std::construct_at(new_current, ::std::move(*source));
+            ++new_current;
+        }
+
+        pointer const old_begin{self.begin_pointer};
+        pointer const old_current{self.current_pointer};
+        size_type const old_capacity{self.capacity()};
+        self.begin_pointer = allocation.ptr;
+        self.current_pointer = new_current;
+        self.end_pointer = allocation.ptr + allocation.count;
+
+        if (old_begin != nullptr) {
+            ::std::destroy(old_begin, old_current);
+            typed_allocator_type::deallocate_n(old_begin, old_capacity);
+        }
+    }
+
+    template<::pltxt2htm::Contracts ndebug, typename... Args>
+    constexpr auto reallocate_and_emplace(this Vector& self, Args&&... args) noexcept -> reference
+        requires (::std::is_nothrow_move_constructible_v<value_type> &&
+                  ::std::is_nothrow_constructible_v<value_type, Args...> &&
+                  ::std::is_nothrow_destructible_v<value_type>)
+    {
+        size_type const old_size{self.size()};
+        auto const allocation = typed_allocator_type::allocate_at_least(self.template growth_capacity<ndebug>(1));
+        pointer const new_element{allocation.ptr + old_size};
+        ::std::construct_at(new_element, ::std::forward<Args>(args)...);
+        pointer new_current{allocation.ptr};
+
+        for (pointer source{self.begin_pointer}; source != self.current_pointer; ++source) {
+            ::std::construct_at(new_current, ::std::move(*source));
+            ++new_current;
+        }
+
+        pointer const old_begin{self.begin_pointer};
+        pointer const old_current{self.current_pointer};
+        size_type const old_capacity{self.capacity()};
+        self.begin_pointer = allocation.ptr;
+        self.current_pointer = new_element + 1;
+        self.end_pointer = allocation.ptr + allocation.count;
+
+        if (old_begin != nullptr) {
+            ::std::destroy(old_begin, old_current);
+            typed_allocator_type::deallocate_n(old_begin, old_capacity);
+        }
+        return *new_element;
+    }
+
+    template<::pltxt2htm::Contracts ndebug, typename R>
+    constexpr void reallocate_and_append_range(this Vector& self, R&& range, size_type range_size,
+                                               size_type new_capacity) noexcept
+        requires (::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type> &&
+                  is_nothrow_append_range<R>())
+    {
+        size_type const old_size{self.size()};
+        auto const allocation = typed_allocator_type::allocate_at_least(new_capacity);
+        pointer trailing_current{allocation.ptr + old_size};
+        pointer const trailing_end{trailing_current + range_size};
+        for (auto&& value : range) {
+            pltxt2htm_assert(trailing_current != trailing_end, u8"Range size changed while appending");
+            if constexpr (::std::is_lvalue_reference_v<R>) {
+                ::std::construct_at(trailing_current, ::std::forward<decltype(value)>(value));
+            }
+            else {
+                ::std::construct_at(trailing_current, ::std::forward_like<R>(value));
+            }
+            ++trailing_current;
+        }
+        pltxt2htm_assert(trailing_current == trailing_end, u8"Range size changed while appending");
+
+        pointer new_current{allocation.ptr};
+        for (pointer source{self.begin_pointer}; source != self.current_pointer; ++source) {
+            ::std::construct_at(new_current, ::std::move(*source));
+            ++new_current;
+        }
+
+        pointer const old_begin{self.begin_pointer};
+        pointer const old_current{self.current_pointer};
+        size_type const old_capacity{self.capacity()};
+        self.begin_pointer = allocation.ptr;
+        self.current_pointer = trailing_current;
+        self.end_pointer = allocation.ptr + allocation.count;
+
+        if (old_begin != nullptr) {
+            ::std::destroy(old_begin, old_current);
+            typed_allocator_type::deallocate_n(old_begin, old_capacity);
+        }
+    }
+
+    template<::pltxt2htm::Contracts ndebug>
+    constexpr void ensure_additional_capacity(this Vector& self, size_type additional_size) noexcept
+        requires (::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type>)
+    {
+        size_type const old_capacity{self.capacity()};
+        size_type const new_capacity{self.template growth_capacity<ndebug>(additional_size)};
+        if (new_capacity == old_capacity) {
+            return;
+        }
         self.reallocate(new_capacity);
     }
 
 public:
     constexpr Vector() noexcept = default;
 
-    constexpr Vector(::std::initializer_list<value_type> values) noexcept(
-        ::std::is_nothrow_copy_constructible_v<value_type>) {
+    constexpr Vector(::std::initializer_list<value_type> values) noexcept {
+        static_assert(::std::is_nothrow_copy_constructible_v<value_type>,
+                      "Vector requires nothrow-copy-constructible elements when initialized from a list");
+        static_assert(::std::is_nothrow_destructible_v<value_type>, "Vector requires nothrow-destructible elements");
         if (values.size() == 0) {
             return;
         }
 
         auto const allocation = typed_allocator_type::allocate_at_least(values.size());
-        AllocationGuard guard{allocation.ptr, allocation.ptr, allocation.count};
+        pointer new_current{allocation.ptr};
         for (auto const& value : values) {
-            ::std::construct_at(guard.current_pointer, value);
-            ++guard.current_pointer;
+            ::std::construct_at(new_current, value);
+            ++new_current;
         }
-        begin_pointer = guard.begin_pointer;
-        current_pointer = guard.current_pointer;
-        end_pointer = guard.begin_pointer + guard.capacity;
-        guard.begin_pointer = nullptr;
+        begin_pointer = allocation.ptr;
+        current_pointer = new_current;
+        end_pointer = allocation.ptr + allocation.count;
     }
 
-    constexpr Vector(Vector const& other) noexcept(::std::is_nothrow_copy_constructible_v<value_type>) {
+    constexpr Vector(Vector const& other) noexcept {
+        static_assert(::std::is_nothrow_copy_constructible_v<value_type>,
+                      "Vector requires nothrow-copy-constructible elements when copied");
+        static_assert(::std::is_nothrow_destructible_v<value_type>, "Vector requires nothrow-destructible elements");
         size_type const other_size{other.size()};
         if (other_size == 0) {
             return;
         }
 
         auto const allocation = typed_allocator_type::allocate_at_least(other_size);
-        AllocationGuard guard{allocation.ptr, allocation.ptr, allocation.count};
+        pointer new_current{allocation.ptr};
         for (auto const& value : other) {
-            ::std::construct_at(guard.current_pointer, value);
-            ++guard.current_pointer;
+            ::std::construct_at(new_current, value);
+            ++new_current;
         }
-        begin_pointer = guard.begin_pointer;
-        current_pointer = guard.current_pointer;
-        end_pointer = guard.begin_pointer + guard.capacity;
-        guard.begin_pointer = nullptr;
+        begin_pointer = allocation.ptr;
+        current_pointer = new_current;
+        end_pointer = allocation.ptr + allocation.count;
     }
 
     constexpr Vector(Vector&& other) noexcept
@@ -183,9 +288,10 @@ public:
           end_pointer{::std::exchange(other.end_pointer, nullptr)} {
     }
 
-    constexpr auto operator=(this Vector& self,
-                             Vector const& other) noexcept(::std::is_nothrow_copy_constructible_v<value_type>)
-        -> Vector& {
+    constexpr auto operator=(this Vector& self, Vector const& other) noexcept -> Vector& {
+        static_assert(::std::is_nothrow_copy_constructible_v<value_type>,
+                      "Vector requires nothrow-copy-constructible elements when copied");
+        static_assert(::std::is_nothrow_destructible_v<value_type>, "Vector requires nothrow-destructible elements");
         if (::std::addressof(self) == ::std::addressof(other)) [[unlikely]] {
             return self;
         }
@@ -195,6 +301,7 @@ public:
     }
 
     constexpr auto operator=(this Vector& self, Vector&& other) noexcept -> Vector& {
+        static_assert(::std::is_nothrow_destructible_v<value_type>, "Vector requires nothrow-destructible elements");
         if (::std::addressof(self) == ::std::addressof(other)) [[unlikely]] {
             return self;
         }
@@ -205,7 +312,7 @@ public:
         return self;
     }
 
-    constexpr ~Vector() {
+    constexpr ~Vector() noexcept {
         this->release();
     }
 
@@ -324,8 +431,9 @@ public:
     }
 
     template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
-    constexpr void reserve(this Vector& self,
-                           size_type requested_capacity) noexcept(::std::is_nothrow_move_constructible_v<value_type>) {
+    constexpr void reserve(this Vector& self, size_type requested_capacity) noexcept
+        requires (::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type>)
+    {
         pltxt2htm_assert(requested_capacity <= self.max_size(), u8"Vector capacity exceeds max_size");
         if (requested_capacity <= self.capacity()) {
             return;
@@ -334,38 +442,45 @@ public:
     }
 
     template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, typename... Args>
-        requires ::std::constructible_from<value_type, Args...>
-    constexpr auto emplace_back(this Vector& self,
-                                Args&&... args) noexcept(::std::is_nothrow_move_constructible_v<value_type> &&
-                                                         ::std::is_nothrow_constructible_v<value_type, Args...>)
-        -> reference {
-        self.template ensure_additional_capacity<ndebug>(1);
-        pointer const element{::std::construct_at(self.current_pointer, ::std::forward<Args>(args)...)};
-        ++self.current_pointer;
-        return *element;
+        requires (::std::is_nothrow_move_constructible_v<value_type> &&
+                  ::std::is_nothrow_constructible_v<value_type, Args...> &&
+                  ::std::is_nothrow_destructible_v<value_type>)
+    constexpr auto emplace_back(this Vector& self, Args&&... args) noexcept -> reference {
+        if (self.current_pointer != self.end_pointer) {
+            pointer const element{::std::construct_at(self.current_pointer, ::std::forward<Args>(args)...)};
+            ++self.current_pointer;
+            return *element;
+        }
+        return self.template reallocate_and_emplace<ndebug>(::std::forward<Args>(args)...);
     }
 
     template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
-    constexpr void push_back(this Vector& self,
-                             const_reference value) noexcept(::std::is_nothrow_move_constructible_v<value_type> &&
-                                                             ::std::is_nothrow_copy_constructible_v<value_type>) {
+    constexpr void push_back(this Vector& self, const_reference value) noexcept
+        requires (::std::is_nothrow_move_constructible_v<value_type> &&
+                  ::std::is_nothrow_copy_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type>)
+    {
         self.template emplace_back<ndebug>(value);
     }
 
     template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
-    constexpr void push_back(this Vector& self,
-                             value_type&& value) noexcept(::std::is_nothrow_move_constructible_v<value_type>) {
+    constexpr void push_back(this Vector& self, value_type&& value) noexcept
+        requires (::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type>)
+    {
         self.template emplace_back<ndebug>(::std::move(value));
     }
 
     template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
-    constexpr void pop_back(this Vector& self) noexcept {
+    constexpr void pop_back(this Vector& self) noexcept
+        requires ::std::is_nothrow_destructible_v<value_type>
+    {
         pltxt2htm_assert(!self.empty(), u8"Popping back but Vector is empty");
         --self.current_pointer;
         ::std::destroy_at(self.current_pointer);
     }
 
-    constexpr void clear(this Vector& self) noexcept {
+    constexpr void clear(this Vector& self) noexcept
+        requires ::std::is_nothrow_destructible_v<value_type>
+    {
         if (self.begin_pointer == nullptr) {
             return;
         }
@@ -373,34 +488,51 @@ public:
         self.current_pointer = self.begin_pointer;
     }
 
+    /**
+     * @pre A single-pass input range must not reference elements in this Vector.
+     */
     template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, ::std::ranges::input_range R>
-    constexpr void append_range(this Vector& self, R&& range) {
-        if constexpr (::std::ranges::sized_range<R>) {
-            self.template ensure_additional_capacity<ndebug>(static_cast<size_type>(::std::ranges::size(range)));
+    constexpr void append_range(this Vector& self, R&& range) noexcept
+        requires (::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type> &&
+                  is_nothrow_append_range<R>())
+    {
+        if constexpr (::std::ranges::forward_range<R>) {
+            size_type const range_size{count_range<R>(range)};
+            size_type const old_capacity{self.capacity()};
+            size_type const new_capacity{self.template growth_capacity<ndebug>(range_size)};
+            if (new_capacity != old_capacity) {
+                self.template reallocate_and_append_range<ndebug>(::std::forward<R>(range), range_size, new_capacity);
+                return;
+            }
         }
 
         for (auto&& value : range) {
-            self.template emplace_back<ndebug>(::std::forward_like<R>(value));
+            if constexpr (::std::is_lvalue_reference_v<R>) {
+                self.template emplace_back<ndebug>(::std::forward<decltype(value)>(value));
+            }
+            else {
+                self.template emplace_back<ndebug>(::std::forward_like<R>(value));
+            }
         }
     }
 
-    constexpr auto erase(this Vector& self,
-                         const_iterator position) noexcept(::std::is_nothrow_move_constructible_v<value_type>)
-        -> iterator {
+    constexpr auto erase(this Vector& self, const_iterator position) noexcept -> iterator
+        requires (::std::is_nothrow_move_assignable_v<value_type> && ::std::is_nothrow_destructible_v<value_type>)
+    {
         difference_type const offset{position - self.begin_pointer};
         pointer destination{self.begin_pointer + offset};
         pointer source{destination + 1};
-        ::std::destroy_at(destination);
         for (; source != self.current_pointer; ++source, ++destination) {
-            ::std::construct_at(destination, ::std::move(*source));
-            ::std::destroy_at(source);
+            *destination = ::std::move(*source);
         }
         --self.current_pointer;
+        ::std::destroy_at(self.current_pointer);
         return self.begin_pointer + offset;
     }
 
-    constexpr auto erase(this Vector& self, const_iterator first,
-                         const_iterator last) noexcept(::std::is_nothrow_move_constructible_v<value_type>) -> iterator {
+    constexpr auto erase(this Vector& self, const_iterator first, const_iterator last) noexcept -> iterator
+        requires (::std::is_nothrow_move_assignable_v<value_type> && ::std::is_nothrow_destructible_v<value_type>)
+    {
         if (first == last) {
             if (self.begin_pointer == nullptr) {
                 return nullptr;
@@ -413,11 +545,10 @@ public:
         pointer destination{self.begin_pointer + first_offset};
         pointer source{self.begin_pointer + last_offset};
         pointer const result{destination};
-        ::std::destroy(destination, source);
         for (; source != self.current_pointer; ++source, ++destination) {
-            ::std::construct_at(destination, ::std::move(*source));
-            ::std::destroy_at(source);
+            *destination = ::std::move(*source);
         }
+        ::std::destroy(destination, self.current_pointer);
         self.current_pointer = destination;
         return result;
     }
@@ -430,9 +561,21 @@ public:
 
     [[nodiscard]]
     constexpr auto operator==(this Vector const& self, Vector const& other) noexcept -> bool
-        requires ::std::equality_comparable<value_type>
+        requires requires(const_reference left, const_reference right) {
+            { static_cast<bool>(left == right) } noexcept -> ::std::same_as<bool>;
+        }
     {
-        return self.size() == other.size() && ::std::equal(self.begin(), self.end(), other.begin());
+        if (self.size() != other.size()) {
+            return false;
+        }
+        const_iterator left{self.begin_pointer};
+        const_iterator right{other.begin_pointer};
+        for (; left != self.current_pointer; ++left, ++right) {
+            if (!static_cast<bool>(*left == *right)) {
+                return false;
+            }
+        }
+        return true;
     }
 };
 
