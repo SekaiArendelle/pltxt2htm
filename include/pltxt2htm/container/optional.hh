@@ -11,6 +11,7 @@
 #include <utility>
 
 #include "non_zero.hh"
+#include "../details/concepts.hh"
 #include "../details/push_macro.hh"
 
 namespace pltxt2htm::container {
@@ -23,25 +24,6 @@ struct NulloptType {
 inline constexpr auto nullopt = NulloptType{};
 
 namespace details {
-
-template<typename T, typename U>
-constexpr bool reference_constructs_from_temporary_fallback_v =
-    !::std::is_lvalue_reference_v<U> || !::std::is_convertible_v<::std::add_pointer_t<::std::remove_reference_t<U>>,
-                                                                 ::std::add_pointer_t<::std::remove_reference_t<T>>>;
-
-template<typename T, typename U>
-constexpr bool reference_constructs_from_temporary_v =
-#if defined(__cpp_lib_reference_from_temporary)
-    ::std::reference_constructs_from_temporary_v<T, U>;
-#elif defined(__has_builtin)
-    #if __has_builtin(__reference_constructs_from_temporary)
-    __reference_constructs_from_temporary(T, U);
-    #else
-    reference_constructs_from_temporary_fallback_v<T, U>;
-    #endif
-#else
-    reference_constructs_from_temporary_fallback_v<T, U>;
-#endif
 
 template<typename T>
 class OptionalStorage {
@@ -360,7 +342,7 @@ public:
     template<typename U>
         requires (!::std::same_as<::std::remove_cvref_t<U>, Optional<T&>> &&
                   !::std::same_as<::std::remove_cvref_t<U>, NulloptType> && ::std::is_constructible_v<T&, U> &&
-                  !details::reference_constructs_from_temporary_v<T&, U>)
+                  !::pltxt2htm::details::reference_constructs_from_temporary<T&, U>)
     constexpr explicit(!::std::is_convertible_v<U, T&>)
         Optional(U&& value) noexcept(::std::is_nothrow_constructible_v<T&, U>)
         : value_storage{reference_address(::std::forward<U>(value))} {
@@ -369,9 +351,13 @@ public:
     template<typename U>
         requires (!::std::same_as<::std::remove_cvref_t<U>, Optional<T&>> &&
                   !::std::same_as<::std::remove_cvref_t<U>, NulloptType> && ::std::is_constructible_v<T&, U> &&
-                  details::reference_constructs_from_temporary_v<T&, U>)
+                  ::pltxt2htm::details::reference_constructs_from_temporary<T&, U>)
     constexpr explicit(!::std::is_convertible_v<U, T&>)
-        Optional(U&&) noexcept(::std::is_nothrow_constructible_v<T&, U>) = delete;
+        Optional(U&&) noexcept(::std::is_nothrow_constructible_v<T&, U>) = delete
+#if __cpp_deleted_function >= 202403L
+            ("binding a temporary to Optional<T&> would create a dangling reference")
+#endif
+        ;
 
     constexpr Optional(NulloptType) noexcept {
     }
