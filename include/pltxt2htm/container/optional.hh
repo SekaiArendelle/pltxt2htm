@@ -181,9 +181,6 @@ public:
     }
 };
 
-template<typename T>
-constexpr bool is_optional_v = false;
-
 } // namespace details
 
 template<typename T>
@@ -433,6 +430,9 @@ public:
 };
 
 namespace details {
+
+template<typename T>
+constexpr bool is_optional_v = false;
 
 template<typename T>
 constexpr bool is_optional_v<Optional<T>> = true;
