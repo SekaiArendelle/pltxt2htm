@@ -95,7 +95,7 @@ if(PLTXT2HTM_USE_STACKTRACE)
     endif()
 endif()
 
-target_compile_definitions(pltxt2htm_base INTERFACE PLTXT2HTM_CONTEXT_BRANCH_INSTRUMENT)
+target_compile_definitions(pltxt2htm_base INTERFACE PLTXT2HTM_ENABLE_CONTEXT_BRANCH_CHECK)
 
 if(PLTXT2HTM_SANITIZER)
     if(NOT PLTXT2HTM_SANITIZER MATCHES "^(address|undefined|memory)$")
