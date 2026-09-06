@@ -97,6 +97,28 @@ consteval bool optional_non_zero_constexpr_operations_work() noexcept {
 
 static_assert(optional_non_zero_constexpr_operations_work());
 
+namespace pltxt2htm_test {
+
+struct ImplicitReferenceProxy {
+    int* pointer;
+
+    [[nodiscard]]
+    constexpr operator int&() const noexcept {
+        return *pointer;
+    }
+};
+
+struct ExplicitReferenceProxy {
+    int* pointer;
+
+    [[nodiscard]]
+    constexpr explicit operator int&() const noexcept {
+        return *pointer;
+    }
+};
+
+} // namespace pltxt2htm_test
+
 using IntReferenceOptional = ::pltxt2htm::container::Optional<int&>;
 using ConstIntReferenceOptional = ::pltxt2htm::container::Optional<int const&>;
 
@@ -116,6 +138,15 @@ static_assert(!::std::is_constructible_v<ConstIntReferenceOptional, int const&&>
 static_assert(::std::is_assignable_v<IntReferenceOptional&, int&>);
 static_assert(!::std::is_assignable_v<IntReferenceOptional&, int&&>);
 static_assert(!::std::is_assignable_v<IntReferenceOptional&&, int&>);
+static_assert(::std::is_convertible_v<::pltxt2htm_test::ImplicitReferenceProxy&, int&>);
+static_assert(::std::is_constructible_v<IntReferenceOptional, ::pltxt2htm_test::ImplicitReferenceProxy&>);
+static_assert(::std::is_convertible_v<::pltxt2htm_test::ImplicitReferenceProxy&, IntReferenceOptional>);
+static_assert(::std::is_assignable_v<IntReferenceOptional&, ::pltxt2htm_test::ImplicitReferenceProxy&>);
+static_assert(::std::is_constructible_v<int&, ::pltxt2htm_test::ExplicitReferenceProxy&>);
+static_assert(!::std::is_convertible_v<::pltxt2htm_test::ExplicitReferenceProxy&, int&>);
+static_assert(::std::is_constructible_v<IntReferenceOptional, ::pltxt2htm_test::ExplicitReferenceProxy&>);
+static_assert(!::std::is_convertible_v<::pltxt2htm_test::ExplicitReferenceProxy&, IntReferenceOptional>);
+static_assert(!::std::is_assignable_v<IntReferenceOptional&, ::pltxt2htm_test::ExplicitReferenceProxy&>);
 
 static_assert(::std::same_as<
               decltype(::std::declval<IntReferenceOptional&>().value<::pltxt2htm::Contracts::quick_enforce>()), int&>);
@@ -136,7 +167,15 @@ consteval bool optional_reference_constexpr_operations_work() noexcept {
     IntReferenceOptional value{first};
     IntReferenceOptional empty{::pltxt2htm::container::nullopt};
     IntReferenceOptional equal_value{equal_to_first};
+    ::pltxt2htm_test::ImplicitReferenceProxy implicit_proxy{::std::addressof(first)};
+    ::pltxt2htm_test::ExplicitReferenceProxy explicit_proxy{::std::addressof(second)};
+    IntReferenceOptional implicit_proxy_value = implicit_proxy;
+    IntReferenceOptional explicit_proxy_value{explicit_proxy};
     if (!value.has_value() || empty.has_value() || value != equal_value) {
+        return false;
+    }
+    if (::std::addressof(implicit_proxy_value.value<::pltxt2htm::Contracts::ignore>()) != ::std::addressof(first) ||
+        ::std::addressof(explicit_proxy_value.value<::pltxt2htm::Contracts::ignore>()) != ::std::addressof(second)) {
         return false;
     }
     value.value<::pltxt2htm::Contracts::ignore>() = 9;

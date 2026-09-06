@@ -329,12 +329,12 @@ public:
     using rebind = ::pltxt2htm::container::Optional<U>;
 
 private:
-    T* value_storage{};
+    T* value_storage{nullptr};
 
     template<typename U>
     [[nodiscard]]
     static constexpr auto reference_address(U&& value) noexcept(::std::is_nothrow_constructible_v<T&, U>) -> T* {
-        T& reference{::std::forward<U>(value)};
+        T& reference(::std::forward<U>(value));
         return ::std::addressof(reference);
     }
 
@@ -355,9 +355,9 @@ public:
     constexpr explicit(!::std::is_convertible_v<U, T&>)
         Optional(U&&) noexcept(::std::is_nothrow_constructible_v<T&, U>) = delete
 #if __cpp_deleted_function >= 202403L
-            ("binding a temporary to Optional<T&> would create a dangling reference")
+        ("binding a temporary to Optional<T&> would create a dangling reference")
 #endif
-        ;
+            ;
 
     constexpr Optional(NulloptType) noexcept {
     }
