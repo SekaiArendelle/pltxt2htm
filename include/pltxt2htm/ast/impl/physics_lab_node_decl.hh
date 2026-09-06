@@ -627,6 +627,7 @@ public:
  */
 class PlMacroProject {
 public:
+    [[nodiscard]]
     constexpr auto operator==(this PlMacroProject const&, PlMacroProject const&) noexcept -> bool = default;
 };
 
@@ -636,6 +637,7 @@ public:
  */
 class PlMacroVisitor {
 public:
+    [[nodiscard]]
     constexpr auto operator==(this PlMacroVisitor const&, PlMacroVisitor const&) noexcept -> bool = default;
 };
 
@@ -645,6 +647,7 @@ public:
  */
 class PlMacroAuthor {
 public:
+    [[nodiscard]]
     constexpr auto operator==(this PlMacroAuthor const&, PlMacroAuthor const&) noexcept -> bool = default;
 };
 
@@ -654,6 +657,7 @@ public:
  */
 class PlMacroCoauthors {
 public:
+    [[nodiscard]]
     constexpr auto operator==(this PlMacroCoauthors const&, PlMacroCoauthors const&) noexcept -> bool = default;
 };
 

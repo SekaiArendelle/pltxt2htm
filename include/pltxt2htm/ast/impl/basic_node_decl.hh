@@ -19,6 +19,7 @@ namespace pltxt2htm {
  */
 class LineBreak {
 public:
+    [[nodiscard]]
     constexpr auto operator==(this LineBreak const&, LineBreak const&) noexcept -> bool = default;
 };
 
@@ -28,6 +29,7 @@ public:
  */
 class Space {
 public:
+    [[nodiscard]]
     constexpr auto operator==(this Space const&, Space const&) noexcept -> bool = default;
 };
 
@@ -37,6 +39,7 @@ public:
  */
 class LessThan {
 public:
+    [[nodiscard]]
     constexpr auto operator==(this LessThan const&, LessThan const&) noexcept -> bool = default;
 };
 
@@ -46,6 +49,7 @@ public:
  */
 class GreaterThan {
 public:
+    [[nodiscard]]
     constexpr auto operator==(this GreaterThan const&, GreaterThan const&) noexcept -> bool = default;
 };
 
@@ -55,15 +59,17 @@ public:
  */
 class Tab {
 public:
+    [[nodiscard]]
     constexpr auto operator==(this Tab const&, Tab const&) noexcept -> bool = default;
 };
 
 /**
  * @brief ::pltxt2htm::Ampersand node
- * @details Represents the '&' character, which may be part of an HTML entity.
+ * @details Represents the semantic '&' character.
  */
 class Ampersand {
 public:
+    [[nodiscard]]
     constexpr auto operator==(this Ampersand const&, Ampersand const&) noexcept -> bool = default;
 };
 
@@ -73,6 +79,7 @@ public:
  */
 class SingleQuote {
 public:
+    [[nodiscard]]
     constexpr auto operator==(this SingleQuote const&, SingleQuote const&) noexcept -> bool = default;
 };
 
@@ -82,37 +89,8 @@ public:
  */
 class DoubleQuote {
 public:
+    [[nodiscard]]
     constexpr auto operator==(this DoubleQuote const&, DoubleQuote const&) noexcept -> bool = default;
-};
-
-/**
- * @brief ::pltxt2htm::EntityReference node
- * @details Represents an HTML entity reference like &amp;quot;, &amp;amp;, &amp;#38;.
- *          Stores the entity content between &amp; and ; (e.g. &amp;quot; stores "quot").
- *          The backend outputs it as &amp; + value + ; verbatim.
- */
-class EntityReference {
-    ::fast_io::u8string value;
-
-public:
-    constexpr EntityReference(::fast_io::u8string&& value_) noexcept
-        : value(::std::move(value_)) {
-    }
-
-    constexpr EntityReference(::pltxt2htm::EntityReference const&) noexcept = default;
-    constexpr EntityReference(::pltxt2htm::EntityReference&&) noexcept = default;
-    constexpr ~EntityReference() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::EntityReference const&) noexcept -> ::pltxt2htm::EntityReference& = delete;
-    constexpr auto operator=(this EntityReference& self, ::pltxt2htm::EntityReference&&) noexcept
-        -> ::pltxt2htm::EntityReference& = default;
-
-    [[nodiscard]]
-    constexpr auto operator==(this EntityReference const&, EntityReference const&) noexcept -> bool = default;
-
-    [[nodiscard]]
-    constexpr auto get_value(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.value);
-    }
 };
 
 /**
@@ -122,6 +100,7 @@ public:
 class U8Char {
 public:
     char8_t chr;
+    [[nodiscard]]
     constexpr auto operator==(this U8Char const&, U8Char const&) noexcept -> bool = default;
 };
 
@@ -131,6 +110,7 @@ public:
  */
 class InvalidUtf8 {
 public:
+    [[nodiscard]]
     constexpr auto operator==(this InvalidUtf8 const&, InvalidUtf8 const&) noexcept -> bool = default;
 };
 

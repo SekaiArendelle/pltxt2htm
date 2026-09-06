@@ -74,6 +74,7 @@ public:
         return value;
     }
 
+    [[nodiscard]]
     constexpr bool operator==(this NonZero const&, NonZero const&) noexcept = default;
 };
 

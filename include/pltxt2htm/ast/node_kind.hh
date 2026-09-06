@@ -27,13 +27,14 @@ enum class NodeKind : unsigned {
 
     // Whitespace and special characters
     line_break, ///< Line break character (\n)
+    // TODO: Distinguish U+0020 from U+00A0 after testing both behaviors in Unity TextMeshPro.
+    // Both currently render as non-breaking spaces to match Physics-Lab.
     space, ///< Space character (will be rendered as &nbsp; in HTML)
     ampersand, ///< Ampersand character (&) - escaped to &amp;
     double_quote, ///< Double quote character (") - escaped to &quot;
     single_quote, ///< Single quote character (') - escaped to &apos;
     less_than, ///< Less-than character (<) - escaped to &lt;
     greater_than, ///< Greater-than character (>) - escaped to &gt;
-    entity_reference, ///< HTML entity reference: &amp; name &amp;; e.g. &amp;quot;, &amp;amp;, &amp;#38;
     tab, ///< Tab character - rendered as multiple &nbsp; entities
 
     // Physics-Lab specific formatting tags

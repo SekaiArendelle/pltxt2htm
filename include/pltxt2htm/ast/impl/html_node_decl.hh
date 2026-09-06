@@ -9,6 +9,7 @@
 
 #include <utility>
 #include <cstddef>
+#include <cstdint>
 #include <fast_io/fast_io_dsal/string.h>
 #include "../../container/optional.hh"
 #include "../../container/string_view.hh"
@@ -17,6 +18,7 @@
 #include "../value_unit.hh"
 #include "../vertical_align_value.hh"
 #include "../node_kind.hh"
+#include "../../details/push_macro.hh"
 
 namespace pltxt2htm {
 
@@ -26,6 +28,7 @@ namespace pltxt2htm {
  */
 class HtmlBr {
 public:
+    [[nodiscard]]
     constexpr auto operator==(this HtmlBr const&, HtmlBr const&) noexcept -> bool = default;
 };
 
@@ -35,6 +38,7 @@ public:
  */
 class HtmlHr {
 public:
+    [[nodiscard]]
     constexpr auto operator==(this HtmlHr const&, HtmlHr const&) noexcept -> bool = default;
 };
 
@@ -529,10 +533,203 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlSpan {
+    /**
+     * @brief Compact storage for the optional span style attributes.
+     * @details Semantically equivalent to the clearer but larger representation:
+     * @code
+     * Optional<ValueWithUnit<double>> font_size;
+     * Optional<VerticalAlignValue<ndebug>> vertical_align;
+     * @endcode
+     * Flattening their state lets the tags share alignment padding and avoids enlarging every PlTxtNode.
+     */
+    struct StyleStorage {
+        // Intentionally use the least unsigned type with at least 8 value bits to keep this storage tag compact.
+        enum class VerticalAlignStorageKind : ::std::uint_least8_t {
+            none,
+            keyword_baseline,
+            keyword_sub,
+            keyword_super,
+            keyword_text_top,
+            keyword_text_bottom,
+            keyword_middle,
+            keyword_top,
+            keyword_bottom,
+            length_px,
+            length_percent,
+            length_em,
+        };
+
+        double font_size_value{};
+        ::std::ptrdiff_t vertical_align_length{};
+        ::pltxt2htm::Unit font_size_unit{::pltxt2htm::Unit::px};
+        VerticalAlignStorageKind vertical_align_kind{VerticalAlignStorageKind::none};
+        bool has_font_size{};
+
+        [[nodiscard]]
+        static constexpr auto encode_vertical_align_unit(::pltxt2htm::Unit const unit) noexcept
+            -> VerticalAlignStorageKind {
+            switch (unit) /* -Werror=switch */ {
+            case ::pltxt2htm::Unit::px: {
+                return VerticalAlignStorageKind::length_px;
+            }
+            case ::pltxt2htm::Unit::percent: {
+                return VerticalAlignStorageKind::length_percent;
+            }
+            case ::pltxt2htm::Unit::em: {
+                return VerticalAlignStorageKind::length_em;
+            }
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
+            default:
+                [[unlikely]] {
+                    pltxt2htm_unreachable(u8"Unexpected vertical-align unit");
+                }
+#endif
+            }
+            pltxt2htm_unreachable(u8"Unreachable after vertical-align unit switch");
+        }
+
+        [[nodiscard]]
+        static constexpr auto encode_vertical_align_keyword(::pltxt2htm::VerticalAlignKeyword const keyword) noexcept
+            -> VerticalAlignStorageKind {
+            switch (keyword) /* -Werror=switch */ {
+            case ::pltxt2htm::VerticalAlignKeyword::baseline: {
+                return VerticalAlignStorageKind::keyword_baseline;
+            }
+            case ::pltxt2htm::VerticalAlignKeyword::sub: {
+                return VerticalAlignStorageKind::keyword_sub;
+            }
+            case ::pltxt2htm::VerticalAlignKeyword::super: {
+                return VerticalAlignStorageKind::keyword_super;
+            }
+            case ::pltxt2htm::VerticalAlignKeyword::text_top: {
+                return VerticalAlignStorageKind::keyword_text_top;
+            }
+            case ::pltxt2htm::VerticalAlignKeyword::text_bottom: {
+                return VerticalAlignStorageKind::keyword_text_bottom;
+            }
+            case ::pltxt2htm::VerticalAlignKeyword::middle: {
+                return VerticalAlignStorageKind::keyword_middle;
+            }
+            case ::pltxt2htm::VerticalAlignKeyword::top: {
+                return VerticalAlignStorageKind::keyword_top;
+            }
+            case ::pltxt2htm::VerticalAlignKeyword::bottom: {
+                return VerticalAlignStorageKind::keyword_bottom;
+            }
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
+            default:
+                [[unlikely]] {
+                    pltxt2htm_unreachable(u8"Unexpected vertical-align keyword");
+                }
+#endif
+            }
+            pltxt2htm_unreachable(u8"Unreachable after vertical-align keyword switch");
+        }
+
+        constexpr StyleStorage(
+            ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> const& font_size,
+            ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> const& vertical_align) noexcept {
+            if (font_size.has_value()) {
+                auto const& value = font_size.template value<ndebug>();
+                font_size_value = value.value;
+                font_size_unit = value.unit;
+                has_font_size = true;
+            }
+            if (vertical_align.has_value() == false) {
+                return;
+            }
+            auto const& value = vertical_align.template value<ndebug>();
+            if (value.get_kind() == ::pltxt2htm::VerticalAlignKind::keyword) {
+                vertical_align_kind = encode_vertical_align_keyword(value.get_keyword());
+                return;
+            }
+            auto const length = value.get_length();
+            vertical_align_length = length.value;
+            vertical_align_kind = encode_vertical_align_unit(length.unit);
+        }
+
+        [[nodiscard]]
+        constexpr auto operator==(this StyleStorage const& self, StyleStorage const& other) noexcept -> bool {
+            if (self.has_font_size != other.has_font_size || self.vertical_align_kind != other.vertical_align_kind) {
+                return false;
+            }
+            if (self.has_font_size &&
+                (self.font_size_value != other.font_size_value || self.font_size_unit != other.font_size_unit)) {
+                return false;
+            }
+            bool const stores_vertical_align_length{self.vertical_align_kind == VerticalAlignStorageKind::length_px ||
+                                                    self.vertical_align_kind ==
+                                                        VerticalAlignStorageKind::length_percent ||
+                                                    self.vertical_align_kind == VerticalAlignStorageKind::length_em};
+            return stores_vertical_align_length == false || self.vertical_align_length == other.vertical_align_length;
+        }
+
+        [[nodiscard]]
+        constexpr auto get_font_size(this StyleStorage const& self) noexcept
+            -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> {
+            if (self.has_font_size == false) {
+                return ::pltxt2htm::container::nullopt;
+            }
+            return ::pltxt2htm::ValueWithUnit<double>{.value = self.font_size_value, .unit = self.font_size_unit};
+        }
+
+        [[nodiscard]]
+        constexpr auto get_vertical_align(this StyleStorage const& self) noexcept
+            -> ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> {
+            switch (self.vertical_align_kind) /* -Werror=switch */ {
+            case VerticalAlignStorageKind::none: {
+                return ::pltxt2htm::container::nullopt;
+            }
+            case VerticalAlignStorageKind::keyword_baseline: {
+                return ::pltxt2htm::VerticalAlignValue<ndebug>{::pltxt2htm::VerticalAlignKeyword::baseline};
+            }
+            case VerticalAlignStorageKind::keyword_sub: {
+                return ::pltxt2htm::VerticalAlignValue<ndebug>{::pltxt2htm::VerticalAlignKeyword::sub};
+            }
+            case VerticalAlignStorageKind::keyword_super: {
+                return ::pltxt2htm::VerticalAlignValue<ndebug>{::pltxt2htm::VerticalAlignKeyword::super};
+            }
+            case VerticalAlignStorageKind::keyword_text_top: {
+                return ::pltxt2htm::VerticalAlignValue<ndebug>{::pltxt2htm::VerticalAlignKeyword::text_top};
+            }
+            case VerticalAlignStorageKind::keyword_text_bottom: {
+                return ::pltxt2htm::VerticalAlignValue<ndebug>{::pltxt2htm::VerticalAlignKeyword::text_bottom};
+            }
+            case VerticalAlignStorageKind::keyword_middle: {
+                return ::pltxt2htm::VerticalAlignValue<ndebug>{::pltxt2htm::VerticalAlignKeyword::middle};
+            }
+            case VerticalAlignStorageKind::keyword_top: {
+                return ::pltxt2htm::VerticalAlignValue<ndebug>{::pltxt2htm::VerticalAlignKeyword::top};
+            }
+            case VerticalAlignStorageKind::keyword_bottom: {
+                return ::pltxt2htm::VerticalAlignValue<ndebug>{::pltxt2htm::VerticalAlignKeyword::bottom};
+            }
+            case VerticalAlignStorageKind::length_px: {
+                return ::pltxt2htm::VerticalAlignValue<ndebug>{::pltxt2htm::ValueWithUnit<::std::ptrdiff_t>{
+                    .value = self.vertical_align_length, .unit = ::pltxt2htm::Unit::px}};
+            }
+            case VerticalAlignStorageKind::length_percent: {
+                return ::pltxt2htm::VerticalAlignValue<ndebug>{::pltxt2htm::ValueWithUnit<::std::ptrdiff_t>{
+                    .value = self.vertical_align_length, .unit = ::pltxt2htm::Unit::percent}};
+            }
+            case VerticalAlignStorageKind::length_em: {
+                return ::pltxt2htm::VerticalAlignValue<ndebug>{::pltxt2htm::ValueWithUnit<::std::ptrdiff_t>{
+                    .value = self.vertical_align_length, .unit = ::pltxt2htm::Unit::em}};
+            }
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
+            default:
+                [[unlikely]] {
+                    pltxt2htm_unreachable(u8"Unexpected stored vertical-align kind");
+                }
+#endif
+            }
+            pltxt2htm_unreachable(u8"Unreachable after stored vertical-align kind switch");
+        }
+    };
+
     ::pltxt2htm::Ast<ndebug> subast;
     ::fast_io::u8string color;
-    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size;
-    ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align;
+    StyleStorage style;
 
 public:
     constexpr HtmlSpan(
@@ -562,13 +759,13 @@ public:
     [[nodiscard]]
     constexpr auto get_font_size(this HtmlSpan<ndebug> const& self) noexcept
         -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> {
-        return self.font_size;
+        return self.style.get_font_size();
     }
 
     [[nodiscard]]
     constexpr auto get_vertical_align(this HtmlSpan<ndebug> const& self) noexcept
         -> ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> {
-        return self.vertical_align;
+        return self.style.get_vertical_align();
     }
 };
 
@@ -681,3 +878,5 @@ public:
 };
 
 } // namespace pltxt2htm
+
+#include "../../details/pop_macro.hh"

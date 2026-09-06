@@ -264,6 +264,7 @@ public:
  */
 class TableCol {
 public:
+    [[nodiscard]]
     constexpr auto operator==(this TableCol const&, TableCol const&) noexcept -> bool = default;
 };
 

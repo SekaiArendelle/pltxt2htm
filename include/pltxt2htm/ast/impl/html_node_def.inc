@@ -366,8 +366,7 @@ constexpr ::pltxt2htm::HtmlSpan<ndebug>::HtmlSpan(
     ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align_) noexcept
     : subast(::std::move(subast_)),
       color(::std::move(color_)),
-      font_size(font_size_),
-      vertical_align(vertical_align_) {
+      style{font_size_, vertical_align_} {
 }
 
 template<::pltxt2htm::Contracts ndebug>
