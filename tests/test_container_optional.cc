@@ -36,6 +36,8 @@ static_assert(::std::same_as<decltype(::std::declval<IntOptional const&>().value
 static_assert(noexcept(::std::declval<IntOptional const&>().value_or(short{})));
 static_assert(noexcept(::std::declval<IntOptional&&>().value_or(short{})));
 static_assert(noexcept(::std::declval<IntOptional const&&>().value_or(short{})));
+static_assert(!::std::is_assignable_v<IntOptional&&, int>);
+static_assert(!::std::is_assignable_v<IntOptional&&, ::pltxt2htm::container::NulloptType>);
 
 consteval bool optional_constexpr_operations_work() noexcept {
     IntOptional value{42};
@@ -60,6 +62,8 @@ static_assert(optional_constexpr_operations_work());
 
 using NonZeroSize = ::pltxt2htm::container::NonZeroSize;
 using NonZeroSizeOptional = ::pltxt2htm::container::Optional<NonZeroSize>;
+
+static_assert(!::std::is_trivially_copy_assignable_v<NonZeroSizeOptional>);
 
 template<typename T>
 consteval auto optional_non_zero_has_niche_representation() noexcept -> bool {
@@ -125,18 +129,33 @@ struct ExplicitReferenceProxy {
     }
 };
 
+using OptionalReferenceArray = int[2];
+using OptionalReferenceFunction = void();
+
+void optional_reference_function();
+
 } // namespace pltxt2htm_test
 
 using IntReferenceOptional = ::pltxt2htm::container::Optional<int&>;
 using ConstIntReferenceOptional = ::pltxt2htm::container::Optional<int const&>;
+using ArrayReferenceOptional = ::pltxt2htm::container::Optional<::pltxt2htm_test::OptionalReferenceArray&>;
+using FunctionReferenceOptional = ::pltxt2htm::container::Optional<::pltxt2htm_test::OptionalReferenceFunction&>;
+using IntReferenceValueFunction = int&(IntReferenceOptional const&) noexcept;
 
 static_assert(::pltxt2htm::container::is_optional<IntReferenceOptional>);
 static_assert(!::std::default_initializable<IntReferenceOptional>);
 static_assert(::std::same_as<IntReferenceOptional::value_type, int>);
+static_assert(::std::same_as<ConstIntReferenceOptional::value_type, int const>);
 static_assert(::std::same_as<IntReferenceOptional::rebind<double&>, ::pltxt2htm::container::Optional<double&>>);
 static_assert(sizeof(IntReferenceOptional) == sizeof(int*));
 static_assert(alignof(IntReferenceOptional) == alignof(int*));
 static_assert(::std::is_trivially_copyable_v<IntReferenceOptional>);
+static_assert(::std::is_trivially_copy_assignable_v<IntReferenceOptional>);
+static_assert(::std::is_trivially_move_assignable_v<IntReferenceOptional>);
+static_assert(::std::is_trivially_copyable_v<ConstIntReferenceOptional>);
+static_assert(::std::is_copy_assignable_v<ConstIntReferenceOptional>);
+static_assert(::std::is_move_assignable_v<ConstIntReferenceOptional>);
+static_assert(::std::swappable<ConstIntReferenceOptional>);
 static_assert(::std::is_constructible_v<IntReferenceOptional, int&>);
 static_assert(!::std::is_constructible_v<IntReferenceOptional, int&&>);
 static_assert(::std::is_constructible_v<ConstIntReferenceOptional, int&>);
@@ -155,6 +174,14 @@ static_assert(!::std::is_convertible_v<::pltxt2htm_test::ExplicitReferenceProxy&
 static_assert(::std::is_constructible_v<IntReferenceOptional, ::pltxt2htm_test::ExplicitReferenceProxy&>);
 static_assert(!::std::is_convertible_v<::pltxt2htm_test::ExplicitReferenceProxy&, IntReferenceOptional>);
 static_assert(!::std::is_assignable_v<IntReferenceOptional&, ::pltxt2htm_test::ExplicitReferenceProxy&>);
+static_assert(::std::is_constructible_v<ArrayReferenceOptional, ::pltxt2htm_test::OptionalReferenceArray&>);
+static_assert(::std::same_as<
+              decltype(::std::declval<ArrayReferenceOptional const&>().value<::pltxt2htm::Contracts::quick_enforce>()),
+              ::pltxt2htm_test::OptionalReferenceArray&>);
+static_assert(::std::is_constructible_v<FunctionReferenceOptional, ::pltxt2htm_test::OptionalReferenceFunction&>);
+static_assert(::std::same_as<decltype(::std::declval<FunctionReferenceOptional const&>()
+                                          .value<::pltxt2htm::Contracts::quick_enforce>()),
+                             ::pltxt2htm_test::OptionalReferenceFunction&>);
 
 static_assert(::std::same_as<
               decltype(::std::declval<IntReferenceOptional&>().value<::pltxt2htm::Contracts::quick_enforce>()), int&>);
@@ -167,6 +194,8 @@ static_assert(
     ::std::same_as<
         decltype(::std::declval<IntReferenceOptional const&&>().value<::pltxt2htm::Contracts::quick_enforce>()), int&>);
 static_assert(::std::same_as<decltype(::std::declval<IntReferenceOptional const&>().value_or(0)), int>);
+static_assert(::std::same_as<decltype(&IntReferenceOptional::template value<::pltxt2htm::Contracts::ignore>),
+                             IntReferenceValueFunction*>);
 
 consteval bool optional_reference_constexpr_operations_work() noexcept {
     int first{7};
@@ -286,6 +315,14 @@ struct OptionalCopyOnlyValue {
 
     constexpr OptionalCopyOnlyValue(OptionalCopyOnlyValue&&) = delete;
 
+    constexpr auto operator=(this OptionalCopyOnlyValue& self, OptionalCopyOnlyValue const& other) noexcept
+        -> OptionalCopyOnlyValue& {
+        self.value = other.value;
+        return self;
+    }
+
+    constexpr auto operator=(this OptionalCopyOnlyValue&, OptionalCopyOnlyValue&&) -> OptionalCopyOnlyValue& = delete;
+
     constexpr ~OptionalCopyOnlyValue() noexcept {
     }
 };
@@ -352,8 +389,30 @@ static_assert(!::pltxt2htm_test::can_call_value_or<MoveOnlyOptional&, ::pltxt2ht
 static_assert(::pltxt2htm_test::can_call_value_or<MoveOnlyOptional&&, ::pltxt2htm_test::OptionalMoveOnlyValue>);
 static_assert(::std::is_copy_constructible_v<::pltxt2htm_test::OptionalCopyOnlyValue>);
 static_assert(!::std::is_move_constructible_v<::pltxt2htm_test::OptionalCopyOnlyValue>);
+static_assert(::std::is_copy_assignable_v<CopyOnlyOptional>);
 static_assert(::pltxt2htm_test::can_call_value_or<CopyOnlyOptional&, ::pltxt2htm_test::OptionalCopyOnlyValue&>);
 static_assert(!::pltxt2htm_test::can_call_value_or<CopyOnlyOptional&&, ::pltxt2htm_test::OptionalCopyOnlyValue&>);
+
+consteval bool optional_copy_only_assignment_works() noexcept {
+    ::pltxt2htm_test::OptionalCopyOnlyValue source_value{17};
+    ::pltxt2htm_test::OptionalCopyOnlyValue target_value{23};
+    CopyOnlyOptional source{source_value};
+    CopyOnlyOptional target{::pltxt2htm::container::nullopt};
+    target = source;
+    if (!target.has_value() || target.value<::pltxt2htm::Contracts::ignore>().value != 17) {
+        return false;
+    }
+    CopyOnlyOptional other{target_value};
+    target = other;
+    if (target.value<::pltxt2htm::Contracts::ignore>().value != 23) {
+        return false;
+    }
+    CopyOnlyOptional empty{::pltxt2htm::container::nullopt};
+    target = empty;
+    return !target.has_value();
+}
+
+static_assert(optional_copy_only_assignment_works());
 static_assert(!noexcept(::std::declval<ThrowingOptional const&>().value_or(
     ::std::declval<::pltxt2htm_test::OptionalThrowingValue const&>())));
 static_assert(!noexcept(
