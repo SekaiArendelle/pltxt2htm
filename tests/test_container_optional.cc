@@ -28,6 +28,14 @@ static_assert(
 static_assert(
     ::std::same_as<decltype(::std::declval<IntOptional const&&>().value<::pltxt2htm::Contracts::quick_enforce>()),
                    int const&&>);
+static_assert(::std::same_as<decltype(::std::declval<IntOptional&>().value_or(short{})), int>);
+static_assert(::std::same_as<decltype(::std::declval<IntOptional const&>().value_or(short{})), int>);
+static_assert(::std::same_as<decltype(::std::declval<IntOptional&&>().value_or(short{})), int>);
+static_assert(::std::same_as<decltype(::std::declval<IntOptional const&&>().value_or(short{})), int>);
+static_assert(::std::same_as<decltype(::std::declval<IntOptional const&>().value_or<long>(short{})), int>);
+static_assert(noexcept(::std::declval<IntOptional const&>().value_or(short{})));
+static_assert(noexcept(::std::declval<IntOptional&&>().value_or(short{})));
+static_assert(noexcept(::std::declval<IntOptional const&&>().value_or(short{})));
 
 consteval bool optional_constexpr_operations_work() noexcept {
     IntOptional value{42};
@@ -131,7 +139,125 @@ struct OptionalTrackedValue {
     }
 };
 
+struct OptionalMoveOnlyValue {
+    int value{};
+
+    constexpr explicit OptionalMoveOnlyValue(int value_) noexcept
+        : value{value_} {
+    }
+
+    constexpr OptionalMoveOnlyValue(OptionalMoveOnlyValue const&) = delete;
+
+    constexpr OptionalMoveOnlyValue(OptionalMoveOnlyValue&& other) noexcept
+        : value{other.value} {
+        other.value = -1;
+    }
+
+    constexpr auto operator=(this OptionalMoveOnlyValue& self, OptionalMoveOnlyValue const&)
+        -> OptionalMoveOnlyValue& = delete;
+
+    constexpr auto operator=(this OptionalMoveOnlyValue& self, OptionalMoveOnlyValue&& other) noexcept
+        -> OptionalMoveOnlyValue& {
+        self.value = other.value;
+        other.value = -1;
+        return self;
+    }
+
+    constexpr ~OptionalMoveOnlyValue() noexcept {
+    }
+};
+
+struct OptionalCopyOnlyValue {
+    int value{};
+
+    constexpr explicit OptionalCopyOnlyValue(int value_) noexcept
+        : value{value_} {
+    }
+
+    constexpr OptionalCopyOnlyValue(OptionalCopyOnlyValue const&) noexcept = default;
+
+    constexpr OptionalCopyOnlyValue(OptionalCopyOnlyValue&&) = delete;
+
+    constexpr ~OptionalCopyOnlyValue() noexcept {
+    }
+};
+
+struct OptionalThrowingValue {
+    int value{};
+
+    constexpr explicit OptionalThrowingValue(int value_) noexcept
+        : value{value_} {
+    }
+
+    constexpr OptionalThrowingValue(OptionalThrowingValue const& other) noexcept(false)
+        : value{other.value} {
+    }
+
+    constexpr OptionalThrowingValue(OptionalThrowingValue&& other) noexcept(false)
+        : value{other.value} {
+        other.value = -1;
+    }
+
+    constexpr ~OptionalThrowingValue() noexcept {
+    }
+};
+
+struct OptionalNothrowImplicitFallback;
+
+struct OptionalExplicitThrowingValue {
+    int value{};
+
+    constexpr OptionalExplicitThrowingValue() noexcept = default;
+
+    constexpr explicit OptionalExplicitThrowingValue(OptionalNothrowImplicitFallback const&) noexcept(false)
+        : value{1} {
+    }
+
+    constexpr OptionalExplicitThrowingValue(OptionalExplicitThrowingValue const&) noexcept = default;
+
+    constexpr OptionalExplicitThrowingValue(OptionalExplicitThrowingValue&&) noexcept = default;
+
+    constexpr ~OptionalExplicitThrowingValue() noexcept {
+    }
+};
+
+struct OptionalNothrowImplicitFallback {
+    [[nodiscard]]
+    constexpr operator OptionalExplicitThrowingValue() const noexcept {
+        return OptionalExplicitThrowingValue{};
+    }
+};
+
+template<typename OptionalType, typename Fallback>
+concept can_call_value_or = requires(OptionalType&& optional, Fallback&& fallback) {
+    ::std::forward<OptionalType>(optional).value_or(::std::forward<Fallback>(fallback));
+};
+
 } // namespace pltxt2htm_test
+
+using MoveOnlyOptional = ::pltxt2htm::container::Optional<::pltxt2htm_test::OptionalMoveOnlyValue>;
+using CopyOnlyOptional = ::pltxt2htm::container::Optional<::pltxt2htm_test::OptionalCopyOnlyValue>;
+using ThrowingOptional = ::pltxt2htm::container::Optional<::pltxt2htm_test::OptionalThrowingValue>;
+using ExplicitThrowingOptional = ::pltxt2htm::container::Optional<::pltxt2htm_test::OptionalExplicitThrowingValue>;
+
+static_assert(!::pltxt2htm_test::can_call_value_or<MoveOnlyOptional&, ::pltxt2htm_test::OptionalMoveOnlyValue>);
+static_assert(::pltxt2htm_test::can_call_value_or<MoveOnlyOptional&&, ::pltxt2htm_test::OptionalMoveOnlyValue>);
+static_assert(::std::is_copy_constructible_v<::pltxt2htm_test::OptionalCopyOnlyValue>);
+static_assert(!::std::is_move_constructible_v<::pltxt2htm_test::OptionalCopyOnlyValue>);
+static_assert(::pltxt2htm_test::can_call_value_or<CopyOnlyOptional&, ::pltxt2htm_test::OptionalCopyOnlyValue&>);
+static_assert(!::pltxt2htm_test::can_call_value_or<CopyOnlyOptional&&, ::pltxt2htm_test::OptionalCopyOnlyValue&>);
+static_assert(!noexcept(::std::declval<ThrowingOptional const&>().value_or(
+    ::std::declval<::pltxt2htm_test::OptionalThrowingValue const&>())));
+static_assert(!noexcept(
+    ::std::declval<ThrowingOptional&&>().value_or(::std::declval<::pltxt2htm_test::OptionalThrowingValue&&>())));
+static_assert(!noexcept(
+    ::std::declval<ThrowingOptional const&&>().value_or(::std::declval<::pltxt2htm_test::OptionalThrowingValue&&>())));
+static_assert(::std::is_nothrow_convertible_v<::pltxt2htm_test::OptionalNothrowImplicitFallback&,
+                                              ::pltxt2htm_test::OptionalExplicitThrowingValue>);
+static_assert(!noexcept(static_cast<::pltxt2htm_test::OptionalExplicitThrowingValue>(
+    ::std::declval<::pltxt2htm_test::OptionalNothrowImplicitFallback&>())));
+static_assert(!noexcept(::std::declval<ExplicitThrowingOptional const&>().value_or(
+    ::std::declval<::pltxt2htm_test::OptionalNothrowImplicitFallback&>())));
 
 int main() {
     IntOptional empty{::pltxt2htm::container::nullopt};
@@ -146,9 +272,13 @@ int main() {
 
     int fallback{7};
     int const const_fallback{9};
-    pltxt2htm_test_assert_true(::std::addressof(empty.value_or(fallback)) == ::std::addressof(fallback));
-    pltxt2htm_test_assert_true(::std::addressof(value.value_or(fallback)) ==
-                               ::std::addressof(value.value<::pltxt2htm::Contracts::quick_enforce>()));
+    int empty_result{empty.value_or(fallback)};
+    int value_result{value.value_or(fallback)};
+    pltxt2htm_test_assert_true(empty_result == 7 && value_result == 42);
+    empty_result = 8;
+    value_result = 43;
+    pltxt2htm_test_assert_true(empty_result == 8 && value_result == 43 && fallback == 7);
+    pltxt2htm_test_assert_true(value.value<::pltxt2htm::Contracts::quick_enforce>() == 42);
     pltxt2htm_test_assert_true(static_cast<IntOptional const&>(empty).value_or(const_fallback) == const_fallback);
     pltxt2htm_test_assert_true(IntOptional{::pltxt2htm::container::nullopt}.value_or(int{11}) == 11);
 
@@ -187,6 +317,26 @@ int main() {
     moved_assignment = ::std::move(moved);
     pltxt2htm_test_assert_true(moved_assignment.has_value());
     pltxt2htm_test_assert_true(moved_assignment.value<::pltxt2htm::Contracts::quick_enforce>().value == 9);
+
+    ::pltxt2htm_test::OptionalTrackedValue tracked_fallback{7};
+    auto copied_value = moved_assignment.value_or(tracked_fallback);
+    copied_value.value = 14;
+    pltxt2htm_test_assert_true(copied_value.value == 14 &&
+                               moved_assignment.value<::pltxt2htm::Contracts::quick_enforce>().value == 9 &&
+                               tracked_fallback.value == 7);
+
+    TrackedOptional empty_tracked{::pltxt2htm::container::nullopt};
+    auto copied_fallback = empty_tracked.value_or(tracked_fallback);
+    copied_fallback.value = 15;
+    pltxt2htm_test_assert_true(copied_fallback.value == 15 && tracked_fallback.value == 7);
+
+    auto moved_fallback = ::std::move(empty_tracked).value_or(::std::move(tracked_fallback));
+    pltxt2htm_test_assert_true(moved_fallback.value == 7 && tracked_fallback.value == -1);
+
+    MoveOnlyOptional move_only{::pltxt2htm_test::OptionalMoveOnlyValue{21}};
+    auto moved_value = ::std::move(move_only).value_or(::pltxt2htm_test::OptionalMoveOnlyValue{34});
+    pltxt2htm_test_assert_true(moved_value.value == 21);
+    pltxt2htm_test_assert_true(move_only.value<::pltxt2htm::Contracts::quick_enforce>().value == -1);
 
     return 0;
 }
