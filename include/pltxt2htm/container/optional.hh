@@ -262,35 +262,36 @@ public:
         return ::std::forward_like<decltype(self)>(self.storage).value();
     }
 
-    template<typename U>
-        requires (::std::same_as<U, value_type>)
+    template<typename U = value_type>
+        requires (::std::is_copy_constructible_v<value_type> && ::std::is_convertible_v<U &&, value_type>)
     [[nodiscard]]
-    constexpr auto value_or(this Optional<T>& self, U& value) noexcept -> value_type& {
+    constexpr auto value_or(this Optional<T> const& self,
+                            U&& value) noexcept(noexcept(static_cast<value_type>(self.storage.value())) &&
+                                                noexcept(static_cast<value_type>(::std::forward<U>(value))))
+        -> value_type {
         if (self.has_value() == false) {
-            return value;
+            return static_cast<value_type>(::std::forward<U>(value));
         }
-        return self.storage.value();
+        return static_cast<value_type>(self.storage.value());
     }
 
-    template<typename U>
-        requires (::std::same_as<U, value_type>)
+    template<typename U = value_type>
+        requires (::std::is_move_constructible_v<value_type> && ::std::is_convertible_v<U &&, value_type>)
     [[nodiscard]]
-    constexpr auto value_or(this Optional<T> const& self, U const& value) noexcept -> value_type const& {
+    constexpr auto value_or(this Optional<T>&& self,
+                            U&& value) noexcept(noexcept(static_cast<value_type>(::std::move(self.storage).value())) &&
+                                                noexcept(static_cast<value_type>(::std::forward<U>(value))))
+        -> value_type {
         if (self.has_value() == false) {
-            return value;
+            return static_cast<value_type>(::std::forward<U>(value));
         }
-        return self.storage.value();
+        return static_cast<value_type>(::std::move(self.storage).value());
     }
 
-    template<typename U>
-        requires (::std::same_as<U, value_type>)
-    [[nodiscard]]
-    constexpr auto value_or(this Optional<T>&& self, U&& value) noexcept -> value_type&& {
-        if (self.has_value() == false) {
-            return ::std::move(value);
-        }
-        return ::std::move(self.storage).value();
-    }
+    // Prevent rvalue calls from falling back to the const lvalue overload when moving is unsupported.
+    template<typename U = value_type>
+        requires (!::std::is_move_constructible_v<value_type>)
+    constexpr auto value_or(this Optional<T>&&, U&&) -> value_type = delete;
 
     [[nodiscard]]
     constexpr bool operator==(this Optional<T> const& self, Optional<T> const& rhs) noexcept
