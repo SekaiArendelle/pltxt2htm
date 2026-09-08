@@ -28,7 +28,7 @@ public:
     constexpr explicit Table(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr Table(::pltxt2htm::Table<ndebug> const&) noexcept;
     constexpr Table(::pltxt2htm::Table<ndebug>&&) noexcept;
-    constexpr ~Table() noexcept;
+    constexpr ~Table() noexcept = default;
     constexpr auto operator=(::pltxt2htm::Table<ndebug> const&) noexcept -> ::pltxt2htm::Table<ndebug>& = delete;
     constexpr auto operator=(this Table<ndebug>& self, ::pltxt2htm::Table<ndebug>&&) noexcept
         -> ::pltxt2htm::Table<ndebug>&;
@@ -53,7 +53,7 @@ public:
     constexpr explicit TableTr(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr TableTr(::pltxt2htm::TableTr<ndebug> const&) noexcept;
     constexpr TableTr(::pltxt2htm::TableTr<ndebug>&&) noexcept;
-    constexpr ~TableTr() noexcept;
+    constexpr ~TableTr() noexcept = default;
     constexpr auto operator=(::pltxt2htm::TableTr<ndebug> const&) noexcept -> ::pltxt2htm::TableTr<ndebug>& = delete;
     constexpr auto operator=(this TableTr<ndebug>& self, ::pltxt2htm::TableTr<ndebug>&&) noexcept
         -> ::pltxt2htm::TableTr<ndebug>&;
@@ -79,7 +79,7 @@ public:
     constexpr explicit TableTd(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::TableAlign align_) noexcept;
     constexpr TableTd(::pltxt2htm::TableTd<ndebug> const&) noexcept;
     constexpr TableTd(::pltxt2htm::TableTd<ndebug>&&) noexcept;
-    constexpr ~TableTd() noexcept;
+    constexpr ~TableTd() noexcept = default;
     constexpr auto operator=(::pltxt2htm::TableTd<ndebug> const&) noexcept -> ::pltxt2htm::TableTd<ndebug>& = delete;
     constexpr auto operator=(this TableTd<ndebug>& self, ::pltxt2htm::TableTd<ndebug>&&) noexcept
         -> ::pltxt2htm::TableTd<ndebug>&;
@@ -110,7 +110,7 @@ public:
     constexpr explicit TableTh(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::TableAlign align_) noexcept;
     constexpr TableTh(::pltxt2htm::TableTh<ndebug> const&) noexcept;
     constexpr TableTh(::pltxt2htm::TableTh<ndebug>&&) noexcept;
-    constexpr ~TableTh() noexcept;
+    constexpr ~TableTh() noexcept = default;
     constexpr auto operator=(::pltxt2htm::TableTh<ndebug> const&) noexcept -> ::pltxt2htm::TableTh<ndebug>& = delete;
     constexpr auto operator=(this TableTh<ndebug>& self, ::pltxt2htm::TableTh<ndebug>&&) noexcept
         -> ::pltxt2htm::TableTh<ndebug>&;
@@ -140,7 +140,7 @@ public:
     constexpr explicit TableThead(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr TableThead(::pltxt2htm::TableThead<ndebug> const&) noexcept;
     constexpr TableThead(::pltxt2htm::TableThead<ndebug>&&) noexcept;
-    constexpr ~TableThead() noexcept;
+    constexpr ~TableThead() noexcept = default;
     constexpr auto operator=(::pltxt2htm::TableThead<ndebug> const&) noexcept
         -> ::pltxt2htm::TableThead<ndebug>& = delete;
     constexpr auto operator=(this TableThead<ndebug>& self, ::pltxt2htm::TableThead<ndebug>&&) noexcept
@@ -166,7 +166,7 @@ public:
     constexpr explicit TableTbody(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr TableTbody(::pltxt2htm::TableTbody<ndebug> const&) noexcept;
     constexpr TableTbody(::pltxt2htm::TableTbody<ndebug>&&) noexcept;
-    constexpr ~TableTbody() noexcept;
+    constexpr ~TableTbody() noexcept = default;
     constexpr auto operator=(::pltxt2htm::TableTbody<ndebug> const&) noexcept
         -> ::pltxt2htm::TableTbody<ndebug>& = delete;
     constexpr auto operator=(this TableTbody<ndebug>& self, ::pltxt2htm::TableTbody<ndebug>&&) noexcept
@@ -192,7 +192,7 @@ public:
     constexpr explicit TableTfoot(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr TableTfoot(::pltxt2htm::TableTfoot<ndebug> const&) noexcept;
     constexpr TableTfoot(::pltxt2htm::TableTfoot<ndebug>&&) noexcept;
-    constexpr ~TableTfoot() noexcept;
+    constexpr ~TableTfoot() noexcept = default;
     constexpr auto operator=(::pltxt2htm::TableTfoot<ndebug> const&) noexcept
         -> ::pltxt2htm::TableTfoot<ndebug>& = delete;
     constexpr auto operator=(this TableTfoot<ndebug>& self, ::pltxt2htm::TableTfoot<ndebug>&&) noexcept
@@ -218,7 +218,7 @@ public:
     constexpr explicit TableCaption(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr TableCaption(::pltxt2htm::TableCaption<ndebug> const&) noexcept;
     constexpr TableCaption(::pltxt2htm::TableCaption<ndebug>&&) noexcept;
-    constexpr ~TableCaption() noexcept;
+    constexpr ~TableCaption() noexcept = default;
     constexpr auto operator=(::pltxt2htm::TableCaption<ndebug> const&) noexcept
         -> ::pltxt2htm::TableCaption<ndebug>& = delete;
     constexpr auto operator=(this TableCaption<ndebug>& self, ::pltxt2htm::TableCaption<ndebug>&&) noexcept
@@ -244,7 +244,7 @@ public:
     constexpr explicit TableColgroup(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr TableColgroup(::pltxt2htm::TableColgroup<ndebug> const&) noexcept;
     constexpr TableColgroup(::pltxt2htm::TableColgroup<ndebug>&&) noexcept;
-    constexpr ~TableColgroup() noexcept;
+    constexpr ~TableColgroup() noexcept = default;
     constexpr auto operator=(::pltxt2htm::TableColgroup<ndebug> const&) noexcept
         -> ::pltxt2htm::TableColgroup<ndebug>& = delete;
     constexpr auto operator=(this TableColgroup<ndebug>& self, ::pltxt2htm::TableColgroup<ndebug>&&) noexcept
