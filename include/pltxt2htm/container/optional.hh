@@ -306,7 +306,14 @@ public:
     constexpr explicit(!::std::is_convertible_v<U, T>)
         Optional(U&&) noexcept(::std::is_nothrow_constructible_v<T, U>) = delete
 #if __cpp_deleted_function >= 202403L
+    #if defined __clang__
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wc++26-extensions"
+    #endif
         ("binding a temporary to Optional<T&> would create a dangling reference")
+    #if defined __clang__
+        #pragma clang diagnostic pop
+    #endif
 #endif
             ;
 
