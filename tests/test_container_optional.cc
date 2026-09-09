@@ -378,6 +378,27 @@ struct OptionalNothrowImplicitFallback {
     }
 };
 
+struct OptionalThrowingEqualityResult {
+    [[nodiscard]]
+    constexpr operator bool() const noexcept(false) {
+        return true;
+    }
+};
+
+struct OptionalThrowingEqualityValue {
+    [[nodiscard]]
+    constexpr auto operator==(this OptionalThrowingEqualityValue const&, OptionalThrowingEqualityValue const&) noexcept
+        -> OptionalThrowingEqualityResult {
+        return {};
+    }
+
+    [[nodiscard]]
+    constexpr auto operator!=(this OptionalThrowingEqualityValue const&, OptionalThrowingEqualityValue const&) noexcept
+        -> OptionalThrowingEqualityResult {
+        return {};
+    }
+};
+
 template<typename OptionalType, typename Fallback>
 concept can_call_value_or = requires(OptionalType&& optional, Fallback&& fallback) {
     ::std::forward<OptionalType>(optional).value_or(::std::forward<Fallback>(fallback));
@@ -392,6 +413,7 @@ using ExplicitThrowingOptional = ::pltxt2htm::container::Optional<::pltxt2htm_te
 using ThrowingReferenceOptional = ::pltxt2htm::container::Optional<::pltxt2htm_test::OptionalThrowingValue&>;
 using ExplicitThrowingReferenceOptional =
     ::pltxt2htm::container::Optional<::pltxt2htm_test::OptionalExplicitThrowingValue&>;
+using ThrowingEqualityOptional = ::pltxt2htm::container::Optional<::pltxt2htm_test::OptionalThrowingEqualityValue>;
 
 static_assert(!::pltxt2htm_test::can_call_value_or<MoveOnlyOptional&, ::pltxt2htm_test::OptionalMoveOnlyValue>);
 static_assert(::pltxt2htm_test::can_call_value_or<MoveOnlyOptional&&, ::pltxt2htm_test::OptionalMoveOnlyValue>);
@@ -437,6 +459,18 @@ static_assert(!noexcept(::std::declval<ThrowingReferenceOptional const&>().value
     ::std::declval<::pltxt2htm_test::OptionalThrowingValue const&>())));
 static_assert(!noexcept(::std::declval<ExplicitThrowingReferenceOptional const&>().value_or(
     ::std::declval<::pltxt2htm_test::OptionalNothrowImplicitFallback&>())));
+static_assert(::std::equality_comparable<::pltxt2htm_test::OptionalThrowingEqualityValue>);
+static_assert(noexcept(::std::declval<::pltxt2htm_test::OptionalThrowingEqualityValue const&>() ==
+                       ::std::declval<::pltxt2htm_test::OptionalThrowingEqualityValue const&>()));
+static_assert(!noexcept(static_cast<bool>(::std::declval<::pltxt2htm_test::OptionalThrowingEqualityValue const&>() ==
+                                          ::std::declval<::pltxt2htm_test::OptionalThrowingEqualityValue const&>())));
+static_assert(noexcept(::std::declval<IntOptional const&>() == ::std::declval<IntOptional const&>()));
+static_assert(noexcept(::std::declval<IntOptional const&>() == ::std::declval<int const&>()));
+static_assert(noexcept(::std::declval<IntOptional const&>() == ::pltxt2htm::container::nullopt));
+static_assert(!noexcept(::std::declval<ThrowingEqualityOptional const&>() ==
+                        ::std::declval<ThrowingEqualityOptional const&>()));
+static_assert(!noexcept(::std::declval<ThrowingEqualityOptional const&>() ==
+                        ::std::declval<::pltxt2htm_test::OptionalThrowingEqualityValue const&>()));
 
 int main() {
     IntOptional empty{::pltxt2htm::container::nullopt};

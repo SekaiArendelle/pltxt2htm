@@ -408,7 +408,8 @@ public:
     }
 
     [[nodiscard]]
-    constexpr bool operator==(this Optional<T> const& self, Optional<T> const& rhs) noexcept
+    constexpr bool operator==(this Optional<T> const& self, Optional<T> const& rhs) noexcept(
+        noexcept(static_cast<bool>(self.storage.value() == rhs.storage.value())))
         requires ::std::equality_comparable<T>
     {
         if (self.has_value() != rhs.has_value()) {
@@ -417,14 +418,15 @@ public:
         if (self.has_value() == false) {
             return true;
         }
-        return self.storage.value() == rhs.storage.value();
+        return static_cast<bool>(self.storage.value() == rhs.storage.value());
     }
 
     [[nodiscard]]
-    constexpr bool operator==(this Optional<T> const& self, value_type const& rhs) noexcept
+    constexpr bool operator==(this Optional<T> const& self,
+                              value_type const& rhs) noexcept(noexcept(static_cast<bool>(self.storage.value() == rhs)))
         requires ::std::equality_comparable<T>
     {
-        return self.has_value() && self.storage.value() == rhs;
+        return self.has_value() && static_cast<bool>(self.storage.value() == rhs);
     }
 
     [[nodiscard]]
