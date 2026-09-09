@@ -171,7 +171,7 @@ class OptionalStorage<T&> {
 
 public:
     constexpr OptionalStorage(NulloptType) noexcept
-        : value_storage{} {
+        : value_storage{nullptr} {
     }
 
     template<typename U>
@@ -225,11 +225,6 @@ public:
     constexpr ~OptionalStorage() noexcept = default;
 
     constexpr auto operator=(this OptionalStorage& self, OptionalStorage const& other) noexcept -> OptionalStorage& {
-        self.value_storage.value_storage = other.value_storage.value_storage;
-        return self;
-    }
-
-    constexpr auto operator=(this OptionalStorage& self, OptionalStorage&& other) noexcept -> OptionalStorage& {
         // NonZero stores only a trivially copyable integer, so moving needs no state exchange.
         self.value_storage.value_storage = other.value_storage.value_storage;
         return self;
@@ -354,7 +349,7 @@ public:
         requires (!::std::is_reference_v<T>)
     [[nodiscard]]
     constexpr auto value(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.has_value(), u8"optional does not contain a value");
+        pltxt2htm_assert(self.storage.has_value(), u8"optional does not contain a value");
         return ::std::forward_like<decltype(self)>(self.storage).value();
     }
 
@@ -362,7 +357,7 @@ public:
         requires (::std::is_lvalue_reference_v<T>)
     [[nodiscard]]
     constexpr auto value(this Optional<T> const& self) noexcept -> T {
-        pltxt2htm_assert(self.has_value(), u8"optional does not contain a value");
+        pltxt2htm_assert(self.storage.has_value(), u8"optional does not contain a value");
         return self.storage.value();
     }
 
@@ -373,7 +368,7 @@ public:
     constexpr auto value_or(this Optional<T> const& self, U&& value) noexcept(
         noexcept(static_cast<non_reference_value_type>(self.storage.value())) &&
         noexcept(static_cast<non_reference_value_type>(::std::forward<U>(value)))) -> non_reference_value_type {
-        if (self.has_value() == false) {
+        if (self.storage.has_value() == false) {
             return static_cast<non_reference_value_type>(::std::forward<U>(value));
         }
         return static_cast<non_reference_value_type>(self.storage.value());
@@ -386,7 +381,7 @@ public:
     constexpr auto value_or(this Optional<T>&& self, U&& value) noexcept(
         noexcept(static_cast<non_reference_value_type>(::std::move(self.storage).value())) &&
         noexcept(static_cast<non_reference_value_type>(::std::forward<U>(value)))) -> non_reference_value_type {
-        if (self.has_value() == false) {
+        if (self.storage.has_value() == false) {
             return static_cast<non_reference_value_type>(::std::forward<U>(value));
         }
         return static_cast<non_reference_value_type>(::std::move(self.storage).value());
