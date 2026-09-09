@@ -397,9 +397,11 @@ public:
                   ::std::is_constructible_v<::std::remove_cv_t<value_type>, T> &&
                   ::std::is_convertible_v<U, ::std::remove_cv_t<value_type>>)
     [[nodiscard]]
-    constexpr auto value_or(this Optional<T> const& self, U&& value) {
+    constexpr auto value_or(this Optional<T> const& self, U&& value) noexcept(
+        noexcept(static_cast<::std::remove_cv_t<value_type>>(self.storage.value())) &&
+        noexcept(static_cast<::std::remove_cv_t<value_type>>(::std::forward<U>(value)))) {
         using result_type = ::std::remove_cv_t<value_type>;
-        if (self.has_value()) {
+        if (self.storage.has_value()) {
             return static_cast<result_type>(self.storage.value());
         }
         return static_cast<result_type>(::std::forward<U>(value));

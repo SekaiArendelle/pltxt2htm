@@ -194,6 +194,8 @@ static_assert(
     ::std::same_as<
         decltype(::std::declval<IntReferenceOptional const&&>().value<::pltxt2htm::Contracts::quick_enforce>()), int&>);
 static_assert(::std::same_as<decltype(::std::declval<IntReferenceOptional const&>().value_or(0)), int>);
+static_assert(noexcept(::std::declval<IntReferenceOptional const&>().value_or(0)));
+static_assert(noexcept(::std::declval<ConstIntReferenceOptional const&>().value_or(0)));
 static_assert(::std::same_as<decltype(&IntReferenceOptional::template value<::pltxt2htm::Contracts::ignore>),
                              IntReferenceValueFunction*>);
 
@@ -209,6 +211,9 @@ consteval bool optional_reference_constexpr_operations_work() noexcept {
     IntReferenceOptional implicit_proxy_value = implicit_proxy;
     IntReferenceOptional explicit_proxy_value{explicit_proxy};
     if (!value.has_value() || empty.has_value() || value != equal_value) {
+        return false;
+    }
+    if (empty.value_or(17) != 17) {
         return false;
     }
     if (::std::addressof(implicit_proxy_value.value<::pltxt2htm::Contracts::ignore>()) != ::std::addressof(first) ||
@@ -384,6 +389,9 @@ using MoveOnlyOptional = ::pltxt2htm::container::Optional<::pltxt2htm_test::Opti
 using CopyOnlyOptional = ::pltxt2htm::container::Optional<::pltxt2htm_test::OptionalCopyOnlyValue>;
 using ThrowingOptional = ::pltxt2htm::container::Optional<::pltxt2htm_test::OptionalThrowingValue>;
 using ExplicitThrowingOptional = ::pltxt2htm::container::Optional<::pltxt2htm_test::OptionalExplicitThrowingValue>;
+using ThrowingReferenceOptional = ::pltxt2htm::container::Optional<::pltxt2htm_test::OptionalThrowingValue&>;
+using ExplicitThrowingReferenceOptional =
+    ::pltxt2htm::container::Optional<::pltxt2htm_test::OptionalExplicitThrowingValue&>;
 
 static_assert(!::pltxt2htm_test::can_call_value_or<MoveOnlyOptional&, ::pltxt2htm_test::OptionalMoveOnlyValue>);
 static_assert(::pltxt2htm_test::can_call_value_or<MoveOnlyOptional&&, ::pltxt2htm_test::OptionalMoveOnlyValue>);
@@ -424,6 +432,10 @@ static_assert(::std::is_nothrow_convertible_v<::pltxt2htm_test::OptionalNothrowI
 static_assert(!noexcept(static_cast<::pltxt2htm_test::OptionalExplicitThrowingValue>(
     ::std::declval<::pltxt2htm_test::OptionalNothrowImplicitFallback&>())));
 static_assert(!noexcept(::std::declval<ExplicitThrowingOptional const&>().value_or(
+    ::std::declval<::pltxt2htm_test::OptionalNothrowImplicitFallback&>())));
+static_assert(!noexcept(::std::declval<ThrowingReferenceOptional const&>().value_or(
+    ::std::declval<::pltxt2htm_test::OptionalThrowingValue const&>())));
+static_assert(!noexcept(::std::declval<ExplicitThrowingReferenceOptional const&>().value_or(
     ::std::declval<::pltxt2htm_test::OptionalNothrowImplicitFallback&>())));
 
 int main() {
