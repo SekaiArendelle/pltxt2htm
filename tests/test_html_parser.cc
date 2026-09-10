@@ -124,7 +124,8 @@ int main() {
     }
     {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<pre><code class=\"language-cpp\">int x;</code></pre>");
-        auto answer = ::fast_io::u8string_view{u8"<pre><code class=\"language-cpp\">int&nbsp;x;</code></pre>"};
+        auto answer = ::fast_io::u8string_view{
+            u8"&lt;pre&gt;&lt;code&nbsp;class=&quot;language-cpp&quot;&gt;int&nbsp;x;&lt;/code&gt;&lt;/pre&gt;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
     {

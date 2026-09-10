@@ -37,8 +37,16 @@ int main() {
     }
 
     {
+        // A backslash does not escape a code-span delimiter.
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"`t\\`t`");
-        auto answer = ::fast_io::u8string_view{u8"<code>t`t</code>"};
+        auto answer = ::fast_io::u8string_view{u8"<code>t\\</code>t`"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        // Markdown escapes and entity references stay literal inside a code span.
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"`\\* &lt;`");
+        auto answer = ::fast_io::u8string_view{u8"<code>\\*&nbsp;&amp;lt;</code>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
@@ -129,10 +137,10 @@ int main() {
         auto answer = ::fast_io::u8string_view{u8"```x"};
         pltxt2htm_test_assert_equal(html, answer);
     }
-    // A backslash-escaped backtick at the end is consumed as content, not a closing delimiter.
+    // A preceding backslash stays in the content and does not escape the closing delimiter.
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"`a\\`");
-        auto answer = ::fast_io::u8string_view{u8"`a`"};
+        auto answer = ::fast_io::u8string_view{u8"<code>a\\</code>"};
         pltxt2htm_test_assert_equal(html, answer);
     }
     // Even balanced delimiter runs with no content stay literal.

@@ -15,6 +15,7 @@
 #include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"
 #include "frame_context.hh"
+#include "code/for_plweb.hh"
 #include "html_escape.hh"
 #include "../../contracts.hh"
 #include "../utils.hh"
@@ -43,6 +44,10 @@ constexpr void convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> c
         }
         case ::pltxt2htm::NodeKind::invalid_utf8: {
             out.append(u8"\uFFFD");
+            continue;
+        }
+        case ::pltxt2htm::NodeKind::line_break: {
+            out.push_back(u8'\n');
             continue;
         }
         case ::pltxt2htm::NodeKind::space: {
@@ -1185,20 +1190,10 @@ entry:
             }
             case ::pltxt2htm::NodeKind::code_fence: {
                 auto&& active_node = node.as_code_fence();
-                auto const& opt_language = active_node.get_language();
-                if (opt_language.has_value()) {
-                    auto const& language = opt_language.template value<ndebug>();
-                    result.append(u8"<pre><code class=\"language-");
-                    ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
-                        result, ::pltxt2htm::container::U8StringView{language});
-                    result.append(u8"\">");
-                }
-                else {
-                    result.append(u8"<pre><code>");
-                }
-                call_stack.push_frame(
-                    BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::code_fence));
-                goto entry;
+                result.append(u8"<pre><code>");
+                ::pltxt2htm::details::append_plweb_code_ast<ndebug>(active_node.get_ast(), result);
+                result.append(u8"</code></pre>");
+                continue;
             }
             case ::pltxt2htm::NodeKind::pl_macro_project: {
                 ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(result, project);

@@ -16,12 +16,65 @@
 #include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"
 #include "frame_context.hh"
+#include "code/for_plunity.hh"
 #include "html_escape.hh"
+#include "../parser/character_processing.hh"
 #include "../utils.hh"
 #include "../../contracts.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::details {
+
+constexpr void append_character_reference_code_point_to_plunity_richtext(char32_t code_point,
+                                                                         ::fast_io::u8string& out) noexcept {
+    if (::pltxt2htm::details::is_ascii_control_code_point(code_point)) {
+        code_point = char32_t{0xFFFD};
+    }
+    if (code_point == U'<') {
+        out.append(u8"<size=20>\uff1c</size>");
+        return;
+    }
+    if (code_point == U'>') {
+        out.append(u8"<size=20>\uff1e</size>");
+        return;
+    }
+    if (code_point == U' ') {
+        out.append(u8"\u00A0");
+        return;
+    }
+    auto const encoded = ::pltxt2htm::details::encode_utf8_code_point(code_point);
+    out.append(::pltxt2htm::container::U8StringView{encoded.code_units, encoded.size});
+}
+
+/**
+ * @brief Append an entity reference from a rendered code AST to Unity Rich Text output.
+ * @details Uses the same HTML character-reference rules as the parser, while escaping
+ *          decoded angle brackets so TextMeshPro cannot interpret them as tags.
+ */
+template<::pltxt2htm::Contracts ndebug>
+constexpr void append_entity_reference_to_plunity_richtext(::pltxt2htm::container::U8StringView const value_view,
+                                                           ::fast_io::u8string& out) noexcept {
+    ::fast_io::u8string reference{};
+    reference.reserve(value_view.size() + 2);
+    reference.push_back(u8'&');
+    reference.append(value_view);
+    reference.push_back(u8';');
+    auto const decoded =
+        ::pltxt2htm::details::try_decode_character_reference<ndebug>(::pltxt2htm::container::U8StringView{reference});
+    if (decoded.has_value() == false) {
+        out.push_back(u8'&');
+        out.append(value_view);
+        out.push_back(u8';');
+        return;
+    }
+    auto const& character_reference = decoded.template value<ndebug>();
+    ::pltxt2htm::details::append_character_reference_code_point_to_plunity_richtext(
+        character_reference.first_code_point, out);
+    if (character_reference.has_second_code_point()) {
+        ::pltxt2htm::details::append_character_reference_code_point_to_plunity_richtext(
+            character_reference.second_code_point, out);
+    }
+}
 
 /**
  * @brief Convert a simple (leaf-only) AST to Unity Rich Text with unescaping.
@@ -29,11 +82,13 @@ namespace pltxt2htm::details {
  * @param ast The AST to convert (should only contain leaf/character-like nodes).
  * @param[out] out Output buffer receiving the Unity Rich Text string.
  */
-template<::pltxt2htm::Contracts ndebug>
-constexpr void convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast<ndebug> const& ast,
-                                                            ::fast_io::u8string& out) noexcept {
-    out.reserve(out.size() + ast.size() * 6);
-    for (auto&& node : ast) {
+template<::pltxt2htm::Contracts ndebug, bool escape_angle_brackets = false>
+constexpr void convert_simple_pltxt_ast_range_to_plunity_richtext(::pltxt2htm::Ast<ndebug> const& ast,
+                                                                  ::std::size_t const begin, ::std::size_t const end,
+                                                                  ::fast_io::u8string& out) noexcept {
+    out.reserve(out.size() + (end - begin) * 6);
+    for (::std::size_t index{begin}; index < end; ++index) {
+        auto&& node = ::pltxt2htm::details::vector_index<ndebug>(ast, index);
         switch (node.get_node_kind()) {
         case ::pltxt2htm::NodeKind::u8char: {
             auto&& active_node = node.as_u8char();
@@ -42,6 +97,10 @@ constexpr void convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast<nde
         }
         case ::pltxt2htm::NodeKind::invalid_utf8: {
             out.append(u8"\uFFFD");
+            continue;
+        }
+        case ::pltxt2htm::NodeKind::line_break: {
+            out.push_back(u8'\n');
             continue;
         }
         case ::pltxt2htm::NodeKind::space: {
@@ -61,11 +120,21 @@ constexpr void convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast<nde
             continue;
         }
         case ::pltxt2htm::NodeKind::less_than: {
-            out.push_back(u8'<');
+            if constexpr (escape_angle_brackets) {
+                out.append(u8"<size=20>\uff1c</size>");
+            }
+            else {
+                out.push_back(u8'<');
+            }
             continue;
         }
         case ::pltxt2htm::NodeKind::greater_than: {
-            out.push_back(u8'>');
+            if constexpr (escape_angle_brackets) {
+                out.append(u8"<size=20>\uff1e</size>");
+            }
+            else {
+                out.push_back(u8'>');
+            }
             continue;
         }
         case ::pltxt2htm::NodeKind::tab: {
@@ -83,6 +152,12 @@ constexpr void convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast<nde
             }
         }
     }
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr void convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast<ndebug> const& ast,
+                                                            ::fast_io::u8string& out) noexcept {
+    ::pltxt2htm::details::convert_simple_pltxt_ast_range_to_plunity_richtext<ndebug>(ast, 0, ast.size(), out);
 }
 
 /**
@@ -1133,9 +1208,9 @@ entry:
             case ::pltxt2htm::NodeKind::code_fence: {
                 auto&& active_node = node.as_code_fence();
                 result.append(u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\n");
-                call_stack.push_frame(
-                    BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::code_fence));
-                goto entry;
+                ::pltxt2htm::details::append_plunity_code_ast<ndebug>(active_node.get_ast(), result);
+                result.append(u8"\n</font>");
+                continue;
             }
             case ::pltxt2htm::NodeKind::pl_macro_project: {
                 result.append(project);

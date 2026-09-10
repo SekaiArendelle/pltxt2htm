@@ -498,6 +498,11 @@ int main() {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```html\n<script>alert(1)</script>\n```");
         assert_no_raw_xss_tags(to_view(html));
     }
+    {
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"```cpp\nauto text = \"</span><script>alert(1)</script>\";\n```");
+        assert_no_raw_xss_tags(to_view(html));
+    }
 
     // ============================================================
     //  19. JavaScript scheme via markdown link with tab/newline
