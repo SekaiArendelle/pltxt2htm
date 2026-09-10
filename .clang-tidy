@@ -20,6 +20,8 @@ Checks: >
 HeaderFilterRegex: '.*(^|[/\\])include[/\\]pltxt2htm[/\\].*'
 SystemHeaders: false
 
+WarningsAsErrors: '*'
+
 CheckOptions:
   - key:   misc-const-correctness.TransformValues
     value: true

@@ -71,9 +71,11 @@ public:
 };
 
 /**
- * @brief Context for html_mark frames during parsing; stores the optional background-color.
+ * @brief Context for frames that carry a background-color during parsing.
+ * @details Shared data structure for the HTML &lt;mark&gt; frame and the Unity TMP &lt;mark&gt; frame;
+ *          stores the text content and the background-color.
  */
-class ParserFrameContextWithHtmlMarkInfo {
+class ParserFrameContextWithBackgroundColorInfo {
 public:
     ::pltxt2htm::container::U8StringView pltext;
     ::fast_io::u8string background_color;
@@ -101,7 +103,7 @@ public:
 /**
  * @brief Context for <size=N> / <size=N%> / <size=Nem> frames during parsing.
  */
-class ParserFrameContextWithPlSizeTagInfo {
+class ParserFrameContextWithUnitySizeTagInfo {
 public:
     ::pltxt2htm::container::U8StringView pltext;
     ::pltxt2htm::ValueWithUnit<double> value;
@@ -110,40 +112,24 @@ public:
 /**
  * @brief Context for <voffset=N> frames during parsing.
  */
-class ParserFrameContextWithPlVoffsetTagInfo {
+class ParserFrameContextWithUnityVoffsetTagInfo {
 public:
     ::pltxt2htm::container::U8StringView pltext;
     ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> value;
 };
 
 /**
- * @brief Context for <margin-left=N> / <margin-right=N> / <margin=N> /
- *        <margin left=N right=M> frames during parsing.
+ * @brief Context for frames that carry left/right margins during parsing.
+ * @details Shared data structure for the Unity TMP margin tags
+ *          (&lt;margin-left=N&gt; / &lt;margin-right=N&gt; / &lt;margin=N&gt; / &lt;margin left=N right=M&gt;)
+ *          and the HTML block &lt;div style="margin-left:...;margin-right:..."&gt;.
+ *          Stores the text content and the optional left/right margins.
  */
-class ParserFrameContextWithPlMarginTagInfo {
+class ParserFrameContextWithMarginsInfo {
 public:
     ::pltxt2htm::container::U8StringView pltext;
     ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left;
     ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right;
-};
-
-/**
- * @brief Context for &lt;div style="margin-left:...;margin-right:..."&gt; frames during parsing.
- */
-class ParserFrameContextWithHtmlDivInfo {
-public:
-    ::pltxt2htm::container::U8StringView pltext;
-    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left;
-    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right;
-};
-
-/**
- * @brief Context for pl_mark frames during parsing; stores the background color.
- */
-class ParserFrameContextWithPlMarkInfo {
-public:
-    ::pltxt2htm::container::U8StringView pltext;
-    ::fast_io::u8string background_color;
 };
 
 /**
@@ -224,8 +210,17 @@ public:
 
 /**
  * @brief Tagged-union variant of all parser frame context types.
- * @details Dispatched on `kind` (::pltxt2htm::NodeKind). Used inside
- *          ParserFrame.
+ * @details Dispatched on `kind` (::pltxt2htm::NodeKind). Used inside ParserFrame.
+ *
+ *          Context payloads are data-structure-driven rather than NodeKind-driven. Every NodeKind that needs the same
+ *          fields shares one payload type, union member, and ContextBranch; there is deliberately no one-to-one mapping
+ *          between NodeKind values and context types. Payload names describe the stored data, such as margins_info or
+ *          background_color_info, rather than one tag that happens to use it.
+ *
+ *          Before adding a payload, first check whether an existing one already carries the required fields. Reuse it
+ *          when possible, widen the corresponding accessor assertion, and group all sharing NodeKind labels into one
+ *          body in each exhaustive tagged-union switch. Keeping these switches exhaustive preserves compiler warnings
+ *          when a new NodeKind is added.
  */
 template<::pltxt2htm::Contracts ndebug>
 class FrontendContextVariant {
@@ -234,20 +229,18 @@ class FrontendContextVariant {
         equal_sign_tag,
         html_a_tag,
         url_info,
-        pl_size_tag,
-        pl_voffset_tag,
-        pl_margin_tag,
+        unity_size_tag,
+        unity_voffset_tag,
+        margins_info,
         align_info,
         html_span_info,
-        html_div_info,
         md_block_quotes,
         list_info,
         list_li_checkbox,
         cell,
         table,
         pltext,
-        html_mark_info,
-        pl_mark_info,
+        background_color_info,
     };
 #endif
 
@@ -255,14 +248,12 @@ class FrontendContextVariant {
         ParserFrameContextWithPltextInfo pltext;
         ParserFrameContextWithEqualSignTagInfo equal_sign_tag;
         ParserFrameContextWithHtmlSpanInfo<ndebug> html_span_info;
-        ParserFrameContextWithHtmlDivInfo html_div_info;
-        ParserFrameContextWithHtmlMarkInfo html_mark_info;
-        ParserFrameContextWithPlMarkInfo pl_mark_info;
+        ParserFrameContextWithMarginsInfo margins_info;
+        ParserFrameContextWithBackgroundColorInfo background_color_info;
         ParserFrameContextWithUrlInfo url_info;
         ParserFrameContextWithHtmlATagInfo html_a_tag_info;
-        ParserFrameContextWithPlSizeTagInfo pl_size_tag;
-        ParserFrameContextWithPlVoffsetTagInfo pl_voffset_tag;
-        ParserFrameContextWithPlMarginTagInfo pl_margin_tag;
+        ParserFrameContextWithUnitySizeTagInfo unity_size_tag;
+        ParserFrameContextWithUnityVoffsetTagInfo unity_voffset_tag;
         ParserFrameContextWithMdBlockQuotesInfo md_block_quotes;
         ParserFrameContextWithListInfo<ndebug> list_info;
         ParserFrameContextWithCellInfo cell;
@@ -304,29 +295,20 @@ public:
           kind{node_kind_} {
     }
 
-    constexpr FrontendContextVariant(ParserFrameContextWithHtmlDivInfo&& html_div_context,
+    constexpr FrontendContextVariant(ParserFrameContextWithMarginsInfo&& margins_info_context,
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
-        : html_div_info{::std::move(html_div_context)},
+        : margins_info{::std::move(margins_info_context)},
 #ifdef PLTXT2HTM_ENABLE_CONTEXT_BRANCH_CHECK
-          context_branch{ContextBranch::html_div_info},
+          context_branch{ContextBranch::margins_info},
 #endif
           kind{node_kind_} {
     }
 
-    constexpr FrontendContextVariant(ParserFrameContextWithHtmlMarkInfo&& html_mark_context,
+    constexpr FrontendContextVariant(ParserFrameContextWithBackgroundColorInfo&& background_color_info_context,
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
-        : html_mark_info{::std::move(html_mark_context)},
+        : background_color_info{::std::move(background_color_info_context)},
 #ifdef PLTXT2HTM_ENABLE_CONTEXT_BRANCH_CHECK
-          context_branch{ContextBranch::html_mark_info},
-#endif
-          kind{node_kind_} {
-    }
-
-    constexpr FrontendContextVariant(ParserFrameContextWithPlMarkInfo&& pl_mark_context,
-                                     ::pltxt2htm::NodeKind node_kind_) noexcept
-        : pl_mark_info{::std::move(pl_mark_context)},
-#ifdef PLTXT2HTM_ENABLE_CONTEXT_BRANCH_CHECK
-          context_branch{ContextBranch::pl_mark_info},
+          context_branch{ContextBranch::background_color_info},
 #endif
           kind{node_kind_} {
     }
@@ -348,29 +330,20 @@ public:
           kind{node_kind_} {
     }
 
-    constexpr FrontendContextVariant(ParserFrameContextWithPlSizeTagInfo&& pl_size_tag_context,
+    constexpr FrontendContextVariant(ParserFrameContextWithUnitySizeTagInfo&& unity_size_tag_context,
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
-        : pl_size_tag{::std::move(pl_size_tag_context)},
+        : unity_size_tag{::std::move(unity_size_tag_context)},
 #ifdef PLTXT2HTM_ENABLE_CONTEXT_BRANCH_CHECK
-          context_branch{ContextBranch::pl_size_tag},
+          context_branch{ContextBranch::unity_size_tag},
 #endif
           kind{node_kind_} {
     }
 
-    constexpr FrontendContextVariant(ParserFrameContextWithPlVoffsetTagInfo&& pl_voffset_tag_context,
+    constexpr FrontendContextVariant(ParserFrameContextWithUnityVoffsetTagInfo&& unity_voffset_tag_context,
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
-        : pl_voffset_tag{::std::move(pl_voffset_tag_context)},
+        : unity_voffset_tag{::std::move(unity_voffset_tag_context)},
 #ifdef PLTXT2HTM_ENABLE_CONTEXT_BRANCH_CHECK
-          context_branch{ContextBranch::pl_voffset_tag},
-#endif
-          kind{node_kind_} {
-    }
-
-    constexpr FrontendContextVariant(ParserFrameContextWithPlMarginTagInfo&& pl_margin_tag_context,
-                                     ::pltxt2htm::NodeKind node_kind_) noexcept
-        : pl_margin_tag{::std::move(pl_margin_tag_context)},
-#ifdef PLTXT2HTM_ENABLE_CONTEXT_BRANCH_CHECK
-          context_branch{ContextBranch::pl_margin_tag},
+          context_branch{ContextBranch::unity_voffset_tag},
 #endif
           kind{node_kind_} {
     }
@@ -438,7 +411,7 @@ public:
 #endif
           kind{other.kind} {
         switch (this->kind) /* -Werror=switch */ {
-        case ::pltxt2htm::NodeKind::pl_color:
+        case ::pltxt2htm::NodeKind::unity_color:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_experiment:
             [[fallthrough]];
@@ -464,29 +437,33 @@ public:
         }
         case ::pltxt2htm::NodeKind::pl_external:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_link:
+        case ::pltxt2htm::NodeKind::unity_link:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_link: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::url_info);
             ::std::construct_at(::std::addressof(this->url_info), ::std::move(other.url_info));
             return;
         }
-        case ::pltxt2htm::NodeKind::pl_size: {
-            pltxt2htm_assert_context_branch(*this, ContextBranch::pl_size_tag);
-            ::std::construct_at(::std::addressof(this->pl_size_tag), ::std::move(other.pl_size_tag));
+        case ::pltxt2htm::NodeKind::unity_size: {
+            pltxt2htm_assert_context_branch(*this, ContextBranch::unity_size_tag);
+            ::std::construct_at(::std::addressof(this->unity_size_tag), ::std::move(other.unity_size_tag));
             return;
         }
-        case ::pltxt2htm::NodeKind::pl_voffset: {
-            pltxt2htm_assert_context_branch(*this, ContextBranch::pl_voffset_tag);
-            ::std::construct_at(::std::addressof(this->pl_voffset_tag), ::std::move(other.pl_voffset_tag));
+        case ::pltxt2htm::NodeKind::unity_voffset: {
+            pltxt2htm_assert_context_branch(*this, ContextBranch::unity_voffset_tag);
+            ::std::construct_at(::std::addressof(this->unity_voffset_tag), ::std::move(other.unity_voffset_tag));
             return;
         }
-        case ::pltxt2htm::NodeKind::pl_margin: {
-            pltxt2htm_assert_context_branch(*this, ContextBranch::pl_margin_tag);
-            ::std::construct_at(::std::addressof(this->pl_margin_tag), ::std::move(other.pl_margin_tag));
+        case ::pltxt2htm::NodeKind::unity_margin:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_div: {
+            pltxt2htm_assert_context_branch(*this, ContextBranch::margins_info);
+            ::std::construct_at(::std::addressof(this->margins_info), ::std::move(other.margins_info));
             return;
         }
-        case ::pltxt2htm::NodeKind::pl_align: {
+        case ::pltxt2htm::NodeKind::unity_align:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_p: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::align_info);
             ::std::construct_at(::std::addressof(this->align_info), ::std::move(other.align_info));
             return;
@@ -496,19 +473,12 @@ public:
             ::std::construct_at(::std::addressof(this->html_span_info), ::std::move(other.html_span_info));
             return;
         }
-        case ::pltxt2htm::NodeKind::html_div: {
-            pltxt2htm_assert_context_branch(*this, ContextBranch::html_div_info);
-            ::std::construct_at(::std::addressof(this->html_div_info), ::std::move(other.html_div_info));
-            return;
-        }
-        case ::pltxt2htm::NodeKind::html_mark: {
-            pltxt2htm_assert_context_branch(*this, ContextBranch::html_mark_info);
-            ::std::construct_at(::std::addressof(this->html_mark_info), ::std::move(other.html_mark_info));
-            return;
-        }
-        case ::pltxt2htm::NodeKind::pl_mark: {
-            pltxt2htm_assert_context_branch(*this, ContextBranch::pl_mark_info);
-            ::std::construct_at(::std::addressof(this->pl_mark_info), ::std::move(other.pl_mark_info));
+        case ::pltxt2htm::NodeKind::html_mark:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::unity_mark: {
+            pltxt2htm_assert_context_branch(*this, ContextBranch::background_color_info);
+            ::std::construct_at(::std::addressof(this->background_color_info),
+                                ::std::move(other.background_color_info));
             return;
         }
         case ::pltxt2htm::NodeKind::md_block_quotes: {
@@ -532,9 +502,9 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_a:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_b:
+        case ::pltxt2htm::NodeKind::unity_b:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_i:
+        case ::pltxt2htm::NodeKind::unity_i:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_h1:
             [[fallthrough]];
@@ -607,11 +577,6 @@ public:
         case ::pltxt2htm::NodeKind::list_li: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::pltext);
             ::std::construct_at(::std::addressof(this->pltext), ::std::move(other.pltext));
-            return;
-        }
-        case ::pltxt2htm::NodeKind::html_p: {
-            pltxt2htm_assert_context_branch(*this, ContextBranch::align_info);
-            ::std::construct_at(::std::addressof(this->align_info), ::std::move(other.align_info));
             return;
         }
         case ::pltxt2htm::NodeKind::table_th:
@@ -719,30 +684,28 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto as_html_div_info(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.kind == ::pltxt2htm::NodeKind::html_div, u8"context kind mismatch");
-        pltxt2htm_assert_context_branch(self, FrontendContextVariant<ndebug>::ContextBranch::html_div_info);
-        return ::std::forward_like<decltype(self)>(self.html_div_info);
+    constexpr auto as_margins_info(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(
+            self.kind == ::pltxt2htm::NodeKind::html_div || self.kind == ::pltxt2htm::NodeKind::unity_margin,
+            u8"context kind mismatch");
+        pltxt2htm_assert_context_branch(self, FrontendContextVariant<ndebug>::ContextBranch::margins_info);
+        return ::std::forward_like<decltype(self)>(self.margins_info);
     }
 
     [[nodiscard]]
-    constexpr auto as_html_mark_info(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.kind == ::pltxt2htm::NodeKind::html_mark, u8"context kind mismatch");
-        pltxt2htm_assert_context_branch(self, FrontendContextVariant<ndebug>::ContextBranch::html_mark_info);
-        return ::std::forward_like<decltype(self)>(self.html_mark_info);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_pl_mark_info(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.kind == ::pltxt2htm::NodeKind::pl_mark, u8"context kind mismatch");
-        pltxt2htm_assert_context_branch(self, FrontendContextVariant<ndebug>::ContextBranch::pl_mark_info);
-        return ::std::forward_like<decltype(self)>(self.pl_mark_info);
+    constexpr auto as_background_color_info(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(
+            self.kind == ::pltxt2htm::NodeKind::html_mark || self.kind == ::pltxt2htm::NodeKind::unity_mark,
+            u8"context kind mismatch");
+        pltxt2htm_assert_context_branch(self, FrontendContextVariant<ndebug>::ContextBranch::background_color_info);
+        return ::std::forward_like<decltype(self)>(self.background_color_info);
     }
 
     [[nodiscard]]
     constexpr auto as_url_info(this auto&& self) noexcept -> decltype(auto) {
         pltxt2htm_assert(self.kind == ::pltxt2htm::NodeKind::pl_external ||
-                             self.kind == ::pltxt2htm::NodeKind::pl_link || self.kind == ::pltxt2htm::NodeKind::md_link,
+                             self.kind == ::pltxt2htm::NodeKind::unity_link ||
+                             self.kind == ::pltxt2htm::NodeKind::md_link,
                          u8"context kind mismatch");
         pltxt2htm_assert_context_branch(self, FrontendContextVariant<ndebug>::ContextBranch::url_info);
         return ::std::forward_like<decltype(self)>(self.url_info);
@@ -756,24 +719,17 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto as_pl_size_tag(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.kind == ::pltxt2htm::NodeKind::pl_size, u8"context kind mismatch");
-        pltxt2htm_assert_context_branch(self, FrontendContextVariant<ndebug>::ContextBranch::pl_size_tag);
-        return ::std::forward_like<decltype(self)>(self.pl_size_tag);
+    constexpr auto as_unity_size_tag(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.kind == ::pltxt2htm::NodeKind::unity_size, u8"context kind mismatch");
+        pltxt2htm_assert_context_branch(self, FrontendContextVariant<ndebug>::ContextBranch::unity_size_tag);
+        return ::std::forward_like<decltype(self)>(self.unity_size_tag);
     }
 
     [[nodiscard]]
-    constexpr auto as_pl_voffset_tag(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.kind == ::pltxt2htm::NodeKind::pl_voffset, u8"context kind mismatch");
-        pltxt2htm_assert_context_branch(self, FrontendContextVariant<ndebug>::ContextBranch::pl_voffset_tag);
-        return ::std::forward_like<decltype(self)>(self.pl_voffset_tag);
-    }
-
-    [[nodiscard]]
-    constexpr auto as_pl_margin_tag(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.kind == ::pltxt2htm::NodeKind::pl_margin, u8"context kind mismatch");
-        pltxt2htm_assert_context_branch(self, FrontendContextVariant<ndebug>::ContextBranch::pl_margin_tag);
-        return ::std::forward_like<decltype(self)>(self.pl_margin_tag);
+    constexpr auto as_unity_voffset_tag(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.kind == ::pltxt2htm::NodeKind::unity_voffset, u8"context kind mismatch");
+        pltxt2htm_assert_context_branch(self, FrontendContextVariant<ndebug>::ContextBranch::unity_voffset_tag);
+        return ::std::forward_like<decltype(self)>(self.unity_voffset_tag);
     }
 
     [[nodiscard]]
@@ -801,7 +757,7 @@ public:
 
     [[nodiscard]]
     constexpr auto as_align_info(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.kind == ::pltxt2htm::NodeKind::html_p || self.kind == ::pltxt2htm::NodeKind::pl_align,
+        pltxt2htm_assert(self.kind == ::pltxt2htm::NodeKind::html_p || self.kind == ::pltxt2htm::NodeKind::unity_align,
                          u8"context kind mismatch");
         pltxt2htm_assert_context_branch(self, FrontendContextVariant<ndebug>::ContextBranch::align_info);
         return ::std::forward_like<decltype(self)>(self.align_info);
@@ -823,7 +779,7 @@ public:
 
     constexpr ~FrontendContextVariant() noexcept {
         switch (this->kind) /* -Werror=switch */ {
-        case ::pltxt2htm::NodeKind::pl_color:
+        case ::pltxt2htm::NodeKind::unity_color:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_experiment:
             [[fallthrough]];
@@ -849,29 +805,33 @@ public:
         }
         case ::pltxt2htm::NodeKind::pl_external:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_link:
+        case ::pltxt2htm::NodeKind::unity_link:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_link: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::url_info);
             ::std::destroy_at(::std::addressof(this->url_info));
             return;
         }
-        case ::pltxt2htm::NodeKind::pl_size: {
-            pltxt2htm_assert_context_branch(*this, ContextBranch::pl_size_tag);
-            ::std::destroy_at(::std::addressof(this->pl_size_tag));
+        case ::pltxt2htm::NodeKind::unity_size: {
+            pltxt2htm_assert_context_branch(*this, ContextBranch::unity_size_tag);
+            ::std::destroy_at(::std::addressof(this->unity_size_tag));
             return;
         }
-        case ::pltxt2htm::NodeKind::pl_voffset: {
-            pltxt2htm_assert_context_branch(*this, ContextBranch::pl_voffset_tag);
-            ::std::destroy_at(::std::addressof(this->pl_voffset_tag));
+        case ::pltxt2htm::NodeKind::unity_voffset: {
+            pltxt2htm_assert_context_branch(*this, ContextBranch::unity_voffset_tag);
+            ::std::destroy_at(::std::addressof(this->unity_voffset_tag));
             return;
         }
-        case ::pltxt2htm::NodeKind::pl_margin: {
-            pltxt2htm_assert_context_branch(*this, ContextBranch::pl_margin_tag);
-            ::std::destroy_at(::std::addressof(this->pl_margin_tag));
+        case ::pltxt2htm::NodeKind::unity_margin:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_div: {
+            pltxt2htm_assert_context_branch(*this, ContextBranch::margins_info);
+            ::std::destroy_at(::std::addressof(this->margins_info));
             return;
         }
-        case ::pltxt2htm::NodeKind::pl_align: {
+        case ::pltxt2htm::NodeKind::unity_align:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_p: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::align_info);
             ::std::destroy_at(::std::addressof(this->align_info));
             return;
@@ -881,19 +841,11 @@ public:
             ::std::destroy_at(::std::addressof(this->html_span_info));
             return;
         }
-        case ::pltxt2htm::NodeKind::html_div: {
-            pltxt2htm_assert_context_branch(*this, ContextBranch::html_div_info);
-            ::std::destroy_at(::std::addressof(this->html_div_info));
-            return;
-        }
-        case ::pltxt2htm::NodeKind::html_mark: {
-            pltxt2htm_assert_context_branch(*this, ContextBranch::html_mark_info);
-            ::std::destroy_at(::std::addressof(this->html_mark_info));
-            return;
-        }
-        case ::pltxt2htm::NodeKind::pl_mark: {
-            pltxt2htm_assert_context_branch(*this, ContextBranch::pl_mark_info);
-            ::std::destroy_at(::std::addressof(this->pl_mark_info));
+        case ::pltxt2htm::NodeKind::html_mark:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::unity_mark: {
+            pltxt2htm_assert_context_branch(*this, ContextBranch::background_color_info);
+            ::std::destroy_at(::std::addressof(this->background_color_info));
             return;
         }
         case ::pltxt2htm::NodeKind::md_block_quotes: {
@@ -912,9 +864,9 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_a:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_b:
+        case ::pltxt2htm::NodeKind::unity_b:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_i:
+        case ::pltxt2htm::NodeKind::unity_i:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_h1:
             [[fallthrough]];
@@ -987,11 +939,6 @@ public:
         case ::pltxt2htm::NodeKind::list_li: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::pltext);
             ::std::destroy_at(::std::addressof(this->pltext));
-            return;
-        }
-        case ::pltxt2htm::NodeKind::html_p: {
-            pltxt2htm_assert_context_branch(*this, ContextBranch::align_info);
-            ::std::destroy_at(::std::addressof(this->align_info));
             return;
         }
         case ::pltxt2htm::NodeKind::table_th:
@@ -1147,9 +1094,9 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_a:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_b:
+        case ::pltxt2htm::NodeKind::unity_b:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_i:
+        case ::pltxt2htm::NodeKind::unity_i:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_br:
             [[fallthrough]];
@@ -1247,7 +1194,7 @@ public:
             auto&& active_context_data = context_data_ref.as_list_li_checkbox();
             return active_context_data.pltext;
         }
-        case ::pltxt2htm::NodeKind::pl_color:
+        case ::pltxt2htm::NodeKind::unity_color:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_experiment:
             [[fallthrough]];
@@ -1265,27 +1212,31 @@ public:
             auto&& active_context_data = context_data_ref.as_equal_sign_tag();
             return active_context_data.pltext;
         }
-        case ::pltxt2htm::NodeKind::pl_external: {
+        case ::pltxt2htm::NodeKind::pl_external:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::unity_link:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_link: {
             auto&& active_context_data = context_data_ref.as_url_info();
             return active_context_data.pltext;
         }
-        case ::pltxt2htm::NodeKind::pl_link: {
-            auto&& active_context_data = context_data_ref.as_url_info();
+        case ::pltxt2htm::NodeKind::unity_size: {
+            auto&& active_context_data = context_data_ref.as_unity_size_tag();
             return active_context_data.pltext;
         }
-        case ::pltxt2htm::NodeKind::pl_size: {
-            auto&& active_context_data = context_data_ref.as_pl_size_tag();
+        case ::pltxt2htm::NodeKind::unity_voffset: {
+            auto&& active_context_data = context_data_ref.as_unity_voffset_tag();
             return active_context_data.pltext;
         }
-        case ::pltxt2htm::NodeKind::pl_voffset: {
-            auto&& active_context_data = context_data_ref.as_pl_voffset_tag();
+        case ::pltxt2htm::NodeKind::unity_margin:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_div: {
+            auto&& active_context_data = context_data_ref.as_margins_info();
             return active_context_data.pltext;
         }
-        case ::pltxt2htm::NodeKind::pl_margin: {
-            auto&& active_context_data = context_data_ref.as_pl_margin_tag();
-            return active_context_data.pltext;
-        }
-        case ::pltxt2htm::NodeKind::pl_align: {
+        case ::pltxt2htm::NodeKind::unity_align:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_p: {
             auto&& active_context_data = context_data_ref.as_align_info();
             return active_context_data.pltext;
         }
@@ -1293,16 +1244,10 @@ public:
             auto&& active_context_data = context_data_ref.as_html_span_info();
             return active_context_data.pltext;
         }
-        case ::pltxt2htm::NodeKind::html_div: {
-            auto&& active_context_data = context_data_ref.as_html_div_info();
-            return active_context_data.pltext;
-        }
-        case ::pltxt2htm::NodeKind::html_mark: {
-            auto&& active_context_data = context_data_ref.as_html_mark_info();
-            return active_context_data.pltext;
-        }
-        case ::pltxt2htm::NodeKind::pl_mark: {
-            auto&& active_context_data = context_data_ref.as_pl_mark_info();
+        case ::pltxt2htm::NodeKind::html_mark:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::unity_mark: {
+            auto&& active_context_data = context_data_ref.as_background_color_info();
             return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::html_a: {
@@ -1313,14 +1258,6 @@ public:
             auto&& active_context_data = context_data_ref.as_md_block_quotes();
             auto const& pltext = active_context_data.pltext;
             return ::pltxt2htm::container::U8StringView{pltext};
-        }
-        case ::pltxt2htm::NodeKind::md_link: {
-            auto&& active_context_data = context_data_ref.as_url_info();
-            return active_context_data.pltext;
-        }
-        case ::pltxt2htm::NodeKind::html_p: {
-            auto&& active_context_data = context_data_ref.as_align_info();
-            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::table_th:
             [[fallthrough]];
@@ -1369,18 +1306,13 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto as_html_div_info(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.context_data).as_html_div_info();
+    constexpr auto as_margins_info(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.context_data).as_margins_info();
     }
 
     [[nodiscard]]
-    constexpr auto as_html_mark_info(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.context_data).as_html_mark_info();
-    }
-
-    [[nodiscard]]
-    constexpr auto as_pl_mark_info(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.context_data).as_pl_mark_info();
+    constexpr auto as_background_color_info(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.context_data).as_background_color_info();
     }
 
     [[nodiscard]]
@@ -1394,18 +1326,13 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto as_pl_size_tag(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.context_data).as_pl_size_tag();
+    constexpr auto as_unity_size_tag(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.context_data).as_unity_size_tag();
     }
 
     [[nodiscard]]
-    constexpr auto as_pl_voffset_tag(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.context_data).as_pl_voffset_tag();
-    }
-
-    [[nodiscard]]
-    constexpr auto as_pl_margin_tag(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.context_data).as_pl_margin_tag();
+    constexpr auto as_unity_voffset_tag(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.context_data).as_unity_voffset_tag();
     }
 
     [[nodiscard]]

@@ -411,15 +411,15 @@ int main() {
         pltxt2htm_test_assert_true(a == b);
     }
 
-    // PlColor (sub-AST + color string)
+    // UnityColor (sub-AST + color string)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
 
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::PlColor<nd::quick_enforce>(::std::move(ast_a), ::fast_io::u8string{u8"red"}));
+            ::pltxt2htm::UnityColor<nd::quick_enforce>(::std::move(ast_a), ::fast_io::u8string{u8"red"}));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::PlColor<nd::quick_enforce>(::std::move(ast_b), ::fast_io::u8string{u8"red"}));
+            ::pltxt2htm::UnityColor<nd::quick_enforce>(::std::move(ast_b), ::fast_io::u8string{u8"red"}));
         pltxt2htm_test_assert_true(a == b);
     }
     {
@@ -427,9 +427,9 @@ int main() {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
 
         auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::PlColor<nd::quick_enforce>(::std::move(ast_a), ::fast_io::u8string{u8"red"}));
+            ::pltxt2htm::UnityColor<nd::quick_enforce>(::std::move(ast_a), ::fast_io::u8string{u8"red"}));
         auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
-            ::pltxt2htm::PlColor<nd::quick_enforce>(::std::move(ast_b), ::fast_io::u8string{u8"blue"}));
+            ::pltxt2htm::UnityColor<nd::quick_enforce>(::std::move(ast_b), ::fast_io::u8string{u8"blue"}));
         pltxt2htm_test_assert_false(a == b);
     }
 
@@ -455,14 +455,14 @@ int main() {
         pltxt2htm_test_assert_false(a == b);
     }
 
-    // PlSize (sub-AST + ValueWithUnit)
+    // UnitySize (sub-AST + ValueWithUnit)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
 
-        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlSize<nd::quick_enforce>(
+        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::UnitySize<nd::quick_enforce>(
             ::std::move(ast_a), ::pltxt2htm::ValueWithUnit<double>{.value = 14, .unit = ::pltxt2htm::Unit::px}));
-        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlSize<nd::quick_enforce>(
+        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::UnitySize<nd::quick_enforce>(
             ::std::move(ast_b), ::pltxt2htm::ValueWithUnit<double>{.value = 14, .unit = ::pltxt2htm::Unit::px}));
         pltxt2htm_test_assert_true(a == b);
     }
@@ -470,9 +470,9 @@ int main() {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
 
-        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlSize<nd::quick_enforce>(
+        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::UnitySize<nd::quick_enforce>(
             ::std::move(ast_a), ::pltxt2htm::ValueWithUnit<double>{.value = 14, .unit = ::pltxt2htm::Unit::px}));
-        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlSize<nd::quick_enforce>(
+        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::UnitySize<nd::quick_enforce>(
             ::std::move(ast_b), ::pltxt2htm::ValueWithUnit<double>{.value = 16, .unit = ::pltxt2htm::Unit::px}));
         pltxt2htm_test_assert_false(a == b);
     }
@@ -480,9 +480,9 @@ int main() {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
 
-        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlSize<nd::quick_enforce>(
+        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::UnitySize<nd::quick_enforce>(
             ::std::move(ast_a), ::pltxt2htm::ValueWithUnit<double>{.value = 14, .unit = ::pltxt2htm::Unit::px}));
-        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlSize<nd::quick_enforce>(
+        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::UnitySize<nd::quick_enforce>(
             ::std::move(ast_b), ::pltxt2htm::ValueWithUnit<double>{.value = 14, .unit = ::pltxt2htm::Unit::percent}));
         pltxt2htm_test_assert_false(a == b);
     }
@@ -586,7 +586,7 @@ int main() {
         pltxt2htm_test_assert_false(a == b);
     }
 
-    // PlI (sub-AST only)
+    // UnityI (sub-AST only)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ast_a.emplace_back(::pltxt2htm::U8Char{u8't'});
@@ -595,13 +595,13 @@ int main() {
         ast_b.emplace_back(::pltxt2htm::U8Char{u8't'});
 
         auto const a =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlI<nd::quick_enforce>(::std::move(ast_a)));
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::UnityI<nd::quick_enforce>(::std::move(ast_a)));
         auto const b =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlI<nd::quick_enforce>(::std::move(ast_b)));
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::UnityI<nd::quick_enforce>(::std::move(ast_b)));
         pltxt2htm_test_assert_true(a == b);
     }
 
-    // PlB (sub-AST only)
+    // UnityB (sub-AST only)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ast_a.emplace_back(::pltxt2htm::U8Char{u8't'});
@@ -610,9 +610,9 @@ int main() {
         ast_b.emplace_back(::pltxt2htm::U8Char{u8't'});
 
         auto const a =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlB<nd::quick_enforce>(::std::move(ast_a)));
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::UnityB<nd::quick_enforce>(::std::move(ast_a)));
         auto const b =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlB<nd::quick_enforce>(::std::move(ast_b)));
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::UnityB<nd::quick_enforce>(::std::move(ast_b)));
         pltxt2htm_test_assert_true(a == b);
     }
 
@@ -653,9 +653,9 @@ int main() {
         ast_b.emplace_back(::pltxt2htm::U8Char{u8't'});
 
         auto const a =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlI<nd::quick_enforce>(::std::move(ast_a)));
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::UnityI<nd::quick_enforce>(::std::move(ast_a)));
         auto const b =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::PlB<nd::quick_enforce>(::std::move(ast_b)));
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::UnityB<nd::quick_enforce>(::std::move(ast_b)));
         pltxt2htm_test_assert_false(a == b);
     }
     {

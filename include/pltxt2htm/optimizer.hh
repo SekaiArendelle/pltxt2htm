@@ -44,7 +44,7 @@ public:
 /**
  * @brief Context for optimizer <size=N> / <size=N%> / <size=Nem> tags.
  */
-class OptimizerContextWithPlSizeTagInfo {
+class OptimizerContextWithUnitySizeTagInfo {
 public:
     ::pltxt2htm::ValueWithUnit<double> value; ///< Font size value+unit (e.g., {12, px} in size=12)
 };
@@ -52,7 +52,7 @@ public:
 /**
  * @brief Context for optimizer <voffset=N> tags.
  */
-class OptimizerContextWithPlVoffsetTagInfo {
+class OptimizerContextWithUnityVoffsetTagInfo {
 public:
     ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> value; ///< Vertical offset value+unit (e.g., 5px in voffset=5)
 };
@@ -70,27 +70,20 @@ public:
 };
 
 /**
- * @brief Context for optimizer html_mark frames, remembers the background-color.
+ * @brief Context for optimizer frames that remember a background-color.
+ * @details Shared data structure for the HTML &lt;mark&gt; frame and the Unity TMP &lt;mark&gt; frame.
  */
 template<::pltxt2htm::Contracts ndebug>
-class OptimizerContextWithHtmlMarkInfo {
-public:
-    ::pltxt2htm::container::U8StringView background_color{};
-};
-
-/**
- * @brief Context for optimizer pl_mark frames, remembers the background-color.
- */
-template<::pltxt2htm::Contracts ndebug>
-class OptimizerContextWithPlMarkInfo {
+class OptimizerContextWithBackgroundColorInfo {
 public:
     ::pltxt2htm::container::U8StringView background_color{};
 };
 
 /**
  * @brief Tagged-union variant of optimizer context payloads.
- * @details Dispatched on `kind` (::pltxt2htm::NodeKind) - used inside
- *          OptimizerFrame.
+ * @details Dispatched on `kind` (::pltxt2htm::NodeKind) - used inside OptimizerFrame. Like FrontendContextVariant,
+ *          NodeKind values with identical payload requirements share one data-structure-driven context type, union
+ *          member, and switch body.
  */
 template<::pltxt2htm::Contracts ndebug>
 class OptimizerContextVariant {
@@ -98,11 +91,10 @@ public:
     union {
         OptimizerContextWithoutInfo without_info;
         OptimizerContextWithEqualSignTagInfo equal_sign_tag;
-        OptimizerContextWithPlSizeTagInfo pl_size_tag;
-        OptimizerContextWithPlVoffsetTagInfo pl_voffset_tag;
+        OptimizerContextWithUnitySizeTagInfo unity_size_tag;
+        OptimizerContextWithUnityVoffsetTagInfo unity_voffset_tag;
         OptimizerContextWithHtmlSpanInfo<ndebug> html_span_info;
-        OptimizerContextWithHtmlMarkInfo<ndebug> html_mark_info;
-        OptimizerContextWithPlMarkInfo<ndebug> pl_mark_info;
+        OptimizerContextWithBackgroundColorInfo<ndebug> background_color_info;
     };
 
     ::pltxt2htm::NodeKind kind; ///< Type of the current nested tag context
@@ -118,14 +110,14 @@ public:
           kind{kind_} {
     }
 
-    constexpr OptimizerContextVariant(OptimizerContextWithPlSizeTagInfo pl_size_tag_context) noexcept
-        : pl_size_tag{pl_size_tag_context},
-          kind{::pltxt2htm::NodeKind::pl_size} {
+    constexpr OptimizerContextVariant(OptimizerContextWithUnitySizeTagInfo unity_size_tag_context) noexcept
+        : unity_size_tag{unity_size_tag_context},
+          kind{::pltxt2htm::NodeKind::unity_size} {
     }
 
-    constexpr OptimizerContextVariant(OptimizerContextWithPlVoffsetTagInfo pl_voffset_tag_context) noexcept
-        : pl_voffset_tag{pl_voffset_tag_context},
-          kind{::pltxt2htm::NodeKind::pl_voffset} {
+    constexpr OptimizerContextVariant(OptimizerContextWithUnityVoffsetTagInfo unity_voffset_tag_context) noexcept
+        : unity_voffset_tag{unity_voffset_tag_context},
+          kind{::pltxt2htm::NodeKind::unity_voffset} {
     }
 
     constexpr OptimizerContextVariant(OptimizerContextWithHtmlSpanInfo<ndebug>&& html_span_context) noexcept
@@ -133,14 +125,10 @@ public:
           kind{::pltxt2htm::NodeKind::html_span} {
     }
 
-    constexpr OptimizerContextVariant(OptimizerContextWithHtmlMarkInfo<ndebug>&& html_mark_context) noexcept
-        : html_mark_info{::std::move(html_mark_context)},
-          kind{::pltxt2htm::NodeKind::html_mark} {
-    }
-
-    constexpr OptimizerContextVariant(OptimizerContextWithPlMarkInfo<ndebug>&& pl_mark_context) noexcept
-        : pl_mark_info{::std::move(pl_mark_context)},
-          kind{::pltxt2htm::NodeKind::pl_mark} {
+    constexpr OptimizerContextVariant(OptimizerContextWithBackgroundColorInfo<ndebug>&& background_color_info_context,
+                                      ::pltxt2htm::NodeKind const kind_) noexcept
+        : background_color_info{::std::move(background_color_info_context)},
+          kind{kind_} {
     }
 
     constexpr OptimizerContextVariant(OptimizerContextVariant<ndebug> const&) noexcept = delete;
@@ -148,7 +136,7 @@ public:
     constexpr OptimizerContextVariant(OptimizerContextVariant<ndebug>&& other) noexcept
         : kind{other.kind} {
         switch (this->kind) /* -Werror=switch */ {
-        case ::pltxt2htm::NodeKind::pl_color:
+        case ::pltxt2htm::NodeKind::unity_color:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_experiment:
             [[fallthrough]];
@@ -166,41 +154,40 @@ public:
             ::std::construct_at(::std::addressof(this->equal_sign_tag), ::std::move(other.equal_sign_tag));
             return;
         }
-        case ::pltxt2htm::NodeKind::pl_size: {
-            ::std::construct_at(::std::addressof(this->pl_size_tag), ::std::move(other.pl_size_tag));
+        case ::pltxt2htm::NodeKind::unity_size: {
+            ::std::construct_at(::std::addressof(this->unity_size_tag), ::std::move(other.unity_size_tag));
             return;
         }
-        case ::pltxt2htm::NodeKind::pl_voffset: {
-            ::std::construct_at(::std::addressof(this->pl_voffset_tag), ::std::move(other.pl_voffset_tag));
+        case ::pltxt2htm::NodeKind::unity_voffset: {
+            ::std::construct_at(::std::addressof(this->unity_voffset_tag), ::std::move(other.unity_voffset_tag));
             return;
         }
         case ::pltxt2htm::NodeKind::html_span: {
             ::std::construct_at(::std::addressof(this->html_span_info), ::std::move(other.html_span_info));
             return;
         }
-        case ::pltxt2htm::NodeKind::html_mark: {
-            ::std::construct_at(::std::addressof(this->html_mark_info), ::std::move(other.html_mark_info));
-            return;
-        }
-        case ::pltxt2htm::NodeKind::pl_mark: {
-            ::std::construct_at(::std::addressof(this->pl_mark_info), ::std::move(other.pl_mark_info));
+        case ::pltxt2htm::NodeKind::html_mark:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::unity_mark: {
+            ::std::construct_at(::std::addressof(this->background_color_info),
+                                ::std::move(other.background_color_info));
             return;
         }
         case ::pltxt2htm::NodeKind::group:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_a:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_align:
+        case ::pltxt2htm::NodeKind::unity_align:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_margin:
+        case ::pltxt2htm::NodeKind::unity_margin:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_external:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_link:
+        case ::pltxt2htm::NodeKind::unity_link:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_b:
+        case ::pltxt2htm::NodeKind::unity_b:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_i:
+        case ::pltxt2htm::NodeKind::unity_i:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_u:
             [[fallthrough]];
@@ -365,11 +352,10 @@ public:
 
     static_assert(::std::is_trivially_destructible_v<decltype(without_info)>);
     static_assert(::std::is_trivially_destructible_v<decltype(equal_sign_tag)>);
-    static_assert(::std::is_trivially_destructible_v<decltype(pl_size_tag)>);
-    static_assert(::std::is_trivially_destructible_v<decltype(pl_voffset_tag)>);
+    static_assert(::std::is_trivially_destructible_v<decltype(unity_size_tag)>);
+    static_assert(::std::is_trivially_destructible_v<decltype(unity_voffset_tag)>);
     static_assert(::std::is_trivially_destructible_v<decltype(html_span_info)>);
-    static_assert(::std::is_trivially_destructible_v<decltype(html_mark_info)>);
-    static_assert(::std::is_trivially_destructible_v<decltype(pl_mark_info)>);
+    static_assert(::std::is_trivially_destructible_v<decltype(background_color_info)>);
 
     constexpr ~OptimizerContextVariant() noexcept = default;
 
@@ -422,15 +408,15 @@ public:
     }
 
     constexpr OptimizerFrame(::pltxt2htm::Ast<ndebug>* ast_, Iter&& iter_,
-                             OptimizerContextWithPlSizeTagInfo pl_size_tag_context_) noexcept
-        : context_data{::std::move(pl_size_tag_context_)},
+                             OptimizerContextWithUnitySizeTagInfo unity_size_tag_context_) noexcept
+        : context_data{::std::move(unity_size_tag_context_)},
           ast(ast_),
           iter{iter_} {
     }
 
     constexpr OptimizerFrame(::pltxt2htm::Ast<ndebug>* ast_, Iter&& iter_,
-                             OptimizerContextWithPlVoffsetTagInfo pl_voffset_tag_context_) noexcept
-        : context_data{::std::move(pl_voffset_tag_context_)},
+                             OptimizerContextWithUnityVoffsetTagInfo unity_voffset_tag_context_) noexcept
+        : context_data{::std::move(unity_voffset_tag_context_)},
           ast(ast_),
           iter{iter_} {
     }
@@ -442,16 +428,9 @@ public:
           iter{iter_} {
     }
 
-    constexpr OptimizerFrame(::pltxt2htm::Ast<ndebug>* ast_, Iter&& iter_,
-                             OptimizerContextWithHtmlMarkInfo<ndebug>&& html_mark_context_) noexcept
-        : context_data{::std::move(html_mark_context_)},
-          ast(ast_),
-          iter{iter_} {
-    }
-
-    constexpr OptimizerFrame(::pltxt2htm::Ast<ndebug>* ast_, Iter&& iter_,
-                             OptimizerContextWithPlMarkInfo<ndebug>&& pl_mark_context_) noexcept
-        : context_data{::std::move(pl_mark_context_)},
+    constexpr OptimizerFrame(::pltxt2htm::Ast<ndebug>* ast_, Iter&& iter_, ::pltxt2htm::NodeKind const nested_tag_type_,
+                             OptimizerContextWithBackgroundColorInfo<ndebug>&& background_color_info_context_) noexcept
+        : context_data{::std::move(background_color_info_context_), nested_tag_type_},
           ast(ast_),
           iter{iter_} {
     }
@@ -481,18 +460,18 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_pl_size_tag_value(this auto const& self) noexcept -> ::pltxt2htm::ValueWithUnit<double> {
+    constexpr auto get_unity_size_tag_value(this auto const& self) noexcept -> ::pltxt2htm::ValueWithUnit<double> {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::pl_size, u8"context kind mismatch");
-        return context_data_ref.pl_size_tag.value;
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::unity_size, u8"context kind mismatch");
+        return context_data_ref.unity_size_tag.value;
     }
 
     [[nodiscard]]
-    constexpr auto get_pl_voffset_tag_value(this auto const& self) noexcept
+    constexpr auto get_unity_voffset_tag_value(this auto const& self) noexcept
         -> ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::pl_voffset, u8"context kind mismatch");
-        return context_data_ref.pl_voffset_tag.value;
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::unity_voffset, u8"context kind mismatch");
+        return context_data_ref.unity_voffset_tag.value;
     }
 
     [[nodiscard]]
@@ -519,19 +498,12 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_html_mark_background_color(this auto const& self) noexcept
-        -> ::pltxt2htm::container::U8StringView {
+    constexpr auto get_background_color(this auto const& self) noexcept -> ::pltxt2htm::container::U8StringView {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_mark, u8"context kind mismatch");
-        return context_data_ref.html_mark_info.background_color;
-    }
-
-    [[nodiscard]]
-    constexpr auto get_pl_mark_background_color(this auto const& self) noexcept
-        -> ::pltxt2htm::container::U8StringView {
-        auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::pl_mark, u8"context kind mismatch");
-        return context_data_ref.pl_mark_info.background_color;
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_mark ||
+                             context_data_ref.kind == ::pltxt2htm::NodeKind::unity_mark,
+                         u8"context kind mismatch");
+        return context_data_ref.background_color_info.background_color;
     }
 };
 
@@ -617,8 +589,8 @@ entry:
                         ::std::addressof(subast), ::pltxt2htm::NodeKind::group, subast.begin()));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::pl_color: {
-                auto&& active_node = node.as_pl_color();
+            case ::pltxt2htm::NodeKind::unity_color: {
+                auto&& active_node = node.as_unity_color();
                 auto&& subast = active_node.get_subast();
 
                 // Optimization: <color=red><color=blue>text</color></color>
@@ -630,7 +602,7 @@ entry:
                 // The inner anchor tag's styling takes precedence over the outer color.
                 if (subast.size() == 1) {
                     auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
-                    if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_color ||
+                    if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::unity_color ||
                         subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_a ||
                         subnode.get_node_kind() == ::pltxt2htm::NodeKind::html_span) {
                         // SAFETY: We must NOT write `node = ::std::move(subnode);` directly.
@@ -651,7 +623,7 @@ entry:
                 // Optimization: If this color matches the parent color, flatten the nesting
                 // <color=red>text<color=red>text</color>test</color> -> <color=red>texttexttext</color>
                 auto const is_different_tag = bool{[nested_tag_type, &call_stack, &active_node] constexpr noexcept {
-                    if (nested_tag_type == ::pltxt2htm::NodeKind::pl_color) {
+                    if (nested_tag_type == ::pltxt2htm::NodeKind::unity_color) {
                         return active_node.get_color() !=
                                call_stack.template current_frame<ndebug>().get_equal_sign_tag_id();
                     }
@@ -670,7 +642,7 @@ entry:
                     auto const& equal_sign_tag_id = active_node.get_color();
                     call_stack.push_frame(
                         ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                            ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_color, subast.begin(),
+                            ::std::addressof(subast), ::pltxt2htm::NodeKind::unity_color, subast.begin(),
                             ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{
                                 ::pltxt2htm::container::U8StringView{equal_sign_tag_id}}));
                     goto entry;
@@ -723,7 +695,7 @@ entry:
                                                           ::std::move(merged_fs), ::std::move(merged_va)}};
                         continue;
                     }
-                    if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_color) {
+                    if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::unity_color) {
                         auto const outer_fs = active_node.get_font_size();
                         auto const outer_va = active_node.get_vertical_align();
                         ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> merged_fs{
@@ -731,8 +703,8 @@ entry:
                         if (outer_fs.has_value()) {
                             merged_fs = outer_fs.template value<ndebug>();
                         }
-                        auto inner_subast = ::std::move(subnode.as_pl_color().get_subast());
-                        auto const& inner_color = subnode.as_pl_color().get_color();
+                        auto inner_subast = ::std::move(subnode.as_unity_color().get_subast());
+                        auto const& inner_color = subnode.as_unity_color().get_color();
                         node = ::pltxt2htm::PlTxtNode<ndebug>{
                             ::pltxt2htm::HtmlSpan<ndebug>{::std::move(inner_subast), ::fast_io::u8string{inner_color},
                                                           ::std::move(merged_fs), ::std::move(outer_va)}};
@@ -772,7 +744,7 @@ entry:
                         continue;
                     }
                 }
-                if (nested_tag_type == ::pltxt2htm::NodeKind::pl_color) {
+                if (nested_tag_type == ::pltxt2htm::NodeKind::unity_color) {
                     auto const& parent_color_id = call_stack.template current_frame<ndebug>().get_equal_sign_tag_id();
                     auto const& node_color = active_node.get_color();
                     ::pltxt2htm::container::U8StringView const node_color_view{node_color};
@@ -827,7 +799,7 @@ entry:
                 // The inner color takes precedence over the outer color
                 if (subast.size() == 1) {
                     auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
-                    if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_color ||
+                    if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::unity_color ||
                         subnode.get_node_kind() == ::pltxt2htm::NodeKind::html_span) {
                         // SAFETY: We must NOT write `node = ::std::move(subnode);` directly.
                         // `subnode` is a reference into `node.get_subast()`. When the move-assignment
@@ -852,7 +824,7 @@ entry:
                     if (nested_tag_type == ::pltxt2htm::NodeKind::pl_a) {
                         return false;
                     }
-                    if (nested_tag_type == ::pltxt2htm::NodeKind::pl_color) {
+                    if (nested_tag_type == ::pltxt2htm::NodeKind::unity_color) {
                         return anchor_color != call_stack.template current_frame<ndebug>().get_equal_sign_tag_id();
                     }
                     if (nested_tag_type == ::pltxt2htm::NodeKind::html_span) {
@@ -1025,8 +997,8 @@ entry:
                         ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_external, subast.begin()));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::pl_link: {
-                auto&& active_node = node.as_pl_link();
+            case ::pltxt2htm::NodeKind::unity_link: {
+                auto&& active_node = node.as_unity_link();
                 auto&& subast = active_node.get_subast();
                 if (subast.empty()) {
                     // <link="url"></link> can be omitted
@@ -1035,11 +1007,11 @@ entry:
                 }
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_link, subast.begin()));
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::unity_link, subast.begin()));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::pl_size: {
-                auto&& active_node = node.as_pl_size();
+            case ::pltxt2htm::NodeKind::unity_size: {
+                auto&& active_node = node.as_unity_size();
                 auto&& subast = active_node.get_subast();
                 if (subast.empty()) {
                     // <size=123></size> can be omitted
@@ -1049,7 +1021,7 @@ entry:
                 if (subast.size() == 1) {
                     // <size=12><size=3>physicsLab</size></size> can be
                     auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
-                    if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_size) {
+                    if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::unity_size) {
                         // SAFETY: We must NOT write `node = ::std::move(subnode);` directly.
                         // `subnode` is a reference into `node.get_subast()`. When the move-assignment
                         // operator of the node runs, it first destructs the old value at `node`, which
@@ -1063,21 +1035,21 @@ entry:
                 }
                 auto&& frame = call_stack.template current_frame<ndebug>();
                 // Optimization: If the size (value and unit) is the same as the parent node, ignore the nested tag.
-                bool const is_different_tag = frame.get_nested_tag_type() != ::pltxt2htm::NodeKind::pl_size ||
-                                              active_node.get_font_size() != frame.get_pl_size_tag_value();
+                bool const is_different_tag = frame.get_nested_tag_type() != ::pltxt2htm::NodeKind::unity_size ||
+                                              active_node.get_font_size() != frame.get_unity_size_tag_value();
                 if (is_different_tag) {
                     call_stack.push_frame(
                         ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
                             ::std::addressof(subast), subast.begin(),
-                            ::pltxt2htm::details::OptimizerContextWithPlSizeTagInfo{active_node.get_font_size()}));
+                            ::pltxt2htm::details::OptimizerContextWithUnitySizeTagInfo{active_node.get_font_size()}));
                     goto entry;
                 }
                 node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                 ++current_iter;
                 continue;
             }
-            case ::pltxt2htm::NodeKind::pl_voffset: {
-                auto&& active_node = node.as_pl_voffset();
+            case ::pltxt2htm::NodeKind::unity_voffset: {
+                auto&& active_node = node.as_unity_voffset();
                 auto&& subast = active_node.get_subast();
                 if (subast.empty()) {
                     // <voffset=5></voffset> can be omitted
@@ -1087,7 +1059,7 @@ entry:
                 if (subast.size() == 1) {
                     // <voffset=5><voffset=3>physicsLab</voffset></voffset> can be
                     auto& subnode = ::pltxt2htm::details::vector_front<ndebug>(subast);
-                    if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::pl_voffset) {
+                    if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::unity_voffset) {
                         // SAFETY: We must NOT write `node = ::std::move(subnode);` directly.
                         // `subnode` is a reference into `node.get_subast()`. When the move-assignment
                         // operator of the node runs, it first destructs the old value at `node`, which
@@ -1101,33 +1073,33 @@ entry:
                 }
                 auto&& frame = call_stack.template current_frame<ndebug>();
                 // Optimization: If the offset is the same as the parent node, ignore the nested tag.
-                bool const is_different_tag = frame.get_nested_tag_type() != ::pltxt2htm::NodeKind::pl_voffset ||
-                                              active_node.get_value() != frame.get_pl_voffset_tag_value();
+                bool const is_different_tag = frame.get_nested_tag_type() != ::pltxt2htm::NodeKind::unity_voffset ||
+                                              active_node.get_value() != frame.get_unity_voffset_tag_value();
                 if (is_different_tag) {
                     call_stack.push_frame(
                         ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
                             ::std::addressof(subast), subast.begin(),
-                            ::pltxt2htm::details::OptimizerContextWithPlVoffsetTagInfo{active_node.get_value()}));
+                            ::pltxt2htm::details::OptimizerContextWithUnityVoffsetTagInfo{active_node.get_value()}));
                     goto entry;
                 }
                 node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                 ++current_iter;
                 continue;
             }
-            case ::pltxt2htm::NodeKind::pl_align: {
-                auto&& active_node = node.as_pl_align();
+            case ::pltxt2htm::NodeKind::unity_align: {
+                auto&& active_node = node.as_unity_align();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_align, subast.begin()));
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::unity_align, subast.begin()));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::pl_margin: {
-                auto&& active_node = node.as_pl_margin();
+            case ::pltxt2htm::NodeKind::unity_margin: {
+                auto&& active_node = node.as_unity_margin();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_margin, subast.begin()));
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::unity_margin, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_double_emphasis_underscore:
@@ -1136,7 +1108,7 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_strong:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::pl_b: {
+            case ::pltxt2htm::NodeKind::unity_b: {
                 auto&& nested_tag_type = call_stack.template current_frame<ndebug>().get_nested_tag_type();
                 bool const is_different_tag{!::pltxt2htm::details::is_strong_like(nested_tag_type)};
                 auto&& subast = [&]() -> ::pltxt2htm::Ast<ndebug>& {
@@ -1153,8 +1125,8 @@ entry:
                         auto&& active_node = node.as_html_strong();
                         return active_node.get_subast();
                     }
-                    case ::pltxt2htm::NodeKind::pl_b: {
-                        auto&& active_node = node.as_pl_b();
+                    case ::pltxt2htm::NodeKind::unity_b: {
+                        auto&& active_node = node.as_unity_b();
                         return active_node.get_subast();
                     }
                     default:
@@ -1371,16 +1343,15 @@ entry:
                     }
                     call_stack.push_frame(
                         ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                            ::std::addressof(subast), subast.begin(),
-                            ::pltxt2htm::details::OptimizerContextWithHtmlMarkInfo<ndebug>{
+                            ::std::addressof(subast), subast.begin(), ::pltxt2htm::NodeKind::html_mark,
+                            ::pltxt2htm::details::OptimizerContextWithBackgroundColorInfo<ndebug>{
                                 node_background_color_view}));
                     goto entry;
                 }
                 // Optimization: same-tag mark with an identical background-color is flattened.
                 // <mark style="background-color:yellow">a<mark style="background-color:yellow">b</mark>c</mark>
                 // -> <mark style="background-color:yellow">abc</mark>
-                if (node_background_color_view ==
-                    call_stack.template current_frame<ndebug>().get_html_mark_background_color()) {
+                if (node_background_color_view == call_stack.template current_frame<ndebug>().get_background_color()) {
                     node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                     ++current_iter;
                     continue;
@@ -1392,32 +1363,33 @@ entry:
                 }
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), subast.begin(),
-                        ::pltxt2htm::details::OptimizerContextWithHtmlMarkInfo<ndebug>{node_background_color_view}));
+                        ::std::addressof(subast), subast.begin(), ::pltxt2htm::NodeKind::html_mark,
+                        ::pltxt2htm::details::OptimizerContextWithBackgroundColorInfo<ndebug>{
+                            node_background_color_view}));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::pl_mark: {
-                auto&& active_node = node.as_pl_mark();
+            case ::pltxt2htm::NodeKind::unity_mark: {
+                auto&& active_node = node.as_unity_mark();
                 auto&& nested_tag_type = call_stack.template current_frame<ndebug>().get_nested_tag_type();
                 auto&& subast = active_node.get_subast();
                 auto const& node_background_color = active_node.get_background_color();
                 ::pltxt2htm::container::U8StringView const node_background_color_view{node_background_color};
-                if (nested_tag_type != ::pltxt2htm::NodeKind::pl_mark) {
+                if (nested_tag_type != ::pltxt2htm::NodeKind::unity_mark) {
                     if (subast.empty()) {
                         ast.erase(current_iter);
                         continue;
                     }
                     call_stack.push_frame(
                         ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                            ::std::addressof(subast), subast.begin(),
-                            ::pltxt2htm::details::OptimizerContextWithPlMarkInfo<ndebug>{node_background_color_view}));
+                            ::std::addressof(subast), subast.begin(), ::pltxt2htm::NodeKind::unity_mark,
+                            ::pltxt2htm::details::OptimizerContextWithBackgroundColorInfo<ndebug>{
+                                node_background_color_view}));
                     goto entry;
                 }
-                // Optimization: same-tag pl_mark with an identical background color is flattened.
+                // Optimization: same-tag unity_mark with an identical background color is flattened.
                 // <mark=yellow>a<mark=yellow>b</mark>c</mark>
                 // -> <mark=yellow>abc</mark>
-                if (node_background_color_view ==
-                    call_stack.template current_frame<ndebug>().get_pl_mark_background_color()) {
+                if (node_background_color_view == call_stack.template current_frame<ndebug>().get_background_color()) {
                     node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                     ++current_iter;
                     continue;
@@ -1429,8 +1401,9 @@ entry:
                 }
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), subast.begin(),
-                        ::pltxt2htm::details::OptimizerContextWithPlMarkInfo<ndebug>{node_background_color_view}));
+                        ::std::addressof(subast), subast.begin(), ::pltxt2htm::NodeKind::unity_mark,
+                        ::pltxt2htm::details::OptimizerContextWithBackgroundColorInfo<ndebug>{
+                            node_background_color_view}));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_u: {
@@ -1501,7 +1474,7 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_single_emphasis_asterisk:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::pl_i:
+            case ::pltxt2htm::NodeKind::unity_i:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_em: {
                 auto&& nested_tag_type = call_stack.template current_frame<ndebug>().get_nested_tag_type();
@@ -1516,8 +1489,8 @@ entry:
                         auto&& active_node = node.as_md_single_emphasis_asterisk();
                         return active_node.get_subast();
                     }
-                    case ::pltxt2htm::NodeKind::pl_i: {
-                        auto&& active_node = node.as_pl_i();
+                    case ::pltxt2htm::NodeKind::unity_i: {
+                        auto&& active_node = node.as_unity_i();
                         return active_node.get_subast();
                     }
                     case ::pltxt2htm::NodeKind::html_em: {
