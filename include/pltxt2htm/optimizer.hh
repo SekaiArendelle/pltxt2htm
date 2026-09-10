@@ -70,19 +70,11 @@ public:
 };
 
 /**
- * @brief Context for optimizer html_mark frames, remembers the background-color.
+ * @brief Context for optimizer frames that remember a background-color.
+ * @details Shared data structure for the HTML &lt;mark&gt; frame and the Unity TMP &lt;mark&gt; frame.
  */
 template<::pltxt2htm::Contracts ndebug>
-class OptimizerContextWithHtmlMarkInfo {
-public:
-    ::pltxt2htm::container::U8StringView background_color{};
-};
-
-/**
- * @brief Context for optimizer unity_mark frames, remembers the background-color.
- */
-template<::pltxt2htm::Contracts ndebug>
-class OptimizerContextWithUnityMarkInfo {
+class OptimizerContextWithBackgroundColorInfo {
 public:
     ::pltxt2htm::container::U8StringView background_color{};
 };
@@ -101,8 +93,7 @@ public:
         OptimizerContextWithUnitySizeTagInfo unity_size_tag;
         OptimizerContextWithUnityVoffsetTagInfo unity_voffset_tag;
         OptimizerContextWithHtmlSpanInfo<ndebug> html_span_info;
-        OptimizerContextWithHtmlMarkInfo<ndebug> html_mark_info;
-        OptimizerContextWithUnityMarkInfo<ndebug> unity_mark_info;
+        OptimizerContextWithBackgroundColorInfo<ndebug> background_color_info;
     };
 
     ::pltxt2htm::NodeKind kind; ///< Type of the current nested tag context
@@ -133,14 +124,10 @@ public:
           kind{::pltxt2htm::NodeKind::html_span} {
     }
 
-    constexpr OptimizerContextVariant(OptimizerContextWithHtmlMarkInfo<ndebug>&& html_mark_context) noexcept
-        : html_mark_info{::std::move(html_mark_context)},
-          kind{::pltxt2htm::NodeKind::html_mark} {
-    }
-
-    constexpr OptimizerContextVariant(OptimizerContextWithUnityMarkInfo<ndebug>&& unity_mark_context) noexcept
-        : unity_mark_info{::std::move(unity_mark_context)},
-          kind{::pltxt2htm::NodeKind::unity_mark} {
+    constexpr OptimizerContextVariant(OptimizerContextWithBackgroundColorInfo<ndebug>&& background_color_info_context,
+                                      ::pltxt2htm::NodeKind const kind_) noexcept
+        : background_color_info{::std::move(background_color_info_context)},
+          kind{kind_} {
     }
 
     constexpr OptimizerContextVariant(OptimizerContextVariant<ndebug> const&) noexcept = delete;
@@ -179,11 +166,13 @@ public:
             return;
         }
         case ::pltxt2htm::NodeKind::html_mark: {
-            ::std::construct_at(::std::addressof(this->html_mark_info), ::std::move(other.html_mark_info));
+            ::std::construct_at(::std::addressof(this->background_color_info),
+                                ::std::move(other.background_color_info));
             return;
         }
         case ::pltxt2htm::NodeKind::unity_mark: {
-            ::std::construct_at(::std::addressof(this->unity_mark_info), ::std::move(other.unity_mark_info));
+            ::std::construct_at(::std::addressof(this->background_color_info),
+                                ::std::move(other.background_color_info));
             return;
         }
         case ::pltxt2htm::NodeKind::group:
@@ -368,8 +357,8 @@ public:
     static_assert(::std::is_trivially_destructible_v<decltype(unity_size_tag)>);
     static_assert(::std::is_trivially_destructible_v<decltype(unity_voffset_tag)>);
     static_assert(::std::is_trivially_destructible_v<decltype(html_span_info)>);
-    static_assert(::std::is_trivially_destructible_v<decltype(html_mark_info)>);
-    static_assert(::std::is_trivially_destructible_v<decltype(unity_mark_info)>);
+    static_assert(::std::is_trivially_destructible_v<decltype(background_color_info)>);
+    static_assert(::std::is_trivially_destructible_v<decltype(background_color_info)>);
 
     constexpr ~OptimizerContextVariant() noexcept = default;
 
@@ -442,16 +431,9 @@ public:
           iter{iter_} {
     }
 
-    constexpr OptimizerFrame(::pltxt2htm::Ast<ndebug>* ast_, Iter&& iter_,
-                             OptimizerContextWithHtmlMarkInfo<ndebug>&& html_mark_context_) noexcept
-        : context_data{::std::move(html_mark_context_)},
-          ast(ast_),
-          iter{iter_} {
-    }
-
-    constexpr OptimizerFrame(::pltxt2htm::Ast<ndebug>* ast_, Iter&& iter_,
-                             OptimizerContextWithUnityMarkInfo<ndebug>&& unity_mark_context_) noexcept
-        : context_data{::std::move(unity_mark_context_)},
+    constexpr OptimizerFrame(::pltxt2htm::Ast<ndebug>* ast_, Iter&& iter_, ::pltxt2htm::NodeKind const nested_tag_type_,
+                             OptimizerContextWithBackgroundColorInfo<ndebug>&& background_color_info_context_) noexcept
+        : context_data{::std::move(background_color_info_context_), nested_tag_type_},
           ast(ast_),
           iter{iter_} {
     }
@@ -519,19 +501,12 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_html_mark_background_color(this auto const& self) noexcept
-        -> ::pltxt2htm::container::U8StringView {
+    constexpr auto get_background_color(this auto const& self) noexcept -> ::pltxt2htm::container::U8StringView {
         auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_mark, u8"context kind mismatch");
-        return context_data_ref.html_mark_info.background_color;
-    }
-
-    [[nodiscard]]
-    constexpr auto get_unity_mark_background_color(this auto const& self) noexcept
-        -> ::pltxt2htm::container::U8StringView {
-        auto&& context_data_ref = self.context_data;
-        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::unity_mark, u8"context kind mismatch");
-        return context_data_ref.unity_mark_info.background_color;
+        pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_mark ||
+                             context_data_ref.kind == ::pltxt2htm::NodeKind::unity_mark,
+                         u8"context kind mismatch");
+        return context_data_ref.background_color_info.background_color;
     }
 };
 
@@ -1371,16 +1346,15 @@ entry:
                     }
                     call_stack.push_frame(
                         ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                            ::std::addressof(subast), subast.begin(),
-                            ::pltxt2htm::details::OptimizerContextWithHtmlMarkInfo<ndebug>{
+                            ::std::addressof(subast), subast.begin(), ::pltxt2htm::NodeKind::html_mark,
+                            ::pltxt2htm::details::OptimizerContextWithBackgroundColorInfo<ndebug>{
                                 node_background_color_view}));
                     goto entry;
                 }
                 // Optimization: same-tag mark with an identical background-color is flattened.
                 // <mark style="background-color:yellow">a<mark style="background-color:yellow">b</mark>c</mark>
                 // -> <mark style="background-color:yellow">abc</mark>
-                if (node_background_color_view ==
-                    call_stack.template current_frame<ndebug>().get_html_mark_background_color()) {
+                if (node_background_color_view == call_stack.template current_frame<ndebug>().get_background_color()) {
                     node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                     ++current_iter;
                     continue;
@@ -1392,8 +1366,9 @@ entry:
                 }
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), subast.begin(),
-                        ::pltxt2htm::details::OptimizerContextWithHtmlMarkInfo<ndebug>{node_background_color_view}));
+                        ::std::addressof(subast), subast.begin(), ::pltxt2htm::NodeKind::html_mark,
+                        ::pltxt2htm::details::OptimizerContextWithBackgroundColorInfo<ndebug>{
+                            node_background_color_view}));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::unity_mark: {
@@ -1409,16 +1384,15 @@ entry:
                     }
                     call_stack.push_frame(
                         ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                            ::std::addressof(subast), subast.begin(),
-                            ::pltxt2htm::details::OptimizerContextWithUnityMarkInfo<ndebug>{
+                            ::std::addressof(subast), subast.begin(), ::pltxt2htm::NodeKind::unity_mark,
+                            ::pltxt2htm::details::OptimizerContextWithBackgroundColorInfo<ndebug>{
                                 node_background_color_view}));
                     goto entry;
                 }
                 // Optimization: same-tag unity_mark with an identical background color is flattened.
                 // <mark=yellow>a<mark=yellow>b</mark>c</mark>
                 // -> <mark=yellow>abc</mark>
-                if (node_background_color_view ==
-                    call_stack.template current_frame<ndebug>().get_unity_mark_background_color()) {
+                if (node_background_color_view == call_stack.template current_frame<ndebug>().get_background_color()) {
                     node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                     ++current_iter;
                     continue;
@@ -1430,8 +1404,9 @@ entry:
                 }
                 call_stack.push_frame(
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), subast.begin(),
-                        ::pltxt2htm::details::OptimizerContextWithUnityMarkInfo<ndebug>{node_background_color_view}));
+                        ::std::addressof(subast), subast.begin(), ::pltxt2htm::NodeKind::unity_mark,
+                        ::pltxt2htm::details::OptimizerContextWithBackgroundColorInfo<ndebug>{
+                            node_background_color_view}));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_u: {

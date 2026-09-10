@@ -76,12 +76,12 @@ constexpr auto parse_pltxt(::pltxt2htm::container::U8StringView pltext) noexcept
             return ::pltxt2htm::container::nullopt;
         }();
         auto const opt_unity_margin = [&] constexpr noexcept
-            -> ::pltxt2htm::container::Optional<::pltxt2htm::details::ParserFrameContextWithUnityMarginTagInfo> {
+            -> ::pltxt2htm::container::Optional<::pltxt2htm::details::ParserFrameContextWithMarginsInfo> {
             if (type_of_subast == ::pltxt2htm::NodeKind::unity_margin) {
-                return ::pltxt2htm::details::ParserFrameContextWithUnityMarginTagInfo{
+                return ::pltxt2htm::details::ParserFrameContextWithMarginsInfo{
                     call_stack.template current_frame<ndebug>().get_pltext(),
-                    call_stack.template current_frame<ndebug>().as_unity_margin_tag().left,
-                    call_stack.template current_frame<ndebug>().as_unity_margin_tag().right};
+                    call_stack.template current_frame<ndebug>().as_margins_info().left,
+                    call_stack.template current_frame<ndebug>().as_margins_info().right};
             }
             return ::pltxt2htm::container::nullopt;
         }();
@@ -92,12 +92,12 @@ constexpr auto parse_pltxt(::pltxt2htm::container::U8StringView pltext) noexcept
             return ::pltxt2htm::container::nullopt;
         }();
         auto const opt_html_div = [&] constexpr noexcept
-            -> ::pltxt2htm::container::Optional<::pltxt2htm::details::ParserFrameContextWithHtmlDivInfo> {
+            -> ::pltxt2htm::container::Optional<::pltxt2htm::details::ParserFrameContextWithMarginsInfo> {
             if (type_of_subast == ::pltxt2htm::NodeKind::html_div) {
-                return ::pltxt2htm::details::ParserFrameContextWithHtmlDivInfo{
+                return ::pltxt2htm::details::ParserFrameContextWithMarginsInfo{
                     call_stack.template current_frame<ndebug>().get_pltext(),
-                    call_stack.template current_frame<ndebug>().as_html_div_info().left,
-                    call_stack.template current_frame<ndebug>().as_html_div_info().right};
+                    call_stack.template current_frame<ndebug>().as_margins_info().left,
+                    call_stack.template current_frame<ndebug>().as_margins_info().right};
             }
             return ::pltxt2htm::container::nullopt;
         }();
@@ -177,9 +177,9 @@ constexpr auto parse_pltxt(::pltxt2htm::container::U8StringView pltext) noexcept
             // Same as unity_margin: advance start_index past the consumed html_div content, preserving
             // the left/right margins read from the frame top before the recursive parse popped it.
             start_index += consumed_bytes;
-            auto const html_div_info = opt_html_div.template value<ndebug>();
+            auto const margins_info = opt_html_div.template value<ndebug>();
             result.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                ::pltxt2htm::HtmlDiv<ndebug>{::std::move(subast), html_div_info.left, html_div_info.right}));
+                ::pltxt2htm::HtmlDiv<ndebug>{::std::move(subast), margins_info.left, margins_info.right}));
             continue;
         }
         case ::pltxt2htm::NodeKind::html_h1: {
