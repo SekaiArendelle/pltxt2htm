@@ -30,27 +30,27 @@ namespace pltxt2htm::details {
  * @warning This function should only be called when a critical assertion failure occurs
  */
 template<U8LiteralString expression, U8LiteralString file_name, unsigned line, unsigned column,
-         pltxt2htm::details::U8LiteralString msg>
+         U8LiteralString msg>
 #if __has_cpp_attribute(__gnu__::__cold__)
 [[__gnu__::__cold__]] // Mark as cold path for compiler optimization
 #endif
 [[noreturn]]
 inline void panic() noexcept {
     constexpr auto to_be_printed = ::pltxt2htm::details::concat(
-        pltxt2htm::details::U8LiteralString{u8"Program panicked because "}, expression,
-        pltxt2htm::details::U8LiteralString{
+        U8LiteralString{u8"Program panicked because "}, expression,
+        U8LiteralString{
             u8", please file a bug at \"https://github.com/SekaiArendelle/pltxt2htm/issues\" and attach the "
             u8"crash info along with the source text\n* in file: "},
         file_name,
-        pltxt2htm::details::U8LiteralString{u8"\n"
-                                            "* in line: "},
+        U8LiteralString{u8"\n"
+                        "* in line: "},
         ::pltxt2htm::details::uint_to_literal_string<line>(),
-        pltxt2htm::details::U8LiteralString{u8"\n"
-                                            "* in column: "},
+        U8LiteralString{u8"\n"
+                        "* in column: "},
         ::pltxt2htm::details::uint_to_literal_string<column>(),
-        pltxt2htm::details::U8LiteralString{u8"\n"
-                                            "* with message: \""},
-        msg, pltxt2htm::details::U8LiteralString{u8"\"\n\0"});
+        U8LiteralString{u8"\n"
+                        "* with message: \""},
+        msg, U8LiteralString{u8"\"\n\0"});
 
     ::std::fwrite(to_be_printed.cdata(), sizeof(typename decltype(to_be_printed)::value_type), to_be_printed.size(),
                   stderr);
