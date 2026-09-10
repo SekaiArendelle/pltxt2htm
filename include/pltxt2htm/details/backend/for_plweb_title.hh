@@ -100,6 +100,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_a: {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                 auto&& active_node = node.as_pl_a();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_a));
                 constexpr auto open_tag = ::pltxt2htm::details::concat(U8LiteralString{u8"<span style=\"color:"},
@@ -107,6 +108,7 @@ entry:
                                                                        U8LiteralString{u8";\">"});
                 result.append(::pltxt2htm::container::U8StringView{open_tag});
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_span: {
                 auto&& active_node = node.as_html_span();
@@ -284,20 +286,28 @@ entry:
                 continue;
             }
             case ::pltxt2htm::NodeKind::pl_macro_project: {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                 result.append(u8"{Project}");
                 continue;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_macro_visitor: {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                 result.append(u8"{Visitor}");
                 continue;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_macro_author: {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                 result.append(u8"{Author}");
                 continue;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_macro_coauthors: {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                 result.append(u8"{CoAuthors}");
                 continue;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_note:
                 [[fallthrough]];
@@ -312,39 +322,53 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_experiment: {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                 auto&& active_node = node.as_pl_experiment();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_discussion: {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                 auto&& active_node = node.as_pl_discussion();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_experiments: {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                 auto&& active_node = node.as_pl_experiments();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_discussions: {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                 auto&& active_node = node.as_pl_discussions();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_user: {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                 auto&& active_node = node.as_pl_user();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_trigger: {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                 auto&& active_node = node.as_pl_trigger();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_internal: {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                 auto&& active_node = node.as_pl_internal();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::unity_size: {
                 auto&& active_node = node.as_unity_size();
@@ -437,6 +461,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_external: {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                 auto&& active_node = node.as_pl_external();
                 result.append(u8"<a href=\"");
                 auto const& external_url = active_node.get_url().as_string();
@@ -446,6 +471,7 @@ entry:
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_external));
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::unity_link: {
                 auto&& active_node = node.as_unity_link();
@@ -592,14 +618,18 @@ entry:
             }
             case ::pltxt2htm::NodeKind::html_span:
                 [[fallthrough]];
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
             case ::pltxt2htm::NodeKind::pl_a:
                 [[fallthrough]];
+#endif
             case ::pltxt2htm::NodeKind::unity_color: {
                 result.append(u8"</span>");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_external:
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                 [[fallthrough]];
+#endif
             case ::pltxt2htm::NodeKind::unity_link:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_link:
@@ -614,10 +644,14 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_trigger: {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_internal: {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                 goto entry;
+#endif
             }
             default:
                 [[unlikely]] {

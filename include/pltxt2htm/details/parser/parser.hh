@@ -803,6 +803,7 @@ entry:
                     // Note: <align=...> (Unity TextMeshPro) is only parsed at line-start
                     // block context via find_next_block_after_line_break; inline occurrences
                     // render as literal text (same as inline <p>).
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug>(
                             pltext.template subview<ndebug>(current_index + 2));
                         opt_tag_len.has_value()) {
@@ -814,6 +815,7 @@ entry:
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
+#endif
                     // parsing html <a href="URL"> tag
                     if (auto a_tag = ::pltxt2htm::details::try_parse_html_a_tag<ndebug>(
                             pltext.template subview<ndebug>(current_index + 2));
@@ -933,6 +935,7 @@ entry:
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                     // parsing: <discussions=$1>$2</discussions>
                     if (auto opt_discussions_tag = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<
                             ndebug, u8"iscussions", ::pltxt2htm::details::is_url_value_char>(
@@ -964,6 +967,7 @@ entry:
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
+#endif
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
                     ++current_index;
                     continue;
@@ -972,6 +976,7 @@ entry:
                 case u8'e':
                     [[fallthrough]];
                 case u8'E': {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                     // parsing: <experiments=$1>$2</experiments>
                     if (auto opt_experiments_tag = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<
                             ndebug, u8"xperiments", ::pltxt2htm::details::is_url_value_char>(
@@ -1028,6 +1033,7 @@ entry:
                         current_index += tag_len + 3;
                         continue;
                     }
+#endif
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"m">(
                             pltext.template subview<ndebug>(current_index + 2));
                         opt_tag_len.has_value()) {
@@ -1047,6 +1053,7 @@ entry:
                 case u8'i':
                     [[fallthrough]];
                 case u8'I': {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                     // parsing: <internal=$1>$2</internal>
                     if (auto opt_internal_tag = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<
                             ndebug, u8"nternal", ::pltxt2htm::details::is_ascii_graphic>(
@@ -1063,6 +1070,7 @@ entry:
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
+#endif
                     // parsing Unity and HTML <i>$1</i> tag
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug>(
                             pltext.template subview<ndebug>(current_index + 2));
@@ -1254,6 +1262,7 @@ entry:
                 case u8't':
                     [[fallthrough]];
                 case u8'T': {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                     // parsing: <trigger=$1>$2</trigger>
                     if (auto opt_trigger_tag = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<
                             ndebug, u8"rigger", ::pltxt2htm::details::is_ascii_graphic>(
@@ -1270,6 +1279,7 @@ entry:
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
+#endif
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
                     ++current_index;
                     continue;
@@ -1278,6 +1288,7 @@ entry:
                 case u8'u':
                     [[fallthrough]];
                 case u8'U': {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                     // parsing pl <user=$1>$2</user> tag
                     if (auto opt_user_tag = ::pltxt2htm::details::try_parse_equal_sign_tag<
                             ndebug, u8"ser", ::pltxt2htm::details::is_ascii_lowercase_alphanumeric>(
@@ -1293,6 +1304,7 @@ entry:
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
+#endif
                     // <ul> is a block-level list; inline occurrences are plain literal text
                     // (except <u> underline below).
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug>(
@@ -1389,6 +1401,7 @@ entry:
                         continue;
                     }
                     case ::pltxt2htm::NodeKind::pl_a: {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                         // parsing </color> or </a>
                         ::pltxt2htm::container::Optional<::std::size_t> opt_tag_len{
                             ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"color">(
@@ -1407,6 +1420,7 @@ entry:
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
+#endif
                         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
                         ++current_index;
                         continue;
@@ -1451,6 +1465,7 @@ entry:
                         continue;
                     }
                     case ::pltxt2htm::NodeKind::pl_experiment: {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                         auto&& active_frame_data = frame.as_equal_sign_tag();
                         // parsing </experiment>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"experiment">(
@@ -1466,11 +1481,13 @@ entry:
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
+#endif
                         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
                         ++current_index;
                         continue;
                     }
                     case ::pltxt2htm::NodeKind::pl_experiments: {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                         auto&& active_frame_data = frame.as_equal_sign_tag();
                         // parsing </experiments>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"experiments">(
@@ -1486,11 +1503,13 @@ entry:
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
+#endif
                         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
                         ++current_index;
                         continue;
                     }
                     case ::pltxt2htm::NodeKind::pl_discussion: {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                         auto&& active_frame_data = frame.as_equal_sign_tag();
                         // parsing </discussion>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"discussion">(
@@ -1506,11 +1525,13 @@ entry:
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
+#endif
                         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
                         ++current_index;
                         continue;
                     }
                     case ::pltxt2htm::NodeKind::pl_discussions: {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                         auto&& active_frame_data = frame.as_equal_sign_tag();
                         // parsing </discussions>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"discussions">(
@@ -1526,11 +1547,13 @@ entry:
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
+#endif
                         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
                         ++current_index;
                         continue;
                     }
                     case ::pltxt2htm::NodeKind::pl_external: {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                         auto&& active_frame_data = frame.as_url_info();
                         // parsing </external>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"external">(
@@ -1546,6 +1569,7 @@ entry:
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
+#endif
                         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
                         ++current_index;
                         continue;
@@ -1569,6 +1593,7 @@ entry:
                         continue;
                     }
                     case ::pltxt2htm::NodeKind::pl_trigger: {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                         auto&& active_frame_data = frame.as_equal_sign_tag();
                         // parsing </trigger>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"trigger">(
@@ -1582,11 +1607,13 @@ entry:
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
+#endif
                         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
                         ++current_index;
                         continue;
                     }
                     case ::pltxt2htm::NodeKind::pl_internal: {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                         auto&& active_frame_data = frame.as_equal_sign_tag();
                         // parsing </internal>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"internal">(
@@ -1600,11 +1627,13 @@ entry:
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
+#endif
                         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
                         ++current_index;
                         continue;
                     }
                     case ::pltxt2htm::NodeKind::pl_user: {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                         auto&& active_frame_data = frame.as_equal_sign_tag();
                         // parsing </user>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"user">(
@@ -1618,6 +1647,7 @@ entry:
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
+#endif
                         result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
                         ++current_index;
                         continue;
@@ -2224,6 +2254,7 @@ entry:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::url:
                         [[fallthrough]];
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                     case ::pltxt2htm::NodeKind::pl_macro_project:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::pl_macro_visitor:
@@ -2231,6 +2262,7 @@ entry:
                     case ::pltxt2htm::NodeKind::pl_macro_author:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::pl_macro_coauthors:
+#endif
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::list_ul:
                         [[fallthrough]];
@@ -2768,6 +2800,7 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::url:
                 [[fallthrough]];
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
             case ::pltxt2htm::NodeKind::pl_macro_project:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::pl_macro_visitor:
@@ -2775,6 +2808,7 @@ entry:
             case ::pltxt2htm::NodeKind::pl_macro_author:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::pl_macro_coauthors:
+#endif
                 [[unlikely]] {
                     pltxt2htm_unreachable(u8"Unexpected block node kind in inline context");
                 }

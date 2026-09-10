@@ -49,6 +49,7 @@ enum class NodeKind : unsigned {
     unity_b, ///< Unity bold text: &lt;b&gt;...&lt;/b&gt;; also used for Markdown and HTML strong emphasis
     unity_i, ///< Unity italic text: &lt;i&gt;...&lt;/i&gt;; also used for Markdown and HTML emphasis
 
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
     // Physics-Lab-specific tags
     pl_a, ///< Physics-Lab anchor tag: &lt;a&gt;...&lt;/a&gt; (styled like a link)
     pl_experiment, ///< Physics-Lab experiment reference: &lt;experiment=id&gt;...&lt;/experiment&gt;
@@ -62,16 +63,19 @@ enum class NodeKind : unsigned {
     pl_trigger, ///< Physics-Lab trigger tag: &lt;trigger=value&gt;...&lt;/trigger&gt; (legacy NetLogo-style interaction
                 ///< tag)
     pl_internal, ///< Physics-Lab internal tag: &lt;internal=value&gt;...&lt;/internal&gt; (rendered verbatim)
+#endif
 
     // Text formatting shared across HTML and Unity rich text
     html_u, ///< Underline text: &lt;u&gt;...&lt;/u&gt; (Unity TextMeshPro rich text), &lt;u&gt; in HTML
     html_s, ///< Strikethrough text: &lt;s&gt;...&lt;/s&gt; (Unity TextMeshPro rich text), &lt;s&gt; in HTML
 
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
     // Physics-Lab specific macros
     pl_macro_project, // {Project}
     pl_macro_visitor, // {Visitor}
     pl_macro_author, // {Author}
     pl_macro_coauthors, // {CoAuthors}
+#endif
 
     // HTML structural elements
     html_p, ///< Paragraph: &lt;p&gt;...&lt;/p&gt; (HTML), created by double newline (Markdown)
@@ -172,10 +176,14 @@ namespace details {
 
 [[nodiscard]]
 constexpr auto is_equal_sign_tag_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
-    return node_type == ::pltxt2htm::NodeKind::unity_color || node_type == ::pltxt2htm::NodeKind::pl_experiment ||
+    return node_type == ::pltxt2htm::NodeKind::unity_color
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
+           || node_type == ::pltxt2htm::NodeKind::pl_experiment ||
            node_type == ::pltxt2htm::NodeKind::pl_discussion || node_type == ::pltxt2htm::NodeKind::pl_experiments ||
            node_type == ::pltxt2htm::NodeKind::pl_discussions || node_type == ::pltxt2htm::NodeKind::pl_user ||
-           node_type == ::pltxt2htm::NodeKind::pl_trigger || node_type == ::pltxt2htm::NodeKind::pl_internal;
+           node_type == ::pltxt2htm::NodeKind::pl_trigger || node_type == ::pltxt2htm::NodeKind::pl_internal
+#endif
+           ;
 }
 
 [[nodiscard]]
@@ -213,8 +221,11 @@ constexpr auto is_inline_content_frame_kind(::pltxt2htm::NodeKind const node_typ
  */
 [[nodiscard]]
 constexpr auto is_url_link_tag_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
-    return node_type == ::pltxt2htm::NodeKind::unity_link || node_type == ::pltxt2htm::NodeKind::pl_external ||
-           node_type == ::pltxt2htm::NodeKind::md_link || node_type == ::pltxt2htm::NodeKind::html_a;
+    return node_type == ::pltxt2htm::NodeKind::unity_link
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
+           || node_type == ::pltxt2htm::NodeKind::pl_external
+#endif
+           || node_type == ::pltxt2htm::NodeKind::md_link || node_type == ::pltxt2htm::NodeKind::html_a;
 }
 
 } // namespace details

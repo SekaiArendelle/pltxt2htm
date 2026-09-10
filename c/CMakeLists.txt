@@ -9,6 +9,7 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.28)
 endif()
 
 option(PLTXT2HTM_ENABLE_STACKTRACE "Enable C++23 <stacktrace>" OFF)
+option(PLTXT2HTM_ENABLE_PL_EXTENSIONS "Enable Physics-Lab specific syntax extensions" ON)
 
 add_library(pltxt2htm src/pltxt2htm.cc)
 
@@ -21,6 +22,10 @@ target_compile_features(pltxt2htm PUBLIC cxx_std_23)
 
 if(PLTXT2HTM_ENABLE_STACKTRACE)
     target_compile_definitions(pltxt2htm PRIVATE PLTXT2HTM_ENABLE_STACKTRACE)
+endif()
+
+if(NOT PLTXT2HTM_ENABLE_PL_EXTENSIONS)
+    target_compile_definitions(pltxt2htm PUBLIC PLTXT2HTM_DISABLE_PL_EXTENSIONS)
 endif()
 
 if(WIN32)

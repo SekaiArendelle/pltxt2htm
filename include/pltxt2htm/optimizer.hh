@@ -150,6 +150,7 @@ public:
         switch (this->kind) /* -Werror=switch */ {
         case ::pltxt2htm::NodeKind::unity_color:
             [[fallthrough]];
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
         case ::pltxt2htm::NodeKind::pl_experiment:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_experiments:
@@ -162,7 +163,10 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_trigger:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_internal: {
+        case ::pltxt2htm::NodeKind::pl_internal:
+#endif
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_p: {
             ::std::construct_at(::std::addressof(this->equal_sign_tag), ::std::move(other.equal_sign_tag));
             return;
         }
@@ -188,14 +192,18 @@ public:
         }
         case ::pltxt2htm::NodeKind::group:
             [[fallthrough]];
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
         case ::pltxt2htm::NodeKind::pl_a:
             [[fallthrough]];
+#endif
         case ::pltxt2htm::NodeKind::unity_align:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::unity_margin:
             [[fallthrough]];
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
         case ::pltxt2htm::NodeKind::pl_external:
             [[fallthrough]];
+#endif
         case ::pltxt2htm::NodeKind::unity_link:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::unity_b:
@@ -316,6 +324,7 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::tab:
             [[fallthrough]];
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
         case ::pltxt2htm::NodeKind::pl_macro_project:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_macro_visitor:
@@ -323,6 +332,7 @@ public:
         case ::pltxt2htm::NodeKind::pl_macro_author:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_macro_coauthors:
+#endif
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::html_br:
             [[fallthrough]];
@@ -599,13 +609,15 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::tab:
                 [[fallthrough]];
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
             case ::pltxt2htm::NodeKind::pl_macro_project:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::pl_macro_visitor:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::pl_macro_author:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::pl_macro_coauthors: {
+            case ::pltxt2htm::NodeKind::pl_macro_coauthors:
+#endif
                 ++current_iter;
                 continue;
             }
@@ -819,6 +831,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_a: {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                 auto&& active_node = node.as_pl_a();
                 auto&& subast = active_node.get_subast();
 
@@ -855,6 +868,7 @@ entry:
                     if (nested_tag_type == ::pltxt2htm::NodeKind::unity_color) {
                         return anchor_color != call_stack.template current_frame<ndebug>().get_equal_sign_tag_id();
                     }
+#endif
                     if (nested_tag_type == ::pltxt2htm::NodeKind::html_span) {
                         return anchor_color != call_stack.template current_frame<ndebug>().get_html_span_color();
                     }
@@ -876,6 +890,7 @@ entry:
                 continue;
             }
             case ::pltxt2htm::NodeKind::pl_experiment:
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::pl_experiments:
                 [[fallthrough]];
@@ -906,6 +921,7 @@ entry:
                         }
                     }
                 }();
+#endif
                 if (subast.empty()) {
                     ast.erase(current_iter);
                     continue;
@@ -942,6 +958,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_user: {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                 auto&& active_node = node.as_pl_user();
                 auto&& subast = active_node.get_subast();
                 if (subast.empty()) {
@@ -961,6 +978,7 @@ entry:
                         // By moving `subnode` into a temporary first, we extract the value before the
                         // destination is touched, breaking the aliasing.
                         auto tmp = ::std::move(subnode);
+#endif
                         node = ::std::move(tmp);
                     }
                 }
@@ -981,8 +999,10 @@ entry:
                 node = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::Group<ndebug>{::std::move(subast)}};
                 ++current_iter;
                 continue;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_trigger: {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                 auto&& active_node = node.as_pl_trigger();
                 auto&& subast = active_node.get_subast();
                 if (subast.empty()) {
@@ -996,8 +1016,10 @@ entry:
                         ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{::pltxt2htm::container::U8StringView{
                             active_node.get_value().data(), active_node.get_value().size()}}));
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_internal: {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                 auto&& active_node = node.as_pl_internal();
                 auto&& subast = active_node.get_subast();
                 if (subast.empty()) {
@@ -1013,6 +1035,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_external: {
+#ifndef PLTXT2HTM_DISABLE_PL_EXTENSIONS
                 auto&& active_node = node.as_pl_external();
                 auto&& subast = active_node.get_subast();
                 if (subast.empty()) {
@@ -1024,6 +1047,7 @@ entry:
                     ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
                         ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_external, subast.begin()));
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::unity_link: {
                 auto&& active_node = node.as_unity_link();
