@@ -174,7 +174,7 @@ int main() {
     }
 
     // regression: roundtrip fuzzer crash (fixedadv_roundtrip, crash-6250118fd3e7f955112700997404af6e9d791b89).
-    // The web backend emits a pl_margin block as <div style="margin-left:...;margin-right:...">, but the
+    // The web backend emits a unity_margin block as <div style="margin-left:...;margin-right:...">, but the
     // experimental HTML parser (parse_pltxt_html) used by the second roundtrip pass does not understand <div>,
     // so on the second pass the emitted <div> is re-parsed as literal text and escaped. The two passes diverge:
     //     first pass : x<br><div style="margin-left:2px;margin-right:2px;"></div>

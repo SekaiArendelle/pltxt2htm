@@ -3,7 +3,7 @@
  * @brief AST tagged union node definition for pltxt2htm
  * @details Defines the main AST node class template ::pltxt2htm::PlTxtNode,
  *          which is a tagged union (discriminated by ::pltxt2htm::NodeKind) over
- *          all concrete node types (basic, HTML, Markdown, Physics-Lab).
+ *          all concrete node types (basic, HTML, Markdown, Physics-Lab, Unity rich text).
  */
 
 #pragma once
@@ -20,14 +20,15 @@
 #include "impl/markdown_node_decl.hh"
 #include "impl/physics_lab_node_decl.hh"
 #include "impl/table_node_decl.hh"
+#include "impl/unity_node_decl.hh"
 #include "../details/push_macro.hh"
 
 namespace pltxt2htm {
 
 /**
- * @brief Tagged-union AST node that can represent any pl-text / Markdown / HTML element.
+ * @brief Tagged-union AST node for Physics-Lab, Unity rich-text, Markdown, and HTML elements.
  * @details Dispatched by ::pltxt2htm::NodeKind. Holds exactly one of the concrete
- *          node types (basic, HTML, Markdown, Physics-Lab) in a type-safe union.
+ *          node types (basic, HTML, Markdown, Physics-Lab, Unity rich text) in a type-safe union.
  * @tparam ndebug Contract checking mode.
  */
 template<::pltxt2htm::Contracts ndebug>
@@ -117,8 +118,8 @@ class PlTxtNode {
         ::pltxt2htm::MdLatexInline<ndebug> md_latex_inline_node;
         ::pltxt2htm::MdLatexBlock<ndebug> md_latex_block_node;
 
-        // physics lab node
-        ::pltxt2htm::PlColor<ndebug> pl_color_node;
+        // Physics-Lab and Unity rich-text nodes
+        ::pltxt2htm::UnityColor<ndebug> unity_color_node;
         ::pltxt2htm::PlA<ndebug> pl_a_node;
         ::pltxt2htm::PlExperiment<ndebug> pl_experiment_node;
         ::pltxt2htm::PlDiscussion<ndebug> pl_discussion_node;
@@ -128,14 +129,14 @@ class PlTxtNode {
         ::pltxt2htm::PlTrigger<ndebug> pl_trigger_node;
         ::pltxt2htm::PlInternal<ndebug> pl_internal_node;
         ::pltxt2htm::PlExternal<ndebug> pl_external_node;
-        ::pltxt2htm::PlLink<ndebug> pl_link_node;
-        ::pltxt2htm::PlSize<ndebug> pl_size_node;
-        ::pltxt2htm::PlVoffset<ndebug> pl_voffset_node;
-        ::pltxt2htm::PlAlign<ndebug> pl_align_node;
-        ::pltxt2htm::PlMark<ndebug> pl_mark_node;
-        ::pltxt2htm::PlMargin<ndebug> pl_margin_node;
-        ::pltxt2htm::PlI<ndebug> pl_i_node;
-        ::pltxt2htm::PlB<ndebug> pl_b_node;
+        ::pltxt2htm::UnityLink<ndebug> unity_link_node;
+        ::pltxt2htm::UnitySize<ndebug> unity_size_node;
+        ::pltxt2htm::UnityVoffset<ndebug> unity_voffset_node;
+        ::pltxt2htm::UnityAlign<ndebug> unity_align_node;
+        ::pltxt2htm::UnityMark<ndebug> unity_mark_node;
+        ::pltxt2htm::UnityMargin<ndebug> unity_margin_node;
+        ::pltxt2htm::UnityI<ndebug> unity_i_node;
+        ::pltxt2htm::UnityB<ndebug> unity_b_node;
         ::pltxt2htm::PlMacroProject pl_macro_project_node;
         ::pltxt2htm::PlMacroVisitor pl_macro_visitor_node;
         ::pltxt2htm::PlMacroAuthor pl_macro_author_node;
@@ -160,9 +161,9 @@ public:
           node_kind{::pltxt2htm::NodeKind::group} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::PlColor<ndebug>&& node) noexcept
-        : pl_color_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::pl_color} {
+    constexpr PlTxtNode(::pltxt2htm::UnityColor<ndebug>&& node) noexcept
+        : unity_color_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::unity_color} {
     }
 
     constexpr PlTxtNode(::pltxt2htm::PlA<ndebug>&& node) noexcept
@@ -210,44 +211,44 @@ public:
           node_kind{::pltxt2htm::NodeKind::pl_external} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::PlLink<ndebug>&& node) noexcept
-        : pl_link_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::pl_link} {
+    constexpr PlTxtNode(::pltxt2htm::UnityLink<ndebug>&& node) noexcept
+        : unity_link_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::unity_link} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::PlSize<ndebug>&& node) noexcept
-        : pl_size_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::pl_size} {
+    constexpr PlTxtNode(::pltxt2htm::UnitySize<ndebug>&& node) noexcept
+        : unity_size_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::unity_size} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::PlVoffset<ndebug>&& node) noexcept
-        : pl_voffset_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::pl_voffset} {
+    constexpr PlTxtNode(::pltxt2htm::UnityVoffset<ndebug>&& node) noexcept
+        : unity_voffset_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::unity_voffset} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::PlAlign<ndebug>&& node) noexcept
-        : pl_align_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::pl_align} {
+    constexpr PlTxtNode(::pltxt2htm::UnityAlign<ndebug>&& node) noexcept
+        : unity_align_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::unity_align} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::PlMark<ndebug>&& node) noexcept
-        : pl_mark_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::pl_mark} {
+    constexpr PlTxtNode(::pltxt2htm::UnityMark<ndebug>&& node) noexcept
+        : unity_mark_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::unity_mark} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::PlMargin<ndebug>&& node) noexcept
-        : pl_margin_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::pl_margin} {
+    constexpr PlTxtNode(::pltxt2htm::UnityMargin<ndebug>&& node) noexcept
+        : unity_margin_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::unity_margin} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::PlI<ndebug>&& node) noexcept
-        : pl_i_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::pl_i} {
+    constexpr PlTxtNode(::pltxt2htm::UnityI<ndebug>&& node) noexcept
+        : unity_i_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::unity_i} {
     }
 
-    constexpr PlTxtNode(::pltxt2htm::PlB<ndebug>&& node) noexcept
-        : pl_b_node(::std::move(node)),
-          node_kind{::pltxt2htm::NodeKind::pl_b} {
+    constexpr PlTxtNode(::pltxt2htm::UnityB<ndebug>&& node) noexcept
+        : unity_b_node(::std::move(node)),
+          node_kind{::pltxt2htm::NodeKind::unity_b} {
     }
 
     constexpr PlTxtNode(::pltxt2htm::HtmlU<ndebug>&& node) noexcept
@@ -644,8 +645,8 @@ public:
             new (::std::addressof(group_node))::pltxt2htm::Group(other.group_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_color: {
-            new (::std::addressof(pl_color_node))::pltxt2htm::PlColor(other.pl_color_node);
+        case ::pltxt2htm::NodeKind::unity_color: {
+            new (::std::addressof(unity_color_node))::pltxt2htm::UnityColor(other.unity_color_node);
             break;
         }
         case ::pltxt2htm::NodeKind::pl_a: {
@@ -684,36 +685,36 @@ public:
             new (::std::addressof(pl_external_node))::pltxt2htm::PlExternal(other.pl_external_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_link: {
-            new (::std::addressof(pl_link_node))::pltxt2htm::PlLink(other.pl_link_node);
+        case ::pltxt2htm::NodeKind::unity_link: {
+            new (::std::addressof(unity_link_node))::pltxt2htm::UnityLink(other.unity_link_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_size: {
-            new (::std::addressof(pl_size_node))::pltxt2htm::PlSize(other.pl_size_node);
+        case ::pltxt2htm::NodeKind::unity_size: {
+            new (::std::addressof(unity_size_node))::pltxt2htm::UnitySize(other.unity_size_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_voffset: {
-            new (::std::addressof(pl_voffset_node))::pltxt2htm::PlVoffset(other.pl_voffset_node);
+        case ::pltxt2htm::NodeKind::unity_voffset: {
+            new (::std::addressof(unity_voffset_node))::pltxt2htm::UnityVoffset(other.unity_voffset_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_align: {
-            new (::std::addressof(pl_align_node))::pltxt2htm::PlAlign(other.pl_align_node);
+        case ::pltxt2htm::NodeKind::unity_align: {
+            new (::std::addressof(unity_align_node))::pltxt2htm::UnityAlign(other.unity_align_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_mark: {
-            new (::std::addressof(pl_mark_node))::pltxt2htm::PlMark(other.pl_mark_node);
+        case ::pltxt2htm::NodeKind::unity_mark: {
+            new (::std::addressof(unity_mark_node))::pltxt2htm::UnityMark(other.unity_mark_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_margin: {
-            new (::std::addressof(pl_margin_node))::pltxt2htm::PlMargin(other.pl_margin_node);
+        case ::pltxt2htm::NodeKind::unity_margin: {
+            new (::std::addressof(unity_margin_node))::pltxt2htm::UnityMargin(other.unity_margin_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_i: {
-            new (::std::addressof(pl_i_node))::pltxt2htm::PlI(other.pl_i_node);
+        case ::pltxt2htm::NodeKind::unity_i: {
+            new (::std::addressof(unity_i_node))::pltxt2htm::UnityI(other.unity_i_node);
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_b: {
-            new (::std::addressof(pl_b_node))::pltxt2htm::PlB(other.pl_b_node);
+        case ::pltxt2htm::NodeKind::unity_b: {
+            new (::std::addressof(unity_b_node))::pltxt2htm::UnityB(other.unity_b_node);
             break;
         }
         case ::pltxt2htm::NodeKind::html_u: {
@@ -1052,8 +1053,8 @@ public:
             new (::std::addressof(group_node))::pltxt2htm::Group(::std::move(other.group_node));
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_color: {
-            new (::std::addressof(pl_color_node))::pltxt2htm::PlColor(::std::move(other.pl_color_node));
+        case ::pltxt2htm::NodeKind::unity_color: {
+            new (::std::addressof(unity_color_node))::pltxt2htm::UnityColor(::std::move(other.unity_color_node));
             break;
         }
         case ::pltxt2htm::NodeKind::pl_a: {
@@ -1094,36 +1095,36 @@ public:
             new (::std::addressof(pl_external_node))::pltxt2htm::PlExternal(::std::move(other.pl_external_node));
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_link: {
-            new (::std::addressof(pl_link_node))::pltxt2htm::PlLink(::std::move(other.pl_link_node));
+        case ::pltxt2htm::NodeKind::unity_link: {
+            new (::std::addressof(unity_link_node))::pltxt2htm::UnityLink(::std::move(other.unity_link_node));
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_size: {
-            new (::std::addressof(pl_size_node))::pltxt2htm::PlSize(::std::move(other.pl_size_node));
+        case ::pltxt2htm::NodeKind::unity_size: {
+            new (::std::addressof(unity_size_node))::pltxt2htm::UnitySize(::std::move(other.unity_size_node));
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_voffset: {
-            new (::std::addressof(pl_voffset_node))::pltxt2htm::PlVoffset(::std::move(other.pl_voffset_node));
+        case ::pltxt2htm::NodeKind::unity_voffset: {
+            new (::std::addressof(unity_voffset_node))::pltxt2htm::UnityVoffset(::std::move(other.unity_voffset_node));
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_align: {
-            new (::std::addressof(pl_align_node))::pltxt2htm::PlAlign(::std::move(other.pl_align_node));
+        case ::pltxt2htm::NodeKind::unity_align: {
+            new (::std::addressof(unity_align_node))::pltxt2htm::UnityAlign(::std::move(other.unity_align_node));
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_mark: {
-            new (::std::addressof(pl_mark_node))::pltxt2htm::PlMark(::std::move(other.pl_mark_node));
+        case ::pltxt2htm::NodeKind::unity_mark: {
+            new (::std::addressof(unity_mark_node))::pltxt2htm::UnityMark(::std::move(other.unity_mark_node));
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_margin: {
-            new (::std::addressof(pl_margin_node))::pltxt2htm::PlMargin(::std::move(other.pl_margin_node));
+        case ::pltxt2htm::NodeKind::unity_margin: {
+            new (::std::addressof(unity_margin_node))::pltxt2htm::UnityMargin(::std::move(other.unity_margin_node));
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_i: {
-            new (::std::addressof(pl_i_node))::pltxt2htm::PlI(::std::move(other.pl_i_node));
+        case ::pltxt2htm::NodeKind::unity_i: {
+            new (::std::addressof(unity_i_node))::pltxt2htm::UnityI(::std::move(other.unity_i_node));
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_b: {
-            new (::std::addressof(pl_b_node))::pltxt2htm::PlB(::std::move(other.pl_b_node));
+        case ::pltxt2htm::NodeKind::unity_b: {
+            new (::std::addressof(unity_b_node))::pltxt2htm::UnityB(::std::move(other.unity_b_node));
             break;
         }
         case ::pltxt2htm::NodeKind::html_u: {
@@ -1467,8 +1468,8 @@ public:
             group_node.~Group();
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_color: {
-            pl_color_node.~PlColor();
+        case ::pltxt2htm::NodeKind::unity_color: {
+            unity_color_node.~UnityColor();
             break;
         }
         case ::pltxt2htm::NodeKind::pl_a: {
@@ -1507,36 +1508,36 @@ public:
             pl_external_node.~PlExternal();
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_link: {
-            pl_link_node.~PlLink();
+        case ::pltxt2htm::NodeKind::unity_link: {
+            unity_link_node.~UnityLink();
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_size: {
-            pl_size_node.~PlSize();
+        case ::pltxt2htm::NodeKind::unity_size: {
+            unity_size_node.~UnitySize();
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_voffset: {
-            pl_voffset_node.~PlVoffset();
+        case ::pltxt2htm::NodeKind::unity_voffset: {
+            unity_voffset_node.~UnityVoffset();
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_align: {
-            pl_align_node.~PlAlign();
+        case ::pltxt2htm::NodeKind::unity_align: {
+            unity_align_node.~UnityAlign();
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_mark: {
-            pl_mark_node.~PlMark();
+        case ::pltxt2htm::NodeKind::unity_mark: {
+            unity_mark_node.~UnityMark();
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_margin: {
-            pl_margin_node.~PlMargin();
+        case ::pltxt2htm::NodeKind::unity_margin: {
+            unity_margin_node.~UnityMargin();
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_i: {
-            pl_i_node.~PlI();
+        case ::pltxt2htm::NodeKind::unity_i: {
+            unity_i_node.~UnityI();
             break;
         }
-        case ::pltxt2htm::NodeKind::pl_b: {
-            pl_b_node.~PlB();
+        case ::pltxt2htm::NodeKind::unity_b: {
+            unity_b_node.~UnityB();
             break;
         }
         case ::pltxt2htm::NodeKind::html_u: {
@@ -1874,8 +1875,8 @@ public:
         case ::pltxt2htm::NodeKind::group: {
             return self.group_node == other.group_node;
         }
-        case ::pltxt2htm::NodeKind::pl_color: {
-            return self.pl_color_node == other.pl_color_node;
+        case ::pltxt2htm::NodeKind::unity_color: {
+            return self.unity_color_node == other.unity_color_node;
         }
         case ::pltxt2htm::NodeKind::pl_a: {
             return self.pl_a_node == other.pl_a_node;
@@ -1904,29 +1905,29 @@ public:
         case ::pltxt2htm::NodeKind::pl_external: {
             return self.pl_external_node == other.pl_external_node;
         }
-        case ::pltxt2htm::NodeKind::pl_link: {
-            return self.pl_link_node == other.pl_link_node;
+        case ::pltxt2htm::NodeKind::unity_link: {
+            return self.unity_link_node == other.unity_link_node;
         }
-        case ::pltxt2htm::NodeKind::pl_size: {
-            return self.pl_size_node == other.pl_size_node;
+        case ::pltxt2htm::NodeKind::unity_size: {
+            return self.unity_size_node == other.unity_size_node;
         }
-        case ::pltxt2htm::NodeKind::pl_voffset: {
-            return self.pl_voffset_node == other.pl_voffset_node;
+        case ::pltxt2htm::NodeKind::unity_voffset: {
+            return self.unity_voffset_node == other.unity_voffset_node;
         }
-        case ::pltxt2htm::NodeKind::pl_align: {
-            return self.pl_align_node == other.pl_align_node;
+        case ::pltxt2htm::NodeKind::unity_align: {
+            return self.unity_align_node == other.unity_align_node;
         }
-        case ::pltxt2htm::NodeKind::pl_mark: {
-            return self.pl_mark_node == other.pl_mark_node;
+        case ::pltxt2htm::NodeKind::unity_mark: {
+            return self.unity_mark_node == other.unity_mark_node;
         }
-        case ::pltxt2htm::NodeKind::pl_margin: {
-            return self.pl_margin_node == other.pl_margin_node;
+        case ::pltxt2htm::NodeKind::unity_margin: {
+            return self.unity_margin_node == other.unity_margin_node;
         }
-        case ::pltxt2htm::NodeKind::pl_i: {
-            return self.pl_i_node == other.pl_i_node;
+        case ::pltxt2htm::NodeKind::unity_i: {
+            return self.unity_i_node == other.unity_i_node;
         }
-        case ::pltxt2htm::NodeKind::pl_b: {
-            return self.pl_b_node == other.pl_b_node;
+        case ::pltxt2htm::NodeKind::unity_b: {
+            return self.unity_b_node == other.unity_b_node;
         }
         case ::pltxt2htm::NodeKind::html_u: {
             return self.html_u_node == other.html_u_node;
@@ -2603,9 +2604,9 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto as_pl_color(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_color, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.pl_color_node);
+    constexpr auto as_unity_color(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::unity_color, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.unity_color_node);
     }
 
     [[nodiscard]]
@@ -2663,51 +2664,51 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto as_pl_link(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_link, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.pl_link_node);
+    constexpr auto as_unity_link(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::unity_link, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.unity_link_node);
     }
 
     [[nodiscard]]
-    constexpr auto as_pl_size(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_size, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.pl_size_node);
+    constexpr auto as_unity_size(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::unity_size, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.unity_size_node);
     }
 
     [[nodiscard]]
-    constexpr auto as_pl_voffset(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_voffset, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.pl_voffset_node);
+    constexpr auto as_unity_voffset(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::unity_voffset, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.unity_voffset_node);
     }
 
     [[nodiscard]]
-    constexpr auto as_pl_align(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_align, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.pl_align_node);
+    constexpr auto as_unity_align(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::unity_align, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.unity_align_node);
     }
 
     [[nodiscard]]
-    constexpr auto as_pl_mark(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_mark, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.pl_mark_node);
+    constexpr auto as_unity_mark(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::unity_mark, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.unity_mark_node);
     }
 
     [[nodiscard]]
-    constexpr auto as_pl_margin(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_margin, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.pl_margin_node);
+    constexpr auto as_unity_margin(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::unity_margin, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.unity_margin_node);
     }
 
     [[nodiscard]]
-    constexpr auto as_pl_i(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_i, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.pl_i_node);
+    constexpr auto as_unity_i(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::unity_i, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.unity_i_node);
     }
 
     [[nodiscard]]
-    constexpr auto as_pl_b(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::pl_b, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.pl_b_node);
+    constexpr auto as_unity_b(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::unity_b, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.unity_b_node);
     }
 
     [[nodiscard]]
@@ -2763,3 +2764,4 @@ public:
 #include "impl/markdown_node_def.inc"
 #include "impl/physics_lab_node_def.inc"
 #include "impl/table_node_def.inc"
+#include "impl/unity_node_def.inc"
