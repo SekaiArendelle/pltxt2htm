@@ -68,7 +68,19 @@ int main() {
         pltxt2htm_test_assert_equal(html, pltext);
         auto const plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto const plunity_richtext_answer = ::fast_io::u8string_view{
-            u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\n<color=#cf222e>int</color>&nbsp;x;\n</font>"};
+            u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\n<color=#cf222e>int</color>\u00A0x;\n</font>"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    // Rendered-code character references use HTML replacement rules before Unity escaping.
+    {
+        auto const pltext = ::fast_io::u8string_view{u8"<pre><code>&#0;&#128;&#xD800;&lt;&gt;&nbsp;</code></pre>"};
+        auto const html = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
+        pltxt2htm_test_assert_equal(html, pltext);
+        auto const plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto const plunity_richtext_answer = ::fast_io::u8string_view{
+            u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\n\uFFFD\u20AC\uFFFD<size=20>\uff1c</size>"
+            u8"<size=20>\uff1e</size>\u00A0\n</font>"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 

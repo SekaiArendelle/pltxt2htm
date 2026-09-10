@@ -17,7 +17,9 @@
 
 #include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
+#include "container/array.hh"
 #include "container/string_view.hh"
+#include "container/optional.hh"
 #include "container/expected.hh"
 #include "contracts.hh"
 #include "parser.hh"
@@ -33,7 +35,8 @@ namespace pltxt2htm {
 /**
  * @brief Convert Physics-Lab (pl) text to advanced HTML with full feature support
  * @details This function provides the most comprehensive HTML generation with support for:
- *          - Physics-Lab specific tags (color, experiment, discussion, user, size)
+ *          - Physics-Lab-specific tags (experiment, discussion, user, etc.)
+ *          - Unity rich-text tags (color, size, bold, italic, etc.)
  *          - Full Markdown syntax (headers, lists, emphasis, links, code blocks, etc.)
  *          - HTML elements with proper escaping and formatting
  *          - Internal linking to experiments and discussions
@@ -126,8 +129,7 @@ constexpr auto pltxt2plunity_introduction(::pltxt2htm::container::U8StringView p
 /**
  * @brief Convert Physics-Lab text to common HTML with basic formatting
  * @details This function provides basic HTML generation with limited feature support:
- *          - Physics-Lab color tags only
- *          - Bold (&lt;b&gt;) and italic (&lt;i&gt;) tags only
+ *          - Unity color, bold (&lt;b&gt;), and italic (&lt;i&gt;) tags
  *          - Basic HTML escaping and formatting
  *
  *          The text is parsed with the inline-only parser: block-level syntax

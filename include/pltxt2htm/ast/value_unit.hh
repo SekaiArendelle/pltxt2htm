@@ -43,7 +43,8 @@ struct ValueWithUnit {
     ::pltxt2htm::Unit unit; ///< Unit of the value (px, % or em)
 
     [[nodiscard]]
-    constexpr auto operator==(::pltxt2htm::ValueWithUnit<T> const& other) const noexcept -> bool = default;
+    constexpr auto operator==(this ::pltxt2htm::ValueWithUnit<T> const& self,
+                              ::pltxt2htm::ValueWithUnit<T> const& other) noexcept -> bool = default;
 };
 
 } // namespace pltxt2htm

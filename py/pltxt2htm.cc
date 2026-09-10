@@ -1,11 +1,11 @@
 #include <cstdlib>
 #include <memory>
 #include <Python.h>
-#include <fast_io/fast_io_dsal/array.h>
+#include <pltxt2htm/container/array.hh>
 #include <pltxt2htm/pltxt2htm.h>
 
 static ::PyObject* common_parser([[maybe_unused]] ::PyObject* self, ::PyObject* args, ::PyObject* kwargs) noexcept {
-    constexpr auto kwlist = ::fast_io::array{"text", nullptr};
+    constexpr auto kwlist = ::pltxt2htm::container::Array{"text", nullptr};
 #ifndef NDEBUG
     char8_t const* text = nullptr;
 #else
@@ -38,7 +38,8 @@ static ::PyObject* common_parser([[maybe_unused]] ::PyObject* self, ::PyObject* 
 }
 
 static ::PyObject* fixedadv_parser([[maybe_unused]] ::PyObject* self, ::PyObject* args, ::PyObject* kwargs) noexcept {
-    constexpr auto kwlist = ::fast_io::array{"text", "host", "project", "visitor", "author", "coauthors", nullptr};
+    constexpr auto kwlist =
+        ::pltxt2htm::container::Array{"text", "host", "project", "visitor", "author", "coauthors", nullptr};
 #ifndef NDEBUG
     char8_t const* text = nullptr;
     char8_t const* host = nullptr;
@@ -87,7 +88,7 @@ static ::PyObject* fixedadv_parser([[maybe_unused]] ::PyObject* self, ::PyObject
     return result;
 }
 
-static auto methods_ = ::fast_io::array{
+static auto methods_ = ::pltxt2htm::container::Array{
     // It was a little weird that PyCFunction mismatch with PyCFunctionWithKeywords, which will cause compiler warning
     ::PyMethodDef{"common_parser", reinterpret_cast<::PyCFunction>(::common_parser), METH_VARARGS | METH_KEYWORDS,
                   nullptr},

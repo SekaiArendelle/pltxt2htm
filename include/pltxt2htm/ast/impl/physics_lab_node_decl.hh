@@ -1,57 +1,20 @@
 /**
  * @file physics_lab_node_decl.hh
- * @brief Physics-Lab specific AST node declarations for pltxt2htm
- * @details Defines nodes for Physics-Lab specific tags: color, anchor,
- *          experiment, discussion, user, external link, font size,
- *          bold/italic formatting, and template macros.
+ * @brief Physics-Lab-specific AST node declarations for pltxt2htm
+ * @details Defines Physics-Lab anchors, references, interaction tags, external links, and template macros.
  */
 
 #pragma once
 
 #include <utility>
-#include <cstddef>
 #include <fast_io/fast_io_dsal/string.h>
-#include "../../container/expected.hh"
 #include "../../details/literal_string.hh"
 #include "ast_decl.hh"
 #include "basic_node_decl.hh"
-#include "../value_unit.hh"
 #include "../node_kind.hh"
 #include "../../contracts.hh"
 
 namespace pltxt2htm {
-
-/**
- * @brief Physics-Lab color tag node
- * @details Represents &lt;color=value&gt;...&lt;/color&gt; with a color string and sub-AST.
- */
-template<::pltxt2htm::Contracts ndebug>
-class PlColor {
-    ::pltxt2htm::Ast<ndebug> subast;
-    ::fast_io::u8string color;
-
-public:
-    constexpr PlColor(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& color_) noexcept;
-    constexpr PlColor(::pltxt2htm::PlColor<ndebug> const&) noexcept;
-    constexpr PlColor(::pltxt2htm::PlColor<ndebug>&&) noexcept;
-    constexpr ~PlColor() noexcept;
-    constexpr auto operator=(::pltxt2htm::PlColor<ndebug> const&) noexcept -> ::pltxt2htm::PlColor<ndebug>& = delete;
-    constexpr auto operator=(this PlColor<ndebug>& self, ::pltxt2htm::PlColor<ndebug>&&) noexcept
-        -> ::pltxt2htm::PlColor<ndebug>&;
-
-    [[nodiscard]]
-    constexpr auto operator==(this PlColor const&, PlColor const&) noexcept -> bool;
-
-    [[nodiscard]]
-    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.subast);
-    }
-
-    [[nodiscard]]
-    constexpr auto get_color(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.color);
-    }
-};
 
 /**
  * @brief Physics-Lab anchor tag node
@@ -66,7 +29,7 @@ public:
     constexpr PlA(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
     constexpr PlA(::pltxt2htm::PlA<ndebug> const&) noexcept;
     constexpr PlA(::pltxt2htm::PlA<ndebug>&&) noexcept;
-    constexpr ~PlA() noexcept;
+    constexpr ~PlA() noexcept = default;
     constexpr auto operator=(::pltxt2htm::PlA<ndebug> const&) noexcept -> ::pltxt2htm::PlA<ndebug>& = delete;
     constexpr auto operator=(this PlA<ndebug>& self, ::pltxt2htm::PlA<ndebug>&&) noexcept -> ::pltxt2htm::PlA<ndebug>&;
 
@@ -97,7 +60,7 @@ public:
     constexpr PlExperiment(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& id_) noexcept;
     constexpr PlExperiment(::pltxt2htm::PlExperiment<ndebug> const&) noexcept;
     constexpr PlExperiment(::pltxt2htm::PlExperiment<ndebug>&&) noexcept;
-    constexpr ~PlExperiment() noexcept;
+    constexpr ~PlExperiment() noexcept = default;
     constexpr auto operator=(::pltxt2htm::PlExperiment<ndebug> const&) noexcept
         -> ::pltxt2htm::PlExperiment<ndebug>& = delete;
     constexpr auto operator=(this PlExperiment<ndebug>& self, ::pltxt2htm::PlExperiment<ndebug>&&) noexcept
@@ -130,7 +93,7 @@ public:
     constexpr PlDiscussion(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& id_) noexcept;
     constexpr PlDiscussion(::pltxt2htm::PlDiscussion<ndebug> const&) noexcept;
     constexpr PlDiscussion(::pltxt2htm::PlDiscussion<ndebug>&&) noexcept;
-    constexpr ~PlDiscussion() noexcept;
+    constexpr ~PlDiscussion() noexcept = default;
     constexpr auto operator=(::pltxt2htm::PlDiscussion<ndebug> const&) noexcept
         -> ::pltxt2htm::PlDiscussion<ndebug>& = delete;
     constexpr auto operator=(this PlDiscussion<ndebug>& self, ::pltxt2htm::PlDiscussion<ndebug>&&) noexcept
@@ -164,7 +127,7 @@ public:
     constexpr PlExperiments(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& value_) noexcept;
     constexpr PlExperiments(::pltxt2htm::PlExperiments<ndebug> const&) noexcept;
     constexpr PlExperiments(::pltxt2htm::PlExperiments<ndebug>&&) noexcept;
-    constexpr ~PlExperiments() noexcept;
+    constexpr ~PlExperiments() noexcept = default;
     constexpr auto operator=(::pltxt2htm::PlExperiments<ndebug> const&) noexcept
         -> ::pltxt2htm::PlExperiments<ndebug>& = delete;
     constexpr auto operator=(this PlExperiments<ndebug>& self, ::pltxt2htm::PlExperiments<ndebug>&&) noexcept
@@ -198,7 +161,7 @@ public:
     constexpr PlDiscussions(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& value_) noexcept;
     constexpr PlDiscussions(::pltxt2htm::PlDiscussions<ndebug> const&) noexcept;
     constexpr PlDiscussions(::pltxt2htm::PlDiscussions<ndebug>&&) noexcept;
-    constexpr ~PlDiscussions() noexcept;
+    constexpr ~PlDiscussions() noexcept = default;
     constexpr auto operator=(::pltxt2htm::PlDiscussions<ndebug> const&) noexcept
         -> ::pltxt2htm::PlDiscussions<ndebug>& = delete;
     constexpr auto operator=(this PlDiscussions<ndebug>& self, ::pltxt2htm::PlDiscussions<ndebug>&&) noexcept
@@ -231,7 +194,7 @@ public:
     constexpr PlUser(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& id_) noexcept;
     constexpr PlUser(::pltxt2htm::PlUser<ndebug> const&) noexcept;
     constexpr PlUser(::pltxt2htm::PlUser<ndebug>&&) noexcept;
-    constexpr ~PlUser() noexcept;
+    constexpr ~PlUser() noexcept = default;
     constexpr auto operator=(::pltxt2htm::PlUser<ndebug> const&) noexcept -> ::pltxt2htm::PlUser<ndebug>& = delete;
     constexpr auto operator=(this PlUser<ndebug>& self, ::pltxt2htm::PlUser<ndebug>&&) noexcept
         -> ::pltxt2htm::PlUser<ndebug>&;
@@ -263,7 +226,7 @@ public:
     constexpr PlTrigger(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& value_) noexcept;
     constexpr PlTrigger(::pltxt2htm::PlTrigger<ndebug> const&) noexcept;
     constexpr PlTrigger(::pltxt2htm::PlTrigger<ndebug>&&) noexcept;
-    constexpr ~PlTrigger() noexcept;
+    constexpr ~PlTrigger() noexcept = default;
     constexpr auto operator=(::pltxt2htm::PlTrigger<ndebug> const&) noexcept
         -> ::pltxt2htm::PlTrigger<ndebug>& = delete;
     constexpr auto operator=(this PlTrigger<ndebug>& self, ::pltxt2htm::PlTrigger<ndebug>&&) noexcept
@@ -296,7 +259,7 @@ public:
     constexpr PlInternal(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& value_) noexcept;
     constexpr PlInternal(::pltxt2htm::PlInternal<ndebug> const&) noexcept;
     constexpr PlInternal(::pltxt2htm::PlInternal<ndebug>&&) noexcept;
-    constexpr ~PlInternal() noexcept;
+    constexpr ~PlInternal() noexcept = default;
     constexpr auto operator=(::pltxt2htm::PlInternal<ndebug> const&) noexcept
         -> ::pltxt2htm::PlInternal<ndebug>& = delete;
     constexpr auto operator=(this PlInternal<ndebug>& self, ::pltxt2htm::PlInternal<ndebug>&&) noexcept
@@ -329,7 +292,7 @@ public:
     constexpr PlExternal(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::Url&& url_) noexcept;
     constexpr PlExternal(::pltxt2htm::PlExternal<ndebug> const&) noexcept;
     constexpr PlExternal(::pltxt2htm::PlExternal<ndebug>&&) noexcept;
-    constexpr ~PlExternal() noexcept;
+    constexpr ~PlExternal() noexcept = default;
     constexpr auto operator=(::pltxt2htm::PlExternal<ndebug> const&) noexcept
         -> ::pltxt2htm::PlExternal<ndebug>& = delete;
     constexpr auto operator=(this PlExternal<ndebug>& self, ::pltxt2htm::PlExternal<ndebug>&&) noexcept
@@ -350,333 +313,12 @@ public:
 };
 
 /**
- * @brief Physics-Lab link tag node (Unity TextMeshPro rich text)
- * @details Represents &lt;link=&quot;url&quot;&gt;...&lt;/link&gt; with a URL.
- */
-template<::pltxt2htm::Contracts ndebug>
-class PlLink {
-    ::pltxt2htm::Ast<ndebug> subast;
-    ::pltxt2htm::Url url;
-
-public:
-    constexpr PlLink(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::Url&& url_) noexcept;
-    constexpr PlLink(::pltxt2htm::PlLink<ndebug> const&) noexcept;
-    constexpr PlLink(::pltxt2htm::PlLink<ndebug>&&) noexcept;
-    constexpr ~PlLink() noexcept;
-    constexpr auto operator=(::pltxt2htm::PlLink<ndebug> const&) noexcept -> ::pltxt2htm::PlLink<ndebug>& = delete;
-    constexpr auto operator=(this PlLink<ndebug>& self, ::pltxt2htm::PlLink<ndebug>&&) noexcept
-        -> ::pltxt2htm::PlLink<ndebug>&;
-
-    [[nodiscard]]
-    constexpr auto operator==(this PlLink const&, PlLink const&) noexcept -> bool;
-
-    [[nodiscard]]
-    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.subast);
-    }
-
-    [[nodiscard]]
-    constexpr auto get_url(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.url);
-    }
-};
-
-/**
- * @brief Physics-Lab font size tag node
- * @details Represents &lt;size=value&gt;...&lt;/size&gt; or &lt;size=value%&gt;...&lt;/size&gt;
- *          (TMP_Text rich text) with a font size value and its unit.
- */
-template<::pltxt2htm::Contracts ndebug>
-class PlSize {
-    ::pltxt2htm::Ast<ndebug> subast;
-    ::pltxt2htm::ValueWithUnit<double> font_size;
-
-public:
-    constexpr PlSize(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::ValueWithUnit<double> font_size_) noexcept;
-    constexpr PlSize(::pltxt2htm::PlSize<ndebug> const&) noexcept;
-    constexpr PlSize(::pltxt2htm::PlSize<ndebug>&&) noexcept;
-    constexpr ~PlSize() noexcept;
-    constexpr auto operator=(::pltxt2htm::PlSize<ndebug> const&) noexcept -> ::pltxt2htm::PlSize<ndebug>& = delete;
-    constexpr auto operator=(this PlSize<ndebug>& self, ::pltxt2htm::PlSize<ndebug>&&) noexcept
-        -> ::pltxt2htm::PlSize<ndebug>&;
-
-    [[nodiscard]]
-    constexpr auto operator==(this PlSize const&, PlSize const&) noexcept -> bool;
-
-    [[nodiscard]]
-    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.subast);
-    }
-
-    [[nodiscard]]
-    constexpr auto get_size(this auto const& self) noexcept -> double {
-        return self.font_size.value;
-    }
-
-    [[nodiscard]]
-    constexpr auto get_unit(this auto const& self) noexcept -> ::pltxt2htm::Unit {
-        return self.font_size.unit;
-    }
-
-    [[nodiscard]]
-    constexpr auto get_font_size(this PlSize<ndebug> const& self) noexcept -> ::pltxt2htm::ValueWithUnit<double> {
-        return self.font_size;
-    }
-};
-
-/**
- * @brief Physics-Lab vertical offset tag node
- * @details Represents &lt;voffset=value&gt;...&lt;/voffset&gt; (Unity TextMeshPro rich text)
- *          with a signed px/em offset (negative shifts text down; the unit defaults to px)
- *          and sub-AST.
- */
-template<::pltxt2htm::Contracts ndebug>
-class PlVoffset {
-    ::pltxt2htm::Ast<ndebug> subast;
-    ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> value;
-
-public:
-    constexpr PlVoffset(::pltxt2htm::Ast<ndebug>&& subast_,
-                        ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> value_) noexcept;
-    constexpr PlVoffset(::pltxt2htm::PlVoffset<ndebug> const&) noexcept;
-    constexpr PlVoffset(::pltxt2htm::PlVoffset<ndebug>&&) noexcept;
-    constexpr ~PlVoffset() noexcept;
-    constexpr auto operator=(::pltxt2htm::PlVoffset<ndebug> const&) noexcept
-        -> ::pltxt2htm::PlVoffset<ndebug>& = delete;
-    constexpr auto operator=(this PlVoffset<ndebug>& self, ::pltxt2htm::PlVoffset<ndebug>&&) noexcept
-        -> ::pltxt2htm::PlVoffset<ndebug>&;
-
-    [[nodiscard]]
-    constexpr auto operator==(this PlVoffset const&, PlVoffset const&) noexcept -> bool;
-
-    [[nodiscard]]
-    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.subast);
-    }
-
-    [[nodiscard]]
-    constexpr auto get_value(this auto const& self) noexcept -> ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> {
-        return self.value;
-    }
-};
-
-/**
- * @brief Physics-Lab alignment tag node
- * @details Represents &lt;align=value&gt;...&lt;/align&gt; (Unity TextMeshPro rich text)
- *          with a text-alignment keyword and sub-AST.
- */
-template<::pltxt2htm::Contracts ndebug>
-class PlAlign {
-    ::pltxt2htm::Ast<ndebug> subast;
-    ::pltxt2htm::TextAlign align;
-
-public:
-    constexpr PlAlign(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::TextAlign align_) noexcept;
-    constexpr PlAlign(::pltxt2htm::PlAlign<ndebug> const&) noexcept;
-    constexpr PlAlign(::pltxt2htm::PlAlign<ndebug>&&) noexcept;
-    constexpr ~PlAlign() noexcept;
-    constexpr auto operator=(::pltxt2htm::PlAlign<ndebug> const&) noexcept -> ::pltxt2htm::PlAlign<ndebug>& = delete;
-    constexpr auto operator=(this PlAlign<ndebug>& self, ::pltxt2htm::PlAlign<ndebug>&&) noexcept
-        -> ::pltxt2htm::PlAlign<ndebug>&;
-
-    [[nodiscard]]
-    constexpr auto operator==(this PlAlign const&, PlAlign const&) noexcept -> bool;
-
-    [[nodiscard]]
-    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.subast);
-    }
-
-    [[nodiscard]]
-    constexpr auto get_align(this auto const& self) noexcept -> ::pltxt2htm::TextAlign {
-        return self.align;
-    }
-};
-
-/**
- * @brief Physics-Lab mark tag node
- * @details Represents &lt;mark=value&gt;...&lt;/mark&gt; (TMP rich text) with a background
- *          color string and sub-AST.
- */
-template<::pltxt2htm::Contracts ndebug>
-class PlMark {
-    ::pltxt2htm::Ast<ndebug> subast;
-    ::fast_io::u8string background_color;
-
-public:
-    constexpr PlMark(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& background_color_) noexcept;
-    constexpr PlMark(::pltxt2htm::PlMark<ndebug> const&) noexcept;
-    constexpr PlMark(::pltxt2htm::PlMark<ndebug>&&) noexcept;
-    constexpr ~PlMark() noexcept;
-    constexpr auto operator=(::pltxt2htm::PlMark<ndebug> const&) noexcept -> ::pltxt2htm::PlMark<ndebug>& = delete;
-    constexpr auto operator=(this PlMark<ndebug>& self, ::pltxt2htm::PlMark<ndebug>&&) noexcept
-        -> ::pltxt2htm::PlMark<ndebug>&;
-
-    [[nodiscard]]
-    constexpr auto operator==(this PlMark const&, PlMark const&) noexcept -> bool;
-
-    [[nodiscard]]
-    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.subast);
-    }
-
-    [[nodiscard]]
-    constexpr auto get_background_color(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.background_color);
-    }
-};
-
-/**
- * @brief Physics-Lab margin tag node
- * @details Represents &lt;margin left=v right=v&gt; / &lt;margin-left=v&gt; /
- *          &lt;margin-right=v&gt; / &lt;margin=v&gt; ... &lt;/margin&gt; (Unity TextMeshPro rich
- *          text) with optional left and right unsigned px/em/% values (the unit
- *          defaults to px), and sub-AST.
- */
-template<::pltxt2htm::Contracts ndebug>
-class PlMargin {
-    ::pltxt2htm::Ast<ndebug> subast;
-    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left;
-    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right;
-
-public:
-    constexpr PlMargin(::pltxt2htm::Ast<ndebug>&& subast_,
-                       ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left_,
-                       ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right_) noexcept;
-    constexpr PlMargin(::pltxt2htm::PlMargin<ndebug> const&) noexcept;
-    constexpr PlMargin(::pltxt2htm::PlMargin<ndebug>&&) noexcept;
-    constexpr ~PlMargin() noexcept;
-    constexpr auto operator=(::pltxt2htm::PlMargin<ndebug> const&) noexcept -> ::pltxt2htm::PlMargin<ndebug>& = delete;
-    constexpr auto operator=(this PlMargin<ndebug>& self, ::pltxt2htm::PlMargin<ndebug>&&) noexcept
-        -> ::pltxt2htm::PlMargin<ndebug>&;
-
-    [[nodiscard]]
-    constexpr auto operator==(this PlMargin const&, PlMargin const&) noexcept -> bool;
-
-    [[nodiscard]]
-    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.subast);
-    }
-
-    [[nodiscard]]
-    constexpr auto get_left(this auto const& self) noexcept
-        -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
-        return self.left;
-    }
-
-    [[nodiscard]]
-    constexpr auto get_right(this auto const& self) noexcept
-        -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
-        return self.right;
-    }
-};
-
-/**
- * @brief Physics-Lab italic text tag node
- * @details Represents &lt;i&gt;...&lt;/i&gt; with sub-AST content.
- */
-template<::pltxt2htm::Contracts ndebug>
-class PlI {
-    ::pltxt2htm::Ast<ndebug> subast;
-
-public:
-    constexpr PlI(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr PlI(::pltxt2htm::PlI<ndebug> const&) noexcept;
-    constexpr PlI(::pltxt2htm::PlI<ndebug>&&) noexcept;
-    constexpr ~PlI() noexcept;
-    constexpr auto operator=(::pltxt2htm::PlI<ndebug> const&) noexcept -> ::pltxt2htm::PlI<ndebug>& = delete;
-    constexpr auto operator=(this PlI<ndebug>& self, ::pltxt2htm::PlI<ndebug>&&) noexcept -> ::pltxt2htm::PlI<ndebug>&;
-
-    [[nodiscard]]
-    constexpr auto operator==(this PlI const&, PlI const&) noexcept -> bool;
-
-    [[nodiscard]]
-    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.subast);
-    }
-};
-
-/**
- * @brief Physics-Lab bold text tag node
- * @details Represents &lt;b&gt;...&lt;/b&gt; with sub-AST content.
- */
-template<::pltxt2htm::Contracts ndebug>
-class PlB {
-    ::pltxt2htm::Ast<ndebug> subast;
-
-public:
-    constexpr PlB(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr PlB(::pltxt2htm::PlB<ndebug> const&) noexcept;
-    constexpr PlB(::pltxt2htm::PlB<ndebug>&&) noexcept;
-    constexpr ~PlB() noexcept;
-    constexpr auto operator=(::pltxt2htm::PlB<ndebug> const&) noexcept -> ::pltxt2htm::PlB<ndebug>& = delete;
-    constexpr auto operator=(this PlB<ndebug>& self, ::pltxt2htm::PlB<ndebug>&&) noexcept -> ::pltxt2htm::PlB<ndebug>&;
-
-    [[nodiscard]]
-    constexpr auto operator==(this PlB const&, PlB const&) noexcept -> bool;
-
-    [[nodiscard]]
-    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.subast);
-    }
-};
-
-/**
- * @brief Physics-Lab underline text tag node
- * @details Represents &lt;u&gt;...&lt;/u&gt; (Unity TextMeshPro rich text) with sub-AST content.
- */
-template<::pltxt2htm::Contracts ndebug>
-class PlU {
-    ::pltxt2htm::Ast<ndebug> subast;
-
-public:
-    constexpr PlU(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr PlU(::pltxt2htm::PlU<ndebug> const&) noexcept;
-    constexpr PlU(::pltxt2htm::PlU<ndebug>&&) noexcept;
-    constexpr ~PlU() noexcept;
-    constexpr auto operator=(::pltxt2htm::PlU<ndebug> const&) noexcept -> ::pltxt2htm::PlU<ndebug>& = delete;
-    constexpr auto operator=(this PlU<ndebug>& self, ::pltxt2htm::PlU<ndebug>&&) noexcept -> ::pltxt2htm::PlU<ndebug>&;
-
-    [[nodiscard]]
-    constexpr auto operator==(this PlU const&, PlU const&) noexcept -> bool;
-
-    [[nodiscard]]
-    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.subast);
-    }
-};
-
-/**
- * @brief Physics-Lab strikethrough text tag node
- * @details Represents &lt;s&gt;...&lt;/s&gt; (Unity TextMeshPro rich text) with sub-AST content.
- */
-template<::pltxt2htm::Contracts ndebug>
-class PlS {
-    ::pltxt2htm::Ast<ndebug> subast;
-
-public:
-    constexpr PlS(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr PlS(::pltxt2htm::PlS<ndebug> const&) noexcept;
-    constexpr PlS(::pltxt2htm::PlS<ndebug>&&) noexcept;
-    constexpr ~PlS() noexcept;
-    constexpr auto operator=(::pltxt2htm::PlS<ndebug> const&) noexcept -> ::pltxt2htm::PlS<ndebug>& = delete;
-    constexpr auto operator=(this PlS<ndebug>& self, ::pltxt2htm::PlS<ndebug>&&) noexcept -> ::pltxt2htm::PlS<ndebug>&;
-
-    [[nodiscard]]
-    constexpr auto operator==(this PlS const&, PlS const&) noexcept -> bool;
-
-    [[nodiscard]]
-    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.subast);
-    }
-};
-
-/**
  * @brief Physics-Lab {Project} macro node
  * @details Represents the {Project} template placeholder.
  */
 class PlMacroProject {
 public:
+    [[nodiscard]]
     constexpr auto operator==(this PlMacroProject const&, PlMacroProject const&) noexcept -> bool = default;
 };
 
@@ -686,6 +328,7 @@ public:
  */
 class PlMacroVisitor {
 public:
+    [[nodiscard]]
     constexpr auto operator==(this PlMacroVisitor const&, PlMacroVisitor const&) noexcept -> bool = default;
 };
 
@@ -695,6 +338,7 @@ public:
  */
 class PlMacroAuthor {
 public:
+    [[nodiscard]]
     constexpr auto operator==(this PlMacroAuthor const&, PlMacroAuthor const&) noexcept -> bool = default;
 };
 
@@ -704,6 +348,7 @@ public:
  */
 class PlMacroCoauthors {
 public:
+    [[nodiscard]]
     constexpr auto operator==(this PlMacroCoauthors const&, PlMacroCoauthors const&) noexcept -> bool = default;
 };
 
