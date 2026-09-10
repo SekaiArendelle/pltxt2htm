@@ -3519,7 +3519,7 @@ constexpr auto try_parse_md_inlines(::pltxt2htm::container::U8StringView pltext)
         }
         if (::pltxt2htm::details::is_prefix_match<ndebug, embraced_chars>(
                 pltext.template subview<ndebug>(current_index))) {
-            ::std::size_t result{current_index - embraced_size};
+            ::std::size_t const result{current_index - embraced_size};
             if (result == 0) {
                 return ::pltxt2htm::container::nullopt;
             }
