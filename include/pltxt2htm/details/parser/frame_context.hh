@@ -210,8 +210,17 @@ public:
 
 /**
  * @brief Tagged-union variant of all parser frame context types.
- * @details Dispatched on `kind` (::pltxt2htm::NodeKind). Used inside
- *          ParserFrame.
+ * @details Dispatched on `kind` (::pltxt2htm::NodeKind). Used inside ParserFrame.
+ *
+ *          Context payloads are data-structure-driven rather than NodeKind-driven. Every NodeKind that needs the same
+ *          fields shares one payload type, union member, and ContextBranch; there is deliberately no one-to-one mapping
+ *          between NodeKind values and context types. Payload names describe the stored data, such as margins_info or
+ *          background_color_info, rather than one tag that happens to use it.
+ *
+ *          Before adding a payload, first check whether an existing one already carries the required fields. Reuse it
+ *          when possible, widen the corresponding accessor assertion, and group all sharing NodeKind labels into one
+ *          body in each exhaustive tagged-union switch. Keeping these switches exhaustive preserves compiler warnings
+ *          when a new NodeKind is added.
  */
 template<::pltxt2htm::Contracts ndebug>
 class FrontendContextVariant {

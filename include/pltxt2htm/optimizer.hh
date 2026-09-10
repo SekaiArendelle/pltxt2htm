@@ -81,8 +81,9 @@ public:
 
 /**
  * @brief Tagged-union variant of optimizer context payloads.
- * @details Dispatched on `kind` (::pltxt2htm::NodeKind) - used inside
- *          OptimizerFrame.
+ * @details Dispatched on `kind` (::pltxt2htm::NodeKind) - used inside OptimizerFrame. Like FrontendContextVariant,
+ *          NodeKind values with identical payload requirements share one data-structure-driven context type, union
+ *          member, and switch body.
  */
 template<::pltxt2htm::Contracts ndebug>
 class OptimizerContextVariant {
