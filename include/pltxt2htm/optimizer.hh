@@ -165,11 +165,8 @@ public:
             ::std::construct_at(::std::addressof(this->html_span_info), ::std::move(other.html_span_info));
             return;
         }
-        case ::pltxt2htm::NodeKind::html_mark: {
-            ::std::construct_at(::std::addressof(this->background_color_info),
-                                ::std::move(other.background_color_info));
-            return;
-        }
+        case ::pltxt2htm::NodeKind::html_mark:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::unity_mark: {
             ::std::construct_at(::std::addressof(this->background_color_info),
                                 ::std::move(other.background_color_info));
@@ -357,7 +354,6 @@ public:
     static_assert(::std::is_trivially_destructible_v<decltype(unity_size_tag)>);
     static_assert(::std::is_trivially_destructible_v<decltype(unity_voffset_tag)>);
     static_assert(::std::is_trivially_destructible_v<decltype(html_span_info)>);
-    static_assert(::std::is_trivially_destructible_v<decltype(background_color_info)>);
     static_assert(::std::is_trivially_destructible_v<decltype(background_color_info)>);
 
     constexpr ~OptimizerContextVariant() noexcept = default;

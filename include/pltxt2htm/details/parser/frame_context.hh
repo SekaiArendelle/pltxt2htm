@@ -445,12 +445,16 @@ public:
             ::std::construct_at(::std::addressof(this->unity_voffset_tag), ::std::move(other.unity_voffset_tag));
             return;
         }
-        case ::pltxt2htm::NodeKind::unity_margin: {
+        case ::pltxt2htm::NodeKind::unity_margin:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_div: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::margins_info);
             ::std::construct_at(::std::addressof(this->margins_info), ::std::move(other.margins_info));
             return;
         }
-        case ::pltxt2htm::NodeKind::unity_align: {
+        case ::pltxt2htm::NodeKind::unity_align:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_p: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::align_info);
             ::std::construct_at(::std::addressof(this->align_info), ::std::move(other.align_info));
             return;
@@ -460,17 +464,8 @@ public:
             ::std::construct_at(::std::addressof(this->html_span_info), ::std::move(other.html_span_info));
             return;
         }
-        case ::pltxt2htm::NodeKind::html_div: {
-            pltxt2htm_assert_context_branch(*this, ContextBranch::margins_info);
-            ::std::construct_at(::std::addressof(this->margins_info), ::std::move(other.margins_info));
-            return;
-        }
-        case ::pltxt2htm::NodeKind::html_mark: {
-            pltxt2htm_assert_context_branch(*this, ContextBranch::background_color_info);
-            ::std::construct_at(::std::addressof(this->background_color_info),
-                                ::std::move(other.background_color_info));
-            return;
-        }
+        case ::pltxt2htm::NodeKind::html_mark:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::unity_mark: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::background_color_info);
             ::std::construct_at(::std::addressof(this->background_color_info),
@@ -573,11 +568,6 @@ public:
         case ::pltxt2htm::NodeKind::list_li: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::pltext);
             ::std::construct_at(::std::addressof(this->pltext), ::std::move(other.pltext));
-            return;
-        }
-        case ::pltxt2htm::NodeKind::html_p: {
-            pltxt2htm_assert_context_branch(*this, ContextBranch::align_info);
-            ::std::construct_at(::std::addressof(this->align_info), ::std::move(other.align_info));
             return;
         }
         case ::pltxt2htm::NodeKind::table_th:
@@ -823,12 +813,16 @@ public:
             ::std::destroy_at(::std::addressof(this->unity_voffset_tag));
             return;
         }
-        case ::pltxt2htm::NodeKind::unity_margin: {
+        case ::pltxt2htm::NodeKind::unity_margin:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_div: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::margins_info);
             ::std::destroy_at(::std::addressof(this->margins_info));
             return;
         }
-        case ::pltxt2htm::NodeKind::unity_align: {
+        case ::pltxt2htm::NodeKind::unity_align:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_p: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::align_info);
             ::std::destroy_at(::std::addressof(this->align_info));
             return;
@@ -838,16 +832,8 @@ public:
             ::std::destroy_at(::std::addressof(this->html_span_info));
             return;
         }
-        case ::pltxt2htm::NodeKind::html_div: {
-            pltxt2htm_assert_context_branch(*this, ContextBranch::margins_info);
-            ::std::destroy_at(::std::addressof(this->margins_info));
-            return;
-        }
-        case ::pltxt2htm::NodeKind::html_mark: {
-            pltxt2htm_assert_context_branch(*this, ContextBranch::background_color_info);
-            ::std::destroy_at(::std::addressof(this->background_color_info));
-            return;
-        }
+        case ::pltxt2htm::NodeKind::html_mark:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::unity_mark: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::background_color_info);
             ::std::destroy_at(::std::addressof(this->background_color_info));
@@ -944,11 +930,6 @@ public:
         case ::pltxt2htm::NodeKind::list_li: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::pltext);
             ::std::destroy_at(::std::addressof(this->pltext));
-            return;
-        }
-        case ::pltxt2htm::NodeKind::html_p: {
-            pltxt2htm_assert_context_branch(*this, ContextBranch::align_info);
-            ::std::destroy_at(::std::addressof(this->align_info));
             return;
         }
         case ::pltxt2htm::NodeKind::table_th:
@@ -1222,11 +1203,11 @@ public:
             auto&& active_context_data = context_data_ref.as_equal_sign_tag();
             return active_context_data.pltext;
         }
-        case ::pltxt2htm::NodeKind::pl_external: {
-            auto&& active_context_data = context_data_ref.as_url_info();
-            return active_context_data.pltext;
-        }
-        case ::pltxt2htm::NodeKind::unity_link: {
+        case ::pltxt2htm::NodeKind::pl_external:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::unity_link:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::md_link: {
             auto&& active_context_data = context_data_ref.as_url_info();
             return active_context_data.pltext;
         }
@@ -1238,11 +1219,15 @@ public:
             auto&& active_context_data = context_data_ref.as_unity_voffset_tag();
             return active_context_data.pltext;
         }
-        case ::pltxt2htm::NodeKind::unity_margin: {
+        case ::pltxt2htm::NodeKind::unity_margin:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_div: {
             auto&& active_context_data = context_data_ref.as_margins_info();
             return active_context_data.pltext;
         }
-        case ::pltxt2htm::NodeKind::unity_align: {
+        case ::pltxt2htm::NodeKind::unity_align:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::html_p: {
             auto&& active_context_data = context_data_ref.as_align_info();
             return active_context_data.pltext;
         }
@@ -1250,14 +1235,8 @@ public:
             auto&& active_context_data = context_data_ref.as_html_span_info();
             return active_context_data.pltext;
         }
-        case ::pltxt2htm::NodeKind::html_div: {
-            auto&& active_context_data = context_data_ref.as_margins_info();
-            return active_context_data.pltext;
-        }
-        case ::pltxt2htm::NodeKind::html_mark: {
-            auto&& active_context_data = context_data_ref.as_background_color_info();
-            return active_context_data.pltext;
-        }
+        case ::pltxt2htm::NodeKind::html_mark:
+            [[fallthrough]];
         case ::pltxt2htm::NodeKind::unity_mark: {
             auto&& active_context_data = context_data_ref.as_background_color_info();
             return active_context_data.pltext;
@@ -1270,14 +1249,6 @@ public:
             auto&& active_context_data = context_data_ref.as_md_block_quotes();
             auto const& pltext = active_context_data.pltext;
             return ::pltxt2htm::container::U8StringView{pltext};
-        }
-        case ::pltxt2htm::NodeKind::md_link: {
-            auto&& active_context_data = context_data_ref.as_url_info();
-            return active_context_data.pltext;
-        }
-        case ::pltxt2htm::NodeKind::html_p: {
-            auto&& active_context_data = context_data_ref.as_align_info();
-            return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::table_th:
             [[fallthrough]];
