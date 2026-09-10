@@ -25,15 +25,23 @@ namespace pltxt2htm::container {
 
 namespace details {
 
+template<typename T>
+concept is_constexpr_activatable_inplace_vector_element =
+    ::std::is_trivially_default_constructible_v<T> && ::std::is_trivially_copyable_v<T> &&
+    ::std::is_trivially_assignable_v<T&, T>;
+
 template<typename T, ::std::size_t extent>
 union InplaceVectorNonzeroStorage {
     T elements[extent];
 
     constexpr InplaceVectorNonzeroStorage() noexcept {
         if consteval {
-            // C++23 cannot portably activate this union array for non-trivial T.
-            if constexpr (::std::is_trivial_v<T> && ::std::is_default_constructible_v<T>) {
-                ::std::construct_at(::std::addressof(elements));
+            // Assignment implicitly starts the lifetime of this union array and
+            // its implicit-lifetime elements without relying on array construct_at.
+            if constexpr (is_constexpr_activatable_inplace_vector_element<T>) {
+                for (::std::size_t index{}; index != extent; ++index) {
+                    elements[index] = T{};
+                }
             }
         }
     }
@@ -158,10 +166,20 @@ private:
     }
 
     static constexpr void destroy_at(pointer position) noexcept {
+        if consteval {
+            if constexpr (details::is_constexpr_activatable_inplace_vector_element<value_type>) {
+                return;
+            }
+        }
         ::std::destroy_at(position);
     }
 
     static constexpr void destroy(iterator first, iterator last) noexcept {
+        if consteval {
+            if constexpr (details::is_constexpr_activatable_inplace_vector_element<value_type>) {
+                return;
+            }
+        }
         ::std::destroy(first, last);
     }
 
@@ -631,9 +649,14 @@ public:
     [[nodiscard]]
     constexpr auto unchecked_emplace_back(this InplaceVector& self, Args&&... args) noexcept(
         ::std::is_nothrow_constructible_v<value_type, Args...>) -> reference {
-        auto* const result = ::std::construct_at(self.iterator_at(self.size()), ::std::forward<Args>(args)...);
-        self.increment_size();
-        return *result;
+        if constexpr (extent == 0) {
+            ::pltxt2htm::details::unreachable<::pltxt2htm::Contracts::ignore>();
+        }
+        else {
+            auto* const result = ::std::construct_at(self.iterator_at(self.size()), ::std::forward<Args>(args)...);
+            self.increment_size();
+            return *result;
+        }
     }
 
     [[nodiscard]]

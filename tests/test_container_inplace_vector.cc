@@ -39,6 +39,18 @@ struct TrivialWithoutAssignment {
     int value;
 };
 
+struct TriviallyCopyableWithNontrivialSelectedAssignment {
+    auto operator=(this TriviallyCopyableWithNontrivialSelectedAssignment&,
+                   TriviallyCopyableWithNontrivialSelectedAssignment const&)
+        -> TriviallyCopyableWithNontrivialSelectedAssignment& = delete;
+
+    template<typename U>
+    constexpr auto operator=(this TriviallyCopyableWithNontrivialSelectedAssignment& self, U&&)
+        -> TriviallyCopyableWithNontrivialSelectedAssignment& {
+        return self;
+    }
+};
+
 struct Immobile {
     Immobile() = delete;
     Immobile(Immobile const&) = delete;
@@ -68,8 +80,15 @@ static_assert(::std::is_trivially_move_constructible_v<TriviallyMovableOnly>);
 static_assert(::std::is_trivially_move_assignable_v<TriviallyMovableOnly>);
 static_assert(::std::is_trivially_move_constructible_v<::pltxt2htm::container::InplaceVector<TriviallyMovableOnly, 2>>);
 static_assert(::std::is_trivially_move_assignable_v<::pltxt2htm::container::InplaceVector<TriviallyMovableOnly, 2>>);
-static_assert(::std::is_trivial_v<TrivialWithoutAssignment>);
+static_assert(::std::is_trivially_default_constructible_v<TrivialWithoutAssignment>);
+static_assert(::std::is_trivially_copyable_v<TrivialWithoutAssignment>);
 static_assert(::std::default_initializable<::pltxt2htm::container::InplaceVector<TrivialWithoutAssignment, 2>>);
+static_assert(::std::is_trivially_default_constructible_v<TriviallyCopyableWithNontrivialSelectedAssignment>);
+static_assert(::std::is_trivially_copyable_v<TriviallyCopyableWithNontrivialSelectedAssignment>);
+static_assert(::std::is_assignable_v<TriviallyCopyableWithNontrivialSelectedAssignment&,
+                                     TriviallyCopyableWithNontrivialSelectedAssignment>);
+static_assert(!::std::is_trivially_assignable_v<TriviallyCopyableWithNontrivialSelectedAssignment&,
+                                                TriviallyCopyableWithNontrivialSelectedAssignment>);
 using ImmobileZeroVector = ::pltxt2htm::container::InplaceVector<Immobile, 0>;
 static_assert(noexcept(::std::declval<ImmobileZeroVector&>().swap(::std::declval<ImmobileZeroVector&>())));
 static_assert(noexcept(::pltxt2htm::container::swap(::std::declval<ImmobileZeroVector&>(),
@@ -145,6 +164,34 @@ consteval auto inplace_vector_constexpr_operations_work() -> bool {
 }
 
 static_assert(inplace_vector_constexpr_operations_work());
+
+consteval auto inplace_vector_constexpr_special_members_work_after_destroy() -> bool {
+    ::pltxt2htm::container::InplaceVector<int, 4> after_pop{1, 2, 3};
+    after_pop.pop_back();
+    auto copied = after_pop;
+    if (copied != ::pltxt2htm::container::InplaceVector<int, 2>{1, 2}) {
+        return false;
+    }
+
+    (void)copied.erase(copied.begin());
+    auto moved = ::std::move(copied);
+    if (moved != ::pltxt2htm::container::InplaceVector<int, 1>{2}) {
+        return false;
+    }
+
+    moved.clear();
+    auto cleared = moved;
+    return cleared.empty();
+}
+
+static_assert(inplace_vector_constexpr_special_members_work_after_destroy());
+
+consteval auto inplace_vector_constexpr_ignores_nontrivial_selected_assignment() -> bool {
+    ::pltxt2htm::container::InplaceVector<TriviallyCopyableWithNontrivialSelectedAssignment, 2> values;
+    return values.empty();
+}
+
+static_assert(inplace_vector_constexpr_ignores_nontrivial_selected_assignment());
 
 consteval auto zero_capacity_inplace_vector_works() -> bool {
     ::pltxt2htm::container::InplaceVector<int, 0> values;
