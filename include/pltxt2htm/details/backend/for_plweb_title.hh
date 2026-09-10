@@ -90,9 +90,10 @@ entry:
             case ::pltxt2htm::NodeKind::html_br: {
                 continue;
             }
-            case ::pltxt2htm::NodeKind::pl_color: {
-                auto&& active_node = node.as_pl_color();
-                call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_color));
+            case ::pltxt2htm::NodeKind::unity_color: {
+                auto&& active_node = node.as_unity_color();
+                call_stack.push_frame(
+                    BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::unity_color));
                 result.append(u8"<span style=\"color:");
                 result.append(active_node.get_color());
                 result.append(u8";\">");
@@ -224,9 +225,9 @@ entry:
                 result.append(u8"<strong>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::pl_b: {
-                auto&& active_node = node.as_pl_b();
-                call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_b));
+            case ::pltxt2htm::NodeKind::unity_b: {
+                auto&& active_node = node.as_unity_b();
+                call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::unity_b));
                 result.append(u8"<strong>");
                 goto entry;
             }
@@ -251,9 +252,9 @@ entry:
                 result.append(u8"<em>");
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::pl_i: {
-                auto&& active_node = node.as_pl_i();
-                call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_i));
+            case ::pltxt2htm::NodeKind::unity_i: {
+                auto&& active_node = node.as_unity_i();
+                call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::unity_i));
                 result.append(u8"<em>");
                 goto entry;
             }
@@ -345,23 +346,23 @@ entry:
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::pl_size: {
-                auto&& active_node = node.as_pl_size();
+            case ::pltxt2htm::NodeKind::unity_size: {
+                auto&& active_node = node.as_unity_size();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::pl_voffset: {
-                auto&& active_node = node.as_pl_voffset();
+            case ::pltxt2htm::NodeKind::unity_voffset: {
+                auto&& active_node = node.as_unity_voffset();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::pl_align: {
-                auto&& active_node = node.as_pl_align();
+            case ::pltxt2htm::NodeKind::unity_align: {
+                auto&& active_node = node.as_unity_align();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::pl_margin: {
-                auto&& active_node = node.as_pl_margin();
+            case ::pltxt2htm::NodeKind::unity_margin: {
+                auto&& active_node = node.as_unity_margin();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
                 goto entry;
             }
@@ -385,8 +386,8 @@ entry:
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::pl_mark: {
-                auto&& active_node = node.as_pl_mark();
+            case ::pltxt2htm::NodeKind::unity_mark: {
+                auto&& active_node = node.as_unity_mark();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
                 goto entry;
             }
@@ -446,14 +447,15 @@ entry:
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_external));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::pl_link: {
-                auto&& active_node = node.as_pl_link();
+            case ::pltxt2htm::NodeKind::unity_link: {
+                auto&& active_node = node.as_unity_link();
                 result.append(u8"<a href=\"");
                 auto const& link_url = active_node.get_url().as_string();
                 ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
                     result, ::pltxt2htm::container::U8StringView{link_url});
                 result.append(u8"\">");
-                call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_link));
+                call_stack.push_frame(
+                    BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::unity_link));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_link: {
@@ -568,7 +570,7 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_strong:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::pl_b: {
+            case ::pltxt2htm::NodeKind::unity_b: {
                 result.append(u8"</strong>");
                 goto entry;
             }
@@ -576,7 +578,7 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_single_emphasis_asterisk:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::pl_i:
+            case ::pltxt2htm::NodeKind::unity_i:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_em: {
                 result.append(u8"</em>");
@@ -592,13 +594,13 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::pl_a:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::pl_color: {
+            case ::pltxt2htm::NodeKind::unity_color: {
                 result.append(u8"</span>");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_external:
                 [[fallthrough]];
-            case ::pltxt2htm::NodeKind::pl_link:
+            case ::pltxt2htm::NodeKind::unity_link:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_link:
                 [[fallthrough]];

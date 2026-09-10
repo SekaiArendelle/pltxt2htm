@@ -1,6 +1,6 @@
 /**
  * @file try_parse.hh
- * @brief Low-level parser helpers for probing specific Physics-Lab / Markdown token patterns.
+ * @brief Low-level parser helpers for probing Physics-Lab, Unity rich-text, HTML, and Markdown token patterns.
  */
 
 #pragma once
@@ -4041,7 +4041,7 @@ constexpr auto try_parse_url_path_simple(::pltxt2htm::container::U8StringView pl
 /**
  * @brief Parse a URL path that may contain non-ASCII bytes (percent-encoded later).
  * @details Like try_parse_url_path_simple but also accepts bytes >= 0x7F so tag URLs
- *          (html_a / pl_external / pl_link) can carry UTF-8 characters (e.g. CJK);
+ *          (html_a / pl_external / unity_link) can carry UTF-8 characters (e.g. CJK);
  *          make_try_parse_url_result percent-encodes them. Auto-detected URLs stay ASCII-only.
  *          `pltext` must start at the path (the caller subviews past the authority); the
  *          returned index is relative to `pltext`.
