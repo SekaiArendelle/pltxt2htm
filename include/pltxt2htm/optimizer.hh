@@ -314,8 +314,6 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::greater_than:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::entity_reference:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::tab:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_macro_project:
@@ -590,8 +588,6 @@ entry:
             case ::pltxt2htm::NodeKind::space:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::ampersand:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::entity_reference:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::single_quote:
                 [[fallthrough]];
