@@ -697,8 +697,8 @@ entry:
                         current_index += tag_len + 2;
                         call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithUnityMarkInfo{pltext.template subview<ndebug>(current_index),
-                                                                    ::std::move(background_color)},
+                                ParserFrameContextWithBackgroundColorInfo{
+                                    pltext.template subview<ndebug>(current_index), ::std::move(background_color)},
                                 ::pltxt2htm::NodeKind::unity_mark},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -711,8 +711,8 @@ entry:
                         current_index += tag_len + 2;
                         call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithHtmlMarkInfo{pltext.template subview<ndebug>(current_index),
-                                                                   ::std::move(background_color)},
+                                ParserFrameContextWithBackgroundColorInfo{
+                                    pltext.template subview<ndebug>(current_index), ::std::move(background_color)},
                                 ::pltxt2htm::NodeKind::html_mark},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -1239,7 +1239,7 @@ entry:
                         continue;
                     }
                     case ::pltxt2htm::NodeKind::unity_mark: {
-                        auto&& active_frame_data = frame.as_unity_mark_info();
+                        auto&& active_frame_data = frame.as_background_color_info();
                         // parsing </mark>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"mark">(
                                 pltext.template subview<ndebug>(current_index + 2));
@@ -1259,7 +1259,7 @@ entry:
                         continue;
                     }
                     case ::pltxt2htm::NodeKind::unity_margin: {
-                        auto&& active_frame_data = frame.as_unity_margin_tag();
+                        auto&& active_frame_data = frame.as_margins_info();
                         // parsing </margin>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"margin">(
                                 pltext.template subview<ndebug>(current_index + 2));
@@ -1279,7 +1279,7 @@ entry:
                         continue;
                     }
                     case ::pltxt2htm::NodeKind::html_div: {
-                        auto&& active_frame_data = frame.as_html_div_info();
+                        auto&& active_frame_data = frame.as_margins_info();
                         // parsing </div>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"div">(
                                 pltext.template subview<ndebug>(current_index + 2));
@@ -1533,7 +1533,7 @@ entry:
                         continue;
                     }
                     case ::pltxt2htm::NodeKind::html_mark: {
-                        auto&& active_frame_data = frame.as_html_mark_info();
+                        auto&& active_frame_data = frame.as_background_color_info();
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"mark">(
                                 pltext.template subview<ndebug>(current_index + 2));
                             opt_tag_len.has_value()) {
@@ -1899,21 +1899,21 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::unity_margin: {
-                auto&& active_frame_data = frame.as_unity_margin_tag();
+                auto&& active_frame_data = frame.as_margins_info();
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::UnityMargin<ndebug>{
                     ::std::move(subast), active_frame_data.left, active_frame_data.right}));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_div: {
-                auto&& active_frame_data = frame.as_html_div_info();
+                auto&& active_frame_data = frame.as_margins_info();
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlDiv<ndebug>{
                     ::std::move(subast), active_frame_data.left, active_frame_data.right}));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::unity_mark: {
-                auto&& active_frame_data = frame.as_unity_mark_info();
+                auto&& active_frame_data = frame.as_background_color_info();
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::UnityMark<ndebug>{
                     ::std::move(subast), ::std::move(active_frame_data.background_color)}));
                 parent_index += staged_index;
@@ -2020,7 +2020,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_mark: {
-                auto&& active_frame_data = frame.as_html_mark_info();
+                auto&& active_frame_data = frame.as_background_color_info();
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlMark<ndebug>{
                     ::std::move(subast), ::std::move(active_frame_data.background_color)}));
                 parent_index += staged_index;
