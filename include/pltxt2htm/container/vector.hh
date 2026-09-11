@@ -50,19 +50,38 @@ public:
 private:
     using typed_allocator_type = ::fast_io::typed_generic_allocator_adapter<allocator_type, value_type>;
 
+    // Keep size and capacity as element counts instead of past-the-end pointers.
+    // This makes size() and capacity() direct loads; boundary pointers are computed
+    // only by operations that actually need them.
     pointer begin_pointer{};
-    pointer current_pointer{};
-    pointer end_pointer{};
+    size_type current_size{};
+    size_type current_capacity{};
+
+    [[nodiscard]]
+    constexpr auto current_end(this Vector& self) noexcept -> pointer {
+        if (self.begin_pointer == nullptr) {
+            return nullptr;
+        }
+        return self.begin_pointer + self.current_size;
+    }
+
+    [[nodiscard]]
+    constexpr auto current_end(this Vector const& self) noexcept -> const_pointer {
+        if (self.begin_pointer == nullptr) {
+            return nullptr;
+        }
+        return self.begin_pointer + self.current_size;
+    }
 
     constexpr void release(this Vector& self) noexcept {
         if (self.begin_pointer == nullptr) {
             return;
         }
-        ::std::destroy(self.begin_pointer, self.current_pointer);
-        typed_allocator_type::deallocate_n(self.begin_pointer, self.capacity());
+        ::std::destroy(self.begin_pointer, self.current_end());
+        typed_allocator_type::deallocate_n(self.begin_pointer, self.current_capacity);
         self.begin_pointer = nullptr;
-        self.current_pointer = nullptr;
-        self.end_pointer = nullptr;
+        self.current_size = 0;
+        self.current_capacity = 0;
     }
 
     template<typename R>
@@ -137,21 +156,20 @@ private:
     {
         auto const allocation = typed_allocator_type::allocate_at_least(requested_capacity);
         pointer new_current{allocation.ptr};
+        pointer const old_end{self.current_end()};
 
-        for (pointer source{self.begin_pointer}; source != self.current_pointer; ++source) {
+        for (pointer source{self.begin_pointer}; source != old_end; ++source) {
             ::std::construct_at(new_current, ::std::move(*source));
             ++new_current;
         }
 
         pointer const old_begin{self.begin_pointer};
-        pointer const old_current{self.current_pointer};
-        size_type const old_capacity{self.capacity()};
+        size_type const old_capacity{self.current_capacity};
         self.begin_pointer = allocation.ptr;
-        self.current_pointer = new_current;
-        self.end_pointer = allocation.ptr + allocation.count;
+        self.current_capacity = allocation.count;
 
         if (old_begin != nullptr) {
-            ::std::destroy(old_begin, old_current);
+            ::std::destroy(old_begin, old_end);
             typed_allocator_type::deallocate_n(old_begin, old_capacity);
         }
     }
@@ -167,21 +185,21 @@ private:
         pointer const new_element{allocation.ptr + old_size};
         ::std::construct_at(new_element, ::std::forward<Args>(args)...);
         pointer new_current{allocation.ptr};
+        pointer const old_end{self.current_end()};
 
-        for (pointer source{self.begin_pointer}; source != self.current_pointer; ++source) {
+        for (pointer source{self.begin_pointer}; source != old_end; ++source) {
             ::std::construct_at(new_current, ::std::move(*source));
             ++new_current;
         }
 
         pointer const old_begin{self.begin_pointer};
-        pointer const old_current{self.current_pointer};
-        size_type const old_capacity{self.capacity()};
+        size_type const old_capacity{self.current_capacity};
         self.begin_pointer = allocation.ptr;
-        self.current_pointer = new_element + 1;
-        self.end_pointer = allocation.ptr + allocation.count;
+        self.current_size = old_size + 1;
+        self.current_capacity = allocation.count;
 
         if (old_begin != nullptr) {
-            ::std::destroy(old_begin, old_current);
+            ::std::destroy(old_begin, old_end);
             typed_allocator_type::deallocate_n(old_begin, old_capacity);
         }
         return *new_element;
@@ -210,20 +228,20 @@ private:
         pltxt2htm_assert(trailing_current == trailing_end, u8"Range size changed while appending");
 
         pointer new_current{allocation.ptr};
-        for (pointer source{self.begin_pointer}; source != self.current_pointer; ++source) {
+        pointer const old_end{self.current_end()};
+        for (pointer source{self.begin_pointer}; source != old_end; ++source) {
             ::std::construct_at(new_current, ::std::move(*source));
             ++new_current;
         }
 
         pointer const old_begin{self.begin_pointer};
-        pointer const old_current{self.current_pointer};
-        size_type const old_capacity{self.capacity()};
+        size_type const old_capacity{self.current_capacity};
         self.begin_pointer = allocation.ptr;
-        self.current_pointer = trailing_current;
-        self.end_pointer = allocation.ptr + allocation.count;
+        self.current_size = old_size + range_size;
+        self.current_capacity = allocation.count;
 
         if (old_begin != nullptr) {
-            ::std::destroy(old_begin, old_current);
+            ::std::destroy(old_begin, old_end);
             typed_allocator_type::deallocate_n(old_begin, old_capacity);
         }
     }
@@ -258,8 +276,8 @@ public:
             ++new_current;
         }
         begin_pointer = allocation.ptr;
-        current_pointer = new_current;
-        end_pointer = allocation.ptr + allocation.count;
+        current_size = values.size();
+        current_capacity = allocation.count;
     }
 
     constexpr Vector(Vector const& other) noexcept {
@@ -278,14 +296,14 @@ public:
             ++new_current;
         }
         begin_pointer = allocation.ptr;
-        current_pointer = new_current;
-        end_pointer = allocation.ptr + allocation.count;
+        current_size = other_size;
+        current_capacity = allocation.count;
     }
 
     constexpr Vector(Vector&& other) noexcept
         : begin_pointer{::std::exchange(other.begin_pointer, nullptr)},
-          current_pointer{::std::exchange(other.current_pointer, nullptr)},
-          end_pointer{::std::exchange(other.end_pointer, nullptr)} {
+          current_size{::std::exchange(other.current_size, 0)},
+          current_capacity{::std::exchange(other.current_capacity, 0)} {
     }
 
     constexpr auto operator=(this Vector& self, Vector const& other) noexcept -> Vector& {
@@ -307,8 +325,8 @@ public:
         }
         self.release();
         self.begin_pointer = ::std::exchange(other.begin_pointer, nullptr);
-        self.current_pointer = ::std::exchange(other.current_pointer, nullptr);
-        self.end_pointer = ::std::exchange(other.end_pointer, nullptr);
+        self.current_size = ::std::exchange(other.current_size, 0);
+        self.current_capacity = ::std::exchange(other.current_capacity, 0);
         return self;
     }
 
@@ -328,23 +346,17 @@ public:
 
     [[nodiscard]]
     constexpr auto empty(this Vector const& self) noexcept -> bool {
-        return self.begin_pointer == self.current_pointer;
+        return self.current_size == 0;
     }
 
     [[nodiscard]]
     constexpr auto size(this Vector const& self) noexcept -> size_type {
-        if (self.begin_pointer == nullptr) {
-            return 0;
-        }
-        return static_cast<size_type>(self.current_pointer - self.begin_pointer);
+        return self.current_size;
     }
 
     [[nodiscard]]
     constexpr auto capacity(this Vector const& self) noexcept -> size_type {
-        if (self.begin_pointer == nullptr) {
-            return 0;
-        }
-        return static_cast<size_type>(self.end_pointer - self.begin_pointer);
+        return self.current_capacity;
     }
 
     [[nodiscard]]
@@ -364,12 +376,12 @@ public:
 
     [[nodiscard]]
     constexpr auto end(this Vector& self) noexcept -> iterator {
-        return self.current_pointer;
+        return self.current_end();
     }
 
     [[nodiscard]]
     constexpr auto end(this Vector const& self) noexcept -> const_iterator {
-        return self.current_pointer;
+        return self.current_end();
     }
 
     [[nodiscard]]
@@ -379,17 +391,17 @@ public:
 
     [[nodiscard]]
     constexpr auto cend(this Vector const& self) noexcept -> const_iterator {
-        return self.current_pointer;
+        return self.current_end();
     }
 
     [[nodiscard]]
     constexpr auto rbegin(this Vector& self) noexcept -> reverse_iterator {
-        return reverse_iterator{self.current_pointer};
+        return reverse_iterator{self.current_end()};
     }
 
     [[nodiscard]]
     constexpr auto rbegin(this Vector const& self) noexcept -> const_reverse_iterator {
-        return const_reverse_iterator{self.current_pointer};
+        return const_reverse_iterator{self.current_end()};
     }
 
     [[nodiscard]]
@@ -446,9 +458,10 @@ public:
                   ::std::is_nothrow_constructible_v<value_type, Args...> &&
                   ::std::is_nothrow_destructible_v<value_type>)
     constexpr auto emplace_back(this Vector& self, Args&&... args) noexcept -> reference {
-        if (self.current_pointer != self.end_pointer) {
-            pointer const element{::std::construct_at(self.current_pointer, ::std::forward<Args>(args)...)};
-            ++self.current_pointer;
+        if (self.current_size != self.current_capacity) {
+            pointer const element{
+                ::std::construct_at(self.begin_pointer + self.current_size, ::std::forward<Args>(args)...)};
+            ++self.current_size;
             return *element;
         }
         return self.template reallocate_and_emplace<ndebug>(::std::forward<Args>(args)...);
@@ -474,8 +487,8 @@ public:
         requires ::std::is_nothrow_destructible_v<value_type>
     {
         pltxt2htm_assert(!self.empty(), u8"Popping back but Vector is empty");
-        --self.current_pointer;
-        ::std::destroy_at(self.current_pointer);
+        --self.current_size;
+        ::std::destroy_at(self.begin_pointer + self.current_size);
     }
 
     constexpr void clear(this Vector& self) noexcept
@@ -484,8 +497,8 @@ public:
         if (self.begin_pointer == nullptr) {
             return;
         }
-        ::std::destroy(self.begin_pointer, self.current_pointer);
-        self.current_pointer = self.begin_pointer;
+        ::std::destroy(self.begin_pointer, self.current_end());
+        self.current_size = 0;
     }
 
     /**
@@ -522,11 +535,12 @@ public:
         difference_type const offset{position - self.begin_pointer};
         pointer destination{self.begin_pointer + offset};
         pointer source{destination + 1};
-        for (; source != self.current_pointer; ++source, ++destination) {
+        pointer const old_end{self.current_end()};
+        for (; source != old_end; ++source, ++destination) {
             *destination = ::std::move(*source);
         }
-        --self.current_pointer;
-        ::std::destroy_at(self.current_pointer);
+        --self.current_size;
+        ::std::destroy_at(self.begin_pointer + self.current_size);
         return self.begin_pointer + offset;
     }
 
@@ -545,18 +559,19 @@ public:
         pointer destination{self.begin_pointer + first_offset};
         pointer source{self.begin_pointer + last_offset};
         pointer const result{destination};
-        for (; source != self.current_pointer; ++source, ++destination) {
+        pointer const old_end{self.current_end()};
+        for (; source != old_end; ++source, ++destination) {
             *destination = ::std::move(*source);
         }
-        ::std::destroy(destination, self.current_pointer);
-        self.current_pointer = destination;
+        ::std::destroy(destination, old_end);
+        self.current_size -= static_cast<size_type>(last_offset - first_offset);
         return result;
     }
 
     constexpr void swap(this Vector& self, Vector& other) noexcept {
         ::std::swap(self.begin_pointer, other.begin_pointer);
-        ::std::swap(self.current_pointer, other.current_pointer);
-        ::std::swap(self.end_pointer, other.end_pointer);
+        ::std::swap(self.current_size, other.current_size);
+        ::std::swap(self.current_capacity, other.current_capacity);
     }
 
     [[nodiscard]]
@@ -570,7 +585,8 @@ public:
         }
         const_iterator left{self.begin_pointer};
         const_iterator right{other.begin_pointer};
-        for (; left != self.current_pointer; ++left, ++right) {
+        const_iterator const left_end{self.current_end()};
+        for (; left != left_end; ++left, ++right) {
             if (!static_cast<bool>(*left == *right)) {
                 return false;
             }

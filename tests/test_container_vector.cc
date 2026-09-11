@@ -12,6 +12,77 @@
 
 using IntVector = ::pltxt2htm::container::Vector<int>;
 
+class TrackingRawAllocator {
+    static inline constexpr ::std::size_t slot_count{4};
+    static inline constexpr ::std::size_t additional_bytes{3 * sizeof(int)};
+    static inline void* allocation_pointers[slot_count]{};
+    static inline ::std::size_t allocation_sizes[slot_count]{};
+    static inline ::std::size_t active_allocations{};
+    static inline ::std::size_t deallocation_count{};
+    static inline bool deallocation_mismatch{};
+
+public:
+    [[nodiscard]]
+    static auto allocate_at_least(::std::size_t requested_bytes) noexcept -> ::fast_io::allocation_least_result {
+        ::std::size_t const allocated_bytes{requested_bytes + additional_bytes};
+        void* const pointer{::fast_io::native_global_allocator::allocate(allocated_bytes)};
+        for (::std::size_t index{}; index != slot_count; ++index) {
+            if (allocation_pointers[index] == nullptr) {
+                allocation_pointers[index] = pointer;
+                allocation_sizes[index] = allocated_bytes;
+                ++active_allocations;
+                return {pointer, allocated_bytes};
+            }
+        }
+        ::fast_io::fast_terminate();
+    }
+
+    static void deallocate_n(void* pointer, ::std::size_t allocated_bytes) noexcept {
+        for (::std::size_t index{}; index != slot_count; ++index) {
+            if (allocation_pointers[index] != pointer) {
+                continue;
+            }
+            deallocation_mismatch = deallocation_mismatch || allocation_sizes[index] != allocated_bytes;
+            ::fast_io::native_global_allocator::deallocate_n(pointer, allocation_sizes[index]);
+            allocation_pointers[index] = nullptr;
+            allocation_sizes[index] = 0;
+            --active_allocations;
+            ++deallocation_count;
+            return;
+        }
+        deallocation_mismatch = true;
+        ::fast_io::native_global_allocator::deallocate_n(pointer, allocated_bytes);
+    }
+
+    static void reset() noexcept {
+        active_allocations = 0;
+        deallocation_count = 0;
+        deallocation_mismatch = false;
+        for (::std::size_t index{}; index != slot_count; ++index) {
+            allocation_pointers[index] = nullptr;
+            allocation_sizes[index] = 0;
+        }
+    }
+
+    [[nodiscard]]
+    static auto get_active_allocations() noexcept -> ::std::size_t {
+        return active_allocations;
+    }
+
+    [[nodiscard]]
+    static auto get_deallocation_count() noexcept -> ::std::size_t {
+        return deallocation_count;
+    }
+
+    [[nodiscard]]
+    static auto has_deallocation_mismatch() noexcept -> bool {
+        return deallocation_mismatch;
+    }
+};
+
+using TrackingAllocator = ::fast_io::generic_allocator_adapter<TrackingRawAllocator>;
+using TrackingIntVector = ::pltxt2htm::container::Vector<int, TrackingAllocator>;
+
 class ConstructionTrace {
     int payload{};
     int construction_kind{};
@@ -378,6 +449,30 @@ consteval auto test_constexpr_vector() -> bool {
 static_assert(test_constexpr_vector());
 
 int main() {
+    TrackingRawAllocator::reset();
+    {
+        TrackingIntVector tracked{};
+        tracked.reserve(2);
+        pltxt2htm_test_assert_true(tracked.capacity() == 5);
+        tracked.push_back(1);
+        tracked.reserve(8);
+        pltxt2htm_test_assert_true(tracked.size() == 1);
+        pltxt2htm_test_assert_true(tracked.capacity() == 11);
+        pltxt2htm_test_assert_true(TrackingRawAllocator::get_active_allocations() == 1);
+        pltxt2htm_test_assert_true(TrackingRawAllocator::get_deallocation_count() == 1);
+        pltxt2htm_test_assert_true(!TrackingRawAllocator::has_deallocation_mismatch());
+
+        TrackingIntVector moved{::std::move(tracked)};
+        TrackingIntVector swapped{};
+        swapped.swap(moved);
+        pltxt2htm_test_assert_true(tracked.capacity() == 0);
+        pltxt2htm_test_assert_true(moved.capacity() == 0);
+        pltxt2htm_test_assert_true(swapped.capacity() == 11);
+    }
+    pltxt2htm_test_assert_true(TrackingRawAllocator::get_active_allocations() == 0);
+    pltxt2htm_test_assert_true(TrackingRawAllocator::get_deallocation_count() == 2);
+    pltxt2htm_test_assert_true(!TrackingRawAllocator::has_deallocation_mismatch());
+
     IntVector original{1, 2, 3};
     IntVector copy{};
     copy = original;
