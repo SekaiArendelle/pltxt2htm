@@ -19,11 +19,13 @@ class TrackingRawAllocator {
     static inline ::std::size_t allocation_sizes[slot_count]{};
     static inline ::std::size_t active_allocations{};
     static inline ::std::size_t deallocation_count{};
+    static inline ::std::size_t last_requested_bytes{};
     static inline bool deallocation_mismatch{};
 
 public:
     [[nodiscard]]
     static auto allocate_at_least(::std::size_t requested_bytes) noexcept -> ::fast_io::allocation_least_result {
+        last_requested_bytes = requested_bytes;
         ::std::size_t const allocated_bytes{requested_bytes + additional_bytes};
         void* const pointer{::fast_io::native_global_allocator::allocate(allocated_bytes)};
         for (::std::size_t index{}; index != slot_count; ++index) {
@@ -31,7 +33,7 @@ public:
                 allocation_pointers[index] = pointer;
                 allocation_sizes[index] = allocated_bytes;
                 ++active_allocations;
-                return {pointer, allocated_bytes};
+                return {.ptr=pointer, .count=allocated_bytes};
             }
         }
         ::fast_io::fast_terminate();
@@ -57,6 +59,7 @@ public:
     static void reset() noexcept {
         active_allocations = 0;
         deallocation_count = 0;
+        last_requested_bytes = 0;
         deallocation_mismatch = false;
         for (::std::size_t index{}; index != slot_count; ++index) {
             allocation_pointers[index] = nullptr;
@@ -72,6 +75,11 @@ public:
     [[nodiscard]]
     static auto get_deallocation_count() noexcept -> ::std::size_t {
         return deallocation_count;
+    }
+
+    [[nodiscard]]
+    static auto get_last_requested_bytes() noexcept -> ::std::size_t {
+        return last_requested_bytes;
     }
 
     [[nodiscard]]
@@ -449,6 +457,14 @@ consteval auto test_constexpr_vector() -> bool {
 static_assert(test_constexpr_vector());
 
 int main() {
+    TrackingRawAllocator::reset();
+    {
+        TrackingIntVector tracked{};
+        tracked.push_back(1);
+        pltxt2htm_test_assert_true(TrackingRawAllocator::get_last_requested_bytes() == sizeof(int) * 2);
+    }
+    pltxt2htm_test_assert_true(!TrackingRawAllocator::has_deallocation_mismatch());
+
     TrackingRawAllocator::reset();
     {
         TrackingIntVector tracked{};

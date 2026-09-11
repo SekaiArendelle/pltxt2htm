@@ -53,31 +53,15 @@ private:
     // Keep size and capacity as element counts instead of past-the-end pointers.
     // This makes size() and capacity() direct loads; boundary pointers are computed
     // only by operations that actually need them.
-    pointer begin_pointer{};
+    pointer begin_pointer{nullptr};
     size_type current_size{};
     size_type current_capacity{};
-
-    [[nodiscard]]
-    constexpr auto current_end(this Vector& self) noexcept -> pointer {
-        if (self.begin_pointer == nullptr) {
-            return nullptr;
-        }
-        return self.begin_pointer + self.current_size;
-    }
-
-    [[nodiscard]]
-    constexpr auto current_end(this Vector const& self) noexcept -> const_pointer {
-        if (self.begin_pointer == nullptr) {
-            return nullptr;
-        }
-        return self.begin_pointer + self.current_size;
-    }
 
     constexpr void release(this Vector& self) noexcept {
         if (self.begin_pointer == nullptr) {
             return;
         }
-        ::std::destroy(self.begin_pointer, self.current_end());
+        ::std::destroy(self.begin_pointer, self.end());
         typed_allocator_type::deallocate_n(self.begin_pointer, self.current_capacity);
         self.begin_pointer = nullptr;
         self.current_size = 0;
@@ -105,23 +89,10 @@ private:
             return ::std::is_nothrow_constructible_v<value_type, forwarded_reference>;
         }
         else {
+            static_assert(::std::is_rvalue_reference_v<R&&>);
             using forwarded_reference = decltype(::std::forward_like<R>(::std::declval<range_reference>()));
             return ::std::is_nothrow_constructible_v<value_type, forwarded_reference>;
         }
-    }
-
-    template<::std::ranges::forward_range R>
-    [[nodiscard]]
-    static constexpr auto count_range(R& range) noexcept -> size_type
-        requires (is_nothrow_append_range<R>())
-    {
-        size_type result{};
-        auto iterator = ::std::ranges::begin(range);
-        auto sentinel = ::std::ranges::end(range);
-        for (; iterator != sentinel; ++iterator) {
-            ++result;
-        }
-        return result;
     }
 
     template<::pltxt2htm::Contracts ndebug>
@@ -135,10 +106,11 @@ private:
             return old_capacity;
         }
 
-        size_type new_capacity{old_capacity};
-        if (new_capacity == 0) {
-            new_capacity = 1;
+        if (old_capacity == 0) {
+            return required_capacity < 2 ? 2 : required_capacity;
         }
+
+        size_type new_capacity{old_capacity};
         if (new_capacity <= self.max_size() / 2) {
             new_capacity *= 2;
         }
@@ -156,7 +128,7 @@ private:
     {
         auto const allocation = typed_allocator_type::allocate_at_least(requested_capacity);
         pointer new_current{allocation.ptr};
-        pointer const old_end{self.current_end()};
+        pointer const old_end{self.end()};
 
         for (pointer source{self.begin_pointer}; source != old_end; ++source) {
             ::std::construct_at(new_current, ::std::move(*source));
@@ -185,7 +157,7 @@ private:
         pointer const new_element{allocation.ptr + old_size};
         ::std::construct_at(new_element, ::std::forward<Args>(args)...);
         pointer new_current{allocation.ptr};
-        pointer const old_end{self.current_end()};
+        pointer const old_end{self.end()};
 
         for (pointer source{self.begin_pointer}; source != old_end; ++source) {
             ::std::construct_at(new_current, ::std::move(*source));
@@ -228,7 +200,7 @@ private:
         pltxt2htm_assert(trailing_current == trailing_end, u8"Range size changed while appending");
 
         pointer new_current{allocation.ptr};
-        pointer const old_end{self.current_end()};
+        pointer const old_end{self.end()};
         for (pointer source{self.begin_pointer}; source != old_end; ++source) {
             ::std::construct_at(new_current, ::std::move(*source));
             ++new_current;
@@ -376,12 +348,18 @@ public:
 
     [[nodiscard]]
     constexpr auto end(this Vector& self) noexcept -> iterator {
-        return self.current_end();
+        if (self.begin_pointer == nullptr) {
+            return nullptr;
+        }
+        return self.begin_pointer + self.current_size;
     }
 
     [[nodiscard]]
     constexpr auto end(this Vector const& self) noexcept -> const_iterator {
-        return self.current_end();
+        if (self.begin_pointer == nullptr) {
+            return nullptr;
+        }
+        return self.begin_pointer + self.current_size;
     }
 
     [[nodiscard]]
@@ -391,17 +369,17 @@ public:
 
     [[nodiscard]]
     constexpr auto cend(this Vector const& self) noexcept -> const_iterator {
-        return self.current_end();
+        return self.end();
     }
 
     [[nodiscard]]
     constexpr auto rbegin(this Vector& self) noexcept -> reverse_iterator {
-        return reverse_iterator{self.current_end()};
+        return reverse_iterator{self.end()};
     }
 
     [[nodiscard]]
     constexpr auto rbegin(this Vector const& self) noexcept -> const_reverse_iterator {
-        return const_reverse_iterator{self.current_end()};
+        return const_reverse_iterator{self.end()};
     }
 
     [[nodiscard]]
@@ -497,7 +475,7 @@ public:
         if (self.begin_pointer == nullptr) {
             return;
         }
-        ::std::destroy(self.begin_pointer, self.current_end());
+        ::std::destroy(self.begin_pointer, self.end());
         self.current_size = 0;
     }
 
@@ -510,7 +488,14 @@ public:
                   is_nothrow_append_range<R>())
     {
         if constexpr (::std::ranges::forward_range<R>) {
-            size_type const range_size{count_range<R>(range)};
+            // Do not use ranges::distance(range): for a sized range it may call size(),
+            // which is not covered by is_nothrow_append_range().
+            size_type range_size{};
+            auto iterator = ::std::ranges::begin(range);
+            auto sentinel = ::std::ranges::end(range);
+            for (; iterator != sentinel; ++iterator) {
+                ++range_size;
+            }
             size_type const old_capacity{self.capacity()};
             size_type const new_capacity{self.template growth_capacity<ndebug>(range_size)};
             if (new_capacity != old_capacity) {
@@ -535,7 +520,7 @@ public:
         difference_type const offset{position - self.begin_pointer};
         pointer destination{self.begin_pointer + offset};
         pointer source{destination + 1};
-        pointer const old_end{self.current_end()};
+        pointer const old_end{self.end()};
         for (; source != old_end; ++source, ++destination) {
             *destination = ::std::move(*source);
         }
@@ -559,7 +544,7 @@ public:
         pointer destination{self.begin_pointer + first_offset};
         pointer source{self.begin_pointer + last_offset};
         pointer const result{destination};
-        pointer const old_end{self.current_end()};
+        pointer const old_end{self.end()};
         for (; source != old_end; ++source, ++destination) {
             *destination = ::std::move(*source);
         }
@@ -585,7 +570,7 @@ public:
         }
         const_iterator left{self.begin_pointer};
         const_iterator right{other.begin_pointer};
-        const_iterator const left_end{self.current_end()};
+        const_iterator const left_end{self.end()};
         for (; left != left_end; ++left, ++right) {
             if (!static_cast<bool>(*left == *right)) {
                 return false;
