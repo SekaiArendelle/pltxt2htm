@@ -17,6 +17,9 @@ consteval auto collect_header_info() -> ::std::vector<::std::meta::info> {
                 symbols.append_range(collect_header_info<m>());
             }
         }
+        else if constexpr (::std::meta::has_identifier(m) && ::std::meta::identifier_of(m).starts_with("__dguide_")) {
+            continue;
+        }
         else {
             symbols.push_back(m);
         }

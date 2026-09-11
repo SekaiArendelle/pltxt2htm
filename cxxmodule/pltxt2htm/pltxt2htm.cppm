@@ -16,6 +16,7 @@ using ::pltxt2htm::container::WStringView;
 using ::pltxt2htm::container::U8StringView;
 using ::pltxt2htm::container::U16StringView;
 using ::pltxt2htm::container::U32StringView;
+using ::pltxt2htm::container::print_alias_define;
 using ::pltxt2htm::container::Expected;
 using ::pltxt2htm::container::Unexpected;
 using ::pltxt2htm::container::Optional;
@@ -24,7 +25,12 @@ using ::pltxt2htm::container::nullopt;
 using ::pltxt2htm::container::is_expected;
 using ::pltxt2htm::container::is_unexpected;
 using ::pltxt2htm::container::is_optional;
+using ::pltxt2htm::container::NonZero;
+using ::pltxt2htm::container::NonZeroSize;
 using ::pltxt2htm::container::Vector;
+using ::pltxt2htm::container::operator==;
+using ::pltxt2htm::container::operator<=>;
+using ::pltxt2htm::container::swap;
 
 } // namespace container
 
