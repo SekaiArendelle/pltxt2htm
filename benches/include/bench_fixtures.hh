@@ -161,7 +161,7 @@ inline auto build_nested_color_ast(::std::size_t depth) -> ::pltxt2htm::Ast<ndeb
         ::pltxt2htm::Ast<ndebug> sub;
         sub.push_back(::std::move(inner));
         inner = ::pltxt2htm::PlTxtNode<ndebug>{
-            ::pltxt2htm::PlColor<ndebug>{::std::move(sub), ::pltxt2htm::container::U8String{u8"red"}}};
+            ::pltxt2htm::UnityColor<ndebug>{::std::move(sub), ::pltxt2htm::container::U8String{u8"red"}}};
     }
     ::pltxt2htm::Ast<ndebug> ast;
     ast.push_back(::std::move(inner));
@@ -174,7 +174,7 @@ inline auto build_adjacent_color_ast(::std::size_t count) -> ::pltxt2htm::Ast<nd
         ::pltxt2htm::Ast<ndebug> sub;
         sub.push_back(::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::U8Char{u8't'}});
         ast.push_back(::pltxt2htm::PlTxtNode<ndebug>{
-            ::pltxt2htm::PlColor<ndebug>{::std::move(sub), ::pltxt2htm::container::U8String{u8"red"}}});
+            ::pltxt2htm::UnityColor<ndebug>{::std::move(sub), ::pltxt2htm::container::U8String{u8"red"}}});
     }
     return ast;
 }
@@ -185,18 +185,18 @@ inline auto build_mixed_redundant_ast(::std::size_t depth) -> ::pltxt2htm::Ast<n
         {
             ::pltxt2htm::Ast<ndebug> sub;
             sub.push_back(::std::move(inner));
-            inner = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::PlI<ndebug>{::std::move(sub)}};
+            inner = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::UnityI<ndebug>{::std::move(sub)}};
         }
         {
             ::pltxt2htm::Ast<ndebug> sub;
             sub.push_back(::std::move(inner));
-            inner = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::PlB<ndebug>{::std::move(sub)}};
+            inner = ::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::UnityB<ndebug>{::std::move(sub)}};
         }
         {
             ::pltxt2htm::Ast<ndebug> sub;
             sub.push_back(::std::move(inner));
             inner = ::pltxt2htm::PlTxtNode<ndebug>{
-                ::pltxt2htm::PlColor<ndebug>{::std::move(sub), ::pltxt2htm::container::U8String{u8"red"}}};
+                ::pltxt2htm::UnityColor<ndebug>{::std::move(sub), ::pltxt2htm::container::U8String{u8"red"}}};
         }
     }
     ::pltxt2htm::Ast<ndebug> ast;

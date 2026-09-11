@@ -28,7 +28,7 @@
 namespace pltxt2htm::details {
 
 /**
- * @brief Parse `<tag=value>` and reject it when nested inside non-nestable PL tags.
+ * @brief Parse `<tag=value>` and reject it when nested inside non-nestable link/reference tags.
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @tparam prefix_str Tag-name prefix used by `try_parse_equal_sign_tag`.
  * @param[in] pltext The input text to parse at current position.
@@ -55,7 +55,7 @@ constexpr auto try_parse_non_nestable_equal_sign_tag(
                    nested_tag_type == ::pltxt2htm::NodeKind::pl_experiments ||
                    nested_tag_type == ::pltxt2htm::NodeKind::pl_discussions ||
                    nested_tag_type == ::pltxt2htm::NodeKind::pl_external ||
-                   nested_tag_type == ::pltxt2htm::NodeKind::pl_link ||
+                   nested_tag_type == ::pltxt2htm::NodeKind::unity_link ||
                    nested_tag_type == ::pltxt2htm::NodeKind::pl_trigger ||
                    nested_tag_type == ::pltxt2htm::NodeKind::pl_internal;
         })) {

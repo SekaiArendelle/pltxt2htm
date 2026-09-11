@@ -65,7 +65,7 @@ public:
 
 /**
  * @brief ::pltxt2htm::Ampersand node
- * @details Represents the '&' character, which may be part of an HTML entity.
+ * @details Represents the semantic '&' character.
  */
 class Ampersand {
 public:
@@ -91,36 +91,6 @@ class DoubleQuote {
 public:
     [[nodiscard]]
     constexpr auto operator==(this DoubleQuote const&, DoubleQuote const&) noexcept -> bool = default;
-};
-
-/**
- * @brief ::pltxt2htm::EntityReference node
- * @details Represents an HTML entity reference like &amp;quot;, &amp;amp;, &amp;#38;.
- *          Stores the entity content between &amp; and ; (e.g. &amp;quot; stores "quot").
- *          The backend outputs it as &amp; + value + ; verbatim.
- */
-class EntityReference {
-    ::pltxt2htm::container::U8String value;
-
-public:
-    constexpr EntityReference(::pltxt2htm::container::U8String&& value_) noexcept
-        : value(::std::move(value_)) {
-    }
-
-    constexpr EntityReference(::pltxt2htm::EntityReference const&) noexcept = default;
-    constexpr EntityReference(::pltxt2htm::EntityReference&&) noexcept = default;
-    constexpr ~EntityReference() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::EntityReference const&) noexcept -> ::pltxt2htm::EntityReference& = delete;
-    constexpr auto operator=(this EntityReference& self, ::pltxt2htm::EntityReference&&) noexcept
-        -> ::pltxt2htm::EntityReference& = default;
-
-    [[nodiscard]]
-    constexpr auto operator==(this EntityReference const&, EntityReference const&) noexcept -> bool = default;
-
-    [[nodiscard]]
-    constexpr auto get_value(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.value);
-    }
 };
 
 /**
@@ -160,7 +130,7 @@ public:
     constexpr Group(::pltxt2htm::Ast<ndebug>&& subast) noexcept;
     constexpr Group(::pltxt2htm::Group<ndebug> const&) noexcept;
     constexpr Group(::pltxt2htm::Group<ndebug>&&) noexcept;
-    constexpr ~Group() noexcept;
+    constexpr ~Group() noexcept = default;
     constexpr auto operator=(::pltxt2htm::Group<ndebug> const&) noexcept -> ::pltxt2htm::Group<ndebug>& = delete;
     constexpr auto operator=(this Group<ndebug>& self, ::pltxt2htm::Group<ndebug>&&) noexcept
         -> ::pltxt2htm::Group<ndebug>&;
@@ -193,7 +163,7 @@ public:
                                  ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>&& lang_) noexcept;
     constexpr CodeFence(::pltxt2htm::CodeFence<ndebug> const&) noexcept;
     constexpr CodeFence(::pltxt2htm::CodeFence<ndebug>&&) noexcept;
-    constexpr ~CodeFence() noexcept;
+    constexpr ~CodeFence() noexcept = default;
     constexpr auto operator=(::pltxt2htm::CodeFence<ndebug> const&) noexcept
         -> ::pltxt2htm::CodeFence<ndebug>& = delete;
     constexpr auto operator=(this CodeFence<ndebug>& self, ::pltxt2htm::CodeFence<ndebug>&&) noexcept

@@ -26,17 +26,17 @@ BENCHMARK_DEFINE_F(MicroFixture, NodeCreate_Text)(benchmark::State& st) {
 
 BENCHMARK_REGISTER_F(MicroFixture, NodeCreate_Text);
 
-BENCHMARK_DEFINE_F(MicroFixture, NodeCreate_PlColor)(benchmark::State& st) {
+BENCHMARK_DEFINE_F(MicroFixture, NodeCreate_UnityColor)(benchmark::State& st) {
     for (auto _ : st) {
         ::pltxt2htm::Ast<ndebug> sub;
         sub.push_back(::pltxt2htm::PlTxtNode<ndebug>{::pltxt2htm::U8Char{u8't'}});
         ::pltxt2htm::PlTxtNode<ndebug> node{
-            ::pltxt2htm::PlColor<ndebug>{::std::move(sub), ::pltxt2htm::container::U8String{u8"red"}}};
+            ::pltxt2htm::UnityColor<ndebug>{::std::move(sub), ::pltxt2htm::container::U8String{u8"red"}}};
         ::benchmark::DoNotOptimize(node);
     }
 }
 
-BENCHMARK_REGISTER_F(MicroFixture, NodeCreate_PlColor);
+BENCHMARK_REGISTER_F(MicroFixture, NodeCreate_UnityColor);
 
 BENCHMARK_DEFINE_F(MicroFixture, NodeCreate_HtmlSpan)(benchmark::State& st) {
     for (auto _ : st) {

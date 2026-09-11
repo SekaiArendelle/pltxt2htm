@@ -848,7 +848,7 @@ public:
         pointer new_pointer{};
         size_type allocated_size{};
         if consteval {
-            auto allocation = typed_allocator_type::allocate_at_least(requested_capacity + 1);
+            auto const allocation = typed_allocator_type::allocate_at_least(requested_capacity + 1);
             new_pointer = allocation.ptr;
             allocated_size = allocation.count;
             self.start_lifetime(new_pointer, allocated_size);
@@ -860,7 +860,8 @@ public:
         else {
             pointer const allocation_pointer{old_capacity == 0 ? nullptr : self.begin_pointer};
             if constexpr (typed_allocator_type::has_reallocate) {
-                auto allocation = typed_allocator_type::reallocate_at_least(allocation_pointer, requested_capacity + 1);
+                auto const allocation =
+                    typed_allocator_type::reallocate_at_least(allocation_pointer, requested_capacity + 1);
                 new_pointer = allocation.ptr;
                 allocated_size = allocation.count;
             }

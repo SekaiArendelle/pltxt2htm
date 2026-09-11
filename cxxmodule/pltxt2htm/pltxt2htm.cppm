@@ -90,7 +90,6 @@ using ::pltxt2htm::Tab;
 using ::pltxt2htm::Ampersand;
 using ::pltxt2htm::SingleQuote;
 using ::pltxt2htm::DoubleQuote;
-using ::pltxt2htm::EntityReference;
 
 // html_node
 using ::pltxt2htm::HtmlBr;
@@ -167,7 +166,6 @@ using ::pltxt2htm::MdLatexInline;
 using ::pltxt2htm::MdLatexBlock;
 
 // physics_lab_node
-using ::pltxt2htm::PlColor;
 using ::pltxt2htm::PlA;
 using ::pltxt2htm::PlExperiment;
 using ::pltxt2htm::PlExperiments;
@@ -176,18 +174,21 @@ using ::pltxt2htm::PlDiscussions;
 using ::pltxt2htm::PlUser;
 using ::pltxt2htm::PlTrigger;
 using ::pltxt2htm::PlInternal;
-using ::pltxt2htm::PlSize;
-using ::pltxt2htm::PlVoffset;
 using ::pltxt2htm::PlExternal;
-using ::pltxt2htm::PlLink;
-using ::pltxt2htm::PlAlign;
-using ::pltxt2htm::PlMargin;
-using ::pltxt2htm::PlMark;
-using ::pltxt2htm::PlI;
-using ::pltxt2htm::PlB;
 using ::pltxt2htm::PlMacroProject;
 using ::pltxt2htm::PlMacroVisitor;
 using ::pltxt2htm::PlMacroAuthor;
 using ::pltxt2htm::PlMacroCoauthors;
+
+// unity_node
+using ::pltxt2htm::UnityColor;
+using ::pltxt2htm::UnitySize;
+using ::pltxt2htm::UnityVoffset;
+using ::pltxt2htm::UnityAlign;
+using ::pltxt2htm::UnityMark;
+using ::pltxt2htm::UnityMargin;
+using ::pltxt2htm::UnityLink;
+using ::pltxt2htm::UnityB;
+using ::pltxt2htm::UnityI;
 
 } // namespace pltxt2htm

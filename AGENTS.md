@@ -5,7 +5,7 @@ This file is the entry point for AI coding agents. It contains the development w
 ## Mandatory rules
 
 - **Do NOT run git write operations without explicit human instruction.** An agent must not run `git add`, `git commit`, `git push`, open a **Pull Request**, open an **Issue**, or perform any other write operation to the repository or remote unless the human explicitly asks for it.
-- After changing code, run formatting, static analysis, and tests (commands below).
+- After changing code, run formatting and tests (commands below). Static analysis (`clang-tidy`) is run in full by CI and does **not** need to be run locally for every change.
 
 ## Project layout
 
@@ -35,7 +35,7 @@ Local tools:
 - C++23 compiler (clang / gcc / MSVC)
 - CMake
 - Python 3
-- clang-format and clang-tidy (for formatting / static analysis)
+- clang-format (for formatting). clang-tidy is optional locally — CI runs the full pass.
 
 Docker alternative:
 
@@ -53,7 +53,7 @@ Each sub-project is independently built with CMake — see the respective `READM
 
 1. **Locate** – Read the relevant sub-project README to understand which module to modify.
 2. **Code** – Follow the [Coding conventions](#coding-conventions) below.
-3. **Format & analyze** – Run the [formatting](#code-formatting) and [static analysis](#static-analysis) commands.
+3. **Format** – Run the [formatting](#code-formatting) command. Static analysis is handled by CI, not as a local step.
 4. **Test** – Run the tests for the module you touched, then the full suite.
 5. **Review** – After a substantive code change, ask a subagent to perform the [independent read-only review](#independent-read-only-review) when subagents are available. Validate its findings, fix confirmed issues, and rerun the affected checks.
 6. **Submit** – Do NOT run any git write operations (such as `git add`, `git commit`, `git push`) or open a PR/Issue without explicit human instruction. Present a patch file or a sketch of the approach instead (see [CONTRIBUTING.md](./CONTRIBUTING.md)).
@@ -69,7 +69,7 @@ The reviewing subagent must:
 - Independently look for correctness defects, regressions, missing edge cases, and inadequate tests rather than assuming the implementation or its rationale is correct.
 - Report only actionable findings, each with severity, location, reasoning, and a triggering example when practical. If no issues are found, explicitly say so and summarize the areas examined.
 
-The implementing agent remains responsible for the final result. It must validate each finding against the code, fix confirmed issues rather than applying suggestions mechanically, and rerun formatting, static analysis, and affected tests after any fix. Normally one review pass is sufficient; request another only when fixes address high-severity findings or materially change the design. A subagent review supplements, but does not replace, the required automated checks.
+The implementing agent remains responsible for the final result. It must validate each finding against the code, fix confirmed issues rather than applying suggestions mechanically, and rerun formatting and the affected tests after any fix. Normally one review pass is sufficient; request another only when fixes address high-severity findings or materially change the design. A subagent review supplements, but does not replace, the required automated checks.
 
 ## Quick commands (run from repository root)
 
@@ -87,6 +87,9 @@ python scripts/gen_format_ninja.py
 
 ### Static analysis
 
+Run in full by CI: the `x86_64-linux-gnu-clang-tidy` job in [`.github/workflows/test.yml`](./.github/workflows/test.yml) builds `tests/docker/x86_64-linux-gnu-clang-tidy/Dockerfile`, which invokes the script below. **Do not run clang-tidy locally as part of the normal edit loop** — it is slow, and CI covers every translation unit anyway.
+
+If you do need it locally (for example, when CI keeps failing on a specific file):
 ```sh
 python scripts/run_clang_tidy.py
 ```
@@ -133,7 +136,7 @@ Coverage:
 python ./tests/codecov.py
 ```
 
-**Command cost note:** `run_all_tests.py` and `codecov.py` are the full, slowest checks. For quick iteration, build and test only the module you changed via its CMake config or README.
+**Command cost note:** `run_all_tests.py` and `codecov.py` are the full, slowest checks. For quick iteration, build and test only the module you changed via its CMake config or README. The expected local check before submitting is the test suite (CMake + `ctest`, above); clang-tidy does not need to be run locally.
 
 ## Coding conventions
 

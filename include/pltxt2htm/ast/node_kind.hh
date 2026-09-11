@@ -15,8 +15,9 @@ namespace pltxt2htm {
  * @details This enum defines all possible node types that can appear in the
  *          Abstract Syntax Tree. Each node in the AST has exactly one of these
  *          types, which determines how it should be processed and rendered.
- * @note The values are ordered with basic types first, then Physics-Lab specific
- *       tags, HTML tags, Markdown syntax, and finally escape sequences.
+ * @note The values are ordered with basic types first, then Unity rich-text tags,
+ *       Physics-Lab-specific tags, HTML tags, Markdown syntax, and finally escape
+ *       sequences.
  */
 enum class NodeKind : unsigned {
     // Character and basic text nodes
@@ -35,11 +36,20 @@ enum class NodeKind : unsigned {
     single_quote, ///< Single quote character (') - escaped to &apos;
     less_than, ///< Less-than character (<) - escaped to &lt;
     greater_than, ///< Greater-than character (>) - escaped to &gt;
-    entity_reference, ///< HTML entity reference: &amp; name &amp;; e.g. &amp;quot;, &amp;amp;, &amp;#38;
     tab, ///< Tab character - rendered as multiple &nbsp; entities
 
-    // Physics-Lab specific formatting tags
-    pl_color, ///< Physics-Lab color tag: &lt;color=value&gt;...&lt;/color&gt;
+    // Unity rich-text tags
+    unity_color, ///< Unity text color: &lt;color=value&gt;...&lt;/color&gt;
+    unity_size, ///< Unity font size: &lt;size=value&gt;...&lt;/size&gt;
+    unity_voffset, ///< Unity vertical offset: &lt;voffset=value&gt;...&lt;/voffset&gt;
+    unity_align, ///< Unity text alignment: &lt;align=value&gt;...&lt;/align&gt;
+    unity_mark, ///< Unity text highlight: &lt;mark=Xxx&gt;...&lt;/mark&gt;
+    unity_margin, ///< Unity text margin: &lt;margin left=v right=v&gt;...&lt;/margin&gt;
+    unity_link, ///< Unity link: &lt;link=&quot;url&quot;&gt;...&lt;/link&gt;
+    unity_b, ///< Unity bold text: &lt;b&gt;...&lt;/b&gt;; also used for Markdown and HTML strong emphasis
+    unity_i, ///< Unity italic text: &lt;i&gt;...&lt;/i&gt;; also used for Markdown and HTML emphasis
+
+    // Physics-Lab-specific tags
     pl_a, ///< Physics-Lab anchor tag: &lt;a&gt;...&lt;/a&gt; (styled like a link)
     pl_experiment, ///< Physics-Lab experiment reference: &lt;experiment=id&gt;...&lt;/experiment&gt;
     pl_discussion, ///< Physics-Lab discussion reference: &lt;discussion=id&gt;...&lt;/discussion&gt;
@@ -48,20 +58,12 @@ enum class NodeKind : unsigned {
     pl_discussions,
     ///< Physics-Lab discussion list-entry reference: &lt;discussions=params&gt;...&lt;/discussions&gt;
     pl_user, ///< Physics-Lab user reference: &lt;user=id&gt;...&lt;/user&gt;
-    pl_size, ///< Physics-Lab font size: &lt;size=value&gt;...&lt;/size&gt;
-    pl_voffset, ///< Physics-Lab vertical offset (Unity TMP rich text): &lt;voffset=value&gt;...&lt;/voffset&gt;
-    pl_align, ///< Text alignment (Unity TMP rich text): &lt;align=value&gt;...&lt;/align&gt;
-    pl_mark, ///< Physics-Lab mark (TMP rich text): &lt;mark=Xxx&gt;...&lt;/mark&gt;
-    pl_margin, ///< Physics-Lab margin (Unity TMP rich text): &lt;margin left=v right=v&gt;...&lt;/margin&gt;
     pl_external, ///< Physics-Lab external link: &lt;external=url&gt;...&lt;/external&gt;
-    pl_link, ///< Physics-Lab link (Unity TextMeshPro rich text): &lt;link=&quot;url&quot;&gt;...&lt;/link&gt;
     pl_trigger, ///< Physics-Lab trigger tag: &lt;trigger=value&gt;...&lt;/trigger&gt; (legacy NetLogo-style interaction
                 ///< tag)
     pl_internal, ///< Physics-Lab internal tag: &lt;internal=value&gt;...&lt;/internal&gt; (rendered verbatim)
 
-    // Text formatting (shared across Physics-Lab, HTML, and Markdown)
-    pl_b, ///< Bold text: &lt;b&gt;...&lt;/b&gt;, Markdown double emphasis, &lt;strong&gt; in HTML
-    pl_i, ///< Italic text: &lt;i&gt;...&lt;/i&gt;, Markdown single emphasis, &lt;em&gt; in HTML
+    // Text formatting shared across HTML and Unity rich text
     html_u, ///< Underline text: &lt;u&gt;...&lt;/u&gt; (Unity TextMeshPro rich text), &lt;u&gt; in HTML
     html_s, ///< Strikethrough text: &lt;s&gt;...&lt;/s&gt; (Unity TextMeshPro rich text), &lt;s&gt; in HTML
 
@@ -170,7 +172,7 @@ namespace details {
 
 [[nodiscard]]
 constexpr auto is_equal_sign_tag_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
-    return node_type == ::pltxt2htm::NodeKind::pl_color || node_type == ::pltxt2htm::NodeKind::pl_experiment ||
+    return node_type == ::pltxt2htm::NodeKind::unity_color || node_type == ::pltxt2htm::NodeKind::pl_experiment ||
            node_type == ::pltxt2htm::NodeKind::pl_discussion || node_type == ::pltxt2htm::NodeKind::pl_experiments ||
            node_type == ::pltxt2htm::NodeKind::pl_discussions || node_type == ::pltxt2htm::NodeKind::pl_user ||
            node_type == ::pltxt2htm::NodeKind::pl_trigger || node_type == ::pltxt2htm::NodeKind::pl_internal;
@@ -178,7 +180,7 @@ constexpr auto is_equal_sign_tag_type(::pltxt2htm::NodeKind const node_type) noe
 
 [[nodiscard]]
 constexpr auto is_em_like(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
-    return node_type == ::pltxt2htm::NodeKind::html_em || node_type == ::pltxt2htm::NodeKind::pl_i ||
+    return node_type == ::pltxt2htm::NodeKind::html_em || node_type == ::pltxt2htm::NodeKind::unity_i ||
            node_type == ::pltxt2htm::NodeKind::md_single_emphasis_asterisk ||
            node_type == ::pltxt2htm::NodeKind::md_single_emphasis_underscore ||
            node_type == ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk ||
@@ -187,7 +189,7 @@ constexpr auto is_em_like(::pltxt2htm::NodeKind const node_type) noexcept -> boo
 
 [[nodiscard]]
 constexpr auto is_strong_like(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
-    return node_type == ::pltxt2htm::NodeKind::html_strong || node_type == ::pltxt2htm::NodeKind::pl_b ||
+    return node_type == ::pltxt2htm::NodeKind::html_strong || node_type == ::pltxt2htm::NodeKind::unity_b ||
            node_type == ::pltxt2htm::NodeKind::md_double_emphasis_asterisk ||
            node_type == ::pltxt2htm::NodeKind::md_double_emphasis_underscore ||
            node_type == ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk ||
@@ -211,7 +213,7 @@ constexpr auto is_inline_content_frame_kind(::pltxt2htm::NodeKind const node_typ
  */
 [[nodiscard]]
 constexpr auto is_url_link_tag_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
-    return node_type == ::pltxt2htm::NodeKind::pl_link || node_type == ::pltxt2htm::NodeKind::pl_external ||
+    return node_type == ::pltxt2htm::NodeKind::unity_link || node_type == ::pltxt2htm::NodeKind::pl_external ||
            node_type == ::pltxt2htm::NodeKind::md_link || node_type == ::pltxt2htm::NodeKind::html_a;
 }
 

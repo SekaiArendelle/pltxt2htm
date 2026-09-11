@@ -10,8 +10,6 @@ constexpr ::pltxt2htm::MdAtxH1<ndebug>::MdAtxH1(::pltxt2htm::MdAtxH1<ndebug> con
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdAtxH1<ndebug>::MdAtxH1(::pltxt2htm::MdAtxH1<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdAtxH1<ndebug>::~MdAtxH1() noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::MdAtxH1<ndebug>::operator=(this MdAtxH1<ndebug>& self,
                                                        ::pltxt2htm::MdAtxH1<ndebug>&&) noexcept
     -> ::pltxt2htm::MdAtxH1<ndebug>& = default;
@@ -29,8 +27,6 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdAtxH2<ndebug>::MdAtxH2(::pltxt2htm::MdAtxH2<ndebug> const&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdAtxH2<ndebug>::MdAtxH2(::pltxt2htm::MdAtxH2<ndebug>&&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdAtxH2<ndebug>::~MdAtxH2() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::MdAtxH2<ndebug>::operator=(this MdAtxH2<ndebug>& self,
                                                        ::pltxt2htm::MdAtxH2<ndebug>&&) noexcept
@@ -50,8 +46,6 @@ constexpr ::pltxt2htm::MdAtxH3<ndebug>::MdAtxH3(::pltxt2htm::MdAtxH3<ndebug> con
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdAtxH3<ndebug>::MdAtxH3(::pltxt2htm::MdAtxH3<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdAtxH3<ndebug>::~MdAtxH3() noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::MdAtxH3<ndebug>::operator=(this MdAtxH3<ndebug>& self,
                                                        ::pltxt2htm::MdAtxH3<ndebug>&&) noexcept
     -> ::pltxt2htm::MdAtxH3<ndebug>& = default;
@@ -69,8 +63,6 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdAtxH4<ndebug>::MdAtxH4(::pltxt2htm::MdAtxH4<ndebug> const&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdAtxH4<ndebug>::MdAtxH4(::pltxt2htm::MdAtxH4<ndebug>&&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdAtxH4<ndebug>::~MdAtxH4() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::MdAtxH4<ndebug>::operator=(this MdAtxH4<ndebug>& self,
                                                        ::pltxt2htm::MdAtxH4<ndebug>&&) noexcept
@@ -90,8 +82,6 @@ constexpr ::pltxt2htm::MdAtxH5<ndebug>::MdAtxH5(::pltxt2htm::MdAtxH5<ndebug> con
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdAtxH5<ndebug>::MdAtxH5(::pltxt2htm::MdAtxH5<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdAtxH5<ndebug>::~MdAtxH5() noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::MdAtxH5<ndebug>::operator=(this MdAtxH5<ndebug>& self,
                                                        ::pltxt2htm::MdAtxH5<ndebug>&&) noexcept
     -> ::pltxt2htm::MdAtxH5<ndebug>& = default;
@@ -109,8 +99,6 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdAtxH6<ndebug>::MdAtxH6(::pltxt2htm::MdAtxH6<ndebug> const&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdAtxH6<ndebug>::MdAtxH6(::pltxt2htm::MdAtxH6<ndebug>&&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdAtxH6<ndebug>::~MdAtxH6() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::MdAtxH6<ndebug>::operator=(this MdAtxH6<ndebug>& self,
                                                        ::pltxt2htm::MdAtxH6<ndebug>&&) noexcept
@@ -131,8 +119,6 @@ constexpr ::pltxt2htm::MdCodeSpan1Backtick<ndebug>::MdCodeSpan1Backtick(
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdCodeSpan1Backtick<ndebug>::MdCodeSpan1Backtick(
     ::pltxt2htm::MdCodeSpan1Backtick<ndebug>&&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdCodeSpan1Backtick<ndebug>::~MdCodeSpan1Backtick() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::MdCodeSpan1Backtick<ndebug>::operator=(this MdCodeSpan1Backtick<ndebug>& self,
                                                                    ::pltxt2htm::MdCodeSpan1Backtick<ndebug>&&) noexcept
@@ -155,8 +141,6 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdCodeSpan2Backtick<ndebug>::MdCodeSpan2Backtick(
     ::pltxt2htm::MdCodeSpan2Backtick<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdCodeSpan2Backtick<ndebug>::~MdCodeSpan2Backtick() noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::MdCodeSpan2Backtick<ndebug>::operator=(this MdCodeSpan2Backtick<ndebug>& self,
                                                                    ::pltxt2htm::MdCodeSpan2Backtick<ndebug>&&) noexcept
     -> ::pltxt2htm::MdCodeSpan2Backtick<ndebug>& = default;
@@ -177,8 +161,6 @@ constexpr ::pltxt2htm::MdCodeSpan3Backtick<ndebug>::MdCodeSpan3Backtick(
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdCodeSpan3Backtick<ndebug>::MdCodeSpan3Backtick(
     ::pltxt2htm::MdCodeSpan3Backtick<ndebug>&&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdCodeSpan3Backtick<ndebug>::~MdCodeSpan3Backtick() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::MdCodeSpan3Backtick<ndebug>::operator=(this MdCodeSpan3Backtick<ndebug>& self,
                                                                    ::pltxt2htm::MdCodeSpan3Backtick<ndebug>&&) noexcept
@@ -202,8 +184,6 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdSingleEmphasisAsterisk<ndebug>::MdSingleEmphasisAsterisk(
     ::pltxt2htm::MdSingleEmphasisAsterisk<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdSingleEmphasisAsterisk<ndebug>::~MdSingleEmphasisAsterisk() noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::MdSingleEmphasisAsterisk<ndebug>::operator=(
     this MdSingleEmphasisAsterisk<ndebug>& self, ::pltxt2htm::MdSingleEmphasisAsterisk<ndebug>&&) noexcept
     -> ::pltxt2htm::MdSingleEmphasisAsterisk<ndebug>& = default;
@@ -225,8 +205,6 @@ constexpr ::pltxt2htm::MdDoubleEmphasisAsterisk<ndebug>::MdDoubleEmphasisAsteris
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdDoubleEmphasisAsterisk<ndebug>::MdDoubleEmphasisAsterisk(
     ::pltxt2htm::MdDoubleEmphasisAsterisk<ndebug>&&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdDoubleEmphasisAsterisk<ndebug>::~MdDoubleEmphasisAsterisk() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::MdDoubleEmphasisAsterisk<ndebug>::operator=(
     this MdDoubleEmphasisAsterisk<ndebug>& self, ::pltxt2htm::MdDoubleEmphasisAsterisk<ndebug>&&) noexcept
@@ -250,8 +228,6 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdTripleEmphasisAsterisk<ndebug>::MdTripleEmphasisAsterisk(
     ::pltxt2htm::MdTripleEmphasisAsterisk<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdTripleEmphasisAsterisk<ndebug>::~MdTripleEmphasisAsterisk() noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::MdTripleEmphasisAsterisk<ndebug>::operator=(
     this MdTripleEmphasisAsterisk<ndebug>& self, ::pltxt2htm::MdTripleEmphasisAsterisk<ndebug>&&) noexcept
     -> ::pltxt2htm::MdTripleEmphasisAsterisk<ndebug>& = default;
@@ -273,8 +249,6 @@ constexpr ::pltxt2htm::MdSingleEmphasisUnderscore<ndebug>::MdSingleEmphasisUnder
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdSingleEmphasisUnderscore<ndebug>::MdSingleEmphasisUnderscore(
     ::pltxt2htm::MdSingleEmphasisUnderscore<ndebug>&&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdSingleEmphasisUnderscore<ndebug>::~MdSingleEmphasisUnderscore() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::MdSingleEmphasisUnderscore<ndebug>::operator=(
     this MdSingleEmphasisUnderscore<ndebug>& self, ::pltxt2htm::MdSingleEmphasisUnderscore<ndebug>&&) noexcept
@@ -298,8 +272,6 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdDoubleEmphasisUnderscore<ndebug>::MdDoubleEmphasisUnderscore(
     ::pltxt2htm::MdDoubleEmphasisUnderscore<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdDoubleEmphasisUnderscore<ndebug>::~MdDoubleEmphasisUnderscore() noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::MdDoubleEmphasisUnderscore<ndebug>::operator=(
     this MdDoubleEmphasisUnderscore<ndebug>& self, ::pltxt2htm::MdDoubleEmphasisUnderscore<ndebug>&&) noexcept
     -> ::pltxt2htm::MdDoubleEmphasisUnderscore<ndebug>& = default;
@@ -322,8 +294,6 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdTripleEmphasisUnderscore<ndebug>::MdTripleEmphasisUnderscore(
     ::pltxt2htm::MdTripleEmphasisUnderscore<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdTripleEmphasisUnderscore<ndebug>::~MdTripleEmphasisUnderscore() noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::MdTripleEmphasisUnderscore<ndebug>::operator=(
     this MdTripleEmphasisUnderscore<ndebug>& self, ::pltxt2htm::MdTripleEmphasisUnderscore<ndebug>&&) noexcept
     -> ::pltxt2htm::MdTripleEmphasisUnderscore<ndebug>& = default;
@@ -343,8 +313,6 @@ constexpr ::pltxt2htm::MdDel<ndebug>::MdDel(::pltxt2htm::MdDel<ndebug> const&) n
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdDel<ndebug>::MdDel(::pltxt2htm::MdDel<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdDel<ndebug>::~MdDel() noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::MdDel<ndebug>::operator=(this MdDel<ndebug>& self, ::pltxt2htm::MdDel<ndebug>&&) noexcept
     -> ::pltxt2htm::MdDel<ndebug>& = default;
 
@@ -362,8 +330,6 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdLink<ndebug>::MdLink(::pltxt2htm::MdLink<ndebug> const&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdLink<ndebug>::MdLink(::pltxt2htm::MdLink<ndebug>&&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdLink<ndebug>::~MdLink() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::MdLink<ndebug>::operator=(this MdLink<ndebug>& self, ::pltxt2htm::MdLink<ndebug>&&) noexcept
     -> ::pltxt2htm::MdLink<ndebug>& = default;
@@ -383,8 +349,6 @@ constexpr ::pltxt2htm::MdImage<ndebug>::MdImage(::pltxt2htm::MdImage<ndebug> con
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdImage<ndebug>::MdImage(::pltxt2htm::MdImage<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdImage<ndebug>::~MdImage() noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::MdImage<ndebug>::operator=(this MdImage<ndebug>& self,
                                                        ::pltxt2htm::MdImage<ndebug>&&) noexcept
     -> ::pltxt2htm::MdImage<ndebug>& = default;
@@ -403,8 +367,6 @@ constexpr ::pltxt2htm::MdBlockQuotes<ndebug>::MdBlockQuotes(::pltxt2htm::MdBlock
     default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdBlockQuotes<ndebug>::MdBlockQuotes(::pltxt2htm::MdBlockQuotes<ndebug>&&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdBlockQuotes<ndebug>::~MdBlockQuotes() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::MdBlockQuotes<ndebug>::operator=(this MdBlockQuotes<ndebug>& self,
                                                              ::pltxt2htm::MdBlockQuotes<ndebug>&&) noexcept
@@ -426,8 +388,6 @@ constexpr ::pltxt2htm::MdLatexInline<ndebug>::MdLatexInline(::pltxt2htm::MdLatex
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdLatexInline<ndebug>::MdLatexInline(::pltxt2htm::MdLatexInline<ndebug>&&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdLatexInline<ndebug>::~MdLatexInline() noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::MdLatexInline<ndebug>::operator=(this MdLatexInline<ndebug>& self,
                                                              ::pltxt2htm::MdLatexInline<ndebug>&&) noexcept
     -> ::pltxt2htm::MdLatexInline<ndebug>& = default;
@@ -446,8 +406,6 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdLatexBlock<ndebug>::MdLatexBlock(::pltxt2htm::MdLatexBlock<ndebug> const&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::MdLatexBlock<ndebug>::MdLatexBlock(::pltxt2htm::MdLatexBlock<ndebug>&&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdLatexBlock<ndebug>::~MdLatexBlock() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::MdLatexBlock<ndebug>::operator=(this MdLatexBlock<ndebug>& self,
                                                             ::pltxt2htm::MdLatexBlock<ndebug>&&) noexcept

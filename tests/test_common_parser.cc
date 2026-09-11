@@ -82,7 +82,7 @@ int main() {
 
     {
         auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"[text](https://example.com/?q=&quot;) ");
-        auto answer = ::fast_io::u8string_view{u8"<a href=\"https://example.com/?q=&amp;quot;\">text</a>&nbsp;"};
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"https://example.com/?q=%22\">text</a>&nbsp;"};
         pltxt2htm_test_assert_equal(html, answer);
     }
 
