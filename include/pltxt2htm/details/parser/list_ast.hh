@@ -158,7 +158,7 @@ public:
 
     constexpr ListUlNode(ListUlNode<ndebug>&&) noexcept;
 
-    constexpr ~ListUlNode() noexcept;
+    constexpr ~ListUlNode() noexcept = default;
 
     constexpr auto operator=(this ListUlNode<ndebug>& self, ListUlNode<ndebug> const& other) noexcept
         -> ListUlNode<ndebug>& = delete;
@@ -191,7 +191,7 @@ public:
 
     constexpr ListOlNode(ListOlNode<ndebug>&&) noexcept;
 
-    constexpr ~ListOlNode() noexcept;
+    constexpr ~ListOlNode() noexcept = default;
 
     constexpr auto operator=(this ListOlNode<ndebug>& self, ListOlNode<ndebug> const& other) noexcept
         -> ListOlNode<ndebug>& = delete;
@@ -448,9 +448,6 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr ListUlNode<ndebug>::ListUlNode(ListUlNode<ndebug>&&) noexcept = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ListUlNode<ndebug>::~ListUlNode() noexcept = default;
-
-template<::pltxt2htm::Contracts ndebug>
 constexpr auto ListUlNode<ndebug>::operator=(this ListUlNode<ndebug>& self, ListUlNode<ndebug>&& other) noexcept
     -> ListUlNode<ndebug>& = default;
 
@@ -471,9 +468,6 @@ constexpr ListOlNode<ndebug>::ListOlNode(ListAst<ndebug>&& sublist_, ::std::size
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ListOlNode<ndebug>::ListOlNode(ListOlNode<ndebug>&&) noexcept = default;
-
-template<::pltxt2htm::Contracts ndebug>
-constexpr ListOlNode<ndebug>::~ListOlNode() noexcept = default;
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr auto ListOlNode<ndebug>::operator=(this ListOlNode<ndebug>& self, ListOlNode<ndebug>&& other) noexcept

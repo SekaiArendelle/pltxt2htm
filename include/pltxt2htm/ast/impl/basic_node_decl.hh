@@ -130,7 +130,7 @@ public:
     constexpr Group(::pltxt2htm::Ast<ndebug>&& subast) noexcept;
     constexpr Group(::pltxt2htm::Group<ndebug> const&) noexcept;
     constexpr Group(::pltxt2htm::Group<ndebug>&&) noexcept;
-    constexpr ~Group() noexcept;
+    constexpr ~Group() noexcept = default;
     constexpr auto operator=(::pltxt2htm::Group<ndebug> const&) noexcept -> ::pltxt2htm::Group<ndebug>& = delete;
     constexpr auto operator=(this Group<ndebug>& self, ::pltxt2htm::Group<ndebug>&&) noexcept
         -> ::pltxt2htm::Group<ndebug>&;
@@ -163,7 +163,7 @@ public:
                                  ::pltxt2htm::container::Optional<::fast_io::u8string>&& lang_) noexcept;
     constexpr CodeFence(::pltxt2htm::CodeFence<ndebug> const&) noexcept;
     constexpr CodeFence(::pltxt2htm::CodeFence<ndebug>&&) noexcept;
-    constexpr ~CodeFence() noexcept;
+    constexpr ~CodeFence() noexcept = default;
     constexpr auto operator=(::pltxt2htm::CodeFence<ndebug> const&) noexcept
         -> ::pltxt2htm::CodeFence<ndebug>& = delete;
     constexpr auto operator=(this CodeFence<ndebug>& self, ::pltxt2htm::CodeFence<ndebug>&&) noexcept

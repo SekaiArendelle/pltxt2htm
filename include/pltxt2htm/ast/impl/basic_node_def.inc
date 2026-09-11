@@ -12,9 +12,6 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::Group<ndebug>::Group(::pltxt2htm::Group<ndebug>&& other) noexcept = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::Group<ndebug>::~Group() noexcept = default;
-
-template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::Group<ndebug>::operator=(this Group<ndebug>& self,
                                                      ::pltxt2htm::Group<ndebug>&& other) noexcept
     -> ::pltxt2htm::Group<ndebug>& = default;
@@ -34,8 +31,6 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::CodeFence<ndebug>::CodeFence(::pltxt2htm::CodeFence<ndebug> const&) noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::CodeFence<ndebug>::CodeFence(::pltxt2htm::CodeFence<ndebug>&&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::CodeFence<ndebug>::~CodeFence() noexcept = default;
 template<::pltxt2htm::Contracts ndebug>
 constexpr auto ::pltxt2htm::CodeFence<ndebug>::operator=(this CodeFence<ndebug>& self,
                                                          ::pltxt2htm::CodeFence<ndebug>&&) noexcept

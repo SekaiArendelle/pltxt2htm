@@ -150,13 +150,27 @@ public:
 
     constexpr auto operator[](this Array&, size_type) noexcept -> reference = delete
 #if __cpp_deleted_function >= 202403L
+    #if defined __clang__
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wc++26-extensions"
+    #endif
         ("operator[] is deleted; use index() instead for bounds-checked access")
+    #if defined __clang__
+        #pragma clang diagnostic pop
+    #endif
 #endif
         ;
 
     constexpr auto operator[](this Array const&, size_type) noexcept -> const_reference = delete
 #if __cpp_deleted_function >= 202403L
+    #if defined __clang__
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wc++26-extensions"
+    #endif
         ("operator[] is deleted; use index() instead for bounds-checked access")
+    #if defined __clang__
+        #pragma clang diagnostic pop
+    #endif
 #endif
         ;
 
