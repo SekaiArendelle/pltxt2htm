@@ -33,7 +33,7 @@ public:
                 allocation_pointers[index] = pointer;
                 allocation_sizes[index] = allocated_bytes;
                 ++active_allocations;
-                return {.ptr=pointer, .count=allocated_bytes};
+                return {.ptr = pointer, .count = allocated_bytes};
             }
         }
         ::fast_io::fast_terminate();
@@ -302,6 +302,44 @@ public:
     }
 };
 
+class NonConstexprSizedForwardRange {
+    int const* first{};
+    int const* last{};
+    ::std::size_t* begin_call_count{};
+    ::std::size_t* size_call_count{};
+
+public:
+    constexpr NonConstexprSizedForwardRange(int const* first_, int const* last_,
+                                            ::std::size_t* begin_call_count_ = nullptr,
+                                            ::std::size_t* size_call_count_ = nullptr) noexcept
+        : first{first_},
+          last{last_},
+          begin_call_count{begin_call_count_},
+          size_call_count{size_call_count_} {
+    }
+
+    [[nodiscard]]
+    constexpr auto begin(this NonConstexprSizedForwardRange const& self) noexcept -> int const* {
+        if (self.begin_call_count != nullptr) {
+            ++*self.begin_call_count;
+        }
+        return self.first;
+    }
+
+    [[nodiscard]]
+    constexpr auto end(this NonConstexprSizedForwardRange const& self) noexcept -> int const* {
+        return self.last;
+    }
+
+    [[nodiscard]]
+    auto size(this NonConstexprSizedForwardRange const& self) noexcept -> ::std::size_t {
+        if (self.size_call_count != nullptr) {
+            ++*self.size_call_count;
+        }
+        return static_cast<::std::size_t>(self.last - self.first);
+    }
+};
+
 struct ThrowingMove {
     ThrowingMove() noexcept = default;
     ThrowingMove(ThrowingMove&&);
@@ -368,6 +406,8 @@ static_assert(::std::ranges::contiguous_range<IntVector const>);
 static_assert(::std::ranges::input_range<SinglePassIntRange>);
 static_assert(!::std::ranges::forward_range<SinglePassIntRange>);
 static_assert(::std::ranges::forward_range<CvSensitiveForwardRange>);
+static_assert(::std::ranges::forward_range<NonConstexprSizedForwardRange>);
+static_assert(::std::ranges::sized_range<NonConstexprSizedForwardRange>);
 static_assert(!ReservableVectorElement<ThrowingMove>);
 static_assert(!IntEmplaceableVectorElement<ThrowingConstruction>);
 static_assert(!CopyPushableVectorElement<ThrowingCopy>);
@@ -403,6 +443,14 @@ consteval auto test_constexpr_vector() -> bool {
     IntVector suffix{3, 4};
     values.append_range(::std::move(suffix));
     if (values != IntVector{1, 2, 3, 4}) {
+        return false;
+    }
+
+    int const sized_values[]{5, 6};
+    auto sized_range = NonConstexprSizedForwardRange{sized_values, sized_values + ::std::size(sized_values)};
+    IntVector sized_result{};
+    sized_result.append_range(sized_range);
+    if (sized_result != IntVector{5, 6}) {
         return false;
     }
 
@@ -516,6 +564,18 @@ int main() {
     IntVector cv_sensitive_result{};
     cv_sensitive_result.append_range(cv_sensitive_range);
     pltxt2htm_test_assert_true(cv_sensitive_result == IntVector{8, 9});
+
+    ::std::size_t sized_begin_call_count{};
+    ::std::size_t sized_size_call_count{};
+    int const sized_values[]{10, 11};
+    auto sized_range = NonConstexprSizedForwardRange{sized_values, sized_values + ::std::size(sized_values),
+                                                     ::std::addressof(sized_begin_call_count),
+                                                     ::std::addressof(sized_size_call_count)};
+    IntVector sized_result{};
+    sized_result.append_range(sized_range);
+    pltxt2htm_test_assert_true(sized_result == IntVector{10, 11});
+    pltxt2htm_test_assert_true(sized_begin_call_count == 1);
+    pltxt2htm_test_assert_true(sized_size_call_count == 1);
 
     ::pltxt2htm::container::Vector<ConstructionTrace> direct_construction{};
     direct_construction.reserve(1);

@@ -95,6 +95,26 @@ private:
         }
     }
 
+    template<::std::ranges::forward_range R>
+    [[nodiscard]]
+    static constexpr auto count_range(R& range) noexcept -> size_type {
+        if constexpr (requires {
+                          { ::std::ranges::size(range) } noexcept;
+                      }) {
+            if !consteval {
+                return static_cast<size_type>(::std::ranges::size(range));
+            }
+        }
+
+        size_type result{};
+        auto iterator = ::std::ranges::begin(range);
+        auto sentinel = ::std::ranges::end(range);
+        for (; iterator != sentinel; ++iterator) {
+            ++result;
+        }
+        return result;
+    }
+
     template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto growth_capacity(this Vector const& self, size_type additional_size) noexcept -> size_type {
@@ -189,10 +209,11 @@ private:
         pointer const trailing_end{trailing_current + range_size};
         for (auto&& value : range) {
             pltxt2htm_assert(trailing_current != trailing_end, u8"Range size changed while appending");
-            if constexpr (::std::is_lvalue_reference_v<R>) {
+            if constexpr (::std::is_lvalue_reference_v<R&&>) {
                 ::std::construct_at(trailing_current, ::std::forward<decltype(value)>(value));
             }
             else {
+                static_assert(::std::is_rvalue_reference_v<R&&>);
                 ::std::construct_at(trailing_current, ::std::forward_like<R>(value));
             }
             ++trailing_current;
@@ -295,10 +316,7 @@ public:
         if (::std::addressof(self) == ::std::addressof(other)) [[unlikely]] {
             return self;
         }
-        self.release();
-        self.begin_pointer = ::std::exchange(other.begin_pointer, nullptr);
-        self.current_size = ::std::exchange(other.current_size, 0);
-        self.current_capacity = ::std::exchange(other.current_capacity, 0);
+        self.swap(other);
         return self;
     }
 
@@ -316,6 +334,7 @@ public:
         return self.begin_pointer;
     }
 
+    // TODO rename to `is_empty`
     [[nodiscard]]
     constexpr auto empty(this Vector const& self) noexcept -> bool {
         return self.current_size == 0;
@@ -488,14 +507,7 @@ public:
                   is_nothrow_append_range<R>())
     {
         if constexpr (::std::ranges::forward_range<R>) {
-            // Do not use ranges::distance(range): for a sized range it may call size(),
-            // which is not covered by is_nothrow_append_range().
-            size_type range_size{};
-            auto iterator = ::std::ranges::begin(range);
-            auto sentinel = ::std::ranges::end(range);
-            for (; iterator != sentinel; ++iterator) {
-                ++range_size;
-            }
+            size_type const range_size{count_range(range)};
             size_type const old_capacity{self.capacity()};
             size_type const new_capacity{self.template growth_capacity<ndebug>(range_size)};
             if (new_capacity != old_capacity) {
@@ -505,10 +517,11 @@ public:
         }
 
         for (auto&& value : range) {
-            if constexpr (::std::is_lvalue_reference_v<R>) {
+            if constexpr (::std::is_lvalue_reference_v<R&&>) {
                 self.template emplace_back<ndebug>(::std::forward<decltype(value)>(value));
             }
             else {
+                static_assert(::std::is_rvalue_reference_v<R&&>);
                 self.template emplace_back<ndebug>(::std::forward_like<R>(value));
             }
         }
@@ -554,9 +567,15 @@ public:
     }
 
     constexpr void swap(this Vector& self, Vector& other) noexcept {
-        ::std::swap(self.begin_pointer, other.begin_pointer);
-        ::std::swap(self.current_size, other.current_size);
-        ::std::swap(self.current_capacity, other.current_capacity);
+        pointer const begin_pointer{self.begin_pointer};
+        size_type const current_size{self.current_size};
+        size_type const current_capacity{self.current_capacity};
+        self.begin_pointer = other.begin_pointer;
+        self.current_size = other.current_size;
+        self.current_capacity = other.current_capacity;
+        other.begin_pointer = begin_pointer;
+        other.current_size = current_size;
+        other.current_capacity = current_capacity;
     }
 
     [[nodiscard]]
