@@ -27,7 +27,13 @@ auto get_module_symbols() -> ::std::vector<::std::string> {
 
     ::std::vector<::std::string> result;
     template for (constexpr auto& info : info_arr) {
-        result.push_back(::std::string(::std::meta::identifier_of(info)));
+        if constexpr (::std::meta::has_identifier(info)) {
+            result.push_back(::std::string(::std::meta::identifier_of(info)));
+        }
+        else if constexpr (::std::meta::is_operator_function(info) ||
+                           ::std::meta::is_operator_function_template(info)) {
+            result.push_back("operator" + ::std::string(::std::meta::symbol_of(::std::meta::operator_of(info))));
+        }
     }
     return result;
 }
