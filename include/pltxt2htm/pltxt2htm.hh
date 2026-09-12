@@ -16,6 +16,7 @@
 #endif
 
 #include <fast_io/fast_io_dsal/string.h>
+#include "container/deque.hh"
 #include "container/array.hh"
 #include "container/string_view.hh"
 #include "container/optional.hh"

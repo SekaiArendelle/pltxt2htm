@@ -8,6 +8,7 @@ export namespace pltxt2htm {
 
 namespace container {
 
+using ::pltxt2htm::container::Deque;
 using ::pltxt2htm::container::Array;
 using ::pltxt2htm::container::to_array;
 using ::pltxt2htm::container::BasicStringView;
