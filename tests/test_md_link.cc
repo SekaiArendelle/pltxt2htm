@@ -219,11 +219,40 @@ int main() {
     {
         auto pltext = ::fast_io::u8string_view{u8"[q](example.com/?value=&quot;)"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"<a href=\"example.com/?value=&amp;quot;\">q</a>"};
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"example.com/?value=%22\">q</a>"};
         pltxt2htm_test_assert_equal(html, answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer =
-            ::fast_io::u8string_view{u8"<external=example.com/?value=&quot;>q</external>"};
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<external=example.com/?value=%22>q</external>"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    {
+        auto pltext = ::fast_io::u8string_view{u8"[q](example.com/?value=&copy;)"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"example.com/?value=%C2%A9\">q</a>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<external=example.com/?value=%C2%A9>q</external>"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    {
+        auto pltext = ::fast_io::u8string_view{u8"[q](example.com/?value=&apos;)"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"example.com/?value=%27\">q</a>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<external=example.com/?value=%27>q</external>"};
+        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+    }
+
+    {
+        auto pltext = ::fast_io::u8string_view{u8"[q](example.com/?value=&bogus;)"};
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto answer = ::fast_io::u8string_view{u8"<a href=\"example.com/?value=&amp;bogus;\">q</a>"};
+        pltxt2htm_test_assert_equal(html, answer);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<external=example.com/?value=&bogus;>q</external>"};
         pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
     }
 

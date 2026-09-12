@@ -9,7 +9,6 @@
 
 #include <cstddef>
 #include <utility>
-#include <fast_io/fast_io_dsal/vector.h>
 #include "../../ast/ast.hh"
 #include "../../contracts.hh"
 #include "../push_macro.hh"
@@ -123,48 +122,45 @@ public:
 };
 
 /**
- * @brief Activation record for HTML backend processing.
- * @details This frame keeps track of the current AST being processed,
- *          the type of nested tag, and the current index position
+ * @brief Activation record for backend processing.
+ * @details This frame keeps track of the remaining AST range and the type of nested tag.
  * @note This is used during the recursive AST traversal for HTML generation
  */
 template<::pltxt2htm::Contracts ndebug>
 class BackendFrame {
     BackendContextVariant<ndebug> context_data;
-    /* [[nonnull]] */ ::pltxt2htm::Ast<ndebug> const* ast; ///< Reference to the AST being processed
 
 public:
-    ::std::size_t current_index; ///< Current index position in the AST
+    using const_iterator = typename ::pltxt2htm::Ast<ndebug>::const_iterator;
 
-    /**
-     * @note construct ast from reference to avoid nullptr issue
-     */
-    constexpr BackendFrame(::pltxt2htm::Ast<ndebug> const& ast_, ::pltxt2htm::NodeKind const nested_tag_type,
-                           ::std::size_t current_index_) noexcept
+    const_iterator next; ///< Next unprocessed AST node
+    const_iterator end; ///< End of the AST range
+
+    constexpr BackendFrame(::pltxt2htm::Ast<ndebug> const& ast_, ::pltxt2htm::NodeKind const nested_tag_type) noexcept
         : context_data{nested_tag_type},
-          ast(::std::addressof(ast_)),
-          current_index{current_index_} {
+          next{ast_.cbegin()},
+          end{ast_.cend()} {
     }
 
     constexpr BackendFrame(::pltxt2htm::Ast<ndebug> const& ast_, ::pltxt2htm::NodeKind const nested_tag_type,
-                           ::std::size_t current_index_, BackendContextWithOlInfo ol_info_context) noexcept
+                           BackendContextWithOlInfo ol_info_context) noexcept
         : context_data{nested_tag_type, ::std::move(ol_info_context)},
-          ast(::std::addressof(ast_)),
-          current_index{current_index_} {
+          next{ast_.cbegin()},
+          end{ast_.cend()} {
     }
 
-    constexpr BackendFrame(::pltxt2htm::Ast<ndebug> const& ast_, ::std::size_t current_index_,
+    constexpr BackendFrame(::pltxt2htm::Ast<ndebug> const& ast_,
                            BackendContextWithHtmlSpanInfo html_span_info_context) noexcept
         : context_data{::std::move(html_span_info_context)},
-          ast(::std::addressof(ast_)),
-          current_index{current_index_} {
+          next{ast_.cbegin()},
+          end{ast_.cend()} {
     }
 
     constexpr BackendFrame(::pltxt2htm::Ast<ndebug> const& ast_, ::pltxt2htm::NodeKind const nested_tag_type,
-                           ::std::size_t current_index_, BackendContextWithAlignInfo align_info_context) noexcept
+                           BackendContextWithAlignInfo align_info_context) noexcept
         : context_data{nested_tag_type, ::std::move(align_info_context)},
-          ast(::std::addressof(ast_)),
-          current_index{current_index_} {
+          next{ast_.cbegin()},
+          end{ast_.cend()} {
     }
 
     constexpr BackendFrame(BackendFrame<ndebug> const&) noexcept = default;
@@ -179,11 +175,6 @@ public:
     [[nodiscard]]
     constexpr auto get_nested_tag_type(this BackendFrame<ndebug> const& self) noexcept {
         return self.context_data.get_kind();
-    }
-
-    [[nodiscard]]
-    constexpr auto get_ast(this BackendFrame<ndebug> const& self) noexcept -> ::pltxt2htm::Ast<ndebug> const& {
-        return *(self.ast);
     }
 
     [[nodiscard]]

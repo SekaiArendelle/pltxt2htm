@@ -109,6 +109,7 @@ namespace details {
  * @return The CSS keyword spelling; baseline for any invalid value.
  */
 template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
 constexpr auto vertical_align_keyword_string(::pltxt2htm::VerticalAlignKeyword const keyword) noexcept
     -> ::pltxt2htm::container::U8StringView {
     switch (keyword) /* -Werror=switch */ {

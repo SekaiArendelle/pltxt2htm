@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include <fast_io/fast_io_dsal/vector.h>
+#include "../../container/vector.hh"
 #include "../../contracts.hh"
 
 namespace pltxt2htm {
@@ -20,6 +20,6 @@ class PlTxtNode;
  *          This is the primary storage type for all AST nodes.
  */
 template<::pltxt2htm::Contracts ndebug>
-using Ast = ::fast_io::vector<::pltxt2htm::PlTxtNode<ndebug>>;
+using Ast = ::pltxt2htm::container::Vector<::pltxt2htm::PlTxtNode<ndebug>>;
 
 } // namespace pltxt2htm

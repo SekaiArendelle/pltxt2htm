@@ -78,6 +78,52 @@ BENCHMARK_DEFINE_F(StressManyLinesParseFixture, Parse)(benchmark::State& st) {
 
 BENCHMARK_REGISTER_F(StressManyLinesParseFixture, Parse)->Arg(5000)->Arg(10000);
 
+BENCHMARK_DEFINE_F(AdversarialUnclosedParseFixture, Parse)(benchmark::State& st) {
+    auto sv = ::fast_io::u8string_view{input.data(), input.size()};
+    for (auto _ : st) {
+        auto ast = ::pltxt2htm::parse_pltxt<ndebug>(sv);
+        ::benchmark::DoNotOptimize(ast);
+    }
+    st.SetBytesProcessed(sv.size() * st.iterations());
+}
+
+BENCHMARK_REGISTER_F(AdversarialUnclosedParseFixture, Parse)->Arg(50)->Arg(200)->Arg(500);
+
+BENCHMARK_DEFINE_F(LargeTableParseFixture, Parse)(benchmark::State& st) {
+    auto sv = ::fast_io::u8string_view{input.data(), input.size()};
+    for (auto _ : st) {
+        auto ast = ::pltxt2htm::parse_pltxt<ndebug>(sv);
+        ::benchmark::DoNotOptimize(ast);
+    }
+    st.SetBytesProcessed(sv.size() * st.iterations());
+    st.counters["Rows"] =
+        ::benchmark::Counter(static_cast<double>(as_size(st) * st.iterations()), ::benchmark::Counter::kIsRate);
+}
+
+BENCHMARK_REGISTER_F(LargeTableParseFixture, Parse)->Arg(100)->Arg(1000)->Arg(5000);
+
+BENCHMARK_DEFINE_F(EscapeEntityAutoLinkParseFixture, Parse)(benchmark::State& st) {
+    auto sv = ::fast_io::u8string_view{input.data(), input.size()};
+    for (auto _ : st) {
+        auto ast = ::pltxt2htm::parse_pltxt<ndebug>(sv);
+        ::benchmark::DoNotOptimize(ast);
+    }
+    st.SetBytesProcessed(sv.size() * st.iterations());
+}
+
+BENCHMARK_REGISTER_F(EscapeEntityAutoLinkParseFixture, Parse)->Arg(100)->Arg(500)->Arg(2000);
+
+BENCHMARK_DEFINE_F(Utf8MixedParseFixture, Parse)(benchmark::State& st) {
+    auto sv = ::fast_io::u8string_view{input.data(), input.size()};
+    for (auto _ : st) {
+        auto ast = ::pltxt2htm::parse_pltxt<ndebug>(sv);
+        ::benchmark::DoNotOptimize(ast);
+    }
+    st.SetBytesProcessed(sv.size() * st.iterations());
+}
+
+BENCHMARK_REGISTER_F(Utf8MixedParseFixture, Parse)->Arg(100)->Arg(500)->Arg(2000);
+
 BENCHMARK_DEFINE_F(RedundantColorParseFixture, Parse)(benchmark::State& st) {
     auto sv = ::fast_io::u8string_view{input.data(), input.size()};
     for (auto _ : st) {

@@ -27,7 +27,7 @@ int main() {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<Link=\"https://main.com\"><link=\"https://nested.com\">physicslab</link></Link>");
         // The rejected nested tag becomes literal text; auto-link is suppressed because the
-        // URL is inside a URL-link frame (pl_link), matching pl_external's behavior.
+        // URL is inside a URL-link frame (unity_link), matching pl_external's behavior.
         auto answer = ::fast_io::u8string_view{
             u8"<a href=\"https://main.com\">&lt;link=&quot;https://nested.com&quot;&gt;physicslab</a>&lt;/Link&gt;"};
         pltxt2htm_test_assert_equal(html, answer);

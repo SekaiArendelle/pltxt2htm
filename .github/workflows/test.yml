@@ -135,6 +135,15 @@ jobs:
         run: |
           docker build -f tests/docker/x86_64-linux-gnu-scan_build/Dockerfile -t x86_64-linux-gnu-scan-build .
 
+  x86_64-linux-gnu-clang-tidy:
+    name: x86_64-linux-gnu (static analysis, clang-tidy)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Build docker image (clang-tidy runs during build)
+        run: |
+          docker build -f tests/docker/x86_64-linux-gnu-clang-tidy/Dockerfile -t x86_64-linux-gnu-clang-tidy .
   x86_64-windows-msvc-cmd:
     strategy:
       fail-fast: false
@@ -368,8 +377,8 @@ jobs:
         run: |
           docker build -f c/docker/aarch64-apple-ios/Dockerfile --build-arg mode=release -t aarch64-apple-ios-pltxt2htm-c-release .
 
-  x86_64-linux-gnu-cxxmodule:
-    name: x86_64-linux-gnu (cxxmodule/)
+  x86_64-linux-gnu-cxxmodule-examples:
+    name: x86_64-linux-gnu (cxxmodule/examples, Clang)
     runs-on: ubuntu-latest
 
     steps:
@@ -378,7 +387,19 @@ jobs:
 
       - name: Build docker image
         run: |
-          docker build -f cxxmodule/docker/x86_64-linux-gnu/Dockerfile -t pltxt2htm-cxxmodule .
+          docker build -f cxxmodule/docker/x86_64-linux-gnu-cxxmodule-examples/Dockerfile -t pltxt2htm-cxxmodule-examples .
+
+  x86_64-linux-gnu-cxxmodule-tests:
+    name: x86_64-linux-gnu (cxxmodule/tests, GCC 16)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build docker image (tests run during build)
+        run: |
+          docker build -f cxxmodule/docker/x86_64-linux-gnu-cxxmodule-tests/Dockerfile -t pltxt2htm-cxxmodule-tests .
 
   x86_64-linux-musl-benches:
     name: x86_64-linux-musl (benches/)

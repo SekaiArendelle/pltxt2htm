@@ -192,7 +192,7 @@ int main() {
     }
 
     // Regression test: control chars inside ***...*** used to crash
-    // Control chars 0x00-0x1F/0x7F now produce InvalidU8Char (rendered as U+FFFD)
+    // Control chars 0x00-0x1F/0x7F now produce InvalidUtf8 (rendered as U+FFFD)
     // instead of being silently dropped, ensuring the sub-AST is never empty.
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"***\a***");

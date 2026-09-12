@@ -9,12 +9,15 @@ export namespace pltxt2htm {
 namespace container {
 
 using ::pltxt2htm::container::Deque;
+using ::pltxt2htm::container::Array;
+using ::pltxt2htm::container::to_array;
 using ::pltxt2htm::container::BasicStringView;
 using ::pltxt2htm::container::StringView;
 using ::pltxt2htm::container::WStringView;
 using ::pltxt2htm::container::U8StringView;
 using ::pltxt2htm::container::U16StringView;
 using ::pltxt2htm::container::U32StringView;
+using ::pltxt2htm::container::print_alias_define;
 using ::pltxt2htm::container::Expected;
 using ::pltxt2htm::container::Unexpected;
 using ::pltxt2htm::container::Optional;
@@ -23,6 +26,18 @@ using ::pltxt2htm::container::nullopt;
 using ::pltxt2htm::container::is_expected;
 using ::pltxt2htm::container::is_unexpected;
 using ::pltxt2htm::container::is_optional;
+using ::pltxt2htm::container::NonZero;
+using ::pltxt2htm::container::NonZeroU8;
+using ::pltxt2htm::container::NonZeroU16;
+using ::pltxt2htm::container::NonZeroU32;
+using ::pltxt2htm::container::NonZeroU64;
+using ::pltxt2htm::container::NonZeroUsize;
+using ::pltxt2htm::container::Vector;
+using ::pltxt2htm::container::erase;
+using ::pltxt2htm::container::erase_if;
+using ::pltxt2htm::container::operator==;
+using ::pltxt2htm::container::operator<=>;
+using ::pltxt2htm::container::swap;
 
 } // namespace container
 
@@ -69,8 +84,8 @@ using ::pltxt2htm::Ast;
 
 // basic
 using ::pltxt2htm::U8Char;
-using ::pltxt2htm::InvalidU8Char;
-using ::pltxt2htm::Text;
+using ::pltxt2htm::InvalidUtf8;
+using ::pltxt2htm::Group;
 using ::pltxt2htm::CodeFence;
 using ::pltxt2htm::Url;
 
@@ -82,7 +97,6 @@ using ::pltxt2htm::Tab;
 using ::pltxt2htm::Ampersand;
 using ::pltxt2htm::SingleQuote;
 using ::pltxt2htm::DoubleQuote;
-using ::pltxt2htm::EntityReference;
 
 // html_node
 using ::pltxt2htm::HtmlBr;
@@ -96,6 +110,8 @@ using ::pltxt2htm::HtmlH6;
 
 using ::pltxt2htm::HtmlP;
 using ::pltxt2htm::HtmlDel;
+using ::pltxt2htm::HtmlU;
+using ::pltxt2htm::HtmlS;
 using ::pltxt2htm::HtmlSup;
 using ::pltxt2htm::HtmlSub;
 using ::pltxt2htm::HtmlHr;
@@ -137,38 +153,7 @@ using ::pltxt2htm::MdAtxH3;
 using ::pltxt2htm::MdAtxH4;
 using ::pltxt2htm::MdAtxH5;
 using ::pltxt2htm::MdAtxH6;
-using ::pltxt2htm::MdEscapeBackslash;
-using ::pltxt2htm::MdEscapeExclamation;
-using ::pltxt2htm::MdEscapeDoubleQuote;
-using ::pltxt2htm::MdEscapeHash;
-using ::pltxt2htm::MdEscapeDollar;
-using ::pltxt2htm::MdEscapePercent;
-using ::pltxt2htm::MdEscapeAmpersand;
-using ::pltxt2htm::MdEscapeSingleQuote;
-using ::pltxt2htm::MdEscapeLeftParen;
-using ::pltxt2htm::MdEscapeRightParen;
-using ::pltxt2htm::MdEscapeAsterisk;
-using ::pltxt2htm::MdEscapePlus;
-using ::pltxt2htm::MdEscapeComma;
-using ::pltxt2htm::MdEscapeHyphen;
-using ::pltxt2htm::MdEscapeDot;
-using ::pltxt2htm::MdEscapeSlash;
-using ::pltxt2htm::MdEscapeColon;
-using ::pltxt2htm::MdEscapeSemicolon;
-using ::pltxt2htm::MdEscapeLessThan;
-using ::pltxt2htm::MdEscapeEquals;
-using ::pltxt2htm::MdEscapeGreaterThan;
-using ::pltxt2htm::MdEscapeQuestion;
-using ::pltxt2htm::MdEscapeAt;
-using ::pltxt2htm::MdEscapeLeftBracket;
-using ::pltxt2htm::MdEscapeRightBracket;
-using ::pltxt2htm::MdEscapeCaret;
-using ::pltxt2htm::MdEscapeUnderscore;
-using ::pltxt2htm::MdEscapeBacktick;
-using ::pltxt2htm::MdEscapeLeftBrace;
-using ::pltxt2htm::MdEscapePipe;
-using ::pltxt2htm::MdEscapeRightBrace;
-using ::pltxt2htm::MdEscapeTilde;
+using ::pltxt2htm::MdEscape;
 using ::pltxt2htm::MdHr;
 using ::pltxt2htm::MdCodeSpan1Backtick;
 using ::pltxt2htm::MdCodeSpan2Backtick;
@@ -188,7 +173,6 @@ using ::pltxt2htm::MdLatexInline;
 using ::pltxt2htm::MdLatexBlock;
 
 // physics_lab_node
-using ::pltxt2htm::PlColor;
 using ::pltxt2htm::PlA;
 using ::pltxt2htm::PlExperiment;
 using ::pltxt2htm::PlExperiments;
@@ -197,20 +181,21 @@ using ::pltxt2htm::PlDiscussions;
 using ::pltxt2htm::PlUser;
 using ::pltxt2htm::PlTrigger;
 using ::pltxt2htm::PlInternal;
-using ::pltxt2htm::PlSize;
-using ::pltxt2htm::PlVoffset;
 using ::pltxt2htm::PlExternal;
-using ::pltxt2htm::PlLink;
-using ::pltxt2htm::PlAlign;
-using ::pltxt2htm::PlMargin;
-using ::pltxt2htm::PlMark;
-using ::pltxt2htm::PlI;
-using ::pltxt2htm::PlB;
-using ::pltxt2htm::PlU;
-using ::pltxt2htm::PlS;
 using ::pltxt2htm::PlMacroProject;
 using ::pltxt2htm::PlMacroVisitor;
 using ::pltxt2htm::PlMacroAuthor;
 using ::pltxt2htm::PlMacroCoauthors;
+
+// unity_node
+using ::pltxt2htm::UnityColor;
+using ::pltxt2htm::UnitySize;
+using ::pltxt2htm::UnityVoffset;
+using ::pltxt2htm::UnityAlign;
+using ::pltxt2htm::UnityMark;
+using ::pltxt2htm::UnityMargin;
+using ::pltxt2htm::UnityLink;
+using ::pltxt2htm::UnityB;
+using ::pltxt2htm::UnityI;
 
 } // namespace pltxt2htm

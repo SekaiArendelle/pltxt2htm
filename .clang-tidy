@@ -1,3 +1,5 @@
+# clang-analyzer-cplusplus.Move does not correctly model our C++23 explicit-object
+# move assignment operators and reports their destination objects as moved-from.
 Checks: >
   modernize-use-*,
   -modernize-use-trailing-return-type,
@@ -15,10 +17,13 @@ Checks: >
   security.insecureAPI.*,
   bugprone-suspicious-*,
   bugprone-argument-comment,
-  bugprone-integer-division
+  bugprone-integer-division,
+  -clang-analyzer-cplusplus.Move
 
 HeaderFilterRegex: '.*(^|[/\\])include[/\\]pltxt2htm[/\\].*'
 SystemHeaders: false
+
+WarningsAsErrors: '*'
 
 CheckOptions:
   - key:   misc-const-correctness.TransformValues

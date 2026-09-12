@@ -14,6 +14,12 @@ parser.add_argument("--compiler", choices=("clang", "gcc", "msvc"), help="compil
 parser.add_argument("--target", help="target triplet")
 parser.add_argument("--sysroot", help="sysroot to use")
 parser.add_argument("--sanitizer", choices=("address", "undefined", "memory"))
+parser.add_argument(
+    "--cxx-standard",
+    choices=("auto", "23", "26"),
+    default="auto",
+    help="C++ standard (default: auto; C++26 for GCC 16+, otherwise C++23)",
+)
 args = parser.parse_args()
 
 if os.path.exists(BUILD_DIR) and os.path.isdir(BUILD_DIR):
@@ -34,6 +40,8 @@ if args.compiler is None:
 print(f"-- using compiler \"{args.compiler}\"")
 
 cmake_cmd: list[str] = ["cmake", "-S", TEST_DIR, "-B", BUILD_DIR]
+if args.cxx_standard != "auto":
+    cmake_cmd += [f"-DCMAKE_CXX_STANDARD={args.cxx_standard}"]
 
 if args.compiler == "msvc":
     cmake_cmd += ["-DCMAKE_CXX_COMPILER=cl"]

@@ -15,29 +15,41 @@ namespace pltxt2htm {
  * @details This enum defines all possible node types that can appear in the
  *          Abstract Syntax Tree. Each node in the AST has exactly one of these
  *          types, which determines how it should be processed and rendered.
- * @note The values are ordered with basic types first, then Physics-Lab specific
- *       tags, HTML tags, Markdown syntax, and finally escape sequences.
+ * @note The values are ordered with basic types first, then Unity rich-text tags,
+ *       Physics-Lab-specific tags, HTML tags, Markdown syntax, and finally escape
+ *       sequences.
  */
 enum class NodeKind : unsigned {
     // Character and basic text nodes
     u8char = 0, ///< Valid UTF-8 character
-    invalid_u8char, ///< Invalid UTF-8 character (replacement character)
-    text, ///< Text container node (groups characters and inline elements)
+    invalid_utf8, ///< Invalid UTF-8 input (replacement character)
+    group, ///< Transparent container node (groups characters and inline elements)
     url, ///< Auto-detected URL link: https://example.com
 
     // Whitespace and special characters
     line_break, ///< Line break character (\n)
+    // TODO: Distinguish U+0020 from U+00A0 after testing both behaviors in Unity TextMeshPro.
+    // Both currently render as non-breaking spaces to match Physics-Lab.
     space, ///< Space character (will be rendered as &nbsp; in HTML)
     ampersand, ///< Ampersand character (&) - escaped to &amp;
     double_quote, ///< Double quote character (") - escaped to &quot;
     single_quote, ///< Single quote character (') - escaped to &apos;
     less_than, ///< Less-than character (<) - escaped to &lt;
     greater_than, ///< Greater-than character (>) - escaped to &gt;
-    entity_reference, ///< HTML entity reference: &amp; name &amp;; e.g. &amp;quot;, &amp;amp;, &amp;#38;
     tab, ///< Tab character - rendered as multiple &nbsp; entities
 
-    // Physics-Lab specific formatting tags
-    pl_color, ///< Physics-Lab color tag: &lt;color=value&gt;...&lt;/color&gt;
+    // Unity rich-text tags
+    unity_color, ///< Unity text color: &lt;color=value&gt;...&lt;/color&gt;
+    unity_size, ///< Unity font size: &lt;size=value&gt;...&lt;/size&gt;
+    unity_voffset, ///< Unity vertical offset: &lt;voffset=value&gt;...&lt;/voffset&gt;
+    unity_align, ///< Unity text alignment: &lt;align=value&gt;...&lt;/align&gt;
+    unity_mark, ///< Unity text highlight: &lt;mark=Xxx&gt;...&lt;/mark&gt;
+    unity_margin, ///< Unity text margin: &lt;margin left=v right=v&gt;...&lt;/margin&gt;
+    unity_link, ///< Unity link: &lt;link=&quot;url&quot;&gt;...&lt;/link&gt;
+    unity_b, ///< Unity bold text: &lt;b&gt;...&lt;/b&gt;; also used for Markdown and HTML strong emphasis
+    unity_i, ///< Unity italic text: &lt;i&gt;...&lt;/i&gt;; also used for Markdown and HTML emphasis
+
+    // Physics-Lab-specific tags
     pl_a, ///< Physics-Lab anchor tag: &lt;a&gt;...&lt;/a&gt; (styled like a link)
     pl_experiment, ///< Physics-Lab experiment reference: &lt;experiment=id&gt;...&lt;/experiment&gt;
     pl_discussion, ///< Physics-Lab discussion reference: &lt;discussion=id&gt;...&lt;/discussion&gt;
@@ -46,22 +58,14 @@ enum class NodeKind : unsigned {
     pl_discussions,
     ///< Physics-Lab discussion list-entry reference: &lt;discussions=params&gt;...&lt;/discussions&gt;
     pl_user, ///< Physics-Lab user reference: &lt;user=id&gt;...&lt;/user&gt;
-    pl_size, ///< Physics-Lab font size: &lt;size=value&gt;...&lt;/size&gt;
-    pl_voffset, ///< Physics-Lab vertical offset (Unity TMP rich text): &lt;voffset=value&gt;...&lt;/voffset&gt;
-    pl_align, ///< Text alignment (Unity TMP rich text): &lt;align=value&gt;...&lt;/align&gt;
-    pl_mark, ///< Physics-Lab mark (TMP rich text): &lt;mark=Xxx&gt;...&lt;/mark&gt;
-    pl_margin, ///< Physics-Lab margin (Unity TMP rich text): &lt;margin left=v right=v&gt;...&lt;/margin&gt;
     pl_external, ///< Physics-Lab external link: &lt;external=url&gt;...&lt;/external&gt;
-    pl_link, ///< Physics-Lab link (Unity TextMeshPro rich text): &lt;link=&quot;url&quot;&gt;...&lt;/link&gt;
     pl_trigger, ///< Physics-Lab trigger tag: &lt;trigger=value&gt;...&lt;/trigger&gt; (legacy NetLogo-style interaction
                 ///< tag)
     pl_internal, ///< Physics-Lab internal tag: &lt;internal=value&gt;...&lt;/internal&gt; (rendered verbatim)
 
-    // Text formatting (shared across Physics-Lab, HTML, and Markdown)
-    pl_b, ///< Bold text: &lt;b&gt;...&lt;/b&gt;, Markdown double emphasis, &lt;strong&gt; in HTML
-    pl_i, ///< Italic text: &lt;i&gt;...&lt;/i&gt;, Markdown single emphasis, &lt;em&gt; in HTML
-    pl_u, ///< Underline text: &lt;u&gt;...&lt;/u&gt; (Unity TextMeshPro rich text), &lt;u&gt; in HTML
-    pl_s, ///< Strikethrough text: &lt;s&gt;...&lt;/s&gt; (Unity TextMeshPro rich text), &lt;s&gt; in HTML
+    // Text formatting shared across HTML and Unity rich text
+    html_u, ///< Underline text: &lt;u&gt;...&lt;/u&gt; (Unity TextMeshPro rich text), &lt;u&gt; in HTML
+    html_s, ///< Strikethrough text: &lt;s&gt;...&lt;/s&gt; (Unity TextMeshPro rich text), &lt;s&gt; in HTML
 
     // Physics-Lab specific macros
     pl_macro_project, // {Project}
@@ -127,39 +131,8 @@ enum class NodeKind : unsigned {
     md_atx_h5, ///< Markdown level 5 heading: ##### Heading
     md_atx_h6, ///< Markdown level 6 heading: ###### Heading
 
-    // Markdown escape sequences (backslash-prefixed characters)
-    md_escape_backslash,
-    md_escape_exclamation, ///< Escaped exclamation: \\!
-    md_escape_double_quote, ///< Escaped double quote: \\"
-    md_escape_hash, ///< Escaped hash: \\#
-    md_escape_dollar, ///< Escaped dollar: \\$
-    md_escape_percent, ///< Escaped percent: \\%
-    md_escape_ampersand, ///< Escaped ampersand: \\&
-    md_escape_single_quote, ///< Escaped single quote: \\'
-    md_escape_left_paren, ///< Escaped left parenthesis: \\(
-    md_escape_right_paren, ///< Escaped right parenthesis: \\)
-    md_escape_asterisk, ///< Escaped asterisk: \\*
-    md_escape_plus, ///< Escaped plus: \\+
-    md_escape_comma, ///< Escaped comma: \\,
-    md_escape_hyphen, ///< Escaped hyphen: \\-
-    md_escape_dot, ///< Escaped dot: \\.
-    md_escape_slash, ///< Escaped slash: \\/
-    md_escape_colon, ///< Escaped colon: \\:
-    md_escape_semicolon, ///< Escaped semicolon: \\;
-    md_escape_less_than, ///< Escaped less-than: \\<
-    md_escape_equals, ///< Escaped equals: \\=
-    md_escape_greater_than, ///< Escaped greater-than: \\>
-    md_escape_question, ///< Escaped question mark: \\?
-    md_escape_at, ///< Escaped at symbol: \\@
-    md_escape_left_bracket, ///< Escaped left bracket: \\[
-    md_escape_right_bracket, ///< Escaped right bracket: \\]
-    md_escape_caret, ///< Escaped caret: \\^
-    md_escape_underscore, ///< Escaped underscore: \\_
-    md_escape_backtick, ///< Escaped backtick: \\`
-    md_escape_left_brace, ///< Escaped left brace: \\{
-    md_escape_pipe, ///< Escaped pipe: \\|
-    md_escape_right_brace, ///< Escaped right brace: \\}
-    md_escape_tilde, ///< Escaped tilde: \\~
+    // Markdown escape sequence (backslash-prefixed ASCII punctuation)
+    md_escape,
     // Markdown thematic elements
     md_hr, ///< Thematic break/horizontal rule: ---, ***, ___
 
@@ -199,7 +172,7 @@ namespace details {
 
 [[nodiscard]]
 constexpr auto is_equal_sign_tag_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
-    return node_type == ::pltxt2htm::NodeKind::pl_color || node_type == ::pltxt2htm::NodeKind::pl_experiment ||
+    return node_type == ::pltxt2htm::NodeKind::unity_color || node_type == ::pltxt2htm::NodeKind::pl_experiment ||
            node_type == ::pltxt2htm::NodeKind::pl_discussion || node_type == ::pltxt2htm::NodeKind::pl_experiments ||
            node_type == ::pltxt2htm::NodeKind::pl_discussions || node_type == ::pltxt2htm::NodeKind::pl_user ||
            node_type == ::pltxt2htm::NodeKind::pl_trigger || node_type == ::pltxt2htm::NodeKind::pl_internal;
@@ -207,7 +180,7 @@ constexpr auto is_equal_sign_tag_type(::pltxt2htm::NodeKind const node_type) noe
 
 [[nodiscard]]
 constexpr auto is_em_like(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
-    return node_type == ::pltxt2htm::NodeKind::html_em || node_type == ::pltxt2htm::NodeKind::pl_i ||
+    return node_type == ::pltxt2htm::NodeKind::html_em || node_type == ::pltxt2htm::NodeKind::unity_i ||
            node_type == ::pltxt2htm::NodeKind::md_single_emphasis_asterisk ||
            node_type == ::pltxt2htm::NodeKind::md_single_emphasis_underscore ||
            node_type == ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk ||
@@ -216,7 +189,7 @@ constexpr auto is_em_like(::pltxt2htm::NodeKind const node_type) noexcept -> boo
 
 [[nodiscard]]
 constexpr auto is_strong_like(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
-    return node_type == ::pltxt2htm::NodeKind::html_strong || node_type == ::pltxt2htm::NodeKind::pl_b ||
+    return node_type == ::pltxt2htm::NodeKind::html_strong || node_type == ::pltxt2htm::NodeKind::unity_b ||
            node_type == ::pltxt2htm::NodeKind::md_double_emphasis_asterisk ||
            node_type == ::pltxt2htm::NodeKind::md_double_emphasis_underscore ||
            node_type == ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk ||
@@ -240,7 +213,7 @@ constexpr auto is_inline_content_frame_kind(::pltxt2htm::NodeKind const node_typ
  */
 [[nodiscard]]
 constexpr auto is_url_link_tag_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
-    return node_type == ::pltxt2htm::NodeKind::pl_link || node_type == ::pltxt2htm::NodeKind::pl_external ||
+    return node_type == ::pltxt2htm::NodeKind::unity_link || node_type == ::pltxt2htm::NodeKind::pl_external ||
            node_type == ::pltxt2htm::NodeKind::md_link || node_type == ::pltxt2htm::NodeKind::html_a;
 }
 
