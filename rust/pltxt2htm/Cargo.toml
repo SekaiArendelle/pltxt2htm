@@ -2,7 +2,12 @@
 name = "pltxt2htm"
 version = "0.26.0"
 edition = "2021"
+autotests = false
 
 [dependencies]
 libc = "0.2"
 libpltxt2htm-sys = { path = "../libpltxt2htm-sys" }
+
+[[test]]
+name = "integration"
+path = "tests/main.rs"
