@@ -15,6 +15,18 @@
 
 using IntDeque = ::pltxt2htm::container::Deque<int>;
 
+struct ThrowingCopy {
+    ThrowingCopy() noexcept = default;
+
+    ThrowingCopy(ThrowingCopy const&) noexcept(false) {
+    }
+
+    ThrowingCopy(ThrowingCopy&&) noexcept = default;
+    auto operator=(this ThrowingCopy&, ThrowingCopy const&) noexcept -> ThrowingCopy& = default;
+    auto operator=(this ThrowingCopy&, ThrowingCopy&&) noexcept -> ThrowingCopy& = default;
+    ~ThrowingCopy() noexcept = default;
+};
+
 static_assert(::std::same_as<IntDeque::allocator_type, ::fast_io::native_global_allocator>);
 static_assert(::std::random_access_iterator<IntDeque::iterator>);
 static_assert(::std::random_access_iterator<IntDeque::const_iterator>);
@@ -22,6 +34,22 @@ static_assert(::std::same_as<::std::iter_reference_t<IntDeque::iterator>, int&>)
 static_assert(::std::same_as<::std::iter_reference_t<IntDeque::const_iterator>, int const&>);
 static_assert(::std::is_nothrow_move_constructible_v<IntDeque>);
 static_assert(::std::is_nothrow_move_assignable_v<IntDeque>);
+static_assert(::std::is_nothrow_constructible_v<IntDeque, ::std::size_t>);
+static_assert(::std::is_nothrow_constructible_v<IntDeque, ::std::size_t, int const&>);
+static_assert(::std::is_nothrow_constructible_v<IntDeque, int const*, int const*>);
+static_assert(::std::is_nothrow_copy_constructible_v<IntDeque>);
+static_assert(::std::is_nothrow_copy_assignable_v<IntDeque>);
+static_assert(!::std::is_copy_constructible_v<::pltxt2htm::container::Deque<ThrowingCopy>>);
+static_assert(noexcept(::std::declval<IntDeque&>().emplace_back(1)));
+static_assert(noexcept(::std::declval<IntDeque&>().emplace_front(1)));
+static_assert(noexcept(::std::declval<IntDeque&>().push_back(1)));
+static_assert(noexcept(::std::declval<IntDeque&>().push_front(1)));
+static_assert(noexcept(::std::declval<IntDeque&>().resize(1)));
+static_assert(noexcept(::std::declval<IntDeque&>().resize(1, 2)));
+static_assert(noexcept(::std::declval<IntDeque&>().emplace(::std::declval<IntDeque::const_iterator>(), 1)));
+static_assert(noexcept(::std::declval<IntDeque&>().insert(::std::declval<IntDeque::const_iterator>(), 1)));
+static_assert(noexcept(::std::declval<IntDeque&>().erase(::std::declval<IntDeque::const_iterator>())));
+static_assert(noexcept(::std::declval<IntDeque&>().assign(::std::declval<int const*>(), ::std::declval<int const*>())));
 
 consteval auto test_constexpr_deque() -> bool {
     IntDeque values{};
@@ -207,15 +235,16 @@ int main() {
         auto tracked_copy{tracked};
         tracked_copy = tracked;
         pltxt2htm_test_assert_true(::pltxt2htm_test::TrackedValue::alive == 100);
+        {
+            auto move_source{tracked};
+            ::pltxt2htm::container::Deque<::pltxt2htm_test::TrackedValue> move_target{};
+            move_target.emplace_back(500);
+            move_target = ::std::move(move_source);
+            pltxt2htm_test_assert_true(move_target == tracked);
+        }
+        pltxt2htm_test_assert_true(::pltxt2htm_test::TrackedValue::alive == 100);
     }
     pltxt2htm_test_assert_true(::pltxt2htm_test::TrackedValue::alive == 0);
-
-    IntDeque erasable{1, 2, 1, 3, 1, 4};
-    pltxt2htm_test_assert_true(::pltxt2htm::container::erase(erasable, 1) == 3);
-    pltxt2htm_test_assert_true((erasable == IntDeque{2, 3, 4}));
-    pltxt2htm_test_assert_true(
-        ::pltxt2htm::container::erase_if(erasable, [](int value) noexcept { return value % 2 == 0; }) == 2);
-    pltxt2htm_test_assert_true((erasable == IntDeque{3}));
 
     return 0;
 }

@@ -30,7 +30,7 @@ namespace pltxt2htm::container {
  *
  * Elements are stored in independently allocated fixed-size blocks. Growing the block map
  * moves only block pointers, so references and pointers to existing elements remain valid
- * across push_front and push_back.
+ * across push_front and push_back. Element and iterator operations used by Deque must not throw.
  */
 template<typename T, typename Allocator = ::fast_io::native_global_allocator>
 class Deque {
@@ -50,6 +50,9 @@ private:
 
     static_assert(!element_allocator::has_status,
                   "Deque requires a stateless fast_io allocator; stateful allocators need an external handle");
+    static_assert(::std::is_nothrow_default_constructible_v<allocator_type>,
+                  "Deque requires a nothrow-default-constructible allocator");
+    static_assert(::std::is_nothrow_destructible_v<value_type>, "Deque requires nothrow-destructible elements");
 
     static consteval auto calculate_elements_per_block() noexcept -> size_type {
         constexpr size_type target_block_bytes{512};
@@ -73,49 +76,21 @@ private:
     size_type first_offset{};
     size_type element_count{};
 
-    class ConstructionGuard {
-        Deque* owner{};
-
-    public:
-        constexpr explicit ConstructionGuard(Deque& owner_) noexcept
-            : owner{::std::addressof(owner_)} {
+    template<typename InputIterator, typename Sentinel>
+    [[nodiscard]]
+    static consteval auto is_nothrow_input_range() noexcept -> bool {
+        if constexpr (!requires(InputIterator& iterator, Sentinel& sentinel) {
+                          { *iterator } noexcept;
+                          { ++iterator } noexcept;
+                          { static_cast<bool>(iterator != sentinel) } noexcept -> ::std::same_as<bool>;
+                      }) {
+            return false;
         }
-
-        ConstructionGuard(ConstructionGuard const&) = delete;
-        auto operator=(ConstructionGuard const&) -> ConstructionGuard& = delete;
-
-        constexpr ~ConstructionGuard() noexcept {
-            if (this->owner != nullptr) {
-                this->owner->destroy_storage();
-            }
-        }
-
-        constexpr void release(this ConstructionGuard& self) noexcept {
-            self.owner = nullptr;
-        }
-    };
-
-    class BlockGuard {
-        pointer block{};
-
-    public:
-        constexpr explicit BlockGuard(pointer block_) noexcept
-            : block{block_} {
-        }
-
-        BlockGuard(BlockGuard const&) = delete;
-        auto operator=(BlockGuard const&) -> BlockGuard& = delete;
-
-        constexpr ~BlockGuard() noexcept {
-            if (this->block != nullptr) {
-                element_allocator::deallocate_n(this->block, elements_per_block);
-            }
-        }
-
-        constexpr void release(this BlockGuard& self) noexcept {
-            self.block = nullptr;
-        }
-    };
+        return ::std::is_nothrow_copy_constructible_v<InputIterator> &&
+               ::std::is_nothrow_move_constructible_v<InputIterator> &&
+               ::std::is_nothrow_copy_constructible_v<Sentinel> && ::std::is_nothrow_move_constructible_v<Sentinel> &&
+               ::std::is_nothrow_constructible_v<value_type, ::std::iter_reference_t<InputIterator>>;
+    }
 
     [[nodiscard]]
     constexpr auto allocated_block_count(this Deque const& self) noexcept -> size_type {
@@ -236,20 +211,6 @@ private:
         self.blocks = nullptr;
         self.map_capacity = 0;
         self.first_block = 0;
-    }
-
-    constexpr void take_storage(this Deque& self, Deque& other) noexcept {
-        self.blocks = other.blocks;
-        self.map_capacity = other.map_capacity;
-        self.first_block = other.first_block;
-        self.first_offset = other.first_offset;
-        self.element_count = other.element_count;
-
-        other.blocks = nullptr;
-        other.map_capacity = 0;
-        other.first_block = 0;
-        other.first_offset = 0;
-        other.element_count = 0;
     }
 
 public:
@@ -379,60 +340,57 @@ public:
 
     constexpr Deque() noexcept = default;
 
-    constexpr explicit Deque(size_type count)
-        requires ::std::default_initializable<value_type>
+    constexpr explicit Deque(size_type count) noexcept
+        requires ::std::is_nothrow_default_constructible_v<value_type>
     {
-        ConstructionGuard guard{*this};
         for (size_type index{}; index != count; ++index) {
             this->emplace_back();
         }
-        guard.release();
     }
 
-    constexpr Deque(size_type count, const_reference value)
-        requires ::std::copy_constructible<value_type>
+    constexpr Deque(size_type count, const_reference value) noexcept
+        requires ::std::is_nothrow_copy_constructible_v<value_type>
     {
-        ConstructionGuard guard{*this};
         for (size_type index{}; index != count; ++index) {
             this->emplace_back(value);
         }
-        guard.release();
     }
 
     template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
-    constexpr Deque(InputIterator first, Sentinel last) {
-        ConstructionGuard guard{*this};
+        requires (is_nothrow_input_range<InputIterator, Sentinel>())
+    constexpr Deque(InputIterator first, Sentinel last) noexcept {
         for (; first != last; ++first) {
             this->emplace_back(*first);
         }
-        guard.release();
     }
 
-    constexpr Deque(::std::initializer_list<value_type> values)
-        requires ::std::copy_constructible<value_type>
+    constexpr Deque(::std::initializer_list<value_type> values) noexcept
+        requires ::std::is_nothrow_copy_constructible_v<value_type>
         : Deque(values.begin(), values.end()) {
     }
 
-    constexpr Deque(Deque const& other)
-        requires ::std::copy_constructible<value_type>
+    constexpr Deque(Deque const& other) noexcept
+        requires ::std::is_nothrow_copy_constructible_v<value_type>
     {
-        ConstructionGuard guard{*this};
         for (const_reference value : other) {
             this->emplace_back(value);
         }
-        guard.release();
     }
 
-    constexpr Deque(Deque&& other) noexcept {
-        this->take_storage(other);
+    constexpr Deque(Deque&& other) noexcept
+        : blocks{::std::exchange(other.blocks, nullptr)},
+          map_capacity{::std::exchange(other.map_capacity, 0)},
+          first_block{::std::exchange(other.first_block, 0)},
+          first_offset{::std::exchange(other.first_offset, 0)},
+          element_count{::std::exchange(other.element_count, 0)} {
     }
 
     constexpr ~Deque() noexcept {
         this->destroy_storage();
     }
 
-    constexpr auto operator=(this Deque& self, Deque const& other) -> Deque&
-        requires (::std::copy_constructible<value_type> && ::std::is_nothrow_destructible_v<value_type>)
+    constexpr auto operator=(this Deque& self, Deque const& other) noexcept -> Deque&
+        requires ::std::is_nothrow_copy_constructible_v<value_type>
     {
         if (::std::addressof(self) == ::std::addressof(other)) [[unlikely]] {
             return self;
@@ -446,13 +404,12 @@ public:
         if (::std::addressof(self) == ::std::addressof(other)) [[unlikely]] {
             return self;
         }
-        self.destroy_storage();
-        self.take_storage(other);
+        self.swap(other);
         return self;
     }
 
-    constexpr auto operator=(this Deque& self, ::std::initializer_list<value_type> values) -> Deque&
-        requires (::std::copy_constructible<value_type> && ::std::is_nothrow_destructible_v<value_type>)
+    constexpr auto operator=(this Deque& self, ::std::initializer_list<value_type> values) noexcept -> Deque&
+        requires ::std::is_nothrow_copy_constructible_v<value_type>
     {
         Deque copy{values};
         self.swap(copy);
@@ -639,9 +596,8 @@ public:
     }
 
     template<typename... Arguments>
-        requires ::std::constructible_from<value_type, Arguments...>
-    constexpr auto emplace_back(this Deque& self, Arguments&&... arguments) noexcept(
-        ::std::is_nothrow_constructible_v<value_type, Arguments...>) -> reference {
+        requires ::std::is_nothrow_constructible_v<value_type, Arguments...>
+    constexpr auto emplace_back(this Deque& self, Arguments&&... arguments) noexcept -> reference {
         self.ensure_can_grow();
         size_type const insertion_offset{self.first_offset + self.element_count};
         size_type const block_offset{insertion_offset % elements_per_block};
@@ -651,11 +607,9 @@ public:
             self.ensure_back_slot();
             size_type const map_index{self.first_block + self.allocated_block_count()};
             pointer const new_block{element_allocator::allocate(elements_per_block)};
-            BlockGuard guard{new_block};
             pointer const result{::std::construct_at(new_block, ::std::forward<Arguments>(arguments)...)};
             self.blocks[map_index] = new_block;
             ++self.element_count;
-            guard.release();
             return *result;
         }
 
@@ -666,9 +620,8 @@ public:
     }
 
     template<typename... Arguments>
-        requires ::std::constructible_from<value_type, Arguments...>
-    constexpr auto emplace_front(this Deque& self, Arguments&&... arguments) noexcept(
-        ::std::is_nothrow_constructible_v<value_type, Arguments...>) -> reference {
+        requires ::std::is_nothrow_constructible_v<value_type, Arguments...>
+    constexpr auto emplace_front(this Deque& self, Arguments&&... arguments) noexcept -> reference {
         self.ensure_can_grow();
         if (self.empty()) {
             return self.emplace_back(::std::forward<Arguments>(arguments)...);
@@ -684,36 +637,36 @@ public:
 
         self.ensure_front_slot();
         pointer const new_block{element_allocator::allocate(elements_per_block)};
-        BlockGuard guard{new_block};
         pointer const result{
             ::std::construct_at(new_block + elements_per_block - 1, ::std::forward<Arguments>(arguments)...)};
         --self.first_block;
         self.blocks[self.first_block] = new_block;
         self.first_offset = elements_per_block - 1;
         ++self.element_count;
-        guard.release();
         return *result;
     }
 
-    constexpr void push_back(this Deque& self, const_reference value)
-        requires ::std::copy_constructible<value_type>
+    constexpr void push_back(this Deque& self, const_reference value) noexcept
+        requires ::std::is_nothrow_copy_constructible_v<value_type>
     {
         self.emplace_back(value);
     }
 
-    constexpr void push_back(this Deque& self,
-                             value_type&& value) noexcept(::std::is_nothrow_move_constructible_v<value_type>) {
+    constexpr void push_back(this Deque& self, value_type&& value) noexcept
+        requires ::std::is_nothrow_move_constructible_v<value_type>
+    {
         self.emplace_back(::std::move(value));
     }
 
-    constexpr void push_front(this Deque& self, const_reference value)
-        requires ::std::copy_constructible<value_type>
+    constexpr void push_front(this Deque& self, const_reference value) noexcept
+        requires ::std::is_nothrow_copy_constructible_v<value_type>
     {
         self.emplace_front(value);
     }
 
-    constexpr void push_front(this Deque& self,
-                              value_type&& value) noexcept(::std::is_nothrow_move_constructible_v<value_type>) {
+    constexpr void push_front(this Deque& self, value_type&& value) noexcept
+        requires ::std::is_nothrow_move_constructible_v<value_type>
+    {
         self.emplace_front(::std::move(value));
     }
 
@@ -793,8 +746,8 @@ public:
         }
     }
 
-    constexpr void resize(this Deque& self, size_type count)
-        requires ::std::default_initializable<value_type>
+    constexpr void resize(this Deque& self, size_type count) noexcept
+        requires ::std::is_nothrow_default_constructible_v<value_type>
     {
         while (self.element_count > count) {
             self.pop_back_unchecked();
@@ -804,8 +757,8 @@ public:
         }
     }
 
-    constexpr void resize(this Deque& self, size_type count, const_reference value)
-        requires ::std::copy_constructible<value_type>
+    constexpr void resize(this Deque& self, size_type count, const_reference value) noexcept
+        requires ::std::is_nothrow_copy_constructible_v<value_type>
     {
         while (self.element_count > count) {
             self.pop_back_unchecked();
@@ -816,9 +769,9 @@ public:
     }
 
     template<typename... Arguments>
-        requires (::std::constructible_from<value_type, Arguments...> && ::std::is_move_constructible_v<value_type> &&
-                  ::std::is_move_assignable_v<value_type>)
-    constexpr auto emplace(this Deque& self, const_iterator position, Arguments&&... arguments) -> iterator {
+        requires (::std::is_nothrow_constructible_v<value_type, Arguments...> &&
+                  ::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_move_assignable_v<value_type>)
+    constexpr auto emplace(this Deque& self, const_iterator position, Arguments&&... arguments) noexcept -> iterator {
         size_type const index{position.position};
         if (index == 0) {
             self.emplace_front(::std::forward<Arguments>(arguments)...);
@@ -847,22 +800,23 @@ public:
         return self.begin() + static_cast<difference_type>(index);
     }
 
-    constexpr auto insert(this Deque& self, const_iterator position, const_reference value) -> iterator
-        requires (::std::copy_constructible<value_type> && ::std::is_move_constructible_v<value_type> &&
-                  ::std::is_move_assignable_v<value_type>)
+    constexpr auto insert(this Deque& self, const_iterator position, const_reference value) noexcept -> iterator
+        requires (::std::is_nothrow_copy_constructible_v<value_type> &&
+                  ::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_move_assignable_v<value_type>)
     {
         return self.emplace(position, value);
     }
 
-    constexpr auto insert(this Deque& self, const_iterator position, value_type&& value) -> iterator
-        requires (::std::is_move_constructible_v<value_type> && ::std::is_move_assignable_v<value_type>)
+    constexpr auto insert(this Deque& self, const_iterator position, value_type&& value) noexcept -> iterator
+        requires (::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_move_assignable_v<value_type>)
     {
         return self.emplace(position, ::std::move(value));
     }
 
-    constexpr auto insert(this Deque& self, const_iterator position, size_type count, const_reference value) -> iterator
-        requires (::std::copy_constructible<value_type> && ::std::is_move_constructible_v<value_type> &&
-                  ::std::is_move_assignable_v<value_type>)
+    constexpr auto insert(this Deque& self, const_iterator position, size_type count, const_reference value) noexcept
+        -> iterator
+        requires (::std::is_nothrow_copy_constructible_v<value_type> &&
+                  ::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_move_assignable_v<value_type>)
     {
         size_type const index{position.position};
         if (count == 0) {
@@ -876,8 +830,10 @@ public:
     }
 
     template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
-        requires (::std::is_move_constructible_v<value_type> && ::std::is_move_assignable_v<value_type>)
-    constexpr auto insert(this Deque& self, const_iterator position, InputIterator first, Sentinel last) -> iterator {
+        requires (is_nothrow_input_range<InputIterator, Sentinel>() &&
+                  ::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_move_assignable_v<value_type>)
+    constexpr auto insert(this Deque& self, const_iterator position, InputIterator first, Sentinel last) noexcept
+        -> iterator {
         size_type const index{position.position};
         Deque values{first, last};
         size_type inserted{};
@@ -888,22 +844,22 @@ public:
         return self.begin() + static_cast<difference_type>(index);
     }
 
-    constexpr auto insert(this Deque& self, const_iterator position, ::std::initializer_list<value_type> values)
-        -> iterator
-        requires (::std::copy_constructible<value_type> && ::std::is_move_constructible_v<value_type> &&
-                  ::std::is_move_assignable_v<value_type>)
+    constexpr auto insert(this Deque& self, const_iterator position,
+                          ::std::initializer_list<value_type> values) noexcept -> iterator
+        requires (::std::is_nothrow_copy_constructible_v<value_type> &&
+                  ::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_move_assignable_v<value_type>)
     {
         return self.insert(position, values.begin(), values.end());
     }
 
     constexpr auto erase(this Deque& self, const_iterator position) noexcept -> iterator
-        requires (::std::is_move_assignable_v<value_type>)
+        requires ::std::is_nothrow_move_assignable_v<value_type>
     {
         return self.erase(position, position + 1);
     }
 
     constexpr auto erase(this Deque& self, const_iterator first, const_iterator last) noexcept -> iterator
-        requires (::std::is_move_assignable_v<value_type>)
+        requires ::std::is_nothrow_move_assignable_v<value_type>
     {
         size_type const first_index{first.position};
         size_type const last_index{last.position};
@@ -932,32 +888,28 @@ public:
         return self.begin() + static_cast<difference_type>(first_index);
     }
 
-    constexpr void assign(this Deque& self, size_type count, const_reference value)
-        requires (::std::copy_constructible<value_type> && ::std::is_nothrow_destructible_v<value_type>)
+    constexpr void assign(this Deque& self, size_type count, const_reference value) noexcept
+        requires ::std::is_nothrow_copy_constructible_v<value_type>
     {
         Deque replacement{count, value};
         self.swap(replacement);
     }
 
     template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
-    constexpr void assign(this Deque& self, InputIterator first, Sentinel last)
-        requires ::std::is_nothrow_destructible_v<value_type>
-    {
+        requires (is_nothrow_input_range<InputIterator, Sentinel>())
+    constexpr void assign(this Deque& self, InputIterator first, Sentinel last) noexcept {
         Deque replacement{first, last};
         self.swap(replacement);
     }
 
-    constexpr void assign(this Deque& self, ::std::initializer_list<value_type> values)
-        requires (::std::copy_constructible<value_type> && ::std::is_nothrow_destructible_v<value_type>)
+    constexpr void assign(this Deque& self, ::std::initializer_list<value_type> values) noexcept
+        requires ::std::is_nothrow_copy_constructible_v<value_type>
     {
         Deque replacement{values};
         self.swap(replacement);
     }
 
     constexpr void swap(this Deque& self, Deque& other) noexcept {
-        if (::std::addressof(self) == ::std::addressof(other)) {
-            return;
-        }
         ::std::swap(self.blocks, other.blocks);
         ::std::swap(self.map_capacity, other.map_capacity);
         ::std::swap(self.first_block, other.first_block);
@@ -973,16 +925,21 @@ template<typename T>
 Deque(::std::initializer_list<T>) -> Deque<T>;
 
 template<typename T, typename LeftAllocator, typename RightAllocator>
+    requires requires(T const& left, T const& right) {
+        { static_cast<bool>(left == right) } noexcept -> ::std::same_as<bool>;
+    }
 [[nodiscard]]
 constexpr auto operator==(Deque<T, LeftAllocator> const& left, Deque<T, RightAllocator> const& right) noexcept -> bool {
     return left.size() == right.size() && ::std::equal(left.begin(), left.end(), right.begin());
 }
 
 template<typename T, typename LeftAllocator, typename RightAllocator>
-    requires ::std::three_way_comparable<T>
+    requires (::std::three_way_comparable<T> &&
+              requires(T const& left, T const& right) {
+                  { ::std::compare_three_way{}(left, right) } noexcept;
+              })
 [[nodiscard]]
-constexpr auto operator<=>(Deque<T, LeftAllocator> const& left, Deque<T, RightAllocator> const& right) noexcept(
-    noexcept(::std::compare_three_way{}(::std::declval<T const&>(), ::std::declval<T const&>()))) {
+constexpr auto operator<=>(Deque<T, LeftAllocator> const& left, Deque<T, RightAllocator> const& right) noexcept {
     return ::std::lexicographical_compare_three_way(left.begin(), left.end(), right.begin(), right.end(),
                                                     ::std::compare_three_way{});
 }
@@ -990,30 +947,6 @@ constexpr auto operator<=>(Deque<T, LeftAllocator> const& left, Deque<T, RightAl
 template<typename T, typename Allocator>
 constexpr void swap(Deque<T, Allocator>& left, Deque<T, Allocator>& right) noexcept {
     left.swap(right);
-}
-
-template<typename T, typename Allocator, typename U>
-constexpr auto erase(Deque<T, Allocator>& container, U const& value) -> typename Deque<T, Allocator>::size_type {
-    typename Deque<T, Allocator>::size_type const old_size{container.size()};
-    auto iterator{container.begin()};
-    while (iterator != container.end()) {
-        if (*iterator == value) {
-            iterator = container.erase(iterator);
-        }
-        else {
-            ++iterator;
-        }
-    }
-    return old_size - container.size();
-}
-
-template<typename T, typename Allocator, typename Predicate>
-constexpr auto erase_if(Deque<T, Allocator>& container, Predicate predicate) ->
-    typename Deque<T, Allocator>::size_type {
-    typename Deque<T, Allocator>::size_type const old_size{container.size()};
-    auto first_removed{::std::remove_if(container.begin(), container.end(), predicate)};
-    container.erase(first_removed, container.end());
-    return old_size - container.size();
 }
 
 } // namespace pltxt2htm::container
