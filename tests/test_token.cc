@@ -1,6 +1,6 @@
 #include <concepts>
-#include <fast_io/fast_io_dsal/vector.h>
 #include <pltxt2htm/container/string.hh>
+#include <pltxt2htm/container/vector.hh>
 
 #include "precompile.hh"
 
@@ -9,7 +9,7 @@
 int main() {
     static_assert(::std::movable<::pltxt2htm::PlTxtNode<::pltxt2htm::Contracts::quick_enforce>>);
 
-    ::fast_io::vector<::pltxt2htm::PlTxtNode<::pltxt2htm::Contracts::quick_enforce>> arr{};
+    ::pltxt2htm::container::Vector<::pltxt2htm::PlTxtNode<::pltxt2htm::Contracts::quick_enforce>> arr{};
     arr.emplace_back(::pltxt2htm::U8Char{u8'a'});
     arr.emplace_back(::pltxt2htm::UnityColor<::pltxt2htm::Contracts::quick_enforce>{
         ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::pltxt2htm::container::U8String{u8"red"}});
@@ -18,10 +18,14 @@ int main() {
     arr.emplace_back(::pltxt2htm::PlDiscussion<::pltxt2htm::Contracts::quick_enforce>{
         ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::pltxt2htm::container::U8String{u8"123"}});
 
-    pltxt2htm_test_assert_true(arr[0].get_node_kind() == ::pltxt2htm::NodeKind::u8char);
-    pltxt2htm_test_assert_true(arr[1].get_node_kind() == ::pltxt2htm::NodeKind::unity_color);
-    pltxt2htm_test_assert_true(arr[2].get_node_kind() == ::pltxt2htm::NodeKind::pl_experiment);
-    pltxt2htm_test_assert_true(arr[3].get_node_kind() == ::pltxt2htm::NodeKind::pl_discussion);
+    pltxt2htm_test_assert_true(arr.template index<::pltxt2htm::Contracts::quick_enforce>(0).get_node_kind() ==
+                               ::pltxt2htm::NodeKind::u8char);
+    pltxt2htm_test_assert_true(arr.template index<::pltxt2htm::Contracts::quick_enforce>(1).get_node_kind() ==
+                               ::pltxt2htm::NodeKind::unity_color);
+    pltxt2htm_test_assert_true(arr.template index<::pltxt2htm::Contracts::quick_enforce>(2).get_node_kind() ==
+                               ::pltxt2htm::NodeKind::pl_experiment);
+    pltxt2htm_test_assert_true(arr.template index<::pltxt2htm::Contracts::quick_enforce>(3).get_node_kind() ==
+                               ::pltxt2htm::NodeKind::pl_discussion);
 
     return 0;
 }

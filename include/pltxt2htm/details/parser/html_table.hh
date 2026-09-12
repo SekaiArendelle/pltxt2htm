@@ -19,7 +19,6 @@
 #include <cstddef>
 #include "../../container/string.hh"
 #include "../../container/string_view.hh"
-#include <fast_io/fast_io_dsal/vector.h>
 #include "../../container/optional.hh"
 #include "../utils.hh"
 #include "../../contracts.hh"

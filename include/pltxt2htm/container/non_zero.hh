@@ -7,6 +7,7 @@
 
 #include <concepts>
 #include <cstddef>
+#include <cstdint>
 #include <type_traits>
 
 #include "../details/push_macro.hh"
@@ -78,7 +79,11 @@ public:
     constexpr bool operator==(this NonZero const&, NonZero const&) noexcept = default;
 };
 
-using NonZeroSize = ::pltxt2htm::container::NonZero<::std::size_t>;
+using NonZeroU8 = ::pltxt2htm::container::NonZero<::std::uint8_t>;
+using NonZeroU16 = ::pltxt2htm::container::NonZero<::std::uint16_t>;
+using NonZeroU32 = ::pltxt2htm::container::NonZero<::std::uint32_t>;
+using NonZeroU64 = ::pltxt2htm::container::NonZero<::std::uint64_t>;
+using NonZeroUsize = ::pltxt2htm::container::NonZero<::std::size_t>;
 
 } // namespace pltxt2htm::container
 

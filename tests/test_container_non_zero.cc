@@ -1,5 +1,6 @@
 #include <concepts>
 #include <cstddef>
+#include <cstdint>
 #include <type_traits>
 #include <utility>
 
@@ -22,8 +23,13 @@ consteval auto has_zero_overhead_representation() noexcept -> bool {
            sizeof(NonZero) == sizeof(T) && alignof(NonZero) == alignof(T);
 }
 
-using NonZeroSize = ::pltxt2htm::container::NonZeroSize;
+using NonZeroUsize = ::pltxt2htm::container::NonZeroUsize;
 
+static_assert(::std::same_as<::pltxt2htm::container::NonZeroU8, ::pltxt2htm::container::NonZero<::std::uint8_t>>);
+static_assert(::std::same_as<::pltxt2htm::container::NonZeroU16, ::pltxt2htm::container::NonZero<::std::uint16_t>>);
+static_assert(::std::same_as<::pltxt2htm::container::NonZeroU32, ::pltxt2htm::container::NonZero<::std::uint32_t>>);
+static_assert(::std::same_as<::pltxt2htm::container::NonZeroU64, ::pltxt2htm::container::NonZero<::std::uint64_t>>);
+static_assert(::std::same_as<::pltxt2htm::container::NonZeroUsize, ::pltxt2htm::container::NonZero<::std::size_t>>);
 static_assert(can_form_non_zero<unsigned char>);
 static_assert(can_form_non_zero<unsigned short>);
 static_assert(can_form_non_zero<unsigned>);
@@ -40,18 +46,18 @@ static_assert(has_zero_overhead_representation<unsigned long>());
 static_assert(has_zero_overhead_representation<unsigned long long>());
 static_assert(has_zero_overhead_representation<::std::size_t>());
 
-static_assert(!::std::default_initializable<NonZeroSize>);
-static_assert(!::std::is_aggregate_v<NonZeroSize>);
-static_assert(!::std::is_constructible_v<NonZeroSize, ::std::size_t>);
-static_assert(!::std::is_convertible_v<NonZeroSize, ::std::size_t>);
-static_assert(!can_call_get_without_contract<NonZeroSize>);
-static_assert(
-    ::std::same_as<decltype(::std::declval<NonZeroSize const&>().template get<::pltxt2htm::Contracts::quick_enforce>()),
-                   ::std::size_t>);
+static_assert(!::std::default_initializable<NonZeroUsize>);
+static_assert(!::std::is_aggregate_v<NonZeroUsize>);
+static_assert(!::std::is_constructible_v<NonZeroUsize, ::std::size_t>);
+static_assert(!::std::is_convertible_v<NonZeroUsize, ::std::size_t>);
+static_assert(!can_call_get_without_contract<NonZeroUsize>);
+static_assert(::std::same_as<
+              decltype(::std::declval<NonZeroUsize const&>().template get<::pltxt2htm::Contracts::quick_enforce>()),
+              ::std::size_t>);
 
 consteval auto test_constexpr_non_zero() noexcept -> bool {
-    auto const value = NonZeroSize::from<::pltxt2htm::Contracts::quick_enforce>(42);
-    auto const equal_value = NonZeroSize::from<::pltxt2htm::Contracts::quick_enforce>(42);
+    auto const value = NonZeroUsize::from<::pltxt2htm::Contracts::quick_enforce>(42);
+    auto const equal_value = NonZeroUsize::from<::pltxt2htm::Contracts::quick_enforce>(42);
 
     return value.get<::pltxt2htm::Contracts::quick_enforce>() == 42 &&
            value.get<::pltxt2htm::Contracts::ignore>() == 42 && value == equal_value;

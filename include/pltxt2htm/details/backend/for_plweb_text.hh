@@ -9,7 +9,6 @@
 
 #include <fast_io/fast_io_dsal/list.h>
 #include "../call_stack.hh"
-#include <fast_io/fast_io_dsal/vector.h>
 #include "../../container/string.hh"
 #include "../../container/string_view.hh"
 #include "../../ast/value_unit.hh"
@@ -34,7 +33,7 @@ constexpr void convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> c
     out.template reserve<ndebug>(out.size() + ast.size() * 6);
     ::std::size_t const ast_size{ast.size()};
     for (::std::size_t index{}; index < ast_size; ++index) {
-        auto const& node = ::pltxt2htm::details::vector_index<ndebug>(ast, index);
+        auto const& node = ast.template index<ndebug>(index);
         switch (node.get_node_kind()) {
         case ::pltxt2htm::NodeKind::u8char: {
             auto&& active_node = node.as_u8char();

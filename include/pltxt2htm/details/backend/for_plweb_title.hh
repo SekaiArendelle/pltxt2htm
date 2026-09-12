@@ -9,7 +9,6 @@
 
 #include <fast_io/fast_io_dsal/list.h>
 #include "../call_stack.hh"
-#include <fast_io/fast_io_dsal/vector.h>
 #include "../../container/string.hh"
 #include "../../container/string_view.hh"
 #include "frame_context.hh"

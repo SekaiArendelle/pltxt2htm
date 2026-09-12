@@ -8,7 +8,6 @@
 
 #pragma once
 
-#include <fast_io/fast_io_dsal/vector.h>
 #include <memory>
 
 #include "../contracts.hh"
