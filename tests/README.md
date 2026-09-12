@@ -17,6 +17,16 @@ exercise supported C++26 code paths, while other compilers use C++23. Override
 it with `-DCMAKE_CXX_STANDARD=23` or `-DCMAKE_CXX_STANDARD=26`. When
 using `run_all_tests.py`, pass `--cxx-standard 23` or `--cxx-standard 26`.
 
+The syntax-focused cases share the `test_syntax` executable. Boost.UT can list
+or select its individually named cases without changing the full-suite entry
+point:
+
+```sh
+./tests/build/test_syntax --list-test-names-only
+./tests/build/test_syntax 'markdown/table/*'
+./tests/build/test_syntax tab/common-parser/expands-to-four-nbsp
+```
+
 ## enable sanitizer:
 ```sh
 cmake -S tests -B tests/build -GNinja -DPLTXT2HTM_SANITIZER=address

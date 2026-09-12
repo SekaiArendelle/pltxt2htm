@@ -124,6 +124,12 @@ endif()
 
 find_program(HAVE_LD_LLD NAMES ld.lld)
 
+add_library(boost_ut INTERFACE)
+target_include_directories(boost_ut SYSTEM INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/third_party/boost-ut/include")
+target_compile_features(boost_ut INTERFACE cxx_std_20)
+target_compile_definitions(boost_ut INTERFACE BOOST_UT_DISABLE_MODULE)
+add_library(Boost::ut ALIAS boost_ut)
+
 add_library(precompile STATIC precompile.cpp)
 target_link_libraries(precompile PUBLIC pltxt2htm_base)
 if(WIN32)
@@ -137,6 +143,28 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 endif()
 
 file(GLOB TEST_SOURCES LIST_DIRECTORIES FALSE "${CMAKE_CURRENT_SOURCE_DIR}/test_*.cc")
+
+set(SYNTAX_TEST_SOURCES
+    test_fixedadv_parser.cc
+    test_md_table.cc
+    test_tab.cc
+)
+
+foreach(SYNTAX_TEST_SOURCE IN LISTS SYNTAX_TEST_SOURCES)
+    list(REMOVE_ITEM TEST_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/${SYNTAX_TEST_SOURCE}")
+endforeach()
+
+add_executable(test_syntax syntax_main.cc ${SYNTAX_TEST_SOURCES})
+target_link_libraries(test_syntax PRIVATE precompile Boost::ut)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(test_syntax PRIVATE -g -Werror=switch)
+endif()
+if(HAVE_LD_LLD AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    target_link_options(test_syntax PRIVATE -fuse-ld=lld)
+endif()
+add_test(NAME test_syntax COMMAND test_syntax)
+add_test(NAME test_syntax_glob_filter COMMAND test_syntax "tab/*")
+set_tests_properties(test_syntax_glob_filter PROPERTIES PASS_REGULAR_EXPRESSION "2 asserts in 2 tests")
 
 foreach(TEST_SOURCE ${TEST_SOURCES})
     get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)

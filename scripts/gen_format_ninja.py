@@ -9,7 +9,7 @@ import sys
 def find_cpp_files(root_dirs):
     """Find all C/C++ source files in the given directories."""
     extensions = {".cc", ".cpp", ".h", ".hh", ".hpp", ".cppm", ".c", ".inc"}
-    skip_dir_components = {".pixi"}
+    skip_dir_components = {".pixi", "third_party"}
     files = []
 
     for directory in root_dirs:
