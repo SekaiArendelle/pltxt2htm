@@ -10,7 +10,7 @@
 #include <cstddef>
 #include <fast_io/fast_io_dsal/list.h>
 #include "../call_stack.hh"
-#include <fast_io/fast_io_dsal/string.h>
+#include "../../container/string.hh"
 #include "../../container/string_view.hh"
 #include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"
@@ -30,8 +30,8 @@ namespace pltxt2htm::details {
  */
 template<::pltxt2htm::Contracts ndebug>
 constexpr void convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast<ndebug> const& ast,
-                                                            ::fast_io::u8string& out) noexcept {
-    out.reserve(out.size() + ast.size() * 6);
+                                                            ::pltxt2htm::container::U8String& out) noexcept {
+    out.template reserve<ndebug>(out.size() + ast.size() * 6);
     for (auto&& node : ast) {
         switch (node.get_node_kind()) {
         case ::pltxt2htm::NodeKind::u8char: {
@@ -103,8 +103,9 @@ constexpr auto plunity_text_backend(::pltxt2htm::Ast<ndebug> const& ast_init,
                                     ::pltxt2htm::container::U8StringView project,
                                     ::pltxt2htm::container::U8StringView visitor,
                                     ::pltxt2htm::container::U8StringView author,
-                                    ::pltxt2htm::container::U8StringView coauthors) noexcept -> ::fast_io::u8string {
-    ::fast_io::u8string result{};
+                                    ::pltxt2htm::container::U8StringView coauthors) noexcept
+    -> ::pltxt2htm::container::U8String {
+    ::pltxt2htm::container::U8String result{};
     ::pltxt2htm::details::CallStack<BackendFrame<ndebug>> call_stack{};
     call_stack.push_frame(BackendFrame<ndebug>(ast_init, ::pltxt2htm::NodeKind::group));
     ::std::size_t list_nesting_depth{};
@@ -320,7 +321,7 @@ entry:
                 auto&& active_node = node.as_unity_align();
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::unity_align));
-                if (result.empty() == false && result.back() != u8'\n') {
+                if (result.empty() == false && result.template back<ndebug>() != u8'\n') {
                     result.push_back(u8'\n');
                 }
                 auto const align = active_node.get_align();
@@ -570,7 +571,7 @@ entry:
                 auto const& mark_background_color = active_node.get_background_color();
                 result.append(u8"<mark=");
                 if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
-                    ::fast_io::u8string purified_color{};
+                    ::pltxt2htm::container::U8String purified_color{};
                     ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
                         purified_color, ::pltxt2htm::container::U8StringView{mark_background_color});
                     pltxt2htm_assert(purified_color == mark_background_color,
@@ -588,7 +589,7 @@ entry:
                 auto const& mark_background_color = active_node.get_background_color();
                 result.append(u8"<mark=");
                 if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
-                    ::fast_io::u8string purified_color{};
+                    ::pltxt2htm::container::U8String purified_color{};
                     ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
                         purified_color, ::pltxt2htm::container::U8StringView{mark_background_color});
                     pltxt2htm_assert(purified_color == mark_background_color,
@@ -605,7 +606,7 @@ entry:
                 bool const has_align = align != ::pltxt2htm::TextAlign::left;
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::html_p,
                                                            BackendContextWithAlignInfo{.has_align = has_align}));
-                if (result.empty() == false && result.back() != u8'\n') {
+                if (result.empty() == false && result.template back<ndebug>() != u8'\n') {
                     result.push_back(u8'\n');
                 }
                 if (has_align) {
@@ -635,7 +636,7 @@ entry:
             case ::pltxt2htm::NodeKind::html_h1: {
                 auto&& active_node = node.as_html_h1();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::html_h1));
-                if (result.empty() == false && result.back() != u8'\n') {
+                if (result.empty() == false && result.template back<ndebug>() != u8'\n') {
                     result.push_back(u8'\n');
                 }
                 result.append(u8"<size=38><b>");
@@ -644,7 +645,7 @@ entry:
             case ::pltxt2htm::NodeKind::md_atx_h1: {
                 auto&& active_node = node.as_md_atx_h1();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::md_atx_h1));
-                if (result.empty() == false && result.back() != u8'\n') {
+                if (result.empty() == false && result.template back<ndebug>() != u8'\n') {
                     result.push_back(u8'\n');
                 }
                 result.append(u8"<size=38><b>");
@@ -653,7 +654,7 @@ entry:
             case ::pltxt2htm::NodeKind::html_h2: {
                 auto&& active_node = node.as_html_h2();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::html_h2));
-                if (result.empty() == false && result.back() != u8'\n') {
+                if (result.empty() == false && result.template back<ndebug>() != u8'\n') {
                     result.push_back(u8'\n');
                 }
                 result.append(u8"<size=37><b>");
@@ -662,7 +663,7 @@ entry:
             case ::pltxt2htm::NodeKind::md_atx_h2: {
                 auto&& active_node = node.as_md_atx_h2();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::md_atx_h2));
-                if (result.empty() == false && result.back() != u8'\n') {
+                if (result.empty() == false && result.template back<ndebug>() != u8'\n') {
                     result.push_back(u8'\n');
                 }
                 result.append(u8"<size=37><b>");
@@ -671,7 +672,7 @@ entry:
             case ::pltxt2htm::NodeKind::html_h3: {
                 auto&& active_node = node.as_html_h3();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::html_h3));
-                if (result.empty() == false && result.back() != u8'\n') {
+                if (result.empty() == false && result.template back<ndebug>() != u8'\n') {
                     result.push_back(u8'\n');
                 }
                 result.append(u8"<size=36><b>");
@@ -680,7 +681,7 @@ entry:
             case ::pltxt2htm::NodeKind::md_atx_h3: {
                 auto&& active_node = node.as_md_atx_h3();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::md_atx_h3));
-                if (result.empty() == false && result.back() != u8'\n') {
+                if (result.empty() == false && result.template back<ndebug>() != u8'\n') {
                     result.push_back(u8'\n');
                 }
                 result.append(u8"<size=36><b>");
@@ -689,7 +690,7 @@ entry:
             case ::pltxt2htm::NodeKind::html_h4: {
                 auto&& active_node = node.as_html_h4();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::html_h4));
-                if (result.empty() == false && result.back() != u8'\n') {
+                if (result.empty() == false && result.template back<ndebug>() != u8'\n') {
                     result.push_back(u8'\n');
                 }
                 result.append(u8"<size=35><b>");
@@ -698,7 +699,7 @@ entry:
             case ::pltxt2htm::NodeKind::md_atx_h4: {
                 auto&& active_node = node.as_md_atx_h4();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::md_atx_h4));
-                if (result.empty() == false && result.back() != u8'\n') {
+                if (result.empty() == false && result.template back<ndebug>() != u8'\n') {
                     result.push_back(u8'\n');
                 }
                 result.append(u8"<size=35><b>");
@@ -707,7 +708,7 @@ entry:
             case ::pltxt2htm::NodeKind::html_h5: {
                 auto&& active_node = node.as_html_h5();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::html_h5));
-                if (result.empty() == false && result.back() != u8'\n') {
+                if (result.empty() == false && result.template back<ndebug>() != u8'\n') {
                     result.push_back(u8'\n');
                 }
                 result.append(u8"<b>");
@@ -716,7 +717,7 @@ entry:
             case ::pltxt2htm::NodeKind::md_atx_h5: {
                 auto&& active_node = node.as_md_atx_h5();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::md_atx_h5));
-                if (result.empty() == false && result.back() != u8'\n') {
+                if (result.empty() == false && result.template back<ndebug>() != u8'\n') {
                     result.push_back(u8'\n');
                 }
                 result.append(u8"<b>");
@@ -725,7 +726,7 @@ entry:
             case ::pltxt2htm::NodeKind::html_h6: {
                 auto&& active_node = node.as_html_h6();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::html_h6));
-                if (result.empty() == false && result.back() != u8'\n') {
+                if (result.empty() == false && result.template back<ndebug>() != u8'\n') {
                     result.push_back(u8'\n');
                 }
                 result.append(u8"<b>");
@@ -734,7 +735,7 @@ entry:
             case ::pltxt2htm::NodeKind::md_atx_h6: {
                 auto&& active_node = node.as_md_atx_h6();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::md_atx_h6));
-                if (result.empty() == false && result.back() != u8'\n') {
+                if (result.empty() == false && result.template back<ndebug>() != u8'\n') {
                     result.push_back(u8'\n');
                 }
                 result.append(u8"<b>");
@@ -811,7 +812,7 @@ entry:
             case ::pltxt2htm::NodeKind::md_hr:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_hr: {
-                if (result.empty() == false && result.back() != u8'\n') {
+                if (result.empty() == false && result.template back<ndebug>() != u8'\n') {
                     result.push_back(u8'\n');
                 }
                 result.append(u8"---\n");
@@ -1288,7 +1289,7 @@ entry:
                 if (parent_frame.next != parent_frame.end) {
                     auto const next_kind = parent_frame.next->get_node_kind();
                     if (next_kind != ::pltxt2htm::NodeKind::line_break && next_kind != ::pltxt2htm::NodeKind::html_br &&
-                        result.empty() == false && result.back() != u8'\n') {
+                        result.empty() == false && result.template back<ndebug>() != u8'\n') {
                         result.push_back(u8'\n');
                     }
                 }

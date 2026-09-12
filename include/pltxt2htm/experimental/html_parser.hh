@@ -2,8 +2,8 @@
 
 #include <cstddef>
 #include <fast_io/fast_io_dsal/list.h>
+#include "../container/string.hh"
 #include "../details/call_stack.hh"
-#include <fast_io/fast_io_dsal/string.h>
 #include "../container/string_view.hh"
 #include "../ast/node_kind.hh"
 #include "../ast/ast.hh"

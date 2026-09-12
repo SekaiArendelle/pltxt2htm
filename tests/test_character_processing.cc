@@ -89,7 +89,7 @@ int main() {
         pltxt2htm_test_assert_true(encoded.size == 0);
     }
     {
-        ::fast_io::u8string encoded{};
+        ::pltxt2htm::container::U8String encoded{};
         ::pltxt2htm::details::append_utf8_code_point(encoded, U'A');
         ::pltxt2htm::details::append_utf8_code_point(encoded, char32_t{0x20AC});
         ::pltxt2htm::details::append_utf8_code_point(encoded, char32_t{0x1F600});
@@ -139,7 +139,7 @@ int main() {
 
     // Every generated named reference round-trips through the decoder.
     for (auto const entity : ::pltxt2htm::details::HtmlNamedCharacterReferenceTable::entries()) {
-        ::fast_io::u8string spelling{u8"&"};
+        ::pltxt2htm::container::U8String spelling{u8"&"};
         spelling.append(entity.name);
         spelling.push_back(u8';');
         auto const decoded =
@@ -154,7 +154,7 @@ int main() {
 
     // Backend attribute escaping never treats its input as pre-escaped HTML.
     {
-        ::fast_io::u8string escaped{};
+        ::pltxt2htm::container::U8String escaped{};
         ::pltxt2htm::details::append_html_escaped_attribute_value<::pltxt2htm::Contracts::quick_enforce>(
             escaped, ::pltxt2htm::container::U8StringView{u8"&quot;&bogus;"});
         pltxt2htm_test_assert_equal(escaped, u8"&amp;quot;&amp;bogus;");

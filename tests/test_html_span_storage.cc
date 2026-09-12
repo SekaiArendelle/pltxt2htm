@@ -12,8 +12,8 @@ using VerticalAlign = ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlig
 [[nodiscard]]
 constexpr auto make_html_span(FontSize font_size, VerticalAlign vertical_align) noexcept
     -> ::pltxt2htm::HtmlSpan<ndebug> {
-    return ::pltxt2htm::HtmlSpan<ndebug>{::pltxt2htm::Ast<ndebug>{}, ::fast_io::u8string{}, ::std::move(font_size),
-                                         ::std::move(vertical_align)};
+    return ::pltxt2htm::HtmlSpan<ndebug>{::pltxt2htm::Ast<ndebug>{}, ::pltxt2htm::container::U8String{},
+                                         ::std::move(font_size), ::std::move(vertical_align)};
 }
 
 static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::HtmlSpan<::pltxt2htm::Contracts::ignore>) == 72);

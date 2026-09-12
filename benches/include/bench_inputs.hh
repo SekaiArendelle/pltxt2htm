@@ -1,15 +1,15 @@
 #pragma once
 
 #include <cstddef>
-#include <fast_io/fast_io_dsal/string.h>
+#include <pltxt2htm/container/string.hh>
 
 struct BenchInput {
-    ::fast_io::u8string data;
+    ::pltxt2htm::container::U8String data;
     ::std::size_t bytes;
 };
 
-inline ::fast_io::u8string make_plain_text(::std::size_t repeat) {
-    ::fast_io::u8string text;
+inline ::pltxt2htm::container::U8String make_plain_text(::std::size_t repeat) {
+    ::pltxt2htm::container::U8String text;
     for (::std::size_t i = 0; i < repeat; ++i) {
         text.append(u8"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\n");
         text.append(u8"Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n");
@@ -18,8 +18,8 @@ inline ::fast_io::u8string make_plain_text(::std::size_t repeat) {
     return text;
 }
 
-inline ::fast_io::u8string make_rich_markdown(::std::size_t repeat) {
-    ::fast_io::u8string text;
+inline ::pltxt2htm::container::U8String make_rich_markdown(::std::size_t repeat) {
+    ::pltxt2htm::container::U8String text;
     for (::std::size_t i = 0; i < repeat; ++i) {
         text.append(
             u8R"(# Heading 1
@@ -63,8 +63,8 @@ std::cout << x;
     return text;
 }
 
-inline ::fast_io::u8string make_pl_tags_nested(::std::size_t depth) {
-    ::fast_io::u8string input;
+inline ::pltxt2htm::container::U8String make_pl_tags_nested(::std::size_t depth) {
+    ::pltxt2htm::container::U8String input;
     for (::std::size_t i = 0; i < depth; ++i) {
         input.append(u8"<color=red>");
     }
@@ -75,8 +75,8 @@ inline ::fast_io::u8string make_pl_tags_nested(::std::size_t depth) {
     return input;
 }
 
-inline ::fast_io::u8string make_pl_tags_mixed(::std::size_t repeat) {
-    ::fast_io::u8string input;
+inline ::pltxt2htm::container::U8String make_pl_tags_mixed(::std::size_t repeat) {
+    ::pltxt2htm::container::U8String input;
     for (::std::size_t i = 0; i < repeat; ++i) {
         input.append(
             u8R"(<color=red><b>bold text</b> and <i>italic</i></color>
@@ -91,8 +91,8 @@ inline ::fast_io::u8string make_pl_tags_mixed(::std::size_t repeat) {
     return input;
 }
 
-inline ::fast_io::u8string make_latex_heavy(::std::size_t repeat) {
-    ::fast_io::u8string input;
+inline ::pltxt2htm::container::U8String make_latex_heavy(::std::size_t repeat) {
+    ::pltxt2htm::container::U8String input;
     for (::std::size_t i = 0; i < repeat; ++i) {
         input.append(
             u8R"(Inline equation: $E = mc^2$
@@ -106,16 +106,16 @@ Mixed: $\alpha + \beta = \gamma$ and $\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$
     return input;
 }
 
-inline ::fast_io::u8string make_stress_long_line(::std::size_t length) {
-    ::fast_io::u8string input;
+inline ::pltxt2htm::container::U8String make_stress_long_line(::std::size_t length) {
+    ::pltxt2htm::container::U8String input;
     for (::std::size_t i = 0; i < length; ++i) {
         input.push_back(u8'a' + static_cast<char8_t>(i % 26));
     }
     return input;
 }
 
-inline ::fast_io::u8string make_stress_many_lines(::std::size_t lines) {
-    ::fast_io::u8string input;
+inline ::pltxt2htm::container::U8String make_stress_many_lines(::std::size_t lines) {
+    ::pltxt2htm::container::U8String input;
     for (::std::size_t i = 0; i < lines; ++i) {
         input.append(u8"line 1234567890\n");
     }
@@ -164,8 +164,8 @@ constexpr auto make_utf8_mixed(::std::size_t repeat) -> ::fast_io::u8string {
 
 // Optimizer-specific inputs
 
-inline ::fast_io::u8string make_redundant_color_nesting(::std::size_t depth) {
-    ::fast_io::u8string input;
+inline ::pltxt2htm::container::U8String make_redundant_color_nesting(::std::size_t depth) {
+    ::pltxt2htm::container::U8String input;
     for (::std::size_t i = 0; i < depth; ++i) {
         input.append(u8"<color=red>");
     }
@@ -176,8 +176,8 @@ inline ::fast_io::u8string make_redundant_color_nesting(::std::size_t depth) {
     return input;
 }
 
-inline ::fast_io::u8string make_mixed_redundant(::std::size_t depth) {
-    ::fast_io::u8string input;
+inline ::pltxt2htm::container::U8String make_mixed_redundant(::std::size_t depth) {
+    ::pltxt2htm::container::U8String input;
     for (::std::size_t i = 0; i < depth; ++i) {
         input.append(u8"<color=red><b><i>");
     }
@@ -188,8 +188,8 @@ inline ::fast_io::u8string make_mixed_redundant(::std::size_t depth) {
     return input;
 }
 
-inline ::fast_io::u8string make_adjacent_text_nodes(::std::size_t segments) {
-    ::fast_io::u8string input;
+inline ::pltxt2htm::container::U8String make_adjacent_text_nodes(::std::size_t segments) {
+    ::pltxt2htm::container::U8String input;
     for (::std::size_t i = 0; i < segments; ++i) {
         input.append(u8"<color=red>segment_");
         input.push_back(u8'0' + static_cast<char8_t>(i % 10));
@@ -203,8 +203,8 @@ inline ::fast_io::u8string make_adjacent_text_nodes(::std::size_t segments) {
     return input;
 }
 
-inline ::fast_io::u8string make_html_span_attrs(::std::size_t spans) {
-    ::fast_io::u8string input;
+inline ::pltxt2htm::container::U8String make_html_span_attrs(::std::size_t spans) {
+    ::pltxt2htm::container::U8String input;
     for (::std::size_t i = 0; i < spans; ++i) {
         input.append(
             u8R"(<span style="color:red;font-size:16px">text</span>
@@ -215,8 +215,8 @@ inline ::fast_io::u8string make_html_span_attrs(::std::size_t spans) {
 
 // End-to-end documents
 
-inline ::fast_io::u8string make_full_document(::std::size_t repeat) {
-    ::fast_io::u8string input;
+inline ::pltxt2htm::container::U8String make_full_document(::std::size_t repeat) {
+    ::pltxt2htm::container::U8String input;
     for (::std::size_t i = 0; i < repeat; ++i) {
         input.append(
             u8R"(# Chapter Title
@@ -278,8 +278,8 @@ $$
     return input;
 }
 
-inline ::fast_io::u8string make_terse_document(::std::size_t repeat) {
-    ::fast_io::u8string input;
+inline ::pltxt2htm::container::U8String make_terse_document(::std::size_t repeat) {
+    ::pltxt2htm::container::U8String input;
     for (::std::size_t i = 0; i < repeat; ++i) {
         input.append(
             u8R"(<color=red>item</color> <b>bold</b> <i>italic</i>
@@ -291,8 +291,8 @@ inline ::fast_io::u8string make_terse_document(::std::size_t repeat) {
     return input;
 }
 
-inline ::fast_io::u8string make_plain_document(::std::size_t chars) {
-    ::fast_io::u8string input;
+inline ::pltxt2htm::container::U8String make_plain_document(::std::size_t chars) {
+    ::pltxt2htm::container::U8String input;
     for (::std::size_t i = 0; i < chars / 50; ++i) {
         input.append(u8"Plain text line with no special formatting at all.\n");
     }

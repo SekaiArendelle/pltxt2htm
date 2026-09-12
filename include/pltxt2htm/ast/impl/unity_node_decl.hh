@@ -8,7 +8,7 @@
 
 #include <cstddef>
 #include <utility>
-#include <fast_io/fast_io_dsal/string.h>
+#include "../../container/string.hh"
 #include "../../container/optional.hh"
 #include "ast_decl.hh"
 #include "basic_node_decl.hh"
@@ -25,10 +25,10 @@ namespace pltxt2htm {
 template<::pltxt2htm::Contracts ndebug>
 class UnityColor {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::fast_io::u8string color;
+    ::pltxt2htm::container::U8String color;
 
 public:
-    constexpr UnityColor(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& color_) noexcept;
+    constexpr UnityColor(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::container::U8String&& color_) noexcept;
     constexpr UnityColor(::pltxt2htm::UnityColor<ndebug> const&) noexcept;
     constexpr UnityColor(::pltxt2htm::UnityColor<ndebug>&&) noexcept;
     constexpr ~UnityColor() noexcept = default;
@@ -206,10 +206,11 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class UnityMark {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::fast_io::u8string background_color;
+    ::pltxt2htm::container::U8String background_color;
 
 public:
-    constexpr UnityMark(::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& background_color_) noexcept;
+    constexpr UnityMark(::pltxt2htm::Ast<ndebug>&& subast_,
+                        ::pltxt2htm::container::U8String&& background_color_) noexcept;
     constexpr UnityMark(::pltxt2htm::UnityMark<ndebug> const&) noexcept;
     constexpr UnityMark(::pltxt2htm::UnityMark<ndebug>&&) noexcept;
     constexpr ~UnityMark() noexcept = default;
