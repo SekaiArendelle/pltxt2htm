@@ -32,7 +32,7 @@ impl U8String {
 impl Drop for U8String {
     fn drop(&mut self) {
         unsafe {
-            libc::free(self.ptr as *mut libc::c_void);
+            libpltxt2htm_sys::pltxt2htm_free_u8string(self.ptr);
         }
     }
 }
