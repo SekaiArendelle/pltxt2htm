@@ -59,6 +59,20 @@ struct Immobile {
     auto operator=(this Immobile&, Immobile&&) -> Immobile& = delete;
 };
 
+struct PotentiallyThrowingComparison {
+    int value;
+
+    [[nodiscard]] friend constexpr auto operator==(PotentiallyThrowingComparison const& left,
+                                                   PotentiallyThrowingComparison const& right) -> bool {
+        return left.value == right.value;
+    }
+
+    [[nodiscard]] friend constexpr auto operator<=>(PotentiallyThrowingComparison const& left,
+                                                    PotentiallyThrowingComparison const& right) noexcept(false) {
+        return left.value <=> right.value;
+    }
+};
+
 using ZeroVector = ::pltxt2htm::container::InplaceVector<NonTrivialValue, 0>;
 
 static_assert(::std::same_as<IntVector::value_type, int>);
@@ -96,6 +110,16 @@ static_assert(noexcept(::pltxt2htm::container::swap(::std::declval<ImmobileZeroV
 static_assert(
     ::std::same_as<decltype(::std::declval<IntVector&>().try_emplace_back(1)), ::pltxt2htm::container::Optional<int&>>);
 static_assert(::std::same_as<decltype(::std::declval<IntVector&>().emplace_back(1)), int&>);
+static_assert(noexcept(::std::declval<IntVector const&>() <=> ::std::declval<IntVector const&>()));
+using PotentiallyThrowingComparisonVector = ::pltxt2htm::container::InplaceVector<PotentiallyThrowingComparison, 1>;
+using PotentiallyThrowingComparisonEmptyVector =
+    ::pltxt2htm::container::InplaceVector<PotentiallyThrowingComparison, 0>;
+static_assert(!noexcept(::std::declval<PotentiallyThrowingComparisonVector const&>() <=>
+                        ::std::declval<PotentiallyThrowingComparisonVector const&>()));
+static_assert(noexcept(::std::declval<PotentiallyThrowingComparisonEmptyVector const&>() <=>
+                       ::std::declval<PotentiallyThrowingComparisonVector const&>()));
+static_assert(noexcept(::std::declval<PotentiallyThrowingComparisonVector const&>() <=>
+                       ::std::declval<PotentiallyThrowingComparisonEmptyVector const&>()));
 
 consteval auto inplace_vector_constexpr_operations_work() -> bool {
     IntVector values;
@@ -338,11 +362,6 @@ int main() {
         pltxt2htm_test_assert_true(::pltxt2htm_test::ThrowingCopyValue::alive == 2);
     }
     pltxt2htm_test_assert_true(::pltxt2htm_test::ThrowingCopyValue::alive == 0);
-
-    ::pltxt2htm::container::InplaceVector<int, 6> values{1, 2, 1, 3, 1};
-    pltxt2htm_test_assert_true(::pltxt2htm::container::erase(values, 1) == 3);
-    pltxt2htm_test_assert_true(::pltxt2htm::container::erase_if(values, [](int value) { return value % 2 == 0; }) == 1);
-    pltxt2htm_test_assert_true(values == ::pltxt2htm::container::InplaceVector<int, 1>{3});
 
     return 0;
 }

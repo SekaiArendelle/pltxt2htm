@@ -930,7 +930,10 @@ constexpr auto operator==(InplaceVector<T, left_extent> const& left, InplaceVect
 template<typename T, ::std::size_t left_extent, ::std::size_t right_extent>
     requires ::std::three_way_comparable<T>
 [[nodiscard]]
-constexpr auto operator<=>(InplaceVector<T, left_extent> const& left, InplaceVector<T, right_extent> const& right) {
+constexpr auto
+operator<=>(InplaceVector<T, left_extent> const& left, InplaceVector<T, right_extent> const& right) noexcept(
+    left_extent == 0 || right_extent == 0 ||
+    noexcept(::std::compare_three_way{}(::std::declval<T const&>(), ::std::declval<T const&>()))) {
     return ::std::lexicographical_compare_three_way(left.begin(), left.end(), right.begin(), right.end(),
                                                     ::std::compare_three_way{});
 }
