@@ -384,8 +384,14 @@ public:
                     ::std::is_trivially_copy_assignable_v<value_type> &&
                     ::std::is_trivially_destructible_v<value_type>))
     {
+        constexpr auto ndebug =
+#ifdef NDEBUG
+            ::pltxt2htm::Contracts::ignore;
+#else
+            ::pltxt2htm::Contracts::quick_enforce;
+#endif
         if (::std::addressof(self) != ::std::addressof(other)) {
-            self.template assign<::pltxt2htm::Contracts::quick_enforce>(other.begin(), other.end());
+            self.template assign<ndebug>(other.begin(), other.end());
         }
         return self;
     }
@@ -406,8 +412,14 @@ public:
                     ::std::is_trivially_move_assignable_v<value_type> &&
                     ::std::is_trivially_destructible_v<value_type>))
     {
+        constexpr auto ndebug =
+#ifdef NDEBUG
+            ::pltxt2htm::Contracts::ignore;
+#else
+            ::pltxt2htm::Contracts::quick_enforce;
+#endif
         if (::std::addressof(self) != ::std::addressof(other)) {
-            self.template assign<::pltxt2htm::Contracts::quick_enforce>(::std::make_move_iterator(other.begin()),
+            self.template assign<ndebug>(::std::make_move_iterator(other.begin()),
                                                                         ::std::make_move_iterator(other.end()));
         }
         return self;
@@ -416,7 +428,13 @@ public:
     constexpr auto operator=(this InplaceVector& self, ::std::initializer_list<value_type> values) -> InplaceVector&
         requires (::std::copy_constructible<value_type> && ::std::is_copy_assignable_v<value_type>)
     {
-        self.template assign<::pltxt2htm::Contracts::quick_enforce>(values.begin(), values.end());
+        constexpr auto ndebug =
+#ifdef NDEBUG
+            ::pltxt2htm::Contracts::ignore;
+#else
+            ::pltxt2htm::Contracts::quick_enforce;
+#endif
+        self.template assign<ndebug>(values.begin(), values.end());
         return self;
     }
 
