@@ -202,6 +202,7 @@ private:
         }
     };
 
+    template<::pltxt2htm::Contracts ndebug>
     class AppendRollbackGuard {
         InplaceVector* vector;
         size_type original_size;
@@ -217,7 +218,7 @@ private:
                 return;
             }
             while (this->vector->size() > this->original_size) {
-                this->vector->template pop_back<::pltxt2htm::Contracts::ignore>();
+                this->vector->template pop_back<ndebug>();
             }
         }
 
@@ -328,9 +329,15 @@ public:
         requires (extent != 0 && !::std::is_trivially_copy_constructible_v<value_type> &&
                   ::std::is_copy_constructible_v<value_type>)
     {
+        constexpr auto ndebug =
+#ifdef NDEBUG
+            ::pltxt2htm::Contracts::ignore;
+#else
+            ::pltxt2htm::Contracts::quick_enforce;
+#endif
         ConstructionGuard guard{*this};
         for (auto const& value : other) {
-            this->template emplace_back<::pltxt2htm::Contracts::ignore>(value);
+            this->template emplace_back<ndebug>(value);
         }
         guard.release();
     }
@@ -343,9 +350,15 @@ public:
         requires (extent != 0 && !::std::is_trivially_move_constructible_v<value_type> &&
                   ::std::is_move_constructible_v<value_type>)
     {
+        constexpr auto ndebug =
+#ifdef NDEBUG
+            ::pltxt2htm::Contracts::ignore;
+#else
+            ::pltxt2htm::Contracts::quick_enforce;
+#endif
         ConstructionGuard guard{*this};
         for (auto& value : other) {
-            this->template emplace_back<::pltxt2htm::Contracts::ignore>(::std::move(value));
+            this->template emplace_back<ndebug>(::std::move(value));
         }
         guard.release();
     }
@@ -556,7 +569,7 @@ public:
         requires ::std::default_initializable<value_type>
     {
         self.template check_new_size<ndebug>(new_size);
-        AppendRollbackGuard guard{self};
+        AppendRollbackGuard<ndebug> guard{self};
         while (self.size() > new_size) {
             self.template pop_back<ndebug>();
         }
@@ -571,7 +584,7 @@ public:
         requires ::std::copy_constructible<value_type>
     {
         self.template check_new_size<ndebug>(new_size);
-        AppendRollbackGuard guard{self};
+        AppendRollbackGuard<ndebug> guard{self};
         while (self.size() > new_size) {
             self.template pop_back<ndebug>();
         }
@@ -669,7 +682,7 @@ public:
         }
     }
 
-    template<typename... Args>
+    template<::pltxt2htm::Contracts ndebug, typename... Args>
         requires ::std::constructible_from<value_type, Args...>
     [[nodiscard]]
     constexpr auto try_emplace_back(this InplaceVector& self,
@@ -679,25 +692,27 @@ public:
             return nullopt;
         }
         return Optional<reference>{
-            self.template emplace_back<::pltxt2htm::Contracts::ignore>(::std::forward<Args>(args)...)};
+            self.template emplace_back<ndebug>(::std::forward<Args>(args)...)};
     }
 
+    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto try_push_back(this InplaceVector& self,
                                  const_reference value) noexcept(::std::is_nothrow_copy_constructible_v<value_type>)
         -> Optional<reference>
         requires ::std::copy_constructible<value_type>
     {
-        return self.try_emplace_back(value);
+        return self.template try_emplace_back<ndebug>(value);
     }
 
+    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto try_push_back(this InplaceVector& self,
                                  value_type&& value) noexcept(::std::is_nothrow_move_constructible_v<value_type>)
         -> Optional<reference>
         requires ::std::move_constructible<value_type>
     {
-        return self.try_emplace_back(::std::move(value));
+        return self.template try_emplace_back<ndebug>(::std::move(value));
     }
 
     /**
@@ -888,6 +903,7 @@ public:
         self.set_size(0);
     }
 
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void swap(this InplaceVector& self,
                         InplaceVector& other) noexcept(extent == 0 ||
                                                        (::std::is_nothrow_swappable_v<value_type> &&
@@ -903,15 +919,15 @@ public:
             }
             auto const common_size = ::std::min(self.size(), other.size());
             for (size_type index{}; index < common_size; ++index) {
-                ::std::ranges::swap(self.template index<::pltxt2htm::Contracts::ignore>(index),
-                                    other.template index<::pltxt2htm::Contracts::ignore>(index));
+                ::std::ranges::swap(self.template index<ndebug>(index),
+                                    other.template index<ndebug>(index));
             }
             if (self.size() < other.size()) {
                 auto const other_size = other.size();
                 while (self.size() < other_size) {
                     auto const index = self.size();
-                    self.template emplace_back<::pltxt2htm::Contracts::ignore>(
-                        ::std::move(other.template index<::pltxt2htm::Contracts::ignore>(index)));
+                    self.template emplace_back<ndebug>(
+                        ::std::move(other.template index<ndebug>(index)));
                 }
                 other.destroy(other.iterator_at(common_size), other.end());
                 other.set_size(common_size);
@@ -920,8 +936,8 @@ public:
             auto const self_size = self.size();
             while (other.size() < self_size) {
                 auto const index = other.size();
-                other.template emplace_back<::pltxt2htm::Contracts::ignore>(
-                    ::std::move(self.template index<::pltxt2htm::Contracts::ignore>(index)));
+                other.template emplace_back<ndebug>(
+                    ::std::move(self.template index<ndebug>(index)));
             }
             self.destroy(self.iterator_at(common_size), self.end());
             self.set_size(common_size);
@@ -951,8 +967,14 @@ operator<=>(InplaceVector<T, left_extent> const& left, InplaceVector<T, right_ex
 template<typename T, ::std::size_t extent>
     requires (extent == 0 || (::std::swappable<T> && ::std::move_constructible<T>))
 constexpr void swap(InplaceVector<T, extent>& left,
-                    InplaceVector<T, extent>& right) noexcept(noexcept(left.swap(right))) {
-    left.swap(right);
+                    InplaceVector<T, extent>& right) noexcept(noexcept(left.template swap<::pltxt2htm::Contracts::quick_enforce>(right))) {
+    constexpr auto ndebug =
+#ifdef NDEBUG
+            ::pltxt2htm::Contracts::ignore;
+#else
+            ::pltxt2htm::Contracts::quick_enforce;
+#endif
+    left.template swap<ndebug>(right);
 }
 
 } // namespace pltxt2htm::container

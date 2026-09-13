@@ -134,11 +134,11 @@ static_assert(::std::is_assignable_v<TriviallyCopyableWithNontrivialSelectedAssi
 static_assert(!::std::is_trivially_assignable_v<TriviallyCopyableWithNontrivialSelectedAssignment&,
                                                 TriviallyCopyableWithNontrivialSelectedAssignment>);
 using ImmobileZeroVector = ::pltxt2htm::container::InplaceVector<Immobile, 0>;
-static_assert(noexcept(::std::declval<ImmobileZeroVector&>().swap(::std::declval<ImmobileZeroVector&>())));
+static_assert(noexcept(::std::declval<ImmobileZeroVector&>().swap<::pltxt2htm::Contracts::quick_enforce>(::std::declval<ImmobileZeroVector&>())));
 static_assert(noexcept(::pltxt2htm::container::swap(::std::declval<ImmobileZeroVector&>(),
                                                     ::std::declval<ImmobileZeroVector&>())));
 static_assert(
-    ::std::same_as<decltype(::std::declval<IntVector&>().try_emplace_back(1)), ::pltxt2htm::container::Optional<int&>>);
+    ::std::same_as<decltype(::std::declval<IntVector&>().try_emplace_back<::pltxt2htm::Contracts::quick_enforce>(1)), ::pltxt2htm::container::Optional<int&>>);
 static_assert(
     ::std::same_as<
         decltype(::std::declval<IntVector&>().template emplace_back<::pltxt2htm::Contracts::quick_enforce>(1)), int&>);
@@ -209,7 +209,7 @@ consteval auto inplace_vector_constexpr_operations_work() -> bool {
     }
 
     ::pltxt2htm::container::InplaceVector<int, 8> other{10, 11};
-    values.swap(other);
+    values.swap<::pltxt2htm::Contracts::quick_enforce>(other);
     if (values != ::pltxt2htm::container::InplaceVector<int, 8>{10, 11} ||
         other != ::pltxt2htm::container::InplaceVector<int, 8>{8, 3, 4, 6, 7}) {
         return false;
@@ -255,7 +255,7 @@ static_assert(inplace_vector_constexpr_ignores_nontrivial_selected_assignment())
 
 consteval auto zero_capacity_inplace_vector_works() -> bool {
     ::pltxt2htm::container::InplaceVector<int, 0> values;
-    auto result = values.try_push_back(1);
+    auto result = values.try_push_back<::pltxt2htm::Contracts::quick_enforce>(1);
     auto const erased = values.template erase<::pltxt2htm::Contracts::quick_enforce>(values.begin(), values.end());
     auto const inserted = values.template insert<::pltxt2htm::Contracts::quick_enforce>(values.begin(), 0, 1);
     return values.empty() && values.size() == 0 && values.capacity() == 0 && values.data() == nullptr &&
@@ -352,7 +352,7 @@ int main() {
 
     {
         TrackedVector values;
-        auto first = values.try_emplace_back(1);
+        auto first = values.try_emplace_back<::pltxt2htm::Contracts::quick_enforce>(1);
         values.template emplace_back<::pltxt2htm::Contracts::quick_enforce>(2);
         (void)values.template emplace<::pltxt2htm::Contracts::quick_enforce>(values.begin() + 1, 3);
         pltxt2htm_test_assert_true(first.has_value());
@@ -377,7 +377,7 @@ int main() {
         values.template emplace_back<::pltxt2htm::Contracts::quick_enforce>(5);
         values.template emplace_back<::pltxt2htm::Contracts::quick_enforce>(6);
         values.template emplace_back<::pltxt2htm::Contracts::quick_enforce>(7);
-        auto full_result = values.try_emplace_back(8);
+        auto full_result = values.try_emplace_back<::pltxt2htm::Contracts::quick_enforce>(8);
         pltxt2htm_test_assert_false(full_result.has_value());
         pltxt2htm_test_assert_true(values.size() == values.capacity());
     }
