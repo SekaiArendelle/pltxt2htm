@@ -942,27 +942,6 @@ constexpr void swap(InplaceVector<T, extent>& left,
     left.swap(right);
 }
 
-template<typename T, ::std::size_t extent, typename U = T>
-    requires ::std::equality_comparable_with<T, U>
-[[nodiscard]]
-constexpr auto erase(InplaceVector<T, extent>& vector, U const& value) -> typename InplaceVector<T, extent>::size_type {
-    auto const old_size = vector.size();
-    auto const new_end = ::std::remove(vector.begin(), vector.end(), value);
-    (void)vector.erase(new_end, vector.end());
-    return old_size - vector.size();
-}
-
-template<typename T, ::std::size_t extent, typename Predicate>
-    requires ::std::predicate<Predicate&, T const&>
-[[nodiscard]]
-constexpr auto erase_if(InplaceVector<T, extent>& vector, Predicate predicate) ->
-    typename InplaceVector<T, extent>::size_type {
-    auto const old_size = vector.size();
-    auto const new_end = ::std::remove_if(vector.begin(), vector.end(), predicate);
-    (void)vector.erase(new_end, vector.end());
-    return old_size - vector.size();
-}
-
 } // namespace pltxt2htm::container
 
 #include "../details/pop_macro.hh"

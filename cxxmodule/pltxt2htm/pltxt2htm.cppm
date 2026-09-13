@@ -10,8 +10,6 @@ namespace container {
 
 using ::pltxt2htm::container::Array;
 using ::pltxt2htm::container::InplaceVector;
-using ::pltxt2htm::container::erase;
-using ::pltxt2htm::container::erase_if;
 using ::pltxt2htm::container::operator<=>;
 using ::pltxt2htm::container::operator==;
 using ::pltxt2htm::container::swap;
