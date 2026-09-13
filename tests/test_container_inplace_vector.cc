@@ -155,7 +155,7 @@ static_assert(noexcept(::std::declval<PotentiallyThrowingComparisonVector const&
 
 consteval auto inplace_vector_constexpr_operations_work() -> bool {
     IntVector values;
-    if (!values.empty() || values.size() != 0 || values.size_bytes() != 0 || values.capacity() != 8 ||
+    if (!values.is_empty() || values.size() != 0 || values.size_bytes() != 0 || values.capacity() != 8 ||
         values.max_size() != 8 || values.max_size_bytes() != 8 * sizeof(int) || values.begin() != values.end()) {
         return false;
     }
@@ -241,14 +241,14 @@ consteval auto inplace_vector_constexpr_special_members_work_after_destroy() -> 
 
     moved.clear();
     auto cleared = moved;
-    return cleared.empty();
+    return cleared.is_empty();
 }
 
 static_assert(inplace_vector_constexpr_special_members_work_after_destroy());
 
 consteval auto inplace_vector_constexpr_ignores_nontrivial_selected_assignment() -> bool {
     ::pltxt2htm::container::InplaceVector<TriviallyCopyableWithNontrivialSelectedAssignment, 2> values;
-    return values.empty();
+    return values.is_empty();
 }
 
 static_assert(inplace_vector_constexpr_ignores_nontrivial_selected_assignment());
@@ -258,7 +258,7 @@ consteval auto zero_capacity_inplace_vector_works() -> bool {
     auto result = values.try_push_back<::pltxt2htm::Contracts::quick_enforce>(1);
     auto const erased = values.template erase<::pltxt2htm::Contracts::quick_enforce>(values.begin(), values.end());
     auto const inserted = values.template insert<::pltxt2htm::Contracts::quick_enforce>(values.begin(), 0, 1);
-    return values.empty() && values.size() == 0 && values.capacity() == 0 && values.data() == nullptr &&
+    return values.is_empty() && values.size() == 0 && values.capacity() == 0 && values.data() == nullptr &&
            values.begin() == values.end() && erased == values.end() && inserted == values.end() && !result.has_value();
 }
 

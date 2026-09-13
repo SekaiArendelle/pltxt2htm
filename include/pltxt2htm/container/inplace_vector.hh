@@ -477,7 +477,7 @@ public:
 
     [[nodiscard]]
     constexpr auto end(this InplaceVector& self) noexcept -> iterator {
-        if (self.empty()) {
+        if (self.is_empty()) {
             return self.data();
         }
         return self.data() + self.size();
@@ -485,7 +485,7 @@ public:
 
     [[nodiscard]]
     constexpr auto end(this InplaceVector const& self) noexcept -> const_iterator {
-        if (self.empty()) {
+        if (self.is_empty()) {
             return self.data();
         }
         return self.data() + self.size();
@@ -526,8 +526,9 @@ public:
         return const_reverse_iterator{self.begin()};
     }
 
+    // TODO define empty method when some macro like PLTXT2HTM_NON_INTERTAL_CONTAINER_FEATURE is defined
     [[nodiscard]]
-    constexpr auto empty(this InplaceVector const& self) noexcept -> bool {
+    constexpr auto is_empty(this InplaceVector const& self) noexcept -> bool {
         return self.size() == 0;
     }
 
@@ -637,28 +638,28 @@ public:
     template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto front(this InplaceVector& self) noexcept -> reference {
-        pltxt2htm_assert(!self.empty(), u8"front() called on an empty InplaceVector");
+        pltxt2htm_assert(!self.is_empty(), u8"front() called on an empty InplaceVector");
         return self.template index<ndebug>(0);
     }
 
     template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto front(this InplaceVector const& self) noexcept -> const_reference {
-        pltxt2htm_assert(!self.empty(), u8"front() called on an empty InplaceVector");
+        pltxt2htm_assert(!self.is_empty(), u8"front() called on an empty InplaceVector");
         return self.template index<ndebug>(0);
     }
 
     template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto back(this InplaceVector& self) noexcept -> reference {
-        pltxt2htm_assert(!self.empty(), u8"back() called on an empty InplaceVector");
+        pltxt2htm_assert(!self.is_empty(), u8"back() called on an empty InplaceVector");
         return self.template index<ndebug>(self.size() - 1);
     }
 
     template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto back(this InplaceVector const& self) noexcept -> const_reference {
-        pltxt2htm_assert(!self.empty(), u8"back() called on an empty InplaceVector");
+        pltxt2htm_assert(!self.is_empty(), u8"back() called on an empty InplaceVector");
         return self.template index<ndebug>(self.size() - 1);
     }
 
@@ -780,7 +781,7 @@ public:
 
     template<::pltxt2htm::Contracts ndebug>
     constexpr void pop_back(this InplaceVector& self) noexcept {
-        pltxt2htm_assert(!self.empty(), u8"pop_back() called on an empty InplaceVector");
+        pltxt2htm_assert(!self.is_empty(), u8"pop_back() called on an empty InplaceVector");
         self.decrement_size();
         self.destroy_at(self.iterator_at(self.size()));
     }
