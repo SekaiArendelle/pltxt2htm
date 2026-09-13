@@ -9,7 +9,7 @@
 
 #include <fast_io/fast_io_dsal/list.h>
 #include "../call_stack.hh"
-#include <fast_io/fast_io_dsal/string.h>
+#include "../../container/string.hh"
 #include "../../container/string_view.hh"
 #include "frame_context.hh"
 #include "html_escape.hh"
@@ -32,8 +32,9 @@ namespace pltxt2htm::details {
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto plweb_title_backend(::pltxt2htm::Ast<ndebug> const& ast_init) noexcept -> ::fast_io::u8string {
-    ::fast_io::u8string result{};
+constexpr auto plweb_title_backend(::pltxt2htm::Ast<ndebug> const& ast_init) noexcept
+    -> ::pltxt2htm::container::U8String {
+    ::pltxt2htm::container::U8String result{};
     ::pltxt2htm::details::CallStack<BackendFrame<ndebug>> call_stack{};
     call_stack.push_frame(BackendFrame<ndebug>(ast_init, ::pltxt2htm::NodeKind::group));
 
@@ -124,7 +125,7 @@ entry:
                 if (has_color) {
                     result.append(u8"color:");
                     if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
-                        ::fast_io::u8string purified_color{};
+                        ::pltxt2htm::container::U8String purified_color{};
                         ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
                             purified_color, ::pltxt2htm::container::U8StringView{span_color});
                         pltxt2htm_assert(
@@ -470,7 +471,7 @@ entry:
             case ::pltxt2htm::NodeKind::url: {
                 auto&& active_node = node.as_url();
                 auto const& url_str = active_node.as_string();
-                ::fast_io::u8string escaped_url{};
+                ::pltxt2htm::container::U8String escaped_url{};
                 ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
                     escaped_url, ::pltxt2htm::container::U8StringView{url_str});
                 result.append(u8"<a href=\"");

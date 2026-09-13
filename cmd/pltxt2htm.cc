@@ -293,10 +293,10 @@ int main(int argc, char const* const* const argv) noexcept {
     try
 #endif // __cpp_exceptions >= 199711L
     {
-        ::fast_io::u8string input_text{};
+        ::pltxt2htm::container::U8String input_text{};
         ::fast_io::io::scan(::fast_io::u8c_stdin(), ::fast_io::mnp::whole_get(input_text));
 
-        ::fast_io::u8string html;
+        ::pltxt2htm::container::U8String html;
         if (target_type == ::TargetType::html4unittest) {
             html = ::pltxt2htm::pltxt4unittest<
 #ifdef NDEBUG
