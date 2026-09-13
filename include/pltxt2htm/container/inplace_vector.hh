@@ -258,43 +258,63 @@ private:
 public:
     constexpr InplaceVector() noexcept = default;
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
     constexpr explicit InplaceVector(size_type count)
         requires ::std::default_initializable<value_type>
     {
+        constexpr auto ndebug =
+#ifdef NDEBUG
+            ::pltxt2htm::Contracts::ignore;
+#else
+            ::pltxt2htm::Contracts::quick_enforce;
+#endif
         ConstructionGuard guard{*this};
         this->template check_new_size<ndebug>(count);
         while (this->size() < count) {
-            (void)this->unchecked_emplace_back();
+            this->template emplace_back<ndebug>();
         }
         guard.release();
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
     constexpr InplaceVector(size_type count, const_reference value)
         requires ::std::copy_constructible<value_type>
     {
+        constexpr auto ndebug =
+#ifdef NDEBUG
+            ::pltxt2htm::Contracts::ignore;
+#else
+            ::pltxt2htm::Contracts::quick_enforce;
+#endif
         ConstructionGuard guard{*this};
         this->template check_new_size<ndebug>(count);
         while (this->size() < count) {
-            (void)this->unchecked_emplace_back(value);
+            this->template emplace_back<ndebug>(value);
         }
         guard.release();
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, ::std::input_iterator InputIterator,
-             ::std::sentinel_for<InputIterator> Sentinel>
+    template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
         requires ::std::constructible_from<value_type, ::std::iter_reference_t<InputIterator>>
     constexpr InplaceVector(InputIterator first, Sentinel last) {
+        constexpr auto ndebug =
+#ifdef NDEBUG
+            ::pltxt2htm::Contracts::ignore;
+#else
+            ::pltxt2htm::Contracts::quick_enforce;
+#endif
         ConstructionGuard guard{*this};
         this->template append<ndebug>(first, last);
         guard.release();
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
     constexpr InplaceVector(::std::initializer_list<value_type> values)
         requires ::std::copy_constructible<value_type>
     {
+        constexpr auto ndebug =
+#ifdef NDEBUG
+            ::pltxt2htm::Contracts::ignore;
+#else
+            ::pltxt2htm::Contracts::quick_enforce;
+#endif
         ConstructionGuard guard{*this};
         this->template append<ndebug>(values.begin(), values.end());
         guard.release();
@@ -310,7 +330,7 @@ public:
     {
         ConstructionGuard guard{*this};
         for (auto const& value : other) {
-            (void)this->unchecked_emplace_back(value);
+            this->template emplace_back<::pltxt2htm::Contracts::ignore>(value);
         }
         guard.release();
     }
@@ -325,7 +345,7 @@ public:
     {
         ConstructionGuard guard{*this};
         for (auto& value : other) {
-            (void)this->unchecked_emplace_back(::std::move(value));
+            this->template emplace_back<::pltxt2htm::Contracts::ignore>(::std::move(value));
         }
         guard.release();
     }
@@ -352,7 +372,7 @@ public:
                     ::std::is_trivially_destructible_v<value_type>))
     {
         if (::std::addressof(self) != ::std::addressof(other)) {
-            self.assign(other.begin(), other.end());
+            self.template assign<::pltxt2htm::Contracts::quick_enforce>(other.begin(), other.end());
         }
         return self;
     }
@@ -374,7 +394,8 @@ public:
                     ::std::is_trivially_destructible_v<value_type>))
     {
         if (::std::addressof(self) != ::std::addressof(other)) {
-            self.assign(::std::make_move_iterator(other.begin()), ::std::make_move_iterator(other.end()));
+            self.template assign<::pltxt2htm::Contracts::quick_enforce>(::std::make_move_iterator(other.begin()),
+                                                                        ::std::make_move_iterator(other.end()));
         }
         return self;
     }
@@ -382,11 +403,11 @@ public:
     constexpr auto operator=(this InplaceVector& self, ::std::initializer_list<value_type> values) -> InplaceVector&
         requires (::std::copy_constructible<value_type> && ::std::is_copy_assignable_v<value_type>)
     {
-        self.assign(values.begin(), values.end());
+        self.template assign<::pltxt2htm::Contracts::quick_enforce>(values.begin(), values.end());
         return self;
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, ::std::input_iterator InputIterator,
+    template<::pltxt2htm::Contracts ndebug, ::std::input_iterator InputIterator,
              ::std::sentinel_for<InputIterator> Sentinel>
         requires (::std::constructible_from<value_type, ::std::iter_reference_t<InputIterator>> &&
                   ::std::assignable_from<reference, ::std::iter_reference_t<InputIterator>>)
@@ -395,14 +416,14 @@ public:
         self.template append<ndebug>(first, last);
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, ::std::ranges::input_range Range>
+    template<::pltxt2htm::Contracts ndebug, ::std::ranges::input_range Range>
         requires ::std::constructible_from<value_type, ::std::ranges::range_reference_t<Range>>
     constexpr void assign_range(this InplaceVector& self, Range&& range) {
         self.clear();
         self.template append_range<ndebug>(::std::forward<Range>(range));
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void assign(this InplaceVector& self, size_type count, const_reference value)
         requires (::std::copy_constructible<value_type> && ::std::is_copy_assignable_v<value_type>)
     {
@@ -415,11 +436,11 @@ public:
             return;
         }
         while (self.size() < count) {
-            (void)self.unchecked_emplace_back(value);
+            self.template emplace_back<ndebug>(value);
         }
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void assign(this InplaceVector& self, ::std::initializer_list<value_type> values)
         requires (::std::copy_constructible<value_type> && ::std::is_copy_assignable_v<value_type>)
     {
@@ -522,7 +543,7 @@ public:
         return extent;
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     static constexpr void reserve(size_type requested_capacity) noexcept {
         pltxt2htm_assert(requested_capacity <= extent, u8"InplaceVector capacity exceeded");
     }
@@ -530,98 +551,102 @@ public:
     static constexpr void shrink_to_fit() noexcept {
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void resize(this InplaceVector& self, size_type new_size)
         requires ::std::default_initializable<value_type>
     {
         self.template check_new_size<ndebug>(new_size);
         AppendRollbackGuard guard{self};
         while (self.size() > new_size) {
-            self.template pop_back<::pltxt2htm::Contracts::ignore>();
+            self.template pop_back<ndebug>();
         }
         while (self.size() < new_size) {
-            (void)self.unchecked_emplace_back();
+            self.template emplace_back<ndebug>();
         }
         guard.release();
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void resize(this InplaceVector& self, size_type new_size, const_reference value)
         requires ::std::copy_constructible<value_type>
     {
         self.template check_new_size<ndebug>(new_size);
         AppendRollbackGuard guard{self};
         while (self.size() > new_size) {
-            self.template pop_back<::pltxt2htm::Contracts::ignore>();
+            self.template pop_back<ndebug>();
         }
         while (self.size() < new_size) {
-            (void)self.unchecked_emplace_back(value);
+            self.template emplace_back<ndebug>(value);
         }
         guard.release();
-    }
-
-    [[nodiscard]]
-    constexpr auto operator[](this InplaceVector& self, size_type position) noexcept -> reference {
-        return self.data()[position];
-    }
-
-    [[nodiscard]]
-    constexpr auto operator[](this InplaceVector const& self, size_type position) noexcept -> const_reference {
-        return self.data()[position];
     }
 
     template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto index(this InplaceVector& self, size_type position) noexcept -> reference {
         pltxt2htm_assert(position < self.size(), u8"Index of InplaceVector out of bound");
-        return self[position];
+        return self.data()[position];
     }
 
     template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto index(this InplaceVector const& self, size_type position) noexcept -> const_reference {
         pltxt2htm_assert(position < self.size(), u8"Index of InplaceVector out of bound");
-        return self[position];
+        return self.data()[position];
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
-    [[nodiscard]]
-    constexpr auto at(this InplaceVector& self, size_type position) noexcept -> reference {
-        return self.template index<ndebug>(position);
-    }
+    constexpr auto operator[](this InplaceVector&, size_type) noexcept -> reference = delete
+#if __cpp_deleted_function >= 202403L
+    #if defined __clang__
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wc++26-extensions"
+    #endif
+        ("operator[] is deleted; use index() instead for bounds-checked access")
+    #if defined __clang__
+        #pragma clang diagnostic pop
+    #endif
+#endif
+        ;
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
-    [[nodiscard]]
-    constexpr auto at(this InplaceVector const& self, size_type position) noexcept -> const_reference {
-        return self.template index<ndebug>(position);
-    }
+    constexpr auto operator[](this InplaceVector const&, size_type) noexcept -> const_reference = delete
+#if __cpp_deleted_function >= 202403L
+    #if defined __clang__
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wc++26-extensions"
+    #endif
+        ("operator[] is deleted; use index() instead for bounds-checked access")
+    #if defined __clang__
+        #pragma clang diagnostic pop
+    #endif
+#endif
+        ;
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto front(this InplaceVector& self) noexcept -> reference {
         pltxt2htm_assert(!self.empty(), u8"front() called on an empty InplaceVector");
-        return self[0];
+        return self.template index<ndebug>(0);
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto front(this InplaceVector const& self) noexcept -> const_reference {
         pltxt2htm_assert(!self.empty(), u8"front() called on an empty InplaceVector");
-        return self[0];
+        return self.template index<ndebug>(0);
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto back(this InplaceVector& self) noexcept -> reference {
         pltxt2htm_assert(!self.empty(), u8"back() called on an empty InplaceVector");
-        return self[self.size() - 1];
+        return self.template index<ndebug>(self.size() - 1);
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto back(this InplaceVector const& self) noexcept -> const_reference {
         pltxt2htm_assert(!self.empty(), u8"back() called on an empty InplaceVector");
-        return self[self.size() - 1];
+        return self.template index<ndebug>(self.size() - 1);
     }
 
     [[nodiscard]]
@@ -647,45 +672,14 @@ public:
     template<typename... Args>
         requires ::std::constructible_from<value_type, Args...>
     [[nodiscard]]
-    constexpr auto unchecked_emplace_back(this InplaceVector& self, Args&&... args) noexcept(
-        ::std::is_nothrow_constructible_v<value_type, Args...>) -> reference {
-        if constexpr (extent == 0) {
-            ::pltxt2htm::details::unreachable<::pltxt2htm::Contracts::ignore>();
-        }
-        else {
-            auto* const result = ::std::construct_at(self.iterator_at(self.size()), ::std::forward<Args>(args)...);
-            self.increment_size();
-            return *result;
-        }
-    }
-
-    [[nodiscard]]
-    constexpr auto unchecked_push_back(this InplaceVector& self, const_reference value) noexcept(
-        ::std::is_nothrow_copy_constructible_v<value_type>) -> reference
-        requires ::std::copy_constructible<value_type>
-    {
-        return self.unchecked_emplace_back(value);
-    }
-
-    [[nodiscard]]
-    constexpr auto unchecked_push_back(this InplaceVector& self,
-                                       value_type&& value) noexcept(::std::is_nothrow_move_constructible_v<value_type>)
-        -> reference
-        requires ::std::move_constructible<value_type>
-    {
-        return self.unchecked_emplace_back(::std::move(value));
-    }
-
-    template<typename... Args>
-        requires ::std::constructible_from<value_type, Args...>
-    [[nodiscard]]
     constexpr auto try_emplace_back(this InplaceVector& self,
                                     Args&&... args) noexcept(::std::is_nothrow_constructible_v<value_type, Args...>)
         -> Optional<reference> {
         if (self.size() == extent) {
             return nullopt;
         }
-        return Optional<reference>{self.unchecked_emplace_back(::std::forward<Args>(args)...)};
+        return Optional<reference>{
+            self.template emplace_back<::pltxt2htm::Contracts::ignore>(::std::forward<Args>(args)...)};
     }
 
     [[nodiscard]]
@@ -706,18 +700,29 @@ public:
         return self.try_emplace_back(::std::move(value));
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, typename... Args>
+    /**
+     * @note Intentionally not marked `[[nodiscard]]`: callers commonly need only the insertion side effect.
+     */
+    template<::pltxt2htm::Contracts ndebug, typename... Args>
         requires ::std::constructible_from<value_type, Args...>
-    [[nodiscard]]
     constexpr auto emplace_back(this InplaceVector& self,
                                 Args&&... args) noexcept(::std::is_nothrow_constructible_v<value_type, Args...>)
         -> reference {
         self.template check_additional_size<ndebug>(1);
-        return self.unchecked_emplace_back(::std::forward<Args>(args)...);
+        if constexpr (extent == 0) {
+            ::pltxt2htm::details::unreachable<ndebug>();
+        }
+        else {
+            auto* const result = ::std::construct_at(self.iterator_at(self.size()), ::std::forward<Args>(args)...);
+            self.increment_size();
+            return *result;
+        }
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
-    [[nodiscard]]
+    /**
+     * @note Intentionally not marked `[[nodiscard]]`: callers commonly need only the insertion side effect.
+     */
+    template<::pltxt2htm::Contracts ndebug>
     constexpr auto push_back(this InplaceVector& self,
                              const_reference value) noexcept(::std::is_nothrow_copy_constructible_v<value_type>)
         -> reference
@@ -726,8 +731,10 @@ public:
         return self.template emplace_back<ndebug>(value);
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
-    [[nodiscard]]
+    /**
+     * @note Intentionally not marked `[[nodiscard]]`: callers commonly need only the insertion side effect.
+     */
+    template<::pltxt2htm::Contracts ndebug>
     constexpr auto push_back(this InplaceVector& self,
                              value_type&& value) noexcept(::std::is_nothrow_move_constructible_v<value_type>)
         -> reference
@@ -736,7 +743,7 @@ public:
         return self.template emplace_back<ndebug>(::std::move(value));
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, ::std::input_iterator InputIterator,
+    template<::pltxt2htm::Contracts ndebug, ::std::input_iterator InputIterator,
              ::std::sentinel_for<InputIterator> Sentinel>
         requires ::std::constructible_from<value_type, ::std::iter_reference_t<InputIterator>>
     constexpr void append(this InplaceVector& self, InputIterator first, Sentinel last) {
@@ -745,36 +752,36 @@ public:
             self.template check_additional_size<ndebug>(count);
         }
         while (first != last) {
-            (void)self.template emplace_back<ndebug>(*first);
+            self.template emplace_back<ndebug>(*first);
             ++first;
         }
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, ::std::ranges::input_range Range>
+    template<::pltxt2htm::Contracts ndebug, ::std::ranges::input_range Range>
         requires ::std::constructible_from<value_type, ::std::ranges::range_reference_t<Range>>
     constexpr void append_range(this InplaceVector& self, Range&& range) {
         self.template append<ndebug>(::std::ranges::begin(range), ::std::ranges::end(range));
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void pop_back(this InplaceVector& self) noexcept {
         pltxt2htm_assert(!self.empty(), u8"pop_back() called on an empty InplaceVector");
         self.decrement_size();
         self.destroy_at(self.iterator_at(self.size()));
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, typename... Args>
+    template<::pltxt2htm::Contracts ndebug, typename... Args>
         requires (::std::constructible_from<value_type, Args...> && ::std::permutable<iterator>)
     [[nodiscard]]
     constexpr auto emplace(this InplaceVector& self, const_iterator position, Args&&... args) -> iterator {
         auto const index = self.template position_index<ndebug>(position, true);
-        (void)self.template emplace_back<ndebug>(::std::forward<Args>(args)...);
+        self.template emplace_back<ndebug>(::std::forward<Args>(args)...);
         auto const result = self.iterator_at(index);
         ::std::rotate(result, self.end() - 1, self.end());
         return result;
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto insert(this InplaceVector& self, const_iterator position, const_reference value) -> iterator
         requires (::std::copy_constructible<value_type> && ::std::permutable<iterator>)
@@ -782,7 +789,7 @@ public:
         return self.template emplace<ndebug>(position, value);
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto insert(this InplaceVector& self, const_iterator position, value_type&& value) -> iterator
         requires (::std::move_constructible<value_type> && ::std::permutable<iterator>)
@@ -790,7 +797,7 @@ public:
         return self.template emplace<ndebug>(position, ::std::move(value));
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto insert(this InplaceVector& self, const_iterator position, size_type count, const_reference value)
         -> iterator
@@ -803,14 +810,14 @@ public:
         }
         auto const old_size = self.size();
         while (self.size() < old_size + count) {
-            (void)self.unchecked_emplace_back(value);
+            self.template emplace_back<ndebug>(value);
         }
         auto const result = self.iterator_at(index);
         ::std::rotate(result, self.iterator_at(old_size), self.end());
         return result;
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, ::std::input_iterator InputIterator,
+    template<::pltxt2htm::Contracts ndebug, ::std::input_iterator InputIterator,
              ::std::sentinel_for<InputIterator> Sentinel>
         requires (::std::constructible_from<value_type, ::std::iter_reference_t<InputIterator>> &&
                   ::std::permutable<iterator>)
@@ -828,7 +835,7 @@ public:
         return result;
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, ::std::ranges::input_range Range>
+    template<::pltxt2htm::Contracts ndebug, ::std::ranges::input_range Range>
         requires (::std::constructible_from<value_type, ::std::ranges::range_reference_t<Range>> &&
                   ::std::permutable<iterator>)
     [[nodiscard]]
@@ -836,7 +843,7 @@ public:
         return self.template insert<ndebug>(position, ::std::ranges::begin(range), ::std::ranges::end(range));
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto insert(this InplaceVector& self, const_iterator position, ::std::initializer_list<value_type> values)
         -> iterator
@@ -845,7 +852,7 @@ public:
         return self.template insert<ndebug>(position, values.begin(), values.end());
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto erase(this InplaceVector& self, const_iterator position) -> iterator
         requires ::std::is_move_assignable_v<value_type>
@@ -853,11 +860,11 @@ public:
         auto const index = self.template position_index<ndebug>(position, false);
         auto const result = self.iterator_at(index);
         ::std::move(result + 1, self.end(), result);
-        self.template pop_back<::pltxt2htm::Contracts::ignore>();
+        self.template pop_back<ndebug>();
         return result;
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto erase(this InplaceVector& self, const_iterator first, const_iterator last) -> iterator
         requires ::std::is_move_assignable_v<value_type>
@@ -896,13 +903,15 @@ public:
             }
             auto const common_size = ::std::min(self.size(), other.size());
             for (size_type index{}; index < common_size; ++index) {
-                ::std::ranges::swap(self[index], other[index]);
+                ::std::ranges::swap(self.template index<::pltxt2htm::Contracts::ignore>(index),
+                                    other.template index<::pltxt2htm::Contracts::ignore>(index));
             }
             if (self.size() < other.size()) {
                 auto const other_size = other.size();
                 while (self.size() < other_size) {
                     auto const index = self.size();
-                    (void)self.unchecked_emplace_back(::std::move(other[index]));
+                    self.template emplace_back<::pltxt2htm::Contracts::ignore>(
+                        ::std::move(other.template index<::pltxt2htm::Contracts::ignore>(index)));
                 }
                 other.destroy(other.iterator_at(common_size), other.end());
                 other.set_size(common_size);
@@ -911,7 +920,8 @@ public:
             auto const self_size = self.size();
             while (other.size() < self_size) {
                 auto const index = other.size();
-                (void)other.unchecked_emplace_back(::std::move(self[index]));
+                other.template emplace_back<::pltxt2htm::Contracts::ignore>(
+                    ::std::move(self.template index<::pltxt2htm::Contracts::ignore>(index)));
             }
             self.destroy(self.iterator_at(common_size), self.end());
             self.set_size(common_size);

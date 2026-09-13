@@ -95,7 +95,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, running tests, cod
 
 A: Not exactly. Compiler support has matured, but modules still require build-system cooperation, making them more painful to integrate than header-only. We ship a C++20 module interface as an optional alternative, yet header-only remains the primary distribution for maximum portability.
 
-> Q: Why not use the NDEBUG macro in include/pltxt2htm?
+> Q: Why generally avoid the NDEBUG macro in include/pltxt2htm?
 
 A: Conditional compilation in a function body will cause [ODR violation](https://en.cppreference.com/w/cpp/language/definition) and [C++26 Contracts](https://en.cppreference.com/w/cpp/language/contracts) has the same problem. Therefore, to give functions different symbols in debug / release mode, I use `template<pltxt2htm::Contracts ndebug>` to achieve it.
 
