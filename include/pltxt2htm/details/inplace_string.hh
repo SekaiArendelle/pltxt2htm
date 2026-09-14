@@ -58,10 +58,6 @@ private:
     value_type storage[extent]{};
     StoredSize size_storage{};
 
-    constexpr void set_size(this BasicInplaceString& self, size_type new_size) noexcept {
-        self.size_storage = static_cast<StoredSize>(new_size);
-    }
-
     template<typename InputIterator, typename Sentinel>
     [[nodiscard]]
     static consteval auto is_nothrow_range_iteration() noexcept -> bool {
@@ -126,10 +122,8 @@ public:
 
     constexpr void assign(this BasicInplaceString& self, size_type count, value_type value) noexcept {
         pltxt2htm_assert(count <= extent, u8"BasicInplaceString capacity exceeded");
-        self.clear();
-        while (self.size() != count) {
-            self.push_back(value);
-        }
+        ::std::fill_n(self.data(), count, value);
+        self.size_storage = static_cast<StoredSize>(count);
     }
 
     template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
@@ -140,6 +134,15 @@ public:
         if constexpr (::std::sized_sentinel_for<Sentinel, InputIterator>) {
             auto const count = static_cast<size_type>(last - first);
             pltxt2htm_assert(count <= extent - self.size(), u8"BasicInplaceString capacity exceeded");
+            if constexpr (::std::is_pointer_v<InputIterator> && ::std::same_as<InputIterator, Sentinel>) {
+                auto const new_size = self.size() + count;
+                auto const output = self.end();
+                if (first != output) {
+                    ::std::copy(first, last, output);
+                }
+                self.size_storage = static_cast<StoredSize>(new_size);
+                return;
+            }
         }
         while (first != last) {
             self.push_back(static_cast<value_type>(*first));
@@ -150,9 +153,8 @@ public:
     constexpr void append(this BasicInplaceString& self, size_type count, value_type value) noexcept {
         pltxt2htm_assert(count <= extent - self.size(), u8"BasicInplaceString capacity exceeded");
         auto const new_size = self.size() + count;
-        while (self.size() != new_size) {
-            self.push_back(value);
-        }
+        ::std::fill_n(self.end(), count, value);
+        self.size_storage = static_cast<StoredSize>(new_size);
     }
 
     [[nodiscard]]
@@ -326,34 +328,36 @@ public:
             return false;
         }
         self.storage[self.size()] = value;
-        self.set_size(self.size() + 1);
+        ++self.size_storage;
         return true;
     }
 
     constexpr auto push_back(this BasicInplaceString& self, value_type value) noexcept -> reference {
         pltxt2htm_assert(self.size() < extent, u8"BasicInplaceString capacity exceeded");
-        auto const old_size = self.size();
+        auto const old_size = self.size_storage;
         self.storage[old_size] = value;
-        self.set_size(old_size + 1);
+        ++self.size_storage;
         return self.storage[old_size];
     }
 
     constexpr void pop_back(this BasicInplaceString& self) noexcept {
         pltxt2htm_assert(!self.empty(), u8"pop_back() called on an empty BasicInplaceString");
-        self.set_size(self.size() - 1);
+        --self.size_storage;
     }
 
     constexpr void clear(this BasicInplaceString& self) noexcept {
-        self.set_size(0);
+        self.size_storage = StoredSize{};
     }
 
     constexpr void resize(this BasicInplaceString& self, size_type new_size, value_type value = value_type{}) noexcept {
         pltxt2htm_assert(new_size <= extent, u8"BasicInplaceString capacity exceeded");
-        if (new_size <= self.size()) {
-            self.set_size(new_size);
+        auto const stored_new_size = static_cast<StoredSize>(new_size);
+        if (stored_new_size <= self.size_storage) {
+            self.size_storage = stored_new_size;
             return;
         }
-        self.append(new_size - self.size(), value);
+        ::std::fill_n(self.end(), new_size - self.size(), value);
+        self.size_storage = stored_new_size;
     }
 };
 

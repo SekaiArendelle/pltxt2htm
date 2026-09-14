@@ -10,6 +10,7 @@
 
 using CheckedU8String4 = ::pltxt2htm::details::U8InplaceString<4, ::pltxt2htm::Contracts::quick_enforce>;
 using IgnoredU8String8 = ::pltxt2htm::details::U8InplaceString<8, ::pltxt2htm::Contracts::ignore>;
+using CountOperation = void (*)(CheckedU8String4&, ::std::size_t, char8_t) noexcept;
 
 struct PotentiallyThrowingIterator {
     using value_type = char8_t;
@@ -53,6 +54,11 @@ static_assert(::std::is_trivially_copyable_v<CheckedU8String4>);
 static_assert(::std::is_standard_layout_v<CheckedU8String4>);
 static_assert(::std::same_as<CheckedU8String4::value_type, char8_t>);
 static_assert(::std::same_as<CheckedU8String4::iterator, char8_t*>);
+static_assert(requires {
+    static_cast<CountOperation>(&CheckedU8String4::assign);
+    static_cast<CountOperation>(&CheckedU8String4::append);
+    static_cast<CountOperation>(&CheckedU8String4::resize);
+});
 static_assert(::std::input_iterator<PotentiallyThrowingIterator>);
 static_assert(::std::is_nothrow_constructible_v<CheckedU8String4, char8_t const*, char8_t const*>);
 static_assert(
@@ -110,7 +116,17 @@ consteval auto test_constexpr_inplace_string() -> bool {
     }
 
     copy.index(2) = u8'd';
-    return (copy <=> larger) == ::std::strong_ordering::greater && value != copy;
+    if ((copy <=> larger) != ::std::strong_ordering::greater || value == copy) {
+        return false;
+    }
+
+    copy.assign(copy.begin(), copy.end());
+    if (copy.size() != 3 || copy.index(0) != u8'a' || copy.index(1) != u8'\0' || copy.index(2) != u8'd') {
+        return false;
+    }
+
+    copy.assign(copy.begin() + 1, copy.end());
+    return copy.size() == 2 && copy.index(0) == u8'\0' && copy.index(1) == u8'd';
 }
 
 static_assert(test_constexpr_inplace_string());
