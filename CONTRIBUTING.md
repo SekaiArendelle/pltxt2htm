@@ -26,11 +26,7 @@ Commits follow the shape:
 - **body** — optional, wrapped at 72 columns. Explain *why*; the diff already shows *what*.
 - **footer** — optional. Issue references (`Closes #123`) and attribution trailers.
 
-A template covering all of the above lives in [`.gitmessage`](./.gitmessage). Enable it once per clone:
-
-```sh
-git config commit.template .gitmessage
-```
+A concise reference template covering this structure lives in [`.gitmessage`](./.gitmessage).
 
 ### Attribution
 

@@ -60,7 +60,7 @@ Each sub-project is independently built with CMake — see the respective `READM
 
 ## Commit messages
 
-Commits follow the shape `<type>(<scope>): <subject>`, with an optional body explaining *why* and optional footers. The full rules — the accepted `type` list, `scope` values, and limits — are in [CONTRIBUTING.md](./CONTRIBUTING.md#commit-messages). A ready-made template is in [`.gitmessage`](./.gitmessage); enable it in a fresh clone with `git config commit.template .gitmessage`.
+Commits follow the shape `<type>(<scope>): <subject>`, with an optional body explaining *why* and optional footers. The full rules — the accepted `type` list, `scope` values, and limits — are in [CONTRIBUTING.md](./CONTRIBUTING.md#commit-messages). A concise reference template is in [`.gitmessage`](./.gitmessage).
 
 When a commit contains material produced by a model, follow the [attribution policy](./CONTRIBUTING.md#attribution) and add the applicable attribution trailer. Omit model-attribution trailers when the committed material was written entirely by humans. This does not relax the rule above: never run a git write operation without explicit human instruction.
 
