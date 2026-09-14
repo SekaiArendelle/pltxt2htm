@@ -20,17 +20,6 @@
 
 namespace pltxt2htm::details {
 
-namespace inplace_string_details {
-
-template<::std::size_t extent>
-using StoredSize =
-    ::std::conditional_t<extent <= ::std::numeric_limits<unsigned char>::max(), unsigned char,
-                         ::std::conditional_t<extent <= ::std::numeric_limits<unsigned short>::max(), unsigned short,
-                                              ::std::conditional_t<extent <= ::std::numeric_limits<unsigned>::max(),
-                                                                   unsigned, ::std::size_t>>>;
-
-} // namespace inplace_string_details
-
 /**
  * @brief A variable-length string with fixed compile-time capacity and inline storage.
  * @tparam CharType Character code-unit type.
@@ -45,6 +34,12 @@ template<::pltxt2htm::details::is_char_type CharType, ::std::size_t extent, ::pl
 class BasicInplaceString {
     static_assert(extent <= ::std::numeric_limits<::std::size_t>::max() / sizeof(CharType),
                   "inplace string capacity is too large");
+
+    using StoredSize = ::std::conditional_t<
+        extent <= ::std::numeric_limits<unsigned char>::max(), unsigned char,
+        ::std::conditional_t<
+            extent <= ::std::numeric_limits<unsigned short>::max(), unsigned short,
+            ::std::conditional_t<extent <= ::std::numeric_limits<unsigned>::max(), unsigned, ::std::size_t>>>;
 
 public:
     using value_type = CharType;
@@ -61,7 +56,7 @@ public:
 
 private:
     value_type storage[extent]{};
-    inplace_string_details::StoredSize<extent> size_storage{};
+    StoredSize size_storage{};
 
     static constexpr void check_new_size(size_type new_size) noexcept {
         pltxt2htm_assert(new_size <= extent, u8"BasicInplaceString capacity exceeded");
@@ -72,7 +67,7 @@ private:
     }
 
     constexpr void set_size(this BasicInplaceString& self, size_type new_size) noexcept {
-        self.size_storage = static_cast<::pltxt2htm::details::inplace_string_details::StoredSize<extent>>(new_size);
+        self.size_storage = static_cast<StoredSize>(new_size);
     }
 
     template<typename InputIterator, typename Sentinel>
