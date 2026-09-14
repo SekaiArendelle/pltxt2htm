@@ -1,43 +1,11 @@
 
-# ---- subject line ------------------------------------------------------
-# Write it on the blank first line, as:
+# Subject: <type>(<scope>): <subject>
 #
-#   <type>(<scope>): <subject>
+# Optional body: explain why the change is needed.
 #
-#   type     feat | fix | refactor | perf | style | docs | test | build |
-#            ci | chore | revert          (chore is the catch-all)
-#   scope    optional; the sub-project or area touched, e.g. include, cmd,
-#            tests, py, c, rust, csharp, wasm, benches, fuzzing, scripts,
-#            docsgen, ci
-#   subject  lowercase, imperative mood, no trailing period, <= 72 columns
-#
-# ---- body (optional) ---------------------------------------------------
-# Wrap at 72 columns. Explain why the change is needed; the diff already
-# shows what changed.
-#
-# ---- footers (optional) ------------------------------------------------
+# Optional trailers:
 #   Closes #123
 #   Assisted-by: <model name> [<version if known>]
 #   Generated-by: <model name> [<version if known>]
 #
-# Use Assisted-by after the human contributor has reviewed, understood, and
-# accepted the model-produced content. Generated-by identifies substantially
-# model-produced content without that level of human validation; this project
-# does not accept such contributions. Use one trailer per participating model.
-# Replace the placeholders with the exact model identity provided by the
-# environment. Omit an unknown version rather than guessing.
-#
-# See CONTRIBUTING.md.
-#
-# ---- full example ------------------------------------------------------
-#
-#   fix(rust): free strings through C API
-#
-#   The binding leaked the converted buffer whenever conversion returned an
-#   error, because the error path skipped the deallocation helper.
-#
-#   Closes #399
-#
-# ---- enable this template ----------------------------------------------
-#   git config commit.template .gitmessage
-# ------------------------------------------------------------------------
+# See CONTRIBUTING.md#commit-messages for the complete rules.
