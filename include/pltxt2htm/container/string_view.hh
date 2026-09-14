@@ -14,6 +14,7 @@
 
 #include "../contracts.hh"
 #include "../details/concepts.hh"
+#include "../details/inplace_string.hh"
 #include "../details/literal_string.hh"
 #include "../details/push_macro.hh"
 
@@ -105,6 +106,19 @@ public:
 
     template<::std::size_t size>
     constexpr BasicStringView(::pltxt2htm::details::BasicLiteralString<value_type, size> const&&) = delete;
+
+    template<::std::size_t extent, ::pltxt2htm::Contracts ndebug>
+    constexpr BasicStringView(
+        ::pltxt2htm::details::BasicInplaceString<value_type, extent, ndebug> const& string) noexcept
+        : pointer{string.data()},
+          length{string.size()} {
+    }
+
+    template<::std::size_t extent, ::pltxt2htm::Contracts ndebug>
+    constexpr BasicStringView(::pltxt2htm::details::BasicInplaceString<value_type, extent, ndebug>&&) = delete;
+
+    template<::std::size_t extent, ::pltxt2htm::Contracts ndebug>
+    constexpr BasicStringView(::pltxt2htm::details::BasicInplaceString<value_type, extent, ndebug> const&&) = delete;
 
     [[nodiscard]]
     constexpr auto data(this BasicStringView const& self) noexcept -> const_pointer {
@@ -218,6 +232,9 @@ BasicStringView(::fast_io::containers::basic_string<CharType, Allocator> const&)
 
 template<::pltxt2htm::details::is_char_type CharType, ::std::size_t size>
 BasicStringView(::pltxt2htm::details::BasicLiteralString<CharType, size> const&) -> BasicStringView<CharType>;
+
+template<::pltxt2htm::details::is_char_type CharType, ::std::size_t extent, ::pltxt2htm::Contracts ndebug>
+BasicStringView(::pltxt2htm::details::BasicInplaceString<CharType, extent, ndebug> const&) -> BasicStringView<CharType>;
 
 template<::pltxt2htm::details::is_char_type CharType>
 BasicStringView(::fast_io::manipulators::basic_os_c_str<CharType>) -> BasicStringView<CharType>;
