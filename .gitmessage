@@ -1,0 +1,42 @@
+
+# ---- subject line ------------------------------------------------------
+# Write it on the blank first line, as:
+#
+#   <type>(<scope>): <subject>
+#
+#   type     feat | fix | refactor | perf | style | docs | test | build |
+#            ci | chore | revert          (chore is the catch-all)
+#   scope    optional; the sub-project or area touched, e.g. include, cmd,
+#            tests, py, c, rust, csharp, wasm, benches, fuzzing, scripts,
+#            docsgen, ci
+#   subject  lowercase, imperative mood, no trailing period, <= 72 columns
+#
+# ---- body (optional) ---------------------------------------------------
+# Wrap at 72 columns. Explain why the change is needed; the diff already
+# shows what changed.
+#
+# ---- footers (optional) ------------------------------------------------
+#   Closes #123
+#   Co-authored-by: <Model Name> <email>
+#
+# Add a Co-authored-by trailer only when a model actually produced the work
+# being committed. Name the exact model, and use a noreply address that is
+# not tied to anybody else's GitHub account, for example:
+#
+#   Co-authored-by: DeepSeek V3.2 <deepseek-v3.2@users.noreply.github.com>
+#
+# One trailer per participating model. See CONTRIBUTING.md.
+#
+# ---- full example ------------------------------------------------------
+#
+#   fix(rust): free strings through C API
+#
+#   The binding leaked the converted buffer whenever conversion returned an
+#   error, because the error path skipped the deallocation helper.
+#
+#   Closes #399
+#   Co-authored-by: DeepSeek V3.2 <deepseek-v3.2@users.noreply.github.com>
+#
+# ---- enable this template ----------------------------------------------
+#   git config commit.template .gitmessage
+# ------------------------------------------------------------------------

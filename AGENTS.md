@@ -58,6 +58,12 @@ Each sub-project is independently built with CMake — see the respective `READM
 5. **Review** – After a substantive code change, ask a subagent to perform the [independent read-only review](#independent-read-only-review) when subagents are available. Validate its findings, fix confirmed issues, and rerun the affected checks.
 6. **Submit** – Do NOT run any git write operations (such as `git add`, `git commit`, `git push`) or open a PR/Issue without explicit human instruction. Present a patch file or a sketch of the approach instead (see [CONTRIBUTING.md](./CONTRIBUTING.md)).
 
+## Commit messages
+
+Commits follow the shape `<type>(<scope>): <subject>`, with an optional body explaining *why* and optional footers. The full rules — the accepted `type` list, `scope` values, and limits — are in [CONTRIBUTING.md](./CONTRIBUTING.md#commit-messages). A ready-made template is in [`.gitmessage`](./.gitmessage); enable it in a fresh clone with `git config commit.template .gitmessage`.
+
+When a commit records work a model produced, add a `Co-authored-by: <Model Name> <email>` trailer naming the exact model, so attribution stays explicit in history. Use a noreply address that is not tied to a real GitHub account. Omit the trailer when the human wrote the commit by hand. This does not relax the rule above: never run a git write operation without explicit human instruction.
+
 ## Independent read-only review
 
 After completing and testing a substantive code change, the implementing agent must ask a subagent to independently review the change when subagents are available. Substantive changes include behavior changes, parser or memory-safety logic, public API changes, cross-language bindings, concurrency or security-sensitive code, and non-trivial refactoring. Documentation-only, formatting-only, and obviously mechanical changes do not require a subagent review.
