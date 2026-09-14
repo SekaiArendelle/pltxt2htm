@@ -42,7 +42,7 @@ Generated-by: <model name> [<version if known>]
 ```
 
 - **`Assisted-by`** means the human contributor has reviewed and understood the model-produced content, tested it as appropriate, and accepts responsibility for explaining and maintaining the complete change.
-- **`Generated-by`** means the change is substantially model-produced and has not received that level of human validation. The project does not accept such contributions, and a pull request carrying this trailer may be closed without detailed review. Disclosure does not make the contribution acceptable.
+- **`Generated-by`** means the change is substantially model-produced and has received only limited human review or revision.
 
 Replace the placeholders with the exact identity provided by the environment. Include a version only when it is actually known; otherwise, omit it rather than guessing. Use one applicable trailer per participating model.
 
@@ -56,8 +56,11 @@ git commit --trailer "Assisted-by: <model name> [<version if known>]"
 
 ## Pull Requests
 
-Pull requests from contributors I am not personally familiar with, or from AI agents, will be closed — not because the contribution isn't appreciated, but because handling external PRs is less efficient than writing the fix myself. Discussion and review of proposed approaches are always welcome.
-If you have a solution in mind, please open an **Issue** with reference code or a sketch of the approach or a patch file. I will write the actual patch myself and credit you in the commit message.
+Pull requests are welcome as reviewable implementation proposals. Keeping a change in a pull request makes its diff and discussion easy to inspect even when the submitted commits will not be merged as-is. I generally merge implementation commits directly only from contributors with whom I already have an established working relationship. For other contributions, I may reimplement the change instead, while preserving credit in the resulting commit message.
+
+An **Issue** is useful for discussing an approach before code exists, but it is not required before opening a pull request.
+
+Pull requests submitted directly by automated or AI agents will be closed. A human-submitted pull request carrying an `Assisted-by` trailer is not considered agent-submitted merely because it discloses model assistance. A `Generated-by` trailer indicates limited human validation and may be grounds for closing the pull request without detailed review.
 
 ## Reporting Issues
 
